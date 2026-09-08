@@ -1,7 +1,7 @@
 name: Publish site
 
 # The mod list is the page people get sent, so it is served at the site root.
-# The ore-vein atlas sits beside it at /vein-atlas/.
+# The ore atlas sits beside it at /ore-atlas/.
 #
 # Both are committed as generated output (see site/README.md); this workflow only
 # arranges them, it does not build them. To change what they contain, regenerate
@@ -39,7 +39,7 @@ jobs:
           set -euo pipefail
           mkdir -p _site
           cp site/modlist/index.html _site/index.html
-          cp -R site/vein-atlas _site/vein-atlas
+          cp -R site/ore-atlas _site/ore-atlas
           test -s _site/index.html
           echo "Publishing:"; find _site -type f | sort
 
