@@ -1,0 +1,55 @@
+Morph is still DISABLED in the live instance.
+Do not copy anything into mods\ until you want a dedicated test session.
+TEST-LAUNCH.bat is untouched. Fast Render stays false. Shaders stay.
+
+------------------------------------------------
+Recommended test (work-folder jar, keep shaders)
+------------------------------------------------
+1. Quit the game completely (Morph was moved while running last time;
+   a leftover classload will confuse the test).
+2. Copy ONLY this file into the live mods folder:
+     QuestForge-Work\_morph-optifine-20260904\Morph-Beta-0.9.3-QF-OPTIFINE.jar
+   Leave mods_disabled\Morph-Beta-0.9.3.jar where it is (do not also
+   enable 0.9.1 Morph.jar). Leave iChunUtil.jar in mods\.
+3. Do NOT change OptiFine. Do NOT turn Fast Render on.
+4. Launch with TEST-LAUNCH.bat. In logs\latest.log confirm:
+     Morph 0.9.3 loaded
+     OptiFine_1.7.10_HD_U_E7
+     [QuestForgeTweaks] Transform applied: PanelButtonQuest...
+   There must be exactly one Morph jar in mods\.
+5. New World or a throwaway copy. Turn Sildur on if you play with it.
+6. Kill a vanilla mob you have never acquired (cow / pig / sheep).
+   Watch for: stay in-world, acquire animation (black cube suck),
+   morph appears in the radial menu.
+7. Open the morph menu and become that mob. Look around, swing,
+   switch to third person (F5), switch back.
+8. First-person hand: you should still have a hand / held item.
+   It may be the morph arm (guard working) or briefly vanilla.
+9. Morph back to player. Kill a second new mob. Morph into it.
+
+If any of these happen, quit and move the jar back to mods_disabled:
+  - Kick: "A fatal error has occurred, this connection is terminated"
+  - Freeze / hang on morph-in (watch for onRenderHand in latest.log)
+  - Crash-report mentioning:
+        GLAllocation.func_74523_b / deleteDisplayLists
+        ModelHelper.getModelCubesCopy
+        EventHandler.onRenderHand
+        StackOverflowError / InvocationTargetException
+
+------------------------------------------------
+Safer first test (config only, if the jar scares you)
+------------------------------------------------
+Copy the already-NOP'd mods_disabled\Morph-Beta-0.9.3.jar to mods\
+AND set config\Morph.cfg clientonly.handRenderOverride=0
+(see Morph.cfg.hand-override-off.snippet.txt).
+You lose first-person morph arms. Kill-acquire and morph-in should
+still work. Restore the cfg to 1 after the test if you switch to
+the QF-OPTIFINE jar.
+
+------------------------------------------------
+After the test
+------------------------------------------------
+If it fails: delete Morph-Beta-0.9.3-QF-OPTIFINE.jar from mods\,
+leave Morph disabled, keep this folder.
+If it holds: tell the owner it passed; then we can promote the jar
+and optionally fold the guard into QuestForgeTweaks (needs a JDK).

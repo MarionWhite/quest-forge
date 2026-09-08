@@ -1,0 +1,121 @@
+item.forge_shard.name=Forge Shard
+tile.record_case.name=Record Case
+key.qfcontent.record_menu=Record menu (hover a record)
+
+key.categories.qfvoice=QuestForge Voice
+key.qfcontent.voice_ptt=Push to talk
+key.qfcontent.voice_mute=Mute microphone
+key.qfcontent.voice_deafen=Deafen (hear nobody)
+
+item.record_black.name=Record
+item.record_silver.name=Silver Record
+item.record_gold.name=Gold Record
+item.record_platinum.name=Platinum Record
+tile.forge_block.name=Forge Block
+itemGroup.qfcontent=QuestForge Content
+
+item.enchant_book.name=Enchantment Book
+
+enchantment.qf.multistrike=Multi Strike
+
+enchantment.qf.executioner=Executioner
+enchantment.qf.berserk=Berserk
+enchantment.qf.frostbite=Frostbite
+enchantment.qf.colossus=Colossus
+enchantment.qf.feast=Feast
+enchantment.qf.poisonous=Poisonous
+enchantment.qf.venomous=Venomous
+enchantment.qf.blind=Blind
+enchantment.qf.suplex=Suplex
+enchantment.qf.daze=Daze
+enchantment.qf.roulette=Roulette
+enchantment.qf.cultist=Cultist
+enchantment.qf.killingblow=Killing Blow
+enchantment.qf.momentum=Momentum
+enchantment.qf.riposte=Riposte
+
+enchantment.qf.magnetize=Magnetize
+enchantment.qf.haste=Haste
+
+enchantment.qf.nightsight=Nightsight
+enchantment.qf.frog=Frog
+enchantment.qf.deft=Deft
+enchantment.qf.tank=Tank
+enchantment.qf.cockroach=Cockroach
+enchantment.qf.regrowth=Regrowth
+
+enchantment.qf.excavate=Excavate
+enchantment.qf.timber=Timber
+enchantment.qf.tunneler=Tunneler
+enchantment.qf.sieve=Sieve
+enchantment.qf.bountiful=Bountiful
+enchantment.qf.transmuter=Transmuter
+enchantment.qf.oldreliable=Old Reliable
+enchantment.qf.ecofriendly=Eco-Friendly
+enchantment.qf.mending=Mending
+
+enchantment.qf.bulwark=Bulwark
+enchantment.qf.cleansing=Cleansing
+enchantment.qf.stonehide=Stonehide
+enchantment.qf.rebound=Rebound
+enchantment.qf.reflect=Reflect
+enchantment.qf.turtle=Turtle
+enchantment.qf.affliction=Affliction
+enchantment.qf.flippers=Flippers
+enchantment.qf.camouflage=Camouflage
+enchantment.qf.sacrifice=Sacrifice
+enchantment.qf.vigor=Vigor
+
+enchantment.qf.piercing=Piercing
+enchantment.qf.penetrating=Penetrating
+enchantment.qf.ricochet=Ricochet
+enchantment.qf.bola=Bola
+enchantment.qf.instanttransmission=Instant Transmission
+enchantment.qf.soulentwine=Soul Entwine
+enchantment.qf.homing=Homing
+
+enchantment.qf.rupture=Rupture
+enchantment.qf.arc=Arc
+enchantment.qf.disarm=Disarm
+enchantment.qf.assassinate=Assassinate
+enchantment.qf.sunder=Sunder
+enchantment.qf.rage=Rage
+enchantment.qf.cripple=Cripple
+enchantment.qf.accelerant=Accelerant
+enchantment.qf.lich=Lich
+enchantment.qf.excalibur=Excalibur
+enchantment.qf.demonforged=Demon Forged
+enchantment.qf.necromancer=Necromancer
+enchantment.qf.alpha=Alpha
+enchantment.qf.bastion=Bastion
+enchantment.qf.polarize=Polarize
+enchantment.qf.trade=Trade
+
+enchantment.qf.decapitate=Decapitate
+enchantment.qf.fortune_v=Fortune V
+enchantment.qf.fortune_x=Fortune X
+enchantment.qf.bold=Bold
+enchantment.qf.frostpath=Frostpath
+
+enchantment.qf.crushingblow=Crushing Blow
+enchantment.qf.getoffme=Get The Fuck Off Me
+enchantment.qf.rally=Rally
+enchantment.qf.soulbound=Soulbound
+
+enchantment.qf.reach=Reach
+enchantment.qf.tracker=Tracker
+enchantment.qf.prospector=Prospector
+enchantment.qf.torchlight=Torchlight
+enchantment.qf.jammer=Jammer
+tile.qf_enchant_light.name=Enchanted Light
+item.qf_magic_dust.name=Magic Dust
+item.qf_ward_scroll.name=Ward Scroll
+item.qf_binding_scroll.name=Binding Scroll
+item.qf_solvent.name=Solvent
+item.qf_sealed_tome.name=Sealed Tome
+
+# Cultist pays its price as ordinary physical damage, so it needs a death message.
+death.attack.qf.cultist=%1$s paid the blood price
+death.attack.qf.cultist.player=%1$s paid the blood price while fighting %2$s
+item.jbl.name=JBL
+tile.tower_speaker.name=Tower Speaker

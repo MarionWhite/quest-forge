@@ -1,0 +1,155 @@
+
+====================================================================================================
+1. SINGLE ENCHANT (level 3, or max) -- time-to-kill in seconds, 2 swings/s, diamond sword (8) and Ultimate (37); wielder immortal, hit by the target every 2 s
+====================================================================================================
+
+--- weapon: Diamond sword (attack 8) ---
+target                typ.HP    base  execution    berserk   colossus   roulette   momentum    riposte  assassina  excalibur  killingbl    cultist    rupture       rage  crushingb   venomous  poisonous      feast
+Zombie                   140    10.0        7.2        8.3        8.2        7.6        5.6        7.3        9.6        3.7        9.4        8.1       10.0        6.3        8.3       10.1       10.1        9.4
+Creeper                  140     8.9        7.0        8.5        7.6        7.1        5.2        6.3        9.0        3.2        8.9        7.1        9.2        5.8        8.6        8.9        9.2        9.7
+Mutant Zombie           1050    67.9       48.9       39.8       43.7       50.9       29.2       44.7       64.6       23.0       54.3       52.9       67.9       33.1       61.2       66.8       68.1       64.6
+TF Naga                  840    52.9       39.3       32.3       34.9       44.8       24.6       36.9       52.2       18.6       45.4       43.6       51.3       26.8       47.1       52.8       51.3       51.8
+TF Hydra                2520   159.7      117.4       87.7      107.6      129.7       72.5       98.4      153.1       61.4      114.4      110.7      161.9       76.5      157.0      143.4      145.3      152.0
+Ender Dragon            1400    89.0       67.8       49.3       58.2       76.4       37.8       58.0       92.0       29.6       59.1       67.9       78.4       42.9       82.3       90.2       92.2       83.2
+Wither                  2100   158.3      110.3       90.5      104.4      123.0       68.3       95.6      160.1       56.1       89.1      125.6      173.7       71.8      143.9      150.1      164.8      155.1
+Witchery Death          7000   445.6      336.9      243.5      290.6      360.0      194.5      270.3      438.0      150.6      135.9      349.2      429.9      191.7      388.5      432.8      427.6      445.2
+OreSpawn Kraken         4500   280.7      215.7      153.7      186.9      226.8      117.5      165.3      274.1       92.9      136.2      223.3      267.9      133.1      261.9      280.7      278.9      276.7
+OreSpawn Mobzilla      18000  1021.1      872.4      645.6      774.8      861.3      517.7      728.8        inf      384.9      160.4      879.8        inf      500.7     982.4*    1079.3*    1048.8*    1073.7*
+OreSpawn The King      31500  1200.0        inf     982.5*        inf        inf      852.8        inf        inf      697.9      207.3        inf        inf      943.3        inf        inf        inf        inf
+Lycanites Rahovart     35000  1200.0        inf        inf        inf        inf    1005.2*        inf        inf     858.9*      172.4        inf        inf        inf        inf        inf        inf        inf
+TragicMC boss(1k)       4500   286.4      216.2      160.5      216.2      239.2      127.1      184.0      283.3      102.1      122.9      221.7      263.9      137.8      253.9      277.1      267.0      277.1
+
+--- weapon: OreSpawn Ultimate (attack 37) ---
+target                typ.HP    base  execution    berserk   colossus   roulette   momentum    riposte  assassina  excalibur  killingbl    cultist    rupture       rage  crushingb   venomous  poisonous      feast
+Zombie                   140     2.3        2.0        2.5        2.3        1.9        2.3        2.2        1.8        1.2        2.4        1.9        2.2        2.1        1.4        2.1        2.2        2.2
+Creeper                  140     2.2        1.9        2.3        2.1        1.8        2.0        2.1        1.8        1.1        2.1        1.8        2.1        1.9        1.3        2.1        2.2        2.1
+Mutant Zombie           1050    13.7       10.3        9.9       12.1       11.4       11.6       13.0       14.0        6.3       12.4       11.1       15.0        8.4       12.9       14.6       14.6       14.8
+TF Naga                  840    11.7        9.7        9.5        9.6        9.3       10.3       10.8       11.2        5.0       11.1        9.5       12.0        7.2       10.6       11.7       11.4       10.9
+TF Hydra                2520    35.8       26.6       21.0       23.2       25.2       27.6       29.1       34.6       14.2       28.0       27.4       31.7       17.4       30.4       36.1       31.1       33.8
+Ender Dragon            1400    19.4       13.6       12.9       14.3       15.6       15.8       16.9       19.6        8.4       17.8       15.8       20.6       10.2       16.7       20.5       21.0       19.1
+Wither                  2100    34.4       25.6       21.8       22.9       26.0       27.4       30.2       31.8       14.3       30.6       26.4       32.9       17.3       28.8       35.7       32.6       31.4
+Witchery Death          7000    91.3       72.9       55.7       62.8       78.0       73.0       84.0       95.0       41.1       70.1       79.8       94.1       46.5       90.0       97.0       95.4       95.7
+OreSpawn Kraken         4500    63.1       45.7       35.7       41.7       49.5       49.6       56.0       61.3       25.6       53.1       49.6       60.0       28.8       56.3       59.3       61.3       59.0
+OreSpawn Mobzilla      18000   250.9      181.7      134.5      160.9      196.5      188.2      208.2      249.5      102.9      154.7      191.5      240.9      111.3      229.8      254.1      254.4      254.7
+OreSpawn The King      31500   431.6      325.2      223.7      305.1      344.7      317.5      377.1      428.6      168.7      166.5      342.1      404.4      192.8      407.9      417.2      420.7      420.8
+Lycanites Rahovart     35000   678.4      705.7      693.0      672.6      843.1      689.4      706.5      697.0      704.5      145.5      752.5      731.0      760.6      644.4      689.5      696.8      665.8
+TragicMC boss(1k)       4500    90.0       91.9       85.6       90.7      106.5       89.8       95.3       95.0       92.7       61.0       83.4       92.8       89.5       90.2       87.9       90.2       90.4
+  inf = not killed within 20 minutes in most runs; * = some runs timed out;  †N = times a 20-HP wielder would have died to Cultist during the kill
+
+====================================================================================================
+2. CULTIST -- chance the wielder dies to their own weapon (20 HP, diamond armor + Prot IV, vs Zombie)
+====================================================================================================
+  Diamond sword      attack    8  MS=N   wielder died in 100.0% of fights   avg self-damage per fight   16.4
+  Diamond sword      attack    8  MS=Y   wielder died in 100.0% of fights   avg self-damage per fight   16.4
+  TragicMC Tragic    attack   26  MS=N   wielder died in   0.0% of fights   avg self-damage per fight    9.5
+  TragicMC Tragic    attack   26  MS=Y   wielder died in   0.0% of fights   avg self-damage per fight    9.3
+  OreSpawn Ultimate  attack   37  MS=N   wielder died in   0.0% of fights   avg self-damage per fight    8.1
+  OreSpawn Ultimate  attack   37  MS=Y   wielder died in   0.0% of fights   avg self-damage per fight    7.3
+  OreSpawn Attitude  attack   83  MS=N   wielder died in   0.0% of fights   avg self-damage per fight    6.5
+  OreSpawn Attitude  attack   83  MS=Y   wielder died in   0.0% of fights   avg self-damage per fight    6.4
+  Big Bertha         attack  497  MS=N   wielder died in   0.0% of fights   avg self-damage per fight    6.0
+  Big Bertha         attack  497  MS=Y   wielder died in   0.0% of fights   avg self-damage per fight    6.0
+  Royal Guardian     attack  747  MS=N   wielder died in   0.0% of fights   avg self-damage per fight    6.0
+  Royal Guardian     attack  747  MS=Y   wielder died in   0.0% of fights   avg self-damage per fight    6.0
+
+====================================================================================================
+3. STACKED WEAPON -- every always-on damage enchant, effect of NBT order and Multi Strike (vs Mobzilla, Ultimate 37)
+====================================================================================================
+  baseline Ultimate vs Mobzilla: TTK 240.1s  DPS 74.0
+  flat-first (M,R,E then multipliers)          TTK    27.5s  DPS    663.2   procs/hit: colossus 0.00 KB kills 0%  cultist-deaths/fight 0.0
+  mult-first (multipliers then M,R,E)          TTK    28.6s  DPS    658.2   procs/hit: colossus 0.00 KB kills 0%  cultist-deaths/fight 0.0
+  flat-first + Multi Strike                    TTK    27.2s  DPS    665.8   procs/hit: colossus 0.00 KB kills 0%  cultist-deaths/fight 0.0
+  all 14 (no MS)                               TTK    15.7s  DPS   1180.3   procs/hit: colossus 0.14 KB kills 100%  cultist-deaths/fight 0.0
+  all 14 + Multi Strike                        TTK    11.1s  DPS   1388.3   procs/hit: colossus 0.26 KB kills 100%  cultist-deaths/fight 0.0
+  all 14 + MS, wielder at 10% HP (Berserk)     TTK    10.4s  DPS   1735.5   procs/hit: colossus 0.26 KB kills 100%  cultist-deaths/fight 0.0
+
+====================================================================================================
+4. RUPTURE BLEED RE-DISPATCH -- player hits for 5 s then walks away; what the bleed keeps doing (vs Mobzilla)
+====================================================================================================
+  Rupture III alone                            redispatch=as coded  bleed ticks landed    6.1  bleed dmg     32.3  colossus procs    0.0  summons   0.0  killed   0% (t=600s)
+  Rupture III alone                            redispatch=guarded   bleed ticks landed    6.1  bleed dmg     31.5  colossus procs    0.0  summons   0.0  killed   0% (t=600s)
+  Rupture III + Colossus III                   redispatch=as coded  bleed ticks landed    6.0  bleed dmg     30.0  colossus procs    1.6  summons   0.0  killed   0% (t=600s)
+  Rupture III + Colossus III                   redispatch=guarded   bleed ticks landed    6.0  bleed dmg     31.8  colossus procs    1.6  summons   0.0  killed   0% (t=600s)
+  Rupture III + Colossus III + Multi Strike    redispatch=as coded  bleed ticks landed    6.5  bleed dmg     38.4  colossus procs    2.2  summons   0.0  killed   0% (t=600s)
+  Rupture III + Colossus III + Multi Strike    redispatch=guarded   bleed ticks landed    6.5  bleed dmg     38.5  colossus procs    2.4  summons   0.0  killed   0% (t=600s)
+  Rupture III + Killing Blow III               redispatch=as coded  bleed ticks landed    6.0  bleed dmg     30.5  colossus procs    0.0  summons   0.0  killed   1% (t=594s)
+  Rupture III + Killing Blow III               redispatch=guarded   bleed ticks landed    6.1  bleed dmg     32.2  colossus procs    0.0  summons   0.0  killed   1% (t=594s)
+  Rupture III + Necromancer III                redispatch=as coded  bleed ticks landed    6.0  bleed dmg     30.7  colossus procs    0.0  summons   1.3  killed   0% (t=600s)
+  Rupture III + Necromancer III                redispatch=guarded   bleed ticks landed    6.0  bleed dmg     31.0  colossus procs    0.0  summons   1.4  killed   0% (t=600s)
+
+====================================================================================================
+5. ARC IN A CROWD -- chained hits per swing and extra full proc rolls they generate (Arc III, crowd of 12)
+====================================================================================================
+  Arc III                                          chain hits per swing 0.91   colossus procs per swing 0.00   KB rolls/swing 0.00
+  Arc III + Multi Strike                           chain hits per swing 1.70   colossus procs per swing 0.00   KB rolls/swing 0.00
+  Arc III + Colossus III + Killing Blow III + MS   chain hits per swing 1.61   colossus procs per swing 0.35   KB rolls/swing 2.00
+
+====================================================================================================
+6. KILLING BLOW vs damage-capped / huge bosses -- expected hits and seconds at 2 hits/s
+====================================================================================================
+  KB 1 MS=N: 0.10% per hit -> expected 1000 hits = 500s ; with Rupture idle bleed adding 1 roll/s -> 333s
+  KB 1 MS=Y: 0.20% per hit -> expected 500 hits = 250s ; with Rupture idle bleed adding 1 roll/s -> 167s
+  KB 2 MS=N: 0.20% per hit -> expected 500 hits = 250s ; with Rupture idle bleed adding 1 roll/s -> 167s
+  KB 2 MS=Y: 0.40% per hit -> expected 250 hits = 125s ; with Rupture idle bleed adding 1 roll/s -> 83s
+  KB 3 MS=N: 0.30% per hit -> expected 333 hits = 167s ; with Rupture idle bleed adding 1 roll/s -> 111s
+  KB 3 MS=Y: 0.60% per hit -> expected 167 hits = 83s ; with Rupture idle bleed adding 1 roll/s -> 56s
+  Lycanites Rahovart   typical HP    35000  best-case per-hit with Ultimate  25.0 ->    700s of perfect swinging; KB III ~ 167s
+  OreSpawn The King    typical HP    31500  best-case per-hit with Ultimate  37.0 ->    426s of perfect swinging; KB III ~ 167s
+  TragicMC boss(1k)    typical HP     4500  best-case per-hit with Ultimate  25.0 ->     90s of perfect swinging; KB III ~ 167s
+
+====================================================================================================
+7. DEFENCE -- damage multiplier on an incoming melee hit (after vanilla diamond+Prot IV = x0.04 already applied)
+====================================================================================================
+  nothing                                          x1.0000  -> a 40-dmg King hit lands  1.600 (diamond+ProtIV) or  40.00 (naked); 20-HP player survives     12 hits
+  Tank III                                         x0.6700  -> a 40-dmg King hit lands  1.072 (diamond+ProtIV) or  26.80 (naked); 20-HP player survives     19 hits
+  Turtle x4 (not holding a weapon)                 x0.2015  -> a 40-dmg King hit lands  0.322 (diamond+ProtIV) or   8.06 (naked); 20-HP player survives     62 hits
+  Turtle x4 + Tank III + Bulwark III @ half HP     x0.1148  -> a 40-dmg King hit lands  0.184 (diamond+ProtIV) or   4.59 (naked); 20-HP player survives    109 hits
+  ...+ Excalibur Resistance I                      x0.0918  -> a 40-dmg King hit lands  0.147 (diamond+ProtIV) or   3.67 (naked); 20-HP player survives    136 hits
+  ...+ Cockroach III (<=1 heart)                   x0.0158  -> a 40-dmg King hit lands  0.025 (diamond+ProtIV) or   0.63 (naked); 20-HP player survives    793 hits
+  Turtle x4 with Multi Strike on each piece        x0.2015  -> a 40-dmg King hit lands  0.322 (diamond+ProtIV) or   8.06 (naked); 20-HP player survives     62 hits
+  everything + Multi Strike on each piece          x0.0158  -> a 40-dmg King hit lands  0.025 (diamond+ProtIV) or   0.63 (naked); 20-HP player survives    793 hits
+
+====================================================================================================
+8. MINING -- expected drops per ore block and per Excavate III swing (24-block vein), diamond ore = 8192 EMC
+====================================================================================================
+  vanilla Fortune III                                2.20 per block       52.8 per Excavate III swing     0.43M EMC per swing on diamond
+  Fortune V                                          3.00 per block       72.0 per Excavate III swing     0.59M EMC per swing on diamond
+  Fortune X                                          5.50 per block      132.0 per Excavate III swing     1.08M EMC per swing on diamond
+  vanilla Fortune III + Bold                         4.40 per block      105.6 per Excavate III swing     0.87M EMC per swing on diamond
+  Fortune X + Bold (now mutually exclusive)           nan per block        nan per Excavate III swing      nanM EMC per swing on diamond
+  Fortune X + Bountiful III (Bountiful now yields)   5.50 per block      132.0 per Excavate III swing     1.08M EMC per swing on diamond
+  Fortune X + Transmuter III                         5.59 per block      134.2 per Excavate III swing     1.10M EMC per swing on diamond
+
+====================================================================================================
+9. BOOK ECONOMY -- per rarity, from the ranges in Rarity.java
+====================================================================================================
+  Common     success   82%  item destroyed per attempt  0.4%  books per success  1.2  items shattered per success 0.01  | with 10 dust: success  95%, shattered/success 0.00 | pool 7 enchants -> P(specific enchant per tome) 14.3%  P(level 3) 11%
+  Uncommon   success   72%  item destroyed per attempt  2.3%  books per success  1.4  items shattered per success 0.03  | with 10 dust: success  95%, shattered/success 0.00 | pool 15 enchants -> P(specific enchant per tome)  6.7%  P(level 3) 11%
+  Rare       success   60%  item destroyed per attempt  6.8%  books per success  1.7  items shattered per success 0.11  | with 10 dust: success  95%, shattered/success 0.01 | pool 28 enchants -> P(specific enchant per tome)  3.6%  P(level 3) 11%
+  Epic       success   45%  item destroyed per attempt 15.7%  books per success  2.2  items shattered per success 0.35  | with 10 dust: success  95%, shattered/success 0.02 | pool 22 enchants -> P(specific enchant per tome)  4.5%  P(level 3) 11%
+  Legendary  success   30%  item destroyed per attempt 29.8%  books per success  3.3  items shattered per success 0.99  | with 10 dust: success  80%, shattered/success 0.11 | pool 9 enchants -> P(specific enchant per tome) 11.1%  P(level 3) 11%
+
+  Tomes of that rarity needed to land ONE specific enchant at max level on one item (uniform pick, level roll 1/3 per step, then the success roll):
+    Multi Strike               Legendary  ~   30 tomes, ~ 8.9 items shattered on the way
+    Turtle (per armor piece)   Legendary  ~   30 tomes, ~ 8.9 items shattered on the way
+    Excalibur                  Legendary  ~   30 tomes, ~ 8.9 items shattered on the way
+    Affliction IV              Legendary  ~  810 tomes, ~241.0 items shattered on the way
+    Fortune X                  Epic       ~   49 tomes, ~ 7.7 items shattered on the way
+    Colossus III               Epic       ~  440 tomes, ~69.0 items shattered on the way
+    Killing Blow III           Epic       ~  440 tomes, ~69.0 items shattered on the way
+    Executioner III            Rare       ~  420 tomes, ~28.6 items shattered on the way
+    Rupture III                Rare       ~  420 tomes, ~28.6 items shattered on the way
+    Momentum III               Uncommon   ~  186 tomes, ~ 4.4 items shattered on the way
+    Magnetize                  Common     ~    8 tomes, ~ 0.0 items shattered on the way
+
+====================================================================================================
+10. LOOT -- tome share of vanilla chest rolls (vanilla + Forge book weights only; other mods add more items, so these are upper bounds)
+====================================================================================================
+  dungeon              tome per roll  16.4%  tomes per chest 1.31  Legendary tomes per chest  4.8%  consumables per chest 0.87
+  mineshaft            tome per roll  21.6%  tomes per chest 1.08  Legendary tomes per chest  4.0%  consumables per chest 0.72
+  stronghold corridor  tome per roll  20.0%  tomes per chest 0.60  Legendary tomes per chest  2.2%  consumables per chest 0.40
+  stronghold crossing  tome per roll  30.3%  tomes per chest 0.91  Legendary tomes per chest  3.4%  consumables per chest 0.00
+  stronghold library   tome per roll  38.0%  tomes per chest 1.14  Legendary tomes per chest  4.2%  consumables per chest 0.00
+  blacksmith           tome per roll  20.0%  tomes per chest 1.20  Legendary tomes per chest  4.4%  consumables per chest 0.80
+  desert pyramid       tome per roll  27.0%  tomes per chest 1.22  Legendary tomes per chest  4.5%  consumables per chest 0.00
+  jungle pyramid       tome per roll  27.0%  tomes per chest 1.22  Legendary tomes per chest  4.5%  consumables per chest 0.00

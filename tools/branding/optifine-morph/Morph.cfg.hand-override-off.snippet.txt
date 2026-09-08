@@ -1,0 +1,24 @@
+# Phase A config-only workaround (no jar patch needed beyond the
+# already-NOP'd Morph-Beta-0.9.3.jar).
+#
+# In config\Morph.cfg, under clientonly, change:
+#
+#   I:handRenderOverride=1
+# to
+#   I:handRenderOverride=0
+#
+# What you lose: first-person morph arms. While morphed you see the
+# vanilla Steve/Alex hand (and held item). Third-person morph, radial
+# menu, abilities, and acquire-on-kill stay.
+#
+# Why it works: EventHandler.onRenderHand is wrapped in
+#   if (handRenderOverride == 1) { ... cancel event; renderHand(); }
+# Setting 0 skips the whole block, so OptiFine E7 never re-enters Morph.
+#
+# This pack's live Morph.cfg is still 1. Do not change the live file
+# until you are ready to test. The work-folder jar already has a
+# reentrancy guard, so Phase A is optional if you test that jar.
+
+clientonly {
+    I:handRenderOverride=0
+}

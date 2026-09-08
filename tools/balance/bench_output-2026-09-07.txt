@@ -1,0 +1,357 @@
+
+====================================================================================================
+A. CULTIST, NOW THAT THE PRICE IS PHYSICAL -- the whole point of the change is that armor now stands between you and the bill
+====================================================================================================
+  A1. What one proc costs, at full health, Cultist III (6.0 raw = 10% of max health per level)
+
+  armor                 pts  prot  vanilla mult   health lost per proc   procs to half health
+  naked                   0     0         1.000                   6.00                      2
+  leather                 7     0         0.720                   4.32                      2
+  iron                   15     0         0.400                   2.40                      4
+  diamond                20     0         0.200                   1.20                      8
+  diamond + Prot IV      20     4         0.040                   0.24                     42
+
+  A2. A 5-minute fight, wielder mortal and regenerating, Mobzilla hitting back every 2 s.
+      'self' is health lost to Cultist, 'mob' health lost to the boss.
+
+  armor                 self-dmg   mob-dmg  self share   procs  i-framed   died  survived
+  naked                      5.6      23.9         19%       1         0   100%        2s
+  leather                    4.4      24.6         15%       1         0   100%        3s
+  iron                       4.5      20.5         18%       2         0   100%        4s
+  diamond                    3.9      20.5         16%       4         0   100%        9s
+  diamond + Prot IV          5.7      30.0         16%      29         0   100%       63s
+
+  Same enchantment, same weapon: unarmoured it is most of the damage you take, in
+  enchanted diamond it is a rounding error. Note the i-framed column -- a proc that
+  lands inside the invulnerability window of the boss hit you just took is free.
+
+====================================================================================================
+B1. OFFENSIVE SINGLES -- sustained DPS multiplier over unenchanted, OreSpawn Ultimate (37), 150 s window
+====================================================================================================
+  enchant         rarity                TF Hydra  OreSpawn Mobzilla  Lycanites Rahovar
+  (baseline DPS)                            74.0               74.0               50.0
+  executioner     Rare                     1.34x              1.26x              1.00x
+  berserk         Epic                     1.42x              1.78x              1.00x
+  colossus        Epic                     1.46x              1.46x              1.00x
+  roulette        Uncommon                 1.26x              1.25x              0.83x
+  momentum        Uncommon                 1.26x              1.28x              1.00x
+  riposte         Uncommon                 1.11x              1.12x              1.00x
+  assassinate     Rare                     1.01x              1.00x              1.00x
+  excalibur       Legendary                1.11x              1.11x              1.00x
+  killingblow     Epic                     1.00x              1.00x              1.00x
+  cultist         Rare                     1.24x              1.24x              1.00x
+  rupture         Rare                     1.07x              1.08x              1.08x
+  rage            Epic                     2.02x              2.14x              1.00x
+  crushingblow    Epic                     1.11x              1.09x              1.00x
+  venomous        Rare                     1.08x              1.09x              1.06x
+  poisonous       Uncommon                 1.03x              1.04x              1.04x
+  feast           Rare                     1.00x              1.00x              1.00x
+  sunder          Uncommon                 1.00x              1.00x              1.00x
+  cripple         Rare                     1.00x              1.00x              1.00x
+  multistrike     Legendary                1.00x              1.00x              1.00x
+
+====================================================================================================
+B1b. WHAT THE DPS COLUMN MISSES -- the enchantments that read as 1.00x above are not all doing nothing. vs OreSpawn Mobzilla, 150 s, Ultimate
+====================================================================================================
+  enchant             dps   kills   dmg taken  bleed land  bleed lost   poison   what it is actually for
+  killingblow        74.0    1.00        89.4         0.0         0.0      0.0   instant kill roll; invisible to DPS, decisive on a health sponge
+  rupture            79.8    0.00       135.0       148.4         0.0      0.0   bleed; ticks now land past the target's invulnerability window
+  venomous           80.6    0.00       123.1         0.0         0.0    992.3   venom plus a damage debuff; one of the few things a damage cap cannot stop
+  poisonous          76.8    0.00       135.0         0.0         0.0    414.6   venom rides the real poison effect; undead are still immune
+  sunder             74.0    0.00       115.1         0.0         0.0      0.0   cuts the TARGET's damage: defensive, not offensive
+  cripple            74.0    0.00       108.1         0.0         0.0      0.0   cuts the TARGET's damage: defensive, not offensive
+  feast              74.0    0.00       135.0         0.0         0.0      0.0   heals you on a kill; nothing during a single boss fight
+  assassinate        74.2    0.00       135.0         0.0         0.0      0.0   opener only: one hit in three hundred once the boss has aggro
+  multistrike        74.0    0.00       135.0         0.0         0.0      0.0   doubles other procs; worth exactly nothing on its own
+
+====================================================================================================
+B2. PAIRWISE SYNERGY -- pairs whose combined multiplier beats the product of the two singles (vs OreSpawn Mobzilla). Superlinear pairs are what makes a loot pool dangerous, because accumulation compounds
+====================================================================================================
+  pair                               expected    actual   synergy
+  colossus + multistrike                1.46x     2.22x     1.53x
+  colossus + venomous                   1.59x     1.88x     1.18x
+  colossus + rupture                    1.57x     1.85x     1.18x
+  crushingblow + venomous               1.19x     1.32x     1.11x
+  rupture + crushingblow                1.18x     1.30x     1.10x
+  colossus + poisonous                  1.51x     1.67x     1.10x
+  executioner + colossus                1.84x     1.98x     1.07x
+  executioner + rage                    2.70x     2.89x     1.07x
+  rage + multistrike                    2.14x     2.27x     1.06x
+  crushingblow + poisonous              1.13x     1.18x     1.05x
+  executioner + momentum                1.62x     1.69x     1.05x
+  cultist + rupture                     1.33x     1.40x     1.05x
+  ... worst (anti-synergy, the pair is worth less than its parts):
+  excalibur + rage                      2.37x     2.27x     0.96x
+  riposte + rage                        2.40x     2.29x     0.95x
+  berserk + killingblow                 1.78x     1.69x     0.95x
+  executioner + killingblow             1.26x     1.19x     0.94x
+  momentum + rage                       2.74x     2.42x     0.88x
+
+====================================================================================================
+B3. ACCUMULATION -- a player who has collected k random offensive enchants. Random subsets, DPS multiplier over unenchanted, vs each benchmark boss
+====================================================================================================
+
+  --- TF Hydra (mid-game wall, no damage cap) ---
+   k    median      p90      max   worst-case combo at this size                       
+   1     1.09x    1.57x    2.03x   rage                                                
+   2     1.36x    2.13x    2.60x   colossus + rage                                     
+   3     1.46x    2.20x    2.70x   executioner + rage + rupture                        
+   4     1.97x    2.79x    3.34x   cultist + executioner + rage + venomous             
+   5     2.24x    3.19x    3.91x   berserk + colossus + multistrike + rage + rupture   
+   6     2.60x    3.69x    4.53x   colossus + executioner + multistrike + rage + ruptur
+   8     3.07x    3.97x    4.88x   assassinate + cultist + executioner + poisonous + ra
+
+  --- OreSpawn Mobzilla (health sponge, no damage cap) ---
+   k    median      p90      max   worst-case combo at this size                       
+   1     1.09x    1.78x    2.15x   rage                                                
+   2     1.27x    2.25x    3.72x   berserk + rage                                      
+   3     1.73x    2.53x    5.40x   berserk + colossus + rage                           
+   4     2.19x    3.19x    5.75x   berserk + colossus + momentum + rage                
+   5     2.44x    4.13x    6.19x   colossus + multistrike + rage + riposte + venomous  
+   6     2.83x    5.48x    8.19x   colossus + cultist + excalibur + executioner + multi
+   8     4.41x    7.96x    9.61x   assassinate + berserk + colossus + excalibur + momen
+
+  --- Lycanites Rahovart (hard 25/hit cap plus 2 flat defense) ---
+   k    median      p90      max   worst-case combo at this size                       
+   1     1.00x    1.06x    1.08x   rupture                                             
+   2     1.00x    1.14x    1.47x   colossus + rupture                                  
+   3     1.00x    1.24x    1.63x   colossus + crushingblow + venomous                  
+   4     1.00x    1.40x    1.77x   colossus + multistrike + sunder + venomous          
+   5     1.13x    1.72x    2.24x   berserk + colossus + rupture + sunder + venomous    
+   6     1.28x    1.72x    2.22x   colossus + crushingblow + cultist + rupture + sunder
+   8     1.49x    2.14x    2.36x   assassinate + berserk + colossus + cripple + multist
+
+====================================================================================================
+B4. THE CEILING -- everything at once, and the same without the pieces a loot table could hold back
+====================================================================================================
+
+  every offensive enchant
+    TF Hydra                  7.9x baseline   kill rate 100%   ttk 5s
+    OreSpawn Mobzilla        17.3x baseline   kill rate 100%   ttk 13s
+    Lycanites Rahovart        2.3x baseline   kill rate  85%   ttk 60s
+
+  without Multi Strike
+    TF Hydra                  7.1x baseline   kill rate 100%   ttk 6s
+    OreSpawn Mobzilla        13.4x baseline   kill rate 100%   ttk 17s
+    Lycanites Rahovart        2.3x baseline   kill rate  58%   ttk 63s
+
+  without Multi Strike, Colossus, Excalibur, Crushing Blow
+    TF Hydra                  5.3x baseline   kill rate 100%   ttk 7s
+    OreSpawn Mobzilla         9.0x baseline   kill rate 100%   ttk 24s
+    Lycanites Rahovart        2.2x baseline   kill rate  58%   ttk 66s
+
+====================================================================================================
+C1. DEFENSIVE LOADOUTS -- seconds survived under sustained attack, full diamond + Prot IV underneath, weapon sheathed (so Turtle is live). 10 min cap
+====================================================================================================
+
+  --- attacker: Mutant Zombie (24/hit, 1s) ---
+  loadout                                        survived   hits  saves   died
+  bare diamond, Prot IV                               29s     29    0.0   100%
+  + Vigor III                                         45s     45    0.0   100%
+  + Tank III                                          50s     50    0.0   100%
+  + Bulwark III                                       35s     35    0.0   100%
+  + Cockroach III                                     34s     34    0.0   100%
+  + Stonehide III (all)                               29s     29    0.0   100%
+  + Sacrifice (all four)                              45s     45    4.0   100%
+  + Rebound III (all)                                 29s     29    0.0   100%
+  + Reflect III (all)                                 49s     34    0.0   100%
+  + Regrowth III                                      29s     29    0.0   100%
+  + Turtle (all four)                                 78s     78    0.0   100%
+  chest stack: Tank+Bulwark+Cockroach+Vigor          119s    119    0.0   100%
+  everything except Turtle                           341s    244    4.0   100%
+  everything, Turtle included                        522s    387    4.0    98%
+
+  --- attacker: OreSpawn Mobzilla (25/hit, 1s) ---
+  loadout                                        survived   hits  saves   died
+  bare diamond, Prot IV                               26s     26    0.0   100%
+  + Vigor III                                         42s     42    0.0   100%
+  + Tank III                                          47s     47    0.0   100%
+  + Bulwark III                                       34s     34    0.0   100%
+  + Cockroach III                                     33s     33    0.0   100%
+  + Stonehide III (all)                               26s     26    0.0   100%
+  + Sacrifice (all four)                              42s     42    4.0   100%
+  + Rebound III (all)                                 26s     26    0.0   100%
+  + Reflect III (all)                                 43s     30    0.0   100%
+  + Regrowth III                                      26s     26    0.0   100%
+  + Turtle (all four)                                 78s     78    0.0   100%
+  chest stack: Tank+Bulwark+Cockroach+Vigor          111s    111    0.0   100%
+  everything except Turtle                           296s    214    4.0   100%
+  everything, Turtle included                        497s    368    4.0   100%
+
+  --- attacker: OreSpawn The King (40/hit, 1s) ---
+  loadout                                        survived   hits  saves   died
+  bare diamond, Prot IV                               15s     15    0.0   100%
+  + Vigor III                                         24s     24    0.0   100%
+  + Tank III                                          25s     25    0.0   100%
+  + Bulwark III                                       18s     18    0.0   100%
+  + Cockroach III                                     19s     19    0.0   100%
+  + Stonehide III (all)                               15s     15    0.0   100%
+  + Sacrifice (all four)                              24s     24    4.0   100%
+  + Rebound III (all)                                 15s     15    0.0   100%
+  + Reflect III (all)                                 23s     16    0.0   100%
+  + Regrowth III                                      15s     15    0.0   100%
+  + Turtle (all four)                                 78s     78    0.0   100%
+  chest stack: Tank+Bulwark+Cockroach+Vigor           55s     55    0.0   100%
+  everything except Turtle                           119s     86    4.0   100%
+  everything, Turtle included                        419s    303    4.0   100%
+
+  --- attacker: swarm (8/hit, every 0.25s) ---
+  loadout                                        survived   hits  saves   died
+  bare diamond, Prot IV                               50s    100    0.0   100%
+  + Vigor III                                         80s    160    0.0   100%
+  + Tank III                                         107s    215    0.0   100%
+  + Bulwark III                                       67s    135    0.0   100%
+  + Cockroach III                                     58s    117    0.0   100%
+  + Stonehide III (all)                               50s    100    0.0   100%
+  + Sacrifice (all four)                              71s    143    4.0   100%
+  + Rebound III (all)                                 68s    114    0.0   100%
+  + Reflect III (all)                               >598s    500    0.0     3%
+  + Regrowth III                                      50s    100    0.0   100%
+  + Turtle (all four)                                 50s    100    0.0   100%
+  chest stack: Tank+Bulwark+Cockroach+Vigor          360s    720    0.0   100%
+  everything except Turtle                          >600s    480    0.0     0%
+  everything, Turtle included                       >600s    481    0.0     0%
+
+  --- attacker: creeper blast (49/hit, every 3s) ---
+  loadout                                        survived   hits  saves   died
+  bare diamond, Prot IV                               51s     17    0.0   100%
+  + Vigor III                                         81s     27    0.0   100%
+  + Tank III                                         108s     36    0.0   100%
+  + Bulwark III                                       63s     21    0.0   100%
+  + Cockroach III                                     57s     19    0.0   100%
+  + Stonehide III (all)                               99s     33    0.0   100%
+  + Sacrifice (all four)                              78s     26    4.0   100%
+  + Rebound III (all)                                 51s     17    0.0   100%
+  + Reflect III (all)                                 51s     17    0.0   100%
+  + Regrowth III                                      51s     17    0.0   100%
+  + Turtle (all four)                               >600s    200    0.0     0%
+  chest stack: Tank+Bulwark+Cockroach+Vigor          303s    101    0.0   100%
+  everything except Turtle                          >600s    200    0.0     0%
+  everything, Turtle included                       >600s    200    0.0     0%
+
+====================================================================================================
+C2. THE TURTLE QUESTION -- Turtle only works with the weapon put away, so the real question is what drawing it costs. Damage taken from one 40-damage King swing, sheathed against armed
+====================================================================================================
+  loadout                                        sheathed     armed   cost of drawing
+  + Turtle (all four)                               0.500     1.600              3.2x
+  everything, Turtle included                       0.500     1.072              2.1x
+
+  Turtle is worth about five times your survivability and costs you the ability to
+  swing. It is a stance, not a passive -- which is the right shape for a Legendary.
+
+====================================================================================================
+C3. PER-HIT MITIGATION -- what fraction of a 40-damage King swing reaches the health bar, and the effective health pool that implies
+====================================================================================================
+  loadout                                        per hit   of raw   effective HP
+  bare diamond, Prot IV                            1.600     4.0%          12 hits
+  + Vigor III                                      1.600     4.0%          20 hits
+  + Tank III                                       1.072     2.7%          19 hits
+  + Bulwark III                                    1.600     4.0%          12 hits
+  + Cockroach III                                  1.600     4.0%          12 hits
+  + Stonehide III (all)                            1.600     4.0%          12 hits
+  + Sacrifice (all four)                           1.600     4.0%          37 hits
+  + Rebound III (all)                              1.600     4.0%          12 hits
+  + Reflect III (all)                              1.600     4.0%          12 hits
+  + Regrowth III                                   1.600     4.0%          12 hits
+  + Turtle (all four)                              0.500     1.2%          40 hits
+  chest stack: Tank+Bulwark+Cockroach+Vigor        1.072     2.7%          30 hits
+  everything except Turtle                         1.072     2.7%          90 hits
+  everything, Turtle included                      0.500     1.2%         192 hits
+
+====================================================================================================
+C4. KNOCKBACK AS MITIGATION -- how much attack uptime Reflect and Rebound actually remove, by how fast the attacker returns
+====================================================================================================
+  attacker return speed            uptime removed   survival vs bare
+  slow (2.0 blocks/s)                         85%               3.7x
+  walking (4.3 blocks/s)                      69%               1.5x
+  sprinting (5.6 blocks/s)                    63%               1.2x
+  flying boss (10 blocks/s)                   42%               1.0x
+
+====================================================================================================
+C5. THE LINE BETWEEN TOUGH AND UNKILLABLE -- natural regeneration is 1 health every 4 seconds, so 0.25 health per second of incoming damage is the threshold. Below it, that attacker can never kill you
+====================================================================================================
+  loadout                                         40/hit 1s    25/hit 1s  8/hit 0.25s
+  bare diamond, Prot IV                               1.60         1.00         0.64 
+  + Vigor III                                         1.60         1.00         0.64 
+  + Tank III                                          1.07         0.67         0.43 
+  + Bulwark III                                       1.60         1.00         0.64 
+  + Cockroach III                                     1.60         1.00         0.64 
+  + Stonehide III (all)                               1.60         1.00         0.64 
+  + Sacrifice (all four)                              1.60         1.00         0.64 
+  + Rebound III (all)                                 1.60         1.00         0.64 
+  + Reflect III (all)                                 1.60         1.00         0.64 
+  + Regrowth III                                      1.60         1.00         0.64 
+  + Turtle (all four)                                 0.50         0.50         0.64 
+  chest stack: Tank+Bulwark+Cockroach+Vigor           1.07         0.67         0.43 
+  everything except Turtle                            1.07         0.67         0.43 
+  everything, Turtle included                         0.50         0.50         0.43 
+
+  * = incoming damage is below the regeneration floor, so that attacker can never
+  kill this loadout however long the fight runs. Measured at full health, so Bulwark
+  is not contributing yet and pushes the real figure lower. Cockroach no longer
+  appears here at all: it answers a hit rather than blunting one, so it buys time
+  on a cooldown instead of moving a build across this line.
+
+====================================================================================================
+D1. OFFENSIVE ENCHANTS ACROSS THE PACK'S WEAPON TIERS -- DPS multiplier over the same weapon unenchanted, vs OreSpawn Mobzilla. Does an enchantment keep its value as the weapon grows?
+====================================================================================================
+  weapon                    tier       atk  base dps       rage   colossus executione    rupture    cultist   all 19
+  vanilla diamond sword     early        8      16.0      2.15x      1.47x      1.05x      1.12x      1.23x    40.2x
+  OreSpawn ruby             mid         16      32.0      2.17x      1.48x      1.11x      1.08x      1.24x    29.3x
+  TragicMC tragic           mid         26      52.0      2.15x      1.47x      1.18x      1.08x      1.24x    22.8x
+  OreSpawn ultimate         high        36      72.0      2.16x      1.49x      1.27x      1.08x      1.24x    17.5x
+  OreSpawn battle axe       high        46      92.0      2.16x      1.51x      1.31x      1.08x      1.24x    15.5x
+  OreSpawn chainsaw         high        56     112.0      2.17x      1.49x      1.34x      1.08x      1.24x    14.9x
+  OreSpawn attitude         high        82     164.0      2.15x      1.48x      1.34x      1.08x      1.24x    12.3x
+  Big Bertha                extreme    496     992.0      1.90x      1.39x      1.33x      1.06x      1.26x     6.0x
+  OreSpawn royal guardian   extreme    746    1492.0      1.70x      1.25x      1.33x      1.06x      1.26x     7.3x
+
+  Colossus is the only one whose value falls as the weapon grows -- its bonus is
+  capped at four times the triggering hit, so a bigger hit raises the cap it is
+  already below. Everything else is a multiplier and holds its value exactly.
+
+====================================================================================================
+D2. DEFENSIVE ENCHANTS ACROSS THE PACK'S ARMOUR TIERS -- damage reaching the health bar from one 40-damage swing by OreSpawn The King, Protection IV on every set. The regeneration floor is 0.25 a second
+====================================================================================================
+  armour                                tier     pts     bare  + QF stack  + Turtle   verdict
+  ----------------------------------------------------------------------------------------------------
+  leather                               early      7    5.760       3.859     0.778   mortal
+  Railcraft steel / TragicMC tungsten   mid       15    3.200       2.144     0.500   mortal
+  TF naga scale / TragicMC dark         mid       18    2.240       1.501     0.500   mortal
+  vanilla diamond                       mid       20    1.600       1.072     0.500   mortal
+  TF steeleaf / knightmetal             mid       20    1.600       1.072     0.500   mortal
+  OreSpawn emerald                      mid       20    1.600       1.072     0.500   mortal
+  OreSpawn amethyst                     high      22    0.960       0.643     0.500   mortal
+  OreSpawn tiger's eye                  high      23    0.640       0.429     0.429   mortal
+  Railcraft void fortress               high      23    0.640       0.429     0.429   mortal
+  TF fiery / TragicMC overlord          high      24    0.320       0.214     0.214   unkillable with the full set
+  OreSpawn ruby / experience            broken    25    0.000       0.000     0.000   IMMUNE before any enchantment
+  OreSpawn ultimate                     broken    34    0.000       0.000     0.000   IMMUNE before any enchantment
+  OreSpawn mobzilla                     broken    38    0.000       0.000     0.000   IMMUNE before any enchantment
+  OreSpawn royal                        broken    42    0.000       0.000     0.000   IMMUNE before any enchantment
+  OreSpawn queen                        broken    48    0.000       0.000     0.000   IMMUNE before any enchantment
+
+  25 armour points is total immunity in 1.7.10: applyArmorCalculations multiplies by
+  (25 - points) / 25 without clamping, and the next step returns zero for anything at
+  or below zero. Six OreSpawn sets are at or past that line before a single enchantment.
+
+====================================================================================================
+D3. HOW LONG A FIGHT LASTS AT EACH TIER -- seconds survived against The King, full QF defensive stack with Turtle, weapon sheathed. 10 minute cap
+====================================================================================================
+  armour                                 pts      bare   full stack
+  leather                                  7        4s         197s
+  Railcraft steel / TragicMC tungsten     15        7s         391s
+  TF naga scale / TragicMC dark           18       10s         402s
+  vanilla diamond                         20       15s         417s
+  TF steeleaf / knightmetal               20       15s         420s
+  OreSpawn emerald                        20       15s         424s
+  OreSpawn amethyst                       22       29s         474s
+  OreSpawn tiger's eye                    23       50s        >600s
+  Railcraft void fortress                 23       50s        >600s
+  TF fiery / TragicMC overlord            24      275s        >600s
+  OreSpawn ruby / experience              25never dies   never dies
+  OreSpawn ultimate                       34never dies   never dies
+  OreSpawn mobzilla                       38never dies   never dies
+  OreSpawn royal                          42never dies   never dies
+  OreSpawn queen                          48never dies   never dies
+

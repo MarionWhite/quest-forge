@@ -1,0 +1,17 @@
+[
+  {
+    "modid": "qfcontent",
+    "name": "QuestForge Content",
+    "description": "Custom content for the Quest Forge modpack.",
+    "version": "${modVersion}",
+    "mcversion": "1.7.10",
+    "authorList": ["suaz"],
+    "credits": "",
+    "logoFile": "",
+    "url": "",
+    "updateUrl": "",
+    "parent": "",
+    "screenshots": [],
+    "dependencies": []
+  }
+]

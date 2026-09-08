@@ -1,0 +1,40 @@
+[
+  {
+    "themeID": "questforge:dark",
+    "themeName": "Quest Forge",
+    "themeParent": "betterquesting:light",
+    "colors": {
+      "betterquesting:text_header": { "colorType": "betterquesting:color_static", "color": "FFE8E4F0" },
+      "betterquesting:text_main": { "colorType": "betterquesting:color_static", "color": "FFE8E4F0" },
+      "betterquesting:gui_divider": { "colorType": "betterquesting:color_static", "color": "FF4A3A6B" },
+      "betterquesting:grid_major": { "colorType": "betterquesting:color_static", "color": "664A3A6B" },
+      "betterquesting:grid_minor": { "colorType": "betterquesting:color_static", "color": "3314101C" },
+      "betterquesting:quest_line_locked": { "colorType": "betterquesting:color_static", "color": "FF3A3048" },
+      "betterquesting:quest_line_unlocked": {
+        "colorType": "betterquesting:color_pulse",
+        "period": 1.6,
+        "phase": 0.0,
+        "color1": { "colorType": "betterquesting:color_static", "color": "FFC9A2FF" },
+        "color2": { "colorType": "betterquesting:color_static", "color": "FF4A3A6B" }
+      },
+      "betterquesting:quest_line_pending": { "colorType": "betterquesting:color_static", "color": "FFE8A84A" },
+      "betterquesting:quest_line_complete": { "colorType": "betterquesting:color_static", "color": "FF8FBF7A" },
+      "betterquesting:quest_icon_locked": { "colorType": "betterquesting:color_static", "color": "FF4A3A6B" },
+      "betterquesting:quest_icon_unlocked": {
+        "colorType": "betterquesting:color_pulse",
+        "period": 1.6,
+        "phase": 0.0,
+        "color1": { "colorType": "betterquesting:color_static", "color": "FFC9A2FF" },
+        "color2": { "colorType": "betterquesting:color_static", "color": "FF6B4A2A" }
+      },
+      "betterquesting:quest_icon_pending": {
+        "colorType": "betterquesting:color_pulse",
+        "period": 1.4,
+        "phase": 0.0,
+        "color1": { "colorType": "betterquesting:color_static", "color": "FFFFCD71" },
+        "color2": { "colorType": "betterquesting:color_static", "color": "FFB07830" }
+      },
+      "betterquesting:quest_icon_complete": { "colorType": "betterquesting:color_static", "color": "FF8FBF7A" }
+    }
+  }
+]

@@ -1,0 +1,17 @@
+#com/tihyo/kaiju/mechs/RegisterMechs
+java/lang/Object
+RegisterMechs.java
+mechManager
+(Lcom/tihyo/kaiju/mechs/KaijuMechManager;
+<init>
+this
+%Lcom/tihyo/kaiju/mechs/RegisterMechs;
+mainRegistry
+&com/tihyo/kaiju/mechs/KaijuMechManager
+com/tihyo/kaiju/mechs/Kiryu
+createMech
+=(Lcom/tihyo/legends/management/characters/LegendsCharacter;)V
+Code
+LocalVariableTable
+LineNumberTable
+SourceFile

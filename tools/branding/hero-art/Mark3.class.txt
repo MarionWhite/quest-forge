@@ -1,0 +1,629 @@
+.com/tihyo/superheroes/characters/ironman/Mark3
+0com/tihyo/superheroes/management/ironman/IronMan
+3com/tihyo/superheroes/management/interfaces/IJarvis
+4com/tihyo/legends/management/interfaces/IWeaponWheel
+Mark3.java
+ironManHelmet
+Lnet/minecraft/item/Item;
+ironManChest
+ironManLegs
+ironManBoots
+ability1MaxTime
+ability1CooldownMaxTime
+ability2MaxTime
+ability2CooldownMaxTime
+ability3MaxTime
+ability3CooldownMaxTime
+ability4MaxTime
+ability4CooldownMaxTime
+ability5MaxTime
+ability5CooldownMaxTime
+equipAbilityMaxTime
+equipAbilityCooldownMaxTime
+utilityAbilityMaxTime
+utilityAbilityCooldownMaxTime
+specialAbilityMaxTime
+specialAbilityCooldownMaxTime
+energyMax
+rechargeMax
+<init>
+()V
+this
+0Lcom/tihyo/superheroes/characters/ironman/Mark3;
+getIndex
+()I
+getTier
+?(Lnet/minecraft/entity/player/EntityPlayer;Ljava/lang/String;)I
+player
+*Lnet/minecraft/entity/player/EntityPlayer;
+alt
+Ljava/lang/String;
+getDefense
+()D
+-com/tihyo/legends/management/SuitDefenseTypes
+high
+getSuitInfo
+)()Lcom/tihyo/legends/management/SuitInfo;
+%com/tihyo/legends/management/SuitInfo
+.com/tihyo/legends/management/LegendsDurability
+highDur
+ratio
+noEnchant
+(I[II)V
+getRank
+-(Lnet/minecraft/entity/player/EntityPlayer;)I
+%com/tihyo/legends/legacy/LegacyHelper
+isStarkLegacy
+-(Lnet/minecraft/entity/player/EntityPlayer;)Z
+9com/tihyo/legends/management/properties/LegendsProperties
+RANK_IRONMAN
+;Lcom/tihyo/legends/management/properties/LegendsProperties;
+get
+1(Lnet/minecraft/entity/Entity;)Ljava/lang/Object;
+java/lang/Integer
+intValue
+RANK_IRONMAN_MARK3
+getSkillPoints
+g(Lnet/minecraft/entity/player/EntityPlayer;)Lcom/tihyo/legends/management/properties/LegendsProperties;
+SKILLPTS_IRONMAN
+SKILLPTS_IRONMAN_MARK3
+rankUp
+-(Lnet/minecraft/entity/player/EntityPlayer;)V
+)com/tihyo/legends/management/PlayerHelper
+getCharacterRankUpCost
+.(Lnet/minecraft/entity/player/EntityPlayer;I)I
+valueOf
+(I)Ljava/lang/Integer;
+incr
+?(Lnet/minecraft/entity/player/EntityPlayer;Ljava/lang/Object;)Z
+set
+getClassAbility
+b(Lnet/minecraft/entity/player/EntityPlayer;)Lcom/tihyo/legends/abilities/classpowers/ClassAbility;
+4com/tihyo/legends/abilities/classpowers/ClassAbility
+healer
+5Lcom/tihyo/legends/abilities/classpowers/ClassHealer;
+getModelID
+*(Lnet/minecraft/entity/EntityLivingBase;)I
+entity
+'Lnet/minecraft/entity/EntityLivingBase;
+getRepulsorColor
+E(Lnet/minecraft/entity/player/EntityPlayer;)Lnet/minecraft/util/Vec3;
+FFA500
+0com/tihyo/legends/management/LegendsRenderHelper
+getColorFromHex
+-(Ljava/lang/String;)Lnet/minecraft/util/Vec3;
+getWheelTexture
+Q(Lnet/minecraft/entity/player/EntityPlayer;)Lnet/minecraft/util/ResourceLocation;
+#net/minecraft/util/ResourceLocation
+sum
+$textures/gui/ironman/gadgetsicon.png
+'(Ljava/lang/String;Ljava/lang/String;)V
+wheelSize
+gadget1TextureX
+gadget1TextureY
+gadget1Width
+gadget1Height
+gadget1WidthOffset
+gadget2TextureX
+gadget2TextureY
+gadget2Width
+gadget2Height
+gadget2WidthOffset
+gadget2HeightOffset
+gadget3TextureX
+gadget3TextureY
+gadget3Width
+gadget3Height
+gadget3WidthOffset
+gadget3HeightOffset
+openWeaponWheel
+.(Lnet/minecraft/entity/player/EntityPlayer;I)V
+(net/minecraft/entity/player/EntityPlayer
+func_82169_q
+!(I)Lnet/minecraft/item/ItemStack;
+getCurrentWeaponWheelIndex
+setWeaponWheelGadget
+key
+setTags
+f(Lnet/minecraft/item/ItemStack;Lnet/minecraft/entity/player/EntityPlayer;Lnet/minecraft/world/World;)V
+net/minecraft/item/ItemStack
+func_77942_o
+()Z
+ net/minecraft/nbt/NBTTagCompound
+func_77982_d
+%(Lnet/minecraft/nbt/NBTTagCompound;)V
+func_77978_p
+$()Lnet/minecraft/nbt/NBTTagCompound;
+ability1Tag
+func_74768_a
+(Ljava/lang/String;I)V
+ability1CooldownTag
+ability2Tag
+ability2CooldownTag
+ability3Tag
+ability3CooldownTag
+ability4Tag
+ability4CooldownTag
+ability5Tag
+ability5CooldownTag
+equipAbilityTag
+equipAbilityCooldownTag
+utilityAbilityTag
+utilityAbilityCooldownTag
+specialAbilityTag
+specialAbilityCooldownTag
+CurrentAbility
+func_74778_a
+Powered
+Energy
+Recharge
+par1NBTTagCompound
+"Lnet/minecraft/nbt/NBTTagCompound;
+itemstack
+Lnet/minecraft/item/ItemStack;
+world
+Lnet/minecraft/world/World;
+renderAbilityStatus
+b(Lnet/minecraft/entity/player/EntityPlayer;Lcom/tihyo/legends/handlers/AbilityBarEventDisplay;II)V
+"Lcpw/mods/fml/relauncher/SideOnly;
+value
+Lcpw/mods/fml/relauncher/Side;
+CLIENT
+legends
+textures/gui/charge_bar.png
+/textures/gui/ironman/elements/energy/energy.png
+.com/tihyo/legends/management/SuitCheckerHelper
+isWearingIronMan
+*(Lnet/minecraft/entity/EntityLivingBase;)Z
+func_74762_e
+(Ljava/lang/String;)I
+org/lwjgl/opengl/GL11
+glPushMatrix
+1com/tihyo/legends/handlers/AbilityBarEventDisplay
+minecraft
+ Lnet/minecraft/client/Minecraft;
+net/minecraft/client/Minecraft
+func_110434_K
+8()Lnet/minecraft/client/renderer/texture/TextureManager;
+4net/minecraft/client/renderer/texture/TextureManager
+func_110577_a
+((Lnet/minecraft/util/ResourceLocation;)V
+(com/tihyo/legends/management/ClassColors
+blue
+func_73729_b
+(IIIIII)V
+glPopMatrix
+green
+red
+getHelmetStage
+field_71474_y
+,Lnet/minecraft/client/settings/GameSettings;
+*net/minecraft/client/settings/GameSettings
+field_74320_O
+func_74764_b
+(Ljava/lang/String;)Z
+func_74769_h
+(Ljava/lang/String;)D
+(net/minecraftforge/client/GuiIngameForge
+left_height
+field_71466_p
+'Lnet/minecraft/client/gui/FontRenderer;
+java/lang/StringBuilder
+java/lang/String
+(I)Ljava/lang/String;
+append
+-(Ljava/lang/String;)Ljava/lang/StringBuilder;
+toString
+()Ljava/lang/String;
+java/awt/Color
+CYAN
+Ljava/awt/Color;
+getRGB
+func_73731_b
+?(Lnet/minecraft/client/gui/FontRenderer;Ljava/lang/String;III)V
+energyBar
+%Lnet/minecraft/util/ResourceLocation;
+energy
+left
+top
+ability1Cooldown
+ability2Cooldown
+ability3Cooldown
+ability4Cooldown
+ability5Cooldown
+equipAbilityCooldown
+utilityAbilityCooldown
+specialAbilityCooldown
+ability1
+ability2
+ability3
+ability4
+ability5
+equipAbility
+utilityAbility
+specialAbility
+gui
+3Lcom/tihyo/legends/handlers/AbilityBarEventDisplay;
+posX
+posY
+statusTexture
+gadgetsTexture
+energyTexture
+length1
+length2
+length3
+length4
+length5
+length6
+length7
+length8
+renderHelmetOverlay
+z(Lnet/minecraft/item/ItemStack;Lnet/minecraft/entity/player/EntityPlayer;Lnet/minecraft/client/gui/ScaledResolution;FZII)V
+func_71410_x
+"()Lnet/minecraft/client/Minecraft;
+)net/minecraft/client/gui/ScaledResolution
+func_78326_a
+func_78328_b
+glEnable
+(I)V
+glClearDepth
+(D)V
+glDisable
+glDepthMask
+(Z)V
+glBlendFunc
+(II)V
+glColor4f
+(FFFF)V
+field_71446_o
+6Lnet/minecraft/client/renderer/texture/TextureManager;
+defaultHud
+)net/minecraft/client/renderer/Tessellator
+field_78398_a
++Lnet/minecraft/client/renderer/Tessellator;
+func_78382_b
+func_78374_a
+(DDDDD)V
+func_78381_a
+renderHUDInfo
+func_110143_aJ
+()F
+vitalsHud
+isInUnsuitableEnvironment
+errorEnvironmentHud
+tessellator
+width
+height
+resolution
++Lnet/minecraft/client/gui/ScaledResolution;
+partialTicks
+hasScreen
+mouseX
+mouseY
+onArmorTick
+(Lcom/tihyo/legends/management/ArmorType;Lnet/minecraft/entity/player/EntityPlayer;Lnet/minecraft/world/World;Lcpw/mods/fml/relauncher/Side;ILnet/minecraft/item/ItemStack;)V
+*com/tihyo/legends/management/LegendsHelper
+canUseArmor
+net/minecraft/world/World
+field_72995_K
+&com/tihyo/legends/management/ArmorType
+cpw/mods/fml/relauncher/Side
+isPowered
+overcharged
+energyManagement
+P(Lnet/minecraft/entity/player/EntityPlayer;Lnet/minecraft/item/ItemStack;IIZZZ)V
+getTarget
+T(Lnet/minecraft/entity/player/EntityPlayer;D)Lnet/minecraft/entity/EntityLivingBase;
+hasCurrentAbility
+getEnergy
+K(Lnet/minecraft/entity/player/EntityPlayer;Lnet/minecraft/item/ItemStack;)I
+(com/tihyo/legends/handlers/PowersHandler
+repulsor
+%net/minecraft/entity/EntityLivingBase
+repulsorBeam
+unibeam
+isWearingShiny
+ (Lnet/minecraft/entity/Entity;)Z
+ironManArsenal
+/(Lnet/minecraft/entity/player/EntityPlayer;IZ)V
+.com/tihyo/legends/abilities/timed/TimedAbility
+dodge
+0Lcom/tihyo/legends/abilities/timed/AbilityDodge;
+.com/tihyo/legends/abilities/timed/AbilityDodge
+start
+field_70170_p
+sum:ironman_dodge
+func_72956_a
+4(Lnet/minecraft/entity/Entity;Ljava/lang/String;FF)V
+powerDive
+handCannon
+0com/tihyo/legends/abilities/status/StatusAbility
+strength
+3Lcom/tihyo/legends/abilities/status/StatusStrength;
+1com/tihyo/legends/abilities/status/StatusStrength
+run
+jumpBoost
+4Lcom/tihyo/legends/abilities/status/StatusJumpBoost;
+2com/tihyo/legends/abilities/status/StatusJumpBoost
+,com/tihyo/legends/abilities/LegendsAbilities
+fortitude
+fireResistance
+flight1
+M(Lnet/minecraft/entity/player/EntityPlayer;IZLnet/minecraft/item/ItemStack;)V
+bulletProof
+enhancedVision
+-com/tihyo/legends/abilities/LegendsImmunities
+bleeding
+poison
+fearToxin
+-com/tihyo/legends/abilities/LegendsWeaknesses
+emp
+getWeaknesses
+malfunction
+ com/tihyo/legends/abilities/Stat
+lightningAura
+"Lcom/tihyo/legends/abilities/Stat;
+&com/tihyo/legends/abilities/StatHelper
+isAbilityActive
+L(Lnet/minecraft/entity/EntityLivingBase;Lcom/tihyo/legends/abilities/Stat;)Z
+poweredCooldown
+getTicks
+target
+onArmorType
+(Lcom/tihyo/legends/management/ArmorType;
+logical
+itemStack
+(com/tihyo/legends/effects/LegendsEffects
+)Lcom/tihyo/legends/effects/LegendsEffect;
+func_70644_a
+ (Lnet/minecraft/potion/Potion;)Z
+.com/tihyo/legends/management/LegendsMathHelper
+isInDeepWater
+altitudeCap
+.(Lnet/minecraft/entity/player/EntityPlayer;I)Z
+suitAbility1
+TWIRL
+POWER_DIVE
+HAND_CANNON
+$net/minecraft/util/ChatComponentText
+.com/tihyo/legends/management/LegendsChatFormat
+Power must be at least 5%.
+(Ljava/lang/String;)V
+func_145747_a
+&(Lnet/minecraft/util/IChatComponent;)V
+Another move already in use.
+suitAbility2
+Power must be at least 10%.
+suitAbility3
+getCharacterRank
+areCharacterRanksBypassed
+Power must be at least 25%.
+sendUnlearnedAbilityMessage
+suitAbility4
+REPULSOR
+REPULSOR_BEAM
+UNIBEAM
+getHelmet
+()Lnet/minecraft/item/Item;
+getChestplate
+getLeggings
+getBoots
+setHelmetItem
+4(Lnet/minecraft/item/Item;)Lnet/minecraft/item/Item;
+item
+setChestItem
+setLegsItem
+setBootsItem
+getCost
+getMaterials
+N(Lnet/minecraft/entity/player/EntityPlayer;Ljava/lang/String;)Ljava/util/List;
+com/google/common/collect/Lists
+newArrayList
+()Ljava/util/ArrayList;
+%com/tihyo/legends/items/RegisterItems
+orangeGem
+(Lnet/minecraft/item/Item;I)V
+java/util/List
+add
+(Ljava/lang/Object;)Z
+3com/tihyo/superheroes/characters/ironman/UnderArmor
+4com/tihyo/superheroes/items/RegisterItemsSuperHeroes
+palladiumArcReactor
+goldTitaniumAlloy
+(Lnet/minecraft/item/Item;II)V
+ironPlate
+net/minecraft/init/Blocks
+field_150397_co
++Lnet/minecraft/block/BlockStainedGlassPane;
+ (Lnet/minecraft/block/Block;II)V
+starkTech
+silicon
+rocket
+bullet
+materials
+0Ljava/util/List<Lnet/minecraft/item/ItemStack;>;
+Ljava/util/List;
+generatePowersTag
+java/util/ArrayList
+bold
+Alter-Ego: 
+reset
+getAlias
+Class
+field_71439_g
+2Lnet/minecraft/client/entity/EntityClientPlayerMP;
+getDisplayName
+3com/tihyo/legends/management/LegendsStringFormatter
+formatStatusTitle
+8(Ljava/lang/String;Ljava/lang/Object;)Ljava/lang/String;
+getDescription
+'org/apache/commons/lang3/text/WordUtils
+wrap
+'(Ljava/lang/String;I)Ljava/lang/String;
+addStringToList
+*(Ljava/lang/String;Ljava/util/ArrayList;)V
+Armor Class: 
+Basic
+Type: 
+None
+Predecessor: 
+Mark 2
+Successor: 
+Mark 4
+health
+1Lcom/tihyo/legends/abilities/status/StatusHealth;
+/com/tihyo/legends/abilities/status/StatusHealth
+formatAmplifier
+(Lcom/tihyo/legends/management/characters/LegendsCharacter;Lnet/minecraft/entity/player/EntityPlayer;Lcom/tihyo/legends/abilities/Ability;I)Ljava/lang/Integer;
+Fortitude: 
+'Gives slight knockback resistance, fall
+#damage mitigation, and reduction to
+certain damage types.
+Fire Resistance: 
+Resistant to fire but not lava.
+Bulletproof
+#Able to withstand bullets and basic
+arrows.
+Enhanced Vision
+%Able to see more clearly in the dark.
+Flight: 
+Ability 1: 
+underline
+getAbility1
+>(Lnet/minecraft/entity/player/EntityPlayer;)Ljava/lang/String;
+(Shoot a repulsor blast at your opponent,
+#knocking them back. Deals 5 damage.
+)Damage decreases to 2 when at a distance.
+(Requires at least 5% energy. Can be used
+to break glass and vegetation.
+Ability 2: 
+getAbility2
+(Shoot a repulsor beam out of both hands,
+)dealing 10 damage in total (but spreads).
+Damage decreases to 4 when at a
+'distance. Requires at least 10% energy.
+Can be used to break glass and
+vegetation.
+Ability 3: 
+getAbility3
+'Divert power to the central arc reactor
+)unit, delivering a powerful blast capable
+&of staggering opponents for 5 seconds.
+)Deals 18 damage, sending opponents flying
+(backwards. Requires at least 25% energy.
+Ability 4: 
+getAbility4
+!Deploy currently selected weapon.
+Ability 5: 
+getAbility5
+#Cycles through the armor's weapons.
+)Alternatively, you can use the number pad
+*to automatically select a specific weapon.
+Equip: 
+getEquipAbility
+'Use repulsor thrusters to quickly evade
+attacks.
+Utility: 
+getUtilityAbility
+(Rocket yourself in the air before diving
+$into the ground, knocking all nearby
+'opponents back. Deals 10 damage. If too
+#far away from the ground, you won't
+'perform the slam, but move can still be
+used to quickly dive bomb.
+Special: 
+getSpecialAbility
+"Fire a barrage of charged repulsor
+)blasts in rapid succession, with the last
+)knocking the target back, staggering them
+(for 5 seconds. Deals 90 damage in total.
+Armor: 
+getArmorAbility
+Can lift faceplate up.
+System Diagnostics:
+- Energy Efficiency: Low
+- Flight Drainage: Medium
+- Repulsor Drain: 5-10%
+- Unibeam Drain: 25%
+Armor Weapons:
+*- Shoulder-Guns (Deals 12 damage in total)
+(- Anti-Tank Missile (Explodes on impact,
+dealing 10 damage)
+*- Flares (Projectile immunity + blinds and
+"burns for an additional 5 seconds)
+Changelog:
+&Improved flight energy consumption and
+#speed. Cold temperature icing issue
+&patched with altitude height limit now
+)pushing 300. Suit now comes equipped with
+#a variety of weapons in addition to
+"upgraded repulsors. Armor is still
+*susceptible to malfunctions from electric-
+$based attacks, but the stability has
+improved.
+Immunities:
+- Bleeding
+- Poison
+- Fear Toxin
+Weaknesses:
+- EMP
+- Water
+- Electrical Malfunctions
+- Altitudes higher than 300
+powers
+)Ljava/util/ArrayList<Ljava/lang/String;>;
+Ljava/util/ArrayList;
+Repulsor Blast
+Repulsor Beam
+Unibeam
+Use Weapon
+Select Weapon
+Thrusters
+Power Dive
+Hand Cannon
+Helmet
+generateProgressionList
+()Ljava/util/List;
+Rank 1
+Rank 2
+Cost: 
+getCharacterSkillPoints
+(I)Ljava/lang/StringBuilder;
+Rank 3
+Rank 4
+- None
+Rank 5
+Rank 6
+list
+Code
+LocalVariableTable
+LineNumberTable
+StackMapTable
+RuntimeVisibleAnnotations
+LocalVariableTypeTable
+Signature
+n(Lnet/minecraft/entity/player/EntityPlayer;Ljava/lang/String;)Ljava/util/List<Lnet/minecraft/item/ItemStack;>;
+SourceFile
+L*+
++*+
+++*+
+|+*+
+I*+
++*+
+++*+
++*+
+9*+,-
+l6"
+l6#,,
+3*'
++,-
+*+,-
+_*,
+[=+
+[=+
+[=+
+[=+
+[=+
+[=+
+[=+
+ZN+

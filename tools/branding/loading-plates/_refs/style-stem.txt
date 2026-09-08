@@ -1,0 +1,37 @@
+STYLE STEM — prepend to every scene. Do not edit per plate.
+
+Minecraft rendered with a high-end path-traced shader pack (SEUS PTGI /
+Complementary Reimagined quality), cinematic 16:9 still frame.
+
+GEOMETRY: strictly cubic voxel geometry on a one-metre block grid. Every
+surface is a flat block face with crisp 16x16 pixel-art texturing, hard
+right-angle edges and visible block seams. Nothing is rounded, smoothed,
+sculpted, bevelled or organic. Trees, creatures, terrain and architecture
+are all built from whole cubes. It must read unmistakably as Minecraft.
+
+RENDERING: photoreal lighting on that blocky geometry. Full path-traced GI
+with coloured light bleeding between blocks, ray-traced reflections, soft
+contact shadows and AO in every seam, thick volumetric fog with god-ray
+shafts, atmospheric scattering and depth haze, heavy bloom on every
+emissive block, gentle far-plane DoF, filmic tonemapping, fine film grain.
+
+WATER: any water is a true mirror of the sky and the geometry above it.
+
+TWO-LIGHT: cold ambient, one warm key — unless the plate variable says
+otherwise. Nether is the exception: warm ambient, cold accent.
+
+EXPOSURE: night, about 85% crushed shadow, only the warm source fully
+open, blacks toward #07060B.
+
+AVOID: smooth or rounded geometry, non-cubic low-poly, sculpted or organic
+forms, cartoon flat shading, unshaded vanilla Minecraft, bright daylight,
+flat overcast, washed-out grey fog, milky haze, desaturated pastel, neon
+oversaturation, lens flare, realistic human-proportioned figures, text,
+letters, UI, HUD, watermark, signature, borders, frames, split panels.
+
+PALETTE: cold #F4ECFB → #9687A8 → #3D3445
+         warm #FFB35D → #FA882F → #934217
+         void #07060B
+
+SAFE ZONES: top eighth and bottom quarter dark and uncluttered (dimension
+name + progress bar).

@@ -1,0 +1,29 @@
+# Normalise line endings. The pack was authored on Windows and moved to macOS,
+# so both conventions are present in the history of these files.
+* text=auto eol=lf
+
+# Windows-only helpers must keep CRLF or they will not run.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Column-aligned survey output. Never touch these; the alignment is the format.
+pack/reports/*.txt -text
+
+# Config shipped by mods, in whatever encoding the mod author used.
+pack/config/** -text
+server/config/** -text
+
+# Binary assets
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.ogg binary
+*.wav binary
+*.mp3 binary
+*.jar binary
+*.zip binary
+*.lzma binary
+
+# Generated. Collapse in diffs and exclude from language statistics.
+site/*/index.html linguist-generated=true
+pack/mods.tsv     linguist-generated=true

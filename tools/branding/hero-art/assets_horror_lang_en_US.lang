@@ -1,0 +1,154 @@
+﻿//Creative Tab
+itemGroup.suitsHorror=Horror Characters
+itemGroup.suitsHorrorAlt=Alternate Horror Suits
+itemGroup.mobsHorror=Horror Creatures
+itemGroup.blocksHorror=Horror Blocks
+itemGroup.weaponsHorror=Horror Combat
+itemGroup.itemsHorror=Horror Items
+
+//Effects
+effect.slendersickness=Slender Sickness
+
+//Blocks
+tile.altar.name=Altar
+tile.dynamicHorrorBlock1.name=Coffin
+tile.dynamicHorrorBlock2.name=Opened Coffin
+tile.dynamicHorrorBlock3.name=Black Coffin
+tile.dynamicHorrorBlock4.name=Opened Black Coffin
+tile.dynamicHorrorBlock5.name=Gray Coffin
+tile.dynamicHorrorBlock6.name=Opened Gray Coffin
+tile.dynamicHorrorBlock7.name=Red Coffin
+tile.dynamicHorrorBlock8.name=Opened Red Coffin
+tile.dynamicHorrorBlock9.name=Blue Coffin
+tile.dynamicHorrorBlock10.name=Opened Blue Coffin
+tile.dynamicHorrorBlock11.name=Pink Coffin
+tile.dynamicHorrorBlock12.name=Opened Pink Coffin
+tile.dynamicHorrorBlock13.name=Preserved Devonian Remains
+tile.dynamicHorrorBlock14.name=Black Werewolf Hide
+tile.dynamicHorrorBlock15.name=Brown Werewolf Hide
+tile.dynamicHorrorBlock16.name=Gray Werewolf Hide
+tile.dynamicHorrorBlock17.name=Light Brown Werewolf Hide
+
+//Dynamic Blocks
+tile.dynamicHorrorBlock18.name=Dynamic Horror Block 18
+tile.dynamicHorrorBlock19.name=Dynamic Horror Block 19
+tile.dynamicHorrorBlock20.name=Dynamic Horror Block 20
+tile.dynamicHorrorBlock21.name=Dynamic Horror Block 21
+tile.dynamicHorrorBlock22.name=Dynamic Horror Block 22
+tile.dynamicHorrorBlock23.name=Dynamic Horror Block 23
+tile.dynamicHorrorBlock24.name=Dynamic Horror Block 24
+tile.dynamicHorrorBlock25.name=Dynamic Horror Block 25
+tile.dynamicHorrorBlock26.name=Dynamic Horror Block 26
+tile.dynamicHorrorBlock27.name=Dynamic Horror Block 27
+tile.dynamicHorrorBlock28.name=Dynamic Horror Block 28
+tile.dynamicHorrorBlock29.name=Dynamic Horror Block 29
+tile.dynamicHorrorBlock30.name=Dynamic Horror Block 30
+tile.dynamicHorrorBlock31.name=Dynamic Horror Block 31
+tile.dynamicHorrorBlock32.name=Dynamic Horror Block 32
+tile.dynamicHorrorBlock33.name=Dynamic Horror Block 33
+tile.dynamicHorrorBlock34.name=Dynamic Horror Block 34
+tile.dynamicHorrorBlock35.name=Dynamic Horror Block 35
+tile.dynamicHorrorBlock36.name=Dynamic Horror Block 36
+tile.dynamicHorrorBlock37.name=Dynamic Horror Block 37
+tile.dynamicHorrorBlock38.name=Dynamic Horror Block 38
+tile.dynamicHorrorBlock39.name=Dynamic Horror Block 39
+tile.dynamicHorrorBlock40.name=Dynamic Horror Block 40
+tile.dynamicHorrorBlock41.name=Dynamic Horror Block 41
+tile.dynamicHorrorBlock42.name=Dynamic Horror Block 42
+tile.dynamicHorrorBlock43.name=Dynamic Horror Block 43
+tile.dynamicHorrorBlock44.name=Dynamic Horror Block 44
+tile.dynamicHorrorBlock45.name=Dynamic Horror Block 45
+tile.dynamicHorrorBlock46.name=Dynamic Horror Block 46
+tile.dynamicHorrorBlock47.name=Dynamic Horror Block 47
+tile.dynamicHorrorBlock48.name=Dynamic Horror Block 48
+tile.dynamicHorrorBlock49.name=Dynamic Horror Block 49
+tile.dynamicHorrorBlock50.name=Dynamic Horror Block 50
+tile.dynamicHorrorBlock51.name=Dynamic Horror Block 51
+tile.dynamicHorrorBlock52.name=Dynamic Horror Block 52
+tile.dynamicHorrorBlock53.name=Dynamic Horror Block 53
+tile.dynamicHorrorBlock54.name=Dynamic Horror Block 54
+tile.dynamicHorrorBlock55.name=Dynamic Horror Block 55
+tile.dynamicHorrorBlock56.name=Dynamic Horror Block 56
+tile.dynamicHorrorBlock57.name=Dynamic Horror Block 57
+tile.dynamicHorrorBlock58.name=Dynamic Horror Block 58
+tile.dynamicHorrorBlock59.name=Dynamic Horror Block 59
+tile.dynamicHorrorBlock60.name=Dynamic Horror Block 60
+tile.dynamicHorrorBlock61.name=Dynamic Horror Block 61
+tile.dynamicHorrorBlock62.name=Dynamic Horror Block 62
+tile.dynamicHorrorBlock63.name=Dynamic Horror Block 63
+tile.dynamicHorrorBlock64.name=Dynamic Horror Block 64
+tile.dynamicHorrorBlock65.name=Dynamic Horror Block 65
+tile.dynamicHorrorBlock66.name=Dynamic Horror Block 66
+tile.dynamicHorrorBlock67.name=Dynamic Horror Block 67
+tile.dynamicHorrorBlock68.name=Dynamic Horror Block 68
+tile.dynamicHorrorBlock69.name=Dynamic Horror Block 69
+tile.dynamicHorrorBlock70.name=Dynamic Horror Block 70
+tile.dynamicHorrorBlock71.name=Dynamic Horror Block 71
+tile.dynamicHorrorBlock72.name=Dynamic Horror Block 72
+tile.dynamicHorrorBlock73.name=Dynamic Horror Block 73
+tile.dynamicHorrorBlock74.name=Dynamic Horror Block 74
+tile.dynamicHorrorBlock75.name=Dynamic Horror Block 75
+tile.dynamicHorrorBlock76.name=Dynamic Horror Block 76
+tile.dynamicHorrorBlock77.name=Dynamic Horror Block 77
+tile.dynamicHorrorBlock78.name=Dynamic Horror Block 78
+tile.dynamicHorrorBlock79.name=Dynamic Horror Block 79
+tile.dynamicHorrorBlock80.name=Dynamic Horror Block 80
+tile.dynamicHorrorBlock81.name=Dynamic Horror Block 81
+tile.dynamicHorrorBlock82.name=Dynamic Horror Block 82
+tile.dynamicHorrorBlock83.name=Dynamic Horror Block 83
+tile.dynamicHorrorBlock84.name=Dynamic Horror Block 84
+tile.dynamicHorrorBlock85.name=Dynamic Horror Block 85
+tile.dynamicHorrorBlock86.name=Dynamic Horror Block 86
+tile.dynamicHorrorBlock87.name=Dynamic Horror Block 87
+tile.dynamicHorrorBlock88.name=Dynamic Horror Block 88
+tile.dynamicHorrorBlock89.name=Dynamic Horror Block 89
+tile.dynamicHorrorBlock90.name=Dynamic Horror Block 90
+tile.dynamicHorrorBlock91.name=Dynamic Horror Block 91
+tile.dynamicHorrorBlock92.name=Dynamic Horror Block 92
+tile.dynamicHorrorBlock93.name=Dynamic Horror Block 93
+tile.dynamicHorrorBlock94.name=Dynamic Horror Block 94
+tile.dynamicHorrorBlock95.name=Dynamic Horror Block 95
+tile.dynamicHorrorBlock96.name=Dynamic Horror Block 96
+tile.dynamicHorrorBlock97.name=Dynamic Horror Block 97
+tile.dynamicHorrorBlock98.name=Dynamic Horror Block 98
+tile.dynamicHorrorBlock99.name=Dynamic Horror Block 99
+tile.dynamicHorrorBlock100.name=Dynamic Horror Block 100
+
+//Items
+item.ringOfEmodiment.name=Ring of Embodiment
+item.necronomicon.name=Necronomicon
+item.vampireCure.name=Vampirism Cure
+item.vampireTotem.name=Vampire Totem
+item.wolfTooth.name=Wolf Tooth
+item.werewolfBlood.name=Werewolf Blood
+item.fossilizedDevonianRemains.name=Fossilized Devonian Remains
+
+//Weapons
+item.myersKnife.name=The Shape's Knife
+item.jasonMachete.name=Jason's Machete
+item.chainsaw.name=Leatherface's Chainsaw
+item.mallet.name=Leatherface's Sledgehammer
+item.chuckyKnife.name=Chucky's Knife
+item.voodooDoll.name=Voodoo Doll
+item.creeperAxe.name=Creeper's Axe
+item.creeperDagger.name=Creeper's Dagger
+item.creeperSpear.name=Creeper's Spear
+
+//Entities
+entity.legends.PuppetString.name=Puppet String
+entity.legends.DarkInferno.name=Dark Inferno
+entity.legends.Hellfire.name=Hellfire
+entity.legends.DemonicMegiddo.name=Demonic Megiddo
+entity.legends.DraculaTeleport.name=Fire Beacon
+entity.legends.HowlOfTerror.name=Howl Of Terror
+
+//Spawners
+item.spawnervampire.name=Vampire
+item.spawnerslenderman.name=Slender Man
+item.spawnerwerewolf.name=Werewolf
+
+//Gui
+gui.alter=Sacrificial Altar
+
+//Commands
+commands.ringofembodiment.usage=/ringofembodiment off

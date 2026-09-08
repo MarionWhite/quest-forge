@@ -1,0 +1,1212 @@
+
+=== Dimension -42  (3969 chunks watched across 3 servers) ===
+  ore                                          veins/chunk    size      y range
+  Schist Copper Ore                                36.000     6.0    30..39     (exact)
+  Schist Iron Ore                                  25.000     6.0    30..39     (exact)
+  Schist Uranium Ore                               18.000     6.0    30..39     (exact)
+  Sapphire Ore                                     16.000    13.0    10..117    (exact)
+  Gas Shale                                        15.000    10.0    30..39     (exact)
+  Copper Ore                                       12.000     6.0     5..49     (exact)
+  Schist Asbestos Ore                              12.000     6.0    30..39     (exact)
+  Tungsten Ore                                     10.000     8.0     5..34     (exact)
+  Schist Gold Ore                                  10.000     6.0    30..39     (exact)
+  Limestone                                         8.000    32.0    41..128    (exact)
+  Titanium Ore                                      8.000     6.0     5..34     (exact)
+  Marble                                            7.000    32.0    41..128    (exact)
+  Thorium Ore                                       7.000     5.0     5..29     (exact)
+  Aluminium Ore                                     7.000     6.0     5..44     (exact)
+  Uranium Ore                                       6.000     5.0     5..24     (exact)
+  Niter Ore                                         6.000     6.0     5..34     (exact)
+  Fluorite Ore                                      6.000     4.0     5..49     (exact)
+  Beryllium Ore                                     6.000     4.0     5..34     (exact)
+  Lead Ore                                          6.000     9.0     5..34     (exact)
+  Rare Earth Ore                                    6.000     5.0     5..24     (exact)
+  Schist Lithium Ore                                6.000     6.0    30..39     (exact)
+  Sulfur Ore                                        5.000     8.0     5..34     (exact)
+  Diorite                                           4.017    32.0    41..100  
+  Andesite                                          4.006    32.0    41..100  
+  Granite                                           3.994    32.0    41..100  
+  Lignite Ore                                       2.000    24.0    35..59     (exact)
+  Asbestos Ore                                      2.000     4.0    16..31     (exact)
+  Flammable Gas                                     0.014    32.0    30..39   
+  Oily Coal Ore                                     0.007    64.0    32..63   
+
+=== Dimension -39  (4398 chunks watched across 3 servers) ===
+  ore                                          veins/chunk    size      y range
+  Schist Copper Ore                                36.000     6.0    30..39     (exact)
+  Schist Iron Ore                                  25.000     6.0    30..39     (exact)
+  Schist Uranium Ore                               18.000     6.0    30..39     (exact)
+  Gas Shale                                        15.000    10.0    30..39     (exact)
+  Copper Ore                                       12.000     6.0     5..49     (exact)
+  Schist Asbestos Ore                              12.000     6.0    30..39     (exact)
+  Tungsten Ore                                     10.000     8.0     5..34     (exact)
+  Schist Gold Ore                                  10.000     6.0    30..39     (exact)
+  Limestone                                         8.000    32.0    41..128    (exact)
+  Titanium Ore                                      8.000     6.0     5..34     (exact)
+  Marble                                            7.000    32.0    41..128    (exact)
+  Thorium Ore                                       7.000     5.0     5..29     (exact)
+  Aluminium Ore                                     7.000     6.0     5..44     (exact)
+  Uranium Ore                                       6.000     5.0     5..24     (exact)
+  Niter Ore                                         6.000     6.0     5..34     (exact)
+  Fluorite Ore                                      6.000     4.0     5..49     (exact)
+  Beryllium Ore                                     6.000     4.0     5..34     (exact)
+  Lead Ore                                          6.000     9.0     5..34     (exact)
+  Rare Earth Ore                                    6.000     5.0     5..24     (exact)
+  Schist Lithium Ore                                6.000     6.0    30..39     (exact)
+  Sulfur Ore                                        5.000     8.0     5..34     (exact)
+  Diorite                                           4.022    32.0    41..100  
+  Andesite                                          3.997    32.0    41..100    (exact)
+  Granite                                           3.960    32.0    41..100  
+  Lignite Ore                                       2.000    24.0    35..59     (exact)
+  Asbestos Ore                                      2.000     4.0    16..31     (exact)
+  Flammable Gas                                     0.010    32.0    30..39   
+  Oily Coal Ore                                     0.009    64.0    36..61   
+
+=== Dimension -38  (4400 chunks watched across 3 servers) ===
+  ore                                          veins/chunk    size      y range
+  Schist Copper Ore                                36.000     6.0    30..39     (exact)
+  Schist Iron Ore                                  25.000     6.0    30..39     (exact)
+  Schist Uranium Ore                               18.000     6.0    30..39     (exact)
+  Gas Shale                                        15.000    10.0    30..39     (exact)
+  Copper Ore                                       12.000     6.0     5..49     (exact)
+  Schist Asbestos Ore                              12.000     6.0    30..39     (exact)
+  Tungsten Ore                                     10.000     8.0     5..34     (exact)
+  Schist Gold Ore                                  10.000     6.0    30..39     (exact)
+  Limestone                                         8.000    32.0    41..128    (exact)
+  Titanium Ore                                      8.000     6.0     5..34     (exact)
+  Marble                                            7.000    32.0    41..128    (exact)
+  Thorium Ore                                       7.000     5.0     5..29     (exact)
+  Aluminium Ore                                     7.000     6.0     5..44     (exact)
+  Uranium Ore                                       6.000     5.0     5..24     (exact)
+  Niter Ore                                         6.000     6.0     5..34     (exact)
+  Fluorite Ore                                      6.000     4.0     5..49     (exact)
+  Beryllium Ore                                     6.000     4.0     5..34     (exact)
+  Lead Ore                                          6.000     9.0     5..34     (exact)
+  Rare Earth Ore                                    6.000     5.0     5..24     (exact)
+  Schist Lithium Ore                                6.000     6.0    30..39     (exact)
+  Sulfur Ore                                        5.000     8.0     5..34     (exact)
+  Diorite                                           4.008    32.0    41..100  
+  Granite                                           3.985    32.0    41..100  
+  Andesite                                          3.963    32.0    41..100  
+  Lignite Ore                                       2.000    24.0    35..59     (exact)
+  Asbestos Ore                                      2.000     4.0    16..31     (exact)
+  Flammable Gas                                     0.015    32.0    30..39   
+  Oily Coal Ore                                     0.008    64.0    32..63   
+
+=== Dimension -37  (4879 chunks watched across 3 servers) ===
+  ore                                          veins/chunk    size      y range
+  Schist Copper Ore                                36.000     6.0    30..39     (exact)
+  Schist Iron Ore                                  25.000     6.0    30..39     (exact)
+  Dirt                                             20.000    32.0     0..255    (exact)
+  Iron Ore                                         20.000     8.0     0..63     (exact)
+  Coal Ore                                         20.000    16.0     0..127    (exact)
+  Schist Uranium Ore                               18.000     6.0    30..39     (exact)
+  Gas Shale                                        15.000    10.0    30..39     (exact)
+  Copper Ore                                       12.000     6.0     5..49     (exact)
+  Schist Asbestos Ore                              12.000     6.0    30..39     (exact)
+  Gravel                                           10.000    32.0     0..255    (exact)
+  Tungsten Ore                                     10.000     8.0     5..34     (exact)
+  Schist Gold Ore                                  10.000     6.0    30..39     (exact)
+  Redstone Ore                                      8.000     7.0     0..15     (exact)
+  Limestone                                         8.000    32.0    41..128    (exact)
+  Titanium Ore                                      8.000     6.0     5..34     (exact)
+  Marble                                            7.000    32.0    41..128    (exact)
+  Thorium Ore                                       7.000     5.0     5..29     (exact)
+  Aluminium Ore                                     7.000     6.0     5..44     (exact)
+  Uranium Ore                                       6.000     5.0     5..24     (exact)
+  Niter Ore                                         6.000     6.0     5..34     (exact)
+  Fluorite Ore                                      6.000     4.0     5..49     (exact)
+  Beryllium Ore                                     6.000     4.0     5..34     (exact)
+  Lead Ore                                          6.000     9.0     5..34     (exact)
+  Rare Earth Ore                                    6.000     5.0     5..24     (exact)
+  Schist Lithium Ore                                6.000     6.0    30..39     (exact)
+  Sulfur Ore                                        5.000     8.0     5..34     (exact)
+  Granite                                           4.029    32.0    41..100  
+  Diorite                                           3.998    32.0    41..100    (exact)
+  Andesite                                          3.983    32.0    41..100  
+  Gold Ore                                          2.000     8.0     0..31     (exact)
+  Lignite Ore                                       2.000    24.0    35..59     (exact)
+  Asbestos Ore                                      2.000     4.0    16..31     (exact)
+  Lapis Lazuli Ore                                  1.000     6.0     0..30     (exact)
+  Diamond Ore                                       1.000     7.0     0..15     (exact)
+  Poor Iron Ore                                     0.826    16.0    25..56   
+  Poor Lead Ore                                     0.576     6.0    18..40   
+  Poor Copper Ore                                   0.400     8.0    50..72   
+  Stone Monster Egg                                 0.211     8.0     0..63   
+  Flammable Gas                                     0.014    32.0    30..39   
+  Oily Coal Ore                                     0.006    64.0    32..61   
+
+=== Dimension -1  (3976 chunks watched across 3 servers) ===
+  ore                                          veins/chunk    size      y range
+  Nether Sulfur Ore                                26.000    12.0     0..126    (exact)
+  Burning Nether Coal Ore                          24.000    32.0    16..111    (exact)
+  Nether Phosphorus Ore                            24.000     6.0     0..126    (exact)
+  tile.lavafoam.name                               19.478     6.0    10..117  
+  Nether Quartz Ore                                16.000    13.0    10..117    (exact)
+  Nether Gold Ore                                  10.000    16.0    10..117    (exact)
+  Nether Tungsten Ore                              10.000    10.0     0..126    (exact)
+  Ruby Ore                                         10.000     3.0    15..44     (exact)
+  Sapphire Ore                                     10.000     3.0    95..114    (exact)
+  Drudge                                           10.000    10.0    30..89     (exact)
+  Limestone                                         8.000    32.0    41..128    (exact)
+  Nether Uranium Ore                                8.000     6.0     0..126    (exact)
+  Marble                                            7.000    32.0    41..128    (exact)
+  tile.oreruby.name                                 6.998     2.0    10..117    (exact)
+  Ancient Debris                                    5.000     2.6     8..119    (exact)
+  Granite                                           4.032    32.0    41..100  
+  Magma Block                                       4.000    33.0     0..36     (exact)
+  Andesite                                          4.000    32.0    41..100    (exact)
+  Diorite                                           3.986    32.0    41..100  
+
+=== Dimension 0  (3969 chunks watched across 3 servers) ===
+  ore                                          veins/chunk    size      y range
+  Schist Copper Ore                                36.000     6.0    30..39     (exact)
+  Copper Ore                                       28.000     7.1     0..49     (exact)
+  Tungsten Ore                                     28.000     5.4     0..37     (exact)
+  Stone Monster Egg                                26.552     3.5     0..63   
+  Schist Iron Ore                                  25.000     6.0    30..39     (exact)
+  Andesite                                         24.011    12.0     0..100  
+  Granite                                          23.988    13.7     0..100  
+  Diorite                                          23.973    13.6     0..100  
+  Titanium Ore                                     23.000     6.0     0..56     (exact)
+  Dirt                                             20.000    32.0     0..255    (exact)
+  Iron Ore                                         20.000     8.0     0..63     (exact)
+  Coal Ore                                         20.000    16.0     0..127    (exact)
+  Red Mercury Ore                                  20.000     4.0     5..52     (exact)
+  Black-Iron Ore                                   18.000     8.0     0..64     (exact)
+  Red Iron Ore                                     18.000     8.0     0..60     (exact)
+  Schist Uranium Ore                               18.000     6.0    30..39     (exact)
+  Silicon Ore                                      17.000     8.0     0..25     (exact)
+  Sphalerite Ore                                   16.000     6.0     0..28     (exact)
+  Cassiterite Ore                                  16.000     8.0     0..56     (exact)
+  Gas Shale                                        15.000    10.0    30..39     (exact)
+  Magnesite Ore                                    14.000     7.0     0..57     (exact)
+  Schist Asbestos Ore                              12.000     6.0    30..39     (exact)
+  Gravel                                           10.000    32.0     0..255    (exact)
+  Platinum Ore                                     10.000     5.0     0..22     (exact)
+  Bauxite Ore                                      10.000     8.0     0..58     (exact)
+  Schist Gold Ore                                  10.000     6.0    30..39     (exact)
+  Redstone Ore                                      8.000     7.0     0..15     (exact)
+  Palladium Ore                                     8.000     4.0     0..45     (exact)
+  Limestone                                         8.000    32.0    41..128    (exact)
+  Silver Ore                                        7.000     9.0     0..25     (exact)
+  Marble                                            7.000    32.0    41..128    (exact)
+  Thorium Ore                                       7.000     5.0     5..29     (exact)
+  Aluminium Ore                                     7.000     6.0     5..44     (exact)
+  Chunk of Krypton                                  6.000     6.0    45..95     (exact)
+  Uranium Ore                                       6.000     5.0     5..24     (exact)
+  Niter Ore                                         6.000     6.0     5..34     (exact)
+  Fluorite Ore                                      6.000     4.0     5..49     (exact)
+  Beryllium Ore                                     6.000     4.0     5..34     (exact)
+  Lead Ore                                          6.000     9.0     5..34     (exact)
+  Rare Earth Ore                                    6.000     5.0     5..24     (exact)
+  Schist Lithium Ore                                6.000     6.0    30..39     (exact)
+  tile.oresalt.name                                 5.508    12.0    50..127  
+  Sulfur Ore                                        5.000     8.0     5..34     (exact)
+  Gold Ore                                          3.282     8.0     0..40   
+  Ruby Ore                                          2.000     4.0     0..15     (exact)
+  Sapphire Ore                                      2.000     4.0     0..18     (exact)
+  Lightning Stone                                   2.000     4.0     0..45     (exact)
+  Surprise Ore                                      2.000     8.0     0..31     (exact)
+  Lignite Ore                                       2.000    24.0    35..59     (exact)
+  Asbestos Ore                                      2.000     4.0    16..31     (exact)
+  tile.termitetroll.name                            1.990     4.0     5..50   
+  Diamond Ore                                       1.970     6.5     0..30   
+  tile.redanttroll.name                             1.963     4.0     5..50   
+  Poor Iron Ore                                     1.904    16.0    25..55   
+  tile.oreuranium.name                              1.710     4.0     0..30   
+  tile.oreamethyst.name                             1.512     6.0     0..25   
+  Emerald Ore                                       1.280     6.0     0..40   
+  tile.oretitanium.name                             1.140     4.0     0..20   
+  Lapis Lazuli Ore                                  1.000     6.0     0..30     (exact)
+  Red Diamond Ore                                   1.000     4.0     0..12     (exact)
+  Poor Lead Ore                                     0.932     6.0    19..40   
+  Block of Gold                                     0.425     4.0     0..25   
+  Poor Copper Ore                                   0.365     8.0    50..69   
+  Block of Diamond                                  0.353     4.0     0..20   
+  Block of Emerald                                  0.322     4.0     0..20   
+  tile.orekyuubi.name                               0.244     4.0    50..127  
+  tile.orecaterkiller.name                          0.244     4.0    50..127  
+  tile.oremooshroom.name                            0.242     4.0    50..127  
+  tile.oremediumworm.name                           0.240     4.0    50..127  
+  tile.oredragon.name                               0.239     4.0    50..127  
+  tile.oreseaviper.name                             0.239     4.0    50..127  
+  tile.oretrooper.name                              0.238     4.0    50..127  
+  tile.oresnowgolem.name                            0.238     4.0    50..127  
+  tile.orecassowary.name                            0.237     4.0    50..127  
+  tile.oregammametroid.name                         0.236     4.0    50..127  
+  tile.oreseamonster.name                           0.236     4.0    50..127  
+  tile.orewolf.name                                 0.235     4.0    50..127  
+  tile.orecloudshark.name                           0.235     4.0    50..127  
+  tile.orecryolophosaurus.name                      0.235     4.0    50..127  
+  tile.orepointysaurus.name                         0.234     4.0    50..127  
+  tile.oregazelle.name                              0.234     4.0    50..127  
+  tile.oremantis.name                               0.234     4.0    50..127  
+  tile.oreeasterbunny.name                          0.233     4.0    50..127  
+  tile.orehammerhead.name                           0.233     4.0    50..127  
+  tile.orerubberducky.name                          0.233     4.0    50..127  
+  tile.orestink.name                                0.233     4.0    50..127  
+  tile.oreenderreaper.name                          0.233     4.0    50..127  
+  tile.orecrab.name                                 0.233     4.0    50..127  
+  tile.oregirlfriend.name                           0.232     4.0    50..127  
+  tile.oreleafmonster.name                          0.232     4.0    50..127  
+  tile.oremagmacube.name                            0.232     4.0    50..127  
+  tile.orespit.name                                 0.232     4.0    50..127  
+  tile.orefrog.name                                 0.231     4.0    50..127  
+  tile.orewitherskeleton.name                       0.230     4.0    50..127  
+  tile.orespider.name                               0.230     4.0    50..127  
+  tile.orehercules.name                             0.230     4.0    50..127  
+  tile.orecockateil.name                            0.230     4.0    50..127  
+  tile.orealien.name                                0.230     4.0    50..127  
+  tile.orecow.name                                  0.229     4.0    50..127  
+  tile.orenightmare.name                            0.229     4.0    50..127  
+  tile.orecriminal.name                             0.229     4.0    50..127  
+  tile.oregoldfish.name                             0.229     4.0    50..127  
+  tile.oretrex.name                                 0.229     4.0    50..127  
+  tile.orechipmunk.name                             0.229     4.0    50..127  
+  tile.oreleon.name                                 0.229     4.0    50..127  
+  tile.oreenderdragon.name                          0.228     4.0    50..127  
+  tile.orecavespider.name                           0.228     4.0    50..127  
+  tile.oregodzilla.name                             0.228     4.0    50..127  
+  tile.oreenchantedcow.name                         0.228     4.0    50..127  
+  tile.orebeaver.name                               0.228     4.0    50..127  
+  tile.orelizard.name                               0.227     4.0    50..127  
+  tile.orehorse.name                                0.227     4.0    50..127  
+  tile.oredragonfly.name                            0.227     4.0    50..127  
+  tile.orespiderdriver.name                         0.227     4.0    50..127  
+  tile.orehydrolisc.name                            0.227     4.0    50..127  
+  tile.orebasilisc.name                             0.227     4.0    50..127  
+  tile.oreghast.name                                0.226     4.0    50..127  
+  tile.oresheep.name                                0.226     4.0    50..127  
+  tile.oreirongolem.name                            0.226     4.0    50..127  
+  tile.oresmallworm.name                            0.226     4.0    50..127  
+  tile.orenastysaurus.name                          0.226     4.0    50..127  
+  tile.orezombie.name                               0.226     4.0    50..127  
+  tile.oreenderknight.name                          0.226     4.0    50..127  
+  tile.oremolenoid.name                             0.226     4.0    50..127  
+  tile.orewitherboss.name                           0.226     4.0    50..127  
+  tile.oreboyfriend.name                            0.225     4.0    50..127  
+  tile.orebee.name                                  0.225     4.0    50..127  
+  tile.oretriffid.name                              0.225     4.0    50..127  
+  tile.oresilverfish.name                           0.225     4.0    50..127  
+  tile.orethekingpart.name                          0.224     4.0    50..127  
+  tile.orebrutalfly.name                            0.224     4.0    50..127  
+  tile.orecricket.name                              0.224     4.0    50..127  
+  tile.oreskeleton.name                             0.224     4.0    50..127  
+  tile.orealosaurus.name                            0.224     4.0    50..127  
+  tile.orelurkingterror.name                        0.224     4.0    50..127  
+  tile.oreredcow.name                               0.224     4.0    50..127  
+  tile.orechicken.name                              0.223     4.0    50..127  
+  tile.orebaryonyx.name                             0.223     4.0    50..127  
+  tile.oreostrich.name                              0.223     4.0    50..127  
+  tile.oreterribleterror.name                       0.222     4.0    50..127  
+  tile.oreemperorscorpion.name                      0.222     4.0    50..127  
+  tile.oreocelot.name                               0.222     4.0    50..127  
+  tile.orecreepinghorror.name                       0.222     4.0    50..127  
+  tile.orezombiepigman.name                         0.221     4.0    50..127  
+  tile.orecamarasaurus.name                         0.221     4.0    50..127  
+  tile.orekraken.name                               0.221     4.0    50..127  
+  tile.orespyro.name                                0.220     4.0    50..127  
+  tile.oreblaze.name                                0.220     4.0    50..127  
+  tile.orecavefisher.name                           0.220     4.0    50..127  
+  tile.orepig.name                                  0.220     4.0    50..127  
+  tile.oreslime.name                                0.220     4.0    50..127  
+  tile.orewaterdragon.name                          0.220     4.0    50..127  
+  tile.orethequeenpart.name                         0.219     4.0    50..127  
+  tile.oregodzillapart.name                         0.219     4.0    50..127  
+  tile.oreattacksquid.name                          0.219     4.0    50..127  
+  tile.orecliffracer.name                           0.219     4.0    50..127  
+  tile.orevelocityraptor.name                       0.218     4.0    50..127  
+  tile.oresquid.name                                0.218     4.0    50..127  
+  tile.orewitch.name                                0.218     4.0    50..127  
+  tile.orecreeper.name                              0.218     4.0    50..127  
+  tile.orescorpion.name                             0.217     4.0    50..127  
+  tile.orelargeworm.name                            0.217     4.0    50..127  
+  tile.oreMOTHRA.name                               0.216     4.0    50..127  
+  tile.orevillager.name                             0.215     4.0    50..127  
+  tile.oreenderman.name                             0.213     4.0    50..127  
+  tile.orebat.name                                  0.212     4.0    50..127  
+  tile.oregoldcow.name                              0.212     4.0    50..127  
+  tile.oretshirt.name                               0.211     4.0    50..127  
+  tile.orestinky.name                               0.208     4.0    50..127  
+  tile.orecephadrome.name                           0.205     4.0    50..127  
+  tile.blockruby.name                               0.123     2.0     0..15   
+  Flammable Gas                                     0.013    32.0    30..39   
+  Oily Coal Ore                                     0.006    64.0    32..63   
+
+=== Dimension 1  (4338 chunks watched across 3 servers) ===
+  ore                                          veins/chunk    size      y range
+  Limestone                                         7.995    32.0    41..128  
+  Trixite                                           7.995     6.0     0..126  
+  Marble                                            6.995    32.0    41..128    (exact)
+  Andesite                                          4.020    32.0    41..100  
+  Granite                                           4.018    32.0    41..100  
+  Diorite                                           3.991    32.0    41..100  
+  Poor Copper Ore                                   0.958     8.0    49..71   
+  Poor Lead Ore                                     0.599     6.0    19..39   
+  Poor Iron Ore                                     0.542    16.0    26..53   
+
+=== Dimension 2  (3965 chunks watched across 3 servers) ===
+  ore                                          veins/chunk    size      y range
+  Schist Copper Ore                                36.000     6.0    30..39     (exact)
+  Tungsten Ore                                     26.000     4.9     5..255    (exact)
+  Schist Iron Ore                                  25.000     6.0    30..39     (exact)
+  Iron Ore                                         20.000     5.0     4..255    (exact)
+  Schist Uranium Ore                               18.000     6.0    30..39     (exact)
+  Coal Ore                                         18.000     5.0    10..245    (exact)
+  Mercury Ore                                      16.000     3.0    16..255    (exact)
+  XP Ore                                           16.000     3.0    10..245    (exact)
+  Gas Shale                                        15.000    10.0    30..39     (exact)
+  Copper Ore                                       12.000     6.0     5..49     (exact)
+  Schist Asbestos Ore                              12.000     6.0    30..39     (exact)
+  Lapis Lazuli Ore                                 12.000     5.0    32..255    (exact)
+  Gold Ore                                         12.000     5.0    16..255    (exact)
+  Schist Gold Ore                                  10.000     6.0    30..39     (exact)
+  Limestone                                         8.000    32.0    41..128    (exact)
+  Titanium Ore                                      8.000     6.0     5..34     (exact)
+  Marble                                            7.000    32.0    41..128    (exact)
+  Thorium Ore                                       7.000     5.0     5..29     (exact)
+  Aluminium Ore                                     7.000     6.0     5..44     (exact)
+  Uranium Ore                                       6.000     5.0     5..24     (exact)
+  Niter Ore                                         6.000     6.0     5..34     (exact)
+  Fluorite Ore                                      6.000     4.0     5..49     (exact)
+  Beryllium Ore                                     6.000     4.0     5..34     (exact)
+  Lead Ore                                          6.000     9.0     5..34     (exact)
+  Rare Earth Ore                                    6.000     5.0     5..24     (exact)
+  Schist Lithium Ore                                6.000     6.0    30..39     (exact)
+  Diamond Ore                                       6.000     3.0     2..25     (exact)
+  Emerald Ore                                       6.000     3.0   132..255    (exact)
+  Sulfur Ore                                        5.000     8.0     5..34     (exact)
+  Diorite                                           4.003    32.0    41..100    (exact)
+  Ruby Ore                                          4.000     3.0     5..36     (exact)
+  Sapphire Ore                                      4.000     3.0   116..255    (exact)
+  Mixed Dirt                                        3.991     8.0    10..255  
+  Granite                                           3.974    32.0    41..100  
+  Andesite                                          3.964    32.0    41..100  
+  Lignite Ore                                       2.000    24.0    35..59     (exact)
+  Asbestos Ore                                      2.000     4.0    16..31     (exact)
+  Flammable Gas                                     0.017    32.0    30..39   
+  Oily Coal Ore                                     0.007    64.0    32..63   
+
+=== Dimension 3  (3969 chunks watched across 3 servers) ===
+  ore                                          veins/chunk    size      y range
+  Schist Copper Ore                                36.000     6.0    30..39     (exact)
+  Schist Iron Ore                                  25.000     6.0    30..39     (exact)
+  Schist Uranium Ore                               18.000     6.0    30..39     (exact)
+  Gas Shale                                        15.000    10.0    30..39     (exact)
+  Copper Ore                                       12.000     6.0     5..49     (exact)
+  Schist Asbestos Ore                              12.000     6.0    30..39     (exact)
+  Tungsten Ore                                     10.000     8.0     5..34     (exact)
+  Schist Gold Ore                                  10.000     6.0    30..39     (exact)
+  Limestone                                         8.000    32.0    41..128    (exact)
+  Titanium Ore                                      8.000     6.0     5..34     (exact)
+  Marble                                            7.000    32.0    41..128    (exact)
+  Thorium Ore                                       7.000     5.0     5..29     (exact)
+  Aluminium Ore                                     7.000     6.0     5..44     (exact)
+  Uranium Ore                                       6.000     5.0     5..24     (exact)
+  Niter Ore                                         6.000     6.0     5..34     (exact)
+  Fluorite Ore                                      6.000     4.0     5..49     (exact)
+  Beryllium Ore                                     6.000     4.0     5..34     (exact)
+  Lead Ore                                          6.000     9.0     5..34     (exact)
+  Rare Earth Ore                                    6.000     5.0     5..24     (exact)
+  Schist Lithium Ore                                6.000     6.0    30..39     (exact)
+  Sulfur Ore                                        5.000     8.0     5..34     (exact)
+  Diorite                                           3.995    32.0    41..100    (exact)
+  Granite                                           3.994    32.0    41..100  
+  Andesite                                          3.987    32.0    41..100  
+  Lignite Ore                                       2.000    24.0    35..59     (exact)
+  Asbestos Ore                                      2.000     4.0    16..31     (exact)
+  Flammable Gas                                     0.017    32.0    30..39   
+  Oily Coal Ore                                     0.005    64.0    33..62   
+
+=== Dimension 4  (3911 chunks watched across 3 servers) ===
+  ore                                          veins/chunk    size      y range
+  Schist Copper Ore                                36.000     6.0    30..39     (exact)
+  Schist Iron Ore                                  25.000     6.0    30..39     (exact)
+  Schist Uranium Ore                               18.000     6.0    30..39     (exact)
+  Gas Shale                                        15.000    10.0    30..39     (exact)
+  Copper Ore                                       12.000     6.0     5..49     (exact)
+  Schist Asbestos Ore                              12.000     6.0    30..39     (exact)
+  Tungsten Ore                                     10.000     8.0     5..34     (exact)
+  Schist Gold Ore                                  10.000     6.0    30..39     (exact)
+  Limestone                                         8.000    32.0    41..128    (exact)
+  Titanium Ore                                      8.000     6.0     5..34     (exact)
+  Marble                                            7.000    32.0    41..128    (exact)
+  Thorium Ore                                       7.000     5.0     5..29     (exact)
+  Aluminium Ore                                     7.000     6.0     5..44     (exact)
+  Uranium Ore                                       6.000     5.0     5..24     (exact)
+  Niter Ore                                         6.000     6.0     5..34     (exact)
+  Fluorite Ore                                      6.000     4.0     5..49     (exact)
+  Beryllium Ore                                     6.000     4.0     5..34     (exact)
+  Lead Ore                                          6.000     9.0     5..34     (exact)
+  Rare Earth Ore                                    6.000     5.0     5..24     (exact)
+  Schist Lithium Ore                                6.000     6.0    30..39     (exact)
+  Sulfur Ore                                        5.000     8.0     5..34     (exact)
+  Granite                                           4.044    32.0    41..100  
+  Andesite                                          4.009    32.0    41..100  
+  Diorite                                           3.996    32.0    41..100    (exact)
+  Lignite Ore                                       2.000    24.0    35..59     (exact)
+  Asbestos Ore                                      2.000     4.0    16..31     (exact)
+  Flammable Gas                                     0.017    32.0    30..39   
+  Oily Coal Ore                                     0.008    64.0    32..62   
+
+=== Dimension 7  (3948 chunks watched across 3 servers) ===
+  ore                                          veins/chunk    size      y range
+  Schist Copper Ore                                36.000     6.0    30..39     (exact)
+  Schist Iron Ore                                  25.000     6.0    30..39     (exact)
+  Dirt                                             20.000    32.0     0..255    (exact)
+  Iron Ore                                         20.000     8.0     0..63     (exact)
+  Coal Ore                                         20.000    16.0     0..127    (exact)
+  Schist Uranium Ore                               18.000     6.0    30..39     (exact)
+  Gas Shale                                        15.000    10.0    30..39     (exact)
+  Copper Ore                                       12.000     6.0     5..49     (exact)
+  Schist Asbestos Ore                              12.000     6.0    30..39     (exact)
+  Gravel                                           10.000    32.0     0..255    (exact)
+  Tungsten Ore                                     10.000     8.0     5..34     (exact)
+  Schist Gold Ore                                  10.000     6.0    30..39     (exact)
+  Redstone Ore                                      8.000     7.0     0..15     (exact)
+  Limestone                                         8.000    32.0    41..128    (exact)
+  Titanium Ore                                      8.000     6.0     5..34     (exact)
+  Marble                                            7.000    32.0    41..128    (exact)
+  Thorium Ore                                       7.000     5.0     5..29     (exact)
+  Aluminium Ore                                     7.000     6.0     5..44     (exact)
+  Uranium Ore                                       6.000     5.0     5..24     (exact)
+  Niter Ore                                         6.000     6.0     5..34     (exact)
+  Fluorite Ore                                      6.000     4.0     5..49     (exact)
+  Beryllium Ore                                     6.000     4.0     5..34     (exact)
+  Lead Ore                                          6.000     9.0     5..34     (exact)
+  Rare Earth Ore                                    6.000     5.0     5..24     (exact)
+  Schist Lithium Ore                                6.000     6.0    30..39     (exact)
+  Sulfur Ore                                        5.000     8.0     5..34     (exact)
+  Diorite                                           4.009    32.0    41..100  
+  Granite                                           3.995    32.0    41..100  
+  Andesite                                          3.987    32.0    41..100  
+  Gold Ore                                          2.000     8.0     0..31     (exact)
+  Lignite Ore                                       2.000    24.0    35..59     (exact)
+  Asbestos Ore                                      2.000     4.0    16..31     (exact)
+  Lapis Lazuli Ore                                  1.000     6.0     0..30     (exact)
+  Diamond Ore                                       1.000     7.0     0..15     (exact)
+  Poor Copper Ore                                   0.954     8.0    49..71   
+  Poor Iron Ore                                     0.542    16.0    29..54   
+  Poor Lead Ore                                     0.529     6.0    20..39   
+  Flammable Gas                                     0.015    32.0    30..39   
+  Oily Coal Ore                                     0.009    64.0    33..63   
+
+=== Dimension 30  (4334 chunks watched across 3 servers) ===
+  ore                                          veins/chunk    size      y range
+  Schist Copper Ore                                36.000     6.0    30..39     (exact)
+  Schist Iron Ore                                  25.000     6.0    30..39     (exact)
+  Schist Uranium Ore                               18.000     6.0    30..39     (exact)
+  Gas Shale                                        15.000    10.0    30..39     (exact)
+  Copper Ore                                       12.000     6.0     5..49     (exact)
+  Schist Asbestos Ore                              12.000     6.0    30..39     (exact)
+  Tungsten Ore                                     10.000     8.0     5..34     (exact)
+  Schist Gold Ore                                  10.000     6.0    30..39     (exact)
+  Limestone                                         8.000    32.0    41..128    (exact)
+  Titanium Ore                                      8.000     6.0     5..34     (exact)
+  Marble                                            7.000    32.0    41..128    (exact)
+  Thorium Ore                                       7.000     5.0     5..29     (exact)
+  Aluminium Ore                                     7.000     6.0     5..44     (exact)
+  Uranium Ore                                       6.000     5.0     5..24     (exact)
+  Niter Ore                                         6.000     6.0     5..34     (exact)
+  Fluorite Ore                                      6.000     4.0     5..49     (exact)
+  Beryllium Ore                                     6.000     4.0     5..34     (exact)
+  Lead Ore                                          6.000     9.0     5..34     (exact)
+  Rare Earth Ore                                    6.000     5.0     5..24     (exact)
+  Schist Lithium Ore                                6.000     6.0    30..39     (exact)
+  Sulfur Ore                                        5.000     8.0     5..34     (exact)
+  Andesite                                          4.001    32.0    41..100    (exact)
+  Granite                                           3.982    32.0    41..100  
+  Diorite                                           3.980    32.0    41..100  
+  Lignite Ore                                       2.000    24.0    35..59     (exact)
+  Asbestos Ore                                      2.000     4.0    16..31     (exact)
+  Flammable Gas                                     0.013    32.0    30..39   
+  Oily Coal Ore                                     0.005    64.0    32..62     (exact)
+
+=== Dimension 31  (4066 chunks watched across 3 servers) ===
+  ore                                          veins/chunk    size      y range
+  Schist Copper Ore                                36.000     6.0    30..39     (exact)
+  Schist Iron Ore                                  25.000     6.0    30..39     (exact)
+  Schist Uranium Ore                               18.000     6.0    30..39     (exact)
+  Gas Shale                                        15.000    10.0    30..39     (exact)
+  Copper Ore                                       12.000     6.0     5..49     (exact)
+  Schist Asbestos Ore                              12.000     6.0    30..39     (exact)
+  Tungsten Ore                                     10.000     8.0     5..34     (exact)
+  Schist Gold Ore                                  10.000     6.0    30..39     (exact)
+  Limestone                                         8.000    32.0    41..128    (exact)
+  Titanium Ore                                      8.000     6.0     5..34     (exact)
+  Marble                                            7.000    32.0    41..128    (exact)
+  Thorium Ore                                       7.000     5.0     5..29     (exact)
+  Aluminium Ore                                     7.000     6.0     5..44     (exact)
+  Uranium Ore                                       6.000     5.0     5..24     (exact)
+  Niter Ore                                         6.000     6.0     5..34     (exact)
+  Fluorite Ore                                      6.000     4.0     5..49     (exact)
+  Beryllium Ore                                     6.000     4.0     5..34     (exact)
+  Lead Ore                                          6.000     9.0     5..34     (exact)
+  Rare Earth Ore                                    6.000     5.0     5..24     (exact)
+  Schist Lithium Ore                                6.000     6.0    30..39     (exact)
+  Sulfur Ore                                        5.000     8.0     5..34     (exact)
+  Diorite                                           4.008    32.0    41..100  
+  Granite                                           3.981    32.0    41..100  
+  Andesite                                          3.967    32.0    41..100  
+  Lignite Ore                                       2.000    24.0    35..59     (exact)
+  Asbestos Ore                                      2.000     4.0    16..31     (exact)
+  Martian Relic                                     1.000     4.0    40..50     (exact)
+  Flammable Gas                                     0.017    32.0    30..39   
+  Oily Coal Ore                                     0.005    64.0    37..62   
+
+=== Dimension 32  (4295 chunks watched across 3 servers) ===
+  ore                                          veins/chunk    size      y range
+  Schist Copper Ore                                36.000     6.0    30..39     (exact)
+  Schist Iron Ore                                  25.000     6.0    30..39     (exact)
+  Schist Uranium Ore                               18.000     6.0    30..39     (exact)
+  Gas Shale                                        15.000    10.0    30..39     (exact)
+  Copper Ore                                       12.000     6.0     5..49     (exact)
+  Schist Asbestos Ore                              12.000     6.0    30..39     (exact)
+  Tungsten Ore                                     10.000     8.0     5..34     (exact)
+  Schist Gold Ore                                  10.000     6.0    30..39     (exact)
+  Limestone                                         8.000    32.0    41..128    (exact)
+  Titanium Ore                                      8.000     6.0     5..34     (exact)
+  Marble                                            7.000    32.0    41..128    (exact)
+  Thorium Ore                                       7.000     5.0     5..29     (exact)
+  Aluminium Ore                                     7.000     6.0     5..44     (exact)
+  Uranium Ore                                       6.000     5.0     5..24     (exact)
+  Niter Ore                                         6.000     6.0     5..34     (exact)
+  Fluorite Ore                                      6.000     4.0     5..49     (exact)
+  Beryllium Ore                                     6.000     4.0     5..34     (exact)
+  Lead Ore                                          6.000     9.0     5..34     (exact)
+  Rare Earth Ore                                    6.000     5.0     5..24     (exact)
+  Schist Lithium Ore                                6.000     6.0    30..39     (exact)
+  Sulfur Ore                                        5.000     8.0     5..34     (exact)
+  Diorite                                           4.044    32.0    41..100  
+  Granite                                           3.998    32.0    41..100    (exact)
+  Andesite                                          3.984    32.0    41..100  
+  Lignite Ore                                       2.000    24.0    35..59     (exact)
+  Asbestos Ore                                      2.000     4.0    16..31     (exact)
+  Flammable Gas                                     0.021    32.0    30..39   
+  Oily Coal Ore                                     0.006    64.0    32..61   
+
+=== Dimension 33  (3969 chunks watched across 3 servers) ===
+  ore                                          veins/chunk    size      y range
+  Schist Copper Ore                                36.000     6.0    30..39     (exact)
+  Schist Iron Ore                                  25.000     6.0    30..39     (exact)
+  Schist Uranium Ore                               18.000     6.0    30..39     (exact)
+  Gas Shale                                        15.000    10.0    30..39     (exact)
+  Copper Ore                                       12.000     6.0     5..49     (exact)
+  Schist Asbestos Ore                              12.000     6.0    30..39     (exact)
+  Tungsten Ore                                     10.000     8.0     5..34     (exact)
+  Schist Gold Ore                                  10.000     6.0    30..39     (exact)
+  Limestone                                         8.000    32.0    41..128    (exact)
+  Titanium Ore                                      8.000     6.0     5..34     (exact)
+  Marble                                            7.000    32.0    41..128    (exact)
+  Thorium Ore                                       7.000     5.0     5..29     (exact)
+  Aluminium Ore                                     7.000     6.0     5..44     (exact)
+  Uranium Ore                                       6.000     5.0     5..24     (exact)
+  Niter Ore                                         6.000     6.0     5..34     (exact)
+  Fluorite Ore                                      6.000     4.0     5..49     (exact)
+  Beryllium Ore                                     6.000     4.0     5..34     (exact)
+  Lead Ore                                          6.000     9.0     5..34     (exact)
+  Rare Earth Ore                                    6.000     5.0     5..24     (exact)
+  Schist Lithium Ore                                6.000     6.0    30..39     (exact)
+  Sulfur Ore                                        5.000     8.0     5..34     (exact)
+  Granite                                           4.018    32.0    41..100  
+  Diorite                                           3.993    32.0    41..100  
+  Andesite                                          3.965    32.0    41..100  
+  Lignite Ore                                       2.000    24.0    35..59     (exact)
+  Asbestos Ore                                      2.000     4.0    16..31     (exact)
+  Flammable Gas                                     0.018    32.0    30..39   
+  Oily Coal Ore                                     0.010    64.0    34..61   
+
+=== Dimension 34  (3937 chunks watched across 3 servers) ===
+  ore                                          veins/chunk    size      y range
+  Schist Copper Ore                                36.000     6.0    30..39     (exact)
+  Schist Iron Ore                                  25.000     6.0    30..39     (exact)
+  Dirt                                             20.000    32.0     0..255    (exact)
+  Iron Ore                                         20.000     8.0     0..63     (exact)
+  Coal Ore                                         20.000    16.0     0..127    (exact)
+  Schist Uranium Ore                               18.000     6.0    30..39     (exact)
+  Gas Shale                                        15.000    10.0    30..39     (exact)
+  Copper Ore                                       12.000     6.0     5..49     (exact)
+  Schist Asbestos Ore                              12.000     6.0    30..39     (exact)
+  Gravel                                           10.000    32.0     0..255    (exact)
+  Tungsten Ore                                     10.000     8.0     5..34     (exact)
+  Schist Gold Ore                                  10.000     6.0    30..39     (exact)
+  Redstone Ore                                      8.000     7.0     0..15     (exact)
+  Limestone                                         8.000    32.0    41..128    (exact)
+  Titanium Ore                                      8.000     6.0     5..34     (exact)
+  Marble                                            7.000    32.0    41..128    (exact)
+  Thorium Ore                                       7.000     5.0     5..29     (exact)
+  Aluminium Ore                                     7.000     6.0     5..44     (exact)
+  Uranium Ore                                       6.000     5.0     5..24     (exact)
+  Niter Ore                                         6.000     6.0     5..34     (exact)
+  Fluorite Ore                                      6.000     4.0     5..49     (exact)
+  Beryllium Ore                                     6.000     4.0     5..34     (exact)
+  Lead Ore                                          6.000     9.0     5..34     (exact)
+  Rare Earth Ore                                    6.000     5.0     5..24     (exact)
+  Schist Lithium Ore                                6.000     6.0    30..39     (exact)
+  Sulfur Ore                                        5.000     8.0     5..34     (exact)
+  Granite                                           4.026    32.0    41..100  
+  Diorite                                           3.981    32.0    41..100  
+  Andesite                                          3.971    32.0    41..100  
+  Gold Ore                                          2.000     8.0     0..31     (exact)
+  Lignite Ore                                       2.000    24.0    35..59     (exact)
+  Asbestos Ore                                      2.000     4.0    16..31     (exact)
+  Poor Lead Ore                                     1.548     6.0    19..42   
+  Poor Copper Ore                                   1.027     8.0    49..69   
+  Lapis Lazuli Ore                                  1.000     6.0     0..30     (exact)
+  Diamond Ore                                       1.000     7.0     0..15     (exact)
+  Poor Iron Ore                                     0.965    16.0    25..54   
+  Flammable Gas                                     0.017    32.0    30..39   
+  Oily Coal Ore                                     0.007    64.0    32..63   
+
+=== Dimension 35  (3969 chunks watched across 3 servers) ===
+  ore                                          veins/chunk    size      y range
+  Schist Copper Ore                                36.000     6.0    30..39     (exact)
+  Schist Iron Ore                                  25.000     6.0    30..39     (exact)
+  Dirt                                             20.000    32.0     0..255    (exact)
+  Iron Ore                                         20.000     8.0     0..63     (exact)
+  Coal Ore                                         20.000    16.0     0..127    (exact)
+  Schist Uranium Ore                               18.000     6.0    30..39     (exact)
+  Gas Shale                                        15.000    10.0    30..39     (exact)
+  Copper Ore                                       12.000     6.0     5..49     (exact)
+  Schist Asbestos Ore                              12.000     6.0    30..39     (exact)
+  Gravel                                           10.000    32.0     0..255    (exact)
+  Tungsten Ore                                     10.000     8.0     5..34     (exact)
+  Schist Gold Ore                                  10.000     6.0    30..39     (exact)
+  Redstone Ore                                      8.000     7.0     0..15     (exact)
+  Limestone                                         8.000    32.0    41..128    (exact)
+  Titanium Ore                                      8.000     6.0     5..34     (exact)
+  Marble                                            7.000    32.0    41..128    (exact)
+  Thorium Ore                                       7.000     5.0     5..29     (exact)
+  Aluminium Ore                                     7.000     6.0     5..44     (exact)
+  Uranium Ore                                       6.000     5.0     5..24     (exact)
+  Niter Ore                                         6.000     6.0     5..34     (exact)
+  Fluorite Ore                                      6.000     4.0     5..49     (exact)
+  Beryllium Ore                                     6.000     4.0     5..34     (exact)
+  Lead Ore                                          6.000     9.0     5..34     (exact)
+  Rare Earth Ore                                    6.000     5.0     5..24     (exact)
+  Schist Lithium Ore                                6.000     6.0    30..39     (exact)
+  Sulfur Ore                                        5.000     8.0     5..34     (exact)
+  Diorite                                           4.041    32.0    41..100  
+  Andesite                                          4.033    32.0    41..100  
+  Granite                                           3.979    32.0    41..100  
+  Gold Ore                                          2.000     8.0     0..31     (exact)
+  Lignite Ore                                       2.000    24.0    35..59     (exact)
+  Asbestos Ore                                      2.000     4.0    16..31     (exact)
+  Lapis Lazuli Ore                                  1.000     6.0     0..30     (exact)
+  Diamond Ore                                       1.000     7.0     0..15     (exact)
+  Poor Iron Ore                                     0.874    16.0    22..54   
+  Poor Copper Ore                                   0.872     8.0    48..69   
+  Poor Lead Ore                                     0.672     6.0    20..41   
+  Flammable Gas                                     0.018    32.0    30..39   
+  Oily Coal Ore                                     0.008    64.0    34..63   
+
+=== Dimension 36  (3969 chunks watched across 3 servers) ===
+  ore                                          veins/chunk    size      y range
+  Schist Copper Ore                                36.000     6.0    30..39     (exact)
+  Schist Iron Ore                                  25.000     6.0    30..39     (exact)
+  Dirt                                             20.000    32.0     0..255    (exact)
+  Iron Ore                                         20.000     8.0     0..63     (exact)
+  Coal Ore                                         20.000    16.0     0..127    (exact)
+  Schist Uranium Ore                               18.000     6.0    30..39     (exact)
+  Gas Shale                                        15.000    10.0    30..39     (exact)
+  Copper Ore                                       12.000     6.0     5..49     (exact)
+  Schist Asbestos Ore                              12.000     6.0    30..39     (exact)
+  Gravel                                           10.000    32.0     0..255    (exact)
+  Tungsten Ore                                     10.000     8.0     5..34     (exact)
+  Schist Gold Ore                                  10.000     6.0    30..39     (exact)
+  Redstone Ore                                      8.000     7.0     0..15     (exact)
+  Limestone                                         8.000    32.0    41..128    (exact)
+  Titanium Ore                                      8.000     6.0     5..34     (exact)
+  Marble                                            7.000    32.0    41..128    (exact)
+  Thorium Ore                                       7.000     5.0     5..29     (exact)
+  Aluminium Ore                                     7.000     6.0     5..44     (exact)
+  Uranium Ore                                       6.000     5.0     5..24     (exact)
+  Niter Ore                                         6.000     6.0     5..34     (exact)
+  Fluorite Ore                                      6.000     4.0     5..49     (exact)
+  Beryllium Ore                                     6.000     4.0     5..34     (exact)
+  Lead Ore                                          6.000     9.0     5..34     (exact)
+  Rare Earth Ore                                    6.000     5.0     5..24     (exact)
+  Schist Lithium Ore                                6.000     6.0    30..39     (exact)
+  Sulfur Ore                                        5.000     8.0     5..34     (exact)
+  Granite                                           4.034    32.0    41..100  
+  Andesite                                          4.027    32.0    41..100  
+  Diorite                                           3.964    32.0    41..100  
+  Gold Ore                                          2.000     8.0     0..31     (exact)
+  Lignite Ore                                       2.000    24.0    35..59     (exact)
+  Asbestos Ore                                      2.000     4.0    16..31     (exact)
+  Lapis Lazuli Ore                                  1.000     6.0     0..30     (exact)
+  Diamond Ore                                       1.000     7.0     0..15     (exact)
+  Poor Lead Ore                                     0.613     6.0    19..41   
+  Poor Copper Ore                                   0.460     8.0    50..70   
+  Poor Iron Ore                                     0.207    16.0    26..52   
+  Flammable Gas                                     0.013    32.0    30..39   
+  Oily Coal Ore                                     0.006    64.0    32..63   
+
+=== Dimension 50  (4295 chunks watched across 3 servers) ===
+  ore                                          veins/chunk    size      y range
+  Schist Copper Ore                                36.000     6.0    30..39     (exact)
+  Schist Iron Ore                                  25.000     6.0    30..39     (exact)
+  Schist Uranium Ore                               18.000     6.0    30..39     (exact)
+  Gas Shale                                        15.000    10.0    30..39     (exact)
+  Copper Ore                                       12.000     6.0     5..49     (exact)
+  Schist Asbestos Ore                              12.000     6.0    30..39     (exact)
+  Tungsten Ore                                     10.000     8.0     5..34     (exact)
+  Schist Gold Ore                                  10.000     6.0    30..39     (exact)
+  Limestone                                         8.000    32.0    41..128    (exact)
+  Titanium Ore                                      8.000     6.0     5..34     (exact)
+  Marble                                            7.000    32.0    41..128    (exact)
+  Thorium Ore                                       7.000     5.0     5..29     (exact)
+  Aluminium Ore                                     7.000     6.0     5..44     (exact)
+  Uranium Ore                                       6.000     5.0     5..24     (exact)
+  Niter Ore                                         6.000     6.0     5..34     (exact)
+  Fluorite Ore                                      6.000     4.0     5..49     (exact)
+  Beryllium Ore                                     6.000     4.0     5..34     (exact)
+  Lead Ore                                          6.000     9.0     5..34     (exact)
+  Rare Earth Ore                                    6.000     5.0     5..24     (exact)
+  Schist Lithium Ore                                6.000     6.0    30..39     (exact)
+  Sulfur Ore                                        5.000     8.0     5..34     (exact)
+  Diorite                                           4.006    32.0    41..100  
+  Andesite                                          3.991    32.0    41..100  
+  Granite                                           3.952    32.0    41..100  
+  Lignite Ore                                       2.000    24.0    35..59     (exact)
+  Asbestos Ore                                      2.000     4.0    16..31     (exact)
+  Flammable Gas                                     0.012    32.0    30..39   
+  Oily Coal Ore                                     0.007    64.0    32..61   
+
+=== Dimension 51  (3951 chunks watched across 3 servers) ===
+  ore                                          veins/chunk    size      y range
+  Schist Copper Ore                                36.000     6.0    30..39     (exact)
+  Schist Iron Ore                                  25.000     6.0    30..39     (exact)
+  Dirt                                             20.000    32.0     0..255    (exact)
+  Iron Ore                                         20.000     8.0     0..63     (exact)
+  Coal Ore                                         20.000    16.0     0..127    (exact)
+  Schist Uranium Ore                               18.000     6.0    30..39     (exact)
+  Gas Shale                                        15.000    10.0    30..39     (exact)
+  Copper Ore                                       12.000     6.0     5..49     (exact)
+  Schist Asbestos Ore                              12.000     6.0    30..39     (exact)
+  Gravel                                           10.000    32.0     0..255    (exact)
+  Vibranium Ore                                    10.000     6.0     0..45     (exact)
+  Tungsten Ore                                     10.000     8.0     5..34     (exact)
+  Schist Gold Ore                                  10.000     6.0    30..39     (exact)
+  Redstone Ore                                      8.000     7.0     0..15     (exact)
+  Limestone                                         8.000    32.0    41..128    (exact)
+  Titanium Ore                                      8.000     6.0     5..34     (exact)
+  Marble                                            7.000    32.0    41..128    (exact)
+  Thorium Ore                                       7.000     5.0     5..29     (exact)
+  Aluminium Ore                                     7.000     6.0     5..44     (exact)
+  Uranium Ore                                       6.000     5.0     5..24     (exact)
+  Niter Ore                                         6.000     6.0     5..34     (exact)
+  Fluorite Ore                                      6.000     4.0     5..49     (exact)
+  Beryllium Ore                                     6.000     4.0     5..34     (exact)
+  Lead Ore                                          6.000     9.0     5..34     (exact)
+  Rare Earth Ore                                    6.000     5.0     5..24     (exact)
+  Schist Lithium Ore                                6.000     6.0    30..39     (exact)
+  Sulfur Ore                                        5.000     8.0     5..34     (exact)
+  Diorite                                           4.018    32.0    41..100  
+  Andesite                                          3.996    32.0    41..100    (exact)
+  Granite                                           3.992    32.0    41..100  
+  Gold Ore                                          2.000     8.0     0..31     (exact)
+  Lignite Ore                                       2.000    24.0    35..59     (exact)
+  Asbestos Ore                                      2.000     4.0    16..31     (exact)
+  Poor Copper Ore                                   1.282     8.0    48..70   
+  Lapis Lazuli Ore                                  1.000     6.0     0..30     (exact)
+  Diamond Ore                                       1.000     7.0     0..15     (exact)
+  Poor Lead Ore                                     0.880     6.0    19..40   
+  Poor Iron Ore                                     0.812    16.0    23..54   
+  Flammable Gas                                     0.016    32.0    30..39   
+  Oily Coal Ore                                     0.006    64.0    32..63   
+
+=== Dimension 53  (4826 chunks watched across 3 servers) ===
+  ore                                          veins/chunk    size      y range
+  Schist Copper Ore                                36.000     6.0    30..39     (exact)
+  Schist Iron Ore                                  25.000     6.0    30..39     (exact)
+  Schist Uranium Ore                               18.000     6.0    30..39     (exact)
+  Gas Shale                                        15.000    10.0    30..39     (exact)
+  Copper Ore                                       12.000     6.0     5..49     (exact)
+  Schist Asbestos Ore                              12.000     6.0    30..39     (exact)
+  Tungsten Ore                                     10.000     8.0     5..34     (exact)
+  Schist Gold Ore                                  10.000     6.0    30..39     (exact)
+  Limestone                                         8.000    32.0    41..128    (exact)
+  Titanium Ore                                      8.000     6.0     5..34     (exact)
+  Marble                                            7.000    32.0    41..128    (exact)
+  Thorium Ore                                       7.000     5.0     5..29     (exact)
+  Aluminium Ore                                     7.000     6.0     5..44     (exact)
+  Uranium Ore                                       6.000     5.0     5..24     (exact)
+  Niter Ore                                         6.000     6.0     5..34     (exact)
+  Fluorite Ore                                      6.000     4.0     5..49     (exact)
+  Beryllium Ore                                     6.000     4.0     5..34     (exact)
+  Lead Ore                                          6.000     9.0     5..34     (exact)
+  Rare Earth Ore                                    6.000     5.0     5..24     (exact)
+  Schist Lithium Ore                                6.000     6.0    30..39     (exact)
+  Sulfur Ore                                        5.000     8.0     5..34     (exact)
+  Diorite                                           4.035    32.0    41..100  
+  Granite                                           3.983    32.0    41..100  
+  Andesite                                          3.957    32.0    41..100  
+  Lignite Ore                                       2.000    24.0    35..59     (exact)
+  Asbestos Ore                                      2.000     4.0    16..31     (exact)
+  Flammable Gas                                     0.014    32.0    30..39   
+  Oily Coal Ore                                     0.009    64.0    32..62   
+
+=== Dimension 55  (4029 chunks watched across 3 servers) ===
+  ore                                          veins/chunk    size      y range
+  Schist Copper Ore                                36.000     6.0    30..39     (exact)
+  Schist Iron Ore                                  25.000     6.0    30..39     (exact)
+  Schist Uranium Ore                               18.000     6.0    30..39     (exact)
+  Gas Shale                                        15.000    10.0    30..39     (exact)
+  Copper Ore                                       12.000     6.0     5..49     (exact)
+  Schist Asbestos Ore                              12.000     6.0    30..39     (exact)
+  Tungsten Ore                                     10.000     8.0     5..34     (exact)
+  Schist Gold Ore                                  10.000     6.0    30..39     (exact)
+  Limestone                                         8.000    32.0    41..128    (exact)
+  Titanium Ore                                      8.000     6.0     5..34     (exact)
+  Marble                                            7.000    32.0    41..128    (exact)
+  Thorium Ore                                       7.000     5.0     5..29     (exact)
+  Aluminium Ore                                     7.000     6.0     5..44     (exact)
+  Uranium Ore                                       6.000     5.0     5..24     (exact)
+  Niter Ore                                         6.000     6.0     5..34     (exact)
+  Fluorite Ore                                      6.000     4.0     5..49     (exact)
+  Beryllium Ore                                     6.000     4.0     5..34     (exact)
+  Lead Ore                                          6.000     9.0     5..34     (exact)
+  Rare Earth Ore                                    6.000     5.0     5..24     (exact)
+  Schist Lithium Ore                                6.000     6.0    30..39     (exact)
+  Sulfur Ore                                        5.000     8.0     5..34     (exact)
+  Andesite                                          3.991    32.0    41..100  
+  Diorite                                           3.979    32.0    41..100  
+  Granite                                           3.960    32.0    41..100  
+  Lignite Ore                                       2.000    24.0    35..59     (exact)
+  Asbestos Ore                                      2.000     4.0    16..31     (exact)
+  Flammable Gas                                     0.019    32.0    30..39   
+  Oily Coal Ore                                     0.008    64.0    32..62   
+
+=== Dimension 58  (4433 chunks watched across 3 servers) ===
+  ore                                          veins/chunk    size      y range
+  Schist Copper Ore                                36.000     6.0    30..39     (exact)
+  Copper Ore                                       28.000     7.1     0..49     (exact)
+  Schist Iron Ore                                  25.000     6.0    30..39     (exact)
+  Andesite                                         24.027    12.0     0..100  
+  Granite                                          24.015    13.7     0..100  
+  Diorite                                          23.998    13.7     0..100    (exact)
+  Titanium Ore                                     23.000     6.0     0..56     (exact)
+  Dirt                                             20.000    32.0     0..255    (exact)
+  Iron Ore                                         20.000     8.0     0..63     (exact)
+  Coal Ore                                         20.000    16.0     0..127    (exact)
+  Black-Iron Ore                                   18.000     8.0     0..64     (exact)
+  Red Iron Ore                                     18.000     8.0     0..60     (exact)
+  Tungsten Ore                                     18.000     6.7     0..37     (exact)
+  Schist Uranium Ore                               18.000     6.0    30..39     (exact)
+  Silicon Ore                                      17.000     8.0     0..25     (exact)
+  Sphalerite Ore                                   16.000     6.0     0..28     (exact)
+  Cassiterite Ore                                  16.000     8.0     0..56     (exact)
+  Gas Shale                                        15.000    10.0    30..39     (exact)
+  Magnesite Ore                                    14.000     7.0     0..57     (exact)
+  Schist Asbestos Ore                              12.000     6.0    30..39     (exact)
+  Gravel                                           10.000    32.0     0..255    (exact)
+  Platinum Ore                                     10.000     5.0     0..22     (exact)
+  Bauxite Ore                                      10.000     8.0     0..58     (exact)
+  Schist Gold Ore                                  10.000     6.0    30..39     (exact)
+  Redstone Ore                                      8.000     7.0     0..15     (exact)
+  Limestone                                         8.000    32.0    41..128    (exact)
+  Silver Ore                                        7.000     9.0     0..25     (exact)
+  Marble                                            7.000    32.0    41..128    (exact)
+  Thorium Ore                                       7.000     5.0     5..29     (exact)
+  Aluminium Ore                                     7.000     6.0     5..44     (exact)
+  Uranium Ore                                       6.000     5.0     5..24     (exact)
+  Niter Ore                                         6.000     6.0     5..34     (exact)
+  Fluorite Ore                                      6.000     4.0     5..49     (exact)
+  Beryllium Ore                                     6.000     4.0     5..34     (exact)
+  Lead Ore                                          6.000     9.0     5..34     (exact)
+  Rare Earth Ore                                    6.000     5.0     5..24     (exact)
+  Schist Lithium Ore                                6.000     6.0    30..39     (exact)
+  Sulfur Ore                                        5.000     8.0     5..34     (exact)
+  Gold Ore                                          2.000     8.0     0..31     (exact)
+  Ruby Ore                                          2.000     4.0     0..15     (exact)
+  Sapphire Ore                                      2.000     4.0     0..18     (exact)
+  Lightning Stone                                   2.000     4.0     0..45     (exact)
+  Lignite Ore                                       2.000    24.0    35..59     (exact)
+  Asbestos Ore                                      2.000     4.0    16..31     (exact)
+  Lapis Lazuli Ore                                  1.000     6.0     0..30     (exact)
+  Diamond Ore                                       1.000     7.0     0..15     (exact)
+  Red Diamond Ore                                   1.000     4.0     0..12     (exact)
+  Poor Copper Ore                                   0.908     8.0    48..70   
+  Poor Lead Ore                                     0.688     6.0    19..40   
+  Poor Iron Ore                                     0.609    16.0    24..55   
+  Flammable Gas                                     0.017    32.0    30..39   
+  Oily Coal Ore                                     0.009    64.0    32..63   
+
+=== Dimension 66  (4156 chunks watched across 3 servers) ===
+  ore                                          veins/chunk    size      y range
+  Schist Copper Ore                                36.000     6.0    30..39     (exact)
+  Schist Iron Ore                                  25.000     6.0    30..39     (exact)
+  Schist Uranium Ore                               18.000     6.0    30..39     (exact)
+  Gas Shale                                        15.000    10.0    30..39     (exact)
+  Copper Ore                                       12.000     6.0     5..49     (exact)
+  Schist Asbestos Ore                              12.000     6.0    30..39     (exact)
+  Tungsten Ore                                     10.000     8.0     5..34     (exact)
+  Schist Gold Ore                                  10.000     6.0    30..39     (exact)
+  Limestone                                         8.000    32.0    41..128    (exact)
+  Titanium Ore                                      8.000     6.0     5..34     (exact)
+  Marble                                            7.000    32.0    41..128    (exact)
+  Thorium Ore                                       7.000     5.0     5..29     (exact)
+  Aluminium Ore                                     7.000     6.0     5..44     (exact)
+  Uranium Ore                                       6.000     5.0     5..24     (exact)
+  Niter Ore                                         6.000     6.0     5..34     (exact)
+  Fluorite Ore                                      6.000     4.0     5..49     (exact)
+  Beryllium Ore                                     6.000     4.0     5..34     (exact)
+  Lead Ore                                          6.000     9.0     5..34     (exact)
+  Rare Earth Ore                                    6.000     5.0     5..24     (exact)
+  Schist Lithium Ore                                6.000     6.0    30..39     (exact)
+  Ancient Debris                                    5.000     2.6     8..119    (exact)
+  Sulfur Ore                                        5.000     8.0     5..34     (exact)
+  Andesite                                          4.008    32.0    41..100  
+  Diorite                                           4.006    32.0    41..100  
+  Magma Block                                       4.000    33.0     0..36     (exact)
+  Granite                                           3.992    32.0    41..100  
+  Lignite Ore                                       2.000    24.0    35..59     (exact)
+  Asbestos Ore                                      2.000     4.0    16..31     (exact)
+  Flammable Gas                                     0.017    32.0    30..39   
+  Oily Coal Ore                                     0.007    64.0    33..63   
+
+=== Dimension 80  (3940 chunks watched across 3 servers) ===
+  ore                                          veins/chunk    size      y range
+  Schist Copper Ore                                36.000     6.0    30..39     (exact)
+  Schist Iron Ore                                  25.000     6.0    30..39     (exact)
+  Dirt                                             20.000    32.0     0..255    (exact)
+  Iron Ore                                         20.000     8.0     0..63     (exact)
+  Coal Ore                                         20.000    16.0     0..127    (exact)
+  Schist Uranium Ore                               18.000     6.0    30..39     (exact)
+  Gas Shale                                        15.000    10.0    30..39     (exact)
+  Copper Ore                                       12.000     6.0     5..49     (exact)
+  Schist Asbestos Ore                              12.000     6.0    30..39     (exact)
+  Gravel                                           10.000    32.0     0..255    (exact)
+  Tungsten Ore                                     10.000     8.0     5..34     (exact)
+  Schist Gold Ore                                  10.000     6.0    30..39     (exact)
+  Redstone Ore                                      8.000     7.0     0..15     (exact)
+  Limestone                                         8.000    32.0    41..128    (exact)
+  Titanium Ore                                      8.000     6.0     5..34     (exact)
+  Marble                                            7.000    32.0    41..128    (exact)
+  Thorium Ore                                       7.000     5.0     5..29     (exact)
+  Aluminium Ore                                     7.000     6.0     5..44     (exact)
+  Uranium Ore                                       6.000     5.0     5..24     (exact)
+  Niter Ore                                         6.000     6.0     5..34     (exact)
+  Fluorite Ore                                      6.000     4.0     5..49     (exact)
+  Beryllium Ore                                     6.000     4.0     5..34     (exact)
+  Lead Ore                                          6.000     9.0     5..34     (exact)
+  Rare Earth Ore                                    6.000     5.0     5..24     (exact)
+  Schist Lithium Ore                                6.000     6.0    30..39     (exact)
+  Sulfur Ore                                        5.000     8.0     5..34     (exact)
+  Andesite                                          4.027    32.0    41..100  
+  Diorite                                           4.024    32.0    41..100  
+  Granite                                           4.019    32.0    41..100  
+  Gold Ore                                          2.000     8.0     0..31     (exact)
+  Lignite Ore                                       2.000    24.0    35..59     (exact)
+  Asbestos Ore                                      2.000     4.0    16..31     (exact)
+  Lapis Lazuli Ore                                  1.000     6.0     0..30     (exact)
+  Diamond Ore                                       1.000     7.0     0..15     (exact)
+  Poor Copper Ore                                   0.881     8.0    48..70   
+  Poor Iron Ore                                     0.802    16.0    27..55   
+  Poor Lead Ore                                     0.353     6.0    20..40   
+  Flammable Gas                                     0.016    32.0    30..39   
+  Oily Coal Ore                                     0.009    64.0    32..63   
+
+=== Dimension 81  (3947 chunks watched across 3 servers) ===
+  ore                                          veins/chunk    size      y range
+  Schist Copper Ore                                36.000     6.0    30..39     (exact)
+  Lapis Lazuli Ore                                 28.295     5.9     0..49   
+  Schist Iron Ore                                  25.000     6.0    30..39     (exact)
+  Dirt                                             20.000    32.0     0..255    (exact)
+  Iron Ore                                         20.000     8.0     0..63     (exact)
+  Coal Ore                                         20.000    16.0     0..127    (exact)
+  Schist Uranium Ore                               18.000     6.0    30..39     (exact)
+  Gas Shale                                        15.000    10.0    30..39     (exact)
+  Copper Ore                                       12.000     6.0     5..49     (exact)
+  Schist Asbestos Ore                              12.000     6.0    30..39     (exact)
+  Gravel                                           10.000    32.0     0..255    (exact)
+  Tungsten Ore                                     10.000     8.0     5..34     (exact)
+  Schist Gold Ore                                  10.000     6.0    30..39     (exact)
+  Redstone Ore                                      8.000     7.0     0..15     (exact)
+  Limestone                                         8.000    32.0    41..128    (exact)
+  Titanium Ore                                      8.000     6.0     5..34     (exact)
+  Stone Monster Egg                                 7.000     8.0     0..63     (exact)
+  Marble                                            7.000    32.0    41..128    (exact)
+  Thorium Ore                                       7.000     5.0     5..29     (exact)
+  Aluminium Ore                                     7.000     6.0     5..44     (exact)
+  Uranium Ore                                       6.000     5.0     5..24     (exact)
+  Niter Ore                                         6.000     6.0     5..34     (exact)
+  Fluorite Ore                                      6.000     4.0     5..49     (exact)
+  Beryllium Ore                                     6.000     4.0     5..34     (exact)
+  Lead Ore                                          6.000     9.0     5..34     (exact)
+  Rare Earth Ore                                    6.000     5.0     5..24     (exact)
+  Schist Lithium Ore                                6.000     6.0    30..39     (exact)
+  Sulfur Ore                                        5.000     8.0     5..34     (exact)
+  Granite                                           4.005    32.0    41..100  
+  Andesite                                          4.002    32.0    41..100    (exact)
+  Diorite                                           3.967    32.0    41..100  
+  Gold Ore                                          2.000     8.0     0..31     (exact)
+  Lignite Ore                                       2.000    24.0    35..59     (exact)
+  Asbestos Ore                                      2.000     4.0    16..31     (exact)
+  Diamond Ore                                       1.000     7.0     0..15     (exact)
+  Poor Iron Ore                                     0.371    16.0    27..52   
+  Poor Copper Ore                                   0.338     8.0    50..69   
+  Poor Lead Ore                                     0.240     6.0    20..39   
+  Flammable Gas                                     0.017    32.0    30..39   
+  Oily Coal Ore                                     0.006    64.0    32..62   
+
+=== Dimension 82  (3958 chunks watched across 3 servers) ===
+  ore                                          veins/chunk    size      y range
+  Schist Copper Ore                                36.000     6.0    30..39     (exact)
+  Schist Iron Ore                                  25.000     6.0    30..39     (exact)
+  Dirt                                             20.000    32.0     0..255    (exact)
+  Iron Ore                                         20.000     8.0     0..63     (exact)
+  Coal Ore                                         20.000    16.0     0..127    (exact)
+  Schist Uranium Ore                               18.000     6.0    30..39     (exact)
+  Gas Shale                                        15.000    10.0    30..39     (exact)
+  Copper Ore                                       12.000     6.0     5..49     (exact)
+  Schist Asbestos Ore                              12.000     6.0    30..39     (exact)
+  Gravel                                           10.000    32.0     0..255    (exact)
+  Tungsten Ore                                     10.000     8.0     5..34     (exact)
+  Schist Gold Ore                                  10.000     6.0    30..39     (exact)
+  Redstone Ore                                      8.000     7.0     0..15     (exact)
+  Limestone                                         8.000    32.0    41..128    (exact)
+  Titanium Ore                                      8.000     6.0     5..34     (exact)
+  Marble                                            7.000    32.0    41..128    (exact)
+  Thorium Ore                                       7.000     5.0     5..29     (exact)
+  Aluminium Ore                                     7.000     6.0     5..44     (exact)
+  Uranium Ore                                       6.000     5.0     5..24     (exact)
+  Niter Ore                                         6.000     6.0     5..34     (exact)
+  Fluorite Ore                                      6.000     4.0     5..49     (exact)
+  Beryllium Ore                                     6.000     4.0     5..34     (exact)
+  Lead Ore                                          6.000     9.0     5..34     (exact)
+  Rare Earth Ore                                    6.000     5.0     5..24     (exact)
+  Schist Lithium Ore                                6.000     6.0    30..39     (exact)
+  Sulfur Ore                                        5.000     8.0     5..34     (exact)
+  Diorite                                           4.016    32.0    41..100  
+  Granite                                           4.014    32.0    41..100  
+  Andesite                                          3.995    32.0    41..100    (exact)
+  Gold Ore                                          2.000     8.0     0..31     (exact)
+  Lignite Ore                                       2.000    24.0    35..59     (exact)
+  Asbestos Ore                                      2.000     4.0    16..31     (exact)
+  Lapis Lazuli Ore                                  1.000     6.0     0..30     (exact)
+  Diamond Ore                                       1.000     7.0     0..15     (exact)
+  Poor Iron Ore                                     0.992    16.0    26..56   
+  Poor Lead Ore                                     0.990     6.0    18..40   
+  Poor Copper Ore                                   0.550     8.0    49..70   
+  Flammable Gas                                     0.016    32.0    30..39   
+  Oily Coal Ore                                     0.010    64.0    33..63   
+
+=== Dimension 83  (3969 chunks watched across 3 servers) ===
+  ore                                          veins/chunk    size      y range
+  Schist Copper Ore                                36.000     6.0    30..39     (exact)
+  Schist Iron Ore                                  25.000     6.0    30..39     (exact)
+  Schist Uranium Ore                               18.000     6.0    30..39     (exact)
+  Gas Shale                                        15.000    10.0    30..39     (exact)
+  Copper Ore                                       12.000     6.0     5..49     (exact)
+  Schist Asbestos Ore                              12.000     6.0    30..39     (exact)
+  Tungsten Ore                                     10.000     8.0     5..34     (exact)
+  Schist Gold Ore                                  10.000     6.0    30..39     (exact)
+  Limestone                                         8.000    32.0    41..128    (exact)
+  Titanium Ore                                      8.000     6.0     5..34     (exact)
+  Marble                                            7.000    32.0    41..128    (exact)
+  Thorium Ore                                       7.000     5.0     5..29     (exact)
+  Aluminium Ore                                     7.000     6.0     5..44     (exact)
+  Uranium Ore                                       6.000     5.0     5..24     (exact)
+  Niter Ore                                         6.000     6.0     5..34     (exact)
+  Fluorite Ore                                      6.000     4.0     5..49     (exact)
+  Beryllium Ore                                     6.000     4.0     5..34     (exact)
+  Lead Ore                                          6.000     9.0     5..34     (exact)
+  Rare Earth Ore                                    6.000     5.0     5..24     (exact)
+  Schist Lithium Ore                                6.000     6.0    30..39     (exact)
+  Sulfur Ore                                        5.000     8.0     5..34     (exact)
+  Andesite                                          4.049    32.0    41..100  
+  Granite                                           4.030    32.0    41..100  
+  Diorite                                           3.995    32.0    41..100  
+  Lignite Ore                                       2.000    24.0    35..59     (exact)
+  Asbestos Ore                                      2.000     4.0    16..31     (exact)
+  Flammable Gas                                     0.019    32.0    30..39   
+  Oily Coal Ore                                     0.007    64.0    34..62   
+
+=== Dimension 84  (3942 chunks watched across 3 servers) ===
+  ore                                          veins/chunk    size      y range
+  Schist Copper Ore                                36.000     6.0    30..39     (exact)
+  Schist Iron Ore                                  25.000     6.0    30..39     (exact)
+  Dirt                                             20.000    32.0     0..255    (exact)
+  Iron Ore                                         20.000     8.0     0..63     (exact)
+  Coal Ore                                         20.000    16.0     0..127    (exact)
+  Schist Uranium Ore                               18.000     6.0    30..39     (exact)
+  Gas Shale                                        15.000    10.0    30..39     (exact)
+  Copper Ore                                       12.000     6.0     5..49     (exact)
+  Schist Asbestos Ore                              12.000     6.0    30..39     (exact)
+  Gravel                                           10.000    32.0     0..255    (exact)
+  Tungsten Ore                                     10.000     8.0     5..34     (exact)
+  Schist Gold Ore                                  10.000     6.0    30..39     (exact)
+  Redstone Ore                                      8.000     7.0     0..15     (exact)
+  Limestone                                         8.000    32.0    41..128    (exact)
+  Titanium Ore                                      8.000     6.0     5..34     (exact)
+  Marble                                            7.000    32.0    41..128    (exact)
+  Thorium Ore                                       7.000     5.0     5..29     (exact)
+  Aluminium Ore                                     7.000     6.0     5..44     (exact)
+  Uranium Ore                                       6.000     5.0     5..24     (exact)
+  Niter Ore                                         6.000     6.0     5..34     (exact)
+  Fluorite Ore                                      6.000     4.0     5..49     (exact)
+  Beryllium Ore                                     6.000     4.0     5..34     (exact)
+  Lead Ore                                          6.000     9.0     5..34     (exact)
+  Rare Earth Ore                                    6.000     5.0     5..24     (exact)
+  Schist Lithium Ore                                6.000     6.0    30..39     (exact)
+  Sulfur Ore                                        5.000     8.0     5..34     (exact)
+  Diorite                                           3.998    32.0    41..100    (exact)
+  Granite                                           3.994    32.0    41..100  
+  Andesite                                          3.987    32.0    41..100  
+  Gold Ore                                          2.000     8.0     0..31     (exact)
+  Lignite Ore                                       2.000    24.0    35..59     (exact)
+  Asbestos Ore                                      2.000     4.0    16..31     (exact)
+  Poor Iron Ore                                     1.534    16.0    25..54   
+  Poor Lead Ore                                     1.230     6.0    19..40   
+  Lapis Lazuli Ore                                  1.000     6.0     0..30     (exact)
+  Diamond Ore                                       1.000     7.0     0..15     (exact)
+  Poor Copper Ore                                   0.674     8.0    50..69   
+  Flammable Gas                                     0.016    32.0    30..39   
+  Oily Coal Ore                                     0.009    64.0    32..63   
+
+=== Dimension 85  (3962 chunks watched across 3 servers) ===
+  ore                                          veins/chunk    size      y range
+  Schist Copper Ore                                36.000     6.0    30..39     (exact)
+  Schist Iron Ore                                  25.000     6.0    30..39     (exact)
+  Dirt                                             20.000    32.0     0..255    (exact)
+  Iron Ore                                         20.000     8.0     0..63     (exact)
+  Coal Ore                                         20.000    16.0     0..127    (exact)
+  Schist Uranium Ore                               18.000     6.0    30..39     (exact)
+  Gas Shale                                        15.000    10.0    30..39     (exact)
+  Copper Ore                                       12.000     6.0     5..49     (exact)
+  Schist Asbestos Ore                              12.000     6.0    30..39     (exact)
+  Gravel                                           10.000    32.0     0..255    (exact)
+  Tungsten Ore                                     10.000     8.0     5..34     (exact)
+  Schist Gold Ore                                  10.000     6.0    30..39     (exact)
+  Redstone Ore                                      8.000     7.0     0..15     (exact)
+  Limestone                                         8.000    32.0    41..128    (exact)
+  Titanium Ore                                      8.000     6.0     5..34     (exact)
+  Marble                                            7.000    32.0    41..128    (exact)
+  Thorium Ore                                       7.000     5.0     5..29     (exact)
+  Aluminium Ore                                     7.000     6.0     5..44     (exact)
+  Uranium Ore                                       6.000     5.0     5..24     (exact)
+  Niter Ore                                         6.000     6.0     5..34     (exact)
+  Fluorite Ore                                      6.000     4.0     5..49     (exact)
+  Beryllium Ore                                     6.000     4.0     5..34     (exact)
+  Lead Ore                                          6.000     9.0     5..34     (exact)
+  Rare Earth Ore                                    6.000     5.0     5..24     (exact)
+  Schist Lithium Ore                                6.000     6.0    30..39     (exact)
+  Sulfur Ore                                        5.000     8.0     5..34     (exact)
+  Andesite                                          4.016    32.0    41..100  
+  Granite                                           3.996    32.0    41..100    (exact)
+  Diorite                                           3.975    32.0    41..100  
+  Gold Ore                                          2.000     8.0     0..31     (exact)
+  Lignite Ore                                       2.000    24.0    35..59     (exact)
+  Asbestos Ore                                      2.000     4.0    16..31     (exact)
+  Lapis Lazuli Ore                                  1.000     6.0     1..30     (exact)
+  Diamond Ore                                       1.000     7.0     0..15     (exact)
+  Poor Lead Ore                                     0.974     6.0    19..39   
+  Poor Iron Ore                                     0.912    16.0    28..55   
+  Poor Copper Ore                                   0.675     8.0    50..69   
+  Flammable Gas                                     0.016    32.0    30..39   
+  Oily Coal Ore                                     0.006    64.0    34..62   
+
+30 dimensions, 1120 ore/dimension entries.

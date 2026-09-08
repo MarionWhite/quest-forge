@@ -1,0 +1,38 @@
+Distant loading-chant anvil (v5) — sources kept for regen.
+
+Used in the mix
+  anvil_bsb3589.flac
+    BigSoundBank #3589 "Anvil #1" by Pablo BERGEL
+    https://bigsoundbank.com/anvil-1-s3589.html
+    CC0 / public domain. 48 kHz / 24-bit mono, working smith, one anvil.
+    v5 uses only two strikes, the liked isolated examples from anvil_v4_excerpt:
+      excerpt #1 @ 0.557s = BSB 7.080 (medium-heavy)
+      excerpt #3 @ 7.650s = BSB 26.030 (light)
+    Rejected excerpt #2/#4/#5 (BSB 0.139 / 23.252 / 21.937) are not mixed.
+    Distance-treated in chant_v5.py. No modal resynthesis.
+
+v3 (rejected — kept for A/B)
+  fs_duasun_321889.mp3
+    Freesound 321889 "Hammer and anvil" by Duasun
+    https://freesound.org/people/Duasun/sounds/321889/
+    CC0. Isolated rings were good steel; v3's modal bank + 100 Hz body thud
+    + dull wet hall destroyed the attack and turned the ring into a sine pad.
+
+Also downloaded, not used in the shipped loop
+  anvil_bsb3588.flac / 3590 — BigSoundBank #3588 / #3590, Pablo BERGEL, CC0
+  anvil_oga_blacksmithhammer.wav — OpenGameArt (derived from Duasun 321889), CC0
+  fs_ldezem_386107.mp3 — Freesound 386107, CC0 (Lokomo 125 kg on 16 mm plate)
+  src/_ref/ldezem_386130.mp3 — Freesound 386130, CC0 (same anvil, 6 mm plate)
+  fs_samster_363169.mp3 — Freesound 363169, CC0 ($3 mic, short ring)
+
+Analysis / reference only (CC BY — not mixed)
+  src/_ref/benboncan_103629.mp3 / 103630 / 103632
+    Freesound "Large Anvil & Steel Hammer" 1, 2, 4 by Benboncan, CC BY 4.0
+    https://freesound.org/people/Benboncan/sounds/103629/
+    Gold-standard isolated large-anvil spectrogram: ~1 ms attack, body 200–800 Hz,
+    ping cluster ~1520 / 1897 / 2780 Hz. Used to judge v3 vs v4, not to mix.
+  fs_benboncan_103628.mp3, fs_benboncan_60649.mp3, fs_mrauralization_274846.mp3
+    CC BY 4.0, analysis only.
+  Wikimedia "Blacksmith Working at Möhkön Ruukki" (Sounds of Changes / Antti
+    Makkonen, CC BY 3.0) — real forge work rhythm (heavy then light, clusters).
+    Not downloaded; description + existing BSB working takes used for rhythm.

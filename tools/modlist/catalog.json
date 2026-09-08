@@ -1,0 +1,838 @@
+{
+ "cats": [
+  [
+   "Quests",
+   "Quests &amp; Progression",
+   "The spine of the pack \u2014 what to do next, and what you get for doing it."
+  ],
+  [
+   "Dimensions",
+   "New Dimensions",
+   "Places that aren't the Overworld, each with its own progression."
+  ],
+  [
+   "Dungeons",
+   "Dungeons &amp; Worldgen",
+   "What fills the map between the dimensions."
+  ],
+  [
+   "Creatures",
+   "Creatures &amp; Bosses",
+   "Everything that wants you dead, and the tools used to keep it balanced."
+  ],
+  [
+   "Combat",
+   "Combat &amp; Gear",
+   "How fights actually play out, and what you carry into them."
+  ],
+  [
+   "Magic",
+   "Magic &amp; the Arcane",
+   "Systems with their own rules, rituals and consequences."
+  ],
+  [
+   "Fiction",
+   "Franchises &amp; Fiction",
+   "Guest appearances from outside Minecraft."
+  ],
+  [
+   "Tech",
+   "Tech, Transport &amp; Storage",
+   "Machines, logistics, rails, vehicles and where to put it all."
+  ],
+  [
+   "Building",
+   "Building &amp; Decoration",
+   "For when the fighting is done and the base still looks like a dirt hut."
+  ],
+  [
+   "Comfort",
+   "Comfort &amp; Interface",
+   "Information, convenience and the small mercies."
+  ],
+  [
+   "Under",
+   "Performance &amp; Background",
+   "Nothing to interact with. Libraries, loaders and the mods that keep the frame rate up."
+  ]
+ ],
+ "mods": [
+  {
+   "cat": "Quests",
+   "name": "Better Questing",
+   "ver": "3.0.328",
+   "desc": "The questing engine the whole pack is built on. Quest lines, prerequisites, party support and reward chests, all driven from an in-game book.",
+   "file": "BetterQuesting-3.0.328.jar"
+  },
+  {
+   "cat": "Quests",
+   "name": "Standard Expansion",
+   "ver": "3.0.181",
+   "desc": "The task and reward library for Better Questing \u2014 retrieval, crafting, kill and location objectives, loot rewards, and the quest-line themes.",
+   "file": "StandardExpansion-3.0.181.jar"
+  },
+  {
+   "cat": "Quests",
+   "name": "Quest Book",
+   "ver": "3.0.0",
+   "desc": "Puts the quest interface on a physical book you carry, so you can open your quest log without a keybind or a command.",
+   "file": "questbook-3.0.0-1.7.10.jar"
+  },
+  {
+   "cat": "Quests",
+   "name": "QuestForge Content",
+   "ver": "1.0.0",
+   "desc": "The pack's own mod: 81 custom enchantments with their own application rules, a proximity voice chat, a working in-game jukebox, and the survey tools used to balance the pack.",
+   "file": "QuestForgeContent-1.0.0.jar"
+  },
+  {
+   "cat": "Quests",
+   "name": "Level Up!",
+   "ver": "",
+   "desc": "An RPG skill tree layered over vanilla. Spend levels on Mining, Sword, Archery and more, or pick a class; a Book of Unlearning lets you respec.",
+   "file": "LevelUp.jar"
+  },
+  {
+   "cat": "Quests",
+   "name": "Loot Bags",
+   "ver": "2.0.17",
+   "desc": "Mobs drop sealed pouches instead of only their usual loot. Open one for a weighted roll from a pack-wide loot table.",
+   "file": "LootBags-1.7.10-2.0.17.jar"
+  },
+  {
+   "cat": "Dimensions",
+   "name": "The Twilight Forest",
+   "ver": "2.4.3",
+   "desc": "A permanently dusk-lit forest dimension gated behind a progression of bosses \u2014 the Naga, the Lich, the Hydra \u2014 each one unlocking the next region.",
+   "file": "TwilightForest-2.4.3.jar"
+  },
+  {
+   "cat": "Dimensions",
+   "name": "Hardcore Ender Expansion",
+   "ver": "1.8.6",
+   "desc": "Rebuilds the End into a real destination: a genuinely difficult Ender Dragon, new biomes and ores, endermen that behave, and a reward worth the fight.",
+   "file": "HardcoreEnderExpansionMCv.jar"
+  },
+  {
+   "cat": "Dimensions",
+   "name": "Welcome to the Jungle",
+   "ver": "1.7.10-1.0.9",
+   "desc": "Overhauls jungle biomes with dense new growth, dinosaurs, and jungle-specific gear and structures.",
+   "file": "WelcomeToTheJungle.jar"
+  },
+  {
+   "cat": "Dungeons",
+   "name": "Chocolate Quest",
+   "ver": "1.7.10-1.1d",
+   "desc": "Large hand-designed dungeons \u2014 castles, pyramids, ships, walled towns \u2014 filled with scripted humanoid bosses and their loot. Formerly Better Dungeons.",
+   "file": "chocolateQuest-1.7.10-1.1d.jar"
+  },
+  {
+   "cat": "Dungeons",
+   "name": "Roguelike Dungeons",
+   "ver": "1.5.0",
+   "desc": "Multi-floor dungeons that get harder and richer the deeper you go, ending in a boss room. Generated fresh every world.",
+   "file": "roguelike-1.7.10-1.5.0b.jar"
+  },
+  {
+   "cat": "Dungeons",
+   "name": "Doomlike Dungeons",
+   "ver": "1.11.0",
+   "desc": "Sprawling multi-room complexes generated in the style of classic Doom levels \u2014 themed rooms, locked routes and spawner clusters.",
+   "file": "DoomlikeDungeons-1.11.0.1-MC1.7.10.jar"
+  },
+  {
+   "cat": "Dungeons",
+   "name": "Recurrent Complex",
+   "ver": "0.9.7.1.1",
+   "desc": "The structure engine behind much of the pack's worldgen. Places custom villages, ruins and set-pieces, and can import or export any build.",
+   "file": "RecurrentComplex.jar"
+  },
+  {
+   "cat": "Creatures",
+   "name": "Lycanites Mobs",
+   "ver": "1.13.0.5",
+   "desc": "A full bestiary keyed to biome and element \u2014 every environment gets its own set of predators, plus tameable mounts, summonable pets and elemental bosses.",
+   "file": "LycanitesMobsComplete 1.13.0.5 [1.7.10].jar"
+  },
+  {
+   "cat": "Creatures",
+   "name": "Mutant Creatures",
+   "ver": "1.7.10-1.4.8",
+   "desc": "Mini-boss versions of the vanilla mobs. The Mutant Creeper, Enderman and Zombie all hit far harder than the originals and drop trophies worth having.",
+   "file": "MutantCreatures.jar"
+  },
+  {
+   "cat": "Creatures",
+   "name": "TragicMC 2",
+   "ver": "2.46.2879",
+   "desc": "Its own progression of mobs, bosses and dimensions, leaning hard into large multi-stage boss fights.",
+   "file": "TragicMC.jar"
+  },
+  {
+   "cat": "Creatures",
+   "name": "OreSpawn",
+   "ver": "1.7.10-20.2",
+   "desc": "Enormous creatures, royal dragons, new dimensions and joke-scale weapons. Loud, chaotic, and the source of several of the pack's late-game targets.",
+   "file": "orespawn.zip"
+  },
+  {
+   "cat": "Creatures",
+   "name": "Infernal Mobs",
+   "ver": "",
+   "desc": "Diablo-style rare modifiers on ordinary mobs. A random zombie can roll Vengeance, Sprint and Ender \u2014 much deadlier, and much better loot.",
+   "file": "InfernalMobs-1.7.10.jar"
+  },
+  {
+   "cat": "Creatures",
+   "name": "Custom NPCs",
+   "ver": "1.7.10",
+   "desc": "The tool behind the pack's named characters: questgivers, shopkeepers and dialogue trees, all authored in-game.",
+   "file": "CustomNpcs.jar"
+  },
+  {
+   "cat": "Creatures",
+   "name": "Mob Properties",
+   "ver": "1.7.10-0.4.0",
+   "desc": "Rewrites any mob's drops, attributes and NBT from config \u2014 the lever used to retune spawns and loot across every mob mod at once.",
+   "file": "MobProperties.jar"
+  },
+  {
+   "cat": "Creatures",
+   "name": "Just Another Spawner",
+   "ver": "0.17.8",
+   "desc": "Takes over vanilla spawning so a dozen mob mods can share a world without one of them flooding every biome.",
+   "file": "JustAnotherSpawner-0.17.8.jar"
+  },
+  {
+   "cat": "Creatures",
+   "name": "Colorful Mobs",
+   "ver": "",
+   "desc": "Dye any living thing. Comes with a colour wand, invisibility powder and rainbow dust for the ones you can't reach.",
+   "file": "ColorfulMobsMC.jar"
+  },
+  {
+   "cat": "Creatures",
+   "name": "Lucky Egg",
+   "ver": "1.2.1",
+   "desc": "An egg that summons something. Occasionally that something is survivable.",
+   "file": "LuckyEgg.jar"
+  },
+  {
+   "cat": "Creatures",
+   "name": "Killer Pacman",
+   "ver": "",
+   "desc": "Adds Pacman as a hostile mob, plus a block that keeps him away from wherever you'd rather he wasn't.",
+   "file": "KillerPacman.jar"
+  },
+  {
+   "cat": "Combat",
+   "name": "Mine & Blade: Battlegear 2",
+   "ver": "1.0.8.0",
+   "desc": "Real dual-wielding, shields with a block stance, quivers, and a sheath system that puts your weapons on your back.",
+   "file": "MineBladeBattlegearBullseye.jar"
+  },
+  {
+   "cat": "Combat",
+   "name": "Soul Shards: The Old Ways",
+   "ver": "RC9",
+   "desc": "Bind the souls of the mobs you kill to a shard, then cash a full shard in for a controllable spawner. The classic soul-cage grind.",
+   "file": "SoulShardsTheOldWays.jar"
+  },
+  {
+   "cat": "Combat",
+   "name": "Baubles",
+   "ver": "1.7.10-1.0.1.10",
+   "desc": "Adds ring, amulet and belt slots to the inventory. Several mods in the pack put their best passive gear in them.",
+   "file": "Baubles.jar"
+  },
+  {
+   "cat": "Combat",
+   "name": "Adventure Backpack",
+   "ver": "1.7.10-0.8b",
+   "desc": "Wearable backpacks with built-in fluid tanks, a sleeping bag and tool slots. Each variant is themed to the mob or biome it's made from.",
+   "file": "AdventureBackpack.jar"
+  },
+  {
+   "cat": "Combat",
+   "name": "Damage Indicators",
+   "ver": "3.2.3",
+   "desc": "Floating damage numbers and a boss-style health bar for whatever you're currently hitting, with its name and active potion effects.",
+   "file": "DamageIndicators.jar"
+  },
+  {
+   "cat": "Combat",
+   "name": "Mob Amputation",
+   "ver": "4.0.1",
+   "desc": "Limbs come off when you hit hard enough, and the mob keeps coming without them.",
+   "file": "MobAmputation-4.0.1.jar"
+  },
+  {
+   "cat": "Combat",
+   "name": "Mob Dismemberment",
+   "ver": "4.0.0",
+   "desc": "The gorier companion to Mob Amputation \u2014 mobs come apart on death rather than politely vanishing.",
+   "file": "MobDismemberment-4.0.0.jar"
+  },
+  {
+   "cat": "Magic",
+   "name": "Witchery",
+   "ver": "1.7.10-0.24.1",
+   "desc": "A deep witchcraft system: cauldron brewing, ritual circles, broomsticks, voodoo poppets, lycanthropy and vampirism, and demons that notice you meddling.",
+   "file": "Witchery.jar"
+  },
+  {
+   "cat": "Magic",
+   "name": "ProjectE",
+   "ver": "1.7.10-PE1.10.1",
+   "desc": "The modern rewrite of Equivalent Exchange 2 \u2014 EMC values, transmutation tables and the Philosopher's Stone line all the way up.",
+   "file": "ProjectE.jar"
+  },
+  {
+   "cat": "Magic",
+   "name": "Pandora's Box",
+   "ver": "2.1",
+   "desc": "One box, hundreds of possible effects, no way to know which you'll get. Ranges from a free diamond to a localised apocalypse.",
+   "file": "PandorasBox.jar"
+  },
+  {
+   "cat": "Magic",
+   "name": "Lucky Blocks",
+   "ver": "5.1.0",
+   "desc": "Break the block and roll the dice: loot, structures, mob ambushes or something considerably worse.",
+   "file": "LuckyBlocks.jar"
+  },
+  {
+   "cat": "Magic",
+   "name": "Psychedelicraft",
+   "ver": "1.5.2",
+   "desc": "Brewing, distilling and the substances that follow, with genuinely elaborate shader-driven visual effects.",
+   "file": "Psychedelicraft-1.5.2.jar"
+  },
+  {
+   "cat": "Magic",
+   "name": "Sync",
+   "ver": "4.0.1",
+   "desc": "Build a body-swap shell and store a copy of yourself in it. Die anywhere and wake up in the shell with your inventory intact.",
+   "file": "Sync-4.0.1.jar"
+  },
+  {
+   "cat": "Fiction",
+   "name": "Legends Mod",
+   "ver": "8.6.2",
+   "desc": "Five packs in one \u2014 Superheroes, Star Wars, Kaiju, Horror and Battlebourn \u2014 each with its own characters, suits, bosses and gear.",
+   "file": "1Legends-1.7.10-8.6.2.jar"
+  },
+  {
+   "cat": "Fiction",
+   "name": "Transformers",
+   "ver": "0.6.3-qf1",
+   "desc": "Transformable vehicles and characters, built from the FiskFille original and rebuilt locally for this pack.",
+   "file": "TransformersMod-0.6.3-qf1.jar"
+  },
+  {
+   "cat": "Fiction",
+   "name": "TARDIS Mod",
+   "ver": "",
+   "desc": "A working TARDIS: bigger on the inside, flyable between dimensions, with a console room you upgrade over time.",
+   "file": "TardisMod.jar"
+  },
+  {
+   "cat": "Fiction",
+   "name": "Weeping Angels",
+   "ver": "1.7.10-3.3.2",
+   "desc": "They only move when you aren't looking. Blink and you're somewhere else entirely.",
+   "file": "WeepingAngels.jar"
+  },
+  {
+   "cat": "Fiction",
+   "name": "Portal Gun",
+   "ver": "",
+   "desc": "The Aperture Science handheld portal device, with companion cubes, turrets, hard light bridges and long fall boots.",
+   "file": "PortalGun-4.0.0-beta-6-fix-1.jar"
+  },
+  {
+   "cat": "Fiction",
+   "name": "Gravity Gun",
+   "ver": "",
+   "desc": "Pick up, hold and launch almost anything \u2014 blocks, mobs, other players. The supercharged variant disintegrates what it grabs.",
+   "file": "GravityGun.jar"
+  },
+  {
+   "cat": "Fiction",
+   "name": "MC Helicopter",
+   "ver": "1.0.4",
+   "desc": "Flyable helicopters, jets and tanks with working weapon systems and a proper cockpit view.",
+   "file": "MCHeli.zip"
+  },
+  {
+   "cat": "Tech",
+   "name": "Railcraft",
+   "ver": "9.12.2.0",
+   "desc": "The definitive rail mod: real track switching and signalling, steam and electric locomotives, tunnel bores, coke ovens and blast furnaces.",
+   "file": "Railcraft.jar"
+  },
+  {
+   "cat": "Tech",
+   "name": "ICBM Classic",
+   "ver": "",
+   "desc": "Missiles, launch platforms, radar and remote detonators, from small tactical rockets up to warheads you should not use near your base.",
+   "file": "ICBM.jar"
+  },
+  {
+   "cat": "Tech",
+   "name": "Voltz Engine",
+   "ver": "1.7.10-1.11.0b491",
+   "desc": "The engine layer ICBM runs on, providing its energy system, multiblocks and world-edit handling.",
+   "file": "VoltzEngine.jar"
+  },
+  {
+   "cat": "Tech",
+   "name": "Compact Machines",
+   "ver": "1.7.10-1.21",
+   "desc": "Cubes that hold a whole room inside. Walk in through a tunnel and build a full factory in a space one block wide.",
+   "file": "compactmachines-1.7.10-1.21.jar"
+  },
+  {
+   "cat": "Tech",
+   "name": "Ender Utilities",
+   "ver": "0.5.3",
+   "desc": "Ender-themed logistics: linked storage, remote inventory access, teleport tools and a builder's wand set.",
+   "file": "enderutilities-1.7.10-0.5.3.jar"
+  },
+  {
+   "cat": "Tech",
+   "name": "OpenBlocks",
+   "ver": "1.6",
+   "desc": "A grab bag that turned out to be essential \u2014 elevators, hang gliders, sponges, tanks, trophies, the golden eye, and a sprinkler.",
+   "file": "OpenBlocks-1.7.10-1.6.jar"
+  },
+  {
+   "cat": "Tech",
+   "name": "Archimedes' Ships Plus",
+   "ver": "1.7.10-1.8.1",
+   "desc": "Build a vessel out of ordinary blocks, attach a helm, and sail or fly the whole thing as one moving object.",
+   "file": "ArchimedesPlus.jar"
+  },
+  {
+   "cat": "Tech",
+   "name": "Storage Drawers",
+   "ver": "1.7.10-1.10.9",
+   "desc": "Wall-mounted drawers that each hold one item type in bulk, with the contents shown on the front. The pack's default bulk storage.",
+   "file": "StorageDrawers.jar"
+  },
+  {
+   "cat": "Tech",
+   "name": "Iron Chest",
+   "ver": "6.0.62.742",
+   "desc": "The chest upgrade ladder \u2014 iron, gold, diamond, crystal \u2014 each step wider than the last, upgradeable in place.",
+   "file": "ironchestuniversal.jar"
+  },
+  {
+   "cat": "Tech",
+   "name": "Ender Storage",
+   "ver": "1.4.7.37",
+   "desc": "Colour-coded chests and tanks that share one inventory across any distance or dimension.",
+   "file": "EnderStorage-1.7.10-1.4.7.37-universal.jar"
+  },
+  {
+   "cat": "Tech",
+   "name": "Chest Transporter",
+   "ver": "2.0.4",
+   "desc": "Pick up a full chest and carry it somewhere else without unpacking it first.",
+   "file": "ChestTransporter.jar"
+  },
+  {
+   "cat": "Tech",
+   "name": "Hopper Ducts",
+   "ver": "1.7.10-1.3.2",
+   "desc": "Hoppers that move items sideways and upward, for item routing that doesn't need a tech mod.",
+   "file": "hopperductmod-1.7.10-1.3.2.jar"
+  },
+  {
+   "cat": "Tech",
+   "name": "ChickenChunks",
+   "ver": "1.3.4.19",
+   "desc": "Chunk loaders with a map interface, so your farms and quarries keep running while you're elsewhere.",
+   "file": "ChickenChunks-1.7.10-1.3.4.19-universal.jar"
+  },
+  {
+   "cat": "Tech",
+   "name": "Wireless Redstone",
+   "ver": "1.4.1.9",
+   "desc": "Redstone signals sent by frequency instead of wire, with handheld remotes and receiver blocks.",
+   "file": "WR-CBE-1.7.10-1.4.1.9-universal.jar"
+  },
+  {
+   "cat": "Tech",
+   "name": "SecurityCraft",
+   "ver": "",
+   "desc": "Keypads, retinal scanners, laser grids, cameras and mines \u2014 everything needed to make a base genuinely annoying to rob.",
+   "file": "SecurityCraftv.jar"
+  },
+  {
+   "cat": "Building",
+   "name": "Chisel 2",
+   "ver": "2.3.10.37",
+   "desc": "Dozens of alternate textures for nearly every building block, cycled with a single chisel tool.",
+   "file": "Chisel.jar"
+  },
+  {
+   "cat": "Building",
+   "name": "Carpenter's Blocks",
+   "ver": "3.3.6",
+   "desc": "Slopes, stairs, doors and beds that take on the texture of whatever block you cover them with.",
+   "file": "CarpentersBlocks.jar"
+  },
+  {
+   "cat": "Building",
+   "name": "ArchitectureCraft",
+   "ver": "1.7.2-mc1.7.10",
+   "desc": "Rounded and angled architectural shapes \u2014 arches, domes, cladding and window frames \u2014 cut from any material.",
+   "file": "ArchitectureCraft-1.7.2-mc1.7.10.jar"
+  },
+  {
+   "cat": "Building",
+   "name": "BiblioCraft",
+   "ver": "1.10.5",
+   "desc": "Display and organisation furniture: bookcases, tool racks, weapon cases, potion shelves, desks, map frames and labelled storage.",
+   "file": "BiblioCraft.jar"
+  },
+  {
+   "cat": "Building",
+   "name": "Decocraft",
+   "ver": "2.4.2_1.7.10",
+   "desc": "Over 500 detailed props \u2014 kitchenware, instruments, plush toys, tools and clutter \u2014 for dressing an interior.",
+   "file": "Decocraft.jar"
+  },
+  {
+   "cat": "Building",
+   "name": "MrCrayfish's Furniture Mod",
+   "ver": "3.4.7",
+   "desc": "Working household furniture: fridges that store food, cookers, televisions, showers and blinds.",
+   "file": "MrCrayfishsFurnitureMod.jar"
+  },
+  {
+   "cat": "Building",
+   "name": "Malisis' Doors",
+   "ver": "1.7.10-1.13.2",
+   "desc": "Animated doors, trapdoors, garage doors, sliding panels and a working elevator, all with proper opening animations.",
+   "file": "malisisdoors.jar"
+  },
+  {
+   "cat": "Building",
+   "name": "Statues",
+   "ver": "2.1.2",
+   "desc": "A hammer that carves large decorative statues from ordinary building blocks.",
+   "file": "Statues.jar"
+  },
+  {
+   "cat": "Building",
+   "name": "Mob Statues",
+   "ver": "1.7.10-0.1.1",
+   "desc": "Poseable statues of the mobs themselves, for trophies and displays.",
+   "file": "MobStatues.jar"
+  },
+  {
+   "cat": "Building",
+   "name": "The SecretRoomsMod",
+   "ver": "1.7.10-4.7.1.413",
+   "desc": "Camouflaged blocks, one-way glass and hidden levers for building doors nobody else can find.",
+   "file": "secretroomsmod.jar"
+  },
+  {
+   "cat": "Building",
+   "name": "Hats",
+   "ver": "4.0.1",
+   "desc": "A large wardrobe of cosmetic hats that also show up on mobs you meet.",
+   "file": "Hats.jar"
+  },
+  {
+   "cat": "Building",
+   "name": "Hat Stand",
+   "ver": "",
+   "desc": "A poseable stand for displaying the hats you've collected.",
+   "file": "HatStand.jar"
+  },
+  {
+   "cat": "Comfort",
+   "name": "JourneyMap",
+   "ver": "1.7.10-5.1.4p2",
+   "desc": "The pack's map: live minimap, full-screen world map, waypoints and mob radar, mapped as you explore. Bound to [J].",
+   "file": "journeymappunlimited.jar"
+  },
+  {
+   "cat": "Comfort",
+   "name": "Waila",
+   "ver": "1.5.10_1.7.10",
+   "desc": "Shows what you're looking at and which mod it came from, in a tooltip at the top of the screen.",
+   "file": "Waila.jar"
+  },
+  {
+   "cat": "Comfort",
+   "name": "Not Enough Items",
+   "ver": "",
+   "desc": "The recipe browser. Search every item in the pack, view its recipe and its uses, and see what it's used for.",
+   "file": "NotEnoughItemsuniversal.jar"
+  },
+  {
+   "cat": "Comfort",
+   "name": "NEI Addons",
+   "ver": "1.12.10.33",
+   "desc": "Extra NEI panels for mods that ship their own crafting and villager trading systems.",
+   "file": "NEIAddons.jar"
+  },
+  {
+   "cat": "Comfort",
+   "name": "NEI Integration",
+   "ver": "1.1.2",
+   "desc": "Fills in NEI recipe handlers for mods that never wrote their own.",
+   "file": "NEIIntegrationMC.jar"
+  },
+  {
+   "cat": "Comfort",
+   "name": "Inventory Tweaks",
+   "ver": "1.59-dev-152-cf6e263",
+   "desc": "One-key inventory and chest sorting, plus automatic replacement of a tool or stack the moment it runs out.",
+   "file": "InventoryTweaksdev.jar"
+  },
+  {
+   "cat": "Comfort",
+   "name": "Controlling",
+   "ver": "1.7.10-1.0.0",
+   "desc": "Makes the controls screen searchable \u2014 necessary once a hundred mods have all claimed a keybind.",
+   "file": "Controlling.jar"
+  },
+  {
+   "cat": "Comfort",
+   "name": "No More Recipe Conflict",
+   "ver": "",
+   "desc": "When two mods claim the same recipe shape, this lets you cycle between the results instead of always getting one.",
+   "file": "NoMoreRecipeConflict.jar"
+  },
+  {
+   "cat": "Comfort",
+   "name": "Gravestones",
+   "ver": "",
+   "desc": "Death drops your inventory into a grave at the spot instead of scattering it across the floor to despawn.",
+   "file": "GraveStones 1.7.10 -3.jar"
+  },
+  {
+   "cat": "Comfort",
+   "name": "Custom Menu",
+   "ver": "2.0.0.3",
+   "desc": "Drives the pack's custom title screen \u2014 its background, layout and menu music.",
+   "file": "CustomMenu.jar"
+  },
+  {
+   "cat": "Comfort",
+   "name": "Sound Filters",
+   "ver": "0.8",
+   "desc": "Adds reverb in caves and muffles sound underwater and through walls. Small change, large effect underground.",
+   "file": "SoundFilters-0.8_for_1.7.X.jar"
+  },
+  {
+   "cat": "Comfort",
+   "name": "Fast Leaf Decay",
+   "ver": "1.7.10-1.4",
+   "desc": "Leaves decay in seconds after you fell a tree instead of hanging around for minutes.",
+   "file": "FastLeafDecay-1.7.10-1.4.jar"
+  },
+  {
+   "cat": "Comfort",
+   "name": "Inventory Pets",
+   "ver": "1.5.2",
+   "desc": "Living pets that sit in your inventory and grant a passive effect as long as you keep them fed.",
+   "file": "inventorypets-1.7.10-1.5.2-universal.jar"
+  },
+  {
+   "cat": "Comfort",
+   "name": "Food Plus",
+   "ver": "",
+   "desc": "A large spread of new dishes, drinks and ingredients, with the crops and cooking gear to make them.",
+   "file": "FoodPlus.jar"
+  },
+  {
+   "cat": "Comfort",
+   "name": "Food Expansion",
+   "ver": "1.1",
+   "desc": "More recipes for the food already in the game, so ordinary ingredients have somewhere to go.",
+   "file": "FoodExpansionmc.jar"
+  },
+  {
+   "cat": "Comfort",
+   "name": "Origin",
+   "ver": "1.7.10-3.3.0",
+   "desc": "A small addition that puts lamb chops on the menu, raw and cooked, under its own Country Gamer tab.",
+   "file": "Origin.jar"
+  },
+  {
+   "cat": "Comfort",
+   "name": "Trail Mix",
+   "ver": "",
+   "desc": "A snack that grants a random temporary skill \u2014 a fireball, a jump boost \u2014 for as long as the effect lasts.",
+   "file": "TrailMix.jar"
+  },
+  {
+   "cat": "Under",
+   "name": "FastCraft",
+   "ver": "1.25",
+   "desc": "The single biggest frame-rate gain in the pack. Optimises chunk rendering and world ticking with no gameplay change.",
+   "file": "fastcraft-1.25.jar"
+  },
+  {
+   "cat": "Under",
+   "name": "BetterFps",
+   "ver": "1.0.1",
+   "desc": "Swaps in faster maths routines for the hot paths in the render loop.",
+   "file": "BetterFps-1.0.1.jar"
+  },
+  {
+   "cat": "Under",
+   "name": "OptiFine",
+   "ver": "1.7.10 HD U E7",
+   "desc": "Render settings, connected textures, dynamic lights and the video options needed to tune the pack to your machine.",
+   "file": "OptiFine_1.7.10_HD_U_E7.jar"
+  },
+  {
+   "cat": "Under",
+   "name": "AI Improvements",
+   "ver": "1.7.10-0.0.1b19",
+   "desc": "Cuts the cost of mob pathfinding, which matters when this many mob mods are loaded at once.",
+   "file": "AIImprovements-1.7.10-0.0.1b19-dev.jar"
+  },
+  {
+   "cat": "Under",
+   "name": "Chunk Pregenerator",
+   "ver": "",
+   "desc": "Generates world chunks ahead of time so exploring doesn't stutter while worldgen catches up.",
+   "file": "ChunkPregeneratorV.jar"
+  },
+  {
+   "cat": "Under",
+   "name": "MobiusCore",
+   "ver": "1.2.5_1.7.10",
+   "desc": "Core hooks used for server profiling and diagnostics.",
+   "file": "MobiusCore.jar"
+  },
+  {
+   "cat": "Under",
+   "name": "CraftTweaker",
+   "ver": "1.7.10-3.1.0",
+   "desc": "Lets the pack add, remove and rewrite recipes by script \u2014 how the pack's crafting tree is kept coherent across a hundred mods.",
+   "file": "CraftTweaker-1.7.10-3.1.0-legacy.jar"
+  },
+  {
+   "cat": "Under",
+   "name": "ModTweaker 2",
+   "ver": "0.9.6",
+   "desc": "Extends CraftTweaker's reach to mod-specific machines and rituals.",
+   "file": "ModTweaker2-0.9.6.jar"
+  },
+  {
+   "cat": "Under",
+   "name": "QuestForge Tweaks",
+   "ver": "",
+   "desc": "The pack's own coremod \u2014 two bytecode patches, one for the quest panel UI and one for menu music control.",
+   "file": "QuestForgeTweaks-1.0.jar"
+  },
+  {
+   "cat": "Under",
+   "name": "CodeChicken Core",
+   "ver": "",
+   "desc": "Loader and patching layer required by NEI and the ChickenBones mods.",
+   "file": "CodeChickenCore.jar"
+  },
+  {
+   "cat": "Under",
+   "name": "CodeChicken Lib",
+   "ver": "",
+   "desc": "Shared rendering and utility code for the ChickenBones mods.",
+   "file": "1.7.10/CodeChickenLib-1.7.10-1.1.3.138-universal.jar"
+  },
+  {
+   "cat": "Under",
+   "name": "Forge Multipart",
+   "ver": "1.2.0.345",
+   "desc": "Lets several separate parts \u2014 cables, covers, panels \u2014 occupy one block space.",
+   "file": "1.7.10/ForgeMultipart-1.7.10-1.2.0.345-universal.jar"
+  },
+  {
+   "cat": "Under",
+   "name": "CodingLib",
+   "ver": "",
+   "desc": "Support library for the Legends Mod.",
+   "file": "1.7.10/CodingLib-0.2.8b50.jar"
+  },
+  {
+   "cat": "Under",
+   "name": "OpenMods Lib",
+   "ver": "0.10.1",
+   "desc": "Shared framework behind OpenBlocks.",
+   "file": "OpenModsLib-1.7.10-0.10.1.jar"
+  },
+  {
+   "cat": "Under",
+   "name": "iChunUtil",
+   "ver": "4.2.2",
+   "desc": "Shared library for Portal Gun, Gravity Gun, Hats, Sync and the dismemberment mods.",
+   "file": "iChunUtil.jar"
+  },
+  {
+   "cat": "Under",
+   "name": "AnimationAPI",
+   "ver": "1.7.10-1.2.4",
+   "desc": "Model animation framework used by Mutant Creatures and others.",
+   "file": "AnimationAPI.jar"
+  },
+  {
+   "cat": "Under",
+   "name": "IvToolkit",
+   "ver": "1.2.1",
+   "desc": "Shared toolkit for Recurrent Complex and Pandora's Box.",
+   "file": "IvToolkit.jar"
+  },
+  {
+   "cat": "Under",
+   "name": "MalisisCore",
+   "ver": "1.7.10-0.14.3",
+   "desc": "Rendering and GUI framework behind Malisis' Doors.",
+   "file": "malisiscore.jar"
+  },
+  {
+   "cat": "Under",
+   "name": "asielib",
+   "ver": "0.2.3",
+   "desc": "Small utility library used by Computronics-family mods.",
+   "file": "asielib.jar"
+  },
+  {
+   "cat": "Under",
+   "name": "Dark Core",
+   "ver": "",
+   "desc": "Core functionality for the DarkCraft mods.",
+   "file": "DarkCore.jar"
+  },
+  {
+   "cat": "Under",
+   "name": "Moving World",
+   "ver": "1.7.10-1.8.1",
+   "desc": "The physics layer that lets Archimedes' Ships move built structures with their tile entities intact.",
+   "file": "MovingWorld.jar"
+  },
+  {
+   "cat": "Under",
+   "name": "Saintscore",
+   "ver": "0.6",
+   "desc": "Core file and pack loader for the Saints content packs.",
+   "file": "Saintscore.jar"
+  },
+  {
+   "cat": "Under",
+   "name": "MMMLib",
+   "ver": "1.7.x-0.1.1",
+   "desc": "Model and multi-model support library for the Little Maid mods.",
+   "file": "littleMaidMobXx.jar"
+  }
+ ]
+}

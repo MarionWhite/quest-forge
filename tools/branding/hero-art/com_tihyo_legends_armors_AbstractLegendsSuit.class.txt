@@ -1,0 +1,17 @@
+,com/tihyo/legends/armors/AbstractLegendsSuit
+net/minecraft/item/ItemArmor
+AbstractLegendsSuit.java
+*net/minecraft/item/ItemArmor$ArmorMaterial
+ArmorMaterial
+<init>
+1(Lnet/minecraft/item/ItemArmor$ArmorMaterial;II)V
+this
+.Lcom/tihyo/legends/armors/AbstractLegendsSuit;
+,Lnet/minecraft/item/ItemArmor$ArmorMaterial;
+index
+type
+Code
+LocalVariableTable
+LineNumberTable
+SourceFile
+InnerClasses

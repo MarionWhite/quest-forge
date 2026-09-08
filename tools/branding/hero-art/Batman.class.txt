@@ -1,0 +1,776 @@
+'com/tihyo/superheroes/characters/Batman
+8com/tihyo/legends/management/characters/LegendsCharacter
+-com/tihyo/legends/management/interfaces/IHero
+1com/tihyo/legends/management/interfaces/IRoleType
+8com/tihyo/legends/management/interfaces/IGroundCharacter
+6com/tihyo/superheroes/management/interfaces/IBatfamily
+0com/tihyo/legends/management/interfaces/IGliding
+4com/tihyo/legends/management/interfaces/INightVision
+0com/tihyo/legends/management/interfaces/IStealth
+4com/tihyo/legends/management/interfaces/IWeaponWheel
+-com/tihyo/legends/management/interfaces/ITech
+1com/tihyo/legends/management/interfaces/IUppercut
+6com/tihyo/legends/management/interfaces/IRemovableMask
+Batman.java
+batmanHelmet
+Lnet/minecraft/item/Item;
+batmanChest
+batmanLegs
+batmanBoots
+altSuitItems
+Ljava/util/ArrayList;
+altBlueprintItems
+versionTag
+Ljava/lang/String;
+versionNum
+ability1MaxTime
+ability2MaxTime
+ability2CooldownMaxTime
+ability3MaxTime
+ability3CooldownMaxTime
+ability4MaxTime
+ability4CooldownMaxTime
+utilityAbilityMaxTime
+utilityAbilityCooldownMaxTime
+specialAbilityMaxTime
+specialAbilityCooldownMaxTime
+ability1Tag
+ability1CooldownTag
+ability2Tag
+ability2CooldownTag
+ability3Tag
+ability3CooldownTag
+ability4Tag
+ability4CooldownTag
+utilityAbilityTag
+utilityAbilityCooldownTag
+specialAbilityTag
+specialAbilityCooldownTag
+<init>
+()V
+Version
+@!=p
+ability1
+ability1Cooldown
+ability2
+ability2Cooldown
+ability3
+ability3Cooldown
+ability4
+ability4Cooldown
+utilityAbility
+utilityAbilityCooldown
+specialAbility
+specialAbilityCooldown
+this
+)Lcom/tihyo/superheroes/characters/Batman;
+getName
+()Ljava/lang/String;
+batman
+getDisplayName
+Batman
+getTier
+?(Lnet/minecraft/entity/player/EntityPlayer;Ljava/lang/String;)I
+player
+*Lnet/minecraft/entity/player/EntityPlayer;
+alt
+getDefense
+()D
+-com/tihyo/legends/management/SuitDefenseTypes
+medium
+getSuitInfo
+)()Lcom/tihyo/legends/management/SuitInfo;
+%com/tihyo/legends/management/SuitInfo
+.com/tihyo/legends/management/LegendsDurability
+mediumDur
+ratio
+noEnchant
+(I[II)V
+getRank
+-(Lnet/minecraft/entity/player/EntityPlayer;)I
+9com/tihyo/legends/management/properties/LegendsProperties
+RANK_BATMAN
+;Lcom/tihyo/legends/management/properties/LegendsProperties;
+get
+1(Lnet/minecraft/entity/Entity;)Ljava/lang/Object;
+java/lang/Integer
+intValue
+()I
+getSkillPoints
+g(Lnet/minecraft/entity/player/EntityPlayer;)Lcom/tihyo/legends/management/properties/LegendsProperties;
+SKILLPTS_BATMAN
+rankUp
+-(Lnet/minecraft/entity/player/EntityPlayer;)V
+)com/tihyo/legends/management/PlayerHelper
+getCharacterRankUpCost
+.(Lnet/minecraft/entity/player/EntityPlayer;I)I
+valueOf
+(I)Ljava/lang/Integer;
+incr
+?(Lnet/minecraft/entity/player/EntityPlayer;Ljava/lang/Object;)Z
+set
+getCreativeTab
+*()Lnet/minecraft/creativetab/CreativeTabs;
+8com/tihyo/superheroes/management/SuperHeroesCreativeTabs
+suitsDCTab
+(Lnet/minecraft/creativetab/CreativeTabs;
+getClassAbility
+b(Lnet/minecraft/entity/player/EntityPlayer;)Lcom/tihyo/legends/abilities/classpowers/ClassAbility;
+4com/tihyo/legends/abilities/classpowers/ClassAbility
+controller
+9Lcom/tihyo/legends/abilities/classpowers/ClassController;
+getProperWeapons
+A(Lnet/minecraft/entity/player/EntityPlayer;)Ljava/util/ArrayList;
+java/util/ArrayList
+net/minecraft/item/ItemStack
+4com/tihyo/superheroes/items/RegisterItemsSuperHeroes
+batarang
+(Lnet/minecraft/item/Item;)V
+add
+(Ljava/lang/Object;)Z
+exBatarang
+heatBatarang
+electricBatarang
+smokePellet
+gasPellet
+freezeGrenade
+grapplingGun
+grapplingGun2
+exGel
+rebreather
+rebreatherMask
+throwingBird
+rShuriken
+wingDing
+rrDisc
+weapons
+5Ljava/util/ArrayList<Lnet/minecraft/item/ItemStack;>;
+getWheelTexture
+Q(Lnet/minecraft/entity/player/EntityPlayer;)Lnet/minecraft/util/ResourceLocation;
+#net/minecraft/util/ResourceLocation
+sum
+'textures/gui/batgadgets/gadgetsicon.png
+'(Ljava/lang/String;Ljava/lang/String;)V
+wheelSize
+gadget1Width
+gadget1WidthOffset
+gadget1Height
+gadget2Width
+gadget2WidthOffset
+gadget2Height
+gadget2TextureX
+gadget3Width
+gadget3WidthOffset
+gadget3Height
+gadget3TextureX
+gadget4Width
+gadget4WidthOffset
+gadget4Height
+gadget4TextureX
+gadget5Width
+gadget5WidthOffset
+gadget5Height
+gadget5TextureX
+gadget5TextureY
+gadget6Width
+gadget6WidthOffset
+gadget6Height
+gadget6TextureX
+gadget6TextureY
+gadget7Width
+gadget7WidthOffset
+gadget7Height
+gadget7TextureX
+gadget7TextureY
+gadget8TextureX
+gadget8TextureY
+openWeaponWheel
+.(Lnet/minecraft/entity/player/EntityPlayer;I)V
+(net/minecraft/entity/player/EntityPlayer
+func_82169_q
+!(I)Lnet/minecraft/item/ItemStack;
+getCurrentWeaponWheelIndex
+setWeaponWheelGadget
+key
+canGlide
+-(Lnet/minecraft/entity/player/EntityPlayer;)Z
+.com/tihyo/legends/management/SuitCheckerHelper
+isWearingBatmanKnightmare
+*(Lnet/minecraft/entity/EntityLivingBase;)Z
+canStealth
+getArmorIconName
+w(Lcom/tihyo/legends/management/ArmorType;Lnet/minecraft/item/ItemStack;Lnet/minecraft/entity/Entity;)Ljava/lang/String;
+&com/tihyo/legends/management/ArmorType
+LEGGINGS
+(Lcom/tihyo/legends/management/ArmorType;
+func_77960_j
+func_77958_k
+java/lang/StringBuilder
+sum:textures/models/armors/
+append
+-(Ljava/lang/String;)Ljava/lang/StringBuilder;
+/default/
+(I)Ljava/lang/StringBuilder;
+.png
+toString
+0com/tihyo/legends/management/LegendsRenderHelper
+canRenderArmor
+ (Lnet/minecraft/entity/Entity;)Z
+hasAlts
+()Z
+func_77973_b
+()Lnet/minecraft/item/Item;
+net/minecraft/item/Item
+func_77658_a
+item.sum.
+name
+java/lang/String
+equals
+getAltSuits
+()Ljava/util/ArrayList;
+size
+(I)Ljava/lang/Object;
+java/lang/Object
+onArmorType
+stack
+Lnet/minecraft/item/ItemStack;
+entity
+Lnet/minecraft/entity/Entity;
+layer
+damageAmount
+defaultTexture
+getArmorModel
+(Lnet/minecraft/entity/EntityLivingBase;Lnet/minecraft/item/ItemStack;ILcom/tihyo/legends/management/ArmorType;)Lnet/minecraft/client/model/ModelBiped;
+"Lcpw/mods/fml/relauncher/SideOnly;
+value
+Lcpw/mods/fml/relauncher/Side;
+CLIENT
+%net/minecraft/client/model/ModelBiped
+net/minecraft/item/ItemArmor
+field_77881_a
+%com/tihyo/legends/proxies/ClientProxy
+*(I)Lnet/minecraft/client/model/ModelBiped;
++com/tihyo/legends/client/models/ModelPlayer
+getAltSuitModelID
+(I)I
+field_78116_c
+*Lnet/minecraft/client/model/ModelRenderer;
+(net/minecraft/client/model/ModelRenderer
+%net/minecraft/entity/EntityLivingBase
+field_78806_j
+field_78114_d
+field_78115_e
+field_78112_f
+field_78113_g
+field_78123_h
+field_78124_i
+func_70093_af
+field_78117_n
+func_70115_ae
+field_78093_q
+func_70631_g_
+field_78091_s
+field_78118_o
+armorSlot
+field_78120_m
+func_71045_bC
+ ()Lnet/minecraft/item/ItemStack;
+func_71057_bx
+func_77975_n
+!()Lnet/minecraft/item/EnumAction;
+net/minecraft/item/EnumAction
+block
+Lnet/minecraft/item/EnumAction;
+bow
+isMaskOff
+field_78807_k
+func_71124_b
+model
+-Lcom/tihyo/legends/client/models/ModelPlayer;
+enumaction
+entityLiving
+'Lnet/minecraft/entity/EntityLivingBase;
+itemStack
+armorModel
+'Lnet/minecraft/client/model/ModelBiped;
+type
+defaultArmorModelID
+setTags
+f(Lnet/minecraft/item/ItemStack;Lnet/minecraft/entity/player/EntityPlayer;Lnet/minecraft/world/World;)V
+func_77942_o
+ net/minecraft/nbt/NBTTagCompound
+func_77982_d
+%(Lnet/minecraft/nbt/NBTTagCompound;)V
+func_77978_p
+$()Lnet/minecraft/nbt/NBTTagCompound;
+func_74768_a
+(Ljava/lang/String;I)V
+func_74780_a
+(Ljava/lang/String;D)V
+CurrentAbility
+func_74778_a
+CurrentGadget
+par1NBTTagCompound
+"Lnet/minecraft/nbt/NBTTagCompound;
+itemstack
+world
+Lnet/minecraft/world/World;
+renderAbilityStatus
+b(Lnet/minecraft/entity/player/EntityPlayer;Lcom/tihyo/legends/handlers/AbilityBarEventDisplay;II)V
+legends
+textures/gui/charge_bar.png
+*com/tihyo/legends/management/LegendsHelper
+getCharacter
+f(Lnet/minecraft/entity/player/EntityPlayer;)Lcom/tihyo/legends/management/characters/LegendsCharacter;
+)net/minecraft/client/gui/ScaledResolution
+1com/tihyo/legends/handlers/AbilityBarEventDisplay
+minecraft
+ Lnet/minecraft/client/Minecraft;
+net/minecraft/client/Minecraft
+field_71443_c
+field_71440_d
+%(Lnet/minecraft/client/Minecraft;II)V
+func_78326_a
+func_78328_b
+isWearingBatman
+func_74762_e
+(Ljava/lang/String;)I
+org/lwjgl/opengl/GL11
+glPushMatrix
+func_110434_K
+8()Lnet/minecraft/client/renderer/texture/TextureManager;
+4net/minecraft/client/renderer/texture/TextureManager
+func_110577_a
+((Lnet/minecraft/util/ResourceLocation;)V
+(com/tihyo/legends/management/ClassColors
+blue
+func_73729_b
+(IIIIII)V
+glPopMatrix
+green
+red
+gui
+3Lcom/tihyo/legends/handlers/AbilityBarEventDisplay;
+posX
+posY
+statusTexture
+%Lnet/minecraft/util/ResourceLocation;
+gadgetsTexture
+length1
+length2
+length3
+length4
+length5
+length6
+length7
+length8
+character
+:Lcom/tihyo/legends/management/characters/LegendsCharacter;
+resolution
++Lnet/minecraft/client/gui/ScaledResolution;
+width
+height
+renderHelmetOverlay
+z(Lnet/minecraft/item/ItemStack;Lnet/minecraft/entity/player/EntityPlayer;Lnet/minecraft/client/gui/ScaledResolution;FZII)V
+DETECTIVE_MODE
+func_71410_x
+"()Lnet/minecraft/client/Minecraft;
+java/awt/Color
+WHITE
+Ljava/awt/Color;
+getRGB
+Players: 
+areaScanPlayers
+.(Lnet/minecraft/entity/player/EntityPlayer;D)I
+field_71466_p
+'Lnet/minecraft/client/gui/FontRenderer;
+%net/minecraft/client/gui/FontRenderer
+func_78276_b
+(Ljava/lang/String;III)I
+Hostiles: 
+areaScanHostiles
+Passives: 
+areaScanPassives
+Life Forms: 
+areaScanLifeForms
+field_71424_I
+!Lnet/minecraft/profiler/Profiler;
+net/minecraft/profiler/Profiler
+func_76319_b
+renderHUDInfo
+color
+distance
+players
+hostiles
+passives
+life
+partialTicks
+hasScreen
+mouseX
+mouseY
+TRACKING_OFF
+java/lang/Boolean
+booleanValue
+TELESCOPIC_VISION
+getTargetFromCrosshairs
+U(Lnet/minecraft/entity/player/EntityPlayer;FD)Lnet/minecraft/entity/EntityLivingBase;
+isInSameWorld
+J(Lnet/minecraft/entity/player/EntityPlayer;Lnet/minecraft/entity/Entity;)Z
+isInvisible
+Identified: N/A
+Analysis: Unknown
+Tier: Unknown
+Health: 
+%.02f
+getTargetHealth
+J(Lnet/minecraft/entity/player/EntityPlayer;Lnet/minecraft/entity/Entity;)F
+java/lang/Float
+(F)Ljava/lang/Float;
+format
+9(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
+Distance: 
+getTargetDistance
+Durability: N/A
+canReadIdentity
+Identified: 
+getCharacterDisplayName
+>(Lnet/minecraft/entity/player/EntityPlayer;)Ljava/lang/String;
+Tier: 
+getProperAltName
+;(Lnet/minecraft/entity/EntityLivingBase;)Ljava/lang/String;
+Durability: 
+)com/tihyo/legends/management/DamageHelper
+getSuitMaxDamage
+getSuitDamage
+net/minecraft/entity/Entity
+%com/tihyo/legends/legacy/LegacyHelper
+isActive
+ getProperLegacyPlayerDisplayName
+isHiddenLegacy
+Analysis: 
+getLegacyClass
+T(Lnet/minecraft/entity/player/EntityPlayer;)Lcom/tihyo/legends/legacy/LegendsLegacy;
+&com/tihyo/legends/legacy/LegendsLegacy
+getTargetName
+[(Lnet/minecraft/entity/player/EntityPlayer;Lnet/minecraft/entity/Entity;)Ljava/lang/String;
+--Vitals--
+func_78256_a
+Oxygen: 
+func_70086_ai
+'com/tihyo/legends/management/INonLiving
+subject
+identity
+legacy
+tier
+health
+durability
+target
+onArmorTick
+(Lcom/tihyo/legends/management/ArmorType;Lnet/minecraft/entity/player/EntityPlayer;Lnet/minecraft/world/World;Lcpw/mods/fml/relauncher/Side;ILnet/minecraft/item/ItemStack;)V
+net/minecraft/world/World
+field_72995_K
+cpw/mods/fml/relauncher/Side
+hasCurrentAbility
+(com/tihyo/legends/handlers/PowersHandler
+batmanGadgets
+roundHouseKick
+combatMastery
+upperCut
+.(Lnet/minecraft/entity/player/EntityPlayer;Z)V
+sonicBatarang
+0com/tihyo/legends/abilities/status/StatusAbility
+strength
+3Lcom/tihyo/legends/abilities/status/StatusStrength;
+1com/tihyo/legends/abilities/status/StatusStrength
+run
+speed
+0Lcom/tihyo/legends/abilities/status/StatusSpeed;
+.com/tihyo/legends/abilities/status/StatusSpeed
+/(Lnet/minecraft/entity/player/EntityPlayer;II)V
+acrobatics
+5Lcom/tihyo/legends/abilities/status/StatusAcrobatics;
+3com/tihyo/legends/abilities/status/StatusAcrobatics
+,com/tihyo/legends/abilities/LegendsAbilities
+fortitude
+mentalDefense
+fireResistance
+stealth
+isWearingBatmanDarkKnight
+isWearingBatmanDCEU
+isWearingBatmanSMUV2
+isWearingBatmanArkhamOrigins
+bulletProof
+-com/tihyo/legends/abilities/LegendsWeaknesses
+emp
+logical
+suitAbility1
+suitAbility2
+getCharacterRank
+areCharacterRanksBypassed
+SONIC_BATARANG
+field_70170_p
+$net/minecraft/util/ChatComponentText
+.com/tihyo/legends/management/LegendsChatFormat
+Another move already in use.
+(Ljava/lang/String;)V
+func_145747_a
+&(Lnet/minecraft/util/IChatComponent;)V
+sendUnlearnedAbilityMessage
+suitAbility3
+suitAbility4
+equipAbility
+utilityBeltBatman
+detectiveMode
+Must have mask on.
+ROUNDHOUSE_KICK
+specializationAbility
+isWearingBatmanNew52
+MASK_TIMER
+batGlare
+%Must have mask on to perform ability.
+getHelmet
+getChestplate
+getLeggings
+getBoots
+setHelmetItem
+4(Lnet/minecraft/item/Item;)Lnet/minecraft/item/Item;
+item
+setChestItem
+setLegsItem
+setBootsItem
+btas
+tnba
+darkknight
+dceu
+log
+new52
+arkhamorigins
+dcmuv1
+dcmuv2
+justice_lords
+knightmare
+altSuit
+getAltNames
+(I)Ljava/lang/String;
+BTAS
+TNBA
+Dark Knight
+DCEU
+LOG
+New 52
+Arkham Origins
+SMU V1
+SMU V2
+Justice Lords
+Knightmare
+pos
+altName
+setAltSuitsItem
+0(Lnet/minecraft/item/Item;)Ljava/util/ArrayList;
+getAltSuitsItem
+altPos
+modelID
+setBlueprintItem
+getBlueprintItems
+getBlueprintRarity
+1(I)Lcom/tihyo/legends/management/BlueprintRarity;
+,com/tihyo/legends/management/BlueprintRarity
+common
+.Lcom/tihyo/legends/management/BlueprintRarity;
+uncommon
+epic
+rare
+isAltUnlocked
+?(Lnet/minecraft/entity/player/EntityPlayer;Ljava/lang/String;)Z
+getUnlockedAltsReference
+getAltList
+S(Lnet/minecraft/entity/player/EntityPlayer;Ljava/lang/String;)Ljava/util/ArrayList;
+contains
+index
+ALTS_BATMAN
+updateAltsReference
+?(Lnet/minecraft/entity/player/EntityPlayer;Ljava/lang/String;)V
+list
+getCost
+getMaterials
+N(Lnet/minecraft/entity/player/EntityPlayer;Ljava/lang/String;)Ljava/util/List;
+com/google/common/collect/Lists
+newArrayList
+%com/tihyo/legends/items/RegisterItems
+orangeGem
+(Lnet/minecraft/item/Item;I)V
+java/util/List
+batmanLogo
+fabric
+(Lnet/minecraft/item/Item;II)V
+stainedLeather
+batbelt
+wayneTech
+materials
+0Ljava/util/List<Lnet/minecraft/item/ItemStack;>;
+Ljava/util/List;
+getAlias
+Bruce Wayne
+generatePowersTag
+bold
+Alter-Ego: 
+reset
+Class
+field_71439_g
+2Lnet/minecraft/client/entity/EntityClientPlayerMP;
+3com/tihyo/legends/management/LegendsStringFormatter
+formatStatusTitle
+8(Ljava/lang/String;Ljava/lang/Object;)Ljava/lang/String;
+getDescription
+'org/apache/commons/lang3/text/WordUtils
+wrap
+'(Ljava/lang/String;I)Ljava/lang/String;
+addStringToList
+*(Ljava/lang/String;Ljava/util/ArrayList;)V
+1Lcom/tihyo/legends/abilities/status/StatusHealth;
+/com/tihyo/legends/abilities/status/StatusHealth
+formatAmplifier
+(Lcom/tihyo/legends/management/characters/LegendsCharacter;Lnet/minecraft/entity/player/EntityPlayer;Lcom/tihyo/legends/abilities/Ability;I)Ljava/lang/Integer;
+ (When Sprinting)
+Fortitude: 
+'Gives slight knockback resistance, fall
+#damage mitigation, and reduction to
+certain damage types.
+Mental Defense: 
+&Able to decrease the effects of mental
+&attacks. Nausea effects are reduced if
+less than defence's magnitude.
+Fire Resistance: 
+Resistant to fire but not lava.
+Bulletproof
+#Able to withstand bullets and basic
+arrows.
+Stealth
+Able to vanish in the dark.
+Gliding
+(Hold space when at least 10 blocks above
+the ground to begin gliding.
+Ability 1: 
+underline
+getAbility1
+!Deploy currently selected gadget.
+Ability 2: 
+getAbility2
+&Kick your opponent, dealing 10 damage.
+Ability 3: 
+getAbility3
+)Increases damage by 2 every few hits with
+*the potential to void basic melee attacks.
+&Opponent's knockback is also decreased
+*after being winded, allowing more blows to
+*land. All opponents hit within the first 5
+(seconds will be staggered for 5 seconds.
+%Opponents skilled in combat can block
+#your punches, but not your stagger,
+#rendering basic hits void. Lasts 15
+seconds.
+Ability 4: 
+getAbility4
+(Use your strength to uppercut your foes,
+'temporarily disorienting them. Deals 10
+ damage, grounding for 5 seconds.
+Ability 5: 
+getAbility5
+ Cycles through Built-In gadgets.
+)Alternatively, you can use the number pad
+*to automatically select a specific gagdet.
+Equip: 
+getEquipAbility
+!Access your utility belt, capable
+of storing gagdets.
+Utility: 
+getUtilityAbility
+*Activate the detective mode filter in your
+)mask, allowing you to see enemies through
+walls.
+Special: 
+getSpecialAbility
+(Throw a sonic batarang at your opponent,
+'staggering them while summoning a horde
+)of bats. These bats will swarm around all
+)opponents nearby, dealing 90 damage while
+causing them to bleed.
+Specialization: 
+getSpecializationAbility
+&Instill fear into your opponent as you
+%glare into their soul. Grants a small
+Terror buff for 5 seconds.
+Default Gadgets: (Built-In)
+(- Batarang (20% chance to disarm target)
+'- Heated Batarang (Sets target on fire)
+(- Explosive Batarang (Explodes on timer)
+)- Electric Batarang (Electrocutes target)
+)- Smoke Pellet (Disperses blinding smoke)
+(- Gas Pellet (Poisons and blinds target)
+(- Freeze Grenade (Freezes target in ice)
+- Night-Vision
+Add-On Gadgets: (Crafted)
+$- Grappling Gun (punch near glass to
+break)
+- Explosive Gel Gun
+- Rebreather
+Weaknesses:
+- EMP
+powers
+)Ljava/util/ArrayList<Ljava/lang/String;>;
+Use Gadget
+Roundhouse Kick
+Combat Mastery
+Uppercut
+Select Gadget
+Utility Belt
+Detective Mode
+Bat Swarm
+Bat-Glare
+generateProgressionList
+()Ljava/util/List;
+Rank 1
+Rank 2
+Cost: 
+getCharacterSkillPoints
+Rank 3
+Rank 4
+Rank 5
+Rank 6
+getBio
+)My own mortality is my greatest weakness.
+.If I should ever fall out of line, a small gr-
+*oup assault should be enough to take me d-
+,own. My greatest asset is my stealth, so try
+,to keep the area lit and open; you don't wa-
+nt me cornering you.
+bio
+getShinyColor
++(Lnet/minecraft/entity/EntityLivingBase;F)V
+glColor4f
+(FFFF)V
+colorAlpha
+<clinit>
+Code
+LocalVariableTable
+LineNumberTable
+StackMapTable
+LocalVariableTypeTable
+RuntimeVisibleAnnotations
+Signature
+n(Lnet/minecraft/entity/player/EntityPlayer;Ljava/lang/String;)Ljava/util/List<Lnet/minecraft/item/ItemStack;>;
+SourceFile
+S*+
+I*+
++*+
+++*+
++*+
+++W
+'0$
+,***+,,
+-l6
+-l6
++,-
+2`6
+*,*
++*+

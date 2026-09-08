@@ -1,0 +1,14 @@
+3com/tihyo/battlebourn/management/RegisterCharacters
+java/lang/Object
+RegisterCharacters.java
+characterManager
+>Lcom/tihyo/battlebourn/management/BattlebournCharacterManager;
+<init>
+this
+5Lcom/tihyo/battlebourn/management/RegisterCharacters;
+mainRegistry
+<com/tihyo/battlebourn/management/BattlebournCharacterManager
+Code
+LocalVariableTable
+LineNumberTable
+SourceFile

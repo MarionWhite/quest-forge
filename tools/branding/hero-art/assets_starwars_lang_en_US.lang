@@ -1,0 +1,292 @@
+﻿//Creative Tabs
+itemGroup.swcharacters=Star Wars Characters
+itemGroup.swblocks=Star Wars Blocks
+itemGroup.switems= Star Wars Items
+itemGroup.swcrystals=Kyber Crystals
+itemGroup.swlightsaber=Lightsabers
+itemGroup.swweapons=Star Wars Combat
+itemGroup.swmobs=Star Wars Creatures
+
+//Keybinds
+key.legends.dualwield.desc=Dual Wield
+key.legends.lightsaberingite.desc=Ignite Lightsaber
+key.legends.stance.desc=Select Stance
+
+//Blocks
+tile.kyberCrystal.name=Kyber Crystal Formation
+tile.jediArchives.name=Jedi Archives
+tile.sithArchives.name=Sith Archives
+tile.jediSpawner.name=Jedi Spawner
+tile.dynamicStarWarsBlock1.name=Sith Spawner
+tile.dynamicStarWarsBlock3.name=Jedi Armorer
+tile.dynamicStarWarsBlock4.name=Sith Armorer
+tile.dynamicStarWarsBlock5.name=Jedi Recruiter
+tile.dynamicStarWarsBlock6.name=Sith Recruiter
+tile.dynamicStarWarsBlock7.name=Hurikeanean Spawner
+tile.dynamicStarWarsBlock8.name=Suit Forge
+tile.dynamicStarWarsBlock9.name=Wuher
+tile.dynamicStarWarsBlock10.name=Smuggler
+
+//Dynamic Blocks
+tile.dynamicStarWarsBlock11.name=Dynamic Star Wars Block 11
+tile.dynamicStarWarsBlock12.name=Dynamic Star Wars Block 12
+tile.dynamicStarWarsBlock13.name=Dynamic Star Wars Block 13
+tile.dynamicStarWarsBlock14.name=Dynamic Star Wars Block 14
+tile.dynamicStarWarsBlock15.name=Dynamic Star Wars Block 15
+tile.dynamicStarWarsBlock16.name=Dynamic Star Wars Block 16
+tile.dynamicStarWarsBlock17.name=Dynamic Star Wars Block 17
+tile.dynamicStarWarsBlock18.name=Dynamic Star Wars Block 18
+tile.dynamicStarWarsBlock19.name=Dynamic Star Wars Block 19
+tile.dynamicStarWarsBlock20.name=Dynamic Star Wars Block 20
+tile.dynamicStarWarsBlock21.name=Dynamic Star Wars Block 21
+tile.dynamicStarWarsBlock22.name=Dynamic Star Wars Block 22
+tile.dynamicStarWarsBlock23.name=Dynamic Star Wars Block 23
+tile.dynamicStarWarsBlock24.name=Dynamic Star Wars Block 24
+tile.dynamicStarWarsBlock25.name=Dynamic Star Wars Block 25
+tile.dynamicStarWarsBlock26.name=Dynamic Star Wars Block 26
+tile.dynamicStarWarsBlock27.name=Dynamic Star Wars Block 27
+tile.dynamicStarWarsBlock28.name=Dynamic Star Wars Block 28
+tile.dynamicStarWarsBlock29.name=Dynamic Star Wars Block 29
+tile.dynamicStarWarsBlock30.name=Dynamic Star Wars Block 30
+tile.dynamicStarWarsBlock31.name=Dynamic Star Wars Block 31
+tile.dynamicStarWarsBlock32.name=Dynamic Star Wars Block 32
+tile.dynamicStarWarsBlock33.name=Dynamic Star Wars Block 33
+tile.dynamicStarWarsBlock34.name=Dynamic Star Wars Block 34
+tile.dynamicStarWarsBlock35.name=Dynamic Star Wars Block 35
+tile.dynamicStarWarsBlock36.name=Dynamic Star Wars Block 36
+tile.dynamicStarWarsBlock37.name=Dynamic Star Wars Block 37
+tile.dynamicStarWarsBlock38.name=Dynamic Star Wars Block 38
+tile.dynamicStarWarsBlock39.name=Dynamic Star Wars Block 39
+tile.dynamicStarWarsBlock40.name=Dynamic Star Wars Block 40
+tile.dynamicStarWarsBlock41.name=Dynamic Star Wars Block 41
+tile.dynamicStarWarsBlock42.name=Dynamic Star Wars Block 42
+tile.dynamicStarWarsBlock43.name=Dynamic Star Wars Block 43
+tile.dynamicStarWarsBlock44.name=Dynamic Star Wars Block 44
+tile.dynamicStarWarsBlock45.name=Dynamic Star Wars Block 45
+tile.dynamicStarWarsBlock46.name=Dynamic Star Wars Block 46
+tile.dynamicStarWarsBlock47.name=Dynamic Star Wars Block 47
+tile.dynamicStarWarsBlock48.name=Dynamic Star Wars Block 48
+tile.dynamicStarWarsBlock49.name=Dynamic Star Wars Block 49
+tile.dynamicStarWarsBlock50.name=Dynamic Star Wars Block 50
+tile.dynamicStarWarsBlock51.name=Dynamic Star Wars Block 51
+tile.dynamicStarWarsBlock52.name=Dynamic Star Wars Block 52
+tile.dynamicStarWarsBlock53.name=Dynamic Star Wars Block 53
+tile.dynamicStarWarsBlock54.name=Dynamic Star Wars Block 54
+tile.dynamicStarWarsBlock55.name=Dynamic Star Wars Block 55
+tile.dynamicStarWarsBlock56.name=Dynamic Star Wars Block 56
+tile.dynamicStarWarsBlock57.name=Dynamic Star Wars Block 57
+tile.dynamicStarWarsBlock58.name=Dynamic Star Wars Block 58
+tile.dynamicStarWarsBlock59.name=Dynamic Star Wars Block 59
+tile.dynamicStarWarsBlock60.name=Dynamic Star Wars Block 60
+tile.dynamicStarWarsBlock61.name=Dynamic Star Wars Block 61
+tile.dynamicStarWarsBlock62.name=Dynamic Star Wars Block 62
+tile.dynamicStarWarsBlock63.name=Dynamic Star Wars Block 63
+tile.dynamicStarWarsBlock64.name=Dynamic Star Wars Block 64
+tile.dynamicStarWarsBlock65.name=Dynamic Star Wars Block 65
+tile.dynamicStarWarsBlock66.name=Dynamic Star Wars Block 66
+tile.dynamicStarWarsBlock67.name=Dynamic Star Wars Block 67
+tile.dynamicStarWarsBlock68.name=Dynamic Star Wars Block 68
+tile.dynamicStarWarsBlock69.name=Dynamic Star Wars Block 69
+tile.dynamicStarWarsBlock70.name=Dynamic Star Wars Block 70
+tile.dynamicStarWarsBlock71.name=Dynamic Star Wars Block 71
+tile.dynamicStarWarsBlock72.name=Dynamic Star Wars Block 72
+tile.dynamicStarWarsBlock73.name=Dynamic Star Wars Block 73
+tile.dynamicStarWarsBlock74.name=Dynamic Star Wars Block 74
+tile.dynamicStarWarsBlock75.name=Dynamic Star Wars Block 75
+tile.dynamicStarWarsBlock76.name=Dynamic Star Wars Block 76
+tile.dynamicStarWarsBlock77.name=Dynamic Star Wars Block 77
+tile.dynamicStarWarsBlock78.name=Dynamic Star Wars Block 78
+tile.dynamicStarWarsBlock79.name=Dynamic Star Wars Block 79
+tile.dynamicStarWarsBlock80.name=Dynamic Star Wars Block 80
+tile.dynamicStarWarsBlock81.name=Dynamic Star Wars Block 81
+tile.dynamicStarWarsBlock82.name=Dynamic Star Wars Block 82
+tile.dynamicStarWarsBlock83.name=Dynamic Star Wars Block 83
+tile.dynamicStarWarsBlock84.name=Dynamic Star Wars Block 84
+tile.dynamicStarWarsBlock85.name=Dynamic Star Wars Block 85
+tile.dynamicStarWarsBlock86.name=Dynamic Star Wars Block 86
+tile.dynamicStarWarsBlock87.name=Dynamic Star Wars Block 87
+tile.dynamicStarWarsBlock88.name=Dynamic Star Wars Block 88
+tile.dynamicStarWarsBlock89.name=Dynamic Star Wars Block 89
+tile.dynamicStarWarsBlock90.name=Dynamic Star Wars Block 90
+tile.dynamicStarWarsBlock91.name=Dynamic Star Wars Block 91
+tile.dynamicStarWarsBlock92.name=Dynamic Star Wars Block 92
+tile.dynamicStarWarsBlock93.name=Dynamic Star Wars Block 93
+tile.dynamicStarWarsBlock94.name=Dynamic Star Wars Block 94
+tile.dynamicStarWarsBlock95.name=Dynamic Star Wars Block 95
+tile.dynamicStarWarsBlock96.name=Dynamic Star Wars Block 96
+tile.dynamicStarWarsBlock97.name=Dynamic Star Wars Block 97
+tile.dynamicStarWarsBlock98.name=Dynamic Star Wars Block 98
+tile.dynamicStarWarsBlock99.name=Dynamic Star Wars Block 99
+tile.dynamicStarWarsBlock100.name=Dynamic Star Wars Block 100
+
+//Items
+item.kyberCrystal.name=Kyber Crystal
+item.stabilizingRing.name=Magnetic Stabilizing Ring
+item.modCircuits.name=Energy Modulation Circuits
+item.fieldEnergizer.name=Field Energizer
+item.diatiumPowerCell.name=Diatium Power Cell
+item.powerVortex.name=Power Vortex Ring
+item.powerInsulator.name=Inert Power Insulator
+item.bladeNob.101.name=Blade Adjuster (101 cm)
+item.bladeNob.111.name=Blade Adjuster (111 cm)
+item.bladeNob.121.name=Blade Adjuster (121 cm)
+item.bladeNob.131.name=Blade Adjuster (131 cm)
+item.bladeNob.141.name=Blade Adjuster (141 cm)
+item.bladeNob.151.name=Blade Adjuster (151 cm)
+item.recognitionChip.name=Recognition Chip
+item.standard_focusing_crystal.name=Focusing Crystal
+item.corrupt_focusing_crystal.name=Corrupt Focusing Crystal 
+item.adegan_lens.name=Adegan Lens
+item.vibration_lens.name=Vibration Lens
+item.beam_gem_lens.name=Beam-Gem Lens
+item.brightness_lens.name=Brightness Lens
+item.blade_lens.name=Blade-Edge Lens
+item.pointed_lens.name=Pointed Lens
+item.core_blue_lens.name=Blue-Core Lens
+item.core_green_lens.name=Green-Core Lens
+item.core_yellow_lens.name=Yellow-Core Lens
+item.core_red_lens.name=Red-Core Lens
+item.core_orange_lens.name=Orange-Core Lens
+item.core_purple_lens.name=Purple-Core Lens
+item.core_silver_lens.name=Silver-Core Lens
+item.core_cyan_lens.name=Cyan-Core Lens
+item.core_magenta_lens.name=Magenta-Core Lens
+item.core_pink_lens.name=Pink-Core Lens
+item.core_indigo_lens.name=Indigo-Core Lens
+item.core_black_lens.name=Black-Core Lens
+item.redDwarf.name=Red Dwarf
+item.cassandraSunrise.name=Cassandra Sunrise
+item.novaBlaster.name=Nova Blaster
+item.flameout.name=Flameout
+item.durasteel.name=Durasteel Ingot
+item.durasteelPlate.name=Durasteel Plate
+item.beskar.name=Beskar Ingot
+item.beskarPlate.name=Beskar Plate
+
+//Machines
+tile.saberBench.name=Lightsaber Forge (Light)
+tile.saberModifier.name=Lightsaber Modifier
+tile.jediHolocron.name=Jedi Holocron
+tile.sithHolocron.name=Sith Holocron
+tile.dynamicStarWarsBlock2.name=Lightsaber Forge (Dark)
+
+//Lightsabers
+item.lightsaberEmitter.name=Lightsaber Emitter
+item.lightsaberSwitch.name=Lightsaber Switch
+item.lightsaberBody.name=Lightsaber Body
+item.lightsaberPommel.name=Lightsaber Pommel
+item.lightsaber.name=Lightsaber
+item.doubleLightsaber.name=Saberstaff
+item.lightsaberAnakin.name=Anakin's Lightsaber
+item.lightsaberObiWan.name=Obi-Wan's Lightsaber
+item.lightsaberLuke.name=Luke's Lightsaber
+item.lightsaberDarthVader.name=Darth Vader's Lightsaber
+
+//Weapons
+item.mandoBlaster.name=Mandalorian Blaster
+item.ambanSniperRifle.name=Amban Sniper Rifle
+item.vibroBlade.name=Vibroblade
+item.mandoJetpack.name=Mandalorian Jetpack
+item.beskarStaff.name=Beskar Staff
+
+//Holocrons
+gui.jediholocron=Jedi Holocron
+gui.sithholocron=Sith Holocron
+
+//Spawners
+item.spawnerjedi.name=Spawn Jedi
+item.spawnersith.name=Spawn Sith
+item.spawnerhurikanean.name=Spawn Hurikanean
+
+//Entities
+entity.legends.MindTrick.name=Mind Trick
+entity.legends.ForceTempest.name=Force Lightning
+
+//Jedi Armourer
+gui.jediweaponsdealer=Jedi Armorer
+
+//Sith Armourer
+gui.sithweaponsdealer=Sith Armorer
+
+//Suit Forge
+gui.suitforge=Suit Forge
+
+//Wuher
+gui.wuher=Wuher
+
+//Smuggler
+gui.smuggler=Smuggler
+
+//Descriptions
+lightsaber.color=Color:
+lightsaber.hilt=Hilt Design:
+lightsaber.addons=Add-Ons:
+lightsaber.properties=Properties:
+lightsaber.upper=Upper Saber
+lightsaber.lower=Lower Saber
+
+//Colors
+color.0=Blue
+color.1=Dark Blue
+color.2=Light Blue
+color.3=Arctic Blue
+color.4=Green
+color.5=Lime Green
+color.6=Mint Green
+color.7=Viridian Green
+color.8=Yellow
+color.9=Bloom Yellow
+color.10=Amber
+color.11=Canary Yellow
+color.12=Red
+color.13=Blood Red
+color.14=Dark Red
+color.15=Acolyte Red
+color.16=Orange
+color.17=Reserved Orange
+color.18=Purple
+color.19=Derelict Purple
+color.20=Amethyst
+color.21=Gold
+color.22=Bronze
+color.23=Silver
+color.24=White
+color.25=Gray
+color.26=Cyan
+color.27=Magenta
+color.28=Pink
+color.29=Indigo
+color.30=Blue Cracked
+color.31=Dark Blue Cracked
+color.32=Light Blue Cracked
+color.33=Arctic Blue Cracked
+color.34=Green Cracked
+color.35=Lime Green Cracked
+color.36=Mint Green Cracked
+color.37=Viridian Green Cracked
+color.38=Yellow Cracked
+color.39=Bloom Yellow Cracked
+color.40=Amber Cracked
+color.41=Canary Yellow Cracked
+color.42=Red Cracked
+color.43=Blood Red Cracked
+color.44=Dark Red Cracked
+color.45=Acolyte Red Cracked
+color.46=Orange Cracked
+color.47=Reserved Orange Cracked
+color.48=Purple Cracked
+color.49=Derelict Purple Cracked
+color.50=Amethyst Cracked
+color.51=Gold Cracked
+color.52=Bronze Cracked
+color.53=Silver Cracked
+color.54=White Cracked
+color.55=Gray Cracked
+color.56=Cyan Cracked
+color.57=Magenta Cracked
+color.58=Pink Cracked
+color.59=Indigo Cracked
+color.60=Executioner
+
+//Commands
+commands.force.usage=/force <say> <player> <message>

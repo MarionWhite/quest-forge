@@ -1,0 +1,129 @@
+﻿//Creative Tab
+itemGroup.suitsBattlebourn=Battlebourn Characters
+itemGroup.mobsBattlebourn=Battlebourn Creatures
+itemGroup.blocksBattlebourn=Battlebourn Blocks
+itemGroup.weaponsBattlebourn=Battlebourn Weapons
+itemGroup.itemsBattlebourn=Battlebourn Items
+
+//Dynamic Blocks
+tile.dynamicBattleborneBlock1.name=Dynamic Battlebourn Block 1
+tile.dynamicBattleborneBlock2.name=Dynamic Battlebourn Block 2
+tile.dynamicBattleborneBlock3.name=Dynamic Battlebourn Block 3
+tile.dynamicBattleborneBlock4.name=Dynamic Battlebourn Block 4
+tile.dynamicBattleborneBlock5.name=Dynamic Battlebourn Block 5
+tile.dynamicBattleborneBlock6.name=Dynamic Battlebourn Block 6
+tile.dynamicBattleborneBlock7.name=Dynamic Battlebourn Block 7
+tile.dynamicBattleborneBlock8.name=Dynamic Battlebourn Block 8
+tile.dynamicBattleborneBlock9.name=Dynamic Battlebourn Block 9
+tile.dynamicBattleborneBlock10.name=Dynamic Battlebourn Block 10
+tile.dynamicBattleborneBlock11.name=Dynamic Battlebourn Block 11
+tile.dynamicBattleborneBlock12.name=Dynamic Battlebourn Block 12
+tile.dynamicBattleborneBlock13.name=Dynamic Battlebourn Block 13
+tile.dynamicBattleborneBlock14.name=Dynamic Battlebourn Block 14
+tile.dynamicBattleborneBlock15.name=Dynamic Battlebourn Block 15
+tile.dynamicBattleborneBlock16.name=Dynamic Battlebourn Block 16
+tile.dynamicBattleborneBlock17.name=Dynamic Battlebourn Block 17
+tile.dynamicBattleborneBlock18.name=Dynamic Battlebourn Block 18
+tile.dynamicBattleborneBlock19.name=Dynamic Battlebourn Block 19
+tile.dynamicBattleborneBlock20.name=Dynamic Battlebourn Block 20
+tile.dynamicBattleborneBlock21.name=Dynamic Battlebourn Block 21
+tile.dynamicBattleborneBlock22.name=Dynamic Battlebourn Block 22
+tile.dynamicBattleborneBlock23.name=Dynamic Battlebourn Block 23
+tile.dynamicBattleborneBlock24.name=Dynamic Battlebourn Block 24
+tile.dynamicBattleborneBlock25.name=Dynamic Battlebourn Block 25
+tile.dynamicBattleborneBlock26.name=Dynamic Battlebourn Block 26
+tile.dynamicBattleborneBlock27.name=Dynamic Battlebourn Block 27
+tile.dynamicBattleborneBlock28.name=Dynamic Battlebourn Block 28
+tile.dynamicBattleborneBlock29.name=Dynamic Battlebourn Block 29
+tile.dynamicBattleborneBlock30.name=Dynamic Battlebourn Block 30
+tile.dynamicBattleborneBlock31.name=Dynamic Battlebourn Block 31
+tile.dynamicBattleborneBlock32.name=Dynamic Battlebourn Block 32
+tile.dynamicBattleborneBlock33.name=Dynamic Battlebourn Block 33
+tile.dynamicBattleborneBlock34.name=Dynamic Battlebourn Block 34
+tile.dynamicBattleborneBlock35.name=Dynamic Battlebourn Block 35
+tile.dynamicBattleborneBlock36.name=Dynamic Battlebourn Block 36
+tile.dynamicBattleborneBlock37.name=Dynamic Battlebourn Block 37
+tile.dynamicBattleborneBlock38.name=Dynamic Battlebourn Block 38
+tile.dynamicBattleborneBlock39.name=Dynamic Battlebourn Block 39
+tile.dynamicBattleborneBlock40.name=Dynamic Battlebourn Block 40
+tile.dynamicBattleborneBlock41.name=Dynamic Battlebourn Block 41
+tile.dynamicBattleborneBlock42.name=Dynamic Battlebourn Block 42
+tile.dynamicBattleborneBlock43.name=Dynamic Battlebourn Block 43
+tile.dynamicBattleborneBlock44.name=Dynamic Battlebourn Block 44
+tile.dynamicBattleborneBlock45.name=Dynamic Battlebourn Block 45
+tile.dynamicBattleborneBlock46.name=Dynamic Battlebourn Block 46
+tile.dynamicBattleborneBlock47.name=Dynamic Battlebourn Block 47
+tile.dynamicBattleborneBlock48.name=Dynamic Battlebourn Block 48
+tile.dynamicBattleborneBlock49.name=Dynamic Battlebourn Block 49
+tile.dynamicBattleborneBlock50.name=Dynamic Battlebourn Block 50
+tile.dynamicBattleborneBlock51.name=Dynamic Battlebourn Block 51
+tile.dynamicBattleborneBlock52.name=Dynamic Battlebourn Block 52
+tile.dynamicBattleborneBlock53.name=Dynamic Battlebourn Block 53
+tile.dynamicBattleborneBlock54.name=Dynamic Battlebourn Block 54
+tile.dynamicBattleborneBlock55.name=Dynamic Battlebourn Block 55
+tile.dynamicBattleborneBlock56.name=Dynamic Battlebourn Block 56
+tile.dynamicBattleborneBlock57.name=Dynamic Battlebourn Block 57
+tile.dynamicBattleborneBlock58.name=Dynamic Battlebourn Block 58
+tile.dynamicBattleborneBlock59.name=Dynamic Battlebourn Block 59
+tile.dynamicBattleborneBlock60.name=Dynamic Battlebourn Block 60
+tile.dynamicBattleborneBlock61.name=Dynamic Battlebourn Block 61
+tile.dynamicBattleborneBlock62.name=Dynamic Battlebourn Block 62
+tile.dynamicBattleborneBlock63.name=Dynamic Battlebourn Block 63
+tile.dynamicBattleborneBlock64.name=Dynamic Battlebourn Block 64
+tile.dynamicBattleborneBlock65.name=Dynamic Battlebourn Block 65
+tile.dynamicBattleborneBlock66.name=Dynamic Battlebourn Block 66
+tile.dynamicBattleborneBlock67.name=Dynamic Battlebourn Block 67
+tile.dynamicBattleborneBlock68.name=Dynamic Battlebourn Block 68
+tile.dynamicBattleborneBlock69.name=Dynamic Battlebourn Block 69
+tile.dynamicBattleborneBlock70.name=Dynamic Battlebourn Block 70
+tile.dynamicBattleborneBlock71.name=Dynamic Battlebourn Block 71
+tile.dynamicBattleborneBlock72.name=Dynamic Battlebourn Block 72
+tile.dynamicBattleborneBlock73.name=Dynamic Battlebourn Block 73
+tile.dynamicBattleborneBlock74.name=Dynamic Battlebourn Block 74
+tile.dynamicBattleborneBlock75.name=Dynamic Battlebourn Block 75
+tile.dynamicBattleborneBlock76.name=Dynamic Battlebourn Block 76
+tile.dynamicBattleborneBlock77.name=Dynamic Battlebourn Block 77
+tile.dynamicBattleborneBlock78.name=Dynamic Battlebourn Block 78
+tile.dynamicBattleborneBlock79.name=Dynamic Battlebourn Block 79
+tile.dynamicBattleborneBlock80.name=Dynamic Battlebourn Block 80
+tile.dynamicBattleborneBlock81.name=Dynamic Battlebourn Block 81
+tile.dynamicBattleborneBlock82.name=Dynamic Battlebourn Block 82
+tile.dynamicBattleborneBlock83.name=Dynamic Battlebourn Block 83
+tile.dynamicBattleborneBlock84.name=Dynamic Battlebourn Block 84
+tile.dynamicBattleborneBlock85.name=Dynamic Battlebourn Block 85
+tile.dynamicBattleborneBlock86.name=Dynamic Battlebourn Block 86
+tile.dynamicBattleborneBlock87.name=Dynamic Battlebourn Block 87
+tile.dynamicBattleborneBlock88.name=Dynamic Battlebourn Block 88
+tile.dynamicBattleborneBlock89.name=Dynamic Battlebourn Block 89
+tile.dynamicBattleborneBlock90.name=Dynamic Battlebourn Block 90
+tile.dynamicBattleborneBlock91.name=Dynamic Battlebourn Block 91
+tile.dynamicBattleborneBlock92.name=Dynamic Battlebourn Block 92
+tile.dynamicBattleborneBlock93.name=Dynamic Battlebourn Block 93
+tile.dynamicBattleborneBlock94.name=Dynamic Battlebourn Block 94
+tile.dynamicBattleborneBlock95.name=Dynamic Battlebourn Block 95
+tile.dynamicBattleborneBlock96.name=Dynamic Battlebourn Block 96
+tile.dynamicBattleborneBlock97.name=Dynamic Battlebourn Block 97
+tile.dynamicBattleborneBlock98.name=Dynamic Battlebourn Block 98
+tile.dynamicBattleborneBlock99.name=Dynamic Battlebourn Block 99
+tile.dynamicBattleborneBlock100.name=Dynamic Battlebourn Block 100
+
+//Items
+item.vrykirLogo.name=Vrykir Emblem
+
+//Weapons
+
+//Spawners
+item.spawnervrykirlady.name=Spawn Lady Sorella
+
+//Entities
+entity.legends.BloodBlast.name=Blood Blast
+entity.legends.BloodSphere.name=Blood Sphere
+entity.legends.BloodWave.name=Blood Wave
+entity.legends.BloodSpike.name=Blood Spike
+entity.legends.BloodVortex.name=Blood Vortex
+entity.legends.BloodWhip.name=Blood Whip
+entity.legends.BloodFlames.name=Blood Flames
+entity.legends.BloodBreath.name=Blood Breath
+entity.legends.ArmageddonOrb.name=Armageddon
+
+//Gui

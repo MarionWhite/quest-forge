@@ -1,0 +1,18 @@
+# Build output
+build/
+.gradle/
+
+# The dev client's game directory: worlds, configs, logs, downloaded natives.
+# Safe to delete entirely -- runClient recreates it.
+run/
+
+# Mod jars you drop in to compile against
+libs/
+
+# IDE
+.idea/
+*.iml
+.eclipse/
+.classpath
+.project
+.settings/

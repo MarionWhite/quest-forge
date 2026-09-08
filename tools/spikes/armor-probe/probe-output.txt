@@ -1,0 +1,15 @@
+A. Damage reaching the health bar from ONE swing on a fresh set,
+   averaged over 4000 rolls of Protection's per-hit random modifier.
+
+set         pts    dur  prot  unb     40/hit    175/hit    225/hit    350/hit
+diamond      20     33     4    0       3.20      41.16      60.76     111.00
+ruby         25     90     4    0       0.00       2.90      16.53      60.96
+ultimate     34    200     5    0       0.00       0.00       0.00       0.00
+mobzilla     38   1000    10    5       0.00       0.00       0.00       0.00
+queen        48   1500     0    0       0.00       0.00       0.00       0.00
+royal        42   2000    10    5       0.00       0.00       0.00       0.00
+
+B. Seconds survived, one landing hit a second, natural regen, 1800 cap.
+
+set         pts    dur     40/hit    175/hit    225/hit    350/hit
+diamond      20     33          7

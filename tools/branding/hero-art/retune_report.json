@@ -1,0 +1,7247 @@
+{
+  "rewritten": 101,
+  "missing_recipe": [],
+  "q32_armor": false,
+  "chapter18_armor_rewards": [],
+  "fraction": {
+    "piece": 0.3,
+    "full": 0.4
+  },
+  "report": [
+    {
+      "id": 300,
+      "name": "Hall of Heroes",
+      "kind": "intro",
+      "char": null,
+      "before": [
+        [
+          "legends:DCLogo",
+          1,
+          0
+        ],
+        [
+          "legends:MarvelLogo",
+          1,
+          0
+        ],
+        [
+          "legends:superDex",
+          1,
+          0
+        ],
+        [
+          "legends:fabric",
+          16,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          0
+        ],
+        [
+          "lucky:lucky_block",
+          4,
+          0
+        ]
+      ],
+      "after": [
+        [
+          "legends:fabric",
+          8,
+          0
+        ],
+        [
+          "legends:fabric",
+          4,
+          1
+        ],
+        [
+          "legends:fabric",
+          4,
+          6
+        ],
+        [
+          "legends:tech",
+          4,
+          0
+        ],
+        [
+          "legends:titaniumPlate",
+          2,
+          0
+        ],
+        [
+          "legends:DCLogo",
+          1,
+          0
+        ],
+        [
+          "legends:MarvelLogo",
+          1,
+          0
+        ],
+        [
+          "legends:superDex",
+          1,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          0
+        ],
+        [
+          "lucky:lucky_block",
+          4,
+          0
+        ]
+      ],
+      "notes": [
+        "intro generic starter (not a piece recipe)"
+      ]
+    },
+    {
+      "id": 301,
+      "name": "§6★ Costume Closet ★",
+      "kind": "closet",
+      "char": null,
+      "before": [
+        [
+          "lootbags:lootbag",
+          1,
+          4
+        ],
+        [
+          "lucky:lucky_block",
+          16,
+          0
+        ],
+        [
+          "legends:techHigh",
+          4,
+          0
+        ],
+        [
+          "legends:nanobot",
+          8,
+          0
+        ]
+      ],
+      "after": [
+        [
+          "legends:techHigh",
+          2,
+          0
+        ],
+        [
+          "legends:nanobot",
+          3,
+          0
+        ],
+        [
+          "legends:titaniumPlate",
+          2,
+          0
+        ],
+        [
+          "legends:vibranium",
+          1,
+          0
+        ],
+        [
+          "legends:kryptonianMetal",
+          1,
+          0
+        ],
+        [
+          "legends:wayneTech",
+          3,
+          0
+        ],
+        [
+          "legends:radioactiveFabric",
+          2,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          4
+        ],
+        [
+          "lucky:lucky_block",
+          8,
+          0
+        ]
+      ],
+      "notes": [
+        "closet mixed cache; no armor"
+      ]
+    },
+    {
+      "id": 302,
+      "name": "Iron Man: Underarmor",
+      "kind": "piece",
+      "char": "ironman_mark0",
+      "before": [
+        [
+          "legends:palladium",
+          4,
+          0
+        ],
+        [
+          "legends:starkTech",
+          2,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ]
+      ],
+      "after": [
+        [
+          "legends:titaniumPlate",
+          2,
+          0
+        ],
+        [
+          "legends:starkTech",
+          1,
+          0
+        ],
+        [
+          "legends:repulsorType1",
+          1,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          0
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "notes": [
+        "per-piece getMaterials *30%"
+      ]
+    },
+    {
+      "id": 303,
+      "name": "Iron Man: Mark 1",
+      "kind": "piece",
+      "char": "ironman_mark1",
+      "before": [
+        [
+          "legends:miniArcReactor",
+          1,
+          0
+        ],
+        [
+          "legends:titaniumPlate",
+          4,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          2
+        ]
+      ],
+      "after": [
+        [
+          "legends:titaniumPlate",
+          8,
+          0
+        ],
+        [
+          "legends:ironPlate",
+          3,
+          0
+        ],
+        [
+          "legends:copperIngot",
+          3,
+          0
+        ],
+        [
+          "legends:magnesiumIngot",
+          3,
+          0
+        ],
+        [
+          "minecraft:stained_glass_pane",
+          1,
+          0
+        ],
+        [
+          "legends:tech",
+          9,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          0
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:yellowGem x1",
+        "skip unique legends:miniArcReactor x1",
+        "skip slice0 legends:rocket x1",
+        "per-piece getMaterials *30%"
+      ]
+    },
+    {
+      "id": 304,
+      "name": "Iron Man: Mark 3",
+      "kind": "full",
+      "char": "ironman_mark3",
+      "before": [
+        [
+          "legends:palladiumArcReactor",
+          1,
+          0
+        ],
+        [
+          "legends:repulsorType1",
+          1,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          3
+        ]
+      ],
+      "after": [
+        [
+          "legends:goldTitaniumAlloy",
+          2,
+          1
+        ],
+        [
+          "legends:goldTitaniumAlloy",
+          1,
+          2
+        ],
+        [
+          "legends:ironPlate",
+          1,
+          0
+        ],
+        [
+          "minecraft:stained_glass_pane",
+          1,
+          0
+        ],
+        [
+          "legends:starkTech",
+          1,
+          0
+        ],
+        [
+          "legends:silicon",
+          2,
+          0
+        ],
+        [
+          "legends:bullet",
+          6,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          2
+        ],
+        [
+          "lucky:lucky_block",
+          4,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:orangeGem x1",
+        "skip unique legends:palladiumArcReactor x1",
+        "skip slice0 legends:rocket x1",
+        "recipe had armor ingredients; counts/4 then *40%"
+      ]
+    },
+    {
+      "id": 305,
+      "name": "Iron Man: Mark 7",
+      "kind": "full",
+      "char": "ironman_mark7",
+      "before": [
+        [
+          "legends:vibraniumArcReactor",
+          1,
+          0
+        ],
+        [
+          "legends:repulsorType1",
+          1,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          3
+        ]
+      ],
+      "after": [
+        [
+          "legends:goldTitaniumAlloy",
+          2,
+          1
+        ],
+        [
+          "legends:goldTitaniumAlloy",
+          2,
+          2
+        ],
+        [
+          "legends:goldTitaniumAlloy",
+          1,
+          3
+        ],
+        [
+          "legends:ironPlate",
+          2,
+          0
+        ],
+        [
+          "minecraft:stained_glass_pane",
+          1,
+          0
+        ],
+        [
+          "legends:starkTech",
+          2,
+          0
+        ],
+        [
+          "legends:silicon",
+          2,
+          0
+        ],
+        [
+          "legends:bullet",
+          6,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          2
+        ],
+        [
+          "lucky:lucky_block",
+          4,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:redGem x1",
+        "skip unique legends:arcReactor x1",
+        "skip slice0 legends:rocket x1",
+        "recipe had armor ingredients; counts/4 then *40%"
+      ]
+    },
+    {
+      "id": 306,
+      "name": "Iron Man: Mark 21",
+      "kind": "piece",
+      "char": "ironman_mark21",
+      "before": [
+        [
+          "lootbags:lootbag",
+          1,
+          4
+        ],
+        [
+          "lucky:lucky_block",
+          8,
+          0
+        ],
+        [
+          "legends:starkTech",
+          4,
+          0
+        ]
+      ],
+      "after": [
+        [
+          "legends:goldTitaniumAlloy",
+          4,
+          2
+        ],
+        [
+          "legends:ironPlate",
+          2,
+          0
+        ],
+        [
+          "minecraft:stained_glass_pane",
+          1,
+          0
+        ],
+        [
+          "legends:starkTech",
+          2,
+          0
+        ],
+        [
+          "legends:silicon",
+          2,
+          0
+        ],
+        [
+          "legends:bullet",
+          5,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          4
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:redGem x1",
+        "skip unique legends:arcReactor x1",
+        "skip slice0 legends:rocket x1",
+        "recipe had armor ingredients; counts/4 then *30%"
+      ]
+    },
+    {
+      "id": 307,
+      "name": "Superman",
+      "kind": "piece",
+      "char": "superman",
+      "before": [
+        [
+          "legends:kryptonianMetal",
+          4,
+          0
+        ],
+        [
+          "legends:supermanLogo",
+          1,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "after": [
+        [
+          "legends:fabric",
+          3,
+          1
+        ],
+        [
+          "legends:fabric",
+          4,
+          6
+        ],
+        [
+          "legends:stainedLeather",
+          1,
+          1
+        ],
+        [
+          "minecraft:diamond",
+          1,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:redGem x1",
+        "skip unique legends:supermanLogo x1",
+        "per-piece getMaterials *30%"
+      ]
+    },
+    {
+      "id": 308,
+      "name": "Superman: Full Set",
+      "kind": "full",
+      "char": "superman",
+      "before": [
+        [
+          "legends:kryptonianAlloy",
+          2,
+          0
+        ],
+        [
+          "legends:kryptonianSyringe",
+          1,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          3
+        ]
+      ],
+      "after": [
+        [
+          "legends:fabric",
+          4,
+          1
+        ],
+        [
+          "legends:fabric",
+          4,
+          6
+        ],
+        [
+          "legends:stainedLeather",
+          1,
+          1
+        ],
+        [
+          "minecraft:diamond",
+          1,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          2
+        ],
+        [
+          "lucky:lucky_block",
+          4,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:redGem x1",
+        "skip unique legends:supermanLogo x1",
+        "per-piece getMaterials *40%"
+      ]
+    },
+    {
+      "id": 309,
+      "name": "Supergirl",
+      "kind": "piece",
+      "char": "supergirl",
+      "before": [
+        [
+          "legends:kryptonianMetal",
+          2,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "after": [
+        [
+          "legends:fabric",
+          2,
+          1
+        ],
+        [
+          "legends:fabric",
+          2,
+          3
+        ],
+        [
+          "legends:fabric",
+          3,
+          6
+        ],
+        [
+          "legends:stainedLeather",
+          1,
+          1
+        ],
+        [
+          "legends:stainedLeather",
+          1,
+          3
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          0
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:redGem x1",
+        "skip unique legends:supermanLogo x1",
+        "per-piece getMaterials *30%"
+      ]
+    },
+    {
+      "id": 310,
+      "name": "Supergirl: Full Set",
+      "kind": "full",
+      "char": "supergirl",
+      "before": [
+        [
+          "legends:kryptonianAlloy",
+          1,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          2
+        ]
+      ],
+      "after": [
+        [
+          "legends:fabric",
+          2,
+          1
+        ],
+        [
+          "legends:fabric",
+          2,
+          3
+        ],
+        [
+          "legends:fabric",
+          4,
+          6
+        ],
+        [
+          "legends:stainedLeather",
+          1,
+          1
+        ],
+        [
+          "legends:stainedLeather",
+          1,
+          3
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          4,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:redGem x1",
+        "skip unique legends:supermanLogo x1",
+        "per-piece getMaterials *40%"
+      ]
+    },
+    {
+      "id": 311,
+      "name": "General Zod",
+      "kind": "piece",
+      "char": "generalzod",
+      "before": [
+        [
+          "legends:kryptonianMetal",
+          2,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "after": [
+        [
+          "legends:fabric",
+          2,
+          10
+        ],
+        [
+          "legends:stainedTitanium",
+          3,
+          9
+        ],
+        [
+          "legends:kryptonianAlloy",
+          4,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          0
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:redGem x1",
+        "per-piece getMaterials *30%"
+      ]
+    },
+    {
+      "id": 312,
+      "name": "General Zod: Full Set",
+      "kind": "full",
+      "char": "generalzod",
+      "before": [
+        [
+          "legends:kryptoniteSyringe",
+          1,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          2
+        ]
+      ],
+      "after": [
+        [
+          "legends:fabric",
+          2,
+          10
+        ],
+        [
+          "legends:stainedTitanium",
+          3,
+          9
+        ],
+        [
+          "legends:kryptonianAlloy",
+          5,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          4,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:redGem x1",
+        "per-piece getMaterials *40%"
+      ]
+    },
+    {
+      "id": 313,
+      "name": "Batman",
+      "kind": "piece",
+      "char": "batman",
+      "before": [
+        [
+          "legends:wayneTech",
+          4,
+          0
+        ],
+        [
+          "legends:batmanLogo",
+          1,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "after": [
+        [
+          "legends:fabric",
+          1,
+          0
+        ],
+        [
+          "legends:fabric",
+          2,
+          3
+        ],
+        [
+          "legends:fabric",
+          4,
+          5
+        ],
+        [
+          "legends:fabric",
+          7,
+          10
+        ],
+        [
+          "legends:stainedLeather",
+          1,
+          10
+        ],
+        [
+          "legends:wayneTech",
+          3,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:orangeGem x1",
+        "skip unique legends:batmanLogo x1",
+        "skip unique legends:batbelt x1",
+        "per-piece getMaterials *30%"
+      ]
+    },
+    {
+      "id": 314,
+      "name": "Batman: Full Set",
+      "kind": "full",
+      "char": "batman",
+      "before": [
+        [
+          "legends:batarang",
+          8,
+          0
+        ],
+        [
+          "legends:grapplingHook",
+          1,
+          0
+        ],
+        [
+          "legends:batbelt",
+          1,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          3
+        ]
+      ],
+      "after": [
+        [
+          "legends:fabric",
+          1,
+          0
+        ],
+        [
+          "legends:fabric",
+          2,
+          3
+        ],
+        [
+          "legends:fabric",
+          6,
+          5
+        ],
+        [
+          "legends:fabric",
+          9,
+          10
+        ],
+        [
+          "legends:stainedLeather",
+          1,
+          10
+        ],
+        [
+          "legends:wayneTech",
+          4,
+          0
+        ],
+        [
+          "legends:grapplingHook",
+          1,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          2
+        ],
+        [
+          "lucky:lucky_block",
+          4,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:orangeGem x1",
+        "skip unique legends:batmanLogo x1",
+        "skip unique legends:batbelt x1",
+        "per-piece getMaterials *40%",
+        "gadget legends:grapplingHook"
+      ]
+    },
+    {
+      "id": 315,
+      "name": "Wonder Woman",
+      "kind": "piece",
+      "char": "wonderwoman",
+      "before": [
+        [
+          "legends:wonderWomanLogo",
+          1,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "after": [
+        [
+          "legends:fabric",
+          1,
+          0
+        ],
+        [
+          "legends:fabric",
+          2,
+          1
+        ],
+        [
+          "legends:fabric",
+          1,
+          6
+        ],
+        [
+          "legends:stainedLeather",
+          1,
+          0
+        ],
+        [
+          "legends:stainedLeather",
+          1,
+          1
+        ],
+        [
+          "legends:stainedTitanium",
+          1,
+          0
+        ],
+        [
+          "minecraft:diamond",
+          3,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:redGem x1",
+        "skip unique legends:wonderWomanLogo x1",
+        "per-piece getMaterials *30%"
+      ]
+    },
+    {
+      "id": 316,
+      "name": "Wonder Woman: Full Set",
+      "kind": "full",
+      "char": "wonderwoman",
+      "before": [
+        [
+          "legends:lasso",
+          1,
+          0
+        ],
+        [
+          "legends:amazonianWeapons",
+          1,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          3
+        ]
+      ],
+      "after": [
+        [
+          "legends:fabric",
+          1,
+          0
+        ],
+        [
+          "legends:fabric",
+          2,
+          1
+        ],
+        [
+          "legends:fabric",
+          1,
+          6
+        ],
+        [
+          "legends:stainedLeather",
+          1,
+          0
+        ],
+        [
+          "legends:stainedLeather",
+          1,
+          1
+        ],
+        [
+          "legends:stainedTitanium",
+          1,
+          0
+        ],
+        [
+          "minecraft:diamond",
+          4,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          2
+        ],
+        [
+          "lucky:lucky_block",
+          4,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:redGem x1",
+        "skip unique legends:wonderWomanLogo x1",
+        "per-piece getMaterials *40%"
+      ]
+    },
+    {
+      "id": 317,
+      "name": "Flash",
+      "kind": "piece",
+      "char": "flash",
+      "before": [
+        [
+          "legends:flashLogo",
+          1,
+          0
+        ],
+        [
+          "legends:lightningIngot",
+          4,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "after": [
+        [
+          "legends:fabric",
+          7,
+          1
+        ],
+        [
+          "legends:stainedLeather",
+          1,
+          3
+        ],
+        [
+          "legends:lightningBlock",
+          4,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:redGem x1",
+        "skip unique legends:flashLogo x1",
+        "per-piece getMaterials *30%"
+      ]
+    },
+    {
+      "id": 318,
+      "name": "Flash: Full Set",
+      "kind": "full",
+      "char": "flash",
+      "before": [
+        [
+          "legends:flashRing",
+          1,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          3
+        ]
+      ],
+      "after": [
+        [
+          "legends:fabric",
+          9,
+          1
+        ],
+        [
+          "legends:stainedLeather",
+          1,
+          3
+        ],
+        [
+          "legends:lightningBlock",
+          4,
+          0
+        ],
+        [
+          "legends:lightningIngot",
+          2,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          2
+        ],
+        [
+          "lucky:lucky_block",
+          4,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:redGem x1",
+        "skip unique legends:flashLogo x1",
+        "per-piece getMaterials *40%",
+        "gadget legends:lightningIngot"
+      ]
+    },
+    {
+      "id": 319,
+      "name": "Kid Flash",
+      "kind": "piece",
+      "char": "kidflash",
+      "before": [
+        [
+          "legends:kidFlashLogo",
+          1,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          0
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "after": [
+        [
+          "legends:fabric",
+          2,
+          1
+        ],
+        [
+          "legends:fabric",
+          4,
+          3
+        ],
+        [
+          "legends:stainedLeather",
+          1,
+          3
+        ],
+        [
+          "legends:lightningBlockRed",
+          3,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          0
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:redGem x1",
+        "skip unique legends:kidFlashLogo x1",
+        "per-piece getMaterials *30%"
+      ]
+    },
+    {
+      "id": 320,
+      "name": "Kid Flash: Full Set",
+      "kind": "full",
+      "char": "kidflash",
+      "before": [
+        [
+          "legends:lightningIngot",
+          4,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          2
+        ]
+      ],
+      "after": [
+        [
+          "legends:fabric",
+          2,
+          1
+        ],
+        [
+          "legends:fabric",
+          5,
+          3
+        ],
+        [
+          "legends:stainedLeather",
+          1,
+          3
+        ],
+        [
+          "legends:lightningBlockRed",
+          3,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          4,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:redGem x1",
+        "skip unique legends:kidFlashLogo x1",
+        "per-piece getMaterials *40%"
+      ]
+    },
+    {
+      "id": 321,
+      "name": "Flash (Wally West)",
+      "kind": "piece",
+      "char": "flash_west",
+      "before": [
+        [
+          "legends:lightningIngot",
+          2,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "after": [
+        [
+          "legends:fabric",
+          1,
+          0
+        ],
+        [
+          "legends:fabric",
+          7,
+          1
+        ],
+        [
+          "legends:stainedLeather",
+          1,
+          3
+        ],
+        [
+          "legends:lightningBlock",
+          4,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          0
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:redGem x1",
+        "skip unique legends:flashLogo x1",
+        "per-piece getMaterials *30%"
+      ]
+    },
+    {
+      "id": 322,
+      "name": "Flash (Wally West): Full Set",
+      "kind": "full",
+      "char": "flash_west",
+      "before": [
+        [
+          "legends:flashLogo",
+          1,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          2
+        ]
+      ],
+      "after": [
+        [
+          "legends:fabric",
+          1,
+          0
+        ],
+        [
+          "legends:fabric",
+          9,
+          1
+        ],
+        [
+          "legends:stainedLeather",
+          1,
+          3
+        ],
+        [
+          "legends:lightningBlock",
+          4,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          4,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:redGem x1",
+        "skip unique legends:flashLogo x1",
+        "per-piece getMaterials *40%"
+      ]
+    },
+    {
+      "id": 323,
+      "name": "Flash (Jay Garrick)",
+      "kind": "piece",
+      "char": "flash_garrick",
+      "before": [
+        [
+          "legends:lightningIngot",
+          2,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "after": [
+        [
+          "legends:fabric",
+          2,
+          1
+        ],
+        [
+          "legends:fabric",
+          2,
+          6
+        ],
+        [
+          "legends:stainedLeather",
+          2,
+          10
+        ],
+        [
+          "legends:lightningBlock",
+          2,
+          0
+        ],
+        [
+          "legends:titaniumPlate",
+          2,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          0
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:redGem x1",
+        "skip unique legends:flashLogo x1",
+        "skip slice0 minecraft:diamond x1",
+        "per-piece getMaterials *30%"
+      ]
+    },
+    {
+      "id": 324,
+      "name": "Flash (Jay Garrick): Full Set",
+      "kind": "full",
+      "char": "flash_garrick",
+      "before": [
+        [
+          "legends:flashLogo",
+          1,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          2
+        ]
+      ],
+      "after": [
+        [
+          "legends:fabric",
+          3,
+          1
+        ],
+        [
+          "legends:fabric",
+          2,
+          6
+        ],
+        [
+          "legends:stainedLeather",
+          2,
+          10
+        ],
+        [
+          "legends:lightningBlock",
+          2,
+          0
+        ],
+        [
+          "legends:titaniumPlate",
+          2,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          4,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:redGem x1",
+        "skip unique legends:flashLogo x1",
+        "skip slice0 minecraft:diamond x1",
+        "per-piece getMaterials *40%"
+      ]
+    },
+    {
+      "id": 325,
+      "name": "Reverse-Flash",
+      "kind": "piece",
+      "char": "reverseflash",
+      "before": [
+        [
+          "legends:reverseFlashLogo",
+          1,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "after": [
+        [
+          "legends:fabric",
+          7,
+          3
+        ],
+        [
+          "legends:stainedLeather",
+          1,
+          1
+        ],
+        [
+          "legends:lightningBlockRed",
+          4,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          0
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:redGem x1",
+        "skip unique legends:reverseFlashLogo x1",
+        "per-piece getMaterials *30%"
+      ]
+    },
+    {
+      "id": 326,
+      "name": "Reverse-Flash: Full Set",
+      "kind": "full",
+      "char": "reverseflash",
+      "before": [
+        [
+          "legends:reverseFlashRing",
+          1,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          2
+        ]
+      ],
+      "after": [
+        [
+          "legends:fabric",
+          9,
+          3
+        ],
+        [
+          "legends:stainedLeather",
+          1,
+          1
+        ],
+        [
+          "legends:lightningBlockRed",
+          4,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          4,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:redGem x1",
+        "skip unique legends:reverseFlashLogo x1",
+        "per-piece getMaterials *40%"
+      ]
+    },
+    {
+      "id": 327,
+      "name": "Zoom",
+      "kind": "piece",
+      "char": "zoom",
+      "before": [
+        [
+          "legends:zoomLogo",
+          1,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "after": [
+        [
+          "legends:fabric",
+          7,
+          3
+        ],
+        [
+          "legends:fabric",
+          2,
+          6
+        ],
+        [
+          "legends:stainedLeather",
+          1,
+          1
+        ],
+        [
+          "legends:lightningBlockRed",
+          4,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          0
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:redGem x1",
+        "skip unique legends:zoomLogo x1",
+        "per-piece getMaterials *30%"
+      ]
+    },
+    {
+      "id": 328,
+      "name": "Zoom: Full Set",
+      "kind": "full",
+      "char": "zoom",
+      "before": [
+        [
+          "legends:lightningIngot",
+          4,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          2
+        ]
+      ],
+      "after": [
+        [
+          "legends:fabric",
+          9,
+          3
+        ],
+        [
+          "legends:fabric",
+          2,
+          6
+        ],
+        [
+          "legends:stainedLeather",
+          1,
+          1
+        ],
+        [
+          "legends:lightningBlockRed",
+          4,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          4,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:redGem x1",
+        "skip unique legends:zoomLogo x1",
+        "per-piece getMaterials *40%"
+      ]
+    },
+    {
+      "id": 329,
+      "name": "Shazam",
+      "kind": "piece",
+      "char": "shazam",
+      "before": [
+        [
+          "legends:shazamLogo",
+          1,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "after": [
+        [
+          "legends:fabric",
+          4,
+          0
+        ],
+        [
+          "legends:fabric",
+          4,
+          1
+        ],
+        [
+          "legends:fabric",
+          1,
+          3
+        ],
+        [
+          "legends:stainedLeather",
+          1,
+          3
+        ],
+        [
+          "legends:lightningBlock",
+          2,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          0
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:redGem x1",
+        "skip unique legends:shazamLogo x1",
+        "per-piece getMaterials *30%"
+      ]
+    },
+    {
+      "id": 330,
+      "name": "Shazam: Full Set",
+      "kind": "full",
+      "char": "shazam",
+      "before": [
+        [
+          "legends:lightningIngot",
+          6,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          2
+        ]
+      ],
+      "after": [
+        [
+          "legends:fabric",
+          5,
+          0
+        ],
+        [
+          "legends:fabric",
+          6,
+          1
+        ],
+        [
+          "legends:fabric",
+          1,
+          3
+        ],
+        [
+          "legends:stainedLeather",
+          1,
+          3
+        ],
+        [
+          "legends:lightningBlock",
+          2,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          4,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:redGem x1",
+        "skip unique legends:shazamLogo x1",
+        "per-piece getMaterials *40%"
+      ]
+    },
+    {
+      "id": 331,
+      "name": "Black Adam",
+      "kind": "piece",
+      "char": "blackadam",
+      "before": [
+        [
+          "legends:shazamLogo",
+          1,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "after": [
+        [
+          "legends:fabric",
+          1,
+          3
+        ],
+        [
+          "legends:fabric",
+          4,
+          10
+        ],
+        [
+          "legends:stainedLeather",
+          1,
+          3
+        ],
+        [
+          "legends:lightningBlock",
+          2,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          0
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:redGem x1",
+        "skip unique legends:shazamLogo x1",
+        "per-piece getMaterials *30%"
+      ]
+    },
+    {
+      "id": 332,
+      "name": "Black Adam: Full Set",
+      "kind": "full",
+      "char": "blackadam",
+      "before": [
+        [
+          "legends:kryptonianAlloy",
+          1,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          2
+        ]
+      ],
+      "after": [
+        [
+          "legends:fabric",
+          1,
+          3
+        ],
+        [
+          "legends:fabric",
+          6,
+          10
+        ],
+        [
+          "legends:stainedLeather",
+          1,
+          3
+        ],
+        [
+          "legends:lightningBlock",
+          2,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          4,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:redGem x1",
+        "skip unique legends:shazamLogo x1",
+        "per-piece getMaterials *40%"
+      ]
+    },
+    {
+      "id": 333,
+      "name": "Martian Manhunter",
+      "kind": "piece",
+      "char": "martianmanhunter",
+      "before": [
+        [
+          "legends:techAlien",
+          2,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "after": [
+        [
+          "legends:martianRelic",
+          7,
+          0
+        ],
+        [
+          "legends:fabric",
+          2,
+          1
+        ],
+        [
+          "legends:fabric",
+          4,
+          6
+        ],
+        [
+          "minecraft:diamond",
+          1,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          0
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:redGem x1",
+        "per-piece getMaterials *30%"
+      ]
+    },
+    {
+      "id": 334,
+      "name": "Martian Manhunter: Full Set",
+      "kind": "full",
+      "char": "martianmanhunter",
+      "before": [
+        [
+          "legends:techAlien",
+          4,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          2
+        ]
+      ],
+      "after": [
+        [
+          "legends:martianRelic",
+          9,
+          0
+        ],
+        [
+          "legends:fabric",
+          2,
+          1
+        ],
+        [
+          "legends:fabric",
+          5,
+          6
+        ],
+        [
+          "minecraft:diamond",
+          1,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          4,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:redGem x1",
+        "per-piece getMaterials *40%"
+      ]
+    },
+    {
+      "id": 335,
+      "name": "Green Arrow",
+      "kind": "piece",
+      "char": "greenarrow",
+      "before": [
+        [
+          "legends:wayneTech",
+          2,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "after": [
+        [
+          "legends:fabric",
+          5,
+          4
+        ],
+        [
+          "legends:fabric",
+          3,
+          3
+        ],
+        [
+          "legends:stainedLeather",
+          3,
+          4
+        ],
+        [
+          "minecraft:diamond",
+          1,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          0
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:yellowGem x1",
+        "per-piece getMaterials *30%"
+      ]
+    },
+    {
+      "id": 336,
+      "name": "Green Arrow: Full Set",
+      "kind": "full",
+      "char": "greenarrow",
+      "before": [
+        [
+          "legends:greenArrowBow",
+          1,
+          0
+        ],
+        [
+          "legends:kryptoniteArrow",
+          4,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          2
+        ]
+      ],
+      "after": [
+        [
+          "legends:fabric",
+          7,
+          4
+        ],
+        [
+          "legends:fabric",
+          3,
+          3
+        ],
+        [
+          "legends:stainedLeather",
+          4,
+          4
+        ],
+        [
+          "minecraft:diamond",
+          1,
+          0
+        ],
+        [
+          "legends:kryptoniteArrow",
+          2,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          4,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:yellowGem x1",
+        "per-piece getMaterials *40%",
+        "gadget legends:kryptoniteArrow"
+      ]
+    },
+    {
+      "id": 337,
+      "name": "Joker",
+      "kind": "piece",
+      "char": "joker",
+      "before": [
+        [
+          "legends:jokerCard",
+          8,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "after": [
+        [
+          "legends:fabric",
+          2,
+          2
+        ],
+        [
+          "legends:fabric",
+          1,
+          4
+        ],
+        [
+          "legends:fabric",
+          2,
+          7
+        ],
+        [
+          "legends:stainedLeather",
+          1,
+          2
+        ],
+        [
+          "legends:stainedLeather",
+          3,
+          7
+        ],
+        [
+          "legends:stainedLeather",
+          1,
+          10
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          0
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:yellowGem x1",
+        "per-piece getMaterials *30%"
+      ]
+    },
+    {
+      "id": 338,
+      "name": "Joker: Full Set",
+      "kind": "full",
+      "char": "joker",
+      "before": [
+        [
+          "legends:jokerGun",
+          1,
+          0
+        ],
+        [
+          "legends:jokerCard",
+          16,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          2
+        ]
+      ],
+      "after": [
+        [
+          "legends:fabric",
+          3,
+          2
+        ],
+        [
+          "legends:fabric",
+          1,
+          4
+        ],
+        [
+          "legends:fabric",
+          3,
+          7
+        ],
+        [
+          "legends:stainedLeather",
+          1,
+          2
+        ],
+        [
+          "legends:stainedLeather",
+          4,
+          7
+        ],
+        [
+          "legends:stainedLeather",
+          1,
+          10
+        ],
+        [
+          "legends:jokerCard",
+          8,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          4,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:yellowGem x1",
+        "per-piece getMaterials *40%",
+        "gadget legends:jokerCard"
+      ]
+    },
+    {
+      "id": 339,
+      "name": "Nightwing",
+      "kind": "piece",
+      "char": "nightwing",
+      "before": [
+        [
+          "legends:robinLogo",
+          1,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "after": [
+        [
+          "legends:fabric",
+          1,
+          0
+        ],
+        [
+          "legends:fabric",
+          2,
+          6
+        ],
+        [
+          "legends:fabric",
+          6,
+          10
+        ],
+        [
+          "legends:stainedLeather",
+          1,
+          10
+        ],
+        [
+          "legends:wayneTech",
+          3,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          0
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:greenGem x1",
+        "per-piece getMaterials *30%"
+      ]
+    },
+    {
+      "id": 340,
+      "name": "Nightwing: Full Set",
+      "kind": "full",
+      "char": "nightwing",
+      "before": [
+        [
+          "legends:escrimaSticks",
+          1,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          2
+        ]
+      ],
+      "after": [
+        [
+          "legends:fabric",
+          1,
+          0
+        ],
+        [
+          "legends:fabric",
+          2,
+          6
+        ],
+        [
+          "legends:fabric",
+          8,
+          10
+        ],
+        [
+          "legends:stainedLeather",
+          1,
+          10
+        ],
+        [
+          "legends:wayneTech",
+          4,
+          0
+        ],
+        [
+          "legends:grapplingHook",
+          1,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          4,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:greenGem x1",
+        "per-piece getMaterials *40%",
+        "gadget legends:grapplingHook"
+      ]
+    },
+    {
+      "id": 341,
+      "name": "Red Hood",
+      "kind": "piece",
+      "char": "redhood",
+      "before": [
+        [
+          "legends:robinLogo",
+          1,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "after": [
+        [
+          "legends:fabric",
+          4,
+          10
+        ],
+        [
+          "minecraft:leather",
+          2,
+          0
+        ],
+        [
+          "legends:stainedLeather",
+          2,
+          10
+        ],
+        [
+          "legends:blackIronIngot",
+          3,
+          0
+        ],
+        [
+          "legends:redIronIngot",
+          2,
+          0
+        ],
+        [
+          "minecraft:stained_glass_pane",
+          1,
+          0
+        ],
+        [
+          "minecraft:iron_ingot",
+          2,
+          0
+        ],
+        [
+          "legends:wayneTech",
+          3,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          0
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:greenGem x1",
+        "skip unique legends:batmanLogo x1",
+        "per-piece getMaterials *30%"
+      ]
+    },
+    {
+      "id": 342,
+      "name": "Red Hood: Full Set",
+      "kind": "full",
+      "char": "redhood",
+      "before": [
+        [
+          "legends:pistols",
+          1,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          2
+        ]
+      ],
+      "after": [
+        [
+          "legends:fabric",
+          6,
+          10
+        ],
+        [
+          "minecraft:leather",
+          3,
+          0
+        ],
+        [
+          "legends:stainedLeather",
+          3,
+          10
+        ],
+        [
+          "legends:blackIronIngot",
+          3,
+          0
+        ],
+        [
+          "legends:redIronIngot",
+          2,
+          0
+        ],
+        [
+          "minecraft:stained_glass_pane",
+          1,
+          0
+        ],
+        [
+          "minecraft:iron_ingot",
+          2,
+          0
+        ],
+        [
+          "legends:wayneTech",
+          4,
+          0
+        ],
+        [
+          "legends:grapplingHook",
+          1,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          4,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:greenGem x1",
+        "skip unique legends:batmanLogo x1",
+        "per-piece getMaterials *40%",
+        "gadget legends:grapplingHook"
+      ]
+    },
+    {
+      "id": 343,
+      "name": "Red Robin",
+      "kind": "piece",
+      "char": "redrobin",
+      "before": [
+        [
+          "legends:robinLogo",
+          1,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "after": [
+        [
+          "legends:fabric",
+          1,
+          0
+        ],
+        [
+          "legends:fabric",
+          2,
+          1
+        ],
+        [
+          "legends:fabric",
+          7,
+          10
+        ],
+        [
+          "legends:stainedLeather",
+          1,
+          10
+        ],
+        [
+          "legends:blackIronIngot",
+          2,
+          0
+        ],
+        [
+          "legends:wayneTech",
+          3,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          0
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:greenGem x1",
+        "skip slice0 legends:rrDisc x1",
+        "skip slice0 minecraft:diamond x1",
+        "per-piece getMaterials *30%"
+      ]
+    },
+    {
+      "id": 344,
+      "name": "Red Robin: Full Set",
+      "kind": "full",
+      "char": "redrobin",
+      "before": [
+        [
+          "legends:rrDisc",
+          8,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          2
+        ]
+      ],
+      "after": [
+        [
+          "legends:fabric",
+          1,
+          0
+        ],
+        [
+          "legends:fabric",
+          2,
+          1
+        ],
+        [
+          "legends:fabric",
+          9,
+          10
+        ],
+        [
+          "legends:stainedLeather",
+          1,
+          10
+        ],
+        [
+          "legends:blackIronIngot",
+          2,
+          0
+        ],
+        [
+          "legends:wayneTech",
+          4,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          4,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:greenGem x1",
+        "skip slice0 legends:rrDisc x1",
+        "skip slice0 minecraft:diamond x1",
+        "per-piece getMaterials *40%"
+      ]
+    },
+    {
+      "id": 345,
+      "name": "Robin (1st)",
+      "kind": "piece",
+      "char": "robin_grayson",
+      "before": [
+        [
+          "legends:robinLogo",
+          1,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          0
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "after": [
+        [
+          "legends:fabric",
+          1,
+          0
+        ],
+        [
+          "legends:fabric",
+          2,
+          1
+        ],
+        [
+          "legends:fabric",
+          2,
+          3
+        ],
+        [
+          "legends:fabric",
+          4,
+          4
+        ],
+        [
+          "legends:stainedLeather",
+          1,
+          4
+        ],
+        [
+          "minecraft:diamond",
+          2,
+          0
+        ],
+        [
+          "legends:wayneTech",
+          2,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          0
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:blueGem x1",
+        "skip unique legends:robinLogo x1",
+        "per-piece getMaterials *30%"
+      ]
+    },
+    {
+      "id": 346,
+      "name": "Robin (1st): Full Set",
+      "kind": "full",
+      "char": "robin_grayson",
+      "before": [
+        [
+          "legends:throwingBird",
+          8,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ]
+      ],
+      "after": [
+        [
+          "legends:fabric",
+          1,
+          0
+        ],
+        [
+          "legends:fabric",
+          2,
+          1
+        ],
+        [
+          "legends:fabric",
+          2,
+          3
+        ],
+        [
+          "legends:fabric",
+          4,
+          4
+        ],
+        [
+          "legends:stainedLeather",
+          1,
+          4
+        ],
+        [
+          "minecraft:diamond",
+          2,
+          0
+        ],
+        [
+          "legends:wayneTech",
+          2,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          4,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:blueGem x1",
+        "skip unique legends:robinLogo x1",
+        "per-piece getMaterials *40%"
+      ]
+    },
+    {
+      "id": 347,
+      "name": "Robin (2nd)",
+      "kind": "piece",
+      "char": "robin_todd",
+      "before": [
+        [
+          "legends:robinLogo",
+          1,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          0
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "after": [
+        [
+          "legends:fabric",
+          1,
+          0
+        ],
+        [
+          "legends:fabric",
+          2,
+          1
+        ],
+        [
+          "legends:fabric",
+          2,
+          3
+        ],
+        [
+          "legends:fabric",
+          4,
+          4
+        ],
+        [
+          "legends:fabric",
+          1,
+          10
+        ],
+        [
+          "legends:stainedLeather",
+          1,
+          4
+        ],
+        [
+          "minecraft:diamond",
+          1,
+          0
+        ],
+        [
+          "legends:wayneTech",
+          2,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          0
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:blueGem x1",
+        "skip unique legends:robinLogo x1",
+        "per-piece getMaterials *30%"
+      ]
+    },
+    {
+      "id": 348,
+      "name": "Robin (2nd): Full Set",
+      "kind": "full",
+      "char": "robin_todd",
+      "before": [
+        [
+          "legends:rShuriken",
+          8,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ]
+      ],
+      "after": [
+        [
+          "legends:fabric",
+          1,
+          0
+        ],
+        [
+          "legends:fabric",
+          2,
+          1
+        ],
+        [
+          "legends:fabric",
+          2,
+          3
+        ],
+        [
+          "legends:fabric",
+          5,
+          4
+        ],
+        [
+          "legends:fabric",
+          1,
+          10
+        ],
+        [
+          "legends:stainedLeather",
+          1,
+          4
+        ],
+        [
+          "minecraft:diamond",
+          1,
+          0
+        ],
+        [
+          "legends:wayneTech",
+          2,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          4,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:blueGem x1",
+        "skip unique legends:robinLogo x1",
+        "per-piece getMaterials *40%"
+      ]
+    },
+    {
+      "id": 349,
+      "name": "Robin (3rd)",
+      "kind": "piece",
+      "char": "robin_drake",
+      "before": [
+        [
+          "legends:robinLogo",
+          1,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          0
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "after": [
+        [
+          "legends:fabric",
+          1,
+          0
+        ],
+        [
+          "legends:fabric",
+          2,
+          1
+        ],
+        [
+          "legends:fabric",
+          2,
+          3
+        ],
+        [
+          "legends:fabric",
+          5,
+          10
+        ],
+        [
+          "legends:stainedLeather",
+          1,
+          10
+        ],
+        [
+          "minecraft:diamond",
+          2,
+          0
+        ],
+        [
+          "legends:wayneTech",
+          2,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          0
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:blueGem x1",
+        "skip unique legends:robinLogo x1",
+        "per-piece getMaterials *30%"
+      ]
+    },
+    {
+      "id": 350,
+      "name": "Robin (3rd): Full Set",
+      "kind": "full",
+      "char": "robin_drake",
+      "before": [
+        [
+          "legends:boStaff",
+          1,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ]
+      ],
+      "after": [
+        [
+          "legends:fabric",
+          1,
+          0
+        ],
+        [
+          "legends:fabric",
+          3,
+          1
+        ],
+        [
+          "legends:fabric",
+          2,
+          3
+        ],
+        [
+          "legends:fabric",
+          6,
+          10
+        ],
+        [
+          "legends:stainedLeather",
+          1,
+          10
+        ],
+        [
+          "minecraft:diamond",
+          2,
+          0
+        ],
+        [
+          "legends:wayneTech",
+          3,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          4,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:blueGem x1",
+        "skip unique legends:robinLogo x1",
+        "per-piece getMaterials *40%"
+      ]
+    },
+    {
+      "id": 351,
+      "name": "Robin (4th)",
+      "kind": "piece",
+      "char": "robin_brown",
+      "before": [
+        [
+          "legends:robinLogo",
+          1,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          0
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "after": [
+        [
+          "legends:fabric",
+          1,
+          0
+        ],
+        [
+          "legends:fabric",
+          2,
+          1
+        ],
+        [
+          "legends:fabric",
+          2,
+          3
+        ],
+        [
+          "legends:fabric",
+          4,
+          4
+        ],
+        [
+          "legends:fabric",
+          2,
+          10
+        ],
+        [
+          "legends:stainedLeather",
+          1,
+          10
+        ],
+        [
+          "minecraft:diamond",
+          2,
+          0
+        ],
+        [
+          "legends:wayneTech",
+          2,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          0
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:blueGem x1",
+        "skip unique legends:robinLogo x1",
+        "skip slice0 legends:blackIronIngot x1",
+        "per-piece getMaterials *30%"
+      ]
+    },
+    {
+      "id": 352,
+      "name": "Robin (4th): Full Set",
+      "kind": "full",
+      "char": "robin_brown",
+      "before": [
+        [
+          "legends:rShuriken",
+          8,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ]
+      ],
+      "after": [
+        [
+          "legends:fabric",
+          1,
+          0
+        ],
+        [
+          "legends:fabric",
+          2,
+          1
+        ],
+        [
+          "legends:fabric",
+          2,
+          3
+        ],
+        [
+          "legends:fabric",
+          6,
+          4
+        ],
+        [
+          "legends:fabric",
+          2,
+          10
+        ],
+        [
+          "legends:stainedLeather",
+          1,
+          10
+        ],
+        [
+          "minecraft:diamond",
+          2,
+          0
+        ],
+        [
+          "legends:wayneTech",
+          3,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          4,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:blueGem x1",
+        "skip unique legends:robinLogo x1",
+        "skip slice0 legends:blackIronIngot x1",
+        "per-piece getMaterials *40%"
+      ]
+    },
+    {
+      "id": 353,
+      "name": "Robin (5th)",
+      "kind": "piece",
+      "char": "robin_wayne",
+      "before": [
+        [
+          "legends:robinLogo",
+          1,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          0
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "after": [
+        [
+          "legends:fabric",
+          1,
+          0
+        ],
+        [
+          "legends:fabric",
+          2,
+          1
+        ],
+        [
+          "legends:fabric",
+          2,
+          3
+        ],
+        [
+          "legends:fabric",
+          2,
+          4
+        ],
+        [
+          "legends:fabric",
+          3,
+          10
+        ],
+        [
+          "legends:stainedLeather",
+          1,
+          4
+        ],
+        [
+          "legends:blackIronIngot",
+          1,
+          0
+        ],
+        [
+          "legends:redIronIngot",
+          1,
+          0
+        ],
+        [
+          "legends:wayneTech",
+          3,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          0
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:blueGem x1",
+        "skip unique legends:robinLogo x1",
+        "skip slice0 minecraft:diamond x1",
+        "per-piece getMaterials *30%"
+      ]
+    },
+    {
+      "id": 354,
+      "name": "Robin (5th): Full Set",
+      "kind": "full",
+      "char": "robin_wayne",
+      "before": [
+        [
+          "legends:throwingBird",
+          8,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ]
+      ],
+      "after": [
+        [
+          "legends:fabric",
+          1,
+          0
+        ],
+        [
+          "legends:fabric",
+          2,
+          1
+        ],
+        [
+          "legends:fabric",
+          2,
+          3
+        ],
+        [
+          "legends:fabric",
+          2,
+          4
+        ],
+        [
+          "legends:fabric",
+          3,
+          10
+        ],
+        [
+          "legends:stainedLeather",
+          1,
+          4
+        ],
+        [
+          "legends:blackIronIngot",
+          1,
+          0
+        ],
+        [
+          "legends:redIronIngot",
+          1,
+          0
+        ],
+        [
+          "legends:wayneTech",
+          4,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          4,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:blueGem x1",
+        "skip unique legends:robinLogo x1",
+        "skip slice0 minecraft:diamond x1",
+        "per-piece getMaterials *40%"
+      ]
+    },
+    {
+      "id": 355,
+      "name": "Captain Cold",
+      "kind": "piece",
+      "char": "captaincold",
+      "before": [
+        [
+          "legends:tech",
+          4,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "after": [
+        [
+          "legends:fabric",
+          4,
+          0
+        ],
+        [
+          "legends:fabric",
+          5,
+          6
+        ],
+        [
+          "legends:stainedLeather",
+          1,
+          0
+        ],
+        [
+          "minecraft:diamond",
+          1,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          0
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:yellowGem x1",
+        "per-piece getMaterials *30%"
+      ]
+    },
+    {
+      "id": 356,
+      "name": "Captain Cold: Full Set",
+      "kind": "full",
+      "char": "captaincold",
+      "before": [
+        [
+          "legends:coldGun",
+          1,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          2
+        ]
+      ],
+      "after": [
+        [
+          "legends:fabric",
+          5,
+          0
+        ],
+        [
+          "legends:fabric",
+          6,
+          6
+        ],
+        [
+          "legends:stainedLeather",
+          1,
+          0
+        ],
+        [
+          "minecraft:diamond",
+          1,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          4,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:yellowGem x1",
+        "per-piece getMaterials *40%"
+      ]
+    },
+    {
+      "id": 357,
+      "name": "Heat Wave",
+      "kind": "piece",
+      "char": "heatwave",
+      "before": [
+        [
+          "legends:tech",
+          4,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "after": [
+        [
+          "legends:fabric",
+          8,
+          0
+        ],
+        [
+          "legends:stainedLeather",
+          1,
+          0
+        ],
+        [
+          "minecraft:iron_ingot",
+          6,
+          0
+        ],
+        [
+          "legends:stainedTitanium",
+          4,
+          2
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          0
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:yellowGem x1",
+        "per-piece getMaterials *30%"
+      ]
+    },
+    {
+      "id": 358,
+      "name": "Heat Wave: Full Set",
+      "kind": "full",
+      "char": "heatwave",
+      "before": [
+        [
+          "legends:heatGun",
+          1,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          2
+        ]
+      ],
+      "after": [
+        [
+          "legends:fabric",
+          10,
+          0
+        ],
+        [
+          "legends:stainedLeather",
+          1,
+          0
+        ],
+        [
+          "minecraft:iron_ingot",
+          7,
+          0
+        ],
+        [
+          "legends:stainedTitanium",
+          5,
+          2
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          4,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:yellowGem x1",
+        "per-piece getMaterials *40%"
+      ]
+    },
+    {
+      "id": 359,
+      "name": "Turtle",
+      "kind": "piece",
+      "char": "turtle",
+      "before": [
+        [
+          "legends:tech",
+          2,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          0
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "after": [
+        [
+          "legends:fabric",
+          4,
+          4
+        ],
+        [
+          "legends:stainedLeather",
+          4,
+          4
+        ],
+        [
+          "legends:stainedTitanium",
+          2,
+          8
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          0
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:orangeGem x1",
+        "per-piece getMaterials *30%"
+      ]
+    },
+    {
+      "id": 360,
+      "name": "Turtle: Full Set",
+      "kind": "full",
+      "char": "turtle",
+      "before": [
+        [
+          "legends:techHigh",
+          1,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ]
+      ],
+      "after": [
+        [
+          "legends:fabric",
+          6,
+          4
+        ],
+        [
+          "legends:stainedLeather",
+          4,
+          4
+        ],
+        [
+          "legends:stainedTitanium",
+          3,
+          8
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          4,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:orangeGem x1",
+        "per-piece getMaterials *40%"
+      ]
+    },
+    {
+      "id": 361,
+      "name": "Scarecrow",
+      "kind": "piece",
+      "char": "scarecrow",
+      "before": [
+        [
+          "legends:gasPellet",
+          4,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "after": [
+        [
+          "legends:fabric",
+          9,
+          9
+        ],
+        [
+          "legends:fabric",
+          3,
+          10
+        ],
+        [
+          "legends:stainedLeather",
+          1,
+          9
+        ],
+        [
+          "legends:straw",
+          6,
+          0
+        ],
+        [
+          "minecraft:sugar",
+          1,
+          0
+        ],
+        [
+          "minecraft:fermented_spider_eye",
+          3,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          0
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:yellowGem x1",
+        "skip slice0 minecraft:dye x1",
+        "per-piece getMaterials *30%"
+      ]
+    },
+    {
+      "id": 362,
+      "name": "Scarecrow: Full Set",
+      "kind": "full",
+      "char": "scarecrow",
+      "before": [
+        [
+          "legends:gasPellet",
+          8,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          2
+        ]
+      ],
+      "after": [
+        [
+          "legends:fabric",
+          12,
+          9
+        ],
+        [
+          "legends:fabric",
+          3,
+          10
+        ],
+        [
+          "legends:stainedLeather",
+          1,
+          9
+        ],
+        [
+          "legends:straw",
+          8,
+          0
+        ],
+        [
+          "minecraft:sugar",
+          1,
+          0
+        ],
+        [
+          "minecraft:fermented_spider_eye",
+          4,
+          0
+        ],
+        [
+          "legends:gasPellet",
+          2,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          4,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:yellowGem x1",
+        "skip slice0 minecraft:dye x1",
+        "per-piece getMaterials *40%",
+        "gadget legends:gasPellet"
+      ]
+    },
+    {
+      "id": 363,
+      "name": "Black Canary",
+      "kind": "piece",
+      "char": "blackcanary",
+      "before": [
+        [
+          "legends:tech",
+          2,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "after": [
+        [
+          "legends:fabric",
+          2,
+          6
+        ],
+        [
+          "legends:stainedLeather",
+          2,
+          6
+        ],
+        [
+          "legends:stainedLeather",
+          3,
+          10
+        ],
+        [
+          "minecraft:string",
+          5,
+          0
+        ],
+        [
+          "minecraft:dye",
+          5,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          0
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:orangeGem x1",
+        "per-piece getMaterials *30%"
+      ]
+    },
+    {
+      "id": 364,
+      "name": "Black Canary: Full Set",
+      "kind": "full",
+      "char": "blackcanary",
+      "before": [
+        [
+          "legends:escrimaSticks",
+          1,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          2
+        ]
+      ],
+      "after": [
+        [
+          "legends:fabric",
+          3,
+          6
+        ],
+        [
+          "legends:stainedLeather",
+          3,
+          6
+        ],
+        [
+          "legends:stainedLeather",
+          4,
+          10
+        ],
+        [
+          "minecraft:string",
+          6,
+          0
+        ],
+        [
+          "minecraft:dye",
+          6,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          4,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:orangeGem x1",
+        "per-piece getMaterials *40%"
+      ]
+    },
+    {
+      "id": 365,
+      "name": "Captain America",
+      "kind": "piece",
+      "char": "captainamerica",
+      "before": [
+        [
+          "legends:captainAmericaLogo",
+          1,
+          0
+        ],
+        [
+          "legends:clothStar",
+          1,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "after": [
+        [
+          "legends:fabric",
+          1,
+          0
+        ],
+        [
+          "legends:fabric",
+          2,
+          1
+        ],
+        [
+          "legends:fabric",
+          4,
+          6
+        ],
+        [
+          "legends:stainedLeather",
+          1,
+          1
+        ],
+        [
+          "legends:blackIronIngot",
+          1,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:orangeGem x1",
+        "skip unique legends:captainAmericaLogo x1",
+        "skip unique legends:clothStar x1",
+        "skip slice0 minecraft:diamond x1",
+        "per-piece getMaterials *30%"
+      ]
+    },
+    {
+      "id": 366,
+      "name": "Captain America: Full Set",
+      "kind": "full",
+      "char": "captainamerica",
+      "before": [
+        [
+          "legends:capShield",
+          1,
+          0
+        ],
+        [
+          "legends:vibranium",
+          2,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          3
+        ]
+      ],
+      "after": [
+        [
+          "legends:fabric",
+          1,
+          0
+        ],
+        [
+          "legends:fabric",
+          2,
+          1
+        ],
+        [
+          "legends:fabric",
+          6,
+          6
+        ],
+        [
+          "legends:stainedLeather",
+          1,
+          1
+        ],
+        [
+          "legends:blackIronIngot",
+          1,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          2
+        ],
+        [
+          "lucky:lucky_block",
+          4,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:orangeGem x1",
+        "skip unique legends:captainAmericaLogo x1",
+        "skip unique legends:clothStar x1",
+        "skip slice0 minecraft:diamond x1",
+        "per-piece getMaterials *40%"
+      ]
+    },
+    {
+      "id": 367,
+      "name": "Thor",
+      "kind": "piece",
+      "char": "thor",
+      "before": [
+        [
+          "legends:asgardianSteel",
+          4,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "after": [
+        [
+          "legends:fabric",
+          2,
+          0
+        ],
+        [
+          "legends:fabric",
+          2,
+          1
+        ],
+        [
+          "legends:stainedTitanium",
+          3,
+          9
+        ],
+        [
+          "legends:stainedLeather",
+          1,
+          10
+        ],
+        [
+          "legends:asgardianSteel",
+          4,
+          0
+        ],
+        [
+          "legends:stainlesssteelIngot",
+          4,
+          0
+        ],
+        [
+          "legends:cosmicChunk",
+          1,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:purpleGem x1",
+        "per-piece getMaterials *30%"
+      ]
+    },
+    {
+      "id": 368,
+      "name": "Thor: Full Set",
+      "kind": "full",
+      "char": "thor",
+      "before": [
+        [
+          "legends:mjolnir",
+          1,
+          0
+        ],
+        [
+          "legends:asgardianForging",
+          1,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          3
+        ]
+      ],
+      "after": [
+        [
+          "legends:fabric",
+          2,
+          0
+        ],
+        [
+          "legends:fabric",
+          2,
+          1
+        ],
+        [
+          "legends:stainedTitanium",
+          4,
+          9
+        ],
+        [
+          "legends:stainedLeather",
+          1,
+          10
+        ],
+        [
+          "legends:asgardianSteel",
+          5,
+          0
+        ],
+        [
+          "legends:stainlesssteelIngot",
+          5,
+          0
+        ],
+        [
+          "legends:cosmicChunk",
+          1,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          2
+        ],
+        [
+          "lucky:lucky_block",
+          4,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:purpleGem x1",
+        "per-piece getMaterials *40%"
+      ]
+    },
+    {
+      "id": 369,
+      "name": "Hulk",
+      "kind": "piece",
+      "char": "hulk",
+      "before": [
+        [
+          "legends:mutantGene",
+          2,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "after": [
+        [
+          "legends:gamma",
+          7,
+          0
+        ],
+        [
+          "legends:fabric",
+          2,
+          7
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:redGem x1",
+        "per-piece getMaterials *30%"
+      ]
+    },
+    {
+      "id": 370,
+      "name": "Hulk: Full Set",
+      "kind": "full",
+      "char": "hulk",
+      "before": [
+        [
+          "legends:mutantGene",
+          4,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          3
+        ]
+      ],
+      "after": [
+        [
+          "legends:gamma",
+          9,
+          0
+        ],
+        [
+          "legends:fabric",
+          2,
+          7
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          2
+        ],
+        [
+          "lucky:lucky_block",
+          4,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:redGem x1",
+        "per-piece getMaterials *40%"
+      ]
+    },
+    {
+      "id": 371,
+      "name": "Red Hulk",
+      "kind": "piece",
+      "char": "redhulk",
+      "before": [
+        [
+          "legends:mutantGene",
+          2,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "after": [
+        [
+          "legends:gamma",
+          7,
+          0
+        ],
+        [
+          "legends:fabric",
+          2,
+          10
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          0
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:redGem x1",
+        "per-piece getMaterials *30%"
+      ]
+    },
+    {
+      "id": 372,
+      "name": "Red Hulk: Full Set",
+      "kind": "full",
+      "char": "redhulk",
+      "before": [
+        [
+          "legends:mutantGene",
+          3,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          2
+        ]
+      ],
+      "after": [
+        [
+          "legends:gamma",
+          9,
+          0
+        ],
+        [
+          "legends:fabric",
+          2,
+          10
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          4,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:redGem x1",
+        "per-piece getMaterials *40%"
+      ]
+    },
+    {
+      "id": 373,
+      "name": "Abomination",
+      "kind": "piece",
+      "char": "abomination",
+      "before": [
+        [
+          "legends:mutantGene",
+          2,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "after": [
+        [
+          "legends:gamma",
+          7,
+          0
+        ],
+        [
+          "legends:fabric",
+          2,
+          6
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          0
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:redGem x1",
+        "per-piece getMaterials *30%"
+      ]
+    },
+    {
+      "id": 374,
+      "name": "Abomination: Full Set",
+      "kind": "full",
+      "char": "abomination",
+      "before": [
+        [
+          "legends:mutantGene",
+          3,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          2
+        ]
+      ],
+      "after": [
+        [
+          "legends:gamma",
+          9,
+          0
+        ],
+        [
+          "legends:fabric",
+          2,
+          6
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          4,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:redGem x1",
+        "per-piece getMaterials *40%"
+      ]
+    },
+    {
+      "id": 375,
+      "name": "Ant-Man",
+      "kind": "piece",
+      "char": "antman",
+      "before": [
+        [
+          "legends:pymParticle",
+          2,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "after": [
+        [
+          "legends:pymParticle",
+          1,
+          0
+        ],
+        [
+          "legends:antAnten",
+          1,
+          0
+        ],
+        [
+          "legends:fabric",
+          2,
+          1
+        ],
+        [
+          "legends:fabric",
+          2,
+          6
+        ],
+        [
+          "legends:fabric",
+          1,
+          10
+        ],
+        [
+          "legends:stainedLeather",
+          1,
+          6
+        ],
+        [
+          "legends:stainedTitanium",
+          4,
+          0
+        ],
+        [
+          "legends:techHigh",
+          8,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          0
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:orangeGem x1",
+        "per-piece getMaterials *30%"
+      ]
+    },
+    {
+      "id": 376,
+      "name": "Ant-Man: Full Set",
+      "kind": "full",
+      "char": "antman",
+      "before": [
+        [
+          "legends:pymParticle",
+          4,
+          0
+        ],
+        [
+          "legends:regulator",
+          1,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          2
+        ]
+      ],
+      "after": [
+        [
+          "legends:pymParticle",
+          1,
+          0
+        ],
+        [
+          "legends:antAnten",
+          1,
+          0
+        ],
+        [
+          "legends:fabric",
+          3,
+          1
+        ],
+        [
+          "legends:fabric",
+          2,
+          6
+        ],
+        [
+          "legends:fabric",
+          1,
+          10
+        ],
+        [
+          "legends:stainedLeather",
+          1,
+          6
+        ],
+        [
+          "legends:stainedTitanium",
+          4,
+          0
+        ],
+        [
+          "legends:techHigh",
+          10,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          4,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:orangeGem x1",
+        "per-piece getMaterials *40%"
+      ]
+    },
+    {
+      "id": 377,
+      "name": "Wasp",
+      "kind": "piece",
+      "char": "wasp",
+      "before": [
+        [
+          "legends:pymParticle",
+          2,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "after": [
+        [
+          "legends:pymParticle",
+          1,
+          0
+        ],
+        [
+          "legends:fabric",
+          2,
+          3
+        ],
+        [
+          "legends:fabric",
+          4,
+          10
+        ],
+        [
+          "legends:stainedLeather",
+          1,
+          3
+        ],
+        [
+          "legends:stainedLeather",
+          1,
+          10
+        ],
+        [
+          "legends:techHigh",
+          8,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          0
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:orangeGem x1",
+        "per-piece getMaterials *30%"
+      ]
+    },
+    {
+      "id": 378,
+      "name": "Wasp: Full Set",
+      "kind": "full",
+      "char": "wasp",
+      "before": [
+        [
+          "legends:pymParticle",
+          4,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          2
+        ]
+      ],
+      "after": [
+        [
+          "legends:pymParticle",
+          1,
+          0
+        ],
+        [
+          "legends:fabric",
+          2,
+          3
+        ],
+        [
+          "legends:fabric",
+          5,
+          10
+        ],
+        [
+          "legends:stainedLeather",
+          1,
+          3
+        ],
+        [
+          "legends:stainedLeather",
+          1,
+          10
+        ],
+        [
+          "legends:techHigh",
+          10,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          4,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:orangeGem x1",
+        "per-piece getMaterials *40%"
+      ]
+    },
+    {
+      "id": 379,
+      "name": "Black Panther",
+      "kind": "piece",
+      "char": "blackpanther",
+      "before": [
+        [
+          "legends:vibranium",
+          2,
+          0
+        ],
+        [
+          "legends:wakandanMap",
+          1,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "after": [
+        [
+          "legends:vibranium",
+          7,
+          0
+        ],
+        [
+          "legends:fabric",
+          1,
+          0
+        ],
+        [
+          "legends:fabric",
+          8,
+          10
+        ],
+        [
+          "legends:stainedLeather",
+          1,
+          10
+        ],
+        [
+          "legends:titaniumIngot",
+          3,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:orangeGem x1",
+        "skip slice0 legends:ruby x1",
+        "per-piece getMaterials *30%"
+      ]
+    },
+    {
+      "id": 380,
+      "name": "Black Panther: Full Set",
+      "kind": "full",
+      "char": "blackpanther",
+      "before": [
+        [
+          "legends:pantherNecklace",
+          1,
+          0
+        ],
+        [
+          "legends:vibranium",
+          4,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          3
+        ]
+      ],
+      "after": [
+        [
+          "legends:vibranium",
+          9,
+          0
+        ],
+        [
+          "legends:fabric",
+          1,
+          0
+        ],
+        [
+          "legends:fabric",
+          11,
+          10
+        ],
+        [
+          "legends:stainedLeather",
+          1,
+          10
+        ],
+        [
+          "legends:titaniumIngot",
+          4,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          2
+        ],
+        [
+          "lucky:lucky_block",
+          4,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:orangeGem x1",
+        "skip slice0 legends:ruby x1",
+        "per-piece getMaterials *40%"
+      ]
+    },
+    {
+      "id": 381,
+      "name": "Spider-Man",
+      "kind": "piece",
+      "char": "spiderman",
+      "before": [
+        [
+          "legends:spiderManLogo",
+          1,
+          0
+        ],
+        [
+          "legends:radioactiveFabric",
+          2,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "after": [
+        [
+          "legends:radioactiveFabric",
+          5,
+          0
+        ],
+        [
+          "legends:fabric",
+          1,
+          0
+        ],
+        [
+          "legends:fabric",
+          3,
+          6
+        ],
+        [
+          "legends:fabric",
+          1,
+          10
+        ],
+        [
+          "legends:stainedLeather",
+          1,
+          1
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:orangeGem x1",
+        "skip unique legends:spiderManLogo x1",
+        "skip unique legends:webShooters x2",
+        "per-piece getMaterials *30%"
+      ]
+    },
+    {
+      "id": 382,
+      "name": "Spider-Man: Full Set",
+      "kind": "full",
+      "char": "spiderman",
+      "before": [
+        [
+          "legends:webShooters",
+          1,
+          0
+        ],
+        [
+          "legends:webCartridge",
+          8,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          3
+        ]
+      ],
+      "after": [
+        [
+          "legends:radioactiveFabric",
+          6,
+          0
+        ],
+        [
+          "legends:fabric",
+          1,
+          0
+        ],
+        [
+          "legends:fabric",
+          4,
+          6
+        ],
+        [
+          "legends:fabric",
+          1,
+          10
+        ],
+        [
+          "legends:stainedLeather",
+          1,
+          1
+        ],
+        [
+          "legends:webCartridge",
+          4,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          2
+        ],
+        [
+          "lucky:lucky_block",
+          4,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:orangeGem x1",
+        "skip unique legends:spiderManLogo x1",
+        "skip unique legends:webShooters x2",
+        "per-piece getMaterials *40%",
+        "gadget legends:webCartridge"
+      ]
+    },
+    {
+      "id": 383,
+      "name": "Spider-Man 2099",
+      "kind": "piece",
+      "char": "spiderman2099",
+      "before": [
+        [
+          "legends:radioactiveFabric",
+          1,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "after": [
+        [
+          "legends:radioactiveFabric",
+          3,
+          0
+        ],
+        [
+          "legends:fabric",
+          1,
+          0
+        ],
+        [
+          "legends:fabric",
+          7,
+          6
+        ],
+        [
+          "legends:stainedLeather",
+          1,
+          6
+        ],
+        [
+          "legends:unstableMolecule",
+          3,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          0
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:orangeGem x1",
+        "skip unique legends:spiderManLogo x1",
+        "per-piece getMaterials *30%"
+      ]
+    },
+    {
+      "id": 384,
+      "name": "Spider-Man 2099: Full Set",
+      "kind": "full",
+      "char": "spiderman2099",
+      "before": [
+        [
+          "legends:webCartridge",
+          8,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          2
+        ]
+      ],
+      "after": [
+        [
+          "legends:radioactiveFabric",
+          3,
+          0
+        ],
+        [
+          "legends:fabric",
+          1,
+          0
+        ],
+        [
+          "legends:fabric",
+          8,
+          6
+        ],
+        [
+          "legends:stainedLeather",
+          1,
+          6
+        ],
+        [
+          "legends:unstableMolecule",
+          4,
+          0
+        ],
+        [
+          "legends:webCartridge",
+          4,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          4,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:orangeGem x1",
+        "skip unique legends:spiderManLogo x1",
+        "per-piece getMaterials *40%",
+        "gadget legends:webCartridge"
+      ]
+    },
+    {
+      "id": 385,
+      "name": "Symbiote Spider-Man",
+      "kind": "piece",
+      "char": "symbiotespiderman",
+      "before": [
+        [
+          "legends:symbiote",
+          1,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "after": [
+        [
+          "lootbags:lootbag",
+          1,
+          0
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:redGem x1",
+        "skip slice0 legends:symbiote x1",
+        "recipe had armor ingredients; counts/4 then *30%"
+      ]
+    },
+    {
+      "id": 386,
+      "name": "Symbiote Spider-Man: Full Set",
+      "kind": "full",
+      "char": "symbiotespiderman",
+      "before": [
+        [
+          "legends:webShooters",
+          1,
+          0
+        ],
+        [
+          "legends:symbiote",
+          1,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          2
+        ]
+      ],
+      "after": [
+        [
+          "legends:webCartridge",
+          4,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          4,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:redGem x1",
+        "skip slice0 legends:symbiote x1",
+        "recipe had armor ingredients; counts/4 then *40%",
+        "gadget legends:webCartridge"
+      ]
+    },
+    {
+      "id": 387,
+      "name": "Iron Spider",
+      "kind": "piece",
+      "char": "ironspider",
+      "before": [
+        [
+          "legends:starkTech",
+          2,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "after": [
+        [
+          "legends:goldTitaniumAlloy",
+          6,
+          1
+        ],
+        [
+          "legends:goldTitaniumAlloy",
+          4,
+          2
+        ],
+        [
+          "legends:starkTech",
+          9,
+          0
+        ],
+        [
+          "legends:nanobot",
+          3,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          0
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:orangeGem x1",
+        "skip unique legends:spiderManLogo x1",
+        "skip unique legends:webShooters x2",
+        "per-piece getMaterials *30%"
+      ]
+    },
+    {
+      "id": 388,
+      "name": "Iron Spider: Full Set",
+      "kind": "full",
+      "char": "ironspider",
+      "before": [
+        [
+          "legends:repulsorType1",
+          1,
+          0
+        ],
+        [
+          "legends:webCartridge",
+          8,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          2
+        ]
+      ],
+      "after": [
+        [
+          "legends:goldTitaniumAlloy",
+          7,
+          1
+        ],
+        [
+          "legends:goldTitaniumAlloy",
+          5,
+          2
+        ],
+        [
+          "legends:starkTech",
+          12,
+          0
+        ],
+        [
+          "legends:nanobot",
+          4,
+          0
+        ],
+        [
+          "legends:webCartridge",
+          4,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          4,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:orangeGem x1",
+        "skip unique legends:spiderManLogo x1",
+        "skip unique legends:webShooters x2",
+        "per-piece getMaterials *40%",
+        "gadget legends:webCartridge"
+      ]
+    },
+    {
+      "id": 389,
+      "name": "Vision",
+      "kind": "piece",
+      "char": "vision",
+      "before": [
+        [
+          "legends:unstableMolecule",
+          2,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "after": [
+        [
+          "legends:vibranium",
+          7,
+          0
+        ],
+        [
+          "legends:fabric",
+          7,
+          3
+        ],
+        [
+          "legends:fabric",
+          3,
+          4
+        ],
+        [
+          "legends:stainedLeather",
+          1,
+          3
+        ],
+        [
+          "legends:stainedTitanium",
+          1,
+          1
+        ],
+        [
+          "legends:stainedTitanium",
+          1,
+          3
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          0
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:redGem x1",
+        "per-piece getMaterials *30%"
+      ]
+    },
+    {
+      "id": 390,
+      "name": "Vision: Full Set",
+      "kind": "full",
+      "char": "vision",
+      "before": [
+        [
+          "legends:unstableMolecule",
+          4,
+          0
+        ],
+        [
+          "legends:techHigh",
+          2,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          2
+        ]
+      ],
+      "after": [
+        [
+          "legends:vibranium",
+          9,
+          0
+        ],
+        [
+          "legends:fabric",
+          8,
+          3
+        ],
+        [
+          "legends:fabric",
+          4,
+          4
+        ],
+        [
+          "legends:stainedLeather",
+          1,
+          3
+        ],
+        [
+          "legends:stainedTitanium",
+          1,
+          1
+        ],
+        [
+          "legends:stainedTitanium",
+          1,
+          3
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          4,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:redGem x1",
+        "per-piece getMaterials *40%"
+      ]
+    },
+    {
+      "id": 391,
+      "name": "Wolverine",
+      "kind": "piece",
+      "char": "wolverine",
+      "before": [
+        [
+          "legends:adamantium",
+          2,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "after": [
+        [
+          "legends:adamantium",
+          5,
+          0
+        ],
+        [
+          "legends:fabric",
+          2,
+          3
+        ],
+        [
+          "legends:fabric",
+          4,
+          6
+        ],
+        [
+          "legends:fabric",
+          1,
+          10
+        ],
+        [
+          "legends:stainedLeather",
+          1,
+          6
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          0
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:orangeGem x1",
+        "skip slice0 legends:mutantGene x1",
+        "per-piece getMaterials *30%"
+      ]
+    },
+    {
+      "id": 392,
+      "name": "Wolverine: Full Set",
+      "kind": "full",
+      "char": "wolverine",
+      "before": [
+        [
+          "legends:adamantium",
+          4,
+          0
+        ],
+        [
+          "legends:liquidAdamantium",
+          1,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          2
+        ]
+      ],
+      "after": [
+        [
+          "legends:adamantium",
+          6,
+          0
+        ],
+        [
+          "legends:fabric",
+          2,
+          3
+        ],
+        [
+          "legends:fabric",
+          5,
+          6
+        ],
+        [
+          "legends:fabric",
+          1,
+          10
+        ],
+        [
+          "legends:stainedLeather",
+          1,
+          6
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          4,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:orangeGem x1",
+        "skip slice0 legends:mutantGene x1",
+        "per-piece getMaterials *40%"
+      ]
+    },
+    {
+      "id": 393,
+      "name": "Deadpool",
+      "kind": "piece",
+      "char": "deadpool",
+      "before": [
+        [
+          "legends:katanas",
+          1,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "after": [
+        [
+          "legends:fabric",
+          1,
+          0
+        ],
+        [
+          "legends:fabric",
+          3,
+          1
+        ],
+        [
+          "legends:fabric",
+          5,
+          10
+        ],
+        [
+          "legends:stainedLeather",
+          2,
+          10
+        ],
+        [
+          "legends:blackIronIngot",
+          2,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          0
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:orangeGem x1",
+        "skip slice0 legends:mutantGene x1",
+        "per-piece getMaterials *30%"
+      ]
+    },
+    {
+      "id": 394,
+      "name": "Deadpool: Full Set",
+      "kind": "full",
+      "char": "deadpool",
+      "before": [
+        [
+          "legends:chimichanga",
+          8,
+          0
+        ],
+        [
+          "legends:pistols",
+          1,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          2
+        ]
+      ],
+      "after": [
+        [
+          "legends:fabric",
+          1,
+          0
+        ],
+        [
+          "legends:fabric",
+          4,
+          1
+        ],
+        [
+          "legends:fabric",
+          6,
+          10
+        ],
+        [
+          "legends:stainedLeather",
+          2,
+          10
+        ],
+        [
+          "legends:blackIronIngot",
+          2,
+          0
+        ],
+        [
+          "legends:chimichanga",
+          4,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          4,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:orangeGem x1",
+        "skip slice0 legends:mutantGene x1",
+        "per-piece getMaterials *40%",
+        "gadget legends:chimichanga"
+      ]
+    },
+    {
+      "id": 395,
+      "name": "Daredevil",
+      "kind": "piece",
+      "char": "daredevil",
+      "before": [
+        [
+          "legends:tech",
+          2,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "after": [
+        [
+          "legends:fabric",
+          4,
+          1
+        ],
+        [
+          "legends:stainedLeather",
+          2,
+          1
+        ],
+        [
+          "legends:redIronIngot",
+          1,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          0
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:yellowGem x1",
+        "per-piece getMaterials *30%"
+      ]
+    },
+    {
+      "id": 396,
+      "name": "Daredevil: Full Set",
+      "kind": "full",
+      "char": "daredevil",
+      "before": [
+        [
+          "legends:billyClub",
+          1,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          2
+        ]
+      ],
+      "after": [
+        [
+          "legends:fabric",
+          6,
+          1
+        ],
+        [
+          "legends:stainedLeather",
+          3,
+          1
+        ],
+        [
+          "legends:redIronIngot",
+          1,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          4,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:yellowGem x1",
+        "per-piece getMaterials *40%"
+      ]
+    },
+    {
+      "id": 397,
+      "name": "Venom",
+      "kind": "piece",
+      "char": "venom",
+      "before": [
+        [
+          "legends:symbiote",
+          1,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "after": [
+        [
+          "legends:cosmicChunk",
+          2,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          0
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:redGem x1",
+        "skip slice0 legends:symbiote x1",
+        "per-piece getMaterials *30%"
+      ]
+    },
+    {
+      "id": 398,
+      "name": "Venom: Full Set",
+      "kind": "full",
+      "char": "venom",
+      "before": [
+        [
+          "legends:symbiote",
+          1,
+          0
+        ],
+        [
+          "legends:radioactiveFabric",
+          2,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          2
+        ]
+      ],
+      "after": [
+        [
+          "legends:cosmicChunk",
+          2,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          4,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:redGem x1",
+        "skip slice0 legends:symbiote x1",
+        "per-piece getMaterials *40%"
+      ]
+    },
+    {
+      "id": 399,
+      "name": "War Machine (Mark 1)",
+      "kind": "piece",
+      "char": "warmachine_mark1",
+      "before": [
+        [
+          "legends:starkTech",
+          2,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "after": [
+        [
+          "legends:goldTitaniumAlloy",
+          2,
+          6
+        ],
+        [
+          "legends:goldTitaniumAlloy",
+          1,
+          3
+        ],
+        [
+          "legends:ironPlate",
+          1,
+          0
+        ],
+        [
+          "legends:techHigh",
+          2,
+          0
+        ],
+        [
+          "legends:silicon",
+          2,
+          0
+        ],
+        [
+          "legends:bullet",
+          5,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          1
+        ],
+        [
+          "lucky:lucky_block",
+          2,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:redGem x1",
+        "skip slice0 legends:rocket x1",
+        "recipe had armor ingredients; counts/4 then *30%"
+      ]
+    },
+    {
+      "id": 400,
+      "name": "War Machine (Mark 1): Full Set",
+      "kind": "full",
+      "char": "warmachine_mark1",
+      "before": [
+        [
+          "legends:repulsorType1",
+          1,
+          0
+        ],
+        [
+          "legends:miniArcReactor",
+          1,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          3
+        ]
+      ],
+      "after": [
+        [
+          "legends:goldTitaniumAlloy",
+          2,
+          6
+        ],
+        [
+          "legends:goldTitaniumAlloy",
+          1,
+          3
+        ],
+        [
+          "legends:ironPlate",
+          1,
+          0
+        ],
+        [
+          "legends:techHigh",
+          2,
+          0
+        ],
+        [
+          "legends:silicon",
+          2,
+          0
+        ],
+        [
+          "legends:bullet",
+          6,
+          0
+        ],
+        [
+          "lootbags:lootbag",
+          1,
+          2
+        ],
+        [
+          "lucky:lucky_block",
+          4,
+          0
+        ]
+      ],
+      "notes": [
+        "skip unique legends:redGem x1",
+        "skip slice0 legends:rocket x1",
+        "recipe had armor ingredients; counts/4 then *40%"
+      ]
+    }
+  ],
+  "skipped_extract": [
+    [
+      "abomination",
+      "field_151024_Q",
+      "vanilla-armor-mat",
+      1,
+      0
+    ],
+    [
+      "abomination",
+      "field_151027_R",
+      "vanilla-armor-mat",
+      1,
+      0
+    ],
+    [
+      "abomination",
+      "field_151026_S",
+      "vanilla-armor-mat",
+      1,
+      0
+    ],
+    [
+      "abomination",
+      "field_151021_T",
+      "vanilla-armor-mat",
+      1,
+      0
+    ],
+    [
+      "batman_powerarmor",
+      "batmanHelmet",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "batman_powerarmor",
+      "batmanChest",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "batman_powerarmor",
+      "batmanLegs",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "batman_powerarmor",
+      "batmanBoots",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "hulk",
+      "field_151024_Q",
+      "vanilla-armor-mat",
+      1,
+      0
+    ],
+    [
+      "hulk",
+      "field_151027_R",
+      "vanilla-armor-mat",
+      1,
+      0
+    ],
+    [
+      "hulk",
+      "field_151026_S",
+      "vanilla-armor-mat",
+      1,
+      0
+    ],
+    [
+      "hulk",
+      "field_151021_T",
+      "vanilla-armor-mat",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark1.class",
+      "field_151024_Q",
+      "vanilla-armor-mat",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark1.class",
+      "field_151027_R",
+      "vanilla-armor-mat",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark1.class",
+      "field_151026_S",
+      "vanilla-armor-mat",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark1.class",
+      "field_151021_T",
+      "vanilla-armor-mat",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark10.class",
+      "ironManChest",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark10.class",
+      "ironManLegs",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark10.class",
+      "ironManBoots",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark10.class",
+      "no-regname",
+      null
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark11.class",
+      "ironManChest",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark11.class",
+      "ironManLegs",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark11.class",
+      "ironManBoots",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark11.class",
+      "no-regname",
+      null
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark12.class",
+      "ironManChest",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark12.class",
+      "ironManLegs",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark12.class",
+      "ironManBoots",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark12.class",
+      "no-regname",
+      null
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark13.class",
+      "ironManChest",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark13.class",
+      "ironManLegs",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark13.class",
+      "ironManBoots",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark13.class",
+      "no-regname",
+      null
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark14.class",
+      "ironManChest",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark14.class",
+      "ironManLegs",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark14.class",
+      "ironManBoots",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark14.class",
+      "no-regname",
+      null
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark15.class",
+      "ironManChest",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark15.class",
+      "ironManLegs",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark15.class",
+      "ironManBoots",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark15.class",
+      "no-regname",
+      null
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark16.class",
+      "ironManChest",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark16.class",
+      "ironManLegs",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark16.class",
+      "ironManBoots",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark16.class",
+      "no-regname",
+      null
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark17.class",
+      "ironManChest",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark17.class",
+      "ironManLegs",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark17.class",
+      "ironManBoots",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark17.class",
+      "no-regname",
+      null
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark18.class",
+      "ironManChest",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark18.class",
+      "ironManLegs",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark18.class",
+      "ironManBoots",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark18.class",
+      "no-regname",
+      null
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark19.class",
+      "ironManChest",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark19.class",
+      "ironManLegs",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark19.class",
+      "ironManBoots",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark19.class",
+      "no-regname",
+      null
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark2.class",
+      "ironManChest",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark2.class",
+      "ironManLegs",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark2.class",
+      "ironManBoots",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark2.class",
+      "no-regname",
+      null
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark20.class",
+      "ironManChest",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark20.class",
+      "ironManLegs",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark20.class",
+      "ironManBoots",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark20.class",
+      "no-regname",
+      null
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark21.class",
+      "ironManChest",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark21.class",
+      "ironManLegs",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark21.class",
+      "ironManBoots",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark3.class",
+      "ironManChest",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark3.class",
+      "ironManLegs",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark3.class",
+      "ironManBoots",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark4.class",
+      "ironManChest",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark4.class",
+      "ironManLegs",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark4.class",
+      "ironManBoots",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark4.class",
+      "no-regname",
+      null
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark5.class",
+      "ironManChest",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark5.class",
+      "ironManLegs",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark5.class",
+      "ironManBoots",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark5.class",
+      "no-regname",
+      null
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark6.class",
+      "ironManChest",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark6.class",
+      "ironManLegs",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark6.class",
+      "ironManBoots",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark6.class",
+      "no-regname",
+      null
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark7.class",
+      "ironManChest",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark7.class",
+      "ironManLegs",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark7.class",
+      "ironManBoots",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark8.class",
+      "ironManChest",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark8.class",
+      "ironManLegs",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark8.class",
+      "ironManBoots",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark8.class",
+      "no-regname",
+      null
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark9.class",
+      "ironManChest",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark9.class",
+      "ironManLegs",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark9.class",
+      "ironManBoots",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark9.class",
+      "no-regname",
+      null
+    ],
+    [
+      "redhulk",
+      "field_151024_Q",
+      "vanilla-armor-mat",
+      1,
+      0
+    ],
+    [
+      "redhulk",
+      "field_151027_R",
+      "vanilla-armor-mat",
+      1,
+      0
+    ],
+    [
+      "redhulk",
+      "field_151026_S",
+      "vanilla-armor-mat",
+      1,
+      0
+    ],
+    [
+      "redhulk",
+      "field_151021_T",
+      "vanilla-armor-mat",
+      1,
+      0
+    ],
+    [
+      "symbiotespiderman",
+      "spiderManHelmet",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "symbiotespiderman",
+      "spiderManChest",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "symbiotespiderman",
+      "spiderManLegs",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "symbiotespiderman",
+      "spiderManBoots",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "venom",
+      "field_151024_Q",
+      "vanilla-armor-mat",
+      1,
+      0
+    ],
+    [
+      "venom",
+      "field_151027_R",
+      "vanilla-armor-mat",
+      1,
+      0
+    ],
+    [
+      "venom",
+      "field_151026_S",
+      "vanilla-armor-mat",
+      1,
+      0
+    ],
+    [
+      "venom",
+      "field_151021_T",
+      "vanilla-armor-mat",
+      1,
+      0
+    ],
+    [
+      "warmachine_mark",
+      "ironManHelmet",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "warmachine_mark",
+      "ironManChest",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "warmachine_mark",
+      "ironManLegs",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "warmachine_mark",
+      "ironManBoots",
+      "hero-suit-ingredient",
+      1,
+      0
+    ]
+  ]
+}

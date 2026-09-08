@@ -1,0 +1,76 @@
+# ---------------------------------------------------------------------------
+# Build output
+# ---------------------------------------------------------------------------
+build/
+out/
+bin/
+.gradle/
+gradle-app.setting
+# ...except the Gradle wrappers, without which a fresh clone cannot build.
+!**/gradle/wrapper/gradle-wrapper.jar
+
+# ---------------------------------------------------------------------------
+# Gradle dev-client runtime. Recreated by `./gradlew runClient`; never source.
+# ---------------------------------------------------------------------------
+run/
+logs/
+crash-reports/
+
+# ---------------------------------------------------------------------------
+# Third-party binaries.
+#
+# This repository holds the pack's *source*: the mods we author, the config
+# that defines the pack, the tools that build its assets. It deliberately does
+# not redistribute other people's mod jars, the Minecraft or Forge jars, or the
+# libraries they depend on. pack/mods.tsv records exactly which versions the
+# pack loads; see docs/setup/install-on-mac.md for where they come from.
+# ---------------------------------------------------------------------------
+*.jar
+*.zip
+# ...except the Gradle wrappers, without which a fresh clone cannot build.
+!**/gradle/wrapper/gradle-wrapper.jar
+
+# ---------------------------------------------------------------------------
+# Generated renders. Every one of these is reproducible from the generator
+# beside it in tools/ -- see tools/README.md.
+# ---------------------------------------------------------------------------
+*.wav
+*.aiff
+*.mp3
+*.ogg
+tools/**/work/
+tools/**/_work/
+tools/**/backups/
+tools/**/backup-before/
+
+# ---------------------------------------------------------------------------
+# Worlds and player data. Large, binary, and personal.
+# ---------------------------------------------------------------------------
+saves/
+world/
+*.mca
+*.dat
+*.dat_old
+usercache.json
+usernamecache.json
+
+# ---------------------------------------------------------------------------
+# Ad-hoc snapshots. This is what version control is for -- commit instead.
+# ---------------------------------------------------------------------------
+*.bak
+*.bak-*
+*.orig
+*.pre-*
+*-20[0-9][0-9][0-1][0-9][0-3][0-9]*.json
+
+# ---------------------------------------------------------------------------
+# Editor / OS
+# ---------------------------------------------------------------------------
+.DS_Store
+._*
+__pycache__/
+*.py[cod]
+.venv/
+.idea/
+.vscode/
+*.iml

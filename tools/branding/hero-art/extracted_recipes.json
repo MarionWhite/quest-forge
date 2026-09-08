@@ -1,0 +1,4046 @@
+{
+  "recipes": {
+    "abomination": {
+      "class": "com/tihyo/superheroes/characters/Abomination.class",
+      "getName": "abomination",
+      "mats": [
+        {
+          "id": "legends:redGem",
+          "count": 1,
+          "dmg": 0,
+          "field": "redGem",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:gamma",
+          "count": 24,
+          "dmg": 0,
+          "field": "gamma",
+          "class": "com/tihyo/superheroes/blocks/RegisterBlocksSuperHeroes",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 5,
+          "dmg": 6,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        }
+      ],
+      "full_suit_recipe": false,
+      "raw_count": 7
+    },
+    "antman": {
+      "class": "com/tihyo/superheroes/characters/AntMan.class",
+      "getName": "antman",
+      "mats": [
+        {
+          "id": "legends:orangeGem",
+          "count": 1,
+          "dmg": 0,
+          "field": "orangeGem",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:pymParticle",
+          "count": 4,
+          "dmg": 0,
+          "field": "pymParticle",
+          "class": "com/tihyo/superheroes/items/RegisterItemsSuperHeroes",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:antAnten",
+          "count": 2,
+          "dmg": 0,
+          "field": "antAnten",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 8,
+          "dmg": 1,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 7,
+          "dmg": 6,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 4,
+          "dmg": 10,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:stainedLeather",
+          "count": 4,
+          "dmg": 6,
+          "field": "stainedLeather",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:stainedTitanium",
+          "count": 12,
+          "dmg": 0,
+          "field": "stainedTitanium",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:techHigh",
+          "count": 25,
+          "dmg": 0,
+          "field": "techHigh",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        }
+      ],
+      "full_suit_recipe": false,
+      "raw_count": 9
+    },
+    "batman": {
+      "class": "com/tihyo/superheroes/characters/Batman.class",
+      "getName": "batman",
+      "mats": [
+        {
+          "id": "legends:orangeGem",
+          "count": 1,
+          "dmg": 0,
+          "field": "orangeGem",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:batmanLogo",
+          "count": 1,
+          "dmg": 0,
+          "field": "batmanLogo",
+          "class": "com/tihyo/superheroes/items/RegisterItemsSuperHeroes",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 2,
+          "dmg": 0,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 5,
+          "dmg": 3,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 15,
+          "dmg": 5,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 23,
+          "dmg": 10,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:stainedLeather",
+          "count": 4,
+          "dmg": 10,
+          "field": "stainedLeather",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:batbelt",
+          "count": 1,
+          "dmg": 0,
+          "field": "batbelt",
+          "class": "com/tihyo/superheroes/items/RegisterItemsSuperHeroes",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:wayneTech",
+          "count": 10,
+          "dmg": 0,
+          "field": "wayneTech",
+          "class": "com/tihyo/superheroes/items/RegisterItemsSuperHeroes",
+          "has_armor_sibling": false
+        }
+      ],
+      "full_suit_recipe": false,
+      "raw_count": 9
+    },
+    "batman_powerarmor": {
+      "class": "com/tihyo/superheroes/characters/BatmanPowerArmor.class",
+      "getName": "batman_powerarmor",
+      "mats": [
+        {
+          "id": "legends:redGem",
+          "count": 1,
+          "dmg": 0,
+          "field": "redGem",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:titaniumPlate",
+          "count": 24,
+          "dmg": 0,
+          "field": "titaniumPlate",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:wayneTech",
+          "count": 20,
+          "dmg": 0,
+          "field": "wayneTech",
+          "class": "com/tihyo/superheroes/items/RegisterItemsSuperHeroes",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "minecraft:stained_glass_pane",
+          "count": 2,
+          "dmg": 0,
+          "field": "field_150397_co",
+          "class": "net/minecraft/init/Blocks",
+          "has_armor_sibling": false
+        }
+      ],
+      "full_suit_recipe": true,
+      "raw_count": 8
+    },
+    "blackadam": {
+      "class": "com/tihyo/superheroes/characters/BlackAdam.class",
+      "getName": "blackadam",
+      "mats": [
+        {
+          "id": "legends:redGem",
+          "count": 1,
+          "dmg": 0,
+          "field": "redGem",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:shazamLogo",
+          "count": 1,
+          "dmg": 0,
+          "field": "shazamLogo",
+          "class": "com/tihyo/superheroes/items/RegisterItemsSuperHeroes",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 4,
+          "dmg": 3,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 15,
+          "dmg": 10,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:stainedLeather",
+          "count": 4,
+          "dmg": 3,
+          "field": "stainedLeather",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:lightningBlock",
+          "count": 6,
+          "dmg": 0,
+          "field": "lightningBlock",
+          "class": "com/tihyo/legends/blocks/RegisterBlocks",
+          "has_armor_sibling": false
+        }
+      ],
+      "full_suit_recipe": false,
+      "raw_count": 6
+    },
+    "blackcanary": {
+      "class": "com/tihyo/superheroes/characters/BlackCanary.class",
+      "getName": "blackcanary",
+      "mats": [
+        {
+          "id": "legends:orangeGem",
+          "count": 1,
+          "dmg": 0,
+          "field": "orangeGem",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 8,
+          "dmg": 6,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:stainedLeather",
+          "count": 8,
+          "dmg": 6,
+          "field": "stainedLeather",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:stainedLeather",
+          "count": 10,
+          "dmg": 10,
+          "field": "stainedLeather",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "minecraft:string",
+          "count": 17,
+          "dmg": 0,
+          "field": "field_151007_F",
+          "class": "net/minecraft/init/Items",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "minecraft:dye",
+          "count": 17,
+          "dmg": 0,
+          "field": "field_151100_aR",
+          "class": "net/minecraft/init/Items",
+          "has_armor_sibling": false
+        }
+      ],
+      "full_suit_recipe": false,
+      "raw_count": 6
+    },
+    "blackflash": {
+      "class": "com/tihyo/superheroes/characters/BlackFlash.class",
+      "getName": "blackflash",
+      "mats": [],
+      "full_suit_recipe": false,
+      "raw_count": 0
+    },
+    "blackpanther": {
+      "class": "com/tihyo/superheroes/characters/BlackPanther.class",
+      "getName": "blackpanther",
+      "mats": [
+        {
+          "id": "legends:orangeGem",
+          "count": 1,
+          "dmg": 0,
+          "field": "orangeGem",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:vibranium",
+          "count": 24,
+          "dmg": 0,
+          "field": "vibranium",
+          "class": "com/tihyo/superheroes/items/RegisterItemsSuperHeroes",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 2,
+          "dmg": 0,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 28,
+          "dmg": 10,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:stainedLeather",
+          "count": 4,
+          "dmg": 10,
+          "field": "stainedLeather",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:titaniumIngot",
+          "count": 10,
+          "dmg": 0,
+          "field": "titaniumIngot",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:ruby",
+          "count": 1,
+          "dmg": 0,
+          "field": "ruby",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        }
+      ],
+      "full_suit_recipe": false,
+      "raw_count": 7
+    },
+    "captainamerica": {
+      "class": "com/tihyo/superheroes/characters/CaptainAmerica.class",
+      "getName": "captainamerica",
+      "mats": [
+        {
+          "id": "legends:orangeGem",
+          "count": 1,
+          "dmg": 0,
+          "field": "orangeGem",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:captainAmericaLogo",
+          "count": 1,
+          "dmg": 0,
+          "field": "captainAmericaLogo",
+          "class": "com/tihyo/superheroes/items/RegisterItemsSuperHeroes",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:clothStar",
+          "count": 1,
+          "dmg": 0,
+          "field": "clothStar",
+          "class": "com/tihyo/superheroes/items/RegisterItemsSuperHeroes",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 4,
+          "dmg": 0,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 5,
+          "dmg": 1,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 15,
+          "dmg": 6,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:stainedLeather",
+          "count": 4,
+          "dmg": 1,
+          "field": "stainedLeather",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:blackIronIngot",
+          "count": 3,
+          "dmg": 0,
+          "field": "blackIronIngot",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "minecraft:diamond",
+          "count": 1,
+          "dmg": 0,
+          "field": "field_151043_k",
+          "class": "net/minecraft/init/Items",
+          "has_armor_sibling": false
+        }
+      ],
+      "full_suit_recipe": false,
+      "raw_count": 9
+    },
+    "captaincold": {
+      "class": "com/tihyo/superheroes/characters/CaptainCold.class",
+      "getName": "captaincold",
+      "mats": [
+        {
+          "id": "legends:yellowGem",
+          "count": 1,
+          "dmg": 0,
+          "field": "yellowGem",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 13,
+          "dmg": 0,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 17,
+          "dmg": 6,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:stainedLeather",
+          "count": 4,
+          "dmg": 0,
+          "field": "stainedLeather",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "minecraft:diamond",
+          "count": 3,
+          "dmg": 0,
+          "field": "field_151043_k",
+          "class": "net/minecraft/init/Items",
+          "has_armor_sibling": false
+        }
+      ],
+      "full_suit_recipe": false,
+      "raw_count": 5
+    },
+    "daredevil": {
+      "class": "com/tihyo/superheroes/characters/Daredevil.class",
+      "getName": "daredevil",
+      "mats": [
+        {
+          "id": "legends:yellowGem",
+          "count": 1,
+          "dmg": 0,
+          "field": "yellowGem",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 15,
+          "dmg": 1,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:stainedLeather",
+          "count": 8,
+          "dmg": 1,
+          "field": "stainedLeather",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:redIronIngot",
+          "count": 3,
+          "dmg": 0,
+          "field": "redIronIngot",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        }
+      ],
+      "full_suit_recipe": false,
+      "raw_count": 4
+    },
+    "deadpool": {
+      "class": "com/tihyo/superheroes/characters/Deadpool.class",
+      "getName": "deadpool",
+      "mats": [
+        {
+          "id": "legends:orangeGem",
+          "count": 1,
+          "dmg": 0,
+          "field": "orangeGem",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:mutantGene",
+          "count": 1,
+          "dmg": 0,
+          "field": "mutantGene",
+          "class": "com/tihyo/superheroes/items/RegisterItemsSuperHeroes",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 2,
+          "dmg": 0,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 10,
+          "dmg": 1,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 16,
+          "dmg": 10,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:stainedLeather",
+          "count": 7,
+          "dmg": 10,
+          "field": "stainedLeather",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:blackIronIngot",
+          "count": 7,
+          "dmg": 0,
+          "field": "blackIronIngot",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        }
+      ],
+      "full_suit_recipe": false,
+      "raw_count": 7
+    },
+    "flash": {
+      "class": "com/tihyo/superheroes/characters/Flash.class",
+      "getName": "flash",
+      "mats": [
+        {
+          "id": "legends:redGem",
+          "count": 1,
+          "dmg": 0,
+          "field": "redGem",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:flashLogo",
+          "count": 1,
+          "dmg": 0,
+          "field": "flashLogo",
+          "class": "com/tihyo/superheroes/items/RegisterItemsSuperHeroes",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 24,
+          "dmg": 1,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:stainedLeather",
+          "count": 4,
+          "dmg": 3,
+          "field": "stainedLeather",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:lightningBlock",
+          "count": 12,
+          "dmg": 0,
+          "field": "lightningBlock",
+          "class": "com/tihyo/legends/blocks/RegisterBlocks",
+          "has_armor_sibling": false
+        }
+      ],
+      "full_suit_recipe": false,
+      "raw_count": 5
+    },
+    "flash_garrick": {
+      "class": "com/tihyo/superheroes/characters/FlashGarrick.class",
+      "getName": "flash_garrick",
+      "mats": [
+        {
+          "id": "legends:redGem",
+          "count": 1,
+          "dmg": 0,
+          "field": "redGem",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:flashLogo",
+          "count": 1,
+          "dmg": 0,
+          "field": "flashLogo",
+          "class": "com/tihyo/superheroes/items/RegisterItemsSuperHeroes",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 8,
+          "dmg": 1,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 7,
+          "dmg": 6,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:stainedLeather",
+          "count": 7,
+          "dmg": 10,
+          "field": "stainedLeather",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "minecraft:diamond",
+          "count": 1,
+          "dmg": 0,
+          "field": "field_151043_k",
+          "class": "net/minecraft/init/Items",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:lightningBlock",
+          "count": 5,
+          "dmg": 0,
+          "field": "lightningBlock",
+          "class": "com/tihyo/legends/blocks/RegisterBlocks",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:titaniumPlate",
+          "count": 5,
+          "dmg": 0,
+          "field": "titaniumPlate",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        }
+      ],
+      "full_suit_recipe": false,
+      "raw_count": 8
+    },
+    "flash_west": {
+      "class": "com/tihyo/superheroes/characters/FlashWest.class",
+      "getName": "flash_west",
+      "mats": [
+        {
+          "id": "legends:redGem",
+          "count": 1,
+          "dmg": 0,
+          "field": "redGem",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:flashLogo",
+          "count": 1,
+          "dmg": 0,
+          "field": "flashLogo",
+          "class": "com/tihyo/superheroes/items/RegisterItemsSuperHeroes",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 2,
+          "dmg": 0,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 24,
+          "dmg": 1,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:stainedLeather",
+          "count": 4,
+          "dmg": 3,
+          "field": "stainedLeather",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:lightningBlock",
+          "count": 12,
+          "dmg": 0,
+          "field": "lightningBlock",
+          "class": "com/tihyo/legends/blocks/RegisterBlocks",
+          "has_armor_sibling": false
+        }
+      ],
+      "full_suit_recipe": false,
+      "raw_count": 6
+    },
+    "generalzod": {
+      "class": "com/tihyo/superheroes/characters/GeneralZod.class",
+      "getName": "generalzod",
+      "mats": [
+        {
+          "id": "legends:redGem",
+          "count": 1,
+          "dmg": 0,
+          "field": "redGem",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 6,
+          "dmg": 10,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:stainedTitanium",
+          "count": 9,
+          "dmg": 9,
+          "field": "stainedTitanium",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:kryptonianAlloy",
+          "count": 14,
+          "dmg": 0,
+          "field": "kryptonianAlloy",
+          "class": "com/tihyo/superheroes/items/RegisterItemsSuperHeroes",
+          "has_armor_sibling": false
+        }
+      ],
+      "full_suit_recipe": false,
+      "raw_count": 4
+    },
+    "greenarrow": {
+      "class": "com/tihyo/superheroes/characters/GreenArrow.class",
+      "getName": "greenarrow",
+      "mats": [
+        {
+          "id": "legends:yellowGem",
+          "count": 1,
+          "dmg": 0,
+          "field": "yellowGem",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 18,
+          "dmg": 4,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 9,
+          "dmg": 3,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:stainedLeather",
+          "count": 11,
+          "dmg": 4,
+          "field": "stainedLeather",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "minecraft:diamond",
+          "count": 3,
+          "dmg": 0,
+          "field": "field_151043_k",
+          "class": "net/minecraft/init/Items",
+          "has_armor_sibling": false
+        }
+      ],
+      "full_suit_recipe": false,
+      "raw_count": 5
+    },
+    "heatwave": {
+      "class": "com/tihyo/superheroes/characters/HeatWave.class",
+      "getName": "heatwave",
+      "mats": [
+        {
+          "id": "legends:yellowGem",
+          "count": 1,
+          "dmg": 0,
+          "field": "yellowGem",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 26,
+          "dmg": 0,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:stainedLeather",
+          "count": 4,
+          "dmg": 0,
+          "field": "stainedLeather",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "minecraft:iron_ingot",
+          "count": 19,
+          "dmg": 0,
+          "field": "field_151042_j",
+          "class": "net/minecraft/init/Items",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:stainedTitanium",
+          "count": 13,
+          "dmg": 2,
+          "field": "stainedTitanium",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        }
+      ],
+      "full_suit_recipe": false,
+      "raw_count": 5
+    },
+    "hulk": {
+      "class": "com/tihyo/superheroes/characters/Hulk.class",
+      "getName": "hulk",
+      "mats": [
+        {
+          "id": "legends:redGem",
+          "count": 1,
+          "dmg": 0,
+          "field": "redGem",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:gamma",
+          "count": 24,
+          "dmg": 0,
+          "field": "gamma",
+          "class": "com/tihyo/superheroes/blocks/RegisterBlocksSuperHeroes",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 5,
+          "dmg": 7,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        }
+      ],
+      "full_suit_recipe": false,
+      "raw_count": 7
+    },
+    "ironman_mark1": {
+      "class": "com/tihyo/superheroes/characters/ironman/Mark1.class",
+      "getName": null,
+      "mats": [
+        {
+          "id": "legends:yellowGem",
+          "count": 1,
+          "dmg": 0,
+          "field": "yellowGem",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:miniArcReactor",
+          "count": 1,
+          "dmg": 0,
+          "field": "miniArcReactor",
+          "class": "com/tihyo/superheroes/items/RegisterItemsSuperHeroes",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:titaniumPlate",
+          "count": 26,
+          "dmg": 0,
+          "field": "titaniumPlate",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:ironPlate",
+          "count": 10,
+          "dmg": 0,
+          "field": "ironPlate",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:copperIngot",
+          "count": 10,
+          "dmg": 0,
+          "field": "copperIngot",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:magnesiumIngot",
+          "count": 10,
+          "dmg": 0,
+          "field": "magnesiumIngot",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "minecraft:stained_glass_pane",
+          "count": 2,
+          "dmg": 0,
+          "field": "field_150397_co",
+          "class": "net/minecraft/init/Blocks",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:tech",
+          "count": 30,
+          "dmg": 0,
+          "field": "tech",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:rocket",
+          "count": 1,
+          "dmg": 0,
+          "field": "rocket",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        }
+      ],
+      "full_suit_recipe": false,
+      "raw_count": 13
+    },
+    "ironman_mark21": {
+      "class": "com/tihyo/superheroes/characters/ironman/Mark21.class",
+      "getName": null,
+      "mats": [
+        {
+          "id": "legends:redGem",
+          "count": 1,
+          "dmg": 0,
+          "field": "redGem",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:arcReactor",
+          "count": 1,
+          "dmg": 0,
+          "field": "arcReactor",
+          "class": "com/tihyo/superheroes/items/RegisterItemsSuperHeroes",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:goldTitaniumAlloy",
+          "count": 55,
+          "dmg": 2,
+          "field": "goldTitaniumAlloy",
+          "class": "com/tihyo/superheroes/items/RegisterItemsSuperHeroes",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:ironPlate",
+          "count": 25,
+          "dmg": 0,
+          "field": "ironPlate",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "minecraft:stained_glass_pane",
+          "count": 2,
+          "dmg": 0,
+          "field": "field_150397_co",
+          "class": "net/minecraft/init/Blocks",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:starkTech",
+          "count": 25,
+          "dmg": 0,
+          "field": "starkTech",
+          "class": "com/tihyo/superheroes/items/RegisterItemsSuperHeroes",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:silicon",
+          "count": 25,
+          "dmg": 0,
+          "field": "silicon",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:rocket",
+          "count": 1,
+          "dmg": 0,
+          "field": "rocket",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:bullet",
+          "count": 64,
+          "dmg": 0,
+          "field": "bullet",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        }
+      ],
+      "full_suit_recipe": true,
+      "raw_count": 12
+    },
+    "ironman_mark3": {
+      "class": "com/tihyo/superheroes/characters/ironman/Mark3.class",
+      "getName": null,
+      "mats": [
+        {
+          "id": "legends:orangeGem",
+          "count": 1,
+          "dmg": 0,
+          "field": "orangeGem",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:palladiumArcReactor",
+          "count": 1,
+          "dmg": 0,
+          "field": "palladiumArcReactor",
+          "class": "com/tihyo/superheroes/items/RegisterItemsSuperHeroes",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:goldTitaniumAlloy",
+          "count": 22,
+          "dmg": 1,
+          "field": "goldTitaniumAlloy",
+          "class": "com/tihyo/superheroes/items/RegisterItemsSuperHeroes",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:goldTitaniumAlloy",
+          "count": 9,
+          "dmg": 2,
+          "field": "goldTitaniumAlloy",
+          "class": "com/tihyo/superheroes/items/RegisterItemsSuperHeroes",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:ironPlate",
+          "count": 10,
+          "dmg": 0,
+          "field": "ironPlate",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "minecraft:stained_glass_pane",
+          "count": 2,
+          "dmg": 0,
+          "field": "field_150397_co",
+          "class": "net/minecraft/init/Blocks",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:starkTech",
+          "count": 15,
+          "dmg": 0,
+          "field": "starkTech",
+          "class": "com/tihyo/superheroes/items/RegisterItemsSuperHeroes",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:silicon",
+          "count": 25,
+          "dmg": 0,
+          "field": "silicon",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:rocket",
+          "count": 1,
+          "dmg": 0,
+          "field": "rocket",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:bullet",
+          "count": 64,
+          "dmg": 0,
+          "field": "bullet",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        }
+      ],
+      "full_suit_recipe": true,
+      "raw_count": 13
+    },
+    "ironman_mark7": {
+      "class": "com/tihyo/superheroes/characters/ironman/Mark7.class",
+      "getName": null,
+      "mats": [
+        {
+          "id": "legends:redGem",
+          "count": 1,
+          "dmg": 0,
+          "field": "redGem",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:arcReactor",
+          "count": 1,
+          "dmg": 0,
+          "field": "arcReactor",
+          "class": "com/tihyo/superheroes/items/RegisterItemsSuperHeroes",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:goldTitaniumAlloy",
+          "count": 24,
+          "dmg": 1,
+          "field": "goldTitaniumAlloy",
+          "class": "com/tihyo/superheroes/items/RegisterItemsSuperHeroes",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:goldTitaniumAlloy",
+          "count": 20,
+          "dmg": 2,
+          "field": "goldTitaniumAlloy",
+          "class": "com/tihyo/superheroes/items/RegisterItemsSuperHeroes",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:goldTitaniumAlloy",
+          "count": 10,
+          "dmg": 3,
+          "field": "goldTitaniumAlloy",
+          "class": "com/tihyo/superheroes/items/RegisterItemsSuperHeroes",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:ironPlate",
+          "count": 25,
+          "dmg": 0,
+          "field": "ironPlate",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "minecraft:stained_glass_pane",
+          "count": 2,
+          "dmg": 0,
+          "field": "field_150397_co",
+          "class": "net/minecraft/init/Blocks",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:starkTech",
+          "count": 22,
+          "dmg": 0,
+          "field": "starkTech",
+          "class": "com/tihyo/superheroes/items/RegisterItemsSuperHeroes",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:silicon",
+          "count": 25,
+          "dmg": 0,
+          "field": "silicon",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:rocket",
+          "count": 1,
+          "dmg": 0,
+          "field": "rocket",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:bullet",
+          "count": 64,
+          "dmg": 0,
+          "field": "bullet",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        }
+      ],
+      "full_suit_recipe": true,
+      "raw_count": 14
+    },
+    "ironman_mark0": {
+      "class": "com/tihyo/superheroes/characters/ironman/UnderArmor.class",
+      "getName": null,
+      "mats": [
+        {
+          "id": "legends:titaniumPlate",
+          "count": 6,
+          "dmg": 0,
+          "field": "titaniumPlate",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:starkTech",
+          "count": 2,
+          "dmg": 0,
+          "field": "starkTech",
+          "class": "com/tihyo/superheroes/items/RegisterItemsSuperHeroes",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:repulsorType1",
+          "count": 4,
+          "dmg": 0,
+          "field": "repulsorType1",
+          "class": "com/tihyo/superheroes/items/RegisterItemsSuperHeroes",
+          "has_armor_sibling": false
+        }
+      ],
+      "full_suit_recipe": false,
+      "raw_count": 3
+    },
+    "ironspider": {
+      "class": "com/tihyo/superheroes/characters/IronSpider.class",
+      "getName": "ironspider",
+      "mats": [
+        {
+          "id": "legends:orangeGem",
+          "count": 1,
+          "dmg": 0,
+          "field": "orangeGem",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:spiderManLogo",
+          "count": 1,
+          "dmg": 0,
+          "field": "spiderManLogo",
+          "class": "com/tihyo/superheroes/items/RegisterItemsSuperHeroes",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:goldTitaniumAlloy",
+          "count": 19,
+          "dmg": 1,
+          "field": "goldTitaniumAlloy",
+          "class": "com/tihyo/superheroes/items/RegisterItemsSuperHeroes",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:goldTitaniumAlloy",
+          "count": 13,
+          "dmg": 2,
+          "field": "goldTitaniumAlloy",
+          "class": "com/tihyo/superheroes/items/RegisterItemsSuperHeroes",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:starkTech",
+          "count": 30,
+          "dmg": 0,
+          "field": "starkTech",
+          "class": "com/tihyo/superheroes/items/RegisterItemsSuperHeroes",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:webShooters",
+          "count": 2,
+          "dmg": 0,
+          "field": "webShooters",
+          "class": "com/tihyo/superheroes/items/RegisterItemsSuperHeroes",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:nanobot",
+          "count": 10,
+          "dmg": 0,
+          "field": "nanobot",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        }
+      ],
+      "full_suit_recipe": false,
+      "raw_count": 7
+    },
+    "joker": {
+      "class": "com/tihyo/superheroes/characters/Joker.class",
+      "getName": "joker",
+      "mats": [
+        {
+          "id": "legends:yellowGem",
+          "count": 1,
+          "dmg": 0,
+          "field": "yellowGem",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 8,
+          "dmg": 2,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 3,
+          "dmg": 4,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 8,
+          "dmg": 7,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:stainedLeather",
+          "count": 2,
+          "dmg": 2,
+          "field": "stainedLeather",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:stainedLeather",
+          "count": 10,
+          "dmg": 7,
+          "field": "stainedLeather",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:stainedLeather",
+          "count": 4,
+          "dmg": 10,
+          "field": "stainedLeather",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        }
+      ],
+      "full_suit_recipe": false,
+      "raw_count": 7
+    },
+    "kidflash": {
+      "class": "com/tihyo/superheroes/characters/KidFlash.class",
+      "getName": "kidflash",
+      "mats": [
+        {
+          "id": "legends:redGem",
+          "count": 1,
+          "dmg": 0,
+          "field": "redGem",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:kidFlashLogo",
+          "count": 1,
+          "dmg": 0,
+          "field": "kidFlashLogo",
+          "class": "com/tihyo/superheroes/items/RegisterItemsSuperHeroes",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 7,
+          "dmg": 1,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 14,
+          "dmg": 3,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:stainedLeather",
+          "count": 4,
+          "dmg": 3,
+          "field": "stainedLeather",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:lightningBlockRed",
+          "count": 9,
+          "dmg": 0,
+          "field": "lightningBlockRed",
+          "class": "com/tihyo/legends/blocks/RegisterBlocks",
+          "has_armor_sibling": false
+        }
+      ],
+      "full_suit_recipe": false,
+      "raw_count": 6
+    },
+    "martianmanhunter": {
+      "class": "com/tihyo/superheroes/characters/MartianManhunter.class",
+      "getName": "martianmanhunter",
+      "mats": [
+        {
+          "id": "legends:redGem",
+          "count": 1,
+          "dmg": 0,
+          "field": "redGem",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:martianRelic",
+          "count": 24,
+          "dmg": 0,
+          "field": "martianRelic",
+          "class": "com/tihyo/legends/blocks/RegisterBlocks",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 6,
+          "dmg": 1,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 13,
+          "dmg": 6,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "minecraft:diamond",
+          "count": 4,
+          "dmg": 0,
+          "field": "field_151043_k",
+          "class": "net/minecraft/init/Items",
+          "has_armor_sibling": false
+        }
+      ],
+      "full_suit_recipe": false,
+      "raw_count": 5
+    },
+    "nightwing": {
+      "class": "com/tihyo/superheroes/characters/Nightwing.class",
+      "getName": "nightwing",
+      "mats": [
+        {
+          "id": "legends:greenGem",
+          "count": 1,
+          "dmg": 0,
+          "field": "greenGem",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 2,
+          "dmg": 0,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 7,
+          "dmg": 6,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 21,
+          "dmg": 10,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:stainedLeather",
+          "count": 4,
+          "dmg": 10,
+          "field": "stainedLeather",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:wayneTech",
+          "count": 10,
+          "dmg": 0,
+          "field": "wayneTech",
+          "class": "com/tihyo/superheroes/items/RegisterItemsSuperHeroes",
+          "has_armor_sibling": false
+        }
+      ],
+      "full_suit_recipe": false,
+      "raw_count": 6
+    },
+    "redhood": {
+      "class": "com/tihyo/superheroes/characters/RedHood.class",
+      "getName": "redhood",
+      "mats": [
+        {
+          "id": "legends:greenGem",
+          "count": 1,
+          "dmg": 0,
+          "field": "greenGem",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:batmanLogo",
+          "count": 1,
+          "dmg": 0,
+          "field": "batmanLogo",
+          "class": "com/tihyo/superheroes/items/RegisterItemsSuperHeroes",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 15,
+          "dmg": 10,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "minecraft:leather",
+          "count": 8,
+          "dmg": 0,
+          "field": "field_151116_aA",
+          "class": "net/minecraft/init/Items",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:stainedLeather",
+          "count": 8,
+          "dmg": 10,
+          "field": "stainedLeather",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:blackIronIngot",
+          "count": 9,
+          "dmg": 0,
+          "field": "blackIronIngot",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:redIronIngot",
+          "count": 7,
+          "dmg": 0,
+          "field": "redIronIngot",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "minecraft:stained_glass_pane",
+          "count": 2,
+          "dmg": 0,
+          "field": "field_150397_co",
+          "class": "net/minecraft/init/Blocks",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "minecraft:iron_ingot",
+          "count": 6,
+          "dmg": 0,
+          "field": "field_151042_j",
+          "class": "net/minecraft/init/Items",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:wayneTech",
+          "count": 10,
+          "dmg": 0,
+          "field": "wayneTech",
+          "class": "com/tihyo/superheroes/items/RegisterItemsSuperHeroes",
+          "has_armor_sibling": false
+        }
+      ],
+      "full_suit_recipe": false,
+      "raw_count": 10
+    },
+    "redhulk": {
+      "class": "com/tihyo/superheroes/characters/RedHulk.class",
+      "getName": "redhulk",
+      "mats": [
+        {
+          "id": "legends:redGem",
+          "count": 1,
+          "dmg": 0,
+          "field": "redGem",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:gamma",
+          "count": 24,
+          "dmg": 0,
+          "field": "gamma",
+          "class": "com/tihyo/superheroes/blocks/RegisterBlocksSuperHeroes",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 5,
+          "dmg": 10,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        }
+      ],
+      "full_suit_recipe": false,
+      "raw_count": 7
+    },
+    "redrobin": {
+      "class": "com/tihyo/superheroes/characters/RedRobin.class",
+      "getName": "redrobin",
+      "mats": [
+        {
+          "id": "legends:greenGem",
+          "count": 1,
+          "dmg": 0,
+          "field": "greenGem",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:rrDisc",
+          "count": 1,
+          "dmg": 0,
+          "field": "rrDisc",
+          "class": "com/tihyo/superheroes/items/RegisterItemsSuperHeroes",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 2,
+          "dmg": 0,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 6,
+          "dmg": 1,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 24,
+          "dmg": 10,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:stainedLeather",
+          "count": 4,
+          "dmg": 10,
+          "field": "stainedLeather",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:blackIronIngot",
+          "count": 6,
+          "dmg": 0,
+          "field": "blackIronIngot",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "minecraft:diamond",
+          "count": 1,
+          "dmg": 0,
+          "field": "field_151043_k",
+          "class": "net/minecraft/init/Items",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:wayneTech",
+          "count": 10,
+          "dmg": 0,
+          "field": "wayneTech",
+          "class": "com/tihyo/superheroes/items/RegisterItemsSuperHeroes",
+          "has_armor_sibling": false
+        }
+      ],
+      "full_suit_recipe": false,
+      "raw_count": 9
+    },
+    "reverseflash": {
+      "class": "com/tihyo/superheroes/characters/ReverseFlash.class",
+      "getName": "reverseflash",
+      "mats": [
+        {
+          "id": "legends:redGem",
+          "count": 1,
+          "dmg": 0,
+          "field": "redGem",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:reverseFlashLogo",
+          "count": 1,
+          "dmg": 0,
+          "field": "reverseFlashLogo",
+          "class": "com/tihyo/superheroes/items/RegisterItemsSuperHeroes",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 24,
+          "dmg": 3,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:stainedLeather",
+          "count": 4,
+          "dmg": 1,
+          "field": "stainedLeather",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:lightningBlockRed",
+          "count": 12,
+          "dmg": 0,
+          "field": "lightningBlockRed",
+          "class": "com/tihyo/legends/blocks/RegisterBlocks",
+          "has_armor_sibling": false
+        }
+      ],
+      "full_suit_recipe": false,
+      "raw_count": 5
+    },
+    "robin_brown": {
+      "class": "com/tihyo/superheroes/characters/RobinBrown.class",
+      "getName": "robin_brown",
+      "mats": [
+        {
+          "id": "legends:blueGem",
+          "count": 1,
+          "dmg": 0,
+          "field": "blueGem",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:robinLogo",
+          "count": 1,
+          "dmg": 0,
+          "field": "robinLogo",
+          "class": "com/tihyo/superheroes/items/RegisterItemsSuperHeroes",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 2,
+          "dmg": 0,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 6,
+          "dmg": 1,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 6,
+          "dmg": 3,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 15,
+          "dmg": 4,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 6,
+          "dmg": 10,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:stainedLeather",
+          "count": 4,
+          "dmg": 10,
+          "field": "stainedLeather",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "minecraft:diamond",
+          "count": 6,
+          "dmg": 0,
+          "field": "field_151043_k",
+          "class": "net/minecraft/init/Items",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:blackIronIngot",
+          "count": 1,
+          "dmg": 0,
+          "field": "blackIronIngot",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:wayneTech",
+          "count": 8,
+          "dmg": 0,
+          "field": "wayneTech",
+          "class": "com/tihyo/superheroes/items/RegisterItemsSuperHeroes",
+          "has_armor_sibling": false
+        }
+      ],
+      "full_suit_recipe": false,
+      "raw_count": 11
+    },
+    "robin_drake": {
+      "class": "com/tihyo/superheroes/characters/RobinDrake.class",
+      "getName": "robin_drake",
+      "mats": [
+        {
+          "id": "legends:blueGem",
+          "count": 1,
+          "dmg": 0,
+          "field": "blueGem",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:robinLogo",
+          "count": 1,
+          "dmg": 0,
+          "field": "robinLogo",
+          "class": "com/tihyo/superheroes/items/RegisterItemsSuperHeroes",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 2,
+          "dmg": 0,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 8,
+          "dmg": 1,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 6,
+          "dmg": 3,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 16,
+          "dmg": 10,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:stainedLeather",
+          "count": 4,
+          "dmg": 10,
+          "field": "stainedLeather",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "minecraft:diamond",
+          "count": 6,
+          "dmg": 0,
+          "field": "field_151043_k",
+          "class": "net/minecraft/init/Items",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:wayneTech",
+          "count": 8,
+          "dmg": 0,
+          "field": "wayneTech",
+          "class": "com/tihyo/superheroes/items/RegisterItemsSuperHeroes",
+          "has_armor_sibling": false
+        }
+      ],
+      "full_suit_recipe": false,
+      "raw_count": 9
+    },
+    "robin_grayson": {
+      "class": "com/tihyo/superheroes/characters/RobinGrayson.class",
+      "getName": "robin_grayson",
+      "mats": [
+        {
+          "id": "legends:blueGem",
+          "count": 1,
+          "dmg": 0,
+          "field": "blueGem",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:robinLogo",
+          "count": 1,
+          "dmg": 0,
+          "field": "robinLogo",
+          "class": "com/tihyo/superheroes/items/RegisterItemsSuperHeroes",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 2,
+          "dmg": 0,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 6,
+          "dmg": 1,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 6,
+          "dmg": 3,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 12,
+          "dmg": 4,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:stainedLeather",
+          "count": 4,
+          "dmg": 4,
+          "field": "stainedLeather",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "minecraft:diamond",
+          "count": 6,
+          "dmg": 0,
+          "field": "field_151043_k",
+          "class": "net/minecraft/init/Items",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:wayneTech",
+          "count": 5,
+          "dmg": 0,
+          "field": "wayneTech",
+          "class": "com/tihyo/superheroes/items/RegisterItemsSuperHeroes",
+          "has_armor_sibling": false
+        }
+      ],
+      "full_suit_recipe": false,
+      "raw_count": 9
+    },
+    "robin_todd": {
+      "class": "com/tihyo/superheroes/characters/RobinTodd.class",
+      "getName": "robin_todd",
+      "mats": [
+        {
+          "id": "legends:blueGem",
+          "count": 1,
+          "dmg": 0,
+          "field": "blueGem",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:robinLogo",
+          "count": 1,
+          "dmg": 0,
+          "field": "robinLogo",
+          "class": "com/tihyo/superheroes/items/RegisterItemsSuperHeroes",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 2,
+          "dmg": 0,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 6,
+          "dmg": 1,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 6,
+          "dmg": 3,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 13,
+          "dmg": 4,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 2,
+          "dmg": 10,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:stainedLeather",
+          "count": 4,
+          "dmg": 4,
+          "field": "stainedLeather",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "minecraft:diamond",
+          "count": 4,
+          "dmg": 0,
+          "field": "field_151043_k",
+          "class": "net/minecraft/init/Items",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:wayneTech",
+          "count": 5,
+          "dmg": 0,
+          "field": "wayneTech",
+          "class": "com/tihyo/superheroes/items/RegisterItemsSuperHeroes",
+          "has_armor_sibling": false
+        }
+      ],
+      "full_suit_recipe": false,
+      "raw_count": 10
+    },
+    "robin_wayne": {
+      "class": "com/tihyo/superheroes/characters/RobinWayne.class",
+      "getName": "robin_wayne",
+      "mats": [
+        {
+          "id": "legends:blueGem",
+          "count": 1,
+          "dmg": 0,
+          "field": "blueGem",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:robinLogo",
+          "count": 1,
+          "dmg": 0,
+          "field": "robinLogo",
+          "class": "com/tihyo/superheroes/items/RegisterItemsSuperHeroes",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 2,
+          "dmg": 0,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 6,
+          "dmg": 1,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 6,
+          "dmg": 3,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 6,
+          "dmg": 4,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 9,
+          "dmg": 10,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:stainedLeather",
+          "count": 4,
+          "dmg": 4,
+          "field": "stainedLeather",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:blackIronIngot",
+          "count": 3,
+          "dmg": 0,
+          "field": "blackIronIngot",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:redIronIngot",
+          "count": 4,
+          "dmg": 0,
+          "field": "redIronIngot",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "minecraft:diamond",
+          "count": 1,
+          "dmg": 0,
+          "field": "field_151043_k",
+          "class": "net/minecraft/init/Items",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:wayneTech",
+          "count": 10,
+          "dmg": 0,
+          "field": "wayneTech",
+          "class": "com/tihyo/superheroes/items/RegisterItemsSuperHeroes",
+          "has_armor_sibling": false
+        }
+      ],
+      "full_suit_recipe": false,
+      "raw_count": 12
+    },
+    "scarecrow": {
+      "class": "com/tihyo/superheroes/characters/Scarecrow.class",
+      "getName": "scarecrow",
+      "mats": [
+        {
+          "id": "legends:yellowGem",
+          "count": 1,
+          "dmg": 0,
+          "field": "yellowGem",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 30,
+          "dmg": 9,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 9,
+          "dmg": 10,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:stainedLeather",
+          "count": 4,
+          "dmg": 9,
+          "field": "stainedLeather",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:straw",
+          "count": 20,
+          "dmg": 0,
+          "field": "straw",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "minecraft:sugar",
+          "count": 2,
+          "dmg": 0,
+          "field": "field_151073_bk",
+          "class": "net/minecraft/init/Items",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "minecraft:dye",
+          "count": 1,
+          "dmg": 0,
+          "field": "field_151100_aR",
+          "class": "net/minecraft/init/Items",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "minecraft:fermented_spider_eye",
+          "count": 10,
+          "dmg": 0,
+          "field": "field_151075_bm",
+          "class": "net/minecraft/init/Items",
+          "has_armor_sibling": false
+        }
+      ],
+      "full_suit_recipe": false,
+      "raw_count": 8
+    },
+    "shazam": {
+      "class": "com/tihyo/superheroes/characters/Shazam.class",
+      "getName": "shazam",
+      "mats": [
+        {
+          "id": "legends:redGem",
+          "count": 1,
+          "dmg": 0,
+          "field": "redGem",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:shazamLogo",
+          "count": 1,
+          "dmg": 0,
+          "field": "shazamLogo",
+          "class": "com/tihyo/superheroes/items/RegisterItemsSuperHeroes",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 13,
+          "dmg": 0,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 15,
+          "dmg": 1,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 4,
+          "dmg": 3,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:stainedLeather",
+          "count": 4,
+          "dmg": 3,
+          "field": "stainedLeather",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:lightningBlock",
+          "count": 6,
+          "dmg": 0,
+          "field": "lightningBlock",
+          "class": "com/tihyo/legends/blocks/RegisterBlocks",
+          "has_armor_sibling": false
+        }
+      ],
+      "full_suit_recipe": false,
+      "raw_count": 7
+    },
+    "spiderman": {
+      "class": "com/tihyo/superheroes/characters/SpiderMan.class",
+      "getName": "spiderman",
+      "mats": [
+        {
+          "id": "legends:orangeGem",
+          "count": 1,
+          "dmg": 0,
+          "field": "orangeGem",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:spiderManLogo",
+          "count": 1,
+          "dmg": 0,
+          "field": "spiderManLogo",
+          "class": "com/tihyo/superheroes/items/RegisterItemsSuperHeroes",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:radioactiveFabric",
+          "count": 17,
+          "dmg": 0,
+          "field": "radioactiveFabric",
+          "class": "com/tihyo/superheroes/items/RegisterItemsSuperHeroes",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 2,
+          "dmg": 0,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 10,
+          "dmg": 6,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 2,
+          "dmg": 10,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:stainedLeather",
+          "count": 4,
+          "dmg": 1,
+          "field": "stainedLeather",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:webShooters",
+          "count": 2,
+          "dmg": 0,
+          "field": "webShooters",
+          "class": "com/tihyo/superheroes/items/RegisterItemsSuperHeroes",
+          "has_armor_sibling": false
+        }
+      ],
+      "full_suit_recipe": false,
+      "raw_count": 8
+    },
+    "spiderman2099": {
+      "class": "com/tihyo/superheroes/characters/SpiderMan2099.class",
+      "getName": "spiderman2099",
+      "mats": [
+        {
+          "id": "legends:orangeGem",
+          "count": 1,
+          "dmg": 0,
+          "field": "orangeGem",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:spiderManLogo",
+          "count": 1,
+          "dmg": 0,
+          "field": "spiderManLogo",
+          "class": "com/tihyo/superheroes/items/RegisterItemsSuperHeroes",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:radioactiveFabric",
+          "count": 9,
+          "dmg": 0,
+          "field": "radioactiveFabric",
+          "class": "com/tihyo/superheroes/items/RegisterItemsSuperHeroes",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 4,
+          "dmg": 0,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 22,
+          "dmg": 6,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:stainedLeather",
+          "count": 4,
+          "dmg": 6,
+          "field": "stainedLeather",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:unstableMolecule",
+          "count": 10,
+          "dmg": 0,
+          "field": "unstableMolecule",
+          "class": "com/tihyo/superheroes/items/RegisterItemsSuperHeroes",
+          "has_armor_sibling": false
+        }
+      ],
+      "full_suit_recipe": false,
+      "raw_count": 7
+    },
+    "supergirl": {
+      "class": "com/tihyo/superheroes/characters/Supergirl.class",
+      "getName": "supergirl",
+      "mats": [
+        {
+          "id": "legends:redGem",
+          "count": 1,
+          "dmg": 0,
+          "field": "redGem",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:supermanLogo",
+          "count": 1,
+          "dmg": 0,
+          "field": "supermanLogo",
+          "class": "com/tihyo/superheroes/items/RegisterItemsSuperHeroes",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 6,
+          "dmg": 1,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 6,
+          "dmg": 3,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 10,
+          "dmg": 6,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:stainedLeather",
+          "count": 2,
+          "dmg": 1,
+          "field": "stainedLeather",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:stainedLeather",
+          "count": 2,
+          "dmg": 3,
+          "field": "stainedLeather",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        }
+      ],
+      "full_suit_recipe": false,
+      "raw_count": 7
+    },
+    "superman": {
+      "class": "com/tihyo/superheroes/characters/Superman.class",
+      "getName": "superman",
+      "mats": [
+        {
+          "id": "legends:redGem",
+          "count": 1,
+          "dmg": 0,
+          "field": "redGem",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:supermanLogo",
+          "count": 1,
+          "dmg": 0,
+          "field": "supermanLogo",
+          "class": "com/tihyo/superheroes/items/RegisterItemsSuperHeroes",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 10,
+          "dmg": 1,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 12,
+          "dmg": 6,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:stainedLeather",
+          "count": 4,
+          "dmg": 1,
+          "field": "stainedLeather",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "minecraft:diamond",
+          "count": 3,
+          "dmg": 0,
+          "field": "field_151043_k",
+          "class": "net/minecraft/init/Items",
+          "has_armor_sibling": false
+        }
+      ],
+      "full_suit_recipe": false,
+      "raw_count": 6
+    },
+    "symbiotespiderman": {
+      "class": "com/tihyo/superheroes/characters/SymbioteSpiderMan.class",
+      "getName": "symbiotespiderman",
+      "mats": [
+        {
+          "id": "legends:redGem",
+          "count": 1,
+          "dmg": 0,
+          "field": "redGem",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:symbiote",
+          "count": 1,
+          "dmg": 0,
+          "field": "symbiote",
+          "class": "com/tihyo/superheroes/items/RegisterItemsSuperHeroes",
+          "has_armor_sibling": false
+        }
+      ],
+      "full_suit_recipe": true,
+      "raw_count": 6
+    },
+    "thor": {
+      "class": "com/tihyo/superheroes/characters/Thor.class",
+      "getName": "thor",
+      "mats": [
+        {
+          "id": "legends:purpleGem",
+          "count": 1,
+          "dmg": 0,
+          "field": "purpleGem",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 6,
+          "dmg": 0,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 6,
+          "dmg": 1,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:stainedTitanium",
+          "count": 11,
+          "dmg": 9,
+          "field": "stainedTitanium",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:stainedLeather",
+          "count": 4,
+          "dmg": 10,
+          "field": "stainedLeather",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:asgardianSteel",
+          "count": 14,
+          "dmg": 0,
+          "field": "asgardianSteel",
+          "class": "com/tihyo/superheroes/items/RegisterItemsSuperHeroes",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:stainlesssteelIngot",
+          "count": 13,
+          "dmg": 0,
+          "field": "stainlesssteelIngot",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:cosmicChunk",
+          "count": 4,
+          "dmg": 0,
+          "field": "cosmicChunk",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        }
+      ],
+      "full_suit_recipe": false,
+      "raw_count": 8
+    },
+    "turtle": {
+      "class": "com/tihyo/superheroes/characters/Turtle.class",
+      "getName": "turtle",
+      "mats": [
+        {
+          "id": "legends:orangeGem",
+          "count": 1,
+          "dmg": 0,
+          "field": "orangeGem",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 15,
+          "dmg": 4,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:stainedLeather",
+          "count": 12,
+          "dmg": 4,
+          "field": "stainedLeather",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:stainedTitanium",
+          "count": 8,
+          "dmg": 8,
+          "field": "stainedTitanium",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        }
+      ],
+      "full_suit_recipe": false,
+      "raw_count": 4
+    },
+    "venom": {
+      "class": "com/tihyo/superheroes/characters/Venom.class",
+      "getName": "venom",
+      "mats": [
+        {
+          "id": "legends:redGem",
+          "count": 1,
+          "dmg": 0,
+          "field": "redGem",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:symbiote",
+          "count": 1,
+          "dmg": 0,
+          "field": "symbiote",
+          "class": "com/tihyo/superheroes/items/RegisterItemsSuperHeroes",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:cosmicChunk",
+          "count": 5,
+          "dmg": 0,
+          "field": "cosmicChunk",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        }
+      ],
+      "full_suit_recipe": false,
+      "raw_count": 7
+    },
+    "vision": {
+      "class": "com/tihyo/superheroes/characters/Vision.class",
+      "getName": "vision",
+      "mats": [
+        {
+          "id": "legends:redGem",
+          "count": 1,
+          "dmg": 0,
+          "field": "redGem",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:vibranium",
+          "count": 24,
+          "dmg": 0,
+          "field": "vibranium",
+          "class": "com/tihyo/superheroes/items/RegisterItemsSuperHeroes",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 22,
+          "dmg": 3,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 11,
+          "dmg": 4,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:stainedLeather",
+          "count": 4,
+          "dmg": 3,
+          "field": "stainedLeather",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:stainedTitanium",
+          "count": 4,
+          "dmg": 1,
+          "field": "stainedTitanium",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:stainedTitanium",
+          "count": 3,
+          "dmg": 3,
+          "field": "stainedTitanium",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        }
+      ],
+      "full_suit_recipe": false,
+      "raw_count": 7
+    },
+    "warmachine_mark1": {
+      "class": "com/tihyo/superheroes/characters/WarMachineMark1.class",
+      "getName": "warmachine_mark",
+      "mats": [
+        {
+          "id": "legends:redGem",
+          "count": 1,
+          "dmg": 0,
+          "field": "redGem",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:goldTitaniumAlloy",
+          "count": 22,
+          "dmg": 6,
+          "field": "goldTitaniumAlloy",
+          "class": "com/tihyo/superheroes/items/RegisterItemsSuperHeroes",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:goldTitaniumAlloy",
+          "count": 9,
+          "dmg": 3,
+          "field": "goldTitaniumAlloy",
+          "class": "com/tihyo/superheroes/items/RegisterItemsSuperHeroes",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:ironPlate",
+          "count": 10,
+          "dmg": 0,
+          "field": "ironPlate",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:techHigh",
+          "count": 20,
+          "dmg": 0,
+          "field": "techHigh",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:silicon",
+          "count": 25,
+          "dmg": 0,
+          "field": "silicon",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:rocket",
+          "count": 1,
+          "dmg": 0,
+          "field": "rocket",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:bullet",
+          "count": 64,
+          "dmg": 0,
+          "field": "bullet",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        }
+      ],
+      "full_suit_recipe": true,
+      "raw_count": 12
+    },
+    "wasp": {
+      "class": "com/tihyo/superheroes/characters/Wasp.class",
+      "getName": "wasp",
+      "mats": [
+        {
+          "id": "legends:orangeGem",
+          "count": 1,
+          "dmg": 0,
+          "field": "orangeGem",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:pymParticle",
+          "count": 4,
+          "dmg": 0,
+          "field": "pymParticle",
+          "class": "com/tihyo/superheroes/items/RegisterItemsSuperHeroes",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 6,
+          "dmg": 3,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 13,
+          "dmg": 10,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:stainedLeather",
+          "count": 2,
+          "dmg": 3,
+          "field": "stainedLeather",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:stainedLeather",
+          "count": 2,
+          "dmg": 10,
+          "field": "stainedLeather",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:techHigh",
+          "count": 25,
+          "dmg": 0,
+          "field": "techHigh",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        }
+      ],
+      "full_suit_recipe": false,
+      "raw_count": 7
+    },
+    "wolverine": {
+      "class": "com/tihyo/superheroes/characters/Wolverine.class",
+      "getName": "wolverine",
+      "mats": [
+        {
+          "id": "legends:orangeGem",
+          "count": 1,
+          "dmg": 0,
+          "field": "orangeGem",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:mutantGene",
+          "count": 1,
+          "dmg": 0,
+          "field": "mutantGene",
+          "class": "com/tihyo/superheroes/items/RegisterItemsSuperHeroes",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:adamantium",
+          "count": 16,
+          "dmg": 0,
+          "field": "adamantium",
+          "class": "com/tihyo/superheroes/items/RegisterItemsSuperHeroes",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 7,
+          "dmg": 3,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 13,
+          "dmg": 6,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 3,
+          "dmg": 10,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:stainedLeather",
+          "count": 4,
+          "dmg": 6,
+          "field": "stainedLeather",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        }
+      ],
+      "full_suit_recipe": false,
+      "raw_count": 7
+    },
+    "wonderwoman": {
+      "class": "com/tihyo/superheroes/characters/WonderWoman.class",
+      "getName": "wonderwoman",
+      "mats": [
+        {
+          "id": "legends:redGem",
+          "count": 1,
+          "dmg": 0,
+          "field": "redGem",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:wonderWomanLogo",
+          "count": 1,
+          "dmg": 0,
+          "field": "wonderWomanLogo",
+          "class": "com/tihyo/superheroes/items/RegisterItemsSuperHeroes",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 3,
+          "dmg": 0,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 6,
+          "dmg": 1,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 4,
+          "dmg": 6,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:stainedLeather",
+          "count": 2,
+          "dmg": 0,
+          "field": "stainedLeather",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:stainedLeather",
+          "count": 2,
+          "dmg": 1,
+          "field": "stainedLeather",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:stainedTitanium",
+          "count": 4,
+          "dmg": 0,
+          "field": "stainedTitanium",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "minecraft:diamond",
+          "count": 10,
+          "dmg": 0,
+          "field": "field_151043_k",
+          "class": "net/minecraft/init/Items",
+          "has_armor_sibling": false
+        }
+      ],
+      "full_suit_recipe": false,
+      "raw_count": 9
+    },
+    "zoom": {
+      "class": "com/tihyo/superheroes/characters/Zoom.class",
+      "getName": "zoom",
+      "mats": [
+        {
+          "id": "legends:redGem",
+          "count": 1,
+          "dmg": 0,
+          "field": "redGem",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:zoomLogo",
+          "count": 1,
+          "dmg": 0,
+          "field": "zoomLogo",
+          "class": "com/tihyo/superheroes/items/RegisterItemsSuperHeroes",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 24,
+          "dmg": 3,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:fabric",
+          "count": 6,
+          "dmg": 6,
+          "field": "fabric",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:stainedLeather",
+          "count": 4,
+          "dmg": 1,
+          "field": "stainedLeather",
+          "class": "com/tihyo/legends/items/RegisterItems",
+          "has_armor_sibling": false
+        },
+        {
+          "id": "legends:lightningBlockRed",
+          "count": 12,
+          "dmg": 0,
+          "field": "lightningBlockRed",
+          "class": "com/tihyo/legends/blocks/RegisterBlocks",
+          "has_armor_sibling": false
+        }
+      ],
+      "full_suit_recipe": false,
+      "raw_count": 6
+    }
+  },
+  "skipped": [
+    [
+      "abomination",
+      "field_151024_Q",
+      "vanilla-armor-mat",
+      1,
+      0
+    ],
+    [
+      "abomination",
+      "field_151027_R",
+      "vanilla-armor-mat",
+      1,
+      0
+    ],
+    [
+      "abomination",
+      "field_151026_S",
+      "vanilla-armor-mat",
+      1,
+      0
+    ],
+    [
+      "abomination",
+      "field_151021_T",
+      "vanilla-armor-mat",
+      1,
+      0
+    ],
+    [
+      "batman_powerarmor",
+      "batmanHelmet",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "batman_powerarmor",
+      "batmanChest",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "batman_powerarmor",
+      "batmanLegs",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "batman_powerarmor",
+      "batmanBoots",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "hulk",
+      "field_151024_Q",
+      "vanilla-armor-mat",
+      1,
+      0
+    ],
+    [
+      "hulk",
+      "field_151027_R",
+      "vanilla-armor-mat",
+      1,
+      0
+    ],
+    [
+      "hulk",
+      "field_151026_S",
+      "vanilla-armor-mat",
+      1,
+      0
+    ],
+    [
+      "hulk",
+      "field_151021_T",
+      "vanilla-armor-mat",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark1.class",
+      "field_151024_Q",
+      "vanilla-armor-mat",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark1.class",
+      "field_151027_R",
+      "vanilla-armor-mat",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark1.class",
+      "field_151026_S",
+      "vanilla-armor-mat",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark1.class",
+      "field_151021_T",
+      "vanilla-armor-mat",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark10.class",
+      "ironManChest",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark10.class",
+      "ironManLegs",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark10.class",
+      "ironManBoots",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark10.class",
+      "no-regname",
+      null
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark11.class",
+      "ironManChest",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark11.class",
+      "ironManLegs",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark11.class",
+      "ironManBoots",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark11.class",
+      "no-regname",
+      null
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark12.class",
+      "ironManChest",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark12.class",
+      "ironManLegs",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark12.class",
+      "ironManBoots",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark12.class",
+      "no-regname",
+      null
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark13.class",
+      "ironManChest",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark13.class",
+      "ironManLegs",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark13.class",
+      "ironManBoots",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark13.class",
+      "no-regname",
+      null
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark14.class",
+      "ironManChest",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark14.class",
+      "ironManLegs",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark14.class",
+      "ironManBoots",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark14.class",
+      "no-regname",
+      null
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark15.class",
+      "ironManChest",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark15.class",
+      "ironManLegs",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark15.class",
+      "ironManBoots",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark15.class",
+      "no-regname",
+      null
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark16.class",
+      "ironManChest",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark16.class",
+      "ironManLegs",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark16.class",
+      "ironManBoots",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark16.class",
+      "no-regname",
+      null
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark17.class",
+      "ironManChest",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark17.class",
+      "ironManLegs",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark17.class",
+      "ironManBoots",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark17.class",
+      "no-regname",
+      null
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark18.class",
+      "ironManChest",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark18.class",
+      "ironManLegs",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark18.class",
+      "ironManBoots",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark18.class",
+      "no-regname",
+      null
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark19.class",
+      "ironManChest",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark19.class",
+      "ironManLegs",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark19.class",
+      "ironManBoots",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark19.class",
+      "no-regname",
+      null
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark2.class",
+      "ironManChest",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark2.class",
+      "ironManLegs",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark2.class",
+      "ironManBoots",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark2.class",
+      "no-regname",
+      null
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark20.class",
+      "ironManChest",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark20.class",
+      "ironManLegs",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark20.class",
+      "ironManBoots",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark20.class",
+      "no-regname",
+      null
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark21.class",
+      "ironManChest",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark21.class",
+      "ironManLegs",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark21.class",
+      "ironManBoots",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark3.class",
+      "ironManChest",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark3.class",
+      "ironManLegs",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark3.class",
+      "ironManBoots",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark4.class",
+      "ironManChest",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark4.class",
+      "ironManLegs",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark4.class",
+      "ironManBoots",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark4.class",
+      "no-regname",
+      null
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark5.class",
+      "ironManChest",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark5.class",
+      "ironManLegs",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark5.class",
+      "ironManBoots",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark5.class",
+      "no-regname",
+      null
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark6.class",
+      "ironManChest",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark6.class",
+      "ironManLegs",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark6.class",
+      "ironManBoots",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark6.class",
+      "no-regname",
+      null
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark7.class",
+      "ironManChest",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark7.class",
+      "ironManLegs",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark7.class",
+      "ironManBoots",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark8.class",
+      "ironManChest",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark8.class",
+      "ironManLegs",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark8.class",
+      "ironManBoots",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark8.class",
+      "no-regname",
+      null
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark9.class",
+      "ironManChest",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark9.class",
+      "ironManLegs",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark9.class",
+      "ironManBoots",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "com/tihyo/superheroes/characters/ironman/Mark9.class",
+      "no-regname",
+      null
+    ],
+    [
+      "redhulk",
+      "field_151024_Q",
+      "vanilla-armor-mat",
+      1,
+      0
+    ],
+    [
+      "redhulk",
+      "field_151027_R",
+      "vanilla-armor-mat",
+      1,
+      0
+    ],
+    [
+      "redhulk",
+      "field_151026_S",
+      "vanilla-armor-mat",
+      1,
+      0
+    ],
+    [
+      "redhulk",
+      "field_151021_T",
+      "vanilla-armor-mat",
+      1,
+      0
+    ],
+    [
+      "symbiotespiderman",
+      "spiderManHelmet",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "symbiotespiderman",
+      "spiderManChest",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "symbiotespiderman",
+      "spiderManLegs",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "symbiotespiderman",
+      "spiderManBoots",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "venom",
+      "field_151024_Q",
+      "vanilla-armor-mat",
+      1,
+      0
+    ],
+    [
+      "venom",
+      "field_151027_R",
+      "vanilla-armor-mat",
+      1,
+      0
+    ],
+    [
+      "venom",
+      "field_151026_S",
+      "vanilla-armor-mat",
+      1,
+      0
+    ],
+    [
+      "venom",
+      "field_151021_T",
+      "vanilla-armor-mat",
+      1,
+      0
+    ],
+    [
+      "warmachine_mark",
+      "ironManHelmet",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "warmachine_mark",
+      "ironManChest",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "warmachine_mark",
+      "ironManLegs",
+      "hero-suit-ingredient",
+      1,
+      0
+    ],
+    [
+      "warmachine_mark",
+      "ironManBoots",
+      "hero-suit-ingredient",
+      1,
+      0
+    ]
+  ]
+}

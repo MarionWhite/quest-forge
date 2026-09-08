@@ -1,0 +1,21 @@
+{
+  "_name": "WeepingAngel",
+  "drops": [],
+  "pre_stats": [],
+  "stats": [
+    {
+      "_comment": "max health boost",
+      "function": "modifier",
+      "attribute": "generic.maxHealth",
+      "value": "3.0~9.0",
+      "operator": 1
+    },
+    {
+      "_comment": "attack damage boost",
+      "function": "modifier",
+      "attribute": "generic.attackDamage",
+      "value": "0.5~2.0",
+      "operator": 1
+    }
+  ]
+}

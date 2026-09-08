@@ -1,0 +1,88 @@
+//=================== GROUPS ===================
+// Parameters: id, count, damage, name, nbt, message.
+group(;count = 0, message = "You got nothing,/ how unfortunate!";)
+group(;id = red_flower, name = "&cRomantic Rose";)
+group(;id = fish, name = "FiskFille";)
+group(;id = fish, damage = 2, name = "Nemo";)
+group(;id = coal, damage = 1, name = "Lump of Coal";)
+group(;id = golden_apple, count = #random(2to5);id = golden_apple, damage = 1, count = #random(1to4);)
+group(;id = wooden_hoe, message = "I hope you're into hoes! *face_wink*";id = stone_hoe;id = iron_hoe;id = diamond_hoe;id = golden_hoe;)
+group(;id = bed;)
+group(;id = sugar;)
+group(;id = dye, damage = 3, name = "Poop";)
+group(;id = dye, damage = #random(0to15);id = dye, damage = #random(0to15);id = dye, damage = #random(0to15);id = dye, damage = #random(0to15);id = dye, damage = #random(0to15);id = dye, damage = #random(0to15);id = dye, damage = #random(0to15);id = dye, damage = #random(0to15);id = dye, damage = #random(0to15);id = dye, damage = #random(0to15);id = dye, damage = #random(0to15);id = dye, damage = #random(0to15);id = dye, damage = #random(0to15);id = dye, damage = #random(0to15);id = dye, damage = #random(0to15);id = dye, damage = #random(0to15);)
+group(;id = stick;)
+group(;id = fish, damage = 3, count = #random(1to64), name = "Delicious Fish";)
+group(;id = diamond_sword;)
+group(;id = diamond_chestplate;)
+group(;id = chainmail_leggings, name = "Lingerie Pants";)
+group(;id = wooden_sword;id = wooden_axe;id = wooden_pickaxe;id = wooden_shovel;id = wooden_hoe;)
+group(;id = stone_sword;id = stone_axe;id = stone_pickaxe;id = stone_shovel;id = stone_hoe;)
+group(;id = iron_sword;id = iron_axe;id = iron_pickaxe;id = iron_shovel;id = iron_hoe;)
+group(;id = golden_sword;id = golden_axe;id = golden_pickaxe;id = golden_shovel;id = golden_hoe;)
+group(;id = potion, count = #random(1to2), damage = #random(0to16462);id = potion, count = #random(1to2), damage = #random(0to16462);id = potion, count = #random(1to2), damage = #random(0to16462);id = potion, count = #random(1to2), damage = #random(0to16462);id = potion, count = #random(1to2), damage = #random(0to16462);id = potion, count = #random(1to2), damage = #random(0to16462);id = potion, count = #random(1to2), damage = #random(0to16462);id = potion, count = #random(1to2), damage = #random(0to16462);id = potion, count = #random(1to2), damage = #random(0to16462);id = potion, count = #random(1to2), damage = #random(0to16462);id = potion, count = #random(1to2), damage = #random(0to16462);)
+group(;id = diamond_boots;)
+group(;id = leather, count = #random(1to16);)
+group(;id = leather_helmet, nbt = {ench:[{lvl:4}]};id = leather_chestplate, nbt = {ench:[{lvl:4}]};id = leather_leggings, nbt = {ench:[{lvl:4}]};id = leather_boots, nbt = {ench:[{lvl:4}]};)
+group(;id = diamond, count = #random(0to8);id = emerald, count = #random(0to4);id = diamond, gold_ingot = #random(0to16);id = iron_ingot, count = #random(0to8);)
+group(;id = milk_bucket;)
+group(;id = paper;)
+group(;id = bow;id = arrow, count = 32;)
+group(;id = bookshelf, count = #random(4to16);id = book, count = #random(8to16);)
+group(;id = stained_glass_pane, count = #random(1to16), damage = 0;id = stained_glass_pane, count = #random(1to16), damage = 1;id = stained_glass_pane, count = #random(1to16), damage = 2;id = stained_glass_pane, count = #random(1to16), damage = 3;id = stained_glass_pane, count = #random(1to16), damage = 4;id = stained_glass_pane, count = #random(1to16), damage = 5;id = stained_glass_pane, count = #random(1to16), damage = 6;id = stained_glass_pane, count = #random(1to16), damage = 7;id = stained_glass_pane, damage = 8;id = stained_glass_pane, count = #random(1to16), damage = 9;id = stained_glass_pane, count = #random(1to16), damage = 10;id = stained_glass_pane, count = #random(1to16), damage = 11;id = stained_glass_pane, count = #random(1to16), damage = 12;id = stained_glass_pane, count = #random(1to16), damage = 13;id = stained_glass_pane, damage = 14;id = stained_glass_pane, count = #random(1to16), damage = 15;)
+group(;id = red_mushroom;)
+group(;id = brown_mushroom;)
+group(;id = nether_star;)
+
+// Surprise Gear
+group(;id = iron_sword, nbt = {ench:[{id:34,lvl:#random(1to3)},{id:16,lvl:#random(1to5)},{id:19,lvl:#random(1to2)},{id:20,lvl:#random(1to2)},{id:21,lvl:#random(1to5)}]}, name = "&aSurprise Sword";)
+group(;id = iron_axe, nbt = {ench:[{id:34,lvl:#random(1to3)},{id:32,lvl:#random(1to6)},{id:16,lvl:#random(1to5},{id:33,lvl:1}]}, name = "&aSurprise Axe";)
+group(;id = iron_pickaxe, nbt = {ench:[{id:34,lvl:#random(1to3)},{id:32,lvl:#random(1to6)},{id:33,lvl:1}]}, name = "&aSurprise Pickaxe";)
+group(;id = iron_shovel, nbt = {ench:[{id:34,lvl:#random(1to3)},{id:32,lvl:#random(1to6)},{id:33,lvl:1}]}, name = "&aSurprise Shovel";)
+group(;id = iron_hoe, nbt = {ench:[{id:34,lvl:#random(1to3)},{id:32,lvl:#random(1to6)},{id:33,lvl:1}]}, name = "&aSurprise Hoe";)
+group(;id = bow, nbt = {ench:[{id:34,lvl:#random(1to3)},{id:48,lvl:#random(1to5)},{id:49,lvl:#random(1to2)},{id:50,lvl:#random(1to2)},{id:51,lvl:1}]}, name = "&aSurprise Bow";)
+
+
+//=================== COMMANDS ===================
+// Parameters: value, message.
+command(;value = "/playsound mob.ghast.scream @a #pPosX #pPosY #pPosZ 1 1";value = "/playsound mob.ghast.scream @a #pPosX #pPosY #pPosZ 1 1";value = "/playsound mob.ghast.scream @a #pPosX #pPosY #pPosZ 1 1";value = "/playsound mob.ghast.scream @a #pPosX #pPosY #pPosZ 1 1";value = "/playsound mob.ghast.scream @a #pPosX #pPosY #pPosZ 1 1";value = "/playsound mob.ghast.scream @a #pPosX #pPosY #pPosZ 1 1";value = "/playsound mob.ghast.scream @a #pPosX #pPosY #pPosZ 1 1";value = "/playsound mob.ghast.scream @a #pPosX #pPosY #pPosZ 1 1";value = "/playsound mob.ghast.scream @a #pPosX #pPosY #pPosZ 1 1";value = "/playsound mob.ghast.scream @a #pPosX #pPosY #pPosZ 1 1";value = "/playsound mob.ghast.scream @a #pPosX #pPosY #pPosZ 1 1";value = "/playsound mob.ghast.scream @a #pPosX #pPosY #pPosZ 1 1";value = "/playsound mob.ghast.scream @a #pPosX #pPosY #pPosZ 1 1";value = "/playsound mob.ghast.scream @a #pPosX #pPosY #pPosZ 1 1";)
+command(;value = "/effect #playerName 15 1000000 0";value = "/effect #playerName 2 1000000 3";value = "/playsound mob.zombie.say";)
+command(;value = "/effect #playerName 19 #random(60to120) 2";)
+command(;value = "/effect #playerName 17 3 200";)
+command(;value = "/effect #playerName 10 #random(60to120) #random(0to1)";)
+command(;value = "/effect #playerName 20 #random(60to120) 100)";)
+command(;value = "/summon PrimedTnt #pPosX #pPosY #pPosZ {Fuse:38}";value = "/summon PrimedTnt #pPosX #pPosY #pPosZ {Fuse:40}";value = "/summon PrimedTnt #pPosX #pPosY #pPosZ {Fuse:40}";value = "/summon PrimedTnt #pPosX #pPosY #pPosZ {Fuse:40}";value = "/summon PrimedTnt #pPosX #pPosY #pPosZ {Fuse:40}";value = "/summon PrimedTnt #pPosX #pPosY #pPosZ {Fuse:40}";value = "/summon PrimedTnt #pPosX #pPosY #pPosZ {Fuse:40}";value = "/summon PrimedTnt #pPosX #pPosY #pPosZ {Fuse:40}";value = "/summon PrimedTnt #pPosX #pPosY #pPosZ {Fuse:40}";value = "/summon PrimedTnt #pPosX #pPosY #pPosZ {Fuse:40}";value = "/summon PrimedTnt #pPosX #pPosY #pPosZ {Fuse:40}";value = "/summon PrimedTnt #pPosX #pPosY #pPosZ {Fuse:40}";value = "/summon PrimedTnt #pPosX #pPosY #pPosZ {Fuse:40}";value = "/summon PrimedTnt #pPosX #pPosY #pPosZ {Fuse:40}";value = "/summon PrimedTnt #pPosX #pPosY #pPosZ {Fuse:40}";value = "/summon PrimedTnt #pPosX #pPosY #pPosZ {Fuse:40}";value = "/summon PrimedTnt #pPosX #pPosY #pPosZ {Fuse:40}";)
+command(;value = "/tp #playerName ~ ~200 ~", message = "Good luck...";)
+
+
+//=================== CHESTS ===================
+// Parameters: id, count, damage, name, nbt, message.
+chest(;id = record_13;id = record_cat;id = record_blocks;id = record_chirp;id = record_far;id = record_mall;id = record_mellohi;id = record_stal;id = record_strad;id = record_ward;id = record_11;)
+chest(;id = planks, count = #random(2to8);id = log, count = #random(1to5);id = stick, count = 4;id = wooden_pickaxe;id = wooden_axe, count = #random(0to1);id = stone_axe, count = #random(0to1);)
+chest(;id = stone, count = #random(0to32);id = stone, count = #random(0to32);id = stone_slab, count = #random(0to16);id = cobblestone, count = #random(4to64);id = stonebrick, count = #random(4to64);id = stonebrick, count = #random(4to64);)
+
+
+//=================== MOBS ===================
+// Parameters: id, relativeX, relativeY, relativeZ, relativeTo (Can only equal player or egg. Default: egg.), name, nbt, message.
+mob(;id = Zombie, nbt = {IsBaby:true,Riding:{id:Chicken}};)
+mob(;id = Zombie, name = "#playerName", nbt = {Equipment:[{id:276,tag:{ench:[{id:18,lvl:5},{id:20,lvl:2},{id:19,lvl:2},{id:21,lvl:3},{id:16,lvl:5},{id:17,lvl:5},{id:34,lvl:3}]}},{id:313,tag:{ench:[{id:3,lvl:4},{id:2,lvl:4},{id:1,lvl:4},{id:4,lvl:4},{id:0,lvl:4},{id:7,lvl:3},{id:34,lvl:3}]}},{id:312,tag:{ench:[{id:3,lvl:4},{id:1,lvl:4},{id:4,lvl:4},{id:0,lvl:4},{id:7,lvl:3},{id:34,lvl:3}]}},{id:311,tag:{ench:[{id:3,lvl:4},{id:1,lvl:4},{id:4,lvl:4},{id:0,lvl:4},{id:7,lvl:3},{id:34,lvl:3}]}},{id:397,Damage:3,tag:{SkullOwner:"#playerName"}}]};)
+mob(;id = Slime, name = "Big Mama", nbt = {Size:15};)
+mob(;id = LavaSlime, name = "Big Papa", nbt = {Size:7};)
+mob(;id = Pig, name = "Surprise Pig";)
+mob(;id = Sheep;id = Sheep;id = Sheep;id = Sheep;id = Sheep;id = Sheep;id = Sheep;id = Sheep;id = Sheep;id = Sheep;id = Sheep;id = Sheep;id = Sheep;id = Sheep;id = Sheep;id = Sheep;id = Sheep;id = Sheep;id = Sheep;id = Sheep;id = Sheep;id = Sheep;id = Sheep;id = Sheep;id = Sheep;id = Sheep;id = Sheep;id = Sheep;id = Sheep;id = Sheep;id = Sheep;id = Sheep;id = Sheep;id = Sheep;id = Sheep;id = Sheep;id = Sheep;id = Sheep;id = Sheep;id = Sheep;id = Sheep;id = Sheep;id = Sheep;id = Sheep;id = Sheep;id = Sheep;)
+mob(;id = Chicken, name = "Joe's Mom";)
+
+
+//=================== STRUCTURE ===================
+// Paremeters: file.
+//structure(;file = "death_pit.fsk";)
+//structure(;file = "ice_cube.fsk";)
+//structure(;file = "anvils.fsk";)
+//structure(;file = "lava.fsk";)
+//structure(;file = "house.fsk";)
+//structure(;file = "diamond_pillar.fsk";)
+//structure(;file = "emerald_pillar.fsk";)
+//structure(;file = "dirt_pillar.fsk";)
+
+// Spongebob Structures
+structure(;file = "spongebobs_house.fsk";)

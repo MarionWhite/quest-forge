@@ -1,0 +1,4 @@
+﻿1920 native + light UnsharpMask(r=1.05,p=65,t=4)
+(1920, 1080)
+Installed over 2560 candidate because native is crisper and seam ratios are lower.
+
