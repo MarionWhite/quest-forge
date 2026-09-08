@@ -1,0 +1,10 @@
+allprojects { p ->
+    p.tasks.register("dumpProbeClasspath") {
+        def out = new File("/private/tmp/claude-503/-Users-suaz-Desktop-QuestForge-Transfer/e0f8acf8-83c3-41b4-bd59-29f7d969a56f/scratchpad/probe/cp.txt")
+        def cp = p.extensions.getByName("sourceSets").getByName("main").compileClasspath
+        doLast {
+            out.text = cp.files.join(File.pathSeparator)
+            println "wrote " + cp.files.size() + " entries"
+        }
+    }
+}

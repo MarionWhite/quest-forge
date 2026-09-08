@@ -1,0 +1,52 @@
+Audio libraries bundled in this mod
+===================================
+
+The jukebox reads mp3 and Ogg Vorbis through javax.sound.sampled, which Java 8
+does not support on its own. The decoders below are bundled inside this jar,
+UNMODIFIED, and are used through their public interfaces only -- they register
+themselves as service providers and are never subclassed or patched.
+
+Each is licensed under the GNU Lesser General Public License. A copy of that
+licence is included alongside this file. The sources are unmodified and remain
+available from the addresses below.
+
+  mp3spi 1.9.5.4
+      MPEG audio service provider for javax.sound.sampled
+      (c) JavaZOOM, LGPL
+      https://github.com/pdudits/soundlibs
+      Maven: com.googlecode.soundlibs:mp3spi:1.9.5.4
+
+  jlayer 1.0.1.4
+      The MPEG decoder mp3spi is built on
+      (c) JavaZOOM, LGPL
+      http://www.javazoom.net/javalayer/javalayer.html
+      Maven: com.googlecode.soundlibs:jlayer:1.0.1.4
+
+  vorbisspi 1.0.3.3
+      Ogg Vorbis service provider for javax.sound.sampled
+      (c) JavaZOOM, LGPL
+      https://github.com/pdudits/soundlibs
+      Maven: com.googlecode.soundlibs:vorbisspi:1.0.3.3
+
+  jorbis 0.0.17.4
+      The Vorbis decoder vorbisspi is built on
+      (c) JCraft Inc., LGPL
+      http://www.jcraft.com/jorbis/
+      Maven: com.googlecode.soundlibs:jorbis:0.0.17.4
+
+  tritonus-share 0.3.7.4
+      Shared support classes both providers depend on
+      (c) Tritonus team, LGPL
+      http://www.tritonus.org/
+      Maven: com.googlecode.soundlibs:tritonus-share:0.3.7.4
+
+Replacing a bundled library
+---------------------------
+
+The LGPL reserves the right to run this mod against a modified version of any of
+these libraries. To do so, put your build of it earlier on the classpath than
+this jar -- as a coremod library, or through the launcher's classpath options --
+and Java will load yours in place of the copy bundled here. Nothing in this mod
+refers to these classes by name; they are reached only through the service
+provider files in META-INF/services, so an equivalent replacement will be picked
+up with no changes to this mod.

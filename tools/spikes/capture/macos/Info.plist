@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>CFBundleIdentifier</key>
+  <string>com.questforge.qfcapture</string>
+  <key>CFBundleName</key>
+  <string>QuestForge Capture</string>
+  <key>CFBundleExecutable</key>
+  <string>qfcapture</string>
+  <key>CFBundleVersion</key>
+  <string>1.0</string>
+
+  <!--
+    Without this key macOS has nothing to show in the permission prompt, so a bare
+    CLI binary is simply handed silence instead of being asked about. Embedded into
+    the executable's __TEXT,__info_plist section at link time, since there is no
+    .app bundle to put it in.
+  -->
+  <key>NSAudioCaptureUsageDescription</key>
+  <string>QuestForge Jukebox plays your computer's audio through a jukebox block in Minecraft.</string>
+  <key>NSMicrophoneUsageDescription</key>
+  <string>QuestForge Jukebox captures system audio, not your microphone.</string>
+</dict>
+</plist>

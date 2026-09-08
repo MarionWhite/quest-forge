@@ -1,0 +1,98 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        maven {
+            name = "forge"
+            url = "http://files.minecraftforge.net/maven"
+        }
+        maven {
+            name = "sonatype"
+            url = "https://oss.sonatype.org/content/repositories/snapshots/"
+        }
+    }
+    dependencies {
+        classpath 'net.minecraftforge.gradle:ForgeGradle:1.2-SNAPSHOT'
+    }
+}
+
+apply plugin: 'forge'
+
+version = "0.6.0"
+group= "fiskfille.tf"
+archivesBaseName = "TransformersMod-1.7.10"
+
+minecraft {
+    version = "1.7.10-10.13.4.1558-1.7.10"
+    runDir = "eclipse"
+    replace '${version}', '0.6.0'
+}
+
+repositories {
+	mavenCentral()
+    maven {
+        url = "http://mobiusstrip.eu/maven"
+    }
+    maven {
+        url = "http://chickenbones.net/maven"
+    }
+}
+
+dependencies {
+    compile "mcp.mobius.waila:Waila:1.5.10_1.7.10:dev"
+    compile "codechicken:NotEnoughItems:1.7.10-1.0.5.120:dev"
+}
+
+sourceSets {
+    main {
+        resources {
+            srcDir 'resources'
+        }
+    }
+}
+
+def coremodManifest = {
+    attributes 'FMLCorePlugin': 'fiskfille.tf.asm.TFLoadingPlugin'
+    attributes 'FMLCorePluginContainsFMLMod': 'true'
+}
+
+jar {
+    destinationDir = file 'jars'
+    includeEmptyDirs = false
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+	
+    manifest coremodManifest
+}
+
+processResources {
+    inputs.property "version", project.version
+    inputs.property "mcversion", project.minecraft.version
+
+    from(sourceSets.main.resources.srcDirs) {
+        include 'mcmod.info'
+        expand 'version':project.version, 'mcversion':project.minecraft.version
+    }
+        
+    from(sourceSets.main.resources.srcDirs) {
+        exclude 'mcmod.info'
+    }
+}
+
+task deobfJar(type: Jar) {
+	destinationDir = file 'jars/deobf'
+    classifier = 'deobf'
+	
+	from sourceSets.main.output
+	manifest coremodManifest
+}
+
+task sourceJar(type: Jar, dependsOn:classes) {
+	destinationDir = file 'jars/src'
+    classifier = 'src'
+	
+    from sourceSets.main.allJava
+}
+
+artifacts {
+    archives deobfJar
+    archives sourceJar
+}
