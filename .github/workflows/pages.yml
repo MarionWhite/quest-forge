@@ -1,0 +1,51 @@
+name: Publish site
+
+# The mod list is the page people get sent, so it is served at the site root.
+# The ore-vein atlas sits beside it at /vein-atlas/.
+#
+# Both are committed as generated output (see site/README.md); this workflow only
+# arranges them, it does not build them. To change what they contain, regenerate
+# with tools/modlist/ and commit the result.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'site/**'
+      - '.github/workflows/pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Let a running deploy finish rather than cancelling it mid-publish.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Assemble the publish directory
+        run: |
+          set -euo pipefail
+          mkdir -p _site
+          cp site/modlist/index.html _site/index.html
+          cp -R site/vein-atlas _site/vein-atlas
+          test -s _site/index.html
+          echo "Publishing:"; find _site -type f | sort
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - id: deployment
+        uses: actions/deploy-pages@v4
