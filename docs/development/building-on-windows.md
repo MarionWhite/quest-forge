@@ -1,6 +1,10 @@
 # Building the mods on Windows
 
-Three steps. Nothing in the repository needs editing.
+Four steps. Nothing in the repository needs editing.
+
+`qf-content` needs only the first three. `transformers` needs the fourth as
+well, because it compiles against four jars this repository does not
+redistribute.
 
 ## 1. Install two JDKs
 
@@ -47,10 +51,35 @@ cd mods\qf-content
 The jar lands in `build\libs\QuestForgeContent-1.0.0.jar`. Copy it into the
 instance's `mods\`, replacing what is there.
 
-Same for `mods\transformers` → `TransformersMod-0.6.3-qf1.jar`.
+The first build decompiles Minecraft and takes a few minutes; later ones take
+seconds.
 
-The first build decompiles Minecraft and takes several minutes; later ones are
-quick.
+## 4. For transformers only: stage the four compile-only jars
+
+```powershell
+cd ..\..
+python tools\stage_transformers_libs.py --instance "<instance dir>"
+cd mods\transformers
+.\gradlew build
+```
+
+→ `build\libs\TransformersMod-0.6.3-qf1.jar`.
+
+`mods\transformers\libs\` is empty in a fresh clone and the build fails on its
+first import without this. The mod declares NEI, CodeChickenLib,
+CodeChickenCore and Waila as `compileOnly`, deliberately using **the pack's own
+jars** rather than the GTNH forks on maven — GTNH's NEI generified
+`TemplateRecipeHandler`, so the mod's four recipe handlers do not compile
+against it, and had they compiled they would have been built against signatures
+the pack does not ship. Those four jars are other people's work, so they are not
+committed; the script copies them out of a live instance instead.
+
+It is worth a script rather than four `copy` commands because CodeChickenLib is
+not beside the others — Prism keeps it in `mods\1.7.10\`, the version-scoped
+subfolder, under a versioned filename that has to be renamed on the way in.
+
+Re-run it any time those mods are updated. It is idempotent and reports
+`unchanged` when there is nothing to do.
 
 ## Check it worked
 
@@ -61,6 +90,14 @@ python tools\verify_pack.py --instance <instance dir> --repo .
 Expect `0 failed`. It compares the installed jars against `build\libs`, so a jar
 you built but forgot to copy shows up as a failure rather than as a confusing
 bug in game.
+
+It also reads each custom jar's own `sounds.json` and requires every sound it
+declares to be present in the jar. That check exists because a `.gitignore`
+rule written for generated music renders once excluded the Transformers mod's
+shipped sound effects too: the jar built, loaded, ran, and was silently mute,
+and the only symptom was a size 630 KB short of what it should have been. A
+clean checkout is verified to build byte-identical jars now, but the check
+stays, because that failure was invisible.
 
 ## When it doesn't work
 
@@ -81,3 +118,16 @@ the value. `C:/Program Files/...` is fine unquoted.
 
 **Build succeeds, game unchanged.** You built but didn't copy the jar. Run the
 verifier — that is exactly what it catches.
+
+**`package fiskfille.tf.nei does not exist`, or errors about `GuiRecipe`,
+`ItemInfo`, `IWailaDataProvider`.** You skipped step 4. `mods\transformers\libs\`
+is empty.
+
+**`stage_transformers_libs.py` says AMBIGUOUS.** Your instance carries two
+copies of that mod — usually a versioned and an unversioned one. Delete the
+stale one; the script refuses to guess, because compiling against a jar the game
+does not load produces a mod that builds and then crashes on a `NoSuchMethodError`.
+
+**`'gradlew' is not recognized`.** You are in the repository root. `cd` into
+`mods\qf-content` or `mods\transformers` first — each mod is its own Gradle
+build.
