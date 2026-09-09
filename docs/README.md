@@ -45,6 +45,12 @@ Regenerate rather than edit.
 Raw generated output — ore surveys, vein parameters, the enchantment registry dump —
 lives in [`../pack/reports/`](../pack/reports/), not here.
 
+## Survey — measuring the pack
+
+| Document | What it covers |
+|---|---|
+| [`survey/README.md`](survey/README.md) | **How to measure ore generation.** Build the headless server, pregenerate, count the region files. Includes which of the 30 dimensions actually carry ore, and how many chunks a given precision needs. |
+
 ## Decisions
 
 Dated records of choices that are expensive to reverse or easy to undo by accident.
@@ -53,3 +59,4 @@ Append new ones; never rewrite an old one.
 | Record | Decision |
 |---|---|
 | [`decisions/0001-chocolatequest-enchantment-id.md`](decisions/0001-chocolatequest-enchantment-id.md) | Patch ChocolateQuest's hardcoded enchantment ID rather than move Soul Shards', to avoid reinterpreting existing enchanted gear. |
+| [`decisions/0002-discard-the-ore-survey.md`](decisions/0002-discard-the-ore-survey.md) | Discard every published ore figure and re-measure: the survey ran a mod set no player has played, and vein size was never a block count. |
