@@ -74,6 +74,16 @@ public class RenderPlayerHand extends RenderPlayer
                         GL11.glColor4f(0.5F, 0.5F, 0.5F, 1);
                         GL11.glDepthFunc(GL11.GL_EQUAL);
                         GL11.glDepthMask(false);
+                    // Save the texture matrix rather than trusting a later
+                    // glLoadIdentity to undo the scale/rotate below. LoadIdentity
+                    // only touches the matrix of the ACTIVE texture unit, and with
+                    // OptiFine the active unit at this point is not reliably unit 0
+                    // -- so unit 0 kept the glint's 0.333 scale and rotation, and
+                    // every texture lookup after this frame sampled the wrong texel.
+                    // Push/pop is symmetric and works whichever unit is active.
+                        GL11.glMatrixMode(GL11.GL_TEXTURE);
+                        GL11.glPushMatrix();
+                        GL11.glMatrixMode(GL11.GL_MODELVIEW);
 
                         for (int i = 0; i < 2; ++i)
                         {
@@ -94,13 +104,17 @@ public class RenderPlayerHand extends RenderPlayer
                         }
 
                         GL11.glColor4f(1, 1, 1, 1);
-                        GL11.glMatrixMode(GL11.GL_TEXTURE);
                         GL11.glDepthMask(true);
-                        GL11.glLoadIdentity();
+                        GL11.glMatrixMode(GL11.GL_TEXTURE);
+                        GL11.glPopMatrix();
                         GL11.glMatrixMode(GL11.GL_MODELVIEW);
                         GL11.glEnable(GL11.GL_LIGHTING);
                         GL11.glDisable(GL11.GL_BLEND);
                         GL11.glDepthFunc(GL11.GL_LEQUAL);
+                        // Same omission as RenderItemArmor: the glint loop leaves
+                        // the blend function additive, and turning GL_BLEND off
+                        // does not restore it. Put the standard function back.
+                        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
                     }
 
                     GL11.glDisable(GL11.GL_BLEND);

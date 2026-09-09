@@ -609,8 +609,67 @@ public class TFRenderHelper
         renderer.renderFaceXPos(block, x, y, z, icon);
     }
 
+    /**
+     * Whether OptiFine is currently running a shader pack. Looked up reflectively;
+     * OptiFine is not a compile dependency, and a pack can be switched at runtime.
+     */
+    private static java.lang.reflect.Method isShadersMethod;
+    private static boolean isShadersResolved;
+
+    public static boolean shadersActive()
+    {
+        if (!isShadersResolved)
+        {
+            isShadersResolved = true;
+
+            try
+            {
+                isShadersMethod = Class.forName("Config",
+                        false, TFRenderHelper.class.getClassLoader()).getMethod("isShaders");
+            }
+            catch (Throwable ignored)
+            {
+                isShadersMethod = null;
+            }
+        }
+
+        if (isShadersMethod == null)
+        {
+            return false;
+        }
+
+        try
+        {
+            return Boolean.TRUE.equals(isShadersMethod.invoke(null));
+        }
+        catch (Throwable ignored)
+        {
+            return false;
+        }
+    }
+
     public static boolean shouldOverrideView(EntityPlayer player)
     {
+        // Not while a shader pack is loaded.
+        //
+        // ClientTickHandler acts on this by assigning EntityRendererTF to
+        // mc.entityRenderer. EntityRendererTF extends the VANILLA EntityRenderer,
+        // and OptiFine implements its whole shader pipeline as its own
+        // EntityRenderer replacement -- so the swap throws that pipeline away while
+        // its framebuffers stay bound, and the world renders as a flat white sheet.
+        //
+        // Measured: wearing a Transformer chestplate turned the world white under
+        // Sildur's; a vanilla chestplate did not, and disabling every renderer in
+        // this mod changed nothing, because the swap is not a renderer.
+        //
+        // The override only adjusts the camera for a changed player height or
+        // scale. Losing that under a shader pack costs a slightly wrong eye height
+        // while transformed. Keeping it costs the entire world.
+        if (shadersActive())
+        {
+            return false;
+        }
+
         return TFHelper.getHeight(player) != 1.8F || TFHelper.getScale(player) != 1;
     }
 

@@ -69,6 +69,7 @@ import fiskfille.tf.config.TFConfig;
 import fiskfille.tf.helper.ModelOffset;
 import fiskfille.tf.helper.TFFluidRenderHelper;
 import fiskfille.tf.helper.TFHelper;
+import fiskfille.tf.helper.TFRenderHelper;
 import fiskfille.tf.helper.TFModelHelper;
 import fiskfille.tf.helper.TFTextureHelper;
 
@@ -242,7 +243,23 @@ public class ClientEventHandler
             Render render = RenderManager.instance.getEntityRenderObject(player);
 
             GL11.glPushMatrix();
-            GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
+
+            // Clear depth only when no shader pack is loaded.
+            //
+            // The clear exists so the transformer arm draws over the world, which
+            // is what vanilla wants. A deferred pack reconstructs world position
+            // from the depth buffer in its lighting pass, so wiping depth mid-frame
+            // puts every fragment at the far plane and the whole world resolves to
+            // flat sky colour. That was the white-out: it followed the chestplate
+            // because this handler is gated on wearing one, and no renderer in the
+            // mod was responsible, which is why disabling them all changed nothing.
+            //
+            // Measured: dropping this one call, and nothing else, restored the world
+            // under Sildur's Vibrant with a Cloudtrap Torso equipped.
+            if (!TFRenderHelper.shadersActive())
+            {
+                GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
+            }
             renderHandInstance.setParent(render);
 
             RenderManager.instance.entityRenderMap.put(player.getClass(), renderHandInstance);

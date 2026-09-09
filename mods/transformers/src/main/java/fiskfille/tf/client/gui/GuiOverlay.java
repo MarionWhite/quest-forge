@@ -68,8 +68,40 @@ public class GuiOverlay extends Gui
                 renderShotsLeft(event, width, height, player);
                 renderLaserCharge(event, width, height, player);
                 renderTutorial(event, width, height, player);
+
+                restoreGlState();
             }
         }
+    }
+
+    /**
+     * The HUD renderers above enable GL state they never turn back off --
+     * COLOR_MATERIAL, RESCALE_NORMAL, BLEND and DEPTH_TEST -- and leave the
+     * colour at whatever the last bar was drawn with (red at 0.5 alpha, out of
+     * renderNitroAndSpeed). That leaks into the rest of the frame. Vanilla
+     * masks most of it by resetting state itself; a shader pack does not, and
+     * the whole screen goes with it.
+     *
+     * Called once, after the overlay hands control back, so each renderer is
+     * left as written and only what escapes is put right.
+     */
+    private void restoreGlState()
+    {
+        RenderHelper.disableStandardItemLighting();
+        GL11.glDisable(GL11.GL_LIGHTING);
+        GL11.glDisable(GL11.GL_COLOR_MATERIAL);
+        GL11.glDisable(GL12.GL_RESCALE_NORMAL);
+        GL11.glDisable(GL11.GL_BLEND);
+        // The blend function is separate state and outlives GL_BLEND being off.
+        // RenderPlayerHand.renderFirstPersonArm leaves it additive
+        // (GL_SRC_COLOR, GL_ONE) for the arm's glow pass, so the next frame's
+        // translucent terrain inherits it and water all but disappears.
+        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+        GL11.glEnable(GL11.GL_TEXTURE_2D);
+        GL11.glEnable(GL11.GL_ALPHA_TEST);
+        GL11.glDepthMask(true);
+        GL11.glEnable(GL11.GL_DEPTH_TEST);
+        GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
     }
 
     public void renderLaserCharge(RenderGameOverlayEvent.Pre event, int width, int height, EntityPlayer player)
