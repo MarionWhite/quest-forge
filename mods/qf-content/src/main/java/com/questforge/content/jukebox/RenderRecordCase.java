@@ -1,6 +1,7 @@
 package com.questforge.content.jukebox;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.item.ItemStack;
@@ -223,6 +224,25 @@ public class RenderRecordCase extends TileEntitySpecialRenderer {
         }
         shade = 0.38F + 0.62F * light;
 
+        // Pin the lightmap for the whole model, and put back whatever was there.
+        //
+        // The comment above is the intent -- this renderer lights itself by
+        // modulating colours -- but intent is not enough: a tile entity renderer
+        // that never writes a lightmap coordinate does not get "no lightmap", it
+        // inherits whatever the last geometry drawn left on texture unit 1. That
+        // value depends on what rendered immediately before, which changes with
+        // the neighbouring blocks and with view distance as chunk draw order
+        // shifts. Hence a case whose brightness wandered depending on where you
+        // stood and what was next to it.
+        //
+        // Pinned to full so the lightmap contributes nothing and `shade` alone
+        // does the lighting, which is what the model was built for. Restored on
+        // the way out so nothing drawn after us inherits ours -- the same class
+        // of leak, pointed the other way.
+        float lastBrightnessX = OpenGlHelper.lastBrightnessX;
+        float lastBrightnessY = OpenGlHelper.lastBrightnessY;
+        OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240F, 240F);
+
         surroundings(te, x, y, z, facing, partial);
 
         ItemStack record = display.getRecord();
@@ -294,6 +314,8 @@ public class RenderRecordCase extends TileEntitySpecialRenderer {
 
         GL11.glEnable(GL11.GL_LIGHTING);
         GL11.glColor4f(1F, 1F, 1F, 1F);
+        OpenGlHelper.setLightmapTextureCoords(
+                OpenGlHelper.lightmapTexUnit, lastBrightnessX, lastBrightnessY);
         GL11.glPopMatrix();
     }
 
