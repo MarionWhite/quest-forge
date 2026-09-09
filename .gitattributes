@@ -13,6 +13,13 @@ pack/reports/*.txt -text
 pack/config/** -text
 server/config/** -text
 
+# The resourcepack is shipped verbatim: these files are zipped and loaded by the
+# game exactly as stored. Several carry CRLF because they override lang files
+# authored on Windows. Normalising them would leave a pack rebuilt from this
+# repository differing byte for byte from the one the game loads, which is the
+# whole reason for tracking it.
+pack/resourcepack/** -text
+
 # Binary assets
 *.png binary
 *.jpg binary
