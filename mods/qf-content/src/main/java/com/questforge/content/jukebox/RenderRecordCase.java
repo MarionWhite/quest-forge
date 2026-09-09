@@ -158,6 +158,23 @@ public class RenderRecordCase extends TileEntitySpecialRenderer {
     private static final int[] EMPTY =
         { 0x33383E, 0x14171B, 0x7C8894, 0x353C44, 0xC3CDD8 };
 
+    /**
+     * A 1-colour sheet bound in place of turning texturing off.
+     *
+     * glDisable(GL_TEXTURE_2D) is a fixed-function switch. A shader pack's
+     * gbuffers program ignores it and samples texture2D(texture, texcoord)
+     * regardless, so an "untextured" quad samples whatever sheet happens to be
+     * bound, at whatever coords the vertex carries -- and vertices emitted with
+     * addVertex carry none. That is why the frame, mat and backing came out pure
+     * black under Vibrant while every textured part of the case still drew.
+     *
+     * Binding white and giving every vertex real UVs makes the sample a no-op:
+     * white * vertex colour is the vertex colour, which is what the
+     * fixed-function path was already producing.
+     */
+    private static final ResourceLocation WHITE =
+            new ResourceLocation("qfcontent", "textures/misc/white.png");
+
     private static final ResourceLocation BRUSHED =
             new ResourceLocation("qfcontent", "textures/misc/brushed.png");
     private static final ResourceLocation BRUSHED_SPEC =
@@ -201,6 +218,9 @@ public class RenderRecordCase extends TileEntitySpecialRenderer {
     // The world the reflective surfaces are standing in, worked out once per case.
     private float camX, camY, camZ, rotC, rotS;
     private float sunY, sunZ, daylight, shade;
+
+    /** Full lightmap coordinate: shade already carries world light. */
+    private static final int FULL_BRIGHT = 0xF000F0;
     private float skyR, skyG, skyB, groundR, groundG, groundB;
 
     // Where the last bounce landed, and how glancing it was.
@@ -239,6 +259,17 @@ public class RenderRecordCase extends TileEntitySpecialRenderer {
         // does the lighting, which is what the model was built for. Restored on
         // the way out so nothing drawn after us inherits ours -- the same class
         // of leak, pointed the other way.
+        // Pinning the lightmap above sets GL *state*. That is enough for the
+        // fixed-function pipeline, but a shader pack's gbuffers program reads the
+        // lightmap from the per-vertex attribute, which Tessellator only writes
+        // once setBrightness has been called -- until then hasBrightness is false
+        // and the coordinate never reaches the vertex. Which is why the case still
+        // rendered black under shaders with the pin alone in place.
+        //
+        // RenderTowerSpeaker and RenderSpeaker have always called setBrightness
+        // after every startDrawingQuads, and neither has ever had this problem.
+        // Do the same here; the pin stays for the paths that draw without the
+        // Tessellator.
         float lastBrightnessX = OpenGlHelper.lastBrightnessX;
         float lastBrightnessY = OpenGlHelper.lastBrightnessY;
         OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240F, 240F);
@@ -266,8 +297,9 @@ public class RenderRecordCase extends TileEntitySpecialRenderer {
         Tessellator t = Tessellator.instance;
 
         // --- everything with no material on it ---
-        GL11.glDisable(GL11.GL_TEXTURE_2D);
+        bind(WHITE);
         t.startDrawingQuads();
+        t.setBrightness(FULL_BRIGHT);
 
         moulding(t, frame);
 
@@ -283,17 +315,34 @@ public class RenderRecordCase extends TileEntitySpecialRenderer {
         plaqueBody(t, tint(dark, 0.52F), dark);
         t.draw();
 
-        GL11.glEnable(GL11.GL_TEXTURE_2D);
-
         // --- the brushed metal, then its highlight ---
         bind(BRUSHED);
         t.startDrawingQuads();
+        t.setBrightness(FULL_BRIGHT);
         brushedParts(t, bright, shade);
         t.draw();
 
+        // The specular pass is additive, and a deferred pack cannot add: its
+        // geometry stage writes albedo into a G-buffer, so an "additive" quad just
+        // replaces what it covers. The brushed liner and the plaque plate get their
+        // brightness from this pass, which is why both came out dark under Vibrant
+        // while rendering as bright metal with shaders off.
+        //
+        // Under a pack, fold the highlight into the base colour instead: draw the
+        // brushed parts once more, opaque, at a level between the base and the
+        // highlight. Not the same look -- there is no view-dependent glint -- but
+        // metal that reads as metal rather than as a dark hole.
+        if (shadersActive()) {
+            bind(BRUSHED);
+            t.startDrawingQuads();
+            t.setBrightness(FULL_BRIGHT);
+            brushedParts(t, lift(bright, 1.35F), shade);
+            t.draw();
+        } else {
         bind(BRUSHED_SPEC);
         beginAdditive();
         t.startDrawingQuads();
+        t.setBrightness(FULL_BRIGHT);
         // Squared rather than linear, because a highlight is reflected light: in a
         // dark room it should fall away faster than the surface under it, or it
         // survives as bright streaks on a frame that has otherwise gone to shadow.
@@ -302,6 +351,7 @@ public class RenderRecordCase extends TileEntitySpecialRenderer {
         brushedParts(t, specular, shade * shade * 1.25F);
         t.draw();
         endAdditive();
+        }
 
         if (record != null) drawDisc(record);
 
@@ -501,6 +551,7 @@ public class RenderRecordCase extends TileEntitySpecialRenderer {
 
         Tessellator t = Tessellator.instance;
         t.startDrawingQuads();
+        t.setBrightness(FULL_BRIGHT);
         screw(t, FX0 + SCREW_IN, FY0 + SCREW_IN);
         screw(t, FX1 - SCREW_IN, FY0 + SCREW_IN);
         screw(t, FX0 + SCREW_IN, FY1 - SCREW_IN);
@@ -512,6 +563,7 @@ public class RenderRecordCase extends TileEntitySpecialRenderer {
     }
 
     private void screw(Tessellator t, float cx, float cy) {
+        t.setNormal(0F, 0F, 1F);
         t.addVertexWithUV(cx - SCREW_R, cy - SCREW_R, PL_SCREW_Z, 0, 1);
         t.addVertexWithUV(cx + SCREW_R, cy - SCREW_R, PL_SCREW_Z, 1, 1);
         t.addVertexWithUV(cx + SCREW_R, cy + SCREW_R, PL_SCREW_Z, 1, 0);
@@ -565,8 +617,37 @@ public class RenderRecordCase extends TileEntitySpecialRenderer {
      * toward a slightly different part of the sky. It goes dark at night and dim
      * indoors.
      */
+    /**
+     * Whether OptiFine is running a shader pack right now.
+     *
+     * Looked up reflectively and re-checked each call through a cached Method,
+     * because a pack can be switched from the video settings without a relaunch,
+     * and because OptiFine is not on the compile classpath.
+     */
+    private static Boolean shadersChecked;
+    private static java.lang.reflect.Method isShadersMethod;
+
+    private static boolean shadersActive() {
+        if (shadersChecked == null) {
+            shadersChecked = Boolean.TRUE;
+            try {
+                isShadersMethod = Class.forName("Config").getMethod("isShaders");
+            } catch (Throwable ignored) {
+                isShadersMethod = null;   // no OptiFine: fixed-function, pane is fine
+            }
+        }
+        if (isShadersMethod == null) {
+            return false;
+        }
+        try {
+            return Boolean.TRUE.equals(isShadersMethod.invoke(null));
+        } catch (Throwable ignored) {
+            return false;
+        }
+    }
+
     private void drawGlass() {
-        GL11.glDisable(GL11.GL_TEXTURE_2D);
+        bind(WHITE);
         GL11.glEnable(GL11.GL_BLEND);
         GL11.glDepthMask(false);
 
@@ -577,6 +658,7 @@ public class RenderRecordCase extends TileEntitySpecialRenderer {
         // own thickness tints what is behind it rather than adding to it.
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
         t.startDrawingQuads();
+        t.setBrightness(FULL_BRIGHT);
         t.setColorRGBA_F(0.66F * shade, 0.76F * shade, 0.88F * shade, 0.34F);
         edge(t, GX0, GY0, GX1, GY0);   // bottom, facing out
         edge(t, GX1, GY1, GX0, GY1);   // top
@@ -584,10 +666,33 @@ public class RenderRecordCase extends TileEntitySpecialRenderer {
         edge(t, GX1, GY0, GX1, GY1);   // right
         t.draw();
 
+        // The pane's face is skipped under a shader pack, and only under one.
+        //
+        // It is a translucent overlay: at a grazing angle its alpha reaches 1 by
+        // design (0.22 + 0.78 * grazing, times 1.35, clamped), and a forward
+        // pipeline blends that over the record correctly. A deferred pack does not
+        // blend at all in the geometry pass -- it writes albedo to a G-buffer, so
+        // whatever is drawn last at a pixel simply wins. The reflection colour then
+        // replaced the mat, the disc and the plaque, and the case read as a black
+        // rectangle with a frame around it. Measured, not guessed: skipping exactly
+        // this call brought all four cases back under Sildur's Vibrant.
+        //
+        // The rim above still draws, so the pane keeps its edge and the case keeps
+        // its depth. What is lost is the reflection, which cannot survive a pass
+        // that has nowhere to blend into.
+        if (shadersActive()) {
+            GL11.glDepthMask(true);
+            GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+            GL11.glDisable(GL11.GL_BLEND);
+            GL11.glColor4f(1F, 1F, 1F, 1F);
+            return;
+        }
+
         // The reflection adds light rather than tinting it. Glass reflects on top of
         // what it transmits; subtracting would only ever fog the record.
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
         t.startDrawingQuads();
+        t.setBrightness(FULL_BRIGHT);
 
         // Both faces of the pane. A sheet of glass reflects off the back surface as
         // well as the front, which is why a real one shows the sun twice, slightly
@@ -601,7 +706,6 @@ public class RenderRecordCase extends TileEntitySpecialRenderer {
         GL11.glDepthMask(true);
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
         GL11.glDisable(GL11.GL_BLEND);
-        GL11.glEnable(GL11.GL_TEXTURE_2D);
         GL11.glColor4f(1F, 1F, 1F, 1F);
     }
 
@@ -626,8 +730,9 @@ public class RenderRecordCase extends TileEntitySpecialRenderer {
         // for one that is part of the object: at four per cent the pane simply is
         // not there until you step to the side.
         float strength = (0.22F + 0.78F * hitGrazing) * shade * 1.35F * scale;
+        t.setNormal(0F, 0F, 1F);
         t.setColorRGBA_F(hitR, hitG, hitB, strength > 1F ? 1F : strength);
-        t.addVertex(x, y, z);
+        t.addVertexWithUV(x, y, z, 0D, 0D);
     }
 
     /**
@@ -636,10 +741,19 @@ public class RenderRecordCase extends TileEntitySpecialRenderer {
      * the side you can actually see it from.
      */
     private void edge(Tessellator t, float xa, float ya, float xb, float yb) {
-        t.addVertex(xa, ya, GLASS_Z0);
-        t.addVertex(xb, yb, GLASS_Z0);
-        t.addVertex(xb, yb, GLASS_Z1);
-        t.addVertex(xa, ya, GLASS_Z1);
+        // Ribbon from (xa,ya) to (xb,yb) extruded along +Z, so its normal is the
+        // run rotated a quarter turn in the XY plane.
+        float dx = xb - xa, dy = yb - ya;
+        float len = (float) Math.sqrt(dx * dx + dy * dy);
+        if (len < 1.0E-6F) {
+            t.setNormal(0F, 0F, 1F);
+        } else {
+            t.setNormal(dy / len, -dx / len, 0F);
+        }
+        t.addVertexWithUV(xa, ya, GLASS_Z0, 0D, 0D);
+        t.addVertexWithUV(xb, yb, GLASS_Z0, 0D, 0D);
+        t.addVertexWithUV(xb, yb, GLASS_Z1, 0D, 0D);
+        t.addVertexWithUV(xa, ya, GLASS_Z1, 0D, 0D);
     }
 
     // ------------------------------------------------------------------
@@ -670,6 +784,8 @@ public class RenderRecordCase extends TileEntitySpecialRenderer {
 
         Tessellator t = Tessellator.instance;
         t.startDrawingQuads();
+        t.setBrightness(FULL_BRIGHT);
+        t.setNormal(0F, 0F, 1F);
         t.addVertexWithUV(DISC_X0, DISC_Y0, DISC_Z, 0, 1);
         t.addVertexWithUV(DISC_X1, DISC_Y0, DISC_Z, 1, 1);
         t.addVertexWithUV(DISC_X1, DISC_Y1, DISC_Z, 1, 0);
@@ -744,8 +860,9 @@ public class RenderRecordCase extends TileEntitySpecialRenderer {
             a *= 1F - 0.17F * (float) Math.exp(-k * k);
         }
 
+        t.setNormal(0F, 0F, 1F);
         t.setColorOpaque_I(tint(color, shade * a));
-        t.addVertex(x, y, MAT_Z1);
+        t.addVertexWithUV(x, y, MAT_Z1, 0D, 0D);
     }
 
     // ------------------------------------------------------------------
@@ -846,12 +963,39 @@ public class RenderRecordCase extends TileEntitySpecialRenderer {
     }
 
     /** Emits the scratch quad, mapping any texture from its position on the case. */
+    /**
+     * The outward normal of the quad currently in q[], from its own corners.
+     *
+     * Tessellator writes a normal per vertex only once setNormal has been called;
+     * until then hasNormals is false and gl_Normal keeps whatever the previous
+     * draw left. The fixed-function pipeline does not care, because this renderer
+     * disables GL_LIGHTING and lights itself. A deferred shader pack very much
+     * does: it reads the normal to light the fragment, gets a stale one, and the
+     * case goes black. That is the Vibrant blackout.
+     */
+    private void quadNormal(Tessellator t) {
+        float ax = qx[1] - qx[0], ay = qy[1] - qy[0], az = qz[1] - qz[0];
+        float bx = qx[3] - qx[0], by = qy[3] - qy[0], bz = qz[3] - qz[0];
+        float nx = ay * bz - az * by;
+        float ny = az * bx - ax * bz;
+        float nz = ax * by - ay * bx;
+        float len = (float) Math.sqrt(nx * nx + ny * ny + nz * nz);
+        if (len < 1.0E-6F) {
+            // Degenerate quad -- face the viewer rather than emit a zero normal,
+            // which a shader would normalise into a NaN.
+            t.setNormal(0F, 0F, 1F);
+        } else {
+            t.setNormal(nx / len, ny / len, nz / len);
+        }
+    }
+
     private void emit(Tessellator t, int color, float level, boolean textured,
                       float repeat, boolean turned) {
+        quadNormal(t);
         t.setColorOpaque_I(tint(color, level));
         for (int i = 0; i < 4; i++) {
             if (!textured) {
-                t.addVertex(qx[i], qy[i], qz[i]);
+                t.addVertexWithUV(qx[i], qy[i], qz[i], 0D, 0D);
             } else if (turned) {
                 t.addVertexWithUV(qx[i], qy[i], qz[i], qy[i] * repeat, qx[i] * repeat);
             } else {
@@ -863,10 +1007,11 @@ public class RenderRecordCase extends TileEntitySpecialRenderer {
     /** The same, for a band, where the second axis is depth rather than position. */
     private void emitBand(Tessellator t, int color, float level, boolean textured,
                           float repeat, boolean turned) {
+        quadNormal(t);
         t.setColorOpaque_I(tint(color, level));
         for (int i = 0; i < 4; i++) {
             if (!textured) {
-                t.addVertex(qx[i], qy[i], qz[i]);
+                t.addVertexWithUV(qx[i], qy[i], qz[i], 0D, 0D);
             } else {
                 float along = turned ? qx[i] : qy[i];
                 t.addVertexWithUV(qx[i], qy[i], qz[i], qz[i] * repeat, along * repeat);
