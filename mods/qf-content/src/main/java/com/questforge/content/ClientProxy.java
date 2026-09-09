@@ -72,6 +72,11 @@ public class ClientProxy extends CommonProxy {
         net.minecraftforge.client.ClientCommandHandler.instance.registerCommand(
                 new com.questforge.content.voice.CommandVoice());
 
+        // The destination's artwork on the terrain-download screen. On the Forge
+        // bus, which is where GuiOpenEvent posts.
+        MinecraftForge.EVENT_BUS.register(
+                new com.questforge.content.client.LoadingPlateHandler());
+
         // Unattended render capture, when this build has it. The debug package is
         // excluded from release jars, so it is looked up by name -- not being
         // there is the normal case, not a failure. Registers only when

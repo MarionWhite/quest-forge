@@ -23,7 +23,7 @@ Usage:
 
 Exit status is 1 if any check fails, so it can gate a release.
 """
-import argparse, os, sys, zipfile
+import argparse, os, re, sys, zipfile
 
 OK, WARN, FAIL = "ok", "warn", "FAIL"
 results = []
@@ -275,6 +275,49 @@ def verify_mods(instance, repo):
                 check("%s audio shading" % jar, OK, "both service files present")
 
 
+def verify_loading_plates(instance, repo):
+    """Every dimension the mod claims a loading plate for must have one shipped.
+
+    The plates sat finished-but-unshipped for a while: the art existed under
+    tools/branding, nothing referenced it, and nothing said so. The mapping now
+    lives in LoadingPlates.java, which is the only place that knows a dimension
+    id belongs to a file -- so check the jar against that table rather than
+    against a list repeated here, and a plate added later is covered for free.
+    """
+    if not repo:
+        return
+
+    table = os.path.join(repo, "mods", "qf-content", "src", "main", "java",
+                         "com", "questforge", "content", "client", "LoadingPlates.java")
+
+    if not os.path.exists(table):
+        return
+
+    src = open(table, encoding="utf-8", errors="replace").read()
+    entries = re.findall(r'put\((-?\d+),\s*"([^"]+)",\s*"([^"]+)"\)', src)
+
+    if not entries:
+        check("loading plates", WARN, "no entries parsed from LoadingPlates.java")
+        return
+
+    jar = os.path.join(instance, "minecraft", "mods", "QuestForgeContent-1.0.0.jar")
+    names = jar_entries(jar)
+
+    if names is None:
+        check("loading plates", FAIL, "QuestForgeContent jar unreadable")
+        return
+
+    missing = [f for _, f, _ in entries
+               if "assets/qfcontent/textures/gui/loading/%s.jpg" % f not in names]
+
+    if missing:
+        check("loading plates", FAIL,
+              "%d of %d dimensions map to art that is not in the jar, e.g. %s"
+              % (len(missing), len(entries), missing[0]))
+    else:
+        check("loading plates", OK, "all %d dimensions have their plate" % len(entries))
+
+
 def verify_resourcepack(instance, repo):
     zp = os.path.join(instance, "minecraft", "resourcepacks", "QuestForge.zip")
     if not os.path.exists(zp):
@@ -343,6 +386,7 @@ def main():
     verify_resources(inst)
     verify_mods(inst, repo)
     verify_resourcepack(inst, repo)
+    verify_loading_plates(inst, repo)
 
     width = max(len(n) for _, n, _ in results)
     bad = 0
