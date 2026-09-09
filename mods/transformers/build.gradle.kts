@@ -22,8 +22,29 @@ version = "0.6.3-qf1"
 
 java {
   toolchain {
+    // Always Java 8 bytecode. Which vendor's Java 8 is a property of the
+    // machine, not the project -- see mods/qf-content/build.gradle.kts for the
+    // reasoning. Default keeps this Mac working with no local setup; set
+    // qfJava8Vendor=any in ~/.gradle/gradle.properties on a machine that has a
+    // different Java 8, which is every Windows box.
     languageVersion.set(JavaLanguageVersion.of(8))
-    vendor.set(org.gradle.jvm.toolchain.JvmVendorSpec.AZUL)
+    val vendorName = (findProperty("qfJava8Vendor") as String? ?: "azul").lowercase()
+    if (vendorName != "any") {
+      vendor.set(when (vendorName) {
+        "azul"                 -> JvmVendorSpec.AZUL
+        "oracle"               -> JvmVendorSpec.ORACLE
+        "temurin", "adoptium"  -> JvmVendorSpec.ADOPTIUM
+        "corretto", "amazon"   -> JvmVendorSpec.AMAZON
+        "microsoft"            -> JvmVendorSpec.MICROSOFT
+        "semeru", "ibm"        -> JvmVendorSpec.IBM
+        "graalvm"              -> JvmVendorSpec.GRAAL_VM
+        "liberica", "bellsoft" -> JvmVendorSpec.BELLSOFT
+        "sap"                  -> JvmVendorSpec.SAP
+        else -> throw GradleException(
+          "Unknown qfJava8Vendor '$vendorName'. Use one of: any, azul, oracle, " +
+          "temurin, corretto, microsoft, semeru, graalvm, liberica, sap.")
+      })
+    }
   }
 }
 

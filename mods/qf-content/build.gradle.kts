@@ -13,10 +13,41 @@ version = "1.0.0"
 
 java {
   toolchain {
-    // Compile against Java 8. Azul is the only vendor shipping a Java 8 JDK for
-    // macOS arm64 -- and 8u442 is already installed on this machine.
+    // Always Java 8 bytecode; the game runs on 8, so that is not negotiable.
     languageVersion.set(JavaLanguageVersion.of(8))
-    vendor.set(org.gradle.jvm.toolchain.JvmVendorSpec.AZUL)
+
+    // WHICH vendor's Java 8 is a property of the machine, not of the project.
+    //
+    // On the macOS arm64 box Azul is the only vendor shipping a Java 8 JDK at
+    // all, and pinning it there is load-bearing: that machine has six Java 8
+    // installs, three of them Oracle, and "Oracle 8" is ambiguous between
+    // 8u162 (works) and 8u291/8u301 (crash LWJGL). Hardcoding AZUL fixed that
+    // and simultaneously made the build impossible on Windows, where Azul is
+    // one option among many and usually not the one installed.
+    //
+    // So it is a property. The default keeps the Mac working with no local
+    // setup; any other machine overrides it in its own gradle.properties, and
+    // "any" drops the vendor constraint entirely and takes whatever Java 8 it
+    // finds:
+    //
+    //     qfJava8Vendor=any
+    val vendorName = (findProperty("qfJava8Vendor") as String? ?: "azul").lowercase()
+    if (vendorName != "any") {
+      vendor.set(when (vendorName) {
+        "azul"                 -> JvmVendorSpec.AZUL
+        "oracle"               -> JvmVendorSpec.ORACLE
+        "temurin", "adoptium"  -> JvmVendorSpec.ADOPTIUM
+        "corretto", "amazon"   -> JvmVendorSpec.AMAZON
+        "microsoft"            -> JvmVendorSpec.MICROSOFT
+        "semeru", "ibm"        -> JvmVendorSpec.IBM
+        "graalvm"              -> JvmVendorSpec.GRAAL_VM
+        "liberica", "bellsoft" -> JvmVendorSpec.BELLSOFT
+        "sap"                  -> JvmVendorSpec.SAP
+        else -> throw GradleException(
+          "Unknown qfJava8Vendor '$vendorName'. Use one of: any, azul, oracle, " +
+          "temurin, corretto, microsoft, semeru, graalvm, liberica, sap.")
+      })
+    }
   }
 }
 
