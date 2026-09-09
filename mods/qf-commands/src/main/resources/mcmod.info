@@ -1,0 +1,17 @@
+[
+{
+  "modid": "qfcommands",
+  "name": "QuestForge Commands",
+  "description": "Commands a player earns by finding a lottery ticket. Dimension travel for places you have already been, and a private vault that does not fight the ender chest.",
+  "version": "${modVersion}",
+  "mcversion": "1.7.10",
+  "authorList": [ "QuestForge" ],
+  "credits": "",
+  "logoFile": "",
+  "url": "",
+  "updateUrl": "",
+  "parent": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]
