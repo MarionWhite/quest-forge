@@ -131,3 +131,30 @@ does not load produces a mod that builds and then crashes on a `NoSuchMethodErro
 **`'gradlew' is not recognized`.** You are in the repository root. `cd` into
 `mods\qf-content` or `mods\transformers` first — each mod is its own Gradle
 build.
+
+## Debug tooling
+
+`mods/qf-content` carries an unattended render-capture harness at
+`com/questforge/content/debug/AutoShot.java`. Given `-Dqf.autoshot=<world>` it
+loads that world, waits for the shader framebuffers and tile entity renderers to
+settle, writes `screenshots/<name>.png`, and quits. It exists because a render
+bug that only appears under one shader pack costs a person a launch, a look and a
+description every time it is asked about, and a screenshot answers it exactly.
+
+Options: `qf.autoshot.name`, `qf.autoshot.delay` (ticks, default 200),
+`qf.autoshot.armor=<class substring>` to equip a chestplate, `qf.autoshot.unequip=1`
+to strip one, `qf.autoshot.place=1` to drop a Tower Speaker in front of the player.
+Armour is set on the integrated server, not just the client, or the next inventory
+sync silently undoes it. It logs `CHEST SLOT:` at capture, because reading a
+hotbar icon as worn armour once invalidated a whole verification run.
+
+**It is not in release jars.** The `jar` task excludes the package, and
+`ClientProxy` looks the class up by name, so its absence is the normal case:
+
+```powershell
+.\gradlew build                       # release -- no debug tooling
+.\gradlew build -PqfDebugTools=true   # includes AutoShot
+```
+
+Build the release variant before deploying to the live pack, or `verify_pack.py`
+will flag the size mismatch -- which is the check working, not a fault.

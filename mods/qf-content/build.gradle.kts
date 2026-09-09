@@ -258,6 +258,15 @@ tasks.jar.configure {
     )
   }
 
+  // Debug tooling is not shipped. AutoShot loads a world, screenshots it and
+  // quits, which is invaluable while chasing a render bug and has no business in
+  // a jar players install. Build with -PqfDebugTools=true to include it; the
+  // default build leaves it out, and ClientProxy looks it up reflectively so its
+  // absence is the normal case rather than an error.
+  if (!project.hasProperty("qfDebugTools")) {
+    exclude("com/questforge/content/debug/**")
+  }
+
   from(shadeLibraries)
 }
 

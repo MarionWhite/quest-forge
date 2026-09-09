@@ -71,6 +71,22 @@ public class ClientProxy extends CommonProxy {
 
         net.minecraftforge.client.ClientCommandHandler.instance.registerCommand(
                 new com.questforge.content.voice.CommandVoice());
+
+        // Unattended render capture, when this build has it. The debug package is
+        // excluded from release jars, so it is looked up by name -- not being
+        // there is the normal case, not a failure. Registers only when
+        // -Dqf.autoshot=<world> is also given.
+        try {
+            Class<?> autoShot = Class.forName("com.questforge.content.debug.AutoShot");
+
+            if (Boolean.TRUE.equals(autoShot.getMethod("enabled").invoke(null))) {
+                FMLCommonHandler.instance().bus().register(autoShot.newInstance());
+            }
+        } catch (ClassNotFoundException expected) {
+            // Release build: tooling was not compiled in.
+        } catch (Throwable t) {
+            System.out.println("[QuestForgeContent] AutoShot present but unusable: " + t);
+        }
     }
 
     @Override
