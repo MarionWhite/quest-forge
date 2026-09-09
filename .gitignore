@@ -1,13 +1,32 @@
 # ---------------------------------------------------------------------------
+# HOW THE RULES BELOW ARE WRITTEN
+#
+# Every rule here is anchored or scoped to where the thing it excludes
+# actually lives. That is not tidiness -- an unanchored rule matches at every
+# depth, and this file has already silently eaten three sets of source files
+# that way:
+#
+#   world/  ate  mods/transformers/src/main/java/fiskfille/tf/common/world/
+#   *.ogg   ate  the Transformers mod's 19 shipped sound effects, and the
+#                menu music, while the sounds.json naming them stayed tracked
+#
+# Nothing failed. The mod compiled, loaded, and ran silently mute; the only
+# symptom was a 630 KB shortfall in the jar. A clean checkout could not build
+# a complete pack, and nothing said so.
+#
+# So: anchor directory rules with a leading or embedded "/", scope extension
+# rules to the tree that generates them, and leave the source-tree guard at
+# the bottom of this file in place.
+# ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
 # Build output
 # ---------------------------------------------------------------------------
 build/
-out/
 bin/
 .gradle/
 gradle-app.setting
-# ...except the Gradle wrappers, without which a fresh clone cannot build.
-!**/gradle/wrapper/gradle-wrapper.jar
+tools/**/out/
 
 # ---------------------------------------------------------------------------
 # Gradle dev-client runtime. Recreated by `./gradlew runClient`; never source.
@@ -24,6 +43,12 @@ crash-reports/
 # not redistribute other people's mod jars, the Minecraft or Forge jars, or the
 # libraries they depend on. pack/mods.tsv records exactly which versions the
 # pack loads; see docs/setup/install-on-mac.md for where they come from.
+#
+# mods/transformers/libs/ is four of those: NEI, CodeChickenLib,
+# CodeChickenCore and Waila, staged out of the live instance because the mod
+# compiles against the exact jars the pack loads. They are not committed;
+# `tools/stage_transformers_libs.py` copies them in from a live instance. See
+# that script and docs/development/building-on-windows.md.
 # ---------------------------------------------------------------------------
 *.jar
 *.zip
@@ -33,11 +58,15 @@ crash-reports/
 # ---------------------------------------------------------------------------
 # Generated renders. Every one of these is reproducible from the generator
 # beside it in tools/ -- see tools/README.md.
+#
+# SCOPED TO tools/ ON PURPOSE. Audio that ships inside a mod or the
+# resourcepack is source, is not reproducible from anything in this repo, and
+# must stay tracked.
 # ---------------------------------------------------------------------------
-*.wav
-*.aiff
-*.mp3
-*.ogg
+tools/**/*.wav
+tools/**/*.aiff
+tools/**/*.mp3
+tools/**/*.ogg
 tools/**/work/
 tools/**/_work/
 tools/**/backups/
@@ -45,11 +74,16 @@ tools/**/backup-before/
 
 # ---------------------------------------------------------------------------
 # Worlds and player data. Large, binary, and personal.
+#
+# ANCHORED ON PURPOSE. Unanchored, "world/" matches any directory named
+# world at any depth, including Java packages -- which is exactly how
+# fiskfille.tf.common.world went missing.
 # ---------------------------------------------------------------------------
-saves/
-world/
+/saves/
+/world/
+server/runtime/
+pack/**/saves/
 *.mca
-*.dat
 *.dat_old
 usercache.json
 usernamecache.json
@@ -75,6 +109,20 @@ __pycache__/
 .vscode/
 *.iml
 
-# Assembled survey server: 700 MB of third-party jars plus generated worlds.
-# Built by tools/survey from the live instance; never source.
-server/runtime/
+# ---------------------------------------------------------------------------
+# SOURCE-TREE GUARD -- keep this last.
+#
+# Nothing generated lives in a mod's src/ or in pack/resourcepack/. Everything
+# there is authored and must be tracked, whatever its extension. These
+# negations are a safety net for a future over-broad rule above, so the next
+# one costs a `git status` line instead of a silently incomplete build.
+#
+# The net has a hard limit git imposes: a negation CANNOT resurrect a file
+# whose parent DIRECTORY is excluded. It rescues file-pattern rules (*.ogg)
+# only. Directory rules must be anchored correctly in the first place -- so if
+# you add one, anchor it.
+# ---------------------------------------------------------------------------
+!mods/*/src/**
+!pack/resourcepack/**
+# ...but a stray build artefact inside a source tree is still not source.
+mods/*/src/**/*.class

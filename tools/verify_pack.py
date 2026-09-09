@@ -67,7 +67,7 @@ SPLASH_TEXTURES = [
 # Custom mods, and where their authoritative build lands.
 CUSTOM_MODS = {
     "QuestForgeContent-1.0.0.jar": "mods/qf-content/build/libs/QuestForgeContent-1.0.0.jar",
-    "TransformersMod-0.6.3-qf1.jar": None,   # built out of tree; size-compared only
+    "TransformersMod-0.6.3-qf1.jar": "mods/transformers/build/libs/TransformersMod-0.6.3-qf1.jar",
 }
 
 # Classes whose absence means a whole feature is missing rather than broken.
@@ -88,6 +88,16 @@ FEATURE_CLASSES = {
         "assets/qfcontent/textures/entity/tower_cone.png",
         "assets/qfcontent/textures/entity/tower_grille.png",
     ],
+    "TransformersMod-0.6.3-qf1.jar": [
+        # The coremod half. Without the manifest and this class, FML loads
+        # neither the transformers nor the @Mod, and the jar is inert.
+        "fiskfille/tf/asm/TFLoadingPlugin.class",
+        # Ground bridge. Its Teleporter subclass lived in a package called
+        # "world", which an unanchored .gitignore rule excluded, so the class
+        # was absent from a clean checkout and the mod would not compile.
+        "fiskfille/tf/common/world/TeleporterGroundBridge.class",
+        "fiskfille/tf/common/block/BlockGroundBridgeTeleporter.class",
+    ],
 }
 
 # The jukebox decodes ogg/mp3 through shaded libraries. If the service files are
@@ -96,6 +106,49 @@ SERVICE_FILES = [
     "META-INF/services/javax.sound.sampled.spi.AudioFileReader",
     "META-INF/services/javax.sound.sampled.spi.FormatConversionProvider",
 ]
+
+
+def declared_sounds(entries, jar_path):
+    """Every sound file a jar's sounds.json promises, as jar entry paths.
+
+    A mod declares its sounds in assets/<domain>/sounds.json and the game
+    resolves each name to assets/<domain>/sounds/<name>.ogg. Nothing checks
+    that the file is actually there: a jar whose sounds.json survived while its
+    .ogg files did not loads without complaint and plays nothing. That is not
+    hypothetical -- .gitignore's "*.ogg" rule, written for generated music
+    renders, also excluded the Transformers mod's 19 shipped sound effects, and
+    the only visible symptom was a jar 630 KB smaller than it should be.
+
+    So this is derived from the jar's own manifest of intent rather than from a
+    hardcoded list, and it keeps working when sounds are added.
+    """
+    import json
+
+    wanted = []
+    for entry in entries:
+        parts = entry.split("/")
+        if len(parts) != 3 or parts[0] != "assets" or parts[2] != "sounds.json":
+            continue
+        domain = parts[1]
+        try:
+            with zipfile.ZipFile(jar_path) as z:
+                spec = json.loads(z.read(entry).decode("utf-8", "replace"))
+        except Exception:
+            continue
+        if not isinstance(spec, dict):
+            continue
+        for event in spec.values():
+            if not isinstance(event, dict):
+                continue
+            for snd in event.get("sounds", []):
+                name = snd if isinstance(snd, str) else snd.get("name")
+                if not name:
+                    continue
+                # "domain:path" overrides the file's own domain.
+                dom, _, path = name.rpartition(":")
+                wanted.append("assets/%s/sounds/%s.ogg"
+                              % (dom or domain, path))
+    return wanted
 
 
 def verify_forge(instance):
@@ -173,6 +226,20 @@ def verify_mods(instance, repo):
         if FEATURE_CLASSES.get(jar) and all(w in entries for w in FEATURE_CLASSES[jar]):
             check("mod %s feature set" % jar, OK,
                   "%d required entries present" % len(FEATURE_CLASSES[jar]))
+
+        # Declared-but-absent sounds. See declared_sounds() -- this is the check
+        # that catches a jar which builds, loads, and is silently mute.
+        wanted = declared_sounds(entries, path)
+        if wanted:
+            gone = [w for w in wanted if w not in entries]
+            if gone:
+                check("mod %s sounds" % jar, FAIL,
+                      "sounds.json declares %d sound(s) the jar does not "
+                      "contain, e.g. %s -- the mod will load and play nothing"
+                      % (len(gone), gone[0]))
+            else:
+                check("mod %s sounds" % jar, OK,
+                      "all %d declared sounds present" % len(wanted))
 
         if jar.startswith("QuestForgeContent"):
             for svc in SERVICE_FILES:
