@@ -108,6 +108,30 @@ SERVICE_FILES = [
 ]
 
 
+def git_tracked(repo, subdir):
+    """Paths git actually has under subdir, relative to it, or None.
+
+    Returns None when repo is not a git checkout or git is unavailable, so the
+    caller can fall back and say that it did.
+    """
+    import subprocess
+    try:
+        out = subprocess.run(
+            ["git", "-C", repo, "ls-files", "-z", "--",
+             os.path.relpath(subdir, repo)],
+            capture_output=True, timeout=30)
+    except (OSError, subprocess.SubprocessError):
+        return None
+    if out.returncode != 0:
+        return None
+    rel = os.path.relpath(subdir, repo).replace(os.sep, "/").rstrip("/") + "/"
+    paths = set()
+    for raw in out.stdout.decode("utf-8", "replace").split("\0"):
+        if raw.startswith(rel):
+            paths.add(raw[len(rel):])
+    return paths
+
+
 def declared_sounds(entries, jar_path):
     """Every sound file a jar's sounds.json promises, as jar entry paths.
 
@@ -269,18 +293,34 @@ def verify_resourcepack(instance, repo):
         # The repo is supposed to hold the shipped pack verbatim.
         src = os.path.join(repo, "pack", "resourcepack")
         if os.path.isdir(src):
-            tracked = set()
-            for dp, _, fs in os.walk(src):
-                for f in fs:
-                    tracked.add(os.path.relpath(os.path.join(dp, f), src))
+            # Ask git, not the filesystem. Walking the directory answers "is
+            # this file on this machine", which is not the question -- a file
+            # sitting in the working tree but excluded by .gitignore passes a
+            # filesystem walk and is still absent from every clone. That is
+            # exactly how questforge_menu.ogg, the menu music, went unnoticed:
+            # present here, shipped in the zip, invisible to git, and reported
+            # as "no drift" by this very check.
+            tracked, how = git_tracked(repo, src), "git"
+            if tracked is None:
+                tracked, how = set(), "filesystem"
+                for dp, _, fs in os.walk(src):
+                    for f in fs:
+                        tracked.add(os.path.relpath(os.path.join(dp, f), src))
+
             drift = sorted(e for e in entries
                            if not e.endswith("/") and e not in tracked)
             if drift:
                 check("resourcepack matches repo", WARN,
-                      "%d file(s) shipped but not tracked, e.g. %s"
+                      "%d file(s) shipped but not committed, e.g. %s -- a clone "
+                      "would build the pack without them"
                       % (len(drift), drift[0]))
+            elif how == "filesystem":
+                check("resourcepack matches repo", WARN,
+                      "no drift, but %s is not a git checkout so this compared "
+                      "against files on disk rather than committed files" % repo)
             else:
-                check("resourcepack matches repo", OK, "no drift")
+                check("resourcepack matches repo", OK,
+                      "no drift, %d files committed" % len(tracked))
 
 
 def main():
