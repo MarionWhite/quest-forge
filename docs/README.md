@@ -24,6 +24,7 @@ Read in this order on a new machine.
 | [`development/mod-workspace.md`](development/mod-workspace.md) | **Read before your first build.** The three-JVM toolchain and why each one is required. |
 | [`development/cookbook.md`](development/cookbook.md) | Recipes for common changes. |
 | [`development/building-on-windows.md`](development/building-on-windows.md) | Building the mods on a Windows PC: two JDKs and one properties file. |
+| [`development/ore-survey-runbook.md`](development/ore-survey-runbook.md) | Re-measuring every ore end to end, gated so the failure that voided the last dataset cannot repeat silently. |
 
 ## Design — why the custom content works the way it does
 
