@@ -100,6 +100,18 @@ public class ItemTicket extends Item {
             return stack;
         }
 
+        // Belt to the creative tab's braces. These tickets are not offered
+        // anywhere, but a damage value can still be typed into /give, and
+        // spending one would buy a command that does nothing but refuse.
+        if (Unlockables.sourceOf(u) == Unlockables.Source.NONE) {
+            player.addChatMessage(new net.minecraft.util.ChatComponentText(
+                    EnumChatFormatting.YELLOW + "There is no ticket for " + u.title + "."));
+            player.addChatMessage(new net.minecraft.util.ChatComponentText(
+                    EnumChatFormatting.GRAY + "It has nowhere to arrive, so /" + u.command()
+                            + " is left to operators."));
+            return stack;
+        }
+
         // Refusing to be consumed is deliberate. A duplicate ticket is worth
         // trading or keeping; silently eating it for nothing is not a fair
         // outcome for something this rare.
@@ -152,12 +164,25 @@ public class ItemTicket extends Item {
         return stack;
     }
 
+    /**
+     * Every ticket that exists -- which is not every command.
+     *
+     * A Source.NONE entry has no ticket at all: its dimension has nowhere to
+     * arrive, so the command only ever refuses, and offering the ticket here
+     * meant it could still be picked up and spent on nothing. The index is the
+     * damage value, so skipping an entry leaves every other ticket where it
+     * was rather than shifting them along.
+     */
     @Override
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @SideOnly(Side.CLIENT)
     public void getSubItems(Item item, CreativeTabs tab, List out) {
         for (int i = 0; i < Unlockables.count(); i++) {
-            out.add(new ItemStack(item, 1, i));
+            Unlockable u = Unlockables.byIndex(i);
+
+            if (u != null && Unlockables.sourceOf(u) != Unlockables.Source.NONE) {
+                out.add(new ItemStack(item, 1, i));
+            }
         }
     }
 

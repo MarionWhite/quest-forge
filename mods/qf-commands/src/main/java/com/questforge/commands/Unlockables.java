@@ -254,9 +254,10 @@ public final class Unlockables {
 
         case NONE:
             where = new String[] {
-                "This ticket is not in any loot table. " + title + " has",
-                "nowhere solid to arrive at, so the command is left for",
-                "operators rather than handed out." };
+                "There is no ticket for this. " + title + " has nowhere",
+                "solid to arrive at, so the command only ever refuses and",
+                "is left to operators. If you are holding this, someone",
+                "made it on purpose -- it cannot be redeemed." };
             break;
 
         default:
