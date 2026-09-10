@@ -1,0 +1,31 @@
+dim	name	mod	source
+-42	Lost World	thejungleMod	config thejungleMod.cfg "Lost World ID"
+-39	Mirror	Witchery	config witchery.cfg MirrorDimensionID
+-38	Torment	Witchery	config witchery.cfg TormentDimensionID
+-37	Dream	Witchery	config witchery.cfg DreamDimensionID
+-1	Nether	minecraft	vanilla
+0	Overworld	minecraft	vanilla
+1	The End	minecraft	vanilla
+2	The Collision	TragicMC	log save/unload alignment + save folder "Collision"
+3	Synapse	TragicMC	log save/unload alignment + save folder "Synapse"
+4	CompactMachinesWorld	CompactMachines	config CompactMachines.cfg dimension
+7	Twilight Forest	TwilightForest	config TwilightForest.cfg dimensionID
+30	Outer Space	LegendsMod	config LegendsMod.cfg dimensions
+31	Mars	LegendsMod	config LegendsMod.cfg dimensions
+32	Ilum	LegendsMod	config LegendsMod.cfg dimensions
+33	Hurikane	LegendsMod	config LegendsMod.cfg dimensions
+34	Tython	LegendsMod	config LegendsMod.cfg dimensions
+35	Korriban	LegendsMod	config LegendsMod.cfg dimensions
+36	Tatooine	LegendsMod	config LegendsMod.cfg dimensions
+50	Speed Force	LegendsMod	config LegendsMod.cfg dimensions
+51	Wakanda	LegendsMod	config LegendsMod.cfg dimensions
+53	Kingpin Takedown	LegendsMod	config LegendsMod.cfg dimensions
+55	Quantum Realm	LegendsMod	config LegendsMod.cfg dimensions
+58	DIM 54	LegendsMod	config LegendsMod.cfg dimensions
+66	Hell	LegendsMod	config LegendsMod.cfg dimensions
+80	Dimension-Utopia	OreSpawn	log save/unload alignment; BaseDimensionID=80
+81	Dimension-Extreme	OreSpawn	log save/unload alignment
+82	Dimension-VillageMania	OreSpawn	log save/unload alignment
+83	Dimension-Islands	OreSpawn	log save/unload alignment
+84	Dimension-Crystal	OreSpawn	log save/unload alignment
+85	Dimension-Chaos	OreSpawn	log save/unload alignment

@@ -1,6 +1,38 @@
 # Generated reports
 
-## ⚠ The ore files here are void — do not use them
+## The current ore numbers
+
+`ore-rates.json` and `ore-rates.txt`, measured 2026-09-09. **Use these.**
+
+All **30 dimensions** generated with the live mod set across **4 seeds**, and
+every block in the resulting region files counted: **4,781,092 populated
+chunks**. Per ore, per dimension, per depth and per biome, with a standard
+deviation across seeds beside every rate.
+
+| | |
+|---|---|
+| Dimensions carrying real ore | **16** |
+| Carrying traces (<2 blocks/chunk) | **9** |
+| Placing nothing | **5** |
+| Richest | Overworld, 1,141 ore blocks/chunk across 41 ores |
+| Next | dim 58 "DIM 54" (LegendsMod), 1,017 across 27 |
+
+Depth is the measured Y band and its middle-90%, not a generator's configured
+range. Biome is reported as *enrichment* — an ore's share of its own blocks in a
+biome divided by that biome's share of the dimension's volume — because a biome
+covering 40% of a dimension holds ~40% of every ore in it for no interesting
+reason.
+
+Two sanity checks worth knowing about, both of which the data passes: bedrock
+comes out at 767 blocks/chunk against vanilla's expected ~768, and vanilla ore
+depths reproduce (lapis peaks at Y 13, redstone's middle-90% is Y 1–13).
+
+Method, and the four bugs that had to be fixed before any of it was
+trustworthy: [`../../docs/survey/README.md`](../../docs/survey/README.md).
+
+---
+
+## ⚠ The older ore files here are void — do not use them
 
 `qfcontent-oresurvey.txt`, `qfcontent-oreveins.txt`, `ore-vein-parameters.txt`
 and `ore-vein-parameters-without-hbm.txt` describe **a pack nobody has played**.

@@ -41,8 +41,24 @@ of the same track at 20–44 MB each. Run the arrangement to get the audio back.
 
 ## `survey/` — measuring the pack
 
-Ore distribution and pack composition. The merge scripts combine runs from the four
-survey-server nodes; `cross-check-survey.py` verifies two independent runs agree.
+Ore distribution and pack composition.
+
+The **current** ore pipeline is four scripts, run in this order, and is documented
+step by step in [`../docs/survey/README.md`](../docs/survey/README.md):
+
+| script | job |
+|---|---|
+| `build_server.py` | assemble a headless server from the live instance |
+| `PatchCCL.java` | null-guard CodeChickenLib — **without it every pregeneration run crashes within seconds** |
+| `pregen.py` | drive Chunk Pregenerator over stdin, one dimension at a time |
+| `scan_regions.py` | count every block in the finished region files, per dimension / Y / biome |
+| `aggregate_scans.py` | average several seeds into a rate with an honest standard deviation |
+
+The `merge-*.py` scripts and `cross-check-survey.py` belong to the **previous**
+survey, whose numbers were discarded — see
+[decision 0002](../docs/decisions/0002-discard-the-ore-survey.md). They sum that
+instrument's `qfcontent-*.txt` files and are not part of the pipeline above; keep
+them only for reading the old evidence.
 
 `pack-census/` drives the in-game `/qfcensus` command, which is the only reliable
 source for facts like which enchantment IDs are occupied — see

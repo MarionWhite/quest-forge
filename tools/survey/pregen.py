@@ -25,6 +25,7 @@ Usage:
 import argparse, os, re, subprocess, sys, threading, time
 
 DONE_BOOT = re.compile(r'Done \([\d.]+s\)')
+DONE_TPT = re.compile(r'Set TimePerTick to:\s*(\d+)')
 DONE_TASK = re.compile(r'Pregenerated:\s+(\d+)\s+Chunks.*?(\d+)\s+Chunks Skipped,\s*(\d+)\s+Failed')
 # Chunk Pregenerator prints progress lines; used only to show life, not parsed.
 PROGRESS = re.compile(r'(Pregenerating|Task|Chunks)', re.I)
@@ -83,8 +84,22 @@ class Server(object):
                 self.lines.append(line)
 
     def send(self, cmd):
-        self.proc.stdin.write(cmd + "\n")
-        self.proc.stdin.flush()
+        """Write a console command. A dead server is reported, not raised.
+
+        If the server has crashed, its stdin is gone and the write fails with
+        OSError/ValueError. Letting that propagate loses the run's remaining
+        dimensions behind a traceback; the caller's wait_for already knows how
+        to notice a dead process and move on.
+        """
+        if self.proc.poll() is not None:
+            return False
+        try:
+            self.proc.stdin.write(cmd + "\n")
+            self.proc.stdin.flush()
+            return True
+        except (OSError, ValueError) as exc:
+            print("  server is gone, could not send %r (%s)" % (cmd, exc))
+            return False
 
     def wait_for(self, pattern, timeout, label, since=0):
         """Scan output for a regex. Returns the match, or None on timeout/death."""
@@ -134,6 +149,9 @@ def main():
     ap.add_argument("--java", help="path to a Java 8 runtime")
     ap.add_argument("--xmx", default="6G")
     ap.add_argument("--level", default="survey", help="world folder name")
+    ap.add_argument("--time-per-tick", type=int, default=250,
+                    help="ms per tick Chunk Pregenerator may spend generating "
+                         "(mod default 40; its own help calls 250 optimal)")
     ap.add_argument("--boot-timeout", type=int, default=900)
     ap.add_argument("--task-timeout", type=int, default=36000)
     args = ap.parse_args()
@@ -153,6 +171,31 @@ def main():
         srv.stop()
         sys.exit("server did not boot; see %s" % log_path)
     print("booted in %.1fs\n" % (time.time() - started))
+
+    # Chunk Pregenerator persists unfinished tasks to survey/data/
+    # PregenTaskStorage.dat and, with AutoStart on, resumes them the moment the
+    # world loads. A run interrupted for any reason therefore comes back to life
+    # on the next boot, ahead of whatever this invocation asked for -- the log
+    # says "Pregenerator already running. Adding Task to the TaskStorage", and
+    # from then on the completion lines this script waits for belong to the
+    # wrong task. Start every run from a known-empty queue instead.
+    srv.send("pregen stop")
+    srv.send("pregen clear")
+
+    # Chunk Pregenerator spends at most TimePerTick ms of each tick generating,
+    # and ships with 40 -- so on an otherwise idle dedicated server it sits out
+    # most of every tick. Its own help text calls 250 "the most optimal speed
+    # you can gain". This changes only how much of each tick is spent
+    # generating, never what gets generated, so it cannot move a single ore:
+    # population runs the same generators against the same seed either way.
+    if args.time_per_tick:
+        with srv.lock:
+            mark = len(srv.lines)
+        srv.send("pregen timepertick %d" % args.time_per_tick)
+        if srv.wait_for(DONE_TPT, 60, "timepertick to be set", since=mark):
+            print("timepertick: %d ms\n" % args.time_per_tick)
+        else:
+            print("timepertick: not confirmed, continuing at the mod default\n")
 
     total = 0
     for dim in args.dim:

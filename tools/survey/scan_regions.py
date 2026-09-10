@@ -30,7 +30,7 @@ scanned rather than from any assumption about load order.
 Usage:
     scan_regions.py <save-dir> [-o out.json] [--dim N] [--no-biomes]
 """
-import argparse, collections, gzip, io, json, os, struct, sys, zlib
+import argparse, collections, gzip, io, json, multiprocessing, os, struct, sys, zlib
 
 # ---------------------------------------------------------------- NBT
 
@@ -201,16 +201,72 @@ def scan_chunk(level, counts, biome_counts, want_biomes):
                 biome_counts[key][b & 0xFF] += 1
 
 
-def dimension_of(path, save_dir):
-    """Dimension id from the region file's path. Overworld has no DIMn folder."""
+def scan_dimension(task):
+    """Count one whole dimension. Runs in a worker process.
+
+    Returns plain dicts: defaultdicts built on lambdas cannot be pickled, and
+    on Windows the pool spawns rather than forks, so everything crossing the
+    boundary has to be ordinary data.
+    """
+    paths, dim, want_biomes = task
+    counts = collections.defaultdict(lambda: collections.defaultdict(int))
+    biomes = collections.defaultdict(lambda: collections.defaultdict(int))
+    populated = skipped = 0
+    for path in paths:
+        for level in region_chunks(path):
+            # Population is when ores are placed. Counting a chunk that has
+            # terrain but has not been populated would dilute every rate.
+            if not level.get("TerrainPopulated"):
+                skipped += 1
+                continue
+            populated += 1
+            scan_chunk(level, counts, biomes, want_biomes)
+    return (dim, populated, skipped,
+            {k: dict(v) for k, v in counts.items()},
+            {k: dict(v) for k, v in biomes.items()})
+
+
+# Save folders that are not named DIMn. A WorldProvider may return anything
+# from getSaveFolder(), and two in this pack do. Determined by generating one
+# dimension into an empty world and seeing which folder took the pregen's
+# region footprint rather than a lone spawn region:
+#
+#   dim 2 -> Collision, dim 3 -> Synapse
+#
+# This matters more than it looks. The previous rule was "no DIMn in the path
+# means overworld", so every block in these two dimensions was counted as
+# Overworld -- inflating dim 0 and losing dims 2 and 3 entirely.
+DIM_FOLDERS = {
+    "region": 0,        # the overworld's regions sit at the save root
+    "Collision": 2,
+    "Synapse": 3,
+}
+
+
+class UnknownDimensionFolder(Exception):
+    pass
+
+
+def dimension_of(path, save_dir, folders=None):
+    """Dimension id from the region file's path.
+
+    The dimension is the first path component under the save directory. An
+    unrecognised folder raises rather than defaulting to the overworld: a
+    wrong dimension is indistinguishable from a real measurement downstream,
+    and silently folding one dimension into another is exactly the class of
+    bug this survey exists to avoid.
+    """
+    folders = folders or DIM_FOLDERS
     rel = os.path.relpath(path, save_dir)
-    for part in rel.split(os.sep):
-        if part.startswith("DIM"):
-            try:
-                return int(part[3:])
-            except ValueError:
-                pass
-    return 0
+    top = rel.split(os.sep)[0]
+    if top in folders:
+        return folders[top]
+    if top.startswith("DIM"):
+        try:
+            return int(top[3:])
+        except ValueError:
+            pass
+    raise UnknownDimensionFolder(top)
 
 
 def main():
@@ -222,7 +278,20 @@ def main():
                     help="restrict to this dimension; repeatable")
     ap.add_argument("--no-biomes", action="store_true",
                     help="skip per-biome tallies (faster, smaller output)")
+    ap.add_argument("--jobs", type=int, default=0,
+                    help="worker processes (default: one per core). One "
+                         "dimension per worker; --jobs 1 stays single-process.")
+    ap.add_argument("--dim-folder", action="append", metavar="NAME=ID",
+                    help="map a save folder that is not named DIMn to a "
+                         "dimension id; repeatable")
     args = ap.parse_args()
+
+    folders = dict(DIM_FOLDERS)
+    for spec in args.dim_folder or []:
+        name, _, num = spec.partition("=")
+        if not num:
+            sys.exit("--dim-folder wants NAME=ID, got %r" % spec)
+        folders[name] = int(num)
 
     if not os.path.isdir(args.save):
         sys.exit("not a directory: %s" % args.save)
@@ -235,32 +304,65 @@ def main():
         for fn in files:
             if fn.endswith(".mca"):
                 regions.append(os.path.join(dirpath, fn))
+
+    # Resolve every dimension up front. A folder nobody can name is a hard
+    # stop: continuing would attribute real blocks to the wrong dimension,
+    # and nothing downstream could tell that had happened.
+    dim_of = {}
+    unknown = set()
+    for path in regions:
+        try:
+            dim_of[path] = dimension_of(path, args.save, folders)
+        except UnknownDimensionFolder as exc:
+            unknown.add(str(exc))
+    if unknown:
+        sys.exit("unrecognised dimension folder(s) holding region files: %s. "
+                 "Name them with --dim-folder NAME=ID. To find the id, generate "
+                 "that dimension alone into an empty world and see which folder "
+                 "takes the region files." % ", ".join(sorted(unknown)))
+
     if args.dim is not None:
         keep = set(args.dim)
-        regions = [p for p in regions if dimension_of(p, args.save) in keep]
+        regions = [p for p in regions if dim_of[p] in keep]
     print("region files: %d" % len(regions))
 
-    # dim -> key -> y -> count,  and dim -> key -> biome -> count
-    per_dim = collections.defaultdict(
-        lambda: collections.defaultdict(lambda: collections.defaultdict(int)))
-    per_biome = collections.defaultdict(
-        lambda: collections.defaultdict(lambda: collections.defaultdict(int)))
+    # One task per dimension. Counting a chunk means walking up to 65,536 block
+    # positions in Python, so a full pack scan is minutes of pure CPU per
+    # dimension and the work is embarrassingly parallel. Sharding by dimension
+    # rather than by region file keeps what each worker sends back equal to its
+    # slice of the final answer, instead of every worker returning a partial
+    # tally for all 30 dimensions and the parent merging 30-way.
+    by_dim = collections.defaultdict(list)
+    for path in regions:
+        by_dim[dim_of[path]].append(path)
+
+    tasks = [(paths, dim, not args.no_biomes)
+             for dim, paths in sorted(by_dim.items(), key=lambda kv: -len(kv[1]))]
+    jobs = max(1, min(args.jobs or (os.cpu_count() or 4), len(tasks)))
+    print("counting %d dimensions on %d workers" % (len(tasks), jobs))
+
+    per_dim, per_biome = {}, {}
     populated = collections.Counter()
     skipped = collections.Counter()
 
-    for n, path in enumerate(sorted(regions), 1):
-        dim = dimension_of(path, args.save)
-        for level in region_chunks(path):
-            # Population is when ores are placed. Counting a chunk that has
-            # terrain but has not been populated would dilute every rate.
-            if not level.get("TerrainPopulated"):
-                skipped[dim] += 1
-                continue
-            populated[dim] += 1
-            scan_chunk(level, per_dim[dim], per_biome[dim], not args.no_biomes)
-        if n % 25 == 0 or n == len(regions):
-            print("  %d/%d regions, %d populated chunks"
-                  % (n, len(regions), sum(populated.values())))
+    if jobs == 1:
+        results = (scan_dimension(t) for t in tasks)
+    else:
+        pool = multiprocessing.Pool(jobs)
+        results = pool.imap_unordered(scan_dimension, tasks)
+
+    done = 0
+    for dim, pop, skip, counts, biomes in results:
+        per_dim[dim] = counts
+        per_biome[dim] = biomes
+        populated[dim] = pop
+        skipped[dim] = skip
+        done += 1
+        print("  [%d/%d] dim %-5d %8d populated, %7d unpopulated"
+              % (done, len(tasks), dim, pop, skip))
+    if jobs != 1:
+        pool.close()
+        pool.join()
 
     out = {
         "save": os.path.abspath(args.save),

@@ -128,8 +128,18 @@ def main():
         kept += 1
     print("mods: %d kept, %d dropped" % (kept, dropped))
 
-    # --- config and scripts ----------------------------------------------
-    for name in ("config", "scripts"):
+    # --- config, scripts and world content -------------------------------
+    # WHY legends/ IS HERE. Six of LegendsMod's dimensions are not generated at
+    # all -- they are prebuilt maps the mod copies out of legends/maps/ the
+    # first time the dimension loads: outerspace (30), tython (34), korriban
+    # (35), tatooine (36), kingpinTakedown (53) and dim54 (58). Without that
+    # directory the mod logs a FileNotFoundException at boot, the dimension
+    # still registers, and pregeneration still reports "40000 chunks" -- but
+    # nothing is written and the dimension holds no blocks at all. Two of the
+    # six are classified as carrying real ore, so leaving this out silently
+    # deletes them from the survey. That is the same failure mode as the mod
+    # set drifting: the run looks like it worked.
+    for name in ("config", "scripts", "legends", "structures"):
         src = os.path.join(inst, name)
         if os.path.isdir(src):
             shutil.copytree(src, os.path.join(out, name))
