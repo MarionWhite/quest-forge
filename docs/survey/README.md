@@ -39,12 +39,17 @@ the old dataset at all. Measured over 4 seeds and 165,525 Overworld chunks:
 (An earlier single-world scan quoted 77, 68 and 66; the four-seed figures
 supersede it.)
 
-VoltzEngine and Railcraft's ores, written off as "unmeasurable, varies
-4×–180× between seeds", are in fact among the *steadiest* things in the pack:
-`veStoneOre` 93.7 ±9.8 and `veGemOre` 56.4 ±7.8, and `Railcraft:ore` 20.07 ±1.56
-summed over its ten metadata values. Most ores land under 6% coefficient of
-variation across seeds; the "4×–180×" swing was an artefact of the old
-instrument, not of worldgen.
+VoltzEngine and Railcraft's ores were written off as "unmeasurable, varies
+4×–180× between seeds". They are measurable, and that swing was an artefact of
+the old instrument: across four seeds `veStoneOre` runs 93.7 ±9.8, `veGemOre`
+56.4 ±7.8, and `Railcraft:ore` 20.07 ±1.56 summed over its ten metadata values
+— a **1.2× to 1.3× spread between the highest and lowest seed**, not 4× to 180×.
+
+They are not, however, *steady*. Their coefficients of variation — 10.5%, 13.8%
+and 7.8% — are among the **worst** in the pack, where the median ore at ≥1
+block/chunk sits at **0.66%** and 85% are under 6%. Whatever the old instrument
+was reacting to, these three really are the seed-sensitive ones; it just
+overstated the effect by two orders of magnitude.
 
 > An earlier revision of this file said those three "scan cleanly at 25.1, 23.8
 > and 30.2 per chunk". **Nothing reproduces those figures.** Railcraft's poor
@@ -148,18 +153,37 @@ It also copies `config/`, `scripts/`, `structures/` and — importantly —
 > **completely silent from the survey's point of view**: the mod logs one
 > `FileNotFoundException` among thousands of boot lines, the dimension still
 > registers and still loads, pregeneration still reports `40000 chunks, 0
-> failed` — and not one region file is written. Two of the six are dimensions
-> this document classifies as carrying real ore, so the run looks complete
+> failed` — and not one region file is written. Three of the six (34, 53 and 58)
+> carry real ore, so the run looks complete
 > while six dimensions are quietly missing.
 >
 > The check that catches it is counting region files per dimension afterwards,
-> not reading the pregen output. A generated dimension at `--radius 100` should
-> have **64** region files (chunks −100…100 span regions −4…3 on each axis).
-> Zero means this.
+> not reading the pregen output. A plain dimension at `--radius 100` has **64**
+> region files (chunks −100…100 span regions −4…3 on each axis), and **zero**
+> means this failure.
 >
-> Because these are fixed maps, their ore is whatever the shipped map contains.
-> The sample is the map's own extent, not the radius you asked for, and there is
-> no seed-to-seed variance to report — the same map is copied every time.
+> 64 is not universal, though: four dimensions legitimately hold far more,
+> because their structure generation force-loads chunks a long way from origin.
+> Dim 2 spans x −12,161…2,792 with 2,032–3,177 region files depending on seed,
+> dim 30 about 9,980, dim 55 about 10,180, and dim 53 has 230. What to check is
+> that a dimension has **some** region files and that the four seeds agree to
+> within a few per cent — not that it has exactly 64.
+>
+> **These dimensions are part map, part generated, and the mix matters.** The
+> shipped maps are small — outerspace 4 region files, tatooine 11, korriban and
+> dim54 17, tython 19 — against the 64 a `--radius 100` square covers. So the
+> map is dropped in and the rest of the square is generated around it, and that
+> part *does* vary by seed: for dims 34, 35, 36 and 58, **0 of 64** region files
+> are byte-identical between two seeds. Their standard deviations are real.
+>
+> `kingpinTakedown` (dim 53) is the exception at 178 regions, most of the
+> sampled square: **166 of its 230** region files are identical across all four
+> seeds. Its sd is therefore not a seed-variance estimate — it is largely the
+> same bytes counted four times, and should be read as "the map contains this",
+> not "expect this ±".
+>
+> That map also ships a nested `data/region/` of its own. See Step 5: counting
+> it as dimension 53's chunks inflated its rate from 15.2 to 28.5.
 
 ## Step 3 — patch CodeChickenLib (required)
 
@@ -174,8 +198,8 @@ chunkMap.get(chunk).unload();     // line 52, no null check
 ```
 
 On a dedicated server `WorldExtensionManager.onChunkDataSave` *removes* a
-chunk's entry whenever the saved chunk is unmodified, and `onChunkUnLoad` then
-dereferences the result anyway. Pregeneration saves and unloads chunks
+chunk's entry when the saved chunk is flagged not loaded (`Chunk.field_76636_d`),
+and `onChunkUnLoad` then dereferences the result anyway. Pregeneration saves and unloads chunks
 constantly, so it dereferences null almost immediately:
 
 ```
@@ -266,12 +290,18 @@ its total, its distribution by Y level, and its distribution by biome. Only
 chunks with `TerrainPopulated=1` are counted — an unpopulated chunk has terrain
 but no ore, and counting it would dilute every rate.
 
-**`unpopulated_skipped` should come out at roughly the perimeter of the square
-you generated**, and that is a free check that the run finished. A chunk is
-populated only once its +X/+Z neighbours exist, so the outermost ring never is.
-For `--radius 100` the perimeter is 4×201−4 = 800, and the four seeds here
-skipped 788, 989, 918 and 954. A number far *above* that means generation was
-interrupted and a swathe of chunks has terrain but no ore.
+**For a plain dimension, `unpopulated_skipped` comes out at roughly the
+perimeter of the square you generated**, and that is a free check that the run
+finished. A chunk is populated only once its +X/+Z neighbours exist, so the
+outermost ring never is. For `--radius 100` the perimeter is 4×201−4 = 800, and
+dimension 0 skipped 788, 989, 918 and 954 across the four seeds.
+
+This check applies to the 26 dimensions that stay inside the square. The four
+that scatter chunks far from origin skip vastly more — dim 55 skipped 74,364,
+dim 30 68,995, dim 2 9,215, dim 53 6,808 — because structure generation creates
+neighbours it never populates. That is expected and harmless: unpopulated chunks
+hold no ore and are excluded from the denominator. Only a large skip count in a
+*compact* dimension means generation was interrupted.
 
 > One residual effect this does not remove: `WorldGenMinable` places veins
 > centred 8 blocks into the +X/+Z neighbour, so a populated chunk sitting next
@@ -290,7 +320,8 @@ Counting a chunk means walking up to 65,536 block positions in Python, so this
 is CPU-bound and runs **one dimension per worker process** — `--jobs` sets how
 many (default: one per core, `--jobs 1` stays single-process). A full 30-
 dimension pack scan is minutes rather than the couple of hours it takes
-serially, which is what makes "re-scan instead of re-generating" true in
+serially (output is semantically identical to `--jobs 1`; only the order of keys
+in the JSON differs, since dimensions finish out of order), which is what makes "re-scan instead of re-generating" true in
 practice rather than just in principle.
 
 **Dimensions are identified by their save folder, and two of them are not called
@@ -328,7 +359,7 @@ into the per-depth and per-biome numbers this document promises. Without them
 that data is collected and thrown away.
 
 **Depth** is reported as the full Y band an ore occupies, where it peaks, and
-the band holding the middle 90% of it — `1-111 (pk 9, 5-67)` for coal. That is
+the band holding the middle 90% of it — `1-127 (pk 5, 4-64)` for Overworld coal. That is
 the number a player digs to, and it is *measured*, not read off a generator's
 configured height range, so it already accounts for veins losing the
 competition for stone near the extremes of their band.
@@ -359,8 +390,8 @@ every block containing the letters "ore" that it rejected.
 
 ## Which dimensions carry ore
 
-**Measured, not estimated.** 4 seeds x 40,401 chunks per dimension,
-**4,781,092 populated chunks** in total, scanned 2026-09-09. Every one of the 30
+**Measured, not estimated.** 4 seeds, ~40,000 chunks per dimension per seed,
+**4,775,020 populated chunks** in total, scanned 2026-09-10. Every one of the 30
 dimensions was generated and counted; nothing here is inferred from a
 generator's configuration.
 
@@ -381,26 +412,45 @@ listed as placing nothing that in fact carries ore:
 | -37 | Dream | Witchery | 471.541 | 13 | real ore | real ore |
 | -42 | Lost World | thejungleMod | 271.021 | 4 | real ore | real ore |
 | 7 | Twilight Forest | TwilightForest | 265.587 | 13 | real ore | real ore |
-| 84 | Dimension-Crystal | OreSpawn | 215.660 | 6 | real ore | nothing placed **(was wrong)** |
 | 85 | Dimension-Chaos | OreSpawn | 208.871 | 17 | real ore | real ore |
 | 33 | Hurikane | LegendsMod | 195.244 | 3 | real ore | real ore |
 | -1 | Nether | minecraft | 139.341 | 4 | real ore | real ore |
 | 2 | The Collision | TragicMC | 88.284 | 2 | real ore | nothing placed **(was wrong)** |
-| 53 | Kingpin Takedown | LegendsMod | 28.521 | 19 | real ore | nothing placed **(was wrong)** |
+| 84 | Dimension-Crystal | OreSpawn | 16.773 | 5 | real ore | nothing placed **(was wrong)** |
+| 53 | Kingpin Takedown | LegendsMod | 15.164 | 19 | real ore | nothing placed **(was wrong)** |
 | 1 | The End | minecraft | 1.070 | 12 | trace only | trace only |
-| 66 | Hell | LegendsMod | 0.011 | 5 | trace only | trace only |
-| 83 | Dimension-Islands | OreSpawn | 0.007 | 3 | trace only | trace only |
-| 30 | Outer Space | LegendsMod | 0.004 | 1 | trace only | nothing placed **(was wrong)** |
-| 35 | Korriban | LegendsMod | 0.002 | 4 | trace only | trace only |
-| 55 | Quantum Realm | LegendsMod | 0.002 | 1 | trace only | nothing placed **(was wrong)** |
-| 36 | Tatooine | LegendsMod | 0.000 | 2 | trace only | trace only |
-| 32 | Ilum | LegendsMod | 0.000 | 1 | trace only | trace only |
-| 31 | Mars | LegendsMod | 0.000 | 1 | trace only | trace only |
+| 66 | Hell | LegendsMod | 0.0113 † | 5 | trace only | trace only |
+| 83 | Dimension-Islands | OreSpawn | 0.0065 † | 3 | trace only | trace only |
+| 30 | Outer Space | LegendsMod | 0.0038 † | 1 | trace only | nothing placed **(was wrong)** |
+| 35 | Korriban | LegendsMod | 0.0023 † | 4 | trace only | trace only |
+| 55 | Quantum Realm | LegendsMod | 0.0020 † | 1 | trace only | nothing placed **(was wrong)** |
+| 36 | Tatooine | LegendsMod | 0.0001 † | 2 | trace only | trace only |
+| 32 | Ilum | LegendsMod | 0.0001 † | 1 | trace only | trace only |
+| 31 | Mars | LegendsMod | 0.0001 † | 1 | trace only | trace only |
 | -39 | Mirror | Witchery | 0.000 | 0 | nothing placed | nothing placed |
 | -38 | Torment | Witchery | 0.000 | 0 | nothing placed | nothing placed |
 | 3 | Synapse | TragicMC | 0.000 | 0 | nothing placed | nothing placed |
 | 4 | CompactMachinesWorld | CompactMachines | 0.000 | 0 | nothing placed | nothing placed |
 | 50 | Speed Force | LegendsMod | 0.000 | 0 | nothing placed | nothing placed |
+
+† **Below this survey's own resolution.** The sizing table above puts the
+floor at about 0.02 blocks/chunk for 100,000 chunks; these sit under it, so
+they are reported as uncertainty rather than as clean figures. Absolute ore
+blocks found across all four seeds (~158,000 chunks each):
+
+- dim 31 Mars — **10 blocks**
+- dim 36 Tatooine — **20 blocks**
+- dim 32 Ilum — **20 blocks**
+- dim 55 Quantum Realm — **310 blocks**
+- dim 35 Korriban — **363 blocks**
+- dim 30 Outer Space — **608 blocks**
+- dim 83 Dimension-Islands — **1032 blocks**
+- dim 66 Hell — **1780 blocks**
+
+Dim 31, 32 and 36 rest on ten to twenty blocks in the whole sample. Calling
+them "trace" rather than "nothing" is a statement about a handful of blocks,
+not a measured rate, and dims 30 and 55 are two of the five reclassifications
+on that basis. Treat the trace/nothing boundary as unresolved.
 
 Dimension names come from the mod configs and the server's own load order; the
 full mapping is [`dimension-names.tsv`](dimension-names.tsv). LegendsMod owns 13
@@ -413,14 +463,22 @@ Two of the corrections have identifiable causes rather than being noise:
   `Synapse/`), and the scanner used to attribute anything outside a `DIMn`
   folder to the overworld. The old classification was reading a bug, not a
   dimension.
-- **Dim 53, Kingpin Takedown** and **dim 84, Dimension-Crystal** are prebuilt
-  maps or map-backed dimensions. Without `legends/` on the server they generate
-  nothing at all while still reporting success -- see Step 2.
+- **Dim 53, Kingpin Takedown** is a prebuilt map, and without `legends/` on the
+  server it generates nothing at all while still reporting success -- see
+  Step 2. **Dim 84, Dimension-Crystal** is not a map dimension; it is OreSpawn's
+  and was simply never measured before.
 
 **Dim 58 is the second richest ore dimension in the pack**, at 1,017
-blocks/chunk across 27 ores, just behind the Overworld's 1,141 across 41. It is
-also one of the six prebuilt-map dimensions, so a server built without
-`legends/` measures it as empty.
+blocks/chunk across 27 ores, behind the Overworld's 1,141 across 41. It is also
+one of the six prebuilt-map dimensions, so a server built without `legends/`
+measures it as empty.
+
+Two figures here were wrong in the first published version of this table and are
+corrected above: **dim 53 read 28.5** because a nested `data/region/` shipped
+inside its map was counted as dimension chunks, and **dim 84 read 215.7**
+because that dimension's grass layer carries an "ore" token in its name. Both
+are the same trap -- a mod shipping terrain that looks like data -- and both are
+described where they are handled, in Step 5 and Step 6.
 
 ## Running it on a 32 GB PC
 

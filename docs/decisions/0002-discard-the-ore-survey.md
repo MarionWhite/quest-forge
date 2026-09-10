@@ -98,3 +98,36 @@ five places to be silently wrong.
 - `server/config/` still encodes the old server's hbm-bearing delta. Do not
   reuse it; `build_server.py` rebuilds from the live instance every time,
   which is what stops the drift recurring.
+
+---
+
+## Addendum, 2026-09-10 — re-measured
+
+The replacement measurement is done: all 30 dimensions, 4 seeds, 4,775,020
+populated chunks, in [`../../pack/reports/`](../../pack/reports/). The decision
+above stands and its central argument was borne out — the mod set really was the
+problem, and counting finished chunks really does settle it.
+
+Two figures **in this document** did not survive the re-measurement and should
+not be quoted from it:
+
+- **"VoltzEngine and Railcraft's poor ores … scan cleanly at 25.1, 23.8 and 30.2
+  per chunk."** Nothing reproduces these. Railcraft's poor ores are metadata 8,
+  9 and 10 of `Railcraft:ore`, measured at **0.66, 2.46 and 0.96** blocks/chunk
+  over 165,525 Overworld chunks; the block totals **20.07 ±1.56** across all ten
+  metadata values. VoltzEngine's two ores are 93.7 and 56.4.
+- **"1Legends ore … `redIronOre` 77 blocks/chunk, `cassiteriteOre` 68,
+  `copperOre` 66."** The direction was right — LegendsMod ore is among the most
+  abundant in the pack and was entirely absent from the old dataset — but the
+  four-seed figures are **72.6, 64.6 and 65.4**.
+
+The claim that those ores "varied 4×–180× between seeds" is refuted: the spread
+between the highest and lowest seed is 1.2×–1.3×. They are, however, genuinely
+the *least* steady ores in the pack (cv 7.8%–13.8% against a median of 0.66%),
+so the old instrument was reacting to something real and overstating it by two
+orders of magnitude.
+
+Also corrected here: the dimension classification this survey inherited was
+wrong in both directions. 16 dimensions carry real ore, 9 carry traces, 5 place
+nothing — not 13/7/10, and not "14 carry ore". Details and the measured table
+are in [`../survey/README.md`](../survey/README.md).

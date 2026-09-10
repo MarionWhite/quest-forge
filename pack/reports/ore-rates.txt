@@ -347,47 +347,47 @@ TragicMC:compactOre                              0.0000   0.0000  38.6%  0.00%  
       biomes: biome 201 x1.4 (67%), Jungle x0.6 (33%)
 
 === dim 53 Kingpin Takedown (LegendsMod) ===
-4 seeds, 160960 populated chunks (39549, 40933, 39542, 40936)
-28.521 ore blocks/chunk across 19 distinct ores -> real ore
+4 seeds, 154888 populated chunks (38031, 39415, 38024, 39418)
+15.164 ore blocks/chunk across 19 distinct ores -> real ore
 block                                        mean/chunk       sd    cv%   vol% Y band (peak, 90%)    
-legends:siliconOre                               4.6507   0.0925   2.0%  0.30%  1-20 (pk 18, 1-18)    
-      biomes: Plains x2.2 (100%)
-legends:sphaleriteOre                            2.9122   0.0580   2.0%  0.19%  1-20 (pk 15, 1-18)    
-      biomes: Plains x2.2 (100%)
-legends:copperOre                                2.3910   0.0474   2.0%  0.15%  1-20 (pk 7, 1-18)     
-      biomes: Plains x2.2 (100%)
-legends:blackIronOre                             2.1934   0.0437   2.0%  0.14%  1-20 (pk 10, 1-19)    
-      biomes: Plains x2.2 (100%)
-legends:redIronOre                               2.1156   0.0420   2.0%  0.14%  1-20 (pk 1, 1-19)     
-      biomes: Plains x2.2 (100%)
-legends:cassiteriteOre                           1.9448   0.0387   2.0%  0.12%  1-20 (pk 11, 1-19)    
-      biomes: Plains x2.2 (100%)
-legends:limoniteOre                              1.8884   0.0375   2.0%  0.12%  1-20 (pk 17, 1-19)    
-      biomes: Plains x2.2 (100%)
-legends:platinumOre                              1.8161   0.0361   2.0%  0.12%  1-20 (pk 7, 1-18)     
-      biomes: Plains x2.2 (100%)
-legends:magnesiteOre                             1.4704   0.0291   2.0%  0.09%  1-20 (pk 11, 1-19)    
-      biomes: Plains x2.2 (100%)
-legends:titaniumOre                              1.3883   0.0276   2.0%  0.09%  1-20 (pk 9, 1-19)     
-      biomes: Plains x2.2 (100%)
-legends:bauxiteOre                               1.1361   0.0226   2.0%  0.07%  1-20 (pk 20, 1-19)    
-      biomes: Plains x2.2 (100%)
-legends:tungstenOre                              0.8611   0.0172   2.0%  0.06%  1-20 (pk 14, 1-18)    
-      biomes: Plains x2.2 (100%)
-legends:sapphireOre                              0.7183   0.0143   2.0%  0.05%  1-18 (pk 15, 1-15)    
-      biomes: Plains x2.2 (100%)
-legends:rubyOre                                  0.6953   0.0138   2.0%  0.04%  1-15 (pk 12, 1-12)    
-      biomes: Plains x2.2 (100%)
-legends:lightningOre                             0.6037   0.0119   2.0%  0.04%  1-20 (pk 5, 1-18)     
-      biomes: Plains x2.2 (100%)
-legends:redDiamondOre                            0.5624   0.0112   2.0%  0.04%  1-12 (pk 3, 1-10)     
-      biomes: Plains x2.2 (100%)
-legends:palladiumOre                             0.5146   0.0103   2.0%  0.03%  1-20 (pk 5, 1-18)     
-      biomes: Plains x2.2 (100%)
-voltzengine:veGemOre                             0.3930   0.0154   3.9%  0.03%  1-20 (pk 2, 1-18)     
-      biomes: Plains x2.2 (100%)
-voltzengine:veStoneOre                           0.2659   0.0406  15.3%  0.02%  5-20 (pk 7, 5-19)     
-      biomes: Plains x2.2 (100%)
+legends:siliconOre                               2.4169   0.0498   2.1%  0.18%  1-20 (pk 18, 1-18)    
+      biomes: Plains x3.0 (100%)
+legends:sphaleriteOre                            1.5134   0.0313   2.1%  0.11%  1-20 (pk 15, 1-18)    
+      biomes: Plains x3.0 (100%)
+legends:copperOre                                1.2426   0.0254   2.0%  0.09%  1-20 (pk 7, 1-18)     
+      biomes: Plains x3.0 (100%)
+legends:blackIronOre                             1.1399   0.0236   2.1%  0.09%  1-20 (pk 10, 1-19)    
+      biomes: Plains x3.0 (100%)
+legends:redIronOre                               1.0994   0.0226   2.1%  0.08%  1-20 (pk 1, 1-19)     
+      biomes: Plains x3.0 (100%)
+legends:cassiteriteOre                           1.0106   0.0209   2.1%  0.08%  1-20 (pk 11, 1-19)    
+      biomes: Plains x3.0 (100%)
+legends:limoniteOre                              0.9812   0.0202   2.1%  0.07%  1-20 (pk 17, 1-19)    
+      biomes: Plains x3.0 (100%)
+legends:platinumOre                              0.9438   0.0194   2.1%  0.07%  1-20 (pk 7, 1-18)     
+      biomes: Plains x3.0 (100%)
+legends:magnesiteOre                             0.7641   0.0156   2.0%  0.06%  1-20 (pk 11, 1-19)    
+      biomes: Plains x3.0 (100%)
+legends:titaniumOre                              0.7215   0.0149   2.1%  0.05%  1-20 (pk 9, 1-19)     
+      biomes: Plains x3.0 (100%)
+legends:bauxiteOre                               0.5903   0.0122   2.1%  0.04%  1-20 (pk 20, 1-19)    
+      biomes: Plains x3.0 (100%)
+legends:tungstenOre                              0.4475   0.0093   2.1%  0.03%  1-20 (pk 14, 1-18)    
+      biomes: Plains x3.0 (100%)
+voltzengine:veGemOre                             0.4084   0.0159   3.9%  0.03%  1-20 (pk 2, 1-18)     
+      biomes: Plains x3.0 (100%)
+legends:sapphireOre                              0.3733   0.0077   2.1%  0.03%  1-18 (pk 15, 1-15)    
+      biomes: Plains x3.0 (100%)
+legends:rubyOre                                  0.3613   0.0074   2.1%  0.03%  1-15 (pk 12, 1-12)    
+      biomes: Plains x3.0 (100%)
+legends:lightningOre                             0.3138   0.0064   2.0%  0.02%  1-20 (pk 5, 1-18)     
+      biomes: Plains x3.0 (100%)
+legends:redDiamondOre                            0.2922   0.0060   2.1%  0.02%  1-12 (pk 3, 1-10)     
+      biomes: Plains x3.0 (100%)
+voltzengine:veStoneOre                           0.2764   0.0424  15.3%  0.02%  5-20 (pk 7, 5-19)     
+      biomes: Plains x3.0 (100%)
+legends:palladiumOre                             0.2674   0.0056   2.1%  0.02%  1-20 (pk 5, 1-18)     
+      biomes: Plains x3.0 (100%)
 
 === dim 55 Quantum Realm (LegendsMod) ===
 4 seeds, 158815 populated chunks (39735, 39673, 39698, 39709)
@@ -616,11 +616,10 @@ voltzengine:veGemOre                             0.0018   0.0012  68.6%  0.00%  
 
 === dim 84 Dimension-Crystal (OreSpawn) ===
 4 seeds, 158360 populated chunks (39598, 39593, 39571, 39598)
-215.660 ore blocks/chunk across 6 distinct ores -> real ore
-  (excluded: OreSpawn:OreSpawn_OreCrystalStoneBlock is 89.2% of this dimension's volume at 15817/chunk -- it is the terrain, not a vein in it)
+16.773 ore blocks/chunk across 5 distinct ores -> real ore
+  (excluded: OreSpawn:OreSpawn_OreCrystalStoneBlock at 15817.4/chunk is 89.2% of the dimension's volume -- terrain, not a vein in it)
+  (excluded: OreSpawn:OreSpawn_OreCrystalGrassBlock at 198.9/chunk is a terrain layer: 0.78 of the chunk's columns, 12% of it on Y63 -- terrain, not a vein in it)
 block                                        mean/chunk       sd    cv%   vol% Y band (peak, 90%)    
-OreSpawn:OreSpawn_OreCrystalGrassBlock         198.8870   4.6206   2.3%  1.12%  62-144 (pk 63, 62-94) 
-      biomes: biome 122 x1.0 (4%), biome 255 x1.0 (96%)
 OreSpawn:OreSpawn_OreCrystalRatBlock             5.0222   0.0007   0.0%  0.03%  1-24 (pk 5, 2-21)     
       biomes: biome 255 x1.0 (97%), biome 122 x0.8 (3%)
 OreSpawn:OreSpawn_OreCrystalFairyBlock           4.3544   0.0006   0.0%  0.02%  1-24 (pk 18, 2-21)    
@@ -683,12 +682,12 @@ dim    name                     mod                 ore/chunk    ores class
 -37    Dream                    Witchery              471.541      13 real ore
 -42    Lost World               thejungleMod          271.021       4 real ore
 7      Twilight Forest          TwilightForest        265.587      13 real ore
-84     Dimension-Crystal        OreSpawn              215.660       6 real ore
 85     Dimension-Chaos          OreSpawn              208.871      17 real ore
 33     Hurikane                 LegendsMod            195.244       3 real ore
 -1     Nether                   minecraft             139.341       4 real ore
 2      The Collision            TragicMC               88.284       2 real ore
-53     Kingpin Takedown         LegendsMod             28.521      19 real ore
+84     Dimension-Crystal        OreSpawn               16.773       5 real ore
+53     Kingpin Takedown         LegendsMod             15.164      19 real ore
 1      The End                  minecraft               1.070      12 trace only
 66     Hell                     LegendsMod              0.011       5 trace only
 83     Dimension-Islands        OreSpawn                0.007       3 trace only

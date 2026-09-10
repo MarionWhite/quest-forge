@@ -2,10 +2,10 @@
 
 ## The current ore numbers
 
-`ore-rates.json` and `ore-rates.txt`, measured 2026-09-09. **Use these.**
+`ore-rates.json` and `ore-rates.txt`, measured 2026-09-10. **Use these.**
 
 All **30 dimensions** generated with the live mod set across **4 seeds**, and
-every block in the resulting region files counted: **4,781,092 populated
+every block in the resulting region files counted: **4,775,020 populated
 chunks**. Per ore, per dimension, per depth and per biome, with a standard
 deviation across seeds beside every rate.
 
@@ -27,8 +27,21 @@ Two sanity checks worth knowing about, both of which the data passes: bedrock
 comes out at 767 blocks/chunk against vanilla's expected ~768, and vanilla ore
 depths reproduce (lapis peaks at Y 13, redstone's middle-90% is Y 1–13).
 
-Method, and the four bugs that had to be fixed before any of it was
-trustworthy: [`../../docs/survey/README.md`](../../docs/survey/README.md).
+
+> **Reviewed.** A separate reviewing agent re-derived all 264 published rows from the
+> raw scans (zero mismatches), confirmed rates are averaged not summed, found no
+> dropped chunks across 4.78M, and verified the CodeChickenLib patch cannot
+> touch worldgen. It also found two real errors, both since fixed and
+> regenerated: dimension 53 read 28.5 instead of 15.2 because a `data/region/`
+> folder shipped inside its map was counted as dimension chunks, and dimension
+> 84 read 215.7 instead of 16.8 because that dimension's grass layer carries an
+> "ore" token in its name. No other dimension changed.
+>
+> Known limits: the trace/nothing boundary is **not resolved** — dims 31, 32 and
+> 36 rest on ten to twenty blocks in the whole sample, far below this survey's
+> own floor. Read those as uncertainty, not as figures.
+
+Method, and the bugs that had to be fixed before any of it was trustworthy: [`../../docs/survey/README.md`](../../docs/survey/README.md).
 
 ---
 

@@ -50,8 +50,25 @@ ORE_TOKENS = {"ore", "ores"}
 # minecraft:stone is 76.6% of a LegendsMod dimension -- and the name carries an
 # "ore" token, so without this it reports as an ore at 15,470 blocks/chunk and
 # swamps every real figure. The highest genuine ore measured anywhere in this
-# pack is ~0.7% of volume, so 5% is not a close call.
+# pack is 1.068% of volume (coal, dim 81), so 5% is not a close call.
 BULK_SHARE_PCT = 5.0
+
+# A horizontal terrain layer is not a vein, even when it is only 1% of the
+# volume. OreSpawn's Crystal dimension surfaces in
+# `OreSpawn_OreCrystalGrassBlock` -- 201 blocks/chunk, 0.79 of the chunk's 256
+# columns, peaking at sea level with 21% of it in Y62-63 -- so it slipped under
+# BULK_SHARE_PCT at 1.12% and reported as the dimension's largest "ore",
+# swamping the real figure by 13x.
+#
+# The distinction is physical: a layer covers most columns and sits at one
+# height, a vein is scattered through a thick Y band. Measured across all 264
+# ore rows in this pack, the two do not overlap -- the grass is the only row
+# with both a quarter of the columns and 5% of itself on one Y level, while the
+# closest genuine ores are siliconOre (0.26 columns, 4.7% on its busiest level)
+# and veStoneOre in dim 7 (6.6%, but only 0.18 columns). Thresholds sit in that
+# gap rather than on either edge of it.
+LAYER_COVERAGE = 0.25       # fraction of a chunk's 256 columns
+LAYER_PEAK_SHARE = 0.08     # fraction of the block sitting on one Y level
 
 VANILLA_BIOMES = {
     0: "Ocean", 1: "Plains", 2: "Desert", 3: "Extreme Hills", 4: "Forest",
@@ -193,8 +210,20 @@ def aggregate(scans, dim, ores_only, want_depth, want_biomes):
         m, sd, cv = stats(vals)
         share = (100.0 * m / volume) if volume else 0.0
         is_bulk = b in ore_names and share >= BULK_SHARE_PCT
+        why = "%.1f%% of the dimension's volume" % share
+        if not is_bulk and b in ore_names and b in detail:
+            by_y = detail[b]["by_y"]
+            tot_y = sum(by_y.values())
+            if tot_y:
+                cov = m / 256.0
+                peak = max(by_y.values()) / tot_y
+                if cov >= LAYER_COVERAGE and peak >= LAYER_PEAK_SHARE:
+                    is_bulk = True
+                    py = max(by_y.items(), key=lambda kv: kv[1])[0]
+                    why = ("a terrain layer: %.2f of the chunk's columns, %.0f%% "
+                           "of it on Y%s" % (cov, 100 * peak, py))
         if is_bulk:
-            bulk.append({"block": b, "mean": m, "share_pct": share})
+            bulk.append({"block": b, "mean": m, "share_pct": share, "why": why})
         row = {"block": b, "ore": b in ore_names and not is_bulk,
                "bulk_terrain": is_bulk, "mean": m, "sd": sd, "cv_pct": cv,
                "share_pct": share, "min": min(vals), "max": max(vals),
@@ -275,9 +304,8 @@ def main():
         print("%.3f ore blocks/chunk across %d distinct ores -> %s"
               % (agg["ore_per_chunk"], agg["distinct_ores"], agg["class"]))
         for b in agg["bulk_terrain"]:
-            print("  (excluded: %s is %.1f%% of this dimension's volume at "
-                  "%.0f/chunk -- it is the terrain, not a vein in it)"
-                  % (b["block"], b["share_pct"], b["mean"]))
+            print("  (excluded: %s at %.1f/chunk is %s -- terrain, not a vein "
+                  "in it)" % (b["block"], b["mean"], b["why"]))
         rows = [r for r in agg["blocks"] if r["ore"] or not args.ores_only]
         if args.top:
             rows = rows[:args.top]

@@ -135,10 +135,11 @@ def main():
     # (35), tatooine (36), kingpinTakedown (53) and dim54 (58). Without that
     # directory the mod logs a FileNotFoundException at boot, the dimension
     # still registers, and pregeneration still reports "40000 chunks" -- but
-    # nothing is written and the dimension holds no blocks at all. Two of the
-    # six are classified as carrying real ore, so leaving this out silently
-    # deletes them from the survey. That is the same failure mode as the mod
-    # set drifting: the run looks like it worked.
+    # nothing is written and the dimension holds no blocks at all. Three of the
+    # six (34, 53 and 58) carry real ore -- 58 is the second richest dimension
+    # in the pack -- so leaving this out silently deletes them from the survey.
+    # That is the same failure mode as the mod set drifting: the run looks like
+    # it worked.
     for name in ("config", "scripts", "legends", "structures"):
         src = os.path.join(inst, name)
         if os.path.isdir(src):

@@ -247,18 +247,33 @@ class UnknownDimensionFolder(Exception):
     pass
 
 
+class StrayRegionFile(Exception):
+    pass
+
+
 def dimension_of(path, save_dir, folders=None):
     """Dimension id from the region file's path.
 
-    The dimension is the first path component under the save directory. An
-    unrecognised folder raises rather than defaulting to the overworld: a
-    wrong dimension is indistinguishable from a real measurement downstream,
-    and silently folding one dimension into another is exactly the class of
-    bug this survey exists to avoid.
+    A dimension's chunks live at exactly `<dim>/region/r.x.z.mca`, or
+    `region/r.x.z.mca` for the overworld. **The depth matters.** LegendsMod
+    copies its prebuilt maps in wholesale, and kingpinTakedown ships a nested
+    `data/region/` of its own -- 178 more .mca files sitting inside `DIM53/`.
+    Matching on the first path component alone swept those up as dimension 53
+    and counted 1,518 chunks twice, inflating its ore rate from 15.2 to 28.5.
+    That is the same folder-attribution mistake as counting `Collision/` as the
+    overworld, one level deeper, so this now checks the whole shape of the path
+    and refuses anything else.
+
+    An unrecognised dimension folder raises; a region file somewhere unexpected
+    raises separately, because the two need different answers from a human.
     """
     folders = folders or DIM_FOLDERS
-    rel = os.path.relpath(path, save_dir)
-    top = rel.split(os.sep)[0]
+    parts = os.path.relpath(path, save_dir).split(os.sep)
+    if len(parts) == 2 and parts[0] == "region":
+        return 0
+    if len(parts) != 3 or parts[1] != "region":
+        raise StrayRegionFile(os.sep.join(parts[:-1]))
+    top = parts[0]
     if top in folders:
         return folders[top]
     if top.startswith("DIM"):
@@ -309,12 +324,24 @@ def main():
     # stop: continuing would attribute real blocks to the wrong dimension,
     # and nothing downstream could tell that had happened.
     dim_of = {}
-    unknown = set()
+    unknown, stray = set(), collections.Counter()
     for path in regions:
         try:
             dim_of[path] = dimension_of(path, args.save, folders)
         except UnknownDimensionFolder as exc:
             unknown.add(str(exc))
+        except StrayRegionFile as exc:
+            stray[str(exc)] += 1
+    if stray:
+        # Not fatal -- these are real region files that are not a dimension's
+        # chunks (a mod's shipped map template, most often). But they are never
+        # skipped quietly: counting them once cost this survey a 1.9x error on
+        # dimension 53.
+        print("ignoring %d region file(s) outside any <dim>/region/:"
+              % sum(stray.values()))
+        for where, n in sorted(stray.items()):
+            print("    %-48s %d files" % (where, n))
+        regions = [p for p in regions if p in dim_of]
     if unknown:
         sys.exit("unrecognised dimension folder(s) holding region files: %s. "
                  "Name them with --dim-folder NAME=ID. To find the id, generate "

@@ -43,7 +43,7 @@ of the same track at 20–44 MB each. Run the arrangement to get the audio back.
 
 Ore distribution and pack composition.
 
-The **current** ore pipeline is four scripts, run in this order, and is documented
+The **current** ore pipeline is five scripts, run in this order, and is documented
 step by step in [`../docs/survey/README.md`](../docs/survey/README.md):
 
 | script | job |
