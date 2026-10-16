@@ -41,11 +41,18 @@ anywhere.
 
 ## `qf-tweaks`
 
-A coremod, deliberately tiny — two ASM transformers and a loader:
+A coremod, deliberately tiny — four ASM transformers and a loader:
 
 - `PanelButtonQuestTransformer` — patches the Better Questing quest panel UI.
 - `MusicTickerTransformer` — takes control of menu music so the splash chant can
   hard-cut to the menu drone.
+- `GraveBeamTransformer` — skips GraveStones' item beam while a shader pack is
+  active. The beam is untextured additive geometry, which a deferred pack draws
+  as an opaque black column around the grave.
+- `GraveBaublesTransformer` — stops GraveStones resyncing seven Baubles slots
+  when there are four, which disconnected every player on each death in
+  multiplayer. It is the one patch here that runs on the server, so the server
+  carries this coremod too.
 
 Built with `javac` directly rather than Gradle; a coremod has no Minecraft
 dependencies to resolve beyond the launch wrapper.

@@ -14,6 +14,7 @@ Read in this order on a new machine.
 | [`setup/jvm-args.md`](setup/jvm-args.md) | Prism JVM arguments, with RAM presets. Java 8 only. |
 | [`setup/mac-setup.md`](setup/mac-setup.md) | Mac-specific notes: Rosetta, natives, LWJGL. |
 | [`setup/performance-tuning.md`](setup/performance-tuning.md) | What to turn down, and what it costs. |
+| [`setup/hosting-a-server.md`](setup/hosting-a-server.md) | Building and running the multiplayer server for friends. |
 | [`setup/transfer-from-windows.md`](setup/transfer-from-windows.md) | How the pack was moved off the original Windows install. |
 | [`setup/migration-manifest.md`](setup/migration-manifest.md) | What the 2026-09-04 migration bundle contained. |
 
