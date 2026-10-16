@@ -75,6 +75,10 @@ public class QFNetwork {
 
         wrapper.registerMessage(PacketOpenSpeaker.Handler.class,
                                 PacketOpenSpeaker.class, 10, Side.CLIENT);
+        // "This drag-and-drop enchanting click is deliberate." Without it the
+        // server cannot tell a person from InventoryTweaks' sort; see ClickIntent.
+        wrapper.registerMessage(PacketClickIntent.Handler.class,
+                                PacketClickIntent.class, 17, Side.SERVER);
     }
 
     public static void toServer(Object message) {

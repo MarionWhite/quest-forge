@@ -43,6 +43,8 @@ public class QFHooks {
                 QFEnchantment ench = BookNBT.getEnchant(cursor);
                 if (ench == null || !ench.canApply(target)) return false;
 
+                if (!deliberate(container, slotId, player)) return false;
+
                 // From here we own the click on both sides. The client does nothing
                 // and waits for the server's slot update, which avoids showing a
                 // swap that is about to be corrected.
@@ -53,6 +55,8 @@ public class QFHooks {
             }
 
             if (cursor.getItem() instanceof ItemConsumable) {
+                if (!ConsumableUse.applies(cursor.getItemDamage(), target)) return false;
+                if (!deliberate(container, slotId, player)) return false;
                 return useConsumable(container, player, slot, target, cursor);
             }
 
@@ -64,6 +68,27 @@ public class QFHooks {
             t.printStackTrace();
             return false;
         }
+    }
+
+    /**
+     * Whether this click was made on purpose by a person, as opposed to by an
+     * inventory sorter. See {@link ClickIntent} for the whole story.
+     *
+     * On the client the answer comes from the mouse, and a yes is sent ahead to the
+     * server. On the server the answer is whether that yes arrived. Both sides
+     * therefore reach the same verdict, which matters: if they disagreed the client
+     * would show a swap the server never made, or the reverse.
+     */
+    private static boolean deliberate(Container container, int slotId, EntityPlayer player) {
+        if (player.worldObj.isRemote) {
+            if (!com.questforge.content.QuestForgeContent.proxy.isDeliberateClick(container, slotId)) {
+                return false;
+            }
+            com.questforge.content.net.QFNetwork.toServer(
+                    new com.questforge.content.net.PacketClickIntent(container.windowId, slotId));
+            return true;
+        }
+        return ClickIntent.consume(player, container.windowId, slotId);
     }
 
     /**

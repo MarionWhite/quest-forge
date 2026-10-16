@@ -121,6 +121,11 @@ public class ClientProxy extends CommonProxy {
     }
 
     @Override
+    public boolean isDeliberateClick(net.minecraft.inventory.Container container, int slotId) {
+        return com.questforge.content.client.HumanClick.isDeliberate(container, slotId);
+    }
+
+    @Override
     public void openRecorderGui() {
         net.minecraft.client.Minecraft.getMinecraft().displayGuiScreen(
                 new com.questforge.content.jukebox.GuiRecorder());

@@ -34,4 +34,12 @@ public class CommonProxy {
 
     /** Opens the record cutter. Client-only for the same reason. */
     public void openRecorderGui() {}
+
+    /**
+     * Whether a slot click on this side came from a person's hand. Only a client
+     * can know; see ClientProxy and HumanClick. A dedicated server never asks.
+     */
+    public boolean isDeliberateClick(net.minecraft.inventory.Container container, int slotId) {
+        return false;
+    }
 }
