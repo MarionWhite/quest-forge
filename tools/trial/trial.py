@@ -432,6 +432,19 @@ def ports_in_use():
                     used.add(int(p))
             except (OSError, ValueError):
                 pass
+    # Ports other sessions' server dirs are configured for, running or not --
+    # a benchmark between runs is not listening, but its next run will be.
+    for root in (r"C:\qfs", r"C:\qfb", r"C:\qfm"):
+        if not os.path.isdir(root):
+            continue
+        for n in os.listdir(root):
+            try:
+                with open(os.path.join(root, n, "server.properties"), encoding="utf-8", errors="replace") as f:
+                    m = re.search(r"^server-port=(\d+)", f.read(), re.M)
+                if m:
+                    used.add(int(m.group(1)))
+            except OSError:
+                pass
     return used
 
 
