@@ -39,6 +39,7 @@ set "CP=%CP%;%INST%\bin\lib\launchwrapper-1.11.jar"
 set "CP=%CP%;%INST%\bin\lib\asm-all-5.0.3.jar"
 set "CP=%CP%;%INST%\bin\lib\log4j-api-2.0-beta9.jar"
 set "CP=%CP%;%INST%\bin\minecraft.jar"
+set "CP=%CP%;%INST%\bin\lib\lwjgl-2.9.1.jar"
 
 if exist "%HERE%build" rd /s /q "%HERE%build"
 mkdir "%HERE%build"
@@ -55,7 +56,9 @@ rem -XX:+FailOverToOldVerifier, so older-version bytecode is fine here.
   "%HERE%src\com\questforge\MusicTickerTransformer.java" ^
   "%HERE%src\com\questforge\GraveBeamTransformer.java" ^
   "%HERE%src\com\questforge\GraveBaublesTransformer.java" ^
-  "%HERE%src\com\questforge\ShaderState.java"
+  "%HERE%src\com\questforge\ShaderState.java" ^
+  "%HERE%src\com\questforge\MorphOptifineTransformer.java" ^
+  "%HERE%src\com\questforge\MorphFix.java"
 
 if errorlevel 1 (
   echo.

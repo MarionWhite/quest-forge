@@ -118,6 +118,37 @@ This is the one patch here that runs on the server, so the dedicated server
 must carry QuestForgeTweaks too. Look for `Transform applied: GraveStones now
 resyncs 4 Baubles slots` in the server log.
 
+## Morph under OptiFine E7
+
+`MorphOptifineTransformer` makes the stock `Morph-Beta-0.9.3.jar` usable with
+OptiFine E7 and shaders. Install the stock jar. The hand-patched copies in
+`mods_disabled\` and the September work folder are superseded. There are two
+client bugs:
+
+- **Killing a new mob kicked you** with "critical exception handling a packet
+  on channel Morph". To force a model recompile, Morph calls
+  `GLAllocation.deleteDisplayLists` on lists that are not in GLAllocation's map
+  under OptiFine. That throws a NullPointerException. All three calls
+  (`ModelHelper` twice, `ModelMorph` once) now go to
+  `MorphFix.deleteDisplayList`. It keeps vanilla's behaviour when that works,
+  and otherwise frees the one list with `glDeleteLists`.
+- **Morphing froze the game.** Morph's `RenderHandEvent` handler cancels the
+  event and calls `EntityRenderer.renderHand` itself to draw the mob's arm.
+  OptiFine's `renderHand` posts `RenderHandEvent` again, so the handler
+  re-entered itself until it overflowed the stack. OptiFine caught that and
+  logged a thousand-line trace every frame, which pinned the game near 0 fps and
+  never produced a crash report. In singleplayer this looks like the server
+  dying. The handler is now renamed and wrapped. A re-entrant call returns
+  without cancelling, so OptiFine's inner `renderHand` draws the arm Morph
+  swapped in. The guard is cleared in a `finally`.
+
+Diagnosed on 2026-10-16 with `jstack` on a frozen scripted client. With this
+patch, a scripted run on the full pack with Sildur's Vibrant passes all of these
+steps: kill, acquire, morph, F5, inventory, pause menu, a second species, and
+demorph. Look for three `Transform applied: morph.` lines in `latest.log`. A
+dedicated server logs none, because FML strips the client handler first; that
+is expected.
+
 ---
 
 ## Building

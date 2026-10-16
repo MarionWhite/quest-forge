@@ -32,9 +32,12 @@ import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
         "com.questforge.MusicTickerTransformer",
         "com.questforge.GraveBeamTransformer",
         "com.questforge.GraveBaublesTransformer",
+        "com.questforge.MorphOptifineTransformer",
         // Not a transformer, but loaded from code patched into GraveStones;
         // there is nothing in it any transformer needs to touch.
-        "com.questforge.ShaderState"
+        "com.questforge.ShaderState",
+        // Called from Morph's patched classes.
+        "com.questforge.MorphFix"
 })
 public class QuestForgeCore implements IFMLLoadingPlugin {
 
@@ -44,7 +47,8 @@ public class QuestForgeCore implements IFMLLoadingPlugin {
                 "com.questforge.PanelButtonQuestTransformer",
                 "com.questforge.MusicTickerTransformer",
                 "com.questforge.GraveBeamTransformer",
-                "com.questforge.GraveBaublesTransformer"
+                "com.questforge.GraveBaublesTransformer",
+                "com.questforge.MorphOptifineTransformer"
         };
     }
 

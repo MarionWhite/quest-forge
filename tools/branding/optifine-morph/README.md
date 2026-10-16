@@ -1,5 +1,16 @@
 # Morph + OptiFine E7 — research and a work-folder patch
 
+> **Superseded on 2026-10-16.** Both fixes now live in QuestForgeTweaks as
+> `MorphOptifineTransformer` (see `mods/qf-tweaks/README.md`), and the live
+> instance runs the **stock** `Morph-Beta-0.9.3.jar` from `mods\`. Do not install
+> the work-folder jar or the NOP'd copy in `mods_disabled\`.
+>
+> The analysis below was right. A `jstack` of a frozen client confirmed the
+> `onRenderHand` recursion. The work-folder jar was pulled because of a crash on
+> 2026-09-04 at 17:01, a "Rendering screen" NPE at `EntityRenderer:1464`. That
+> was not Morph: the same crash recurred at 17:18, 17:20 and 17:26 with Morph
+> uninstalled, during that day's main-menu work.
+
 **Live instance was not changed.** Morph stays in `mods_disabled\`. iChunUtil 4.2.2, OptiFine E7, Fast Render, shaders, TEST-LAUNCH.bat, CodeChickenCore, NEI, DefaultQuests, splash, OpenBlocks.cfg are untouched.
 
 Work folder: `C:\Users\a2dsu\OneDrive\Desktop\QuestForge-Work\_morph-optifine-20260904\`
