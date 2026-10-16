@@ -97,5 +97,5 @@ QF_XMX=6144M QF_XMS=2048M "$HOME/Library/Application Support/PrismLauncher/insta
 - Never run VoidLauncher.
 - Do not update CodeChickenCore / NEI.
 - `ofFastRender` stays `false`.
-- Morph stays in `mods_disabled` unless testing `tools/_morph-optifine-20260904/`.
+- Morph is the stock jar in `mods`, fixed at load time by QuestForgeTweaks. Keep exactly one Morph jar there and never use the old patched copies.
 - Java 8 x64 only. The default `java` on this Mac is Homebrew OpenJDK 17 (arm64) and a Zulu 8 arm64 also exists; do not point Prism at either.

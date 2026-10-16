@@ -15,7 +15,7 @@ Work / backups (iterate FROM here):
 Windows launch today: `TEST-LAUNCH.bat` via Desktop `Quest Forge.lnk`  
 Java on Windows: `C:\Program Files\Java\jre1.8.0_241`  
 Forge: **patched** `bin\lib\forge-1.7.10-10.13.4.1558-1.7.10-universal.jar` (splash buffer, pulse, signatures stripped)  
-`mods\CustomMenu.jar` is **patched** (Mods button). Morph is **only** in `mods_disabled`.
+`mods\CustomMenu.jar` is **patched** (Mods button). Morph is the **stock** jar in `mods`, fixed at load time by `QuestForgeTweaks-1.0.jar` (since 2026-10-16).
 
 Cursor project `Desktop\New folder` (chats / canvases, ~28 MB) is **not** required to run the game.
 
@@ -146,7 +146,7 @@ Write-Output "Wrote $Dest\QuestForge-Mac-Play.zip"
 | Path | Why |
 |---|---|
 | `mods\` | Entire pack, patched CustomMenu, OptiFine E7, FastCraft **1.25**, Tweaks. |
-| `mods_disabled\` | Documents what is off. Includes Morph (leave disabled unless you test the work-folder jar). |
+| `mods_disabled\` | Documents what is off. Morph no longer lives here; it is in `mods\`. |
 | `config\` | All tuning + **`config\betterquesting\DefaultQuests.json`**. |
 | `scripts\` | MineTweaker gating / tips. |
 | `resources\` | `loading_mural.png`, `emblem_corner.png`, `mojang_pulse.gif`, logos. |
@@ -189,7 +189,7 @@ Bring the lean set (~213 MB):
 
 - `cc4-branding`, `cc4-branding-v2` — button / splash / QuestForge.zip masters
 - `_emblem-pulse`, `_splash-*`, `_work-hires-splash`, `_fix-settings-20260904`
-- `_morph-optifine-20260904` — includes `Morph-Beta-0.9.3-QF-OPTIFINE.jar` (OneDrive cloud file; open it once on Windows so it hydrates before copy)
+- `_morph-optifine-20260904` — research notes only. Its `Morph-Beta-0.9.3-QF-OPTIFINE.jar` is superseded by the QuestForgeTweaks fix and must not be installed.
 - `_heroes-20260904` — quest retarget scripts / notes
 - `_perf-20260904` — G1 / OptiFine overlay + `REAPPLY-AFTER-QUIT.bat`
 - `questforge-coremod` — Tweaks source
@@ -305,7 +305,7 @@ The script **refuses to start** if it still sees `lwjgl.dll` and no `liblwjgl.dy
 | Skip `CustomMenu.jar` or let VoidLauncher restore it | Mods button / menu branding revert. |
 | Skip `assets/mcheli` | Helicopters missing / crash on content. |
 | Skip `config` | Default quests, splash, Lycanites, HBM, etc. reset. |
-| Skip `mods_disabled` | Fine to play, but you lose the Morph / old-jar parking lot. |
+| Skip `mods_disabled` | Fine to play, but you lose the old-jar parking lot. |
 | Open VoidLauncher “to fix it” | Stock jars come back. Start over from the zip. |
 | Copy only OneDrive `QuestForge-Work` | That is tools + old zips, **not** the live 104-mod instance. |
 | Copy OneDrive cloud placeholders without hydrating | Empty Morph jar / splash PNGs on the Mac. |
@@ -339,7 +339,7 @@ Prefer **robocopy from AppData → USB**. Explorer copies from OneDrive Desktop 
 
 - [ ] Quit Minecraft on Windows (so options / JM flush).
 - [ ] Decide worlds: none / `Here We Go` / `Tryhard Run` / `Test` / all.
-- [ ] Hydrate work files you care about (especially `_morph-optifine-20260904\Morph-Beta-0.9.3-QF-OPTIFINE.jar`).
+- [ ] Hydrate work files you care about.
 - [ ] Stage + zip to **USB or C:\Temp** using §1 (required pack ± saves ± lean work).
 - [ ] On Mac: Rosetta (if needed) → **Java 8 x64** → Prism → 1.7.10 Forge **1558** → first launch → copy folders → overlay patched Forge → paste JVM args.
 - [ ] Launch from Prism. Confirm splash, Mods button, QuestForge pack, shaders or Enhanced Default.

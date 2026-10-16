@@ -467,11 +467,13 @@ If a key does nothing: **Options → Controls** and search for Quests / JourneyM
 
 ---
 
-# Step 13 — Morph (leave it off)
+# Step 13 — Morph (on, stock jar)
 
-Morph is in **`mods_disabled`**, not in `mods`. **Leave it there.**
+Morph is in **`mods`** as the **stock** `Morph-Beta-0.9.3.jar`. It works under OptiFine E7 because `QuestForgeTweaks-1.0.jar` patches it at load time (see `mods/qf-tweaks/README.md`), so both jars must come across.
 
-The pack was tuned this way. Only move a Morph jar into `mods` if you are deliberately testing the iterate jar in `tools/_morph-optifine-20260904/`. That is optional and not part of first launch.
+Have exactly one Morph jar in `mods`, and never the old hand-patched copies (`Morph-Beta-0.9.3-QF-OPTIFINE.jar` or the NOP'd one that used to be in `mods_disabled`). Two Morph jars stop Forge at startup with a duplicate mod ID.
+
+To check it works, look in `logs/latest.log` for three `[QuestForgeTweaks] Transform applied: morph.` lines.
 
 ---
 
