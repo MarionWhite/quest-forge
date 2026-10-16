@@ -87,9 +87,29 @@ public class EnchantDispatcher {
                 ctx.pass = pass;
 
                 int chance = f.enchant.getProcChance(f.level);
-                if (chance < 100 && ctx.rand.nextInt(100) >= chance) continue;
+                // The roll is left exactly as it was: same condition, same single
+                // nextInt, drawn only when the chance is under 100. The tap is
+                // told the outcome afterwards so that turning the census on
+                // cannot shift the random sequence and change what it measures.
+                if (chance < 100 && ctx.rand.nextInt(100) >= chance) {
+                    if (EnchantTap.isEnabled()) {
+                        EnchantTap.rolled(f.enchant, trigger, false, pass);
+                    }
+                    continue;
+                }
+                if (EnchantTap.isEnabled()) {
+                    EnchantTap.rolled(f.enchant, trigger, true, pass);
+                }
 
+                // Attribution is the damage this one enchantment added or removed
+                // from the hit in flight. Only meaningful for effects that touch
+                // ctx.damage; bleeds and chains land elsewhere and are counted by
+                // the census from the fight total instead.
+                float beforeDamage = ctx.damage;
                 invoke(trigger, f.enchant, ctx);
+                if (EnchantTap.isEnabled()) {
+                    EnchantTap.attribute(f.enchant, trigger, ctx.damage - beforeDamage);
+                }
             }
         }
         return ctx.damage;

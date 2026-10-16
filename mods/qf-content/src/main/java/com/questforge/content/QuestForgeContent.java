@@ -95,6 +95,68 @@ public class QuestForgeContent {
         com.questforge.content.voice.VoiceServer.reset();
     }
 
+    /**
+     * Starts a combat census automatically when the JVM was told to.
+     *
+     * A census takes an hour and a half, and driving it by typing into the
+     * server's console ties it to whatever shell is holding that pipe -- close the
+     * terminal, lose the run. Passing
+     * {@code -Dqf.census.combat="Zombie TwilightForest.Hydra"} instead lets the
+     * server be launched fully detached and finish on its own. The value is the
+     * same argument list {@code /qfcensus combat} takes, so a target list and an
+     * item registry name for the weapon both work.
+     *
+     * Started here rather than in serverStarting because the world has to exist
+     * before anything can be spawned into it.
+     */
+    @Mod.EventHandler
+    public void serverStarted(cpw.mods.fml.common.event.FMLServerStartedEvent event) {
+        // -Dqf.census.autorun="mobs" runs any census subcommand; -Dqf.census.combat
+        // is the older spelling for the combat one and still works.
+        String request = System.getProperty("qf.census.autorun");
+        java.util.List<String> args = new java.util.ArrayList<String>();
+        if (request == null || request.trim().isEmpty()) {
+            request = System.getProperty("qf.census.combat");
+            if (request == null || request.trim().isEmpty()) return;
+            args.add("combat");
+        }
+
+        log.info("[census] automatic census requested: " + request);
+        // Commas as well as spaces, because a JVM property containing a space has
+        // to survive whatever shell launched the server and frequently does not:
+        // the first attempt at this arrived as a bare "Zombie" plus a demand to
+        // load a main class named "TwilightForest.Hydra".
+        for (String part : request.trim().split("[\\s,]+")) {
+            if (!part.isEmpty()) args.add(part);
+        }
+
+        // Through the command itself, so an automated run goes past exactly the
+        // same calibration gates a typed one does.
+        com.questforge.content.census.CommandCensus command =
+                new com.questforge.content.census.CommandCensus();
+        try {
+            command.processCommand(net.minecraft.server.MinecraftServer.getServer(),
+                    args.toArray(new String[args.size()]));
+        } catch (Throwable t) {
+            log.error("[census] automatic combat census failed to start", t);
+            return;
+        }
+
+        // Nobody is watching a detached server, so it stops itself when the run
+        // finishes -- that is also what closes the output files.
+        String what = args.isEmpty() ? "" : args.get(0).toLowerCase();
+        if ("combat".equals(what)) {
+            com.questforge.content.census.CombatCensus.stopServerWhenFinished();
+        } else if ("mobs".equals(what) || "all".equals(what)) {
+            com.questforge.content.census.MobCensus.stopServerWhenFinished();
+        } else {
+            // A one-shot command (gear, find, calibrate) is already finished.
+            try {
+                net.minecraft.server.MinecraftServer.getServer().initiateShutdown();
+            } catch (Throwable ignored) {}
+        }
+    }
+
     @Mod.EventHandler
     public void serverStopped(cpw.mods.fml.common.event.FMLServerStoppedEvent event) {
         com.questforge.content.jukebox.PublicPlaylists.reset();

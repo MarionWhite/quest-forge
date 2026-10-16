@@ -18,14 +18,27 @@ public class CensusTicker {
     @SubscribeEvent
     public void onServerTick(TickEvent.ServerTickEvent event) {
         if (event.phase != TickEvent.Phase.END) return;
-        if (!MobCensus.isRunning()) return;
-        try {
-            MobCensus.tick();
-        } catch (Throwable t) {
-            QuestForgeContent.log.error("[census] mob census tick failed; stopping", t);
+
+        if (MobCensus.isRunning()) {
             try {
-                MobCensus.stop();
-            } catch (Throwable ignored) {}
+                MobCensus.tick();
+            } catch (Throwable t) {
+                QuestForgeContent.log.error("[census] mob census tick failed; stopping", t);
+                try {
+                    MobCensus.stop();
+                } catch (Throwable ignored) {}
+            }
+        }
+
+        if (CombatCensus.isRunning()) {
+            try {
+                CombatCensus.tick();
+            } catch (Throwable t) {
+                QuestForgeContent.log.error("[census] combat census tick failed; stopping", t);
+                try {
+                    CombatCensus.stop();
+                } catch (Throwable ignored) {}
+            }
         }
     }
 }

@@ -172,6 +172,23 @@ public final class MobCensus {
         running = false;
         queue = null;
         world = null;
+
+        if (shutdownWhenFinished) {
+            shutdownWhenFinished = false;
+            QuestForgeContent.log.info("[census] automatic run complete; stopping the server.");
+            try {
+                net.minecraft.server.MinecraftServer.getServer().initiateShutdown();
+            } catch (Throwable t) {
+                QuestForgeContent.log.error("[census] could not stop the server", t);
+            }
+        }
+    }
+
+    private static boolean shutdownWhenFinished;
+
+    /** For automated runs on a detached server, which nobody will type "stop" into. */
+    public static void stopServerWhenFinished() {
+        shutdownWhenFinished = true;
     }
 
     /** Called once per server tick. */

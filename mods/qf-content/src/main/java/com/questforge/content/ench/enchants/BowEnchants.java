@@ -14,6 +14,7 @@ import net.minecraft.util.Vec3;
 import com.questforge.content.ench.ArrowContext;
 import com.questforge.content.ench.ArrowTracker;
 import com.questforge.content.ench.Cooldowns;
+import com.questforge.content.ench.Teleport;
 import com.questforge.content.ench.EnchantCategory;
 import com.questforge.content.ench.Hostility;
 import com.questforge.content.ench.ProcContext;
@@ -204,7 +205,7 @@ public class BowEnchants {
             double dy = -Math.sin(pitch);
             double dz = Math.cos(yaw) * Math.cos(pitch);
 
-            player.setPositionAndUpdate(arrow.posX - dx, arrow.posY - dy + 0.5D, arrow.posZ - dz);
+            Teleport.to(player, arrow.posX - dx, arrow.posY - dy + 0.5D, arrow.posZ - dz);
             player.fallDistance = 0F;
             ctx.world.playSoundAtEntity(player, "mob.endermen.portal", 1.0F, 1.0F);
         }
@@ -236,8 +237,8 @@ public class BowEnchants {
 
             double px = player.posX, py = player.posY, pz = player.posZ;
 
-            player.setPositionAndUpdate(target.posX, target.posY, target.posZ);
-            target.setPositionAndUpdate(px, py, pz);
+            Teleport.to(player, target.posX, target.posY, target.posZ);
+            Teleport.to(target, px, py, pz);
             player.fallDistance = 0F;
             ctx.world.playSoundAtEntity(player, "mob.endermen.portal", 1.0F, 1.0F);
         }

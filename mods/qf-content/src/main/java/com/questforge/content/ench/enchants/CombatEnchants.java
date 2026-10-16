@@ -205,14 +205,11 @@ public class CombatEnchants {
 
             // A player's client owns its own rotation; changing the server copy
             // does nothing visible unless the server sends a position packet.
-            if (target instanceof net.minecraft.entity.player.EntityPlayerMP) {
-                net.minecraft.entity.player.EntityPlayerMP mp =
-                        (net.minecraft.entity.player.EntityPlayerMP) target;
-                if (mp.playerNetServerHandler != null) {
-                    mp.playerNetServerHandler.setPlayerLocation(
-                            mp.posX, mp.posY, mp.posZ, mp.rotationYaw, mp.rotationPitch);
-                }
-            }
+            // Teleport.to sends it to the same place the target already is, which
+            // is how a rotation change is pushed, and skips the packet for a
+            // player that has no connection to receive it.
+            com.questforge.content.ench.Teleport.to(
+                    target, target.posX, target.posY, target.posZ);
         }
     }
 

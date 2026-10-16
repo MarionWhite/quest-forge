@@ -314,6 +314,30 @@ public class WeaponEnchants2 {
          */
         private static final int WITHER_CEILING = 3;
 
+        /**
+         * Whether a potion is harmful, tolerating mods that do not implement the
+         * method.
+         *
+         * {@code Potion.isBadEffect()} is a vanilla method, but a potion in this
+         * pack is an instance whose class does not have it, and calling it throws
+         * {@code NoSuchMethodError: Potion.func_76398_f()Z} -- not an exception
+         * this code could have caught by type, and thrown from inside
+         * LivingHurtEvent, so it takes the hit and whatever else was on the stack
+         * with it. Found by the combat census, which recorded the cell as failed
+         * rather than producing a number.
+         *
+         * Treating an unanswerable potion as harmless is the safe default: the
+         * worst case is that Accelerant declines to amplify something it could
+         * have, which is a missing bonus rather than a crash.
+         */
+        private static boolean isBadEffect(Potion potion) {
+            try {
+                return potion.isBadEffect();
+            } catch (Throwable t) {
+                return false;
+            }
+        }
+
         private static int ceilingFor(Potion potion, int level) {
             int cap = ceiling(level);
             return potion == Potion.wither ? Math.min(cap, WITHER_CEILING) : cap;
@@ -328,7 +352,7 @@ public class WeaponEnchants2 {
             for (Object o : target.getActivePotionEffects().toArray()) {
                 PotionEffect effect = (PotionEffect) o;
                 Potion potion = Potion.potionTypes[effect.getPotionID()];
-                if (potion == null || !potion.isBadEffect()) continue;
+                if (potion == null || !isBadEffect(potion)) continue;
 
                 int cap = ceilingFor(potion, ctx.level);
                 int amplifier = Math.min(cap, effect.getAmplifier() + ctx.level);

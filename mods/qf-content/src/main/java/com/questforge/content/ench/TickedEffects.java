@@ -327,6 +327,48 @@ public class TickedEffects {
         SUMMONS.add(s);
     }
 
+    /**
+     * Cancels every lingering effect involving one entity, and despawns anything
+     * it summoned.
+     *
+     * Written for the combat census, which measures one enchantment per trial and
+     * cannot let the previous trial's bleed still be ticking when the next one
+     * starts. Bleeds, venoms and summons are held in flat lists rather than keyed
+     * by entity, so this is a scan; it runs between trials, not in the hot path.
+     *
+     * Summons are killed rather than merely forgotten. A census that leaves its
+     * iron golems standing has changed the world it is measuring.
+     */
+    public static void forget(EntityLivingBase entity) {
+        if (entity == null) return;
+
+        Iterator<Bleed> bleeds = BLEEDS.iterator();
+        while (bleeds.hasNext()) {
+            Bleed b = bleeds.next();
+            if (b.victim == entity || b.source == entity) bleeds.remove();
+        }
+
+        Iterator<Venom> venoms = VENOMS.iterator();
+        while (venoms.hasNext()) {
+            Venom v = venoms.next();
+            if (v.victim == entity || v.source == entity) venoms.remove();
+        }
+
+        Iterator<Summon> summons = SUMMONS.iterator();
+        while (summons.hasNext()) {
+            Summon s = summons.next();
+            if (s.owner != entity && s.target != entity && s.entity != entity) continue;
+            if (s.entity != null && s.entity != entity) {
+                try {
+                    s.entity.setDead();
+                } catch (Throwable ignored) {}
+            }
+            summons.remove();
+        }
+
+        CRIPPLES.remove(entity);
+    }
+
     // ---- Driving ---------------------------------------------------------
 
     public static void tick(World world) {

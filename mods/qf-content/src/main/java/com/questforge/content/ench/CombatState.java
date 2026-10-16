@@ -75,6 +75,20 @@ public class CombatState {
         return tick != null && (entity.ticksExisted - tick.intValue()) <= windowTicks;
     }
 
+    /**
+     * Drops everything remembered about one entity.
+     *
+     * Only the combat census needs this. It reuses a single probe player across
+     * hundreds of measurements, and without a way to forget, a Momentum streak or
+     * a Riposte window earned in one trial would still be sitting there at the
+     * start of the next one -- which is a contaminated measurement that looks
+     * exactly like a clean one.
+     */
+    public static void forget(EntityLivingBase entity) {
+        STREAKS.remove(entity);
+        LAST_HURT.remove(entity);
+    }
+
     // --- Reentrancy -------------------------------------------------------
     // Cultist damages its wielder, Rupture's bleed and Arc's chains damage other
     // entities, and every one of those fires another LivingHurtEvent that names

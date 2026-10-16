@@ -52,6 +52,8 @@ lives in [`../pack/reports/`](../pack/reports/), not here.
 | Document | What it covers |
 |---|---|
 | [`survey/README.md`](survey/README.md) | **How to measure ore generation.** Build the headless server, pregenerate, count the region files. Includes which of the 30 dimensions actually carry ore, and how many chunks a given precision needs. |
+| [`survey/combat-server.md`](survey/combat-server.md) | **How to build the server the combat census runs on.** Assembling it from the live instance, the one mod that has to go, and the three ways this pack differs from vanilla once you measure it. |
+| [`survey/combat.md`](survey/combat.md) | **How to measure enchantments in a fight.** `/qfcensus combat`, what it controls for, the two calibrations, and the chunk trap that makes targets stop ticking. Read before trusting any balance number. |
 
 ## Decisions
 

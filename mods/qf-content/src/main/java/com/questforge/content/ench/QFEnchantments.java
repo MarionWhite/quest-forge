@@ -49,6 +49,12 @@ public class QFEnchantments {
 
     private static final Map<Integer, QFEnchantment> BY_ID = new HashMap<Integer, QFEnchantment>();
     private static final Map<String, QFEnchantment> BY_NAME = new HashMap<String, QFEnchantment>();
+    /**
+     * Keyed on the enchantment's own short name ("qf.excalibur") and on the bare
+     * config key ("excalibur"). See {@link #byName} for why there are three
+     * spellings of every name in this system.
+     */
+    private static final Map<String, QFEnchantment> BY_SHORT = new HashMap<String, QFEnchantment>();
     private static final List<QFEnchantment> ALL = new ArrayList<QFEnchantment>();
 
     /** Read by the dispatcher to decide whether to run every proc twice. */
@@ -91,6 +97,7 @@ public class QFEnchantments {
 
     public static void register(Configuration cfg) {
         RESERVED.clear();
+        BY_SHORT.clear();
         net.minecraftforge.common.config.ConfigCategory cat = cfg.getCategory(CATEGORY);
         for (net.minecraftforge.common.config.Property p : cat.getValues().values()) {
             int pinned = p.getInt(0);
@@ -229,6 +236,8 @@ public class QFEnchantments {
 
         BY_ID.put(Integer.valueOf(id), ench);
         BY_NAME.put(ench.getName(), ench);
+        BY_SHORT.put(ench.shortName(), ench);
+        BY_SHORT.put(name, ench);   // the bare config key, e.g. "excalibur"
         ALL.add(ench);
 
         // Newly allocated IDs join the reserved set too, so a later auto-allocation
@@ -261,9 +270,35 @@ public class QFEnchantments {
         return BY_ID.get(Integer.valueOf(id));
     }
 
-    /** Books store the name, not the ID, so they survive a config edit. */
+    /**
+     * An enchantment by any of the three names it goes by.
+     *
+     * There are three, they differ, and the difference is invisible at a call
+     * site -- which cost a broken measurement to discover, so it is written down
+     * here. Excalibur is:
+     *
+     * <ul>
+     * <li>{@code "excalibur"} in the config, where the ID is pinned. This string
+     *     is the key passed to {@code add} and appears nowhere else.</li>
+     * <li>{@code "qf.excalibur"} as the enchantment's own name, the argument to
+     *     {@code setName} in its constructor.</li>
+     * <li>{@code "enchantment.qf.excalibur"} from {@code Enchantment.getName()},
+     *     which prefixes it for the translation table. This is what books store
+     *     and what {@link #BY_NAME} is keyed on.</li>
+     * </ul>
+     *
+     * All three resolve here. Previously only the third did, and asking for
+     * either of the others returned null -- which reads at the call site as "that
+     * enchantment is disabled" rather than "you used a different one of its
+     * names", and is therefore acted on rather than investigated.
+     */
     public static QFEnchantment byName(String name) {
-        return name == null ? null : BY_NAME.get(name);
+        if (name == null) return null;
+        QFEnchantment found = BY_NAME.get(name);
+        if (found != null) return found;
+        found = BY_SHORT.get(name);
+        if (found != null) return found;
+        return BY_NAME.get("enchantment." + name);
     }
 
     public static List<QFEnchantment> all() {

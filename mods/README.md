@@ -33,7 +33,11 @@ The pack's own content mod, and the largest thing here.
 - **`jukebox/`** — an in-game jukebox.
 - **`census/`, `survey/`** — the `/qfcensus` and ore-survey commands. These measure
   the running pack, and are the source for
-  [`../pack/reports/`](../pack/reports/).
+  [`../pack/reports/`](../pack/reports/). `gear` and `mobs` describe what the pack
+  contains; `combat` fights every combat enchantment against a paired control and
+  is what the balance numbers come from — see
+  [`../docs/survey/combat.md`](../docs/survey/combat.md) before trusting its
+  output, and note that it refuses to run if either calibration fails.
 
 `install-to-prism.command` builds and installs into the live Prism instance, keeping
 one backup of whatever it replaces. It resolves its own location, so it works from

@@ -24,6 +24,17 @@ public abstract class QFEnchantment extends Enchantment {
     public final EnchantCategory category;
     private final int maxLevel;
 
+    /**
+     * The unprefixed name, as written in the config and in this mod's own code.
+     *
+     * Kept because {@code Enchantment.getName()} returns it with a
+     * "enchantment." prefix for the translation table, and vanilla's own copy of
+     * the bare string is private. Reports and lookups want the short form; the
+     * registry and books want getName(). Having both spellings available stops
+     * call sites guessing.
+     */
+    private final String shortName;
+
     protected QFEnchantment(int id, String name, Rarity rarity, EnchantCategory category, int maxLevel) {
         // Weight is irrelevant since these never roll at a table, but must be > 0:
         // Enchantment's own random-selection helpers divide by it.
@@ -31,6 +42,7 @@ public abstract class QFEnchantment extends Enchantment {
         this.rarity = rarity;
         this.category = category;
         this.maxLevel = maxLevel;
+        this.shortName = name;
         setName(name);
     }
 
@@ -55,6 +67,23 @@ public abstract class QFEnchantment extends Enchantment {
             case BOOTS:       return EnumEnchantmentType.armor_feet;
             default:          return EnumEnchantmentType.all;
         }
+    }
+
+    /** The name as this mod writes it: "qf.excalibur", not "enchantment.qf.excalibur". */
+    public String shortName() {
+        return shortName;
+    }
+
+    /**
+     * The bare name, for reports and documents: "excalibur".
+     *
+     * Every enchantment in this mod is named "qf.something" so its translation
+     * key cannot collide with another mod's. That prefix is noise in a balance
+     * table, and every design document refers to these by their bare names, so
+     * output uses this and lookups accept all three spellings.
+     */
+    public String displayKey() {
+        return shortName.startsWith("qf.") ? shortName.substring(3) : shortName;
     }
 
     @Override

@@ -88,6 +88,13 @@ public class QFNetwork {
 
     public static void toPlayer(Object message, EntityPlayerMP player) {
         if (wrapper == null || player == null) return;
+        // A player with no connection cannot receive a packet, and asking anyway
+        // is a NullPointerException inside sendTo rather than a no-op. That is not
+        // a hypothetical: FakePlayers are ordinary EntityPlayerMP instances, every
+        // mod that automates a machine or a weapon uses one, and Jammer sends to
+        // whoever it hit. Dropping the packet is the only sensible answer -- there
+        // is nobody at the other end to render it.
+        if (player.playerNetServerHandler == null) return;
         wrapper.sendTo((cpw.mods.fml.common.network.simpleimpl.IMessage) message, player);
     }
 

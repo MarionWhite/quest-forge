@@ -55,6 +55,12 @@ public class CensusFile {
             s[i] = clean(fields[i]);
         }
         out.println(join(s));
+        // Flushed per row rather than at close. The combat census runs for tens of
+        // minutes in real game ticks, and a buffered writer means a run that is
+        // stopped or crashes leaves a zero-byte file with every measurement it
+        // took still in memory. It also makes a run in progress readable, which is
+        // the only way to notice early that it is producing nonsense.
+        out.flush();
         rows++;
     }
 

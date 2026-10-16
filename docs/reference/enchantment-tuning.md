@@ -15,7 +15,21 @@ Mark up whatever you want changed. `ENCHANT-LIST.md` stays the roster;
 below record what shipped, not what was proposed.
 
 Outstanding: Rally's battle music, which needs an audio file before it is worth
-writing. And a playtest — none of this has been felt in a real fight yet.
+writing.
+
+The other outstanding item used to read "a playtest — none of this has been felt
+in a real fight yet". There is now an instrument for it:
+[`/qfcensus combat`](../survey/combat.md) fights every combat enchantment against
+a paired control in the running game and writes what happened. It measures the
+shipping dispatcher rather than modelling it, so its output supersedes anything
+derived from `qfsim.py`.
+
+**The numbers in the tables below are still the pre-measurement ones.** They
+describe what the code was written to do. Where a census run disagrees with a row
+here, the census wins — the same relationship
+[`enchantment-ground-truth.md`](enchantment-ground-truth.md) already has with
+this file. Run it against the pack's bosses before tuning anything; a vanilla
+zombie dies in three hits and quantises the result.
 
 ## The three structural questions, answered
 

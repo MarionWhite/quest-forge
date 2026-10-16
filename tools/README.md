@@ -67,14 +67,36 @@ static analysis is not a substitute.
 
 Output lands in [`../pack/reports/`](../pack/reports/).
 
-## `balance/` — combat simulation
+## `balance/` — combat analysis
 
-`qfsim.py` and `qfbench.py` simulate gear and enchantment combinations against the
-pack's actual armour and damage values. `bench_output-*.txt` are recorded runs;
-`geardig_raw.txt` is the extracted gear table.
+`qfcombat.py` is the one to reach for. It reads the TSV that
+[`/qfcensus combat`](../docs/survey/combat.md) writes from the running game and
+turns it into the three decisions the output exists to support: which
+enchantments are mis-tuned for their rarity, which are mis-*implemented* (firing
+at a rate that does not match their own `getProcChance`), and what the loot
+weights should be if rarity is to track measured power rather than intent. It
+models nothing and knows no enchantment's rules.
 
-Every number these produce must trace to a file in the pack. A simulation built on
-a guessed constant is worse than no simulation.
+```bash
+python tools/balance/qfcombat.py <census-config-dir>     # full report
+python tools/balance/qfcombat.py <dir> --procs           # just the bug check
+python tools/balance/qfcombat.py <dir> --loot --csv out.csv
+```
+
+`qfsim.py` and `qfbench.py` came first and simulate gear and enchantment
+combinations against the pack's armour and damage values; `bench_output-*.txt`
+are recorded runs and `geardig_raw.txt` is the extracted gear table.
+
+They are kept for exploring a change before making it, and they are **no longer
+evidence**. Both are a second implementation of rules that live in Java, so they
+can be exactly right the day they are written and quietly wrong one commit later,
+with output that looks identical either way. That is the same reason
+`enchantment-ground-truth.md` exists. Where a simulation and a census disagree,
+the census wins.
+
+Every number any of these produce must trace to a file in the pack, or to a
+measurement. A simulation built on a guessed constant is worse than no
+simulation.
 
 ## `pack-fixes/` — config and quest surgery
 
