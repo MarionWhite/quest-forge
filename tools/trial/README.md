@@ -13,6 +13,61 @@ py -3.10 tools/trial/trial.py status                              # who is runni
 py -3.10 tools/trial/trial.py remove grave
 ```
 
+Run `launch --wait` as a **background task**. It follows the log, bounded by `--timeout`, and
+returns as soon as the client reaches the title screen or crashes. Do not sit in a foreground
+`until grep …; sleep` loop. In the 10-16 audit those loops cost about 85 minutes.
+
+## Servers
+
+`--server` builds a dedicated server with the same mod resolution. Client-only jars are
+dropped from the base set, and asking for one by name is an error. The Forge and vanilla
+server jars and `libraries/` are hard-linked from an existing server dir (`C:\qfs\combat`,
+`friends` or `trial-base`). Each trial gets the next free port from 25600 up.
+
+```
+py -3.10 tools/trial/trial.py build naga --server qfcontent twilightforest --world C:\qfs\combat\combat
+py -3.10 tools/trial/trial.py launch naga --xmx 3G -D qf.census.combat=TwilightForest.Naga --commands cmds.txt --wait
+```
+
+`--commands` feeds a file of console commands on stdin. They are queued until the server
+starts ticking.
+
+Every launch, client or server, refuses when the heaps of all running Minecraft JVMs plus the
+new one would pass **22 GB** (`QF_RAM_BUDGET_GB`). The PC has 31 GB, and the user's own game
+takes 7.
+
+## Installing into the live pack
+
+```
+py -3.10 tools/trial/trial.py install mods/qf-content/build/libs/QuestForgeContent-1.0.0.jar --why "jukebox lod"
+```
+
+This is the only way a jar should go into `%APPDATA%\.crazycraft4\mods`.
+- It refuses while the user's game, or a server running from the live instance, is up.
+- It refuses the `-dev` jar.
+- It refuses a jar that would sit next to another version of itself.
+- It replaces atomically and keeps the old jar in `_backup-install-<time>/`.
+- It logs who installed what to `%APPDATA%\.qf-trials\install.log`.
+
+Never drop probe jars into the live `mods/`. Put the probe in a trial.
+
+## Bisecting
+
+```
+py -3.10 tools/trial/trial.py bisect start --keep qfcontent          # suspects: every non-base mod
+py -3.10 tools/trial/trial.py launch bisect --wait                   # reproduce...
+py -3.10 tools/trial/trial.py bisect bad                             # ...still broken -> next half
+py -3.10 tools/trial/trial.py bisect good                            # ...fixed -> the other half
+```
+
+Each answer rebuilds the `bisect` trial with half the remaining suspects. Libraries come along
+with whatever needs them. Expect about 7 slim boots for the whole pack.
+
+## Disk
+
+`trial.py disk` lists every game or server dir on the PC with its size, whether a JVM is using
+it, and any junctions it contains. It never deletes anything.
+
 ## What every trial gets
 
 Every trial gets the **base set** from [`catalog.json`](catalog.json): OptiFine, BetterFps,
@@ -46,7 +101,7 @@ Everything else is opt-in. Name the mods with catalog keys or jar prefixes, and 
 - **There are no junctions.** `remove` or any recursive delete cannot follow a link into
   `%APPDATA%\.crazycraft4`. An old scratch dir built with junctions has to be unlinked with
   `cmd /c rmdir`.
-- **Only one client runs at a time.** `launch` checks every running JVM for
+- **Only one client runs at a time.** Servers are bounded by the RAM budget instead. `launch` checks every running JVM for
   `launchwrapper.Launch`, whoever started it, and holds `%APPDATA%\.qf-trials\client.lock`.
   On 2026-10-13 a second client reset the GPU and killed the user's game.
 - **The heap defaults to 3G.** The slim set rarely needs more, and the user's own game and
