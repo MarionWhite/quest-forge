@@ -52,7 +52,10 @@ rem -XX:+FailOverToOldVerifier, so older-version bytecode is fine here.
   -d "%HERE%build" ^
   "%HERE%src\com\questforge\QuestForgeCore.java" ^
   "%HERE%src\com\questforge\PanelButtonQuestTransformer.java" ^
-  "%HERE%src\com\questforge\MusicTickerTransformer.java"
+  "%HERE%src\com\questforge\MusicTickerTransformer.java" ^
+  "%HERE%src\com\questforge\GraveBeamTransformer.java" ^
+  "%HERE%src\com\questforge\GraveBaublesTransformer.java" ^
+  "%HERE%src\com\questforge\ShaderState.java"
 
 if errorlevel 1 (
   echo.

@@ -84,6 +84,42 @@ greyed frame. That is intended — don't "improve" it.
 
 ---
 
+## GraveStones beam under shaders
+
+`GraveBeamTransformer` puts `if (ShaderState.active()) return;` at the head of
+`TileEntitySpecialRendererGrave.renderBeam` in GraveStones.
+
+A grave that still holds items draws a 256-block column around itself with
+texturing off, no UVs, depth writes off and additive blending at 11% alpha.
+Without shaders that is a faint glow. Sildur's Vibrant is deferred and its
+G-buffer cannot blend, so the same quads come out as an opaque column sampling
+whatever texture is bound. You see a dark, noisy pillar that blacks out the scene
+behind the gravestone. None of the beam can be drawn correctly in a G-buffer, so
+it is skipped while a pack is active and left alone otherwise. `ShaderState`
+asks OptiFine's `Config.isShaders()` reflectively on every call, so switching
+packs in-game takes effect immediately.
+
+Look for `Transform applied: GraveStones renderBeam skips while a shader pack is
+active` in `latest.log`.
+
+## GraveStones and Baubles on a server
+
+`GraveBaublesTransformer` fixes a loop bound in GraveStones'
+`GravestoneEventHandler`. When a player dies, GraveStones moves their four
+Baubles into the grave and then resyncs slots 0 to 6, a loop copied from its
+seven-slot RPG Inventory code. Baubles sends every player a sync for "slot 4",
+and each client throws `ArrayIndexOutOfBoundsException` in the packet handler
+and is disconnected. On a dedicated server, one death kicks everyone.
+Singleplayer never shows it, because Baubles skips the send when client and
+server share a process. The patch turns the `BIPUSH 7` after the
+`"syncSlotToClients"` lookup into a 4.
+
+This is the one patch here that runs on the server, so the dedicated server
+must carry QuestForgeTweaks too. Look for `Transform applied: GraveStones now
+resyncs 4 Baubles slots` in the server log.
+
+---
+
 ## Building
 
 **Requires a JDK.** The instance's `C:\Program Files\Java\jre1.8.0_241` is a

@@ -19,14 +19,32 @@ import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
 @IFMLLoadingPlugin.MCVersion("1.7.10")
 @IFMLLoadingPlugin.Name("QuestForgeTweaks")
 @IFMLLoadingPlugin.SortingIndex(1001)
-@IFMLLoadingPlugin.TransformerExclusions({ "com.questforge." })
+@IFMLLoadingPlugin.TransformerExclusions({
+        // One entry per class, never the package. Exclusions are prefix
+        // matches over every transformer in the game -- FML's @SideOnly
+        // stripper included -- and "com.questforge." also swallowed
+        // qf-content and qf-commands, which are ordinary mods that need that
+        // stripping on a dedicated server. Each name also covers its own
+        // inner classes (the $SafeClassWriters). A class added to this jar
+        // needs adding here too.
+        "com.questforge.QuestForgeCore",
+        "com.questforge.PanelButtonQuestTransformer",
+        "com.questforge.MusicTickerTransformer",
+        "com.questforge.GraveBeamTransformer",
+        "com.questforge.GraveBaublesTransformer",
+        // Not a transformer, but loaded from code patched into GraveStones;
+        // there is nothing in it any transformer needs to touch.
+        "com.questforge.ShaderState"
+})
 public class QuestForgeCore implements IFMLLoadingPlugin {
 
     @Override
     public String[] getASMTransformerClass() {
         return new String[] {
                 "com.questforge.PanelButtonQuestTransformer",
-                "com.questforge.MusicTickerTransformer"
+                "com.questforge.MusicTickerTransformer",
+                "com.questforge.GraveBeamTransformer",
+                "com.questforge.GraveBaublesTransformer"
         };
     }
 

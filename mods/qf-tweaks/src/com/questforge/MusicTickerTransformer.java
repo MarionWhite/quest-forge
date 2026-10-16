@@ -1,6 +1,7 @@
 package com.questforge;
 
 import net.minecraft.launchwrapper.IClassTransformer;
+import net.minecraft.launchwrapper.Launch;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -31,22 +32,76 @@ public class MusicTickerTransformer implements IClassTransformer {
 
     private static final Logger LOG = LogManager.getLogger("QuestForgeTweaks");
 
+    /** Null until first asked; then whether qf.splash.SplashMusic exists. */
+    private static Boolean splashPresent;
+
     @Override
     public byte[] transform(String name, String transformedName, byte[] basicClass) {
         if (basicClass == null) {
             return null;
         }
         String n = transformedName != null ? transformedName : name;
-        if (isTicker(name, n)) {
+        boolean ticker = isTicker(name, n);
+        boolean type = !ticker && isType(name, n);
+        boolean menu = !ticker && !type && isMenuTickHandler(name, n);
+        if (!ticker && !type && !menu) {
+            return basicClass;
+        }
+        // All three patches are skipped together, not just the two that call
+        // SplashMusic: the zeroed MENU delays only make sense with the Clip
+        // looping underneath, and without it they would turn vanilla's menu
+        // music into a track that restarts the instant it ends.
+        if (!splashMusicPresent()) {
+            return basicClass;
+        }
+        if (ticker) {
             return patchTicker(basicClass);
         }
-        if (isType(name, n)) {
+        if (type) {
             return patchType(basicClass);
         }
-        if (isMenuTickHandler(name, n)) {
-            return patchMenuTickHandler(basicClass);
+        return patchMenuTickHandler(basicClass);
+    }
+
+    /**
+     * Whether the hand-patched Forge jar that carries qf/splash is on this
+     * client.
+     *
+     * The hooks this transformer injects call qf.splash.SplashMusic, which
+     * ships only inside that jar. A client on stock Forge -- a player who
+     * installed the mods but not the patched jar -- would get
+     * NoClassDefFoundError on the first music tick, which is the title
+     * screen, so the pack would not open at all.
+     *
+     * Asked with getClassBytes, which reads the .class resource and nothing
+     * more: it does not define the class, so it neither runs the transformer
+     * chain (this transformer included) nor initialises SplashMusic -- a
+     * Class.forName here would do both, from inside a transform call. Asked
+     * once and remembered, because MusicTicker and its MusicType load within
+     * moments of each other and the answer cannot change mid-run.
+     */
+    private static synchronized boolean splashMusicPresent() {
+        if (splashPresent == null) {
+            boolean found;
+            try {
+                found = Launch.classLoader != null
+                        ? Launch.classLoader.getClassBytes("qf.splash.SplashMusic") != null
+                        : MusicTickerTransformer.class.getClassLoader()
+                                .getResource("qf/splash/SplashMusic.class") != null;
+            } catch (Throwable t) {
+                // Never throw from a class transformer - it takes the game
+                // down. Unreadable counts as absent: the cost of being wrong
+                // that way is vanilla menu music, not a crash.
+                found = false;
+            }
+            splashPresent = Boolean.valueOf(found);
+            if (!found) {
+                LOG.warn("[QuestForgeTweaks] qf/splash/SplashMusic.class not found - this Forge jar"
+                        + " is not the patched one. Leaving MusicTicker and the main menu handler"
+                        + " untouched; menu music will be vanilla's.");
+            }
         }
-        return basicClass;
+        return splashPresent.booleanValue();
     }
 
     private static boolean isMenuTickHandler(String name, String n) {
