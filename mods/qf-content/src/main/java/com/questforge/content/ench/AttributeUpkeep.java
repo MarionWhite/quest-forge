@@ -7,6 +7,7 @@ import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 
 /**
  * Keeps attribute modifiers in step with what the player is actually wearing.
@@ -25,14 +26,54 @@ public class AttributeUpkeep {
     /** Extra half-hearts per level of Vigor. */
     private static final double VIGOR_PER_LEVEL = 4.0D;
 
+    /**
+     * The player's health as of the last tick, kept while Vigor is worn.
+     *
+     * The modifier is not saved, so a player loading in has a maximum of twenty
+     * when their saved health is read, and anything above twenty is clamped off
+     * before the first tick puts the modifier back. This remembers the real figure
+     * so it can be restored once the maximum is back.
+     *
+     * Chosen over saving the modifier itself, which would also fix it: a saved
+     * modifier on the vanilla max-health attribute outlives this mod, so removing
+     * QuestForgeContent from the pack would leave every Vigor wearer with bonus
+     * hearts and nothing to take them away. A stray ForgeData float does no harm.
+     * Kept outside the persisted tag on purpose: a death should not carry it over.
+     */
+    private static final String VIGOR_HEALTH = "QFVigorHealth";
+
     public static void update(EntityPlayer player) {
         int vigor = totalLevel(player, QFEnchantments.vigor);
+
+        IAttributeInstance maxHealth = player.getEntityAttribute(SharedMonsterAttributes.maxHealth);
+        boolean wasApplied = maxHealth != null && maxHealth.getModifier(VIGOR_ID) != null;
+
         applyModifier(player, SharedMonsterAttributes.maxHealth, VIGOR_ID, VIGOR_NAME,
                 vigor * VIGOR_PER_LEVEL);
+
+        NBTTagCompound data = player.getEntityData();
+        if (vigor > 0) {
+            // The modifier has only just gone back on -- a login, or a fresh
+            // EntityPlayerMP -- so put back what the clamp took. Only ever upward,
+            // and never for a player already dead.
+            if (!wasApplied && data.hasKey(VIGOR_HEALTH)) {
+                float saved = data.getFloat(VIGOR_HEALTH);
+                if (player.getHealth() > 0.0F && saved > player.getHealth()) {
+                    player.setHealth(Math.min(saved, player.getMaxHealth()));
+                }
+            }
+        }
 
         // Never leave the player above their (possibly just lowered) maximum.
         if (player.getHealth() > player.getMaxHealth()) {
             player.setHealth(player.getMaxHealth());
+        }
+
+        if (vigor > 0) {
+            data.setFloat(VIGOR_HEALTH, player.getHealth());
+        } else if (data.hasKey(VIGOR_HEALTH)) {
+            // Taken off: a stale figure must not refill someone who puts it back on.
+            data.removeTag(VIGOR_HEALTH);
         }
     }
 

@@ -25,22 +25,56 @@ public final class TrackCodec {
 
     private static final int KEY = 300, TITLE = 80, ARTIST = 60, ALBUM = 60, ART = 200;
 
+    /**
+     * The most a track list may take up on the wire, in bytes.
+     *
+     * The per-field caps only bound characters, not bytes. Forty tracks of plain
+     * ASCII at every cap come to about 30,000 bytes, but UTF-8 spends up to three
+     * bytes a character, so forty full tracks titled in Japanese or Cyrillic are
+     * nearer 90,000 -- and a client-to-server payload of 32767 or more throws
+     * inside C17PacketCustomPayload rather than sending. This leaves room under
+     * that limit for everything else a packet carries: the discriminator, a name
+     * of up to 40 characters, and a flag or a slot.
+     */
+    public static final int MAX_TRACK_BYTES = 32000;
+
     private TrackCodec() { }
 
     public static void writeTracks(ByteBuf buf, List<Track> tracks) {
-        int n = Math.min(tracks == null ? 0 : tracks.size(), PublicPlaylists.MAX_TRACKS);
+        int n = fitting(tracks);
         buf.writeShort(n);
+        for (int i = 0; i < n; i++) writeTrack(buf, tracks.get(i));
+    }
 
-        for (int i = 0; i < n; i++) {
-            Track t = tracks.get(i);
-            writeCapped(buf, t.key(), KEY);
-            writeCapped(buf, t.source, 32);
-            writeCapped(buf, t.title, TITLE);
-            writeCapped(buf, t.artist, ARTIST);
-            writeCapped(buf, t.album, ALBUM);
-            writeCapped(buf, t.artUrl == null ? "" : t.artUrl, ART);
-            buf.writeInt((int) Math.min(Math.max(t.durationMs, 0L), Integer.MAX_VALUE));
+    /**
+     * How many tracks, from the front of the list, fit in one packet: no more than
+     * MAX_TRACKS, and no more than MAX_TRACK_BYTES once encoded. writeTracks sends
+     * exactly this many, so a screen can call it first and say what will be left
+     * off rather than have the server quietly receive fewer.
+     */
+    public static int fitting(List<Track> tracks) {
+        int max = Math.min(tracks == null ? 0 : tracks.size(), PublicPlaylists.MAX_TRACKS);
+        ByteBuf scratch = io.netty.buffer.Unpooled.buffer();
+        int bytes = 2;   // the count itself
+        int n = 0;
+        while (n < max) {
+            scratch.clear();
+            writeTrack(scratch, tracks.get(n));
+            if (bytes + scratch.readableBytes() > MAX_TRACK_BYTES) break;
+            bytes += scratch.readableBytes();
+            n++;
         }
+        return n;
+    }
+
+    private static void writeTrack(ByteBuf buf, Track t) {
+        writeCapped(buf, t.key(), KEY);
+        writeCapped(buf, t.source, 32);
+        writeCapped(buf, t.title, TITLE);
+        writeCapped(buf, t.artist, ARTIST);
+        writeCapped(buf, t.album, ALBUM);
+        writeCapped(buf, t.artUrl == null ? "" : t.artUrl, ART);
+        buf.writeInt((int) Math.min(Math.max(t.durationMs, 0L), Integer.MAX_VALUE));
     }
 
     public static List<Track> readTracks(ByteBuf buf) {

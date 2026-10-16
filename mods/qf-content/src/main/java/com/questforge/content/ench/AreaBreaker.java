@@ -164,9 +164,21 @@ public class AreaBreaker {
                     break;
                 }
 
+                // Vanilla's order, from ItemInWorldManager: remove, then harvest.
+                // Harvesting first, then setBlockToAir, could pay a tile-entity
+                // block out twice -- getDrops reading the contents into the item,
+                // then breakBlock spilling them as well -- and skipped
+                // removedByPlayer, which is where a block that needs its tile
+                // entity for its drops arranges to keep it until harvestBlock.
                 int meta = world.getBlockMetadata(p.x, p.y, p.z);
-                block.harvestBlock(world, player, p.x, p.y, p.z, meta);
-                world.setBlockToAir(p.x, p.y, p.z);
+                block.onBlockHarvested(world, p.x, p.y, p.z, meta, player);
+                boolean removed = block.removedByPlayer(world, player, p.x, p.y, p.z, true);
+                if (removed) {
+                    block.onBlockDestroyedByPlayer(world, p.x, p.y, p.z, meta);
+                    // canHarvestBlock was checked above, so this is vanilla's
+                    // "removed && canHarvest".
+                    block.harvestBlock(world, player, p.x, p.y, p.z, meta);
+                }
 
                 if (tool != null) {
                     tool.damageItem(1, player);

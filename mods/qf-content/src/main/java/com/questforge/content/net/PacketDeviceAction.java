@@ -77,16 +77,29 @@ public class PacketDeviceAction implements IMessage {
     public static class Handler implements IMessageHandler<PacketDeviceAction, IMessage> {
 
         @Override
-        public IMessage onMessage(PacketDeviceAction m, MessageContext ctx) {
-            EntityPlayerMP player = ctx.getServerHandler().playerEntity;
+        public IMessage onMessage(final PacketDeviceAction m, MessageContext ctx) {
+            final EntityPlayerMP player = ctx.getServerHandler().playerEntity;
             if (player == null) return null;
+
+            // Runs on the netty thread. Verifying the owner reads the world, the
+            // actions write the registry, and the reply goes through the shared
+            // channel -- all of it server-thread work, so all of it is queued.
+            ServerTasks.submit(new Runnable() {
+                @Override public void run() {
+                    handle(m, player);
+                }
+            });
+            return null;
+        }
+
+        private void handle(PacketDeviceAction m, EntityPlayerMP player) {
             World world = player.worldObj;
 
             SpeakerRegistry reg = SpeakerRegistry.get(world);
-            if (reg == null) return null;
+            if (reg == null) return;
 
             String owner = verifyOwner(m, player, world);
-            if (owner == null) return null;
+            if (owner == null) return;
 
             String problem = null;
             switch (m.action) {
@@ -97,13 +110,12 @@ public class PacketDeviceAction implements IMessage {
                 case OPEN:
                     // Answers with the speaker's screen rather than the device list.
                     openRemotely(reg, m, owner, player);
-                    return null;
-                default: return null;
+                    return;
+                default: return;
             }
 
             QFNetwork.toPlayer(new PacketDeviceList(owner, reg.ownerEnabled(owner),
                                                    reg.pairedWith(owner), problem), player);
-            return null;
         }
 
         /**

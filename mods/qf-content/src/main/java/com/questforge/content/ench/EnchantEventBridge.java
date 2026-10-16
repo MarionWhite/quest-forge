@@ -260,7 +260,10 @@ public class EnchantEventBridge {
     /** Feeds RightClickState, which Get Off Me reads. */
     @SubscribeEvent
     public void onPlayerInteract(PlayerInteractEvent event) {
-        if (event.entityPlayer == null) return;
+        // Server only: Get Off Me reads this from LivingHurtEvent, which only the
+        // server fires, and in singleplayer the client thread writing the same
+        // WeakHashMap alongside the server thread could corrupt it.
+        if (event.entityPlayer == null || event.entityPlayer.worldObj.isRemote) return;
         if (event.action == PlayerInteractEvent.Action.RIGHT_CLICK_AIR
                 || event.action == PlayerInteractEvent.Action.RIGHT_CLICK_BLOCK) {
             RightClickState.record(event.entityPlayer);

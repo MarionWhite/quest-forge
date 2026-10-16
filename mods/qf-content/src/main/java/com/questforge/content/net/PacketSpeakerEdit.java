@@ -61,15 +61,27 @@ public class PacketSpeakerEdit implements IMessage {
     public static class Handler implements IMessageHandler<PacketSpeakerEdit, IMessage> {
 
         @Override
-        public IMessage onMessage(PacketSpeakerEdit m, MessageContext ctx) {
-            EntityPlayerMP player = ctx.getServerHandler().playerEntity;
+        public IMessage onMessage(final PacketSpeakerEdit m, MessageContext ctx) {
+            final EntityPlayerMP player = ctx.getServerHandler().playerEntity;
             if (player == null) return null;
+
+            // Runs on the netty thread. The registry, the tile entity and the reply
+            // all belong to the server thread, so the whole of it is queued there.
+            ServerTasks.submit(new Runnable() {
+                @Override public void run() {
+                    handle(m, player);
+                }
+            });
+            return null;
+        }
+
+        private void handle(PacketSpeakerEdit m, EntityPlayerMP player) {
             World world = player.worldObj;
 
             SpeakerRegistry reg = SpeakerRegistry.get(world);
-            if (reg == null) return null;
+            if (reg == null) return;
             SpeakerRegistry.Entry e = reg.find(m.code);
-            if (e == null) return null;
+            if (e == null) return;
 
             // A speaker may be edited two ways, and without one of them a client
             // could rename or silence any speaker on the server whose code it had
@@ -80,7 +92,7 @@ public class PacketSpeakerEdit implements IMessage {
             // never from the packet, so the client cannot nominate who to check it
             // against; see OwnerAccess.
             if (!atTheSpeaker(e, player) && !OwnerAccess.controls(player, e.pairedTo)) {
-                return null;
+                return;
             }
 
             switch (m.action) {
@@ -95,12 +107,11 @@ public class PacketSpeakerEdit implements IMessage {
                     e.treble = SpeakerCodec.clampTone(m.treble);
                     break;
                 case UNPAIR: e.pairedTo = ""; break;
-                default: return null;
+                default: return;
             }
             reg.put(e);
 
             QFNetwork.toPlayer(new PacketSpeakerState(e), player);
-            return null;
         }
 
         /** Standing close enough to the speaker to be working it by hand. */

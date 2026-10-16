@@ -11,6 +11,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.world.World;
+import net.minecraftforge.common.DimensionManager;
 
 /**
  * The keeping half of the Soulbound enchantment.
@@ -117,46 +118,106 @@ public class Soulbound {
      */
     private static final double VOID_RESCUE_Y = -48.0D;
 
+    /**
+     * Items that entered the world while tick() was walking WATCHED. Handing an
+     * item back to its owner can drop it at their feet, that drop fires
+     * EntityJoinWorldEvent straight back into watch(), and adding to the list
+     * mid-iteration threw a ConcurrentModificationException out of the server
+     * tick. They wait here and join the list once the walk is done.
+     */
+    private static final List<EntityItem> PENDING = new ArrayList<EntityItem>();
+    private static boolean ticking;
+
     /** Called for every item entity entering the world. */
     public static void watch(EntityItem entityItem) {
         if (entityItem == null || !isSoulbound(entityItem.getEntityItem())) return;
-        if (WATCHED.size() >= MAX_WATCHED) return;
+        if (WATCHED.size() + PENDING.size() >= MAX_WATCHED) return;
         for (EntityItem existing : WATCHED) {
+            if (existing == entityItem) return;
+        }
+        for (EntityItem existing : PENDING) {
             if (existing == entityItem) return;
         }
         // Forge's own per-entity despawn timer. A soulbound item waits forever.
         entityItem.lifespan = Integer.MAX_VALUE;
-        WATCHED.add(entityItem);
+        if (ticking) PENDING.add(entityItem);
+        else WATCHED.add(entityItem);
     }
 
     /** Once a tick, per world: pull anything in danger back out of it. */
     public static void tick(World world) {
+        ticking = true;
+        try {
+            tickWatched(world);
+        } finally {
+            ticking = false;
+            WATCHED.addAll(PENDING);
+            PENDING.clear();
+        }
+    }
+
+    private static void tickWatched(World world) {
         Iterator<EntityItem> it = WATCHED.iterator();
         while (it.hasNext()) {
             EntityItem item = it.next();
-            if (item == null || item.isDead) {
+            if (item == null || item.isDead || unloaded(item)) {
                 it.remove();
                 continue;
             }
             if (item.worldObj != world) continue;
 
-            boolean burning = item.isBurning();
-            if (burning) item.extinguish();
+            // handleLavaMovement only reports lava inside a shrunken box, so an item
+            // resting ON a lava pool -- the usual landing -- never counted. It burned
+            // to death in five ticks: Entity.moveEntity deals fire damage straight
+            // from any burning block it touches and re-ignites it every tick, so
+            // putting the fire out bought nothing. Found by throwing a soulbound
+            // sword onto lava on a dedicated server and watching it die.
+            boolean touchingFire = item.worldObj.func_147470_e(
+                    item.boundingBox.contract(0.001D, 0.001D, 0.001D));
+            boolean inDanger = item.isBurning() || touchingFire || item.handleLavaMovement();
 
-            // Lava keeps dealing damage for as long as it is standing in it, and
-            // the void deletes outright, so neither can be answered by putting the
-            // fire out. Both mean moving the item.
-            if (item.handleLavaMovement() || item.posY < VOID_RESCUE_Y) {
+            // Fire, lava and the void all mean moving the item.
+            if (inDanger || item.posY < VOID_RESCUE_Y) {
                 if (!returnToOwner(item)) lift(item);
             }
         }
     }
 
+    /**
+     * An item whose chunk or whole dimension has unloaded. It is never marked
+     * dead, so without this it sat in WATCHED for good -- pinning its World, and
+     * once 512 had piled up, leaving every new soulbound drop unprotected.
+     *
+     * Forgetting it loses nothing: the entity is saved with its chunk, and Forge's
+     * World.addLoadedEntities fires EntityJoinWorldEvent for every entity a chunk
+     * brings back, so onEntityJoin watches the reloaded copy afresh.
+     */
+    private static boolean unloaded(EntityItem item) {
+        World world = item.worldObj;
+        if (world == null) return true;
+        if (DimensionManager.getWorld(world.provider.dimensionId) != world) return true;
+        // Not yet placed in a chunk means it is still on its way in, not out.
+        return item.addedToChunk
+                && !world.getChunkProvider().chunkExists(item.chunkCoordX, item.chunkCoordZ);
+    }
+
+    /**
+     * The owner, if they are alive in this world to take the item. While a player
+     * sits on the death screen getPlayerEntityByName still finds the dead entity,
+     * and anything handed to it is gone when they respawn -- so a dead owner counts
+     * as no owner, and the item waits on the floor for the living one.
+     */
+    private static EntityPlayer liveOwner(EntityItem item) {
+        String name = item.func_145800_j();
+        if (name == null) return null;
+        EntityPlayer owner = item.worldObj.getPlayerEntityByName(name);
+        if (owner == null || owner.isDead || owner.getHealth() <= 0.0F) return null;
+        return owner;
+    }
+
     /** Hands the item straight back if its owner is here to take it. */
     private static boolean returnToOwner(EntityItem item) {
-        String name = item.func_145800_j();
-        if (name == null) return false;
-        EntityPlayer owner = item.worldObj.getPlayerEntityByName(name);
+        EntityPlayer owner = liveOwner(item);
         if (owner == null) return false;
 
         ItemStack stack = item.getEntityItem();
@@ -179,6 +240,14 @@ public class Soulbound {
         item.motionZ = 0.0D;
         item.extinguish();
         item.fallDistance = 0.0F;
+
+        // Above a lava pool the item falls straight back in, and every touch costs
+        // health it never regains -- so without this, lifting only postponed the
+        // loss. EntityItem.health is private; its own NBT is the public way in.
+        net.minecraft.nbt.NBTTagCompound tag = new net.minecraft.nbt.NBTTagCompound();
+        item.writeToNBT(tag);
+        tag.setShort("Health", (short) 5);
+        item.readFromNBT(tag);
     }
 
     /**
@@ -191,9 +260,10 @@ public class Soulbound {
         ItemStack stack = entityItem.getEntityItem();
         if (!isSoulbound(stack)) return false;
 
-        EntityPlayer owner = entityItem.worldObj.getPlayerEntityByName(entityItem.func_145800_j());
+        EntityPlayer owner = liveOwner(entityItem);
         if (owner == null) {
-            // No known owner: refresh the despawn timer so it survives regardless.
+            // No known owner, or a dead one: refresh the despawn timer so it
+            // survives regardless.
             entityItem.age = 0;
             return true;
         }

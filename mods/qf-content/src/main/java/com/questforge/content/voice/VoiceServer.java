@@ -78,7 +78,9 @@ public final class VoiceServer {
             double dz = listener.posZ - sz;
             if (dx * dx + dy * dy + dz * dz > rangeSq) continue;
 
-            QFNetwork.toPlayer(out, listener);
+            // Not toPlayer: this is the netty thread, and the wrapper is not safe
+            // to send through from here.
+            QFNetwork.toPlayerAnyThread(out, QFNetwork.VOICE_FRAME_ID, listener);
         }
     }
 

@@ -56,7 +56,7 @@ public class QFNetwork {
         // why these are handled on the netty thread rather than queued to the tick.
         wrapper.registerMessage(PacketVoice.Handler.class, PacketVoice.class, 8, Side.SERVER);
         wrapper.registerMessage(PacketVoiceFrame.Handler.class,
-                                PacketVoiceFrame.class, 9, Side.CLIENT);
+                                PacketVoiceFrame.class, VOICE_FRAME_ID, Side.CLIENT);
 
         // Opening a portable speaker's screen. The server answers the right-click,
         // because only it can stamp the speaker's id and have that stick.
@@ -85,5 +85,38 @@ public class QFNetwork {
     public static void toPlayer(Object message, EntityPlayerMP player) {
         if (wrapper == null || player == null) return;
         wrapper.sendTo((cpw.mods.fml.common.network.simpleimpl.IMessage) message, player);
+    }
+
+    /** PacketVoiceFrame's discriminator, shared with toPlayerAnyThread's encoding. */
+    public static final int VOICE_FRAME_ID = 9;
+
+    /**
+     * toPlayer for a thread that is not the server thread -- voice, which is relayed
+     * straight from the netty thread that received it.
+     *
+     * SimpleNetworkWrapper is not safe to call off the main thread: every send goes
+     * through one shared FMLEmbeddedChannel, setting its target attributes and then
+     * writing, so two threads sending at once can deliver a packet to the wrong
+     * player or corrupt the pipeline. getPacketFrom is no way out, since it runs
+     * the same shared channel. So this encodes the message by hand, exactly as
+     * FMLIndexedMessageToMessageCodec would -- discriminator byte, then toBytes --
+     * into a plain custom-payload packet, and hands it to the player's own
+     * NetworkManager, which queues onto its netty event loop from any thread.
+     */
+    public static void toPlayerAnyThread(cpw.mods.fml.common.network.simpleimpl.IMessage message,
+                                         int discriminator, EntityPlayerMP player) {
+        if (message == null || player == null) return;
+        // A FakePlayer has no connection to send on.
+        net.minecraft.network.NetHandlerPlayServer conn = player.playerNetServerHandler;
+        if (conn == null) return;
+
+        io.netty.buffer.ByteBuf buf = io.netty.buffer.Unpooled.buffer();
+        buf.writeByte(discriminator);
+        message.toBytes(buf);
+        byte[] payload = new byte[buf.readableBytes()];
+        buf.readBytes(payload);
+
+        conn.sendPacket(new net.minecraft.network.play.server.S3FPacketCustomPayload(
+                CHANNEL, payload));
     }
 }

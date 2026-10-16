@@ -90,7 +90,10 @@ public class ItemSealedTome extends Item {
         player.addChatMessage(new ChatComponentText(EnumChatFormatting.GRAY + "The seal breaks: "
                 + book.getDisplayName()));
 
-        return stack.stackSize <= 0 ? null : stack;
+        // Never return null, even for the last tome: ItemInWorldManager.tryUseItem
+        // reads stackSize off the returned stack and crashes the server on null. A
+        // stack at size 0 is the contract -- vanilla clears the slot itself.
+        return stack;
     }
 
     @Override

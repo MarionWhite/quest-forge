@@ -933,8 +933,11 @@ public class GuiJukebox extends GuiScreen {
             say("Put a song in it before sharing it");
             return;
         }
-        if (!shared && tracks.size() > PublicPlaylists.MAX_TRACKS) {
-            say("Sharing the first " + PublicPlaylists.MAX_TRACKS + " songs");
+        // Fewer than MAX_TRACKS when the titles are long or not in Latin script:
+        // the packet has a byte limit as well as a song limit.
+        int fit = com.questforge.content.net.TrackCodec.fitting(tracks);
+        if (!shared && tracks.size() > fit) {
+            say("Sharing the first " + fit + " songs");
         }
 
         com.questforge.content.net.QFNetwork.toServer(

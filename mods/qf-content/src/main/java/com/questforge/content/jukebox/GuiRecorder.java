@@ -149,6 +149,15 @@ public class GuiRecorder extends GuiScreen {
         String label = nameField.getText().trim();
         if (label.isEmpty()) label = "Untitled";
 
+        // One packet carries the whole record, and it has a byte limit as well as a
+        // song limit, so long or non-Latin titles can mean fewer fit. Refuse rather
+        // than press a record missing songs the player thought were on it.
+        int fit = com.questforge.content.net.TrackCodec.fitting(chosen);
+        if (fit < chosen.size()) {
+            say("Too much text for one record -- only " + fit + " of these fit");
+            return;
+        }
+
         // The server writes the NBT; this only asks. The chat line it sends back
         // is what confirms the record was really pressed.
         com.questforge.content.net.QFNetwork.toServer(

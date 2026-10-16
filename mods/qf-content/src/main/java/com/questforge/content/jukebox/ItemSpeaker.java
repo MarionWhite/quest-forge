@@ -83,6 +83,9 @@ public class ItemSpeaker extends Item {
         // this call would race the id back down the wire, and the first click on a
         // new speaker would open nothing.
         if (world.isRemote) return stack;
+        // A deployer or an autonomous activator can use the item with a player
+        // that is not an EntityPlayerMP; there is no screen to open for it.
+        if (!(player instanceof net.minecraft.entity.player.EntityPlayerMP)) return stack;
 
         String id = ensureId(stack);
         com.questforge.content.net.QFNetwork.toPlayer(
