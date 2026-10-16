@@ -3,6 +3,7 @@ package com.questforge.commands;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.Teleporter;
@@ -37,15 +38,66 @@ public class SafeTeleporter extends Teleporter {
         {  16,  16 }, { -16,  16 }, {  16, -16 }, { -16, -16 },
     };
 
+    /** Kept here because Teleporter's own copy is private. */
+    private final WorldServer world;
+
     private final int x;
     private final int y;
     private final int z;
 
     public SafeTeleporter(WorldServer world, int[] arrival) {
         super(world);
+        this.world = world;
         this.x = arrival[0];
         this.y = arrival[1];
         this.z = arrival[2];
+    }
+
+    /**
+     * Sends the player to this teleporter's world. Every command goes through
+     * here rather than calling transferPlayerToDimension itself.
+     *
+     * <h3>Leaving the End</h3>
+     *
+     * Vanilla's transferEntityToWorld treats "coming from dimension 1" as the
+     * credits-and-respawn path, and on that path it skips both placeInPortal
+     * and spawnEntityInWorld. The player's world reference is switched, but
+     * they are never added to the new world's entity list: the client sees
+     * terrain, the server ticks nobody, and other players cannot see them --
+     * a ghost until they relog. So when the trip starts in the End, the two
+     * steps vanilla skipped are done here, at the spot placeInPortal would
+     * have chosen, and the client is told where it actually is.
+     */
+    public void transfer(EntityPlayerMP player, int dimension) {
+        int from = player.dimension;
+
+        MinecraftServer.getServer().getConfigurationManager()
+                .transferPlayerToDimension(player, dimension, this);
+
+        if (from != 1) {
+            return;
+        }
+
+        // Positioned before spawning, not after, so the player is filed under
+        // the chunk they are going to stand in rather than the one matching
+        // their old End coordinates.
+        player.setLocationAndAngles(this.x + 0.5D, this.y, this.z + 0.5D,
+                player.rotationYaw, player.rotationPitch);
+        player.motionX = 0D;
+        player.motionY = 0D;
+        player.motionZ = 0D;
+        player.fallDistance = 0F;
+
+        // Checked so that a future Forge, or a coremod that already patches
+        // this, does not get the player added twice -- a duplicate entry in
+        // loadedEntityList means a player ticked twice per tick.
+        if (!this.world.loadedEntityList.contains(player)) {
+            this.world.spawnEntityInWorld(player);
+            this.world.updateEntityWithOptionalForce(player, false);
+        }
+
+        player.playerNetServerHandler.setPlayerLocation(player.posX, player.posY, player.posZ,
+                player.rotationYaw, player.rotationPitch);
     }
 
     /**

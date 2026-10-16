@@ -66,6 +66,21 @@ public class UnlockedCommand extends CommandBase {
         EntityPlayerMP player = (EntityPlayerMP) sender;
 
         if (!Unlocks.has(player, this.unlockable.id)) {
+            // A command with no ticket cannot be earned, so pointing at a
+            // ticket would send the player hunting for something that never
+            // drops. A retired command says why it was retired. (Not refuse():
+            // for a dimension that runs the landing search, generating chunks
+            // to tell someone something they cannot act on.)
+            if (Unlockables.sourceOf(this.unlockable) == Unlockables.Source.NONE) {
+                String retired = this.unlockable instanceof DimensionTravel
+                        ? ((DimensionTravel) this.unlockable).retiredBecause() : null;
+
+                player.addChatMessage(new ChatComponentText(EnumChatFormatting.YELLOW
+                        + (retired != null ? retired
+                                : "No ticket grants /" + this.name + "; it is not handed out.")));
+                return;
+            }
+
             // Says how it is earned rather than just refusing, because a player
             // who types this has just seen the command exist and has no other
             // way to find out what it wants from them.

@@ -128,8 +128,34 @@ public final class Unlockables {
         // one the Mirror dimension; the game and the questbook both call it the
         // Spirit World, so the ticket does too.
 
-        dim("dream_world", -37, "Dream World", Source.IN_DIMENSION,
-            "a Dream Weaver hung over your bed, and sleep");
+        // Retired, not removed. Twice, a player sent here by this command
+        // took the server down on the way back out: Witchery ejects the
+        // player and unloads dimension -37 behind them, and Railcraft's
+        // TrailTicker then asks DimensionManager for the player's dimension,
+        // gets null, and throws on the server thread. Witchery's Dream World
+        // is a sleeping body and a dreaming spirit, not a place, and a command
+        // that only knows coordinates cannot set up the half it never sees.
+        //
+        // Source.NONE takes the ticket out of every loot pool and the creative
+        // tab and stops a stray one being redeemed. The entry itself stays in
+        // its slot: removing it would shift the damage value of every ticket
+        // below, and anyone who already redeemed it gets a refusal that says
+        // why rather than a teleport into the crash.
+        add(new DimensionTravel("dim.dream_world", "dream_world", -37, "Dream World",
+                "Travel to the Dream World is closed.",
+                "",
+                "Arriving there by command, rather than by Witchery's",
+                "own way in, crashed the server on the way back out.",
+                "",
+                "Normally reached by a Dream Weaver hung over your bed,",
+                "and sleep -- which still works exactly as before.",
+                "",
+                "There is no ticket for this any more, and the command",
+                "only refuses. If you redeemed one, nothing else you",
+                "own is affected.")
+                .retire("Travel to the Dream World is closed: arriving there by command crashed"
+                        + " the server on the way back. Witchery's Dream Weaver still takes you."),
+                Source.NONE);
 
         dim("torment", -38, "Torment", Source.IN_DIMENSION,
             "a Brazier, a Demon Heart, and an infernal rite");

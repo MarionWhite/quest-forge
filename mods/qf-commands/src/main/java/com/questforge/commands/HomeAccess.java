@@ -125,11 +125,10 @@ public class HomeAccess extends Unlockable {
             // The exact spot is known, so the landing scan is skipped entirely --
             // the player stood here to set it. SafeTeleporter is still used
             // because it is the thing that refuses to dig a portal on arrival.
-            server.getConfigurationManager().transferPlayerToDimension(player, dim,
-                    new SafeTeleporter(destination, new int[] {
-                        net.minecraft.util.MathHelper.floor_double(x),
-                        net.minecraft.util.MathHelper.floor_double(y),
-                        net.minecraft.util.MathHelper.floor_double(z) }));
+            new SafeTeleporter(destination, new int[] {
+                net.minecraft.util.MathHelper.floor_double(x),
+                net.minecraft.util.MathHelper.floor_double(y),
+                net.minecraft.util.MathHelper.floor_double(z) }).transfer(player, dim);
         }
 
         player.playerNetServerHandler.setPlayerLocation(

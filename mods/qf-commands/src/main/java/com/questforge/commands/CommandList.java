@@ -24,6 +24,21 @@ public class CommandList extends CommandBase {
         return 0;
     }
 
+    /**
+     * Everyone, not just operators.
+     *
+     * A permission level of 0 is not enough on its own: CommandBase hands the
+     * decision to EntityPlayerMP.canCommandSenderUseCommand, which on a
+     * dedicated server lets non-operators run exactly three names -- tell,
+     * help and me -- whatever level they ask for, and asks the op list for
+     * everything else. Singleplayer hides that, because the host counts as an operator.
+     * Same override, same reason, as {@link UnlockedCommand}.
+     */
+    @Override
+    public boolean canCommandSenderUseCommand(ICommandSender sender) {
+        return sender instanceof EntityPlayerMP;
+    }
+
     @Override
     public void processCommand(ICommandSender sender, String[] args) {
         if (!(sender instanceof EntityPlayerMP)) {

@@ -77,15 +77,18 @@ public class ItemTicket extends Item {
 
         lines.add("");
 
-        if (Unlocks.has(player, u.id)) {
-            lines.add(EnumChatFormatting.DARK_GRAY + "You already have this command.");
-            lines.add(EnumChatFormatting.DARK_GRAY + "Using this ticket would waste it.");
-        } else {
-            lines.add(EnumChatFormatting.AQUA + "Right-click to redeem.");
-            lines.add(EnumChatFormatting.DARK_GRAY + "One ticket, one player, permanent.");
-            lines.add(EnumChatFormatting.DARK_GRAY + "Type " + EnumChatFormatting.WHITE + "/commands"
-                    + EnumChatFormatting.DARK_GRAY + " to see everything you have earned.");
-        }
+        // Worded the same for everyone, because the client cannot tell who owns
+        // what. Unlocks live in the server-side player's persisted NBT, and
+        // nothing syncs that to the client's copy of the player -- so asking
+        // Unlocks.has here always answered "no" and told owners to redeem a
+        // ticket they had already spent. Redeeming a duplicate is harmless
+        // (onItemRightClick refuses and keeps the ticket), so the tooltip
+        // points at /commands for the real answer instead of guessing.
+        lines.add(EnumChatFormatting.AQUA + "Right-click to redeem, if you have not already.");
+        lines.add(EnumChatFormatting.DARK_GRAY + "One ticket, one player, permanent. A duplicate");
+        lines.add(EnumChatFormatting.DARK_GRAY + "is refused and the ticket kept, not wasted.");
+        lines.add(EnumChatFormatting.DARK_GRAY + "Type " + EnumChatFormatting.WHITE + "/commands"
+                + EnumChatFormatting.DARK_GRAY + " to see everything you have earned.");
     }
 
     @Override
@@ -106,9 +109,16 @@ public class ItemTicket extends Item {
         if (Unlockables.sourceOf(u) == Unlockables.Source.NONE) {
             player.addChatMessage(new net.minecraft.util.ChatComponentText(
                     EnumChatFormatting.YELLOW + "There is no ticket for " + u.title + "."));
+
+            // A retired trip has its own reason, and "nowhere to arrive" is
+            // not it -- the Dream World has plenty of floor.
+            String retired = u instanceof DimensionTravel
+                    ? ((DimensionTravel) u).retiredBecause() : null;
+
             player.addChatMessage(new net.minecraft.util.ChatComponentText(
-                    EnumChatFormatting.GRAY + "It has nowhere to arrive, so /" + u.command()
-                            + " is left to operators."));
+                    EnumChatFormatting.GRAY + (retired != null ? retired
+                            : "It has nowhere to arrive, so /" + u.command()
+                                    + " is left to operators.")));
             return stack;
         }
 

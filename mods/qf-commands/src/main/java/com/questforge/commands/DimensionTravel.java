@@ -26,13 +26,41 @@ public class DimensionTravel extends Unlockable {
 
     public final int dimension;
 
+    /**
+     * Why this command no longer runs, or null while it still does.
+     *
+     * Retiring is how a dimension is taken out of service without deleting
+     * its entry. The entry has to stay: its position is every later ticket's
+     * damage value, and players who already redeemed it keep the id in their
+     * save. So the command word still exists and still answers, but only to
+     * say why it will not go.
+     */
+    private String retired;
+
     public DimensionTravel(String id, String command, int dimension, String title, String... description) {
         super(id, command, title, description);
         this.dimension = dimension;
     }
 
+    /** Takes this command out of service; see {@link #retired}. */
+    public DimensionTravel retire(String reason) {
+        this.retired = reason;
+        return this;
+    }
+
+    /** The reason this command was retired, or null if it is in service. */
+    public String retiredBecause() {
+        return this.retired;
+    }
+
     @Override
     public String refuse(EntityPlayerMP player, String name, String[] args) {
+        // First, ahead of every other check: a retired trip is not one that
+        // might work later from somewhere else, so no other reason applies.
+        if (this.retired != null) {
+            return this.retired;
+        }
+
         if (player.dimension == this.dimension) {
             return "You are already there.";
         }
@@ -85,8 +113,7 @@ public class DimensionTravel extends Unlockable {
         player.addChatMessage(new ChatComponentText(
                 EnumChatFormatting.GRAY + "Arrived in " + EnumChatFormatting.WHITE + this.title));
 
-        server.getConfigurationManager().transferPlayerToDimension(
-                player, this.dimension, new SafeTeleporter(destination, arrival));
+        new SafeTeleporter(destination, arrival).transfer(player, this.dimension);
 
         return null;
     }
