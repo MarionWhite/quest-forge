@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.WeakHashMap;
 import java.util.regex.Pattern;
 
 import net.minecraft.entity.Entity;
@@ -52,7 +53,8 @@ public class CommonEventHandler
 
     private boolean displayedUpdates;
 
-    private Map<EntityPlayer, Boolean> prevFlying = new HashMap<EntityPlayer, Boolean>();
+    // Weak keys: players were never removed, so every login leaked its EntityPlayerMP
+    private Map<EntityPlayer, Boolean> prevFlying = new WeakHashMap<EntityPlayer, Boolean>();
 
     @SubscribeEvent
     public void onHit(LivingAttackEvent event)

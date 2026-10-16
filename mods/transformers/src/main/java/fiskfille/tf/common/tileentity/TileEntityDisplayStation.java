@@ -12,14 +12,13 @@ import net.minecraft.stats.StatFileWriter;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.MovementInputFromOptions;
 import net.minecraft.world.WorldServer;
-import net.minecraftforge.common.util.FakePlayerFactory;
+import net.minecraftforge.common.util.FakePlayer;
 
 import com.mojang.authlib.GameProfile;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fiskfille.tf.TransformersAPI;
-import fiskfille.tf.common.item.ItemCSD.DimensionalCoords;
 import fiskfille.tf.common.item.ItemComponent;
 import fiskfille.tf.common.item.ItemDisplayVehicle;
 import fiskfille.tf.common.item.TFItems;
@@ -32,13 +31,13 @@ public class TileEntityDisplayStation extends TileEntityContainer implements IMu
 {
     public boolean isRedstonePowered = false;
     
-    public final GameProfile username;
+    /**
+     * One stable profile for all display stations. A random UUID per tile made
+     * FakePlayerFactory cache a new fake player (forever) every time a station was
+     * loaded.
+     */
+    public static final GameProfile username = new GameProfile(UUID.nameUUIDFromBytes("[TF Display Station]".getBytes()), "[TF Display Station]");
     public EntityPlayer fakePlayer;
-
-    public TileEntityDisplayStation()
-    {
-        username = new GameProfile(UUID.randomUUID(), String.format("[%s]", new DimensionalCoords(this)));
-    }
     
     @Override
     public void updateEntity()
@@ -49,9 +48,13 @@ public class TileEntityDisplayStation extends TileEntityContainer implements IMu
             {
                 clientTick();
             }
-            else
+            else if (fakePlayer == null || fakePlayer.worldObj != worldObj)
             {
-                fakePlayer = FakePlayerFactory.get((WorldServer) worldObj, username);
+                // Each station owns its fake player rather than sharing FakePlayerFactory's cached
+                // one: the armor it wears below is what ItemTransformerArmor.isValidArmor checks
+                // slot contents against, so a shared instance would validate against whichever
+                // station ticked last. Not registered anywhere, so it is collected with the tile.
+                fakePlayer = new FakePlayer((WorldServer) worldObj, username);
             }
             
             if (fakePlayer != null)

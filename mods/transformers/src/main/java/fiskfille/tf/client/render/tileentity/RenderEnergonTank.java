@@ -58,12 +58,12 @@ public class RenderEnergonTank extends TileEntitySpecialRenderer
             boolean connectAbove = false;
             boolean connectBelow = false;
 
-            if (tileBase == TFTileHelper.getTileBase(world.getTileEntity(tile.xCoord, tile.yCoord + 1, tile.zCoord)))
+            if (tileBase != null && tileBase == TFTileHelper.getTileBase(world.getTileEntity(tile.xCoord, tile.yCoord + 1, tile.zCoord)))
             {
                 connectAbove = true;
             }
 
-            if (tileBase == TFTileHelper.getTileBase(world.getTileEntity(tile.xCoord, tile.yCoord - 1, tile.zCoord)))
+            if (tileBase != null && tileBase == TFTileHelper.getTileBase(world.getTileEntity(tile.xCoord, tile.yCoord - 1, tile.zCoord)))
             {
                 connectBelow = true;
             }

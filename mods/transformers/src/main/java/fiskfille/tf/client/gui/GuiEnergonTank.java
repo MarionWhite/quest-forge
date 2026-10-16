@@ -71,6 +71,12 @@ public class GuiEnergonTank extends GuiContainerTF
     {
         TileEntityEnergonTank tileBase = TFTileHelper.getTileBase(tileentity);
         FluidStack stack = null;
+
+        if (tileBase == null)
+        {
+            return;
+        }
+
         int y = tileBase.yCoord;
         int capacity = 0;
 

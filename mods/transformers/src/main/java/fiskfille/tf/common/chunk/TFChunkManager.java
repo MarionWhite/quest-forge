@@ -118,9 +118,18 @@ public class TFChunkManager
             Ticket ticket = ticketsForWorld.get(world).get(i);
             List<SubTicket> list = SubTicket.getChildren(ticket);
 
+            // Reusing a full ticket would make Forge evict (unforce) its oldest chunk, which
+            // belongs to some other tile; that never happened while this compared with << 4,
+            // because the comparison never matched
+            if (ticket.getChunkList().size() >= ticket.getMaxChunkListDepth() && !ticket.getChunkList().contains(new ChunkCoordIntPair(chunk.chunkXPos, chunk.chunkZPos)))
+            {
+                continue;
+            }
+
             for (SubTicket subTicket : list)
             {
-                if (subTicket.xCoord << 4 == chunk.chunkXPos && subTicket.zCoord << 4 == chunk.chunkZPos)
+                // SubTicket coords are block coords, chunk coords are block >> 4
+                if (subTicket.xCoord >> 4 == chunk.chunkXPos && subTicket.zCoord >> 4 == chunk.chunkZPos)
                 {
                     return ticket;
                 }

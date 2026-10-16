@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.WorldProvider;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
 
@@ -58,11 +58,23 @@ public class MessagePlayerJoin extends MessageSyncBase
         for (int i = 0; i < ids.length; ++i)
         {
             int id = ids[i];
-            WorldServer world = MinecraftServer.getServer().worldServerForDimension(id);
+            // Only the name is wanted. worldServerForDimension loads any
+            // dimension that isn't, so this used to load every dimension in the
+            // pack on every login; a bare provider names it without a world.
+            WorldServer world = DimensionManager.getWorld(id);
 
-            if (world != null && world.provider != null)
+            try
             {
-                dimensionNames.put(id, world.provider.getDimensionName());
+                WorldProvider provider = world != null ? world.provider : DimensionManager.createProviderFor(id);
+
+                if (provider != null)
+                {
+                    dimensionNames.put(id, provider.getDimensionName());
+                }
+            }
+            catch (Exception e)
+            {
+                // A provider that needs its world to name itself; skip it.
             }
         }
 
@@ -121,9 +133,12 @@ public class MessagePlayerJoin extends MessageSyncBase
     {
         super.toBytes(buf);
 
-        for (Map.Entry<Transformer, Boolean> transformable : canTransform.entrySet())
+        // fromBytes reads these in TransformersAPI.getTransformers() order, so write them in
+        // that order too; iterating the HashMap scrambled which flag belonged to which transformer
+        for (Transformer transformer : TransformersAPI.getTransformers())
         {
-            buf.writeBoolean(transformable.getValue());
+            Boolean flag = canTransform.get(transformer);
+            buf.writeBoolean(flag == null || flag);
         }
 
         buf.writeInt(dimensionNames.size());

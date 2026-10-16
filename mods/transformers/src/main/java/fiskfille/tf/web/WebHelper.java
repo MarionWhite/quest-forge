@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,13 +15,18 @@ import java.util.List;
 public class WebHelper
 {
     private static String pastebinURLPrefix = "http://pastebin.com/raw.php?i=";
+    private static final int TIMEOUT_MS = 5000;
 
     public static List<String> downloadFileList(String urlString) throws MalformedURLException, IOException
     {
         List<String> text = new ArrayList<String>();
 
         URL url = new URL(urlString);
-        BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
+        // URL.openStream() has no timeouts, so an unreachable host could stall the caller indefinitely
+        URLConnection connection = url.openConnection();
+        connection.setConnectTimeout(TIMEOUT_MS);
+        connection.setReadTimeout(TIMEOUT_MS);
+        BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 
         String currentLine;
 

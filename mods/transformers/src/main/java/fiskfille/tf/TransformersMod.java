@@ -26,7 +26,6 @@ import fiskfille.tf.common.network.base.TFNetworkManager;
 import fiskfille.tf.common.proxy.CommonProxy;
 import fiskfille.tf.common.tab.CreativeTabTransformers;
 import fiskfille.tf.config.TFConfig;
-import fiskfille.tf.web.WebHelper;
 import fiskfille.tf.web.update.Update;
 import fiskfille.tf.web.update.UpdateChecker;
 
@@ -52,15 +51,6 @@ public class TransformersMod
         {
             System.out.println("TransformersMod coremod not added! -Dfml.coreMods.load=fiskfille.tf.asm.TFLoadingPlugin");
             FMLCommonHandler.instance().exitJava(0, false);
-        }
-
-        try
-        {
-            WebHelper.readPastebin("Kyct1Dvz");
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
         }
 
         TransformerManager.register();

@@ -81,7 +81,7 @@ public class SubTicket
 
         for (SubTicket subTicket : list1)
         {
-            assign(owner);
+            subTicket.assign(owner);
         }
 
         return owner;

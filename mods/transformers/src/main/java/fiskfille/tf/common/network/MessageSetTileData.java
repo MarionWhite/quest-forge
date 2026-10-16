@@ -7,7 +7,6 @@ import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import fiskfille.tf.common.data.tile.TileData;
 import fiskfille.tf.common.item.ItemCSD.DimensionalCoords;
-import fiskfille.tf.common.network.base.TFNetworkManager;
 import fiskfille.tf.helper.TFTileHelper;
 
 public class MessageSetTileData implements IMessage
@@ -38,8 +37,15 @@ public class MessageSetTileData implements IMessage
         {
             try
             {
-                tileData = (TileData) Class.forName(ByteBufUtils.readUTF8String(buf)).newInstance();
-                tileData.fromBytes(buf);
+                // Load without initializing and check the type first, so a crafted name
+                // can't make the receiver initialize or construct an arbitrary class
+                Class<?> clazz = Class.forName(ByteBufUtils.readUTF8String(buf), false, MessageSetTileData.class.getClassLoader());
+
+                if (TileData.class.isAssignableFrom(clazz))
+                {
+                    tileData = (TileData) clazz.newInstance();
+                    tileData.fromBytes(buf);
+                }
             }
             catch (Exception e)
             {
@@ -73,14 +79,18 @@ public class MessageSetTileData implements IMessage
         @Override
         public IMessage onMessage(MessageSetTileData message, MessageContext ctx)
         {
+            // Tile data only flows server -> client; clients must not be able to inject it
+            if (ctx.side.isServer())
+            {
+                return null;
+            }
+
             TileData data = message.tileData;
             DimensionalCoords coords = data != null ? data.getCoords() : message.tileCoords;
 
-            TFTileHelper.putServerData(coords, data);
-
-            if (ctx.side.isServer())
+            if (coords != null)
             {
-                TFNetworkManager.networkWrapper.sendToAll(new MessageSetTileData(coords, data));
+                TFTileHelper.putServerData(coords, data);
             }
 
             return null;

@@ -151,7 +151,6 @@ public class GuiColor extends GuiScreen
             Color primary = new Color(layerColors[0][0], layerColors[0][1], layerColors[0][2]);
             Color secondary = new Color(layerColors[1][0], layerColors[1][1], layerColors[1][2]);
             TFNetworkManager.networkWrapper.sendToServer(new MessageColorArmor(tileentity.xCoord, tileentity.yCoord, tileentity.zCoord, primary.getRGB(), secondary.getRGB()));
-            TFNetworkManager.networkWrapper.sendToAll(new MessageColorArmor(tileentity.xCoord, tileentity.yCoord, tileentity.zCoord, primary.getRGB(), secondary.getRGB()));
 
             mc.displayGuiScreen(null);
         }

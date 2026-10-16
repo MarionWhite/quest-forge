@@ -58,13 +58,31 @@ public class TFTileHelper
         return new int[] {0, 0, 0};
     }
 
+    /**
+     * Returns the base tile of a multi-block, or null if there is none. The tile
+     * found at the base offset is only returned if it is of the same class as
+     * the given tile: a broken or replaced multi-block can leave some other tile
+     * there, and the old unchecked (T) cast surfaced that as a
+     * ClassCastException in whichever caller first touched it.
+     */
     public static <T extends TileEntity> T getTileBase(T tile)
     {
-        int[] offsets = getTileBaseOffsets(tile, tile != null ? tile.getBlockMetadata() : 0);
+        if (tile == null)
+        {
+            return null;
+        }
+
+        int[] offsets = getTileBaseOffsets(tile, tile.getBlockMetadata());
 
         if (offsets[0] != 0 || offsets[1] != 0 || offsets[2] != 0)
         {
-            return (T) tile.getWorldObj().getTileEntity(tile.xCoord + offsets[0], tile.yCoord + offsets[1], tile.zCoord + offsets[2]);
+            if (tile.getWorldObj() == null)
+            {
+                return null;
+            }
+
+            TileEntity base = tile.getWorldObj().getTileEntity(tile.xCoord + offsets[0], tile.yCoord + offsets[1], tile.zCoord + offsets[2]);
+            return tile.getClass().isInstance(base) ? (T) base : null;
         }
 
         return tile;

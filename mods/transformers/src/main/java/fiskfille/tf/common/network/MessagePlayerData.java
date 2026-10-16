@@ -46,7 +46,21 @@ public class MessagePlayerData implements IMessage
             }
         }
 
-        value = type.readDataFromNBT(ByteBufUtils.readTag(buf));
+        NBTTagCompound nbt = ByteBufUtils.readTag(buf);
+
+        if (type != null && nbt != null)
+        {
+            value = type.readDataFromNBT(nbt);
+        }
+    }
+
+    /**
+     * The value's type is whatever NBT tag the sender wrote, so it has to be
+     * checked against the declared type before anything casts it.
+     */
+    private boolean isValid()
+    {
+        return type != null && type.defaultValue != null && value != null && value.getClass() == type.defaultValue.getClass();
     }
 
     @Override
@@ -64,6 +78,11 @@ public class MessagePlayerData implements IMessage
         {
             TFData type = message.type;
             Object value = message.value;
+
+            if (!message.isValid())
+            {
+                return null;
+            }
 
             if (ctx.side.isClient())
             {
@@ -91,16 +110,12 @@ public class MessagePlayerData implements IMessage
             }
             else
             {
+                // A client may only set its own data, so the entity id it sent is ignored
                 EntityPlayer player = ctx.getServerHandler().playerEntity;
 
                 if (player != null)
                 {
-                    Entity entity = player.worldObj.getEntityByID(message.id);
-
-                    if (entity instanceof EntityPlayer)
-                    {
-                        type.set((EntityPlayer) entity, value);
-                    }
+                    type.set(player, value);
                 }
             }
 

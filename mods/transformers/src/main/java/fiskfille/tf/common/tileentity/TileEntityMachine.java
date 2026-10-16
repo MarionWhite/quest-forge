@@ -41,6 +41,13 @@ public abstract class TileEntityMachine extends TileEntityTF implements ITileDat
     {
         if (!worldObj.isRemote)
         {
+            BlockMachineBase machineBlock = getMachineBlock();
+            
+            if (machineBlock == null)
+            {
+                return;
+            }
+            
             if (this instanceof IEnergyContainer && TFTileHelper.getTileBase(this) == this)
             {
                 IEnergyContainer container = (IEnergyContainer) this;
@@ -52,7 +59,7 @@ public abstract class TileEntityMachine extends TileEntityTF implements ITileDat
                     
                     if (io[i].ordinal() > 0 && container.getMaxEnergy() > 0 && (io[i] != EnumIO.PUSH || container.getEnergy() > 0) && canTransfer(dir))
                     {
-                        TileEntity tile = TFTileHelper.getTileBase(worldObj.getTileEntity(xCoord + dir.offsetX, yCoord + dir.offsetY + (dir.offsetY > 0 ? getBlockType().getBlockHeight() - 1 : 0), zCoord + dir.offsetZ));
+                        TileEntity tile = TFTileHelper.getTileBase(worldObj.getTileEntity(xCoord + dir.offsetX, yCoord + dir.offsetY + (dir.offsetY > 0 ? machineBlock.getBlockHeight() - 1 : 0), zCoord + dir.offsetZ));
                         
                         if (tile instanceof IEnergyContainer)
                         {
@@ -63,7 +70,7 @@ public abstract class TileEntityMachine extends TileEntityTF implements ITileDat
                 
                 for (ForgeDirection dir : list)
                 {
-                    IEnergyContainer receiver = (IEnergyContainer) TFTileHelper.getTileBase(worldObj.getTileEntity(xCoord + dir.offsetX, yCoord + dir.offsetY + (dir.offsetY > 0 ? getBlockType().getBlockHeight() - 1 : 0), zCoord + dir.offsetZ));
+                    IEnergyContainer receiver = (IEnergyContainer) TFTileHelper.getTileBase(worldObj.getTileEntity(xCoord + dir.offsetX, yCoord + dir.offsetY + (dir.offsetY > 0 ? machineBlock.getBlockHeight() - 1 : 0), zCoord + dir.offsetZ));
                     float rate = getTransferRate(dir, io[dir.ordinal()]);
                     
                     if (distribution == EnumDistribution.SPREAD)
@@ -87,10 +94,16 @@ public abstract class TileEntityMachine extends TileEntityTF implements ITileDat
         }
     }
     
-    @Override
-    public BlockMachineBase getBlockType()
+    /**
+     * Returns this tile's block as a BlockMachineBase, or null if the block at
+     * this position is something else (e.g. replaced by world editing or a
+     * removed mod). The old covariant getBlockType() cast unconditionally and
+     * crashed the server tick loop with a ClassCastException in that case.
+     */
+    public BlockMachineBase getMachineBlock()
     {
-        return (BlockMachineBase) super.getBlockType();
+        Block block = getBlockType();
+        return block instanceof BlockMachineBase ? (BlockMachineBase) block : null;
     }
     
     @Override
@@ -160,10 +173,17 @@ public abstract class TileEntityMachine extends TileEntityTF implements ITileDat
     
     public boolean canActivate()
     {
+        BlockMachineBase machineBlock = getMachineBlock();
+        
+        if (machineBlock == null)
+        {
+            return false;
+        }
+        
         boolean isPowered = worldObj.isBlockIndirectlyGettingPowered(xCoord, yCoord, zCoord);
         int y = 0;
         
-        while (++y < getBlockType().getBlockHeight() && TFTileHelper.getTileBase(worldObj.getTileEntity(xCoord, yCoord + y, zCoord)) == TFTileHelper.getTileBase(this))
+        while (++y < machineBlock.getBlockHeight() && TFTileHelper.getTileBase(worldObj.getTileEntity(xCoord, yCoord + y, zCoord)) == TFTileHelper.getTileBase(this))
         {
             isPowered |= worldObj.isBlockIndirectlyGettingPowered(xCoord, yCoord + y, zCoord);
         }
@@ -186,14 +206,21 @@ public abstract class TileEntityMachine extends TileEntityTF implements ITileDat
     
     public boolean canTransfer(ForgeDirection dir)
     {
+        BlockMachineBase machineBlock = getMachineBlock();
+        
+        if (machineBlock == null)
+        {
+            return false;
+        }
+        
         int x = xCoord + dir.offsetX;
-        int y = yCoord + dir.offsetY + (dir.offsetY > 0 ? ((BlockMachineBase) getBlockType()).getBlockHeight() - 1 : 0);
+        int y = yCoord + dir.offsetY + (dir.offsetY > 0 ? machineBlock.getBlockHeight() - 1 : 0);
         int z = zCoord + dir.offsetZ;
         float f = 0.001F;
         
         Block block = worldObj.getBlock(x, y, z);
         AxisAlignedBB aabb = block.getCollisionBoundingBoxFromPool(worldObj, x, y, z);
-        AxisAlignedBB aabb1 = getBlockType().getCollisionBoundingBoxFromPool(worldObj, xCoord, yCoord, zCoord);
+        AxisAlignedBB aabb1 = machineBlock.getCollisionBoundingBoxFromPool(worldObj, xCoord, yCoord, zCoord);
         
         if (aabb == null || aabb1 == null)
         {
@@ -213,8 +240,9 @@ public abstract class TileEntityMachine extends TileEntityTF implements ITileDat
                 int id = -action - 1;
                 io[id] = EnumIO.values()[(io[id].ordinal() + 1) % EnumIO.values().length];
             }
-            else if (action == -io.length - 1)
+            else if (action == -io.length - 1 && player != null)
             {
+                // player is null on clients that could not resolve who triggered this
                 player.openContainer = new ContainerEmpty(player.inventory, 16);
             }
             else if (action == -io.length - 2)

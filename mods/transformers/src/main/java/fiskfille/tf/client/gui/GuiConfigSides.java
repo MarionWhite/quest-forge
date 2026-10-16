@@ -104,11 +104,18 @@ public class GuiConfigSides extends GuiContainerTF
         }
 
         neighbors.clear();
+        BlockMachineBase block = machine.getMachineBlock();
+
+        if (block == null)
+        {
+            mc.displayGuiScreen(null);
+            return;
+        }
 
         for (ForgeDirection dir : ForgeDirection.VALID_DIRECTIONS)
         {
             int x = machine.xCoord + dir.offsetX;
-            int y = machine.yCoord + dir.offsetY + (dir.offsetY > 0 ? machine.getBlockType().getBlockHeight() - 1 : 0);
+            int y = machine.yCoord + dir.offsetY + (dir.offsetY > 0 ? block.getBlockHeight() - 1 : 0);
             int z = machine.zCoord + dir.offsetZ;
 
             if (!world.isAirBlock(x, y, z))
@@ -152,7 +159,14 @@ public class GuiConfigSides extends GuiContainerTF
         fontRendererObj.drawString(s, xSize / 2 - fontRendererObj.getStringWidth(s) / 2, 6, 4210752);
         fontRendererObj.drawString(I18n.format("container.inventory"), 8, ySize - 94, 4210752);
 
-        float height = machine.getBlockType().getBlockHeight();
+        BlockMachineBase block = machine.getMachineBlock();
+
+        if (block == null)
+        {
+            return;
+        }
+
+        float height = block.getBlockHeight();
         float scale = 30 - (height - 1) * 5;
         GL11.glPushMatrix();
         GL11.glTranslatef(73, 51, 100);
@@ -179,7 +193,13 @@ public class GuiConfigSides extends GuiContainerTF
     private void renderScene()
     {
         Tessellator tessellator = Tessellator.instance;
-        BlockMachineBase block = machine.getBlockType();
+        BlockMachineBase block = machine.getMachineBlock();
+
+        if (block == null)
+        {
+            return;
+        }
+
         int x = machine.xCoord;
         int y = machine.yCoord;
         int z = machine.zCoord;

@@ -22,6 +22,12 @@ public class DataProviderEnergonTank extends DataProviderMachine
     {
         TileEntity tileBase = TFTileHelper.getTileBase(tile);
         FluidStack stack = null;
+
+        if (tileBase == null)
+        {
+            return;
+        }
+
         int y = tileBase.yCoord;
         int capacity = 0;
 

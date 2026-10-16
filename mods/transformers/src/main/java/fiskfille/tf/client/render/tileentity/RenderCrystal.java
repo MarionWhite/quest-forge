@@ -20,6 +20,14 @@ public class RenderCrystal extends TileEntitySpecialRenderer
 
     public void render(TileEntityCrystal tile, double x, double y, double z, float partialTicks)
     {
+        // A crystal tile entity can outlive its block: worldgen or another mod
+        // overwrites the block and leaves the tile behind. There is nothing to draw
+        // then, and the unchecked cast here used to take the whole client down.
+        if (!(tile.getBlockType() instanceof BlockEnergonCrystal))
+        {
+            return;
+        }
+
         BlockEnergonCrystal block = (BlockEnergonCrystal) tile.getBlockType();
         Energon energon = block.getEnergonType();
 

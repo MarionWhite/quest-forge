@@ -45,7 +45,7 @@ public class DataProviderMachine implements IWailaDataProvider
     {
         TileEntity tileentity = TFTileHelper.getTileBase(accessor.getTileEntity());
 
-        if (tileentity.getClass() == targetClass && config.getConfig(key, true))
+        if (tileentity != null && tileentity.getClass() == targetClass && config.getConfig(key, true))
         {
             if (tileentity instanceof IEnergyContainer)
             {

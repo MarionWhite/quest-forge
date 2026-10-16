@@ -58,7 +58,7 @@ public class MessageOpenGui implements IMessage
             if (ctx.side.isClient())
             {
                 EntityPlayer player = TransformersMod.proxy.getPlayer();
-                Entity entity = player.worldObj.getEntityByID(message.id);
+                Entity entity = player != null ? player.worldObj.getEntityByID(message.id) : null;
 
                 if (entity instanceof EntityPlayer)
                 {
@@ -67,16 +67,12 @@ public class MessageOpenGui implements IMessage
             }
             else
             {
+                // A client may only open GUIs for itself, so the entity id it sent is ignored
                 EntityPlayer player = ctx.getServerHandler().playerEntity;
 
                 if (player != null)
                 {
-                    Entity entity = player.worldObj.getEntityByID(message.id);
-
-                    if (entity instanceof EntityPlayer)
-                    {
-                        ((EntityPlayer) entity).openGui(TransformersMod.instance, message.modGuiId, ((EntityPlayer) entity).worldObj, message.x, message.y, message.z);
-                    }
+                    player.openGui(TransformersMod.instance, message.modGuiId, player.worldObj, message.x, message.y, message.z);
                 }
             }
 

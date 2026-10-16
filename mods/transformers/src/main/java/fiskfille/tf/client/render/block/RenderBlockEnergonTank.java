@@ -29,12 +29,12 @@ public class RenderBlockEnergonTank implements ISimpleBlockRenderingHandler
             TileEntityEnergonTank tile = (TileEntityEnergonTank) world.getTileEntity(x, y, z);
             TileEntityEnergonTank tileBase = TFTileHelper.getTileBase(tile);
 
-            if (tileBase == TFTileHelper.getTileBase(world.getTileEntity(tile.xCoord, tile.yCoord + 1, tile.zCoord)))
+            if (tileBase != null && tileBase == TFTileHelper.getTileBase(world.getTileEntity(tile.xCoord, tile.yCoord + 1, tile.zCoord)))
             {
                 connectAbove = true;
             }
 
-            if (tileBase == TFTileHelper.getTileBase(world.getTileEntity(tile.xCoord, tile.yCoord - 1, tile.zCoord)))
+            if (tileBase != null && tileBase == TFTileHelper.getTileBase(world.getTileEntity(tile.xCoord, tile.yCoord - 1, tile.zCoord)))
             {
                 connectBelow = true;
             }

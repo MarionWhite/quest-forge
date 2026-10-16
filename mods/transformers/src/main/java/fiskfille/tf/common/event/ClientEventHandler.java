@@ -237,7 +237,8 @@ public class ClientEventHandler
         EntityClientPlayerMP player = mc.thePlayer;
         Object renderObj = RenderManager.instance.entityRenderMap.get(player.getClass());
 
-        if (renderObj != null && TFHelper.getTransformerFromArmor(player, 2) != null)
+        // Without a working renderHand hook, cancelling would leave no hand at all
+        if (renderObj != null && TFReflection.canRenderHand() && TFHelper.getTransformerFromArmor(player, 2) != null)
         {
             event.setCanceled(true);
             Render render = RenderManager.instance.getEntityRenderObject(player);

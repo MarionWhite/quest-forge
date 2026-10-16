@@ -12,7 +12,6 @@ import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import fiskfille.tf.TransformersMod;
 import fiskfille.tf.common.data.TFData;
 import fiskfille.tf.common.data.TFPlayerData;
-import fiskfille.tf.common.network.base.TFNetworkManager;
 
 public class MessageSetPlayerData extends MessageSyncBase
 {
@@ -40,7 +39,7 @@ public class MessageSetPlayerData extends MessageSyncBase
     @Override
     public void toBytes(ByteBuf buf)
     {
-        super.fromBytes(buf);
+        super.toBytes(buf);
         buf.writeInt(id);
     }
 
@@ -61,21 +60,9 @@ public class MessageSetPlayerData extends MessageSyncBase
                     TFPlayerData.getData((EntityPlayer) entity).data = playerData;
                 }
             }
-            else
-            {
-                EntityPlayer player = ctx.getServerHandler().playerEntity;
-
-                if (player != null)
-                {
-                    Entity entity = player.worldObj.getEntityByID(message.id);
-
-                    if (entity instanceof EntityPlayer)
-                    {
-                        TFPlayerData.getData((EntityPlayer) entity).data = playerData;
-                        TFNetworkManager.networkWrapper.sendToDimension(new MessageSetPlayerData((EntityPlayer) entity, playerData), player.dimension);
-                    }
-                }
-            }
+            // Nothing sends this to the server, and honouring it would let a client
+            // overwrite any player's data wholesale, so the server ignores it. It
+            // stays registered so the discriminator ids of later packets don't shift.
 
             return null;
         }

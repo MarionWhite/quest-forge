@@ -65,7 +65,7 @@ public class ItemCSD extends Item
             {
                 TileEntityControlPanel tile = TFTileHelper.getTileBase((TileEntityControlPanel) world.getTileEntity(x, y, z));
 
-                if (!tile.data.activationLeverState)
+                if (tile != null && !tile.data.activationLeverState)
                 {
                     DimensionalCoords coords = getCoords(itemstack);
                     tile.setSwitchesTo(coords);

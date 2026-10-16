@@ -81,7 +81,7 @@ public class TileEntityEnergonTank extends TileEntityMachineContainer implements
 
                 if (tileBase != this)
                 {
-                    if (TFTileHelper.getTileBase(worldObj.getTileEntity(xCoord, yCoord - 1, zCoord)) == tileBase)
+                    if (tileBase != null && TFTileHelper.getTileBase(worldObj.getTileEntity(xCoord, yCoord - 1, zCoord)) == tileBase)
                     {
                         TileEntityEnergonTank tile1 = (TileEntityEnergonTank) worldObj.getTileEntity(xCoord, yCoord - 1, zCoord);
 
@@ -130,9 +130,11 @@ public class TileEntityEnergonTank extends TileEntityMachineContainer implements
                 IFluidContainerItem container = (IFluidContainerItem) input.getItem();
                 FluidStack fluid = container.getFluid(input);
 
-                if (fluid != null && fluid.amount > 0 && fluid.getFluid() == TFFluids.energon)
+                TileEntityEnergonTank inputBase = TFTileHelper.getTileBase(this);
+
+                if (inputBase != null && fluid != null && fluid.amount > 0 && fluid.getFluid() == TFFluids.energon)
                 {
-                    int success = TFTileHelper.getTileBase(this).fill(ForgeDirection.UNKNOWN, container.drain(input, ItemFuelCanister.getFluidAmount(input), false), true);
+                    int success = inputBase.fill(ForgeDirection.UNKNOWN, container.drain(input, ItemFuelCanister.getFluidAmount(input), false), true);
 
                     if (success > 0)
                     {
@@ -294,11 +296,13 @@ public class TileEntityEnergonTank extends TileEntityMachineContainer implements
             resource.amount -= amount;
         }
 
-        if (resource.amount > 0)
+        TileEntityEnergonTank fillBase = TFTileHelper.getTileBase(this);
+
+        if (resource.amount > 0 && fillBase != null)
         {
             int y = yCoord + 1;
 
-            while (y < worldObj.getHeight() && TFTileHelper.getTileBase(worldObj.getTileEntity(xCoord, y, zCoord)) == TFTileHelper.getTileBase(this))
+            while (y < worldObj.getHeight() && TFTileHelper.getTileBase(worldObj.getTileEntity(xCoord, y, zCoord)) == fillBase)
             {
                 TileEntityEnergonTank tile = (TileEntityEnergonTank) worldObj.getTileEntity(xCoord, y, zCoord);
                 resource.amount -= tile.fill(ForgeDirection.UNKNOWN, resource, doFill);
@@ -331,6 +335,12 @@ public class TileEntityEnergonTank extends TileEntityMachineContainer implements
     {
         TileEntity tileBase = TFTileHelper.getTileBase(this);
         TileEntityEnergonTank topTile = null;
+
+        if (tileBase == null)
+        {
+            return null;
+        }
+
         int y = tileBase.yCoord;
 
         while (y < worldObj.getHeight() && TFTileHelper.getTileBase(worldObj.getTileEntity(xCoord, y, zCoord)) == tileBase)

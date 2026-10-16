@@ -199,7 +199,7 @@ public class BlockDisplayStation extends BlockMachineBase
         {
             TileEntityDisplayStation tile = TFTileHelper.getTileBase((TileEntityDisplayStation) world.getTileEntity(x, y, z));
             
-            if (!world.isRemote)
+            if (tile != null && !world.isRemote)
             {
                 boolean flag = world.isBlockIndirectlyGettingPowered(tile.xCoord, tile.yCoord, tile.zCoord);
                 
@@ -207,7 +207,7 @@ public class BlockDisplayStation extends BlockMachineBase
                 {
                     if (tile.canTransform())
                     {
-                        TFNetworkManager.networkWrapper.sendToAll(new MessageTileTrigger(new DimensionalCoords(tile), null, 0));
+                        TFNetworkManager.networkWrapper.sendToDimension(new MessageTileTrigger(new DimensionalCoords(tile), null, 0), world.provider.dimensionId);
                         tile.receive(null, 0);
                     }
                 }

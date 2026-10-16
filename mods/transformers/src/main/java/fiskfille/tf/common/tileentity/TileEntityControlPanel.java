@@ -1,9 +1,6 @@
 package fiskfille.tf.common.tileentity;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -73,6 +70,34 @@ public class TileEntityControlPanel extends TileEntityMachineContainer implement
     public LinkedList<Ticket> chunkTickets = Lists.newLinkedList(Arrays.asList((Ticket) null, (Ticket) null));
     public LinkedList<ForcedChunk> forcedChunks = Lists.newLinkedList(Arrays.asList((ForcedChunk) null, (ForcedChunk) null));
 
+    private int frameSearchCooldown;
+
+    private DimensionalCoords findNearestFrame()
+    {
+        List<TileEntity> list = worldObj.loadedTileEntityList;
+        double maxDistSq = (double) TFConfig.controlPanelMaxRange * TFConfig.controlPanelMaxRange;
+        TileEntity nearest = null;
+        double nearestDistSq = Double.MAX_VALUE;
+
+        for (int i = 0; i < list.size(); ++i)
+        {
+            TileEntity tile = list.get(i);
+
+            if (tile instanceof TileEntityGroundBridgeFrame)
+            {
+                double distSq = getDistanceFrom(tile.xCoord, tile.yCoord, tile.zCoord);
+
+                if (distSq <= maxDistSq && distSq < nearestDistSq && BlockGroundBridgeFrame.getFrameDirection(worldObj, tile.xCoord, tile.yCoord, tile.zCoord) != null)
+                {
+                    nearest = tile;
+                    nearestDistSq = distSq;
+                }
+            }
+        }
+
+        return nearest != null ? new DimensionalCoords(nearest.xCoord, nearest.yCoord, nearest.zCoord, worldObj.provider.dimensionId) : null;
+    }
+
     @Override
     public void updateEntity()
     {
@@ -85,30 +110,21 @@ public class TileEntityControlPanel extends TileEntityMachineContainer implement
 
             if (!data.activationLeverState)
             {
-                List<TileEntity> list = new ArrayList<TileEntity>(worldObj.loadedTileEntityList);
-                Collections.sort(list, new Comparator<TileEntity>()
+                // This scans every loaded tile in the world, so it used to cost a list copy and a
+                // full sort every tick for every idle panel. Search once a second while unlinked,
+                // and every five seconds while linked so a nearer frame is still picked up.
+                if (frameSearchCooldown > 0)
                 {
-                    @Override
-                    public int compare(TileEntity tile1, TileEntity tile2)
-                    {
-                        return Double.valueOf(Math.sqrt(getDistanceFrom(tile1.xCoord, tile1.zCoord, tile1.yCoord))).compareTo(Math.sqrt(getDistanceFrom(tile2.xCoord, tile2.zCoord, tile2.yCoord)));
-                    }
-                });
-
-                for (TileEntity tile : list)
+                    --frameSearchCooldown;
+                }
+                else
                 {
-                    if (Math.sqrt(getDistanceFrom(tile.xCoord, tile.yCoord, tile.zCoord)) <= TFConfig.controlPanelMaxRange)
-                    {
-                        if (tile instanceof TileEntityGroundBridgeFrame)
-                        {
-                            ForgeDirection direction = BlockGroundBridgeFrame.getFrameDirection(worldObj, tile.xCoord, tile.yCoord, tile.zCoord);
+                    frameSearchCooldown = data.framePos == null ? 20 : 100;
+                    DimensionalCoords nearest = findNearestFrame();
 
-                            if (direction != null)
-                            {
-                                data.framePos = new DimensionalCoords(tile.xCoord, tile.yCoord, tile.zCoord, worldObj.provider.dimensionId);
-                                break;
-                            }
-                        }
+                    if (nearest != null)
+                    {
+                        data.framePos = nearest;
                     }
                 }
             }

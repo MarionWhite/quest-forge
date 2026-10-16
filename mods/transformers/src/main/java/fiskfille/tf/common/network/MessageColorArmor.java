@@ -2,9 +2,11 @@ package fiskfille.tf.common.network;
 
 import fiskfille.tf.TransformersMod;
 import fiskfille.tf.common.network.base.TFNetworkManager;
+import fiskfille.tf.common.item.ItemCSD.DimensionalCoords;
 import fiskfille.tf.common.tileentity.TileEntityDisplayStation;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
@@ -58,19 +60,35 @@ public class MessageColorArmor implements IMessage
         public IMessage onMessage(MessageColorArmor message, MessageContext ctx)
         {
             EntityPlayer player = ctx.side.isClient() ? TransformersMod.proxy.getPlayer() : ctx.getServerHandler().playerEntity;
+
+            if (player == null || player.worldObj == null)
+            {
+                return null;
+            }
+
             World world = player.worldObj;
 
-            TileEntityDisplayStation tileentity = (TileEntityDisplayStation) world.getTileEntity(message.x, message.y, message.z);
-
-            if (tileentity != null)
+            if (ctx.side.isServer())
             {
-                if (tileentity.setColor(message.primaryColor, message.secondaryColor))
+                world = MessageTileTrigger.Handler.getTargetWorld(player, new DimensionalCoords(message.x, message.y, message.z, world.provider.dimensionId));
+
+                if (world == null)
+                {
+                    return null;
+                }
+            }
+
+            TileEntity tile = world.getTileEntity(message.x, message.y, message.z);
+
+            if (tile instanceof TileEntityDisplayStation)
+            {
+                if (((TileEntityDisplayStation) tile).setColor(message.primaryColor, message.secondaryColor))
                 {
                     world.markBlockForUpdate(message.x, message.y, message.z);
 
                     if (ctx.side.isServer())
                     {
-                        TFNetworkManager.networkWrapper.sendToAll(new MessageColorArmor(message.x, message.y, message.z, message.primaryColor, message.secondaryColor));
+                        TFNetworkManager.networkWrapper.sendToDimension(new MessageColorArmor(message.x, message.y, message.z, message.primaryColor, message.secondaryColor), world.provider.dimensionId);
                     }
                 }
             }
