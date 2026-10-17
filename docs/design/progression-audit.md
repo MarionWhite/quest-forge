@@ -1,6 +1,6 @@
 # Progression audit
 
-Status: **read-only audit, 2026-10-16. Nothing has been changed.** This document
+Status: **audit 2026-10-16. Config fixes F2–F5, F8, F9a, F10 and F14 applied 2026-10-17 (see §6); F6/F7 are quest edits, tracked separately.** This document
 proposes changes. Each one still needs a slim boot to validate it, and none has
 been booted yet.
 
@@ -485,20 +485,26 @@ one client at a time.
 1. **F1: the Bountiful self-drop guard** (qf-content).
    - **Validate:** `py -3.10 tools/trial/trial.py build bountiful qfcontent`, then in game place and break a diamond block in fresh spots with a Bountiful III pickaxe, 200 times. The diamond-block count must stay flat while ores (coal or quartz from silk-less blocks) still double. Commit with the census row unchanged.
 2. **F2 + F3: Lucky Block config.**
+   - **Status: done in `199ae38`.** Removed: the "1 hit KO" sword; Royal, Queen Battle Axe, Bertha and Slice from the weapon jackpot; Queen and Godzilla scales from both scale groups. The Queen's pole became titanium/uranium blocks and ores; the gem tower's Mobzilla block became an emerald block. KING BOB keeps his Queen kit but drops none of it (`DropChances` 0). L100 fixed. Crafted luck is now about ⅓ of the old values on every positive item, not only the three named in F3. The in-game 200-block open is still to do. Slim boot 2026-10-17 (luckyblocks lootbags soulshards enderutilities orespawn inventorypets qfcontent morph hee, `--overlay pack`): title screen in 12 s, no config errors in `latest.log`.
    - **Validate:** `trial.py build lucky lucky orespawn twilightforest projecte crafttweaker`. Use the mod's own log on boot for parse errors on the edited lines (L100 is already malformed: `ID=OreSpawn:ID=...`, so fix it in the same pass). Open 200 max-luck blocks as op; no `OreSpawn_Royal`, `QueenScale` or `GodzillaScale` may appear.
 3. **F4: loot-bag blacklist and player-only kills.**
+   - **Status: done in `a38ed17`.** `qfcontent` is in the Global Blacklist and `Valid Kill Methods=Real`. No per-bag tome whitelist was added, because §5 wants no tomes from bags. The in-game bag count is still to do.
    - **Validate:** `trial.py build bags lootbags qfcontent sstow`. Kill 300 zombies from a spawner cage, then open every bag; zero `qfcontent:sealed_tome`. Check the fake-player kill path with a cage plus a blaze or a vanilla dispenser.
 4. **F6 + F7: quest reward edits** (`DefaultQuests.json`; note `server/config/betterquesting/DefaultQuests.json` differs from the pack copy and needs the same edit).
    - **Validate:** `trial.py build quests betterquesting standardexpansion tragicmc witchery orespawn`. Open each edited quest in the book; no "missing item" placeholders.
 5. **F5 + F14: SoulShards and Ender Utilities blacklists.**
+   - **Status: done in `852b36f` (35 SSTOW entries, `Check Player=true` on every tier) and `529b174` (53 EU class names).** SSTOW already demands a real-player kill in code, and already skips IBossDisplayData mobs. Not yet tried in game.
    - **Validate:** `trial.py build farms sstow enderutilities orespawn twilightforest`. Try to bind a soul shard to a spawned Mothra and a Kraken; it must be refused.
 6. **F9a: OreSpawn T1–T3 damage** (`OreSpawn.cfg`).
+   - **Status: done in `b90f80b`.** A hit is 5 + config (ItemSword + player base). Emerald 6→16, Amethyst 11→20, Ruby 16→30, Ultimate 36→60 (65 per hit). Battle Axe 46→70, Chainsaw 56→80 and Attitude 82→110 were raised too, so they stay above Ultimate. The census re-run is still to do.
    - **Validate:** re-run the census controls with the Ruby and Ultimate swords against the Naga, using the campaign's T1 rows (`/qfcensus combat OreSpawn:OreSpawn_UltimateSword` …) on a *free* `C:\qfs` node after the running campaign ends. Per-hit damage must order Ruby ≥ diamond (20) and Ultimate ≥ Titan (65).
 7. **F8: the Illuminati pet.**
+   - **Status: done in `d7d6b33`** (`Disable Illuminati Give Random Items=true`).
    - **Validate:** `trial.py build pets inventorypets`. Carry the pet for 10 cooldowns as op; no items appear.
 8. **Check F12** (Dark Matter EMC) and **F13** (Repair Talisman gate).
    - **Validate:** `trial.py build pe projecte crafttweaker orespawn twilightforest`. NEI on Dark Matter shows the EMC value; NEI shows the talisman recipe now needs fiery blood.
 9. **F10: Morph flight gating.**
+   - **Status: done in `ede7341`.** Morph has no End option, so it uses `disableEarlyGameFlight=2` with `customMobToKillForFlight=chylex.hee.entity.boss.EntityBossDragon`, in server-wide mode 0. The boot log confirms the class mapped. The in-game kill is still to verify.
    - **Validate:** `trial.py build morph morph`. Kill a bat in the overworld and confirm flight is withheld until the configured milestone. Remember the OptiFine E7 Morph fixes (`31da143`); test on the full client before the friends' server.
 10. **§5 loot redesign** (qf-content), after the census re-tier.
     - **Validate:** a dry-run histogram command, then `trial.py build loot qfcontent twilightforest orespawn`. Kill the Naga as a player: 1 RARE tome in the quest and 0 Epic or Legendary in chests over 50 dungeon chests.
