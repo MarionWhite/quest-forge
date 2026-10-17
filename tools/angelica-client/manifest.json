@@ -1,0 +1,44 @@
+{
+  "_what": "The Quest Forge Angelica client: the jars that differ from the OptiFine E7 client. build_angelica_client.py applies this to a copy of an E7 game folder. sha1 is the authority; a jar with another hash is refused.",
+  "_decided": "docs/design/angelica-decision.md (approved 2026-10-17). No Hodgepodge, no ArchaicFix: with them in, the client can only join a server that runs them too, and E7 clients cannot.",
+  "forge": {
+    "remove": "forge-1.7.10-10.13.4.1558-1.7.10-universal.jar",
+    "add": {
+      "file": "forge-1.7.10-10.13.4.1614-1.7.10-universal.jar",
+      "sha1": "25fd97f72beca728112256938e03e8105b1b78cc",
+      "url": "https://maven.minecraftforge.net/net/minecraftforge/forge/1.7.10-10.13.4.1614-1.7.10/forge-1.7.10-10.13.4.1614-1.7.10-universal.jar",
+      "why": "Angelica needs Forge 1614. Stock jar: the Quest Forge loading screen and splash music come from QuestForgeTweaks' SplashTransformer, not from a patched Forge jar."
+    }
+  },
+  "mods_remove": [
+    {"file": "OptiFine_1.7.10_HD_U_E7.jar", "sha1": "acdbc623a187b11bfa1545a7d78a72bed01f42ca", "why": "Angelica replaces it (and force-disables it)."},
+    {"file": "fastcraft-1.25.jar", "sha1": "196ebe3d9bb2085e000f0cc6be177d30d0b7190d", "why": "Angelica force-disables it."},
+    {"file": "BetterFps-1.0.1.jar", "sha1": "5f95cfaac2c48448be48150105e735323b6697a1", "why": "Angelica force-disables it."},
+    {"file": "CodeChickenCore.jar", "sha1": "e9ddebd4634784360ed6972041cfa406c10ca9a9", "why": "Stock CCC does not run under Angelica; replaced by GTNH CodeChickenCore 1.4.22."},
+    {"file": "1.7.10/CodeChickenLib-1.7.10-1.1.3.138-universal.jar", "sha1": "e7375c9cd5c39dae10cda636e2fd39bab797d017", "why": "Merged into GTNH CodeChickenCore 1.4.22; both at once is a duplicate mod."}
+  ],
+  "mods_add": [
+    {"file": "angelica-2.2.33.jar", "sha1": "c08308f6363ff9ef5ccc96834f9940cb9ab442a8",
+     "url": "https://cdn.modrinth.com/data/XN5jnYB4/versions/8azfV39W/angelica-2.2.33.jar",
+     "why": "The renderer: Celeritas chunk rendering + the Iris shader backport. Client only."},
+    {"file": "+unimixins-all-1.7.10-0.3.2.jar", "sha1": "caae4993fec61965d39a214c7ef9c709a58b5c9d",
+     "url": "https://github.com/LegacyModdingMC/UniMixins/releases/download/0.3.2/+unimixins-all-1.7.10-0.3.2.jar",
+     "why": "Mixin loader Angelica needs. The leading + keeps it first in load order."},
+    {"file": "gtnhlib-0.11.54.jar", "sha1": "98293359726681e0ff1341efd0934ceb84c284a4",
+     "url": "https://github.com/GTNewHorizons/GTNHLib/releases/download/0.11.54/gtnhlib-0.11.54.jar",
+     "why": "Library Angelica needs. Client only here: never put it on the server (it becomes a required mod and locks out E7 clients)."},
+    {"file": "CodeChickenCore-1.4.22.jar", "sha1": "f4b6d5e12fdd25552e3d79b86c44f4ccccab235b",
+     "url": "https://nexus.gtnewhorizons.com/repository/public/com/github/GTNewHorizons/CodeChickenCore/1.4.22/CodeChickenCore-1.4.22.jar",
+     "why": "GTNH CodeChickenCore with CodeChickenLib merged in. The SERVER and every E7 client must swap to it too: its NEI packets differ from stock CCC's, and a mismatch kicks the client 5 s after login."}
+  ],
+  "pack_jars": {
+    "_what": "Built from this repo. The same jars serve E7 and Angelica; these builds are the first that work under Angelica.",
+    "QuestForgeTweaks-1.0.jar": "SplashTransformer (loading screen + splash music on stock Forge) and the Iris shader check in ShaderState.",
+    "QuestForgeContent-1.0.0.jar": "The Iris shader check in Shaders (record case glass, jukebox chrome).",
+    "TransformersMod-0.6.3-qf1.jar": "The Iris shader check in TFRenderHelper."
+  },
+  "never_add": [
+    {"file": "hodgepodge-*.jar", "why": "Changes the login and tile-entity packets: the client can then only join a server running Hodgepodge, and E7 clients cannot."},
+    {"file": "archaicfix-*.jar", "why": "Same as Hodgepodge."}
+  ]
+}

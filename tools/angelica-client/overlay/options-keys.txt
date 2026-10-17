@@ -1,0 +1,13 @@
+# options.txt keys build_angelica_client.py sets on the Angelica client.
+# Angelica ships these bindings unbound (key code 0). Codes are LWJGL 2 key codes.
+#
+# Zoom on C, where OptiFine's zoom was (key_of.key.zoom:46 on the E7 client).
+# C is also key_key.prev on both clients; that overlap is the pack's, not new.
+key_angelica.keybind.zoom:46
+# Iris shader keys. F4, F8 and F9 are unbound in the whole pack.
+key_iris.keybind.toggleShaders:62
+key_iris.keybind.shaderPackSelection:66
+key_iris.keybind.reload:67
+# Vanilla vsync off, as on the E7 client. Angelica reads it only while
+# angelica-options.json has no vsync_mode; the overlay sets that to OFF too.
+enableVsync:false
