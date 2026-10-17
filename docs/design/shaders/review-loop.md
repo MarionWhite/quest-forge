@@ -2,40 +2,134 @@
 
 How each iteration of the shader is judged before it reaches the owner. The aim
 is that the owner only ever sees frames a strong critic already thinks are
-close, and only ever answers questions a machine cannot: taste.
+close, and only ever answers questions a machine can't: taste.
+
+## Where it runs
+
+| | Now | Later |
+|---|---|---|
+| Game dir | `C:\qfb\client-ang`: Angelica 2.2.33, Forge 1614, GTNH CodeChickenCore 1.4.22, **plus Hodgepodge 2.7.216 and ArchaicFix 0.8.0** | The final Angelica client built by `tools/angelica-client/build_angelica_client.py` (for example `C:\qfb\client-ang2`), **without Hodgepodge or ArchaicFix**. Another session is building it. |
+| Launch | `C:\qfb\run_bench.ps1 -Client C:\qfb\client-ang -ForgeJar C:\qfs\forge1614-install\forge-1.7.10-10.13.4.1614-1.7.10-universal.jar` (the script defaults to the live 1558 jar, which Angelica can't use) | the same, with `-Client` pointing at the new folder |
+| Boot | full pack, about 3–5 min (`trial.py` has no Angelica base set, so no slim trials yet) | slim trials, once `trial.py` learns the Angelica base set |
+
+**When the client changes, re-run three baselines in the new client before
+comparing anything:** shaders off, Complementary and our last accepted round.
+Frame times from the two clients aren't comparable, because Hodgepodge and
+ArchaicFix change chunk and lighting work. Screenshots are comparable.
+
+All work here is singleplayer. The pack check now refuses mismatched mod
+versions on servers, which doesn't affect this loop: no server is involved.
+
+**One client at a time.** Before every launch, run
+`py -3.10 -I tools/trial/trial.py status`. If it lists any client (the user's,
+or another session's), don't launch. `run_bench.ps1` also refuses when it sees
+one. A second full-pack client makes the NVIDIA driver reset the GPU and kills
+both.
+
+## One-time setup of the client
+
+Do this with the game closed; [`README.md`](README.md) "Getting started" has the
+details.
+
+- `config\angelica-options.json`: `"vsync_mode": "OFF"`. Without it every
+  frame time pins to 4.16 ms, and `check_frames.py` fails the round.
+- `config\shaders.properties`: `enableDebugOptions=true` and
+  `saveCompiledShaders=true`.
+- The dev pack is a folder at `shaderpacks\QuestForge-dev\`, a junction to the
+  repo's source.
+
+`run_bench.ps1` copies the live instance's `options.txt` over the client's on
+every run, so key bindings made by hand don't survive a bench run. That doesn't
+matter for unattended rounds. For hand iteration, rebind F9 (reload) after a
+bench run, or launch the final client, which binds the keys in its build.
 
 ## The cycle
 
 1. **Change.** One feature or fix at a time, on a branch of the shader source.
-2. **Render the scene set** with the benchmark harness on a slim trial (only the
-   mods the scene needs, about 15 s to boot). Every scene gives a 2560×1440
-   screenshot plus frame-time statistics.
+2. **Render the scene set** with the harness:
+   ```
+   powershell -NoProfile -ExecutionPolicy Bypass -Command "& C:\qfb\run_bench.ps1 -Client C:\qfb\client-ang `
+       -ForgeJar C:\qfs\forge1614-install\forge-1.7.10-10.13.4.1614-1.7.10-universal.jar `
+       -Tag r12 -Shader QuestForge-dev -ExtraPacks QuestForge-Surface.zip -Scenes 'static,fly,torch,gallery' `
+       -PackOpts @{QF_PRESET='4'} -TimeoutMin 25"
+   ```
+   Run it as a background task, never in a foreground wait loop.
+   - `-Shader` is the pack folder's name. The script writes
+     `config\shaders.properties` (`shaderPack=`, `enableShaders=true`), and
+     `-PackOpts` goes into `shaderpacks\QuestForge-dev.txt`, the option file
+     Iris reads. Our pack's preset option, `QF_PRESET` (0 Potato to 4 Ultra),
+     selects the tier. `-ExtraPacks` loads the generated normal-map pack from
+     `C:\qfb\surface\` above `QuestForge.zip`.
+   - Each run copies a fresh world from `C:\qfb\world-master`. `FrameBench`
+     (`-Dqf.bench=1`) flies the scenes, then writes
+     `C:\qfb\client-ang\bench\<tag>.txt` (mean, p50, p99, 1% low, worst, frames
+     over 33 ms per scene) and screenshots at 2560×1440 to
+     `C:\qfb\client-ang\screenshots\bench-<tag>*.png`. GPU load goes to
+     `logs\gpu-<tag>.csv`.
+   - Render each round twice: once on the round's tier, and once on Low with
+     `-Tag <tag>-low`, so that Low can never silently fall behind.
+   - Today `FrameBench` only has the static, fly, torch and gallery scenes. The
+     rest of the scene set (below) still needs scenes added to it. Until then,
+     those scenes are hand-captured: F2 in the dev client, the same coordinates
+     and time from a written list, saved to `screenshots\`.
 3. **Automatic checks**, before any model looks:
-   - frame-time budget for the tier (`performance-rules.md`); 1% low and frames
-     over 33 ms must not get worse;
-   - clipped highlights and crushed shadows (percent of pixels at 0 or 255);
-   - mean luminance per scene against its target band (night and cave floors);
-   - temporal noise: the difference between two consecutive frames of a still
-     camera.
-   A change that fails these goes back to step 1 without spending a critic call.
-4. **Critic.** A subagent on the strongest available model receives the look
-   bible, the owner's taste profile, the latest owner feedback, and for each scene
-   the new frame, the previous best and the Vibrant baseline. It returns JSON:
-   per-scene scores on the rubric below, specific defects with where they are in
-   the frame, and the single most valuable next change. It never sees our code,
-   only pixels and numbers, so it judges the result rather than the intent.
-5. **Gate.** A round goes to the owner only when every scene scores at least 7 on
-   every Tier A item, no defect is marked severe, budgets pass, and the mean
-   overall score is at least 8 and higher than the last round the owner saw.
+   ```
+   py -3.10 -I tools/shaders/review/check_frames.py --client C:\qfb\client-ang --tag r12 --off m-B0 --prev r11 --tier ultra
+   py -3.10 -I tools/shaders/review/check_frames.py --client C:\qfb\client-ang --tag r12-low --off m-B0 --tier low-proxy
+   ```
+   The script checks:
+   - **frame-time budget:** shader cost against the tier's dev-PC budget
+     (`performance-rules.md`), where shader cost is the p50 minus the
+     shaders-off run's p50;
+   - **regressions:** the 1% low and frames over 33 ms must not get worse than
+     `--prev`;
+   - **the vsync cap,** flagged when it shows in the numbers;
+   - **exposure:** clipped highlights and crushed shadows, as a percentage of
+     pixels with the HUD masked out;
+   - **brightness:** mean luminance per frame against `--band` (night and cave
+     floors);
+   - **temporal noise:** `--pair` takes two consecutive frames of a still camera.
+     `FrameBench` doesn't take such pairs yet; until it does, capture them with
+     two F2 presses.
+
+   It prints a JSON report and exits 1 on any failure. A failing change goes
+   back to step 1 without spending a critic call.
+4. **Critic.** This Claude Code session spawns a subagent (the Agent tool, on the
+   strongest model available) whose prompt contains:
+   - the look bible, the owner's taste profile and the latest owner feedback, as
+     text;
+   - for each scene, the **absolute paths** of the new frame, the previous best,
+     and the reference frames. The references are Complementary Unbound r5.9.3
+     and Sildur's Vibrant High in the same client, rendered once per client:
+     `bench-m-B2*` and `bench-m-B1*` today.
+   - the `check_frames.py` report.
+
+   The subagent opens the PNGs with its Read tool, which shows it the images. It
+   returns JSON: per-scene scores on the rubric below, specific defects with
+   where they are in the frame, and the single most valuable next change. It
+   never sees our code, only pixels and numbers, so it judges the result rather
+   than the intent.
+
+   Complementary appears only as a frame to compare against. Its code is never
+   given to the critic or used to write ours (see the licence section in
+   [`README.md`](README.md)).
+5. **Gate.** A round goes to the owner only when all of these hold:
+   - every scene scores at least 7 on every Tier A item;
+   - no defect is marked severe;
+   - the budgets pass, Low proxy included;
+   - the mean overall score is at least 8 and higher than the last round the
+     owner saw.
+
    Otherwise the critic's top change becomes step 1.
-6. **Round.** When the gate passes, the frames are uploaded to the Shader Lab page
-   (https://claude.ai/artifact/C7LvLPJEpxazScuaLjJo3Q) as a round. Where the
-   critic found a genuine taste choice (warmer or cooler sunset, haze density), the
-   round offers two or three variants of that one axis instead of a single frame.
-   A push notification goes to the owner's phone.
+6. **Round.** When the gate passes, the frames are uploaded to the Shader Lab
+   page (https://claude.ai/artifact/C7LvLPJEpxazScuaLjJo3Q, source in
+   `tools/shaders/review/shader-review.html`) as a round. Where the critic found
+   a genuine taste choice (a warmer or cooler sunset, haze density), the round
+   offers two or three variants of that one axis instead of a single frame. A
+   push notification goes to the owner's phone.
 7. **Learn.** The owner's picks, ratings and notes are read from the page's
-   database. They are summarised into the taste profile (the page's "What I've
-   learned" panel and the end of `look-bible.md`), and any rule they contradict is
+   database and summarised into the taste profile: the page's "What I've
+   learned" panel and the end of `look-bible.md`. Any rule they contradict is
    rewritten. The next critic call sees the new profile.
 
 ## Rubric (each 0–10)
@@ -48,7 +142,9 @@ close, and only ever answers questions a machine cannot: taste.
 | Defects | each with severity (minor / major / severe) and location |
 | Overall | one number, against the look bible and taste profile |
 
-Anti-patterns from the look bible are automatic deductions.
+Anti-patterns from the look bible are automatic deductions. Low-tier frames are
+scored on Tier A and on the defect list only. Missing Tier B effects are
+expected there, but broken ones are not.
 
 ## Scene set
 
@@ -59,11 +155,18 @@ comparable across iterations:
 - Ocean shore at noon and at sunset; underwater
 - Night under a full moon and a new moon; a torch-lit cave
 - Rain, then the same place 3 minutes after rain
-- The block gallery (vanilla next to modded look-alikes)
-- Twilight Forest canopy, the Nether, the End, and two more modded dimensions
+- The block gallery (vanilla next to modded look-alikes; `FrameBench`'s
+  `gallery` scene, list in `C:\qfb\gallery.txt`)
+- Twilight Forest canopy, the Nether, the End, and two more modded dimensions.
+  These also time the first-entry compile of each dimension folder.
 - The pack's own custom renderers (jukebox, record case, speakers)
 - Failure-class probes: a Legends laser, a McHeli aircraft held and flown, a
-  modded particle effect, a mob crowd (entity shadows, frame time)
+  modded particle effect, and a mob crowd. The crowd tests entity shadows and
+  frame time, with `shadowEntities` on and off.
+
+Under Angelica, check each failure-class probe with shaders off as well. Mod
+geometry that is wrong without shaders is Angelica's fixed-function emulation,
+not our pack. MCHeli rotors and Transformers are the known suspects.
 
 ## Phone notifications
 

@@ -1,5 +1,7 @@
 # Shader-pack desirability research (for a new 1.7.10 near-photoreal pack)
 
+> **Platform note (2026-10-17):** the pack now targets Angelica's Iris backport, not E7. Wherever this report describes E7 features, limits or traps, [`../README.md`](../README.md) "Platform facts" wins. The technique, cost and licence findings still apply.
+
 Date: 2026-10-16. Scope: what players like and dislike in shader packs, distilled into a look bible.
 
 ## Source caveat (read first)

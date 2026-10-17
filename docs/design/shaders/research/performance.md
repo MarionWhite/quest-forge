@@ -1,5 +1,7 @@
 # Shader pack performance research (OptiFine 1.7.10 HD U E7)
 
+> **Platform note (2026-10-17):** the pack now targets Angelica's Iris backport, not E7. Wherever this report describes E7 features, limits or traps, [`../README.md`](../README.md) "Platform facts" wins. The technique, cost and licence findings still apply.
+
 Target: high average FPS and stable 1% lows on Ryzen 9 7900X + RTX 5070 Ti at 1440p (CPU/driver bound, GPU at ~44%), with quality tiers for weaker friend PCs.
 
 Confidence tags:

@@ -1,5 +1,7 @@
 # Shader pack research: licenses and techniques for an OptiFine 1.7.10 HD U E7 pack
 
+> **Platform note (2026-10-17):** the pack now targets Angelica's Iris backport, not E7. Wherever this report describes E7 features, limits or traps, [`../README.md`](../README.md) "Platform facts" wins. The technique, cost and licence findings still apply.
+
 Date: 2026-10-16. Tags: **[V]** = I checked it myself (I read the LICENSE file or ran a probe). **[U]** = unverified (from memory or a secondary source).
 
 ## 0. What E7 actually supports

@@ -1,37 +1,56 @@
 #!/usr/bin/env python3
 """Build a resource pack that gives every block in the pack -- vanilla and modded
-alike -- surface relief and shader materials under Sildur's Vibrant.
+alike -- generated surface relief, plus the block-ID mapping a shader needs to
+know what each block is.
 
 WHY GENERATE RATHER THAN DOWNLOAD. A PBR texture pack covers vanilla's ~400
 block textures. This pack has ~5,200 more across 65 mods, which a hand-made pack
 would leave flat beside vanilla's relief -- the inconsistency is worse than no
-pack. No PBR pack ships the 1.7.10 file layout anyway (checked 2026-10-16), and
-Complementary, whose shader-side "generated normals" would have covered every
-block, does not render on OptiFine 1.7.10 E7. So every texture gets the same
-treatment from the same algorithm, vanilla included, and the look stays even.
+pack. No PBR pack ships the 1.7.10 file layout anyway (checked 2026-10-16). So
+every texture gets the same treatment from the same algorithm, vanilla
+included, and the look stays even.
 
-WHAT IT WRITES, into one resource pack:
+TWO TARGETS (--target):
+
+  questforge  (default; Angelica / Iris, see docs/design/shaders/README.md)
+      shaders/block.properties is written INTO THE SHADER PACK (--shader-pack
+      DIR). Iris reads block.properties only from the pack's shaders/ folder,
+      never from mod resource domains. The file covers vanilla and modded
+      blocks with our own material IDs (QF_IDS) and is wrapped in
+      `#if MC_VERSION == 10710`. Without that line Angelica treats the entries
+      as modern 1.13+ names and compiles the whole pack with a modern
+      MC_VERSION (IdMap.detectLegacySection, ShaderPack.mcVersionOverride).
+
+  vibrant     (OptiFine E7 only, the fallback client)
+      assets/<modid>/shaders/block.properties per mod, inside the resource pack.
+      E7 reads those for every Forge mod (BlockAliases.loadModBlockAliases).
+      IDs are Sildur's Vibrant's own (its block.properties, pre-1.13 branch);
+      vanilla is left to the shader. Angelica ignores these files.
+
+BOTH TARGETS ALSO WRITE, into the resource pack (--out):
 
   assets/<domain>/textures/blocks/<name>_n.png
       A normal map for every block texture: RGB = tangent-space normal, A =
-      height, the layout Vibrant's nMap reads (it ignores specular maps
-      entirely). Height comes from luminance, which on 16x16 pixel art is the
-      artist's own shading; the strength is set per material from the texture's
-      name, so cobblestone gets deep relief and polished metal almost none.
+      height. Iris loads these into its normal atlas (texture/pbr); Vibrant's
+      nMap reads the same layout. Height comes from luminance, which on 16x16
+      pixel art is the artist's own shading; the strength is set per material
+      from the texture's name, so cobblestone gets deep relief and polished
+      metal almost none.
 
-  assets/<modid>/shaders/block.properties
-      Tells the shader what modded blocks are. OptiFine E7 reads this file for
-      every Forge mod (BlockAliases.loadModBlockAliases) through the normal
-      resource system, so a resource pack can supply it. Classified by
-      registry name: leaves wave, plants sway, lamps glow, metal and polished
-      stone reflect, glass and ice refract. IDs are Vibrant's own (its
-      block.properties, pre-1.13 branch); another shader would need its own.
+Classified by registry name: leaves wave, plants sway, lamps glow, metal and
+polished stone reflect, glass and ice refract; with the questforge target ores
+glint and water and lava get their own IDs.
 
-Usage:
-    gen_surface_pack.py --instance %APPDATA%\\.crazycraft4 --world <save dir> --out QuestForge-Surface.zip
+Usage (py -3.10 -I):
+    gen_surface_pack.py --target questforge --instance C:\qfb\client-ang --world C:\qfb\world-master \
+        --shader-pack C:\qfb\client-ang\shaderpacks\QuestForge-dev --out QuestForge-Surface.zip
+    gen_surface_pack.py --target vibrant --instance %APPDATA%\.crazycraft4 --world <save> --out QuestForge-Surface.zip
 
 --world is any world saved by the pack: its level.dat carries FML's registry of
 every block name, which is the only complete list of what is installed.
+--instance supplies mods/, and bin/minecraft.jar for the vanilla textures. An
+Angelica game dir has no bin/, so the live instance's minecraft.jar is used
+unless --mc-jar says otherwise.
 """
 import argparse, collections, gzip, io, json, os, re, sys, zipfile
 
@@ -65,6 +84,46 @@ RULES = [
 DEFAULT_STRENGTH = 1.3
 COMPILED = [(n, i, s, re.compile(r, re.I)) for n, i, s, r in RULES]
 
+# --- Quest Forge material IDs (questforge target) -------------------------------
+# Our own numbering, read in GLSL as mc_Entity.x / blockEntityId. The shader's
+# /lib/materials.glsl must use the same table: change both together. Unmapped
+# blocks are plain opaque. Never copy another pack's numbering.
+QF_IDS = {
+    "water":    1001,   # Beer-Lambert volume, Fresnel, waves
+    "lava":     1002,   # emissive fluid
+    "leaves":   1010,   # wave + subsurface
+    "plant":    1011,   # sway from the base, subsurface
+    "web":      1012,   # cut-out, casts no shadow
+    "emissive": 1020,   # lamps, torches, glowstone, fire
+    "glass":    1030,   # refraction, tinted shadow
+    "metal":    1040,   # high F0, low roughness
+    "polished": 1041,   # dielectric, low roughness
+    "ore":      1050,   # glint on the ore pixels
+}
+# Checked before RULES, for the questforge block mapping only (never the normal
+# strength), so the Vibrant output is unchanged. Vanilla names here are 1.7.10
+# registry names, e.g. minecraft:flowing_water.
+QF_EXTRA = [
+    # Off states that the RULES' lamp pattern would light up.
+    (None,       re.compile(r"^redstone_lamp$|^unlit_|_off$", re.I)),
+    ("water",    re.compile(r"^(flowing_)?water$|(^|[^a-z])water(_?(still|flowing|fluid|block))?$", re.I)),
+    ("lava",     re.compile(r"^(flowing_)?lava$|(^|[^a-z])lava(_?(still|flowing|fluid|block))?$", re.I)),
+    ("plant",    re.compile(r"waterlily|lily_?pad|double_plant|red_flower|yellow_flower|reeds|deadbush|cactus", re.I)),
+    ("emissive", re.compile(r"^fire$|^lit_pumpkin$|^lit_redstone_lamp$|^beacon$|^portal$|^end_portal$", re.I)),
+    # Case-sensitive on purpose: "oreCopper", "veGemOre", "copper_ore", not "core" or "store".
+    ("ore",      re.compile(r"(^|[^a-zA-Z])[Oo]re|Ore|_ore|ore_")),
+]
+
+
+def classify_qf(name):
+    """QF material kind for a registry path, or None for a plain block (QF_EXTRA may say None outright)."""
+    name = re.sub(r"^(tile\.)+([a-z]+mod\.)?", "", name, flags=re.I)
+    for kind, rx in QF_EXTRA:
+        if rx.search(name):
+            return kind
+    kind, ident, _ = classify(name)
+    return kind if kind in QF_IDS and ident is not None else None
+
 
 def classify(name):
     # "tile.TFLeaves", "tile.TardisMod.Schema": the prefix is the old unlocalized
@@ -97,6 +156,44 @@ def block_mappings(names):
         out[modid][ident].append(full)
         tally[kind] += 1
     return out, tally
+
+
+def qf_mappings(names):
+    """{qf_id: [names]} over vanilla and modded blocks, each block exactly once."""
+    out, tally, skipped = collections.defaultdict(list), collections.Counter(), []
+    for full in names:
+        modid, path = full.split(":", 1)
+        if SPAWN.search(path):
+            continue
+        if re.search(r"\s", full):   # the ID list is whitespace-separated
+            skipped.append(full)
+            continue
+        kind = classify_qf(path)
+        if kind is None:
+            continue
+        out[QF_IDS[kind]].append(full)   # one ID per block: Iris keeps the first it sees
+        tally[kind] += 1
+    return out, tally, skipped
+
+
+def write_qf_block_properties(pack_dir, names):
+    by_id, tally, skipped = qf_mappings(names)
+    shaders = os.path.join(pack_dir, "shaders")
+    os.makedirs(shaders, exist_ok=True)
+    body = ["# Generated by tools/shaders/gen_surface_pack.py --target questforge. Do not edit:",
+            "# change QF_IDS or the rules there and re-run. Iris reads this only from the pack.",
+            "# The guard makes Angelica treat the file as 1.7.10 names and keeps MC_VERSION",
+            "# at 10710 for the whole pack; without it the names are read as 1.13+.",
+            "#if MC_VERSION == 10710"]
+    for ident, members in sorted(by_id.items()):
+        body.append("block.%d=%s" % (ident, " ".join(members)))
+    body.append("#endif")
+    path = os.path.join(shaders, "block.properties")
+    with open(path, "w", encoding="latin-1", errors="replace", newline="\n") as f:   # .properties are ISO-8859-1
+        f.write("\n".join(body) + "\n")
+    print("block.properties: %d blocks  %s -> %s" % (sum(tally.values()), dict(tally), path))
+    if skipped:
+        print("  skipped %d names containing whitespace: %s" % (len(skipped), ", ".join(skipped[:8])))
 
 
 # --- normal maps -----------------------------------------------------------------
@@ -141,9 +238,16 @@ def texture_normals(png_bytes, strength):
 BLOCK_TEX = re.compile(r"^assets/([^/]+)/textures/blocks/(.+)\.png$")
 
 
-def texture_sources(instance):
+LIVE = os.path.join(os.environ.get("APPDATA", os.path.expanduser("~")), ".crazycraft4")
+
+
+def texture_sources(instance, mc_jar=None):
     """(archive path, member) for every block texture: minecraft.jar, then mods."""
-    yield os.path.join(instance, "bin", "minecraft.jar")
+    if not mc_jar:
+        mc_jar = os.path.join(instance, "bin", "minecraft.jar")
+        if not os.path.exists(mc_jar):   # an Angelica game dir launches from the live bin/
+            mc_jar = os.path.join(LIVE, "bin", "minecraft.jar")
+    yield mc_jar
     for root, _, files in os.walk(os.path.join(instance, "mods")):
         for f in sorted(files):
             if f.endswith((".jar", ".zip")) and not re.search(r"\.(pre|broken)", f):
@@ -152,31 +256,40 @@ def texture_sources(instance):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--target", choices=["questforge", "vibrant"], default="questforge")
     ap.add_argument("--instance", required=True)
+    ap.add_argument("--shader-pack", help="questforge target: shader pack folder that gets shaders/block.properties")
+    ap.add_argument("--mc-jar", help="vanilla minecraft.jar (default: <instance>/bin, else the live instance's)")
     ap.add_argument("--world", required=True, help="a world saved by this pack (for the block registry)")
     ap.add_argument("--out", required=True, help="resource pack zip to write")
     ap.add_argument("--strength", type=float, default=1.0, help="scale every material's relief")
-    ap.add_argument("--no-normals", action="store_true", help="block mappings only")
+    ap.add_argument("--no-normals", action="store_true", help="block mappings only (still writes --out)")
     args = ap.parse_args()
+    if args.target == "questforge" and not args.shader_pack:
+        ap.error("--target questforge needs --shader-pack DIR (Iris reads block.properties only from the pack)")
 
     out = zipfile.ZipFile(args.out, "w", zipfile.ZIP_DEFLATED)
     out.writestr("pack.mcmeta", json.dumps({"pack": {"pack_format": 1, "description":
                  "Quest Forge surfaces: generated relief and shader materials for every block"}}, indent=1))
 
-    maps, tally = block_mappings(registry_names(args.world))
-    lines = 0
-    for modid, by_id in sorted(maps.items()):
-        body = ["# Generated by tools/shaders/gen_surface_pack.py for Sildur's Vibrant. Do not edit."]
-        for ident, names in sorted(by_id.items()):
-            body.append("block.%d=%s" % (ident, " ".join(names)))
-            lines += len(names)
-        # Resource domains are lowercase in 1.7.10; block names keep their case.
-        out.writestr("assets/%s/shaders/block.properties" % modid.lower(), "\n".join(body) + "\n")
-    print("block mappings: %d blocks in %d mods  %s" % (lines, len(maps), dict(tally)))
+    names = registry_names(args.world)
+    if args.target == "questforge":
+        write_qf_block_properties(args.shader_pack, names)
+    else:
+        maps, tally = block_mappings(names)
+        lines = 0
+        for modid, by_id in sorted(maps.items()):
+            body = ["# Generated by tools/shaders/gen_surface_pack.py for Sildur's Vibrant (OptiFine E7). Do not edit."]
+            for ident, members in sorted(by_id.items()):
+                body.append("block.%d=%s" % (ident, " ".join(members)))
+                lines += len(members)
+            # Resource domains are lowercase in 1.7.10; block names keep their case.
+            out.writestr("assets/%s/shaders/block.properties" % modid.lower(), "\n".join(body) + "\n")
+        print("block mappings: %d blocks in %d mods  %s" % (lines, len(maps), dict(tally)))
 
     if not args.no_normals:
         done, seen = collections.Counter(), set()
-        for archive in texture_sources(args.instance):
+        for archive in texture_sources(args.instance, args.mc_jar):
             try:
                 z = zipfile.ZipFile(archive)
             except zipfile.BadZipFile:
