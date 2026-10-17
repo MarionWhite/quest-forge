@@ -179,6 +179,8 @@ public class CommandCensus extends CommandBase {
                     continue;
                 }
                 if ("pairs".equals(lower)) { opts.pairs = true; continue; }
+                // part=enyvilEye: on a multipart boss, the part every swing strikes.
+                if (lower.startsWith("part=")) { opts.part = arg.substring(5); continue; }
                 if ("triples".equals(lower)) { opts.triples = true; continue; }
                 if (lower.startsWith("hit=")) {
                     try {

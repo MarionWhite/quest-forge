@@ -418,9 +418,10 @@ public final class CensusProbe {
     public static float swing(EntityPlayer probe, net.minecraft.entity.EntityLivingBase target) {
         if (probe == null || target == null) return 0F;
         float before = target.getHealth();
+        net.minecraft.entity.Entity hitbox = partFor(probe, target);
 
         if (!attackEventCancelled) {
-            probe.attackTargetEntityWithCurrentItem(target);
+            probe.attackTargetEntityWithCurrentItem(hitbox);
             return Math.max(0F, before - target.getHealth());
         }
 
@@ -438,8 +439,74 @@ public final class CensusProbe {
         } catch (Throwable ignored) {}
 
         if (base + bonus <= 0F) return 0F;
-        target.attackEntityFrom(DamageSource.causePlayerDamage(probe), base + bonus);
+        hitbox.attackEntityFrom(DamageSource.causePlayerDamage(probe), base + bonus);
         return Math.max(0F, before - target.getHealth());
+    }
+
+    /** Part name to strike on a multipart target (census option part=), or null for nearest. */
+    static String preferredPart;
+    private static final java.util.Set<String> partsLogged = new java.util.HashSet<String>();
+
+    /**
+     * The hitbox a player's click would resolve to.
+     *
+     * A multipart boss is struck through its parts, as a client click on it
+     * resolves to one (WorldServer registers every part's entity id). TragicMC's
+     * Enyvil refuses every player-sourced hit on its main body outright, so a
+     * probe swinging at the main entity dealt nothing in 53 of 53 melee cells
+     * (anomalies #1b). The part named by part= is used when there is one,
+     * otherwise the part nearest the probe's eye. The damage is still read off
+     * the main entity. The choice is logged once per target and part.
+     */
+    static net.minecraft.entity.Entity partFor(EntityPlayer probe, net.minecraft.entity.EntityLivingBase target) {
+        net.minecraft.entity.Entity[] parts;
+        try {
+            parts = target.getParts();
+        } catch (Throwable t) {
+            return target;
+        }
+        if (parts == null || parts.length == 0) return target;
+        net.minecraft.entity.Entity pick = null;
+        if (preferredPart != null) {
+            for (net.minecraft.entity.Entity p : parts) {
+                if (p != null && preferredPart.equalsIgnoreCase(partName(p))) {
+                    pick = p;
+                    break;
+                }
+            }
+        }
+        if (pick == null) {
+            double best = Double.MAX_VALUE;
+            double ex = probe.posX, ey = probe.posY + probe.getEyeHeight(), ez = probe.posZ;
+            for (net.minecraft.entity.Entity p : parts) {
+                if (p == null) continue;
+                double d = p.getDistanceSq(ex, ey, ez);
+                if (d < best) {
+                    best = d;
+                    pick = p;
+                }
+            }
+        }
+        if (pick == null) return target;
+        String key = target.getClass().getName() + "/" + partName(pick);
+        if (partsLogged.add(key)) {
+            QuestForgeContent.log.info("[census] " + target.getClass().getSimpleName() + " has " + parts.length
+                    + " parts; the probe strikes " + partName(pick)
+                    + (preferredPart == null ? " (nearest)" : " (part=" + preferredPart + ")"));
+        }
+        return pick;
+    }
+
+    private static String partName(net.minecraft.entity.Entity part) {
+        try {
+            Object v = part.getClass().getField("partName").get(part);
+            if (v != null) return v.toString();
+        } catch (Throwable ignored) {}
+        try {
+            Object v = part.getClass().getField("field_146032_b").get(part);   // EntityDragonPart.partName
+            if (v != null) return v.toString();
+        } catch (Throwable ignored) {}
+        return part.getClass().getSimpleName();
     }
 
     // ---- Making the probe experience the passage of time -------------------

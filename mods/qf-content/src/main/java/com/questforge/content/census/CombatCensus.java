@@ -250,6 +250,8 @@ public class CombatCensus {
         public boolean bands = true;
         /** Worn armour for defensive cells, boots first; null = diamond. */
         public ItemStack[] armour;
+        /** On a multipart target, the part to strike (e.g. enyvilEye); null = the nearest. */
+        public String part;
 
         public String describe() {
             StringBuilder sb = new StringBuilder();
@@ -265,6 +267,7 @@ public class CombatCensus {
             if (levelsAll) sb.append(" levels=all");
             sb.append(" controls=").append(controlReps);
             if (!bands) sb.append(" bands=off");
+            if (part != null) sb.append(" part=").append(part);
             return sb.length() == 0 ? " (defaults)" : sb.toString();
         }
     }
@@ -491,6 +494,9 @@ public class CombatCensus {
     private static Result result;
     private static int cellTick;
     private static final List<EntityLivingBase> spawned = new ArrayList<EntityLivingBase>();
+    /** Entities a target brought with it when spawned (Enyvil's Dark Crystal); removed with it. */
+    private static final List<net.minecraft.entity.Entity> companions =
+            new ArrayList<net.minecraft.entity.Entity>();
     private static double[] lastHealth = new double[0];
     private static int trialStartTick;
 
@@ -527,6 +533,7 @@ public class CombatCensus {
             List<String> targets, Options opts) {
         if (running) return;
         options = opts == null ? new Options() : opts;
+        CensusProbe.preferredPart = options.part;
         wounded = options.wounded;
         incomingDamage = options.incoming > 0F ? options.incoming : DEFAULT_INCOMING_DAMAGE;
 
@@ -1096,6 +1103,7 @@ public class CombatCensus {
                 double x = px + (i % 3) * 3.0D;
                 double z = pz + (i / 3) * 3.0D;
                 mob.setPosition(x, world.getTopSolidOrLiquidBlock((int) x, (int) z) + 1, z);
+                initialiseAsSpawned(mob);
                 world.spawnEntityInWorld(mob);
                 samples.add(mob);
             } catch (Throwable ignored) {}
@@ -1152,6 +1160,25 @@ public class CombatCensus {
      * cell, soaking hits and swinging at the probe, and the contamination grows
      * all run.
      */
+    /**
+     * What every natural spawn, spawn egg and summoning item does and a bare
+     * constructor does not: EntityLiving.onSpawnWithEgg. TragicMC's Enyvil builds
+     * its Dark Crystal there; without it every hit on Enyvil was halved and its
+     * crystal abilities were off (anomalies #1b). DeathReaper and Polaris also
+     * initialise there. Called after the position is set and before
+     * spawnEntityInWorld, as ItemMonsterPlacer does. Anything it spawns is
+     * tracked as a companion and removed with the target.
+     */
+    private static void initialiseAsSpawned(EntityLivingBase mob) {
+        if (!(mob instanceof net.minecraft.entity.EntityLiving)) return;
+        try {
+            ((net.minecraft.entity.EntityLiving) mob).onSpawnWithEgg(null);
+        } catch (Throwable t) {
+            QuestForgeContent.log.warn("[census] " + mob.getClass().getSimpleName()
+                    + ".onSpawnWithEgg threw; spawned without it: " + describe(t));
+        }
+    }
+
     private static void sweepArena() {
         try {
             net.minecraft.util.AxisAlignedBB box = net.minecraft.util.AxisAlignedBB.getBoundingBox(
@@ -2145,9 +2172,16 @@ public class CombatCensus {
             double x = px + (slot * 2.0D);
             double y = world.getTopSolidOrLiquidBlock((int) x, (int) pz) + 1;
             mob.setPosition(x, y, pz);
+            int before = world.loadedEntityList.size();
+            initialiseAsSpawned(mob);
             // Spawning is what fires EntityJoinWorldEvent, where this pack rewrites
             // mob stats. A mob measured before that has the wrong health.
             world.spawnEntityInWorld(mob);
+            for (int k = before; k < world.loadedEntityList.size(); k++) {
+                Object o = world.loadedEntityList.get(k);
+                if (o != mob && o instanceof net.minecraft.entity.Entity
+                        && !(o instanceof EntityPlayer)) companions.add((net.minecraft.entity.Entity) o);
+            }
             // Pinned once it has settled, in pinPending -- not here. The pack
             // scales a mob on its first update, so pinning at spawn removed
             // modifiers that did not exist yet and was then scaled over.
@@ -2264,6 +2298,13 @@ public class CombatCensus {
     private static void despawnAll() {
         clearArrows();
         PENDING_PIN.clear();
+        for (net.minecraft.entity.Entity e : companions) {
+            try {
+                e.setDead();
+                if (world != null) world.removeEntity(e);
+            } catch (Throwable ignored) {}
+        }
+        companions.clear();
         for (EntityLivingBase mob : spawned) {
             if (mob == null) continue;
             try {
