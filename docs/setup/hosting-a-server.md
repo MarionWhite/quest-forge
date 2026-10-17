@@ -18,8 +18,14 @@ py -3.10 tools/server/build_play_server.py ^
   --out C:\qfs\friends --force
 ```
 
-`--force` rebuilds an existing server and keeps its `world/`, `ops.json`,
-`whitelist.json` and ban lists. Everything else is regenerated.
+`--force` rebuilds an existing server. It keeps `world/`, `ops.json`,
+`whitelist.json`, the ban lists, `usercache.json`, `server.properties`, `logs/`,
+`crash-reports/`, `backups/` and `supervisor.json`. Everything else is
+regenerated. A kept `server.properties` changes only where an option is given
+on the command line (`--port`, `--max-players`, `--view-distance`,
+`--online-mode`). The build refuses to run while the server is up. It checks
+`supervisor.pid`, the port, Java command lines, and whether Windows will let it
+rename the session lock, the open log and the folder itself.
 
 What it does, and why:
 
@@ -43,10 +49,64 @@ What it does, and why:
   online mode on. See "Performance" for why 6.
 - **Writes `start.bat` and `start.sh`** with a 10 GB heap (`--xmx`) and GC
   logging to `logs/gc.log`.
+- **Removes `JndiLookup.class` from `minecraft_server.1.7.10.jar` (Log4Shell).**
+  The server's log4j is 2.0-beta9, and the `-Dlog4j2.formatMsgNoLookups` flag
+  only works from 2.10 on, so the flag alone does nothing.
+- **Installs `supervisor.py`, `start-supervised.bat` and a default
+  `supervisor.json`**, and hashes every jar and config file into
+  `MANIFEST.sha256`.
 
-## Run it
+## Running the server
 
-Double-click `start.bat` (Windows) or run `./start.sh` (Linux). It boots in
+Double-click **`start-supervised.bat`**. Its window is the server console: type
+commands as usual. The supervisor (`tools/server/supervisor.py`) owns the Java
+process and handles the following:
+
+- **Crash restart.** It restarts after any exit nobody asked for, waiting 10,
+  30, 60, then 120 s. After three crashes in 15 minutes it stops trying and
+  says so. A crash loop needs a person.
+- **Hang detection.** It sends `list` every 60 s. If there is no answer in 90 s,
+  the tick is stuck: it writes a `jstack` thread dump to
+  `logs/threaddump-*.txt`, kills Java and restarts. Thread dumps need a JDK 8.
+  The JRE has no jstack.
+- **Hourly backups** to `backups/hourly/` (24 kept), and the first of each day
+  to `backups/daily/` (7 kept). Each backup is skipped if nobody has been online
+  since the last one. A backup runs `save-off` and `save-all`, waits for
+  `Saved the world` and for the region files to go quiet, copies the world,
+  then runs `save-on`. Saving is off for those waits and the copy (17 s on a
+  fresh full-pack world in testing). The zip is written afterwards. Each zip also holds `server.properties`, the player lists
+  and `MANIFEST.sha256`, the jar set the world needs.
+- **A daily restart** at 05:00. If anyone is online, it warns them at 10, 5
+  and 1 minutes. It takes a backup first.
+- **A graceful stop.** Press Ctrl+C or type `stop`. Either one saves and waits
+  for Java to exit. Closing the window also sends `stop`; Java runs in its own
+  hidden console, so it finishes the save after the window is gone. Still,
+  prefer Ctrl+C.
+
+Supervisor commands, typed in the same window: `!backup`, `!restart`, `!dump`
+(a thread dump), `!status` and `!stop`. Without a console (a remote shell, a
+synced folder), put the same lines into a file named `supervisor.inbox` in the
+server folder, or create `stop.flag`. Write those files from bash or Python,
+not PowerShell, which adds a BOM. The supervisor's own log is
+`logs/supervisor.log`.
+
+**Settings** are in `supervisor.json`. Rebuilds keep it.
+`py -3 supervisor.py --print-defaults` lists every key. For **Discord alerts**
+(crash, hang, restart, a crash loop, failed backups, Forge deleting an
+erroring entity), set `discord_webhook` there, or set the environment variable
+`QF_DISCORD_WEBHOOK`. Never put the URL in the repo.
+
+**Copy backups off the machine.** `backups/` is on the same disk as the world.
+Copy `backups/daily/` to an external disk or a cloud folder now and then, and
+never sync the live `world/` folder itself. **Restore:** stop the server, move
+`world/` aside, unzip a backup into the server folder (the zip contains
+`world/`) and start again. Try this once before inviting anyone.
+
+`start.bat` still works on its own, with no restarts and no backups.
+
+## Run it without the supervisor
+
+`start.bat` (Windows) or `./start.sh` (Linux) runs Java once. It boots in
 about a minute; the first boot also generates the world. Type `stop` in its
 window to shut down. It saves. 1.7.10 has no watchdog, so a hung tick hangs
 forever; if the console stops responding, check `logs/fml-server-latest.log`

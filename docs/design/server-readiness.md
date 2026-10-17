@@ -13,7 +13,7 @@ cost of changing them is lost inventories or a reset.
 
 | # | Gap | Fix before day one? | Effort |
 |---|---|---|---|
-| 1 | Nothing backs up the world, restarts after a crash, or detects a hang | yes | a supervisor script, about a day |
+| 1 | ~~Nothing backs up the world, restarts after a crash, or detects a hang~~ **Done 2026-10-17:** `tools/server/supervisor.py` and the builder guards | yes | done; one restore drill left |
 | 2 | A friend can join with a stale client and play with the wrong IDs | yes | a new release and a login check |
 | 3 | Identity and mod set are not yet frozen (`online-mode=false` right now) | yes | decisions plus a builder change |
 | 4 | Load at 15 players is unmeasured; chunk loaders are only partly capped; no profiler; no border | partly | config and two small mods |
@@ -29,7 +29,30 @@ nobody redoes it.
 
 ## 1. Data safety: no backups, no restart, no hang detection
 
-**Status today.**
+**Done 2026-10-17.** Everything under "The supervisor, specifically" and "Changes
+to `build_play_server.py`" below is built. It was tested on a throwaway full-pack
+server: `tools/server/supervisor.py`, installed by the builder with
+`start-supervised.bat`, and how to use it is in
+[`../setup/hosting-a-server.md`](../setup/hosting-a-server.md#running-the-server).
+Where it differs from the plan:
+
+- It takes a plain zip copy into `backups/hourly` and `backups/daily` (24 and 7
+  kept), not restic. There is no weekly tier, and nothing copies backups off
+  the machine; that stays a manual step for the host.
+- The builder checks for a running server through `supervisor.pid`, the port,
+  Java command lines, and rename probes on the session lock, the open log and
+  the folder. In 1.7.10 `session.lock` is written once and not held, so it
+  is not enough on its own.
+- The jar and config manifest is `MANIFEST.sha256`, next to `BUILT-FROM.txt`,
+  and every backup carries a copy.
+- Still open: the **restore drill** with a real login, the host-machine
+  settings (Windows Update, sleep) and the census `PAUSE` file.
+  `removeErroring*` stays on; the supervisor now alerts when Forge removes
+  something.
+
+The rest of this section is the audit as written.
+
+**Status at the audit (2026-10-16).**
 
 - **No backups.** Nothing in the repo, in `C:\qfs\friends` or in its
   `start.bat` copies the world anywhere. The hosting guide says "Back the world up
@@ -434,7 +457,11 @@ before blaming the codec.
 
 **Recommendation.**
 
-- Fix log4j in the builder now.
+- ~~Fix log4j in the builder now.~~ **Done 2026-10-17, but not by deleting the
+  class.** Deleting `JndiLookup.class` kills the server at launch: beta9's
+  `Interpolator` constructs `JndiLookup` directly, so the first logger throws
+  `NoClassDefFoundError`. The builder now swaps in an inert `JndiLookup` that
+  resolves nothing, and the stripped jar boots.
 - Add RCON over Tailscale for the host and one co-admin, and make that co-admin
   an op, so the server is never one person's hostage.
 - Use ForgeEssentials only if the group wants grief rollback. If they do, trial
@@ -549,6 +576,7 @@ in the jar list before day one (section 3).
 | 89856c3 | FakePlayer teleport NPEs in enchantments; `QFNetwork.toPlayer` NPE on a player with no connection |
 | 31da143 | Morph kill kick and morph freeze (client); `/morph` works on a dedicated server |
 | 8d934c7 | Railcraft Tracking Aura NPE (aura turned off) |
+| (2026-10-17, see git log) | Supervisor (crash restart, hang dumps, hourly backups, daily restart, graceful stop, Discord alerts); builder refuses `--force` on a running server, keeps `server.properties`, `logs/`, `crash-reports/`, `backups/`; Log4Shell stub; `MANIFEST.sha256` |
 | uncommitted (`git status`) | JAS distance 6 and tick spacing 2; JAS logging off; `ChunkCleanTransformer` in qf-tweaks |
 
 ## Appendix B: claims in this document that need checking before relying on them
