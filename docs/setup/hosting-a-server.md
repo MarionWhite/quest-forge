@@ -203,8 +203,84 @@ hand-patched Forge jar. Install from the client-instance release
 yourself:
 
 - A single differing jar version gets the client refused at login.
-- A differing config value gets it in, then plays with the wrong enchantments,
-  potions or biomes.
+- A differing ID-bearing config gets it refused by the pack check, below.
+  Before the check existed, such a client got in and then played with the
+  wrong enchantments, potions or biomes.
+
+Friends who are refused should read
+[`why-was-i-refused.md`](why-was-i-refused.md).
+
+## The pack check
+
+Two checks keep a stale client out.
+
+1. **Mod versions, at FML's handshake.** qf-content, qf-commands and
+   qf-tweaks carry a version derived from git:
+   `1.1.0+<date>.<sha8>` of the last commit that touched the mod's folder
+   (`.dirty` if it was built with uncommitted changes). FML compares a shared
+   mod's versions as exact strings, so a client with an older qf-content is
+   refused with `Mod rejections [qfcontent{...}]`. The jar file names stay
+   `QuestForgeContent-1.0.0.jar` and so on, so an update overwrites the old jar.
+2. **The pack fingerprint, right after login (qf-content).** The server asks
+   each joining client for a hash of its ID-bearing configs and its mod list.
+   It disconnects the client when the hash differs, or when a mod both sides
+   have is at a different version. The message says which side is out of date
+   (by `packDate`), names the files or mods that differ, and gives the
+   `updateFrom` link. Each check is logged as `[packcheck] <name> OK` or
+   `[packcheck] refusing <name>: ...`.
+
+**What the fingerprint covers.** The configs listed in
+`mods/qf-content/src/main/resources/qfcontent-packcheck.txt`. The list ships
+inside the jar, so both sides use the same one. Today it has 22 files:
+witchery, OreSpawn, TragicMC, qfcontent, thejungleMod, TwilightForest,
+LegendsMod, InventoryPets, OpenBlocks, BiblioCraft, battlegear2, SSTOW,
+railcraft, VoltzEngine, Lycanites general, chocolateQuest, TrailMix,
+psychedelicraft, CompactMachines, CustomNpcs, HardcoreEnderExpansion and
+TardisMod. Within those files, only the ID entries count: integer values whose
+key has an ID token (`ID`, `Id`, `_id`) or names a potion, biome, enchantment,
+dimension, villager, profession or provider, or that sit in a section that
+does. Sections with "client" in their name are skipped. Comments, layout, line
+endings (CRLF or LF), key order and every other setting are ignored, so a
+config that differs only in a HUD option or in line endings still passes.
+
+**Reading it.** `/qfpack` (anyone, any console) prints this side's fingerprint
+and pack date, the qf-content version, the mod count and a digest of the mod
+list. `/qfpack files` adds each config's digest. Without booting the game:
+
+```
+py -3.10 -I tools/pack_fingerprint.py                      # pack/config
+py -3.10 -I tools/pack_fingerprint.py --config C:\qfs\friends\config --files
+py -3.10 -I tools/pack_fingerprint.py --diff <a friend's config folder>
+```
+
+The script and the game compute the same value. If they ever disagree, the
+two implementations have drifted (`PackFingerprint.java` and the script must
+change together).
+
+**When you change an ID-bearing config.** Run
+`py -3.10 -I tools/pack_fingerprint.py --stamp` to set `packDate` in
+`pack/config/qfcontent.cfg` to today. The date is not part of the hash; it is
+how the message tells "your client is out of date" from "the server is". Then
+rebuild the server and cut a client release from the same config. When a mod
+that assigns IDs joins the pack, `--scan` lists every config with ID entries
+that is neither fingerprinted nor reviewed, and exits 1 if there is one. Add
+the file to the list.
+
+**Emergency overrides** (`packcheck` in the server's `config/qfcontent.cfg`,
+restart to apply):
+
+| Key | Use |
+|---|---|
+| `alsoAccept` | Further client fingerprints to let in, e.g. last release's while friends update. Prefer this. |
+| `expectedFingerprint` | Require this value instead of the one computed from the server's own configs. For a server whose files were rewritten in a way clients do not share. |
+| `ignoreMods` | Mod IDs whose versions may differ. |
+| `checkModVersions` | `false` compares configs only. |
+| `enabled` | `false` turns the check off. |
+| `updateFrom` | The link shown to refused players. |
+| `answerTimeoutSeconds` | A client that has not answered by then is disconnected (default 60). |
+
+Only a dedicated server checks. In singleplayer and on LAN, the client is the
+server.
 
 ## Rules for the life of the world
 

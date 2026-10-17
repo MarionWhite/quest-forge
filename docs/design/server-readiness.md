@@ -14,7 +14,7 @@ cost of changing them is lost inventories or a reset.
 | # | Gap | Fix before day one? | Effort |
 |---|---|---|---|
 | 1 | ~~Nothing backs up the world, restarts after a crash, or detects a hang~~ **Done 2026-10-17:** `tools/server/supervisor.py` and the builder guards | yes | done; one restore drill left |
-| 2 | A friend can join with a stale client and play with the wrong IDs | yes | a new release and a login check |
+| 2 | A friend can join with a stale client and play with the wrong IDs. **Versions and the login check done 2026-10-17**; a new release is still needed | yes | a new release |
 | 3 | Identity and mod set are not yet frozen (`online-mode=false` right now) | yes | decisions plus a builder change |
 | 4 | Load at 15 players is unmeasured; chunk loaders are only partly capped; no profiler; no border | partly | config and two small mods |
 | 5 | No block logging or rollback; no remote admin; Log4Shell mitigation does not apply to this log4j | yes, for log4j | config; FE is optional |
@@ -169,7 +169,29 @@ Nothing else in this document is worth as much.
 
 ## 2. Version mismatch: a stale client joins and plays with the wrong IDs
 
-**Status today.**
+**Done 2026-10-17: options 2 and 3.** A stale client is now refused at login
+with a message that says what to do. How it works and how to override it is in
+[`../setup/hosting-a-server.md`](../setup/hosting-a-server.md#the-pack-check);
+players get [`../setup/why-was-i-refused.md`](../setup/why-was-i-refused.md).
+
+- ~~Give the in-house mods real versions.~~ qf-content, qf-commands and
+  qf-tweaks are `1.1.0+<date>.<sha8>` of the last commit that touched each
+  mod's folder. qf-tweaks gained a mod container (`qftweaks`) to carry its
+  version. The jar file names are unchanged. FML refuses a client with a
+  different qf-content.
+- ~~Add a login config check.~~ qf-content's pack check hashes the ID entries
+  of 22 configs (the list was built by scanning `pack/config`; `--scan` keeps it
+  complete). It also compares the versions of every mod both sides have. The
+  fingerprint ignores line endings, layout and client-only sections. `/qfpack`
+  and `tools/pack_fingerprint.py` print it, and the main menu and F3 screen show
+  it with the pack date.
+- Still open: **option 1** (cut a new client release, which also brings the
+  check to clients), **4** (`verify_pack.py` could call
+  `pack_fingerprint.py --diff`), **5** (the Windows player guide), and the
+  builder recording the fingerprint (`build_play_server.py` copies `config/`
+  verbatim, so the server's fingerprint is the instance's).
+
+**Status at the audit (2026-10-16).**
 
 - **The only published client is out of date.** It is release
   `client-instance-2026-09-09` (`questforge-client-instance.tar`, 1.14 GB, on

@@ -51,6 +51,13 @@ cd mods\qf-content
 The jar lands in `build\libs\QuestForgeContent-1.0.0.jar`. Copy it into the
 instance's `mods\`, replacing what is there.
 
+The file name stays `-1.0.0`, but the mod version inside is
+`1.1.0+<date>.<sha8>`, taken from the last git commit that touched the mod's
+folder (`mods/version.gradle.kts`; qf-tweaks' `build.bat` does the same). A jar
+built with uncommitted changes there ends in `.dirty`. FML refuses a client
+whose qf-content version differs from the server's, so **commit first, then
+build** anything that is going onto the server or into a release.
+
 The first build decompiles Minecraft and takes a few minutes; later ones take
 seconds.
 

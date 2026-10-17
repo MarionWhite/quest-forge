@@ -30,6 +30,9 @@ py -3.10 tools/trial/trial.py build naga --server qfcontent twilightforest --wor
 py -3.10 tools/trial/trial.py launch naga --xmx 3G -D qf.census.combat=TwilightForest.Naga --commands cmds.txt --wait
 ```
 
+A client trial joins a server trial with `launch NAME --join 127.0.0.1:PORT`: it connects
+as soon as its menu is up (vanilla's `--server`/`--port`).
+
 `--commands` feeds a file of console commands on stdin. They are queued until the server
 starts ticking.
 

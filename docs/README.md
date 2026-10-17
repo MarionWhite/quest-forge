@@ -15,6 +15,7 @@ Read in this order on a new machine.
 | [`setup/mac-setup.md`](setup/mac-setup.md) | Mac-specific notes: Rosetta, natives, LWJGL. |
 | [`setup/performance-tuning.md`](setup/performance-tuning.md) | What to turn down, and what it costs. |
 | [`setup/hosting-a-server.md`](setup/hosting-a-server.md) | Building and running the multiplayer server for friends. |
+| [`setup/why-was-i-refused.md`](setup/why-was-i-refused.md) | For players: what each pack-check refusal means and what to do. |
 | [`setup/transfer-from-windows.md`](setup/transfer-from-windows.md) | How the pack was moved off the original Windows install. |
 | [`setup/migration-manifest.md`](setup/migration-manifest.md) | What the 2026-09-04 migration bundle contained. |
 
