@@ -15,6 +15,14 @@ written is in git.
 mods a test names, enforces one client at a time and a shared RAM budget, bisects, and is the
 only sanctioned way to install a jar into the live pack. See [`trial/README.md`](trial/README.md).
 
+## `quests/` — the quest book
+
+`qb.py` checks and edits `DefaultQuests.json` (both the pack and the server copy): structure,
+item ids against the pack's registry, a creative-item blocklist, rewards that complete the next
+quest, unstackable counts, and reward totals per tab. Run `qb.py check` after every quest edit.
+See [`quests/README.md`](quests/README.md). It replaces the dead scripts in
+`pack-fixes/quests/`.
+
 ## `lite-client/` — the pack on weaker PCs
 
 `apply-lite.ps1` switches a friend's client to the lite or potato profile (same content,
