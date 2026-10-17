@@ -36,6 +36,7 @@ import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
         "com.questforge.ChunkCleanTransformer",
         "com.questforge.MorphOptifineTransformer",
         "com.questforge.MmmScanTransformer",
+        "com.questforge.LuckyScriptTransformer",
         // Not transformers, but loaded from code patched into GraveStones and
         // OptiFine; there is nothing in them any transformer needs to touch.
         "com.questforge.ShaderState",
@@ -43,7 +44,9 @@ import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
         // Called from Morph's patched classes.
         "com.questforge.MorphFix",
         // Called from LittleMaidMob's patched model scan.
-        "com.questforge.MmmScanGuard"
+        "com.questforge.MmmScanGuard",
+        // Called from Lucky Block's patched ExpressionParser.
+        "com.questforge.LuckyScriptFix"
 })
 public class QuestForgeCore implements IFMLLoadingPlugin {
 
@@ -57,7 +60,8 @@ public class QuestForgeCore implements IFMLLoadingPlugin {
                 "com.questforge.GlErrorTransformer",
                 "com.questforge.ChunkCleanTransformer",
                 "com.questforge.MorphOptifineTransformer",
-                "com.questforge.MmmScanTransformer"
+                "com.questforge.MmmScanTransformer",
+                "com.questforge.LuckyScriptTransformer"
         };
     }
 

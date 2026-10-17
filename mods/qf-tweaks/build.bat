@@ -63,7 +63,9 @@ rem -XX:+FailOverToOldVerifier, so older-version bytecode is fine here.
   "%HERE%src\com\questforge\MorphOptifineTransformer.java" ^
   "%HERE%src\com\questforge\MorphFix.java" ^
   "%HERE%src\com\questforge\MmmScanTransformer.java" ^
-  "%HERE%src\com\questforge\MmmScanGuard.java"
+  "%HERE%src\com\questforge\MmmScanGuard.java" ^
+  "%HERE%src\com\questforge\LuckyScriptTransformer.java" ^
+  "%HERE%src\com\questforge\LuckyScriptFix.java"
 
 if errorlevel 1 (
   echo.

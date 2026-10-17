@@ -149,6 +149,25 @@ demorph. Look for three `Transform applied: morph.` lines in `latest.log`. A
 dedicated server logs none, because FML strips the client handler first; that
 is expected.
 
+## Lucky Block on Java 9+
+
+`LuckyScriptTransformer` keeps Lucky Block's numbers working on a Java 25
+(lwjgl3ify) server or client. Lucky Block 5.1.0 evaluates every number in its
+config and drop files through a JavaScript engine from
+`new ScriptEngineManager(null)`. A null loader only sees the JDK's own engines,
+and Java 15 removed Nashorn, so on Java 25 every expression throws
+`ExpressionParserException` (301 lines at boot) and drops lose their counts.
+lwjgl3ify ships standalone Nashorn on the application class path.
+
+The patch inserts one call before that constructor: the null goes through
+`LuckyScriptFix.loader`, which returns it unchanged when the JDK has a
+JavaScript engine (every Java 8 JVM) and the game's class loader otherwise. No
+branches are added. Look for `Transform applied: Lucky Block's script engine`
+and then either `the JDK has a JavaScript engine; using it unchanged` (Java 8)
+or `the JDK has no JavaScript engine; using the game class loader's` (Java 25).
+Tested 2026-10-17: Java 8 server boots unchanged; Java 25 server and client
+boot with 0 expression errors, and broken Lucky Blocks drop items and mobs.
+
 ---
 
 ## Building
