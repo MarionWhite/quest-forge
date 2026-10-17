@@ -30,6 +30,9 @@ py -3.10 tools/trial/trial.py build naga --server qfcontent twilightforest --wor
 py -3.10 tools/trial/trial.py launch naga --xmx 3G -D qf.census.combat=TwilightForest.Naga --commands cmds.txt --wait
 ```
 
+`--forge 1614` builds the server on Forge 10.13.4.1614 (jars from `C:\qfsorge1614-install`)
+instead of the pack's 1558. Biomes O' Plenty 2.1.0.2308 refuses anything below 1566.
+
 A client trial joins a server trial with `launch NAME --join 127.0.0.1:PORT`: it connects
 as soon as its menu is up (vanilla's `--server`/`--port`).
 
@@ -39,6 +42,17 @@ starts ticking.
 Every launch, client or server, refuses when the heaps of all running Minecraft JVMs plus the
 new one would pass **22 GB** (`QF_RAM_BUDGET_GB`). The PC has 31 GB, and the user's own game
 takes 7.
+
+## Candidate jars that are not in the pack
+
+A mod being evaluated never goes into the live `mods/`. Stage it instead:
+
+```
+py -3.10 tools/trial/trial.py stage C:\path	o\BiomesOPlenty-1.7.10-2.1.0.2308-universal.jar
+```
+
+This copies it to `%APPDATA%\.qf-trials\_staged\mods`. A catalog entry marked `"staged": true`
+takes its jar from there when the live instance has none.
 
 ## Installing into the live pack
 

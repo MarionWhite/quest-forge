@@ -1,0 +1,261 @@
+# Live biome registry with the pinned BoP + RWG IDs (pack/config/biomesoplenty/ids.cfg, pack/config/RWG.cfg).
+# Dumped 2026-10-17 by the qf-biomedump probe on a Forge 1614 server trial loading every biome-registering mod:
+# BoP 2.1.0.2308, RWG alpha-1.5.2, TwilightForest, TragicMC, 1Legends, OreSpawn, WelcomeToTheJungle, HEE.
+# 255 of 255 usable slots are taken; 255 itself is the chunk 'unset' marker. Vanilla registers Mega Spruce
+# Taiga Hills (M) in slot 161 with biomeID 160 -- a vanilla quirk, not a collision.
+id	name	mod	class
+0	Ocean	Minecraft (BoP override)	biomesoplenty.common.biome.overridden.BiomeGenBOPOcean
+1	Plains	Minecraft (BoP override)	biomesoplenty.common.biome.overridden.BiomeGenBOPPlains
+2	Desert	Minecraft (BoP override)	biomesoplenty.common.biome.overridden.BiomeGenBOPDesert
+3	Extreme Hills	Minecraft (BoP override)	biomesoplenty.common.biome.overridden.BiomeGenBOPExtremeHills
+4	Forest	Minecraft (BoP override)	biomesoplenty.common.biome.overridden.BiomeGenBOPForest
+5	Taiga	Minecraft (BoP override)	biomesoplenty.common.biome.overridden.BiomeGenBOPTaiga
+6	Swampland	Minecraft (BoP override)	biomesoplenty.common.biome.overridden.BiomeGenBOPSwamp
+7	River	Minecraft (BoP override)	biomesoplenty.common.biome.overridden.BiomeGenBOPRiver
+8	Hell	Minecraft (BoP override)	biomesoplenty.common.biome.overridden.BiomeGenBOPHell
+9	Sky	Hardcore Ender Expansion	chylex.hee.world.biome.BiomeGenHardcoreEnd
+10	FrozenOcean	Minecraft	net.minecraft.world.biome.BiomeGenOcean
+11	FrozenRiver	Minecraft	net.minecraft.world.biome.BiomeGenRiver
+12	Ice Plains	Minecraft (BoP override)	biomesoplenty.common.biome.overridden.BiomeGenBOPIcePlains
+13	Ice Mountains	Minecraft	net.minecraft.world.biome.BiomeGenSnow
+14	MushroomIsland	Minecraft (BoP override)	biomesoplenty.common.biome.overridden.BiomeGenBOPMushroomIsland
+15	MushroomIslandShore	Minecraft (BoP override)	biomesoplenty.common.biome.overridden.BiomeGenBOPMushroomIsland
+16	Beach	Minecraft	net.minecraft.world.biome.BiomeGenBeach
+17	DesertHills	Minecraft (BoP override)	biomesoplenty.common.biome.overridden.BiomeGenBOPDesert
+18	ForestHills	Minecraft (BoP override)	biomesoplenty.common.biome.overridden.BiomeGenBOPForest
+19	TaigaHills	Minecraft (BoP override)	biomesoplenty.common.biome.overridden.BiomeGenBOPTaiga
+20	Extreme Hills Edge	Minecraft (BoP override)	biomesoplenty.common.biome.overridden.BiomeGenBOPExtremeHills
+21	Jungle	Minecraft (BoP override)	biomesoplenty.common.biome.overridden.BiomeGenBOPJungle
+22	JungleHills	Minecraft (BoP override)	biomesoplenty.common.biome.overridden.BiomeGenBOPJungle
+23	JungleEdge	Minecraft (BoP override)	biomesoplenty.common.biome.overridden.BiomeGenBOPJungle
+24	Deep Ocean	Minecraft	net.minecraft.world.biome.BiomeGenOcean
+25	Stone Beach	Minecraft	net.minecraft.world.biome.BiomeGenStoneBeach
+26	Cold Beach	Minecraft	net.minecraft.world.biome.BiomeGenBeach
+27	Birch Forest	Minecraft (BoP override)	biomesoplenty.common.biome.overridden.BiomeGenBOPBirchForest
+28	Birch Forest Hills	Minecraft (BoP override)	biomesoplenty.common.biome.overridden.BiomeGenBOPBirchForest
+29	Roofed Forest	Minecraft (BoP override)	biomesoplenty.common.biome.overridden.BiomeGenBOPRoofedForest
+30	Cold Taiga	Minecraft (BoP override)	biomesoplenty.common.biome.overridden.BiomeGenBOPTaiga
+31	Cold Taiga Hills	Minecraft (BoP override)	biomesoplenty.common.biome.overridden.BiomeGenBOPTaiga
+32	Mega Taiga	Minecraft	net.minecraft.world.biome.BiomeGenTaiga
+33	Mega Taiga Hills	Minecraft	net.minecraft.world.biome.BiomeGenTaiga
+34	Extreme Hills+	Minecraft	net.minecraft.world.biome.BiomeGenHills
+35	Savanna	Minecraft (BoP override)	biomesoplenty.common.biome.overridden.BiomeGenBOPSavanna
+36	Savanna Plateau	Minecraft (BoP override)	biomesoplenty.common.biome.overridden.BiomeGenBOPSavanna
+37	Mesa	Minecraft (BoP override)	biomesoplenty.common.biome.overridden.BiomeGenBOPMesa
+38	Mesa Plateau F	Minecraft (BoP override)	biomesoplenty.common.biome.overridden.BiomeGenBOPMesa
+39	Mesa Plateau	Minecraft (BoP override)	biomesoplenty.common.biome.overridden.BiomeGenBOPMesa
+40	Twilight Lake	Twilight Forest	twilightforest.biomes.TFBiomeTwilightLake
+41	Twilight Forest	Twilight Forest	twilightforest.biomes.TFBiomeTwilightForest
+42	Dense Twilight Forest	Twilight Forest	twilightforest.biomes.TFBiomeTwilightForestVariant
+43	Twilight Highlands	Twilight Forest	twilightforest.biomes.TFBiomeHighlands
+44	Mushroom Forest	Twilight Forest	twilightforest.biomes.TFBiomeMushrooms
+45	Twilight Swamp	Twilight Forest	twilightforest.biomes.TFBiomeSwamp
+46	Twilight Stream	Twilight Forest	twilightforest.biomes.TFBiomeStream
+47	Snowy Forest	Twilight Forest	twilightforest.biomes.TFBiomeSnow
+48	Twilight Glacier	Twilight Forest	twilightforest.biomes.TFBiomeGlacier
+49	Twilight Clearing	Twilight Forest	twilightforest.biomes.TFBiomeClearing
+50	Oak Savanna	Twilight Forest	twilightforest.biomes.TFBiomeOakSavanna
+51	Firefly Forest	Twilight Forest	twilightforest.biomes.TFBiomeFireflyForest
+52	Deep Mushroom Forest	Twilight Forest	twilightforest.biomes.TFBiomeDeepMushrooms
+53	Dark Forest Center	Twilight Forest	twilightforest.biomes.TFBiomeDarkForestCenter
+54	Highlands Center	Twilight Forest	twilightforest.biomes.TFBiomeFinalPlateau
+55	Dark Forest	Twilight Forest	twilightforest.biomes.TFBiomeDarkForest
+56	Enchanted Forest	Twilight Forest	twilightforest.biomes.TFBiomeEnchantedForest
+57	Fire Swamp	Twilight Forest	twilightforest.biomes.TFBiomeFireSwamp
+58	Thornlands	Twilight Forest	twilightforest.biomes.TFBiomeThornlands
+59	Alps Forest	Biomes O' Plenty	biomesoplenty.common.biome.overworld.sub.BiomeGenAlpsForest
+60	Alps	Biomes O' Plenty	biomesoplenty.common.biome.overworld.BiomeGenAlps
+61	Arctic	Biomes O' Plenty	biomesoplenty.common.biome.overworld.BiomeGenArctic
+62	Bamboo Forest	Biomes O' Plenty	biomesoplenty.common.biome.overworld.BiomeGenBambooForest
+63	Bayou	Biomes O' Plenty	biomesoplenty.common.biome.overworld.BiomeGenBayou
+64	Bog	Biomes O' Plenty	biomesoplenty.common.biome.overworld.BiomeGenBog
+65	Boneyard	Biomes O' Plenty	biomesoplenty.common.biome.nether.BiomeGenBoneyard
+66	Boreal Forest	Biomes O' Plenty	biomesoplenty.common.biome.overworld.BiomeGenBorealForest
+67	Jungle Mountain	Welcome to the Jungle	com.salvestrom.w2theJungle.worldGen.biome.BiomeGenJungleM
+68	Mangled Swamp	Welcome to the Jungle	com.salvestrom.w2theJungle.worldGen.biome.BiomeGenJungleSwamp
+69	Lost World	Welcome to the Jungle	com.salvestrom.w2theJungle.worldGen.biome.BiomeGenLostJungle
+70	Brushland	Biomes O' Plenty	biomesoplenty.common.biome.overworld.BiomeGenBrushland
+71	Canyon	Biomes O' Plenty	biomesoplenty.common.biome.overworld.BiomeGenCanyon
+72	Chaparral	Biomes O' Plenty	biomesoplenty.common.biome.overworld.BiomeGenChaparral
+73	Cherry Blossom Grove	Biomes O' Plenty	biomesoplenty.common.biome.overworld.BiomeGenCherryBlossomGrove
+74	Coniferous Forest	Biomes O' Plenty	biomesoplenty.common.biome.overworld.BiomeGenConiferousForest
+75	Coral Reef	Biomes O' Plenty	biomesoplenty.common.biome.overworld.ocean.BiomeGenCoralReef
+76	Corrupted Sands	Biomes O' Plenty	biomesoplenty.common.biome.nether.BiomeGenCorruptedSands
+77	Crag	Biomes O' Plenty	biomesoplenty.common.biome.overworld.BiomeGenCrag
+78	Dead Forest	Biomes O' Plenty	biomesoplenty.common.biome.overworld.BiomeGenDeadForest
+79	Dead Swamp	Biomes O' Plenty	biomesoplenty.common.biome.overworld.BiomeGenDeadSwamp
+80	Deciduous Forest	Biomes O' Plenty	biomesoplenty.common.biome.overworld.BiomeGenDeciduousForest
+81	Dense Forest	Biomes O' Plenty	biomesoplenty.common.biome.overworld.BiomeGenDenseForest
+82	Dry River	Biomes O' Plenty	biomesoplenty.common.biome.overworld.tech.BiomeGenDryRiver
+83	Eucalyptus Forest	Biomes O' Plenty	biomesoplenty.common.biome.overworld.BiomeGenEucalyptusForest
+84	Fen	Biomes O' Plenty	biomesoplenty.common.biome.overworld.BiomeGenFen
+85	Flower Field	Biomes O' Plenty	biomesoplenty.common.biome.overworld.BiomeGenFlowerField
+86	Frost Forest	Biomes O' Plenty	biomesoplenty.common.biome.overworld.BiomeGenFrostForest
+87	Fungi Forest	Biomes O' Plenty	biomesoplenty.common.biome.overworld.BiomeGenFungiForest
+88	Garden	Biomes O' Plenty	biomesoplenty.common.biome.overworld.BiomeGenGarden
+89	Glacier	Biomes O' Plenty	biomesoplenty.common.biome.overworld.sub.BiomeGenGlacier
+90	Decaying Hills	TragicMC	tragicneko.tragicmc.worldgen.biome.BiomeGenDecayingWasteland
+91	Decaying Valley	TragicMC	tragicneko.tragicmc.worldgen.biome.BiomeGenDecayingWasteland
+92	Decaying Wasteland	TragicMC	tragicneko.tragicmc.worldgen.biome.BiomeGenDecayingWasteland
+93	Decaying Mountains	TragicMC	tragicneko.tragicmc.worldgen.biome.BiomeGenDecayingWasteland
+94	Painted Forest	TragicMC	tragicneko.tragicmc.worldgen.biome.BiomeGenPaintedForest
+95	Painted Plains	TragicMC	tragicneko.tragicmc.worldgen.biome.BiomeGenPaintedForest
+96	Painted Hills	TragicMC	tragicneko.tragicmc.worldgen.biome.BiomeGenPaintedForest
+97	Painted Clearing	TragicMC	tragicneko.tragicmc.worldgen.biome.BiomeGenPaintedForest
+98	Ashen Mountains	TragicMC	tragicneko.tragicmc.worldgen.biome.BiomeGenAshenHills
+99	Ashen Hills	TragicMC	tragicneko.tragicmc.worldgen.biome.BiomeGenAshenHills
+100	Ashen Badlands	TragicMC	tragicneko.tragicmc.worldgen.biome.BiomeGenAshenHills
+101	Starlit Prairie	TragicMC	tragicneko.tragicmc.worldgen.biome.BiomeGenStarlitPrarie
+102	Starlit Plateaus	TragicMC	tragicneko.tragicmc.worldgen.biome.BiomeGenStarlitPrarie
+103	Starlit Cliffs	TragicMC	tragicneko.tragicmc.worldgen.biome.BiomeGenStarlitPrarie
+104	Starlit Lowlands	TragicMC	tragicneko.tragicmc.worldgen.biome.BiomeGenStarlitPrarie
+105	Tainted Spikes	TragicMC	tragicneko.tragicmc.worldgen.biome.BiomeGenTaintedSpikes
+106	Tainted Lowlands	TragicMC	tragicneko.tragicmc.worldgen.biome.BiomeGenTaintedSpikes
+107	Tainted Rises	TragicMC	tragicneko.tragicmc.worldgen.biome.BiomeGenTaintedSpikes
+108	Tainted Scarlands	TragicMC	tragicneko.tragicmc.worldgen.biome.BiomeGenTaintedSpikes
+109	Tainted Isles	TragicMC	tragicneko.tragicmc.worldgen.biome.BiomeGenTaintedSpikes
+110	Synapse	TragicMC	tragicneko.tragicmc.worldgen.biome.BiomeGenSynapse
+111	Hallowed Hills	TragicMC	tragicneko.tragicmc.worldgen.biome.BiomeGenHallowedHills
+112	Hallowed Forest	TragicMC	tragicneko.tragicmc.worldgen.biome.BiomeGenHallowedHills
+113	Hallowed Prarie	TragicMC	tragicneko.tragicmc.worldgen.biome.BiomeGenHallowedHills
+114	Hallowed Cliffs	TragicMC	tragicneko.tragicmc.worldgen.biome.BiomeGenHallowedHills
+115	Scorched Wastelands	TragicMC	tragicneko.tragicmc.worldgen.biome.BiomeGenScorchedWasteland
+116	Scorched Valley	TragicMC	tragicneko.tragicmc.worldgen.biome.BiomeGenScorchedWasteland
+117	Scorched Scarlands	TragicMC	tragicneko.tragicmc.worldgen.biome.BiomeGenScorchedWasteland
+118	Corroded Steppe	TragicMC	tragicneko.tragicmc.worldgen.biome.BiomeGenCorrodedSteppe
+119	Corroded Heights	TragicMC	tragicneko.tragicmc.worldgen.biome.BiomeGenCorrodedSteppe
+120	Corroded Veld	TragicMC	tragicneko.tragicmc.worldgen.biome.BiomeGenCorrodedSteppe
+121	Corroded Runoff	TragicMC	tragicneko.tragicmc.worldgen.biome.BiomeGenCorrodedSteppe
+122	Corroded Fallout	TragicMC	tragicneko.tragicmc.worldgen.biome.BiomeGenCorrodedSteppe
+123	Frozen Tundra	TragicMC	tragicneko.tragicmc.worldgen.biome.BiomeGenFrozenTundra
+124	Frozen Hills	TragicMC	tragicneko.tragicmc.worldgen.biome.BiomeGenFrozenTundra
+125	Frozen Depths	TragicMC	tragicneko.tragicmc.worldgen.biome.BiomeGenFrozenTundra
+126	Crystal	TragicMC	tragicneko.tragicmc.worldgen.biome.BiomeGenCrystal
+127	Dark Forest	TragicMC	tragicneko.tragicmc.worldgen.biome.BiomeGenDarkForest
+128	Dark Forest Hills	TragicMC	tragicneko.tragicmc.worldgen.biome.BiomeGenDarkForest
+129	Sunflower Plains	Minecraft	net.minecraft.world.biome.BiomeGenPlains
+130	Desert M	Minecraft	net.minecraft.world.biome.BiomeGenMutated
+131	Extreme Hills M	Minecraft	net.minecraft.world.biome.BiomeGenHills
+132	Flower Forest	Minecraft	net.minecraft.world.biome.BiomeGenForest
+133	Taiga M	Minecraft	net.minecraft.world.biome.BiomeGenMutated
+134	Swampland M	Minecraft	net.minecraft.world.biome.BiomeGenMutated
+135	Dark Marshland	TragicMC	tragicneko.tragicmc.worldgen.biome.BiomeGenDarkForest
+136	Dead Sector	TragicMC	tragicneko.tragicmc.worldgen.biome.BiomeGenSynapse
+137	Corrupted Chunk	TragicMC	tragicneko.tragicmc.worldgen.biome.BiomeGenSynapse
+138	Grassland	Biomes O' Plenty	biomesoplenty.common.biome.overworld.BiomeGenGrassland
+139	Grove	Biomes O' Plenty	biomesoplenty.common.biome.overworld.BiomeGenGrove
+140	Ice Plains Spikes	Minecraft	net.minecraft.world.biome.BiomeGenSnow
+141	Heathland	Biomes O' Plenty	biomesoplenty.common.biome.overworld.BiomeGenHeathland
+142	Highland	Biomes O' Plenty	biomesoplenty.common.biome.overworld.BiomeGenHighland
+143	Jade Cliffs	Biomes O' Plenty	biomesoplenty.common.biome.overworld.BiomeGenJadeCliffs
+144	Kelp Forest	Biomes O' Plenty	biomesoplenty.common.biome.overworld.ocean.BiomeGenKelpForest
+145	Land of Lakes	Biomes O' Plenty	biomesoplenty.common.biome.overworld.BiomeGenLandOfLakes
+146	Land of Lakes Marsh	Biomes O' Plenty	biomesoplenty.common.biome.overworld.sub.BiomeGenLandOfLakesMarsh
+147	Lavender Fields	Biomes O' Plenty	biomesoplenty.common.biome.overworld.BiomeGenLavenderFields
+148	Lush Desert	Biomes O' Plenty	biomesoplenty.common.biome.overworld.BiomeGenLushDesert
+149	Jungle M	Minecraft	net.minecraft.world.biome.BiomeGenMutated
+150	Lush River	Biomes O' Plenty	biomesoplenty.common.biome.overworld.tech.BiomeGenLushRiver
+151	JungleEdge M	Minecraft	net.minecraft.world.biome.BiomeGenMutated
+152	Lush Swamp	Biomes O' Plenty	biomesoplenty.common.biome.overworld.BiomeGenLushSwamp
+153	Mangrove	Biomes O' Plenty	biomesoplenty.common.biome.overworld.sub.BiomeGenMangrove
+154	Maple Woods	Biomes O' Plenty	biomesoplenty.common.biome.overworld.BiomeGenMapleWoods
+155	Birch Forest M	Minecraft	net.minecraft.world.biome.BiomeGenForest$2
+156	Birch Forest Hills M	Minecraft	net.minecraft.world.biome.BiomeGenForest$2
+157	Roofed Forest M	Minecraft	net.minecraft.world.biome.BiomeGenForest$1
+158	Cold Taiga M	Minecraft	net.minecraft.world.biome.BiomeGenMutated
+159	Marsh	Biomes O' Plenty	biomesoplenty.common.biome.overworld.BiomeGenMarsh
+160	Mega Spruce Taiga	Minecraft	net.minecraft.world.biome.BiomeGenTaiga
+161	Mega Spruce Taiga	Minecraft	net.minecraft.world.biome.BiomeGenTaiga
+162	Extreme Hills+ M	Minecraft	net.minecraft.world.biome.BiomeGenHills
+163	Savanna M	Minecraft	net.minecraft.world.biome.BiomeGenSavanna$Mutated
+164	Savanna Plateau M	Minecraft	net.minecraft.world.biome.BiomeGenSavanna$Mutated
+165	Mesa (Bryce)	Minecraft	net.minecraft.world.biome.BiomeGenMesa
+166	Mesa Plateau F M	Minecraft	net.minecraft.world.biome.BiomeGenMesa
+167	Mesa Plateau M	Minecraft	net.minecraft.world.biome.BiomeGenMesa
+168	Meadow Forest	Biomes O' Plenty	biomesoplenty.common.biome.overworld.sub.BiomeGenMeadowForest
+169	Meadow	Biomes O' Plenty	biomesoplenty.common.biome.overworld.BiomeGenMeadow
+170	Arctic	1Legends	com.tihyo.legends.management.biomes.BiomeGenArctic
+171	Outer Space	1Legends	com.tihyo.legends.management.dimensions.outerspace.BiomeGenOuterSpace
+172	Mars	1Legends	com.tihyo.legends.management.dimensions.mars.BiomeGenMars
+173	Ilum Plains	1Legends	com.tihyo.starwars.galactic.planets.ilum.BiomeGenIlum
+174	Ilum Mountains	1Legends	com.tihyo.starwars.galactic.planets.ilum.BiomeGenIlumMountains
+175	Hurikane	1Legends	com.tihyo.starwars.galactic.planets.hurikane.BiomeGenHurikane
+176	Tython Forest	1Legends	com.tihyo.starwars.galactic.planets.tython.BiomeGenTythonForest
+177	Tython Mountains	1Legends	com.tihyo.starwars.galactic.planets.tython.BiomeGenTythonMountains
+178	Korriban Desert	1Legends	com.tihyo.starwars.galactic.planets.korriban.BiomeGenKorribanDesert
+179	Korriban Mountains	1Legends	com.tihyo.starwars.galactic.planets.korriban.BiomeGenKorribanMountains
+180	Tatooine Desert	1Legends	com.tihyo.starwars.galactic.planets.tatooine.BiomeGenTatooineDesert
+181	Tatooine Canyons	1Legends	com.tihyo.starwars.galactic.planets.tatooine.BiomeGenTatooineCanyons
+182	Hurikane	1Legends	com.tihyo.starwars.galactic.planets.hurikane.BiomeGenHurikaneValley
+183	Moor	Biomes O' Plenty	biomesoplenty.common.biome.overworld.BiomeGenMoor
+184	Mountain	Biomes O' Plenty	biomesoplenty.common.biome.overworld.BiomeGenMountain
+185	Mystic Grove	Biomes O' Plenty	biomesoplenty.common.biome.overworld.BiomeGenMysticGrove
+186	Oasis	Biomes O' Plenty	biomesoplenty.common.biome.overworld.sub.BiomeGenOasis
+187	Ominous Woods	Biomes O' Plenty	biomesoplenty.common.biome.overworld.BiomeGenOminousWoods
+188	Orchard	Biomes O' Plenty	biomesoplenty.common.biome.overworld.BiomeGenOrchard
+189	Origin Valley	Biomes O' Plenty	biomesoplenty.common.biome.overworld.BiomeGenOriginValley
+190	Outback	Biomes O' Plenty	biomesoplenty.common.biome.overworld.BiomeGenOutback
+191	Phantasmagoric Inferno	Biomes O' Plenty	biomesoplenty.common.biome.nether.BiomeGenPhantasmagoricInferno
+192	Polar Chasm	Biomes O' Plenty	biomesoplenty.common.biome.nether.BiomeGenPolarChasm
+193	Prairie	Biomes O' Plenty	biomesoplenty.common.biome.overworld.BiomeGenPrairie
+194	Quagmire	Biomes O' Plenty	biomesoplenty.common.biome.overworld.sub.BiomeGenQuagmire
+195	Rainforest	Biomes O' Plenty	biomesoplenty.common.biome.overworld.BiomeGenRainforest
+196	Redwood Forest	Biomes O' Plenty	biomesoplenty.common.biome.overworld.BiomeGenRedwoodForest
+197	Sacred Springs	Biomes O' Plenty	biomesoplenty.common.biome.overworld.BiomeGenSacredSprings
+198	Scrubland	Biomes O' Plenty	biomesoplenty.common.biome.overworld.sub.BiomeGenScrubland
+199	Seasonal Forest Clearing	Biomes O' Plenty	biomesoplenty.common.biome.overworld.sub.BiomeGenSeasonalForestClearing
+200	Speed Force	1Legends	com.tihyo.superheroes.dimensions.speedforce.BiomeGenSpeedForce
+201	Wakanda	1Legends	com.tihyo.superheroes.dimensions.management.wakanda.BiomeGenWakanda
+202	Quantum Realm	1Legends	com.tihyo.superheroes.dimensions.biomes.BiomeGenQuantumRealm
+203	The Underworld	1Legends	com.tihyo.legends.management.dimensions.hell.BiomeGenSoulValley
+204	Ice River	Realistic World Gen	rwg.biomes.base.BaseBiomeRiver
+205	Cold River	Realistic World Gen	rwg.biomes.base.BaseBiomeRiver
+206	Temperate River	Realistic World Gen	rwg.biomes.base.BaseBiomeRiver
+207	Hot River	Realistic World Gen	rwg.biomes.base.BaseBiomeRiver
+208	Wet River	Realistic World Gen	rwg.biomes.base.BaseBiomeRiver
+209	River Oasis	Realistic World Gen	rwg.biomes.base.BaseBiomeRiver
+210	Ice Ocean	Realistic World Gen	rwg.biomes.base.BaseBiomeOcean
+211	Cold Ocean	Realistic World Gen	rwg.biomes.base.BaseBiomeOcean
+212	Temperate Ocean	Realistic World Gen	rwg.biomes.base.BaseBiomeOcean
+213	Hot Ocean	Realistic World Gen	rwg.biomes.base.BaseBiomeOcean
+214	Wet Ocean	Realistic World Gen	rwg.biomes.base.BaseBiomeOcean
+215	Ocean Oasis	Realistic World Gen	rwg.biomes.base.BaseBiomeOcean
+216	Snow Desert	Realistic World Gen	rwg.biomes.base.BaseBiomeSnowDesert
+217	Snow Forest	Realistic World Gen	rwg.biomes.base.BaseBiomeSnowForest
+218	Cold Plains	Realistic World Gen	rwg.biomes.base.BaseBiomeColdPlains
+219	Cold Forest	Realistic World Gen	rwg.biomes.base.BaseBiomeColdForest
+220	Hot Plains	Realistic World Gen	rwg.biomes.base.BaseBiomeHotPlains
+221	Hot Forest	Realistic World Gen	rwg.biomes.base.BaseBiomeHotForest
+222	Hot Desert	Realistic World Gen	rwg.biomes.base.BaseBiomeHotDesert
+223	Plains (RWG)	Realistic World Gen	rwg.biomes.base.BaseBiomePlains
+224	Tropical Island	Realistic World Gen	rwg.biomes.base.BaseBiomeTropicalIsland
+225	Redwood	Realistic World Gen	rwg.biomes.base.BaseBiomeRedwood
+226	Jungle (RWG)	Realistic World Gen	rwg.biomes.base.BaseBiomeJungle
+227	Oasis	Realistic World Gen	rwg.biomes.base.BaseBiomeRiver
+228	Temperate Forest	Realistic World Gen	rwg.biomes.base.BaseBiomeTemperateForest
+229	Seasonal Forest	Biomes O' Plenty	biomesoplenty.common.biome.overworld.BiomeGenSeasonalForest
+230	Utopia	OreSpawn	danger.orespawn.BiomeGenUtopianPlains
+231	Islands	OreSpawn	danger.orespawn.BiomeGenUtopianPlains
+232	Crystal	OreSpawn	danger.orespawn.BiomeGenUtopianPlains
+233	Villages	OreSpawn	danger.orespawn.BiomeGenUtopianPlains
+234	Chaos	OreSpawn	danger.orespawn.BiomeGenUtopianPlains
+235	Shield	Biomes O' Plenty	biomesoplenty.common.biome.overworld.BiomeGenShield
+236	Shrubland	Biomes O' Plenty	biomesoplenty.common.biome.overworld.BiomeGenShrubland
+237	Silkglades	Biomes O' Plenty	biomesoplenty.common.biome.overworld.sub.BiomeGenSilkglades
+238	Sludgepit	Biomes O' Plenty	biomesoplenty.common.biome.overworld.BiomeGenSludgepit
+239	Snowy Coniferous Forest	Biomes O' Plenty	biomesoplenty.common.biome.overworld.BiomeGenConiferousForestSnow
+240	Spectral Garden	Biomes O' Plenty	biomesoplenty.common.biome.end.BiomeGenSpectralGarden
+241	Spruce Woods	Biomes O' Plenty	biomesoplenty.common.biome.overworld.sub.BiomeGenSpruceWoods
+242	Steppe	Biomes O' Plenty	biomesoplenty.common.biome.overworld.BiomeGenSteppe
+243	Temperate Rainforest	Biomes O' Plenty	biomesoplenty.common.biome.overworld.BiomeGenTemperateRainforest
+244	Thicket	Biomes O' Plenty	biomesoplenty.common.biome.overworld.BiomeGenThicket
+245	Tropical Rainforest	Biomes O' Plenty	biomesoplenty.common.biome.overworld.BiomeGenTropicalRainforest
+246	Tropics	Biomes O' Plenty	biomesoplenty.common.biome.overworld.sub.BiomeGenTropics
+247	Tundra	Biomes O' Plenty	biomesoplenty.common.biome.overworld.BiomeGenTundra
+248	Undergarden	Biomes O' Plenty	biomesoplenty.common.biome.nether.BiomeGenUndergarden
+249	Visceral Heap	Biomes O' Plenty	biomesoplenty.common.biome.nether.BiomeGenVisceralHeap
+250	Volcano	Biomes O' Plenty	biomesoplenty.common.biome.overworld.sub.BiomeGenVolcano
+251	Wasteland	Biomes O' Plenty	biomesoplenty.common.biome.overworld.BiomeGenWasteland
+252	Wetland	Biomes O' Plenty	biomesoplenty.common.biome.overworld.BiomeGenWetland
+253	Woodland	Biomes O' Plenty	biomesoplenty.common.biome.overworld.BiomeGenWoodland
+254	Xeric Shrubland	Biomes O' Plenty	biomesoplenty.common.biome.overworld.BiomeGenXericShrubland

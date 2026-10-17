@@ -36,6 +36,7 @@ Usage (py -3.10):
     trial.py launch NAME [--wait] [--xmx 3G] [-D key=value ...] [--commands FILE]
     trial.py status                             running clients/servers, lock, RAM
     trial.py install JAR [--why TEXT]           put a built jar into the live instance
+    trial.py stage JAR                          candidate jar for trials only (catalog "staged": true)
     trial.py bisect start|good|bad|status|reset ...   halve a mod set to find a culprit
     trial.py disk                               instance copies on this PC and who uses them
     trial.py stop NAME [--force]                stop this trial's own JVM (never anyone else's)
@@ -53,8 +54,17 @@ BISECT = os.path.join(TRIALS, "bisect.json")
 JAVA_CANDIDATES = [r"C:\Program Files\Java\jre1.8.0_241\bin\java.exe"]
 MAIN = "net.minecraft.launchwrapper.Launch"
 FORGE_JAR = "forge-1.7.10-10.13.4.1558-1.7.10-universal.jar"
-SERVER_SOURCES = [r"C:\qfs\combat", r"C:\qfs\friends", r"C:\qfs\trial-base"]
+# `build --server --forge 1614`: Biomes O' Plenty 2.1.0.2308 refuses Forge < 1566 and
+# Angelica needs 1614, so candidates like those are trialled on the last 1.7.10 Forge.
+FORGE_JARS = {"1558": FORGE_JAR, "1614": "forge-1.7.10-10.13.4.1614-1.7.10-universal.jar"}
+SERVER_SOURCES = [r"C:\qfs\combat", r"C:\qfs\friends", r"C:\qfs\trial-base",
+                  r"C:\qfs\forge1614-install"]
 RAM_BUDGET_GB = float(os.environ.get("QF_RAM_BUDGET_GB", "22"))
+# Candidate jars that are not in the live pack yet (a mod being evaluated). Laid out
+# like an instance (mods/, mods/1.7.10/); `trial.py stage JAR` puts them here.
+# resolve() falls back to it for any catalog entry the source instance lacks, so a
+# trial can load a candidate without it ever touching %APPDATA%\.crazycraft4\mods.
+STAGED = os.path.join(TRIALS, "_staged")
 
 # Small top-level folders some mods read at startup. Copied, not linked: mods
 # write into them (journeymap, customnpcs, hats).
@@ -151,9 +161,13 @@ def resolve(cat, wanted, bundles, src, no_base=False, server=False):
     for k in keys:
         visit(k, [])
     jars = instance_jars(src)
+    staged = instance_jars(STAGED)
     picked, missing = [], []
     for k in order:
         hits = match_jar(mods[k], jars)
+        if not hits and mods[k].get("staged"):
+            hits = match_jar(mods[k], staged)
+            jars.update({h: staged[h] for h in hits})
         if not hits:
             missing.append(k)
         picked += [(k, h, jars[h]) for h in hits]
@@ -225,18 +239,19 @@ def read_manifest(name):
 
 # --------------------------------------------------------------------- build
 
-def find_server_source(given):
+def find_server_source(given, forge_jar=FORGE_JAR):
     for s in ([given] if given else SERVER_SOURCES):
-        if s and os.path.isfile(os.path.join(s, FORGE_JAR)) \
+        if s and os.path.isfile(os.path.join(s, forge_jar)) \
                 and os.path.isfile(os.path.join(s, "minecraft_server.1.7.10.jar")) \
                 and os.path.isdir(os.path.join(s, "libraries")):
             return s
-    sys.exit("no server dir with the Forge universal jar, minecraft_server.1.7.10.jar and "
+    sys.exit(f"no server dir with {forge_jar}, minecraft_server.1.7.10.jar and "
              f"libraries/ found (looked in {given or ', '.join(SERVER_SOURCES)}); pass --server-source")
 
 
 def build(name, mods, bundle=(), src=LIVE, no_base=False, server=False, server_source=None,
-          world=None, shader=None, overlay=(), force=False, port=None, seed="", quiet=False):
+          world=None, shader=None, overlay=(), force=False, port=None, seed="", quiet=False,
+          forge="1558"):
     cat = load_catalog()
     src = os.path.abspath(src)
     picked, missing = resolve(cat, mods, bundle, src, no_base, server)
@@ -271,8 +286,10 @@ def build(name, mods, bundle=(), src=LIVE, no_base=False, server=False, server_s
                 "side": "server" if server else "client",
                 "jars": [rel for _, rel, _ in picked]}
     if server:
-        ss = find_server_source(server_source)
-        for f in (FORGE_JAR, "minecraft_server.1.7.10.jar"):
+        if forge not in FORGE_JARS:
+            sys.exit(f"--forge {forge}: one of {', '.join(FORGE_JARS)}")
+        ss = find_server_source(server_source, FORGE_JARS[forge])
+        for f in (FORGE_JARS[forge], "minecraft_server.1.7.10.jar"):
             link_or_copy(os.path.join(ss, f), os.path.join(d, f))
         if not os.path.isdir(os.path.join(d, "libraries")):
             link_tree(os.path.join(ss, "libraries"), os.path.join(d, "libraries"))
@@ -283,7 +300,7 @@ def build(name, mods, bundle=(), src=LIVE, no_base=False, server=False, server_s
         if force or not os.path.exists(props) or port:
             with open(props, "w") as f:
                 f.write(SERVER_PROPERTIES.format(seed=seed, name=name, port=port))
-        manifest.update(server_source=ss, port=port)
+        manifest.update(server_source=ss, port=port, forge_jar=FORGE_JARS[forge])
     else:
         for sub in LINK_DIRS:
             s = os.path.join(src, sub)
@@ -332,7 +349,7 @@ def build(name, mods, bundle=(), src=LIVE, no_base=False, server=False, server_s
 
 def cmd_build(a):
     build(a.name, a.mods, a.bundle, a.source, a.no_base, a.server, a.server_source,
-          a.world, a.shader, a.overlay, a.force, a.port, a.seed)
+          a.world, a.shader, a.overlay, a.force, a.port, a.seed, forge=a.forge)
 
 
 # -------------------------------------------------------------- processes/lock
@@ -505,10 +522,10 @@ def client_args(d, src, xmx, props):
     return jvm + ["-cp", ";".join(cp)] + game
 
 
-def server_args(xmx, props):
+def server_args(xmx, props, forge_jar=FORGE_JAR):
     return (["-Xms512M", f"-Xmx{xmx}", "-Dlog4j2.formatMsgNoLookups=true",
              "-Dfml.queryResult=confirm"] + GC + [f"-D{p}" for p in props]
-            + ["-jar", FORGE_JAR, "nogui"])
+            + ["-jar", forge_jar, "nogui"])
 
 
 def gb(xmx):
@@ -618,7 +635,7 @@ def launch_server(a, man, d):
                  f"`build --force --port N` or stop it first")
     check_ram(gb(a.xmx))
     java = find_java()
-    args = server_args(a.xmx, a.D)
+    args = server_args(a.xmx, a.D, man.get("forge_jar", FORGE_JAR))
     clear_logs(d, "server")
     write_bat(d, java, args)
     pid = start_detached(java, args, d, stdin=os.path.abspath(a.commands) if a.commands else None)
@@ -987,6 +1004,22 @@ def cmd_list(a):
             print(f"  {s}")
 
 
+def cmd_stage(a):
+    """Copy a candidate jar into the staging dir; it is loadable by catalog entries marked "staged"."""
+    if not os.path.isfile(a.jar):
+        sys.exit(f"no such jar: {a.jar}")
+    dst = os.path.join(STAGED, "mods", os.path.basename(a.jar))
+    os.makedirs(os.path.dirname(dst), exist_ok=True)
+    shutil.copy2(a.jar, dst)
+    cat = load_catalog()
+    k = key_of_jar(cat, os.path.basename(a.jar))
+    print(f"staged {dst} ({os.path.getsize(dst) / 1e6:.1f} MB, sha1 {sha1(dst)})")
+    if not k:
+        print("  no catalog entry matches it yet: add one with \"staged\": true")
+    elif not cat["mods"][k].get("staged"):
+        print(f"  catalog entry '{k}' lacks \"staged\": true, so trials still take the live jar")
+
+
 def cmd_resolve(a):
     picked, missing = resolve(load_catalog(), a.mods, a.bundle, os.path.abspath(a.source), a.no_base, a.server)
     for k, rel, p in picked:
@@ -1060,6 +1093,7 @@ def main():
                    help="dir whose config/ scripts/ resourcepacks/ go on top, e.g. the repo's pack/")
     p.add_argument("--server-source", help="dir holding the Forge/vanilla server jars and libraries/")
     p.add_argument("--port", type=int, help="server port (default: first free from 25600)")
+    p.add_argument("--forge", default="1558", help="server: Forge build, 1558 (the pack's) or 1614")
     p.add_argument("--seed", default="", help="server world seed")
     p.add_argument("--force", action="store_true", help="rebuild an existing trial")
     p.set_defaults(fn=cmd_build)
@@ -1090,6 +1124,7 @@ def main():
     p.add_argument("--force", action="store_true")
     p.set_defaults(fn=cmd_bisect)
 
+    p = sp.add_parser("stage"); p.add_argument("jar"); p.set_defaults(fn=cmd_stage)
     p = sp.add_parser("resolve"); mods_args(p); p.set_defaults(fn=cmd_resolve)
     sp.add_parser("list").set_defaults(fn=cmd_list)
     sp.add_parser("status").set_defaults(fn=cmd_status)

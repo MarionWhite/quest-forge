@@ -7,7 +7,9 @@
     "kept by hand; when a trial dies on NoClassDefFoundError, trial.py names the jar that owns the",
     "class -- add it here so the next agent does not pay for the same boot.",
     "'data' lists folders under the instance a mod reads at load time (SaintsCore NPEs in preInit",
-    "without mods/saintspack/Packs.txt); build copies them into the trial."
+    "without mods/saintspack/Packs.txt); build copies them into the trial.",
+    "'staged': true marks a candidate jar that is not in the live pack: trial.py takes it from",
+    "%APPDATA%/.qf-trials/_staged/mods (put it there with `trial.py stage JAR`)."
   ],
   "base": ["optifine", "betterfps", "fastcraft", "fastleafdecay", "aiimprovements", "qftweaks", "soundfilters"],
   "_client_only_doc": "Never put on a server trial (same list as tools/server/build_play_server.py). Asking for one with --server is an error; the base set just drops them.",
@@ -138,6 +140,9 @@
     "chesttransporter":{"match": "ChestTransporter",       "role": "mod"},
     "mobstatues":      {"match": "MobStatues",             "role": "mod"},
     "controlling":     {"match": "Controlling",            "role": "mod"},
-    "nomorerecipeconflict": {"match": "NoMoreRecipeConflict", "role": "mod"}
+    "nomorerecipeconflict": {"match": "NoMoreRecipeConflict", "role": "mod"},
+    "biomesoplenty":   {"match": "BiomesOPlenty",          "role": "mod", "staged": true, "why": "candidate (decision 0003): BiomesOPlenty-1.7.10-2.1.0.2308-universal.jar, Modrinth sha1 b0d13f22; not in the live pack"},
+    "rwg":             {"match": "RWG-alpha",              "role": "mod", "staged": true, "why": "candidate (decision 0003): GTNH Realistic World Gen RWG-alpha-1.5.2.jar; no library deps, acceptableRemoteVersions=*"},
+    "biomedump":       {"match": "qf-biomedump",           "role": "mod", "staged": true, "why": "trial probe: writes the live biome registry to biome-ids.tsv on server start (tools/world/biomedump/build.sh)"}
   }
 }
