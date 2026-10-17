@@ -256,6 +256,12 @@ def build(name, mods, bundle=(), src=LIVE, no_base=False, server=False, server_s
 
     for _, rel, path in picked:
         link_or_copy(path, os.path.join(d, rel))
+    # Folders a mod reads from mods/ at load time (catalog "data"); copied, never linked.
+    for k in dict.fromkeys(k for k, _, _ in picked):
+        for rel in cat["mods"][k].get("data", []):
+            s = os.path.join(src, rel)
+            if os.path.isdir(s):
+                shutil.copytree(s, os.path.join(d, rel), dirs_exist_ok=True)
     for sub in COPY_DIRS:
         s = os.path.join(src, sub)
         if os.path.isdir(s):

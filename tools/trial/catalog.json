@@ -5,7 +5,9 @@
     "fixes), lib = pulled in only through 'requires', mod = loaded only when asked for.",
     "'requires' names other entries by key. mcmod.info declares almost none of these, so they are",
     "kept by hand; when a trial dies on NoClassDefFoundError, trial.py names the jar that owns the",
-    "class -- add it here so the next agent does not pay for the same boot."
+    "class -- add it here so the next agent does not pay for the same boot.",
+    "'data' lists folders under the instance a mod reads at load time (SaintsCore NPEs in preInit",
+    "without mods/saintspack/Packs.txt); build copies them into the trial."
   ],
   "base": ["optifine", "betterfps", "fastcraft", "fastleafdecay", "aiimprovements", "qftweaks", "soundfilters"],
   "_client_only_doc": "Never put on a server trial (same list as tools/server/build_play_server.py). Asking for one with --server is an error; the base set just drops them.",
@@ -46,7 +48,7 @@
     "origin":          {"match": "Origin",                 "role": "lib"},
     "asielib":         {"match": "asielib",                "role": "lib"},
     "mobiuscore":      {"match": "MobiusCore",             "role": "lib"},
-    "saintscore":      {"match": "Saintscore",             "role": "lib"},
+    "saintscore":      {"match": "Saintscore",             "role": "lib", "data": ["mods/saintspack"]},
     "baubles":         {"match": "Baubles",                "role": "lib"},
 
     "nei":             {"match": "NotEnoughItems",         "role": "mod", "requires": ["codechickencore"]},
