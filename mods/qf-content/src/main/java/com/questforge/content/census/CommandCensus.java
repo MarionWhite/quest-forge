@@ -144,7 +144,40 @@ public class CommandCensus extends CommandBase {
             for (int i = 1; i < args.length; i++) {
                 String arg = args[i];
                 String lower = arg.toLowerCase();
-                if ("wounded".equals(lower)) { opts.wounded = true; continue; }
+                if ("wounded".equals(lower)) { opts.wounded = true; opts.hpFraction = 0.3F; continue; }
+                if ("levels=all".equals(lower)) { opts.levelsAll = true; continue; }
+                if ("bands=off".equals(lower)) { opts.bands = false; continue; }
+                if (lower.startsWith("swarm=") || lower.startsWith("hp=")
+                        || lower.startsWith("controls=")) {
+                    try {
+                        String v = lower.substring(lower.indexOf('=') + 1);
+                        if (lower.startsWith("swarm=")) opts.swarm = Math.max(1, Integer.parseInt(v));
+                        else if (lower.startsWith("hp=")) {
+                            opts.hpFraction = Math.max(0.05F, Math.min(1.0F, Float.parseFloat(v)));
+                            opts.wounded = opts.hpFraction < 1.0F;
+                        } else opts.controlReps = Math.max(1, Integer.parseInt(v));
+                    } catch (NumberFormatException e) {
+                        reply(sender, EnumChatFormatting.RED + "bad number in " + arg);
+                        return;
+                    }
+                    continue;
+                }
+                // armour=modid:helm+modid:chest+... -- any order; each piece goes
+                // to the slot its ItemArmor.armorType says, so a set is a set.
+                if (lower.startsWith("armour=") || lower.startsWith("armor=")) {
+                    opts.armour = new ItemStack[4];
+                    for (String piece : arg.substring(arg.indexOf('=') + 1).split("\\+")) {
+                        ItemStack st = itemByName(piece);
+                        if (st == null || !(st.getItem() instanceof net.minecraft.item.ItemArmor)) {
+                            reply(sender, EnumChatFormatting.RED + "Not armour: '" + piece
+                                    + "'; refusing to run rather than measure diamond instead.");
+                            return;
+                        }
+                        int type = ((net.minecraft.item.ItemArmor) st.getItem()).armorType;
+                        opts.armour[3 - type] = st;
+                    }
+                    continue;
+                }
                 if ("pairs".equals(lower)) { opts.pairs = true; continue; }
                 if ("triples".equals(lower)) { opts.triples = true; continue; }
                 if (lower.startsWith("hit=")) {

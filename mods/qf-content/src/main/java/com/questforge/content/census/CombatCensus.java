@@ -134,6 +134,47 @@ public class CombatCensus {
      */
     private static final float WOUNDED_FRACTION = 0.3F;
 
+    /**
+     * Health bands an offensive cell sweeps its target through, as shares of max.
+     *
+     * A real fight takes a boss from full to dead. Measuring only the opening
+     * twenty seconds at full health is blind to every enchantment that cares how
+     * hurt the target is -- Executioner read zero for that reason -- and says
+     * nothing about how long the fight takes. Each band sets the target's health
+     * and measures damage per second there; integrating across the bands gives a
+     * time-to-kill for the whole fight without spending ten minutes on it.
+     */
+    private static final float[] BANDS = { 1.00F, 0.75F, 0.50F, 0.25F, 0.10F };
+    /** The share of the health bar each band stands for when integrating. */
+    private static final float[] BAND_WIDTH = { 0.25F, 0.25F, 0.25F, 0.15F, 0.10F };
+    private static final int BAND_TICKS = 160;
+
+    /**
+     * Ticks between a mob's melee hits. EntityMob's attackTime is twenty, and the
+     * player's own invulnerability window is twenty, so this is also the fastest a
+     * full hit can land. The old defensive cadence of ten, with the probe's
+     * i-frames zeroed, struck twice as often as anything in the game can.
+     */
+    private static final int MOB_INTERVAL = 20;
+
+    /**
+     * A full-draw bow shot: twenty ticks to charge, velocity 3.0, critical.
+     * The old figures -- a shot every ten ticks at velocity 2.0 -- fired twice as
+     * often as a person can and each arrow at two-thirds of real speed.
+     */
+    private static final int BOW_INTERVAL = 20;
+    private static final float BOW_VELOCITY = 3.0F;
+
+    /**
+     * Spawns sampled to find a target's median stats.
+     *
+     * Fifteen, because seven put two runs of the same Naga at 1,531 and 1,661
+     * health. A campaign split over several servers must fight the same boss on
+     * every one of them, so it samples once and passes the result to each shard
+     * as Name@health/attack, which skips sampling entirely.
+     */
+    private static final int REFERENCE_SAMPLES = 15;
+
     /** Blocks between the probe and its target in a bow cell. */
     private static final double BOW_STANDOFF = 10.0D;
 
@@ -192,6 +233,23 @@ public class CombatCensus {
         /** This node's share of the queue: index and count. 1/1 = everything. */
         public int shardIndex = 0;
         public int shardCount = 1;
+        /**
+         * Targets per cell. One by default, because a boss fight is one target;
+         * spawning three bosses gave Arc and every cleave effect two free victims
+         * that no player fighting that boss ever has. Raise it for a deliberate
+         * group-fight scenario against ordinary mobs.
+         */
+        public int swarm = 1;
+        /** The wielder's health as a share of a real player's twenty, held per band. */
+        public float hpFraction = 1.0F;
+        /** Measure singles at every level, not only the maximum. */
+        public boolean levelsAll;
+        /** Control repeats per mode and target; their spread is the noise floor. */
+        public int controlReps = 3;
+        /** Sweep the target through health bands (offence, single target). */
+        public boolean bands = true;
+        /** Worn armour for defensive cells, boots first; null = diamond. */
+        public ItemStack[] armour;
 
         public String describe() {
             StringBuilder sb = new StringBuilder();
@@ -202,6 +260,11 @@ public class CombatCensus {
             if (only != null) sb.append(" only=").append(only);
             if (modes != null) sb.append(" modes=").append(modes);
             if (shardCount > 1) sb.append(" shard=").append(shardIndex).append('/').append(shardCount);
+            sb.append(" swarm=").append(swarm);
+            if (hpFraction < 1.0F) sb.append(" hp=").append(hpFraction);
+            if (levelsAll) sb.append(" levels=all");
+            sb.append(" controls=").append(controlReps);
+            if (!bands) sb.append(" bands=off");
             return sb.length() == 0 ? " (defaults)" : sb.toString();
         }
     }
@@ -271,6 +334,43 @@ public class CombatCensus {
         long procFires;
         double attributedDamage;
         String note = "";
+        /** Damage dealt inside each health band. */
+        final double[] bandDamage = new double[BANDS.length];
+        int lastBand = -1;
+        /** Mean raw damage of the incoming hits the probe took. */
+        double incomingRaw;
+        /** Whether the cell's targets have settled and measurement has begun. */
+        boolean started;
+        int settleWait;
+        /** Tick at which the last band's health is checked to have held. */
+        int bandCheckTick = -1;
+        /** Bands whose health the target undid. Non-zero makes the TTK unreliable. */
+        int bandsReverted;
+        /** Times a pinned target was found re-scaled by something else and pinned again. */
+        int repins;
+        /** Times a target was made an InfernalMobs elite and turned back into a plain one. */
+        int infernalStripped;
+        /** Consecutive melee swings that took no health; logged once when it reaches five. */
+        int dryStreak;
+
+        double bandDps(int b) {
+            return bandDamage[b] / (BAND_TICKS / 20.0D);
+        }
+
+        /**
+         * Seconds to take the target from full to dead, integrated across the
+         * bands. Infinite when any band dealt nothing: a fight that stalls at one
+         * health level does not end, whatever the others say.
+         */
+        double ttkSeconds(double maxHealth) {
+            double t = 0;
+            for (int b = 0; b < BANDS.length; b++) {
+                double dps = bandDps(b);
+                if (dps <= 1e-6) return Double.POSITIVE_INFINITY;
+                t += BAND_WIDTH[b] * maxHealth / dps;
+            }
+            return t;
+        }
 
         double dps(int ticks) {
             return ticks <= 0 ? 0 : damageDealt / (ticks / 20.0D);
@@ -345,6 +445,31 @@ public class CombatCensus {
 
     // Current cell in flight.
     private static Cell cell;
+
+    /**
+     * Ticks a fresh spawn is left alone before its stats are read or pinned.
+     *
+     * MobProperties scales a mob during its first update, not when it is
+     * spawned. Every census run before this read a target's stats immediately
+     * after spawnEntityInWorld and so saw vanilla numbers: the Naga at 200 health
+     * and 6 attack, where the mob census -- which waits a tick -- measures 1,363
+     * and 11-17. Worse, pinning at that moment stripped modifiers the pack had not
+     * yet added, so it then scaled the "pinned" mob on top. Two ticks is the
+     * margin the mob census already uses.
+     */
+    private static final int SETTLE_TICKS = 2;
+
+    /** Ticks at the start of a cell before anything is measured, so targets settle. */
+    private static final int WARMUP = SETTLE_TICKS + 1;
+
+    /** Spawned targets still waiting for their first update before being pinned. */
+    private static final java.util.Set<EntityLivingBase> PENDING_PIN =
+            java.util.Collections.newSetFromMap(
+                    new java.util.IdentityHashMap<EntityLivingBase, Boolean>());
+
+    /** Reference samples in flight, and how long they have existed. */
+    private static List<EntityLivingBase> samples;
+    private static int sampleAge;
     private static Result result;
     private static int cellTick;
     private static final List<EntityLivingBase> spawned = new ArrayList<EntityLivingBase>();
@@ -393,8 +518,10 @@ public class CombatCensus {
         cell = null;
         result = null;
         CONTROLS.clear();
+        CONTROL_RUNS.clear();
         REFERENCE.clear();
         HEALTH_OVERRIDE.clear();
+        ATTACK_OVERRIDE.clear();
         spawned.clear();
 
         weaponTemplate = weapon != null && weapon.getItem() != null
@@ -407,6 +534,11 @@ public class CombatCensus {
                 new ItemStack(Items.diamond_chestplate),
                 new ItemStack(Items.diamond_helmet),
         };
+        if (options.armour != null) {
+            for (int i = 0; i < 4; i++) {
+                if (options.armour[i] != null) armourTemplate[i] = options.armour[i].copy();
+            }
+        }
 
         px = target.getSpawnPoint().posX + 0.5D;
         pz = target.getSpawnPoint().posZ + 0.5D;
@@ -433,20 +565,27 @@ public class CombatCensus {
               + "unrelated enchantments can tie; use the pack's bosses for anything you tune on.\n"
               + "# attributed_damage is only the change made to the hit in flight. Bleeds, chains "
               + "and summons land elsewhere and are counted in damage_dealt. Do not add the two.\n"
-              + (wounded ? "# WOUNDED RUN: the probe fights at 30% health so enchantments keyed to "
-                        + "the wielder being hurt can fire. Not comparable with a full-health run.\n"
-                         : "")
-              + "# Every spawn of a target is pinned to the health and damage the first one rolled, "
-              + "so each cell fights the same opponent as its control. Without it MobProperties' "
-              + "per-spawn 4-10x health roll swamps the effect being measured. The reference values "
-              + "are in the log.",
+              + (options.hpFraction < 1.0F ? "# WOUNDED RUN: the wielder starts every band at "
+                        + CensusFile.num(options.hpFraction * 100) + "% of a twenty-health bar, so "
+                        + "enchantments keyed to being hurt can fire. Compare only with a run at "
+                        + "the same hp_fraction.\n" : "")
+              + "# The wielder has a real player's twenty health. Incoming hits are the target's "
+              + "own melee every 20 ticks, absorbed without death; damage-over-time debuffs are "
+              + "stripped after each.\n"
+              + "# Every spawn of a target is pinned to the median health and attack of "
+              + REFERENCE_SAMPLES + " fresh spawns, so each cell fights the same, typical "
+              + "opponent as its control. Values are in the log and in target_hp.\n"
+              + "# Offensive cells sweep the target through health bands (100/75/50/25/10%); "
+              + "band_dps is damage per second in each, and ttk_est_s integrates them into a "
+              + "full-fight time to kill. Bows fire a full-draw critical arrow every 20 ticks.",
                 new String[] {
                     "loadout", "kind", "mode", "rarity", "level", "category", "target",
                     "swings", "hits_landed", "damage_dealt", "dps", "marginal_dps", "marginal_pct",
                     "kills", "ttk_mean_ticks", "ttk_min_ticks", "ttk_max_ticks", "marginal_ttk_pct",
                     "damage_taken", "incoming_swings", "mitigation_pct", "hits_survived",
                     "proc_rolls", "proc_fires", "observed_proc_pct", "expected_proc_pct",
-                    "attributed_damage", "note"
+                    "attributed_damage", "note",
+                    "hp_fraction", "band_dps", "ttk_est_s", "marginal_ttk_est_pct", "target_hp"
                 });
 
         procs = new CensusFile(dir, "combat-procs",
@@ -525,25 +664,32 @@ public class CombatCensus {
 
         List<String> found = new ArrayList<String>();
         for (String spec : wanted) {
-            // "Zombie@400" pins that target's effective max health to 400.
+            // "Zombie@400" pins that target's effective max health to 400;
+            // "Zombie@400/9.5" pins its attack as well.
             String name = spec;
             int at = spec.indexOf('@');
             Double override = null;
+            Double attack = null;
             if (at > 0) {
                 name = spec.substring(0, at);
+                String[] parts = spec.substring(at + 1).split("/", 2);
                 try {
-                    override = Double.valueOf(spec.substring(at + 1));
+                    override = Double.valueOf(parts[0]);
+                    if (parts.length > 1) attack = Double.valueOf(parts[1]);
                 } catch (NumberFormatException e) {
                     failures.row("(target)", spec, "resolve",
-                            "health override after '@' is not a number");
+                            "override after '@' is not health[/attack]");
                     continue;
                 }
             }
             String match = matchEntity(name);
             if (match != null && override != null) {
                 HEALTH_OVERRIDE.put(match, override);
+                if (attack != null) ATTACK_OVERRIDE.put(match, attack);
                 QuestForgeContent.log.info("[census] target " + match
-                        + " pinned to " + CensusFile.num(override.doubleValue()) + " health");
+                        + " pinned to " + CensusFile.num(override.doubleValue()) + " health"
+                        + (attack != null ? ", " + CensusFile.num(attack.doubleValue())
+                        + " attack" : ""));
             }
             if (match != null) {
                 found.add(match);
@@ -569,9 +715,20 @@ public class CombatCensus {
     private static final java.util.Map<String, Double> HEALTH_OVERRIDE =
             new java.util.HashMap<String, Double>();
 
+    /** Attack overrides from a "Name@Health/Attack" target spec. */
+    private static final java.util.Map<String, Double> ATTACK_OVERRIDE =
+            new java.util.HashMap<String, Double>();
+
     /** Registry lookup that tolerates the case and prefixing differences between mods. */
     private static String matchEntity(String name) {
         if (EntityList.stringToClassMapping.containsKey(name)) return name;
+        // "The_King" for "The King": several of this pack's bosses have spaces in
+        // their registry names, and an argument list split on whitespace cannot
+        // carry one.
+        if (name.indexOf('_') >= 0) {
+            String spaced = matchEntity(name.replace('_', ' '));
+            if (spaced != null) return spaced;
+        }
         for (Object key : EntityList.stringToClassMapping.keySet()) {
             String k = String.valueOf(key);
             if (k.equalsIgnoreCase(name) || k.toLowerCase().endsWith("." + name.toLowerCase())) {
@@ -593,9 +750,14 @@ public class CombatCensus {
     private static List<Cell> buildQueue(List<String> targets) {
         List<Cell> cells = new ArrayList<Cell>();
 
+        // Controls repeated: the spread between identical controls is the
+        // instrument's own noise, measured rather than assumed.
         for (String target : targets) {
             for (Mode mode : new Mode[] { Mode.MELEE, Mode.BOW, Mode.DEFENSE }) {
-                cells.add(cell(new Loadout("control"), mode, target, false));
+                if (options.modes != null && !options.modes.contains(mode.name())) continue;
+                for (int r = 0; r < Math.max(1, options.controlReps); r++) {
+                    cells.add(cell(new Loadout("control"), mode, target, false));
+                }
             }
         }
 
@@ -614,9 +776,12 @@ public class CombatCensus {
             if (options.only != null && !options.only.contains(ench.displayKey())) continue;
             if (options.modes != null && !options.modes.contains(mode.name())) continue;
             if (mode == Mode.MELEE) offensive.add(ench);
-            for (String target : targets) {
-                cells.add(cell(new Loadout(ench.displayKey()).with(ench, ench.getMaxLevel()),
-                        mode, target, false));
+            int lowest = options.levelsAll ? 1 : ench.getMaxLevel();
+            for (int level = lowest; level <= ench.getMaxLevel(); level++) {
+                for (String target : targets) {
+                    cells.add(cell(new Loadout(ench.displayKey()).with(ench, level),
+                            mode, target, false));
+                }
             }
         }
 
@@ -792,6 +957,14 @@ public class CombatCensus {
             return;
         }
 
+        if (samples != null) {
+            ++sampleAge;
+            boolean all = true;
+            for (EntityLivingBase m : samples) all &= settled(m);
+            if (all || sampleAge >= SETTLE_TIMEOUT) finishSampling();
+            return;
+        }
+
         try {
             advance();
         } catch (Throwable t) {
@@ -808,7 +981,12 @@ public class CombatCensus {
     }
 
     private static int windowFor(Cell c) {
-        return c.mode == Mode.DEFENSE ? DEFENSIVE_SWINGS * SWING_INTERVAL : WINDOW_TICKS;
+        if (c.mode == Mode.DEFENSE) return WARMUP + DEFENSIVE_SWINGS * MOB_INTERVAL;
+        return WARMUP + (banded() ? BAND_TICKS * BANDS.length : WINDOW_TICKS);
+    }
+
+    private static boolean banded() {
+        return options.bands && options.swarm == 1;
     }
 
     private static void beginCell(Cell c) {
@@ -841,34 +1019,150 @@ public class CombatCensus {
             CensusProbe.hold(probe, null);
             fillGrantedHealth(probe);
         } else {
-            // Explicitly restored, because a DEFENSE cell lowers it to 20 and an
-            // offensive cell run on a 20 HP probe is a different experiment.
-            if (wounded) {
-                setProbeHealth(probe, DEFENSIVE_HEALTH);
-                probe.setHealth(DEFENSIVE_HEALTH * WOUNDED_FRACTION);
-            } else {
-                setProbeHealth(probe, PROBE_HEALTH);
-            }
+            // A real player's twenty, not a million. The million kept the probe
+            // alive but made every enchantment that reads the wielder's health
+            // see a full bar, and turned Cultist's self-damage -- capped at a
+            // share of max health -- into a rounding error, so Cultist's synergy
+            // with Berserk and Riposte was measured on a player nobody is.
+            // Incoming hits are absorbed without death instead; see absorbHit.
+            setProbeHealth(probe, DEFENSIVE_HEALTH);
+            probe.setHealth(DEFENSIVE_HEALTH * options.hpFraction);
             CensusProbe.wear(probe, null);
             CensusProbe.hold(probe, weaponFor(c.loadout, c.mode));
         }
 
+        sweepArena();
+        if (!REFERENCE.containsKey(c.targetName)
+                && HEALTH_OVERRIDE.containsKey(c.targetName)
+                && ATTACK_OVERRIDE.containsKey(c.targetName)) {
+            // Both given: this is a campaign shard and the reference was sampled
+            // once, elsewhere. Sampling again here would fight a different boss.
+            REFERENCE.put(c.targetName, new double[] {
+                    HEALTH_OVERRIDE.get(c.targetName).doubleValue(),
+                    ATTACK_OVERRIDE.get(c.targetName).doubleValue() });
+        }
+        if (!REFERENCE.containsKey(c.targetName)) {
+            startSampling();
+            return;
+        }
+        spawnOrFail();
+    }
+
+    private static void spawnOrFail() {
         if (!spawnSwarm()) {
-            failures.row(c.loadout.describe(), c.targetName, "spawn",
-                    "could not spawn " + c.targetName);
+            failures.row(cell.loadout.describe(), cell.targetName, "spawn",
+                    "could not spawn " + cell.targetName);
             endCell();
         }
+    }
+
+    /**
+     * Spawns several of the target and lets them live long enough for the pack
+     * to scale them. See SETTLE_TICKS for why reading them at once is wrong.
+     */
+    private static void startSampling() {
+        samples = new ArrayList<EntityLivingBase>();
+        sampleAge = 0;
+        Class<?> cls = (Class<?>) EntityList.stringToClassMapping.get(cell.targetName);
+        for (int i = 0; cls != null && i < REFERENCE_SAMPLES; i++) {
+            try {
+                Constructor<?> ctor = cls.getConstructor(net.minecraft.world.World.class);
+                EntityLivingBase mob = (EntityLivingBase) ctor.newInstance(world);
+                double x = px + (i % 3) * 3.0D;
+                double z = pz + (i / 3) * 3.0D;
+                mob.setPosition(x, world.getTopSolidOrLiquidBlock((int) x, (int) z) + 1, z);
+                world.spawnEntityInWorld(mob);
+                samples.add(mob);
+            } catch (Throwable ignored) {}
+        }
+    }
+
+    /** Reads the settled samples' medians, removes them, and starts the cell. */
+    private static void finishSampling() {
+        List<Double> hp = new ArrayList<Double>();
+        List<Double> atk = new ArrayList<Double>();
+        for (EntityLivingBase mob : samples) {
+            IAttributeInstance h = mob.getEntityAttribute(SharedMonsterAttributes.maxHealth);
+            IAttributeInstance a = mob.getEntityAttribute(SharedMonsterAttributes.attackDamage);
+            if (h != null) hp.add(Double.valueOf(h.getAttributeValue()));
+            if (a != null) atk.add(Double.valueOf(a.getAttributeValue()));
+            try {
+                mob.setDead();
+                world.removeEntity(mob);
+            } catch (Throwable ignored) {}
+        }
+        samples = null;
+        sweepArena();   // anything the samples summoned while they lived
+
+        Double override = HEALTH_OVERRIDE.get(cell.targetName);
+        if (hp.isEmpty()) {
+            failures.row(cell.loadout.describe(), cell.targetName, "reference",
+                    "no sample could be spawned");
+            endCell();
+            return;
+        }
+        Collections.sort(hp);
+        Collections.sort(atk);
+        double[] ref = {
+                override != null ? override.doubleValue() : hp.get(hp.size() / 2).doubleValue(),
+                atk.isEmpty() ? Double.NaN : atk.get(atk.size() / 2).doubleValue() };
+        REFERENCE.put(cell.targetName, ref);
+        QuestForgeContent.log.info("[census] reference target " + cell.targetName
+                + ": median of " + hp.size() + " settled spawns -> maxHealth "
+                + CensusFile.num(ref[0]) + " (range " + CensusFile.num(hp.get(0).doubleValue())
+                + ".." + CensusFile.num(hp.get(hp.size() - 1).doubleValue()) + "), attackDamage "
+                + CensusFile.num(ref[1]) + (atk.isEmpty() ? "" : " (range "
+                + CensusFile.num(atk.get(0).doubleValue()) + ".."
+                + CensusFile.num(atk.get(atk.size() - 1).doubleValue()) + ")")
+                + (override != null ? "; health pinned by request" : ""));
+        spawnOrFail();
+    }
+
+    /**
+     * Removes every non-player creature near the arena.
+     *
+     * Bosses summon. Rahovart calls minions, Lycanites and TragicMC bosses spawn
+     * adds, and despawnAll only knows about the entities the census spawned
+     * itself. Without this, a cell's minions are still standing in the next
+     * cell, soaking hits and swinging at the probe, and the contamination grows
+     * all run.
+     */
+    private static void sweepArena() {
+        try {
+            net.minecraft.util.AxisAlignedBB box = net.minecraft.util.AxisAlignedBB.getBoundingBox(
+                    px - 48, py - 24, pz - 48, px + 48, py + 48, pz + 48);
+            for (Object o : world.getEntitiesWithinAABB(EntityLivingBase.class, box)) {
+                if (o instanceof EntityPlayer) continue;
+                EntityLivingBase e = (EntityLivingBase) o;
+                e.setDead();
+                world.removeEntity(e);
+            }
+        } catch (Throwable ignored) {}
     }
 
     private static void advance() {
         EntityPlayer probe = CensusProbe.player(world);
         if (probe == null) return;
 
+        // Nothing is measured until this cell's targets have been scaled and
+        // pinned: a fight against a mob the pack has not finished with yet is a
+        // fight against vanilla stats.
+        pinPending();
+        if (result.started) {
+            keepPinned();
+            leash();
+        }
+        if (!result.started) {
+            if (!PENDING_PIN.isEmpty() && result.settleWait++ < SETTLE_TIMEOUT) return;
+            if (!PENDING_PIN.isEmpty()) result.note += " [targets never settled; measured unscaled]";
+            result.started = true;
+        }
         cellTick++;
 
         // The probe experiences a tick. Without this the mod's per-tick code never
         // runs for it; see CensusProbe.pumpTick.
         CensusProbe.pumpTick(probe);
+        if (cellTick <= WARMUP) return;
 
         // The mod's world-tick work: bleeds, venom, cripple timers, summons. In a
         // normal game the bridge drives this from WorldTickEvent, which does fire
@@ -975,7 +1269,23 @@ public class CombatCensus {
     // ---- Offensive cells --------------------------------------------------
 
     private static void advanceOffense(EntityPlayer probe) {
+        // Band change: put the target at this band's share of its health. The
+        // drop is not damage dealt, so the sampler's baseline moves with it.
+        int band = banded()
+                ? Math.min(BANDS.length - 1, (cellTick - WARMUP - 1) / BAND_TICKS) : -1;
+        if (band >= 0 && band != result.lastBand) {
+            result.lastBand = band;
+            EntityLivingBase target = primary();
+            if (target != null) setBandHealth(target, band);
+            // The wielder starts each band at the run's health share. Within a
+            // band it is left alone, so Cultist's self-damage accumulates as it
+            // would in a fight.
+            probe.setHealth(probe.getMaxHealth() * options.hpFraction);
+        }
+
+        double before = result.damageDealt;
         accumulateDamage();
+        if (band >= 0) result.bandDamage[band] += result.damageDealt - before;
 
         // A target that died: record the kill, then put a fresh one in its place so
         // the window keeps measuring instead of trailing off into an empty arena.
@@ -989,11 +1299,42 @@ public class CombatCensus {
                 trialStartTick = cellTick;
             }
             replace(i);
+            if (band >= 0 && i == 0 && spawned.get(0) != null) {
+                setBandHealth(spawned.get(0), band);
+            }
         }
 
-        if (cellTick % SWING_INTERVAL == 0) {
+        // Within a band the target is held at the band's health: whatever a hit
+        // took is counted above, then given back. Without this the low bands kill
+        // the target part-way through, and the respawn -- which must wait for the
+        // pack to scale it before it can be hit -- is counted as time spent dealing
+        // nothing, which understates exactly the enchantments that care about a
+        // nearly dead boss. Only a drop is undone; a boss healing back up is left
+        // for the reversion check to report.
+        if (band >= 0) {
+            EntityLivingBase target = primary();
+            if (target != null && !PENDING_PIN.contains(target)
+                    && target.getHealth() < target.getMaxHealth() * BANDS[band] - 0.01F) {
+                holdHealth(target, target.getMaxHealth() * BANDS[band]);
+            }
+        }
+
+        // A band whose health did not hold was not measured at that health. Some
+        // bosses actively undo large health drops (see setBandHealth), and the
+        // figures for a band that silently reverted to full would be reported
+        // as if they described a nearly dead boss.
+        if (band >= 0 && result.bandCheckTick == cellTick) {
+            EntityLivingBase target = primary();
+            if (target != null) {
+                float wanted = target.getMaxHealth() * BANDS[band];
+                if (target.getHealth() > wanted * 1.05F + 1.0F) result.bandsReverted++;
+            }
+        }
+
+        int interval = cell.mode == Mode.BOW ? BOW_INTERVAL : SWING_INTERVAL;
+        if (cellTick % interval == 0) {
             EntityLivingBase primary = primary();
-            if (primary != null) {
+            if (primary != null && !PENDING_PIN.contains(primary)) {
                 faceToward(probe, primary);
                 float healthBefore = primary.getHealth();
                 if (cell.mode == Mode.BOW) {
@@ -1004,8 +1345,14 @@ public class CombatCensus {
                     CensusProbe.swing(probe, primary);
                 }
                 result.swings++;
+                if (result.swings == 1 && cell.mode == Mode.MELEE) {
+                    logFirstSwing(probe, healthBefore - primary.getHealth());
+                }
                 if (primary.getHealth() < healthBefore || primary.isDead) {
                     result.hitsLanded++;
+                    result.dryStreak = 0;
+                } else if (cell.mode == Mode.MELEE && ++result.dryStreak == 5) {
+                    logDryStreak(probe, primary);
                 }
                 result.lastResistTime = primary.hurtResistantTime;
                 result.targetTicks = primary.ticksExisted;
@@ -1024,27 +1371,337 @@ public class CombatCensus {
         // run slowed from 155 cells an hour to ten. So the state those
         // enchantments actually read is set directly instead: the wound is held,
         // and "was hurt recently" is recorded without a corpse.
-        if (wounded) {
-            if (cellTick % INCOMING_INTERVAL == 0) {
-                CombatState.recordHurt(probe);
-                result.incomingSwings++;
-            }
-            probe.setHealth(probe.getMaxHealth() * WOUNDED_FRACTION);
-        } else if (cellTick % INCOMING_INTERVAL == 0) {
+        if (cellTick % MOB_INTERVAL == 0) {
             EntityLivingBase primary = primary();
-            if (primary != null) {
-                float before = probe.getHealth();
-                probe.hurtResistantTime = 0;
+            if (primary != null) absorbHit(probe, primary);
+        }
+
+        // A last guard, for damage that does not come through absorbHit -- a boss
+        // that reflects melee, an aura. A dead probe ends a measurement in the
+        // middle, and a probe at zero is not the health the run asked for.
+        if (probe.getHealth() < 1.0F) probe.setHealth(1.0F);
+    }
+
+    /**
+     * Whether the pack has finished scaling this mob.
+     *
+     * MobProperties does not scale on spawn. It marks the mob ("MP|Init" = -1 in
+     * its entity data) and queues it, then works through that queue at most nine
+     * mobs per server tick. In a hundred-mod world that queue has a backlog, so a
+     * fixed wait is a guess; the mob is settled when the mod says so (a positive
+     * flag), or when the mod never queued it at all and it has lived a couple of
+     * ticks. Every census run before this read stats before that happened and
+     * fought bosses at their vanilla health.
+     */
+    private static boolean settled(EntityLivingBase mob) {
+        byte init;
+        try {
+            init = mob.getEntityData().getByte("MP|Init");
+        } catch (Throwable t) {
+            init = 0;
+        }
+        if (init > 0) return true;
+        return init == 0 && mob.ticksExisted >= SETTLE_TICKS;
+    }
+
+    /** Ticks to wait for the pack's scaling before measuring regardless. */
+    private static final int SETTLE_TIMEOUT = 400;
+
+    /**
+     * Re-pins a target whose stats something changed after it was pinned.
+     *
+     * One control in three of a pilot fought a Naga at 203 health against a
+     * reference of 1,661 -- the pack's vanilla number -- and dealt a fifth of the
+     * damage. Whatever re-scales a mob after the census has pinned it, the row it
+     * produces is about a different opponent. So the pin is checked every tick
+     * and restored, keeping the target's share of its health, and the first time
+     * it happens the target's modifiers are logged so the cause can be found.
+     */
+    private static void keepPinned() {
+        double[] ref = REFERENCE.get(cell.targetName);
+        if (ref == null || Double.isNaN(ref[0]) || ref[0] <= 0) return;
+        for (int i = 0; i < spawned.size(); i++) {
+            EntityLivingBase mob = spawned.get(i);
+            if (mob == null || mob.isDead || PENDING_PIN.contains(mob)) continue;
+            if (stripInfernal(mob)) {
+                result.infernalStripped++;
+                QuestForgeContent.log.info("[census] " + cell.targetName + " (id " + mob.getEntityId()
+                        + ") was made an InfernalMobs elite at cell tick " + cellTick + "; stripped");
+            }
+            if (Math.abs(mob.getMaxHealth() - ref[0]) <= 0.01D * ref[0]) continue;
+            if (result.repins++ == 0) {
+                StringBuilder mods = new StringBuilder();
+                IAttributeInstance h = mob.getEntityAttribute(SharedMonsterAttributes.maxHealth);
+                if (h != null) {
+                    mods.append("base ").append(CensusFile.num(h.getBaseValue()));
+                    for (Object o : h.func_111122_c()) {
+                        net.minecraft.entity.ai.attributes.AttributeModifier m =
+                                (net.minecraft.entity.ai.attributes.AttributeModifier) o;
+                        mods.append("; ").append(m.getName()).append(" op").append(m.getOperation())
+                                .append(' ').append(CensusFile.num(m.getAmount()));
+                    }
+                }
+                byte init = 0;
+                try { init = mob.getEntityData().getByte("MP|Init"); } catch (Throwable ignored) {}
+                QuestForgeContent.log.warn("[census] " + cell.targetName + " (id " + mob.getEntityId()
+                        + ", age " + mob.ticksExisted + ", MP|Init " + init + ") re-scaled after pinning: max health "
+                        + CensusFile.num(mob.getMaxHealth()) + " vs " + CensusFile.num(ref[0])
+                        + " at cell tick " + cellTick + " [" + mods + "]");
+            }
+            float share = mob.getMaxHealth() > 0F ? mob.getHealth() / mob.getMaxHealth() : 1F;
+            pinToReference(mob);
+            if (i == 0) {
+                holdHealth(mob, mob.getMaxHealth() * share);
+            } else if (i < lastHealth.length) {
+                mob.setHealth(mob.getMaxHealth() * share);
+                lastHealth[i] = mob.getHealth();
+            }
+        }
+    }
+
+    /** Blocks from the arena centre a target may wander before it is brought back. */
+    private static final double LEASH = 12.0D;
+
+    /**
+     * Keeps targets within reach of the probe.
+     *
+     * The probe stands still; a player does not -- they follow the boss. Left
+     * alone, a pilot's Naga crawled 106 blocks off, out of the force-loaded arena
+     * chunks, and stopped being ticked: its hurt timer froze mid-countdown and
+     * invulnerability frames swallowed every swing for the rest of the cell, which
+     * read as the last two health bands dealing nothing. Bringing it back is what
+     * the player chasing it amounts to.
+     */
+    private static void leash() {
+        for (EntityLivingBase mob : spawned) {
+            if (mob == null || mob.isDead) continue;
+            double dx = mob.posX - px, dz = mob.posZ - pz;
+            if (dx * dx + dz * dz <= LEASH * LEASH) continue;
+            double x = px + 3.0D, z = pz;
+            mob.setPositionAndUpdate(x, world.getTopSolidOrLiquidBlock((int) x, (int) z) + 1, z);
+            mob.motionX = mob.motionY = mob.motionZ = 0;
+        }
+    }
+
+    /**
+     * What the probe brought to the first swing of a cell: its attack and every
+     * modifier and effect behind it. Identical controls must show identical lines;
+     * a modifier or effect that appears in some and not others is state leaking
+     * between cells.
+     */
+    private static void logFirstSwing(EntityPlayer probe, float dealt) {
+        StringBuilder sb = new StringBuilder();
+        IAttributeInstance a = probe.getEntityAttribute(SharedMonsterAttributes.attackDamage);
+        if (a != null) {
+            sb.append("attack ").append(CensusFile.num(a.getAttributeValue()))
+              .append(" (base ").append(CensusFile.num(a.getBaseValue()));
+            for (Object o : a.func_111122_c()) {
+                net.minecraft.entity.ai.attributes.AttributeModifier m =
+                        (net.minecraft.entity.ai.attributes.AttributeModifier) o;
+                sb.append("; ").append(m.getName()).append(" op").append(m.getOperation())
+                  .append(' ').append(CensusFile.num(m.getAmount()));
+            }
+            sb.append(')');
+        }
+        sb.append(", effects [");
+        for (Object o : probe.getActivePotionEffects()) {
+            net.minecraft.potion.PotionEffect e = (net.minecraft.potion.PotionEffect) o;
+            sb.append(e.getEffectName()).append(" x").append(e.getAmplifier() + 1)
+              .append(' ').append(e.getDuration()).append("t ");
+        }
+        sb.append("], dealt ").append(CensusFile.num(dealt));
+        QuestForgeContent.log.info("[census] first swing of " + cell.loadout.describe() + " "
+                + cell.mode + ": " + sb);
+    }
+
+    /**
+     * Which LivingHurtEvent listener changes a player's hit on this target.
+     *
+     * A synthetic eight-damage player hit is handed to each listener in bus
+     * order and every change to the amount is logged with its owner. Diagnostic:
+     * listeners may act on the event (heal, apply effects), so nothing calls it
+     * in a measuring run. It found KillerPacman's WeaponScaler (every non-OreSpawn
+     * melee hit x1-4) and InfernalMobs zeroing a hit on an elite.
+     */
+    private static void walkHurtListeners(EntityPlayer probe, EntityLivingBase target) {
+        StringBuilder sb = new StringBuilder();
+        try {
+            net.minecraftforge.event.entity.living.LivingHurtEvent ev =
+                    new net.minecraftforge.event.entity.living.LivingHurtEvent(
+                            target, net.minecraft.util.DamageSource.causePlayerDamage(probe), 8.0F);
+            java.lang.reflect.Field f = cpw.mods.fml.common.eventhandler.EventBus.class
+                    .getDeclaredField("busID");
+            f.setAccessible(true);
+            int bus = f.getInt(net.minecraftforge.common.MinecraftForge.EVENT_BUS);
+            float last = ev.ammount;
+            for (cpw.mods.fml.common.eventhandler.IEventListener l
+                    : ev.getListenerList().getListeners(bus)) {
                 try {
-                    primary.attackEntityAsMob(probe);
-                } catch (Throwable ignored) {}
-                result.damageTaken += Math.max(0F, before - probe.getHealth());
-                result.incomingSwings++;
-                // The probe is a measuring instrument in an offensive cell, not a
-                // subject; keep it alive so the fight runs the whole window. A
-                // wounded run puts it back to the same fraction instead of to
-                // full, because the wound is the experiment.
-                probe.setHealth(probe.getMaxHealth());
+                    l.invoke(ev);
+                } catch (Throwable t) {
+                    sb.append(" {").append(l).append(" threw ").append(t).append('}');
+                }
+                if (ev.ammount != last) {
+                    sb.append(" {").append(l).append(": ").append(CensusFile.num(last))
+                      .append(" -> ").append(CensusFile.num(ev.ammount)).append('}');
+                    last = ev.ammount;
+                }
+                if (ev.isCanceled()) {
+                    sb.append(" {cancelled by ").append(l).append('}');
+                    break;
+                }
+            }
+            sb.insert(0, "final " + CensusFile.num(ev.ammount) + ";");
+        } catch (Throwable t) {
+            sb.append("walk failed: ").append(t);
+        }
+        net.minecraft.item.ItemStack held = probe.getHeldItem();
+        QuestForgeContent.log.info("[census] hurt listeners on " + cell.targetName + " (band "
+                + result.lastBand + ", held " + (held == null ? "nothing" : held.getItem().getClass().getName())
+                + ", rand " + world.rand.getClass().getName() + "): " + sb);
+    }
+
+    /** Why a target that was taking hits has stopped: where everyone is, and its guards. */
+    private static void logDryStreak(EntityPlayer probe, EntityLivingBase target) {
+        String home = "";
+        if (target instanceof net.minecraft.entity.EntityCreature) {
+            net.minecraft.entity.EntityCreature c = (net.minecraft.entity.EntityCreature) target;
+            net.minecraft.util.ChunkCoordinates h = c.getHomePosition();
+            home = ", hasHome " + c.hasHome() + (h == null ? "" : " at " + h.posX + "," + h.posY
+                    + "," + h.posZ) + " radius " + c.func_110174_bM()
+                    + ", probe inside " + c.isWithinHomeDistance(
+                    (int) Math.floor(probe.posX), (int) Math.floor(probe.posY),
+                    (int) Math.floor(probe.posZ));
+        }
+        QuestForgeContent.log.warn("[census] " + cell.targetName + " stopped taking hits at cell tick "
+                + cellTick + ": health " + CensusFile.num(target.getHealth()) + "/"
+                + CensusFile.num(target.getMaxHealth()) + ", hurtResist " + target.hurtResistantTime
+                + ", probe at " + CensusFile.num(probe.posX) + "," + CensusFile.num(probe.posY) + ","
+                + CensusFile.num(probe.posZ) + ", target at " + CensusFile.num(target.posX) + ","
+                + CensusFile.num(target.posY) + "," + CensusFile.num(target.posZ) + ", distance "
+                + CensusFile.num(probe.getDistanceToEntity(target)) + home);
+    }
+
+    private static java.lang.reflect.Method infernalIsRare, infernalRemove;
+    private static boolean infernalLooked;
+
+    /**
+     * Turns an InfernalMobs elite back into a plain mob. True if it was one.
+     *
+     * InfernalMobs makes one spawn in fifteen an elite: it rewrites the base
+     * health (a pilot's Naga went from 1,661 to 203 mid-fight) and attaches
+     * modifiers -- Bulwark, Regen, 1UP, Vengeance -- that change how every hit
+     * lands; one zeroed a hit outright. Elites are real, but they are a lottery
+     * on top of the boss, and a cell that drew one measured the lottery rather
+     * than the enchantment. So the census always fights the plain boss.
+     */
+    private static boolean stripInfernal(EntityLivingBase mob) {
+        if (!infernalLooked) {
+            infernalLooked = true;
+            try {
+                Class<?> core = Class.forName("atomicstryker.infernalmobs.common.InfernalMobsCore");
+                infernalIsRare = core.getMethod("getIsRareEntity", EntityLivingBase.class);
+                infernalRemove = core.getMethod("removeEntFromElites", EntityLivingBase.class);
+            } catch (Throwable ignored) {}
+        }
+        if (infernalIsRare == null) return false;
+        try {
+            if (!((Boolean) infernalIsRare.invoke(null, mob)).booleanValue()) return false;
+            infernalRemove.invoke(null, mob);
+            mob.getEntityData().removeTag("InfernalMobsMod");
+            return true;
+        } catch (Throwable t) {
+            return false;
+        }
+    }
+
+    /** Pins every spawned target that has now been through the pack's scaling. */
+    private static void pinPending() {
+        for (int i = 0; i < spawned.size(); i++) {
+            EntityLivingBase mob = spawned.get(i);
+            if (mob == null || !PENDING_PIN.contains(mob)) continue;
+            if (!settled(mob) && mob.ticksExisted < SETTLE_TIMEOUT) continue;
+            if (stripInfernal(mob) && result != null) result.infernalStripped++;
+            pinToReference(mob);
+            PENDING_PIN.remove(mob);
+            if (i < lastHealth.length) lastHealth[i] = mob.getHealth();
+            if (banded() && i == 0 && result != null && result.lastBand >= 0
+                    && cell.mode != Mode.DEFENSE) {
+                setBandHealth(mob, result.lastBand);
+            }
+        }
+    }
+
+    /**
+     * Puts a target at a band's share of its health, and makes it stay there.
+     *
+     * Rahovart (Lycanites) remembers its health from the previous tick and, if it
+     * has lost more than fifty since, sets it straight back -- its defence against
+     * one-shot weapons. A census lowering it to seventy-five per cent is exactly
+     * such a drop and would be undone a tick later. So any field named
+     * healthLastTick is moved along with the health. Bosses with a different
+     * mechanism are caught by the reversion check in advanceOffense instead of
+     * being guessed at here.
+     */
+    private static void setBandHealth(EntityLivingBase target, int band) {
+        holdHealth(target, target.getMaxHealth() * BANDS[band]);
+        result.bandCheckTick = cellTick + 2;
+    }
+
+    /** Sets the target's health without it counting as damage, past healthLastTick guards. */
+    private static void holdHealth(EntityLivingBase target, float health) {
+        target.setHealth(health);
+        for (Class<?> c = target.getClass(); c != null && c != Object.class; c = c.getSuperclass()) {
+            try {
+                java.lang.reflect.Field f = c.getDeclaredField("healthLastTick");
+                f.setAccessible(true);
+                if (f.getType() == float.class) f.setFloat(target, target.getHealth());
+            } catch (NoSuchFieldException ignored) {
+            } catch (Throwable ignored) {
+                break;
+            }
+        }
+        lastHealth[0] = target.getHealth();
+    }
+
+    /**
+     * The target's real melee hit, taken without the probe dying of it.
+     *
+     * The hit is real -- attackEntityAsMob, the mob's own pinned attack, its
+     * knockback, the debuffs it applies on hit -- so the wielder is "hurt
+     * recently" exactly when a boss would have hurt them and is Weakened when a
+     * boss would have Weakened them. What is not real is death: this pack's
+     * bosses hit for twenty-five and up, and a twenty-health player dies to the
+     * first swing. So the probe's health is lifted for the instant of the hit and
+     * put back afterwards. The offensive cell measures what the wielder deals,
+     * at a controlled health; how long they survive is the defensive cell's job.
+     *
+     * Damage-over-time debuffs are stripped afterwards for the same reason: a
+     * Wither applied to a twenty-health probe ends the cell, where a real player
+     * drinks milk or heals.
+     */
+    private static void absorbHit(EntityPlayer probe, EntityLivingBase attacker) {
+        IAttributeInstance max = probe.getEntityAttribute(SharedMonsterAttributes.maxHealth);
+        float held = probe.getHealth();
+        double heldMax = max == null ? DEFENSIVE_HEALTH : max.getBaseValue();
+        try {
+            if (max != null) max.setBaseValue(PROBE_HEALTH);
+            probe.setHealth(PROBE_HEALTH);
+            float before = probe.getHealth();
+            try {
+                attacker.attackEntityAsMob(probe);
+            } catch (Throwable ignored) {}
+            result.damageTaken += Math.max(0F, before - probe.getHealth());
+            result.incomingSwings++;
+        } finally {
+            if (max != null) max.setBaseValue(heldMax);
+            probe.setHealth(held);
+            probe.setPosition(px + 1.5D, py, pz);
+            probe.motionX = probe.motionY = probe.motionZ = 0;
+            int[] damaging = { net.minecraft.potion.Potion.poison.id,
+                    net.minecraft.potion.Potion.wither.id, net.minecraft.potion.Potion.harm.id };
+            for (int id : damaging) {
+                if (probe.isPotionActive(id)) probe.removePotionEffect(id);
             }
         }
     }
@@ -1076,15 +1733,32 @@ public class CombatCensus {
         // Spawning it fires EntityJoinWorldEvent, which is where the bridge tags
         // the arrow with the bow that fired it -- so the bow's enchantments are
         // found later, on hit, exactly as they are in play.
-        EntityArrow arrow = new EntityArrow(world, probe, target, 2.0F, 0.0F);
+        EntityArrow arrow = new EntityArrow(world, probe, target, BOW_VELOCITY, 0.0F);
+        // But not its heading. That constructor lofts the shot by a fifth of the
+        // horizontal distance, which is right for a skeleton's 1.6 and sends a
+        // 3.0 arrow over the target: a pilot's bow control landed 22 damage in
+        // forty seconds. A full-draw arrow drops a few centimetres over a fight's
+        // range, so it is aimed at the body's centre, led by the target's motion
+        // over the flight time -- what a player aiming at a boss does.
+        double dx = target.posX - arrow.posX;
+        double dz = target.posZ - arrow.posZ;
+        double dy = target.boundingBox.minY + target.height * 0.5D - arrow.posY;
+        double flight = Math.sqrt(dx * dx + dy * dy + dz * dz) / BOW_VELOCITY;
+        dx += target.motionX * flight;
+        dz += target.motionZ * flight;
+        dy += 0.025D * flight * flight;   // half of gravity's 0.05 per tick squared
+        arrow.setThrowableHeading(dx, dy, dz, BOW_VELOCITY, 0.0F);
         arrow.setDamage(2.0D);
+        // ItemBow.onPlayerStoppedUsing sets this for a full draw, and it is a
+        // large share of a bow's real damage.
+        arrow.setIsCritical(true);
         world.spawnEntityInWorld(arrow);
     }
 
     // ---- Defensive cells --------------------------------------------------
 
     private static void advanceDefense(EntityPlayer probe) {
-        if (cellTick % SWING_INTERVAL != 0) return;
+        if (cellTick % MOB_INTERVAL != 0) return;
 
         EntityLivingBase attacker = primary();
         if (attacker == null) return;
@@ -1092,7 +1766,24 @@ public class CombatCensus {
         faceToward(probe, attacker);
 
         float before = probe.getHealth();
-        probe.hurtResistantTime = 0;   // measure every swing, not one in two
+        // The probe's invulnerability frames are respected, not zeroed. At the
+        // mob's own twenty-tick cadence they have just expired when each hit
+        // arrives, which is what happens to a player standing in melee.
+        if (options.incoming <= 0F) {
+            // The target's own melee -- pinned to the species median -- with its
+            // knockback and on-hit effects. This is what the boss does to a
+            // player, rather than a number chosen to make the arithmetic clean.
+            try {
+                attacker.attackEntityAsMob(probe);
+            } catch (Throwable t) {
+                result.note = "attacker threw: " + describe(t);
+                return;
+            }
+            probe.setPosition(px + 1.5D, py, pz);
+            probe.motionX = probe.motionY = probe.motionZ = 0;
+            recordDefensiveHit(probe, before);
+            return;
+        }
         try {
             // A fixed amount, not attacker.attackEntityAsMob.
             //
@@ -1119,6 +1810,10 @@ public class CombatCensus {
             return;
         }
 
+        recordDefensiveHit(probe, before);
+    }
+
+    private static void recordDefensiveHit(EntityPlayer probe, float before) {
         float taken = Math.max(0F, before - probe.getHealth());
         result.damageTaken += taken;
         result.incomingSwings++;
@@ -1178,8 +1873,8 @@ public class CombatCensus {
 
     private static boolean spawnSwarm() {
         despawnAll();
-        lastHealth = new double[SWARM];
-        for (int i = 0; i < SWARM; i++) {
+        lastHealth = new double[options.swarm];
+        for (int i = 0; i < options.swarm; i++) {
             EntityLivingBase mob = spawnOne(i);
             spawned.add(mob);
             lastHealth[i] = mob == null ? 0.0D : mob.getHealth();
@@ -1204,9 +1899,10 @@ public class CombatCensus {
             // Spawning is what fires EntityJoinWorldEvent, where this pack rewrites
             // mob stats. A mob measured before that has the wrong health.
             world.spawnEntityInWorld(mob);
-            // After spawning, because EntityJoinWorldEvent is where the pack
-            // applies its own scaling; pinning before it would be overwritten.
-            pinToReference(mob);
+            // Pinned once it has settled, in pinPending -- not here. The pack
+            // scales a mob on its first update, so pinning at spawn removed
+            // modifiers that did not exist yet and was then scaled over.
+            PENDING_PIN.add(mob);
             return mob;
         } catch (Throwable t) {
             failures.row(cell.loadout.describe(), cell.targetName, "spawn", describe(t));
@@ -1318,6 +2014,7 @@ public class CombatCensus {
 
     private static void despawnAll() {
         clearArrows();
+        PENDING_PIN.clear();
         for (EntityLivingBase mob : spawned) {
             if (mob == null) continue;
             try {
@@ -1334,6 +2031,25 @@ public class CombatCensus {
         if (cell != null && result != null) {
             try {
                 collectProcs();
+                // The pin is an assumption until checked: if anything re-scaled
+                // the target during the cell, this row is not about the opponent
+                // the header says it is.
+                EntityLivingBase t = primary();
+                double[] ref = REFERENCE.get(cell.targetName);
+                if (t != null && ref != null && !Double.isNaN(ref[0]) && ref[0] > 0
+                        && Math.abs(t.getMaxHealth() - ref[0]) > 0.02D * ref[0]) {
+                    result.note += " [target max health " + CensusFile.num(t.getMaxHealth())
+                            + " at cell end, reference " + CensusFile.num(ref[0])
+                            + ": pin did not hold]";
+                }
+                if (result.infernalStripped > 0) {
+                    result.note += " [target made an InfernalMobs elite " + result.infernalStripped
+                            + " time(s); stripped back to plain]";
+                }
+                if (result.repins > 0) {
+                    result.note += " [target re-scaled by the pack " + result.repins
+                            + " time(s) and re-pinned]";
+                }
                 // MELEE only. A bow cell legitimately reports no landed hits --
                 // an arrow damages on impact, not when it is loosed -- and a
                 // defensive cell never swings at all, so neither is degenerate.
@@ -1417,11 +2133,19 @@ public class CombatCensus {
 
     private static void writeRow() {
         int window = windowFor(cell);
-        Result control = CONTROLS.get(controlKey(cell));
-
+        // The control is the mean of every control repeat for this mode and
+        // target, so one lucky or unlucky control cannot shift a whole run.
+        List<Result> controlRuns = CONTROL_RUNS.get(controlKey(cell));
         if (cell.loadout.isControl()) {
-            CONTROLS.put(controlKey(cell), result);
+            if (controlRuns == null) {
+                controlRuns = new ArrayList<Result>();
+                CONTROL_RUNS.put(controlKey(cell), controlRuns);
+            }
+            controlRuns.add(result);
         }
+        Result control = (controlRuns == null || cell.loadout.isControl())
+                ? null : averaged(controlRuns);
+        if (cell.loadout.isControl()) CONTROLS.put(controlKey(cell), result);
 
         QFEnchantment single = cell.loadout.enchants.size() == 1
                 ? cell.loadout.enchants.get(0) : null;
@@ -1455,15 +2179,32 @@ public class CombatCensus {
 
         double observed = result.procRolls == 0
                 ? Double.NaN : (100.0D * result.procFires) / result.procRolls;
-        double expected = single == null
-                ? Double.NaN : single.getProcChance(single.getMaxLevel());
+        int level = single == null ? 0 : cell.loadout.levels.get(0).intValue();
+        double expected = single == null ? Double.NaN : single.getProcChance(level);
+
+        double refHealth = referenceHealth();
+        double ttk = banded() && cell.mode != Mode.DEFENSE ? result.ttkSeconds(refHealth) : Double.NaN;
+        double marginalTtkEst = Double.NaN;
+        if (control != null && banded() && cell.mode != Mode.DEFENSE) {
+            double baseTtk = control.ttkSeconds(refHealth);
+            if (!Double.isInfinite(baseTtk) && !Double.isInfinite(ttk) && baseTtk > 0) {
+                marginalTtkEst = 100.0D * (baseTtk - ttk) / baseTtk;
+            }
+        }
+        StringBuilder bandsOut = new StringBuilder();
+        if (banded() && cell.mode != Mode.DEFENSE) {
+            for (int b = 0; b < BANDS.length; b++) {
+                if (b > 0) bandsOut.append(' ');
+                bandsOut.append(CensusFile.num(result.bandDps(b)));
+            }
+        }
 
         out.row(
                 cell.loadout.describe(),
                 cell.loadout.isControl() ? "control" : (cell.stacked ? "stacked" : "isolated"),
                 cell.mode,
                 single == null ? "" : single.rarity,
-                single == null ? "" : String.valueOf(single.getMaxLevel()),
+                single == null ? "" : String.valueOf(level),
                 single == null ? "" : String.valueOf(single.category),
                 cell.targetName,
                 result.swings,
@@ -1492,7 +2233,39 @@ public class CombatCensus {
                           + " swings landed; target invulnerability timer ended at "
                           + result.lastResistTime + ", target ticksExisted "
                           + result.targetTicks + ", in world " + result.targetInWorld + "]"
-                        : ""));
+                        : ""),
+                CensusFile.num(options.hpFraction),
+                bandsOut.toString() + (result.bandsReverted > 0
+                        ? " [" + result.bandsReverted + " band(s) reverted by the target]" : ""),
+                CensusFile.num(ttk),
+                CensusFile.num(marginalTtkEst),
+                CensusFile.num(refHealth));
+    }
+
+    /** Every control repeat, keyed like CONTROLS. */
+    private static final java.util.Map<String, List<Result>> CONTROL_RUNS =
+            new java.util.HashMap<String, List<Result>>();
+
+    /** The mean of several control repeats, field by field. */
+    private static Result averaged(List<Result> runs) {
+        Result m = new Result();
+        int n = runs.size();
+        for (Result r : runs) {
+            m.damageDealt += r.damageDealt / n;
+            m.damageTaken += r.damageTaken / n;
+            m.incomingSwings += r.incomingSwings;
+            m.hitsSurvived += r.hitsSurvived;
+            m.killTicks.addAll(r.killTicks);
+            for (int b = 0; b < BANDS.length; b++) m.bandDamage[b] += r.bandDamage[b] / n;
+        }
+        m.incomingSwings = Math.round((float) m.incomingSwings / n);
+        m.hitsSurvived = Math.round((float) m.hitsSurvived / n);
+        return m;
+    }
+
+    private static double referenceHealth() {
+        double[] ref = REFERENCE.get(cell.targetName);
+        return ref == null ? Double.NaN : ref[0];
     }
 
     private static String controlKey(Cell c) {
