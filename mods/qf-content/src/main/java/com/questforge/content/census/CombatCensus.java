@@ -1168,9 +1168,16 @@ public class CombatCensus {
      * initialise there. Called after the position is set and before
      * spawnEntityInWorld, as ItemMonsterPlacer does. Anything it spawns is
      * tracked as a companion and removed with the target.
+     *
+     * TragicMC's bosses only. Their in-game routes (summon items, natural
+     * spawns) all call it, but not every boss's do, and some mods use the
+     * call to refuse an egg: HEE's EnderDemon setDead()s itself in it, since
+     * it is only meant to arrive by ritual, so calling it on every target made
+     * the EnderDemon vanish at spawn and its job measure nothing.
      */
     private static void initialiseAsSpawned(EntityLivingBase mob) {
         if (!(mob instanceof net.minecraft.entity.EntityLiving)) return;
+        if (!mob.getClass().getName().startsWith("tragicneko.")) return;
         try {
             ((net.minecraft.entity.EntityLiving) mob).onSpawnWithEgg(null);
         } catch (Throwable t) {
