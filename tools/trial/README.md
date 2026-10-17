@@ -10,6 +10,7 @@ py -3.10 tools/trial/trial.py resolve qfcontent gravestones      # show the jar 
 py -3.10 tools/trial/trial.py build grave gravestones qfcontent --bundle inspect --world "Here We Go"
 py -3.10 tools/trial/trial.py launch grave --wait                 # refuses if any client is up
 py -3.10 tools/trial/trial.py status                              # who is running what
+py -3.10 tools/trial/trial.py stop grave                        # kills only this trial's own JVM
 py -3.10 tools/trial/trial.py remove grave
 ```
 
