@@ -179,6 +179,11 @@ def main():
     with open(os.path.join(a.out, 'recipes.json'), 'w', encoding='utf-8') as f:
         json.dump(rec, f, ensure_ascii=False, separators=(',', ':'))
 
+    # Hand-written descriptions ride along as they are; the page reads them by item key or id.
+    lore = load(os.path.join(HERE, 'descriptions.json')) if os.path.exists(os.path.join(HERE, 'descriptions.json')) else {}
+    lore = {k: v for k, v in lore.items() if not k.startswith('_')}
+    with open(os.path.join(a.out, 'descriptions.json'), 'w', encoding='utf-8') as f:
+        json.dump(lore, f, ensure_ascii=False, indent=0)
     used = sum(1 for i in range(len(rows)) if i in qrefs)
     # A few numbers for the homepage's card, so it need not fetch the whole index.
     with open(os.path.join(a.out, 'stats.json'), 'w', encoding='utf-8') as f:

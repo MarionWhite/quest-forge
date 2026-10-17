@@ -162,6 +162,10 @@ main{flex:1;min-height:0;display:grid;grid-template-columns:250px minmax(0,1fr) 
   border:1px solid var(--rule);border-radius:2px;padding:1px 6px}
 .copy:hover{border-color:var(--ember);color:var(--ember-ink)}
 .copy.ok{color:var(--patina);border-color:var(--patina)}
+.d-desc{padding:16px 22px 2px;font-size:15px;line-height:1.6;color:var(--ink-2)}
+.d-desc p{margin:0 0 8px}
+.d-desc .lore{color:var(--ink);font-size:15.5px}
+.d-desc b{color:var(--ink);font-weight:600}
 .d-sec{padding:16px 22px 4px}
 .d-sec h3{font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.15em;text-transform:uppercase;
   color:var(--muted);font-weight:500;margin:0 0 8px;display:flex;gap:8px;align-items:baseline}
@@ -311,6 +315,7 @@ const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls)
 const fmt = n => n.toLocaleString("en-US");
 
 let D = null, R = null;            // items.json, recipes.json
+let LORE = {};                     // descriptions.json: hand-written text, by "id@meta" or "id"
 let items = [], mods = [];
 let byKey = new Map(), byId = new Map(), byBase = new Map();
 let rec = null;                    // recipe indexes, built once recipes.json arrives
@@ -409,6 +414,11 @@ function applyFilter() {
   renderMore();
   renderModHead();
   writeHash();
+  fillGrid();
+}
+function fillGrid() {
+  const c = $("#center");
+  while (shown < filtered.length && c.scrollTop + c.clientHeight > c.scrollHeight - 900) renderMore();
 }
 function renderMore() {
   const grid = $("#grid");
@@ -559,6 +569,96 @@ function recipeCard(r) {
   return c;
 }
 
+// ------------------------------------------------------------------ description
+// One paragraph per item, built only from facts the dump measured: what it is, where it
+// ranks for power, what it's made from and goes into, and which quests use it. Hand-written
+// text from descriptions.json, when there is some, goes above it.
+const ranks = {weapon: [], armor: {}};
+function buildRanks() {
+  items.forEach((it, i) => {
+    if (it.u) return;
+    if (it.a != null && (D.kinds[it.c] === "weapon")) ranks.weapon.push(i);
+    if (it.ar != null) (ranks.armor[it.sl] = ranks.armor[it.sl] || []).push(i);
+  });
+}
+const SLOT = {head: ["a helmet", "helmets"], chest: ["a chestplate", "chestplates"], legs: ["leggings", "leggings"], feet: ["boots", "boots"]};
+function whatItIs(it) {
+  const n = (it.n || "").toLowerCase(), o = it.o || [], k = it.k.toLowerCase();
+  const has = p => o.some(x => x.startsWith(p));
+  if (/spawn ?egg|^spawn /.test(n) || /spawn_?egg|monsterplacer/.test(k)) return "a spawn egg";
+  if (has("ore")) return "an ore";
+  if (has("ingot")) return "an ingot";
+  if (has("gem")) return "a gem";
+  if (has("dust")) return "a dust";
+  if (has("nugget")) return "a nugget";
+  if (has("plank")) return "wooden planks";
+  if (has("log")) return "a log";
+  if (has("record") || /^music disc|^record/.test(n)) return "a music disc";
+  if (has("block") && D.kinds[it.c] === "block") return "a storage block";
+  switch (D.kinds[it.c]) {
+    case "block": return "a block";
+    case "weapon": return "a melee weapon";
+    case "bow": return "a ranged weapon";
+    case "armor": return (SLOT[it.sl] || ["armour"])[0];
+    case "food": return "food";
+    case "tool":
+      if (/pickaxe|pick/.test(n)) return "a pickaxe";
+      if (/shovel|spade/.test(n)) return "a shovel";
+      if (/hoe/.test(n)) return "a hoe";
+      if (/axe|hatchet/.test(n)) return "an axe";
+      return "a tool";
+  }
+  return "an item";
+}
+const list = xs => xs.length < 2 ? xs.join("") : xs.slice(0, -1).join(", ") + " and " + xs[xs.length - 1];
+const nameOf = i => items[i].n || items[i].k;
+function standing(i, pool, value, unit, plural) {
+  // Where this item sits among its mod's and the whole pack's items of the same kind.
+  const v = value(items[i]), mine = pool.filter(j => items[j].m === items[i].m);
+  const above = mine.filter(j => value(items[j]) > v).length;
+  const lower = pool.filter(j => value(items[j]) < v).length;
+  const mod = mods[items[i].m].name;
+  let s = mine.length > 1 ? (above === 0 ? `the strongest of ${mod}'s ${mine.length} ${plural}` : `#${above + 1} of ${mod}'s ${mine.length} ${plural}`) : `${mod}'s only one of its kind`;
+  if (pool.length > 5) s += `, and ahead of ${Math.round(100 * lower / (pool.length - 1))}% of the pack's ${fmt(pool.length)}`;
+  return s;
+}
+function describe(idx) {
+  const it = items[idx], m = mods[it.m], box = el("div", "d-desc");
+  const base0 = base(it.k), lore = LORE[base0] || LORE[base0.slice(0, base0.lastIndexOf("@"))];
+  if (lore) box.appendChild(el("p", "lore", lore));
+  const parts = [];
+  const what = whatItIs(it);
+  parts.push(`${what[0].toUpperCase() + what.slice(1)} from ${m.name}.`);
+  if (it.a != null && D.kinds[it.c] === "weapon" && !it.u)
+    parts.push(`+${+it.a.toFixed(2)} attack damage: ${standing(idx, ranks.weapon, x => x.a, "", "weapons")}.`);
+  if (it.ar != null && !it.u)
+    parts.push(`${it.ar} armour points: ${standing(idx, ranks.armor[it.sl] || [], x => x.ar, "", (SLOT[it.sl] || ["", "pieces"])[1])}.`);
+  if (it.f != null) parts.push(`Restores ${it.f} hunger.`);
+  if (it.d && D.kinds[it.c] !== "weapon" && it.ar == null) parts.push(`Lasts ${fmt(it.d)} uses.`);
+  if (rec) {
+    const made = recipesFor(idx).map(r => rec.all[r]);
+    const real = made.find(r => r.type !== "special");
+    if (real) {
+      const ins = [...new Set((real.in || []).map(x => resolve(x)[0]).filter(x => x != null && x !== idx).map(nameOf))].slice(0, 4);
+      if (ins.length) parts.push(`${real.type === "smelting" ? "Smelted" : "Crafted"} from ${list(ins)}${made.length > 1 ? ` (${made.length} recipes in all)` : ""}.`);
+    } else if (made.length) parts.push("Made by a special crafting recipe.");
+    else parts.push("No crafting table or furnace makes it: it's found, dropped, or made some other way.");
+    const used = usesOf(idx);
+    if (used.length) {
+      const outs = [...new Set(used.map(r => resolve(rec.all[r].out)[0]).filter(x => x != null && x !== idx).map(nameOf))];
+      parts.push(`Goes into ${used.length} recipe${used.length > 1 ? "s" : ""}${outs.length ? `, including ${list(outs.slice(0, 3))}` : ""}.`);
+    }
+  }
+  const refs = D.qrefs[idx] || [], q = role => [...new Set(refs.filter(r => r[1] === role).map(r => r[0]))];
+  const tag = qid => { const x = D.quests[qid] || ["?", ""]; return `#${qid} ${x[0]}${x[1] ? ` (${x[1]})` : ""}`; };
+  const asks = q("task"), gives = q("reward");
+  if (asks.length) parts.push(asks.length === 1 ? `Quest ${tag(asks[0])} asks for it.` : `${asks.length} quests ask for it, starting with ${tag(asks[0])}.`);
+  if (gives.length) parts.push(gives.length === 1 ? `Quest ${tag(gives[0])} gives it as a reward.` : `${gives.length} quests give it as a reward.`);
+  if (!asks.length && !gives.length) parts.push(refs.length ? "A quest shows it as its icon, but none asks for it or gives it." : "No quest uses it yet.");
+  box.appendChild(el("p", null, parts.join(" ")));
+  return box;
+}
+
 // ------------------------------------------------------------------ detail
 function copyBtn(label, text) {
   const b = el("button", "copy", label); b.type = "button";
@@ -592,6 +692,7 @@ function renderDetail() {
     copyBtn("BQ stack", JSON.stringify({"id:8": id, "Count:3": 1, "Damage:2": meta, "OreDict:8": ""})));
   head.appendChild(key);
   body.appendChild(head);
+  body.appendChild(describe(idx));
 
   const facts = sec("About"); const dl = el("dl", "facts");
   const fact = (k, v) => { if (v == null || v === "") return; dl.append(el("dt", null, k), el("dd", null, v)); };
@@ -757,8 +858,11 @@ function wire() {
     if (typing || e.ctrlKey || e.metaKey || e.altKey) return;
     if ((e.key === "r" || e.key === "u") && hovered >= 0) { openItem(hovered, e.key === "r" ? "recipes" : "uses"); }
   });
-  new IntersectionObserver(es => { if (es[0].isIntersecting && shown < filtered.length) renderMore(); },
-    {root: $("#center"), rootMargin: "600px"}).observe($("#more"));
+  // Render the next page whenever the grid gets near its end. (An IntersectionObserver on a
+  // sentinel stopped after the first page: it only fires on a change, and the sentinel never
+  // left the margin.)
+  $("#center").addEventListener("scroll", fillGrid, {passive: true});
+  addEventListener("resize", fillGrid);
 }
 
 async function boot() {
@@ -777,6 +881,8 @@ async function boot() {
     const b = base(it.k); if (!byBase.has(b)) byBase.set(b, i);
     const id = b.slice(0, b.lastIndexOf("@")); if (!byId.has(id)) byId.set(id, []); byId.get(id).push(i);
   });
+  buildRanks();
+  fetch("data/descriptions.json").then(r => r.ok ? r.json() : {}).then(j => { LORE = j || {}; if (state.item >= 0) renderDetail(); }).catch(() => {});
   const inQuest = Object.keys(D.qrefs).length;
   $("#specs").innerHTML = `<span><b>${fmt(items.length)}</b> items</span><span><b>${fmt(mods.length)}</b> mods with items</span>`
     + `<span><b>${fmt(inQuest)}</b> in a quest</span><span id="recspec"></span><span>built <b>${D.built}</b></span>`;

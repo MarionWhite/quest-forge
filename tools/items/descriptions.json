@@ -1,0 +1,3 @@
+{
+  "_doc": "Hand-written descriptions for the item index, keyed by 'modid:name' (every meta) or 'modid:name@meta' (one variant). Each shows above the generated paragraph. Keep to a sentence or two on what the item is for and where it sits in the pack. Rebuild with tools/items/build_site.py."
+}
