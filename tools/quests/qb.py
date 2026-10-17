@@ -18,8 +18,9 @@ copy with raw UTF-8; save() keeps whichever style the file already had, and
 load() refuses to work on a file it cannot write back byte for byte.
 
 Usage (py -3.10 -I tools/quests/qb.py ...):
-    check [--book pack|server|all]      lint + ids + cheese + stack + text (exit 1 on error)
-    lint | ids | cheese | stack | text  one check at a time
+    check [--book pack|server|all]      lint + ids + cheese + stack + text + hunt + path (exit 1 on error)
+    lint | ids | cheese | stack | text | hunt   one check at a time
+    path [--book ...]                   the chapter order: what opens each numbered chapter
     tally [--book ...]                  reward totals per quest line, ungated totals
     dump [--book ...] [--out FILE]      human-readable dump of the whole book
     show QID [QID ...]                  one quest, raw JSON
@@ -106,7 +107,21 @@ def unstackable(item_id):
 BOSS_QUESTS = {
     15: 'Naga', 16: 'Lich', 17: 'Hydra', 93: 'Minoshroom', 94: 'Knight Phantom', 18: 'Ur-Ghast',
     95: 'Alpha Yeti', 19: 'Snow Queen', 22: 'Mobzilla', 23: 'The King', 24: 'The Queen',
-    406: 'Rahovart',
+    406: 'Rahovart', 121: 'HEE Dragon', 450: 'The Overlord',
+}
+# Items only a boss drops. A quest that asks for one is gated even with no prerequisites
+# (the Secrets: "carry every OreSpawn sword" needs the Royal). Since WP-4 most boss quests
+# prove the kill with a hunt task, so their tasks no longer list these items.
+BOSS_DROPS = {
+    ('TwilightForest:item.nagaScale', 0), ('TwilightForest:item.scepterZombie', 0),
+    ('TwilightForest:item.scepterTwilight', 0), ('TwilightForest:item.scepterLifeDrain', 0),
+    ('TwilightForest:item.meefStroganoff', 0), ('TwilightForest:item.fieryBlood', 0),
+    ('TwilightForest:item.fieryTears', 0), ('TwilightForest:item.alphaFur', 0),
+    ('TwilightForest:item.phantomHelm', 0), ('TwilightForest:item.phantomPlate', 0),
+    ('TwilightForest:item.trophy', 4),
+    ('OreSpawn:OreSpawn_BlockMobzillaScaleBlock', 0), ('OreSpawn:OreSpawn_Royal', 0),
+    ('OreSpawn:OreSpawn_QueenScale', 0), ('demonmobs:demoncrystal', 0),
+    ('HardcoreEnderExpansion:essence', 0), ('minecraft:dragon_egg', 0),
 }
 
 # Text checks: (regex on colour-stripped text, why). Errors.
@@ -211,6 +226,56 @@ def set_stacks(container, key, stacks):
     container[key] = {'%d:10' % i: s for i, s in enumerate(stacks)}
 
 
+# -- task and reward builders ---------------------------------------------------
+# Keys and defaults read from Standard Expansion 3.0.181 (TaskHunt / TaskLocation
+# writeToNBT and constructors). index:3 is set by set_tasks().
+
+def retrieval(*stacks, ignore_nbt=0):
+    t = {'partialMatch:1': 1, 'autoConsume:1': 0, 'groupDetect:1': 0, 'ignoreNBT:1': ignore_nbt,
+         'index:3': 0, 'consume:1': 0, 'requiredItems:9': {}, 'taskID:8': 'bq_standard:retrieval'}
+    set_stacks(t, 'requiredItems:9', list(stacks))
+    return t
+
+
+def hunt(target, required=1):
+    """Kill `required` of the entity whose EntityList name is `target`. BQ looks the name
+    up in EntityList.stringToClassMapping and, with subtypes on (its default), credits a
+    kill of that class or a subclass. A kill counts for every member of the killer's
+    party. Nothing checks the name at load time, so `qb.py hunt` checks it against
+    entities.json."""
+    return {'index:3': 0, 'target:8': target, 'required:3': required, 'subtypes:1': 1,
+            'ignoreNBT:1': 1, 'targetNBT:10': {}, 'damageType:8': '', 'taskID:8': 'bq_standard:hunt'}
+
+
+def location(name, dim):
+    """Be anywhere in dimension `dim` (range -1 = no distance check, biome -1 = any)."""
+    return {'index:3': 0, 'name:8': name, 'posX:3': 0, 'posY:3': 0, 'posZ:3': 0, 'dimension:3': dim,
+            'biome:3': -1, 'structure:8': '', 'range:3': -1, 'visible:1': 0, 'hideInfo:1': 0,
+            'invert:1': 0, 'taxiCabDist:1': 0, 'taskID:8': 'bq_standard:location'}
+
+
+def item_reward(*stacks):
+    r = {'rewardID:8': 'bq_standard:item', 'index:3': 0, 'rewards:9': {}}
+    set_stacks(r, 'rewards:9', list(stacks))
+    return r
+
+
+def choice_reward(*stacks):
+    r = {'rewardID:8': 'bq_standard:choice', 'index:3': 0, 'choices:9': {}}
+    set_stacks(r, 'choices:9', list(stacks))
+    return r
+
+
+def task_key(t):
+    """A comparable summary of a task, for 'is this edit already in?' checks."""
+    tid = t['taskID:8']
+    if tid == 'bq_standard:hunt':
+        return (tid, t['target:8'], t['required:3'])
+    if tid == 'bq_standard:location':
+        return (tid, t['dimension:3'], t.get('biome:3', -1), t.get('structure:8', ''))
+    return (tid,) + tuple((s['id:8'], s.get('Damage:2', 0), s.get('Count:3', 1)) for s in stacks_of(t))
+
+
 def tasks(q):
     return list(q.get('tasks:9', {}).values())
 
@@ -299,13 +364,13 @@ def edit_text(log, holder, field, old, new, where):
     """Replace one exact substring of a name/desc. `holder` is a quest or a line."""
     p = holder['properties:10']['betterquesting:10']
     s = p[field]
-    if old in s:
+    if new in s:  # first: `new` may contain `old` (an edit that appends to a sentence)
+        log('%s %s: already edited' % (where, field))
+    elif old in s:
         if s.count(old) != 1:
             raise SystemExit('%s %s: %r occurs %d times' % (where, field, old, s.count(old)))
         p[field] = s.replace(old, new)
         log('%s %s: %r -> %r' % (where, field, strip(old)[:60], strip(new)[:60]))
-    elif new in s:
-        log('%s %s: already edited' % (where, field))
     else:
         raise SystemExit('%s %s: expected text not found: %r' % (where, field, old))
 
@@ -321,6 +386,106 @@ def rewrite_text(log, holder, field, must_contain, new, where):
         log('%s %s: rewritten (%r...)' % (where, field, strip(new)[:50]))
     else:
         raise SystemExit('%s %s: expected text not found: %r' % (where, field, must_contain))
+
+
+def set_prereqs(log, q, old, new):
+    """Replace a quest's prerequisites, but only from the list we expect (`old`)."""
+    qid, cur = q['questID:3'], q['preRequisites:11']
+    if sorted(cur) == sorted(new):
+        log('q%d prereqs: already %s' % (qid, sorted(new)))
+    elif sorted(cur) == sorted(old):
+        q['preRequisites:11'] = list(new)
+        log('q%d prereqs: %s -> %s' % (qid, sorted(old), list(new)))
+    else:
+        raise SystemExit('q%d prereqs: expected %s, found %s' % (qid, sorted(old), cur))
+
+
+def set_visibility(log, holder, vis, where):
+    """`holder` is a quest or a quest line."""
+    p = holder['properties:10']['betterquesting:10']
+    if p.get('visibility:8') != vis:
+        log('%s visibility: %s -> %s' % (where, p.get('visibility:8'), vis))
+        p['visibility:8'] = vis
+
+
+def set_tasks(log, q, old_keys, new_tasks, logic='AND'):
+    """Replace all tasks of a quest. `old_keys` is the task_key() list we expect to find;
+    anything else (a hand edit since) stops the patch."""
+    qid = q['questID:3']
+    cur = [task_key(t) for t in tasks(q)]
+    want = [task_key(t) for t in new_tasks]
+    sep = ' %s ' % logic
+    if cur == want and props(q)['taskLogic:8'] == logic:
+        log('q%d tasks: already %s' % (qid, sep.join(describe_task(k) for k in want)))
+        return
+    if cur != [tuple(k) for k in old_keys]:
+        raise SystemExit('q%d tasks: expected %s, found %s' % (qid, old_keys, cur))
+    for i, t in enumerate(new_tasks):
+        t['index:3'] = i
+    q['tasks:9'] = {'%d:10' % i: t for i, t in enumerate(new_tasks)}
+    old_logic = props(q)['taskLogic:8']
+    props(q)['taskLogic:8'] = logic
+    log('q%d tasks: %s -> %s' % (qid, (' %s ' % old_logic).join(describe_task(k) for k in cur),
+                                 sep.join(describe_task(k) for k in want)))
+
+
+def describe_task(k):
+    if k[0] == 'bq_standard:hunt':
+        return 'kill %s x%d' % (k[1], k[2])
+    if k[0] == 'bq_standard:location':
+        return 'be in dim %d' % k[1]
+    if k[0] == 'bq_standard:retrieval':
+        return 'have ' + ', '.join('%s@%d x%d' % s for s in k[1:])
+    return k[0]
+
+
+def add_quest(log, book, qid, line_id, x, y, name_, desc, icon, task_list, reward_list, pre,
+              main=0, vis='ALWAYS', logic='AND', template=0):
+    """Add a new quest (or report that it is there). Copies every property BQ writes from
+    an existing quest, so new quests carry the same keys in the same order."""
+    if book.has(qid):
+        q = book.quest(qid)
+        if strip(props(q)['name:8']) != strip(name_):
+            raise SystemExit('q%d exists as %r, not %r' % (qid, name(q), strip(name_)))
+        log('q%d %s: already added' % (qid, strip(name_)))
+        return q
+    import copy
+    q = copy.deepcopy(book.quest(template))
+    b = props(q)
+    b.update({'name:8': name_, 'desc:8': desc, 'icon:10': icon, 'isMain:1': main, 'visibility:8': vis,
+              'taskLogic:8': logic, 'questLogic:8': 'AND'})
+    q['questID:3'] = qid
+    q['preRequisites:11'] = list(pre)
+    for i, t in enumerate(task_list):
+        t['index:3'] = i
+    q['tasks:9'] = {'%d:10' % i: t for i, t in enumerate(task_list)}
+    for i, rw in enumerate(reward_list):
+        rw['index:3'] = i
+    q['rewards:9'] = {'%d:10' % i: rw for i, rw in enumerate(reward_list)}
+    book.qdb['%d:10' % qid] = q
+    entries = book.line(line_id)['quests:9']
+    entries['%d:10' % len(entries)] = {'sizeX:3': 24, 'x:3': x, 'y:3': y, 'id:3': qid, 'sizeY:3': 24}
+    log('q%d %s: added to line %d at (%d,%d), prereqs %s' % (qid, strip(name_), line_id, x, y, list(pre)))
+    return q
+
+
+def move_in_line(log, book, line_id, qid, x, y):
+    for e in book.line(line_id)['quests:9'].values():
+        if e['id:3'] == qid:
+            if (e['x:3'], e['y:3']) != (x, y):
+                log('q%d position: (%d,%d) -> (%d,%d)' % (qid, e['x:3'], e['y:3'], x, y))
+                e['x:3'], e['y:3'] = x, y
+            return
+    raise SystemExit('q%d is not in line %d' % (qid, line_id))
+
+
+def set_pack_version(log, book, version):
+    s = book.settings
+    if s['pack_version:3'] >= version:
+        log('pack_version: already %d' % s['pack_version:3'])
+    else:
+        log('pack_version: %d -> %d' % (s['pack_version:3'], version))
+        s['pack_version:3'] = version
 
 
 def load(which):
@@ -401,6 +566,10 @@ def check_lint(book):
                 r.warn('quest %d: task index %s at position %d' % (qid, t.get('index:3'), i))
             if t['taskID:8'] == 'bq_standard:retrieval' and not list(stacks_of(t)):
                 r.err('quest %d: retrieval task with no items' % qid)
+            if t['taskID:8'] == 'bq_standard:hunt' and (not t.get('target:8') or t.get('required:3', 0) < 1):
+                r.err('quest %d: hunt task without a target or with required < 1' % qid)
+            if t['taskID:8'] == 'bq_standard:location' and 'dimension:3' not in t:
+                r.err('quest %d: location task without a dimension' % qid)
         for i, rw in enumerate(rewards(q)):
             if not list(stacks_of(rw)):
                 r.err('quest %d: reward %d has no items' % (qid, i))
@@ -626,8 +795,157 @@ def check_text(book):
     return r
 
 
+ENTITIES = os.path.join(HERE, 'entities.json')
+
+
+def load_entities():
+    if not os.path.exists(ENTITIES):
+        return {'entities': {}, 'dimensions': {}}
+    return json.load(open(ENTITIES, encoding='utf-8'))
+
+
+def check_hunt(book):
+    """Hunt targets and location dimensions. BQ does not check a hunt target when the book
+    loads: a wrong name is a quest nobody can finish, and the log never says so. So every
+    target must be a name in entities.json, which records where each was verified."""
+    r = Report('hunt %s' % book.label)
+    ents = load_entities()
+    known, dims = ents['entities'], ents['dimensions']
+    n = 0
+    for qid, q in sorted(book.quests.items()):
+        for t in tasks(q):
+            if t['taskID:8'] == 'bq_standard:hunt':
+                n += 1
+                if t['target:8'] not in known:
+                    r.err('quest %d: hunt target %r is not in entities.json' % (qid, t['target:8']))
+            elif t['taskID:8'] == 'bq_standard:location':
+                n += 1
+                if str(t['dimension:3']) not in dims:
+                    r.err('quest %d: location dimension %d is not in entities.json' % (qid, t['dimension:3']))
+            elif t['taskID:8'] not in ('bq_standard:retrieval', 'bq_standard:checkbox'):
+                r.warn('quest %d: task type %s is not checked by qb.py' % (qid, t['taskID:8']))
+    r.note('%d hunt/location tasks checked against %d known entities' % (n, len(known)))
+    return r
+
+
+# ---------------------------------------------------------------------------
+# path: the chapter order
+
+CHAPTER_RE = re.compile(r'^Ch (\d+):')
+# Numbered tabs that are not links in the chain, and why. Every other numbered chapter
+# must open strictly after the one before it.
+SIDE_CHAPTERS = {
+    2: 'Base is storage QoL, a Prologue side tab (audit 4.4); it opens with Ch 1 at quest 2',
+}
+LADDER_CHAPTERS = {
+    9: 'ProjectE is a ladder: each rung opens at the boss its recipe needs (crazycraft_gating.zs), '
+       'so its first rung opens at the Lich; its last rung must come after Ch 8 opens',
+}
+
+
+def required_sets(book):
+    """For each quest, the cheapest set of quests that must be complete before it can be
+    (itself included). AND prerequisites add up; OR takes the cheapest branch."""
+    qs = book.quests
+    memo = {}
+
+    def req(qid, stack=()):
+        if qid in memo:
+            return memo[qid]
+        if qid in stack:
+            raise ValueError('cycle through %d' % qid)
+        q = qs[qid]
+        pres = [p for p in q['preRequisites:11'] if p in qs]
+        logic = props(q).get('questLogic:8', 'AND')
+        out = {qid}
+        if pres:
+            subs = [req(p, stack + (qid,)) for p in pres]
+            if logic == 'OR':
+                out |= min(subs, key=len)
+            else:
+                for s in subs:
+                    out |= s
+        memo[qid] = frozenset(out)
+        return memo[qid]
+    sys.setrecursionlimit(10000)
+    for qid in qs:
+        req(qid)
+    return memo
+
+
+def chapter_table(book, req):
+    """[(number, line, entries, opening entry, open set, quest ids)] for numbered chapters."""
+    qs = book.quests
+    out = []
+    for l in book.lines:
+        m = CHAPTER_RE.match(strip(l['properties:10']['betterquesting:10']['name:8']))
+        if not m:
+            continue
+        ids = {e['id:3'] for e in l['quests:9'].values() if e['id:3'] in qs}
+        entries = sorted(qid for qid in ids if not any(p in ids for p in qs[qid]['preRequisites:11']))
+        first = min(entries, key=lambda e: (len(req[e]), e))
+        out.append((int(m.group(1)), l, entries, first, req[first] - {first}, ids))
+    return sorted(out, key=lambda c: c[0])
+
+
+def check_path(book):
+    r = Report('path %s' % book.label)
+    qs = book.quests
+    try:
+        req = required_sets(book)
+    except ValueError as e:
+        r.err('prerequisite %s' % e)
+        return r
+    # reachability: every prerequisite exists (lint), no cycles (above), and nothing a
+    # player must finish is HIDDEN.
+    for qid in sorted(qs):
+        for p in sorted(req[qid] - {qid}):
+            if props(qs[p]).get('visibility:8') == 'HIDDEN':
+                r.err('quest %d needs %d, which is HIDDEN' % (qid, p))
+    lo = book.line_of()
+
+    def where(ids):
+        c = collections.Counter(strip(book.line_name(lo[i][0])) for i in ids)
+        return ', '.join('%s %d' % kv for kv in sorted(c.items(), key=lambda kv: -kv[1]))
+    chapters = chapter_table(book, req)
+    prev = None
+    for num, l, entries, first, opened, ids in chapters:
+        lname = strip(book.line_name(l['lineID:3']))
+        gates = [p for p in qs[first]['preRequisites:11']]
+        r.note('%-18s opens at %d %s, after %s; %d quests first (%s)' % (
+            lname, first, name(qs[first]),
+            ' + '.join('%d %s' % (g, name(qs[g])) for g in gates) or 'nothing',
+            len(opened), where(opened) or '-'))
+        if num in SIDE_CHAPTERS:
+            r.note('%-18s side chapter, not in the chain: %s' % ('', SIDE_CHAPTERS[num]))
+            continue
+        if prev is not None:
+            pnum, pname, popened, pids = prev
+            if num in LADDER_CHAPTERS:
+                cap = max(ids, key=lambda i: (len(req[i]), i))
+                ok = (req[cap] - {cap}) > popened
+                r.note('%-18s ladder; last rung %d %s needs %d quests' % ('', cap, name(qs[cap]), len(req[cap]) - 1))
+                if not ok:
+                    r.err('%s: last rung %d does not come after %s opens' % (lname, cap, pname))
+            else:
+                if not (opened > popened):
+                    r.err('%s can open before (or with) %s: its entry %d does not need everything %s needs'
+                          % (lname, pname, first, pname))
+                for e in entries:
+                    if e != first and not (req[e] - {e}) > popened:
+                        r.err('%s: entry %d %s opens no later than %s' % (lname, e, name(qs[e]), pname))
+        # no backwards edge: an earlier chapter must not need this chapter's quests
+        for onum, ol, oent, ofirst, oopened, oids in chapters:
+            if onum < num and onum not in SIDE_CHAPTERS and (oopened & ids):
+                r.err('%s needs %s from later %s' % (strip(book.line_name(ol['lineID:3'])),
+                                                      sorted(oopened & ids), lname))
+        prev = (num, lname, opened, ids)
+    r.note('%d quests, all reachable' % len(qs) if not r.errors else '%d quests' % len(qs))
+    return r
+
+
 CHECKS = {'lint': check_lint, 'ids': check_ids, 'cheese': check_cheese, 'stack': check_stack,
-          'text': check_text}
+          'text': check_text, 'hunt': check_hunt, 'path': check_path}
 
 
 def run_checks(names, book_arg, verbose):
@@ -664,7 +982,7 @@ def tally(book):
     # A quest that asks for a boss quest's proof item is gated too, even with no
     # prerequisites (the Secrets: "carry every OreSpawn sword" needs the Royal).
     boss_items = {(s['id:8'], s.get('Damage:2', 0)) for b in BOSS_QUESTS if b in qs
-                  for t in tasks(qs[b]) for s in stacks_of(t)}
+                  for t in tasks(qs[b]) for s in stacks_of(t)} | BOSS_DROPS
 
     def is_gated(qid):
         if qid in gated:
@@ -754,6 +1072,9 @@ def dump(book, out):
             out.write('  icon ' + fmt_stack(b['icon:10']) + '\n')
             out.write('  DESC: ' + strip(b['desc:8']).replace('\n', ' / ') + '\n')
             for t in tasks(q):
+                if t['taskID:8'] in ('bq_standard:hunt', 'bq_standard:location'):
+                    out.write('  TASK %s : %s\n' % (t['taskID:8'], describe_task(task_key(t))))
+                    continue
                 out.write('  TASK %s consume=%s ignoreNBT=%s partial=%s : %s\n' % (
                     t['taskID:8'], t.get('consume:1'), t.get('ignoreNBT:1'), t.get('partialMatch:1'),
                     '; '.join(fmt_stack(s) for s in stacks_of(t))))
@@ -879,7 +1200,7 @@ def main():
     if a.cmd == 'check':
         sys.exit(0 if run_checks(list(CHECKS), a.book, a.verbose) else 1)
     if a.cmd in CHECKS:
-        sys.exit(0 if run_checks([a.cmd], a.book, a.verbose) else 1)
+        sys.exit(0 if run_checks([a.cmd], a.book, a.verbose or a.cmd == 'path') else 1)
     {'tally': cmd_tally, 'dump': cmd_dump, 'show': cmd_show, 'diff': cmd_diff,
      'registry': cmd_registry}[a.cmd](a)
 

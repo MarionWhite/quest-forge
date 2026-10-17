@@ -1,0 +1,26 @@
+{
+  "_doc": "Entity names a bq_standard:hunt task may target, and dimensions a location task may use. BQ matches a hunt target against EntityList.stringToClassMapping and never checks it at load, so a wrong name fails silently. Each name was read from the mod's own registration code in the jar (see 'how'); 'summon' records the runtime check: '/summon <name>' in a server trial resolves the name through the same map BQ uses. Add a name here only after checking it the same way.",
+  "entities": {
+    "TwilightForest.Naga": {"mod": "TwilightForest 2.4.3", "class": "twilightforest.entity.boss.EntityTFNaga", "how": "TFCreatures.registerTFCreature -> registerModEntity; creatureCompatibility is never set, so no global name"},
+    "TwilightForest.Twilight Lich": {"mod": "TwilightForest 2.4.3", "class": "twilightforest.entity.boss.EntityTFLich", "how": "registerModEntity. Shadow clones are the same class but take no damage (attackEntityFrom returns false), so they cannot be killed for credit"},
+    "TwilightForest.Minoshroom": {"mod": "TwilightForest 2.4.3", "class": "twilightforest.entity.boss.EntityTFMinoshroom", "how": "registerModEntity; extends EntityTFMinotaur, so target the Minoshroom, never the Minotaur"},
+    "TwilightForest.Hydra": {"mod": "TwilightForest 2.4.3", "class": "twilightforest.entity.boss.EntityTFHydra", "how": "registerModEntity. Multi-part: head and body parts pass the player's DamageSource to superAttackFrom, and onDeath calls super, so the kill is credited"},
+    "TwilightForest.Knight Phantom": {"mod": "TwilightForest 2.4.3", "class": "twilightforest.entity.boss.EntityTFKnightPhantom", "how": "registerModEntity. The stronghold spawner makes 6 (TileEntityTFKnightPhantomsSpawner)"},
+    "TwilightForest.Tower Boss": {"mod": "TwilightForest 2.4.3", "class": "twilightforest.entity.boss.EntityTFUrGhast", "how": "registerModEntity; the Ur-Ghast. It extends EntityTFTowerGhast, so never target 'Tower Ghast' for the boss"},
+    "TwilightForest.Yeti Boss": {"mod": "TwilightForest 2.4.3", "class": "twilightforest.entity.boss.EntityTFYetiAlpha", "how": "registerModEntity; the Alpha Yeti"},
+    "TwilightForest.Snow Queen": {"mod": "TwilightForest 2.4.3", "class": "twilightforest.entity.boss.EntityTFSnowQueen", "how": "registerModEntity"},
+    "HardcoreEnderExpansion.Dragon": {"mod": "Hardcore Ender Expansion", "class": "chylex.hee.entity.boss.EntityBossDragon", "how": "chylex.hee.init.EntityList -> registerModEntity 'Dragon'. Multi-part: attackEntityFromPart ends in EntityLiving.attackEntityFrom with the original source"},
+    "Mobzilla": {"mod": "OreSpawn", "class": "danger.orespawn.Godzilla", "how": "registerGlobalEntityID first, so the plain name is the EntityList name. MobzillaHead passes the player's DamageSource to the body"},
+    "The King": {"mod": "OreSpawn", "class": "danger.orespawn.TheKing", "how": "registerGlobalEntityID; KingHead relays the player's DamageSource to TheKing.attackEntityFrom"},
+    "The Queen": {"mod": "OreSpawn", "class": "danger.orespawn.TheQueen", "how": "registerGlobalEntityID; QueenHead relays the same way"},
+    "demonmobs.rahovart": {"mod": "Lycanites Mobs 1.13.0.5 (Demon Mobs)", "class": "lycanite.lycanitesmobs.demonmobs.entity.EntityRahovart", "how": "MobInfo.registerMob -> registerModEntity under the demonmobs group mod; lang key entity.demonmobs.rahovart.name"},
+    "TragicMC.OverlordCore": {"mod": "TragicMC", "class": "tragicneko.tragicmc.entity.alpha.EntityOverlordCore", "how": "TragicEntities: registerModEntity + EntityList.addMapping 'TragicMC.OverlordCore'. The last of three phases (Cocoon -> Combat -> Core); a Synapse Core block placed in the Synapse summons it again (BlockSynapseCore)"},
+    "MutantCreatures.MutantZombie": {"mod": "Mutant Creatures", "class": "thehippomaster.MutantCreatures.MutantZombie", "how": "registerModEntity only; drops the Hulk Hammer"},
+    "MutantCreatures.MutantSkeleton": {"mod": "Mutant Creatures", "class": "thehippomaster.MutantCreatures.MutantSkeleton", "how": "registerModEntity only"},
+    "MutantCreatures.MutantCreeper": {"mod": "Mutant Creatures", "class": "thehippomaster.MutantCreatures.MutantCreeper", "how": "registerModEntity only"},
+    "MutantCreatures.MutantEnderman": {"mod": "Mutant Creatures", "class": "thehippomaster.MutantCreatures.MutantEnderman", "how": "registerModEntity only"}
+  },
+  "dimensions": {
+    "7": "Twilight Forest (pack/config/TwilightForest.cfg dimensionID=7)"
+  }
+}

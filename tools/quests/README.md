@@ -6,6 +6,7 @@ re-run. The plan it serves is [`../../docs/design/questline-audit.md`](../../doc
 
 ```
 py -3.10 -I tools/quests/qb.py check               # every check, both books; exit 1 on any error
+py -3.10 -I tools/quests/qb.py path                # the chapter order: what opens each numbered chapter
 py -3.10 -I tools/quests/qb.py tally               # reward totals per tab, and what is ungated
 py -3.10 -I tools/quests/qb.py dump --out dump.txt # one readable line per task and reward
 py -3.10 -I tools/quests/qb.py show 63             # one quest as JSON
@@ -35,6 +36,27 @@ The `ids` check skips the `hbm:` namespace in the server book only.
 | `cheese` | one claim of a quest's reward (all item rewards plus any single choice option) fully completes a quest it unlocks. Warns when it completes a quest that is not upstream of it. Quests that ask only for a Lucky Block, loot bag or tome are reward tutorials and are skipped. |
 | `stack` | a retrieval task asking for more than one of an unstackable item (swords, armour, tools, by name). Warns on such rewards. |
 | `text` | `a` before a vowel ("a Anvil"), "Beastiary" for the tab (the Lycanites GUI is spelled that way, so "Lycanites' Beastiary" is allowed), placeholder words, `..`. |
+| `hunt` | a `bq_standard:hunt` target that is not in `entities.json`, or a `bq_standard:location` dimension that is not. BQ never checks a hunt target when the book loads: a misspelt name is a quest nobody can finish, and no log line says so. |
+| `path` | a quest that needs a HIDDEN quest, a prerequisite cycle, or a numbered chapter that can open before (or together with) the one before it. Prints, per chapter, the quest that opens it, what that quest needs, and how many quests come first. |
+
+**The chapter order `path` enforces.** Each numbered chapter's cheapest entry quest must need
+everything the previous chapter's entry needs, and more; no earlier chapter may need a later
+chapter's quest. Two numbered tabs are exceptions, set in `SIDE_CHAPTERS` and
+`LADDER_CHAPTERS`: Ch 2 Base is a side tab that opens with Ch 1, and Ch 9 ProjectE is a
+ladder whose rungs open at the boss each recipe needs (the Philosopher's Stone at the Lich),
+so only its last rung has to come after Ch 8 opens. "Needs" is the cheapest set of quests
+that must be complete, so an OR prerequisite counts its cheapest branch.
+
+## `entities.json`
+
+The entity names hunt tasks may use, each with the class it maps to and how the name was
+checked: read from the mod's own registration call in the jar (`EntityRegistry.registerModEntity`
+gives `ModId.name`; `registerGlobalEntityID` first gives the plain name, which then wins), then
+confirmed with `/summon <name>` in a server trial, which resolves the name through the same map
+BQ uses. BQ's hunt task (Standard Expansion `TaskHunt`) credits a kill when the killer is a
+player, to every member of that player's party; with `subtypes` on (the default) it also
+credits subclasses, so never target a base class such as TF's `Tower Ghast` or `Minotaur`.
+Kills by pets, minions or the environment do not count.
 
 **Blocklist** (`BLOCKLIST` in `qb.py`): `TragicMC:swordOfJustice`, `TragicMC:bowOfJustice`
 and `witchery:infinityegg` (creative-tab items), `betterquesting:placeholder`, and
@@ -86,6 +108,12 @@ patch can be re-run. `patches/` holds the applied work packages:
 |---|---|
 | `patches/wp1_hotfixes.py` | WP-1: broken quests, creative rewards, Twilight proofs, cheese pairs, text, `pack_version` |
 | `patches/wp2_tier_leaks.py` | WP-2: rewards that skip tiers, and the Pets/Heroes faucet |
+| `patches/wp3_chapter_order.py` | WP-3: cross-chapter prerequisites, later chapters hidden until they open, chapter-order texts |
+
+More helpers for those: `set_prereqs`, `set_visibility`, `set_tasks` (checks the task list it
+expects), `add_quest` (copies every property key from an existing quest), `move_in_line`,
+`set_pack_version`, and the task builders `retrieval`, `hunt`, `location`, `item_reward`,
+`choice_reward`, written with the keys and defaults Standard Expansion 3.0.181 reads.
 
 After any edit: `qb.py check`, bump `pack_version` in `questSettings`, then a slim boot
 (`../trial/README.md`) with `--bundle quests --bundle inspect` plus the mods whose items the
