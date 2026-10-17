@@ -352,6 +352,8 @@ public class CombatCensus {
         int infernalStripped;
         /** A shielded boss whose shields the census held down; see dropShields. */
         boolean shieldsHeld;
+        /** A reflecting boss whose reflection the census held down; see dropReflection. */
+        boolean reflectionHeld;
         /**
          * Targets that left the world with health left: a teleport (Lord of
          * Torment at 50%), a despawn, or Forge deleting an entity whose tick threw
@@ -1508,6 +1510,7 @@ public class CombatCensus {
             EntityLivingBase mob = spawned.get(i);
             if (mob == null || mob.isDead || PENDING_PIN.contains(mob)) continue;
             dropShields(mob);
+            dropReflection(mob);
             if (stripInfernal(mob)) {
                 result.infernalStripped++;
                 QuestForgeContent.log.info("[census] " + cell.targetName + " (id " + mob.getEntityId()
@@ -1685,6 +1688,42 @@ public class CombatCensus {
                 result.note += " [shields held down: the post-shield phase is measured]";
             }
         } catch (NoSuchMethodException ignored) {
+        } catch (Throwable ignored) {}
+    }
+
+    /**
+     * Keeps a reflecting boss in its vulnerable phase.
+     *
+     * TragicMC's Apis alternates 160 ticks of reflection (it takes no damage and
+     * throws half of it back) with 160 vulnerable ticks. The census's bands are
+     * also 160 ticks, so whether a band sat in a reflect window was a phase
+     * lottery: controls ran 293-786 s, noise +/-92% (anomalies #3). As with the
+     * Lich's shields, the phase where a weapon does its work is the one
+     * measured: any boss with a private setReflectionTicks(int) is held at zero,
+     * and its public reflectionBuffer (the vulnerable countdown) kept full so the
+     * next reflect never starts. A real fight takes about twice as long, waiting
+     * out the reflect.
+     */
+    private static void dropReflection(EntityLivingBase mob) {
+        Class<?> c = mob.getClass();
+        java.lang.reflect.Method m = null;
+        for (Class<?> k = c; k != null && m == null; k = k.getSuperclass()) {
+            try {
+                m = k.getDeclaredMethod("setReflectionTicks", int.class);
+            } catch (NoSuchMethodException ignored) {}
+        }
+        if (m == null) return;
+        try {
+            m.setAccessible(true);
+            m.invoke(mob, Integer.valueOf(0));
+            try {
+                java.lang.reflect.Field buffer = c.getField("reflectionBuffer");
+                if (buffer.getType() == int.class) buffer.setInt(mob, 160);
+            } catch (NoSuchFieldException ignored) {}
+            if (result != null && !result.reflectionHeld) {
+                result.reflectionHeld = true;
+                result.note += " [reflection held down: the vulnerable phase is measured]";
+            }
         } catch (Throwable ignored) {}
     }
 
