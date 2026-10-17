@@ -661,6 +661,19 @@ Exploration 7, Danger Zone 5, Rewards 5). Ungated Legendary bags: only 67, 83, 2
 Pets; Epic bags in 107, 119, 121, 134, 141–144 and 405, which sit behind chapters that WP-3
 gates properly.
 
+### Validation (2026-10-17)
+
+`qb.py check` passes on both books. One slim **server** trial (`trial.py build quests --server
+--overlay pack` with qfcontent, Twilight, TragicMC, Witchery, OreSpawn, ProjectE, Railcraft,
+Lycanites, BiblioCraft, MCHeli, Legends, Inventory Pets, Loot Bags, Lucky Blocks, Hat Stand,
+Food Plus, `--bundle quests --bundle inspect`). A server, not a client, because BQ only reads
+`DefaultQuests.json` when a world starts; a client at the title screen never parses it. Ready
+in 25 s, no ERROR lines in `logs/latest.log`. The saved `world/betterquesting/QuestDatabase.json`
+had all 308 quests at `pack_version` 6, and **no item introduced by WP-1/WP-2 became a
+placeholder**. The placeholders that remain in edited quests are old items from mods left out of
+the trial (Colorful Mobs, Food Expansion, Custom NPCs, Statues, The Jungle) plus `mcheli:bell47g`,
+an MCHeli aircraft item that a dedicated trial server does not register.
+
 ## Appendix: reproduction notes
 
 - **Registry snapshot:** `saves/Stress Test/level.dat` (2026-10-16, 141 mod IDs) → 9,394 names. The older `Tryhard Run` save still contains HBM and lacks 39 newer mod IDs (Lycanites, ChocolateQuest, OpenBlocks, Sync…), so do not use it as the registry.
