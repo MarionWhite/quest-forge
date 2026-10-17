@@ -78,17 +78,21 @@ DEEP = {
 HEALTH_CONDITIONAL = "berserk+cultist"
 
 
-def jobs():
+def jobs(pairs_only=None):
     out = []
     for tier, weapon, armour, bosses in TIERS:
         for boss in bosses:
             out.append(dict(name=f"{tier}-{boss}-singles", phase="singles", tier=tier,
-                            boss=boss, args=[weapon, f"armour={armour}", "controls=3"]))
+                            boss=boss, args=[weapon, f"armour={armour}", "controls=5"]))
     for tier, weapon, armour, _ in TIERS:
         for boss in DEEP[tier]:
-            out.append(dict(name=f"{tier}-{boss}-pairs", phase="pairs", tier=tier, boss=boss,
-                            args=[weapon, f"armour={armour}", "pairs", "modes=melee",
-                                  "controls=3"]))
+            # Pairs of every melee enchantment are 666 cells a boss, about eight
+            # hours; they run only over a set chosen from the singles results.
+            if pairs_only:
+                out.append(dict(name=f"{tier}-{boss}-pairs", phase="pairs", tier=tier,
+                                boss=boss, args=[weapon, f"armour={armour}", "pairs",
+                                                 "modes=melee", f"only={pairs_only}",
+                                                 "controls=3"]))
             out.append(dict(name=f"{tier}-{boss}-levels", phase="levels", tier=tier, boss=boss,
                             args=[weapon, f"armour={armour}", "levels=all", "controls=3"]))
             for hp in ("0.5", "0.25"):
@@ -101,6 +105,27 @@ def jobs():
 
 REF_LINE = re.compile(r"reference target (\S+): median of \d+ settled spawns -> maxHealth "
                       r"([0-9.]+).*?attackDamage ([0-9.NaN]+)")
+
+
+class Adopted:
+    """A server process this driver did not start: polled by PID."""
+    def __init__(self, pid):
+        self.pid = pid
+        self.returncode = None
+
+    def poll(self):
+        out = subprocess.run(["tasklist", "/FI", f"PID eq {self.pid}", "/NH"],
+                             capture_output=True, text=True).stdout
+        if str(self.pid) in out:
+            return None
+        self.returncode = 0
+        return 0
+
+    def kill(self):
+        subprocess.run(["taskkill", "/PID", str(self.pid), "/F"], capture_output=True)
+
+    def wait(self):
+        return 0
 
 
 class Node:
@@ -200,14 +225,17 @@ def main():
     ap.add_argument("--jar", required=True)
     ap.add_argument("--out", required=True)
     ap.add_argument("--only-phase")
+    ap.add_argument("--pairs-only", help="a+b+c: the enchantments the pairs phase crosses")
     ap.add_argument("--timeout-hours", type=float, default=4.0)
     ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument("--adopt", nargs="*", help="NODE=JOB=PID of servers already running")
     args = ap.parse_args()
 
     os.makedirs(args.out, exist_ok=True)
     refs_path = os.path.join(args.out, "refs.json")
     refs = load(refs_path, {})
-    queue = [j for j in jobs() if not args.only_phase or j["phase"] == args.only_phase]
+    queue = [j for j in jobs(args.pairs_only)
+             if not args.only_phase or j["phase"] == args.only_phase]
     queue = [j for j in queue
              if not os.path.exists(os.path.join(args.out, j["name"], "finished.json"))]
     attempts = {}
@@ -218,6 +246,18 @@ def main():
         return
 
     nodes = [Node(p) for p in args.nodes]
+    # --adopt NODE=JOB: a server already running that job (the driver was
+    # restarted under it). Watch it by PID instead of launching a duplicate.
+    for spec in args.adopt or []:
+        path, name, pid = spec.split("=")
+        for n in nodes:
+            if os.path.normcase(n.path) == os.path.normcase(path):
+                job = next(j for j in queue if j["name"] == name)
+                queue.remove(job)
+                n.job, n.started = job, time.time()
+                n.proc = Adopted(int(pid))
+                attempts[name] = 1
+
     running_bosses = set()
     while queue or any(n.proc for n in nodes):
         for node in nodes:
