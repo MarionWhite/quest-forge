@@ -6,11 +6,16 @@
   Changes only two kinds of thing, both of which the server never sees:
     1. Video keys in options.txt, optionsof.txt and optionsshaders.txt.
        Keybinds, sound, chat, language and resource packs are left alone.
+       On the Angelica client (mods\angelica-*.jar present) OptiFine's two
+       files do not exist; its equivalents go into three client-only Angelica
+       files under config\: angelica-options.json, angelica-modules.cfg and
+       shaders.properties.
     2. Client-only mod jars listed in client-only-drop.txt are moved out of
        mods\ into mods-lite-removed\ (never deleted).
-  config\ is never touched: the server and every client must share it.
+  The rest of config\ is never touched: the server and every client must
+  share it. (The server has no Angelica, so its files are not shared.)
 
-  The first run saves the three options files to _lite-backup\ next to mods\.
+  The first run saves the options files to _lite-backup\ next to mods\.
   -Undo puts them back and moves the jars back.
 
 .EXAMPLE
@@ -31,9 +36,17 @@ $Instance = (Resolve-Path $Instance).Path
 $mods = Join-Path $Instance 'mods'
 $removed = Join-Path $Instance 'mods-lite-removed'
 $backup = Join-Path $Instance '_lite-backup'
-$files = @(@{ n = 'options.txt'; sep = ':' }, @{ n = 'optionsof.txt'; sep = ':' }, @{ n = 'optionsshaders.txt'; sep = '=' })
+$angelica = [bool](Get-ChildItem -LiteralPath $mods -Filter 'angelica-*.jar' -ErrorAction SilentlyContinue)
+if ($angelica) {
+    # OptiFine's optionsof.txt / optionsshaders.txt mean nothing to Angelica.
+    $files = @(@{ n = 'options.txt'; sep = ':' })
+    $angFiles = @('config\angelica-options.json', 'config\angelica-modules.cfg', 'config\shaders.properties')
+} else {
+    $files = @(@{ n = 'options.txt'; sep = ':' }, @{ n = 'optionsof.txt'; sep = ':' }, @{ n = 'optionsshaders.txt'; sep = '=' })
+    $angFiles = @()
+}
 
-if (-not (Test-Path (Join-Path $mods 'OptiFine_1.7.10_HD_U_E7.jar')) -and -not (Test-Path (Join-Path $Instance 'options.txt'))) {
+if (-not (Test-Path (Join-Path $mods 'OptiFine_1.7.10_HD_U_E7.jar')) -and -not $angelica -and -not (Test-Path (Join-Path $Instance 'options.txt'))) {
     throw "$Instance does not look like a Quest Forge game folder (no mods\OptiFine jar, no options.txt). Point -Instance at the folder that holds mods\ and options.txt."
 }
 # The game rewrites options.txt when it quits, so a change made while it runs is lost.
@@ -71,6 +84,42 @@ function Set-Keys([string]$target, [System.Collections.IDictionary]$keys, [strin
     }
 }
 
+# Angelica's own settings file is JSON: merge the profile's keys into it.
+function Merge-Json($base, $over) {
+    foreach ($p in $over.PSObject.Properties) {
+        if ($p.Name -like '_*') { continue }
+        $cur = $base.PSObject.Properties[$p.Name]
+        if ($p.Value -is [System.Management.Automation.PSCustomObject] -and $cur -and $cur.Value -is [System.Management.Automation.PSCustomObject]) {
+            Merge-Json $cur.Value $p.Value
+        } elseif ($cur) {
+            if ("$($cur.Value)" -ne "$($p.Value)") { Write-Host "  $($p.Name): $($cur.Value)  ->  $($p.Value)" }
+            $cur.Value = $p.Value
+        } else {
+            Write-Host "  + $($p.Name): $($p.Value)"
+            $base | Add-Member -NotePropertyName $p.Name -NotePropertyValue $p.Value
+        }
+    }
+}
+
+# Forge-style config (angelica-modules.cfg): replace B:/I:/S:/D: lines by key.
+function Set-CfgKeys([string]$target, [string]$overlay) {
+    $want = [ordered]@{}
+    foreach ($l in Get-Content -LiteralPath $overlay) { if ($l -match '^\s*([BISD]:[\w"]+)=(.*)$') { $want[$Matches[1]] = $Matches[2] } }
+    if (-not (Test-Path $target)) {
+        Write-Host "  + new file with $($want.Keys -join ', ')"
+        if (-not $WhatIf) { Copy-Item -LiteralPath $overlay -Destination $target }
+        return
+    }
+    $lines = @(Get-Content -LiteralPath $target)
+    for ($i = 0; $i -lt $lines.Count; $i++) {
+        if ($lines[$i] -match '^(\s*)([BISD]:[\w"]+)=(.*)$' -and $want.Contains($Matches[2])) {
+            $new = "$($Matches[1])$($Matches[2])=$($want[$Matches[2]])"
+            if ($lines[$i] -ne $new) { Write-Host "  $($lines[$i].Trim())  ->  $($new.Trim())"; $lines[$i] = $new }
+        }
+    }
+    if (-not $WhatIf) { [System.IO.File]::WriteAllLines($target, $lines, (New-Object System.Text.UTF8Encoding($false))) }
+}
+
 function Drop-List {
     $out = @()
     foreach ($line in Get-Content -LiteralPath (Join-Path $here 'client-only-drop.txt')) {
@@ -83,6 +132,13 @@ function Drop-List {
 }
 
 if ($Undo) {
+    foreach ($a in $angFiles) {
+        $b = Join-Path $backup (Split-Path $a -Leaf)
+        if (Test-Path $b) {
+            Write-Host "restore $a"
+            if (-not $WhatIf) { Copy-Item -LiteralPath $b -Destination (Join-Path $Instance $a) -Force }
+        }
+    }
     foreach ($f in $files) {
         $b = Join-Path $backup $f.n
         if (Test-Path $b) {
@@ -107,6 +163,10 @@ if (-not (Test-Path $backup)) {
         $s = Join-Path $Instance $f.n
         if ((Test-Path $s) -and -not $WhatIf) { Copy-Item -LiteralPath $s -Destination $backup }
     }
+    foreach ($a in $angFiles) {
+        $s = Join-Path $Instance $a
+        if ((Test-Path $s) -and -not $WhatIf) { Copy-Item -LiteralPath $s -Destination $backup }
+    }
     Write-Host "saved your current settings to $backup"
 }
 
@@ -123,9 +183,30 @@ foreach ($f in $files) {
     Set-Keys (Join-Path $Instance $f.n) $keys $f.sep
 }
 
+# Angelica: its settings JSON, its module switches, and no shader pack.
+if ($angelica) {
+    $cfg = Join-Path $Instance 'config'
+    $ao = Join-Path $cfg 'angelica-options.json'
+    $json = if (Test-Path $ao) { Get-Content -LiteralPath $ao -Raw | ConvertFrom-Json } else { New-Object PSObject }
+    Write-Host "config\angelica-options.json:"
+    foreach ($t in $tiers) {
+        $p = Join-Path $here "profiles\$t\angelica-options.json"
+        if (Test-Path $p) { Merge-Json $json (Get-Content -LiteralPath $p -Raw | ConvertFrom-Json) }
+    }
+    if (-not $WhatIf) {
+        [System.IO.File]::WriteAllText($ao, ($json | ConvertTo-Json -Depth 10), (New-Object System.Text.UTF8Encoding($false)))
+    }
+    foreach ($t in $tiers) {
+        $p = Join-Path $here "profiles\$t\angelica-modules.cfg"
+        if (Test-Path $p) { Write-Host "config\angelica-modules.cfg:"; Set-CfgKeys (Join-Path $cfg 'angelica-modules.cfg') $p }
+    }
+    Write-Host "config\shaders.properties:"
+    Set-Keys (Join-Path $cfg 'shaders.properties') ([ordered]@{ enableShaders = 'false' }) '='
+}
+
 # Fast Render breaks every shader pack on OptiFine E7. Never leave both on.
 $sh = Read-Overrides (Join-Path $Instance 'optionsshaders.txt') '='
-if ($sh['shaderPack'] -and $sh['shaderPack'] -ne 'OFF' -and -not $WhatIf) {
+if (-not $angelica -and $sh['shaderPack'] -and $sh['shaderPack'] -ne 'OFF' -and -not $WhatIf) {
     Write-Host "a shader pack is still selected; turning Fast Render back off"
     Set-Keys (Join-Path $Instance 'optionsof.txt') ([ordered]@{ ofFastRender = 'false' }) ':'
 }

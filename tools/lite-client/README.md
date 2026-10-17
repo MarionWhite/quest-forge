@@ -99,17 +99,35 @@ MCHeli loads its vehicles from `.minecraft\assets\mcheli` (about 357 MB), not
 from its mod file. If that folder is missing, the game still starts, but you
 have no aircraft items or models. It ships with the client-instance release. Don't delete it to save space.
 
-## Angelica (only if the host switches the pack to it)
+## On the Angelica client
 
-The pack might move to a newer renderer, Angelica, later. Nothing here uses it
-yet. If it does, this lite profile gets replaced:
+The same command works on the Angelica client
+([`docs/setup/angelica-client.md`](../../docs/setup/angelica-client.md)).
+`apply-lite.ps1` sees `mods\angelica-*.jar` and switches over by itself:
 
-- `optionsof.txt` stops mattering. OptiFine, FastCraft and BetterFps are
-  disabled.
-- Render distance 6, Fast graphics, fewer particles, the dropped mods and the
-  3 GB heap stay the same.
-- Intel HD 2000/3000 graphics (2011) cannot run Angelica. Those PCs keep this
-  OptiFine lite profile.
+- The vanilla keys in `profiles/<tier>/options.txt` apply unchanged: render
+  distance 6 (5), Fast graphics, fewer particles, 2 (0) mip levels, max FPS 90
+  (60). So do the dropped mods and the heap table.
+- `optionsof.txt` and `optionsshaders.txt` are skipped; Angelica ignores them.
+  Their equivalents go into three client-only Angelica files in `config\`, which
+  are backed up and restored by `-Undo` like the rest:
+
+| OptiFine lite setting | Angelica equivalent | File |
+|---|---|---|
+| Smooth biomes off | `biome_blend_radius: 0` | `angelica-options.json` |
+| Grass Fast | `grass_quality: FAST` | `angelica-options.json` |
+| Anisotropic filtering off | `texture_filter_mode: NONE` | `angelica-options.json` |
+| VSync off | `vsync_mode: OFF` | `angelica-options.json` |
+| Dynamic lights off | `enableDynamicLights=false` | `angelica-modules.cfg` |
+| Shader pack off | `enableShaders=false` | `shaders.properties` |
+| (none) | FPS reducer on: 10 fps unfocused, 30 when idle | `angelica-options.json` |
+| Potato: smooth lighting off | `use_celeritas_smooth_lighting: false` | `angelica-options.json` |
+
+- Fast Render, Smooth FPS and Fast Math have no Angelica equivalent. Angelica
+  does not need them: its renderer is faster with shaders off than E7 with Fast
+  Render on.
+- Intel HD 2000/3000 graphics (2011) cannot run Angelica (it needs OpenGL 3.3).
+  Those PCs keep the OptiFine client and this OptiFine lite profile.
 
 ## Troubleshooting
 

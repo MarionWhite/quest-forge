@@ -1,0 +1,9 @@
+{
+  "_comment": "Quest Forge POTATO on the Angelica client: on top of lite/angelica-options.json.",
+  "quality": {
+    "use_celeritas_smooth_lighting": false
+  },
+  "reducer": {
+    "idle_fps_limit": 20
+  }
+}

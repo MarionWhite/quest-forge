@@ -1,0 +1,17 @@
+{
+  "_comment": "Quest Forge LITE on the Angelica client: merged into config/angelica-options.json by apply-lite.ps1. Only these keys change. The vanilla keys in options.txt (render distance 6, Fast graphics, particles, mipmaps, max FPS 90) apply to Angelica unchanged; optionsof.txt does not exist for it.",
+  "quality": {
+    "biome_blend_radius": 0,
+    "grass_quality": "FAST",
+    "texture_filter_mode": "NONE"
+  },
+  "advanced": {
+    "vsync_mode": "OFF"
+  },
+  "reducer": {
+    "enabled": true,
+    "unfocused_fps_limit": 10,
+    "idle_fps_limit": 30,
+    "limit_menu_frame_rate": true
+  }
+}

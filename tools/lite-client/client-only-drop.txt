@@ -12,7 +12,7 @@
 lite	SoundFilters	reverb and muffling. Ray-traces block occlusion for each sound it plays; a mob fight plays dozens at once.
 lite	MobDismemberment	gore: severed limbs fall off killed mobs as extra physics entities.
 lite	MobAmputation	gore: the same for player-like mobs.
-lite	CustomMenu	the branded title screen buttons. Title screen only. The splash and menu music stay (they live in the Forge jar).
+lite	CustomMenu	the branded title screen buttons. Title screen only. The splash and menu music stay (they live in the Forge jar on E7, in QuestForgeTweaks on Angelica).
 potato	journeymap	the minimap and full map. Its mapping threads re-render map tiles as chunks change, competing with the game for 4 cores.
 potato	DamageIndicators	the mob health bar and portrait (draws the targeted mob a second time every frame) and damage numbers.
 
