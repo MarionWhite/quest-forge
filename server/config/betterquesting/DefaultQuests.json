@@ -544,9 +544,9 @@
               "OreDict:8": ""
             },
             "2:10": {
-              "id:8": "ProjectE:item.pe_zero_ring",
+              "id:8": "qfcontent:sealed_tome",
               "Count:3": 1,
-              "Damage:2": 0,
+              "Damage:2": 1,
               "OreDict:8": ""
             },
             "3:10": {
@@ -1028,7 +1028,7 @@
           "rewards:9": {
             "0:10": {
               "id:8": "ProjectE:item.pe_matter",
-              "Count:3": 3,
+              "Count:3": 1,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -1091,7 +1091,7 @@
           "rewards:9": {
             "0:10": {
               "id:8": "ProjectE:item.pe_matter",
-              "Count:3": 4,
+              "Count:3": 1,
               "Damage:2": 1,
               "OreDict:8": ""
             }
@@ -1654,14 +1654,14 @@
           "index:3": 0,
           "rewards:9": {
             "0:10": {
-              "id:8": "OreSpawn:OreSpawn_UltimatePickaxe",
+              "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 0,
+              "Damage:2": 2,
               "OreDict:8": ""
             },
             "1:10": {
-              "id:8": "OreSpawn:OreSpawn_UltimateBow",
-              "Count:3": 1,
+              "id:8": "minecraft:experience_bottle",
+              "Count:3": 8,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -1724,7 +1724,7 @@
           "choices:9": {
             "0:10": {
               "id:8": "OreSpawn:OreSpawn_BlockMobzillaScaleBlock",
-              "Count:3": 32,
+              "Count:3": 4,
               "Damage:2": 0,
               "OreDict:8": ""
             },
@@ -1874,7 +1874,7 @@
           "choices:9": {
             "0:10": {
               "id:8": "OreSpawn:OreSpawn_QueenScale",
-              "Count:3": 64,
+              "Count:3": 4,
               "Damage:2": 0,
               "OreDict:8": ""
             },
@@ -6055,7 +6055,7 @@
               "OreDict:8": ""
             },
             "1:10": {
-              "id:8": "witchery:deathsrobe",
+              "id:8": "witchery:witchrobe",
               "Count:3": 1,
               "Damage:2": 0,
               "OreDict:8": ""
@@ -8459,21 +8459,21 @@
           "index:3": 0,
           "choices:9": {
             "0:10": {
-              "id:8": "TragicMC:overlordHelm",
+              "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 0,
+              "Damage:2": 3,
               "OreDict:8": ""
             },
             "1:10": {
-              "id:8": "TragicMC:overlordPlate",
-              "Count:3": 1,
-              "Damage:2": 0,
+              "id:8": "qfcontent:sealed_tome",
+              "Count:3": 2,
+              "Damage:2": 2,
               "OreDict:8": ""
             },
             "2:10": {
-              "id:8": "TragicMC:overlordAmulet",
-              "Count:3": 1,
-              "Damage:2": 0,
+              "id:8": "minecraft:golden_apple",
+              "Count:3": 2,
+              "Damage:2": 1,
               "OreDict:8": ""
             }
           }
@@ -8708,9 +8708,9 @@
               "OreDict:8": ""
             },
             "2:10": {
-              "id:8": "TragicMC:titan",
+              "id:8": "qfcontent:sealed_tome",
               "Count:3": 1,
-              "Damage:2": 0,
+              "Damage:2": 3,
               "OreDict:8": ""
             }
           }
@@ -10207,12 +10207,6 @@
               "Count:3": 1,
               "Damage:2": 0,
               "OreDict:8": ""
-            },
-            "3:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 4,
-              "Damage:2": 0,
-              "OreDict:8": ""
             }
           }
         }
@@ -10278,18 +10272,12 @@
             "1:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 2,
+              "Damage:2": 1,
               "OreDict:8": ""
             },
             "2:10": {
               "id:8": "minecraft:iron_ingot",
               "Count:3": 16,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            },
-            "3:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 4,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -10357,18 +10345,12 @@
             "1:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 2,
+              "Damage:2": 1,
               "OreDict:8": ""
             },
             "2:10": {
               "id:8": "minecraft:apple",
               "Count:3": 16,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            },
-            "3:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 4,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -10436,13 +10418,7 @@
             "1:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 2,
-              "OreDict:8": ""
-            },
-            "2:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 8,
-              "Damage:2": 0,
+              "Damage:2": 1,
               "OreDict:8": ""
             }
           }
@@ -10509,13 +10485,7 @@
             "1:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 2,
-              "OreDict:8": ""
-            },
-            "2:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 8,
-              "Damage:2": 0,
+              "Damage:2": 1,
               "OreDict:8": ""
             }
           }
@@ -10582,18 +10552,12 @@
             "1:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 1,
+              "Damage:2": 0,
               "OreDict:8": ""
             },
             "2:10": {
               "id:8": "minecraft:bed",
               "Count:3": 1,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            },
-            "3:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 2,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -10672,7 +10636,7 @@
             },
             "3:10": {
               "id:8": "lucky:lucky_block",
-              "Count:3": 8,
+              "Count:3": 1,
               "Damage:2": 0,
               "OreDict:8": ""
             },
@@ -10746,18 +10710,12 @@
             "1:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 1,
+              "Damage:2": 0,
               "OreDict:8": ""
             },
             "2:10": {
               "id:8": "minecraft:blaze_powder",
               "Count:3": 16,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            },
-            "3:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 2,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -10825,18 +10783,12 @@
             "1:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 1,
+              "Damage:2": 0,
               "OreDict:8": ""
             },
             "2:10": {
               "id:8": "minecraft:glass_bottle",
               "Count:3": 16,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            },
-            "3:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 2,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -10904,18 +10856,12 @@
             "1:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 2,
+              "Damage:2": 1,
               "OreDict:8": ""
             },
             "2:10": {
               "id:8": "minecraft:sugar",
               "Count:3": 16,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            },
-            "3:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 4,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -10983,18 +10929,12 @@
             "1:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 1,
+              "Damage:2": 0,
               "OreDict:8": ""
             },
             "2:10": {
               "id:8": "minecraft:chest",
               "Count:3": 4,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            },
-            "3:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 2,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -11152,7 +11092,7 @@
             },
             "3:10": {
               "id:8": "lucky:lucky_block",
-              "Count:3": 8,
+              "Count:3": 1,
               "Damage:2": 0,
               "OreDict:8": ""
             },
@@ -11305,17 +11245,11 @@
             "1:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 1,
+              "Damage:2": 0,
               "OreDict:8": ""
             },
             "2:10": {
               "id:8": "minecraft:crafting_table",
-              "Count:3": 2,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            },
-            "3:10": {
-              "id:8": "lucky:lucky_block",
               "Count:3": 2,
               "Damage:2": 0,
               "OreDict:8": ""
@@ -11384,7 +11318,7 @@
             "1:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 1,
+              "Damage:2": 0,
               "OreDict:8": ""
             },
             "2:10": {
@@ -11397,12 +11331,6 @@
               "id:8": "minecraft:skull",
               "Count:3": 1,
               "Damage:2": 4,
-              "OreDict:8": ""
-            },
-            "4:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 2,
-              "Damage:2": 0,
               "OreDict:8": ""
             }
           }
@@ -11469,13 +11397,7 @@
             "1:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 2,
-              "OreDict:8": ""
-            },
-            "2:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 8,
-              "Damage:2": 0,
+              "Damage:2": 1,
               "OreDict:8": ""
             }
           }
@@ -11542,18 +11464,12 @@
             "1:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 1,
+              "Damage:2": 0,
               "OreDict:8": ""
             },
             "2:10": {
               "id:8": "minecraft:log",
               "Count:3": 16,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            },
-            "3:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 2,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -11621,18 +11537,12 @@
             "1:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 3,
+              "Damage:2": 2,
               "OreDict:8": ""
             },
             "2:10": {
               "id:8": "minecraft:redstone",
               "Count:3": 32,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            },
-            "3:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 8,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -11700,19 +11610,13 @@
             "1:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 2,
+              "Damage:2": 1,
               "OreDict:8": ""
             },
             "2:10": {
               "id:8": "minecraft:dye",
               "Count:3": 16,
               "Damage:2": 4,
-              "OreDict:8": ""
-            },
-            "3:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 4,
-              "Damage:2": 0,
               "OreDict:8": ""
             }
           }
@@ -11779,18 +11683,12 @@
             "1:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 3,
+              "Damage:2": 2,
               "OreDict:8": ""
             },
             "2:10": {
               "id:8": "minecraft:ender_pearl",
               "Count:3": 16,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            },
-            "3:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 8,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -11858,18 +11756,12 @@
             "1:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 1,
+              "Damage:2": 0,
               "OreDict:8": ""
             },
             "2:10": {
               "id:8": "minecraft:ender_eye",
               "Count:3": 8,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            },
-            "3:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 2,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -11937,18 +11829,12 @@
             "1:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 1,
+              "Damage:2": 0,
               "OreDict:8": ""
             },
             "2:10": {
               "id:8": "minecraft:coal",
               "Count:3": 16,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            },
-            "3:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 2,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -12016,18 +11902,12 @@
             "1:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 1,
+              "Damage:2": 0,
               "OreDict:8": ""
             },
             "2:10": {
               "id:8": "minecraft:gunpowder",
               "Count:3": 16,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            },
-            "3:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 2,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -12095,7 +11975,7 @@
             "1:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 3,
+              "Damage:2": 2,
               "OreDict:8": ""
             },
             "2:10": {
@@ -12107,12 +11987,6 @@
             "3:10": {
               "id:8": "minecraft:skull",
               "Count:3": 1,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            },
-            "4:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 8,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -12180,18 +12054,12 @@
             "1:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 3,
+              "Damage:2": 2,
               "OreDict:8": ""
             },
             "2:10": {
               "id:8": "minecraft:golden_apple",
               "Count:3": 4,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            },
-            "3:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 8,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -12259,18 +12127,12 @@
             "1:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 2,
+              "Damage:2": 1,
               "OreDict:8": ""
             },
             "2:10": {
               "id:8": "minecraft:brick",
               "Count:3": 32,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            },
-            "3:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 4,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -12338,17 +12200,11 @@
             "1:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 3,
+              "Damage:2": 2,
               "OreDict:8": ""
             },
             "2:10": {
               "id:8": "minecraft:emerald",
-              "Count:3": 8,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            },
-            "3:10": {
-              "id:8": "lucky:lucky_block",
               "Count:3": 8,
               "Damage:2": 0,
               "OreDict:8": ""
@@ -12417,7 +12273,7 @@
             "1:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 1,
+              "Damage:2": 0,
               "OreDict:8": ""
             },
             "2:10": {
@@ -12429,12 +12285,6 @@
             "3:10": {
               "id:8": "minecraft:red_flower",
               "Count:3": 8,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            },
-            "4:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 2,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -12502,18 +12352,12 @@
             "1:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 3,
+              "Damage:2": 2,
               "OreDict:8": ""
             },
             "2:10": {
               "id:8": "minecraft:obsidian",
               "Count:3": 16,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            },
-            "3:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 8,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -12581,17 +12425,11 @@
             "1:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 1,
+              "Damage:2": 0,
               "OreDict:8": ""
             },
             "2:10": {
               "id:8": "minecraft:noteblock",
-              "Count:3": 2,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            },
-            "3:10": {
-              "id:8": "lucky:lucky_block",
               "Count:3": 2,
               "Damage:2": 0,
               "OreDict:8": ""
@@ -12660,13 +12498,7 @@
             "1:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 2,
-              "OreDict:8": ""
-            },
-            "2:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 12,
-              "Damage:2": 0,
+              "Damage:2": 1,
               "OreDict:8": ""
             }
           }
@@ -12733,18 +12565,12 @@
             "1:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 1,
+              "Damage:2": 0,
               "OreDict:8": ""
             },
             "2:10": {
               "id:8": "minecraft:blaze_powder",
               "Count:3": 8,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            },
-            "3:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 2,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -12812,17 +12638,11 @@
             "1:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 2,
+              "Damage:2": 1,
               "OreDict:8": ""
             },
             "2:10": {
               "id:8": "minecraft:diamond",
-              "Count:3": 4,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            },
-            "3:10": {
-              "id:8": "lucky:lucky_block",
               "Count:3": 4,
               "Damage:2": 0,
               "OreDict:8": ""
@@ -12891,17 +12711,11 @@
             "1:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 3,
+              "Damage:2": 2,
               "OreDict:8": ""
             },
             "2:10": {
               "id:8": "minecraft:glowstone",
-              "Count:3": 8,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            },
-            "3:10": {
-              "id:8": "lucky:lucky_block",
               "Count:3": 8,
               "Damage:2": 0,
               "OreDict:8": ""
@@ -13049,18 +12863,12 @@
             "1:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 3,
+              "Damage:2": 2,
               "OreDict:8": ""
             },
             "2:10": {
               "id:8": "minecraft:obsidian",
               "Count:3": 16,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            },
-            "3:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 8,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -13128,18 +12936,12 @@
             "1:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 1,
+              "Damage:2": 0,
               "OreDict:8": ""
             },
             "2:10": {
               "id:8": "minecraft:fish",
               "Count:3": 16,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            },
-            "3:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 2,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -13207,13 +13009,7 @@
             "1:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 3,
-              "OreDict:8": ""
-            },
-            "2:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 16,
-              "Damage:2": 0,
+              "Damage:2": 2,
               "OreDict:8": ""
             }
           }
@@ -13359,18 +13155,12 @@
             "1:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 2,
+              "Damage:2": 1,
               "OreDict:8": ""
             },
             "2:10": {
               "id:8": "minecraft:iron_ingot",
               "Count:3": 16,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            },
-            "3:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 4,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -13449,7 +13239,7 @@
             },
             "3:10": {
               "id:8": "lucky:lucky_block",
-              "Count:3": 8,
+              "Count:3": 1,
               "Damage:2": 0,
               "OreDict:8": ""
             },
@@ -13523,19 +13313,13 @@
             "1:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 2,
+              "Damage:2": 1,
               "OreDict:8": ""
             },
             "2:10": {
               "id:8": "minecraft:dye",
               "Count:3": 16,
               "Damage:2": 5,
-              "OreDict:8": ""
-            },
-            "3:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 4,
-              "Damage:2": 0,
               "OreDict:8": ""
             }
           }
@@ -13602,17 +13386,11 @@
             "1:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 3,
+              "Damage:2": 2,
               "OreDict:8": ""
             },
             "2:10": {
               "id:8": "minecraft:diamond",
-              "Count:3": 8,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            },
-            "3:10": {
-              "id:8": "lucky:lucky_block",
               "Count:3": 8,
               "Damage:2": 0,
               "OreDict:8": ""
@@ -13681,18 +13459,12 @@
             "1:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 1,
+              "Damage:2": 0,
               "OreDict:8": ""
             },
             "2:10": {
               "id:8": "minecraft:arrow",
               "Count:3": 64,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            },
-            "3:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 2,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -13839,18 +13611,12 @@
             "1:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 2,
+              "Damage:2": 1,
               "OreDict:8": ""
             },
             "2:10": {
               "id:8": "minecraft:iron_ingot",
               "Count:3": 16,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            },
-            "3:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 4,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -13918,18 +13684,12 @@
             "1:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 1,
+              "Damage:2": 0,
               "OreDict:8": ""
             },
             "2:10": {
               "id:8": "minecraft:stone",
               "Count:3": 32,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            },
-            "3:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 2,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -14008,7 +13768,7 @@
             },
             "3:10": {
               "id:8": "lucky:lucky_block",
-              "Count:3": 8,
+              "Count:3": 1,
               "Damage:2": 0,
               "OreDict:8": ""
             },
@@ -14082,18 +13842,12 @@
             "1:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 1,
+              "Damage:2": 0,
               "OreDict:8": ""
             },
             "2:10": {
               "id:8": "minecraft:snowball",
               "Count:3": 32,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            },
-            "3:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 2,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -14161,18 +13915,12 @@
             "1:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 1,
+              "Damage:2": 0,
               "OreDict:8": ""
             },
             "2:10": {
               "id:8": "minecraft:string",
               "Count:3": 32,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            },
-            "3:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 2,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -14240,18 +13988,12 @@
             "1:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 1,
+              "Damage:2": 0,
               "OreDict:8": ""
             },
             "2:10": {
               "id:8": "minecraft:sponge",
               "Count:3": 4,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            },
-            "3:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 2,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -14319,18 +14061,12 @@
             "1:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 1,
+              "Damage:2": 0,
               "OreDict:8": ""
             },
             "2:10": {
               "id:8": "minecraft:dye",
               "Count:3": 16,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            },
-            "3:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 2,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -14398,19 +14134,13 @@
             "1:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 3,
+              "Damage:2": 2,
               "OreDict:8": ""
             },
             "2:10": {
               "id:8": "minecraft:skull",
               "Count:3": 1,
               "Damage:2": 1,
-              "OreDict:8": ""
-            },
-            "3:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 8,
-              "Damage:2": 0,
               "OreDict:8": ""
             }
           }
@@ -14477,18 +14207,12 @@
             "1:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 1,
+              "Damage:2": 0,
               "OreDict:8": ""
             },
             "2:10": {
               "id:8": "minecraft:beef",
               "Count:3": 16,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            },
-            "3:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 2,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -14592,12 +14316,6 @@
             "7:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            },
-            "8:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 4,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -14748,7 +14466,7 @@
             },
             "8:10": {
               "id:8": "lucky:lucky_block",
-              "Count:3": 8,
+              "Count:3": 1,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -14828,12 +14546,6 @@
             "3:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            },
-            "4:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 2,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -14933,12 +14645,6 @@
             "6:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            },
-            "7:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 2,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -15068,13 +14774,7 @@
             "8:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 2,
-              "OreDict:8": ""
-            },
-            "9:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 4,
-              "Damage:2": 0,
+              "Damage:2": 1,
               "OreDict:8": ""
             }
           }
@@ -15193,12 +14893,6 @@
               "Count:3": 1,
               "Damage:2": 4,
               "OreDict:8": ""
-            },
-            "7:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 4,
-              "Damage:2": 0,
-              "OreDict:8": ""
             }
           }
         }
@@ -15296,12 +14990,12 @@
             "6:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 2,
+              "Damage:2": 1,
               "OreDict:8": ""
             },
             "7:10": {
               "id:8": "lucky:lucky_block",
-              "Count:3": 2,
+              "Count:3": 1,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -15387,12 +15081,6 @@
             "4:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 1,
-              "OreDict:8": ""
-            },
-            "5:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 2,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -15498,12 +15186,12 @@
             "5:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 2,
+              "Damage:2": 1,
               "OreDict:8": ""
             },
             "6:10": {
               "id:8": "lucky:lucky_block",
-              "Count:3": 4,
+              "Count:3": 1,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -15595,12 +15283,6 @@
             "5:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            },
-            "6:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 2,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -15700,12 +15382,12 @@
             "3:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 1,
+              "Damage:2": 0,
               "OreDict:8": ""
             },
             "4:10": {
               "id:8": "lucky:lucky_block",
-              "Count:3": 4,
+              "Count:3": 1,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -15785,12 +15467,6 @@
             "3:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            },
-            "4:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 2,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -15890,12 +15566,12 @@
             "4:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 1,
+              "Damage:2": 0,
               "OreDict:8": ""
             },
             "5:10": {
               "id:8": "lucky:lucky_block",
-              "Count:3": 4,
+              "Count:3": 1,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -15993,12 +15669,6 @@
             "6:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 1,
-              "OreDict:8": ""
-            },
-            "7:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 2,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -16116,12 +15786,12 @@
             "6:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 2,
+              "Damage:2": 1,
               "OreDict:8": ""
             },
             "7:10": {
               "id:8": "lucky:lucky_block",
-              "Count:3": 4,
+              "Count:3": 1,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -16225,12 +15895,6 @@
             "7:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 1,
-              "OreDict:8": ""
-            },
-            "8:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 2,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -16336,12 +16000,12 @@
             "4:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 2,
+              "Damage:2": 1,
               "OreDict:8": ""
             },
             "5:10": {
               "id:8": "lucky:lucky_block",
-              "Count:3": 4,
+              "Count:3": 1,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -16421,12 +16085,6 @@
             "3:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 1,
-              "OreDict:8": ""
-            },
-            "4:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 2,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -16538,12 +16196,12 @@
             "5:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 2,
+              "Damage:2": 1,
               "OreDict:8": ""
             },
             "6:10": {
               "id:8": "lucky:lucky_block",
-              "Count:3": 4,
+              "Count:3": 1,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -16629,12 +16287,6 @@
             "4:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            },
-            "5:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 2,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -16740,12 +16392,12 @@
             "4:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 1,
+              "Damage:2": 0,
               "OreDict:8": ""
             },
             "5:10": {
               "id:8": "lucky:lucky_block",
-              "Count:3": 4,
+              "Count:3": 1,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -16831,12 +16483,6 @@
             "4:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            },
-            "5:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 2,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -16936,12 +16582,12 @@
             "3:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 1,
+              "Damage:2": 0,
               "OreDict:8": ""
             },
             "4:10": {
               "id:8": "lucky:lucky_block",
-              "Count:3": 4,
+              "Count:3": 1,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -17033,12 +16679,6 @@
             "5:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            },
-            "6:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 2,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -17138,12 +16778,12 @@
             "3:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 1,
+              "Damage:2": 0,
               "OreDict:8": ""
             },
             "4:10": {
               "id:8": "lucky:lucky_block",
-              "Count:3": 4,
+              "Count:3": 1,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -17223,12 +16863,6 @@
             "3:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            },
-            "4:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 2,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -17334,12 +16968,12 @@
             "4:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 1,
+              "Damage:2": 0,
               "OreDict:8": ""
             },
             "5:10": {
               "id:8": "lucky:lucky_block",
-              "Count:3": 4,
+              "Count:3": 1,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -17425,12 +17059,6 @@
             "4:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            },
-            "5:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 2,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -17530,12 +17158,12 @@
             "3:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 1,
+              "Damage:2": 0,
               "OreDict:8": ""
             },
             "4:10": {
               "id:8": "lucky:lucky_block",
-              "Count:3": 4,
+              "Count:3": 1,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -17627,12 +17255,6 @@
             "5:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            },
-            "6:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 2,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -17738,12 +17360,12 @@
             "4:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 1,
+              "Damage:2": 0,
               "OreDict:8": ""
             },
             "5:10": {
               "id:8": "lucky:lucky_block",
-              "Count:3": 4,
+              "Count:3": 1,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -17829,12 +17451,6 @@
             "4:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            },
-            "5:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 2,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -17940,12 +17556,12 @@
             "5:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 1,
+              "Damage:2": 0,
               "OreDict:8": ""
             },
             "6:10": {
               "id:8": "lucky:lucky_block",
-              "Count:3": 4,
+              "Count:3": 1,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -18031,12 +17647,6 @@
             "4:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            },
-            "5:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 2,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -18142,12 +17752,12 @@
             "4:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 1,
+              "Damage:2": 0,
               "OreDict:8": ""
             },
             "5:10": {
               "id:8": "lucky:lucky_block",
-              "Count:3": 4,
+              "Count:3": 1,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -18233,12 +17843,6 @@
             "4:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            },
-            "5:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 2,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -18356,12 +17960,12 @@
             "6:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 1,
+              "Damage:2": 0,
               "OreDict:8": ""
             },
             "7:10": {
               "id:8": "lucky:lucky_block",
-              "Count:3": 4,
+              "Count:3": 1,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -18459,12 +18063,6 @@
             "6:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            },
-            "7:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 2,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -18588,12 +18186,12 @@
             "7:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 1,
+              "Damage:2": 0,
               "OreDict:8": ""
             },
             "8:10": {
               "id:8": "lucky:lucky_block",
-              "Count:3": 4,
+              "Count:3": 1,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -18685,12 +18283,6 @@
             "5:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            },
-            "6:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 2,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -18826,12 +18418,12 @@
             "9:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 1,
+              "Damage:2": 0,
               "OreDict:8": ""
             },
             "10:10": {
               "id:8": "lucky:lucky_block",
-              "Count:3": 4,
+              "Count:3": 1,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -18941,12 +18533,6 @@
             "8:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            },
-            "9:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 2,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -19070,12 +18656,12 @@
             "7:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 1,
+              "Damage:2": 0,
               "OreDict:8": ""
             },
             "8:10": {
               "id:8": "lucky:lucky_block",
-              "Count:3": 4,
+              "Count:3": 1,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -19173,12 +18759,6 @@
             "6:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            },
-            "7:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 2,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -19290,12 +18870,12 @@
             "5:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 1,
+              "Damage:2": 0,
               "OreDict:8": ""
             },
             "6:10": {
               "id:8": "lucky:lucky_block",
-              "Count:3": 4,
+              "Count:3": 1,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -19399,12 +18979,6 @@
             "7:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            },
-            "8:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 2,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -19516,12 +19090,12 @@
             "5:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 1,
+              "Damage:2": 0,
               "OreDict:8": ""
             },
             "6:10": {
               "id:8": "lucky:lucky_block",
-              "Count:3": 4,
+              "Count:3": 1,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -19631,12 +19205,6 @@
             "8:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            },
-            "9:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 2,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -19766,12 +19334,12 @@
             "8:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 1,
+              "Damage:2": 0,
               "OreDict:8": ""
             },
             "9:10": {
               "id:8": "lucky:lucky_block",
-              "Count:3": 4,
+              "Count:3": 1,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -19875,12 +19443,6 @@
             "7:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            },
-            "8:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 2,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -19998,12 +19560,12 @@
             "6:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 1,
+              "Damage:2": 0,
               "OreDict:8": ""
             },
             "7:10": {
               "id:8": "lucky:lucky_block",
-              "Count:3": 4,
+              "Count:3": 1,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -20113,12 +19675,6 @@
             "8:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            },
-            "9:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 2,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -20236,12 +19792,12 @@
             "6:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 1,
+              "Damage:2": 0,
               "OreDict:8": ""
             },
             "7:10": {
               "id:8": "lucky:lucky_block",
-              "Count:3": 4,
+              "Count:3": 1,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -20359,12 +19915,6 @@
               "Count:3": 1,
               "Damage:2": 0,
               "OreDict:8": ""
-            },
-            "10:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 2,
-              "Damage:2": 0,
-              "OreDict:8": ""
             }
           }
         }
@@ -20480,12 +20030,12 @@
             "6:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 1,
+              "Damage:2": 0,
               "OreDict:8": ""
             },
             "7:10": {
               "id:8": "lucky:lucky_block",
-              "Count:3": 4,
+              "Count:3": 1,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -20571,12 +20121,6 @@
             "4:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            },
-            "5:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 2,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -20682,12 +20226,12 @@
             "4:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 1,
+              "Damage:2": 0,
               "OreDict:8": ""
             },
             "5:10": {
               "id:8": "lucky:lucky_block",
-              "Count:3": 4,
+              "Count:3": 1,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -20773,12 +20317,6 @@
             "4:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            },
-            "5:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 2,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -20884,12 +20422,12 @@
             "4:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 1,
+              "Damage:2": 0,
               "OreDict:8": ""
             },
             "5:10": {
               "id:8": "lucky:lucky_block",
-              "Count:3": 4,
+              "Count:3": 1,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -20969,12 +20507,6 @@
             "3:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            },
-            "4:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 2,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -21080,12 +20612,12 @@
             "4:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 1,
+              "Damage:2": 0,
               "OreDict:8": ""
             },
             "5:10": {
               "id:8": "lucky:lucky_block",
-              "Count:3": 4,
+              "Count:3": 1,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -21183,12 +20715,6 @@
             "6:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            },
-            "7:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 2,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -21312,12 +20838,12 @@
             "7:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 1,
+              "Damage:2": 0,
               "OreDict:8": ""
             },
             "8:10": {
               "id:8": "lucky:lucky_block",
-              "Count:3": 4,
+              "Count:3": 1,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -21409,12 +20935,6 @@
             "5:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            },
-            "6:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 2,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -21520,12 +21040,12 @@
             "4:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 1,
+              "Damage:2": 0,
               "OreDict:8": ""
             },
             "5:10": {
               "id:8": "lucky:lucky_block",
-              "Count:3": 4,
+              "Count:3": 1,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -21617,12 +21137,6 @@
             "5:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 1,
-              "OreDict:8": ""
-            },
-            "6:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 2,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -21734,12 +21248,12 @@
             "5:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 2,
+              "Damage:2": 1,
               "OreDict:8": ""
             },
             "6:10": {
               "id:8": "lucky:lucky_block",
-              "Count:3": 4,
+              "Count:3": 1,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -21843,12 +21357,6 @@
             "7:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 1,
-              "OreDict:8": ""
-            },
-            "8:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 2,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -21960,12 +21468,12 @@
             "5:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 2,
+              "Damage:2": 1,
               "OreDict:8": ""
             },
             "6:10": {
               "id:8": "lucky:lucky_block",
-              "Count:3": 4,
+              "Count:3": 1,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -22039,12 +21547,6 @@
             "2:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 1,
-              "OreDict:8": ""
-            },
-            "3:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 2,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -22138,12 +21640,12 @@
             "2:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 2,
+              "Damage:2": 1,
               "OreDict:8": ""
             },
             "3:10": {
               "id:8": "lucky:lucky_block",
-              "Count:3": 4,
+              "Count:3": 1,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -22217,12 +21719,6 @@
             "2:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            },
-            "3:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 2,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -22316,12 +21812,12 @@
             "2:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 1,
+              "Damage:2": 0,
               "OreDict:8": ""
             },
             "3:10": {
               "id:8": "lucky:lucky_block",
-              "Count:3": 4,
+              "Count:3": 1,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -22395,12 +21891,6 @@
             "2:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            },
-            "3:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 2,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -22494,12 +21984,12 @@
             "2:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 1,
+              "Damage:2": 0,
               "OreDict:8": ""
             },
             "3:10": {
               "id:8": "lucky:lucky_block",
-              "Count:3": 4,
+              "Count:3": 1,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -22609,12 +22099,6 @@
             "8:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            },
-            "9:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 2,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -22732,12 +22216,12 @@
             "6:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 1,
+              "Damage:2": 0,
               "OreDict:8": ""
             },
             "7:10": {
               "id:8": "lucky:lucky_block",
-              "Count:3": 4,
+              "Count:3": 1,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -22835,12 +22319,6 @@
             "6:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            },
-            "7:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 2,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -22970,12 +22448,12 @@
             "8:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 1,
+              "Damage:2": 0,
               "OreDict:8": ""
             },
             "9:10": {
               "id:8": "lucky:lucky_block",
-              "Count:3": 4,
+              "Count:3": 1,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -23067,12 +22545,6 @@
             "5:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 1,
-              "OreDict:8": ""
-            },
-            "6:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 2,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -23184,12 +22656,12 @@
             "5:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 2,
+              "Damage:2": 1,
               "OreDict:8": ""
             },
             "6:10": {
               "id:8": "lucky:lucky_block",
-              "Count:3": 4,
+              "Count:3": 1,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -23281,12 +22753,6 @@
             "5:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 1,
-              "OreDict:8": ""
-            },
-            "6:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 2,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -23404,12 +22870,12 @@
             "6:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 2,
+              "Damage:2": 1,
               "OreDict:8": ""
             },
             "7:10": {
               "id:8": "lucky:lucky_block",
-              "Count:3": 4,
+              "Count:3": 1,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -23501,12 +22967,6 @@
             "5:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            },
-            "6:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 2,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -23618,12 +23078,12 @@
             "5:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 1,
+              "Damage:2": 0,
               "OreDict:8": ""
             },
             "6:10": {
               "id:8": "lucky:lucky_block",
-              "Count:3": 4,
+              "Count:3": 1,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -23697,12 +23157,6 @@
             "2:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            },
-            "3:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 2,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -23796,12 +23250,12 @@
             "2:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 1,
+              "Damage:2": 0,
               "OreDict:8": ""
             },
             "3:10": {
               "id:8": "lucky:lucky_block",
-              "Count:3": 4,
+              "Count:3": 1,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -23887,12 +23341,6 @@
             "4:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            },
-            "5:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 2,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -24016,12 +23464,12 @@
             "7:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 1,
+              "Damage:2": 0,
               "OreDict:8": ""
             },
             "8:10": {
               "id:8": "lucky:lucky_block",
-              "Count:3": 4,
+              "Count:3": 1,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -24119,12 +23567,6 @@
             "6:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            },
-            "7:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 2,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -24230,12 +23672,12 @@
             "4:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 1,
+              "Damage:2": 0,
               "OreDict:8": ""
             },
             "5:10": {
               "id:8": "lucky:lucky_block",
-              "Count:3": 4,
+              "Count:3": 1,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -24327,12 +23769,6 @@
             "5:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            },
-            "6:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 2,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -24444,12 +23880,12 @@
             "5:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 1,
+              "Damage:2": 0,
               "OreDict:8": ""
             },
             "6:10": {
               "id:8": "lucky:lucky_block",
-              "Count:3": 4,
+              "Count:3": 1,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -24541,12 +23977,6 @@
             "5:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            },
-            "6:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 2,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -24664,12 +24094,12 @@
             "6:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 1,
+              "Damage:2": 0,
               "OreDict:8": ""
             },
             "7:10": {
               "id:8": "lucky:lucky_block",
-              "Count:3": 4,
+              "Count:3": 1,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -24749,12 +24179,6 @@
             "3:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            },
-            "4:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 2,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -24866,12 +24290,12 @@
             "5:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 1,
+              "Damage:2": 0,
               "OreDict:8": ""
             },
             "6:10": {
               "id:8": "lucky:lucky_block",
-              "Count:3": 4,
+              "Count:3": 1,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -24939,12 +24363,6 @@
             "1:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            },
-            "2:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 2,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -25056,12 +24474,12 @@
             "5:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 1,
+              "Damage:2": 0,
               "OreDict:8": ""
             },
             "6:10": {
               "id:8": "lucky:lucky_block",
-              "Count:3": 4,
+              "Count:3": 1,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -25159,12 +24577,6 @@
             "6:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 1,
-              "OreDict:8": ""
-            },
-            "7:10": {
-              "id:8": "lucky:lucky_block",
-              "Count:3": 2,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -25282,12 +24694,12 @@
             "6:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
-              "Damage:2": 2,
+              "Damage:2": 1,
               "OreDict:8": ""
             },
             "7:10": {
               "id:8": "lucky:lucky_block",
-              "Count:3": 4,
+              "Count:3": 1,
               "Damage:2": 0,
               "OreDict:8": ""
             }

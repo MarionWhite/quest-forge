@@ -1,6 +1,6 @@
 # Questline audit
 
-Status: **WP-0 and WP-1 done (2026-10-17); see [section 6](#6-implementation-log).** WP-3 onward
+Status: **WP-0, WP-1 and WP-2 done (2026-10-17); see [section 6](#6-implementation-log).** WP-3 onward
 are still proposals for the author to review. The audit itself was written 2026-10-16 against
 `pack/config/betterquesting/DefaultQuests.json` (SHA-1 `a4ec0775…`). That file is byte-identical
 to the live instance's copy and to the friends' server copy (`C:\qfs\friends`), so everything below
@@ -493,7 +493,7 @@ Each item can be done in one session. Do them in order: earlier items make later
 - **Validate:** `qb.py lint ids cheese stack` are clean. Then a slim boot:
   `py -3.10 tools/trial/trial.py build q --bundle quests --bundle inspect railcraft levelup legends tragicmc witchery twilightforest lycanites` (add whatever the touched quests reference). Launch it as a background task when no other client is running. Open the book and confirm no placeholder icons on the touched quests.
 
-### WP-2: stop the tier leaks (reward-only changes)
+### WP-2: stop the tier leaks (reward-only changes) — DONE 2026-10-17
 
 - **Scope:** the 2.3 table.
   - 134: Overlord armour out.
@@ -618,8 +618,8 @@ across the book). Before WP-1 `qb.py check` failed with 27 errors per book. Afte
 
 | Quest | Old | New | Why |
 |---|---|---|---|
-| 140 Doomsday Scroll | `TragicMC:swordOfJustice` | `TragicMC:celestialAegis` | Creative-tab debug sword. The Celestial Aegis is TragicMC's own endgame blade. |
-| 144 Doombringer | `TragicMC:bowOfJustice` | `TragicMC:celestialLongbow` | Creative-tab debug bow. |
+| 140 Doomsday Scroll | `TragicMC:swordOfJustice` | `TragicMC:celestialAegis` | Creative-tab debug sword. The Celestial Aegis is TragicMC's own endgame blade, registered in its Survival tab (checked in the jar). |
+| 144 Doombringer | `TragicMC:bowOfJustice` | `TragicMC:celestialLongbow` | Creative-tab debug bow. The Celestial Longbow is in the Survival tab. |
 | 141 Witch of the Wild | `witchery:infinityegg` | Sealed Tome (Epic) | Creative infinite altar power. Epic is the top of the Act III tome band (4.5). |
 | 431 Pick a Class | `levelup:xpTalisman` (unregistered) | Sealed Tome (Common) | Disabled in `levelup.cfg`; showed as a placeholder. Icon `levelup:respecBook` → experience bottle. |
 | 300 Hall of Heroes | `legends:superDex` (unregistered) | removed | Showed as a placeholder. |
@@ -635,6 +635,31 @@ the titans") describe the order WP-3 will enforce, so they wait for it. "Wear it
 untouched. `tools/pack-fixes/quest-55/README.md` is outside this pass's files; it still needs
 its "historical" note. Two cheese warnings remain where the reward completes an *unrelated*
 quest, not the next one: 118 → 113 (Endium) and 303 → 300 (Electronics).
+
+### WP-2 (tier leaks)
+
+**Rewards replaced in WP-2:**
+
+| Quest | Old | New | Why |
+|---|---|---|---|
+| 134 Dimensional Key | choice: Overlord Helm / Overlord Plate / Overlord Amulet | choice: 1 Epic loot bag / 2 Rare Sealed Tomes / 2 enchanted golden apples | The final boss's armour for crafting the key to its house (example B, 4.7). The armour waits for a WP-4 "Overlord" hunt quest. |
+| 24 The Queen | 64 Queen Scales (choice) | 4 Queen Scales | One Red Matter per scale. Note: the Queen herself drops **56** scales and a Royal sword per kill (`TheQueen.func_70628_a`), so the kill, not the quest, is the real supply. |
+| 22 Mobzilla | 32 Mobzilla Scale Blocks (choice) | 4 | Mobzilla drops 50–79 scales (5–8 blocks) per kill; 32 blocks was four to six kills. |
+| 13 Dark Matter | 3 Dark Matter | 1 | Rewarding the first craft with triple the gated material. |
+| 34 Red Matter | 4 Red Matter | 1 | Same. |
+| 6 Diamond Gear | ProjectE Zero Ring (choice) | Sealed Tome (Uncommon) | A ProjectE item before the Lich. The tome introduces the pack's own enchant system at Act I's band. |
+| 21 Ultimate Gear | Ultimate Pickaxe + Ultimate Bow | 1 Rare loot bag + 8 Bottles o' Enchanting | Two more Ultimate pieces at OreSpawn step 2, before Mantis, Basilisk and Kraken. |
+| 107 Road to Torment | Death's Robe (choice) | Witches Robes (`witchery:witchrobe`) | Part of the Death set, which Witchery's Death boss drops. |
+| 137 Time and Corruption | The Titan (choice) | Sealed Tome (Epic) | A top-tier named weapon at mid-chapter. |
+| Pets (55) + Heroes (101) | 2–16 Lucky Blocks per quest, 554 in all | 1 per completion quest (47 hero Full Sets, the 4 legendary pets, Costume Closet, Iron Man Mark 21), 0 elsewhere: **53** | J4. At ~1.5–2% Ultimate-tier per block, 554 ungated blocks were ~10 Ultimate pieces before any boss. |
+| Pets + Heroes | 1 loot bag per quest | 1 bag, **one tier lower** (Common stays Common); Legendary only on the 4 legendary pets, the Costume Closet and Mark 7 | 104 bag stacks lowered. Ungated Epic bags in these tabs: 11 → 0. |
+
+**`qb.py tally` after WP-2 (pack):** Lucky Blocks in the whole book 765 → 264; ungated
+100 (Heroes 49, Pets 4, and 47 outside these tabs: Secret 73 "Dimensional Traveler" 30,
+Exploration 7, Danger Zone 5, Rewards 5). Ungated Legendary bags: only 67, 83, 208, 215,
+301, 305. Still ungated and untouched: 68 golden apples, 12 diamonds and 2 diamond blocks in
+Pets; Epic bags in 107, 119, 121, 134, 141–144 and 405, which sit behind chapters that WP-3
+gates properly.
 
 ## Appendix: reproduction notes
 
