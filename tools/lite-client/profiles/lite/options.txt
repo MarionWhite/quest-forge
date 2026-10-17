@@ -1,0 +1,26 @@
+# Quest Forge LITE -- options.txt overrides (vanilla video settings).
+# apply-lite.ps1 sets only these keys; keybinds, sounds, language, chat and
+# resource packs are left as they are. Lines starting with # are ignored.
+#
+# Render distance 6 = the friends' server view-distance. The server sends no
+# chunk past 6, so anything higher renders nothing extra; at 6 the fog lands on
+# the edge of the loaded world instead of showing a hard cut-off.
+renderDistance:6
+# Fast graphics: opaque leaves (Twilight Forest and jungles are the worst case),
+# no entity shadows, fast clouds. The single largest vanilla CPU+GPU lever.
+fancyGraphics:false
+# Smooth lighting "Minimum" instead of "Maximum": cheaper chunk rebuilds, still smooth.
+ao:1
+# Particles "Decreased" (0=All, 1=Decreased, 2=Minimal). Lycanites and TragicMC fights are particle storms.
+particles:1
+# 2 mip levels instead of 4: half the per-tick animated-texture upload work, distant blocks still filtered.
+mipmapLevels:2
+anisotropicFiltering:1
+# Cap at 90. Uncapped (260) makes the menu and caves run the GPU flat out, which
+# heats a laptop into throttling and lowers the frame rate where it matters.
+maxFps:90
+enableVsync:false
+fboEnable:true
+advancedOpengl:false
+clouds:true
+snooperEnabled:false
