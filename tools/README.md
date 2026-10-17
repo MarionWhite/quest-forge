@@ -35,6 +35,7 @@ which is where the shipped versions live.
 | `buttons-iron`, `buttons-stone`, `buttons-concepts` | Menu button treatments. `buttons-concepts` holds the rejected directions. |
 | `icons` | Instance and window icons at every required size. |
 | `loading-plates` | The rotating loading-screen plates. |
+| `jukebox-model` | The jukebox model's material sheets (`make_jukebox_textures.py`, with the burl/inlay/nebula figure in `ornate.py`) and its inventory icon (`make_icon.py`, from an IconBake render). Installs straight into `qf-content`'s textures rather than the resourcepack — it is a mod's own art, not a retexture. `saved/` keeps shelved designs. |
 | `emblem-pulse` | The animated pack emblem. |
 | `hero-art` | Character art sourced from the Legends Mod models. |
 | `optifine-morph` | OptiFine-specific rendering adjustments. |

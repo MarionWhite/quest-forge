@@ -92,6 +92,17 @@ public class ClientProxy extends CommonProxy {
         } catch (Throwable t) {
             System.out.println("[QuestForgeContent] AutoShot present but unusable: " + t);
         }
+        // The same for the icon bake (-Dqf.iconbake=<file>).
+        try {
+            Class<?> bake = Class.forName("com.questforge.content.debug.IconBake");
+            if (Boolean.TRUE.equals(bake.getMethod("enabled").invoke(null))) {
+                FMLCommonHandler.instance().bus().register(bake.newInstance());
+            }
+        } catch (ClassNotFoundException expected) {
+            // Release build.
+        } catch (Throwable t) {
+            System.out.println("[QuestForgeContent] IconBake present but unusable: " + t);
+        }
         // The same for the frame-time benchmark (-Dqf.bench=1).
         try {
             Class<?> bench = Class.forName("com.questforge.content.debug.FrameBench");
@@ -116,6 +127,18 @@ public class ClientProxy extends CommonProxy {
         cpw.mods.fml.client.registry.ClientRegistry.bindTileEntitySpecialRenderer(
                 com.questforge.content.jukebox.TileEntityTowerSpeaker.class,
                 new com.questforge.content.jukebox.RenderTowerSpeaker());
+
+        cpw.mods.fml.client.registry.ClientRegistry.bindTileEntitySpecialRenderer(
+                com.questforge.content.jukebox.TileEntityJukebox.class,
+                new com.questforge.content.jukebox.RenderJukebox());
+
+        // The item form of a block nothing else draws. Registered here rather than
+        // in init because it needs the block's Item, which exists only once
+        // registration has run.
+        net.minecraftforge.client.MinecraftForgeClient.registerItemRenderer(
+                net.minecraft.item.Item.getItemFromBlock(
+                        com.questforge.content.ModBlocks.jukebox),
+                new com.questforge.content.jukebox.JukeboxItemRenderer());
 
         // Says in the log which audio formats this build can actually play. The one
         // way this breaks is at packaging time, and it breaks silently.

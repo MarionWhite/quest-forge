@@ -1,5 +1,6 @@
 item.forge_shard.name=Forge Shard
 tile.record_case.name=Record Case
+tile.qf_jukebox.name=Jukebox
 key.qfcontent.record_menu=Record menu (hover a record)
 
 key.categories.qfvoice=QuestForge Voice

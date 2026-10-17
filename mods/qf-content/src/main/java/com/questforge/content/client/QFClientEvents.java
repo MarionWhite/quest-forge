@@ -42,10 +42,11 @@ public class QFClientEvents {
         com.questforge.content.ench.enchants.ArmorEnchants.Flippers.apply(mc.thePlayer, level);
     }
 
-    /** Tracker's outlines, drawn after the world so they sit in world space. */
+    /** Outlines drawn after the world, so they sit in world space. */
     @SubscribeEvent
     public void onRenderWorldLast(RenderWorldLastEvent event) {
         TrackerFX.render(event.partialTicks);
+        PlacementGhost.render(event.partialTicks);
     }
 
     /**

@@ -75,6 +75,11 @@ public class QFNetwork {
 
         wrapper.registerMessage(PacketOpenSpeaker.Handler.class,
                                 PacketOpenSpeaker.class, 10, Side.CLIENT);
+
+        // Which disc shows behind a jukebox's glass. Purely cosmetic, but it has
+        // to reach the server or only the player who set it would ever see it.
+        wrapper.registerMessage(PacketDiscTier.Handler.class,
+                                PacketDiscTier.class, 16, Side.SERVER);
         // "This drag-and-drop enchanting click is deliberate." Without it the
         // server cannot tell a person from InventoryTweaks' sort; see ClickIntent.
         wrapper.registerMessage(PacketClickIntent.Handler.class,

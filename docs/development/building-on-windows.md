@@ -141,12 +141,31 @@ settle, writes `screenshots/<name>.png`, and quits. It exists because a render
 bug that only appears under one shader pack costs a person a launch, a look and a
 description every time it is asked about, and a screenshot answers it exactly.
 
+A capture run is one command, and **`-PqfDebugTools=true` is not optional here**:
+
+```powershell
+.\gradlew runClient -PqfDebugTools=true `
+  -Dqf.autoshot=<world> -Dqf.autoshot.place=jukebox -Dqf.autoshot.name=<tag>
+```
+
+The world is a folder under `mods\qf-content\run\saves\`. If you only have a
+server world (`run\censusworld`), copy it in there and delete its `session.lock`
+— the format is the same.
+
 Options: `qf.autoshot.name`, `qf.autoshot.delay` (ticks, default 200),
 `qf.autoshot.armor=<class substring>` to equip a chestplate, `qf.autoshot.unequip=1`
-to strip one, `qf.autoshot.place=1` to drop a Tower Speaker in front of the player.
-Armour is set on the integrated server, not just the client, or the next inventory
-sync silently undoes it. It logs `CHEST SLOT:` at capture, because reading a
-hotbar icon as worn armour once invalidated a whole verification run.
+to strip one, `qf.autoshot.time=<ticks>` to set the time of day and stop the
+weather (6000 is noon — a world opens wherever it was left, and the first shot of
+the jukebox came back as four dark red pixels at midnight),
+`qf.autoshot.place=<block>` to drop `jukebox`, `record_case` or
+`tower_speaker` in front of the player, and `qf.autoshot.clear=<radius>` to open
+the space around it (foliage between the camera and the subject is the usual
+reason a shot proves nothing). A placed block gets `onBlockPlacedBy`
+called on it, so one that turns to face whoever put it down is photographed
+turned rather than facing north. Armour is set on the integrated server, not just
+the client, or the next inventory sync silently undoes it. It logs `CHEST SLOT:`
+at capture, because reading a hotbar icon as worn armour once invalidated a whole
+verification run.
 
 **It is not in release jars.** The `jar` task excludes the package, and
 `ClientProxy` looks the class up by name, so its absence is the normal case:
@@ -155,6 +174,14 @@ hotbar icon as worn armour once invalidated a whole verification run.
 .\gradlew build                       # release -- no debug tooling
 .\gradlew build -PqfDebugTools=true   # includes AutoShot
 ```
+
+That exclusion is also why `runClient` needs the flag. RFG hands the dev client
+the jar from `tasks.jar`, not the loose classes, so without `-PqfDebugTools=true`
+the harness is not on the classpath at all — `ClientProxy` swallows the
+`ClassNotFoundException` by design and the run sits on the title screen looking
+like a launch that simply did nothing. The `-Dqf.*` options need no such help:
+the build forwards every one of them into the game's JVM, which is a separate
+process that would otherwise inherit none.
 
 Build the release variant before deploying to the live pack, or `verify_pack.py`
 will flag the size mismatch -- which is the check working, not a fault.

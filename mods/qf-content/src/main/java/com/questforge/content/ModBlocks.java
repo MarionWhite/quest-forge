@@ -35,11 +35,12 @@ public class ModBlocks {
         enchantLight = new com.questforge.content.ench.BlockEnchantLight();
         GameRegistry.registerBlock(enchantLight, null, "enchant_light");
 
-        // Borrows vanilla's jukebox texture, so there is no missing-texture checker
-        // until this block gets art of its own.
+        // Drawn by RenderJukebox in the world and by JukeboxItemRenderer in the
+        // hand; the sprite named here is only what its break particles are made
+        // of, which is the one thing a render type of -1 still needs.
         jukebox = new com.questforge.content.jukebox.BlockJukebox()
                 .setBlockName("qf_jukebox")
-                .setBlockTextureName("jukebox_side")
+                .setBlockTextureName(QuestForgeContent.MODID + ":jukebox")
                 .setHardness(2.0F)
                 .setStepSound(Block.soundTypeWood)
                 .setCreativeTab(ModCreativeTab.INSTANCE);

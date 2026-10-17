@@ -297,6 +297,18 @@ tasks.processResources.configure {
 // RFG also patches Minecraft at build time, so the runtime ClassPatchManager
 // path that breaks the packed instance on newer Java 8 is not exercised here.
 
+// AutoShot is configured with -Dqf.* on the Gradle command line, and the game
+// runs in a JVM of its own that inherits none of it. Without this the harness
+// reads an empty world name, declines to register, and the run sits on the title
+// screen until somebody closes the window -- which looks exactly like a launch
+// that worked.
+tasks.withType<JavaExec>().matching { it.name.startsWith("run") }.configureEach {
+  System.getProperties().forEach { key, value ->
+    val name = key.toString()
+    if (name.startsWith("qf.")) systemProperty(name, value.toString())
+  }
+}
+
 repositories {
   maven {
     name = "GTNH Maven"
