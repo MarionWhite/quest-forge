@@ -32,6 +32,7 @@ Read in this order on a new machine.
 |---|---|
 | [`design/enchantments.md`](design/enchantments.md) | The 81-enchantment system: categories, application rules, balance targets. |
 | [`design/voice-chat.md`](design/voice-chat.md) | In-band proximity voice: codec choice, transport, and the server-side range cut. |
+| [`design/shaders/`](design/shaders/README.md) | The pack's own shader pack: why, the look bible, performance rules, the phone review loop, and the research behind them. |
 
 ## Reference — measured facts
 

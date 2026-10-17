@@ -1,0 +1,384 @@
+<title>Quest Forge Shader Lab</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;800&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a single column of review "plates" on a neutral grading-suite grey,
+   so the surround never tints judgement of a frame. Deliberately one dark look. */
+:root {
+  --surround: #232426;      /* neutral, very slightly cool: colour-judging surround */
+  --plate: #2d2e31;
+  --plate-edge: #3a3b3f;
+  --ink: #e9e8e4;
+  --ink-dim: #a3a29d;
+  --accent: #e0a85a;        /* sodium-lamp amber: the pick / submit colour */
+  --accent-ink: #1e1a14;
+  --good: #8fbf7a;
+  --warn: #d9a441;
+  --bad: #d4766a;
+  --display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --body: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+  color-scheme: dark;
+}
+html, body { background: var(--surround); color: var(--ink); }
+body {
+  font-family: var(--body); font-size: 15px; line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 12px 48px;
+}
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--surround); }
+main { max-width: 860px; margin: 0 auto; display: grid; gap: 22px; }
+h1, h2, h3 { font-family: var(--display); text-wrap: balance; margin: 0; }
+h1 { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.01em; }
+h2 { font-size: 1.15rem; font-weight: 600; }
+.eyebrow { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-dim); }
+.dim { color: var(--ink-dim); }
+.mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+header.top { display: flex; justify-content: space-between; align-items: end; gap: 12px; flex-wrap: wrap; }
+.status { font-family: var(--mono); font-size: 0.75rem; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--plate-edge); color: var(--ink-dim); }
+.status.open { border-color: var(--accent); color: var(--accent); }
+details.taste { background: var(--plate); border: 1px solid var(--plate-edge); border-radius: 10px; padding: 12px 14px; }
+details.taste summary { cursor: pointer; font-weight: 600; }
+details.taste p { margin: 8px 0 0; white-space: pre-wrap; max-width: 65ch; }
+.intro { max-width: 65ch; margin: 6px 0 0; }
+
+/* A scene plate */
+.scene { background: var(--plate); border: 1px solid var(--plate-edge); border-radius: 12px; overflow: hidden; display: grid; }
+.scene-head { padding: 14px 14px 10px; display: grid; gap: 4px; }
+.viewer { position: relative; background: #000; aspect-ratio: 16 / 9; max-width: 100%; cursor: pointer; user-select: none; -webkit-user-select: none; }
+.viewer img { width: 100%; height: 100%; object-fit: contain; display: block; }
+.viewer .badge { position: absolute; left: max(10px, env(safe-area-inset-left, 0px)); top: 10px; font-family: var(--mono); font-weight: 600; background: rgba(0,0,0,.62); color: var(--ink); padding: 4px 9px; border-radius: 6px; font-size: 0.85rem; }
+.viewer .hint { position: absolute; right: 10px; bottom: 10px; font-family: var(--mono); font-size: 0.7rem; background: rgba(0,0,0,.55); color: var(--ink-dim); padding: 3px 8px; border-radius: 6px; }
+.viewer .expand { position: absolute; right: 10px; top: 10px; font: 600 0.75rem var(--mono); background: rgba(0,0,0,.6); color: var(--ink); border: 0; border-radius: 6px; padding: 6px 9px; cursor: pointer; }
+.tabs { display: flex; gap: 6px; padding: 10px 14px 0; flex-wrap: wrap; }
+.tab { font: 600 0.85rem var(--mono); background: transparent; color: var(--ink-dim); border: 1px solid var(--plate-edge); border-radius: 7px; padding: 6px 12px; cursor: pointer; }
+.tab[aria-selected="true"] { color: var(--ink); border-color: var(--ink-dim); }
+.tab .ms { font-weight: 400; opacity: .8; margin-left: 6px; }
+.option-notes { padding: 10px 14px 0; display: grid; gap: 6px; }
+.option-label { font-weight: 600; }
+.critic { font-size: 0.9rem; color: var(--ink-dim); white-space: pre-wrap; max-width: 70ch; }
+.score { font-family: var(--mono); font-size: 0.78rem; }
+.score.good { color: var(--good); } .score.warn { color: var(--warn); } .score.bad { color: var(--bad); }
+
+/* Answer block */
+.answer { padding: 14px; display: grid; gap: 12px; border-top: 1px solid var(--plate-edge); margin-top: 12px; }
+.row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.row .label { font-size: 0.8rem; color: var(--ink-dim); min-width: 7.5em; }
+.pick { font: 600 0.95rem var(--mono); min-width: 3.2em; padding: 9px 12px; border-radius: 8px; border: 1px solid var(--plate-edge); background: transparent; color: var(--ink); cursor: pointer; }
+.pick[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.choice-text { text-align: left; font-family: var(--body); font-weight: 500; width: 100%; padding: 12px; }
+.rate { font: 600 0.85rem var(--mono); width: 2.6em; padding: 8px 0; border-radius: 8px; border: 1px solid var(--plate-edge); background: transparent; color: var(--ink-dim); cursor: pointer; }
+.rate[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
+textarea { width: 100%; min-height: 4.5em; resize: vertical; font: inherit; color: var(--ink); background: var(--surround); border: 1px solid var(--plate-edge); border-radius: 8px; padding: 10px; box-sizing: border-box; }
+textarea:focus, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.saved { font-family: var(--mono); font-size: 0.72rem; color: var(--ink-dim); }
+
+.submit-bar { display: grid; gap: 10px; background: var(--plate); border: 1px solid var(--plate-edge); border-radius: 12px; padding: 14px; }
+.submit { font: 700 1rem var(--display); padding: 13px; border: 0; border-radius: 10px; background: var(--accent); color: var(--accent-ink); cursor: pointer; }
+.submit[disabled] { opacity: .5; cursor: default; }
+.empty { background: var(--plate); border: 1px dashed var(--plate-edge); border-radius: 12px; padding: 22px; text-align: center; color: var(--ink-dim); }
+.history { display: grid; gap: 8px; }
+.history-item { display: flex; justify-content: space-between; gap: 12px; padding: 10px 12px; border: 1px solid var(--plate-edge); border-radius: 8px; flex-wrap: wrap; }
+.history-item > :first-child { min-width: 0; }
+
+/* Full-screen look */
+.lightbox { position: fixed; inset: 0; background: #000; z-index: 20; display: grid; place-items: center; padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px); }
+.lightbox img { max-width: 100%; max-height: 100%; object-fit: contain; }
+.lightbox .badge { position: absolute; top: calc(12px + env(safe-area-inset-top, 0px)); left: calc(12px + env(safe-area-inset-left, 0px)); font: 600 0.9rem var(--mono); background: rgba(0,0,0,.6); padding: 5px 10px; border-radius: 6px; }
+.lightbox .close { position: absolute; top: calc(12px + env(safe-area-inset-top, 0px)); right: calc(12px + env(safe-area-inset-right, 0px)); font: 600 0.85rem var(--mono); background: rgba(255,255,255,.12); color: var(--ink); border: 0; border-radius: 6px; padding: 8px 12px; cursor: pointer; }
+@media (prefers-reduced-motion: no-preference) { .viewer img { transition: opacity .08s linear; } }
+</style>
+
+<main>
+  <header class="top">
+    <div>
+      <div class="eyebrow">Quest Forge · shader development</div>
+      <h1>Shader Lab</h1>
+    </div>
+    <span id="status" class="status">Connecting…</span>
+  </header>
+
+  <details class="taste" id="taste" hidden>
+    <summary>What I've learned about your taste</summary>
+    <p id="taste-text"></p>
+  </details>
+
+  <section id="round" aria-live="polite">
+    <div class="empty" id="empty">
+      <strong>No round is waiting.</strong><br>
+      When the critic is confident a set of frames is worth your eye, a round appears here and you get a notification.
+    </div>
+  </section>
+
+  <section id="history-wrap" hidden>
+    <div class="eyebrow" style="margin-bottom:8px">Earlier rounds</div>
+    <div class="history" id="history"></div>
+  </section>
+</main>
+
+<div class="lightbox" id="lightbox" hidden>
+  <img id="lb-img" alt="">
+  <span class="badge" id="lb-badge"></span>
+  <button class="close" id="lb-close" type="button">Close</button>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var $ = function (id) { return document.getElementById(id); };
+  var db = null, rounds = [], responses = {}, current = null;
+  var shown = {};            // sceneId -> option index on screen
+  var pendingWrite = null, writing = false;
+
+  function el(tag, attrs, kids) {
+    var n = document.createElement(tag);
+    if (attrs) Object.keys(attrs).forEach(function (k) {
+      if (k === "text") n.textContent = attrs[k];
+      else if (k === "class") n.className = attrs[k];
+      else if (k.slice(0, 2) === "on") n.addEventListener(k.slice(2), attrs[k]);
+      else n.setAttribute(k, attrs[k]);
+    });
+    (kids || []).forEach(function (c) { if (c) n.appendChild(c); });
+    return n;
+  }
+
+  function setStatus(text, open) {
+    var s = $("status"); s.textContent = text; s.className = "status" + (open ? " open" : "");
+  }
+
+  function scoreClass(v) { return v >= 8 ? "good" : v >= 6 ? "warn" : "bad"; }
+
+  // ---- answers: one document per round, saved as you go ----
+  function answersFor(rid) {
+    var r = responses[rid];
+    return r ? JSON.parse(JSON.stringify(r)) : { scenes: {}, overall: "", submitted: false };
+  }
+  function save(rid, data) {
+    responses[rid] = data;
+    pendingWrite = { rid: rid, data: data };
+    flush();
+  }
+  function flush() {
+    if (writing || !pendingWrite || !db) return;
+    var w = pendingWrite; pendingWrite = null; writing = true;
+    var body = JSON.parse(JSON.stringify(w.data)); body.updated = Date.now();
+    db.doc("responses/" + w.rid).set(body).then(function () {
+      writing = false; markSaved("Saved"); flush();
+    }, function (e) {
+      writing = false;
+      markSaved(e && e.code === "quota_exceeded" ? "Storage is full — tell Claude" : "Not saved — check your connection");
+    });
+  }
+  var noteTimer = null;
+  function markSaved(t) { document.querySelectorAll(".saved").forEach(function (s) { s.textContent = t; }); }
+
+  // ---- rendering ----
+  function render() {
+    var open = rounds.filter(function (r) { return r.status === "open"; });
+    current = open.length ? open[open.length - 1] : null;
+    var host = $("round");
+    host.textContent = "";
+    if (!current) {
+      host.appendChild(el("div", { class: "empty" }, [
+        el("strong", { text: "No round is waiting." }), el("br"),
+        document.createTextNode("When the critic is confident a set of frames is worth your eye, a round appears here and you get a notification.")
+      ]));
+      setStatus(rounds.length ? "Nothing waiting" : "Ready", false);
+    } else {
+      setStatus("Round " + current.n + " · waiting for you", true);
+      host.appendChild(renderRound(current));
+    }
+    renderHistory();
+  }
+
+  function renderRound(r) {
+    var ans = answersFor(r.id);
+    var wrap = el("div", { style: "display:grid;gap:18px" });
+    wrap.appendChild(el("div", null, [
+      el("div", { class: "eyebrow", text: "Round " + r.n + (r.created ? " · " + new Date(r.created).toLocaleDateString() : "") }),
+      el("h2", { text: r.title || "Review round" }),
+      r.intro ? el("p", { class: "intro dim", text: r.intro }) : null
+    ]));
+    (r.scenes || []).forEach(function (s) { wrap.appendChild(renderScene(r, s, ans)); });
+
+    var overall = el("textarea", { id: "overall-" + r.id, placeholder: "Anything about this round as a whole. Tap the mic on your keyboard to talk instead of type." });
+    overall.value = ans.overall || "";
+    overall.addEventListener("input", function () {
+      var a = answersFor(r.id); a.overall = overall.value;
+      clearTimeout(noteTimer); markSaved("Typing…");
+      noteTimer = setTimeout(function () { save(r.id, a); }, 700);
+    });
+    var submit = el("button", { class: "submit", type: "button", text: ans.submitted ? "Sent to Claude — tap to resend" : "Send round to Claude" });
+    var note = el("div", { class: "saved", text: ans.submitted ? "Sent. The next round will build on your answers." : "Your answers save as you go." });
+    submit.addEventListener("click", function () {
+      var a = answersFor(r.id); a.submitted = true; a.submittedAt = Date.now();
+      save(r.id, a);
+      submit.textContent = "Sent to Claude — tap to resend";
+      note.textContent = "Sent. The next round will build on your answers.";
+    });
+    wrap.appendChild(el("div", { class: "submit-bar" }, [
+      el("label", { for: "overall-" + r.id, class: "eyebrow", text: "Round notes" }), overall, submit, note
+    ]));
+    return wrap;
+  }
+
+  function renderScene(r, s, ans) {
+    var a = (ans.scenes && ans.scenes[s.id]) || {};
+    var opts = s.options || [];
+    var withImages = opts.filter(function (o) { return o.img; });
+    var card = el("article", { class: "scene" });
+    card.appendChild(el("div", { class: "scene-head" }, [
+      el("div", { class: "eyebrow", text: s.name || s.id }),
+      el("h3", { text: s.question || "Which is closer to the look we want?" })
+    ]));
+
+    if (withImages.length) {
+      if (shown[s.id] == null || shown[s.id] >= withImages.length) shown[s.id] = 0;
+      var img = el("img", { alt: "" });
+      var badge = el("span", { class: "badge" });
+      var viewer = el("div", { class: "viewer", role: "button", tabindex: "0", "aria-label": "Tap to flip between options" }, [img, badge,
+        withImages.length > 1 ? el("span", { class: "hint", text: "tap to flip" }) : null]);
+      var expand = el("button", { class: "expand", type: "button", text: "Full screen" });
+      viewer.appendChild(expand);
+      var tabs = el("div", { class: "tabs", role: "tablist" });
+      var notes = el("div", { class: "option-notes" });
+      function show(i) {
+        shown[s.id] = i;
+        var o = withImages[i];
+        img.src = o.img; img.alt = (o.key || "") + " " + (o.label || "");
+        badge.textContent = o.key + (o.label ? " · " + o.label : "");
+        Array.prototype.forEach.call(tabs.children, function (t, j) { t.setAttribute("aria-selected", j === i ? "true" : "false"); });
+        notes.textContent = "";
+        if (o.score != null) notes.appendChild(el("div", { class: "score " + scoreClass(o.score), text: "Critic score " + o.score + "/10" }));
+        if (o.critic) notes.appendChild(el("div", { class: "critic", text: o.critic }));
+      }
+      withImages.forEach(function (o, i) {
+        var t = el("button", { class: "tab", type: "button", role: "tab", onclick: function () { show(i); } }, [
+          document.createTextNode(o.key)]);
+        if (o.ms != null) t.appendChild(el("span", { class: "ms", text: o.ms.toFixed(1) + " ms" }));
+        tabs.appendChild(t);
+      });
+      viewer.addEventListener("click", function (e) {
+        if (e.target === expand) return;
+        show((shown[s.id] + 1) % withImages.length);
+      });
+      viewer.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); show((shown[s.id] + 1) % withImages.length); } });
+      expand.addEventListener("click", function () { openLightbox(withImages, shown[s.id], function (i) { show(i); }); });
+      card.appendChild(viewer);
+      card.appendChild(tabs);
+      card.appendChild(notes);
+      show(shown[s.id]);
+    }
+
+    var answer = el("div", { class: "answer" });
+    if (opts.length) {
+      var picks = el("div", { class: "row", role: "group", "aria-label": "Your pick" });
+      var textChoices = !withImages.length;
+      if (!textChoices) picks.appendChild(el("span", { class: "label", text: "Your pick" }));
+      opts.concat(textChoices ? [] : [{ key: "none", label: "Neither" }]).forEach(function (o) {
+        var b = el("button", { class: "pick" + (textChoices ? " choice-text" : ""), type: "button",
+          "aria-pressed": a.choice === o.key ? "true" : "false",
+          text: textChoices ? (o.key + ". " + (o.label || "")) : (o.key === "none" ? "Neither" : o.key) });
+        b.addEventListener("click", function () {
+          var all = answersFor(r.id); all.scenes = all.scenes || {};
+          var mine = all.scenes[s.id] || {}; mine.choice = (mine.choice === o.key ? null : o.key);
+          all.scenes[s.id] = mine; save(r.id, all);
+          Array.prototype.forEach.call(picks.querySelectorAll(".pick"), function (x) { x.setAttribute("aria-pressed", "false"); });
+          if (mine.choice) b.setAttribute("aria-pressed", "true");
+        });
+        picks.appendChild(b);
+      });
+      answer.appendChild(picks);
+    }
+    if (s.rate !== false && withImages.length) {
+      var rates = el("div", { class: "row", role: "group", "aria-label": "How close is your pick to the look" });
+      rates.appendChild(el("span", { class: "label", text: "How close (1–5)" }));
+      [1, 2, 3, 4, 5].forEach(function (v) {
+        var b = el("button", { class: "rate", type: "button", "aria-pressed": a.rating === v ? "true" : "false", text: String(v) });
+        b.addEventListener("click", function () {
+          var all = answersFor(r.id); all.scenes = all.scenes || {};
+          var mine = all.scenes[s.id] || {}; mine.rating = v; all.scenes[s.id] = mine; save(r.id, all);
+          Array.prototype.forEach.call(rates.querySelectorAll(".rate"), function (x) { x.setAttribute("aria-pressed", "false"); });
+          b.setAttribute("aria-pressed", "true");
+        });
+        rates.appendChild(b);
+      });
+      answer.appendChild(rates);
+    }
+    var ta = el("textarea", { id: "note-" + r.id + "-" + s.id, placeholder: s.notePrompt || "What's right, what's wrong? Tap the mic on your keyboard to talk." });
+    ta.value = a.note || "";
+    ta.addEventListener("input", function () {
+      var all = answersFor(r.id); all.scenes = all.scenes || {};
+      var mine = all.scenes[s.id] || {}; mine.note = ta.value; all.scenes[s.id] = mine;
+      clearTimeout(noteTimer); markSaved("Typing…");
+      noteTimer = setTimeout(function () { save(r.id, all); }, 700);
+    });
+    answer.appendChild(ta);
+    answer.appendChild(el("div", { class: "saved", text: "" }));
+    card.appendChild(answer);
+    return card;
+  }
+
+  function renderHistory() {
+    var past = rounds.filter(function (r) { return r !== current; }).slice().reverse();
+    $("history-wrap").hidden = !past.length;
+    var h = $("history"); h.textContent = "";
+    past.forEach(function (r) {
+      var ans = responses[r.id];
+      var picks = ans && ans.scenes ? Object.keys(ans.scenes).map(function (k) { return ans.scenes[k].choice; }).filter(Boolean).join(" ") : "";
+      h.appendChild(el("div", { class: "history-item" }, [
+        el("div", null, [el("div", { text: "Round " + r.n + " · " + (r.title || "") }),
+          r.outcome ? el("div", { class: "dim", text: r.outcome }) : null]),
+        el("div", { class: "mono dim", text: (ans && ans.submitted ? "sent" : "not sent") + (picks ? " · " + picks : "") })
+      ]));
+    });
+  }
+
+  // ---- full screen ----
+  var lbState = null;
+  function openLightbox(list, i, onPick) {
+    lbState = { list: list, i: i, onPick: onPick };
+    $("lightbox").hidden = false; lbShow();
+  }
+  function lbShow() {
+    var o = lbState.list[lbState.i];
+    $("lb-img").src = o.img; $("lb-badge").textContent = o.key + (o.label ? " · " + o.label : "") + (lbState.list.length > 1 ? "  (tap to flip)" : "");
+  }
+  $("lightbox").addEventListener("click", function (e) {
+    if (e.target.id === "lb-close") { $("lightbox").hidden = true; lbState.onPick(lbState.i); return; }
+    lbState.i = (lbState.i + 1) % lbState.list.length; lbShow();
+  });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !$("lightbox").hidden) $("lb-close").click(); });
+
+  // ---- data ----
+  function start() {
+    if (!window.claude || !window.claude.use) { setStatus("Open this page on claude.ai to review", false); return; }
+    window.claude.use("db").then(function (d) {
+      db = d;
+      if (!db) { setStatus("Sign in to review", false); return; }
+      db.collection("rounds").orderBy("n").onSnapshot(function (snap) {
+        rounds = snap.docs.map(function (doc) { var v = doc.data(); v.id = doc.id; return v; });
+        render();
+      }, function () { setStatus("Lost connection — reload the page", false); });
+      db.collection("responses").onSnapshot(function (snap) {
+        var changed = false;
+        snap.docs.forEach(function (doc) {
+          if (!pendingWrite || pendingWrite.rid !== doc.id) {
+            if (!responses[doc.id] || doc.metadata.hasPendingWrites === false) { responses[doc.id] = doc.data(); changed = true; }
+          }
+        });
+        if (changed && !document.activeElement.matches("textarea")) render();
+      }, function () {});
+      db.doc("meta/taste").onSnapshot(function (doc) {
+        var t = doc.exists ? doc.data() : null;
+        $("taste").hidden = !(t && t.summary);
+        if (t && t.summary) $("taste-text").textContent = t.summary;
+      }, function () {});
+    }, function () { setStatus("Shader Lab could not connect", false); });
+  }
+  start();
+})();
+</script>
