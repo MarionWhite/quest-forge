@@ -1,6 +1,6 @@
 # Questline audit
 
-Status: **WP-0, WP-1 and WP-2 done (2026-10-17); see [section 6](#6-implementation-log).** WP-3 onward
+Status: **WP-0 to WP-4 done (2026-10-17); see [section 6](#6-implementation-log).** WP-5 onward
 are still proposals for the author to review. The audit itself was written 2026-10-16 against
 `pack/config/betterquesting/DefaultQuests.json` (SHA-1 `a4ec0775…`). That file is byte-identical
 to the live instance's copy and to the friends' server copy (`C:\qfs\friends`), so everything below
@@ -507,7 +507,7 @@ Each item can be done in one session. Do them in order: earlier items make later
 - **Files:** `DefaultQuests.json`.
 - **Validate:** `qb.py tally` shows the ungated Lucky Block total under about 60, and no Legendary bag reachable before Act III, except the legendary pets and the closet, which need rare finds.
 
-### WP-3: put the spine into the data
+### WP-3: put the spine into the data — DONE 2026-10-17
 
 - **Scope:** add cross-chapter prerequisites without rewriting quests:
   - Ch 6 entry (56) needs 17 Hydra.
@@ -520,7 +520,7 @@ Each item can be done in one session. Do them in order: earlier items make later
 - **Files:** `DefaultQuests.json`.
 - **Validate:** `qb.py lint`. A new `qb.py path` subcommand prints the shortest route to each chapter's first quest, and the order must match the chapter numbers. Slim boot with `--bundle quests`, then confirm in a fresh world that only Ch 1, Ch 2, Workshop and Pets are visible.
 
-### WP-4: boss proofs become hunt and location tasks
+### WP-4: boss proofs become hunt and location tasks — DONE 2026-10-17
 
 - **Scope:** Twilight 14–19 and 93–95, 121 Dragon, 22/23/24 titans, 406 Rahovart, plus new Overlord and Mutant quests. Entity names come from the 4.3 table, **confirmed with the BQ editor's entity picker**. Keep a retrieval alongside the hunt only where an item is needed downstream.
 - **Files:** `DefaultQuests.json`.
@@ -585,7 +585,7 @@ Each item can be done in one session. Do them in order: earlier items make later
 Every edit went into **both** books: `pack/config/…` and `server/config/betterquesting/DefaultQuests.json`.
 The server copy is the survey server's older book (it keeps the HBM chapter, 148–155 and
 410–415, and lacks ChocolateQuest 440–444); everything else in it was left as it was. Both
-are now `pack_version` 6 (they were 5 and 3). The edits are scripts in `tools/quests/patches/`
+are now `pack_version` 8 (they were 5 and 3 before WP-1, 6 after WP-2, 7 after WP-3). The edits are scripts in `tools/quests/patches/`
 and can be re-run.
 
 ### WP-0 (toolkit)
@@ -661,7 +661,7 @@ Exploration 7, Danger Zone 5, Rewards 5). Ungated Legendary bags: only 67, 83, 2
 Pets; Epic bags in 107, 119, 121, 134, 141–144 and 405, which sit behind chapters that WP-3
 gates properly.
 
-### Validation (2026-10-17)
+### Validation, WP-1 and WP-2 (2026-10-17)
 
 `qb.py check` passes on both books. One slim **server** trial (`trial.py build quests --server
 --overlay pack` with qfcontent, Twilight, TragicMC, Witchery, OreSpawn, ProjectE, Railcraft,
@@ -673,6 +673,177 @@ had all 308 quests at `pack_version` 6, and **no item introduced by WP-1/WP-2 be
 placeholder**. The placeholders that remain in edited quests are old items from mods left out of
 the trial (Colorful Mobs, Food Expansion, Custom NPCs, Statues, The Jungle) plus `mcheli:bell47g`,
 an MCHeli aircraft item that a dedicated trial server does not register.
+
+### WP-3 (chapter order)
+
+`tools/quests/patches/wp3_chapter_order.py`. Quest 6 Diamond Gear used to open Twilight, the
+End, OreSpawn, TragicMC and ICBM at once (J1). Now each numbered chapter opens strictly after
+the one before it, and `qb.py path` (new, and part of `check`) fails if that stops being true.
+
+**Prerequisites changed:**
+
+| Quest | Old | New | Why |
+|---|---|---|---|
+| 9 Witchery: The Altar (Ch 4 entry) | 5 Diamond Dreams | 15 Naga | The line text says "after Twilight on purpose"; it opened before Ch 3. |
+| 56 HEE: Enhanced End (Ch 6 entry) | 6 | 17 Hydra **and** 105 Circle Talisman | The Act II finale of 4.1: the Old Powers answer, then the End opens. |
+| 20 OreSpawn: First Contact (Ch 7 entry) | 6 | 114 Endstone Temple | The audit's first choice. 121 would put the dragon in front of Mothra. |
+| 74 Mantis | 21 Ultimate Gear | 20 | Follows from the next row. |
+| 21 Ultimate Gear | 20 | 79 Kraken | J2: Ultimate after the minibosses that justify it. Moved to (96,96) in the tab. |
+| 22 Mobzilla | 79 | 21 | "Ultimate gear is the minimum." |
+| 58 TragicMC: Embrace Doom (Ch 8 entry) | 6 | 22 Mobzilla | Line text "After the titans"; now "after the first titan". |
+| 150 ICBM: Pocket Warcrime | 6 | 6 **and** 126 Railcraft Blast Furnace | Off the quest-6 hub. ICBM joins the Engineering line (4.4) at steel. |
+| 12 / 13 / 34 ProjectE | 22 / 23 / 24 | + 11 / + 12 / + 13 | Each rung also needs the rung before, as the recipes do. |
+| 401 The Soulgazer (Bestiary entry) | 4 Armor Up! | 6 | As proposed. |
+| 405 A Box That Should Stay Shut | 404 | 404 **and** 22 Mobzilla | The Rahovart summon (J9) and its Epic bag wait for Mobzilla; 406 inherits it. It sits on 405 rather than 406 so the book does not suggest the summon at iron. |
+
+**Chapter order now** (`qb.py path`, pack book; "first" is how many quests must be done before the entry unlocks):
+
+| Chapter | Opens at | After | First |
+|---|---|---|---|
+| Ch 1 Start | 0 Welcome | — | 0 |
+| Ch 2 Base | 7 / 8 | 2 Crafting Station | 3 (side tab, not in the chain) |
+| Ch 3 Twilight | 14 The Pool at Dusk | 6 Diamond Gear | 7 |
+| Ch 4 Witchery | 9 The Altar | 15 Naga | 9 |
+| Ch 5 Dark Paths | 43 / 44 / 45 / 106 | 105 Circle Talisman | 20 |
+| Ch 6 The End | 56 Enhanced End | 17 Hydra + 105 Circle Talisman | 23 |
+| Ch 7 OreSpawn | 20 First Contact | 114 Endstone Temple | 28 |
+| Ch 8 TragicMC | 58 Embrace Doom | 22 Mobzilla | 35 |
+| Ch 9 ProjectE | 11 Philosopher's Stone | 16 Lich | 10 (a ladder; its last rung, Red Matter, needs 40) |
+
+Ch 5 and Ch 6 both hang off the Circle Talisman, as Act III of 4.1 puts Dark Paths beside the
+End. Ch 6 does not need Ch 5's last quest.
+
+**Visibility.** The semantics come from BQ 3.0.328 `QuestCache.isQuestShown` and `GuiQuestLines`.
+The seven lines Ch 3–9 went from `ALWAYS` to `UNLOCKED`, which hides a tab until one of its
+quests is unlocked. Their 68 quests went from `ALWAYS` to `NORMAL`, which shows a quest once it
+is unlocked or once all its prerequisites are, so the next step shows one step ahead. Side tabs
+stay `ALWAYS`. Only their end-game quests went to `NORMAL`: 62 Trophy Collector, 63 Pack Master,
+and 405 and 406 (Rahovart). In a fresh world the visible tabs are Ch 1, Ch 2, every side tab
+and the empty Secrets tab.
+
+**Texts:**
+- Ch 4: "sits after Twilight" became "opens once the Naga is dead".
+- Ch 6: "comes after the craft" now names the Hydra and the Talisman, and says the OreSpawn gods wait for its temple.
+- Ch 7: says it opens at the Endstone Temple.
+- Ch 8: "After the titans" became "After the first titan: this road opens when Mobzilla is dead".
+- 405: says the page waits for Mobzilla.
+
+### WP-4 (boss proofs)
+
+`tools/quests/patches/wp4_boss_hunts.py`. Every hunt target is in `tools/quests/entities.json`
+with the class it maps to and where the name came from: the mod's registration call in the jar.
+`qb.py hunt` (new, and part of `check`) fails on any other name. Standard Expansion's
+`TaskHunt.readFromNBT` only reads the string, so **there is no load-time validation of a hunt
+target**. A misspelt one would load without a log line and never complete. The names were
+therefore also confirmed at runtime in the server trial below.
+
+A hunt kill counts for every member of the killer's party (`ParticipantInfo.ALL_UUIDS`). Kills
+by pets, minions or the environment do not count.
+
+| Quest | Old task (retrieval) | New task | Entity |
+|---|---|---|---|
+| 14 The Pool at Dusk | Twilight Oak log | **location**: dimension 7, anywhere | — |
+| 15 Naga | 5 Naga Scales | kill 1 | `TwilightForest.Naga` |
+| 16 Lich King | Lich Scepter | kill 1 | `TwilightForest.Twilight Lich` (his shadow clones take no damage, so they cannot be counted) |
+| 93 Minoshroom | Meef Stroganoff | kill 1 | `TwilightForest.Minoshroom` |
+| 17 Hydra | 3 Fiery Blood | kill 1 | `TwilightForest.Hydra` (multi-part, but every part passes the player's DamageSource on) |
+| 94 Knight Phantom | Phantom Helm OR Plate | kill 6 **OR** Phantom Helm **OR** Phantom Plate | `TwilightForest.Knight Phantom` |
+| 18 Ur-Ghast | Fiery Tear | kill 1 | `TwilightForest.Tower Boss` |
+| 95 Alpha Yeti | 4 Alpha Fur | kill 1 | `TwilightForest.Yeti Boss` |
+| 19 Snow Queen | her trophy | kill 1 | `TwilightForest.Snow Queen` |
+| 121 The Dragon Reborn | Dragon Egg + Enderman Head | kill 1 **OR** 1 Dragon Essence (`HardcoreEnderExpansion:essence@0`) | `HardcoreEnderExpansion.Dragon` |
+| 22 Mobzilla | 5 Scale Blocks | kill 1 | `Mobzilla` |
+| 23 The King | Royal Guardian Sword | kill 1 | `The King` |
+| 24 The Queen | Queen Scale | kill 1 | `The Queen` |
+| 406 Rahovart | Demon Crystal | kill 1 | `demonmobs.rahovart` |
+| 28 Mutant Creatures: The Hunt | Skeleton Part | kill 1 | `MutantCreatures.MutantSkeleton` |
+| **450 TragicMC: The Overlord** (new, Ch 8, after 134) | — | kill 1 | `TragicMC.OverlordCore` |
+| **451 Mutant Zombie** (new, Gadgets, after 28) | — | kill 1 | `MutantCreatures.MutantZombie` |
+| **452 Mutant Creeper** (new, Gadgets, after 28) | — | kill 1 | `MutantCreatures.MutantCreeper` |
+| **453 Mutant Enderman** (new, Gadgets, after 28) | — | kill 1 | `MutantCreatures.MutantEnderman` |
+
+**Why the names have these forms:**
+- OreSpawn's names are the plain ones because it calls `registerGlobalEntityID` before `registerModEntity`. FML only adds the `modid.name` alias for a class that has no name yet.
+- TF's `creatureCompatibility` is declared but never set, so TF registers only `TwilightForest.*` names.
+- HEE's End spawns its own `EntityBossDragon` (`BiomeDecoratorHardcoreEnd`), not the vanilla `EnderDragon`.
+- `subtypes` is on (BQ's default), so a hunt also credits subclasses. None of these targets has a subclass in the pack. The trap runs the other way: the Ur-Ghast extends `Tower Ghast` and the Minoshroom extends `Minotaur`, so those base names must never be targets.
+
+**Item proofs kept as an OR alternative, and why:**
+
+- **94 Knight Phantom.** The boss is six entities (`TileEntityTFKnightPhantomsSpawner` makes
+  6). If one of them dies to anything but a player, the count stops at five for that
+  stronghold for good. The vault chest's Helm or Plate still proves the fight.
+- **121 HEE Dragon.** There is one dragon per fight, and only the killer's party is credited.
+  A friend who was not in the party, or who joins later, could never finish the quest. The
+  dying dragon sheds Dragon Essence (`DragonRewardManager`: `ItemStack(essence, n, 0)`), which
+  can be shared. The essence replaces the Dragon Egg, which exists only once.
+
+No other quest keeps an item proof:
+- The Overlord is repeatable: a Synapse Core block placed in the Synapse summons it again (`BlockSynapseCore`).
+- Rahovart is summoned by a cube.
+- The OreSpawn titans' head entities pass the player's damage to the body (`KingHead.attackEntityFrom`).
+
+The drops that later quests need still have to be collected. 12 asks for the Transmutation
+Table, which needs Mobzilla scales. 13 asks for Dark Matter, which needs the Royal sword; the
+King drops it with his armour (`TheKing.func_70628_a`). 34 asks for Red Matter, which needs a
+Queen Scale.
+
+**New quests and their rewards:**
+
+| Quest | Reward | Note |
+|---|---|---|
+| 450 The Overlord | choice: Overlord Helm / Overlord Plate / Overlord Amulet | The armour WP-2 took off 134, now earned by killing the final phase. `NORMAL`, main line. |
+| 451 Mutant Zombie | 1 Common loot bag + 8 Bottles o' Enchanting | 29 Hulk Hammer now follows it, because the Zombie drops the hammer. 29 moved to (144,96). |
+| 452 Mutant Creeper | choice: Common sealed tome / 8 Bottles o' Enchanting / 1 Common loot bag | Side-tab budget (4.5): one bag tier below Act I. |
+| 453 Mutant Enderman | choice: Uncommon sealed tome / 16 Ender Pearls | The hardest of the four. |
+
+**Texts.** Each quest's last (`§e`) line now says what the task checks, for example "Kill the
+Naga.", "Kill all six Knight Phantoms, or bring back the Phantom Helm or Plate from the vault
+chest." and "Kill the dragon, or bring back Dragon Essence from the fight." Sentences that
+described the old proofs were removed:
+- 14: "a log is the proof".
+- 19: "her trophy is the proof".
+- 121: the Enderman Head, and "the egg is yours".
+- 23 and 13: the claim that the King drops no souvenir. He drops the Royal sword and the Royal armour.
+- 406: the Demon Crystal receipt.
+
+**Not converted, on purpose:** the OreSpawn minibosses (74, 77, 78, 79) and Mothra (20) still
+ask for one of their drops. They are outside WP-4's list, and their drops come only from them.
+Their names are already verified if a later pass wants hunt tasks there: `Mantis`, `Basilisk`,
+`Emperor Scorpion`, `The Kraken` and `Mothra`.
+
+**Server book.** Every WP-3 and WP-4 edit fitted the server copy, so nothing was skipped. It
+has all the quests and lines these patches touch. The new IDs 450–453 are free in both books.
+The server book now has 316 quests, against 312 in the pack.
+
+### Validation, WP-3 and WP-4 (2026-10-17)
+
+`qb.py check` passes on both books, with the new `hunt` and `path` checks included.
+
+One slim **server** trial, `qbtest`:
+- Built with `trial.py build qbtest --server --bundle quests --overlay pack` and qfcontent, Twilight Forest, TragicMC, OreSpawn, HEE, Lycanites, Mutant Creatures, Witchery, ProjectE, Railcraft and Loot Bags.
+- Two boots of 3 GB each, 11–14 s to ready. **0 ERROR lines** in either log.
+- `fml-server-latest.log` shows `Loaded 312 quests` and `Loaded 20 quest lines`.
+
+**Entity names.** BQ has no load-time check for hunt targets, so the second boot ran
+`/qfcensus find` for each mod. It lists the keys of `EntityList.stringToClassMapping`, the map
+BQ looks targets up in. All 18 targets were present.
+
+**Round trip.** BQ writes `QuestDatabase.json` only when its database is dirty, so the second
+boot also ran `bq_admin default save` before `stop`. That makes BQ write the database it
+parsed back over the trial's `DefaultQuests.json`. Compared with the repo book, the written-back
+copy had:
+- `pack_version` 8, 312 quests and 20 lines;
+- identical prerequisites, visibility, task logic, names and texts;
+- identical tasks: each hunt target and count, and the location task's dimension 7, as written;
+- the new rewards as written.
+
+The only differences were `betterquesting:placeholder` stacks for items from mods left out of
+the trial (Storage Drawers, MCHeli, ICBM, Lucky Blocks, Legends and so on). A hunt task whose
+keys BQ had not read would have come back targeting `Zombie`, its default.
+
+Not yet done: the in-game kill test WP-4 asks for, which is to spawn each boss from an egg,
+kill it and watch the task tick. It needs a client. The co-op check belongs to WP-9.
 
 ## Appendix: reproduction notes
 
