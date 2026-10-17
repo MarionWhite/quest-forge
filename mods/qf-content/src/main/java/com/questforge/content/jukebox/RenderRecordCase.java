@@ -618,32 +618,11 @@ public class RenderRecordCase extends TileEntitySpecialRenderer {
      * indoors.
      */
     /**
-     * Whether OptiFine is running a shader pack right now.
-     *
-     * Looked up reflectively and re-checked each call through a cached Method,
-     * because a pack can be switched from the video settings without a relaunch,
-     * and because OptiFine is not on the compile classpath.
+     * Whether a shader pack is running right now (OptiFine or Angelica/Iris).
+     * One helper for every renderer in this mod: see Shaders.
      */
-    private static Boolean shadersChecked;
-    private static java.lang.reflect.Method isShadersMethod;
-
     private static boolean shadersActive() {
-        if (shadersChecked == null) {
-            shadersChecked = Boolean.TRUE;
-            try {
-                isShadersMethod = Class.forName("Config").getMethod("isShaders");
-            } catch (Throwable ignored) {
-                isShadersMethod = null;   // no OptiFine: fixed-function, pane is fine
-            }
-        }
-        if (isShadersMethod == null) {
-            return false;
-        }
-        try {
-            return Boolean.TRUE.equals(isShadersMethod.invoke(null));
-        } catch (Throwable ignored) {
-            return false;
-        }
+        return com.questforge.content.client.Shaders.active();
     }
 
     private void drawGlass() {

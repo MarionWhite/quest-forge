@@ -610,10 +610,14 @@ public class TFRenderHelper
     }
 
     /**
-     * Whether OptiFine is currently running a shader pack. Looked up reflectively;
-     * OptiFine is not a compile dependency, and a pack can be switched at runtime.
+     * Whether a shader pack is running, under OptiFine (Config.isShaders) or under
+     * Angelica (Iris's IrisApi.getInstance().isShaderPackInUse()). Both looked up
+     * reflectively; neither is a compile dependency, and a pack can be switched at
+     * runtime.
      */
     private static java.lang.reflect.Method isShadersMethod;
+    private static Object irisApi;
+    private static java.lang.reflect.Method irisInUseMethod;
     private static boolean isShadersResolved;
 
     public static boolean shadersActive()
@@ -621,31 +625,44 @@ public class TFRenderHelper
         if (!isShadersResolved)
         {
             isShadersResolved = true;
+            ClassLoader loader = TFRenderHelper.class.getClassLoader();
 
             try
             {
-                isShadersMethod = Class.forName("Config",
-                        false, TFRenderHelper.class.getClassLoader()).getMethod("isShaders");
+                isShadersMethod = Class.forName("Config", false, loader).getMethod("isShaders");
             }
             catch (Throwable ignored)
             {
                 isShadersMethod = null;
             }
-        }
 
-        if (isShadersMethod == null)
-        {
-            return false;
+            try
+            {
+                Class<?> api = Class.forName("net.irisshaders.iris.api.v0.IrisApi", true, loader);
+                irisApi = api.getMethod("getInstance").invoke(null);
+                irisInUseMethod = api.getMethod("isShaderPackInUse");
+            }
+            catch (Throwable ignored)
+            {
+                irisInUseMethod = null;
+            }
         }
 
         try
         {
-            return Boolean.TRUE.equals(isShadersMethod.invoke(null));
+            if (isShadersMethod != null && Boolean.TRUE.equals(isShadersMethod.invoke(null)))
+            {
+                return true;
+            }
+            if (irisInUseMethod != null && irisApi != null && Boolean.TRUE.equals(irisInUseMethod.invoke(irisApi)))
+            {
+                return true;
+            }
         }
         catch (Throwable ignored)
         {
-            return false;
         }
+        return false;
     }
 
     public static boolean shouldOverrideView(EntityPlayer player)
