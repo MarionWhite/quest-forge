@@ -15,6 +15,9 @@ import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
  * A second transformer was added later for Reach: 1.7.10 has no reach attribute,
  * so melee and mining range are hardcoded constants that also need bytecode.
  *
+ * A fourth, TickWarpTransformer, is census-only and inert unless
+ * -Dqf.census.tickwarp=true: it lets a census server run ticks back to back.
+ *
  * SortingIndex above 1000 so this runs after FML's deobfuscation transformer,
  * matching the convention used by the pack's existing QuestForgeTweaks coremod.
  */
@@ -29,7 +32,8 @@ public class QFLoadingPlugin implements IFMLLoadingPlugin {
         return new String[] {
                 "com.questforge.content.core.ContainerTransformer",
                 "com.questforge.content.core.ReachTransformer",
-                "com.questforge.content.core.OreGenTransformer"
+                "com.questforge.content.core.OreGenTransformer",
+                "com.questforge.content.core.TickWarpTransformer"
         };
     }
 
