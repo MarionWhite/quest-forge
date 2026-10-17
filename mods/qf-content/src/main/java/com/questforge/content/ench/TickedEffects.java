@@ -98,6 +98,16 @@ public class TickedEffects {
      * next swing, so it is put back. And vanilla applies knockback on that path,
      * which on a once-a-second tick would shove the target around for the whole
      * duration, so the target's motion is restored afterwards.
+     *
+     * Some bosses keep a hit gate of their own besides vanilla's. OreSpawn's
+     * Mobzilla, Kraken, Basilisk and Emperor Scorpion refuse every hit while a
+     * private int hurt_timer is above zero and set it to 20-30 on each hit. A
+     * damage-over-time tick re-armed that gate, so the wielder's next swings
+     * were refused: Rupture on Mobzilla landed 9 swings of the control's 40
+     * and read -140% (census anomalies 4a). The gate is treated exactly like
+     * vanilla's: saved, zeroed for the call, restored, so a DoT tick neither
+     * waits for it nor consumes it, and swings land as they would without the
+     * enchantment.
      */
     public static void hurtThroughInvulnerability(EntityLivingBase victim,
             DamageSource source, float amount) {
@@ -107,6 +117,16 @@ public class TickedEffects {
         double mx = victim.motionX;
         double my = victim.motionY;
         double mz = victim.motionZ;
+        java.lang.reflect.Field gate = hurtGate(victim.getClass());
+        int savedGate = 0;
+        if (gate != null) {
+            try {
+                savedGate = gate.getInt(victim);
+                gate.setInt(victim, 0);
+            } catch (Exception e) {
+                gate = null;
+            }
+        }
 
         // The guard stops the bridge treating this as a fresh weapon swing.
         CombatState.enter();
@@ -119,7 +139,48 @@ public class TickedEffects {
             victim.motionX = mx;
             victim.motionY = my;
             victim.motionZ = mz;
+            if (gate != null) {
+                try {
+                    gate.setInt(victim, savedGate);
+                } catch (Exception ignored) {}
+            }
         }
+    }
+
+    /** Per class: its private "hurt_timer" int field, or NO_GATE. */
+    private static final java.util.Map<Class<?>, java.lang.reflect.Field> HURT_GATES =
+            new java.util.HashMap<Class<?>, java.lang.reflect.Field>();
+    private static final java.lang.reflect.Field NO_GATE;
+
+    static {
+        java.lang.reflect.Field f = null;
+        try {
+            f = TickedEffects.class.getDeclaredField("HURT_GATES");
+        } catch (NoSuchFieldException impossible) {}
+        NO_GATE = f;
+    }
+
+    /** A mod's own hit gate on this class, if it has one: an int named hurt_timer. */
+    private static java.lang.reflect.Field hurtGate(Class<?> cls) {
+        java.lang.reflect.Field f = HURT_GATES.get(cls);
+        if (f == null) {
+            f = NO_GATE;
+            for (Class<?> k = cls; k != null && k != EntityLivingBase.class; k = k.getSuperclass()) {
+                try {
+                    java.lang.reflect.Field g = k.getDeclaredField("hurt_timer");
+                    if (g.getType() == int.class) {
+                        g.setAccessible(true);
+                        f = g;
+                        break;
+                    }
+                } catch (NoSuchFieldException ignored) {
+                } catch (Throwable t) {
+                    break;
+                }
+            }
+            HURT_GATES.put(cls, f);
+        }
+        return f == NO_GATE ? null : f;
     }
 
     // ---- Bleed -----------------------------------------------------------
