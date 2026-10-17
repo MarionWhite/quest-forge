@@ -352,6 +352,12 @@ public class CombatCensus {
         int infernalStripped;
         /** A shielded boss whose shields the census held down; see dropShields. */
         boolean shieldsHeld;
+        /**
+         * Targets that left the world with health left: a teleport (Lord of
+         * Torment at 50%), a despawn, or Forge deleting an entity whose tick threw
+         * (removeErroringEntities). Not kills, and not damage dealt.
+         */
+        int removedAlive;
         /** Consecutive melee swings that took no health; logged once when it reaches five. */
         int dryStreak;
 
@@ -1336,6 +1342,25 @@ public class CombatCensus {
             EntityLivingBase mob = spawned.get(i);
             if (mob == null || !mob.isDead && mob.getHealth() > 0F) continue;
 
+            // Dead only if its health truly reached zero. A target removed with
+            // health left was not killed: counting it as one booked its whole
+            // remaining health as damage, which is how the EnderDemon "died" to
+            // every swing and Lord of Torment's lower bands read as instant kills.
+            if (mob.getHealth() > 0F && mob.deathTime <= 0) {
+                if (result.removedAlive++ == 0) {
+                    QuestForgeContent.log.warn("[census] " + cell.targetName + " (id " + mob.getEntityId()
+                            + ") left the world alive at cell tick " + cellTick + ", health "
+                            + CensusFile.num(mob.getHealth()) + "/" + CensusFile.num(mob.getMaxHealth())
+                            + "; not a kill (logged once per cell)");
+                }
+                if (i == 0) trialStartTick = cellTick;
+                replace(i);
+                if (band >= 0 && i == 0 && spawned.get(0) != null) {
+                    setBandHealth(spawned.get(0), band);
+                }
+                continue;
+            }
+
             result.kills++;
             if (i == 0) {
                 result.killTicks.add(Integer.valueOf(cellTick - trialStartTick));
@@ -1393,7 +1418,7 @@ public class CombatCensus {
                 if (result.swings == 1 && cell.mode == Mode.MELEE) {
                     logFirstSwing(probe, healthBefore - primary.getHealth());
                 }
-                if (primary.getHealth() < healthBefore || primary.isDead) {
+                if (primary.getHealth() < healthBefore) {
                     result.hitsLanded++;
                     result.dryStreak = 0;
                 } else if (cell.mode == Mode.MELEE && ++result.dryStreak == 5) {
@@ -1809,7 +1834,9 @@ public class CombatCensus {
         for (int i = 0; i < spawned.size(); i++) {
             EntityLivingBase mob = spawned.get(i);
             if (mob == null) continue;
-            double now = mob.isDead ? 0.0D : mob.getHealth();
+            // A target removed with health left lost nothing to us; see advanceOffense.
+            double now = !mob.isDead ? mob.getHealth()
+                    : mob.getHealth() > 0F && mob.deathTime <= 0 ? lastHealth[i] : 0.0D;
             double delta = lastHealth[i] - now;
             // Negative means it healed or was replaced; not damage we dealt.
             if (delta > 0) result.damageDealt += delta;
@@ -2182,6 +2209,10 @@ public class CombatCensus {
                 if (result.infernalStripped > 0) {
                     result.note += " [target made an InfernalMobs elite " + result.infernalStripped
                             + " time(s); stripped back to plain]";
+                }
+                if (result.removedAlive > 0) {
+                    result.note += " [target removed while alive " + result.removedAlive
+                            + " time(s): not counted as kills or damage]";
                 }
                 if (result.repins > 0) {
                     result.note += " [target re-scaled by the pack " + result.repins

@@ -59,10 +59,47 @@ def read(path):
     return rows, weapon, meta
 
 
+# The census's health bands and the share of the bar each stands for
+# (CombatCensus.BANDS / BAND_WIDTH).
+BANDS = [1.00, 0.75, 0.50, 0.25, 0.10]
+BAND_WIDTH = [0.25, 0.25, 0.25, 0.15, 0.10]
+
+# Bosses whose fight in this world ends before they die. Lord of Torment, outside
+# its own dimension, takes everyone to the Torment dimension and setDead()s once
+# it is at or below 50%: the census cannot follow, so its bands from 50% down
+# measure nothing. Its TTK is the time to take it from full to that point.
+PHASE_END = {"witchery.lordoftorment": 0.5}
+
+
+def phase_end(target):
+    return PHASE_END.get((target or "").lower())
+
+
+def phase_ttk(row, end):
+    """ttk_est_s over only the bands above `end`, integrated as the census does."""
+    hp = num(row.get("target_hp"))
+    dps = [num(x) for x in (row.get("band_dps") or "").split()]
+    if not hp or len(dps) != len(BANDS):
+        return None
+    t = 0.0
+    for b, lo in enumerate(BANDS):
+        if lo <= end + 1e-9:
+            break
+        if not dps[b] or dps[b] <= 1e-6:
+            return float("inf")
+        t += BAND_WIDTH[b] * hp / dps[b]
+    return t
+
+
 def degenerate(r):
     note = r.get("note") or ""
+    # A target that left the world alive (teleported, despawned, deleted by
+    # Forge for a throwing tick) was not killed. The census no longer counts
+    # it, but the cell no longer measures a whole fight either. Phase-ended
+    # bosses leave by design and are re-integrated over their phase instead.
+    removed = "removed while alive" in note and phase_end(r.get("target")) is None
     return ("swings landed" in note or "pin did not hold" in note
-            or "never settled" in note)
+            or "never settled" in note or removed)
 
 
 class Boss:
@@ -80,6 +117,7 @@ class Boss:
         self.defense_ctrl = []
         self.defense = {}          # enchant -> row
         self.excluded = []
+        self.phase_end = None      # set for a boss whose fight ends before death
 
     @property
     def ttk0(self):
@@ -131,6 +169,12 @@ def collect(paths):
                 b = bosses[key] = Boss(target, weapon, os.path.basename(path))
             if num(r.get("target_hp")):
                 b.target_hp = num(r.get("target_hp"))
+            end = phase_end(target)
+            if end is not None:
+                t = phase_ttk(r, end)
+                if t is not None:
+                    r["ttk_est_s"] = "+Inf" if math.isinf(t) else str(t)
+                    b.phase_end = end
             if degenerate(r):
                 b.excluded.append(r)
                 continue
@@ -192,6 +236,9 @@ def report(bosses, md):
             note = "**cannot be killed by this weapon** -- every control stalled"
         elif b.excluded:
             note = f"{len(b.excluded)} cell(s) excluded as degenerate"
+        if b.phase_end is not None:
+            note = (note + "; " if note else "") + (
+                f"TTK to {b.phase_end:.0%} health, where the fight leaves this world")
         hp = f"{b.target_hp:,.0f}" if b.target_hp else "-"
         ttk = f"{b.ttk0:,.0f} s" if b.ttk0 else "never"
         noise = f"±{b.noise_pct:.1f}%" if b.noise_pct is not None else "-"
