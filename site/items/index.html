@@ -1,0 +1,797 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quest Forge Items</title>
+<meta name="description" content="Every item in the Quest Forge modpack: search by name, mod, ore name or tooltip, see recipes and uses, and which quests ask for each one.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+<style>
+/* Tokens shared with the mod list (site/modlist), so the two read as one site. */
+:root{
+  --paper:#E9EAE4; --surface:#F7F8F3; --sunk:#DFE1DA;
+  --ink:#171B19; --ink-2:#3E4642; --muted:#6A726C; --rule:#CDD1C8;
+  --ember:#A33F17; --ember-ink:#8E3712; --ember-wash:rgba(163,63,23,.10);
+  --patina:#2C4A43; --patina-wash:rgba(44,74,67,.12);
+  --slot:#C6C6C6; --slot-hi:#FFFFFF; --slot-lo:#555555; --slot-in:#8B8B8B;
+  --shadow:rgba(23,27,25,.07);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#111412; --surface:#191D1A; --sunk:#0C0F0D;
+    --ink:#E7E9E2; --ink-2:#C2C7BE; --muted:#8B948B; --rule:#282E29;
+    --ember:#E58A55; --ember-ink:#EFA274; --ember-wash:rgba(229,138,85,.13);
+    --patina:#7FB6A6; --patina-wash:rgba(127,182,166,.13);
+    --slot:#2A2F2B; --slot-hi:#3A413C; --slot-lo:#0A0C0B; --slot-in:#202421;
+    --shadow:rgba(0,0,0,.4);
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#111412; --surface:#191D1A; --sunk:#0C0F0D;
+  --ink:#E7E9E2; --ink-2:#C2C7BE; --muted:#8B948B; --rule:#282E29;
+  --ember:#E58A55; --ember-ink:#EFA274; --ember-wash:rgba(229,138,85,.13);
+  --patina:#7FB6A6; --patina-wash:rgba(127,182,166,.13);
+  --slot:#2A2F2B; --slot-hi:#3A413C; --slot-lo:#0A0C0B; --slot-in:#202421;
+  --shadow:rgba(0,0,0,.4);
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:"Source Serif 4",Georgia,serif;font-size:15px;line-height:1.5;
+  -webkit-font-smoothing:antialiased;display:flex;flex-direction:column}
+.ui,h1,h2,h3,button,input,select{font-family:Archivo,"Helvetica Neue",Arial,sans-serif}
+.mono{font-family:"JetBrains Mono",ui-monospace,Menlo,monospace}
+button{cursor:pointer}
+a{color:var(--ember-ink)}
+:focus-visible{outline:2px solid var(--ember);outline-offset:1px}
+
+/* ---- masthead ---- */
+header.mast{padding:22px 24px 16px;border-bottom:2px solid var(--ink);
+  display:flex;align-items:flex-end;gap:28px;flex-wrap:wrap}
+.kicker{font-family:"JetBrains Mono",monospace;font-size:10.5px;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--ember-ink);margin:0 0 6px}
+h1{font-size:clamp(30px,4.6vw,44px);line-height:.95;font-weight:800;letter-spacing:-.03em;margin:0}
+h1 .amp{color:var(--ember);font-weight:600}
+.specs{display:flex;flex-wrap:wrap;gap:2px 20px;font-family:"JetBrains Mono",monospace;
+  font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums;padding-bottom:3px}
+.specs b{color:var(--ink);font-weight:500}
+.sitenav{margin-left:auto;display:flex;gap:16px;font-family:Archivo,sans-serif;font-size:13px;
+  padding-bottom:3px}
+.sitenav a{color:var(--ink-2);text-decoration:none;border-bottom:1px solid var(--rule)}
+.sitenav a:hover{color:var(--ember-ink);border-color:var(--ember)}
+
+/* ---- control bar ---- */
+.bar{border-bottom:1px solid var(--rule);background:var(--paper);padding:10px 24px;
+  display:flex;align-items:center;gap:10px 14px;flex-wrap:wrap;
+  box-shadow:0 6px 18px -14px var(--shadow);position:relative;z-index:5}
+.search{position:relative;flex:1 1 380px;max-width:560px}
+#q{width:100%;font-family:"JetBrains Mono",monospace;font-size:13px;padding:8px 34px 8px 12px;
+  color:var(--ink);background:var(--surface);border:1px solid var(--rule);border-radius:2px}
+#q::placeholder{color:var(--muted)}
+#q:focus{outline:2px solid var(--ember);outline-offset:1px;border-color:transparent}
+.search kbd{position:absolute;right:9px;top:50%;translate:0 -50%;font-family:"JetBrains Mono",monospace;
+  font-size:10.5px;color:var(--muted);border:1px solid var(--rule);border-radius:2px;padding:0 5px;
+  background:var(--paper)}
+.chips{display:flex;flex-wrap:wrap;gap:4px}
+.chip{font-size:12px;font-weight:500;color:var(--ink-2);background:transparent;
+  border:1px solid var(--rule);border-radius:2px;padding:4px 9px;white-space:nowrap}
+.chip:hover{color:var(--ink);border-color:var(--muted)}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.chip.ember[aria-pressed="true"]{background:var(--ember);border-color:var(--ember);color:#fff}
+.sep{width:1px;height:22px;background:var(--rule)}
+.toggle{display:flex;align-items:center;gap:6px;font-family:Archivo,sans-serif;font-size:12px;color:var(--ink-2);
+  user-select:none;cursor:pointer}
+.toggle input{accent-color:var(--ember);margin:0}
+#count{margin-left:auto;font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--muted);
+  font-variant-numeric:tabular-nums;white-space:nowrap}
+.help{font-size:12px;color:var(--muted);background:none;border:none;text-decoration:underline dotted;
+  text-underline-offset:3px;padding:0}
+.syntax{display:none;flex-basis:100%;font-family:"JetBrains Mono",monospace;font-size:11.5px;
+  color:var(--ink-2);background:var(--surface);border:1px solid var(--rule);border-radius:2px;padding:10px 14px;
+  gap:4px 26px;flex-wrap:wrap}
+.syntax.open{display:flex}
+.syntax code{color:var(--ember-ink)}
+
+/* ---- three panes ---- */
+main{flex:1;min-height:0;display:grid;grid-template-columns:250px minmax(0,1fr) 400px}
+.pane{min-height:0;overflow:auto}
+#mods{border-right:1px solid var(--rule);background:var(--surface);padding:10px 0 30px}
+#mods .cat{font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--muted);padding:14px 16px 5px}
+#mods button.mod{display:grid;grid-template-columns:1fr auto;align-items:center;gap:2px 8px;width:100%;
+  text-align:left;background:none;border:none;border-left:3px solid transparent;padding:5px 14px 5px 13px;
+  color:var(--ink-2);font-size:13px}
+#mods button.mod:hover{background:var(--sunk);color:var(--ink)}
+#mods button.mod[aria-pressed="true"]{border-left-color:var(--ember);background:var(--ember-wash);color:var(--ink)}
+#mods .n{font-family:"JetBrains Mono",monospace;font-size:10.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+#mods .cov{grid-column:1/3;height:2px;background:var(--sunk);border-radius:1px;overflow:hidden}
+#mods .cov i{display:block;height:100%;background:var(--patina);opacity:.75}
+#mods .all{font-weight:600}
+
+#center{padding:0 18px 40px;position:relative}
+.modhead{display:none;padding:18px 2px 14px;border-bottom:1px solid var(--rule);margin-bottom:6px}
+.modhead.on{display:block}
+.modhead h2{font-size:22px;font-weight:700;letter-spacing:-.015em;margin:0;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.modhead h2 .ver{font-family:"JetBrains Mono",monospace;font-size:11px;font-weight:400;color:var(--muted)}
+.modhead p{margin:5px 0 0;color:var(--ink-2);max-width:70ch;font-size:14.5px}
+.modhead .meter{margin-top:10px;font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--muted);
+  display:flex;align-items:center;gap:10px}
+.modhead .meter .track{width:180px;height:5px;background:var(--rule);border-radius:3px;overflow:hidden}
+.modhead .meter .track i{display:block;height:100%;background:var(--patina)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,44px);gap:4px;padding-top:14px;justify-content:start}
+.tile{width:44px;height:44px;padding:0;position:relative;border:none;border-radius:1px;
+  background:var(--slot-in);
+  box-shadow:inset 2px 2px 0 var(--slot-lo),inset -2px -2px 0 var(--slot-hi)}
+.tile:hover,.tile.sel{background:var(--ember-wash);box-shadow:inset 0 0 0 2px var(--ember)}
+.tile .ic{position:absolute;left:6px;top:6px}
+.tile.inq::after{content:"";position:absolute;right:4px;top:4px;width:6px;height:6px;border-radius:50%;
+  background:var(--patina);box-shadow:0 0 0 1.5px var(--slot-in)}
+.ic{width:32px;height:32px;background-repeat:no-repeat;image-rendering:pixelated;display:block}
+.ic.blank{display:grid;place-items:center;font-family:Archivo,sans-serif;font-weight:700;font-size:13px;
+  color:var(--muted);background:repeating-linear-gradient(45deg,transparent 0 4px,var(--rule) 4px 5px)}
+.more{height:1px}
+.empty{display:none;padding:60px 4px;color:var(--muted);font-size:15px;max-width:52ch}
+.empty.on{display:block}
+.loading{padding:60px 4px;color:var(--muted);font-family:"JetBrains Mono",monospace;font-size:12px}
+
+/* ---- detail ---- */
+#detail{border-left:1px solid var(--rule);background:var(--surface);padding:0 0 40px}
+.d-empty{padding:40px 26px;color:var(--muted);font-size:14.5px}
+.d-empty h3{font-size:16px;color:var(--ink);margin:0 0 8px}
+.d-empty ul{padding-left:18px;margin:10px 0 0}
+.d-empty li{margin:4px 0}
+.d-empty kbd,.kbd{font-family:"JetBrains Mono",monospace;font-size:11px;border:1px solid var(--rule);
+  border-radius:2px;padding:0 5px;background:var(--paper);color:var(--ink-2)}
+.d-head{display:grid;grid-template-columns:auto 1fr;gap:4px 16px;padding:22px 22px 16px;
+  border-bottom:1px solid var(--rule)}
+.d-big{width:72px;height:72px;display:grid;place-items:center;background:var(--slot-in);
+  box-shadow:inset 3px 3px 0 var(--slot-lo),inset -3px -3px 0 var(--slot-hi);grid-row:1/4}
+.d-big .ic{transform:scale(2);transform-origin:center}
+.d-name{font-family:Archivo,sans-serif;font-size:19px;font-weight:700;letter-spacing:-.01em;line-height:1.2;
+  margin:0;align-self:end;overflow-wrap:anywhere}
+.d-mod{background:none;border:none;padding:0;text-align:left;font-family:Archivo,sans-serif;font-size:13px;
+  color:#3B5BDB;font-style:italic;justify-self:start}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .d-mod{color:#8EA2FF}}
+:root[data-theme="dark"] .d-mod{color:#8EA2FF}
+.d-mod:hover{text-decoration:underline}
+.d-key{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.d-key code{font-family:"JetBrains Mono",monospace;font-size:11.5px;color:var(--ink-2);overflow-wrap:anywhere}
+.copy{font-family:"JetBrains Mono",monospace;font-size:10.5px;color:var(--ink-2);background:var(--paper);
+  border:1px solid var(--rule);border-radius:2px;padding:1px 6px}
+.copy:hover{border-color:var(--ember);color:var(--ember-ink)}
+.copy.ok{color:var(--patina);border-color:var(--patina)}
+.d-sec{padding:16px 22px 4px}
+.d-sec h3{font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.15em;text-transform:uppercase;
+  color:var(--muted);font-weight:500;margin:0 0 8px;display:flex;gap:8px;align-items:baseline}
+.facts{display:grid;grid-template-columns:auto 1fr;gap:3px 16px;font-size:13.5px;margin:0}
+.facts dt{font-family:Archivo,sans-serif;color:var(--muted);font-size:12.5px}
+.facts dd{margin:0;font-variant-numeric:tabular-nums}
+.tags{display:flex;flex-wrap:wrap;gap:4px}
+.tag{font-family:"JetBrains Mono",monospace;font-size:11px;background:var(--paper);border:1px solid var(--rule);
+  border-radius:2px;padding:1px 7px;color:var(--ink-2)}
+button.tag:hover{border-color:var(--ember);color:var(--ember-ink)}
+.mctip{background:#100010F0;border:2px solid #25015B;outline:1px solid #100010;border-radius:2px;
+  padding:6px 9px;font-family:"JetBrains Mono",monospace;font-size:12px;line-height:1.5;color:#AAAAAA;
+  text-shadow:1px 1px 0 #3F3F3F;overflow-wrap:anywhere}
+.mctip .t{color:#fff;font-weight:500}
+.quests{list-style:none;margin:0;padding:0}
+.quests li{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:baseline;padding:5px 0;
+  border-bottom:1px dotted var(--rule);font-size:13.5px}
+.quests .qid{font-family:"JetBrains Mono",monospace;font-size:10.5px;color:var(--muted)}
+.quests .line{display:block;font-family:Archivo,sans-serif;font-size:11.5px;color:var(--muted)}
+.roles{display:flex;gap:4px}
+.role{font-family:"JetBrains Mono",monospace;font-size:10px;text-transform:uppercase;letter-spacing:.08em;
+  padding:0 5px;border-radius:2px;border:1px solid}
+.role.task{color:var(--ember-ink);border-color:var(--ember)}
+.role.reward{color:var(--patina);border-color:var(--patina)}
+.role.icon{color:var(--muted);border-color:var(--rule)}
+.none{color:var(--muted);font-size:13.5px;margin:0}
+.rtabs{display:flex;gap:0;border-bottom:1px solid var(--rule);margin:0 22px}
+.rtabs button{background:none;border:none;border-bottom:2px solid transparent;padding:10px 12px 8px;
+  font-size:13px;font-weight:600;color:var(--muted);margin-bottom:-1px}
+.rtabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--ember)}
+.rtabs .n{font-family:"JetBrains Mono",monospace;font-size:10.5px;font-weight:400;margin-left:4px}
+.recipes{padding:12px 22px 0;display:flex;flex-direction:column;gap:12px}
+.recipe{background:var(--paper);border:1px solid var(--rule);border-radius:2px;padding:10px 12px 12px}
+.recipe .rh{font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:8px;display:flex;justify-content:space-between;gap:8px}
+.recipe .rh span:last-child{text-transform:none;letter-spacing:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.craft{display:flex;align-items:center;gap:14px}
+.cgrid{display:grid;grid-template-columns:repeat(3,40px);gap:2px}
+.cgrid.one{grid-template-columns:40px}
+.slot{width:40px;height:40px;position:relative;padding:0;border:none;background:var(--slot-in);
+  box-shadow:inset 2px 2px 0 var(--slot-lo),inset -2px -2px 0 var(--slot-hi)}
+.slot .ic{position:absolute;left:4px;top:4px}
+button.slot:hover{box-shadow:inset 0 0 0 2px var(--ember)}
+.slot .cnt{position:absolute;right:2px;bottom:0;font-family:"JetBrains Mono",monospace;font-size:11px;
+  font-weight:500;color:#fff;text-shadow:1px 1px 0 #3F3F3F}
+.slot .ore{position:absolute;left:2px;top:1px;font-family:"JetBrains Mono",monospace;font-size:8px;color:#fff;
+  text-shadow:1px 1px 0 #000;opacity:.85}
+.slot.out{width:48px;height:48px}
+.slot.out .ic{left:8px;top:8px}
+.arrow{width:30px;height:16px;flex:none;color:var(--muted)}
+.rmore{background:none;border:1px dashed var(--rule);color:var(--ink-2);font-size:12.5px;padding:8px;border-radius:2px}
+.rmore:hover{border-color:var(--ember);color:var(--ember-ink)}
+.special{font-size:12.5px;color:var(--muted);margin:0}
+.special code{font-family:"JetBrains Mono",monospace;font-size:11px;overflow-wrap:anywhere}
+
+/* ---- hover tooltip ---- */
+#tip{position:fixed;z-index:50;pointer-events:none;max-width:340px;display:none}
+#tip.on{display:block}
+#tip .m{color:#5555FF;font-style:italic}
+
+/* ---- narrow screens ---- */
+.only-narrow{display:none}
+#closeDetail{display:none}
+@media (max-width:1180px){ main{grid-template-columns:220px minmax(0,1fr) 340px} }
+@media (max-width:900px){
+  header.mast{padding:18px 16px 12px}
+  .bar{padding:10px 16px}
+  .sitenav{margin-left:0}
+  main{grid-template-columns:minmax(0,1fr)}
+  #mods{position:fixed;inset:0 25% 0 0;z-index:40;transform:translateX(-102%);transition:transform .2s;
+    box-shadow:8px 0 30px var(--shadow)}
+  body.mods-open #mods{transform:none}
+  #detail{position:fixed;inset:12% 0 0 0;z-index:40;border-left:none;border-top:2px solid var(--ink);
+    transform:translateY(102%);transition:transform .2s;box-shadow:0 -8px 30px var(--shadow)}
+  body.detail-open #detail{transform:none}
+  #closeDetail{display:block;position:sticky;top:0;margin-left:auto;margin-right:10px;margin-top:10px;z-index:2}
+  .only-narrow{display:inline-block}
+  #center{padding:0 16px 40px}
+  .search{flex-basis:100%}
+  .sep{display:none}
+}
+@media (prefers-reduced-motion:reduce){ #mods,#detail{transition:none} }
+</style>
+</head>
+<body>
+
+<header class="mast">
+  <div>
+    <p class="kicker">Minecraft 1.7.10 &middot; Item Index</p>
+    <h1>Quest&nbsp;Forge <span class="amp">Items</span></h1>
+  </div>
+  <div class="specs" id="specs"></div>
+  <nav class="sitenav ui" aria-label="Site"><a href="../">Home</a><a href="../mods/">Mod list</a><a href="../ore-atlas/">Ore atlas</a></nav>
+</header>
+
+<div class="bar">
+  <button class="chip only-narrow" id="openMods" type="button">Mods</button>
+  <div class="search">
+    <input id="q" type="search" placeholder="search items — try  @orespawn sword  or  $ingotCopper" aria-label="Search items" autocomplete="off" spellcheck="false">
+    <kbd>/</kbd>
+  </div>
+  <div class="chips" id="kinds" role="group" aria-label="Kind"></div>
+  <span class="sep" aria-hidden="true"></span>
+  <div class="chips" role="group" aria-label="Quest use">
+    <button class="chip ember" type="button" data-quest="unused" aria-pressed="false" title="Items no quest asks for, gives or shows">Not in any quest</button>
+    <button class="chip" type="button" data-quest="used" aria-pressed="false">In a quest</button>
+  </div>
+  <label class="toggle"><input type="checkbox" id="tech"> Show technical items</label>
+  <button class="help" type="button" id="helpBtn" aria-expanded="false">Search syntax</button>
+  <span id="count"></span>
+  <div class="syntax" id="syntax">
+    <span><code>word</code> name or id contains</span>
+    <span><code>@mod</code> mod id or name</span>
+    <span><code>$ore</code> ore dictionary name</span>
+    <span><code>%tab</code> creative tab</span>
+    <span><code>#text</code> tooltip</span>
+    <span><code>is:weapon</code> block · item · weapon · bow · tool · armor · food</span>
+    <span><code>is:craftable</code> has a recipe</span>
+    <span><code>-term</code> exclude</span>
+    <span><code>a|b</code> either</span>
+    <span>Hover an item: <span class="kbd">R</span> recipes · <span class="kbd">U</span> uses</span>
+  </div>
+</div>
+
+<main>
+  <aside class="pane" id="mods" aria-label="Mods"></aside>
+  <section class="pane" id="center" aria-label="Items">
+    <div class="modhead" id="modhead"></div>
+    <div class="loading" id="loading">Loading the item index…</div>
+    <div class="grid" id="grid" role="list"></div>
+    <div class="more" id="more"></div>
+    <p class="empty" id="empty">Nothing matches. Each word must match on its own: try fewer words, or check the
+      prefix (<code>@</code> mod, <code>$</code> ore name, <code>%</code> tab, <code>#</code> tooltip).</p>
+  </section>
+  <aside class="pane" id="detail" aria-label="Item details">
+    <button class="copy" id="closeDetail" type="button">Close</button>
+    <div id="dbody"></div>
+  </aside>
+</main>
+
+<div id="tip" class="mctip" role="tooltip"></div>
+
+<script>
+"use strict";
+const $ = s => document.querySelector(s);
+const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+const fmt = n => n.toLocaleString("en-US");
+
+let D = null, R = null;            // items.json, recipes.json
+let items = [], mods = [];
+let byKey = new Map(), byId = new Map(), byBase = new Map();
+let rec = null;                    // recipe indexes, built once recipes.json arrives
+let state = {q: "", mod: -1, kind: -1, quest: "", tech: false, item: -1, tab: "recipes"};
+let filtered = [], shown = 0;
+let hovered = -1;
+const PAGE = 420;
+
+// Minecraft's formatting codes, as the in-game tooltip draws them.
+const MC = {"0":"#000000","1":"#0000AA","2":"#00AA00","3":"#00AAAA","4":"#AA0000","5":"#AA00AA","6":"#FFAA00","7":"#AAAAAA",
+  "8":"#555555","9":"#5555FF","a":"#55FF55","b":"#55FFFF","c":"#FF5555","d":"#FF55FF","e":"#FFFF55","f":"#FFFFFF"};
+const RARITY = {Uncommon:"#FFFF55", Rare:"#55FFFF", Epic:"#FF55FF"};
+function mcText(parent, s, base) {
+  let color = base || null, bold = false, ital = false;
+  const parts = String(s).split("§");
+  parts.forEach((p, i) => {
+    if (i > 0 && p.length) {
+      const c = p[0].toLowerCase();
+      if (MC[c]) { color = MC[c]; bold = ital = false; }
+      else if (c === "l") bold = true;
+      else if (c === "o") ital = true;
+      else if (c === "r") { color = base || null; bold = ital = false; }
+      p = p.slice(1);
+    }
+    if (!p) return;
+    const sp = el("span", null, p);
+    if (color) sp.style.color = color;
+    if (bold) sp.style.fontWeight = "700";
+    if (ital) sp.style.fontStyle = "italic";
+    parent.appendChild(sp);
+  });
+}
+
+// ------------------------------------------------------------------ icons
+function icon(idx, size) {
+  const it = items[idx];
+  const d = el("span", "ic");
+  if (!it || it.b) {
+    d.classList.add("blank");
+    d.textContent = it ? (mods[it.m].name[0] || "?") : "?";
+    return d;
+  }
+  const cell = D.cell, side = D.side, per = side * side;
+  const sheet = Math.floor(it.i / per), c = it.i % per;
+  d.style.backgroundImage = `url(data/icons-${sheet}.png)`;
+  d.style.backgroundSize = `${side * cell}px ${side * cell}px`;
+  d.style.backgroundPosition = `-${(c % side) * cell}px -${Math.floor(c / side) * cell}px`;
+  return d;
+}
+
+// ------------------------------------------------------------------ search
+function tokens(q) {
+  const out = []; const re = /(-?)("([^"]*)"|\S+)/g; let m;
+  while ((m = re.exec(q))) out.push({neg: !!m[1], text: (m[3] != null ? m[3] : m[2]).toLowerCase()});
+  return out.filter(t => t.text);
+}
+function testOne(it, idx, t) {
+  const c = t[0];
+  if (c === "@") { const v = t.slice(1); const md = mods[it.m]; return md.id.toLowerCase().includes(v) || md.name.toLowerCase().includes(v); }
+  if (c === "$") { const v = t.slice(1); return !!it.o && it.o.some(o => o.toLowerCase().includes(v)); }
+  if (c === "%") { const v = t.slice(1); return it.t != null && D.tabs[it.t].toLowerCase().includes(v); }
+  if (c === "#") { const v = t.slice(1); return !!it.tt && it.tt.some(l => l.replace(/§./g, "").toLowerCase().includes(v)); }
+  if (t.startsWith("is:")) {
+    const v = t.slice(3);
+    if (v === "craftable") return !!rec && (rec.byOut.has(it.k) || rec.byOut.has(base(it.k)));
+    if (v === "unused") return !D.qrefs[idx];
+    if (v === "quest" || v === "used") return !!D.qrefs[idx];
+    return D.kinds[it.c] === v;
+  }
+  return it._s.includes(t);
+}
+function matches(it, idx, toks) {
+  for (const tk of toks) {
+    const hit = tk.text.split("|").filter(Boolean).some(alt => testOne(it, idx, alt));
+    if (hit === tk.neg) return false;
+  }
+  return true;
+}
+function applyFilter() {
+  const toks = tokens(state.q);
+  filtered = [];
+  for (let i = 0; i < items.length; i++) {
+    const it = items[i];
+    if (!state.tech && it.u) continue;
+    if (state.mod >= 0 && it.m !== state.mod) continue;
+    if (state.kind >= 0 && it.c !== state.kind) continue;
+    if (state.quest === "unused" && D.qrefs[i]) continue;
+    if (state.quest === "used" && !D.qrefs[i]) continue;
+    if (toks.length && !matches(it, i, toks)) continue;
+    filtered.push(i);
+  }
+  shown = 0;
+  $("#grid").textContent = "";
+  $("#empty").classList.toggle("on", filtered.length === 0);
+  $("#count").textContent = `${fmt(filtered.length)} of ${fmt(items.length)} items`;
+  renderMore();
+  renderModHead();
+  writeHash();
+}
+function renderMore() {
+  const grid = $("#grid");
+  const end = Math.min(filtered.length, shown + PAGE);
+  const frag = document.createDocumentFragment();
+  for (; shown < end; shown++) {
+    const idx = filtered[shown], it = items[idx];
+    const b = el("button", "tile"); b.type = "button"; b.dataset.i = idx;
+    b.setAttribute("role", "listitem");
+    b.setAttribute("aria-label", it.n || it.k);
+    if (D.qrefs[idx]) b.classList.add("inq");
+    if (idx === state.item) b.classList.add("sel");
+    b.appendChild(icon(idx));
+    frag.appendChild(b);
+  }
+  grid.appendChild(frag);
+}
+
+// ------------------------------------------------------------------ mods pane
+function renderMods() {
+  const pane = $("#mods"); pane.textContent = "";
+  const allB = el("button", "mod all"); allB.type = "button"; allB.dataset.mod = -1;
+  allB.append(el("span", null, "All mods"), el("span", "n", fmt(items.length)));
+  pane.appendChild(allB);
+  const usedBy = new Array(mods.length).fill(0);
+  for (const k in D.qrefs) usedBy[items[k].m]++;
+  for (const cat of D.cats) {
+    const ms = mods.map((m, i) => [m, i]).filter(([m]) => m.cat === cat.key);
+    if (!ms.length) continue;
+    pane.appendChild(el("div", "cat", cat.label));
+    ms.sort((a, b) => a[0].name.localeCompare(b[0].name));
+    for (const [m, i] of ms) {
+      const b = el("button", "mod"); b.type = "button"; b.dataset.mod = i;
+      b.title = `${m.name}: ${usedBy[i]} of ${m.count} items appear in a quest`;
+      const cov = el("span", "cov"); const bar = el("i"); bar.style.width = `${Math.round(100 * usedBy[i] / m.count)}%`; cov.appendChild(bar);
+      b.append(el("span", null, m.name), el("span", "n", fmt(m.count)), cov);
+      pane.appendChild(b);
+    }
+  }
+  mods.forEach((m, i) => m.used = usedBy[i]);
+  syncModButtons();
+}
+function syncModButtons() {
+  document.querySelectorAll("#mods button.mod").forEach(b => b.setAttribute("aria-pressed", String(+b.dataset.mod === state.mod)));
+}
+function renderModHead() {
+  const h = $("#modhead");
+  if (state.mod < 0) { h.classList.remove("on"); return; }
+  const m = mods[state.mod]; h.textContent = ""; h.classList.add("on");
+  const title = el("h2"); title.append(el("span", null, m.name));
+  if (m.ver) title.append(el("span", "ver", m.ver));
+  title.append(el("span", "ver", `@${m.id}`));
+  h.appendChild(title);
+  if (m.desc) h.appendChild(el("p", null, m.desc));
+  const meter = el("div", "meter");
+  const tr = el("span", "track"); const bar = el("i"); bar.style.width = `${(100 * m.used / m.count).toFixed(1)}%`; tr.appendChild(bar);
+  meter.append(tr, el("span", null, `${fmt(m.used)} of ${fmt(m.count)} items in a quest (${(100 * m.used / m.count).toFixed(0)}%)`));
+  h.appendChild(meter);
+}
+
+// ------------------------------------------------------------------ recipes
+const base = k => k.split("#")[0];
+function buildRecipeIndex() {
+  const byOut = new Map(), uses = new Map(), usesWild = new Map(), usesOre = new Map();
+  const all = R.crafting.concat(R.smelting);
+  const push = (m, k, i) => { let a = m.get(k); if (!a) m.set(k, a = []); if (a[a.length - 1] !== i) a.push(i); };
+  const addIn = (ref, i) => {
+    if (ref == null) return;
+    if (Array.isArray(ref)) { ref.forEach(r => addIn(r, i)); return; }
+    if (ref.startsWith("ore:")) push(usesOre, ref.slice(4), i);
+    else if (ref.endsWith("@*")) push(usesWild, ref.slice(0, -2), i);
+    else push(uses, ref, i);
+  };
+  all.forEach((r, i) => {
+    if (r.out) push(byOut, r.out.endsWith("@*") ? r.out.slice(0, -2) + "@0" : r.out, i);
+    (r.in || []).forEach(x => addIn(x, i));
+  });
+  rec = {all, byOut, uses, usesWild, usesOre};
+}
+function recipesFor(idx) {
+  const it = items[idx]; return (rec.byOut.get(it.k) || rec.byOut.get(base(it.k)) || []);
+}
+function usesOf(idx) {
+  const it = items[idx], k = base(it.k), id = k.slice(0, k.lastIndexOf("@"));
+  const set = new Set([...(rec.uses.get(k) || []), ...(rec.usesWild.get(id) || [])]);
+  (it.o || []).forEach(o => (rec.usesOre.get(o) || []).forEach(i => set.add(i)));
+  return [...set];
+}
+// An ingredient ref -> the item indexes it stands for (several for an ore name or "any meta").
+function resolve(ref) {
+  if (ref == null) return [];
+  if (Array.isArray(ref)) return ref.flatMap(resolve);
+  if (ref.startsWith("ore:")) return (R.ores[ref.slice(4)] || []).flatMap(resolve);
+  if (ref.endsWith("@*")) return byId.get(ref.slice(0, -2)) || [];
+  const i = byBase.get(ref);
+  if (i != null) return [i];
+  const id = ref.slice(0, ref.lastIndexOf("@"));
+  return byId.has(id) ? [byId.get(id)[0]] : [];
+}
+const cyclers = [];
+function slot(ref, count, cls) {
+  const opts = [...new Set(resolve(ref))];
+  const s = el(opts.length ? "button" : "span", "slot" + (cls ? " " + cls : ""));
+  if (!opts.length) return s;
+  s.type = "button";
+  const put = n => {
+    const i = opts[n % opts.length];
+    s.querySelector(".ic")?.remove();
+    s.prepend(icon(i)); s.dataset.i = i;
+  };
+  put(0);
+  if (typeof ref === "string" && ref.startsWith("ore:")) { s.appendChild(el("span", "ore", "ore")); s.dataset.ore = ref.slice(4); }
+  if (count > 1) s.appendChild(el("span", "cnt", count));
+  if (opts.length > 1) cyclers.push({put, n: 0});
+  return s;
+}
+setInterval(() => cyclers.forEach(c => c.put(++c.n)), 1100);
+const ARROW = '<svg class="arrow" viewBox="0 0 30 16" aria-hidden="true"><path d="M1 8h24M19 2l7 6-7 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="square"/></svg>';
+function recipeCard(r) {
+  const c = el("div", "recipe");
+  const head = el("div", "rh");
+  head.append(el("span", null, r.type === "smelting" ? "Furnace" : r.type === "special" ? "Mod recipe" : r.type));
+  const outIdx = resolve(r.out)[0];
+  if (outIdx != null) head.append(el("span", null, mods[items[outIdx].m].name));
+  c.appendChild(head);
+  const row = el("div", "craft");
+  if (r.type === "special") {
+    row.appendChild(slot(r.out, r.count, "out"));
+    const p = el("p", "special"); p.append("Crafted by a mod's own recipe class; its grid can't be read. ", el("code", null, r.class.split(".").pop()));
+    row.appendChild(p);
+    c.appendChild(row); return c;
+  }
+  const g = el("div", "cgrid" + (r.type === "smelting" ? " one" : ""));
+  if (r.type === "shaped") {
+    const w = r.w || 3, h = r.h || 3;
+    for (let y = 0; y < 3; y++) for (let x = 0; x < 3; x++) {
+      g.appendChild(x < w && y < h ? slot(r.in[y * w + x]) : slot(null));
+    }
+  } else if (r.type === "shapeless") {
+    for (let n = 0; n < 9; n++) g.appendChild(slot(n < r.in.length ? r.in[n] : null));
+  } else {
+    g.appendChild(slot(r.in[0]));
+  }
+  row.appendChild(g);
+  row.insertAdjacentHTML("beforeend", ARROW);
+  row.appendChild(slot(r.out, r.count, "out"));
+  c.appendChild(row);
+  return c;
+}
+
+// ------------------------------------------------------------------ detail
+function copyBtn(label, text) {
+  const b = el("button", "copy", label); b.type = "button";
+  b.onclick = () => { navigator.clipboard?.writeText(text).then(() => { b.textContent = "copied"; b.classList.add("ok");
+    setTimeout(() => { b.textContent = label; b.classList.remove("ok"); }, 1200); }); };
+  return b;
+}
+function sec(title, extra) {
+  const s = el("div", "d-sec"); const h = el("h3", null, title); if (extra) h.append(extra); s.appendChild(h); return s;
+}
+function renderDetail() {
+  const body = $("#dbody"); body.textContent = ""; cyclers.length = 0;
+  if (state.item < 0 || !items[state.item]) {
+    const e = el("div", "d-empty");
+    e.innerHTML = `<h3>Pick an item</h3>Click any icon to see what it is, how it's made, what it's used in,
+      and which quests ask for it.<ul>
+      <li>Hover an icon and press <kbd>R</kbd> for recipes or <kbd>U</kbd> for uses, as in NEI.</li>
+      <li>A green dot marks items a quest asks for, gives or shows. <em>Not in any quest</em> lists the rest.</li>
+      <li>Click a mod on the left to see how much of it the quest book covers.</li></ul>`;
+    body.appendChild(e); return;
+  }
+  const idx = state.item, it = items[idx], m = mods[it.m];
+  const at = it.k.lastIndexOf("@"), id = it.k.slice(0, at), meta = parseInt(it.k.slice(at + 1), 10);
+  const head = el("div", "d-head");
+  const big = el("div", "d-big"); big.appendChild(icon(idx)); head.appendChild(big);
+  const nm = el("h2", "d-name"); mcText(nm, it.nc || it.n || it.k, RARITY[it.r]); head.appendChild(nm);
+  const mb = el("button", "d-mod", m.name); mb.type = "button"; mb.title = "Show this mod";
+  mb.onclick = () => setMod(it.m); head.appendChild(mb);
+  const key = el("div", "d-key"); key.append(el("code", null, `${id}  ·  meta ${meta}`),
+    copyBtn("id", id),
+    copyBtn("BQ stack", JSON.stringify({"id:8": id, "Count:3": 1, "Damage:2": meta, "OreDict:8": ""})));
+  head.appendChild(key);
+  body.appendChild(head);
+
+  const facts = sec("About"); const dl = el("dl", "facts");
+  const fact = (k, v) => { if (v == null || v === "") return; dl.append(el("dt", null, k), el("dd", null, v)); };
+  fact("Kind", D.kinds[it.c]);
+  fact("Creative tab", it.t != null ? D.tabs[it.t] : "none");
+  if (it.a != null) fact("Attack damage", `+${+it.a.toFixed(2)}`);
+  if (it.ar != null) fact("Armour", `${it.ar} points, ${it.sl}`);
+  if (it.d) fact("Durability", fmt(it.d));
+  if (it.f != null) fact("Food", `${it.f} hunger`);
+  fact("Stack size", it.s != null ? it.s : 64);
+  if (it.r) fact("Rarity", it.r);
+  facts.appendChild(dl); body.appendChild(facts);
+
+  if (it.o) {
+    const s = sec("Ore dictionary"); const t = el("div", "tags");
+    it.o.forEach(o => { const b = el("button", "tag", o); b.type = "button"; b.title = `Everything under ${o}`; b.onclick = () => setQuery("$" + o); t.appendChild(b); });
+    s.appendChild(t); body.appendChild(s);
+  }
+  if (it.tt) {
+    const s = sec("Tooltip"); const box = el("div", "mctip");
+    it.tt.forEach(l => { const d = el("div"); mcText(d, l, "#AAAAAA"); box.appendChild(d); });
+    s.appendChild(box); body.appendChild(s);
+  }
+  const refs = D.qrefs[idx] || [];
+  const qs = sec("Quests", el("span", null, refs.length ? `· ${new Set(refs.map(r => r[0])).size}` : ""));
+  if (!refs.length) qs.appendChild(el("p", "none", "No quest asks for, gives or shows this item."));
+  else {
+    const ul = el("ul", "quests");
+    const roles = new Map();
+    refs.forEach(([qid, role]) => { if (!roles.has(qid)) roles.set(qid, []); roles.get(qid).push(role); });
+    const ORDER = ["task", "reward", "icon"];
+    [...roles.keys()].sort((a, b) => a - b).forEach(qid => {
+      const q = D.quests[qid] || ["?", ""]; const li = el("li");
+      const mid = el("span"); mid.append(q[0]); mid.appendChild(el("span", "line", q[1]));
+      const badges = el("span", "roles");
+      roles.get(qid).sort((a, b) => ORDER.indexOf(a) - ORDER.indexOf(b)).forEach(r => badges.appendChild(el("span", "role " + r, r)));
+      li.append(el("span", "qid", `#${qid}`), mid, badges);
+      ul.appendChild(li);
+    });
+    qs.appendChild(ul);
+  }
+  body.appendChild(qs);
+
+  if (!rec) { body.appendChild(el("p", "d-sec none", "Loading recipes…")); return; }
+  const made = recipesFor(idx), used = usesOf(idx);
+  const tabs = el("div", "rtabs"); tabs.setAttribute("role", "tablist");
+  [["recipes", "Recipes", made.length], ["uses", "Uses", used.length]].forEach(([k, label, n]) => {
+    const b = el("button", null, label); b.type = "button"; b.setAttribute("role", "tab");
+    b.setAttribute("aria-selected", String(state.tab === k)); b.appendChild(el("span", "n", n));
+    b.onclick = () => { state.tab = k; renderDetail(); }; tabs.appendChild(b);
+  });
+  body.appendChild(tabs);
+  const list = el("div", "recipes");
+  const which = state.tab === "uses" ? used : made;
+  if (!which.length) list.appendChild(el("p", "none", state.tab === "uses"
+    ? "Not an ingredient in any crafting or furnace recipe. It may still be used by a mod's own machine."
+    : "No crafting or furnace recipe makes this. It may come from a mob, a chest, a machine or a mod's own crafting."));
+  let n = 0; const LIMIT = 24;
+  const more = () => {
+    const end = Math.min(which.length, n + LIMIT);
+    for (; n < end; n++) list.insertBefore(recipeCard(rec.all[which[n]]), list.querySelector(".rmore"));
+    const btn = list.querySelector(".rmore");
+    if (n >= which.length && btn) btn.remove();
+    else if (btn) btn.textContent = `Show ${Math.min(LIMIT, which.length - n)} more of ${which.length - n}`;
+  };
+  if (which.length > LIMIT) { const b = el("button", "rmore"); b.type = "button"; b.onclick = more; list.appendChild(b); }
+  more();
+  body.appendChild(list);
+}
+
+// ------------------------------------------------------------------ state
+function openItem(idx, tab) {
+  state.item = idx; if (tab) state.tab = tab;
+  document.querySelectorAll(".tile.sel").forEach(t => t.classList.remove("sel"));
+  document.querySelector(`.tile[data-i="${idx}"]`)?.classList.add("sel");
+  renderDetail(); $("#detail").scrollTop = 0;
+  document.body.classList.add("detail-open");
+  writeHash();
+}
+function setMod(i) {
+  state.mod = state.mod === i ? -1 : i;
+  syncModButtons(); document.body.classList.remove("mods-open");
+  applyFilter(); $("#center").scrollTop = 0;
+}
+function setQuery(q) { $("#q").value = q; state.q = q; applyFilter(); $("#center").scrollTop = 0; }
+function writeHash() {
+  const p = new URLSearchParams();
+  if (state.q) p.set("q", state.q);
+  if (state.mod >= 0) p.set("mod", mods[state.mod].id);
+  if (state.kind >= 0) p.set("is", D.kinds[state.kind]);
+  if (state.quest) p.set("quest", state.quest);
+  if (state.tech) p.set("tech", "1");
+  if (state.item >= 0) p.set("item", items[state.item].k);
+  const h = p.toString();
+  history.replaceState(null, "", h ? "#" + h : location.pathname);
+}
+function readHash() {
+  const p = new URLSearchParams(location.hash.slice(1));
+  state.q = p.get("q") || "";
+  const mid = p.get("mod"); state.mod = mid ? mods.findIndex(m => m.id === mid) : -1;
+  state.kind = p.get("is") ? D.kinds.indexOf(p.get("is")) : -1;
+  state.quest = p.get("quest") || "";
+  state.tech = p.get("tech") === "1";
+  const k = p.get("item"); state.item = k && byKey.has(k) ? byKey.get(k) : -1;
+}
+
+// ------------------------------------------------------------------ hover tooltip
+function showTip(idx, x, y) {
+  const it = items[idx], tip = $("#tip"); tip.textContent = "";
+  const t = el("div", "t"); mcText(t, it.nc || it.n || it.k, RARITY[it.r] || "#FFFFFF"); tip.appendChild(t);
+  (it.tt || []).slice(0, 6).forEach(l => { const d = el("div"); mcText(d, l, "#AAAAAA"); tip.appendChild(d); });
+  tip.appendChild(el("div", "m", mods[it.m].name));
+  tip.classList.add("on");
+  const r = tip.getBoundingClientRect();
+  tip.style.left = Math.min(x + 14, innerWidth - r.width - 8) + "px";
+  tip.style.top = Math.min(y + 14, innerHeight - r.height - 8) + "px";
+}
+function hideTip() { $("#tip").classList.remove("on"); hovered = -1; }
+
+// ------------------------------------------------------------------ wiring
+function wire() {
+  let t;
+  $("#q").addEventListener("input", e => { clearTimeout(t); t = setTimeout(() => { state.q = e.target.value; applyFilter(); $("#center").scrollTop = 0; }, 120); });
+  $("#mods").addEventListener("click", e => { const b = e.target.closest("button.mod"); if (b) setMod(+b.dataset.mod); });
+  const kinds = $("#kinds");
+  D.kinds.forEach((k, i) => {
+    const b = el("button", "chip", k[0].toUpperCase() + k.slice(1) + (k.endsWith("s") ? "" : "s")); b.type = "button";
+    if (k === "armor") b.textContent = "Armour";
+    if (k === "food") b.textContent = "Food";
+    b.dataset.kind = i; b.setAttribute("aria-pressed", String(state.kind === i)); kinds.appendChild(b);
+  });
+  kinds.addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return;
+    const i = +b.dataset.kind; state.kind = state.kind === i ? -1 : i;
+    kinds.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", String(+x.dataset.kind === state.kind)));
+    applyFilter(); });
+  document.querySelectorAll("[data-quest]").forEach(b => {
+    b.setAttribute("aria-pressed", String(state.quest === b.dataset.quest));
+    b.onclick = () => { state.quest = state.quest === b.dataset.quest ? "" : b.dataset.quest;
+      document.querySelectorAll("[data-quest]").forEach(x => x.setAttribute("aria-pressed", String(state.quest === x.dataset.quest)));
+      applyFilter(); };
+  });
+  $("#tech").checked = state.tech;
+  $("#tech").onchange = e => { state.tech = e.target.checked; applyFilter(); };
+  $("#helpBtn").onclick = () => { const s = $("#syntax"); s.classList.toggle("open"); $("#helpBtn").setAttribute("aria-expanded", String(s.classList.contains("open"))); };
+  $("#openMods").onclick = () => document.body.classList.toggle("mods-open");
+  $("#closeDetail").onclick = () => document.body.classList.remove("detail-open");
+
+  const clickItem = e => { const b = e.target.closest("[data-i]"); if (!b) return;
+    if (b.dataset.ore && e.altKey) { setQuery("$" + b.dataset.ore); return; }
+    hideTip(); openItem(+b.dataset.i); };
+  $("#grid").addEventListener("click", clickItem);
+  $("#dbody").addEventListener("click", e => { if (e.target.closest(".slot")) clickItem(e); });
+  const over = e => { const b = e.target.closest("[data-i]"); if (!b) { hideTip(); return; }
+    hovered = +b.dataset.i; showTip(hovered, e.clientX, e.clientY); };
+  ["#grid", "#dbody"].forEach(s => { $(s).addEventListener("mousemove", over); $(s).addEventListener("mouseleave", hideTip); });
+  $("#center").addEventListener("scroll", hideTip, {passive: true});
+  $("#detail").addEventListener("scroll", hideTip, {passive: true});
+
+  document.addEventListener("keydown", e => {
+    const typing = document.activeElement && /INPUT|TEXTAREA/.test(document.activeElement.tagName);
+    if (e.key === "/" && !typing) { e.preventDefault(); $("#q").focus(); $("#q").select(); return; }
+    if (e.key === "Escape") { if (typing) $("#q").blur(); document.body.classList.remove("detail-open", "mods-open"); return; }
+    if (typing || e.ctrlKey || e.metaKey || e.altKey) return;
+    if ((e.key === "r" || e.key === "u") && hovered >= 0) { openItem(hovered, e.key === "r" ? "recipes" : "uses"); }
+  });
+  new IntersectionObserver(es => { if (es[0].isIntersecting && shown < filtered.length) renderMore(); },
+    {root: $("#center"), rootMargin: "600px"}).observe($("#more"));
+}
+
+async function boot() {
+  try {
+    const res = await fetch("data/items.json");
+    if (!res.ok) throw new Error(res.status);
+    D = await res.json();
+  } catch (e) {
+    $("#loading").textContent = "The item index hasn't been built yet. Run tools/items/build_site.py.";
+    return;
+  }
+  items = D.items; mods = D.mods;
+  items.forEach((it, i) => {
+    it._s = ((it.n || "") + " " + it.k).toLowerCase();
+    byKey.set(it.k, i);
+    const b = base(it.k); if (!byBase.has(b)) byBase.set(b, i);
+    const id = b.slice(0, b.lastIndexOf("@")); if (!byId.has(id)) byId.set(id, []); byId.get(id).push(i);
+  });
+  const inQuest = Object.keys(D.qrefs).length;
+  $("#specs").innerHTML = `<span><b>${fmt(items.length)}</b> items</span><span><b>${fmt(mods.length)}</b> mods with items</span>`
+    + `<span><b>${fmt(inQuest)}</b> in a quest</span><span id="recspec"></span><span>built <b>${D.built}</b></span>`;
+  readHash();
+  $("#q").value = state.q;
+  $("#loading").remove();
+  renderMods(); wire(); applyFilter(); renderDetail();
+  try {
+    R = await (await fetch("data/recipes.json")).json();
+    buildRecipeIndex();
+    $("#recspec").innerHTML = `<b>${fmt(R.crafting.length + R.smelting.length)}</b> recipes`;
+    if (state.item >= 0) renderDetail();
+  } catch (e) { /* the browser still works without recipes */ }
+}
+boot();
+</script>
+</body>
+</html>

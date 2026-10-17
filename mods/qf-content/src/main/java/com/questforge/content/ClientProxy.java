@@ -117,6 +117,17 @@ public class ClientProxy extends CommonProxy {
         } catch (Throwable t) {
             System.out.println("[QuestForgeContent] FrameBench present but unusable: " + t);
         }
+        // The same for the item browser's dump (-Dqf.itemdump=<dir>).
+        try {
+            Class<?> dump = Class.forName("com.questforge.content.debug.ItemDump");
+            if (Boolean.TRUE.equals(dump.getMethod("enabled").invoke(null))) {
+                FMLCommonHandler.instance().bus().register(dump.newInstance());
+            }
+        } catch (ClassNotFoundException expected) {
+            // Release build.
+        } catch (Throwable t) {
+            System.out.println("[QuestForgeContent] ItemDump present but unusable: " + t);
+        }
     }
 
     @Override
