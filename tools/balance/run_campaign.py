@@ -103,7 +103,7 @@ def jobs(pairs_only=None):
     return out
 
 
-REF_LINE = re.compile(r"reference target (\S+): median of \d+ settled spawns -> maxHealth "
+REF_LINE = re.compile(r"reference target (.+?): median of \d+ settled spawns -> maxHealth "
                       r"([0-9.]+).*?attackDamage ([0-9.NaN]+)")
 
 
@@ -142,6 +142,38 @@ def load(path, default):
             return json.load(fh)
     except (OSError, ValueError):
         return default
+
+
+def record_ref(refs_path, refs, boss, hp, atk):
+    """Add one reference, merging with refs.json on disk first, so an entry
+    written by someone else while this driver ran is not saved over."""
+    refs.update({k: v for k, v in load(refs_path, {}).items() if k not in refs})
+    refs[boss] = [hp, atk]
+    save(refs_path, refs)
+
+
+def backfill_refs(out, refs_path, refs):
+    """Rebuild any missing reference from finished singles jobs' own census.log.
+    Recovers bosses whose name has a space, which older drivers never recorded."""
+    added = []
+    for job in jobs():
+        if job["phase"] != "singles" or job["boss"] in refs:
+            continue
+        d = os.path.join(out, job["name"])
+        if not os.path.exists(os.path.join(d, "finished.json")):
+            continue
+        try:
+            with open(os.path.join(d, "census.log"), encoding="utf-8", errors="replace") as fh:
+                for line in fh:
+                    m = REF_LINE.search(line)
+                    if m:
+                        record_ref(refs_path, refs, job["boss"], m.group(2), m.group(3))
+                        added.append(job["boss"])
+                        break
+        except OSError:
+            pass
+    if added:
+        print(time.strftime("%H:%M:%S"), "backfilled references:", ", ".join(added), flush=True)
 
 
 def save(path, data):
@@ -201,9 +233,11 @@ def harvest(node, out_dir, refs, refs_path, timed_out):
                     if "combat census finished" in line:
                         finished = True
                     m = REF_LINE.search(line)
-                    if m and m.group(1) not in refs:
-                        refs[m.group(1)] = [m.group(2), m.group(3)]
-                        save(refs_path, refs)
+                    # Keyed by the job's boss, which is what launch() looks up;
+                    # the logged name has spaces ("Yeti Boss") where the job has
+                    # underscores, so keying by it left five bosses without one.
+                    if m and job["boss"] not in refs:
+                        record_ref(refs_path, refs, job["boss"], m.group(2), m.group(3))
     except OSError:
         pass
     with open(os.path.join(dest, "census.log"), "w", encoding="utf-8") as fh:
@@ -234,6 +268,7 @@ def main():
     os.makedirs(args.out, exist_ok=True)
     refs_path = os.path.join(args.out, "refs.json")
     refs = load(refs_path, {})
+    backfill_refs(args.out, refs_path, refs)
     queue = [j for j in jobs(args.pairs_only)
              if not args.only_phase or j["phase"] == args.only_phase]
     queue = [j for j in queue
