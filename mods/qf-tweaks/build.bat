@@ -63,6 +63,9 @@ set "DIRTY="
 if defined STAMP for /f "usebackq delims=" %%v in (`git -C "%HERE%." status --porcelain -- .`) do set "DIRTY=1"
 if defined DIRTY set "QFVER=!QFVER!.dirty"
 echo Version: !QFVER!
+rem RecNbtFix and AsieNickFix call into Recurrent Complex and Gson.
+set "CP=%CP%;%INST%\mods\RecurrentComplex.jar"
+set "CP=%CP%;%INST%\bin\lib\gson-2.2.4.jar"
 
 if exist "%HERE%build" rd /s /q "%HERE%build"
 mkdir "%HERE%build"
@@ -95,7 +98,11 @@ rem -XX:+FailOverToOldVerifier, so older-version bytecode is fine here.
   "%HERE%..\..\tools\branding\splash-bars\java\qf\splash\QFBars.java" ^
   "%HERE%..\..\tools\music\java\qf\splash\SplashMusic.java" ^
   "%HERE%..\..\tools\music\java\qf\splash\SplashChantFade.java" ^
-  "%HERE%..\..\tools\music\java\qf\splash\SplashMenuPreload.java"
+  "%HERE%..\..\tools\music\java\qf\splash\SplashMenuPreload.java" ^
+  "%HERE%src\com\questforge\RecNbtTransformer.java" ^
+  "%HERE%src\com\questforge\RecNbtFix.java" ^
+  "%HERE%src\com\questforge\AsieNickTransformer.java" ^
+  "%HERE%src\com\questforge\AsieNickFix.java"
 
 if errorlevel 1 (
   echo.
