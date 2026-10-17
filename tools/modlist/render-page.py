@@ -52,6 +52,9 @@ h1 .amp{color:var(--ember);font-weight:600}
   font-family:"JetBrains Mono",monospace;font-size:11.5px;color:var(--muted);
   font-variant-numeric:tabular-nums}
 .specs b{color:var(--ink);font-weight:500}
+.also{display:flex;flex-wrap:wrap;gap:6px 22px;margin:18px 0 0;font-family:Archivo,sans-serif;font-size:14px}
+.also a{color:var(--ember-ink);text-decoration:none;border-bottom:1px solid var(--ember);font-weight:600}
+.also a:hover{color:var(--ink);border-color:var(--ink)}
 
 /* ---- sticky control bar ---- */
 .bar{position:sticky;top:0;z-index:20;background:var(--paper);
@@ -191,6 +194,7 @@ doc = f"""<title>Quest Forge Mod List</title>
     <span>Forge <b>10.13.4.1558</b></span>
     <span>Java <b>8</b></span>
   </div>
+  <p class="also"><a href="../">&larr; Quest Forge home</a><a href="../items/">Browse every item, recipe and quest use &rarr;</a><a href="../ore-atlas/">Ore atlas &rarr;</a></p>
 </div></header>
 
 <div class="bar"><div class="wrap bar-in">
@@ -211,5 +215,6 @@ doc = f"""<title>Quest Forge Mod List</title>
 
 <script>{JS}</script>
 """
-open('questforge-modlist.html','w').write(doc)
+# Served at /mods/ (the site root is the homepage, site/home/).
+open('../../site/mods/index.html','w',encoding='utf-8',newline='').write(doc)
 print("written", len(doc), "bytes;", len(MODS), "mods")

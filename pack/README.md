@@ -21,7 +21,7 @@ file    name    version category        bytes
 ```
 
 The same data, written for people rather than scripts, is at
-[`../site/modlist/`](../site/modlist/).
+[`../site/mods/`](../site/mods/).
 
 The pack loads **111 mod files** but Forge reports **141 registered mods**. Both
 numbers are correct: several jars register more than one mod — the Legends Mod

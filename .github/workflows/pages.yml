@@ -1,11 +1,11 @@
 name: Publish site
 
-# The mod list is the page people get sent, so it is served at the site root.
-# The ore atlas sits beside it at /ore-atlas/.
+# The homepage (site/home) is the site root and the directory of everything else.
+# Every other page is served under its own folder name: /mods/, /items/, /ore-atlas/.
 #
-# Both are committed as generated output (see site/README.md); this workflow only
-# arranges them, it does not build them. To change what they contain, regenerate
-# with tools/modlist/ and commit the result.
+# All of them are committed as generated output (see site/README.md); this workflow
+# only arranges them, it does not build them. To change what they contain,
+# regenerate with tools/modlist/ or tools/items/ and commit the result.
 
 on:
   push:
@@ -38,8 +38,10 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p _site
-          cp site/modlist/index.html _site/index.html
+          cp -R site/home/. _site/
+          cp -R site/mods _site/mods
           cp -R site/ore-atlas _site/ore-atlas
+          cp -R site/items _site/items
           test -s _site/index.html
           echo "Publishing:"; find _site -type f | sort
 

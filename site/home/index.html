@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quest Forge</title>
+<meta name="description" content="Quest Forge, a quest-driven CrazyCraft-style modpack for Minecraft 1.7.10: the mod list, a searchable index of every item, the ore atlas, and more to come.">
+<meta property="og:title" content="Quest Forge">
+<meta property="og:description" content="A quest-driven CrazyCraft-style modpack for Minecraft 1.7.10.">
+<meta property="og:image" content="img/hero-960.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+<style>
+/* Tokens shared with the mod list and the item index. */
+:root{
+  --paper:#E9EAE4; --surface:#F7F8F3; --sunk:#DFE1DA;
+  --ink:#171B19; --ink-2:#3E4642; --muted:#6A726C; --rule:#CDD1C8;
+  --ember:#A33F17; --ember-ink:#8E3712; --patina:#2C4A43;
+  --shadow:rgba(23,27,25,.10);
+  --night:#0E0B12; --night-ink:#ECE6F2; --night-2:#B9AFC6; --glow:#F08A3C;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#111412; --surface:#191D1A; --sunk:#0C0F0D;
+    --ink:#E7E9E2; --ink-2:#C2C7BE; --muted:#8B948B; --rule:#282E29;
+    --ember:#E58A55; --ember-ink:#EFA274; --patina:#7FB6A6;
+    --shadow:rgba(0,0,0,.45);
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#111412; --surface:#191D1A; --sunk:#0C0F0D;
+  --ink:#E7E9E2; --ink-2:#C2C7BE; --muted:#8B948B; --rule:#282E29;
+  --ember:#E58A55; --ember-ink:#EFA274; --patina:#7FB6A6;
+  --shadow:rgba(0,0,0,.45);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:"Source Serif 4",Georgia,serif;font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
+h1,h2,h3,.ui{font-family:Archivo,"Helvetica Neue",Arial,sans-serif}
+.mono{font-family:"JetBrains Mono",ui-monospace,Menlo,monospace}
+.wrap{max-width:1180px;margin:0 auto;padding-left:28px;padding-right:28px}
+:focus-visible{outline:2px solid var(--ember);outline-offset:2px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* ---- hero: the main-menu art, wordmark and all ---- */
+.hero{position:relative;background:var(--night);color:var(--night-ink);overflow:hidden;
+  min-height:min(92vh,980px);display:flex;align-items:flex-end}
+.hero picture,.hero img.bg{position:absolute;inset:0;width:100%;height:100%}
+.hero img.bg{object-fit:cover;object-position:50% 0}
+.hero::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(180deg,transparent 0 46%,rgba(14,11,18,.55) 70%,var(--night) 100%)}
+.hero .wrap{position:relative;z-index:1;width:100%;padding-bottom:64px}
+.hero .kicker{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--glow);margin:0 0 14px}
+.hero .lede{max-width:56ch;margin:0;font-size:clamp(17px,1.9vw,20px);line-height:1.5;color:var(--night-2)}
+.hero .lede b{color:var(--night-ink);font-weight:600}
+.cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}
+.btn{font-family:Archivo,sans-serif;font-weight:600;font-size:15px;text-decoration:none;padding:11px 20px;
+  border-radius:2px;border:1px solid rgba(236,230,242,.35);color:var(--night-ink);background:rgba(14,11,18,.35);
+  backdrop-filter:blur(4px);transition:border-color .15s,background .15s}
+.btn:hover{border-color:var(--night-ink);background:rgba(14,11,18,.6)}
+.btn.primary{background:var(--glow);border-color:var(--glow);color:#1A0E06}
+.btn.primary:hover{background:#FF9D52;border-color:#FF9D52}
+.facts{display:flex;flex-wrap:wrap;gap:4px 26px;margin-top:34px;font-family:"JetBrains Mono",monospace;font-size:11.5px;
+  color:var(--night-2);font-variant-numeric:tabular-nums}
+.facts b{color:var(--night-ink);font-weight:500}
+
+/* ---- sections ---- */
+section{padding:72px 0 8px}
+.head{display:flex;align-items:baseline;justify-content:space-between;gap:20px;flex-wrap:wrap;
+  border-bottom:2px solid var(--ink);padding-bottom:10px;margin-bottom:26px}
+h2{font-size:clamp(26px,3.2vw,34px);font-weight:800;letter-spacing:-.025em;margin:0;line-height:1.1}
+.head p{margin:0;color:var(--muted);font-size:15px;max-width:58ch}
+
+/* ---- directory ---- */
+.pages{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px}
+.page{position:relative;display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--rule);
+  border-radius:3px;overflow:hidden;color:inherit;text-decoration:none;
+  transition:transform .18s ease,box-shadow .18s ease,border-color .18s}
+a.page:hover{transform:translateY(-3px);box-shadow:0 14px 30px -14px var(--shadow);border-color:var(--muted)}
+.page .art{aspect-ratio:16/9;overflow:hidden;background:var(--night)}
+.page .art img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .5s ease}
+a.page:hover .art img{transform:scale(1.04)}
+.page .body{padding:18px 20px 20px;display:flex;flex-direction:column;gap:8px;flex:1}
+.page h3{font-size:21px;font-weight:700;letter-spacing:-.012em;margin:0;display:flex;align-items:center;gap:10px}
+.page h3 .go{margin-left:auto;color:var(--ember);font-weight:600;transition:translate .18s}
+a.page:hover h3 .go{translate:4px 0}
+.page p{margin:0;color:var(--ink-2);font-size:15px;line-height:1.5}
+.page .meta{margin-top:auto;padding-top:10px;font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--muted);
+  font-variant-numeric:tabular-nums;display:flex;flex-wrap:wrap;gap:2px 16px}
+.page .meta b{color:var(--ink);font-weight:500}
+.status{position:absolute;top:12px;left:12px;font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.12em;
+  text-transform:uppercase;padding:3px 8px;border-radius:2px;background:rgba(14,11,18,.78);color:#ECE6F2;backdrop-filter:blur(3px)}
+.status.live::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:#5FD08A;margin-right:7px;
+  translate:0 -1px}
+.status.redo{background:var(--glow);color:#1A0E06}
+.page.soon{border-style:dashed;background:transparent}
+.page.soon .art{filter:grayscale(.85) brightness(.7)}
+.page.soon h3{color:var(--ink-2)}
+.page.wide{grid-column:span 2}
+.page.wide .art{aspect-ratio:21/9}
+
+/* ---- worlds filmstrip ---- */
+.strip{display:grid;grid-auto-flow:column;grid-auto-columns:clamp(220px,26vw,320px);gap:14px;overflow-x:auto;
+  padding:4px 28px 22px;margin:0 auto;max-width:1236px;scroll-snap-type:x proximity;scrollbar-width:thin}
+.world{margin:0;scroll-snap-align:start}
+.world img{width:100%;aspect-ratio:16/9;object-fit:cover;display:block;border-radius:2px;background:var(--night)}
+.world figcaption{display:flex;gap:8px;align-items:baseline;margin-top:7px;font-family:Archivo,sans-serif;font-size:14px;
+  font-weight:600;color:var(--ink-2)}
+.world figcaption span{font-family:"JetBrains Mono",monospace;font-size:10.5px;font-weight:400;color:var(--muted)}
+
+footer{margin-top:64px;border-top:1px solid var(--rule);padding:26px 0 56px;font-family:"JetBrains Mono",monospace;
+  font-size:11px;color:var(--muted)}
+footer .wrap{display:flex;flex-wrap:wrap;gap:6px 24px}
+footer a{color:var(--ink-2)}
+
+@media (max-width:960px){
+  .pages{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .page.wide{grid-column:span 2}
+}
+@media (max-width:640px){
+  .wrap{padding-left:16px;padding-right:16px}
+  .pages{grid-template-columns:minmax(0,1fr)}
+  .page.wide{grid-column:auto}
+  .page.wide .art{aspect-ratio:16/9}
+  /* A portrait screen would crop the wordmark: show the art whole, the words under it. */
+  .hero{min-height:0;display:block}
+  .hero picture{position:relative;display:block;height:auto}
+  .hero img.bg{position:static;height:auto;aspect-ratio:16/9}
+  .hero::after{inset:0 0 auto 0;height:calc(100vw * 9 / 16)}
+  .hero .wrap{padding-top:8px;padding-bottom:40px}
+  section{padding-top:52px}
+  .strip{padding:4px 16px 18px}
+}
+@media (prefers-reduced-motion:reduce){ *{transition:none !important} }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <picture>
+    <source media="(max-width:960px)" srcset="img/hero-960.jpg">
+    <img class="bg" src="img/hero.jpg" alt="" fetchpriority="high">
+  </picture>
+  <div class="wrap">
+    <h1 class="sr">Quest Forge</h1>
+    <p class="kicker">Minecraft 1.7.10 &middot; A modpack for friends</p>
+    <p class="lede">A quest-driven, CrazyCraft-style pack: <b>OreSpawn's titans</b>, <b>TragicMC</b>, Witchery,
+      the Twilight Forest, Transformers and a hundred more mods, tied together by a hand-built questline.
+      Big leaps in power, and no easy road to the top.</p>
+    <div class="cta">
+      <a class="btn primary" href="items/">Browse every item</a>
+      <a class="btn" href="mods/">See the mods</a>
+    </div>
+    <div class="facts" id="facts">
+      <span><b>111</b> mod files</span>
+      <span><b>27</b> worlds to reach</span>
+      <span>Forge <b>10.13.4.1558</b></span>
+    </div>
+  </div>
+</header>
+
+<main>
+<section class="wrap" aria-labelledby="pages-h">
+  <div class="head">
+    <h2 id="pages-h">The pack, page by page</h2>
+    <p>What's in Quest Forge and how it fits together. New pages appear here as they're built.</p>
+  </div>
+  <div class="pages">
+    <a class="page wide" href="items/">
+      <span class="status live">Live</span>
+      <div class="art"><img src="img/plates/24-village-mania.jpg" alt="" loading="lazy"></div>
+      <div class="body">
+        <h3>Item index <span class="go" aria-hidden="true">&rarr;</span></h3>
+        <p>Every item in the pack with its real in-game icon. Search it the way you would NEI, by name, mod,
+          ore name or tooltip, follow recipes and uses, and see which quests ask for each one.</p>
+        <div class="meta" id="itemMeta"><span>Search with <b>@mod</b> <b>$ore</b> <b>#tooltip</b></span></div>
+      </div>
+    </a>
+    <a class="page" href="mods/">
+      <span class="status live">Live</span>
+      <div class="art"><img src="img/plates/03-twilight-forest.jpg" alt="" loading="lazy"></div>
+      <div class="body">
+        <h3>Mod list <span class="go" aria-hidden="true">&rarr;</span></h3>
+        <p>All 111 mods sorted into what they add: dimensions, bosses, magic, tech and gear, each with a line on
+          what it actually does.</p>
+        <div class="meta"><span><b>11</b> categories</span><span><b>141</b> registered mods</span></div>
+      </div>
+    </a>
+    <a class="page" href="ore-atlas/">
+      <span class="status redo">Being redone</span>
+      <div class="art"><img src="img/plates/23-mining.jpg" alt="" loading="lazy"></div>
+      <div class="body">
+        <h3>Ore atlas <span class="go" aria-hidden="true">&rarr;</span></h3>
+        <p>Where every ore sits, dimension by dimension. Its figures come from an older mod set and will be
+          measured again before the server opens, so treat them as rough.</p>
+        <div class="meta"><span><b>19</b> dimensions</span><span><b>86</b> ores</span></div>
+      </div>
+    </a>
+    <div class="page soon" aria-disabled="true">
+      <span class="status">Coming soon</span>
+      <div class="art"><img src="img/plates/01-nether.jpg" alt="" loading="lazy"></div>
+      <div class="body">
+        <h3>Get the pack</h3>
+        <p>Everything a friend needs to play: the download, the launcher setup and the settings for a
+          slower PC.</p>
+      </div>
+    </div>
+    <div class="page soon" aria-disabled="true">
+      <span class="status">Coming soon</span>
+      <div class="art"><img src="img/plates/18-kingpin.jpg" alt="" loading="lazy"></div>
+      <div class="body">
+        <h3>Who's online</h3>
+        <p>The server's player list, live: who has joined, and who is on right now.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section aria-labelledby="worlds-h">
+  <div class="wrap">
+    <div class="head">
+      <h2 id="worlds-h">Twenty-seven worlds</h2>
+      <p>The pack's loading screens, one painted for each place it can take you.</p>
+    </div>
+  </div>
+  <div class="strip" id="strip" tabindex="0" aria-label="Loading-screen art, scrolls sideways"></div>
+</section>
+</main>
+
+<footer><div class="wrap">
+  <span>Quest Forge &middot; Minecraft 1.7.10</span>
+  <a href="mods/">Mod list</a><a href="items/">Item index</a><a href="ore-atlas/">Ore atlas</a>
+  <span>Not affiliated with Mojang or any mod author</span>
+</div></footer>
+
+<script>
+"use strict";
+// The worlds strip: one figure per loading plate, named from its file.
+const PLATES = ["01-nether","02-end","03-twilight-forest","04-dream-world","05-torment","06-mirror-world","07-lost-world",
+  "08-compact-machines","09-outer-space","10-mars","11-ilum","12-hurikane","13-tython","14-korriban","15-tatooine",
+  "16-speed-force","17-wakanda","18-kingpin","19-quantum-realm","20-imortus","21-underworld","22-utopia","23-mining",
+  "24-village-mania","25-danger-islands","26-crystal","27-chaos"];
+const strip = document.getElementById("strip");
+for (const p of PLATES) {
+  const [n, ...rest] = p.split("-");
+  const name = rest.map(w => w[0].toUpperCase() + w.slice(1)).join(" ");
+  const f = document.createElement("figure"); f.className = "world";
+  const img = document.createElement("img"); img.src = `img/plates/${p}.jpg`; img.alt = name; img.loading = "lazy";
+  const cap = document.createElement("figcaption"); cap.append(name);
+  const num = document.createElement("span"); num.textContent = n; cap.append(num);
+  f.append(img, cap); strip.append(f);
+}
+// Live counts from the item index's own build, when it's there.
+fetch("items/data/stats.json").then(r => r.ok ? r.json() : null).then(s => {
+  if (!s) return;
+  const f = n => n.toLocaleString("en-US");
+  document.getElementById("itemMeta").innerHTML =
+    `<span><b>${f(s.items)}</b> items</span><span><b>${f(s.recipes)}</b> recipes</span>` +
+    `<span><b>${f(s.inQuest)}</b> in a quest</span><span>updated <b>${s.built}</b></span>`;
+  document.getElementById("facts").insertAdjacentHTML("afterbegin", `<span><b>${f(s.items)}</b> items</span>`);
+}).catch(() => {});
+</script>
+</body>
+</html>

@@ -1,13 +1,22 @@
 # Site
 
-Static pages. Each is a single self-contained HTML file with no build step and no
-external dependencies beyond web fonts — open one in a browser, or drop it on any
-static host.
+Static pages with no build step and no external dependencies beyond web fonts. Each folder is
+served under its own name, except `home/`, which is the site root
+(`.github/workflows/pages.yml` arranges them).
 
-| Page | What it is |
-|---|---|
-| [`modlist/`](modlist/) | The player-facing mod list: all 111 mods sorted into ten content categories, with performance and background mods last, and a live filter. Served at the site root. |
-| [`ore-atlas/`](ore-atlas/) | The interactive ore atlas: pick any of nineteen dimensions and get a cut through the ground, a depth profile, a rarity scale anchored to ores you already know, and a sortable table of every ore. Served at `/ore-atlas/`. |
+| Page | Served at | What it is |
+|---|---|---|
+| [`home/`](home/) | `/` | The homepage and directory: the main-menu art, a card for every page, and the loading-screen plates. Its images are web-sized copies made by [`../tools/site/make_home_images.py`](../tools/site/make_home_images.py). |
+| [`mods/`](mods/) | `/mods/` | The player-facing mod list: all 111 mods sorted into ten content categories, with performance and background mods last, and a live filter. |
+| [`items/`](items/) | `/items/` | The item index: every item in the pack with its icon, recipes, uses, ore names and the quests that ask for it, give it or show it. Search like NEI (`@mod`, `$ore`, `%tab`, `#tooltip`). Its data is separate, in `items/data/`, because the icons alone are megabytes. Built by [`../tools/items/`](../tools/items/). |
+| [`ore-atlas/`](ore-atlas/) | `/ore-atlas/` | The interactive ore atlas: pick any of nineteen dimensions and get a cut through the ground, a depth profile, a rarity scale anchored to ores you already know, and a sortable table of every ore. **Its figures are stale** ([decision 0002](../docs/decisions/0002-discard-the-ore-survey.md)); it is redone after the survey that runs just before the server opens. |
+
+## Adding a page
+
+1. Put it in its own folder here, and link back to `../` (the homepage).
+2. Add a `cp -R site/<folder> _site/<folder>` line to `.github/workflows/pages.yml`.
+3. Give it a card in `home/index.html`'s directory. A planned page can sit there first as a
+   `page soon` card (no link), as "Get the pack" and "Who's online" do now.
 
 The ore atlas carries its own data — 512 survey parameters and all 86 ore sprites
 are inline, the sprites as base64 PNGs. It makes no network requests, so it works
@@ -30,7 +39,7 @@ The page is generated, not hand-written. Three steps, in
 cd tools/modlist
 python3 read-mod-metadata.py     # read every jar -> mods.json
 python3 build-catalog.py         # join with categories + blurbs -> catalog.json
-python3 render-page.py           # -> questforge-modlist.html
+python3 render-page.py           # -> ../../site/mods/index.html
 ```
 
 `read-mod-metadata.py` pulls each mod's name and version from its own `mcmod.info`,
