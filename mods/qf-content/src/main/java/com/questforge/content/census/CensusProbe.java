@@ -52,6 +52,28 @@ public final class CensusProbe {
         public ProbePlayer(WorldServer world) {
             super(world, new GameProfile(
                     UUID.nameUUIDFromBytes("qf-census-probe".getBytes()), "QFCensusProbe"));
+            // A connection that reads as closed, as a logged-off player's does.
+            // With none at all, any boss that asks its attacker's connection
+            // whether it is still open throws from its own tick: the EnderDemon
+            // (EntityBossEnderDemon.updateEntityActionState) does exactly that,
+            // and Forge's removeErroringEntities then deleted the boss on every
+            // swing. The constructor attaches itself as playerNetServerHandler.
+            try {
+                new net.minecraft.network.NetHandlerPlayServer(
+                        net.minecraft.server.MinecraftServer.getServer(), new ClosedConnection(), this);
+            } catch (Throwable t) {
+                QuestForgeContent.log.warn("[census] could not give the probe a closed connection: " + t);
+            }
+        }
+
+        /**
+         * Whether the probe has a real client on the other end. Never, but the
+         * check is kept rather than hardcoded so the overrides below read as
+         * what they are: the connection's work, done without the connection.
+         */
+        private boolean hasRealConnection() {
+            return this.playerNetServerHandler != null
+                    && !(this.playerNetServerHandler.netManager instanceof ClosedConnection);
         }
 
         @Override
@@ -102,7 +124,7 @@ public final class CensusProbe {
 
         @Override
         protected void onNewPotionEffect(net.minecraft.potion.PotionEffect effect) {
-            if (this.playerNetServerHandler != null) {
+            if (hasRealConnection()) {
                 super.onNewPotionEffect(effect);
                 return;
             }
@@ -112,7 +134,7 @@ public final class CensusProbe {
         @Override
         protected void onChangedPotionEffect(net.minecraft.potion.PotionEffect effect,
                 boolean recalculate) {
-            if (this.playerNetServerHandler != null) {
+            if (hasRealConnection()) {
                 super.onChangedPotionEffect(effect, recalculate);
                 return;
             }
@@ -124,7 +146,7 @@ public final class CensusProbe {
 
         @Override
         protected void onFinishedPotionEffect(net.minecraft.potion.PotionEffect effect) {
-            if (this.playerNetServerHandler != null) {
+            if (hasRealConnection()) {
                 super.onFinishedPotionEffect(effect);
                 return;
             }
@@ -158,7 +180,7 @@ public final class CensusProbe {
 
         @Override
         public void setPositionAndUpdate(double x, double y, double z) {
-            if (this.playerNetServerHandler != null) {
+            if (hasRealConnection()) {
                 super.setPositionAndUpdate(x, y, z);
                 return;
             }
@@ -167,7 +189,7 @@ public final class CensusProbe {
 
         @Override
         public void mountEntity(net.minecraft.entity.Entity entity) {
-            if (this.playerNetServerHandler != null) {
+            if (hasRealConnection()) {
                 super.mountEntity(entity);
                 return;
             }
@@ -178,7 +200,7 @@ public final class CensusProbe {
             try {
                 super.mountEntity(entity);
             } catch (NullPointerException expected) {
-                if (this.playerNetServerHandler != null) throw expected;
+                if (hasRealConnection()) throw expected;
             }
         }
 
@@ -199,6 +221,34 @@ public final class CensusProbe {
             } catch (Throwable t) {
                 QuestForgeContent.log.warn("[census] potion attribute update failed: " + t);
             }
+        }
+    }
+
+    /**
+     * A NetworkManager with no channel: isChannelOpen() is false, packets
+     * scheduled on it are dropped instead of queued forever, and closing it is a
+     * no-op. Only ever attached to the probe.
+     */
+    static final class ClosedConnection extends net.minecraft.network.NetworkManager {
+        ClosedConnection() {
+            super(false);
+        }
+
+        @Override
+        public void scheduleOutboundPacket(net.minecraft.network.Packet packet,
+                io.netty.util.concurrent.GenericFutureListener... listeners) {}
+
+        @Override
+        public void closeChannel(net.minecraft.util.IChatComponent reason) {}
+
+        @Override
+        public boolean isChannelOpen() {
+            return false;
+        }
+
+        @Override
+        public java.net.SocketAddress getSocketAddress() {
+            return null;
         }
     }
 
