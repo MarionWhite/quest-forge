@@ -17,7 +17,7 @@ event handler. All are now in:
 | **Tracker** | `TrackerFX`. Wireframe boxes with the depth test off, drawn at `RenderWorldLastEvent`. Red for hostiles, blue for players, green for the rest |
 | **Prospector** | `ProspectorHUD`. Ore is identified through the **ore dictionary**, not a hardcoded list, so every modded ore in the pack is found for free. Scans every 2s, results cached per block+meta |
 | **Jammer** | `JammerFX`. A genuine downsample in fixed-function GL: copy the world render to a texture, draw it small with `LINEAR`, copy *that* back and blow it up with `NEAREST`. Runs before the HUD, so the victim loses their aim but keeps their health bar |
-| **Torchlight** | `BlockEnchantLight` + `TorchlightUpkeep`. An invisible, replaceable, collision-free light block kept at head height, moved every 5 ticks and cleaned up on logout — plus a random-tick self-destruct as a backstop for orphans |
+| **Torchlight** | `BlockEnchantLight` + `TorchlightUpkeep`. An invisible, replaceable, collision-free light block kept at head height. It follows only once the player is 2 blocks away, is skipped where daylight already outshines it, and is cleaned up on logout — plus a random-tick self-destruct as a backstop for orphans |
 
 **Four of the five need no packets at all.** A client already holds its own
 player's inventory NBT and its own loaded chunks, so Tracker, Prospector and Reach

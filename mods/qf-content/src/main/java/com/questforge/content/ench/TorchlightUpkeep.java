@@ -8,6 +8,7 @@ import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
+import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.World;
 
 import com.questforge.content.ModBlocks;
@@ -21,8 +22,28 @@ import com.questforge.content.ModBlocks;
  *
  * Only ever touches a block that is air or one of ours, so it can never overwrite
  * anything a player built or a mod placed.
+ *
+ * WHAT IT COSTS, AND WHY IT MOVES AS LITTLE AS IT DOES. Each move is two
+ * relights -- the old spot going dark, the new one lighting up -- and lighting is
+ * baked into chunk geometry in 1.7.10, so every client in range rebuilds every
+ * render section the light reaches: up to 27 per relight, and far dearer under
+ * shaders. Moving at every block boundary did that four or five times a second
+ * while sprinting, which was a visible stutter for everyone nearby. So:
+ *  - the light only moves once it is MOVE_DISTANCE blocks behind, which a
+ *    light of 9-15 hides completely;
+ *  - it is not placed at all where daylight already outshines it;
+ *  - the new light goes in before the old one comes out, so the darkening pass
+ *    stops at the new light instead of spreading through the whole area;
+ *  - neither change notifies neighbours. The block is air to everything but
+ *    the light engine, so there is nothing for a neighbour to react to.
  */
 public class TorchlightUpkeep {
+
+    /** How far (in any one axis) the player may get from the light before it follows. */
+    static final int MOVE_DISTANCE = 2;
+
+    /** Send to clients, but skip neighbour updates. See the class comment. */
+    private static final int FLAGS = 2;
 
     /** Where a player's current light is, and which world it is in. */
     private static class Light {
@@ -35,8 +56,11 @@ public class TorchlightUpkeep {
             this.z = z;
         }
 
-        boolean at(int dim, int x, int y, int z) {
-            return this.dim == dim && this.x == x && this.y == y && this.z == z;
+        /** Same world, and no further than MOVE_DISTANCE away on any axis. */
+        boolean near(int dim, int x, int y, int z) {
+            return this.dim == dim && Math.abs(this.x - x) < MOVE_DISTANCE
+                    && Math.abs(this.y - y) < MOVE_DISTANCE
+                    && Math.abs(this.z - z) < MOVE_DISTANCE;
         }
     }
 
@@ -59,23 +83,42 @@ public class TorchlightUpkeep {
         int z = (int) Math.floor(player.posZ);
 
         Light current = ACTIVE.get(player);
-        if (current != null && current.at(dim, x, y, z)
-                && world.getBlock(x, y, z) == ModBlocks.enchantLight) {
-            return;   // already lit, nothing to do
+        if (current != null && current.near(dim, x, y, z)
+                && world.getBlock(current.x, current.y, current.z) == ModBlocks.enchantLight) {
+            return;   // still close enough to light the player
         }
 
-        removeLight(world, current, dim);
-
-        Block existing = world.getBlock(x, y, z);
-        if (existing != Blocks.air && existing != ModBlocks.enchantLight) {
-            // Standing with our head inside something solid. Skip this tick rather
-            // than destroy whatever it is; the next step will usually free us.
+        int meta = Math.min(3, level) - 1;
+        if (outshoneBySky(world, x, y, z, BlockEnchantLight.lightFor(meta))) {
+            removeLight(world, current, dim);
             ACTIVE.remove(player);
             return;
         }
 
-        world.setBlock(x, y, z, ModBlocks.enchantLight, Math.min(3, level) - 1, 3);
+        Block existing = world.getBlock(x, y, z);
+        if (existing != Blocks.air && existing != ModBlocks.enchantLight) {
+            // Standing with our head inside something solid. Leave the old light
+            // where it is rather than destroy whatever this is; the next step will
+            // usually free us.
+            return;
+        }
+
+        // New before old: see the class comment.
+        world.setBlock(x, y, z, ModBlocks.enchantLight, meta, FLAGS);
+        removeLight(world, current, dim);
         ACTIVE.put(player, new Light(dim, x, y, z));
+    }
+
+    /**
+     * True when the sky alone lights this spot at least as brightly as the
+     * enchantment would, so placing a light would cost a relight and show nothing.
+     * Sky light is read without the block light, which our own light would
+     * otherwise feed back into.
+     */
+    private static boolean outshoneBySky(World world, int x, int y, int z, int light) {
+        if (world.provider.hasNoSky) return false;
+        int sky = world.getSavedLightValue(EnumSkyBlock.Sky, x, y, z) - world.skylightSubtracted;
+        return sky >= light;
     }
 
     /** Called when a player logs out or dies, so nothing is left behind. */
@@ -94,7 +137,7 @@ public class TorchlightUpkeep {
     private static void removeLight(World world, Light light, int currentDim) {
         if (light == null || light.dim != currentDim) return;
         if (world.getBlock(light.x, light.y, light.z) == ModBlocks.enchantLight) {
-            world.setBlockToAir(light.x, light.y, light.z);
+            world.setBlock(light.x, light.y, light.z, Blocks.air, 0, FLAGS);
         }
     }
 

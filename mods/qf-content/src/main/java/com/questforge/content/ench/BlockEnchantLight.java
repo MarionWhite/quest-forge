@@ -37,7 +37,12 @@ public class BlockEnchantLight extends Block {
 
     @Override
     public int getLightValue(IBlockAccess world, int x, int y, int z) {
-        return Math.min(15, BASE_LIGHT + world.getBlockMetadata(x, y, z) * 3);
+        return lightFor(world.getBlockMetadata(x, y, z));
+    }
+
+    /** The light a block of this metadata gives off. */
+    static int lightFor(int meta) {
+        return Math.min(15, BASE_LIGHT + meta * 3);
     }
 
     @Override
