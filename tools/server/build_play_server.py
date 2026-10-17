@@ -408,8 +408,14 @@ def java_command_lines():
     ps = ("Get-CimInstance Win32_Process -Filter \"Name like 'java%'\" | "
           "ForEach-Object { [string]$_.ProcessId + [char]9 + $_.CommandLine }")
     res = subprocess.run(["powershell", "-NoProfile", "-NonInteractive", "-Command", ps],
-                         stdout=subprocess.PIPE, universal_newlines=True).stdout
-    return [tuple(l.split("\t", 1)) for l in res.splitlines() if "\t" in l]
+                         stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+    # A failed listing must not read as "no java running": under memory
+    # pressure PowerShell itself dies ("The paging file is too small", seen
+    # 2026-10-17), and an empty list would wave a rebuild through.
+    if res.returncode != 0:
+        sys.exit("could not list running java processes (PowerShell exit %d); not rebuilding "
+                 "without that check. Try again." % res.returncode)
+    return [tuple(l.split("\t", 1)) for l in res.stdout.splitlines() if "\t" in l]
 
 
 def pid_alive(pid):
