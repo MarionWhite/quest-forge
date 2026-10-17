@@ -22,7 +22,7 @@ install: the universal jar, minecraft_server.1.7.10.jar and libraries/. The
 client's own Forge jar is hand-patched for the splash screen and must not be
 used here.
 """
-import argparse, fnmatch, hashlib, json, os, shutil, sys, uuid
+import argparse, fnmatch, hashlib, json, os, shutil, socket, subprocess, sys, uuid, zipfile
 
 # Mods that only run with a screen. Each stays on every client -- FML lets a
 # client carry mods the server lacks, but never the reverse. Matched as a
@@ -115,6 +115,35 @@ pause
 # Rented hosts almost always run Linux. A panel host (Pterodactyl and the like)
 # ignores this file and asks for the same flags in its own startup field; copy
 # them from here. It must be Java 8: Forge 1.7.10 does not start on anything newer.
+# The supervised way to run it (tools/server/supervisor.py, copied next to it):
+# crash restart, hang detection, hourly backups, a daily restart, graceful stop.
+START_SUPERVISED_BAT = """\
+@echo off
+rem Runs the server under supervisor.py: restart on crash, hang detection,
+rem hourly backups into backups\\, a daily restart. This window is the server
+rem console. Stop with Ctrl+C or by typing stop; both save the world first.
+rem Settings (and the optional Discord webhook) are in supervisor.json.
+cd /d "%~dp0"
+where py >nul 2>nul
+if %errorlevel%==0 (
+  py -3 -I supervisor.py %*
+) else (
+  python -I supervisor.py %*
+)
+pause
+"""
+
+SUPERVISOR_JSON = {
+    "_comment": "Supervisor settings, kept across rebuilds. `py -3 supervisor.py "
+                "--print-defaults` lists every key. Put the Discord webhook URL here or in "
+                "the QF_DISCORD_WEBHOOK environment variable; never commit it.",
+    "restart_at": "05:00",
+    "backup_interval_min": 60,
+    "keep_hourly": 24,
+    "keep_daily": 7,
+    "discord_webhook": "",
+}
+
 START_SH = """\
 #!/bin/sh
 # Saintscore reads mods/saintspack/Packs.txt relative to the working
@@ -157,6 +186,189 @@ def write_whitelist(out, players):
     print("whitelist: %s" % ", ".join(e["name"] for e in entries))
 
 
+def read_properties(path):
+    props = {}
+    if os.path.exists(path):
+        with open(path, encoding="latin-1") as fh:
+            for line in fh:
+                line = line.strip()
+                if line and not line.startswith("#") and "=" in line:
+                    k, v = line.split("=", 1)
+                    props[k.strip()] = v.strip()
+    return props
+
+
+def java_command_lines():
+    """(pid, command line) of every running java/javaw process."""
+    if os.name != "nt":
+        res = subprocess.run(["ps", "-eo", "pid=,args="], stdout=subprocess.PIPE,
+                             universal_newlines=True).stdout
+        rows = [l.strip().split(None, 1) for l in res.splitlines()]
+        return [tuple(r) for r in rows if len(r) == 2 and "java" in r[1]]
+    ps = ("Get-CimInstance Win32_Process -Filter \"Name like 'java%'\" | "
+          "ForEach-Object { [string]$_.ProcessId + [char]9 + $_.CommandLine }")
+    res = subprocess.run(["powershell", "-NoProfile", "-NonInteractive", "-Command", ps],
+                         stdout=subprocess.PIPE, universal_newlines=True).stdout
+    return [tuple(l.split("\t", 1)) for l in res.splitlines() if "\t" in l]
+
+
+def pid_alive(pid):
+    if os.name != "nt":
+        try:
+            os.kill(pid, 0)
+            return True
+        except OSError:
+            return False
+    import ctypes          # os.kill(pid, 0) on Windows sends CTRL_C_EVENT; it is no probe
+    k32 = ctypes.windll.kernel32
+    h = k32.OpenProcess(0x1000, False, int(pid))   # PROCESS_QUERY_LIMITED_INFORMATION
+    if not h:
+        return False
+    code = ctypes.c_ulong()
+    ok = k32.GetExitCodeProcess(h, ctypes.byref(code))
+    k32.CloseHandle(h)
+    return bool(ok) and code.value == 259          # STILL_ACTIVE
+
+
+def refuse_if_running(out):
+    """--force on a running server moves world/ out from under the JVM and then
+    fails partway on locked jars (server-readiness.md, gap 1). Any one of these
+    means something is still using the directory."""
+    problems = []
+    pidfile = os.path.join(out, "supervisor.pid")
+    if os.path.exists(pidfile):
+        try:
+            with open(pidfile) as fh:
+                info = json.load(fh)
+        except (OSError, ValueError):
+            info = {}
+        for key in ("supervisor_pid", "java_pid"):
+            if info.get(key) and pid_alive(info[key]):
+                problems.append("%s %s (from supervisor.pid) is running" % (key, info[key]))
+    props = read_properties(os.path.join(out, "server.properties"))
+    port = int(props.get("server-port") or 25565)
+    s = socket.socket()
+    s.settimeout(1)
+    if s.connect_ex(("127.0.0.1", port)) == 0:
+        problems.append("something is listening on its port %d" % port)
+    s.close()
+    norm = os.path.normcase(os.path.abspath(out))
+    for pid, cmd in java_command_lines():
+        if norm in os.path.normcase(cmd):
+            problems.append("java pid %s names this directory on its command line" % pid)
+    # A server started from start.bat has nothing absolute on its command line,
+    # so these catch it: Windows will not rename a file a process holds open
+    # (the session lock, the open log), nor a directory that is a process's
+    # working directory or holds an open file (the server's jars).
+    level = props.get("level-name") or "world"
+    for rel in (os.path.join(level, "session.lock"), os.path.join("logs", "latest.log"),
+                os.path.join("logs", "fml-server-latest.log"), "."):
+        p = os.path.normpath(os.path.join(out, rel))
+        if not os.path.exists(p):
+            continue
+        probe = p + ".running-probe"
+        try:
+            os.rename(p, probe)
+        except OSError as e:
+            problems.append("cannot rename %s (%s): a process holds it open" % (p, e.strerror))
+            break
+        os.rename(probe, p)
+    if problems:
+        sys.exit("refusing to rebuild %s while it is in use:\n  %s\nStop the server first "
+                 "(type stop, or Ctrl+C in the supervisor window)." % (out, "\n  ".join(problems)))
+
+
+JNDI = "org/apache/logging/log4j/core/lookup/JndiLookup.class"
+
+# Log4Shell. The server's log4j is 2.0-beta9, inside minecraft_server.1.7.10.jar.
+# -Dlog4j2.formatMsgNoLookups exists only from 2.10, so that flag in the start
+# scripts does nothing here.
+#
+# The usual fix, deleting JndiLookup.class, KILLS THIS SERVER AT LAUNCH:
+# beta9's Interpolator constructs JndiLookup directly, so the first logger
+# throws NoClassDefFoundError (found by booting it, 2026-10-17; later log4j
+# versions catch the missing class, this one does not). So the class is
+# replaced by an inert one with the same name that resolves nothing. Its source,
+# compiled with JDK 8 `javac -source 1.6 -target 1.6 -g:none` against the
+# server jar:
+#
+#   package org.apache.logging.log4j.core.lookup;
+#   import org.apache.logging.log4j.core.LogEvent;
+#   public class JndiLookup implements StrLookup {
+#       public String lookup(String key) { return null; }
+#       public String lookup(LogEvent event, String key) { return null; }
+#   }
+JNDI_STUB_SHA256 = "a4c9009432d21647ca48dc5b06f38e338ef5a196d772d5e162e3f20065cc05cc"
+JNDI_STUB = (
+    "yv66vgAAADIADwoAAwALBwAMBwANBwAOAQAGPGluaXQ+AQADKClWAQAEQ29kZQEABmxvb2t1cAEA"
+    "JihMamF2YS9sYW5nL1N0cmluZzspTGphdmEvbGFuZy9TdHJpbmc7AQBOKExvcmcvYXBhY2hlL2xv"
+    "Z2dpbmcvbG9nNGovY29yZS9Mb2dFdmVudDtMamF2YS9sYW5nL1N0cmluZzspTGphdmEvbGFuZy9T"
+    "dHJpbmc7DAAFAAYBAC9vcmcvYXBhY2hlL2xvZ2dpbmcvbG9nNGovY29yZS9sb29rdXAvSm5kaUxv"
+    "b2t1cAEAEGphdmEvbGFuZy9PYmplY3QBAC5vcmcvYXBhY2hlL2xvZ2dpbmcvbG9nNGovY29yZS9s"
+    "b29rdXAvU3RyTG9va3VwACEAAgADAAEABAAAAAMAAQAFAAYAAQAHAAAAEQABAAEAAAAFKrcAAbEA"
+    "AAAAAAEACAAJAAEABwAAAA4AAQACAAAAAgGwAAAAAAABAAgACgABAAcAAAAOAAEAAwAAAAIBsAAA"
+    "AAAAAA==")
+
+
+def neuter_jndi(jar):
+    """Swap the real JndiLookup for the inert stub. Returns True if it changed
+    the jar, False if the jar has no JndiLookup or already has the stub."""
+    import base64
+    stub = base64.b64decode(JNDI_STUB)
+    assert hashlib.sha256(stub).hexdigest() == JNDI_STUB_SHA256
+    with zipfile.ZipFile(jar) as z:
+        if JNDI not in z.namelist() or z.read(JNDI) == stub:
+            return False
+        tmp = jar + ".tmp"
+        with zipfile.ZipFile(tmp, "w") as dst:
+            for info in z.infolist():
+                data = stub if info.filename == JNDI else z.read(info.filename)
+                dst.writestr(info, data, compress_type=info.compress_type)
+    os.replace(tmp, jar)
+    with zipfile.ZipFile(jar) as z:
+        if z.read(JNDI) != stub or z.testzip() is not None:
+            sys.exit("rewriting %s failed" % jar)
+    return True
+
+
+def jars_with_live_jndi(root):
+    """Every jar under root holding a JndiLookup that is not the stub."""
+    hits = []
+    for r, _, files in os.walk(root):
+        for f in files:
+            if f.endswith(".jar"):
+                try:
+                    with zipfile.ZipFile(os.path.join(r, f)) as z:
+                        if JNDI in z.namelist() and hashlib.sha256(
+                                z.read(JNDI)).hexdigest() != JNDI_STUB_SHA256:
+                            hits.append(os.path.join(r, f))
+                except (zipfile.BadZipFile, OSError):
+                    pass
+    return hits
+
+
+def write_manifest(out):
+    """sha256 of every server jar, mod and config file. The world is only valid
+    with exactly these: Transformers assigns material IDs at first load, and a
+    missing mod deletes its items. Each backup carries a copy, so a restore can
+    rebuild the same set. Check it with `sha256sum -c MANIFEST.sha256`."""
+    lines = []
+    tops = [f for f in os.listdir(out) if f.endswith(".jar")] + ["mods", "config"]
+    for top in sorted(tops):
+        p = os.path.join(out, top)
+        files = [p] if os.path.isfile(p) else sorted(
+            os.path.join(r, f) for r, _, fs in os.walk(p) for f in fs)
+        for f in files:
+            h = hashlib.sha256()
+            with open(f, "rb") as fh:
+                for chunk in iter(lambda: fh.read(1 << 20), b""):
+                    h.update(chunk)
+            lines.append("%s *%s" % (h.hexdigest(), os.path.relpath(f, out).replace(os.sep, "/")))
+    with open(os.path.join(out, "MANIFEST.sha256"), "w", newline="\n") as fh:
+        fh.write("\n".join(lines) + "\n")
+    return len(lines)
+
+
 def drop_reason(name):
     for prefix, why in CLIENT_ONLY:
         if name.startswith(prefix):
@@ -182,11 +394,13 @@ def main():
     ap.add_argument("--java", default=r"C:\Program Files\Java\jre1.8.0_241\bin\java.exe")
     ap.add_argument("--xmx", default="10G",
                     help="server heap; 10G suits 10-15 players on a 12 GB host")
-    ap.add_argument("--port", type=int, default=25565)
-    ap.add_argument("--max-players", type=int, default=15)
-    ap.add_argument("--view-distance", type=int, default=6,
+    # These four default to None: on a rebuild the kept server.properties wins
+    # unless the option is given. First build: 25565, 15, 6, true.
+    ap.add_argument("--port", type=int)
+    ap.add_argument("--max-players", type=int)
+    ap.add_argument("--view-distance", type=int,
                     help="keep equal to JAS's spawning/counting distance (see SERVER_PROPERTIES)")
-    ap.add_argument("--online-mode", default="true",
+    ap.add_argument("--online-mode",
                     help="false only for a local test with offline-launched clients; a "
                          "public offline server lets anyone join under any name")
     ap.add_argument("--player", action="append", default=[],
@@ -194,24 +408,40 @@ def main():
                          "the only reliable way: the console's `whitelist add` stores the "
                          "wrong UUID. With online-mode=true use `whitelist add` instead.")
     ap.add_argument("--force", action="store_true",
-                    help="rebuild an existing --out; its world/ and player lists are kept")
+                    help="rebuild an existing --out; its world, player lists, server.properties, "
+                         "logs, crash reports, backups and supervisor.json are kept")
     args = ap.parse_args()
+    out = os.path.abspath(args.out)
+    old_props = read_properties(os.path.join(out, "server.properties"))
+    defaults = {"server-port": "25565", "max-players": "15", "view-distance": "6",
+                "online-mode": "true"}
+    given = {"server-port": args.port, "max-players": args.max_players,
+             "view-distance": args.view_distance, "online-mode": args.online_mode}
+    eff = {k: str(v).lower() if v is not None else old_props.get(k, defaults[k])
+           for k, v in given.items()}
     # Checked before anything is deleted, so a bad command line costs nothing.
-    if args.player and args.online_mode.lower() == "true":
+    if args.player and eff["online-mode"] == "true":
         sys.exit("--player writes offline-mode UUIDs; with --online-mode true add players "
                  "with `whitelist add <name>` in the server console instead")
 
-    inst, out, fi = (os.path.abspath(p) for p in (args.instance, args.out, args.forge_install))
+    inst, fi = (os.path.abspath(p) for p in (args.instance, args.forge_install))
     if not os.path.isdir(os.path.join(inst, "mods")):
         sys.exit("no mods/ under %s" % inst)
 
     # A rebuild must never cost the friends their world. Everything else in the
-    # directory is derived and is thrown away; these are carried across.
-    keep = ["world", "ops.json", "whitelist.json", "banned-players.json", "banned-ips.json"]
+    # directory is derived and is thrown away; these are carried across:
+    # server.properties, because console and hand changes (MOTD, idle timeout,
+    # RCON) would vanish otherwise; logs/ and crash-reports/, because they are
+    # the evidence for whatever prompted the rebuild; backups/, obviously.
+    level = old_props.get("level-name") or "world"
+    keep = [level, "ops.json", "whitelist.json", "banned-players.json", "banned-ips.json",
+            "usercache.json", "server.properties", "logs", "crash-reports", "backups",
+            "supervisor.json"]
     stash = out + ".keep"
     if os.path.exists(out):
         if not args.force:
             sys.exit("%s already exists (use --force to rebuild it; the world is kept)" % out)
+        refuse_if_running(out)
         if os.path.exists(stash):
             sys.exit("%s exists from an interrupted rebuild; restore it by hand first" % stash)
         os.makedirs(stash)
@@ -233,6 +463,17 @@ def main():
         sys.exit("%s is not a Forge server install (universal jar + libraries/)" % fi)
     shutil.copytree(os.path.join(fi, "libraries"), os.path.join(out, "libraries"))
     print("forge:   %s" % forge)
+    for fn in os.listdir(out):
+        if fn.startswith("minecraft_server") and fn.endswith(".jar"):
+            if neuter_jndi(os.path.join(out, fn)):
+                print("log4j:   JndiLookup in %s replaced by an inert stub (Log4Shell)" % fn)
+    # Mods are only reported: some check their own signatures, and FML does not
+    # put a second log4j in front of the server's anyway.
+    left = jars_with_live_jndi(out)
+    if [p for p in left if not p.startswith(os.path.join(out, "mods"))]:
+        sys.exit("a live JndiLookup is still in: %s" % ", ".join(left))
+    for p in left:
+        print("WARNING: %s bundles its own JndiLookup (not modified)" % p)
 
     # --- mods ---------------------------------------------------------------
     kept = dropped = 0
@@ -284,10 +525,30 @@ def main():
 
     with open(os.path.join(out, "eula.txt"), "w") as fh:
         fh.write("eula=true\n")
-    with open(os.path.join(out, "server.properties"), "w") as fh:
-        fh.write(SERVER_PROPERTIES.format(online=args.online_mode, port=args.port,
-                                          max_players=args.max_players,
-                                          view_distance=args.view_distance))
+    props_path = os.path.join(out, "server.properties")
+    template = SERVER_PROPERTIES.format(online=eff["online-mode"], port=eff["server-port"],
+                                        max_players=eff["max-players"],
+                                        view_distance=eff["view-distance"])
+    if os.path.exists(props_path):
+        # Kept from the last build: change only what this command line asked
+        # for, and add any key the template has gained since.
+        with open(props_path, encoding="latin-1") as fh:
+            lines = fh.read().splitlines()
+        have = {l.split("=", 1)[0] for l in lines if "=" in l and not l.startswith("#")}
+        for i, l in enumerate(lines):
+            k = l.split("=", 1)[0]
+            if given.get(k) is not None and l != "%s=%s" % (k, eff[k]):
+                print("server.properties: %s -> %s" % (l, eff[k]))
+                lines[i] = "%s=%s" % (k, eff[k])
+        for l in template.splitlines():
+            if l.split("=", 1)[0] not in have:
+                print("server.properties: added %s" % l)
+                lines.append(l)
+        with open(props_path, "w", encoding="latin-1") as fh:
+            fh.write("\n".join(lines) + "\n")
+    else:
+        with open(props_path, "w") as fh:
+            fh.write(template)
     flags = [f.format(xmx=args.xmx) for f in JVM_FLAGS]
     with open(os.path.join(out, "start.bat"), "w", newline="\r\n") as fh:
         fh.write(START_BAT.format(java=args.java, forge=forge,
@@ -306,9 +567,21 @@ def main():
             props = json.load(fh)
         for key in ("Distance (in Chunks) to perform entity spawning",
                     "Distance (in Chunks) to perform entity counting"):
-            if props.get(key) != args.view_distance:
-                print("WARNING: JAS %r is %s but view-distance is %d"
-                      % (key, props.get(key), args.view_distance))
+            if props.get(key) != int(eff["view-distance"]):
+                print("WARNING: JAS %r is %s but view-distance is %s"
+                      % (key, props.get(key), eff["view-distance"]))
+
+    # --- supervisor -----------------------------------------------------------
+    here = os.path.dirname(os.path.abspath(__file__))
+    shutil.copy2(os.path.join(here, "supervisor.py"), os.path.join(out, "supervisor.py"))
+    with open(os.path.join(out, "start-supervised.bat"), "w", newline="\r\n") as fh:
+        fh.write(START_SUPERVISED_BAT)
+    if not os.path.exists(os.path.join(out, "supervisor.json")):
+        with open(os.path.join(out, "supervisor.json"), "w") as fh:
+            json.dump(SUPERVISOR_JSON, fh, indent=2)
+    print("supervisor: installed; start the server with start-supervised.bat")
+
+    print("manifest: %d files hashed into MANIFEST.sha256" % write_manifest(out))
 
     with open(os.path.join(out, "BUILT-FROM.txt"), "w") as fh:
         fh.write("Assembled by tools/server/build_play_server.py\n")
@@ -317,9 +590,11 @@ def main():
         fh.write("Dropped from the server (every client keeps them):\n")
         for prefix, why in CLIENT_ONLY:
             fh.write("  %-18s %s\n" % (prefix, why))
+        fh.write("\nminecraft_server jar: JndiLookup.class replaced by an inert stub (Log4Shell).\n")
+        fh.write("sha256 of every jar and config file: MANIFEST.sha256 (`sha256sum -c`).\n")
         fh.write("\nRebuild after ANY mod or config change on the clients; never edit here.\n")
 
-    print("\nserver ready at %s -- start it with start.bat" % out)
+    print("\nserver ready at %s -- start it with start-supervised.bat" % out)
 
 
 if __name__ == "__main__":
