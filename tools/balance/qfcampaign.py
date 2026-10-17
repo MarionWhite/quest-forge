@@ -342,20 +342,30 @@ def report(bosses, md):
     # ---- defence ----
     d_live = [b for b in bosses.values() if b.defense_ctrl]
     if d_live:
-        w("## Armour: hits survived against each boss's real melee\n")
-        w("| Enchant | " + " | ".join(b.name.split(".")[-1] for b in d_live) + " |")
+        w("## Armour: damage taken from each boss's real melee\n")
+        w("Damage reduction versus the same armour with no custom enchantment, over "
+          "sixty of the boss's own hits. A boss whose control row took nothing is one "
+          "the tier's armour already makes the player immune to; no armour "
+          "enchantment can show anything there.\n")
+        w("| Enchant | " + " | ".join(
+            f"{b.name.split('.')[-1]} ({statistics.mean(num(c.get('damage_taken')) or 0 for c in b.defense_ctrl):.0f} dmg)"
+            for b in d_live) + " |")
         w("|---|" + "---|" * len(d_live))
         names = sorted({e for b in d_live for e in b.defense})
         for e in names:
             cells_ = []
             for b in d_live:
                 r = b.defense.get(e)
-                base = statistics.mean(num(c.get("hits_survived")) or 0 for c in b.defense_ctrl)
-                if not r:
-                    cells_.append("-")
+                base = statistics.mean(num(c.get("damage_taken")) or 0 for c in b.defense_ctrl)
+                if not r or base <= 0:
+                    cells_.append("-" if not r else "immune")
                     continue
-                v = num(r.get("hits_survived"))
-                cells_.append(f"{v:.0f} ({v - base:+.0f})" if v is not None else "-")
+                v = num(r.get("damage_taken"))
+                red = 100.0 * (1.0 - v / base) if v is not None else None
+                txt = fmt(red)
+                if red is not None and abs(red) >= 5.0:
+                    txt = f"**{txt}**"
+                cells_.append(txt)
             w(f"| {e} | " + " | ".join(cells_) + " |")
         w("")
 

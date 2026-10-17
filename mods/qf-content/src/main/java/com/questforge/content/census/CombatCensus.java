@@ -350,6 +350,8 @@ public class CombatCensus {
         int repins;
         /** Times a target was made an InfernalMobs elite and turned back into a plain one. */
         int infernalStripped;
+        /** A shielded boss whose shields the census held down; see dropShields. */
+        boolean shieldsHeld;
         /** Consecutive melee swings that took no health; logged once when it reaches five. */
         int dryStreak;
 
@@ -1467,6 +1469,7 @@ public class CombatCensus {
         for (int i = 0; i < spawned.size(); i++) {
             EntityLivingBase mob = spawned.get(i);
             if (mob == null || mob.isDead || PENDING_PIN.contains(mob)) continue;
+            dropShields(mob);
             if (stripInfernal(mob)) {
                 result.infernalStripped++;
                 QuestForgeContent.log.info("[census] " + cell.targetName + " (id " + mob.getEntityId()
@@ -1624,6 +1627,27 @@ public class CombatCensus {
                 + CensusFile.num(probe.posZ) + ", target at " + CensusFile.num(target.posX) + ","
                 + CensusFile.num(target.posY) + "," + CensusFile.num(target.posZ) + ", distance "
                 + CensusFile.num(probe.getDistanceToEntity(target)) + home);
+    }
+
+    /**
+     * Keeps a shielded boss's shields down.
+     *
+     * The Twilight Lich ignores every hit while its shields are up, and only
+     * unblockable damage over two -- its own bolts, reflected -- breaks them.
+     * The census cannot reflect a bolt, so a whole run measured nothing. A
+     * player's weapon does its work after the shields are gone, so that is the
+     * phase measured: any boss with a setShieldStrength(int) is held at zero.
+     */
+    private static void dropShields(EntityLivingBase mob) {
+        try {
+            java.lang.reflect.Method m = mob.getClass().getMethod("setShieldStrength", int.class);
+            m.invoke(mob, Integer.valueOf(0));
+            if (result != null && !result.shieldsHeld) {
+                result.shieldsHeld = true;
+                result.note += " [shields held down: the post-shield phase is measured]";
+            }
+        } catch (NoSuchMethodException ignored) {
+        } catch (Throwable ignored) {}
     }
 
     private static java.lang.reflect.Method infernalIsRare, infernalRemove;
