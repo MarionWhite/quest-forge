@@ -67,3 +67,28 @@ This joins the dump with:
 
 Rebuild after any change to the mod set, CraftTweaker scripts or the quest book, then commit
 `site/items/data/`. Quest edits alone only need step 2 against the last dump.
+
+## 3. Descriptions: what each item is, and how to get it
+
+Every item page leads with a short wiki-style description and a "How to get it" line. Both
+live in [`descriptions.json`](descriptions.json), keyed by `modid:name` (every variant) or
+`modid:name@meta` (one variant). A value is either a string, the description alone, or
+`{"d": description, "get": how to obtain}`. Edit it by hand freely.
+
+They were researched per mod: from the mod's jar (its lang files and decompiled code), the
+pack's own config (which changes what's true here; OreSpawn's disables its overworld
+dungeons, for example), and the mod's wiki where it could be reached.
+[`descriptions-sources.json`](descriptions-sources.json) records each entry's source, and
+`inferred` marks the ones with no source beyond the name and recipe. To redo a mod:
+
+```bash
+py -3.10 -I tools/items/export_for_writing.py --out <dir> --mod <mod id>   # its research sheet
+#   research and write <dir2>/<mod>.json as {key: {"d", "get", "src"}}
+py -3.10 -I tools/items/merge_descriptions.py <dir2>                         # hand-written entries are kept
+py -3.10 -I tools/items/build_site.py --dump <dump dir>
+```
+
+Chest loot is measured, not researched: the dump reads every `ChestGenHooks` table (dungeon,
+mineshaft, stronghold, temple and blacksmith chests, plus any a mod adds), and the page shows
+each item's chance per chest. Loot that mods roll in their own code (most mod dungeons) and
+mob drops are only as good as the research.

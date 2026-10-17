@@ -164,7 +164,10 @@ main{flex:1;min-height:0;display:grid;grid-template-columns:250px minmax(0,1fr) 
 .copy.ok{color:var(--patina);border-color:var(--patina)}
 .d-desc{padding:16px 22px 2px;font-size:15px;line-height:1.6;color:var(--ink-2)}
 .d-desc p{margin:0 0 8px}
-.d-desc .lore{color:var(--ink);font-size:15.5px}
+.d-desc .lore{color:var(--ink);font-size:16px;line-height:1.55}
+.d-desc .get{font-size:14.5px;color:var(--ink-2);border-left:3px solid var(--patina);padding:2px 0 2px 10px}
+.d-desc .get b{font-family:Archivo,sans-serif;font-size:12.5px;font-weight:600;color:var(--patina)}
+.d-desc .facts-line{font-size:13.5px;color:var(--muted);line-height:1.5}
 .d-desc b{color:var(--ink);font-weight:600}
 .d-sec{padding:16px 22px 4px}
 .d-sec h3{font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.15em;text-transform:uppercase;
@@ -623,40 +626,48 @@ function standing(i, pool, value, unit, plural) {
   return s;
 }
 function describe(idx) {
+  // Written description first, then "how to get it", then one quiet line of measured facts:
+  // the power rank, and (only without a written description) what it's made from and goes
+  // into. Quests and recipes have their own sections below, so nothing here repeats them.
   const it = items[idx], m = mods[it.m], box = el("div", "d-desc");
-  const base0 = base(it.k), lore = LORE[base0] || LORE[base0.slice(0, base0.lastIndexOf("@"))];
-  if (lore) box.appendChild(el("p", "lore", lore));
+  const base0 = base(it.k), id0 = base0.slice(0, base0.lastIndexOf("@"));
+  const entry = LORE[base0] || LORE[id0];
+  const lore = entry && typeof entry === "object" ? entry.d : entry;
+  const get = entry && typeof entry === "object" ? entry.get : "";
   const parts = [];
-  const what = whatItIs(it);
-  parts.push(`${what[0].toUpperCase() + what.slice(1)} from ${m.name}.`);
+  if (!lore) { const what = whatItIs(it); parts.push(`${what[0].toUpperCase() + what.slice(1)} from ${m.name}.`); }
   if (it.a != null && D.kinds[it.c] === "weapon" && !it.u)
-    parts.push(`+${+it.a.toFixed(2)} attack damage: ${standing(idx, ranks.weapon, x => x.a, "", "weapons")}.`);
+    parts.push(`+${+it.a.toFixed(2)} attack: ${standing(idx, ranks.weapon, x => x.a, "", "weapons")}.`);
   if (it.ar != null && !it.u)
-    parts.push(`${it.ar} armour points: ${standing(idx, ranks.armor[it.sl] || [], x => x.ar, "", (SLOT[it.sl] || ["", "pieces"])[1])}.`);
-  if (it.f != null) parts.push(`Restores ${it.f} hunger.`);
-  if (it.d && D.kinds[it.c] !== "weapon" && it.ar == null) parts.push(`Lasts ${fmt(it.d)} uses.`);
-  if (rec) {
-    const made = recipesFor(idx).map(r => rec.all[r]);
-    const real = made.find(r => r.type !== "special");
+    parts.push(`${it.ar} armour: ${standing(idx, ranks.armor[it.sl] || [], x => x.ar, "", (SLOT[it.sl] || ["", "pieces"])[1])}.`);
+  if (!lore && rec) {
+    const made = recipesFor(idx).map(r => rec.all[r]), real = made.find(r => r.type !== "special");
     if (real) {
       const ins = [...new Set((real.in || []).map(x => resolve(x)[0]).filter(x => x != null && x !== idx).map(nameOf))].slice(0, 4);
-      if (ins.length) parts.push(`${real.type === "smelting" ? "Smelted" : "Crafted"} from ${list(ins)}${made.length > 1 ? ` (${made.length} recipes in all)` : ""}.`);
-    } else if (made.length) parts.push("Made by a special crafting recipe.");
-    else parts.push("No crafting table or furnace makes it: it's found, dropped, or made some other way.");
+      if (ins.length) parts.push(`${real.type === "smelting" ? "Smelted" : "Crafted"} from ${list(ins)}.`);
+    }
     const used = usesOf(idx);
     if (used.length) {
       const outs = [...new Set(used.map(r => resolve(rec.all[r].out)[0]).filter(x => x != null && x !== idx).map(nameOf))];
       parts.push(`Goes into ${used.length} recipe${used.length > 1 ? "s" : ""}${outs.length ? `, including ${list(outs.slice(0, 3))}` : ""}.`);
     }
   }
-  const refs = D.qrefs[idx] || [], q = role => [...new Set(refs.filter(r => r[1] === role).map(r => r[0]))];
-  const tag = qid => { const x = D.quests[qid] || ["?", ""]; return `#${qid} ${x[0]}${x[1] ? ` (${x[1]})` : ""}`; };
-  const asks = q("task"), gives = q("reward");
-  if (asks.length) parts.push(asks.length === 1 ? `Quest ${tag(asks[0])} asks for it.` : `${asks.length} quests ask for it, starting with ${tag(asks[0])}.`);
-  if (gives.length) parts.push(gives.length === 1 ? `Quest ${tag(gives[0])} gives it as a reward.` : `${gives.length} quests give it as a reward.`);
-  if (!asks.length && !gives.length) parts.push(refs.length ? "A quest shows it as its icon, but none asks for it or gives it." : "No quest uses it yet.");
-  box.appendChild(el("p", null, parts.join(" ")));
+  if (lore) box.appendChild(el("p", "lore", lore));
+  else if (parts.length) box.appendChild(el("p", null, parts.splice(0).join(" ")));
+  const chests = (it.lt || []).slice().sort((x, y) => y[1] - x[1]).slice(0, 4).map(([c, p]) => `${D.lootCats[c]} ${p}%`);
+  if (get || chests.length) {
+    const g = el("p", "get"); g.append(el("b", null, "How to get it: "));
+    if (get) g.append(get);
+    if (chests.length) g.append(`${get ? " " : ""}In chests (chance per chest): ${chests.join(", ")}${(it.lt || []).length > 4 ? ", and more" : ""}.`);
+    box.appendChild(g);
+  }
+  if (parts.length) box.appendChild(el("p", "facts-line", parts.join(" ")));
   return box;
+}
+
+function lootOf(idx) {
+  const e = LORE[base(items[idx].k)] || LORE[base(items[idx].k).replace(/@[^@]*$/, "")];
+  return (e && typeof e === "object" && e.get) || (items[idx].lt || []).length ? "See “How to get it” above." : "";
 }
 
 // ------------------------------------------------------------------ detail
@@ -749,7 +760,7 @@ function renderDetail() {
   const which = state.tab === "uses" ? used : made;
   if (!which.length) list.appendChild(el("p", "none", state.tab === "uses"
     ? "Not an ingredient in any crafting or furnace recipe. It may still be used by a mod's own machine."
-    : "No crafting or furnace recipe makes this. It may come from a mob, a chest, a machine or a mod's own crafting."));
+    : "Not made at a crafting table or furnace. " + (lootOf(idx) || "Where it comes from isn’t recorded yet.")));
   let n = 0; const LIMIT = 24;
   const more = () => {
     const end = Math.min(which.length, n + LIMIT);

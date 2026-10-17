@@ -1,3 +1,2546 @@
 {
-  "_doc": "Hand-written descriptions for the item index, keyed by 'modid:name' (every meta) or 'modid:name@meta' (one variant). Each shows above the generated paragraph. Keep to a sentence or two on what the item is for and where it sits in the pack. Rebuild with tools/items/build_site.py."
+ "_doc": "Hand-written descriptions for the item index, keyed by 'modid:name' (every meta) or 'modid:name@meta' (one variant). Each shows above the generated paragraph. Keep to a sentence or two on what the item is for and where it sits in the pack. Rebuild with tools/items/build_site.py.",
+ "OreSpawn:OreSpawn_Acid": {
+  "d": "Throwable acid glob that burns what it hits.",
+  "get": "Creative only."
+ },
+ "OreSpawn:OreSpawn_AlienEgg": {
+  "d": "Hostile alien whose bite poisons. Wild ones: Mining Dimension; dungeons and the Alien/WTF dungeon there and in other OreSpawn dimensions. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny; OreSpawn dungeon chests (Utopia, Mining and Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_AlienSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into an Alien spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_AloEgg": {
+  "d": "Hostile carnivorous dinosaur. Wild ones: Mining Dimension; Chaos Dimension. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny; OreSpawn dungeon chests (Utopia, Mining and Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_AloSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into an Alosaurus spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_Amethyst": {
+  "d": "Purple gem for the Amethyst tools and armour.",
+  "get": "Mined from Amethyst Ore; dropped by Spit Bugs and Jumpy Bugs; found by sifting."
+ },
+ "OreSpawn:OreSpawn_AmethystAxe": {
+  "d": "Amethyst-tier axe.",
+  "get": "Also a random drop from Mobzilla, the Kraken and Jumpy Bugs."
+ },
+ "OreSpawn:OreSpawn_AmethystBody": {
+  "d": "Amethyst-tier armour.",
+  "get": "Also a random drop from Mobzilla and Jumpy Bugs."
+ },
+ "OreSpawn:OreSpawn_AmethystBoots": {
+  "d": "Amethyst-tier armour.",
+  "get": "Also a random drop from Mobzilla and Jumpy Bugs."
+ },
+ "OreSpawn:OreSpawn_AmethystHelmet": {
+  "d": "Amethyst-tier armour.",
+  "get": "Also a random drop from Mobzilla and Jumpy Bugs."
+ },
+ "OreSpawn:OreSpawn_AmethystHoe": {
+  "d": "Amethyst-tier hoe.",
+  "get": "Also a random drop from Mobzilla, the Kraken and Jumpy Bugs."
+ },
+ "OreSpawn:OreSpawn_AmethystLegs": {
+  "d": "Amethyst-tier armour.",
+  "get": "Also a random drop from Mobzilla and Jumpy Bugs."
+ },
+ "OreSpawn:OreSpawn_AmethystPickaxe": {
+  "d": "Amethyst-tier pickaxe.",
+  "get": "Also a random drop from Mobzilla, the Kraken and Jumpy Bugs."
+ },
+ "OreSpawn:OreSpawn_AmethystShovel": {
+  "d": "Amethyst-tier shovel.",
+  "get": "Also a random drop from Mobzilla, the Kraken and Jumpy Bugs."
+ },
+ "OreSpawn:OreSpawn_AmethystSword": {
+  "d": "Plain Amethyst-tier sword.",
+  "get": "Also a random drop from Mobzilla, the Kraken and Jumpy Bugs."
+ },
+ "OreSpawn:OreSpawn_AntBlock": {
+  "d": "Grass-like nest that keeps spawning 2-7 black ants whenever the block above is clear and it is not raining. Right-click an ant with an empty hand to travel to Utopia; doing it again inside Utopia returns you to the Overworld.",
+  "get": "The common ant nest on surface grass above y 40 in the Overworld and the Utopia, Mining, Village and Chaos dimensions."
+ },
+ "OreSpawn:OreSpawn_AntRobotEgg": {
+  "d": "Rideable red-ant robot mech; right-click with an iron ingot to repair it, empty hand to climb in. Use on a block to spawn one.",
+  "get": "Laid by the Easter Bunny."
+ },
+ "OreSpawn:OreSpawn_AntRobotKit": {
+  "d": "Use on a block to deploy your own rideable Red Ant Robot; the kit's durability is the robot's health.",
+  "get": "Dropped by Jeffery; Island Dimension robot labs; Nightmare rookeries."
+ },
+ "OreSpawn:OreSpawn_AppleLeaves": {
+  "d": "Apple tree leaves that drop apples, rarely golden apples, and very rarely the Magic Apple. In the Island Dimension they turn scary at night.",
+  "get": "Grows on apple trees in Utopia and the Village Dimension."
+ },
+ "OreSpawn:OreSpawn_AppleSeed": {
+  "d": "Plant on grass, dirt or farmland to grow an apple tree.",
+  "get": "Also dropped now and then by Stinkies of one colour variant."
+ },
+ "OreSpawn:OreSpawn_AttackSquidEgg": {
+  "d": "Hostile squid that shoots ink and water balls. Killing one can summon the Kraken. Wild ones: rivers, swamps and oceans. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny; OreSpawn dungeon chests (Utopia, Mining and Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_AttackSquidSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into an Attack Squid spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_Bacon": {
+  "d": "Gives Regeneration and Strength for 100 seconds.",
+  "get": "Also in OreSpawn dungeon chests (Utopia, Mining, Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_BaryonyxEgg": {
+  "d": "Passive dinosaur. Wild ones: Mining Dimension; Chaos Dimension. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny; OreSpawn dungeon chests (Utopia, Mining and Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_BaryonyxSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a Baryonyx spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_BasilEgg": {
+  "d": "Hostile serpent; its bite poisons and its gaze slows targets heavily. Wild ones: jungles, roofed forests; Basilisk mazes in the Mining Dimension; Chaos Dimension. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny; OreSpawn dungeon chests (Utopia, Mining and Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_BasiliskScale": {
+  "d": "Trophy scale; one of seven boss parts for the Big Bertha Guard.",
+  "get": "Dropped by the Basilisk, one per kill."
+ },
+ "OreSpawn:OreSpawn_BasilSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a Basilisk spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_BatSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a vanilla Bat spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_BattleAxe": {
+  "d": "Two-handed axe built from the Ultimate Sword and Axe; self-enchants Looting III and Unbreaking III. Cannot hurt players or tamed pets in this pack.",
+  "get": "Also a 1-in-5 drop from the Leonopteryx."
+ },
+ "OreSpawn:OreSpawn_BeaverEgg": {
+  "d": "Passive critter that gnaws down nearby trees. Wild ones: rivers, forests, taigas; Chaos Dimension. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny."
+ },
+ "OreSpawn:OreSpawn_BeaverSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a Beaver spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_BeeEgg": {
+  "d": "Hostile giant flying bee; its sting poisons. Wild ones: forests, jungles, taigas, savannas; bee hives in the Mining Dimension; Chaos Dimension. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny; OreSpawn dungeon chests (Utopia, Mining and Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_BeeSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a Bee spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_Bertha": "Big Bertha: each swing also launches a long-reach strike that sets targets alight; self-enchants Knockback V, Bane of Arthropods and Fire Aspect. Cannot hurt players or tamed pets in this pack.",
+ "OreSpawn:OreSpawn_BerthaBlade": "Blade of Big Bertha, one of its three parts; forged from six boss trophies around the Ultimate Sword.",
+ "OreSpawn:OreSpawn_BerthaGuard": "Guard of Big Bertha, one of its three parts; built from seven trophies of big OreSpawn monsters.",
+ "OreSpawn:OreSpawn_BerthaHandle": "Handle of Big Bertha, one of its three parts; it uses up a Big Hammer, Mantis Claw and Ray Gun.",
+ "OreSpawn:OreSpawn_BigHammer": {
+  "d": "Every hit knocks the target up into the air. Part of the Big Bertha Handle and Attitude Adjuster recipes.",
+  "get": "Dropped by the Hercules Beetle."
+ },
+ "OreSpawn:OreSpawn_BlackHeels": {
+  "d": "Throwable footwear: right-click to hurl it at a target.",
+  "get": "Dropped by Girlfriends; found by sifting."
+ },
+ "OreSpawn:OreSpawn_BlazeSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a vanilla Blaze spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_BlockAmethystBlock": {
+  "d": "Storage block of nine Amethysts.",
+  "get": "Also a rare drop from Jumpy Bugs and Mobzilla."
+ },
+ "OreSpawn:OreSpawn_BlockMobzillaScaleBlock": "Compact storage block of nine Mobzilla Scales.",
+ "OreSpawn:OreSpawn_BlockRubyBlock": {
+  "d": "Storage block of nine Rubies.",
+  "get": "Also generates as rare lumps in stone below y 15."
+ },
+ "OreSpawn:OreSpawn_BlockTitaniumBlock": {
+  "d": "Storage block of nine Titanium Ingots.",
+  "get": "Also part of floating-island ore cores."
+ },
+ "OreSpawn:OreSpawn_BlockUraniumBlock": {
+  "d": "Storage block of nine Uranium Ingots.",
+  "get": "Also part of floating-island ore cores."
+ },
+ "OreSpawn:OreSpawn_BLT": "Bacon, lettuce and tomato sandwich; very filling.",
+ "OreSpawn:OreSpawn_BlueFish": {
+  "d": "Raw OreSpawn fish; eating it raw gives a moment of Hunger. Cooks into vanilla cooked fish.",
+  "get": "Caught in water with the Ultimate Fishing Rod; found by sifting water."
+ },
+ "OreSpawn:OreSpawn_BlueRock": {
+  "d": "Thrown, it hits for 10 and slows the target. Thrown rocks smash glass; right-click the ground to set one down as a decorative rock.",
+  "get": "Lies on the ground as loose rocks in the Overworld and several OreSpawn dimensions; hit one to pick it up."
+ },
+ "OreSpawn:OreSpawn_Boots": {
+  "d": "Throwable footwear: right-click to hurl it at a target.",
+  "get": "Dropped by Girlfriends; found by sifting."
+ },
+ "OreSpawn:OreSpawn_BoyfriendEgg": {
+  "d": "Tameable companion that fights for its owner; tamed with cooked steak or Cooked Peacock. Use on a block to spawn one. Natural spawning is off in this pack.",
+  "get": "Also laid by the Easter Bunny."
+ },
+ "OreSpawn:OreSpawn_BoyfriendSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a Boyfriend spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_BrownAntEgg": {
+  "d": "Black ant; right-click with an empty hand to teleport to Utopia (and back). Wild ones: black Ant Nests on overworld grass. Use on a block to spawn one.",
+  "get": "Laid by the Easter Bunny."
+ },
+ "OreSpawn:OreSpawn_BrutalflyEgg": {
+  "d": "Hostile giant flying butterfly that shoots fireballs. Wild ones: mega taiga hills, extreme hills+, mesa plateaus; Chaos Dimension. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny; OreSpawn dungeon chests (Utopia, Mining and Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_BrutalflySpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a Brutalfly spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_Butter": "Churned from milk; ingredient of butter candy, buttered popcorn and the BLT.",
+ "OreSpawn:OreSpawn_ButterCandy": {
+  "d": "Gives Speed and Jump Boost for 100 seconds.",
+  "get": "Also dropped by Bees (2-11 per kill); OreSpawn dungeon chests (Utopia, Mining, Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_ButteredPopcorn": "Popcorn with butter; a better snack.",
+ "OreSpawn:OreSpawn_ButteredSaltedPopcorn": "Buttered and salted popcorn; bag it up with paper.",
+ "OreSpawn:OreSpawn_ButterflyEgg": {
+  "d": "Butterfly; right-click with an empty hand to teleport to the Chaos Dimension (and back). Wild ones: many forest, plains and jungle biomes; most OreSpawn dimensions. Use on a block to spawn one.",
+  "get": "Laid by the Easter Bunny."
+ },
+ "OreSpawn:OreSpawn_ButterflySeed": {
+  "d": "Butterfly Plant seed: the crop releases Butterflies by day while it grows.",
+  "get": "Dropped by the plant (1-5 seeds), which grows wild in forests, Utopia and the Chaos Dimension."
+ },
+ "OreSpawn:OreSpawn_CagedAlien": {
+  "d": "Critter Cage holding a live Alien. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at an Alien (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedAlo": {
+  "d": "Critter Cage holding a live Alosaurus. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at an Alosaurus (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedAttackSquid": {
+  "d": "Critter Cage holding a live Attack Squid. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at an Attack Squid (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedBaryonyx": {
+  "d": "Critter Cage holding a live Baryonyx. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Baryonyx (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedBasil": {
+  "d": "Critter Cage holding a live Basilisk. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Basilisk (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedBat": {
+  "d": "Critter Cage holding a live Bat. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Bat (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedBeaver": {
+  "d": "Critter Cage holding a live Beaver. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Beaver (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedBee": {
+  "d": "Critter Cage holding a live Bee. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Bee (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedBlaze": {
+  "d": "Critter Cage holding a live Blaze. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Blaze (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedBoyfriend": {
+  "d": "Critter Cage holding a live Boyfriend. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Boyfriend (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedBrutalfly": {
+  "d": "Critter Cage holding a live Brutalfly. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Brutalfly (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedCama": {
+  "d": "Critter Cage holding a live Camarasaurus. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Camarasaurus (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedCassowary": {
+  "d": "Critter Cage holding a live Cassowary. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Cassowary (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedCaterKiller": {
+  "d": "Critter Cage holding a live CaterKiller. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a CaterKiller (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedCaveFisher": {
+  "d": "Critter Cage holding a live Cave Fisher. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Cave Fisher (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedCaveSpider": {
+  "d": "Critter Cage holding a live Cave Spider. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Cave Spider (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedCephadrome": {
+  "d": "Critter Cage holding a live Cephadrome. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Cephadrome (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedChicken": {
+  "d": "Critter Cage holding a live Chicken. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Chicken (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedChipmunk": {
+  "d": "Critter Cage holding a live Chipmunk. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Chipmunk (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedCliffRacer": {
+  "d": "Critter Cage holding a live Cliff Racer. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Cliff Racer (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedCloudShark": {
+  "d": "Critter Cage holding a live Cloud Shark. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Cloud Shark (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedCockateil": {
+  "d": "Critter Cage holding a live Bird. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Bird (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedCow": {
+  "d": "Critter Cage holding a live Cow. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Cow (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedCrab": {
+  "d": "Critter Cage holding a live Crab. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Crab (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedCreeper": {
+  "d": "Critter Cage holding a live Creeper. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Creeper (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedCreepingHorror": {
+  "d": "Critter Cage holding a live Creeping Horror. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Creeping Horror (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedCricket": {
+  "d": "Critter Cage holding a live Cricket. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Cricket (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedCriminal": {
+  "d": "Critter Cage holding a live Criminal. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Criminal (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedCryo": {
+  "d": "Critter Cage holding a live Cryosaurus. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Cryosaurus (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedCrystalCow": {
+  "d": "Critter Cage holding a live Crystal Cow. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Crystal Cow (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedDragon": {
+  "d": "Critter Cage holding a live Dragon. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Dragon (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedDragonfly": {
+  "d": "Critter Cage holding a live Dragonfly. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Dragonfly (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedDungeonBeast": {
+  "d": "Critter Cage holding a live Dungeon Beast. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Dungeon Beast (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedEasterBunny": {
+  "d": "Critter Cage holding a live Easter Bunny. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at an Easter Bunny (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedEmperorScorpion": {
+  "d": "Critter Cage holding a live Emperor Scorpion. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at an Emperor Scorpion (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedEnchantedCow": {
+  "d": "Critter Cage holding a live Enchanted Golden Apple Cow. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at an Enchanted Golden Apple Cow (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedEnderDragon": {
+  "d": "Critter Cage holding a live Ender Dragon. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at an Ender Dragon (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedEnderKnight": {
+  "d": "Critter Cage holding a live Ender Knight. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at an Ender Knight (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedEnderman": {
+  "d": "Critter Cage holding a live Enderman. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at an Enderman (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedEnderReaper": {
+  "d": "Critter Cage holding a live Ender Reaper. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at an Ender Reaper (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedFairy": {
+  "d": "Critter Cage holding a live Fairy. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Fairy (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedFirefly": {
+  "d": "Critter Cage holding a live Firefly. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Firefly (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedFlounder": {
+  "d": "Critter Cage holding a live Flounder. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Flounder (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedFrog": {
+  "d": "Critter Cage holding a live Frog. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Frog (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedGammaMetroid": {
+  "d": "Critter Cage holding a live WTF?. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a WTF? (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedGazelle": {
+  "d": "Critter Cage holding a live Gazelle. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Gazelle (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedGhast": {
+  "d": "Critter Cage holding a live Ghast. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Ghast (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedGirlfriend": {
+  "d": "Critter Cage holding a live Girlfriend. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Girlfriend (8 in 10 hits catch it). Also in Basilisk Maze chests."
+ },
+ "OreSpawn:OreSpawn_CagedGoldCow": {
+  "d": "Critter Cage holding a live Golden Apple Cow. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Golden Apple Cow (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedGoldFish": {
+  "d": "Critter Cage holding a live Gold Fish. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Gold Fish (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedHammerhead": {
+  "d": "Critter Cage holding a live Hammerhead. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Hammerhead (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedHercules": {
+  "d": "Critter Cage holding a live Hercules Beetle. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Hercules Beetle (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedHorse": {
+  "d": "Critter Cage holding a live Horse. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Horse (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedHydro": {
+  "d": "Critter Cage holding a live Hydrolisc. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Hydrolisc (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedIronGolem": {
+  "d": "Critter Cage holding a live Iron Golem. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at an Iron Golem (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedIrukandji": {
+  "d": "Critter Cage holding a live Irukandji. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at an Irukandji (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedKraken": {
+  "d": "Critter Cage holding a live Kraken. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Kraken (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedKyuubi": {
+  "d": "Critter Cage holding a live Kyuubi. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Kyuubi (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedLargeWorm": {
+  "d": "Critter Cage holding a live Large Worm. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Large Worm (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedLeafMonster": {
+  "d": "Critter Cage holding a live Leaf Monster. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Leaf Monster (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedLeon": {
+  "d": "Critter Cage holding a live Leonopteryx. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Leonopteryx (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedLizard": {
+  "d": "Critter Cage holding a live Lizard. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Lizard (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedLurkingTerror": {
+  "d": "Critter Cage holding a live Lurking Terror. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Lurking Terror (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedMagmaCube": {
+  "d": "Critter Cage holding a live Magma Cube. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Magma Cube (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedMantis": {
+  "d": "Critter Cage holding a live Mantis. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Mantis (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedMediumWorm": {
+  "d": "Critter Cage holding a live Medium Worm. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Medium Worm (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedMolenoid": {
+  "d": "Critter Cage holding a live Molenoid. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Molenoid (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedMooshroom": {
+  "d": "Critter Cage holding a live Mooshroom. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Mooshroom (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedMOTHRA": {
+  "d": "Critter Cage holding a live MOTHRA. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a MOTHRA (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedNastysaurus": {
+  "d": "Critter Cage holding a live Nastysaurus. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Nastysaurus (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedOcelot": {
+  "d": "Critter Cage holding a live Ocelot. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at an Ocelot (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedOstrich": {
+  "d": "Critter Cage holding a live Ostrich. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at an Ostrich (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedPeacock": {
+  "d": "Critter Cage holding a live Peacock. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Peacock (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedPitchBlack": {
+  "d": "Critter Cage holding a live Nightmare. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Nightmare (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedPointysaurus": {
+  "d": "Critter Cage holding a live Pointysaurus. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Pointysaurus (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedRat": {
+  "d": "Critter Cage holding a live Rat. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Rat (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedRedCow": {
+  "d": "Critter Cage holding a live Apple Cow. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at an Apple Cow (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedRotator": {
+  "d": "Critter Cage holding a live Rotator. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Rotator (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedRubberDucky": {
+  "d": "Critter Cage holding a live Rubber Ducky. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Rubber Ducky (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedScorpion": {
+  "d": "Critter Cage holding a live Scorpion. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Scorpion (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedSeaMonster": {
+  "d": "Critter Cage holding a live Sea Monster. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Sea Monster (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedSeaViper": {
+  "d": "Critter Cage holding a live Sea Viper. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Sea Viper (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedSheep": {
+  "d": "Critter Cage holding a live Sheep. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Sheep (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedSilverfish": {
+  "d": "Critter Cage holding a live Silverfish. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Silverfish (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedSkate": {
+  "d": "Critter Cage holding a live Skate. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Skate (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedSkeleton": {
+  "d": "Critter Cage holding a live Skeleton. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Skeleton (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedSlime": {
+  "d": "Critter Cage holding a live Slime. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Slime (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedSmallWorm": {
+  "d": "Critter Cage holding a live Small Worm. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Small Worm (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedSnowGolem": {
+  "d": "Critter Cage holding a live Snow Golem. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Snow Golem (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedSpider": {
+  "d": "Critter Cage holding a live Spider. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Spider (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedSpiderDriver": {
+  "d": "Critter Cage holding a live Spider Driver. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Spider Driver (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedSpit": {
+  "d": "Critter Cage holding a live Spit Bug. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Spit Bug (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedSpyro": {
+  "d": "Critter Cage holding a live Baby Dragon. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Baby Dragon (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedSquid": {
+  "d": "Critter Cage holding a live Squid. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Squid (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedStink": {
+  "d": "Critter Cage holding a live Stink Bug. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Stink Bug (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedStinky": {
+  "d": "Critter Cage holding a live Stinky. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Stinky (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedTerribleTerror": {
+  "d": "Critter Cage holding a live Terrible Terror. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Terrible Terror (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedTRex": {
+  "d": "Critter Cage holding a live T. Rex. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a T. Rex (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedTriffid": {
+  "d": "Critter Cage holding a live Triffid. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Triffid (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedTrooper": {
+  "d": "Critter Cage holding a live Jumpy Bug. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Jumpy Bug (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedUrchin": {
+  "d": "Critter Cage holding a live Crystal Urchin. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Crystal Urchin (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedVelo": {
+  "d": "Critter Cage holding a live Velocity Raptor. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Velocity Raptor (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedVillager": {
+  "d": "Critter Cage holding a live Villager. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Villager (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedVortex": {
+  "d": "Critter Cage holding a live Vortex. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Vortex (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedWaterDragon": {
+  "d": "Critter Cage holding a live Water Dragon. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Water Dragon (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedWhale": {
+  "d": "Critter Cage holding a live Whale. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Whale (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedWitch": {
+  "d": "Critter Cage holding a live Witch. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Witch (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedWitherBoss": {
+  "d": "Critter Cage holding a live Wither Boss. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Wither Boss (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedWitherSkeleton": {
+  "d": "Critter Cage holding a live Wither Skeleton. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Wither Skeleton (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedWolf": {
+  "d": "Critter Cage holding a live Wolf. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Wolf (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedZombie": {
+  "d": "Critter Cage holding a live Zombie. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Zombie (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CagedZombiePigman": {
+  "d": "Critter Cage holding a live ZombiePigman. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a ZombiePigman (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CageEmpty": {
+  "d": "Empty Critter Cage: throw it at a creature to catch it (8 in 10 hits succeed), even large monsters; the filled cage releases it later.",
+  "get": "Also in OreSpawn dungeon chests (Utopia, Mining, Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_CagePig": {
+  "d": "Critter Cage holding a live Pig. Use it on a block to release the creature, to move it or put it on display.",
+  "get": "Throw an Empty Critter Cage at a Pig (8 in 10 hits catch it)."
+ },
+ "OreSpawn:OreSpawn_CamaEgg": {
+  "d": "Passive sauropod; tameable with an apple. Wild ones: Mining Dimension. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny; OreSpawn dungeon chests (Utopia, Mining and Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_CamaSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a Camarasaurus spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_CassowaryEgg": {
+  "d": "Passive flightless bird. Wild ones: extreme hills, birch forests, mega taigas, savannas; Chaos Dimension. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny; OreSpawn dungeon chests (Utopia, Mining and Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_CassowarySpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a Cassowary spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_CaterKillerEgg": {
+  "d": "Huge hostile caterpillar that eats leaves and logs and spins webs. Wild ones: forests, jungles, roofed forests; Chaos Dimension. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny; OreSpawn dungeon chests (Utopia, Mining and Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_CaterKillerJaw": {
+  "d": "Trophy jaw; one of six boss trophies for the Big Bertha Blade.",
+  "get": "Dropped by the CaterKiller, one per kill."
+ },
+ "OreSpawn:OreSpawn_CaterKillerSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a CaterKiller (a boss) spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_CaveFisherEgg": {
+  "d": "Hostile cave creature. Wild ones: Mining Dimension; Ender castles; Chaos Dimension. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny; OreSpawn dungeon chests (Utopia, Mining and Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_CaveFisherSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a Cave Fisher spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_CaveSpiderSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a vanilla Cave Spider spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_CephadromeEgg": {
+  "d": "Large rideable beast; feed it raw meat, then right-click with an empty hand to ride. Wild ones: ice plains and cold taigas. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny; OreSpawn dungeon chests (Utopia, Mining and Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_CephadromeSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a Cephadrome spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_Chainsaw": "Revving saw that cuts a whole tree at once and, on each hit, also strikes every visible creature within 5 blocks. Cannot hurt players or tamed pets in this pack.",
+ "OreSpawn:OreSpawn_Cheese": "Made from milk; pizza ingredient.",
+ "OreSpawn:OreSpawn_Cherry": {
+  "d": "Fruit food.",
+  "get": "Dropped by cherry tree leaves."
+ },
+ "OreSpawn:OreSpawn_CherryLeaves": {
+  "d": "Cherry tree leaves; they drop Cherries.",
+  "get": "Grows on cherry trees in Utopia and the Village Dimension."
+ },
+ "OreSpawn:OreSpawn_CherrySeed": {
+  "d": "Cherry Pit: plant on grass, dirt or farmland to grow a cherry tree.",
+  "get": "Dropped now and then by Stinkies of one colour variant."
+ },
+ "OreSpawn:OreSpawn_ChickenSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a vanilla Chicken spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_ChipmunkEgg": {
+  "d": "Small passive critter; tameable with an apple. Wild ones: forests and taigas; Utopia, Village and Chaos dimensions. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny; OreSpawn dungeon chests (Utopia, Mining and Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_ChipmunkSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a Chipmunk spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_CliffRacerEgg": {
+  "d": "Passive flying creature. Wild ones: Island and Chaos dimensions. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny; OreSpawn dungeon chests (Utopia, Mining and Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_CliffRacerSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a Cliff Racer spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_CloudSharkEgg": {
+  "d": "Hostile flying shark. Wild ones: Island and Chaos dimensions; Island Dimension cloud-shark lairs. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny."
+ },
+ "OreSpawn:OreSpawn_CloudSharkSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a Cloud Shark spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_CockateilEgg": {
+  "d": "Small passive flying bird. Wild ones: many forest, jungle, plains and beach biomes; most OreSpawn dimensions. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny; OreSpawn dungeon chests (Utopia, Mining and Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_CockateilSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a Bird spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_CoinEgg": {
+  "d": "Spinning coin critter that drops loot (emeralds, diamonds, ore nuggets, emerald tools) when killed. Wild ones: forests, taigas, jungles; Utopia and Village dimensions. Use on a block to spawn one.",
+  "get": "Dropped by Coins; laid by the Easter Bunny."
+ },
+ "OreSpawn:OreSpawn_CornCob": {
+  "d": "Edible corn cob; plant it on farmland to grow corn. Smelts into Popcorn.",
+  "get": "Harvest corn plants, which grow wild on Overworld plains, Utopia and the Village Dimension."
+ },
+ "OreSpawn:OreSpawn_CornDog": {
+  "d": "Cooked corn dog; one of the most filling foods in the mod.",
+  "get": "Also in Crystal battle towers and Basilisk Maze chests."
+ },
+ "OreSpawn:OreSpawn_CornPlant1": {
+  "d": "Growth stage 1 of 4 of a corn crop.",
+  "get": "Technical crop stage; plant the Corn itself."
+ },
+ "OreSpawn:OreSpawn_CornPlant2": {
+  "d": "Growth stage 2 of 4 of a corn crop.",
+  "get": "Technical crop stage; plant the Corn itself."
+ },
+ "OreSpawn:OreSpawn_CornPlant3": {
+  "d": "Growth stage 3 of 4 of a corn crop.",
+  "get": "Technical crop stage; plant the Corn itself."
+ },
+ "OreSpawn:OreSpawn_CornPlant4": {
+  "d": "Growth stage 4 of 4 of a corn crop.",
+  "get": "Technical crop stage; plant the Corn itself."
+ },
+ "OreSpawn:OreSpawn_CowSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a vanilla Cow spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_CrabbyPatty": "Crab-meat burger; one of the most filling foods in the mod.",
+ "OreSpawn:OreSpawn_CrabEgg": {
+  "d": "Hostile giant crab. Wild ones: oceans, swamps, stone beaches; Crystal Dimension waters. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny; OreSpawn dungeon chests (Utopia, Mining and Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_CrabMeat": "Cooked crab meat; ingredient of the Crabby Patty.",
+ "OreSpawn:OreSpawn_CrabSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a Crab spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_CreeperLauncher": {
+  "d": "Single-use: hit a Creeper with it to fling the creeper away into the air.",
+  "get": "Dropped by the Hammerhead, 16 per kill."
+ },
+ "OreSpawn:OreSpawn_CreeperRepellent": {
+  "d": "Torch that keeps pushing Creepers and ants away within about 20 blocks.",
+  "get": "Also dropped by the Hammerhead; Island Dimension greenhouses."
+ },
+ "OreSpawn:OreSpawn_CreeperSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a vanilla Creeper spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_CreepingHorrorEgg": {
+  "d": "Small hostile night creature. Wild ones: Island and Chaos dimensions. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny; OreSpawn dungeon chests (Utopia, Mining and Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_CreepingHorrorSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a Creeping Horror spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_CricketEgg": {
+  "d": "Tiny passive insect. Wild ones: forests, jungles, plains; Utopia. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny; OreSpawn dungeon chests (Utopia, Mining and Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_CricketSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a Cricket spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_CriminalEgg": {
+  "d": "Hostile thief who attacks players and Girlfriends/Boyfriends. Wild ones: plains, deserts, savannas; Village Dimension; Island Dimension white house. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny."
+ },
+ "OreSpawn:OreSpawn_CriminalSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a Criminal spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_CryoEgg": {
+  "d": "Hostile small dinosaur. Wild ones: Mining Dimension; Chaos Dimension. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny; OreSpawn dungeon chests (Utopia, Mining and Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_CryoSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a Cryolophosaurus spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_CrystalApple": {
+  "d": "Gives Regeneration and Strength for 150 seconds; also the breeding food of several OreSpawn animals.",
+  "get": "Dropped by Crystal Apple Cows and crystal tree leaves; Crystal Dimension chests."
+ },
+ "OreSpawn:OreSpawn_CrystalBlueRock": {
+  "d": "Thrown, it hits for 150, slows and weakens the target. Thrown rocks smash glass; right-click the ground to set one down as a decorative rock.",
+  "get": "Common among loose rocks in the Crystal Dimension, very rare elsewhere; hit a placed rock to pick it up."
+ },
+ "OreSpawn:OreSpawn_CrystalCowEgg": {
+  "d": "Cow that drops Crystal Apples. Wild ones: Crystal Dimension. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny."
+ },
+ "OreSpawn:OreSpawn_CrystalCowSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a Crystal Cow spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Creative only."
+ },
+ "OreSpawn:OreSpawn_CrystalFlowerBlue": {
+  "d": "Blue crystal flower; decoration.",
+  "get": "Generates in the Crystal Dimension; also in its loot chests."
+ },
+ "OreSpawn:OreSpawn_CrystalFlowerGreen": {
+  "d": "Green crystal flower; decoration.",
+  "get": "Generates in the Crystal Dimension; also in its loot chests."
+ },
+ "OreSpawn:OreSpawn_CrystalFlowerRed": {
+  "d": "Red crystal flower; decoration. Girlfriends can be tamed with it.",
+  "get": "Generates in the Crystal Dimension; also in its loot chests."
+ },
+ "OreSpawn:OreSpawn_CrystalFlowerYellow": {
+  "d": "Yellow crystal flower; decoration. Girlfriends can be tamed with it.",
+  "get": "Generates in the Crystal Dimension; also in its loot chests."
+ },
+ "OreSpawn:OreSpawn_CrystalFurnaceBlock": {
+  "d": "Crystal Dimension furnace; smelts like a furnace and burns Crystal Energy, crystal wood and normal fuels.",
+  "get": "Also in Crystal Dimension chests."
+ },
+ "OreSpawn:OreSpawn_CrystalFurnaceOnBlock": {
+  "d": "The lit state of the Crystal Furnace while it smelts.",
+  "get": "Technical block; not obtainable as an item."
+ },
+ "OreSpawn:OreSpawn_CrystalGreenRock": {
+  "d": "Thrown, it hits for 150, poisons and weakens the target. Thrown rocks smash glass; right-click the ground to set one down as a decorative rock.",
+  "get": "Common among loose rocks in the Crystal Dimension, very rare elsewhere; hit a placed rock to pick it up."
+ },
+ "OreSpawn:OreSpawn_CrystalLeaves": {
+  "d": "Leaves of the red crystal tree. They sometimes drop Crystal Apples and their own sapling.",
+  "get": "Generates in the Crystal Dimension; also in its loot chests."
+ },
+ "OreSpawn:OreSpawn_CrystalLeaves2": {
+  "d": "Leaves of the yellow crystal tree. They sometimes drop Crystal Apples and their own sapling.",
+  "get": "Generates in the Crystal Dimension; also in its loot chests."
+ },
+ "OreSpawn:OreSpawn_CrystalLeaves3": {
+  "d": "Leaves of the blue crystal tree. They sometimes drop Crystal Apples and their own sapling.",
+  "get": "Grows on blue crystal trees (from the blue sapling); also in Crystal Dimension chests."
+ },
+ "OreSpawn:OreSpawn_CrystalPinkAxe": {
+  "d": "Pink Tourmaline axe from the Crystal Dimension's third tier.",
+  "get": "Also in Crystal Dimension chests."
+ },
+ "OreSpawn:OreSpawn_CrystalPinkBlock": "Storage block of nine Pink Tourmaline Ingots.",
+ "OreSpawn:OreSpawn_CrystalPinkBody": {
+  "d": "Crystal Dimension armour, one step below Tiger's Eye.",
+  "get": "Also in Crystal Dimension chests and battle towers."
+ },
+ "OreSpawn:OreSpawn_CrystalPinkBoots": {
+  "d": "Crystal Dimension armour, one step below Tiger's Eye.",
+  "get": "Also in Crystal Dimension chests and battle towers."
+ },
+ "OreSpawn:OreSpawn_CrystalPinkHelmet": {
+  "d": "Crystal Dimension armour, one step below Tiger's Eye.",
+  "get": "Also in Crystal Dimension chests and battle towers."
+ },
+ "OreSpawn:OreSpawn_CrystalPinkHoe": {
+  "d": "Pink Tourmaline hoe from the Crystal Dimension's third tier.",
+  "get": "Also in Crystal Dimension chests."
+ },
+ "OreSpawn:OreSpawn_CrystalPinkIngot": {
+  "d": "Pink Tourmaline metal for the Pink Tourmaline tools and armour; also needed for the Empty Critter Cage.",
+  "get": "Smelt Pink Tourmaline ore; also in Crystal Dimension chests and dropped by Vortexes."
+ },
+ "OreSpawn:OreSpawn_CrystalPinkLegs": {
+  "d": "Crystal Dimension armour, one step below Tiger's Eye.",
+  "get": "Also in Crystal Dimension chests and battle towers."
+ },
+ "OreSpawn:OreSpawn_CrystalPinkPickaxe": {
+  "d": "Pink Tourmaline pickaxe from the Crystal Dimension's third tier.",
+  "get": "Also in Crystal Dimension chests."
+ },
+ "OreSpawn:OreSpawn_CrystalPinkShovel": {
+  "d": "Pink Tourmaline shovel from the Crystal Dimension's third tier.",
+  "get": "Also in Crystal Dimension chests."
+ },
+ "OreSpawn:OreSpawn_CrystalPinkSword": {
+  "d": "Pink Tourmaline sword from the Crystal Dimension's third tier.",
+  "get": "Also in Crystal Dimension chests."
+ },
+ "OreSpawn:OreSpawn_CrystalPlanksBlock": {
+  "d": "Crystal Dimension planks: crafts Crystal Shards, the Crystal Workbench and the Crystal Wood tools.",
+  "get": "Also in Crystal Dimension chests."
+ },
+ "OreSpawn:OreSpawn_CrystalPlant": {
+  "d": "Sapling that grows a red crystal tree; plant on Crystal Grass, grass or dirt.",
+  "get": "Dropped by red crystal tree leaves."
+ },
+ "OreSpawn:OreSpawn_CrystalPlant2": {
+  "d": "Sapling that grows a yellow crystal tree; plant on Crystal Grass, grass or dirt.",
+  "get": "Dropped by yellow crystal tree leaves."
+ },
+ "OreSpawn:OreSpawn_CrystalPlant3": {
+  "d": "Sapling that grows a blue crystal tree; plant on Crystal Grass, grass or dirt.",
+  "get": "Dropped by blue crystal tree leaves."
+ },
+ "OreSpawn:OreSpawn_CrystalRedRock": {
+  "d": "Thrown, it hits for 150, burns and weakens the target. Thrown rocks smash glass; right-click the ground to set one down as a decorative rock.",
+  "get": "Common among loose rocks in the Crystal Dimension, very rare elsewhere; hit a placed rock to pick it up."
+ },
+ "OreSpawn:OreSpawn_CrystalSticks": "Crystal Shards: the Crystal Dimension's sticks, used in its tools, torches, cages and swords.",
+ "OreSpawn:OreSpawn_CrystalStoneAxe": {
+  "d": "Kyanite axe from the Crystal Dimension's second tier.",
+  "get": "Also in Crystal Dimension chests."
+ },
+ "OreSpawn:OreSpawn_CrystalStoneHoe": {
+  "d": "Kyanite hoe from the Crystal Dimension's second tier.",
+  "get": "Also in Crystal Dimension chests."
+ },
+ "OreSpawn:OreSpawn_CrystalStonePickaxe": {
+  "d": "Kyanite pickaxe from the Crystal Dimension's second tier.",
+  "get": "Also in Crystal Dimension chests."
+ },
+ "OreSpawn:OreSpawn_CrystalStoneShovel": {
+  "d": "Kyanite shovel from the Crystal Dimension's second tier.",
+  "get": "Also in Crystal Dimension chests."
+ },
+ "OreSpawn:OreSpawn_CrystalStoneSword": {
+  "d": "Kyanite sword from the Crystal Dimension's second tier.",
+  "get": "Also in Crystal Dimension chests."
+ },
+ "OreSpawn:OreSpawn_CrystalTermiteBlock": {
+  "d": "The Crystal Dimension's termite nest: spawns 2-7 termites when clear above and not raining. Right-click a termite with an empty hand to return to the Overworld (going in needs an empty inventory and no armour).",
+  "get": "Generates on Crystal Grass in the Crystal Dimension; also in its loot chests."
+ },
+ "OreSpawn:OreSpawn_CrystalTNTRock": {
+  "d": "Thrown, it hits for 250 and sets off a large explosion. Thrown rocks smash glass; right-click the ground to set one down as a decorative rock.",
+  "get": "Common among loose rocks in the Crystal Dimension, very rare elsewhere; hit a placed rock to pick it up."
+ },
+ "OreSpawn:OreSpawn_CrystalTorch": {
+  "d": "Torch that can also be placed on Kyanite, Crystal Grass and crystal wood.",
+  "get": "Also in Crystal Dimension chests."
+ },
+ "OreSpawn:OreSpawn_CrystalTreeLog": {
+  "d": "Log of the Crystal Dimension's trees; makes Crystal Planks.",
+  "get": "Generates in the Crystal Dimension; also in its loot chests."
+ },
+ "OreSpawn:OreSpawn_CrystalWoodAxe": {
+  "d": "Crystal Wood axe from the Crystal Dimension's starter tier.",
+  "get": "Also in Crystal Dimension chests."
+ },
+ "OreSpawn:OreSpawn_CrystalWoodHoe": {
+  "d": "Crystal Wood hoe from the Crystal Dimension's starter tier.",
+  "get": "Also in Crystal Dimension chests."
+ },
+ "OreSpawn:OreSpawn_CrystalWoodPickaxe": {
+  "d": "Crystal Wood pickaxe from the Crystal Dimension's starter tier.",
+  "get": "Also in Crystal Dimension chests."
+ },
+ "OreSpawn:OreSpawn_CrystalWoodShovel": {
+  "d": "Crystal Wood shovel from the Crystal Dimension's starter tier.",
+  "get": "Also in Crystal Dimension chests."
+ },
+ "OreSpawn:OreSpawn_CrystalWoodSword": {
+  "d": "Crystal Wood sword from the Crystal Dimension's starter tier.",
+  "get": "Also in Crystal Dimension chests."
+ },
+ "OreSpawn:OreSpawn_CrystalWorkbenchBlock": {
+  "d": "Crafting table made of crystal planks; works like a normal crafting table.",
+  "get": "Also in Crystal Dimension chests."
+ },
+ "OreSpawn:OreSpawn_DeadStinkBug": {
+  "d": "Squashed stink bug; ingredient of the Poison Sword and the Kraken Repellent.",
+  "get": "Dropped by Stink Bugs."
+ },
+ "OreSpawn:OreSpawn_DragonEgg": {
+  "d": "Tameable, rideable flying dragon that breathes fireballs; tamed with raw beef (1 in 5 per feeding). Wild ones: Island Dimension. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny; OreSpawn dungeon chests (Utopia, Mining and Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_DragonflyEgg": {
+  "d": "Passive flying insect (attacks horses unless configured otherwise). Wild ones: swamps and rivers; Mining and Chaos dimensions. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny; OreSpawn dungeon chests (Utopia, Mining and Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_DragonflySpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a Dragonfly spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_DragonSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a Dragon spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_DuctTapeBlock": {
+  "d": "Placed duct tape roll: clicking it with a damaged item repairs a sixth of the item's durability, six times before it is used up.",
+  "get": "Placed with the Duct Tape item."
+ },
+ "OreSpawn:OreSpawn_DuctTapeItem": "Places a roll of duct tape. Click the placed roll while holding a damaged item to repair a sixth of its durability; six uses per roll.",
+ "OreSpawn:OreSpawn_DungeonBeastEgg": {
+  "d": "Hostile dungeon monster. Wild ones: roofed forests; Crystal Dimension; Chaos Dimension. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny; Crystal Dimension chests."
+ },
+ "OreSpawn:OreSpawn_DungeonBeastSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a Dungeon Beast spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in the Crystal Dimension's stone."
+ },
+ "OreSpawn:OreSpawn_DungeonSpawner": {
+  "d": "Random Dungeon Spawner: about 20 seconds after placement it vanishes and builds a random structure, such as a fairy tree, castle, rotator station or bee hive.",
+  "get": "Placed by the Random Dungeon item."
+ },
+ "OreSpawn:OreSpawn_DuplicatorLog": {
+  "d": "Duplicator Tree log; would regrow a Duplicator Tree, but Duplicator Trees are turned off in this pack.",
+  "get": "Creative only."
+ },
+ "OreSpawn:OreSpawn_EasterBunnyEgg": {
+  "d": "Passive bunny that lays random OreSpawn spawn eggs. Only appears on 20 April, in plains, forests and taigas. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny."
+ },
+ "OreSpawn:OreSpawn_EasterBunnySpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into an Easter Bunny spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_Elevator": "Hoverboard: place it and ride it as a hovering board; hit it to pick it back up.",
+ "OreSpawn:OreSpawn_EmeraldAxe": {
+  "d": "Emerald-tier axe.",
+  "get": "Also dropped by the Basilisk and Coins; OreSpawn dungeon chests (Utopia, Mining, Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_EmeraldBody": {
+  "d": "Emerald-tier armour; upgrades into Experience armour.",
+  "get": "Also dropped by the Basilisk; OreSpawn dungeon chests (Utopia, Mining, Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_EmeraldBoots": {
+  "d": "Emerald-tier armour; upgrades into Experience armour.",
+  "get": "Also dropped by the Basilisk; OreSpawn dungeon chests (Utopia, Mining, Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_EmeraldHelmet": {
+  "d": "Emerald-tier armour; upgrades into Experience armour.",
+  "get": "Also dropped by the Basilisk; OreSpawn dungeon chests (Utopia, Mining, Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_EmeraldHoe": {
+  "d": "Emerald-tier hoe.",
+  "get": "Also dropped by the Basilisk and Coins; OreSpawn dungeon chests (Utopia, Mining, Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_EmeraldLegs": {
+  "d": "Emerald-tier armour; upgrades into Experience armour.",
+  "get": "Also dropped by the Basilisk; OreSpawn dungeon chests (Utopia, Mining, Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_EmeraldPickaxe": {
+  "d": "Emerald-tier pickaxe with built-in Silk Touch.",
+  "get": "Also dropped by the Basilisk and Coins; OreSpawn dungeon chests (Utopia, Mining, Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_EmeraldShovel": {
+  "d": "Emerald-tier shovel.",
+  "get": "Also dropped by the Basilisk and Coins; OreSpawn dungeon chests (Utopia, Mining, Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_EmeraldSword": {
+  "d": "Plain emerald-tier sword; upgrades into the Experience and Poison Swords.",
+  "get": "Also dropped by the Basilisk and Coins; OreSpawn dungeon chests (Utopia, Mining, Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_EmperorScorpionEgg": {
+  "d": "Huge hostile scorpion; its sting poisons. Wild ones: deserts and savannas; Island Dimension castles; Chaos Dimension. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny; OreSpawn dungeon chests (Utopia, Mining and Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_EmperorScorpionScale": {
+  "d": "Trophy scale; one of seven boss parts for the Big Bertha Guard.",
+  "get": "Dropped by the Emperor Scorpion, one per kill."
+ },
+ "OreSpawn:OreSpawn_EmperorScorpionSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into an Emperor Scorpion (a boss) spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_EnchantedCowEgg": {
+  "d": "Cow variant. Wild ones: forests, plains, mega taigas, mushroom islands; Utopia, Village, Chaos dimensions. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny; OreSpawn dungeon chests (Utopia, Mining and Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_EnchantedCowSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into an Enchanted Golden Apple Cow spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_EnderDragonEgg": {
+  "d": "Spawns a vanilla Ender Dragon boss wherever you use it, in any dimension.",
+  "get": "Also in OreSpawn dungeon chests (Utopia, Mining, Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_EnderDragonSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into an Ender Dragon (a boss) spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_EnderKnightEgg": {
+  "d": "Hostile ender warrior that teleports like an enderman. Wild ones: hills, forests, roofed forests; End structures; Mining and Chaos dimensions. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny."
+ },
+ "OreSpawn:OreSpawn_EnderKnightSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into an Ender Knight spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_EndermanSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a vanilla Enderman spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_EnderPearlBlock": {
+  "d": "Storage block of nine Ender Pearls.",
+  "get": "Also in End hospitals and Ender castles."
+ },
+ "OreSpawn:OreSpawn_EnderReaperEgg": {
+  "d": "Hostile ender reaper that teleports like an enderman. Wild ones: hills, forests, roofed forests; End graveyards; Island and Chaos dimensions. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny."
+ },
+ "OreSpawn:OreSpawn_EnderReaperSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into an Ender Reaper spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_ExperienceBody": {
+  "d": "Self-enchants Protection II and Blast Protection I (boots: Feather Falling); slowly grants experience while you carry an Experience Sword.",
+  "get": "Also a random drop from Mobzilla and the Kraken; OreSpawn dungeon chests (Utopia, Mining, Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_ExperienceBoots": {
+  "d": "Self-enchants Protection II and Blast Protection I (boots: Feather Falling); slowly grants experience while you carry an Experience Sword.",
+  "get": "Also a random drop from Mobzilla and the Kraken; OreSpawn dungeon chests (Utopia, Mining, Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_ExperienceCatcher": {
+  "d": "Use it on a spot to bottle the experience orbs there into Bottles o' Enchanting.",
+  "get": "Also dropped by the Hammerhead, 10 per kill."
+ },
+ "OreSpawn:OreSpawn_ExperienceHelmet": {
+  "d": "Self-enchants Protection II and Blast Protection I (boots: Feather Falling); slowly grants experience while you carry an Experience Sword.",
+  "get": "Also a random drop from Mobzilla and the Kraken; OreSpawn dungeon chests (Utopia, Mining, Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_ExperienceLeaves": {
+  "d": "Leaves of the Experience Tree; at night they drop Bottles o' Enchanting and toss bottles that burst into experience.",
+  "get": "Grows on Experience Trees."
+ },
+ "OreSpawn:OreSpawn_ExperienceLegs": {
+  "d": "Self-enchants Protection II and Blast Protection I (boots: Feather Falling); slowly grants experience while you carry an Experience Sword.",
+  "get": "Also a random drop from Mobzilla and the Kraken; OreSpawn dungeon chests (Utopia, Mining, Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_ExperiencePlant": {
+  "d": "Experience Tree sapling; grows into an Experience Tree on grass, dirt or farmland.",
+  "get": "Planted from the Experience Tree Seed."
+ },
+ "OreSpawn:OreSpawn_ExperienceSword": {
+  "d": "Each hit on a mob grants 10 experience and adds bonus damage equal to half your level; self-enchants Sharpness II and Unbreaking III.",
+  "get": "Also a random drop from Mobzilla and the Kraken; OreSpawn dungeon chests (Utopia, Mining, Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_ExperienceTreeSeed": {
+  "d": "Plant on grass, dirt or farmland to grow an Experience Tree.",
+  "get": "Also dropped by the Hammerhead; Island Dimension cloud-shark lairs."
+ },
+ "OreSpawn:OreSpawn_ExtremeTorch": "Bright torch. Placed on an Eye-of-Ender Block it summons a Cephadrome and is used up. Ingredient of both repellents.",
+ "OreSpawn:OreSpawn_EyeOfEnderBlock": {
+  "d": "Storage block of nine Eyes of Ender. Placing an Extreme Torch on top summons a Cephadrome nearby and uses up the torch.",
+  "get": "Also in Ender castles."
+ },
+ "OreSpawn:OreSpawn_FairyEgg": {
+  "d": "Small flying fairy that attacks hostile mobs. Wild ones: roofed forests; Crystal and Chaos dimensions; Crystalized Fairies blocks. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny; Crystal Dimension chests."
+ },
+ "OreSpawn:OreSpawn_FairySpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a Fairy spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in the Crystal Dimension's stone."
+ },
+ "OreSpawn:OreSpawn_FairySword": {
+  "d": "Every hit summons 1-3 Fairies that fight on your side.",
+  "get": "Also in Crystal battle towers."
+ },
+ "OreSpawn:OreSpawn_FireFish": {
+  "d": "Grants Fire Resistance for 60 seconds.",
+  "get": "Fished from lava with the Ultimate Fishing Rod."
+ },
+ "OreSpawn:OreSpawn_FireflyEgg": {
+  "d": "Glowing flying insect. Wild ones: forests, jungles, swamps, taigas; most OreSpawn dimensions. Use on a block to spawn one.",
+  "get": "Laid by the Easter Bunny."
+ },
+ "OreSpawn:OreSpawn_FireflySeed": {
+  "d": "Firefly Plant seed: the crop releases Fireflies at night while it grows.",
+  "get": "Dropped by the plant (1-5 seeds), which grows wild in forests, Utopia and the Chaos Dimension."
+ },
+ "OreSpawn:OreSpawn_FlounderEgg": {
+  "d": "Passive fish. Wild ones: Utopia and Crystal Dimension waters. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny; Crystal Dimension chests."
+ },
+ "OreSpawn:OreSpawn_FlounderSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a Flounder spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in the Crystal Dimension's stone."
+ },
+ "OreSpawn:OreSpawn_FlowerBlack": {
+  "d": "Black decorative flower.",
+  "get": "Grows on floating islands; found by sifting."
+ },
+ "OreSpawn:OreSpawn_FlowerBlue": {
+  "d": "Blue decorative flower.",
+  "get": "Grows on floating islands; found by sifting."
+ },
+ "OreSpawn:OreSpawn_FlowerPink": {
+  "d": "Pink decorative flower.",
+  "get": "Grows on floating islands; found by sifting."
+ },
+ "OreSpawn:OreSpawn_FlowerScary": {
+  "d": "Dead decorative flower.",
+  "get": "Grows on floating islands; found by sifting."
+ },
+ "OreSpawn:OreSpawn_FrogEgg": {
+  "d": "Passive frog that eats fireflies and small worms. Wild ones: rivers, swamps, jungles; Utopia; Crystal Dimension. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny; OreSpawn dungeon chests (Utopia, Mining and Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_FrogSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a Frog spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_GameController": {
+  "d": "Throwable game controller: right-click to hurl it at something.",
+  "get": "Dropped by Boyfriends (whose natural spawning is off in this pack)."
+ },
+ "OreSpawn:OreSpawn_GammaMetroidEgg": {
+  "d": "Hostile creature; tameable with an iron ingot. Wild ones: Mining Dimension; Alien/WTF dungeons; Chaos Dimension. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny; OreSpawn dungeon chests (Utopia, Mining and Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_GammaMetroidSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a WTF? spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_GazelleEgg": {
+  "d": "Passive gazelle; tameable with an apple. Wild ones: Utopia. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny; OreSpawn dungeon chests (Utopia, Mining and Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_GazelleSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a Gazelle spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_GhastSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a vanilla Ghast spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_GhostEgg": {
+  "d": "Flying ghost. Wild ones: cold taigas, roofed forests and frozen rivers. Use on a block to spawn one.",
+  "get": "Laid by the Easter Bunny; Crystal Dimension chests."
+ },
+ "OreSpawn:OreSpawn_GhostSkellyEgg": {
+  "d": "Flying pumpkin-headed skeleton ghost. Wild ones: cold taigas, roofed forests and frozen rivers. Use on a block to spawn one.",
+  "get": "Laid by the Easter Bunny; Crystal Dimension chests."
+ },
+ "OreSpawn:OreSpawn_GirlfriendEgg": {
+  "d": "Tameable companion that fights for its owner; tamed with a red flower or OreSpawn crystal flowers. Wild ones: beaches, forests, plains, taigas; Utopia and Village dimensions. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny."
+ },
+ "OreSpawn:OreSpawn_GirlfriendSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a Girlfriend spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_GodzillaEgg": {
+  "d": "Colossal hostile boss that wrecks terrain, shoots fireballs and calls lightning. Wild ones: Village Dimension (rare). Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny."
+ },
+ "OreSpawn:OreSpawn_GodzillaPartSpawnBlock": {
+  "d": "One fragment of the Mobzilla fossil egg; nine fragments craft into the whole Ancient Dried Mobzilla Spawn Egg, which revives into the boss.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_GodzillaScale": {
+  "d": "Mobzilla's armour plate; crafts the Mobzilla Scale armour, one of the strongest sets in the pack.",
+  "get": "Dropped by Mobzilla, 50-79 per kill."
+ },
+ "OreSpawn:OreSpawn_GodzillaSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a Mobzilla (a boss) spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_GoldCowEgg": {
+  "d": "Cow variant. Wild ones: plains, forests, taigas; Utopia, Village, Chaos dimensions. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny; OreSpawn dungeon chests (Utopia, Mining and Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_GoldCowSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a Golden Apple Cow spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_GoldFishEgg": {
+  "d": "Passive goldfish. Wild ones: Utopia, Island and Chaos dimensions. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny."
+ },
+ "OreSpawn:OreSpawn_GoldFishSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a Gold Fish spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_GreenFish": {
+  "d": "Raw OreSpawn fish; eating it raw gives a moment of Hunger. Cooks into vanilla cooked fish.",
+  "get": "Found by sifting water."
+ },
+ "OreSpawn:OreSpawn_GreenGoo": {
+  "d": "Triffid slime used in the Big Bertha Handle, the Battle Axe, the Attitude Adjuster and the Creeper Repellent.",
+  "get": "Dropped by Triffids, 4-9 per kill."
+ },
+ "OreSpawn:OreSpawn_GreenRock": {
+  "d": "Thrown, it hits for 5 and poisons the target. Thrown rocks smash glass; right-click the ground to set one down as a decorative rock.",
+  "get": "Lies on the ground as loose rocks in the Overworld and several OreSpawn dimensions; hit one to pick it up."
+ },
+ "OreSpawn:OreSpawn_GreyFish": {
+  "d": "Raw OreSpawn fish; eating it raw gives a moment of Hunger. Cooks into vanilla cooked fish.",
+  "get": "Caught in water with the Ultimate Fishing Rod; found by sifting water."
+ },
+ "OreSpawn:OreSpawn_HammerheadEgg": {
+  "d": "Big hostile hammer-headed brute. Wild ones: Chaos Dimension. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny; OreSpawn dungeon chests (Utopia, Mining and Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_HammerheadSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a Hammerhead (a boss) spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_Hammy": {
+  "d": "Attitude Adjuster: giant hammer whose every swing launches a reach strike, like Big Bertha. Cannot hurt players or tamed pets in this pack.",
+  "get": "Also a 1-in-3 drop from the Hammerhead."
+ },
+ "OreSpawn:OreSpawn_HerculesEgg": {
+  "d": "Huge hostile beetle. Wild ones: hilly forest and taiga biomes; Island and Chaos dimensions. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny."
+ },
+ "OreSpawn:OreSpawn_HerculesSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a Hercules Beetle (a boss) spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_HorseSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a vanilla Horse spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_HydroEgg": {
+  "d": "Tameable lizard-like creature; tamed with raw fish. Wild ones: swamps, jungles, stone beaches. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny; OreSpawn dungeon chests (Utopia, Mining and Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_HydroSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a Hydrolisc spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_IceBall": {
+  "d": "Throwable ice ball that explodes on impact.",
+  "get": "Creative only."
+ },
+ "OreSpawn:OreSpawn_IngotTitanium": {
+  "d": "With Uranium, the metal behind the Ultimate set; also needed for the Nightmare Sword.",
+  "get": "Also in Basilisk Maze chests (Mining Dimension)."
+ },
+ "OreSpawn:OreSpawn_IngotUranium": {
+  "d": "With Titanium, the metal behind the whole Ultimate set of tools, weapons and armour.",
+  "get": "Also in Basilisk Maze chests (Mining Dimension)."
+ },
+ "OreSpawn:OreSpawn_InstantGarden": "Use facing a direction to clear an 18-block-long area and lay out a planted farm: rows of crops, carrots, potatoes, melons, cactus and water channels.",
+ "OreSpawn:OreSpawn_InstantShelter": "Use facing a direction to build a small plank-and-cobblestone hut with a glass window band, bed, crafting table, furnace, torch and stocked chest.",
+ "OreSpawn:OreSpawn_IronGolemEgg": {
+  "d": "Spawns a vanilla Iron Golem.",
+  "get": "Also in OreSpawn dungeon chests (Utopia, Mining, Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_IronGolemSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into an Iron Golem spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_Irukandji": {
+  "d": "Dead Irukandji: throwable jellyfish that hits for 100 damage; a miss drops it back. Also crafts Irukandji Arrows.",
+  "get": "Dropped by Irukandji jellyfish in Crystal Dimension waters; Vortexes; Crystal chests."
+ },
+ "OreSpawn:OreSpawn_IrukandjiArrow": {
+  "d": "Ammunition for the Skate String Bow.",
+  "get": "Also in Crystal Dimension chests."
+ },
+ "OreSpawn:OreSpawn_IrukandjiEgg": {
+  "d": "Tiny, very dangerous jellyfish. Wild ones: Crystal Dimension waters. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny; Crystal Dimension chests."
+ },
+ "OreSpawn:OreSpawn_IrukandjiSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into an Irukandji spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in the Crystal Dimension's stone."
+ },
+ "OreSpawn:OreSpawn_Island": {
+  "d": "Seed of a floating island: on its own it soon rises and spawns 1-3 floating islands of dirt, flowers and ores high above.",
+  "get": "Generates in the Island Dimension."
+ },
+ "OreSpawn:OreSpawn_JefferyEgg": {
+  "d": "Giant hostile robot that fires laser charges. Wild ones: Village Dimension. Use on a block to spawn one.",
+  "get": "Laid by the Easter Bunny; OreSpawn dungeon chests (Utopia, Mining and Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_JumpyBugScale": {
+  "d": "Trophy scale; one of seven boss parts for the Big Bertha Guard.",
+  "get": "Dropped by the Jumpy Bug, one per kill."
+ },
+ "OreSpawn:OreSpawn_KingSpawner": {
+  "d": "Five seconds after placement it summons The King, the strongest OreSpawn boss, eight blocks above, guarding the spot.",
+  "get": "Creative only."
+ },
+ "OreSpawn:OreSpawn_KrakenEgg": {
+  "d": "Giant flying sea-monster boss that calls lightning. A player killing an Attack Squid has a 1-in-15 chance to call down 1-3 Krakens (not in the Crystal Dimension). Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny; OreSpawn dungeon chests (Utopia, Mining and Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_KrakenRepellent": {
+  "d": "Torch that keeps pushing Krakens and ants away within about 20 blocks.",
+  "get": "Also dropped by the Leonopteryx, 2-7 per kill."
+ },
+ "OreSpawn:OreSpawn_KrakenSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a Kraken (a boss) spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_KrakenTooth": {
+  "d": "Trophy tooth; one of six boss trophies for the Big Bertha Blade.",
+  "get": "Dropped by the Kraken, one per kill."
+ },
+ "OreSpawn:OreSpawn_KyuubiEgg": {
+  "d": "Hostile fox spirit that throws fireballs. Wild ones: The Nether; Kyuubi dungeons in the Mining Dimension. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny; OreSpawn dungeon chests (Utopia, Mining and Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_KyuubiSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a Kyuubi spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_LapisBody": "Self-enchants Protection I and Projectile Protection I (helmet: Respiration, Aqua Affinity).",
+ "OreSpawn:OreSpawn_LapisBoots": "Self-enchants Protection I and Projectile Protection I (helmet: Respiration, Aqua Affinity).",
+ "OreSpawn:OreSpawn_LapisHelmet": "Self-enchants Protection I and Projectile Protection I (helmet: Respiration, Aqua Affinity).",
+ "OreSpawn:OreSpawn_LapisLegs": "Self-enchants Protection I and Projectile Protection I (helmet: Respiration, Aqua Affinity).",
+ "OreSpawn:OreSpawn_LargeWormEgg": {
+  "d": "Large hostile worm that arrives with a brood of Small and Medium Worms. Wild ones: plains and savannas. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny; OreSpawn dungeon chests (Utopia, Mining and Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_LargeWormSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a Large Worm spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_LaserBall": {
+  "d": "Throwable robot laser charge that burns what it hits.",
+  "get": "Dropped by Robo-Gunners, Robo-Warriors, Robo-Snipers and Jeffery."
+ },
+ "OreSpawn:OreSpawn_LavaEel": {
+  "d": "Grants Fire Resistance for 30 seconds; also the material of Lava Eel armour.",
+  "get": "Fished from lava with the Ultimate Fishing Rod."
+ },
+ "OreSpawn:OreSpawn_LavaEelBody": {
+  "d": "Self-enchants Blast Protection X, Protection III and Fire Protection II (helmet: Respiration, Aqua Affinity II; boots: Feather Falling II).",
+  "get": "Also in OreSpawn dungeon chests (Utopia, Mining, Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_LavaEelBoots": {
+  "d": "Self-enchants Blast Protection X, Protection III and Fire Protection II (helmet: Respiration, Aqua Affinity II; boots: Feather Falling II).",
+  "get": "Also in OreSpawn dungeon chests (Utopia, Mining, Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_LavaEelHelmet": {
+  "d": "Self-enchants Blast Protection X, Protection III and Fire Protection II (helmet: Respiration, Aqua Affinity II; boots: Feather Falling II).",
+  "get": "Also in OreSpawn dungeon chests (Utopia, Mining, Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_LavaEelLegs": {
+  "d": "Self-enchants Blast Protection X, Protection III and Fire Protection II (helmet: Respiration, Aqua Affinity II; boots: Feather Falling II).",
+  "get": "Also in OreSpawn dungeon chests (Utopia, Mining, Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_LavafoamBlock": {
+  "d": "Nether foam that shoves anything walking into it sideways, hurting it if the shove is hard. Mining it in the Nether gives experience.",
+  "get": "Generates in Nether netherrack."
+ },
+ "OreSpawn:OreSpawn_LeafMonsterEgg": {
+  "d": "Hostile leafy monster. Wild ones: forests, jungles, taigas; Island and Chaos dimensions. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny."
+ },
+ "OreSpawn:OreSpawn_LeafMonsterSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a Leaf Monster spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_LeonEgg": {
+  "d": "Tameable, rideable flying beast; tamed with a diamond block (or raw beef, 1 in 3). Wild ones: leonopteryx nests in the Mining Dimension; Chaos Dimension. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny; OreSpawn dungeon chests (Utopia, Mining and Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_LeonSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a Leonopteryx (a boss) spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_Lettuce": {
+  "d": "Edible lettuce head; plant it on farmland to grow more.",
+  "get": "Harvest lettuce plants, which grow wild in Utopia and other OreSpawn dimensions."
+ },
+ "OreSpawn:OreSpawn_LettucePlant1": {
+  "d": "Growth stage 1 of 4 of a lettuce crop.",
+  "get": "Technical crop stage; plant the Lettuce itself."
+ },
+ "OreSpawn:OreSpawn_LettucePlant2": {
+  "d": "Growth stage 2 of 4 of a lettuce crop.",
+  "get": "Technical crop stage; plant the Lettuce itself."
+ },
+ "OreSpawn:OreSpawn_LettucePlant3": {
+  "d": "Growth stage 3 of 4 of a lettuce crop.",
+  "get": "Technical crop stage; plant the Lettuce itself."
+ },
+ "OreSpawn:OreSpawn_LettucePlant4": {
+  "d": "Growth stage 4 of 4 of a lettuce crop.",
+  "get": "Technical crop stage; plant the Lettuce itself."
+ },
+ "OreSpawn:OreSpawn_LizardEgg": {
+  "d": "Passive water lizard. Wild ones: rivers, swamps, oceans. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny; OreSpawn dungeon chests (Utopia, Mining and Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_LizardSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a Lizard spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_Love": {
+  "d": "Gives Regeneration IV, Strength III, Fire Resistance III and Resistance II for 5 minutes, plus Speed and Jump Boost.",
+  "get": "On Valentine's Day only: hit a Girlfriend with the Rose Sword."
+ },
+ "OreSpawn:OreSpawn_LurkingTerrorEgg": {
+  "d": "Small hostile flying night terror. Wild ones: Island and Chaos dimensions; castles and dungeons. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny; OreSpawn dungeon chests (Utopia, Mining and Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_LurkingTerrorSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a Lurking Terror spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_MagicApple": {
+  "d": "\"OMG! No! Don't do it!!!\": use it on grass or dirt to explosively grow a gigantic tree, often with loot chests in its branches.",
+  "get": "Also a 1-in-10,000 drop from Apple Tree leaves; Basilisk Maze chests."
+ },
+ "OreSpawn:OreSpawn_MagmaCubeSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a vanilla Magma Cube spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_MantisClaw": {
+  "d": "Each hit drains 1 health from the target and heals you by 1. Part of the Big Bertha Handle.",
+  "get": "Dropped by the Mantis, two per kill."
+ },
+ "OreSpawn:OreSpawn_MantisEgg": {
+  "d": "Hostile giant mantis. Wild ones: forests, jungles, plains, swamps; Crystal and Chaos dimensions. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny."
+ },
+ "OreSpawn:OreSpawn_MantisSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a Mantis spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_MediumWormEgg": {
+  "d": "Medium hostile worm. Arrives with the brood of a Large Worm. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny; OreSpawn dungeon chests (Utopia, Mining and Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_MediumWormSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a Medium Worm spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_MinersDream": {
+  "d": "Use facing a direction to blast a 64-block-long tunnel through stone, lit with Extreme Torches (Crystal Torches in the Crystal Dimension).",
+  "get": "Also in Island Dimension castle chests."
+ },
+ "OreSpawn:OreSpawn_MobzillaBody": "Self-enchants Protection, Fire, Blast and Projectile Protection X plus Unbreaking V (boots also Feather Falling X); among the strongest armour in the pack.",
+ "OreSpawn:OreSpawn_MobzillaBoots": "Self-enchants Protection, Fire, Blast and Projectile Protection X plus Unbreaking V (boots also Feather Falling X); among the strongest armour in the pack.",
+ "OreSpawn:OreSpawn_MobzillaHelmet": "Self-enchants Protection, Fire, Blast and Projectile Protection X plus Unbreaking V (boots also Feather Falling X); among the strongest armour in the pack.",
+ "OreSpawn:OreSpawn_MobzillaLegs": "Self-enchants Protection, Fire, Blast and Projectile Protection X plus Unbreaking V (boots also Feather Falling X); among the strongest armour in the pack.",
+ "OreSpawn:OreSpawn_MoleDirtBlock": {
+  "d": "Loose dirt left behind by a tunnelling Molenoid; slows walkers and crumbles away by itself.",
+  "get": "Left behind by Molenoids."
+ },
+ "OreSpawn:OreSpawn_MolenoidEgg": {
+  "d": "Hostile giant mole that tunnels through the ground, leaving Molenoid Dirt. Wild ones: plains and savannas; Island Dimension Inca pyramids; Chaos Dimension. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny; OreSpawn dungeon chests (Utopia, Mining and Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_MolenoidNose": {
+  "d": "Trophy nose; one of seven boss parts for the Big Bertha Guard.",
+  "get": "Dropped by the Molenoid, one per kill."
+ },
+ "OreSpawn:OreSpawn_MolenoidSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a Molenoid spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_MooshroomSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a vanilla Mooshroom spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_MosquitoEgg": {
+  "d": "Small flying pest. Wild ones: swamps, jungles, roofed forests. Use on a block to spawn one.",
+  "get": "Laid by the Easter Bunny."
+ },
+ "OreSpawn:OreSpawn_MosquitoSeed": {
+  "d": "Mosquito Plant seed: the crop releases Mosquitoes while it grows.",
+  "get": "Dropped by the plant, which grows wild in swamps, jungles, Utopia, the Mining and Village dimensions and the Nether."
+ },
+ "OreSpawn:OreSpawn_MothEgg": {
+  "d": "Passive flying moth. Wild ones: forests, jungles, swamps, taigas; most OreSpawn dimensions. Use on a block to spawn one.",
+  "get": "Laid by the Easter Bunny."
+ },
+ "OreSpawn:OreSpawn_MOTHRAEgg": {
+  "d": "Giant hostile flying moth that shoots fireballs. Wild ones: extreme hills; Chaos Dimension. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny; OreSpawn dungeon chests (Utopia, Mining and Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_MOTHRASpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a MOTHRA spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_MothScale": {
+  "d": "Wing scale for the Moth Scale armour and the Big Bertha Guard.",
+  "get": "Dropped in bulk by MOTHRA; also found by sifting and in dungeon chests."
+ },
+ "OreSpawn:OreSpawn_MothScaleBody": {
+  "d": "Self-enchants Protection, Fire and Blast Protection III (boots: Feather Falling V).",
+  "get": "Also in OreSpawn dungeon chests (Utopia, Mining, Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_MothScaleBoots": {
+  "d": "Self-enchants Protection, Fire and Blast Protection III (boots: Feather Falling V).",
+  "get": "Also in OreSpawn dungeon chests (Utopia, Mining, Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_MothScaleHelmet": {
+  "d": "Self-enchants Protection, Fire and Blast Protection III (boots: Feather Falling V).",
+  "get": "Also in OreSpawn dungeon chests (Utopia, Mining, Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_MothScaleLegs": {
+  "d": "Self-enchants Protection, Fire and Blast Protection III (boots: Feather Falling V).",
+  "get": "Also in OreSpawn dungeon chests (Utopia, Mining, Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_MothSeed": {
+  "d": "Moth Plant seed: the crop releases Moths at night while it grows.",
+  "get": "Dropped by the plant (1-5 seeds), which grows wild in forests, Utopia and the Chaos Dimension."
+ },
+ "OreSpawn:OreSpawn_NastysaurusEgg": {
+  "d": "Big hostile dinosaur. Wild ones: Mining Dimension; Chaos Dimension. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny; OreSpawn dungeon chests (Utopia, Mining and Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_NastysaurusSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a Nastysaurus spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_NetherLost": "Nether Tracker: while held in the Nether, turns the netherrack under your feet into quartz blocks, leaving a trail home. Self-enchants Sharpness II.",
+ "OreSpawn:OreSpawn_NightmareScale": {
+  "d": "Trophy scale for the Big Bertha Guard and the Nightmare Sword.",
+  "get": "Dropped by the Nightmare, one per kill."
+ },
+ "OreSpawn:OreSpawn_NightmareSword": {
+  "d": "Self-enchants with Sharpness I, Knockback III and Fire Aspect I.",
+  "get": "Also in OreSpawn dungeon chests in the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_OcelotSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a vanilla Ocelot spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_OreAmethystBlock": {
+  "d": "Gem ore; mining it drops 1-2 Amethysts plus experience.",
+  "get": "Generates in stone below y 25 in the Overworld and most OreSpawn dimensions."
+ },
+ "OreSpawn:OreSpawn_OreCrystalCoalBlock": {
+  "d": "Glowing crystal fuel ore for the Crystal Furnace and Crystal Torches. Breaking it has a 1-in-3 chance to explode.",
+  "get": "Generates in the Crystal Dimension; also in its chests and dropped by Vortexes."
+ },
+ "OreSpawn:OreSpawn_OreCrystalCrystalBlock": {
+  "d": "Pink Tourmaline ore; smelt it into Pink Tourmaline Ingots. Occasionally explodes when broken.",
+  "get": "Generates in the Crystal Dimension; also in its loot chests."
+ },
+ "OreSpawn:OreSpawn_OreCrystalFairyBlock": {
+  "d": "Crystal with fairies trapped inside: breaking it releases 1-6 Fairies. Crafting ingredient of the Fairy Sword.",
+  "get": "Generates in the Crystal Dimension; also in its loot chests."
+ },
+ "OreSpawn:OreSpawn_OreCrystalGrassBlock": {
+  "d": "The Crystal Dimension's grass. Crystal saplings, crystal flowers and quinoa grow on it.",
+  "get": "Generates in the Crystal Dimension; also in its loot chests."
+ },
+ "OreSpawn:OreSpawn_OreCrystalRatBlock": {
+  "d": "Crystal with rats trapped inside: breaking it releases 1-10 Rats. Crafting ingredient of the Rat Sword.",
+  "get": "Generates in the Crystal Dimension; also in its loot chests."
+ },
+ "OreSpawn:OreSpawn_OreCrystalStoneBlock": {
+  "d": "Kyanite: the blue stone of the Crystal Dimension; tool material for the Kyanite tier and the Crystal Furnace.",
+  "get": "Generates in the Crystal Dimension; also in its loot chests."
+ },
+ "OreSpawn:OreSpawn_OreRedAntTrollBlock": {
+  "d": "Prank ore: breaking it releases 15-20 red ants at once.",
+  "get": "Generates in stone at y 5-50 in the Overworld and most OreSpawn dimensions."
+ },
+ "OreSpawn:OreSpawn_OreRubyBlock": {
+  "d": "Gem ore; mining it drops 1-2 Rubies plus experience.",
+  "get": "Generates in stone directly under lava below y 50 (extra in the Mining Dimension), and in Nether netherrack."
+ },
+ "OreSpawn:OreSpawn_OreSaltBlock": {
+  "d": "Salt deposit; smelt it into Salt. Ants that touch it take damage.",
+  "get": "Generates in stone at y 50-128 in the Overworld and most OreSpawn dimensions."
+ },
+ "OreSpawn:OreSpawn_OreTermiteTrollBlock": {
+  "d": "Prank ore: breaking it releases 15-20 termites at once, which then go after wooden blocks.",
+  "get": "Generates in stone at y 5-50 in the Overworld and most OreSpawn dimensions."
+ },
+ "OreSpawn:OreSpawn_OreTigersEyeBlock": {
+  "d": "Glinting gem ore; smelt it into Tiger's Eye Ingots, the top Crystal Dimension material. Mining sometimes yields nothing.",
+  "get": "Generates in the Crystal Dimension; also in its loot chests."
+ },
+ "OreSpawn:OreSpawn_OreTitaniumBlock": {
+  "d": "Very hard ore that sparkles when touched. Drops itself; smelt it into Titanium Nuggets, the other half of Ultimate gear.",
+  "get": "Generates in stone below y 20 in the Overworld and most OreSpawn dimensions; also on floating islands."
+ },
+ "OreSpawn:OreSpawn_OreUraniumBlock": {
+  "d": "Glowing ore that sparkles when touched. Drops itself; smelt it into Uranium Nuggets, the base of all Ultimate gear.",
+  "get": "Generates in stone below y 30 in the Overworld and most OreSpawn dimensions; also on floating islands."
+ },
+ "OreSpawn:OreSpawn_OstrichEgg": {
+  "d": "Passive ostrich; tameable with an apple and rideable once tamed. Wild ones: deserts, savannas, stone beaches; Chaos Dimension. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny; OreSpawn dungeon chests (Utopia, Mining and Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_OstrichSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into an Ostrich spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_Peach": {
+  "d": "Fruit food.",
+  "get": "Dropped by peach tree leaves."
+ },
+ "OreSpawn:OreSpawn_PeachLeaves": {
+  "d": "Peach tree leaves; they drop Peaches.",
+  "get": "Grows on peach trees in Utopia and the Village Dimension."
+ },
+ "OreSpawn:OreSpawn_PeachSeed": {
+  "d": "Peach Pit: plant on grass, dirt or farmland to grow a peach tree.",
+  "get": "Dropped now and then by Stinkies of one colour variant."
+ },
+ "OreSpawn:OreSpawn_Peacock": {
+  "d": "Cooked peacock; a filling meal. Boyfriends can be tamed with it.",
+  "get": "Also in Crystal Dimension chests."
+ },
+ "OreSpawn:OreSpawn_PeacockEgg": {
+  "d": "Passive peacock that occasionally lays Peacock spawn eggs. Wild ones: mesas; Crystal and Chaos dimensions. Use on a block to spawn one.",
+  "get": "Also laid now and then by Peacocks; laid by the Easter Bunny; Crystal Dimension chests."
+ },
+ "OreSpawn:OreSpawn_PeacockFeather": {
+  "d": "Crafts Peacock Feather armour, Irukandji Arrows and beds.",
+  "get": "Dropped by Peacocks (1 in 2); Crystal Dimension chests."
+ },
+ "OreSpawn:OreSpawn_PeacockFeatherBody": {
+  "d": "Light feather armour; the matching boots give Feather Falling X and a slow, damage-free glide.",
+  "get": "Also in Crystal Dimension chests."
+ },
+ "OreSpawn:OreSpawn_PeacockFeatherBoots": {
+  "d": "Light feather boots with Feather Falling X; wearing them makes you glide down slowly with no fall damage.",
+  "get": "Also in Crystal Dimension chests."
+ },
+ "OreSpawn:OreSpawn_PeacockFeatherHelmet": {
+  "d": "Light feather armour; the matching boots give Feather Falling X and a slow, damage-free glide.",
+  "get": "Also in Crystal Dimension chests."
+ },
+ "OreSpawn:OreSpawn_PeacockFeatherLegs": {
+  "d": "Light feather armour; the matching boots give Feather Falling X and a slow, damage-free glide.",
+  "get": "Also in Crystal Dimension chests."
+ },
+ "OreSpawn:OreSpawn_PeacockSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a Peacock spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in the Crystal Dimension's stone."
+ },
+ "OreSpawn:OreSpawn_PigSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a vanilla Pig spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_PinkFish": {
+  "d": "Raw OreSpawn fish; eating it raw gives a moment of Hunger. Cooks into vanilla cooked fish.",
+  "get": "Caught in water with the Ultimate Fishing Rod; found by sifting water."
+ },
+ "OreSpawn:OreSpawn_PitchBlackEgg": {
+  "d": "Big hostile flying night monster. Wild ones: Island and Chaos dimensions; Island Dimension nightmare rookeries. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny; OreSpawn dungeon chests (Utopia, Mining and Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_PitchBlackSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a Nightmare (a boss) spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_PizzaBlock": {
+  "d": "Placed pizza: eat it slice by slice, like a cake, six slices in all.",
+  "get": "Placed with the Pizza! item."
+ },
+ "OreSpawn:OreSpawn_PizzaItem": "Places a whole pizza you can eat a slice at a time.",
+ "OreSpawn:OreSpawn_PointysaurusEgg": {
+  "d": "Hostile spiked dinosaur. Wild ones: Mining Dimension; Chaos Dimension. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny; OreSpawn dungeon chests (Utopia, Mining and Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_PointysaurusSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a Pointysaurus spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_PoisonSword": {
+  "d": "Hits apply Poison, Wither and Weakness for 10-19 seconds each; self-enchants Sharpness I.",
+  "get": "Also in Crystal battle towers and Mining Dimension dungeons."
+ },
+ "OreSpawn:OreSpawn_Popcorn": "Light snack smelted from corn; butter and salt it for better versions.",
+ "OreSpawn:OreSpawn_PopcornBag": "A full bag of buttered, salted popcorn; filling.",
+ "OreSpawn:OreSpawn_PurpleRock": {
+  "d": "Thrown, it hits for 20 and weakens the target. Thrown rocks smash glass; right-click the ground to set one down as a decorative rock.",
+  "get": "Lies on the ground as loose rocks in the Overworld and several OreSpawn dimensions; hit one to pick it up."
+ },
+ "OreSpawn:OreSpawn_QueenBattleAxe": "Axe of Queen scales with the Ultimate Sword's full self-enchant set (Sharpness V, Looting III, Fire Aspect II and more). Cannot hurt players or tamed pets in this pack.",
+ "OreSpawn:OreSpawn_QueenBody": "The highest-armour OreSpawn set, made from The Queen's scales; the boots let you glide with no fall damage.",
+ "OreSpawn:OreSpawn_QueenBoots": "The highest-armour OreSpawn set. Wearing these boots makes you glide down slowly with no fall damage.",
+ "OreSpawn:OreSpawn_QueenHelmet": "The highest-armour OreSpawn set, made from The Queen's scales; the boots let you glide with no fall damage.",
+ "OreSpawn:OreSpawn_QueenLegs": "The highest-armour OreSpawn set, made from The Queen's scales; the boots let you glide with no fall damage.",
+ "OreSpawn:OreSpawn_QueenScale": {
+  "d": "Scale of The Queen; crafts the Queen Scale armour and battle axe, the strongest craftable OreSpawn gear.",
+  "get": "Dropped by The Queen, 56 per kill."
+ },
+ "OreSpawn:OreSpawn_QueenSpawner": {
+  "d": "Five seconds after placement it summons The Queen boss eight blocks above, guarding the spot.",
+  "get": "Creative only."
+ },
+ "OreSpawn:OreSpawn_Quinoa": {
+  "d": "Edible quinoa; plant it on Crystal Grass, grass or farmland to grow more.",
+  "get": "Grows wild in the Crystal Dimension; Crystal Dimension chests."
+ },
+ "OreSpawn:OreSpawn_QuinoaPlant1": {
+  "d": "Growth stage 1 of 4 of a quinoa crop.",
+  "get": "Technical crop stage; plant the Quinoa itself."
+ },
+ "OreSpawn:OreSpawn_QuinoaPlant2": {
+  "d": "Growth stage 2 of 4 of a quinoa crop.",
+  "get": "Technical crop stage; plant the Quinoa itself."
+ },
+ "OreSpawn:OreSpawn_QuinoaPlant3": {
+  "d": "Growth stage 3 of 4 of a quinoa crop.",
+  "get": "Technical crop stage; plant the Quinoa itself."
+ },
+ "OreSpawn:OreSpawn_QuinoaPlant4": {
+  "d": "Growth stage 4 of 4 of a quinoa crop.",
+  "get": "Technical crop stage; plant the Quinoa itself."
+ },
+ "OreSpawn:OreSpawn_Radish": {
+  "d": "Edible radish; plant it on farmland to grow more.",
+  "get": "Harvest radish plants, which grow wild in Utopia and other OreSpawn dimensions."
+ },
+ "OreSpawn:OreSpawn_RainbowAntBlock": {
+  "d": "Nest that spawns 2-7 harmless rainbow ants. Right-click a rainbow ant with an empty hand to travel to the Village Dimension, a world full of villages; do it again there to return to the Overworld.",
+  "get": "Rarer ant nest on surface grass in the Overworld and the Utopia, Mining, Village and Chaos dimensions."
+ },
+ "OreSpawn:OreSpawn_RainbowAntEgg": {
+  "d": "Rainbow ant; right-click with an empty hand to teleport to the Village Dimension (and back). Wild ones: rainbow Ant Nests on overworld grass. Use on a block to spawn one.",
+  "get": "Laid by the Easter Bunny."
+ },
+ "OreSpawn:OreSpawn_RandomDungeon": "Place it on stone, cobblestone, grass or dirt above y 40: it becomes a Random Dungeon Spawner that soon grows a random structure. Self-enchants Fortune II.",
+ "OreSpawn:OreSpawn_RatEgg": {
+  "d": "Hostile rat; rats summoned by the Rat Sword serve their owner. Wild ones: roofed forests and taigas; Crystal and Chaos dimensions; Crystalized Rats blocks. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny; Crystal Dimension chests."
+ },
+ "OreSpawn:OreSpawn_RatSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a Rat spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in the Crystal Dimension's stone."
+ },
+ "OreSpawn:OreSpawn_RatSword": {
+  "d": "Every hit summons 1-6 Rats that fight on your side.",
+  "get": "Also in Crystal battle towers."
+ },
+ "OreSpawn:OreSpawn_RawBacon": "Salted raw pork; cook it into Bacon.",
+ "OreSpawn:OreSpawn_RawCornDog": "Uncooked corn dog; smelt it.",
+ "OreSpawn:OreSpawn_RawCrabMeat": {
+  "d": "Raw crab; cook it into Crab Meat.",
+  "get": "Dropped by Crabs, 4-11 per kill."
+ },
+ "OreSpawn:OreSpawn_RawPeacock": {
+  "d": "Raw peacock; cook it.",
+  "get": "Dropped by Peacocks; Crystal Dimension chests."
+ },
+ "OreSpawn:OreSpawn_RayGun": {
+  "d": "Fires explosive laser bolts with heavy recoil. Recharge it by crafting it with a Block of Redstone. Part of the Big Bertha Handle.",
+  "get": "Dropped by Robo-Warriors and Jeffery; Island Dimension robot labs."
+ },
+ "OreSpawn:OreSpawn_RedAntBlock": {
+  "d": "Nest that spawns 2-7 red ants, which nip nearby players now and then. Right-click a red ant with an empty hand to travel to the Mining Dimension; do it again there to return to the Overworld.",
+  "get": "Rarer ant nest on surface grass in the Overworld and the Utopia, Mining, Village and Chaos dimensions. Also on Nether netherrack."
+ },
+ "OreSpawn:OreSpawn_RedAntEgg": {
+  "d": "Red ant that bites; right-click with an empty hand to teleport to the Mining Dimension (and back). Wild ones: red Ant Nests on overworld grass and Nether netherrack; Red Ant Troll blocks. Use on a block to spawn one.",
+  "get": "Laid by the Easter Bunny."
+ },
+ "OreSpawn:OreSpawn_RedCowEgg": {
+  "d": "Cow variant. Wild ones: plains, forests, savannas, taigas; Utopia, Village, Chaos dimensions. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny; OreSpawn dungeon chests (Utopia, Mining and Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_RedCowSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into an Apple Cow spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_RedHeels": {
+  "d": "Throwable footwear: right-click to hurl it at a target.",
+  "get": "Dropped by Girlfriends; found by sifting."
+ },
+ "OreSpawn:OreSpawn_RedRock": {
+  "d": "Thrown, it hits for 5 and sets the target on fire. Thrown rocks smash glass; right-click the ground to set one down as a decorative rock.",
+  "get": "Lies on the ground as loose rocks in the Overworld and several OreSpawn dimensions; hit one to pick it up."
+ },
+ "OreSpawn:OreSpawn_Rice": {
+  "d": "Edible rice; plant it on farmland to grow a rice crop.",
+  "get": "Grows in the Crystal Dimension; Crystal Dimension chests."
+ },
+ "OreSpawn:OreSpawn_Robot1Egg": {
+  "d": "Small hostile robot that explodes. Wild ones: Village and Chaos dimensions. Use on a block to spawn one.",
+  "get": "Laid by the Easter Bunny."
+ },
+ "OreSpawn:OreSpawn_Robot2Egg": {
+  "d": "Hostile robot that smashes blocks. Wild ones: Village and Chaos dimensions; Island Dimension robot labs. Use on a block to spawn one.",
+  "get": "Laid by the Easter Bunny."
+ },
+ "OreSpawn:OreSpawn_Robot3Egg": {
+  "d": "Hostile robot that fires laser charges. Wild ones: Village and Chaos dimensions. Use on a block to spawn one.",
+  "get": "Laid by the Easter Bunny."
+ },
+ "OreSpawn:OreSpawn_Robot4Egg": {
+  "d": "Hostile robot that fires laser charges. Wild ones: Village and Chaos dimensions; Island Dimension robot labs. Use on a block to spawn one.",
+  "get": "Laid by the Easter Bunny."
+ },
+ "OreSpawn:OreSpawn_Robot5Egg": {
+  "d": "Hostile robot that fires laser charges. Wild ones: Village and Chaos dimensions; Island Dimension robot labs. Use on a block to spawn one.",
+  "get": "Laid by the Easter Bunny."
+ },
+ "OreSpawn:OreSpawn_Rock": {
+  "d": "Rock; thrown, it hits for 5 damage. Thrown rocks smash glass; right-click the ground to set one down as a decorative rock.",
+  "get": "Lies on the ground as loose rocks in the Overworld and several OreSpawn dimensions; hit one to pick it up."
+ },
+ "OreSpawn:OreSpawn_RockFish": {
+  "d": "Raw OreSpawn fish; eating it raw gives a moment of Hunger. Cooks into vanilla cooked fish.",
+  "get": "Caught in water with the Ultimate Fishing Rod; found by sifting water."
+ },
+ "OreSpawn:OreSpawn_RoseSword": "Emerald-strength sword. On Valentine's Day, hitting a Girlfriend with it makes her drop Love.",
+ "OreSpawn:OreSpawn_RotatorEgg": {
+  "d": "Hostile flying spinner. Wild ones: Crystal Dimension and its rotator stations; Chaos Dimension. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny; Crystal Dimension chests."
+ },
+ "OreSpawn:OreSpawn_RotatorSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a Rotator spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in the Crystal Dimension's stone."
+ },
+ "OreSpawn:OreSpawn_Royal": {
+  "d": "The King's blade, the strongest sword in OreSpawn: every swing launches a long-reach strike; self-enchants Unbreaking V. Cannot hurt players or tamed pets in this pack.",
+  "get": "Dropped by The King (always) and The Queen."
+ },
+ "OreSpawn:OreSpawn_RoyalBody": {
+  "d": "The King's armour: self-enchants all Protections X and Unbreaking V; the matching boots give a slow, damage-free glide.",
+  "get": "Dropped by The King, one full set per kill."
+ },
+ "OreSpawn:OreSpawn_RoyalBoots": {
+  "d": "The King's armour: self-enchants all Protections X, Feather Falling X and Unbreaking V. Wearing them makes you glide down slowly with no fall damage.",
+  "get": "Dropped by The King, one full set per kill."
+ },
+ "OreSpawn:OreSpawn_RoyalHelmet": {
+  "d": "The King's armour: self-enchants all Protections X and Unbreaking V; the matching boots give a slow, damage-free glide.",
+  "get": "Dropped by The King, one full set per kill."
+ },
+ "OreSpawn:OreSpawn_RoyalLegs": {
+  "d": "The King's armour: self-enchants all Protections X and Unbreaking V; the matching boots give a slow, damage-free glide.",
+  "get": "Dropped by The King, one full set per kill."
+ },
+ "OreSpawn:OreSpawn_RTPBlock": {
+  "d": "Random Teleport Block: stepping on it teleports you to a random safe spot about 16 blocks away.",
+  "get": "Placed in Island Dimension castles and Basilisk Mazes (Mining Dimension)."
+ },
+ "OreSpawn:OreSpawn_RubberDuckyEgg": {
+  "d": "Tameable rubber duck; tamed with raw fish. Wild ones: rivers and stone beaches. Use on a block to spawn one.",
+  "get": "Also dropped by Rubber Duckies; laid by the Easter Bunny; OreSpawn dungeon chests (Utopia, Mining and Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_RubberDuckySpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a Rubber Ducky spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_Ruby": {
+  "d": "Red gem for the Ruby tools and armour, a step above Amethyst; also crafts the Thunder Staff.",
+  "get": "Mined from Ruby Ore; dropped by CaterKillers, Cephadromes and ruby-red Birds; Ruby Bird dungeon chests."
+ },
+ "OreSpawn:OreSpawn_RubyAxe": {
+  "d": "Ruby-tier axe.",
+  "get": "Also a random drop from Mobzilla, CaterKillers and Cephadromes; Ruby Bird dungeon chests."
+ },
+ "OreSpawn:OreSpawn_RubyBody": {
+  "d": "Ruby-tier armour.",
+  "get": "Also a random drop from Mobzilla, CaterKillers and Cephadromes; Ruby Bird dungeon chests."
+ },
+ "OreSpawn:OreSpawn_RubyBoots": {
+  "d": "Ruby-tier armour.",
+  "get": "Also a random drop from Mobzilla, CaterKillers and Cephadromes; Ruby Bird dungeon chests."
+ },
+ "OreSpawn:OreSpawn_RubyHelmet": {
+  "d": "Ruby-tier armour.",
+  "get": "Also a random drop from Mobzilla, CaterKillers and Cephadromes; Ruby Bird dungeon chests."
+ },
+ "OreSpawn:OreSpawn_RubyHoe": {
+  "d": "Ruby-tier hoe.",
+  "get": "Also a random drop from Mobzilla, CaterKillers and Cephadromes; Ruby Bird dungeon chests."
+ },
+ "OreSpawn:OreSpawn_RubyLegs": {
+  "d": "Ruby-tier armour.",
+  "get": "Also a random drop from Mobzilla, CaterKillers and Cephadromes; Ruby Bird dungeon chests."
+ },
+ "OreSpawn:OreSpawn_RubyPickaxe": {
+  "d": "Ruby-tier pickaxe.",
+  "get": "Also a random drop from Mobzilla, CaterKillers and Cephadromes; Ruby Bird dungeon chests."
+ },
+ "OreSpawn:OreSpawn_RubyShovel": {
+  "d": "Ruby-tier shovel.",
+  "get": "Also a random drop from Mobzilla, CaterKillers and Cephadromes; Ruby Bird dungeon chests."
+ },
+ "OreSpawn:OreSpawn_RubySword": {
+  "d": "Plain Ruby-tier sword, strongest of the gem swords.",
+  "get": "Also a random drop from Mobzilla, CaterKillers and Cephadromes; Ruby Bird dungeon chests."
+ },
+ "OreSpawn:OreSpawn_Salad": "Garden salad in a bowl.",
+ "OreSpawn:OreSpawn_Salt": {
+  "d": "Seasoning for Raw Bacon and salted popcorn.",
+  "get": "Smelt Salt Ore; also found by sifting."
+ },
+ "OreSpawn:OreSpawn_ScaryLeaves": {
+  "d": "Night form of apple leaves in the Island Dimension; they turn back into apple leaves by day.",
+  "get": "Apple tree leaves become these at night in the Island Dimension."
+ },
+ "OreSpawn:OreSpawn_ScorpionEgg": {
+  "d": "Hostile scorpion. Wild ones: deserts, savannas, roofed forests, mesas; Chaos Dimension. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny; OreSpawn dungeon chests (Utopia, Mining and Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_ScorpionSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a Scorpion spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_SeaMonsterEgg": {
+  "d": "Hostile sea monster. Wild ones: oceans and swamps. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny; OreSpawn dungeon chests (Utopia, Mining and Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_SeaMonsterScale": {
+  "d": "Trophy scale; one of seven boss parts for the Big Bertha Guard.",
+  "get": "Dropped by the Sea Monster, one per kill."
+ },
+ "OreSpawn:OreSpawn_SeaMonsterSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a Sea Monster spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_SeaViperEgg": {
+  "d": "Hostile sea serpent; its bite poisons. Wild ones: oceans and stone beaches. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny; OreSpawn dungeon chests (Utopia, Mining and Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_SeaViperSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a Sea Viper spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_SeaViperTongue": {
+  "d": "Trophy tongue; one of six boss trophies for the Big Bertha Blade.",
+  "get": "Dropped by the Sea Viper, one per kill."
+ },
+ "OreSpawn:OreSpawn_SheepSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a vanilla Sheep spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_Sifter": "Use on water, sand, gravel, dirt or grass to sift out random finds: fish, shoes, bones, nuggets, and occasionally rubies, amethysts or diamonds.",
+ "OreSpawn:OreSpawn_SilverfishSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a vanilla Silverfish spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_SkateBow": {
+  "d": "Bow that fires Irukandji Arrows (and needs them as ammunition).",
+  "get": "Also in Crystal Dimension chests."
+ },
+ "OreSpawn:OreSpawn_SkateEgg": {
+  "d": "Hostile ray. Wild ones: Crystal Dimension waters. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny; Crystal Dimension chests."
+ },
+ "OreSpawn:OreSpawn_SkateSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a Skate spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in the Crystal Dimension's stone."
+ },
+ "OreSpawn:OreSpawn_SkeletonSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a vanilla Skeleton spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_SkyTreeLog": {
+  "d": "Wood of Utopia's giant sky trees; breaking one log brings down every connected sky tree log.",
+  "get": "Generates in Utopia's Sky Trees."
+ },
+ "OreSpawn:OreSpawn_Slice": "Reforged Big Bertha with the same reach strike and self-enchants (Knockback V, Fire Aspect). Cannot hurt players or tamed pets in this pack.",
+ "OreSpawn:OreSpawn_SlimeSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a vanilla Slime spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_Slippers": {
+  "d": "Throwable footwear: right-click to hurl it at a target.",
+  "get": "Dropped by Girlfriends; found by sifting."
+ },
+ "OreSpawn:OreSpawn_SmallRock": {
+  "d": "Pebble; thrown, it hits for 2 damage. Thrown rocks smash glass; right-click the ground to set one down as a decorative rock.",
+  "get": "Lies on the ground as loose rocks in the Overworld and several OreSpawn dimensions; hit one to pick it up."
+ },
+ "OreSpawn:OreSpawn_SmallWormEgg": {
+  "d": "Small hostile worm. Arrives with the brood of a Large Worm. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny; OreSpawn dungeon chests (Utopia, Mining and Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_SmallWormSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a Small Worm spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_SnowGolemEgg": {
+  "d": "Spawns a vanilla Snow Golem.",
+  "get": "Also in OreSpawn dungeon chests (Utopia, Mining, Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_SnowGolemSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a Snow Golem spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_SparkFish": {
+  "d": "Grants Fire Resistance for 5 seconds.",
+  "get": "Fished from lava with the Ultimate Fishing Rod."
+ },
+ "OreSpawn:OreSpawn_SpiderDriverEgg": {
+  "d": "Hostile poisonous spider. Wild ones: Village Dimension and its spider hangouts. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny; OreSpawn dungeon chests (Utopia, Mining and Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_SpiderDriverSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a Spider Driver spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_SpiderRobotEgg": {
+  "d": "Giant rideable spider robot mech; right-click with iron ingots to repair it, empty hand to climb in. Use on a block to spawn one.",
+  "get": "Laid by the Easter Bunny."
+ },
+ "OreSpawn:OreSpawn_SpiderRobotKit": {
+  "d": "Use on a block to deploy a rideable Giant Spider Robot; the kit's durability is the robot's health.",
+  "get": "Dropped by Jeffery; Island Dimension robot labs; Nightmare rookeries."
+ },
+ "OreSpawn:OreSpawn_SpiderSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a vanilla Spider spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_SpikeyRock": {
+  "d": "Thrown, it hits for 40 damage. Thrown rocks smash glass; right-click the ground to set one down as a decorative rock.",
+  "get": "Lies on the ground as loose rocks in the Overworld and several OreSpawn dimensions; hit one to pick it up."
+ },
+ "OreSpawn:OreSpawn_SpitBugEgg": {
+  "d": "Hostile bug that spits acid. Wild ones: swamps; Chaos Dimension. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny; OreSpawn dungeon chests (Utopia, Mining and Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_SpitBugSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a Spit Bug spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_SpyroEgg": {
+  "d": "Tameable with raw beef; a diamond grows a tamed one into a Dragon. Wild ones: Mining Dimension. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny; OreSpawn dungeon chests (Utopia, Mining and Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_SpyroSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a Baby Dragon spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_SquidSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a vanilla Squid spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_SquidZooka": {
+  "d": "Bazooka that fires live Attack Squids. Reload it by crafting it with ink sacs.",
+  "get": "Also in Crystal battle towers and Mining Dimension dungeons."
+ },
+ "OreSpawn:OreSpawn_StepAccross": "Insta-Bridge: builds a cobblestone bridge up to 32 blocks out over open air, with Extreme Torches every 8 blocks.",
+ "OreSpawn:OreSpawn_StepDown": "Builds a descending cobblestone staircase up to 32 steps through open air, with Extreme Torches every 8 steps.",
+ "OreSpawn:OreSpawn_StepUp": "Builds a rising cobblestone staircase up to 32 steps through open air, with Extreme Torches every 8 steps.",
+ "OreSpawn:OreSpawn_StinkBugEgg": {
+  "d": "Passive bug; killing it gives everything nearby nausea. Wild ones: forests, jungles, savannas; Chaos Dimension. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny; OreSpawn dungeon chests (Utopia, Mining and Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_StinkBugSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a Stink Bug spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_StinkyEgg": {
+  "d": "Tameable pet that fights hostile mobs; tamed with raw beef. Wild ones: The Nether, mesas; Island Dimension. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny."
+ },
+ "OreSpawn:OreSpawn_StinkySpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a Stinky spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_Strawberry": {
+  "d": "Sweet berry food.",
+  "get": "Harvest strawberry plants (forests and Utopia)."
+ },
+ "OreSpawn:OreSpawn_StrawberrySeed": {
+  "d": "Plant on farmland to grow strawberries.",
+  "get": "Dropped by wild strawberry plants in forests and Utopia."
+ },
+ "OreSpawn:OreSpawn_SunFish": {
+  "d": "Grants Fire Resistance for 5 minutes.",
+  "get": "Fished from lava with the Ultimate Fishing Rod."
+ },
+ "OreSpawn:OreSpawn_SunspotUrchin": {
+  "d": "Throwable fiery urchin that sets targets and the ground alight.",
+  "get": "Fished from lava with the Ultimate Fishing Rod."
+ },
+ "OreSpawn:OreSpawn_TermiteBlock": {
+  "d": "Nest that spawns 2-7 termites, which bite and eat wooden blocks. Right-click a termite with an empty hand, empty inventory and no armour to travel to the Crystal Dimension; do it again there to return.",
+  "get": "Rarer ant nest on surface grass in the Overworld and the Utopia, Mining, Village and Chaos dimensions."
+ },
+ "OreSpawn:OreSpawn_TermiteEgg": {
+  "d": "Termite that eats wooden blocks; empty-hand right-click with an empty inventory and no armour teleports to the Crystal Dimension. Wild ones: termite Nests on overworld grass; Crystal Termite Nests; Termite Troll blocks. Use on a block to spawn one.",
+  "get": "Laid by the Easter Bunny."
+ },
+ "OreSpawn:OreSpawn_TerribleTerrorEgg": {
+  "d": "Small hostile flying terror. Wild ones: Island and Chaos dimensions; dungeons. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny; OreSpawn dungeon chests (Utopia, Mining and Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_TerribleTerrorSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a Terrible Terror spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_TheKingEgg": {
+  "d": "The strongest boss, a flying dragon using fireballs, ice balls and lightning. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny."
+ },
+ "OreSpawn:OreSpawn_TheKingPartSpawnBlock": {
+  "d": "One fragment of The King's fossil egg; nine fragments craft into the whole Ancient Dried The King Spawn Egg, which revives into the boss.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_TheKingSpawnBlock": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a The King (a boss) spawn egg; mining it drops the block and sometimes experience.",
+ "OreSpawn:OreSpawn_ThePrinceEgg": {
+  "d": "Tameable baby royal dragon; tamed with a diamond block, grows with diamonds into the Young Prince. Use on a block to spawn one.",
+  "get": "Dropped by The Queen and by grown Princes when killed; laid by the Easter Bunny."
+ },
+ "OreSpawn:OreSpawn_ThePrincessEgg": {
+  "d": "Tameable royal dragon; tamed with a diamond block. Appears when The Queen dies. Use on a block to spawn one.",
+  "get": "Laid by the Easter Bunny."
+ },
+ "OreSpawn:OreSpawn_TheQueenEgg": {
+  "d": "Flying boss dragon using fireballs and lightning. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny."
+ },
+ "OreSpawn:OreSpawn_TheQueenPartSpawnBlock": {
+  "d": "One fragment of The Queen's fossil egg; nine fragments craft into the whole Ancient Dried The Queen Spawn Egg, which revives into the boss.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_TheQueenSpawnBlock": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a The Queen (a boss) spawn egg; mining it drops the block and sometimes experience.",
+ "OreSpawn:OreSpawn_ThunderStaff": {
+  "d": "Hurls thunderbolts that call lightning and explode. Recharges itself during thunderstorms.",
+  "get": "Also dropped by Cephadromes; Ruby Bird dungeon and Basilisk Maze chests."
+ },
+ "OreSpawn:OreSpawn_TigersEyeAxe": {
+  "d": "Tiger's Eye axe from the Crystal Dimension's top tier.",
+  "get": "Also in Crystal Dimension chests."
+ },
+ "OreSpawn:OreSpawn_TigersEyeBlock": {
+  "d": "Storage block of nine Tiger's Eye Ingots.",
+  "get": "Also in Crystal Dimension chests."
+ },
+ "OreSpawn:OreSpawn_TigersEyeBody": {
+  "d": "The best Crystal Dimension armour.",
+  "get": "Also in Crystal Dimension chests and battle towers."
+ },
+ "OreSpawn:OreSpawn_TigersEyeBoots": {
+  "d": "The best Crystal Dimension armour.",
+  "get": "Also in Crystal Dimension chests and battle towers."
+ },
+ "OreSpawn:OreSpawn_TigersEyeHelmet": {
+  "d": "The best Crystal Dimension armour.",
+  "get": "Also in Crystal Dimension chests and battle towers."
+ },
+ "OreSpawn:OreSpawn_TigersEyeHoe": {
+  "d": "Tiger's Eye hoe from the Crystal Dimension's top tier.",
+  "get": "Also in Crystal Dimension chests."
+ },
+ "OreSpawn:OreSpawn_TigersEyeIngot": {
+  "d": "Tiger's Eye metal for the strongest Crystal Dimension tools and armour.",
+  "get": "Smelt Tiger's Eye ore; also in Crystal Dimension chests and dropped by Vortexes."
+ },
+ "OreSpawn:OreSpawn_TigersEyeLegs": {
+  "d": "The best Crystal Dimension armour.",
+  "get": "Also in Crystal Dimension chests and battle towers."
+ },
+ "OreSpawn:OreSpawn_TigersEyePickaxe": {
+  "d": "Tiger's Eye pickaxe from the Crystal Dimension's top tier.",
+  "get": "Also in Crystal Dimension chests."
+ },
+ "OreSpawn:OreSpawn_TigersEyeShovel": {
+  "d": "Tiger's Eye shovel from the Crystal Dimension's top tier.",
+  "get": "Also in Crystal Dimension chests."
+ },
+ "OreSpawn:OreSpawn_TigersEyeSword": {
+  "d": "Tiger's Eye sword from the Crystal Dimension's top tier.",
+  "get": "Also in Crystal Dimension chests."
+ },
+ "OreSpawn:OreSpawn_TitaniumNugget": {
+  "d": "Titanium fragment; combine nuggets into a Titanium Ingot.",
+  "get": "Smelt Titanium Ore; also dropped by many mobs (T. Rex, Mantis, Cephadrome, Large Worm, Coin and others)."
+ },
+ "OreSpawn:OreSpawn_TNTRock": {
+  "d": "Thrown, it hits for 40 and explodes. Thrown rocks smash glass; right-click the ground to set one down as a decorative rock.",
+  "get": "Lies on the ground as loose rocks in the Overworld and several OreSpawn dimensions; hit one to pick it up."
+ },
+ "OreSpawn:OreSpawn_Tomato": {
+  "d": "Edible tomato; plant it on farmland to grow more.",
+  "get": "Harvest tomato plants, which grow wild on Overworld plains, Utopia and the Village Dimension."
+ },
+ "OreSpawn:OreSpawn_TomatoPlant1": {
+  "d": "Growth stage 1 of 4 of a tomato crop.",
+  "get": "Technical crop stage; plant the Tomato itself."
+ },
+ "OreSpawn:OreSpawn_TomatoPlant2": {
+  "d": "Growth stage 2 of 4 of a tomato crop.",
+  "get": "Technical crop stage; plant the Tomato itself."
+ },
+ "OreSpawn:OreSpawn_TomatoPlant3": {
+  "d": "Growth stage 3 of 4 of a tomato crop.",
+  "get": "Technical crop stage; plant the Tomato itself."
+ },
+ "OreSpawn:OreSpawn_TomatoPlant4": {
+  "d": "Growth stage 4 of 4 of a tomato crop.",
+  "get": "Technical crop stage; plant the Tomato itself."
+ },
+ "OreSpawn:OreSpawn_TRexEgg": {
+  "d": "Hostile Tyrannosaurus. Wild ones: Mining Dimension; Chaos Dimension. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny."
+ },
+ "OreSpawn:OreSpawn_TRexSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a T. Rex spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_TRexTooth": {
+  "d": "Trophy tooth; one of six boss trophies for the Big Bertha Blade.",
+  "get": "Dropped by the T. Rex, one per kill."
+ },
+ "OreSpawn:OreSpawn_TriffidEgg": {
+  "d": "Hostile carnivorous plant. Wild ones: Island Dimension greenhouses. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny; OreSpawn dungeon chests (Utopia, Mining and Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_TriffidSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a Triffid spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_TrooperBugEgg": {
+  "d": "Hostile leaping bug. Wild ones: swamps and mesas; Chaos Dimension. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny; OreSpawn dungeon chests (Utopia, Mining and Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_TrooperBugSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a Jumpy Bug spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_TshirtEgg": {
+  "d": "Walking T-shirt critter. Wild ones: Village Dimension. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny."
+ },
+ "OreSpawn:OreSpawn_TshirtSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a T-Shirt spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_UltimateAxe": {
+  "d": "Self-enchants Efficiency V.",
+  "get": "Also a random drop from Mobzilla, the Kraken and the Water Dragon."
+ },
+ "OreSpawn:OreSpawn_UltimateBody": {
+  "d": "Uranium-titanium armour; self-enchants Protection, Fire, Blast and Projectile Protection V (helmet: Respiration II, Aqua Affinity; boots: Feather Falling III).",
+  "get": "Also a random drop from Mobzilla; Basilisk Maze chests."
+ },
+ "OreSpawn:OreSpawn_UltimateBoots": {
+  "d": "Uranium-titanium armour; self-enchants Protection, Fire, Blast and Projectile Protection V (helmet: Respiration II, Aqua Affinity; boots: Feather Falling III).",
+  "get": "Also a random drop from Mobzilla; Basilisk Maze chests."
+ },
+ "OreSpawn:OreSpawn_UltimateBow": {
+  "d": "Self-enchants with Power V, Punch II, Flame III and Infinity; fires Ultimate Arrows.",
+  "get": "Also a random drop from Mobzilla, the Kraken, the CaterKiller and the Emperor Scorpion; Basilisk Maze chests."
+ },
+ "OreSpawn:OreSpawn_UltimateFishingRod": {
+  "d": "Fishes in lava as well as water, catching OreSpawn fish, Lava Eels and Sunspot Urchins; self-enchants Unbreaking II.",
+  "get": "Also in Basilisk Maze chests."
+ },
+ "OreSpawn:OreSpawn_UltimateHelmet": {
+  "d": "Uranium-titanium armour; self-enchants Protection, Fire, Blast and Projectile Protection V (helmet: Respiration II, Aqua Affinity; boots: Feather Falling III).",
+  "get": "Also a random drop from Mobzilla; Basilisk Maze chests."
+ },
+ "OreSpawn:OreSpawn_UltimateHoe": {
+  "d": "Tills a 3x3 patch of grass or dirt into watered farmland per use; self-enchants Efficiency II.",
+  "get": "Also a random drop from Mobzilla."
+ },
+ "OreSpawn:OreSpawn_UltimateLegs": {
+  "d": "Uranium-titanium armour; self-enchants Protection, Fire, Blast and Projectile Protection V (helmet: Respiration II, Aqua Affinity; boots: Feather Falling III).",
+  "get": "Also a random drop from Mobzilla; Basilisk Maze chests."
+ },
+ "OreSpawn:OreSpawn_UltimatePickaxe": {
+  "d": "Self-enchants Efficiency V and Fortune V. Iron and gold ore often give bonus ingots, and plain stone rarely yields gems or nuggets.",
+  "get": "Also a random drop from Mobzilla, the Kraken and the Water Dragon; Basilisk Maze chests."
+ },
+ "OreSpawn:OreSpawn_UltimateShovel": {
+  "d": "Self-enchants Efficiency V.",
+  "get": "Also a random drop from Mobzilla, the Kraken and the Water Dragon."
+ },
+ "OreSpawn:OreSpawn_UltimateSword": {
+  "d": "Self-enchants with Sharpness, Smite and Bane of Arthropods V, Knockback, Looting and Unbreaking III, and Fire Aspect II. Cannot hurt players or tamed pets in this pack.",
+  "get": "Also a random drop from Mobzilla, the Kraken, the CaterKiller and the Emperor Scorpion; Basilisk Maze chests."
+ },
+ "OreSpawn:OreSpawn_UnstableAntBlock": {
+  "d": "Nest that spawns 2-7 unstable ants. Right-click an unstable ant with an empty hand to travel to the Island Dimension of floating islands; do it again there to return to the Overworld.",
+  "get": "Rarer nest on surface grass in the Overworld, Utopia, Mining, Village and Chaos dimensions; also on low grass in the Island Dimension."
+ },
+ "OreSpawn:OreSpawn_UnstableAntEgg": {
+  "d": "Unstable ant; right-click with an empty hand to teleport to the Island Dimension (and back). Wild ones: unstable Ant Nests on overworld grass and in the Island Dimension. Use on a block to spawn one.",
+  "get": "Laid by the Easter Bunny."
+ },
+ "OreSpawn:OreSpawn_UraniumNugget": {
+  "d": "Uranium fragment; combine nuggets into a Uranium Ingot.",
+  "get": "Smelt Uranium Ore; also dropped by many mobs (T. Rex, Mantis, Cephadrome, Large Worm, Coin and others)."
+ },
+ "OreSpawn:OreSpawn_UrchinEgg": {
+  "d": "Hostile spiked urchin that sets you on fire. Wild ones: Crystal Dimension and its urchin spawners; Chaos Dimension. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny; Crystal Dimension chests."
+ },
+ "OreSpawn:OreSpawn_UrchinSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into an Urchin spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in the Crystal Dimension's stone."
+ },
+ "OreSpawn:OreSpawn_VeloEgg": {
+  "d": "Small raptor; tameable with an apple. Wild ones: Mining Dimension. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny; OreSpawn dungeon chests (Utopia, Mining and Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_VeloSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a Velocity Raptor spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_VillagerSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a vanilla Villager spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_VortexEgg": {
+  "d": "Hostile flying vortex. Wild ones: Crystal Dimension and its battle towers; Chaos Dimension. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny; Crystal Dimension chests."
+ },
+ "OreSpawn:OreSpawn_VortexEye": {
+  "d": "Trophy eye; one of six boss trophies for the Big Bertha Blade.",
+  "get": "Dropped by the Vortex, one per kill."
+ },
+ "OreSpawn:OreSpawn_VortexSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a Vortex spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in the Crystal Dimension's stone."
+ },
+ "OreSpawn:OreSpawn_WaterBall": {
+  "d": "Throwable Water Dragon charge.",
+  "get": "Creative only."
+ },
+ "OreSpawn:OreSpawn_WaterDragonEgg": {
+  "d": "Tameable water dragon that shoots water balls; tamed with raw fish. Wild ones: rivers, swamps, oceans. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny; OreSpawn dungeon chests (Utopia, Mining and Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_WaterDragonScale": {
+  "d": "Trophy scale for the Big Bertha Handle.",
+  "get": "Dropped by the Water Dragon, one per kill."
+ },
+ "OreSpawn:OreSpawn_WaterDragonSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a WaterDragon spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_WhaleEgg": {
+  "d": "Passive whale. Wild ones: deep oceans; Utopia and Crystal Dimension waters. Use on a block to spawn one.",
+  "get": "Also laid by the Easter Bunny; Crystal Dimension chests."
+ },
+ "OreSpawn:OreSpawn_WhaleSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a Whale spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in the Crystal Dimension's stone."
+ },
+ "OreSpawn:OreSpawn_WitchSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a vanilla Witch spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_WitherBossEgg": {
+  "d": "Spawns a vanilla Wither boss wherever you use it.",
+  "get": "Also in OreSpawn dungeon chests (Utopia, Mining, Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_WitherBossSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a Wither Boss (a boss) spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_WitherSkeletonEgg": {
+  "d": "Spawns a vanilla Wither Skeleton.",
+  "get": "Also in OreSpawn dungeon chests (Utopia, Mining, Village dimensions)."
+ },
+ "OreSpawn:OreSpawn_WitherSkeletonSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a Wither Skeleton spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_WolfSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a vanilla Wolf spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_WoodFish": {
+  "d": "Raw OreSpawn fish; eating it raw gives a moment of Hunger. Cooks into vanilla cooked fish.",
+  "get": "Caught in water with the Ultimate Fishing Rod; found by sifting water."
+ },
+ "OreSpawn:OreSpawn_WormTooth": {
+  "d": "Trophy tooth; one of six boss trophies for the Big Bertha Blade.",
+  "get": "Dropped by the Large Worm, one per kill."
+ },
+ "OreSpawn:OreSpawn_Wrench": "Hit a Spider Robot or Red Ant Robot to pack it back into its kit (a wild Ant Robot must be below half health).",
+ "OreSpawn:OreSpawn_ZombiePigmanSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a vanilla Zombie Pigman spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_ZombieSpawnBlock": {
+  "d": "Fossil egg buried in stone. Craft it with a water bucket to revive it into a vanilla Zombie spawn egg; mining it drops the block and sometimes experience.",
+  "get": "Generates as ore in stone at y 50-128 in the Overworld, Utopia, Village and Chaos dimensions, and most often the Mining Dimension."
+ },
+ "OreSpawn:OreSpawn_ZooCage10": "Use it to build a 13x13 glass enclosure with quartz floor and roof around where you stand, ready for caged creatures.",
+ "OreSpawn:OreSpawn_ZooCage2": "Use it to build a 5x5 glass enclosure with quartz floor and roof around where you stand, ready for caged creatures.",
+ "OreSpawn:OreSpawn_ZooCage4": "Use it to build a 7x7 glass enclosure with quartz floor and roof around where you stand, ready for caged creatures.",
+ "OreSpawn:OreSpawn_ZooCage6": "Use it to build a 9x9 glass enclosure with quartz floor and roof around where you stand, ready for caged creatures.",
+ "OreSpawn:OreSpawn_ZooCage8": "Use it to build an 11x11 glass enclosure with quartz floor and roof around where you stand, ready for caged creatures.",
+ "OreSpawn:OreSpawn_ZooKeeper": {
+  "d": "Hit a creature with it to make that creature never despawn. Single use.",
+  "get": "Dropped by the Nightmare, several per kill."
+ }
 }

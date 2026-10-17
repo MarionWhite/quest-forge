@@ -40,6 +40,8 @@ import net.minecraft.item.crafting.FurnaceRecipes;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.item.crafting.ShapedRecipes;
 import net.minecraft.item.crafting.ShapelessRecipes;
+import net.minecraft.util.WeightedRandomChestContent;
+import net.minecraftforge.common.ChestGenHooks;
 import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
@@ -467,6 +469,7 @@ public class ItemDump {
         w.close();
 
         writeRecipes(new File(dir, "recipes.json"));
+        writeLoot(new File(dir, "loot.json"));
 
         w = open(new File(dir, "mods.json"));
         w.beginObject();
@@ -592,6 +595,41 @@ public class ItemDump {
         }
         for (Map.Entry<String, List<String>> m : ores.entrySet()) strings(w, m.getKey(), m.getValue());
         w.endObject();
+        w.endObject();
+        w.close();
+    }
+
+    /**
+     * Every ChestGenHooks category -- vanilla's dungeon, mineshaft, stronghold, temple and
+     * blacksmith chests, plus any a mod registers -- with each entry's weight and stack
+     * range, so the browser can say "found in dungeon chests" from the table itself.
+     */
+    @SuppressWarnings("unchecked")
+    private static void writeLoot(File file) throws Exception {
+        Field mapField = ChestGenHooks.class.getDeclaredField("chestInfo");
+        mapField.setAccessible(true);
+        Map<String, ChestGenHooks> map = (Map<String, ChestGenHooks>) mapField.get(null);
+        Field contentsField = ChestGenHooks.class.getDeclaredField("contents");
+        contentsField.setAccessible(true);
+        JsonWriter w = open(file);
+        w.beginObject();
+        for (Map.Entry<String, ChestGenHooks> m : map.entrySet()) {
+            ChestGenHooks info = m.getValue();
+            List<WeightedRandomChestContent> contents =
+                    (List<WeightedRandomChestContent>) contentsField.get(info);
+            w.name(m.getKey()).beginObject();
+            w.name("rollsMin").value(info.getMin());
+            w.name("rollsMax").value(info.getMax());
+            w.name("items").beginArray();
+            for (WeightedRandomChestContent c : contents) {
+                String k = ref(c.theItemId);
+                if (k == null) continue;
+                w.beginArray().value(k).value(c.itemWeight)
+                        .value(c.theMinimumChanceToGenerateItem)
+                        .value(c.theMaximumChanceToGenerateItem).endArray();
+            }
+            w.endArray().endObject();
+        }
         w.endObject();
         w.close();
     }

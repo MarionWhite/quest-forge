@@ -26,6 +26,15 @@ OUT = os.path.join(REPO, 'site', 'items', 'data')
 COLOR = re.compile('§.')
 KINDS = ['block', 'item', 'weapon', 'bow', 'tool', 'armor', 'food']
 
+# ChestGenHooks' category keys, as a player would name the chest.
+CHEST_NAMES = {
+    'bonusChest': 'Spawn bonus chest', 'dungeonChest': 'Dungeon', 'mineshaftCorridor': 'Mineshaft',
+    'pyramidDesertyChest': 'Desert temple', 'pyramidJungleChest': 'Jungle temple',
+    'pyramidJungleDispenser': 'Jungle temple dispenser', 'strongholdCorridor': 'Stronghold corridor',
+    'strongholdCrossing': 'Stronghold crossing', 'strongholdLibrary': 'Stronghold library',
+    'villageBlacksmith': 'Village blacksmith', 'railcraft:workshop': 'Railcraft workshop',
+}
+
 # Forge, FML and vanilla register as mods but ship no jar of their own.
 BUILTIN = {'minecraft': ('Minecraft', 'Vanilla'), 'FML': ('Forge Mod Loader', 'Vanilla'),
            'Forge': ('Minecraft Forge', 'Vanilla'), 'mcp': ('Minecraft Coder Pack', 'Vanilla')}
@@ -121,6 +130,26 @@ def main():
         by_id.setdefault(e['id'], []).append(len(rows))
         rows.append(r)
 
+    # -- chest loot (ChestGenHooks), when the dump has it ------------------------------
+    # The chance an item turns up in one chest: each of the chest's rolls picks an entry by
+    # weight, so P = 1 - (1 - w/W)^rolls, with rolls the middle of the chest's range.
+    loot_cats, loot_path = [], os.path.join(a.dump, 'loot.json')
+    if os.path.exists(loot_path):
+        for cat, info in sorted(load(loot_path).items()):
+            total = sum(e[1] for e in info['items'])
+            if not total:
+                continue
+            rolls = (info['rollsMin'] + info['rollsMax']) / 2
+            label = CHEST_NAMES.get(cat) or re.sub(r'(?<=[a-z])(?=[A-Z])', ' ', cat.split(':')[-1]).replace('_', ' ').strip().capitalize()
+            ci = len(loot_cats)
+            loot_cats.append(label)
+            for ref, weight, lo, hi in info['items']:
+                pct = 100 * (1 - (1 - weight / total) ** rolls)
+                idxs = by_id.get(ref[:-2], []) if ref.endswith('@*') else (
+                    [key_index[ref]] if ref in key_index else by_id.get(ref.rsplit('@', 1)[0], [])[:1])
+                for idx in idxs:
+                    rows[idx].setdefault('lt', []).append([ci, round(pct, 1 if pct < 10 else 0), lo, hi])
+
     # -- quests ------------------------------------------------------------------
     book = qb.load('pack')
     line_of = book.line_of()
@@ -166,7 +195,7 @@ def main():
     out = {
         'built': datetime.date.today().isoformat(),
         'cell': summary['cell'], 'side': summary['side'], 'sheets': sheets,
-        'cats': cats, 'mods': mod_rows, 'tabs': tabs, 'kinds': KINDS,
+        'cats': cats, 'mods': mod_rows, 'tabs': tabs, 'kinds': KINDS, 'lootCats': loot_cats,
         'items': rows,
         'quests': quests, 'qrefs': {str(k): v for k, v in qrefs.items()},
         'unresolvedQuestRefs': unresolved,
