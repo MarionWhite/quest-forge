@@ -178,6 +178,12 @@ reopening the grave. Four problems never show up in singleplayer:
 - **Soulbound items burned to death on lava.** An item resting on a lava pool
   never counted as "in lava". Fixed in qf-content.
 - **Offline-mode whitelisting** (see "Run it").
+- **ChickenChunks' chunk cleanup is hardened, defensively.** It walks the live
+  loaded-chunk list while removing players from chunks they have left, so any
+  mod that loads a chunk in response would end the session with a
+  `ConcurrentModificationException`. The one crash seen came from a benchmark
+  writing to the server from the wrong thread, so a real server may never hit
+  it. `ChunkCleanTransformer` in qf-tweaks makes the loop walk a copy anyway.
 
 Not covered by that test, because they need two people: voice chat, and
 packets sent to bystanders.
