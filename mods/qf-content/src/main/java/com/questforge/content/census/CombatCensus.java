@@ -365,6 +365,7 @@ public class CombatCensus {
         int removedAlive;
         /** Attacks on the probe from the arena outside the scheduled hit, cancelled; see blocksAttack. */
         int aiHitsBlocked;
+        boolean sourcelessLogged;
         /** The lowest health the probe stood at during the cell, outside a scheduled hit. */
         float probeHpMin = Float.MAX_VALUE;
         /** Consecutive melee swings that took no health; logged once when it reaches five. */
@@ -1877,7 +1878,18 @@ public class CombatCensus {
         if (!running || scheduledHit || cell == null || result == null || source == null) return false;
         if (victim == null || victim != CensusProbe.current()) return false;
         net.minecraft.entity.Entity from = source.getEntity();
-        if (from == null || from == victim) return false;
+        if (from == null) {
+            // Not cancelled -- fire, falls and the probe's own potions are its
+            // own -- but named once per cell, so drift has a cause in the log.
+            if (!result.sourcelessLogged) {
+                result.sourcelessLogged = true;
+                QuestForgeContent.log.info("[census] sourceless damage on the probe (" + source.getDamageType()
+                        + ", cell tick " + cellTick + ", probe health " + CensusFile.num(victim.getHealth())
+                        + ") lands (logged once per cell)");
+            }
+            return false;
+        }
+        if (from == victim) return false;
         if (result.aiHitsBlocked++ == 0) {
             QuestForgeContent.log.info("[census] " + cell.targetName + "'s own attack (" + source.getDamageType()
                     + " from " + from.getClass().getSimpleName() + ") on the probe cancelled at cell tick "
@@ -1926,6 +1938,9 @@ public class CombatCensus {
             probe.setHealth(held);
             probe.setPosition(hx, hy, hz);
             probe.motionX = probe.motionY = probe.motionZ = 0;
+            // Fire is a damage-over-time effect like the potions below: left
+            // burning, the probe slid from twenty to ten in a DeathReaper cell.
+            probe.extinguish();
             int[] damaging = { net.minecraft.potion.Potion.poison.id,
                     net.minecraft.potion.Potion.wither.id, net.minecraft.potion.Potion.harm.id };
             for (int id : damaging) {
