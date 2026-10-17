@@ -56,6 +56,127 @@ What it does, and why:
   `supervisor.json`**, and hashes every jar and config file into
   `MANIFEST.sha256`.
 
+## The Java 25 server (`--java25`)
+
+Approved 2026-10-17. The same server on Temurin 25 with lwjgl3ify and UniMixins
+on Forge 1614, and nothing else from the GTNH stack. Today's OptiFine E7 clients
+join it unchanged; they stay on Java 8 and Forge 1558. The point is garbage
+collection. In a 10-minute idle run with 320 mobs on the same world, Java 8
+stopped the server for 1,412 ms in all, and its worst stall was 311 ms, right
+after boot. Java 25 stopped it for 281 ms, with a worst stall of 46 ms. Details
+and the earlier benches are in
+[`../design/angelica-decision.md`](../design/angelica-decision.md).
+
+Build it with `--java25` added. `--forge-install` is not needed:
+
+```
+py -3.10 tools/server/build_play_server.py --java25 ^
+  --instance %APPDATA%\.crazycraft4 ^
+  --ccl C:\qfs\tools\CodeChickenLib-patched.jar ^
+  --out C:\qfs\friends --force
+```
+
+What it adds to the normal build:
+
+- **Pinned downloads, checked by sha256:** lwjgl3ify 3.0.39 (its
+  `forgePatches` launcher and the mod jar), UniMixins 0.3.2, lwjgl3ify's
+  `java9args.txt` from the same tag, and the Forge 1614 installer. They are
+  fetched once into `%LOCALAPPDATA%\quest-forge\server-deps` (`--cache`).
+  Forge 1614 is installed there with Java 8 (`--java8`). A file whose hash
+  differs is thrown away and never used.
+- **The layout lwjgl3ify's README asks for:** `lwjgl3ify-forgePatches.jar`
+  next to `forge-1.7.10-10.13.4.1614-1.7.10-universal.jar` and
+  `minecraft_server.1.7.10.jar` (its manifest names both, by exact file name),
+  `java9args.txt` beside them, and `lwjgl3ify-3.0.39.jar` and
+  `+unimixins-all-1.7.10-0.3.2.jar` in `mods/`.
+- **A Java 25 command line in `start.bat`/`start.sh`:**
+  `java <heap and G1 flags> -Xlog:gc,safepoint:file=logs/gc.log:... @java9args.txt -jar lwjgl3ify-forgePatches.jar nogui`.
+  The Java 8 GC flags (`-Xloggc`, `-XX:+PrintGC*`, `-XX:+UseSplitVerifier`)
+  stop Java 25 from starting, so they are replaced. The GC log is still
+  `logs/gc.log`, rotated 5 × 20 MB. Java is the newest
+  `C:\Program Files\Eclipse Adoptium\jdk-25*` (`--java` to override).
+  `start-supervised.bat` and the supervisor work unchanged. They read the
+  command from `start.bat`, and the hang dumps use the `jstack` of the JDK 25
+  the server runs on.
+- **Refuses to build** if the pack's mods contain Hodgepodge, ArchaicFix,
+  GTNHLib or Angelica. On a server, each of those becomes required on every
+  client, and GTNHLib crashes OptiFine. It also refuses if the pack's
+  QuestForgeTweaks lacks the three Java 25 fixes below. Install the current
+  qf-tweaks build first, or name a jar with `--tweaks`.
+- **Adds `Forge` to qf-content's packcheck `ignoreMods`** in the server's
+  `config/qfcontent.cfg`. The login check refuses any client whose version of
+  a shared mod differs, and to it Forge counts as a mod: every Java 8 client
+  (Forge 1558) was refused with "Your mods differ from the server's. Mods:
+  Minecraft Forge 10.13.4.1558 (server 10.13.4.1614)". FML's own handshake
+  accepts that pair. The setting is read only on the server and is not an ID
+  entry, so the config fingerprint clients must match is unchanged.
+- `logs/` is created by the build. Java 25 refuses to start when the GC log's
+  folder is missing.
+
+Three mods break on Java 25 alone. Each is fixed by a transformer in qf-tweaks
+that does nothing on Java 8:
+
+| Mod | Breakage on Java 25 | Fix |
+|---|---|---|
+| Lucky Block | Every drop expression fails (301 errors at boot): Java 25 has no JavaScript engine of its own. | `LuckyScriptTransformer` points it at lwjgl3ify's Nashorn. |
+| Recurrent Complex | The loot tables Holy, Unholy, TribalChest and PeacefulCrypt fail to load. They hold enchanted books as wrapped NBT, which lwjgl3ify's Gson 2.10 rejects. Their structures then generate without loot. | `RecNbtTransformer` asks Gson for `NBTBase` for wrapped tags. |
+| AsieLib | `nicknames.json` fails to load from the second boot on, because Gson 2.10 can't build a `HashBiMap`. `/nick` names are lost. | `AsieNickTransformer` falls back to reading the file as a plain map. |
+
+The server keeps **stock CodeChickenCore** for now. Angelica clients need GTNH
+CodeChickenCore 1.4.22, and against a server with stock CodeChickenCore they are
+kicked about 5 seconds after login (NEI packet mismatch). So the Angelica client
+phase must swap CodeChickenCore + CodeChickenLib for GTNH CodeChickenCore on
+the server and on every client in one step.
+
+### Switching the friends' server to Java 25
+
+Do this at the next batch install, after the clients have the batch:
+
+1. Stop the server (`stop` or Ctrl+C in the supervisor window) and wait for the
+   supervisor to exit.
+2. Back up `C:\qfs\friends\world` (copy the folder, or keep the newest zip from
+   `backups\`).
+3. Put the current qf-tweaks into the pack with the rest of the batch. Build it
+   with `mods\qf-tweaks\build.bat --no-install`, then
+   `py -3.10 tools/trial/trial.py install mods/qf-tweaks/QuestForgeTweaks-1.0.jar --why "Java 25 server fixes"`.
+   It must be a build that includes `RecNbtTransformer` and
+   `AsieNickTransformer`. The `--java25` build refuses an older one and says
+   which fix is missing. **Friends need the same jar.** qf-tweaks carries a
+   version (`qftweaks`, `1.1.0+<date>.<sha8>`), and qf-content's pack check
+   refuses a client whose version differs from the server's. So the new jar
+   goes out in the client release of the same batch. For the same reason, use
+   `--tweaks` only for tests, unless the clients have that exact jar.
+4. Run the `--java25` build above. It keeps `world/`, the player lists,
+   `server.properties`, `logs/`, `backups/` and `supervisor.json`.
+5. Start `start-supervised.bat`. The first boot logs these, and all of them are
+   expected:
+   - `Lucky Block: the JDK has no JavaScript engine; using the game class loader's`
+   - `Recurrent Complex: Gson checks adapter results`
+   - `FML appears to be missing any signature data`. This is an ERROR line,
+     but harmless: FML can't read its own jar's signature through lwjgl3ify's
+     launcher.
+   - One VoltzEngine `Could not locate folder[ /content/<mod>/ ]` line for each
+     of the 9 new mod IDs (lwjgl3ify and UniMixins' modules). VoltzEngine
+     prints the same line for every mod in the pack.
+6. Join once and check that `logs/gc.log` is growing.
+
+### Switching back to Java 8
+
+Stop the server and rebuild without `--java25`, with the usual Java 8 command:
+
+```
+py -3.10 tools/server/build_play_server.py ^
+  --instance %APPDATA%\.crazycraft4 ^
+  --forge-install C:\qfs\forge-install ^
+  --ccl C:\qfs\tools\CodeChickenLib-patched.jar ^
+  --out C:\qfs\friends --force
+```
+
+The world carries over. On the first Java 8 boot, FML logs `This world was saved
+with mod lwjgl3ify which appears to be missing` (and the same for the UniMixins
+modules). Those mods add no blocks or items, so nothing is lost. Tested
+2026-10-17 by switching the test server back and forth.
+
 ## Running the server
 
 Double-click **`start-supervised.bat`**. Its window is the server console: type
@@ -67,8 +188,9 @@ process and handles the following:
   says so. A crash loop needs a person.
 - **Hang detection.** It sends `list` every 60 s. If there is no answer in 90 s,
   the tick is stuck: it writes a `jstack` thread dump to
-  `logs/threaddump-*.txt`, kills Java and restarts. Thread dumps need a JDK 8.
-  The JRE has no jstack.
+  `logs/threaddump-*.txt`, kills Java and restarts. Thread dumps need a JDK of
+  the server's Java version: on Java 8, a JDK 8 (the JRE has no jstack); the
+  Java 25 build runs on a JDK, which has its own.
 - **Hourly backups** to `backups/hourly/` (24 kept), and the first of each day
   to `backups/daily/` (7 kept). Each backup is skipped if nobody has been online
   since the last one. A backup runs `save-off` and `save-all`, waits for
@@ -113,9 +235,10 @@ forever; if the console stops responding, check `logs/fml-server-latest.log`
 before killing it.
 
 On a rented host with a control panel (Pterodactyl and the like), the panel
-starts the server itself. Choose **Java 8**, since Forge 1.7.10 does not start
-on anything newer. Paste the JVM flags from `start.sh` into its startup field,
-and upload the whole server folder over SFTP.
+starts the server itself. For a Java 8 build choose **Java 8**, since Forge
+1.7.10 does not start on anything newer by itself; for a `--java25` build
+choose **Java 25** (see below). Paste the JVM flags from `start.sh` into its
+startup field, and upload the whole server folder over SFTP.
 
 `online-mode` is `true` by default. Every player signs in with their own
 Microsoft account, so names are proven. That rules out the offline

@@ -92,10 +92,10 @@ something until it is solved). Hours are for writing plus one test boot.
 
 | What breaks or goes away | Status | Hours | How it is handled |
 |---|---|---|---|
-| New launch line (`java @java9args.txt -jar lwjgl3ify-forgePatches.jar nogui`), Forge 1614, `build_play_server.py` and `start.bat` | config | 1–2 | `C:\qfs\trial-c` is a working example. |
-| Lucky Block: every drop expression fails (301 errors at boot) | fixed | 0 | `LuckyScriptTransformer`, committed today (bdfa4e1). Inert on Java 8 (test 5). |
-| Recurrent Complex: 4 inventory generators fail under lwjgl3ify's Gson 2.10 ("returned wrong type; requested NBTTagCompound but got NBTTagInt/NBTTagShort") | needs work | 2–3 | `NBTTagCompoundSerializer.deserialize` (line 45) asks the context for the concrete class where a nested tag is an int or short. A transformer that requests `NBTBase` there, or editing the 4 `.rcig` loot files. The failures follow `VillageGuardTower` in load order; name the files first (~0.5 h). Also hits Java 25 clients' integrated servers. |
-| AsieLib can't load `nicknames.json` (Gson can't build a `HashBiMap`) | small patch or accept | 0.5 | Java 25 only. Only matters if anyone uses AsieLib nicknames. |
+| New launch line (`java @java9args.txt -jar lwjgl3ify-forgePatches.jar nogui`), Forge 1614, `build_play_server.py` and `start.bat` | **done** | – | `build_play_server.py --java25` (see "The slim Java 25 server, built" below). Java 8 stays the default. |
+| Lucky Block: every drop expression fails (301 errors at boot) | fixed | 0 | `LuckyScriptTransformer`, committed today (bdfa4e1). Inert on Java 8 (test 5). The `--java25` build refuses a qf-tweaks jar without it. |
+| Recurrent Complex: 4 inventory generators fail under lwjgl3ify's Gson 2.10 ("returned wrong type; requested NBTTagCompound but got NBTTagInt/NBTTagShort") | **fixed** | – | The files are Holy, Unholy, TribalChest and PeacefulCrypt (enchanted books in RC's wrapped `{"nbtType":…,"nbt":…}` form), used by MonolythHoly, MonolythUnholy, TribalJungleHead and PeacefulCrypt. `RecNbtTransformer` + `RecNbtFix` in qf-tweaks: in `NBTTagCompoundSerializer` and `NBTTagListSerializer`, `getNBTTypeSmart` is swapped for a helper that returns `NBTBase` for a wrapper when Gson is newer than 2.2.x, so the hierarchy adapter answers and Gson's type check passes. Inert on Java 8 (logs "Gson 2.2.x; NBT decoding unchanged"). All four register on Java 25. |
+| AsieLib can't load `nicknames.json` (Gson can't build a `HashBiMap`) | **fixed** | – | `AsieNickTransformer` + `AsieNickFix`: `loadNicknames` makes the original Gson call and, only if Gson throws, reads the same text as a `Map<String,String>` (the `LinkedTreeMap` AsieLib casts to). No `HashBiMap` stack trace on Java 25 boots with an existing `nicknames.json`. |
 | Hodgepodge config | config | 0.1 | Same two settings as above. |
 | Ore and structure survey | **deferred** | machine time | Phosphor lighting and the fix mods touch worldgen; rerun the survey once, **just before the pack goes to the real server** (user, 2026-10-17), not as part of this migration. |
 | **Hodgepodge, ArchaicFix or GTNHLib on the server force them onto every client** | blocker for split adoption | – | Test 1. GTNHLib is a required mod, and Hodgepodge changes the login packet. GTNHLib crashes OptiFine E7 at load. A server with only lwjgl3ify + UniMixins accepts today's client. |
@@ -346,7 +346,117 @@ game's class loader, which sees lwjgl3ify's Nashorn.
   `NBTTagCompoundSerializer.java:45`.
 - **Shader checks (IrisApi):** 2 h. Four copies of one helper in three jars.
 
+## The slim Java 25 server, built (2026-10-17)
+
+The user approved the slim server on 2026-10-17: server first, an Angelica
+client later. `tools/server/build_play_server.py --java25` builds it: Temurin
+25.0.4 + lwjgl3ify 3.0.39 + UniMixins 0.3.2 on Forge 1614, with stock
+CodeChickenCore and no Hodgepodge, ArchaicFix or GTNHLib (the build refuses
+them). How to build, switch and switch back: `docs/setup/hosting-a-server.md`,
+"The Java 25 server". The friends' server (`C:\qfs\friends`) has **not** been
+switched; that happens at the next batch install.
+
+**Stock CodeChickenCore stays on the server for now.** With it, Angelica
+clients are kicked (test 1, coupled path), so the Angelica client phase must
+swap CodeChickenCore + CodeChickenLib for GTNH CodeChickenCore 1.4.22 on the
+server and on every client at once.
+
+Tested in throwaway dirs (`C:\qfs\friends-j25-test`, port 25650, and a Java 8
+twin `C:\qfs\friends-j8-test`), both built by the builder from the live
+instance with the same qf-tweaks jar, then deleted:
+
+- **(a) Clean full-pack boot.** Java 8: 135 mod IDs, 287 ERROR/exception lines.
+  Java 25: 144 mod IDs (+9: lwjgl3ify and UniMixins' modules), 295 lines. After
+  normalising, the only signatures new on Java 25 are VoltzEngine's
+  `Could not locate folder[ /content/<id>/ ]` for those 9 IDs (it prints this
+  for all 122 mods on Java 8 too) and FML's `missing any signature data` (FML
+  can't read its jar's signature through the RFB launcher; also present in
+  test 1's passing run). No Recurrent Complex, AsieLib or Lucky Block errors;
+  0 `ExpressionParserException`.
+- **(b) Recurrent Complex.** All 106 structures and all 29 inventory generators
+  register on both, Holy/Unholy/TribalChest/PeacefulCrypt included (the
+  decision run had 25). An op client generated the four structures that use
+  them (`/#gen` + `/#confirm` for PeacefulCrypt, TribalJungleHead,
+  MonolythHoly, MonolythUnholy) with no server error. The chests' contents
+  were not opened.
+- **(c) Lucky Block.** 0 `ExpressionParserException` at boot (the decision run
+  had 301). The fix logs "the JDK has no JavaScript engine; using the game
+  class loader's". In game, two Lucky Blocks broken by the client evaluated
+  their drops: `Chosen drop: group(ID=stone_sword;…)` (5 items) and an
+  OreSpawn amethyst armour group. For the test only, the throwaway server had
+  `doDropsOnCreativeMode=true`, so the probe could break the blocks in
+  creative.
+- **(d) Stock E7 client** (`C:\qfb\client`, Java 8, Forge 1558, OptiFine E7,
+  with its qf-content, Transformers and Morph jars matched to the live pack's
+  for the test and restored afterwards). It joined, passed the pack check, and
+  stayed connected 19:02:43–19:09:30 (6 min 47 s, ended by the probe's quit).
+  All 12 server-placed blocks from 11 mods decoded to the right names. The
+  client placed a Carpenter's slope and a qf-content jukebox, `/testforblock`
+  found both, and both were broken and found gone on both sides. The Iron
+  Chest opened `GUIChest` and the jukebox opened `GuiJukebox`. TragicMC and
+  Lycanites mobs were summoned. The only server ERROR while it was connected
+  was the `Connection reset` at the probe's quit, the same as in test 1.
+  World changes all went through chat commands.
+- **Found by the join: qf-content's pack check refused every Java 8 client.**
+  It compares the versions of mods both sides have, and Forge counts as one:
+  "Mods: Minecraft Forge 10.13.4.1558 (server 10.13.4.1614)". The builder now
+  adds `Forge` to packcheck `ignoreMods` in the server's `qfcontent.cfg`. The
+  config fingerprint was unchanged (3f7f089e6508 before and after). The same
+  check also compares `qftweaks` versions, so friends need the server's exact
+  qf-tweaks build.
+- **Builder trap found:** Java 25 refuses to start if `logs/` is missing,
+  because `-Xlog:...file=logs/gc.log` can't be opened. Java 8's `-Xloggc` just
+  skipped logging. The builder now creates `logs/`.
+- **(e) Supervisor.** `supervisor.py` ran the Java 25 server unchanged. It read
+  the command from `start.bat` and picked the JDK 25's own `jstack`. The run:
+  - boot in 55 s;
+  - `!backup`: saving off for 20.5 s, a 75.6 MB zip;
+  - `!dump`: jstack exit 0, the `Server thread` stack in the dump;
+  - Java killed with `taskkill /F`: "CRASHED (exit code 1)", restarted after
+    10 s, up again in 49 s;
+  - `stop.flag`: `stop` sent, 30 dimensions saved, Java exit 0, supervisor exit
+    0.
+
+  The test server ran the merged qf-tweaks (the splash port, the `qftweaks`
+  mod container and these fixes) as `1.1.0+20261017.c2b0ed49`.
+- **Switching back.** The same dir was rebuilt without `--java25` and booted on
+  Java 8 / Forge 1558. The world loaded. FML logged "saved with mod lwjgl3ify
+  (and the 8 UniMixins IDs) which appears to be missing" and the Forge
+  1614 → 1558 note, nothing else new.
+- **Builder hardening:** under memory pressure PowerShell died ("The paging
+  file is too small"), and the builder's running-server check read that as "no
+  java running". It now refuses to rebuild when it can't list the processes.
+- **(f) GC, 10-minute idle-plus-mobs run** (same world copied to both, 6 GB
+  G1, boot, 5 min idle, 320 mobs summoned at spawn, 5 min, stop; the census
+  servers loaded the CPU throughout):
+
+  | | Java 8 | Java 25 slim |
+  |---|---|---|
+  | Boot ("Done" after launch) | 41 s | 35 s |
+  | GC pauses, whole run | 42, total 1,297 ms | 21, total 279 ms |
+  | Longest GC pause | 311 ms (mixed, 2 s after "Done") | 46 ms (during boot) |
+  | All safepoints (time stopped) | 635, total 1,412 ms | 22, total 281 ms |
+  | After "Done" only | 188 stops, 612 ms, worst 311 ms | 1 stop, 21 ms |
+
+  Total stop time −80% and the worst stall 311 → 46 ms, in line with the
+  bench above (−68%, ~1.1 s → ~0.26 s, there with pregen load).
+
 ## Where the evidence is
+
+The slim server build's tests are in `C:\qfb\j25-server\` (12 MB). `evidence\`
+holds:
+
+- the boot logs (`boot-j8.log`, `boot-j25.log`);
+- the GC runs (`gc-j8.log`, `gc-j25.log`, and the raw GC logs);
+- the join runs. `join-*-run2-refused` is the pack-check refusal,
+  `join-*-run3` the long session, `join-*-run4` the jukebox, Lucky Block and
+  RC checks;
+- the supervisor run (`supervisor.log`, `sup_console.log`, the thread dump);
+- `switchback-j8.log`;
+- three screenshots.
+
+`scripts\` holds the drivers (`drive.py`, `join_test.py`, `sup_test.py`) and
+`gcstat.py`/`errdiff.py`.
 
 `C:\qfb\angelica-decision\` (outside the repo, 98 MB):
 
