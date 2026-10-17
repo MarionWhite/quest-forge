@@ -554,6 +554,12 @@ def cmd_launch(a):
 
     java = find_java()
     args = client_args(d, src, a.xmx, a.D)
+    if a.join:
+        # Vanilla's --server/--port: the client connects as soon as the menu is up.
+        host, _, port = a.join.rpartition(":")
+        if not host or not port.isdigit():
+            sys.exit(f"--join {a.join}: use HOST:PORT, e.g. 127.0.0.1:25600")
+        args += ["--server", host, "--port", port]
     clear_logs(d, "client")
     write_bat(d, java, args)
     pid = start_detached(java, args, d)
@@ -1058,6 +1064,7 @@ def main():
     p.add_argument("--wait", action="store_true", help="follow the log until loaded / crashed")
     p.add_argument("--timeout", type=int, default=300)
     p.add_argument("--commands", help="server: file of console commands fed on stdin")
+    p.add_argument("--join", metavar="HOST:PORT", help="client: connect to this server once the menu is up")
     p.add_argument("--owner", help="who to name in the lock (default: $CLAUDE_SESSION_NAME)")
     p.set_defaults(fn=cmd_launch)
 
