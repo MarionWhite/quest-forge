@@ -57,8 +57,13 @@ rem -XX:+FailOverToOldVerifier, so older-version bytecode is fine here.
   "%HERE%src\com\questforge\GraveBeamTransformer.java" ^
   "%HERE%src\com\questforge\GraveBaublesTransformer.java" ^
   "%HERE%src\com\questforge\ShaderState.java" ^
+  "%HERE%src\com\questforge\GlErrorTransformer.java" ^
+  "%HERE%src\com\questforge\GlErrorLog.java" ^
+  "%HERE%src\com\questforge\ChunkCleanTransformer.java" ^
   "%HERE%src\com\questforge\MorphOptifineTransformer.java" ^
-  "%HERE%src\com\questforge\MorphFix.java"
+  "%HERE%src\com\questforge\MorphFix.java" ^
+  "%HERE%src\com\questforge\MmmScanTransformer.java" ^
+  "%HERE%src\com\questforge\MmmScanGuard.java"
 
 if errorlevel 1 (
   echo.

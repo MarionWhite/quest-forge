@@ -32,12 +32,18 @@ import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
         "com.questforge.MusicTickerTransformer",
         "com.questforge.GraveBeamTransformer",
         "com.questforge.GraveBaublesTransformer",
+        "com.questforge.GlErrorTransformer",
+        "com.questforge.ChunkCleanTransformer",
         "com.questforge.MorphOptifineTransformer",
-        // Not a transformer, but loaded from code patched into GraveStones;
-        // there is nothing in it any transformer needs to touch.
+        "com.questforge.MmmScanTransformer",
+        // Not transformers, but loaded from code patched into GraveStones and
+        // OptiFine; there is nothing in them any transformer needs to touch.
         "com.questforge.ShaderState",
+        "com.questforge.GlErrorLog",
         // Called from Morph's patched classes.
-        "com.questforge.MorphFix"
+        "com.questforge.MorphFix",
+        // Called from LittleMaidMob's patched model scan.
+        "com.questforge.MmmScanGuard"
 })
 public class QuestForgeCore implements IFMLLoadingPlugin {
 
@@ -48,7 +54,10 @@ public class QuestForgeCore implements IFMLLoadingPlugin {
                 "com.questforge.MusicTickerTransformer",
                 "com.questforge.GraveBeamTransformer",
                 "com.questforge.GraveBaublesTransformer",
-                "com.questforge.MorphOptifineTransformer"
+                "com.questforge.GlErrorTransformer",
+                "com.questforge.ChunkCleanTransformer",
+                "com.questforge.MorphOptifineTransformer",
+                "com.questforge.MmmScanTransformer"
         };
     }
 
