@@ -23,7 +23,7 @@ import cpw.mods.fml.common.registry.GameRegistry;
  * the registry.
  */
 @Mod(modid = QuestForgeCommands.MODID, name = "QuestForge Commands",
-     version = "1.0.0", acceptableRemoteVersions = "*")
+     version = Tags.VERSION, acceptableRemoteVersions = "*")
 public class QuestForgeCommands {
 
     public static final String MODID = "qfcommands";

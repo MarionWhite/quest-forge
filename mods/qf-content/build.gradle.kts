@@ -9,7 +9,13 @@ plugins {
 }
 
 group = "com.questforge.content"
-version = "1.0.0"
+// Real, per-commit version from git; see ../version.gradle.kts.
+apply(from = "../version.gradle.kts")
+
+// The jar keeps its old file name so an update overwrites it instead of
+// leaving two copies of the mod in mods/ (and the catalog, verify_pack and
+// mods.tsv keep matching). The mod version is in mcmod.info and @Mod.
+tasks.withType<Jar>().configureEach { archiveVersion.set("1.0.0") }
 
 java {
   toolchain {

@@ -6,6 +6,15 @@ rem ---------------------------------------------------------------------------
 rem Builds QuestForgeTweaks-1.0.jar and installs it into the CrazyCraft 4
 rem instance's mods folder.
 rem
+rem   build.bat --no-install   build only (trials, a worktree): the live instance
+rem                            is read as the compile classpath and nothing is
+rem                            written to it.
+rem
+rem The mod version (shown in the mod list, compared by qf-content's pack check)
+rem is 1.1.0+<date>.<sha8> of the last git commit that touched this folder, the
+rem same scheme as mods/version.gradle.kts. The jar file name stays -1.0 so an
+rem update overwrites the old jar instead of sitting next to it.
+rem
 rem REQUIRES A JDK. The instance's C:\Program Files\Java\jre1.8.0_241 is a
 rem runtime only and has no javac. Install a JDK 8 (Adoptium Temurin 8 is the
 rem usual choice) and either set JAVA_HOME or edit JDK below.
@@ -13,6 +22,8 @@ rem ---------------------------------------------------------------------------
 
 set "INST=%APPDATA%\.crazycraft4"
 set "HERE=%~dp0"
+set "NOINSTALL="
+if /i "%~1"=="--no-install" set "NOINSTALL=1"
 
 rem --- locate a JDK -----------------------------------------------------------
 set "JDK="
@@ -40,6 +51,18 @@ set "CP=%CP%;%INST%\bin\lib\asm-all-5.0.3.jar"
 set "CP=%CP%;%INST%\bin\lib\log4j-api-2.0-beta9.jar"
 set "CP=%CP%;%INST%\bin\minecraft.jar"
 set "CP=%CP%;%INST%\bin\lib\lwjgl-2.9.1.jar"
+rem Guava, for DummyModContainer.registerBus(EventBus, ...).
+set "CP=%CP%;%INST%\bin\lib\guava-16.0.jar"
+
+rem --- version from git ----------------------------------------------------------
+set "QFVER=1.1.0+unknown"
+set "STAMP="
+for /f "usebackq delims=" %%v in (`git -C "%HERE%." log -1 "--format=%%cd.%%H" "--date=format:%%Y%%m%%d" -- .`) do set "STAMP=%%v"
+if defined STAMP set "QFVER=1.1.0+!STAMP:~0,17!"
+set "DIRTY="
+if defined STAMP for /f "usebackq delims=" %%v in (`git -C "%HERE%." status --porcelain -- .`) do set "DIRTY=1"
+if defined DIRTY set "QFVER=!QFVER!.dirty"
+echo Version: !QFVER!
 
 if exist "%HERE%build" rd /s /q "%HERE%build"
 mkdir "%HERE%build"
@@ -52,6 +75,7 @@ rem -XX:+FailOverToOldVerifier, so older-version bytecode is fine here.
   -cp "%CP%" ^
   -d "%HERE%build" ^
   "%HERE%src\com\questforge\QuestForgeCore.java" ^
+  "%HERE%src\com\questforge\QuestForgeTweaksContainer.java" ^
   "%HERE%src\com\questforge\PanelButtonQuestTransformer.java" ^
   "%HERE%src\com\questforge\MusicTickerTransformer.java" ^
   "%HERE%src\com\questforge\GraveBeamTransformer.java" ^
@@ -75,6 +99,8 @@ if errorlevel 1 (
 )
 
 rem --- package ----------------------------------------------------------------
+rem QuestForgeTweaksContainer reads its version from this resource.
+>"%HERE%build\qftweaks-version.txt" echo !QFVER!
 "%JDK%\bin\jar.exe" cfm "%HERE%QuestForgeTweaks-1.0.jar" "%HERE%manifest.txt" -C "%HERE%build" .
 if errorlevel 1 (
   echo   JAR FAILED.
@@ -99,6 +125,10 @@ if errorlevel 1 (
 echo   Verified: com/questforge/QuestForgeCore.class present.
 
 rem --- install ----------------------------------------------------------------
+if defined NOINSTALL (
+  echo   --no-install: not copied into the instance.
+  exit /b 0
+)
 copy /Y "%HERE%QuestForgeTweaks-1.0.jar" "%INST%\mods\QuestForgeTweaks-1.0.jar" >nul
 if errorlevel 1 (
   echo   INSTALL FAILED.

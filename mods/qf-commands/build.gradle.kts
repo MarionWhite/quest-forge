@@ -14,7 +14,13 @@ plugins {
 }
 
 group = "com.questforge.commands"
-version = "1.0.0"
+// Real, per-commit version from git; see ../version.gradle.kts.
+apply(from = "../version.gradle.kts")
+
+// The jar keeps its old file name so an update overwrites it instead of
+// leaving two copies of the mod in mods/ (and the catalog, verify_pack and
+// mods.tsv keep matching). The mod version is in mcmod.info and @Mod.
+tasks.withType<Jar>().configureEach { archiveVersion.set("1.0.0") }
 
 java {
   toolchain {
@@ -46,6 +52,12 @@ java {
 minecraft {
   mcVersion.set("1.7.10")
   username.set("Developer")
+  // So @Mod(version = Tags.VERSION) carries the git version, as in qf-content.
+  injectedTags.put("VERSION", project.version)
+}
+
+tasks.injectTags.configure {
+  outputClassName.set("${project.group}.Tags")
 }
 
 repositories {

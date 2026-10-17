@@ -67,7 +67,8 @@ public class QuestForgeCore implements IFMLLoadingPlugin {
 
     @Override
     public String getModContainerClass() {
-        return null;
+        // A mod entry with a real version, so packs can be compared; see the class.
+        return "com.questforge.QuestForgeTweaksContainer";
     }
 
     @Override
