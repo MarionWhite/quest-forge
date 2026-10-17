@@ -19,6 +19,9 @@ public class ClientProxy extends CommonProxy {
         MinecraftForge.EVENT_BUS.register(handler);
         FMLCommonHandler.instance().bus().register(handler);
 
+        // Which pack this is, on the main menu and F3; refusals into the log.
+        MinecraftForge.EVENT_BUS.register(new com.questforge.content.client.PackVersionDisplay());
+
         // Jukebox audio test harness. Client-side only, so it registers through
         // ClientCommandHandler and needs no packets or integrated server.
         net.minecraftforge.client.ClientCommandHandler.instance.registerCommand(

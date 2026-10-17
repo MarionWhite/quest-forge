@@ -59,6 +59,7 @@ public class QuestForgeContent {
                 event.getSuggestedConfigurationFile());
         config.load();
         com.questforge.content.ench.QFEnchantments.register(config);
+        com.questforge.content.pack.PackCheck.loadConfig(config);
         if (config.hasChanged()) config.save();
 
         // Registered after the enchantments so its creative list can enumerate them.
@@ -82,6 +83,10 @@ public class QuestForgeContent {
         net.minecraftforge.common.MinecraftForge.EVENT_BUS.register(bridge);
         cpw.mods.fml.common.FMLCommonHandler.instance().bus().register(bridge);
 
+        // The login pack check (server side; harmless on a client).
+        cpw.mods.fml.common.FMLCommonHandler.instance().bus().register(
+                new com.questforge.content.pack.PackCheck.Events());
+
         proxy.init(event);
     }
 
@@ -89,6 +94,7 @@ public class QuestForgeContent {
     public void serverStarting(cpw.mods.fml.common.event.FMLServerStartingEvent event) {
         event.registerServerCommand(new com.questforge.content.survey.CommandOreSurvey());
         event.registerServerCommand(new com.questforge.content.census.CommandCensus());
+        event.registerServerCommand(new com.questforge.content.pack.CommandPack());
         // Shared playlists belong to the world being opened, so the last world's
         // are dropped rather than carried into this one.
         com.questforge.content.jukebox.PublicPlaylists.reset();
@@ -161,6 +167,16 @@ public class QuestForgeContent {
     public void serverStopped(cpw.mods.fml.common.event.FMLServerStoppedEvent event) {
         com.questforge.content.jukebox.PublicPlaylists.reset();
         com.questforge.content.voice.VoiceServer.reset();
+    }
+
+    /**
+     * The pack fingerprint is taken here, after every mod's postInit, because mods
+     * write their configs (and qf-content its own enchantment IDs) while loading;
+     * the fingerprint has to describe the files as the game actually used them.
+     */
+    @Mod.EventHandler
+    public void loadComplete(cpw.mods.fml.common.event.FMLLoadCompleteEvent event) {
+        com.questforge.content.pack.PackCheck.computeLocal(configDir);
     }
 
     @Mod.EventHandler

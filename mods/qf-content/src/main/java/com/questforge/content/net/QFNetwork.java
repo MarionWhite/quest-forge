@@ -84,6 +84,13 @@ public class QFNetwork {
         // server cannot tell a person from InventoryTweaks' sort; see ClickIntent.
         wrapper.registerMessage(PacketClickIntent.Handler.class,
                                 PacketClickIntent.class, 17, Side.SERVER);
+
+        // The login pack check: the server asks, the client answers with its pack
+        // fingerprint and mod list, and the server refuses a stale pack. See PackCheck.
+        wrapper.registerMessage(PacketPackQuery.Handler.class,
+                                PacketPackQuery.class, 18, Side.CLIENT);
+        wrapper.registerMessage(PacketPackReport.Handler.class,
+                                PacketPackReport.class, 19, Side.SERVER);
     }
 
     public static void toServer(Object message) {

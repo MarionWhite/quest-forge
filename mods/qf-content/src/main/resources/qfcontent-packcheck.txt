@@ -1,0 +1,71 @@
+# The configs the pack fingerprint covers, relative to config/.
+#
+# Read by qf-content (PackFingerprint) on both the server and the client, and by
+# tools/pack_fingerprint.py, which computes the same fingerprint from pack/config.
+# Only the ID-bearing ENTRIES of each file count (integer values whose key has an
+# id token or names a potion/biome/enchant/dimension/villager/profession/provider,
+# or that sit in a section that does), outside any section with "client" in its
+# name. Comments, layout, line endings, key order and every other setting are
+# ignored, so a friend's edited keybinding or a reflowed file never refuses anyone.
+#
+# Built by scanning pack/config: `py -3.10 tools/pack_fingerprint.py --scan` lists
+# every config with ID entries that is neither here nor reviewed-out below, and
+# exits 1 if there is one. Add a file here when a mod that assigns IDs joins the pack.
+#
+# Changing this list changes every fingerprint, and it ships inside the qf-content
+# jar, so client and server always use the same list.
+
+# potions 150-193, dimensions, villagers (699e27e moved the potions)
+witchery.cfg
+# biomes 230-234, blocks, items, dimension 80
+OreSpawn.cfg
+# potions, enchantments, dimensions, biomes
+TragicMC.cfg
+# qf-content's own enchantment IDs
+qfcontent.cfg
+# the Lost World dimension
+thejungleMod.cfg
+# biomes, dimension 7
+TwilightForest.cfg
+# biomes
+LegendsMod.cfg
+# entity IDs
+InventoryPets.cfg
+# enchantments
+OpenBlocks.cfg
+BiblioCraft.cfg
+battlegear2.cfg
+SSTOW/config.cfg
+# enchantments, villager / worldgen IDs
+railcraft/railcraft.cfg
+# potions
+bbm/ve/VoltzEngine.cfg
+lycanitesmobs/lycanitesmobs-general.cfg
+chocolateQuest.cfg
+TrailMix.cfg
+# villager professions / IDs
+psychedelicraft.cfg
+CompactMachines.cfg
+# enchantment start ID
+CustomNpcs.cfg
+# achievement start ID
+HardcoreEnderExpansion.cfg
+# the TARDIS dimension provider
+darkmods/TardisMod/TardisMod.cfg
+
+# Reviewed and left out. A line starting with "-" is ignored by the fingerprint
+# and only stops --scan from reporting the file.
+-NEI/client.cfg            client-only display settings
+-Chocolate/DungeonConfig/caveTests.prop    which dimension a dungeon spawns in, not an ID
+-Chocolate/DungeonConfig/netherCity.prop   same
+-Hats.cfg                  hat toggles, not IDs
+-lycanitesmobs/infernomobs-worldgen.cfg    spawn dimension lists, not IDs
+-lycanitesmobs/lycanitesmobs-mobevents.cfg  event dimension lists, not IDs
+-lycanitesmobs/shadowmobs-spawning.cfg     spawn dimension lists, not IDs
+-GraviGun.cfg              fuel item, 0 = default
+-Sync.cfg                  a cross-dimension toggle, not an ID
+-lootbags.cfg              a recycler setting, not an ID
+-darkmods/TardisMod/TARDIS Core.cfg        jump cost, not an ID
+-lycanitesmobs/demonmobs-spawning.cfg      spawn dimension lists, not IDs
+-pregenerator/ClientConfig.cfg             client-only
+-roguelike_dungeons/roguelike.cfg          a dimension whitelist toggle, not an ID
