@@ -252,6 +252,11 @@ public final class CensusProbe {
         }
     }
 
+    /** The probe, if one has been built; never builds one. */
+    static EntityPlayer current() {
+        return instance;
+    }
+
     public static EntityPlayer player(WorldServer world) {
         try {
             if (instance == null || instance.worldObj != world) {

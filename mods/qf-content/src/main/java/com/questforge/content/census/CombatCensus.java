@@ -358,6 +358,10 @@ public class CombatCensus {
          * (removeErroringEntities). Not kills, and not damage dealt.
          */
         int removedAlive;
+        /** Attacks on the probe from the arena outside the scheduled hit, cancelled; see blocksAttack. */
+        int aiHitsBlocked;
+        /** The lowest health the probe stood at during the cell, outside a scheduled hit. */
+        float probeHpMin = Float.MAX_VALUE;
         /** Consecutive melee swings that took no health; logged once when it reaches five. */
         int dryStreak;
 
@@ -388,6 +392,8 @@ public class CombatCensus {
     // ---- Run state --------------------------------------------------------
 
     private static boolean running;
+    /** Set while the census itself delivers a hit to the probe; see blocksAttack. */
+    private static boolean scheduledHit;
     private static File configDir;
     private static WorldServer world;
     private static CensusFile out;
@@ -595,7 +601,8 @@ public class CombatCensus {
                     "damage_taken", "incoming_swings", "mitigation_pct", "hits_survived",
                     "proc_rolls", "proc_fires", "observed_proc_pct", "expected_proc_pct",
                     "attributed_damage", "note",
-                    "hp_fraction", "band_dps", "ttk_est_s", "marginal_ttk_est_pct", "target_hp"
+                    "hp_fraction", "band_dps", "ttk_est_s", "marginal_ttk_est_pct", "target_hp",
+                    "probe_hp_min", "ai_hits_blocked"
                 });
 
         procs = new CensusFile(dir, "combat-procs",
@@ -619,6 +626,7 @@ public class CombatCensus {
         incomingThrowLogged = carryLogged = false;
         EnchantTap.start();
         running = true;
+        CensusGuard.register();
         QuestForgeContent.log.info("[census] combat census started: " + queue.size()
                 + " cells over targets " + resolved);
     }
@@ -1193,6 +1201,8 @@ public class CombatCensus {
         } else {
             advanceOffense(probe);
         }
+        // So drift in the wielder's health can never hide again.
+        result.probeHpMin = Math.min(result.probeHpMin, probe.getHealth());
     }
 
     /**
@@ -1776,6 +1786,33 @@ public class CombatCensus {
      * Wither applied to a twenty-health probe ends the cell, where a real player
      * drinks milk or heals.
      */
+    /**
+     * Whether an attack on the probe must be cancelled (CensusGuard calls this
+     * from LivingAttackEvent).
+     *
+     * The probe's health is a control: each band sets it to the run's
+     * hp_fraction, and incoming damage is delivered on a schedule (absorbHit,
+     * advanceDefense) and undone. A boss's own AI melee was neither: it wore the
+     * probe down between scheduled hits, so a run claiming full health measured
+     * a wielder sliding to 1 HP. That gave Berserk 824 attributed damage on the
+     * Naga at hp_fraction 1.0, and turned DeathReaper's armour on (anomalies
+     * #5c). So while a cell runs, any attack on the probe that comes from
+     * another entity and not from the census's own scheduled hit is cancelled.
+     * Self-inflicted damage (Cultist's blood price) and sourceless damage pass.
+     */
+    public static boolean blocksAttack(EntityLivingBase victim, net.minecraft.util.DamageSource source) {
+        if (!running || scheduledHit || cell == null || result == null || source == null) return false;
+        if (victim == null || victim != CensusProbe.current()) return false;
+        net.minecraft.entity.Entity from = source.getEntity();
+        if (from == null || from == victim) return false;
+        if (result.aiHitsBlocked++ == 0) {
+            QuestForgeContent.log.info("[census] " + cell.targetName + "'s own attack (" + source.getDamageType()
+                    + " from " + from.getClass().getSimpleName() + ") on the probe cancelled at cell tick "
+                    + cellTick + ": only the scheduled hit lands (logged once per cell)");
+        }
+        return true;
+    }
+
     private static void absorbHit(EntityPlayer probe, EntityLivingBase attacker) {
         IAttributeInstance max = probe.getEntityAttribute(SharedMonsterAttributes.maxHealth);
         float held = probe.getHealth();
@@ -1787,6 +1824,7 @@ public class CombatCensus {
             if (max != null) max.setBaseValue(PROBE_HEALTH);
             probe.setHealth(PROBE_HEALTH);
             float before = probe.getHealth();
+            scheduledHit = true;
             try {
                 attacker.attackEntityAsMob(probe);
             } catch (Throwable t) {
@@ -1800,6 +1838,8 @@ public class CombatCensus {
                     QuestForgeContent.log.warn("[census] " + cell.targetName
                             + "'s melee threw on the probe (logged once per run): " + describe(t), t);
                 }
+            } finally {
+                scheduledHit = false;
             }
             if (probe.ridingEntity == attacker && !carryLogged) {
                 carryLogged = true;
@@ -1930,11 +1970,14 @@ public class CombatCensus {
             // The target's own melee -- pinned to the species median -- with its
             // knockback and on-hit effects. This is what the boss does to a
             // player, rather than a number chosen to make the arithmetic clean.
+            scheduledHit = true;
             try {
                 attacker.attackEntityAsMob(probe);
             } catch (Throwable t) {
                 result.note = "attacker threw: " + describe(t);
                 return;
+            } finally {
+                scheduledHit = false;
             }
             if (result.incomingSwings == 0) {
                 QuestForgeContent.log.info("[census] first defensive hit from " + cell.targetName
@@ -1966,12 +2009,15 @@ public class CombatCensus {
             // is only the magnitude -- and how hard the pack's mobs actually hit
             // is a question the mob census already answers, separately, without
             // this variance in the way.
+            scheduledHit = true;
             probe.attackEntityFrom(
                     net.minecraft.util.DamageSource.causeMobDamage(attacker),
                     incomingDamage);
         } catch (Throwable t) {
             result.note = "incoming damage threw: " + describe(t);
             return;
+        } finally {
+            scheduledHit = false;
         }
 
         recordDefensiveHit(probe, before);
@@ -2407,7 +2453,9 @@ public class CombatCensus {
                         ? " [" + result.bandsReverted + " band(s) reverted by the target]" : ""),
                 CensusFile.num(ttk),
                 CensusFile.num(marginalTtkEst),
-                CensusFile.num(refHealth));
+                CensusFile.num(refHealth),
+                CensusFile.num(result.probeHpMin == Float.MAX_VALUE ? Double.NaN : result.probeHpMin),
+                result.aiHitsBlocked);
     }
 
     /** Every control repeat, keyed like CONTROLS. */
