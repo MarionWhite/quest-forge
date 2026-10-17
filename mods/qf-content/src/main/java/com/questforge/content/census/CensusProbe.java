@@ -131,6 +131,57 @@ public final class CensusProbe {
             applyPotionAttributes(effect, false);
         }
 
+        // ---- Being picked up and put down ------------------------------------
+        //
+        // The Alpha Yeti's melee (EntityTFYetiAlpha.attackEntityAsMob) first
+        // mounts its target on its shoulders, and its ThrowRider AI throws the
+        // rider off a few ticks later. That is the fight a player has with it.
+        // On the probe both halves were NullPointerExceptions, because
+        // EntityPlayerMP does each through its connection:
+        //   mountEntity        -> super, then sendPacket(S1BPacketEntityAttach)
+        //                         and setPlayerLocation;
+        //   setPositionAndUpdate -> playerNetServerHandler.setPlayerLocation,
+        //                         which is where a dismount puts the player down.
+        //
+        // The mount NPE fired after the probe was already riding, inside
+        // absorbHit's catch, so it was swallowed -- and it also abandoned the
+        // rest of the Yeti's attackEntityAsMob, so its swing never landed. The
+        // throw, a few ticks later, came from the Yeti's own entity tick, where
+        // nothing catches: "Ticking entity" crash, Forge's removeErroringEntities
+        // dismounted the probe again and crashed a second time, and the server
+        // stopped with exit code 0 two seconds into the first cell. The campaign
+        // saw a census.log that simply ends after the first swing (2026-10-17,
+        // T1 Yeti singles, twice).
+        //
+        // Both are done here as the connection would do them, minus the packet:
+        // setPlayerLocation's only effect on the server is to place the player.
+
+        @Override
+        public void setPositionAndUpdate(double x, double y, double z) {
+            if (this.playerNetServerHandler != null) {
+                super.setPositionAndUpdate(x, y, z);
+                return;
+            }
+            this.setLocationAndAngles(x, y, z, this.rotationYaw, this.rotationPitch);
+        }
+
+        @Override
+        public void mountEntity(net.minecraft.entity.Entity entity) {
+            if (this.playerNetServerHandler != null) {
+                super.mountEntity(entity);
+                return;
+            }
+            // EntityPlayerMP.mountEntity is EntityPlayer.mountEntity followed by
+            // the two connection calls; Java cannot skip a level, so the
+            // mounting runs in full and the throw from the packet that follows
+            // it is the only thing dropped.
+            try {
+                super.mountEntity(entity);
+            } catch (NullPointerException expected) {
+                if (this.playerNetServerHandler != null) throw expected;
+            }
+        }
+
         /** The attribute half of a potion coming or going. */
         private void applyPotionAttributes(net.minecraft.potion.PotionEffect effect,
                 boolean adding) {
@@ -178,6 +229,23 @@ public final class CensusProbe {
         probe.fallDistance = 0.0F;
         probe.capabilities.disableDamage = false;
         probe.setHealth((float) PROBE_HEALTH);
+        // A boss that carries its target (the Alpha Yeti) may still be holding
+        // the probe, or a removed one may have left the link behind. And a
+        // ridden probe is ticked by the world as its mount's rider, which files
+        // it in a chunk's entity list, where area attacks find it; the probe is
+        // otherwise never in the world. Each cell starts unmounted and unfiled,
+        // as every other boss's cells always have.
+        try {
+            if (probe.ridingEntity != null) probe.mountEntity(null);
+            if (probe.addedToChunk && probe.worldObj != null && probe.worldObj
+                    .getChunkProvider().chunkExists(probe.chunkCoordX, probe.chunkCoordZ)) {
+                probe.worldObj.getChunkFromChunkCoords(probe.chunkCoordX, probe.chunkCoordZ)
+                        .removeEntity(probe);
+            }
+            probe.addedToChunk = false;
+        } catch (Throwable t) {
+            QuestForgeContent.log.warn("[census] could not dismount the probe: " + t);
+        }
         probe.setPosition(x, y, z);
         probe.motionX = probe.motionY = probe.motionZ = 0.0D;
         try {

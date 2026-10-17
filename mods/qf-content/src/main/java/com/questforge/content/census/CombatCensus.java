@@ -439,6 +439,8 @@ public class CombatCensus {
     private static boolean shutdownWhenFinished;
     /** Forge only issues tickets to a mod that has registered a callback. */
     private static boolean callbackRegistered;
+    /** One line per run each: a boss melee that threw, and a boss that carried the probe. */
+    private static boolean incomingThrowLogged, carryLogged;
     private static final Random rand = new Random(0xC0FFEE);
 
     /** Control results, keyed "mode/target", filled in before the enchanted cells. */
@@ -608,6 +610,7 @@ public class CombatCensus {
 
         acquireArena();
 
+        incomingThrowLogged = carryLogged = false;
         EnchantTap.start();
         running = true;
         QuestForgeContent.log.info("[census] combat census started: " + queue.size()
@@ -1761,7 +1764,23 @@ public class CombatCensus {
             float before = probe.getHealth();
             try {
                 attacker.attackEntityAsMob(probe);
-            } catch (Throwable ignored) {}
+            } catch (Throwable t) {
+                // Still swallowed -- a boss's swing must not end the cell -- but
+                // no longer silently. A throw here abandons the rest of the
+                // boss's attack, so its damage is missing from the row; the
+                // Alpha Yeti's swing was lost this way, unseen, until the same
+                // fault crashed the server from the Yeti's own tick.
+                if (!incomingThrowLogged) {
+                    incomingThrowLogged = true;
+                    QuestForgeContent.log.warn("[census] " + cell.targetName
+                            + "'s melee threw on the probe (logged once per run): " + describe(t), t);
+                }
+            }
+            if (probe.ridingEntity == attacker && !carryLogged) {
+                carryLogged = true;
+                QuestForgeContent.log.info("[census] " + cell.targetName + " picked the probe up"
+                        + " (cell tick " + cellTick + "); it is carried and thrown as a player is");
+            }
             result.damageTaken += Math.max(0F, before - probe.getHealth());
             result.incomingSwings++;
         } finally {
