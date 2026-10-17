@@ -1,6 +1,6 @@
 # Progression audit
 
-Status: **audit 2026-10-16. Config fixes F2–F5, F8, F9a, F10 and F14 applied 2026-10-17 (see §6); F6/F7 are quest edits, tracked separately.** This document
+Status: **audit 2026-10-16. Config fixes F2–F5, F8, F10 and F14 applied 2026-10-17 (see §6; F9a was applied then reverted — gear balance waits for the enchant census); F6/F7 are quest edits, tracked separately.** This document
 proposes changes. Each one still needs a slim boot to validate it, and none has
 been booted yet.
 
@@ -496,7 +496,7 @@ one client at a time.
    - **Status: done in `852b36f` (35 SSTOW entries, `Check Player=true` on every tier) and `529b174` (53 EU class names).** SSTOW already demands a real-player kill in code, and already skips IBossDisplayData mobs. Not yet tried in game.
    - **Validate:** `trial.py build farms sstow enderutilities orespawn twilightforest`. Try to bind a soul shard to a spawned Mothra and a Kraken; it must be refused.
 6. **F9a: OreSpawn T1–T3 damage** (`OreSpawn.cfg`).
-   - **Status: done in `b90f80b`.** A hit is 5 + config (ItemSword + player base). Emerald 6→16, Amethyst 11→20, Ruby 16→30, Ultimate 36→60 (65 per hit). Battle Axe 46→70, Chainsaw 56→80 and Attitude 82→110 were raised too, so they stay above Ultimate. The census re-run is still to do.
+   - **Status: applied in `b90f80b`, then REVERTED in `d9f5370` by the user's decision (2026-10-17).** Lifting every OreSpawn tier to clear an inflated diamond sword inflates the whole pack. If the inversion needs fixing, re-examine where diamond sits (KillerPacman's `WeaponScaler`, option (b) or a narrower variant), and only after the custom-enchant census is fully wrapped up. No gear balance changes until then.
    - **Validate:** re-run the census controls with the Ruby and Ultimate swords against the Naga, using the campaign's T1 rows (`/qfcensus combat OreSpawn:OreSpawn_UltimateSword` …) on a *free* `C:\qfs` node after the running campaign ends. Per-hit damage must order Ruby ≥ diamond (20) and Ultimate ≥ Titan (65).
 7. **F8: the Illuminati pet.**
    - **Status: done in `d7d6b33`** (`Disable Illuminati Give Random Items=true`).
