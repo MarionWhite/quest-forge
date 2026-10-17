@@ -92,6 +92,17 @@ public class ClientProxy extends CommonProxy {
         } catch (Throwable t) {
             System.out.println("[QuestForgeContent] AutoShot present but unusable: " + t);
         }
+        // The same for the frame-time benchmark (-Dqf.bench=1).
+        try {
+            Class<?> bench = Class.forName("com.questforge.content.debug.FrameBench");
+            if (Boolean.TRUE.equals(bench.getMethod("enabled").invoke(null))) {
+                FMLCommonHandler.instance().bus().register(bench.newInstance());
+            }
+        } catch (ClassNotFoundException expected) {
+            // Release build.
+        } catch (Throwable t) {
+            System.out.println("[QuestForgeContent] FrameBench present but unusable: " + t);
+        }
     }
 
     @Override
