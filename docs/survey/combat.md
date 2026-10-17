@@ -104,11 +104,42 @@ checks whether measured power actually increases with rarity, compares stacked
 loadouts against the sum of their parts, and proposes loot weights derived from
 measurement rather than intent.
 
-**It runs in real game ticks and takes tens of minutes.** That is not a
-performance bug to be optimised away — potion durations, bleed intervals,
-cooldowns and invulnerability frames are all counted in ticks by the code being
-measured, and running the loop faster than the world would measure a different
-game.
+**It runs in real game ticks.** Potion durations, bleed intervals, cooldowns and
+invulnerability frames are all counted in ticks by the code being measured, so a
+cell is a fixed number of ticks and nothing may skip or compress them.
+
+What can go is the *wait between* ticks. A census server spends about 2 ms of
+each 50 ms tick working and sleeps the rest, which is why every singles job took
+about 4,110 s whatever the boss. Start the server with
+`-Dqf.census.tickwarp=true` (`run_campaign.py --tickwarp`) and ticks run back to
+back: still one tick at a time, every tick complete, but without the sleep.
+`-Dqf.census.tickwarp.max=<ticks/s>` caps the rate. Without the flag the patch
+does not exist (the transformer hands back MinecraftServer's bytes unchanged).
+
+How it is done, because the obvious way does not work in this pack: FastCraft
+replaces MinecraftServer.run's loop with its own and exempts its own package from
+transformers, so the sleep cannot be removed. `TickWarpTransformer` instead
+injects a call at the head of `MinecraftServer.tick()` that runs further full
+`tick()`s for up to 45 ms of real time and then lets the original one run. The
+loop, whichever mod owns it, sees a tick that came back in time and sleeps the
+rest, so neither its "can't keep up" catch-up nor anything else notices; 1.7.10
+has no hang watchdog. The achieved rate is logged once a minute as
+`[census] tick-warp: … ticks/s`.
+
+Warp changes only code that reads the wall clock instead of counting ticks. An
+audit of the bosses (Twilight Forest, TragicMC, Witchery, HEE, OreSpawn,
+Lycanites, Chocolate Quest, Legends, vanilla Wither) found none: every attack,
+phase and cooldown timer counts ticks. The exceptions are elsewhere:
+
+- **InfernalMobs** times every elite ability (Regen, Ender, Ninja, Alchemist,
+  Ghastly, Storm, …) in `System.currentTimeMillis`. Under warp they fire W times
+  less per tick. The census strips elites as soon as they appear, so this does
+  not reach its numbers; anything that keeps an elite would.
+- Witchery infusion and wand cooldowns and the Inventory Pets Solstice Sword
+  combo window are wall-clock too. They are player-side and the census uses
+  none of them.
+- InfernalMobs' mob-farm detector sums damage over 30 s of wall time, so warp
+  makes it print "mob farm" warnings. Nothing in the pack acts on them.
 
 ## Calibration, and why there are two
 

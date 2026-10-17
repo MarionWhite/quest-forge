@@ -23,7 +23,12 @@ carry on.
 Usage:
     py -3.10 run_campaign.py --nodes C:\\qfs\\c1 C:\\qfs\\c2 C:\\qfs\\c3 \\
         --jar ..\\..\\mods\\qf-content\\build\\libs\\QuestForgeContent-1.0.0.jar \\
-        --out C:\\qfs\\campaign [--only-phase singles] [--dry-run]
+        --out C:\\qfs\\campaign [--only-phase singles] [--dry-run] [--tickwarp]
+
+--tickwarp starts each server with -Dqf.census.tickwarp=true: ticks run back to
+back instead of one per 50 ms (see docs/survey/combat.md). Every census window
+is counted in ticks, so the numbers are unchanged; a job takes about two
+minutes instead of about 4,110 s. Opt-in until the user has decided on it.
 """
 import argparse
 import json
@@ -197,7 +202,7 @@ def save(path, data):
     os.replace(tmp, path)
 
 
-def launch(node, job, refs, jar):
+def launch(node, job, refs, jar, tickwarp=False):
     shutil.copy2(jar, os.path.join(node.path, "mods", os.path.basename(jar)))
     cfg = os.path.join(node.path, "config")
     for f in os.listdir(cfg):
@@ -218,8 +223,9 @@ def launch(node, job, refs, jar):
     log = open(os.path.join(node.path, "census-run.log"), "wb")
     err = open(os.path.join(node.path, "census-err.log"), "wb")
     node.proc = subprocess.Popen(
-        [JAVA, "-Xms2G", HEAP, "-Dfml.queryResult=confirm",
-         f"-Dqf.census.combat={request}", "-jar", FORGE_JAR, "nogui"],
+        [JAVA, "-Xms2G", HEAP, "-Dfml.queryResult=confirm"]
+        + (["-Dqf.census.tickwarp=true"] if tickwarp else [])
+        + [f"-Dqf.census.combat={request}", "-jar", FORGE_JAR, "nogui"],
         cwd=node.path, stdout=log, stderr=err, stdin=subprocess.DEVNULL,
         creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
     node.job = job
@@ -277,6 +283,8 @@ def main():
     ap.add_argument("--pairs-only", help="a+b+c: the enchantments the pairs phase crosses")
     ap.add_argument("--timeout-hours", type=float, default=4.0)
     ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument("--tickwarp", action="store_true",
+                    help="run census ticks back to back (-Dqf.census.tickwarp=true)")
     ap.add_argument("--adopt", nargs="*", help="NODE=JOB=PID of servers already running")
     args = ap.parse_args()
 
@@ -349,7 +357,7 @@ def main():
             queue.remove(pick)
             attempts[pick["name"]] = attempts.get(pick["name"], 0) + 1
             running_bosses.add(pick["boss"])
-            launch(node, pick, refs, args.jar)
+            launch(node, pick, refs, args.jar, args.tickwarp)
             time.sleep(20)   # stagger boots; three at once thrash the disk
         time.sleep(15)
     print(time.strftime("%H:%M:%S"), "campaign complete", flush=True)
