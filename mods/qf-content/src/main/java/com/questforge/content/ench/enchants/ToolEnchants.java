@@ -166,6 +166,17 @@ public class ToolEnchants {
                 if (drop != null && drop.hasTagCompound()) return;
             }
 
+            // Never a block that drops itself. The position memory below is beaten
+            // by moving one block over: break a diamond block, place it next
+            // door, break it again, and level III compounds at a third per
+            // cycle. Anything that drops its own item can be placed back, so
+            // none of it qualifies; Bountiful is for blocks that break into
+            // something else -- gravel, glowstone, crops.
+            net.minecraft.item.Item own = net.minecraft.item.Item.getItemFromBlock(ctx.block);
+            for (ItemStack drop : ctx.drops) {
+                if (drop != null && own != null && drop.getItem() == own) return;
+            }
+
             // One payout per position. Otherwise the loop is trivial: break a
             // block, get two, place one back, break it again.
             if (!com.questforge.content.ench.DuplicationMemory.claim(
