@@ -9,6 +9,18 @@ own dated folder (`_splash-4k-buffer`, `_music-20260904`, `_buttons-iron-2026090
 and nineteen more). The names below describe what the tool does; the date it was
 written is in git.
 
+## `trial/` — boot only what a test needs
+
+`trial.py` builds a throwaway client or server with the base visual/performance set plus the
+mods a test names, enforces one client at a time and a shared RAM budget, bisects, and is the
+only sanctioned way to install a jar into the live pack. See [`trial/README.md`](trial/README.md).
+
+## `lite-client/` — the pack on weaker PCs
+
+`apply-lite.ps1` switches a friend's client to the lite or potato profile (same content,
+lighter video settings, client-only jars moved aside) and back. See
+[`lite-client/README.md`](lite-client/README.md).
+
 ## `branding/` — pack art
 
 The title screen, splash, icons and buttons. Most scripts render to PNG and then

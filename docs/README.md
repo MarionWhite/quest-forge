@@ -33,6 +33,10 @@ Read in this order on a new machine.
 | [`design/enchantments.md`](design/enchantments.md) | The 81-enchantment system: categories, application rules, balance targets. |
 | [`design/voice-chat.md`](design/voice-chat.md) | In-band proximity voice: codec choice, transport, and the server-side range cut. |
 | [`design/shaders/`](design/shaders/README.md) | The pack's own shader pack: why, the look bible, performance rules, the phone review loop, and the research behind them. |
+| [`design/questline-audit.md`](design/questline-audit.md) | **The quest book today and the plan to make it AAA.** Every chapter mapped, broken and tier-skipping quests, untouched content, and an ordered work plan (WP-0 toolkit first). |
+| [`design/progression-audit.md`](design/progression-audit.md) | **Where the power curve flattens.** Gear ladder across mods, shortcuts that skip to the top, the plateau, zero-cost fixes and an enchant loot design. |
+| [`design/server-readiness.md`](design/server-readiness.md) | **What the friends' server still lacks.** Backups and restarts, stale-client joins, identity, chunk loaders, profiling, admin tools, social rules. |
+| [`design/performance-plan.md`](design/performance-plan.md) | **Where time and memory go, and the lite client for weaker PCs.** Measured heap/atlas/VRAM, ranked general wins, and what changes if Angelica is adopted. |
 
 ## Reference — measured facts
 
