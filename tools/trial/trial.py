@@ -38,6 +38,7 @@ Usage (py -3.10):
     trial.py install JAR [--why TEXT]           put a built jar into the live instance
     trial.py bisect start|good|bad|status|reset ...   halve a mod set to find a culprit
     trial.py disk                               instance copies on this PC and who uses them
+    trial.py stop NAME [--force]                stop this trial's own JVM (never anyone else's)
     trial.py remove NAME
 """
 import argparse, datetime, hashlib, json, os, re, shutil, subprocess, sys, time, zipfile
@@ -982,6 +983,39 @@ def cmd_resolve(a):
         print(f"no jar for: {', '.join(missing)}")
 
 
+def cmd_stop(a):
+    """Stop a trial's own JVM -- and nothing else. The pid comes from the trial's
+    pid file and must still have the trial dir on its command line, so a reused
+    pid can never take down someone else's game."""
+    d = trial_dir(a.name)
+    try:
+        with open(os.path.join(d, "pid")) as f:
+            pid = int(f.read().strip())
+    except (OSError, ValueError):
+        sys.exit(f"trial {a.name} has no pid file; it was never launched")
+    mine = [p for p in java_processes() if p["pid"] == pid and os.path.normcase(d) in os.path.normcase(p["cmd"] + p["gameDir"])]
+    if not mine:
+        # A server's cwd is not on its command line; fall back to the pid file plus liveness.
+        if not pid_alive(pid):
+            print(f"trial {a.name} is not running")
+            return
+        if man_side(a.name) != "server":
+            sys.exit(f"pid {pid} is alive but is not trial {a.name}'s client; not touching it")
+    if man_side(a.name) == "server" and not a.force:
+        print(f"server trials stop cleanly with a 'stop' console command (--commands); "
+              f"use --force to kill pid {pid} instead")
+        sys.exit(2)
+    ps(f"Stop-Process -Id {pid} -Force -ErrorAction SilentlyContinue")
+    held = read_lock()
+    if held and held.get("pid") == pid:
+        os.remove(LOCK)
+    print(f"stopped trial {a.name} (pid {pid})")
+
+
+def man_side(name):
+    return read_manifest(name).get("side", "client")
+
+
 def cmd_remove(a):
     d = trial_dir(a.name)
     if trial_running(a.name):
@@ -1047,6 +1081,9 @@ def main():
     sp.add_parser("list").set_defaults(fn=cmd_list)
     sp.add_parser("status").set_defaults(fn=cmd_status)
     sp.add_parser("disk").set_defaults(fn=cmd_disk)
+    p = sp.add_parser("stop"); p.add_argument("name")
+    p.add_argument("--force", action="store_true", help="kill a server trial instead of asking for a clean stop")
+    p.set_defaults(fn=cmd_stop)
     p = sp.add_parser("remove"); p.add_argument("name"); p.set_defaults(fn=cmd_remove)
     # Mods may come before or after any option (`build x --force a b`); argparse
     # alone stops collecting positionals at the first option.
