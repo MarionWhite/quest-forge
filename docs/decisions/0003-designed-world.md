@@ -41,5 +41,5 @@ population of painted chunks proves unworkable.
 4. How long does pregeneration take, and how large is the world on disk, per million chunks?
 5. Do the client requirements of the GTNH RWG fork keep OptiFine E7 clients able to join?
 
-The research behind this decision is summarised in the session reports: biomes, ambience
-and quests, all from 2026-10-17.
+The research behind it, from 2026-10-17: [biomes](../design/world/research/biomes.md),
+[ambience](../design/world/research/ambience.md) and [quests](../design/world/research/quests.md).
