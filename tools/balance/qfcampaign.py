@@ -72,24 +72,42 @@ class Boss:
         self.source = source
         self.target_hp = None
         self.control_ttk = []      # seconds, one per control repeat
+        self.bow_ttk = []          # bow controls, a noisier instrument
         self.singles = {}          # (enchant, level) -> row
+        self.bow_singles = {}      # enchant -> row
         self.pairs = {}            # frozenset({a, b}) -> row
+        self.stacks = {}           # curated 3-enchant loadouts -> row
         self.defense_ctrl = []
         self.defense = {}          # enchant -> row
         self.excluded = []
 
     @property
     def ttk0(self):
-        finite = [t for t in self.control_ttk if t is not None and not math.isinf(t)]
-        return statistics.mean(finite) if finite else None
+        return Boss._stats(self.control_ttk)[0]
 
     @property
     def noise_pct(self):
-        """Two standard deviations of the control repeats, as a share of their mean."""
-        finite = [t for t in self.control_ttk if t is not None and not math.isinf(t)]
-        if len(finite) < 2 or not self.ttk0:
-            return None
-        return 200.0 * statistics.pstdev(finite) / self.ttk0
+        """Two robust standard deviations of the control repeats, as a share of their median."""
+        return Boss._stats(self.control_ttk)[1]
+
+    @staticmethod
+    def _stats(ttks):
+        """Median and noise (two robust sd, %) of control TTKs.
+
+        Median and MAD rather than mean and sd: a bow control that loses two bands
+        to a boss jumping out of its arc would otherwise drag the baseline and
+        inflate the noise for every bow row. Never below 2%: a deterministic
+        weapon repeats to the hundredth, and a 0.3% effect is not one a player
+        can feel or a loot table should price.
+        """
+        finite = sorted(t for t in ttks if t is not None and not math.isinf(t))
+        if not finite:
+            return None, None
+        m = statistics.median(finite)
+        if len(finite) < 2:
+            return m, None
+        mad = statistics.median(abs(t - m) for t in finite) * 1.4826
+        return m, max(2.0, 200.0 * mad / m)
 
     def speedup(self, row):
         """How much faster than control this row kills, in percent. 0 = no change."""
@@ -125,6 +143,13 @@ def collect(paths):
                     b.singles[(names[0], int(num(r.get("level")) or 0))] = r
                 elif kind == "stacked" and len(names) == 2:
                     b.pairs[frozenset(names)] = r
+                elif kind == "stacked":
+                    b.stacks[r["loadout"]] = r
+            elif mode == "BOW":
+                if kind == "control":
+                    b.bow_ttk.append(num(r.get("ttk_est_s")))
+                elif kind == "isolated":
+                    b.bow_singles[names[0]] = r
             elif mode == "DEFENSE":
                 if kind == "control":
                     b.defense_ctrl.append(r)
@@ -163,7 +188,7 @@ def report(bosses, md):
     w("|---|---|---:|---:|---:|---|")
     for b in sorted(bosses.values(), key=lambda b: (b.weapon, b.target_hp or 0)):
         note = ""
-        if b.ttk0 is None:
+        if b.ttk0 is None and b.control_ttk:
             note = "**cannot be killed by this weapon** -- every control stalled"
         elif b.excluded:
             note = f"{len(b.excluded)} cell(s) excluded as degenerate"
@@ -232,6 +257,26 @@ def report(bosses, md):
                   f"{abs(z):.1f} sd {side} than the {rarity.get(e, '')} median ({med:+.1f}%).")
             w("")
 
+    # ---- curated stacks ----
+    s_live = [b for b in live if b.stacks]
+    if s_live:
+        w("## Curated stacks\n")
+        w("Loadouts a player plausibly ends up holding. A negative figure means the "
+          "stack kills **slower** than no enchantment at all.\n")
+        w("| Stack | " + " | ".join(b.name.split(".")[-1] for b in s_live) + " |")
+        w("|---|" + "---|" * len(s_live))
+        for st in sorted({k for b in s_live for k in b.stacks}):
+            cells_ = []
+            for b in s_live:
+                r = b.stacks.get(st)
+                v = b.speedup(r) if r else None
+                txt = fmt(v)
+                if v is not None and b.noise_pct is not None and abs(v) > b.noise_pct:
+                    txt = f"**{txt}**"
+                cells_.append(txt)
+            w(f"| {st} | " + " | ".join(cells_) + " |")
+        w("")
+
     # ---- pairs ----
     pair_rows = []
     for b in live:
@@ -266,6 +311,32 @@ def report(bosses, md):
                 break
         if shown == 0:
             w("| (none beyond noise) | | | |")
+        w("")
+
+    # ---- bow ----
+    b_live = [b for b in bosses.values() if b.bow_singles and Boss._stats(b.bow_ttk)[0]]
+    if b_live:
+        w("## Bow speed-up by boss\n")
+        w("Bow cells fight a moving boss from ten blocks and miss some arrows, so "
+          "their noise band is wider; it is shown per boss.\n")
+        w("| Enchant | " + " | ".join(
+            f"{b.name.split('.')[-1]} (±{(Boss._stats(b.bow_ttk)[1] or 0):.0f}%)" for b in b_live) + " |")
+        w("|---|" + "---|" * len(b_live))
+        for e in sorted({e for b in b_live for e in b.bow_singles}):
+            cells_ = []
+            for b in b_live:
+                r = b.bow_singles.get(e)
+                m, noise = Boss._stats(b.bow_ttk)
+                t = num(r.get("ttk_est_s")) if r else None
+                if t is None:
+                    cells_.append("-")
+                    continue
+                v = -100.0 if math.isinf(t) else 100.0 * (1.0 - t / m)
+                txt = fmt(v)
+                if noise is not None and abs(v) > noise:
+                    txt = f"**{txt}**"
+                cells_.append(txt)
+            w(f"| {e} | " + " | ".join(cells_) + " |")
         w("")
 
     # ---- defence ----

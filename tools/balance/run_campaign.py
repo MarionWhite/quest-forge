@@ -16,7 +16,9 @@ about one opponent, whichever node ran it. The references are kept in
 refs.json in the output directory.
 
 Resumable: a job with a finished.json is skipped. Kill this and start it again
-and it carries on.
+and it carries on. Create PAUSE in the output directory to let running jobs
+finish and start no new ones (another session needs the machine); delete it to
+carry on.
 
 Usage:
     py -3.10 run_campaign.py --nodes C:\\qfs\\c1 C:\\qfs\\c2 C:\\qfs\\c3 \\
@@ -232,6 +234,10 @@ def main():
             running_bosses.discard(boss)
             if not ok and attempts.get(job["name"], 0) < 2:
                 queue.append(job)   # one retry; a crash at boot is usually transient
+        # Another session needs the machine: finish what is running, start nothing.
+        if os.path.exists(os.path.join(args.out, "PAUSE")):
+            time.sleep(15)
+            continue
         for node in nodes:
             if node.proc is not None:
                 continue

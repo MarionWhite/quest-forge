@@ -1026,8 +1026,12 @@ public class CombatCensus {
             // with Berserk and Riposte was measured on a player nobody is.
             // Incoming hits are absorbed without death instead; see absorbHit.
             setProbeHealth(probe, DEFENSIVE_HEALTH);
-            probe.setHealth(DEFENSIVE_HEALTH * options.hpFraction);
-            CensusProbe.wear(probe, null);
+            // In the tier's armour, as a player is. Bare, the probe took four
+            // times a real player's damage from every boss swing, which is what
+            // Riposte, Rage and anything else keyed to being hurt react to.
+            CensusProbe.wear(probe, armourFor(c.loadout));
+            fillGrantedHealth(probe);
+            probe.setHealth(probe.getMaxHealth() * options.hpFraction);
             CensusProbe.hold(probe, weaponFor(c.loadout, c.mode));
         }
 
@@ -1250,12 +1254,46 @@ public class CombatCensus {
         }
         // The arena is a few blocks wide, but the ticket also has to cover the
         // chunk each target stands in, so take the immediate neighbourhood.
-        for (int dx = -1; dx <= 1; dx++) {
-            for (int dz = -1; dz <= 1; dz++) {
+        // Two chunks each way: the flattened arena reaches ARENA_RADIUS from the
+        // centre, which can straddle three chunks on either side of it.
+        for (int dx = -2; dx <= 2; dx++) {
+            for (int dz = -2; dz <= 2; dz++) {
                 ForgeChunkManager.forceChunk(arenaTicket, new ChunkCoordIntPair(cx + dx, cz + dz));
             }
         }
         QuestForgeContent.log.info("[census] arena chunks force-loaded around " + cx + "," + cz);
+        flattenArena();
+    }
+
+    /** Half-width of the flattened arena: leash plus bow standoff, with margin. */
+    private static final int ARENA_RADIUS = 26;
+    /** Clear air above the floor; Mobzilla is twenty-five blocks tall. */
+    private static final int ARENA_HEADROOM = 40;
+
+    /**
+     * Levels the arena to a stone floor with open air above.
+     *
+     * The census used to fight on whatever the world generated at spawn. A bow
+     * cell kited onto a hillside and every arrow buried itself in the slope four
+     * blocks out: zero damage, measured as the bow being worthless. Trees, water
+     * and slopes also differ between nodes, each of which generates its own
+     * world. A level floor gives every cell, mode and node the same ground and
+     * every archer a line of sight, which is how a boss arena is built anyway.
+     */
+    private static void flattenArena() {
+        int x0 = (int) Math.floor(px), z0 = (int) Math.floor(pz), y0 = (int) Math.floor(py);
+        net.minecraft.block.Block stone = net.minecraft.init.Blocks.stone;
+        net.minecraft.block.Block air = net.minecraft.init.Blocks.air;
+        for (int x = x0 - ARENA_RADIUS; x <= x0 + ARENA_RADIUS; x++) {
+            for (int z = z0 - ARENA_RADIUS; z <= z0 + ARENA_RADIUS; z++) {
+                for (int y = y0 - 3; y < y0; y++) world.setBlock(x, y, z, stone, 0, 2);
+                for (int y = y0; y < y0 + ARENA_HEADROOM && y < 256; y++) {
+                    if (!world.isAirBlock(x, y, z)) world.setBlock(x, y, z, air, 0, 2);
+                }
+            }
+        }
+        QuestForgeContent.log.info("[census] arena flattened: " + (2 * ARENA_RADIUS + 1) + " blocks square"
+                + " at y " + y0);
     }
 
     private static void releaseArena() {
@@ -1338,8 +1376,10 @@ public class CombatCensus {
                 faceToward(probe, primary);
                 float healthBefore = primary.getHealth();
                 if (cell.mode == Mode.BOW) {
+                    kite(probe, primary);
                     fireArrow(probe, primary);
                 } else {
+                    chase(probe, primary);
                     // Not attackTargetEntityWithCurrentItem directly: in this pack
                     // a mod cancels the attack event outright. See CensusProbe.swing.
                     CensusProbe.swing(probe, primary);
@@ -1373,7 +1413,11 @@ public class CombatCensus {
         // and "was hurt recently" is recorded without a corpse.
         if (cellTick % MOB_INTERVAL == 0) {
             EntityLivingBase primary = primary();
-            if (primary != null) absorbHit(probe, primary);
+            // Only within the boss's reach. A kiting archer is not struck every
+            // second; one standing in melee is.
+            if (primary != null && probe.getDistanceToEntity(primary) <= 3.0F + primary.width) {
+                absorbHit(probe, primary);
+            }
         }
 
         // A last guard, for damage that does not come through absorbHit -- a boss
@@ -1478,7 +1522,7 @@ public class CombatCensus {
             double dx = mob.posX - px, dz = mob.posZ - pz;
             if (dx * dx + dz * dz <= LEASH * LEASH) continue;
             double x = px + 3.0D, z = pz;
-            mob.setPositionAndUpdate(x, world.getTopSolidOrLiquidBlock((int) x, (int) z) + 1, z);
+            mob.setPositionAndUpdate(x, py, z);
             mob.motionX = mob.motionY = mob.motionZ = 0;
         }
     }
@@ -1684,6 +1728,9 @@ public class CombatCensus {
         IAttributeInstance max = probe.getEntityAttribute(SharedMonsterAttributes.maxHealth);
         float held = probe.getHealth();
         double heldMax = max == null ? DEFENSIVE_HEALTH : max.getBaseValue();
+        // Back to where it stood, not to melee range: an archer knocked about by
+        // a boss is still an archer.
+        double hx = probe.posX, hy = probe.posY, hz = probe.posZ;
         try {
             if (max != null) max.setBaseValue(PROBE_HEALTH);
             probe.setHealth(PROBE_HEALTH);
@@ -1696,7 +1743,7 @@ public class CombatCensus {
         } finally {
             if (max != null) max.setBaseValue(heldMax);
             probe.setHealth(held);
-            probe.setPosition(px + 1.5D, py, pz);
+            probe.setPosition(hx, hy, hz);
             probe.motionX = probe.motionY = probe.motionZ = 0;
             int[] damaging = { net.minecraft.potion.Potion.poison.id,
                     net.minecraft.potion.Potion.wither.id, net.minecraft.potion.Potion.harm.id };
@@ -1727,6 +1774,35 @@ public class CombatCensus {
         }
     }
 
+    /**
+     * Steps the archer back to its standoff before a shot.
+     *
+     * Bosses close the distance. A pilot's Mantis sat on top of the probe, so
+     * arrows spawned inside its hitbox and most passed through. A player with a
+     * bow backs off; this does it for them.
+     */
+    private static void kite(EntityPlayer probe, EntityLivingBase target) {
+        if (probe.getDistanceToEntity(target) >= BOW_STANDOFF * 0.6D) return;
+        double x = target.posX + BOW_STANDOFF, z = target.posZ;
+        probe.setPosition(x, py, z);
+        probe.motionX = probe.motionY = probe.motionZ = 0;
+    }
+
+    /**
+     * Keeps a melee fighter within reach, as a player follows a boss. The swing
+     * itself would land from anywhere; the boss's hits back would not.
+     */
+    private static void chase(EntityPlayer probe, EntityLivingBase target) {
+        double reach = 1.5D + target.width * 0.5D;
+        if (probe.getDistanceToEntity(target) <= reach + 1.0D) return;
+        double x = target.posX + reach, z = target.posZ;
+        probe.setPosition(x, py, z);
+        probe.motionX = probe.motionY = probe.motionZ = 0;
+    }
+
+    /** The previous arrow loosed, for the first shots' diagnostic line. */
+    private static EntityArrow lastArrow;
+
     private static void fireArrow(EntityPlayer probe, EntityLivingBase target) {
         // The five-argument constructor is the one skeletons use: it aims at the
         // target rather than at wherever the shooter happens to be facing.
@@ -1748,6 +1824,17 @@ public class CombatCensus {
         dz += target.motionZ * flight;
         dy += 0.025D * flight * flight;   // half of gravity's 0.05 per tick squared
         arrow.setThrowableHeading(dx, dy, dz, BOW_VELOCITY, 0.0F);
+        if (lastArrow != null && result.swings <= 3) {
+            QuestForgeContent.log.info("[census] arrow " + result.swings + " at " + cell.targetName
+                    + ": now at " + CensusFile.num(lastArrow.posX) + "," + CensusFile.num(lastArrow.posY)
+                    + "," + CensusFile.num(lastArrow.posZ) + " dead " + lastArrow.isDead
+                    + "; fired from " + CensusFile.num(arrow.posX) + "," + CensusFile.num(arrow.posY) + ","
+                    + CensusFile.num(arrow.posZ) + " at target " + CensusFile.num(target.posX) + ","
+                    + CensusFile.num(target.posY) + "," + CensusFile.num(target.posZ) + " size "
+                    + CensusFile.num(target.width) + "x" + CensusFile.num(target.height)
+                    + ", target health " + CensusFile.num(target.getHealth()));
+        }
+        lastArrow = arrow;
         arrow.setDamage(2.0D);
         // ItemBow.onPlayerStoppedUsing sets this for a full draw, and it is a
         // large share of a bow's real damage.
@@ -1778,6 +1865,13 @@ public class CombatCensus {
             } catch (Throwable t) {
                 result.note = "attacker threw: " + describe(t);
                 return;
+            }
+            if (result.incomingSwings == 0) {
+                QuestForgeContent.log.info("[census] first defensive hit from " + cell.targetName
+                        + " on " + cell.loadout.describe() + ": probe armour " + probe.getTotalArmorValue()
+                        + ", health " + CensusFile.num(before) + " -> " + CensusFile.num(probe.getHealth())
+                        + ", hurtResist " + probe.hurtResistantTime + ", distance "
+                        + CensusFile.num(probe.getDistanceToEntity(attacker)));
             }
             probe.setPosition(px + 1.5D, py, pz);
             probe.motionX = probe.motionY = probe.motionZ = 0;
