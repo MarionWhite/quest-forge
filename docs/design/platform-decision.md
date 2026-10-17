@@ -1,5 +1,9 @@
 # Platform decision: stay on 1.7.10, or port to a newer Minecraft?
 
+> **Decided 2026-10-17 by the user: stay on 1.7.10.** The reasoning below was accepted.
+> The ore and structure survey is **deferred until just before the pack goes to a real server**:
+> worldgen will keep changing until then, so a survey now would be stale.
+
 Written 2026-10-17, before the 15–25 hours of Angelica and Java 25 work in
 [`angelica-decision.md`](angelica-decision.md). The question was: will we
 regret building on 1.7.10, after all the quest, shader, balance and server work
