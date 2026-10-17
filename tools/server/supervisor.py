@@ -80,7 +80,7 @@ DEFAULTS = {
     "quiet_s": 10,                       # region files unchanged this long before copying
     "restart_at": "05:00",               # daily restart, local time; "" turns it off
     "restart_warnings_min": [10, 5, 1],
-    "jstack": "",                        # empty: look for a JDK 8 jstack
+    "jstack": "",                        # empty: look for a jstack matching the java
     "discord_webhook": "",               # or env QF_DISCORD_WEBHOOK
     "alert_on_join": False,
 }
@@ -171,22 +171,44 @@ def parse_start_script(server_dir):
     raise SystemExit("could not find the java line (with -jar) in the start script")
 
 
+def java_major(java):
+    """8 or 25 (or whatever), from the `release` file of the java's home; 8 when unknown."""
+    if not java or not os.path.isabs(java):
+        return 8
+    try:
+        with open(os.path.join(os.path.dirname(os.path.dirname(java)), "release")) as fh:
+            m = re.search(r'JAVA_VERSION="(?:1\.)?(\d+)', fh.read())
+        return int(m.group(1)) if m else 8
+    except OSError:
+        return 8
+
+
 def find_jstack(configured, java):
+    """A jstack that can attach to the server's JVM: one from the same major
+    version. The java's own bin/ comes first (a JDK, such as the Temurin 25 the
+    --java25 build runs on, has it there); a JRE has none, so for Java 8 a
+    separate JDK 8 is looked for."""
     if configured:
         return configured if os.path.exists(configured) else None
     exe = "jstack.exe" if IS_WIN else "jstack"
     cands = []
-    jh = os.environ.get("JAVA_HOME")
-    if jh:
-        cands.append(os.path.join(jh, "bin", exe))
     if java and os.path.isabs(java):
         cands.append(os.path.join(os.path.dirname(java), exe))
+    jh = os.environ.get("JAVA_HOME")
+    if jh and java_major(os.path.join(jh, "bin", "java")) == java_major(java):
+        cands.append(os.path.join(jh, "bin", exe))
     if IS_WIN:
         import glob
-        for pat in (r"C:\Program Files\Eclipse Adoptium\jdk-8*\bin\jstack.exe",
+        if java_major(java) == 8:
+            pats = (r"C:\Program Files\Eclipse Adoptium\jdk-8*\bin\jstack.exe",
                     r"C:\Program Files\Java\jdk1.8*\bin\jstack.exe",
                     r"C:\Program Files\Zulu\zulu-8*\bin\jstack.exe",
-                    r"C:\Program Files\Amazon Corretto\jdk1.8*\bin\jstack.exe"):
+                    r"C:\Program Files\Amazon Corretto\jdk1.8*\bin\jstack.exe")
+        else:
+            v = java_major(java)
+            pats = (r"C:\Program Files\Eclipse Adoptium\jdk-%d*\bin\jstack.exe" % v,
+                    r"C:\Program Files\Java\jdk-%d*\bin\jstack.exe" % v)
+        for pat in pats:
             cands += sorted(glob.glob(pat), reverse=True)
     for c in cands:
         if os.path.exists(c):
@@ -434,7 +456,8 @@ class Supervisor:
     def run(self):
         self.log("starting; dir=%s port=%d level=%s" % (self.dir, self.port, self.level))
         self.log("java: %s" % " ".join(self.cmd))
-        self.log("jstack: %s" % (self.jstack or "none found (hang dumps disabled; install a JDK 8)"))
+        self.log("jstack: %s" % (self.jstack or "none found (hang dumps disabled; install a "
+                                                 "JDK of the server's Java version)"))
         self.log("discord alerts: %s" % ("on" if self.webhook else "off"))
         if os.path.exists(self.pidfile):
             try:

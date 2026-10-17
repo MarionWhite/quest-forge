@@ -16,13 +16,23 @@ with server/config, whose enchantment IDs differ from the clients'.
 
 Usage:
     build_play_server.py --instance <.crazycraft4 dir> --forge-install <dir> --out <server dir>
+    build_play_server.py --java25 --instance <dir> [--tweaks <qf-tweaks jar>] --out <server dir>
 
 --forge-install is a directory holding a stock Forge 1.7.10-10.13.4.1558 server
 install: the universal jar, minecraft_server.1.7.10.jar and libraries/. The
 client's own Forge jar is hand-patched for the splash screen and must not be
 used here.
+
+--java25 builds the slim Java 25 server instead (docs/design/angelica-decision.md):
+Temurin 25 + lwjgl3ify + UniMixins on Forge 10.13.4.1614, and nothing else from
+the GTNH stack. Today's Java 8 OptiFine clients join it unchanged. The pinned
+jars are downloaded once into --cache and checked by sha256; Forge 1614 is
+installed there from its installer unless --forge-install names an install.
+Without --java25 the build is the Java 8 server it has always been, so going
+back is one rebuild.
 """
-import argparse, fnmatch, hashlib, json, os, shutil, socket, subprocess, sys, uuid, zipfile
+import argparse, fnmatch, glob, hashlib, json, os, shutil, socket, subprocess, sys, urllib.request
+import uuid, zipfile
 
 # Mods that only run with a screen. Each stays on every client -- FML lets a
 # client carry mods the server lacks, but never the reverse. Matched as a
@@ -101,6 +111,194 @@ JVM_FLAGS = [
     "-Dlog4j2.formatMsgNoLookups=true",
 ]
 
+# --- the slim Java 25 server ------------------------------------------------
+#
+# Pinned to the versions the 2026-10-17 decision tests ran (test 1 and the slim
+# bench in docs/design/angelica-decision.md). A different version is a new
+# test, not a drop-in: lwjgl3ify replaces Forge's ASM and Gson, and its server
+# launcher names the Forge universal jar by its exact file name.
+J25_FORGE = "forge-1.7.10-10.13.4.1614-1.7.10-universal.jar"
+J25_LAUNCHER = "lwjgl3ify-forgePatches.jar"   # the name lwjgl3ify's README asks for
+J25_DEPS = {
+    # cache name: (url, sha256, where it goes in the server)
+    "lwjgl3ify-3.0.39-forgePatches.jar": (
+        "https://github.com/GTNewHorizons/lwjgl3ify/releases/download/3.0.39/"
+        "lwjgl3ify-3.0.39-forgePatches.jar",
+        "7428fdbe6f85d7c092aecd9169ff8d5e83327edd6e8ef1c2ee517f739c5388b0", J25_LAUNCHER),
+    "lwjgl3ify-3.0.39.jar": (
+        "https://github.com/GTNewHorizons/lwjgl3ify/releases/download/3.0.39/lwjgl3ify-3.0.39.jar",
+        "c120ef93dfda5bd54e2b16ffae3265fc8bb188e952790cb886999896a70a52c6",
+        "mods/lwjgl3ify-3.0.39.jar"),
+    "+unimixins-all-1.7.10-0.3.2.jar": (
+        "https://github.com/LegacyModdingMC/UniMixins/releases/download/0.3.2/"
+        "%2Bunimixins-all-1.7.10-0.3.2.jar",
+        "2687b776c8503e0b60cd8413cf70eaabb836c19f9fc726280ef61d6612257034",
+        "mods/+unimixins-all-1.7.10-0.3.2.jar"),
+    # The JVM's --add-opens list, from the same lwjgl3ify tag.
+    "java9args-3.0.39.txt": (
+        "https://raw.githubusercontent.com/GTNewHorizons/lwjgl3ify/3.0.39/java9args.txt",
+        "4323ca4203c84371d4fe1698dad306f81858be97bfe6da2606e7fd1b81749c9d", "java9args.txt"),
+}
+J25_FORGE_INSTALLER = (
+    "forge-1.7.10-10.13.4.1614-1.7.10-installer.jar",
+    "https://maven.minecraftforge.net/net/minecraftforge/forge/1.7.10-10.13.4.1614-1.7.10/"
+    "forge-1.7.10-10.13.4.1614-1.7.10-installer.jar",
+    "a5d60757d8b305939233a942d5097fa78816d116ef9082c03066fe669e010c7f")
+
+# Any of these on the server becomes required on every client. GTNHLib is a
+# required mod and crashes OptiFine E7 at load; Hodgepodge and ArchaicFix change
+# the login packet, so clients without them are dropped (decision doc, test 1).
+J25_FORBIDDEN = ["hodgepodge", "archaicfix", "gtnhlib", "angelica"]
+
+# qf-tweaks patches the Java 25 server cannot run without; each is inert on
+# Java 8. Checked in the jar the build installs, by class name.
+J25_TWEAKS = [
+    ("com/questforge/LuckyScriptTransformer.class",
+     "Lucky Block drop expressions (301 errors at boot without it)"),
+    ("com/questforge/RecNbtTransformer.class",
+     "Recurrent Complex loot with NBT (4 inventory generators fail without it)"),
+    ("com/questforge/AsieNickTransformer.class",
+     "AsieLib nicknames.json (fails to load from the second boot on)"),
+]
+
+# The Java 8 flags above do not exist on Java 25 (-XX:+UseSplitVerifier,
+# -Xloggc and the PrintGC family make the JVM refuse to start). The GC log
+# moves to unified logging: the same file, rotated the same way; `safepoint`
+# adds the total stop time of every pause, which is what the decision bench
+# compared. @java9args.txt must come before -jar.
+JVM_FLAGS_J25 = [
+    "-Xms{xmx}", "-Xmx{xmx}",
+    "-XX:+UseG1GC", "-XX:MaxGCPauseMillis=50", "-XX:G1HeapRegionSize=16M",
+    "-XX:+DisableExplicitGC",
+    "-Xlog:gc,safepoint:file=logs/gc.log:time,uptime:filecount=5,filesize=20M",
+    "-Dfml.ignoreInvalidMinecraftCertificates=true", "-Dfml.ignorePatchDiscrepancies=true",
+    "-Dlog4j2.formatMsgNoLookups=true",
+    "@java9args.txt",
+]
+
+JAVA8_DEFAULT = r"C:\Program Files\Java\jre1.8.0_241\bin\java.exe"
+
+
+def default_cache():
+    base = os.environ.get("LOCALAPPDATA") or os.path.join(os.path.expanduser("~"), ".cache")
+    return os.path.join(base, "quest-forge", "server-deps")
+
+
+def find_java25():
+    pats = [r"C:\Program Files\Eclipse Adoptium\jdk-25*\bin\java.exe",
+            r"C:\Program Files\Eclipse Adoptium\jre-25*\bin\java.exe",
+            r"C:\Program Files\Java\jdk-25*\bin\java.exe",
+            "/usr/lib/jvm/*25*/bin/java"]
+    for pat in pats:
+        hits = sorted(glob.glob(pat), reverse=True)
+        if hits:
+            return hits[0]
+    return None
+
+
+def sha256_file(path):
+    h = hashlib.sha256()
+    with open(path, "rb") as fh:
+        for chunk in iter(lambda: fh.read(1 << 20), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def fetch(cache, name, url, sha):
+    """The cached file, downloaded first if it is missing. A file whose sha256
+    is not the pinned one is never used: it is deleted and fetched again."""
+    os.makedirs(cache, exist_ok=True)
+    path = os.path.join(cache, name)
+    if os.path.exists(path):
+        if sha256_file(path) == sha:
+            return path
+        print("cache:   %s has the wrong sha256; fetching it again" % name)
+        os.remove(path)
+    print("fetch:   %s" % url)
+    part = path + ".part"
+    req = urllib.request.Request(url, headers={"User-Agent": "quest-forge-build_play_server"})
+    with urllib.request.urlopen(req, timeout=120) as r, open(part, "wb") as fh:
+        shutil.copyfileobj(r, fh)
+    got = sha256_file(part)
+    if got != sha:
+        os.remove(part)
+        sys.exit("%s: sha256 %s, expected %s. Not using it." % (url, got, sha))
+    os.replace(part, path)
+    return path
+
+
+def forge1614_install(cache, java8):
+    """A stock Forge 1614 server install in the cache, made by its installer."""
+    d = os.path.join(cache, "forge-1.7.10-10.13.4.1614-server")
+    if os.path.exists(os.path.join(d, J25_FORGE)) and os.path.isdir(os.path.join(d, "libraries")):
+        return d
+    name, url, sha = J25_FORGE_INSTALLER
+    inst = fetch(cache, name, url, sha)
+    if not os.path.exists(java8):
+        sys.exit("the Forge installer needs Java 8 (--java8; %s does not exist)" % java8)
+    if os.path.exists(d):
+        shutil.rmtree(d)
+    os.makedirs(d)
+    print("forge:   installing 1614 into %s" % d)
+    # The installer downloads minecraft_server.1.7.10.jar and the libraries.
+    res = subprocess.run([java8, "-jar", inst, "--installServer", d], cwd=d,
+                         stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
+    if res.returncode != 0 or not os.path.exists(os.path.join(d, J25_FORGE)):
+        print(res.stdout[-3000:])
+        shutil.rmtree(d, ignore_errors=True)
+        sys.exit("the Forge 1614 installer failed")
+    return d
+
+
+def packcheck_ignore_forge(cfg):
+    """Let Java 8 clients (Forge 1558) past qf-content's login check on the
+    Forge 1614 server.
+
+    qf-content's packcheck refuses a client whose version of any mod both sides
+    have differs, and Forge is a mod to it: "Your mods differ from the server's.
+    Mods: Minecraft Forge 10.13.4.1558 (server 10.13.4.1614)". FML's own
+    handshake accepts that pair (decision doc, test 1), so the server lists
+    Forge in packcheck's ignoreMods. It is a server-only setting and not an ID
+    entry, so the config fingerprint clients are checked against is unchanged.
+    Found 2026-10-17 by joining the --java25 test server."""
+    if not os.path.exists(cfg):
+        return
+    with open(cfg, encoding="latin-1", newline="") as fh:
+        text = fh.read()
+    nl = "\r\n" if "\r\n" in text else "\n"
+    lines = text.split(nl)
+    sec = next((i for i, l in enumerate(lines) if l.strip() == "packcheck {"), None)
+    if sec is None:
+        # A pack whose qf-content has not booted since packcheck arrived: add
+        # the section with just this key; Forge fills in the rest at boot.
+        while lines and not lines[-1].strip():
+            lines.pop()
+        lines += ["", "", "packcheck {", "    S:ignoreMods <", "     >", "}", "", ""]
+        sec = len(lines) - 6
+    start = next((i for i in range(sec, len(lines)) if lines[i].strip() == "S:ignoreMods <"), None)
+    if start is None:
+        lines.insert(sec + 1, "    S:ignoreMods <")
+        lines.insert(sec + 2, "     >")
+        start = sec + 1
+    end = next(i for i in range(start, len(lines)) if lines[i].strip() == ">")
+    if "Forge" in [l.strip() for l in lines[start + 1:end]]:
+        return
+    lines.insert(end, "        Forge")
+    with open(cfg, "w", encoding="latin-1", newline="") as fh:
+        fh.write(nl.join(lines))
+    print("qfcontent.cfg: packcheck ignoreMods += Forge (clients run 1558, this server 1614)")
+
+
+def tweaks_jar_missing(jar):
+    """Which J25_TWEAKS fixes the qf-tweaks jar lacks."""
+    try:
+        with zipfile.ZipFile(jar) as z:
+            names = set(z.namelist())
+    except (OSError, zipfile.BadZipFile):
+        return [why for _, why in J25_TWEAKS]
+    return [why for cls, why in J25_TWEAKS if cls not in names]
+
+
 START_BAT = """\
 @echo off
 rem Saintscore reads mods\\saintspack\\Packs.txt relative to the working
@@ -114,7 +312,9 @@ pause
 
 # Rented hosts almost always run Linux. A panel host (Pterodactyl and the like)
 # ignores this file and asks for the same flags in its own startup field; copy
-# them from here. It must be Java 8: Forge 1.7.10 does not start on anything newer.
+# them from here. A Java 8 build must run on Java 8: Forge 1.7.10 does not start
+# on anything newer by itself. A --java25 build must run on Java 25 (the `java`
+# on the host's PATH, or edit the line).
 # The supervised way to run it (tools/server/supervisor.py, copied next to it):
 # crash restart, hang detection, hourly backups, a daily restart, graceful stop.
 START_SUPERVISED_BAT = """\
@@ -388,10 +588,23 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--instance", required=True, help="the client instance (mods/, config/ live here)")
-    ap.add_argument("--forge-install", required=True, help="stock Forge 1.7.10 server install")
+    ap.add_argument("--forge-install",
+                    help="stock Forge 1.7.10 server install: 1558, or with --java25 1614 "
+                         "(optional then: the build installs one into --cache)")
     ap.add_argument("--out", required=True, help="server directory to create")
     ap.add_argument("--ccl", help="patched CodeChickenLib jar to use instead of the client's")
-    ap.add_argument("--java", default=r"C:\Program Files\Java\jre1.8.0_241\bin\java.exe")
+    ap.add_argument("--java", help="the java.exe start.bat runs; default: the Java 8 JRE, or "
+                                   "with --java25 the newest Temurin 25 found")
+    ap.add_argument("--java25", action="store_true",
+                    help="build the slim Java 25 server (lwjgl3ify + UniMixins on Forge 1614) "
+                         "instead of the Java 8 one")
+    ap.add_argument("--cache", default=default_cache(),
+                    help="where --java25 keeps its pinned downloads (default: %(default)s)")
+    ap.add_argument("--java8", default=JAVA8_DEFAULT,
+                    help="Java 8 for the Forge 1614 installer (--java25 only)")
+    ap.add_argument("--tweaks",
+                    help="QuestForgeTweaks jar to install instead of the instance's (a build "
+                         "newer than the live pack's)")
     ap.add_argument("--xmx", default="10G",
                     help="server heap; 10G suits 10-15 players on a 12 GB host")
     # These four default to None: on a rebuild the kept server.properties wins
@@ -424,9 +637,42 @@ def main():
         sys.exit("--player writes offline-mode UUIDs; with --online-mode true add players "
                  "with `whitelist add <name>` in the server console instead")
 
-    inst, fi = (os.path.abspath(p) for p in (args.instance, args.forge_install))
+    inst = os.path.abspath(args.instance)
     if not os.path.isdir(os.path.join(inst, "mods")):
         sys.exit("no mods/ under %s" % inst)
+    if not args.forge_install and not args.java25:
+        sys.exit("--forge-install is required (a stock Forge 1558 server install)")
+    java = args.java or (find_java25() if args.java25 else JAVA8_DEFAULT)
+    if not java:
+        sys.exit("--java25: no Temurin 25 found; pass --java <path to java.exe>")
+
+    # These checks need nothing but the inputs, so a refused build costs nothing.
+    tweaks = args.tweaks and os.path.abspath(args.tweaks)
+    if tweaks and not os.path.isfile(tweaks):
+        sys.exit("--tweaks %s does not exist" % tweaks)
+    if args.java25:
+        entries = [e for e in os.listdir(os.path.join(inst, "mods")) if not is_junk(e)]
+        bad = [e for e in entries if any(e.lower().startswith(f) for f in J25_FORBIDDEN)]
+        if bad:
+            sys.exit("--java25 builds the slim server, which must not carry %s: on the server "
+                     "they become required on every client, and GTNHLib crashes OptiFine "
+                     "clients (docs/design/angelica-decision.md, test 1)" % ", ".join(bad))
+        tj = tweaks or next((os.path.join(inst, "mods", e) for e in entries
+                             if e.startswith("QuestForgeTweaks")), None)
+        missing = tweaks_jar_missing(tj) if tj else ["no QuestForgeTweaks jar at all"]
+        if missing:
+            sys.exit("--java25: the qf-tweaks jar %s lacks the Java 25 fixes for:\n  %s\n"
+                     "Install the current qf-tweaks build in the pack first (tools/trial/trial.py "
+                     "install), or pass it with --tweaks." % (tj, "\n  ".join(missing)))
+        deps = {name: fetch(args.cache, name, url, sha)
+                for name, (url, sha, _) in J25_DEPS.items()}
+        fi = os.path.abspath(args.forge_install) if args.forge_install else \
+            forge1614_install(args.cache, args.java8)
+        if not os.path.exists(os.path.join(fi, J25_FORGE)):
+            sys.exit("--java25 needs Forge 1614: %s has no %s (lwjgl3ify's launcher loads that "
+                     "exact file)" % (fi, J25_FORGE))
+    else:
+        fi = os.path.abspath(args.forge_install)
 
     # A rebuild must never cost the friends their world. Everything else in the
     # directory is derived and is thrown away; these are carried across:
@@ -454,6 +700,8 @@ def main():
     # --- Forge server -----------------------------------------------------
     forge = None
     for fn in os.listdir(fi):
+        if args.java25 and fn.startswith("forge-1.7.10") and fn != J25_FORGE:
+            continue
         if fn.startswith("forge-1.7.10") and fn.endswith("-universal.jar"):
             forge = fn
             shutil.copy2(os.path.join(fi, fn), os.path.join(out, fn))
@@ -491,6 +739,23 @@ def main():
         kept += 1
     print("mods:    %d kept, %d dropped" % (kept, dropped))
 
+    if tweaks:
+        for fn in os.listdir(os.path.join(out, "mods")):
+            if fn.startswith("QuestForgeTweaks"):
+                os.remove(os.path.join(out, "mods", fn))
+        shutil.copy2(tweaks, os.path.join(out, "mods", "QuestForgeTweaks-1.0.jar"))
+        print("tweaks:  %s (sha256 %s)" % (tweaks, sha256_file(tweaks)[:12]))
+
+    # The slim Java 25 server, laid out as lwjgl3ify's README says: the
+    # launcher jar next to the Forge universal and minecraft_server jars (its
+    # manifest Class-Path names both, and libraries/), java9args.txt beside
+    # them, the lwjgl3ify mod jar and UniMixins in mods/.
+    if args.java25:
+        for name, (_, _, dest) in J25_DEPS.items():
+            shutil.copy2(deps[name], os.path.join(out, dest))
+            print("java25:  %s" % dest)
+        forge = J25_LAUNCHER
+
     # CodeChickenLib's WorldExtension.unloadChunk NPEs when a chunk unloads
     # mid-generation; the patched build guards it. CCL has no @Mod, so the
     # server may differ from clients here without refusing anyone.
@@ -512,6 +777,8 @@ def main():
         if os.path.isdir(src):
             copy_tree(src, os.path.join(out, name))
             print("%-8s copied" % (name + ":"))
+    if args.java25:
+        packcheck_ignore_forge(os.path.join(out, "config", "qfcontent.cfg"))
 
     for name in keep:
         if os.path.exists(os.path.join(stash, name)):
@@ -519,6 +786,10 @@ def main():
             print("kept:    %s" % name)
     if os.path.isdir(stash):
         os.rmdir(stash)
+    # Java 25 refuses to start at all when the -Xlog file's directory is
+    # missing (Java 8's -Xloggc just logs nothing). start.bat and the
+    # supervisor create it, but a panel host or a hand-typed command would not.
+    os.makedirs(os.path.join(out, 'logs'), exist_ok=True)
 
     if args.player:
         write_whitelist(out, args.player)
@@ -549,9 +820,9 @@ def main():
     else:
         with open(props_path, "w") as fh:
             fh.write(template)
-    flags = [f.format(xmx=args.xmx) for f in JVM_FLAGS]
+    flags = [f.format(xmx=args.xmx) for f in (JVM_FLAGS_J25 if args.java25 else JVM_FLAGS)]
     with open(os.path.join(out, "start.bat"), "w", newline="\r\n") as fh:
-        fh.write(START_BAT.format(java=args.java, forge=forge,
+        fh.write(START_BAT.format(java=java, forge=forge,
                                   flags=" ^\n ".join(" ".join(flags[i:i + 4])
                                                      for i in range(0, len(flags), 4))))
     with open(os.path.join(out, "start.sh"), "w", newline="\n") as fh:
@@ -586,6 +857,13 @@ def main():
     with open(os.path.join(out, "BUILT-FROM.txt"), "w") as fh:
         fh.write("Assembled by tools/server/build_play_server.py\n")
         fh.write("Source instance: %s\n" % inst)
+        if args.java25:
+            fh.write("Mode: slim Java 25 (%s): Forge 1614, lwjgl3ify 3.0.39, UniMixins 0.3.2.\n"
+                     "      Back to Java 8: rebuild without --java25.\n" % java)
+        else:
+            fh.write("Mode: Java 8 (%s), Forge %s\n" % (java, forge))
+        if tweaks:
+            fh.write("QuestForgeTweaks: %s, not the instance's\n" % tweaks)
         fh.write("Mods kept: %d   dropped: %d\n\n" % (kept, dropped))
         fh.write("Dropped from the server (every client keeps them):\n")
         for prefix, why in CLIENT_ONLY:
