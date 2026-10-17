@@ -161,6 +161,16 @@ Rank = how far up the ladder it jumps × how cheap and repeatable it is.
 
 ### 2.1 Bountiful block duplication — our own code — CRITICAL [E]
 
+> **Status: fixed in `dc165b0`** (2026-10-16). Bountiful now skips any drop that is
+> the block's own item, so the place-and-rebreak loop below no longer pays. It is
+> live only once the jar is installed with `trial.py install`.
+>
+> **Leftover, accepted:** crafting cycles. A block that breaks into ingredients that
+> craft back into the block still nets about +33% per cycle at level III. Examples
+> are clay (4 balls), snow (4 balls) and glowstone (dust; 4 dust make a block).
+> All of these are cheap, so they were left alone on purpose. Re-check if a mod adds
+> a valuable block that drops its own crafting ingredients.
+
 Where it lives: `mods/qf-content/src/main/java/com/questforge/content/ench/enchants/ToolEnchants.java`, class `Bountiful`.
 
 How it works:
