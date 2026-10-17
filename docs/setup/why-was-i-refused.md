@@ -17,7 +17,7 @@ the release date, then a fingerprint of the configs that matter.
 | **Your Quest Forge configs differ from the server's.** | Same release, but the files it names were edited or damaged. Reinstall the release's `config` folder, or undo your edits to those files. |
 | **Your mods differ from the server's.** | A mod named on the screen has a different version from the server's. Reinstall the release, rather than updating that mod alone. |
 | **The server could not check your Quest Forge pack.** | Your qf-content is too old to answer the check. Install the current release. |
-| **Mod rejections [qfcontent{1.0.0}]** (or another mod) | The login handshake refused your copy of that mod before the pack check ran. Install the current release. |
+| **Mod rejections [FMLMod:qfcontent{1.1.0+...}]** (or another mod) | The login handshake refused your copy of that mod before the pack check ran. The version shown is the server's. Install the current release. |
 
 Changes you are free to make never get you refused: video settings, key
 bindings, shaders, resource packs, sounds, the minimap, and any setting in a

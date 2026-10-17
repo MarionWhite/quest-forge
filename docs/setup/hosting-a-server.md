@@ -219,7 +219,7 @@ Two checks keep a stale client out.
    `1.1.0+<date>.<sha8>` of the last commit that touched the mod's folder
    (`.dirty` if it was built with uncommitted changes). FML compares a shared
    mod's versions as exact strings, so a client with an older qf-content is
-   refused with `Mod rejections [qfcontent{...}]`. The jar file names stay
+   refused with `Mod rejections [FMLMod:qfcontent{<server version>}]`. The jar file names stay
    `QuestForgeContent-1.0.0.jar` and so on, so an update overwrites the old jar.
 2. **The pack fingerprint, right after login (qf-content).** The server asks
    each joining client for a hash of its ID-bearing configs and its mod list.
