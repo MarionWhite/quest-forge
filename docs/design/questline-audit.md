@@ -1,6 +1,7 @@
 # Questline audit
 
-Status: **audit only. Nothing in the quest book has been changed.** Written 2026-10-16 against
+Status: **WP-0 and WP-1 done (2026-10-17); see [section 6](#6-implementation-log).** WP-3 onward
+are still proposals for the author to review. The audit itself was written 2026-10-16 against
 `pack/config/betterquesting/DefaultQuests.json` (SHA-1 `a4ec0775…`). That file is byte-identical
 to the live instance's copy and to the friends' server copy (`C:\qfs\friends`), so everything below
 describes what players actually see.
@@ -459,7 +460,7 @@ Each item can be done in one session. Do them in order: earlier items make later
 - Install to the live instance only when the user's game is not running.
 - If writes to the live `DefaultQuests.json` silently revert, read `tools/pack-fixes/quest-55/README.md` first.
 
-### WP-0: a quest toolkit (prerequisite for everything)
+### WP-0: a quest toolkit (prerequisite for everything) — DONE 2026-10-17
 
 - **Scope:** one script, `tools/quests/qb.py`, replacing the dead Mac-path scripts. It should have these subcommands:
   - `registry`: parse `FML/ItemData` out of a save's `level.dat` (gzip NBT; names carry a `\x01` block or `\x02` item prefix) into `tools/quests/registry.json`.
@@ -472,7 +473,7 @@ Each item can be done in one session. Do them in order: earlier items make later
 - **Files:** new `tools/quests/qb.py`, `tools/quests/README.md`, `tools/quests/registry.json`. A note in `tools/README.md`.
 - **Validate:** it reproduces this audit's numbers (308 quests, 2,190 refs / 732 IDs, 3 unresolved, 6 cheese pairs, the 554-Lucky-Block tally). Use `py -3.10 -I`.
 
-### WP-1: hotfixes, no redesign
+### WP-1: hotfixes, no redesign — DONE 2026-10-17
 
 - **Scope:** every S1/S3 data fix that doesn't change design.
   - 63: Royal ×64 → ×1, as a stopgap until WP-6.
@@ -578,6 +579,62 @@ Each item can be done in one session. Do them in order: earlier items make later
 - **Files:** `docs/design/questline-playtest.md`.
 
 ---
+
+## 6. Implementation log
+
+Every edit went into **both** books: `pack/config/…` and `server/config/betterquesting/DefaultQuests.json`.
+The server copy is the survey server's older book (it keeps the HBM chapter, 148–155 and
+410–415, and lacks ChocolateQuest 440–444); everything else in it was left as it was. Both
+are now `pack_version` 6 (they were 5 and 3). The edits are scripts in `tools/quests/patches/`
+and can be re-run.
+
+### WP-0 (toolkit)
+
+`tools/quests/qb.py`, documented in `tools/quests/README.md`. It reproduces this audit's numbers:
+308 quests, 2,190 refs / 732 ids, 3 unresolved, and 554 Lucky Blocks in Pets + Heroes (765
+across the book). Before WP-1 `qb.py check` failed with 27 errors per book. After WP-1 it passes.
+
+### WP-1 (hotfixes)
+
+| Quest | Change | Why |
+|---|---|---|
+| 63 Pack Master | task: Royal Guardian Sword ×64 → ×1 | Unstackable: 64 cannot fit in 36 slots. Stopgap until WP-6. |
+| 80 Dungeon Delver | task: `minecraft:mob_spawner` removed; 64 Mossy Cobblestone stays | No survival path to a spawner item. |
+| 39 Steam Power | task and icon: `machine.alpha@5` (Smoker) → `machine.beta@5` (Solid Fueled Firebox) | |
+| 14 Portal Creation → "The Pool at Dusk" | task: Naga Scale → Twilight Oak log (`tile.TFLog@0`); text rewritten | The Naga Scale belonged to quest 15. A log proves arrival until WP-4 adds a location task. |
+| 94 Knight Phantom | task: 8 Knightmetal → Phantom Helm **or** Phantom Plate (taskLogic OR) | Knightmetal also comes from goblins. The vault chest always holds one of the two (`TFTreasure.stronghold_boss`). |
+| 18 Ur-Ghast | task: 8 Carminite → 1 Fiery Tear | Carminite also drops from lesser ghasts. Fiery Tears come only from the boss chest (`darktower_boss`). |
+| 95 Alpha Yeti | task: 8 Arctic Fur → 4 Alpha Fur | Arctic Fur is the ordinary Yeti's. The Alpha drops 6–11 Alpha Fur (`EntityTFYetiAlpha`). |
+| 19 Snow Queen | task: 4 Alpha Fur → Snow Queen trophy (`item.trophy@4`) | Alpha Fur is the Yeti's. She always drops her trophy (`EntityTFSnowQueen`). |
+| 62 Trophy Collector | task: + Snow Queen trophy | "All trophies" skipped meta 4. |
+| 52 BiblioCraft Library | task: Clipboard → Shelf (any wood) | Quest 2 hands out the Clipboard, and the text asks for a shelf. |
+| 13, 49, 57 | text rewritten to match the task | 13 named King Scales (the recipe uses the Royal sword), 49 a mob hat (task: Hat Stand), 57 a Fryer (task: Grill). |
+| 300, Pets tab | "Workshop tab" removed | They are their own tabs. |
+| 406 Rahovart, 421 Book of Scale, 431 Pick a Class | text | "Late-game on purpose" (it opens at iron); a Lost World quest that does not exist; a Book of Unlearning that is disabled. |
+| Tab 19, quests 4 and 401, tab 0 | "Beastiary" → "Bestiary" for the tab | Lycanites' own GUI really is spelled "Beastiary", so text pointing at that GUI says "Lycanites' Beastiary". |
+| 46, 47, 64, 90, 91, 92, 194, 195, 204 | "a Anvil" → "an Anvil", etc. | |
+
+**Rewards replaced in WP-1:**
+
+| Quest | Old | New | Why |
+|---|---|---|---|
+| 140 Doomsday Scroll | `TragicMC:swordOfJustice` | `TragicMC:celestialAegis` | Creative-tab debug sword. The Celestial Aegis is TragicMC's own endgame blade. |
+| 144 Doombringer | `TragicMC:bowOfJustice` | `TragicMC:celestialLongbow` | Creative-tab debug bow. |
+| 141 Witch of the Wild | `witchery:infinityegg` | Sealed Tome (Epic) | Creative infinite altar power. Epic is the top of the Act III tome band (4.5). |
+| 431 Pick a Class | `levelup:xpTalisman` (unregistered) | Sealed Tome (Common) | Disabled in `levelup.cfg`; showed as a placeholder. Icon `levelup:respecBook` → experience bottle. |
+| 300 Hall of Heroes | `legends:superDex` (unregistered) | removed | Showed as a placeholder. |
+| 18 Ur-Ghast | Ur-Ghast trophy (choice) | Sealed Tome (Rare) | The trophy is already in the boss chest, and it part-filled quest 62. Rare = one per TF boss quest (progression audit §5). |
+| 19 Snow Queen | Snow Queen trophy (choice) | Sealed Tome (Rare) | The trophy is now the proof. |
+| 33 Take Flight | 1 `mcheli:fuel` | removed (the wrench stays) | Completed 434 "Keep It in the Air". |
+| 401 Soulgazer | 2 Warg Treats | 1 Name Tag | Completed 402. |
+| 402 Bribery Works | 1 Soulstone | 2 Leads | Completed 403. |
+| 403 Soulbound | 1 Soulkey | 8 Bottles o' Enchanting | Completed 404. |
+
+**Left for later, on purpose:** the chapter-order texts (Ch 4 "after Twilight", Ch 6, Ch 8 "after
+the titans") describe the order WP-3 will enforce, so they wait for it. "Wear it" in 4 and 6 is
+untouched. `tools/pack-fixes/quest-55/README.md` is outside this pass's files; it still needs
+its "historical" note. Two cheese warnings remain where the reward completes an *unrelated*
+quest, not the next one: 118 → 113 (Endium) and 303 → 300 (Electronics).
 
 ## Appendix: reproduction notes
 

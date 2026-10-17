@@ -847,7 +847,7 @@ def cmd_registry(a):
     mods = sorted((m.get('ModId'), m.get('ModVersion')) for m in fml.get('ModList', []))
     out = {'source': a.save.replace('\\', '/').split('/saves/')[-1], 'mods': mods,
            'blocks': blocks, 'items': items}
-    with open(REGISTRY, 'w', encoding='utf-8') as f:
+    with open(REGISTRY, 'w', encoding='utf-8', newline='\n') as f:
         json.dump(out, f, indent=0, ensure_ascii=False)
         f.write('\n')
     print('%s: %d blocks, %d items, %d mods' % (REGISTRY, len(blocks), len(items), len(mods)))

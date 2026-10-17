@@ -318,7 +318,7 @@
           "lockedProgress:1": 0,
           "autoClaim:1": 0,
           "isSilent:1": 0,
-          "desc:8": "\u00a7oLeather is a suggestion. Iron is a policy.\u00a7r\n\nInfernal nametags and mutant skeletons do not respect cloth. Put iron on all four slots. The Beastiary and the jungle can wait until you have a chestplate.\n\n\u00a77\"She said she would run past them. We buried the boots.\" - Watch\u00a7r\n\n\u00a7eCraft a full set of iron armor. Wear it.\u00a7r"
+          "desc:8": "\u00a7oLeather is a suggestion. Iron is a policy.\u00a7r\n\nInfernal nametags and mutant skeletons do not respect cloth. Put iron on all four slots. The Bestiary and the jungle can wait until you have a chestplate.\n\n\u00a77\"She said she would run past them. We buried the boots.\" - Watch\u00a7r\n\n\u00a7eCraft a full set of iron armor. Wear it.\u00a7r"
         }
       },
       "tasks:9": {
@@ -999,7 +999,7 @@
           "lockedProgress:1": 0,
           "autoClaim:1": 0,
           "isSilent:1": 0,
-          "desc:8": "\u00a75[UNLOCKED BY DEFEATING THE KING]\u00a7r\n\nDark Matter - condensed alchemical power! Only those who have defeated THE KING may craft this legendary material. The recipe now requires King Scales.\n\nYou're almost at the pinnacle of power!"
+          "desc:8": "\u00a75[UNLOCKED BY DEFEATING THE KING]\u00a7r\n\n\u00a7oThe King leaves no tidy souvenir. His guardian's sword is the key.\u00a7r\n\nThe Dark Matter recipe asks for the Royal Guardian Sword and hands it back. One kill opens the recipe for good; the sword is never spent. Everything above this line of alchemy is built from Dark Matter, so spend it like it cost a titan.\n\n\u00a77\"Heavier than it looks. It looks heavy.\" - Alchemist\u00a7r\n\n\u00a7eCraft Dark Matter.\u00a7r"
         }
       },
       "tasks:9": {
@@ -1112,7 +1112,7 @@
           "isMain:1": 1,
           "simultaneous:1": 0,
           "icon:10": {
-            "id:8": "TwilightForest:item.nagaScale",
+            "id:8": "TwilightForest:tile.TFLog",
             "Count:3": 1,
             "Damage:2": 0,
             "OreDict:8": ""
@@ -1121,11 +1121,11 @@
           "repeatTime:3": -1,
           "globalShare:1": 0,
           "questLogic:8": "AND",
-          "name:8": "Twilight Forest: Portal Creation",
+          "name:8": "Twilight: The Pool at Dusk",
           "lockedProgress:1": 0,
           "autoClaim:1": 0,
           "isSilent:1": 0,
-          "desc:8": "\u00a7d\u2726 THE TWILIGHT REALM \u2726\u00a7r\n\n\u00a7oThe Twilight Forest existed before the dimensional collapse - a pocket dimension of eternal dusk, ruled by ancient beings of immense power.\n\nWhen the barriers fell, the Twilight Lords sealed their realm to protect it. But they left a key: water blessed by nature's beauty, ignited by the sacrifice of a diamond.\n\nThose who enter find a land frozen in time - perpetual twilight, massive trees, and castles older than human memory.\u00a7r\n\n\u00a77\"The lightning that opens the portal? That's the realm testing you. Survive that, and you're worthy to enter.\" - Twilight Scholar\u00a7r\n\n\u00a7eDig a 2x2 water pool, surround with flowers, throw in a diamond.\u00a7r"
+          "desc:8": "\u00a7d\u2726 THE TWILIGHT REALM \u2726\u00a7r\n\n\u00a7oFour flowers, still water, and one diamond you will never get back.\u00a7r\n\nDig a two-by-two pool in open grass and ring every edge with flowers. Any kind will do. Throw a diamond in and step away from the water. The lightning is the forest checking who you are. It does not check twice.\n\nTwilight Oak grows only on the other side, so a log of it is the proof you went through.\n\n\u00a77\"I thought the flash meant it worked. It meant swim.\" - Pathfinder\u00a7r\n\n\u00a7eStep through into the Twilight Forest. Cut a Twilight Oak log.\u00a7r"
         }
       },
       "tasks:9": {
@@ -1138,7 +1138,7 @@
           "consume:1": 0,
           "requiredItems:9": {
             "0:10": {
-              "id:8": "TwilightForest:item.nagaScale",
+              "id:8": "TwilightForest:tile.TFLog",
               "Count:3": 1,
               "Damage:2": 0,
               "OreDict:8": ""
@@ -1400,7 +1400,7 @@
           "isMain:1": 1,
           "simultaneous:1": 0,
           "icon:10": {
-            "id:8": "TwilightForest:item.carminite",
+            "id:8": "TwilightForest:item.fieryTears",
             "Count:3": 1,
             "Damage:2": 0,
             "OreDict:8": ""
@@ -1413,7 +1413,7 @@
           "lockedProgress:1": 0,
           "autoClaim:1": 0,
           "isSilent:1": 0,
-          "desc:8": "\u00a7oThe Dark Tower has a ceiling, and the ceiling has a face.\u00a7r\n\nThe Ur-Ghast runs the tower and a flock that thinks it is weather. Clear the floors. Do not fight it from the front door.\n\n\u00a77\"We climbed. It waited. That was the whole strategy, on both sides.\" - Tower Notes\u00a7r\n\n\u00a7eKill the Ur-Ghast. Bring back what it drops.\u00a7r"
+          "desc:8": "\u00a7oThe Dark Tower has a ceiling, and the ceiling has a face.\u00a7r\n\nThe Ur-Ghast runs the tower and a flock that thinks it is weather. Clear the floors. Do not fight it from the front door.\n\n\u00a77\"We climbed. It waited. That was the whole strategy, on both sides.\" - Tower Notes\u00a7r\n\n\u00a7eKill the Ur-Ghast. Bring back a Fiery Tear from the chest it leaves.\u00a7r"
         }
       },
       "tasks:9": {
@@ -1426,8 +1426,8 @@
           "consume:1": 0,
           "requiredItems:9": {
             "0:10": {
-              "id:8": "TwilightForest:item.carminite",
-              "Count:3": 8,
+              "id:8": "TwilightForest:item.fieryTears",
+              "Count:3": 1,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -1441,9 +1441,9 @@
           "index:3": 0,
           "choices:9": {
             "0:10": {
-              "id:8": "TwilightForest:item.trophy",
+              "id:8": "qfcontent:sealed_tome",
               "Count:3": 1,
-              "Damage:2": 3,
+              "Damage:2": 2,
               "OreDict:8": ""
             },
             "1:10": {
@@ -1475,9 +1475,9 @@
           "isMain:1": 1,
           "simultaneous:1": 0,
           "icon:10": {
-            "id:8": "TwilightForest:item.alphaFur",
+            "id:8": "TwilightForest:item.trophy",
             "Count:3": 1,
-            "Damage:2": 0,
+            "Damage:2": 4,
             "OreDict:8": ""
           },
           "snd_update:8": "minecraft:entity.player.levelup",
@@ -1488,7 +1488,7 @@
           "lockedProgress:1": 0,
           "autoClaim:1": 0,
           "isSilent:1": 0,
-          "desc:8": "\u00a7oThe glacier has a palace. The palace has a landlord.\u00a7r\n\nThe Snow Queen is ice magic with a throne. Alpha Yeti Fur is the proof. This is the last of the numbered Twilight lords on this page.\n\n\u00a77\"Pretty, until the floor was a suggestion.\" - Alpine Log\u00a7r\n\n\u00a7eDefeat the Snow Queen.\u00a7r"
+          "desc:8": "\u00a7oThe glacier has a palace. The palace has a landlord.\u00a7r\n\nThe Snow Queen is ice magic with a throne. Her trophy is the proof. This is the last of the numbered Twilight lords on this page.\n\n\u00a77\"Pretty, until the floor was a suggestion.\" - Alpine Log\u00a7r\n\n\u00a7eDefeat the Snow Queen. Bring back her trophy.\u00a7r"
         }
       },
       "tasks:9": {
@@ -1501,9 +1501,9 @@
           "consume:1": 0,
           "requiredItems:9": {
             "0:10": {
-              "id:8": "TwilightForest:item.alphaFur",
-              "Count:3": 4,
-              "Damage:2": 0,
+              "id:8": "TwilightForest:item.trophy",
+              "Count:3": 1,
+              "Damage:2": 4,
               "OreDict:8": ""
             }
           },
@@ -1528,9 +1528,9 @@
               "OreDict:8": ""
             },
             "2:10": {
-              "id:8": "TwilightForest:item.trophy",
+              "id:8": "qfcontent:sealed_tome",
               "Count:3": 1,
-              "Damage:2": 4,
+              "Damage:2": 2,
               "OreDict:8": ""
             }
           }
@@ -2399,12 +2399,6 @@
               "Count:3": 1,
               "Damage:2": 0,
               "OreDict:8": ""
-            },
-            "1:10": {
-              "id:8": "mcheli:fuel",
-              "Count:3": 1,
-              "Damage:2": 0,
-              "OreDict:8": ""
             }
           }
         }
@@ -2717,7 +2711,7 @@
           "isMain:1": 0,
           "simultaneous:1": 0,
           "icon:10": {
-            "id:8": "Railcraft:machine.alpha",
+            "id:8": "Railcraft:machine.beta",
             "Count:3": 1,
             "Damage:2": 5,
             "OreDict:8": ""
@@ -2743,7 +2737,7 @@
           "consume:1": 0,
           "requiredItems:9": {
             "0:10": {
-              "id:8": "Railcraft:machine.alpha",
+              "id:8": "Railcraft:machine.beta",
               "Count:3": 1,
               "Damage:2": 5,
               "OreDict:8": ""
@@ -3336,7 +3330,7 @@
           "lockedProgress:1": 0,
           "autoClaim:1": 0,
           "isSilent:1": 0,
-          "desc:8": "Hats add cosmetic headwear to the game! Kill mobs to collect their hats and show off your style. Press H to open the hat menu and equip your collection!\n\nKill a mob and collect its hat item to complete this quest."
+          "desc:8": "\u00a7oEvery mob out there is wearing something. You can keep it.\u00a7r\n\nKill a mob and its hat joins your collection. Press H to open the hat menu and wear one. A Hat Stand is where the good ones wait while you are wearing something sensible.\n\n\u00a77\"He kept the creeper hat on the stand. Nobody stood near it.\" - Haberdasher\u00a7r\n\n\u00a7eCraft a Hat Stand.\u00a7r"
         }
       },
       "tasks:9": {
@@ -3536,7 +3530,7 @@
           "isMain:1": 0,
           "simultaneous:1": 0,
           "icon:10": {
-            "id:8": "BiblioCraft:item.BiblioClipboard",
+            "id:8": "BiblioCraft:BiblioShelf",
             "Count:3": 1,
             "Damage:2": 0,
             "OreDict:8": ""
@@ -3549,7 +3543,7 @@
           "lockedProgress:1": 0,
           "autoClaim:1": 0,
           "isSilent:1": 0,
-          "desc:8": "\u00a7oShelves that show the book. Stands that show the armor.\u00a7r\n\nBiblioCraft is how a room admits it is finished. The climb does not require this. Pride does.\n\n\u00a77\"He built a library. He still could not read the Witchery tooltip.\" - Archivist\u00a7r\n\n\u00a7eCraft a BiblioCraft shelf or stand.\u00a7r"
+          "desc:8": "\u00a7oShelves that show the book. Stands that show the armor.\u00a7r\n\nBiblioCraft is how a room admits it is finished. The climb does not require this. Pride does.\n\n\u00a77\"He built a library. He still could not read the Witchery tooltip.\" - Archivist\u00a7r\n\n\u00a7eCraft a BiblioCraft Shelf, any wood.\u00a7r"
         }
       },
       "tasks:9": {
@@ -3562,9 +3556,9 @@
           "consume:1": 0,
           "requiredItems:9": {
             "0:10": {
-              "id:8": "BiblioCraft:item.BiblioClipboard",
+              "id:8": "BiblioCraft:BiblioShelf",
               "Count:3": 1,
-              "Damage:2": 0,
+              "Damage:2": 32767,
               "OreDict:8": ""
             }
           },
@@ -3918,7 +3912,7 @@
           "lockedProgress:1": 0,
           "autoClaim:1": 0,
           "isSilent:1": 0,
-          "desc:8": "Food Plus and Food Expansion add tons of new foods and cooking methods! From pizza to sushi, burgers to milkshakes - become a culinary master!\n\nCraft a Fryer to start making delicious fried foods."
+          "desc:8": "\u00a7oA grill is the first argument for cooking anything twice.\u00a7r\n\nFood Plus and Food Expansion add hundreds of dishes, and most of them start on a grill. Better food is more saturation, and saturation is what keeps you standing in a long fight.\n\n\u00a77\"I came for the sushi. The burgers kept me alive.\" - Mess Hall\u00a7r\n\n\u00a7eCraft a Grill.\u00a7r"
         }
       },
       "tasks:9": {
@@ -4316,6 +4310,12 @@
               "Count:3": 1,
               "Damage:2": 3,
               "OreDict:8": ""
+            },
+            "4:10": {
+              "id:8": "TwilightForest:item.trophy",
+              "Count:3": 1,
+              "Damage:2": 4,
+              "OreDict:8": ""
             }
           },
           "taskID:8": "bq_standard:retrieval"
@@ -4368,7 +4368,7 @@
           "lockedProgress:1": 0,
           "autoClaim:1": 0,
           "isSilent:1": 0,
-          "desc:8": "\u00a76\u2726 THE CLIMB, FILED \u00a7r\n\n\u00a7oYou numbered the disasters. Then you walked them.\u00a7r\n\nTwilight, the titans, the rest of the spine. This page only wants the three OreSpawn receipts in bulk. It is a closet with standards, not a new boss.\n\n\u00a77\"The chronicle is a list. You are the last line.\" - Keeper\u00a7r\n\n\u00a7eBring stacks of Mobzilla scale blocks, Royal Guardian proof, and Queen Scales.\u00a7r"
+          "desc:8": "\u00a76\u2726 THE CLIMB, FILED \u00a7r\n\n\u00a7oYou numbered the disasters. Then you walked them.\u00a7r\n\nTwilight, the titans, the rest of the spine. This page only wants the three OreSpawn receipts in bulk. It is a closet with standards, not a new boss.\n\n\u00a77\"The chronicle is a list. You are the last line.\" - Keeper\u00a7r\n\n\u00a7eBring a stack of Mobzilla Scale Blocks, a stack of Queen Scales, and one Royal Guardian Sword.\u00a7r"
         }
       },
       "tasks:9": {
@@ -4388,7 +4388,7 @@
             },
             "1:10": {
               "id:8": "OreSpawn:OreSpawn_Royal",
-              "Count:3": 64,
+              "Count:3": 1,
               "Damage:2": 0,
               "OreDict:8": ""
             },
@@ -4806,7 +4806,7 @@
           "lockedProgress:1": 0,
           "autoClaim:1": 0,
           "isSilent:1": 0,
-          "desc:8": "\u00a78\u2726 ROGUELIKE DUNGEONS \u2726\u00a7r\n\n\u00a7oDeep underground, massive dungeon complexes spawn - multi-floor labyrinths filled with spawners, traps, and treasure.\n\nThese Roguelike Dungeons are the ultimate test of combat and exploration.\u00a7r\n\n\u00a77\"Five floors down. Fifty spawners cleared. One chest at the bottom with gear that made it all worth it.\" - Dungeon Crawler\u00a7r\n\n\u00a7eGather dungeon loot as proof of your delve!\u00a7r"
+          "desc:8": "\u00a78\u2726 ROGUELIKE DUNGEONS \u2726\u00a7r\n\n\u00a7oDeep underground, massive dungeon complexes spawn - multi-floor labyrinths filled with spawners, traps, and treasure.\n\nThese Roguelike Dungeons are the ultimate test of combat and exploration.\u00a7r\n\n\u00a77\"Five floors down. Fifty spawners cleared. One chest at the bottom with gear that made it all worth it.\" - Dungeon Crawler\u00a7r\n\n\u00a7eBring back 64 Mossy Cobblestone from the dungeon walls.\u00a7r"
         }
       },
       "tasks:9": {
@@ -4821,12 +4821,6 @@
             "0:10": {
               "id:8": "minecraft:mossy_cobblestone",
               "Count:3": 64,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            },
-            "1:10": {
-              "id:8": "minecraft:mob_spawner",
-              "Count:3": 1,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -4944,12 +4938,12 @@
       "properties:10": {
         "betterquesting:10": {
           "snd_complete:8": "minecraft:entity.player.levelup",
-          "taskLogic:8": "AND",
+          "taskLogic:8": "OR",
           "visibility:8": "ALWAYS",
           "isMain:1": 1,
           "simultaneous:1": 0,
           "icon:10": {
-            "id:8": "TwilightForest:item.knightMetal",
+            "id:8": "TwilightForest:item.phantomHelm",
             "Count:3": 1,
             "Damage:2": 0,
             "OreDict:8": ""
@@ -4962,7 +4956,7 @@
           "lockedProgress:1": 0,
           "autoClaim:1": 0,
           "isSilent:1": 0,
-          "desc:8": "\u00a79\u2726 THE KNIGHT PHANTOM \u2726\u00a7r\n\n\u00a7oThe Goblin Knight Stronghold was built to contain something. The goblins are only the tenants.\n\nIn the vault at its heart drifts an empty suit of armour still fighting a war that ended centuries ago. It does not tire, it does not bleed, and as it dies it simply splits into more of itself.\u00a7r\n\n\u00a77\"I killed it four times. That was the problem.\" - Stronghold Breaker\u00a7r\n\n\u00a7eClaim eight Knightmetal Ingots from the stronghold.\u00a7r"
+          "desc:8": "\u00a79\u2726 THE KNIGHT PHANTOM \u2726\u00a7r\n\n\u00a7oThe Goblin Knight Stronghold was built to contain something. The goblins are only the tenants.\n\nIn the vault at its heart drifts an empty suit of armour still fighting a war that ended centuries ago. It does not tire, it does not bleed, and as it dies it simply splits into more of itself.\u00a7r\n\n\u00a77\"I killed it four times. That was the problem.\" - Stronghold Breaker\u00a7r\n\n\u00a7eBring back the Phantom Helm or the Phantom Plate from the vault chest.\u00a7r"
         }
       },
       "tasks:9": {
@@ -4975,8 +4969,25 @@
           "consume:1": 0,
           "requiredItems:9": {
             "0:10": {
-              "id:8": "TwilightForest:item.knightMetal",
-              "Count:3": 8,
+              "id:8": "TwilightForest:item.phantomHelm",
+              "Count:3": 1,
+              "Damage:2": 0,
+              "OreDict:8": ""
+            }
+          },
+          "taskID:8": "bq_standard:retrieval"
+        },
+        "1:10": {
+          "partialMatch:1": 1,
+          "autoConsume:1": 0,
+          "groupDetect:1": 0,
+          "ignoreNBT:1": 0,
+          "index:3": 1,
+          "consume:1": 0,
+          "requiredItems:9": {
+            "0:10": {
+              "id:8": "TwilightForest:item.phantomPlate",
+              "Count:3": 1,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -5024,7 +5035,7 @@
           "isMain:1": 1,
           "simultaneous:1": 0,
           "icon:10": {
-            "id:8": "TwilightForest:item.arcticFur",
+            "id:8": "TwilightForest:item.alphaFur",
             "Count:3": 1,
             "Damage:2": 0,
             "OreDict:8": ""
@@ -5037,7 +5048,7 @@
           "lockedProgress:1": 0,
           "autoClaim:1": 0,
           "isSilent:1": 0,
-          "desc:8": "\u00a7b\u2726 THE ALPHA YETI \u2726\u00a7r\n\n\u00a7oThe glacier is not empty. Something enormous lives in the ice cave at its base, and it throws its smaller cousins at intruders before it lowers itself to fighting you directly.\n\nBeat it and the Aurora Palace opens. The Snow Queen already knows you are coming.\u00a7r\n\n\u00a77\"It picked me up. I need you to understand that it picked me up, and then it threw me through a wall.\" - Glacier Climber\u00a7r\n\n\u00a7eStrip eight Arctic Furs from the beast.\u00a7r"
+          "desc:8": "\u00a7b\u2726 THE ALPHA YETI \u2726\u00a7r\n\n\u00a7oThe glacier is not empty. Something enormous lives in the ice cave at its base, and it throws its smaller cousins at intruders before it lowers itself to fighting you directly.\n\nBeat it and the Aurora Palace opens. The Snow Queen already knows you are coming.\u00a7r\n\n\u00a77\"It picked me up. I need you to understand that it picked me up, and then it threw me through a wall.\" - Glacier Climber\u00a7r\n\n\u00a7eStrip four Alpha Furs from the beast.\u00a7r"
         }
       },
       "tasks:9": {
@@ -5050,8 +5061,8 @@
           "consume:1": 0,
           "requiredItems:9": {
             "0:10": {
-              "id:8": "TwilightForest:item.arcticFur",
-              "Count:3": 8,
+              "id:8": "TwilightForest:item.alphaFur",
+              "Count:3": 4,
               "Damage:2": 0,
               "OreDict:8": ""
             }
@@ -8910,7 +8921,7 @@
           "index:3": 0,
           "choices:9": {
             "0:10": {
-              "id:8": "TragicMC:swordOfJustice",
+              "id:8": "TragicMC:celestialAegis",
               "Count:3": 1,
               "Damage:2": 0,
               "OreDict:8": ""
@@ -9015,9 +9026,9 @@
           "index:3": 0,
           "choices:9": {
             "0:10": {
-              "id:8": "witchery:infinityegg",
+              "id:8": "qfcontent:sealed_tome",
               "Count:3": 1,
-              "Damage:2": 0,
+              "Damage:2": 3,
               "OreDict:8": ""
             },
             "1:10": {
@@ -9300,7 +9311,7 @@
           "index:3": 0,
           "choices:9": {
             "0:10": {
-              "id:8": "TragicMC:bowOfJustice",
+              "id:8": "TragicMC:celestialLongbow",
               "Count:3": 1,
               "Damage:2": 0,
               "OreDict:8": ""
@@ -10006,7 +10017,7 @@
           "lockedProgress:1": 0,
           "autoClaim:1": 0,
           "isSilent:1": 0,
-          "desc:8": "\u00a7oPocket companion. No queue. Grab it whenever you find it.\u00a7r\n\n\u00a7eRetrieve a Anvil Pet.\u00a7r Rewards include its food plus a lootbag matched to how rare this one is."
+          "desc:8": "\u00a7oPocket companion. No queue. Grab it whenever you find it.\u00a7r\n\n\u00a7eRetrieve an Anvil Pet.\u00a7r Rewards include its food plus a lootbag matched to how rare this one is."
         }
       },
       "tasks:9": {
@@ -10085,7 +10096,7 @@
           "lockedProgress:1": 0,
           "autoClaim:1": 0,
           "isSilent:1": 0,
-          "desc:8": "\u00a7oPocket companion. No queue. Grab it whenever you find it.\u00a7r\n\n\u00a7eRetrieve a Apple Pet.\u00a7r Rewards include its food plus a lootbag matched to how rare this one is."
+          "desc:8": "\u00a7oPocket companion. No queue. Grab it whenever you find it.\u00a7r\n\n\u00a7eRetrieve an Apple Pet.\u00a7r Rewards include its food plus a lootbag matched to how rare this one is."
         }
       },
       "tasks:9": {
@@ -10164,7 +10175,7 @@
           "lockedProgress:1": 0,
           "autoClaim:1": 0,
           "isSilent:1": 0,
-          "desc:8": "\u00a7oPocket companion. No queue. Grab it whenever you find it.\u00a7r\n\n\u00a7eRetrieve a April Fool Pet.\u00a7r Rewards include its food plus a lootbag matched to how rare this one is."
+          "desc:8": "\u00a7oPocket companion. No queue. Grab it whenever you find it.\u00a7r\n\n\u00a7eRetrieve an April Fool Pet.\u00a7r Rewards include its food plus a lootbag matched to how rare this one is."
         }
       },
       "tasks:9": {
@@ -11428,7 +11439,7 @@
           "lockedProgress:1": 0,
           "autoClaim:1": 0,
           "isSilent:1": 0,
-          "desc:8": "\u00a7oPocket companion. No queue. Grab it whenever you find it.\u00a7r\n\n\u00a7eRetrieve a Enchanting Table Pet.\u00a7r Rewards include its food plus a lootbag matched to how rare this one is."
+          "desc:8": "\u00a7oPocket companion. No queue. Grab it whenever you find it.\u00a7r\n\n\u00a7eRetrieve an Enchanting Table Pet.\u00a7r Rewards include its food plus a lootbag matched to how rare this one is."
         }
       },
       "tasks:9": {
@@ -11507,7 +11518,7 @@
           "lockedProgress:1": 0,
           "autoClaim:1": 0,
           "isSilent:1": 0,
-          "desc:8": "\u00a7oPocket companion. No queue. Grab it whenever you find it.\u00a7r\n\n\u00a7eRetrieve a Ender Chest Pet.\u00a7r Rewards include its food plus a lootbag matched to how rare this one is."
+          "desc:8": "\u00a7oPocket companion. No queue. Grab it whenever you find it.\u00a7r\n\n\u00a7eRetrieve an Ender Chest Pet.\u00a7r Rewards include its food plus a lootbag matched to how rare this one is."
         }
       },
       "tasks:9": {
@@ -11586,7 +11597,7 @@
           "lockedProgress:1": 0,
           "autoClaim:1": 0,
           "isSilent:1": 0,
-          "desc:8": "\u00a7oPocket companion. No queue. Grab it whenever you find it.\u00a7r\n\n\u00a7eRetrieve a Enderman Pet.\u00a7r Rewards include its food plus a lootbag matched to how rare this one is."
+          "desc:8": "\u00a7oPocket companion. No queue. Grab it whenever you find it.\u00a7r\n\n\u00a7eRetrieve an Enderman Pet.\u00a7r Rewards include its food plus a lootbag matched to how rare this one is."
         }
       },
       "tasks:9": {
@@ -12066,7 +12077,7 @@
           "lockedProgress:1": 0,
           "autoClaim:1": 0,
           "isSilent:1": 0,
-          "desc:8": "\u00a7oPocket companion. No queue. Grab it whenever you find it.\u00a7r\n\n\u00a7eRetrieve a Illuminati Pet.\u00a7r Rewards include its food plus a lootbag matched to how rare this one is."
+          "desc:8": "\u00a7oPocket companion. No queue. Grab it whenever you find it.\u00a7r\n\n\u00a7eRetrieve an Illuminati Pet.\u00a7r Rewards include its food plus a lootbag matched to how rare this one is."
         }
       },
       "tasks:9": {
@@ -12145,7 +12156,7 @@
           "lockedProgress:1": 0,
           "autoClaim:1": 0,
           "isSilent:1": 0,
-          "desc:8": "\u00a7oPocket companion. No queue. Grab it whenever you find it.\u00a7r\n\n\u00a7eRetrieve a Iron Golem Pet.\u00a7r Rewards include its food plus a lootbag matched to how rare this one is."
+          "desc:8": "\u00a7oPocket companion. No queue. Grab it whenever you find it.\u00a7r\n\n\u00a7eRetrieve an Iron Golem Pet.\u00a7r Rewards include its food plus a lootbag matched to how rare this one is."
         }
       },
       "tasks:9": {
@@ -12856,7 +12867,7 @@
           "lockedProgress:1": 0,
           "autoClaim:1": 0,
           "isSilent:1": 0,
-          "desc:8": "\u00a7oPocket companion. No queue. Grab it whenever you find it.\u00a7r\n\n\u00a7eRetrieve a Ocelot Pet.\u00a7r Rewards include its food plus a lootbag matched to how rare this one is."
+          "desc:8": "\u00a7oPocket companion. No queue. Grab it whenever you find it.\u00a7r\n\n\u00a7eRetrieve an Ocelot Pet.\u00a7r Rewards include its food plus a lootbag matched to how rare this one is."
         }
       },
       "tasks:9": {
@@ -14284,7 +14295,7 @@
           "lockedProgress:1": 0,
           "autoClaim:1": 0,
           "isSilent:1": 0,
-          "desc:8": "\u00a7oWorkshop tab. Capes are optional. The paperwork is not.\u00a7r\n\nSuits come off the \u00a7eSuit Assembly Unit\u00a7r. Stark's toys come off the \u00a7eStark Workbench\u00a7r. Every line on this page is its own job. Finishing Batman does not unlock Superman.\n\n\u00a7eRetrieve Electronics.\u00a7r The logos in the reward are how the machine knows which universe you meant."
+          "desc:8": "\u00a7oCapes are optional. The paperwork is not.\u00a7r\n\nSuits come off the \u00a7eSuit Assembly Unit\u00a7r. Stark's toys come off the \u00a7eStark Workbench\u00a7r. Every line on this page is its own job. Finishing Batman does not unlock Superman.\n\n\u00a7eRetrieve Electronics.\u00a7r The logos in the reward are how the machine knows which universe you meant."
         }
       },
       "tasks:9": {
@@ -14354,18 +14365,12 @@
               "OreDict:8": ""
             },
             "7:10": {
-              "id:8": "legends:superDex",
-              "Count:3": 1,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            },
-            "8:10": {
               "id:8": "lootbags:lootbag",
               "Count:3": 1,
               "Damage:2": 0,
               "OreDict:8": ""
             },
-            "9:10": {
+            "8:10": {
               "id:8": "lucky:lucky_block",
               "Count:3": 4,
               "Damage:2": 0,
@@ -25091,7 +25096,7 @@
           "lockedProgress:1": 0,
           "autoClaim:1": 0,
           "isSilent:1": 0,
-          "desc:8": "\u00a7oThe overworld was already using a second bestiary. The book just never filed it.\u00a7r\n\nLycanites mobs are not OreSpawn and they are not vanilla. A Soulgazer is how you write one down. Use it on a creature, then open the Beastiary (the key is unbound in Controls until you set it).\n\n\u00a77\"I named it. It did not get friendlier.\" - Field Notes\u00a7r\n\n\u00a7eCraft a Soulgazer. Point it at something that looks like it has a Latin name.\u00a7r"
+          "desc:8": "\u00a7oThe overworld was already using a second bestiary. The book just never filed it.\u00a7r\n\nLycanites mobs are not OreSpawn and they are not vanilla. A Soulgazer is how you write one down. Use it on a creature, then open Lycanites' Beastiary (the key is unbound in Controls until you set it).\n\n\u00a77\"I named it. It did not get friendlier.\" - Field Notes\u00a7r\n\n\u00a7eCraft a Soulgazer. Point it at something that looks like it has a Latin name.\u00a7r"
         }
       },
       "tasks:9": {
@@ -25119,8 +25124,8 @@
           "index:3": 0,
           "rewards:9": {
             "0:10": {
-              "id:8": "forestmobs:wargtreat",
-              "Count:3": 2,
+              "id:8": "minecraft:name_tag",
+              "Count:3": 1,
               "Damage:2": 0,
               "OreDict:8": ""
             },
@@ -25188,8 +25193,8 @@
           "index:3": 0,
           "rewards:9": {
             "0:10": {
-              "id:8": "lycanitesmobs:soulstone",
-              "Count:3": 1,
+              "id:8": "minecraft:lead",
+              "Count:3": 2,
               "Damage:2": 0,
               "OreDict:8": ""
             },
@@ -25257,8 +25262,8 @@
           "index:3": 0,
           "rewards:9": {
             "0:10": {
-              "id:8": "lycanitesmobs:soulkey",
-              "Count:3": 1,
+              "id:8": "minecraft:experience_bottle",
+              "Count:3": 8,
               "Damage:2": 0,
               "OreDict:8": ""
             },
@@ -25436,7 +25441,7 @@
           "lockedProgress:1": 0,
           "autoClaim:1": 0,
           "isSilent:1": 0,
-          "desc:8": "\u00a7oThe lord of the underworld is one fight, not a chapter of three.\u00a7r\n\nKill him. Bring back a Demon Crystal. That is the receipt. He is late-game on purpose \u2014 diamond is the admission ticket, not the loadout.\n\n\u00a77\"The name was the scary part until the health bar started.\" - Last Volunteer\u00a7r\n\n\u00a7eRetrieve a Demon Crystal. That means he is down.\u00a7r"
+          "desc:8": "\u00a7oThe lord of the underworld is one fight, not a chapter of three.\u00a7r\n\nKill him. Bring back a Demon Crystal. That is the receipt. Nothing stops you summoning him early. That is the trap: diamond is the admission ticket, not the loadout.\n\n\u00a77\"The name was the scary part until the health bar started.\" - Last Volunteer\u00a7r\n\n\u00a7eRetrieve a Demon Crystal. That means he is down.\u00a7r"
         }
       },
       "tasks:9": {
@@ -25580,7 +25585,7 @@
           "lockedProgress:1": 0,
           "autoClaim:1": 0,
           "isSilent:1": 0,
-          "desc:8": "\u00a7oFour fragments. One excuse to keep walking into the mist.\u00a7r\n\nThe Book of Scale is how the Saur-Ohn filed their gods. Find a copy. The Lost World portal is later, and it wants the ceremonial kit \u2014 this page is only the reading.\n\n\u00a77\"I started it for the recipes. I finished it because the stew was a quest.\" - Cook\u00a7r\n\n\u00a7eRetrieve the Book of Scale.\u00a7r"
+          "desc:8": "\u00a7oFour fragments. One excuse to keep walking into the mist.\u00a7r\n\nThe Book of Scale is how the Saur-Ohn filed their gods. Find a copy. The Lost World portal wants the ceremonial kit, and nobody in the Chronicle has filed that trip yet. This is only the reading.\n\n\u00a77\"I started it for the recipes. I finished it because the stew was a quest.\" - Cook\u00a7r\n\n\u00a7eRetrieve the Book of Scale.\u00a7r"
         }
       },
       "tasks:9": {
@@ -25974,7 +25979,7 @@
           "isMain:1": 0,
           "simultaneous:1": 0,
           "icon:10": {
-            "id:8": "levelup:respecBook",
+            "id:8": "minecraft:experience_bottle",
             "Count:3": 1,
             "Damage:2": 0,
             "OreDict:8": ""
@@ -25987,7 +25992,7 @@
           "lockedProgress:1": 0,
           "autoClaim:1": 0,
           "isSilent:1": 0,
-          "desc:8": "\u00a7oLevel Up! is a second skill tree the HUD does not introduce.\u00a7r\n\nOpen the Level Up GUI (default L) and pick a class. Miner, Warrior, Scout - they all pay rent. The Book of Unlearning is there if you hate the first choice.\n\n\u00a77\"He picked Freelancer for the points. He still could not punch a Warg.\" - Trainer\u00a7r\n\n\u00a7eChoose a class. Check the box when the HUD agrees.\u00a7r"
+          "desc:8": "\u00a7oLevel Up! is a second skill tree the HUD does not introduce.\u00a7r\n\nOpen the Level Up GUI (default L) and pick a class. Miner, Warrior, Scout - they all pay rent. This build has no Book of Unlearning, so pick the class you will still like next week.\n\n\u00a77\"He picked Freelancer for the points. He still could not punch a Warg.\" - Trainer\u00a7r\n\n\u00a7eChoose a class. Check the box when the HUD agrees.\u00a7r"
         }
       },
       "tasks:9": {
@@ -26002,7 +26007,7 @@
           "index:3": 0,
           "rewards:9": {
             "0:10": {
-              "id:8": "levelup:xpTalisman",
+              "id:8": "qfcontent:sealed_tome",
               "Count:3": 1,
               "Damage:2": 0,
               "OreDict:8": ""
@@ -26725,7 +26730,7 @@
           },
           "bg_image:8": "",
           "bg_size:3": 256,
-          "desc:8": "\u00a7o\"The numbered chapters are the climb. Everything else is how you stay alive on it.\"\u00a7r\n\nWood, iron, diamonds. The overworld still kills people who skip this page. The right column is the extra HUD: Infernal nametags and a Level Up class. Side tabs are hobbies. The Beastiary is not a hobby. Secrets do not introduce themselves."
+          "desc:8": "\u00a7o\"The numbered chapters are the climb. Everything else is how you stay alive on it.\"\u00a7r\n\nWood, iron, diamonds. The overworld still kills people who skip this page. The right column is the extra HUD: Infernal nametags and a Level Up class. Side tabs are hobbies. The Bestiary is not a hobby. Secrets do not introduce themselves."
         }
       },
       "order:3": 0
@@ -28027,7 +28032,7 @@
           },
           "bg_image:8": "",
           "bg_size:3": 256,
-          "desc:8": "\u00a7b\u2726 MAGICAL COMPANIONS \u2726\u00a7r\n\n\u00a7oWorkshop tab. Pocket creatures, not the plot.\u00a7r\n\nGrab any pet in any order. The four legendaries \u2014 Cloud, Slime, Black Hole, Pufferfish \u2014 use the large ornate border. Nothing on this page gates the next."
+          "desc:8": "\u00a7b\u2726 MAGICAL COMPANIONS \u2726\u00a7r\n\n\u00a7oPocket creatures, not the plot.\u00a7r\n\nGrab any pet in any order. The four legendaries \u2014 Cloud, Slime, Black Hole, Pufferfish \u2014 use the large ornate border. Nothing on this page gates the next."
         }
       },
       "order:3": 15
@@ -29208,7 +29213,7 @@
       "properties:10": {
         "betterquesting:10": {
           "visibility:8": "ALWAYS",
-          "name:8": "Beastiary",
+          "name:8": "Bestiary",
           "icon:10": {
             "id:8": "lycanitesmobs:soulgazer",
             "Count:3": 1,
@@ -29217,7 +29222,7 @@
           },
           "bg_image:8": "",
           "bg_size:3": 256,
-          "desc:8": "\u00a7o\"The overworld already had a second book. This is it.\"\u00a7r\n\nLycanites is not a stamp collection. Soulgazer, treat, soulstone, key, cube, Rahovart. That is the whole campaign. Asmodeus and Amalgalich are not in this build.\n\nOpen the Beastiary from Controls. Bind the key. The mobs will not wait."
+          "desc:8": "\u00a7o\"The overworld already had a second book. This is it.\"\u00a7r\n\nLycanites is not a stamp collection. Soulgazer, treat, soulstone, key, cube, Rahovart. That is the whole campaign. Asmodeus and Amalgalich are not in this build.\n\nLycanites' Beastiary has its own key. Bind it in Controls. The mobs will not wait."
         }
       },
       "order:3": 17
@@ -29233,7 +29238,7 @@
       "hardcore:1": 0,
       "home_image:8": "betterquesting:textures/gui/default_title.png",
       "party_enable:1": 1,
-      "pack_version:3": 5,
+      "pack_version:3": 6,
       "editMode:1": 0,
       "home_offset_x:3": -128,
       "home_offset_y:3": 0
