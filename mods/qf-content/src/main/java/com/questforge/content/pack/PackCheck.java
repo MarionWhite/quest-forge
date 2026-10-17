@@ -58,6 +58,15 @@ public final class PackCheck {
     static Set<String> alsoAccept = new HashSet<String>();
     static boolean checkModVersions = true;
     static Set<String> ignoreMods = new HashSet<String>();
+
+    /**
+     * Never compared: the platform, not the pack. The chosen setup runs OptiFine
+     * clients on Forge 1558 next to Angelica clients and the Java 25 server on
+     * 1614, and the two builds interoperate. A content mismatch still shows up
+     * in the config fingerprint and in every other mod's version.
+     */
+    static final Set<String> PLATFORM_MODS =
+            new HashSet<String>(Arrays.asList("mcp", "FML", "Forge"));
     static int answerTimeoutSeconds = 60;
 
     // --- this side ----------------------------------------------------------------
@@ -193,7 +202,8 @@ public final class PackCheck {
         if (checkModVersions) {
             for (Map.Entry<String, String> e : localMods.entrySet()) {
                 String theirs = r.mods.get(e.getKey());
-                if (theirs == null || ignoreMods.contains(e.getKey())) continue;
+                if (theirs == null || ignoreMods.contains(e.getKey())
+                        || PLATFORM_MODS.contains(e.getKey())) continue;
                 if (!theirs.equals(e.getValue())) {
                     String name = localModNames.get(e.getKey());
                     mods.add((name == null ? e.getKey() : name) + " " + theirs
