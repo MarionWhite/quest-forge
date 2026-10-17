@@ -77,15 +77,29 @@ DEEP = {
 # sweep already covers in every run.)
 HEALTH_CONDITIONAL = "berserk+cultist"
 
+# Per-boss census arguments, added to every job against that boss.
+BOSS_ARGS = {
+    # Immune to everything but its own reflected fireballs
+    # (kitsunakumaFireballExempt=true): no weapon enchantment can act on it, so
+    # only its melee on the wielder -- the armour cells -- means anything.
+    "TragicMC.Kitsune": ["modes=defense"],
+    # Takes player hits only through its parts; the eye is the weak point a
+    # player aims for (other parts take dmg/6+1).
+    "TragicMC.Enyvil": ["part=enyvilEye"],
+}
+
 
 def jobs(pairs_only=None):
     out = []
     for tier, weapon, armour, bosses in TIERS:
         for boss in bosses:
             out.append(dict(name=f"{tier}-{boss}-singles", phase="singles", tier=tier,
-                            boss=boss, args=[weapon, f"armour={armour}", "controls=5"]))
+                            boss=boss, args=[weapon, f"armour={armour}", "controls=5"]
+                            + BOSS_ARGS.get(boss, [])))
     for tier, weapon, armour, _ in TIERS:
         for boss in DEEP[tier]:
+            if "modes=defense" in BOSS_ARGS.get(boss, []):
+                continue   # every later phase is offensive
             # Pairs of every melee enchantment are 666 cells a boss, about eight
             # hours; they run only over a set chosen from the singles results.
             if pairs_only:

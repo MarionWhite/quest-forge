@@ -254,3 +254,18 @@ that produced a wrong number before it was added:
   Momentum streak or a Crushing Blow cooldown earned in one cell would otherwise
   still be there at the start of the next, and a contaminated result is
   indistinguishable from a clean one.
+
+## Bosses the census fights differently
+
+- **TragicMC Kitsune is immune by design.** With the pack's
+  `kitsunakumaFireballExempt=true` it takes damage only from its own fireballs
+  knocked back into it (or the Sword/Bow of Justice); every weapon hit is zeroed.
+  No weapon enchantment can act on that fight, so its campaign jobs run
+  `modes=defense` only and it is left out of every offensive phase.
+- **TragicMC Enyvil is struck through its parts** (`part=enyvilEye`), as a
+  player's click resolves to one; its main body refuses player hits.
+- **Lord of Torment's fight ends at 50%**, where it leaves for the Torment
+  dimension. qfcampaign integrates its TTK over the bands above 50% only.
+- **Apis and the Twilight Lich are measured in their vulnerable phase**: the
+  census holds Apis's reflection and the Lich's shields down. A real Apis fight
+  is about twice as long, waiting out the reflect.
