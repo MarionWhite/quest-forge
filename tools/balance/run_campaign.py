@@ -259,6 +259,7 @@ def main():
     ap.add_argument("--jar", required=True)
     ap.add_argument("--out", required=True)
     ap.add_argument("--only-phase")
+    ap.add_argument("--bosses", help="a,b,c: only jobs against these bosses (job names, e.g. Mantis,TwilightForest.Naga)")
     ap.add_argument("--pairs-only", help="a+b+c: the enchantments the pairs phase crosses")
     ap.add_argument("--timeout-hours", type=float, default=4.0)
     ap.add_argument("--dry-run", action="store_true")
@@ -268,9 +269,11 @@ def main():
     os.makedirs(args.out, exist_ok=True)
     refs_path = os.path.join(args.out, "refs.json")
     refs = load(refs_path, {})
-    backfill_refs(args.out, refs_path, refs)
     queue = [j for j in jobs(args.pairs_only)
              if not args.only_phase or j["phase"] == args.only_phase]
+    if args.bosses:
+        wanted = {x.strip() for x in args.bosses.split(",") if x.strip()}
+        queue = [j for j in queue if j["boss"] in wanted]
     queue = [j for j in queue
              if not os.path.exists(os.path.join(args.out, j["name"], "finished.json"))]
     attempts = {}
@@ -279,6 +282,7 @@ def main():
             print(j["name"], j["args"])
         print(len(queue), "jobs")
         return
+    backfill_refs(args.out, refs_path, refs)
 
     nodes = [Node(p) for p in args.nodes]
     # --adopt NODE=JOB: a server already running that job (the driver was
