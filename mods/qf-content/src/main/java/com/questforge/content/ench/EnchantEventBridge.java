@@ -54,6 +54,18 @@ public class EnchantEventBridge {
             event.ammount *= TickedEffects.damageMultiplier((EntityLivingBase) attacker);
         }
 
+        // A hit the target has already zeroed keeps no on-hit enchantment. A boss
+        // that refuses a kind of damage does it by handing vanilla a 0-damage hit:
+        // TragicMC's Kitsune, with kitsunakumaFireballExempt, zeroes everything
+        // but its own reflected fireballs. Dispatching ATTACK on that hit let the
+        // flat adds (Excalibur's +4, Momentum, Riposte, Colossus's floor) turn it
+        // into real damage, so a fireball-only boss could be meleed. The victim's
+        // armour enchantments still run.
+        if (event.ammount <= 0.0F) {
+            applyArmour(event, attacker);
+            return;
+        }
+
         // An arrow we are tracking: the enchantments live on the bow that fired it,
         // not on whatever the shooter happens to be holding now.
         Entity direct = event.source.getSourceOfDamage();
