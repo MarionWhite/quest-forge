@@ -90,7 +90,8 @@ def apply(book):
         log('q94 tasks: already edited')
     set_icon(log, q, item('TwilightForest:item.phantomHelm'))
     edit_text(log, q, 'desc:8', 'Claim eight Knightmetal Ingots from the stronghold.',
-              'Bring back the Phantom Helm or the Phantom Plate from the vault chest.', 'q94')
+              'Bring back the Phantom Helm or the Phantom Plate from the vault chest.', 'q94',
+              superseded_by='Kill all six Knight Phantoms, or bring back')  # WP-4
 
     # 18 Ur-Ghast: Carminite also drops from the tower's lesser ghasts. Fiery Tears come
     # only from the Ur-Ghast's own treasure chest (TFTreasure.darktower_boss).
@@ -100,23 +101,27 @@ def apply(book):
     # The trophy option is already in that chest and part-fills Trophy Collector (62).
     replace_reward(log, q, 'TwilightForest:item.trophy', item(TOME, 1, 2), old_damage=3)
     edit_text(log, q, 'desc:8', 'Kill the Ur-Ghast. Bring back what it drops.',
-              'Kill the Ur-Ghast. Bring back a Fiery Tear from the chest it leaves.', 'q18')
+              'Kill the Ur-Ghast. Bring back a Fiery Tear from the chest it leaves.', 'q18',
+              superseded_by='§eKill the Ur-Ghast.§r')  # WP-4
 
     # 95 Alpha Yeti asked for Arctic Fur (ordinary Yetis). The Alpha drops 6-11 Alpha Fur.
     q = Q(95)
     replace_task_item(log, q, 'TwilightForest:item.arcticFur', item('TwilightForest:item.alphaFur', 4, 0))
     set_icon(log, q, item('TwilightForest:item.alphaFur'))
     edit_text(log, q, 'desc:8', 'Strip eight Arctic Furs from the beast.',
-              'Strip four Alpha Furs from the beast.', 'q95')
+              'Strip four Alpha Furs from the beast.', 'q95',
+              superseded_by='§eKill the Alpha Yeti.§r')  # WP-4
 
     # 19 Snow Queen asked for Alpha Fur (the Yeti's). She always drops her trophy (meta 4).
     q = Q(19)
     replace_task_item(log, q, 'TwilightForest:item.alphaFur', item('TwilightForest:item.trophy', 1, 4))
     set_icon(log, q, item('TwilightForest:item.trophy', 1, 4))
     replace_reward(log, q, 'TwilightForest:item.trophy', item(TOME, 1, 2), old_damage=4)
-    edit_text(log, q, 'desc:8', 'Alpha Yeti Fur is the proof.', 'Her trophy is the proof.', 'q19')
+    edit_text(log, q, 'desc:8', 'Alpha Yeti Fur is the proof.', 'Her trophy is the proof.', 'q19',
+              superseded_by='Her trophy is for the wall.')  # WP-4
     edit_text(log, q, 'desc:8', '§eDefeat the Snow Queen.§r',
-              '§eDefeat the Snow Queen. Bring back her trophy.§r', 'q19')
+              '§eDefeat the Snow Queen. Bring back her trophy.§r', 'q19',
+              superseded_by='§eKill the Snow Queen.§r')  # WP-4
 
     # 62 Trophy Collector: "all trophies", but it skipped the Snow Queen's.
     q = Q(62)
@@ -162,7 +167,8 @@ def apply(book):
     edit_text(log, Q(406), 'desc:8',
               'He is late-game on purpose — diamond is the admission ticket, not the loadout.',
               'Nothing stops you summoning him early. That is the trap: diamond is the admission ticket, '
-              'not the loadout.', 'q406')
+              'not the loadout.', 'q406',
+              superseded_by='Nothing stops you crafting the cube before Mobzilla.')  # WP-4
     edit_text(log, Q(421), 'desc:8',
               'The Lost World portal is later, and it wants the ceremonial kit — this page is only the reading.',
               'The Lost World portal wants the ceremonial kit, and nobody in the Chronicle has filed that '

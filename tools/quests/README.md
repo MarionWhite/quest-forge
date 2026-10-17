@@ -52,8 +52,9 @@ that must be complete, so an OR prerequisite counts its cheapest branch.
 The entity names hunt tasks may use, each with the class it maps to and how the name was
 checked: read from the mod's own registration call in the jar (`EntityRegistry.registerModEntity`
 gives `ModId.name`; `registerGlobalEntityID` first gives the plain name, which then wins), then
-confirmed with `/summon <name>` in a server trial, which resolves the name through the same map
-BQ uses. BQ's hunt task (Standard Expansion `TaskHunt`) credits a kill when the killer is a
+confirmed in a server trial with `/qfcensus find <text>` (qf-content), which lists the keys of
+`EntityList.stringToClassMapping`, the map BQ looks targets up in. Plain `/summon` cannot take
+the names with spaces (`TwilightForest.Snow Queen`, `The King`). BQ's hunt task (Standard Expansion `TaskHunt`) credits a kill when the killer is a
 player, to every member of that player's party; with `subtypes` on (the default) it also
 credits subclasses, so never target a base class such as TF's `Tower Ghast` or `Minotaur`.
 Kills by pets, minions or the environment do not count.
@@ -109,11 +110,19 @@ patch can be re-run. `patches/` holds the applied work packages:
 | `patches/wp1_hotfixes.py` | WP-1: broken quests, creative rewards, Twilight proofs, cheese pairs, text, `pack_version` |
 | `patches/wp2_tier_leaks.py` | WP-2: rewards that skip tiers, and the Pets/Heroes faucet |
 | `patches/wp3_chapter_order.py` | WP-3: cross-chapter prerequisites, later chapters hidden until they open, chapter-order texts |
+| `patches/wp4_boss_hunts.py` | WP-4: boss proofs become hunt and location tasks; the Overlord and Mutant quests |
 
 More helpers for those: `set_prereqs`, `set_visibility`, `set_tasks` (checks the task list it
 expects), `add_quest` (copies every property key from an existing quest), `move_in_line`,
 `set_pack_version`, and the task builders `retrieval`, `hunt`, `location`, `item_reward`,
 `choice_reward`, written with the keys and defaults Standard Expansion 3.0.181 reads.
+
+**Booting a changed book.** BQ writes `world/betterquesting/QuestDatabase.json` only when the
+database is dirty, so a trial that only starts and stops leaves no copy to inspect. End the
+command file with `bq_admin default save` before `stop`: BQ then writes what it parsed back over
+the trial's `config/betterquesting/DefaultQuests.json`, which can be compared with the repo book
+(a hunt task whose keys BQ did not read comes back targeting `Zombie`). "Loaded N quests" is in
+`logs/fml-server-latest.log`, not `latest.log`.
 
 After any edit: `qb.py check`, bump `pack_version` in `questSettings`, then a slim boot
 (`../trial/README.md`) with `--bundle quests --bundle inspect` plus the mods whose items the

@@ -360,17 +360,24 @@ def set_icon(log, q, new):
         props(q)['icon:10'] = new
 
 
-def edit_text(log, holder, field, old, new, where):
-    """Replace one exact substring of a name/desc. `holder` is a quest or a line."""
+def edit_text(log, holder, field, old, new, where, superseded_by=None):
+    """Replace one exact substring of a name/desc. `holder` is a quest or a line.
+    `superseded_by` is the text a later patch put in place of `new`, so re-running an
+    earlier patch on a later book is still a no-op."""
     p = holder['properties:10']['betterquesting:10']
     s = p[field]
-    if new in s:  # first: `new` may contain `old` (an edit that appends to a sentence)
-        log('%s %s: already edited' % (where, field))
-    elif old in s:
+    if superseded_by and superseded_by in s and old not in s:
+        log('%s %s: already edited (superseded since)' % (where, field))
+        return
+    # `new` may contain `old` (an edit that appends) or be part of it (one that cuts), so
+    # "already done" is: `new` is there, and `old` is either gone or only there inside `new`.
+    if old in s and not (old in new and new in s):
         if s.count(old) != 1:
             raise SystemExit('%s %s: %r occurs %d times' % (where, field, old, s.count(old)))
         p[field] = s.replace(old, new)
         log('%s %s: %r -> %r' % (where, field, strip(old)[:60], strip(new)[:60]))
+    elif new in s:
+        log('%s %s: already edited' % (where, field))
     else:
         raise SystemExit('%s %s: expected text not found: %r' % (where, field, old))
 
@@ -379,11 +386,16 @@ def rewrite_text(log, holder, field, must_contain, new, where):
     """Replace a whole name/desc, but only if it still contains `must_contain` (so a
     re-run, or a hand edit made since, is never overwritten)."""
     p = holder['properties:10']['betterquesting:10']
+    # A later patch may have edited the rewritten text again (WP-4 changed the ask lines of
+    # texts WP-1 rewrote). Its first paragraph, the hook, is what identifies it.
+    hook = new.split('\n\n')[0]
     if p[field] == new:
         log('%s %s: already rewritten' % (where, field))
     elif must_contain in p[field]:
         p[field] = new
         log('%s %s: rewritten (%r...)' % (where, field, strip(new)[:50]))
+    elif len(strip(hook)) >= 12 and p[field].startswith(hook):
+        log('%s %s: already rewritten (edited since)' % (where, field))
     else:
         raise SystemExit('%s %s: expected text not found: %r' % (where, field, must_contain))
 

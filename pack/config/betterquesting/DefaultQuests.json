@@ -1001,7 +1001,7 @@
           "lockedProgress:1": 0,
           "autoClaim:1": 0,
           "isSilent:1": 0,
-          "desc:8": "\u00a75[UNLOCKED BY DEFEATING THE KING]\u00a7r\n\n\u00a7oThe King leaves no tidy souvenir. His guardian's sword is the key.\u00a7r\n\nThe Dark Matter recipe asks for the Royal Guardian Sword and hands it back. One kill opens the recipe for good; the sword is never spent. Everything above this line of alchemy is built from Dark Matter, so spend it like it cost a titan.\n\n\u00a77\"Heavier than it looks. It looks heavy.\" - Alchemist\u00a7r\n\n\u00a7eCraft Dark Matter.\u00a7r"
+          "desc:8": "\u00a75[UNLOCKED BY DEFEATING THE KING]\u00a7r\n\n\u00a7oThe King drops the Royal Guardian Sword. The sword is the key.\u00a7r\n\nThe Dark Matter recipe asks for the Royal Guardian Sword and hands it back. One kill opens the recipe for good; the sword is never spent. Everything above this line of alchemy is built from Dark Matter, so spend it like it cost a titan.\n\n\u00a77\"Heavier than it looks. It looks heavy.\" - Alchemist\u00a7r\n\n\u00a7eCraft Dark Matter.\u00a7r"
         }
       },
       "tasks:9": {
@@ -1128,26 +1128,25 @@
           "lockedProgress:1": 0,
           "autoClaim:1": 0,
           "isSilent:1": 0,
-          "desc:8": "\u00a7d\u2726 THE TWILIGHT REALM \u2726\u00a7r\n\n\u00a7oFour flowers, still water, and one diamond you will never get back.\u00a7r\n\nDig a two-by-two pool in open grass and ring every edge with flowers. Any kind will do. Throw a diamond in and step away from the water. The lightning is the forest checking who you are. It does not check twice.\n\nTwilight Oak grows only on the other side, so a log of it is the proof you went through.\n\n\u00a77\"I thought the flash meant it worked. It meant swim.\" - Pathfinder\u00a7r\n\n\u00a7eStep through into the Twilight Forest. Cut a Twilight Oak log.\u00a7r"
+          "desc:8": "\u00a7d\u2726 THE TWILIGHT REALM \u2726\u00a7r\n\n\u00a7oFour flowers, still water, and one diamond you will never get back.\u00a7r\n\nDig a two-by-two pool in open grass and ring every edge with flowers. Any kind will do. Throw a diamond in and step away from the water. The lightning is the forest checking who you are. It does not check twice.\n\n\u00a77\"I thought the flash meant it worked. It meant swim.\" - Pathfinder\u00a7r\n\n\u00a7eStep through into the Twilight Forest.\u00a7r"
         }
       },
       "tasks:9": {
         "0:10": {
-          "partialMatch:1": 1,
-          "autoConsume:1": 0,
-          "groupDetect:1": 0,
-          "ignoreNBT:1": 0,
           "index:3": 0,
-          "consume:1": 0,
-          "requiredItems:9": {
-            "0:10": {
-              "id:8": "TwilightForest:tile.TFLog",
-              "Count:3": 1,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            }
-          },
-          "taskID:8": "bq_standard:retrieval"
+          "name:8": "Twilight Forest",
+          "posX:3": 0,
+          "posY:3": 0,
+          "posZ:3": 0,
+          "dimension:3": 7,
+          "biome:3": -1,
+          "structure:8": "",
+          "range:3": -1,
+          "visible:1": 0,
+          "hideInfo:1": 0,
+          "invert:1": 0,
+          "taxiCabDist:1": 0,
+          "taskID:8": "bq_standard:location"
         }
       },
       "rewards:9": {
@@ -1191,26 +1190,19 @@
           "lockedProgress:1": 0,
           "autoClaim:1": 0,
           "isSilent:1": 0,
-          "desc:8": "\u00a7a\u2726 THE NAGA \u2726\u00a7r\n\n\u00a7oThe Naga guards the threshold of the Twilight realm - a serpent of impossible size, scales harder than iron, coiled in its ancient courtyard for millennia.\n\nIt was placed there by the Twilight Lords as a test. Only those who can slay the Naga are deemed worthy to challenge the greater horrors within.\u00a7r\n\n\u00a77\"The courtyard walls aren't to keep the Naga in. They're to keep the fight fair. Outside those walls, it's just... faster.\" - Hunter's Warning\u00a7r\n\n\u00a7eDefeat the Naga and claim its scales as proof of your victory.\u00a7r"
+          "desc:8": "\u00a7a\u2726 THE NAGA \u2726\u00a7r\n\n\u00a7oThe Naga guards the threshold of the Twilight realm - a serpent of impossible size, scales harder than iron, coiled in its ancient courtyard for millennia.\n\nIt was placed there by the Twilight Lords as a test. Only those who can slay the Naga are deemed worthy to challenge the greater horrors within.\u00a7r\n\n\u00a77\"The courtyard walls aren't to keep the Naga in. They're to keep the fight fair. Outside those walls, it's just... faster.\" - Hunter's Warning\u00a7r\n\n\u00a7eKill the Naga.\u00a7r"
         }
       },
       "tasks:9": {
         "0:10": {
-          "partialMatch:1": 1,
-          "autoConsume:1": 0,
-          "groupDetect:1": 0,
-          "ignoreNBT:1": 0,
           "index:3": 0,
-          "consume:1": 0,
-          "requiredItems:9": {
-            "0:10": {
-              "id:8": "TwilightForest:item.nagaScale",
-              "Count:3": 5,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            }
-          },
-          "taskID:8": "bq_standard:retrieval"
+          "target:8": "TwilightForest.Naga",
+          "required:3": 1,
+          "subtypes:1": 1,
+          "ignoreNBT:1": 1,
+          "targetNBT:10": {},
+          "damageType:8": "",
+          "taskID:8": "bq_standard:hunt"
         }
       },
       "rewards:9": {
@@ -1260,26 +1252,19 @@
           "lockedProgress:1": 0,
           "autoClaim:1": 0,
           "isSilent:1": 0,
-          "desc:8": "\u00a75\u2726 THE TWILIGHT LICH \u2726\u00a7r\n\n\u00a7oOnce a mortal wizard of tremendous power, the Lich sought immortality through forbidden magic. He achieved it - at the cost of his humanity.\n\nNow he rules from his obsidian tower, surrounded by undead servants and protected by magical shields that make him invulnerable to harm. To slay him, you must first destroy the enchanted artifacts that maintain his defenses.\u00a7r\n\n\u00a77\"Three shields. Three chances for him to kill you while you're trying. The Lich doesn't fight fair - why should you?\" - Tower Raider\u00a7r\n\n\u00a7eDestroy his shields, then strike true.\u00a7r"
+          "desc:8": "\u00a75\u2726 THE TWILIGHT LICH \u2726\u00a7r\n\n\u00a7oOnce a mortal wizard of tremendous power, the Lich sought immortality through forbidden magic. He achieved it - at the cost of his humanity.\n\nNow he rules from his obsidian tower, surrounded by undead servants and protected by magical shields that make him invulnerable to harm. To slay him, you must first destroy the enchanted artifacts that maintain his defenses.\u00a7r\n\n\u00a77\"Three shields. Three chances for him to kill you while you're trying. The Lich doesn't fight fair - why should you?\" - Tower Raider\u00a7r\n\n\u00a7eBreak his shields, then kill the Twilight Lich.\u00a7r"
         }
       },
       "tasks:9": {
         "0:10": {
-          "partialMatch:1": 1,
-          "autoConsume:1": 0,
-          "groupDetect:1": 0,
-          "ignoreNBT:1": 0,
           "index:3": 0,
-          "consume:1": 0,
-          "requiredItems:9": {
-            "0:10": {
-              "id:8": "TwilightForest:item.scepterZombie",
-              "Count:3": 1,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            }
-          },
-          "taskID:8": "bq_standard:retrieval"
+          "target:8": "TwilightForest.Twilight Lich",
+          "required:3": 1,
+          "subtypes:1": 1,
+          "ignoreNBT:1": 1,
+          "targetNBT:10": {},
+          "damageType:8": "",
+          "taskID:8": "bq_standard:hunt"
         }
       },
       "rewards:9": {
@@ -1341,26 +1326,19 @@
           "lockedProgress:1": 0,
           "autoClaim:1": 0,
           "isSilent:1": 0,
-          "desc:8": "\u00a7c\u2726 THE HYDRA \u2726\u00a7r\n\n\u00a7oThe Hydra predates the Twilight Lords themselves - a primordial beast of fire and fury, sleeping in the volcanic caves beneath the forest.\n\nThree heads. Three personalities. Three ways to die. One breathes fire, one launches explosive projectiles, and one simply bites with teeth that can shear through enchanted armor.\u00a7r\n\n\u00a77\"You can't kill all three heads at once. You have to be patient, methodical. The Hydra isn't - that's your only advantage.\" - Sole Survivor\u00a7r\n\n\u00a7eClaim its Fiery Blood - liquid flame that never cools.\u00a7r"
+          "desc:8": "\u00a7c\u2726 THE HYDRA \u2726\u00a7r\n\n\u00a7oThe Hydra predates the Twilight Lords themselves - a primordial beast of fire and fury, sleeping in the volcanic caves beneath the forest.\n\nThree heads. Three personalities. Three ways to die. One breathes fire, one launches explosive projectiles, and one simply bites with teeth that can shear through enchanted armor.\u00a7r\n\n\u00a77\"You can't kill all three heads at once. You have to be patient, methodical. The Hydra isn't - that's your only advantage.\" - Sole Survivor\u00a7r\n\n\u00a7eKill the Hydra.\u00a7r"
         }
       },
       "tasks:9": {
         "0:10": {
-          "partialMatch:1": 1,
-          "autoConsume:1": 0,
-          "groupDetect:1": 0,
-          "ignoreNBT:1": 0,
           "index:3": 0,
-          "consume:1": 0,
-          "requiredItems:9": {
-            "0:10": {
-              "id:8": "TwilightForest:item.fieryBlood",
-              "Count:3": 3,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            }
-          },
-          "taskID:8": "bq_standard:retrieval"
+          "target:8": "TwilightForest.Hydra",
+          "required:3": 1,
+          "subtypes:1": 1,
+          "ignoreNBT:1": 1,
+          "targetNBT:10": {},
+          "damageType:8": "",
+          "taskID:8": "bq_standard:hunt"
         }
       },
       "rewards:9": {
@@ -1416,26 +1394,19 @@
           "lockedProgress:1": 0,
           "autoClaim:1": 0,
           "isSilent:1": 0,
-          "desc:8": "\u00a7oThe Dark Tower has a ceiling, and the ceiling has a face.\u00a7r\n\nThe Ur-Ghast runs the tower and a flock that thinks it is weather. Clear the floors. Do not fight it from the front door.\n\n\u00a77\"We climbed. It waited. That was the whole strategy, on both sides.\" - Tower Notes\u00a7r\n\n\u00a7eKill the Ur-Ghast. Bring back a Fiery Tear from the chest it leaves.\u00a7r"
+          "desc:8": "\u00a7oThe Dark Tower has a ceiling, and the ceiling has a face.\u00a7r\n\nThe Ur-Ghast runs the tower and a flock that thinks it is weather. Clear the floors. Do not fight it from the front door.\n\n\u00a77\"We climbed. It waited. That was the whole strategy, on both sides.\" - Tower Notes\u00a7r\n\n\u00a7eKill the Ur-Ghast.\u00a7r"
         }
       },
       "tasks:9": {
         "0:10": {
-          "partialMatch:1": 1,
-          "autoConsume:1": 0,
-          "groupDetect:1": 0,
-          "ignoreNBT:1": 0,
           "index:3": 0,
-          "consume:1": 0,
-          "requiredItems:9": {
-            "0:10": {
-              "id:8": "TwilightForest:item.fieryTears",
-              "Count:3": 1,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            }
-          },
-          "taskID:8": "bq_standard:retrieval"
+          "target:8": "TwilightForest.Tower Boss",
+          "required:3": 1,
+          "subtypes:1": 1,
+          "ignoreNBT:1": 1,
+          "targetNBT:10": {},
+          "damageType:8": "",
+          "taskID:8": "bq_standard:hunt"
         }
       },
       "rewards:9": {
@@ -1491,26 +1462,19 @@
           "lockedProgress:1": 0,
           "autoClaim:1": 0,
           "isSilent:1": 0,
-          "desc:8": "\u00a7oThe glacier has a palace. The palace has a landlord.\u00a7r\n\nThe Snow Queen is ice magic with a throne. Her trophy is the proof. This is the last of the numbered Twilight lords on this page.\n\n\u00a77\"Pretty, until the floor was a suggestion.\" - Alpine Log\u00a7r\n\n\u00a7eDefeat the Snow Queen. Bring back her trophy.\u00a7r"
+          "desc:8": "\u00a7oThe glacier has a palace. The palace has a landlord.\u00a7r\n\nThe Snow Queen is ice magic with a throne. Her trophy is for the wall. This is the last of the numbered Twilight lords on this page.\n\n\u00a77\"Pretty, until the floor was a suggestion.\" - Alpine Log\u00a7r\n\n\u00a7eKill the Snow Queen.\u00a7r"
         }
       },
       "tasks:9": {
         "0:10": {
-          "partialMatch:1": 1,
-          "autoConsume:1": 0,
-          "groupDetect:1": 0,
-          "ignoreNBT:1": 0,
           "index:3": 0,
-          "consume:1": 0,
-          "requiredItems:9": {
-            "0:10": {
-              "id:8": "TwilightForest:item.trophy",
-              "Count:3": 1,
-              "Damage:2": 4,
-              "OreDict:8": ""
-            }
-          },
-          "taskID:8": "bq_standard:retrieval"
+          "target:8": "TwilightForest.Snow Queen",
+          "required:3": 1,
+          "subtypes:1": 1,
+          "ignoreNBT:1": 1,
+          "targetNBT:10": {},
+          "damageType:8": "",
+          "taskID:8": "bq_standard:hunt"
         }
       },
       "rewards:9": {
@@ -1698,26 +1662,19 @@
           "lockedProgress:1": 0,
           "autoClaim:1": 0,
           "isSilent:1": 0,
-          "desc:8": "\u00a7oIt does not hunt. It occupies.\u00a7r\n\nMobzilla is the first of the three receipts that unlock ProjectE. Armies are insects. Diamond is a joke. Ultimate gear is the minimum.\n\n\u00a77\"Fifty soldiers. Three came back. None wanted to talk about the shadow.\" - Archive\u00a7r\n\n\u00a7eKill Mobzilla. Bring the scales. The Transmutation Table is listening.\u00a7r"
+          "desc:8": "\u00a7oIt does not hunt. It occupies.\u00a7r\n\nMobzilla is the first of the three receipts that unlock ProjectE. Armies are insects. Diamond is a joke. Ultimate gear is the minimum.\n\n\u00a77\"Fifty soldiers. Three came back. None wanted to talk about the shadow.\" - Archive\u00a7r\n\n\u00a7eKill Mobzilla. Keep the scales: the Transmutation Table is listening.\u00a7r"
         }
       },
       "tasks:9": {
         "0:10": {
-          "partialMatch:1": 1,
-          "autoConsume:1": 0,
-          "groupDetect:1": 0,
-          "ignoreNBT:1": 0,
           "index:3": 0,
-          "consume:1": 0,
-          "requiredItems:9": {
-            "0:10": {
-              "id:8": "OreSpawn:OreSpawn_BlockMobzillaScaleBlock",
-              "Count:3": 5,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            }
-          },
-          "taskID:8": "bq_standard:retrieval"
+          "target:8": "Mobzilla",
+          "required:3": 1,
+          "subtypes:1": 1,
+          "ignoreNBT:1": 1,
+          "targetNBT:10": {},
+          "damageType:8": "",
+          "taskID:8": "bq_standard:hunt"
         }
       },
       "rewards:9": {
@@ -1773,26 +1730,19 @@
           "lockedProgress:1": 0,
           "autoClaim:1": 0,
           "isSilent:1": 0,
-          "desc:8": "\u00a7oThe King is a weather system with a crown.\u00a7r\n\nTreat him like the chapter tab said: weather you can stab. The Royal Guardian Sword is the proof this pack uses, because the King himself does not drop a tidy souvenir.\n\n\u00a77\"I have seen gods bleed. This one made me put the sentence down.\" - Champion\u00a7r\n\n\u00a7eSurvive The King. Hold the Royal Guardian Sword.\u00a7r"
+          "desc:8": "\u00a7oThe King is a weather system with a crown.\u00a7r\n\nTreat him like the chapter tab said: weather you can stab. He drops the Royal Guardian Sword with his armour. Keep it: Dark Matter asks for it.\n\n\u00a77\"I have seen gods bleed. This one made me put the sentence down.\" - Champion\u00a7r\n\n\u00a7eKill The King.\u00a7r"
         }
       },
       "tasks:9": {
         "0:10": {
-          "partialMatch:1": 1,
-          "autoConsume:1": 0,
-          "groupDetect:1": 0,
-          "ignoreNBT:1": 0,
           "index:3": 0,
-          "consume:1": 0,
-          "requiredItems:9": {
-            "0:10": {
-              "id:8": "OreSpawn:OreSpawn_Royal",
-              "Count:3": 1,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            }
-          },
-          "taskID:8": "bq_standard:retrieval"
+          "target:8": "The King",
+          "required:3": 1,
+          "subtypes:1": 1,
+          "ignoreNBT:1": 1,
+          "targetNBT:10": {},
+          "damageType:8": "",
+          "taskID:8": "bq_standard:hunt"
         }
       },
       "rewards:9": {
@@ -1848,26 +1798,19 @@
           "lockedProgress:1": 0,
           "autoClaim:1": 0,
           "isSilent:1": 0,
-          "desc:8": "\u00a7oAfter the King. That is the whole warning.\u00a7r\n\nThe Queen is the last titan on the spine. Red Matter waits on her scale. If you are here early, you are lost. If you are here on purpose, you already know.\n\n\u00a77\"You think the King was the end. The book does not.\" - Final Testament\u00a7r\n\n\u00a7eKill The Queen. Bring a Queen Scale.\u00a7r"
+          "desc:8": "\u00a7oAfter the King. That is the whole warning.\u00a7r\n\nThe Queen is the last titan on the spine. Red Matter waits on her scale. If you are here early, you are lost. If you are here on purpose, you already know.\n\n\u00a77\"You think the King was the end. The book does not.\" - Final Testament\u00a7r\n\n\u00a7eKill The Queen.\u00a7r"
         }
       },
       "tasks:9": {
         "0:10": {
-          "partialMatch:1": 1,
-          "autoConsume:1": 0,
-          "groupDetect:1": 0,
-          "ignoreNBT:1": 0,
           "index:3": 0,
-          "consume:1": 0,
-          "requiredItems:9": {
-            "0:10": {
-              "id:8": "OreSpawn:OreSpawn_QueenScale",
-              "Count:3": 1,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            }
-          },
-          "taskID:8": "bq_standard:retrieval"
+          "target:8": "The Queen",
+          "required:3": 1,
+          "subtypes:1": 1,
+          "ignoreNBT:1": 1,
+          "targetNBT:10": {},
+          "damageType:8": "",
+          "taskID:8": "bq_standard:hunt"
         }
       },
       "rewards:9": {
@@ -2049,26 +1992,19 @@
           "lockedProgress:1": 0,
           "autoClaim:1": 0,
           "isSilent:1": 0,
-          "desc:8": "\u00a7oVanilla, with the safety filed off.\u00a7r\n\nA Mutant Skeleton is a skeleton that learned extra rules. Unique attacks. Too much health. Hunt one. Do not assume the bow range you remember.\n\n\u00a77\"It shot the wall. The wall became the problem.\" - Range Report\u00a7r\n\n\u00a7eBring back what it drops.\u00a7r"
+          "desc:8": "\u00a7oVanilla, with the safety filed off.\u00a7r\n\nA Mutant Skeleton is a skeleton that learned extra rules. Unique attacks. Too much health. Hunt one. Do not assume the bow range you remember.\n\n\u00a77\"It shot the wall. The wall became the problem.\" - Range Report\u00a7r\n\n\u00a7eKill a Mutant Skeleton.\u00a7r"
         }
       },
       "tasks:9": {
         "0:10": {
-          "partialMatch:1": 1,
-          "autoConsume:1": 0,
-          "groupDetect:1": 0,
-          "ignoreNBT:1": 0,
           "index:3": 0,
-          "consume:1": 0,
-          "requiredItems:9": {
-            "0:10": {
-              "id:8": "MutantCreatures:item.skeletonPart",
-              "Count:3": 1,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            }
-          },
-          "taskID:8": "bq_standard:retrieval"
+          "target:8": "MutantCreatures.MutantSkeleton",
+          "required:3": 1,
+          "subtypes:1": 1,
+          "ignoreNBT:1": 1,
+          "targetNBT:10": {},
+          "damageType:8": "",
+          "taskID:8": "bq_standard:hunt"
         }
       },
       "rewards:9": {
@@ -2089,7 +2025,7 @@
     "29:10": {
       "questID:3": 29,
       "preRequisites:11": [
-        28
+        451
       ],
       "properties:10": {
         "betterquesting:10": {
@@ -4885,26 +4821,19 @@
           "lockedProgress:1": 0,
           "autoClaim:1": 0,
           "isSilent:1": 0,
-          "desc:8": "\u00a72\u2726 THE MINOSHROOM \u2726\u00a7r\n\n\u00a7oBeneath the Labyrinth's endless corridors something waits at the centre. Half minotaur, half fungus, wholly furious.\n\nThe maze is the first boss. Mazestone will not yield to an ordinary pickaxe, and the corridors are built to exhaust you long before you reach the heart.\u00a7r\n\n\u00a77\"Everyone maps the maze on the way in. Nobody remembers the map on the way out.\" - Labyrinth Cartographer\u00a7r\n\n\u00a7eBring back its Meef Stroganoff - proof you reached the centre and walked out again.\u00a7r"
+          "desc:8": "\u00a72\u2726 THE MINOSHROOM \u2726\u00a7r\n\n\u00a7oBeneath the Labyrinth's endless corridors something waits at the centre. Half minotaur, half fungus, wholly furious.\n\nThe maze is the first boss. Mazestone will not yield to an ordinary pickaxe, and the corridors are built to exhaust you long before you reach the heart.\u00a7r\n\n\u00a77\"Everyone maps the maze on the way in. Nobody remembers the map on the way out.\" - Labyrinth Cartographer\u00a7r\n\n\u00a7eKill the Minoshroom at the centre of the Labyrinth.\u00a7r"
         }
       },
       "tasks:9": {
         "0:10": {
-          "partialMatch:1": 1,
-          "autoConsume:1": 0,
-          "groupDetect:1": 0,
-          "ignoreNBT:1": 0,
           "index:3": 0,
-          "consume:1": 0,
-          "requiredItems:9": {
-            "0:10": {
-              "id:8": "TwilightForest:item.meefStroganoff",
-              "Count:3": 1,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            }
-          },
-          "taskID:8": "bq_standard:retrieval"
+          "target:8": "TwilightForest.Minoshroom",
+          "required:3": 1,
+          "subtypes:1": 1,
+          "ignoreNBT:1": 1,
+          "targetNBT:10": {},
+          "damageType:8": "",
+          "taskID:8": "bq_standard:hunt"
         }
       },
       "rewards:9": {
@@ -4960,16 +4889,26 @@
           "lockedProgress:1": 0,
           "autoClaim:1": 0,
           "isSilent:1": 0,
-          "desc:8": "\u00a79\u2726 THE KNIGHT PHANTOM \u2726\u00a7r\n\n\u00a7oThe Goblin Knight Stronghold was built to contain something. The goblins are only the tenants.\n\nIn the vault at its heart drifts an empty suit of armour still fighting a war that ended centuries ago. It does not tire, it does not bleed, and as it dies it simply splits into more of itself.\u00a7r\n\n\u00a77\"I killed it four times. That was the problem.\" - Stronghold Breaker\u00a7r\n\n\u00a7eBring back the Phantom Helm or the Phantom Plate from the vault chest.\u00a7r"
+          "desc:8": "\u00a79\u2726 THE KNIGHT PHANTOM \u2726\u00a7r\n\n\u00a7oThe Goblin Knight Stronghold was built to contain something. The goblins are only the tenants.\n\nIn the vault at its heart drifts an empty suit of armour still fighting a war that ended centuries ago. It does not tire, it does not bleed, and as it dies it simply splits into more of itself.\u00a7r\n\n\u00a77\"I killed it four times. That was the problem.\" - Stronghold Breaker\u00a7r\n\n\u00a7eKill all six Knight Phantoms, or bring back the Phantom Helm or Plate from the vault chest.\u00a7r"
         }
       },
       "tasks:9": {
         "0:10": {
+          "index:3": 0,
+          "target:8": "TwilightForest.Knight Phantom",
+          "required:3": 6,
+          "subtypes:1": 1,
+          "ignoreNBT:1": 1,
+          "targetNBT:10": {},
+          "damageType:8": "",
+          "taskID:8": "bq_standard:hunt"
+        },
+        "1:10": {
           "partialMatch:1": 1,
           "autoConsume:1": 0,
           "groupDetect:1": 0,
           "ignoreNBT:1": 0,
-          "index:3": 0,
+          "index:3": 1,
           "consume:1": 0,
           "requiredItems:9": {
             "0:10": {
@@ -4981,12 +4920,12 @@
           },
           "taskID:8": "bq_standard:retrieval"
         },
-        "1:10": {
+        "2:10": {
           "partialMatch:1": 1,
           "autoConsume:1": 0,
           "groupDetect:1": 0,
           "ignoreNBT:1": 0,
-          "index:3": 1,
+          "index:3": 2,
           "consume:1": 0,
           "requiredItems:9": {
             "0:10": {
@@ -5052,26 +4991,19 @@
           "lockedProgress:1": 0,
           "autoClaim:1": 0,
           "isSilent:1": 0,
-          "desc:8": "\u00a7b\u2726 THE ALPHA YETI \u2726\u00a7r\n\n\u00a7oThe glacier is not empty. Something enormous lives in the ice cave at its base, and it throws its smaller cousins at intruders before it lowers itself to fighting you directly.\n\nBeat it and the Aurora Palace opens. The Snow Queen already knows you are coming.\u00a7r\n\n\u00a77\"It picked me up. I need you to understand that it picked me up, and then it threw me through a wall.\" - Glacier Climber\u00a7r\n\n\u00a7eStrip four Alpha Furs from the beast.\u00a7r"
+          "desc:8": "\u00a7b\u2726 THE ALPHA YETI \u2726\u00a7r\n\n\u00a7oThe glacier is not empty. Something enormous lives in the ice cave at its base, and it throws its smaller cousins at intruders before it lowers itself to fighting you directly.\n\nBeat it and the Aurora Palace opens. The Snow Queen already knows you are coming.\u00a7r\n\n\u00a77\"It picked me up. I need you to understand that it picked me up, and then it threw me through a wall.\" - Glacier Climber\u00a7r\n\n\u00a7eKill the Alpha Yeti.\u00a7r"
         }
       },
       "tasks:9": {
         "0:10": {
-          "partialMatch:1": 1,
-          "autoConsume:1": 0,
-          "groupDetect:1": 0,
-          "ignoreNBT:1": 0,
           "index:3": 0,
-          "consume:1": 0,
-          "requiredItems:9": {
-            "0:10": {
-              "id:8": "TwilightForest:item.alphaFur",
-              "Count:3": 4,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            }
-          },
-          "taskID:8": "bq_standard:retrieval"
+          "target:8": "TwilightForest.Yeti Boss",
+          "required:3": 1,
+          "subtypes:1": 1,
+          "ignoreNBT:1": 1,
+          "targetNBT:10": {},
+          "damageType:8": "",
+          "taskID:8": "bq_standard:hunt"
         }
       },
       "rewards:9": {
@@ -7088,7 +7020,7 @@
       "properties:10": {
         "betterquesting:10": {
           "snd_complete:8": "minecraft:entity.player.levelup",
-          "taskLogic:8": "AND",
+          "taskLogic:8": "OR",
           "visibility:8": "NORMAL",
           "isMain:1": 1,
           "simultaneous:1": 0,
@@ -7106,26 +7038,30 @@
           "lockedProgress:1": 0,
           "autoClaim:1": 0,
           "isSilent:1": 0,
-          "desc:8": "\u00a75\u2726 THE DRAGON REBORN \u2726\u00a7r\n\n\u00a7oThe fight you remember is gone. This one has read your notes.\n\nHardcore Ender Expansion rewrote the dragon entirely: new attacks, real phases, and a nasty habit of changing its behaviour the moment you settle into a rhythm. Shooting the crystals is still step one, but it is no longer the whole strategy, and standing in the open bow-sniping will get you killed somewhere around the second phase.\n\nBring the gems. Bring the poppets or the potions or whatever your particular flavour of insurance is. And bring an Enderman Head, because you should not be arriving here without having learned that lesson first.\n\nWhen it falls, the egg is yours.\u00a7r\n\n\u00a77\"Everyone has killed the dragon. Nobody in this room has killed that dragon.\" - Guild Notice, posted twice\u00a7r\n\n\u00a7eClaim the Dragon Egg and an Enderman Head.\u00a7r"
+          "desc:8": "\u00a75\u2726 THE DRAGON REBORN \u2726\u00a7r\n\n\u00a7oThe fight you remember is gone. This one has read your notes.\n\nHardcore Ender Expansion rewrote the dragon entirely: new attacks, real phases, and a nasty habit of changing its behaviour the moment you settle into a rhythm. Shooting the crystals is still step one, but it is no longer the whole strategy, and standing in the open bow-sniping will get you killed somewhere around the second phase.\n\nBring the gems. Bring the poppets or the potions or whatever your particular flavour of insurance is.\n\nAs it dies it sheds Dragon Essence, enough for everyone who was there.\u00a7r\n\n\u00a77\"Everyone has killed the dragon. Nobody in this room has killed that dragon.\" - Guild Notice, posted twice\u00a7r\n\n\u00a7eKill the dragon, or bring back Dragon Essence from the fight.\u00a7r"
         }
       },
       "tasks:9": {
         "0:10": {
+          "index:3": 0,
+          "target:8": "HardcoreEnderExpansion.Dragon",
+          "required:3": 1,
+          "subtypes:1": 1,
+          "ignoreNBT:1": 1,
+          "targetNBT:10": {},
+          "damageType:8": "",
+          "taskID:8": "bq_standard:hunt"
+        },
+        "1:10": {
           "partialMatch:1": 1,
           "autoConsume:1": 0,
           "groupDetect:1": 0,
           "ignoreNBT:1": 0,
-          "index:3": 0,
+          "index:3": 1,
           "consume:1": 0,
           "requiredItems:9": {
             "0:10": {
-              "id:8": "minecraft:dragon_egg",
-              "Count:3": 1,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            },
-            "1:10": {
-              "id:8": "HardcoreEnderExpansion:enderman_head",
+              "id:8": "HardcoreEnderExpansion:essence",
               "Count:3": 1,
               "Damage:2": 0,
               "OreDict:8": ""
@@ -24859,26 +24795,19 @@
           "lockedProgress:1": 0,
           "autoClaim:1": 0,
           "isSilent:1": 0,
-          "desc:8": "\u00a7oThe lord of the underworld is one fight, not a chapter of three.\u00a7r\n\nKill him. Bring back a Demon Crystal. That is the receipt. Nothing stops you summoning him early. That is the trap: diamond is the admission ticket, not the loadout.\n\n\u00a77\"The name was the scary part until the health bar started.\" - Last Volunteer\u00a7r\n\n\u00a7eRetrieve a Demon Crystal. That means he is down.\u00a7r"
+          "desc:8": "\u00a7oThe lord of the underworld is one fight, not a chapter of three.\u00a7r\n\nKill him; the kill is the receipt, and your party shares it. Nothing stops you crafting the cube before Mobzilla. That is the trap: the cube does not check your gear.\n\n\u00a77\"The name was the scary part until the health bar started.\" - Last Volunteer\u00a7r\n\n\u00a7eKill Rahovart.\u00a7r"
         }
       },
       "tasks:9": {
         "0:10": {
-          "partialMatch:1": 1,
-          "autoConsume:1": 0,
-          "groupDetect:1": 0,
-          "ignoreNBT:1": 1,
           "index:3": 0,
-          "consume:1": 0,
-          "requiredItems:9": {
-            "0:10": {
-              "id:8": "demonmobs:demoncrystal",
-              "Count:3": 1,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            }
-          },
-          "taskID:8": "bq_standard:retrieval"
+          "target:8": "demonmobs.rahovart",
+          "required:3": 1,
+          "subtypes:1": 1,
+          "ignoreNBT:1": 1,
+          "targetNBT:10": {},
+          "damageType:8": "",
+          "taskID:8": "bq_standard:hunt"
         }
       },
       "rewards:9": {
@@ -26066,6 +25995,266 @@
           }
         }
       }
+    },
+    "450:10": {
+      "questID:3": 450,
+      "preRequisites:11": [
+        134
+      ],
+      "properties:10": {
+        "betterquesting:10": {
+          "snd_complete:8": "minecraft:entity.player.levelup",
+          "taskLogic:8": "AND",
+          "visibility:8": "NORMAL",
+          "isMain:1": 1,
+          "simultaneous:1": 0,
+          "icon:10": {
+            "id:8": "TragicMC:overlordHelm",
+            "Count:3": 1,
+            "Damage:2": 0,
+            "OreDict:8": ""
+          },
+          "snd_update:8": "minecraft:entity.player.levelup",
+          "repeatTime:3": -1,
+          "globalShare:1": 0,
+          "questLogic:8": "AND",
+          "name:8": "TragicMC: The Overlord",
+          "lockedProgress:1": 0,
+          "autoClaim:1": 0,
+          "isSilent:1": 0,
+          "desc:8": "\u00a7oThe Synapse was built around something, and it is still at home.\u00a7r\n\nPlace a Synapse Core inside the Synapse and the Overlord wakes. It fights three times: a cocoon, a body, and the core that ran both. Only the core counts. Bring your party, a way home, and more poppets than seems reasonable.\n\n\u00a77\"We cracked the shell and cheered. The shell let us.\" - Keysmith\u00a7r\n\n\u00a7eKill the Overlord's core in the Synapse.\u00a7r"
+        }
+      },
+      "tasks:9": {
+        "0:10": {
+          "index:3": 0,
+          "target:8": "TragicMC.OverlordCore",
+          "required:3": 1,
+          "subtypes:1": 1,
+          "ignoreNBT:1": 1,
+          "targetNBT:10": {},
+          "damageType:8": "",
+          "taskID:8": "bq_standard:hunt"
+        }
+      },
+      "rewards:9": {
+        "0:10": {
+          "rewardID:8": "bq_standard:choice",
+          "index:3": 0,
+          "choices:9": {
+            "0:10": {
+              "id:8": "TragicMC:overlordHelm",
+              "Count:3": 1,
+              "Damage:2": 0,
+              "OreDict:8": ""
+            },
+            "1:10": {
+              "id:8": "TragicMC:overlordPlate",
+              "Count:3": 1,
+              "Damage:2": 0,
+              "OreDict:8": ""
+            },
+            "2:10": {
+              "id:8": "TragicMC:overlordAmulet",
+              "Count:3": 1,
+              "Damage:2": 0,
+              "OreDict:8": ""
+            }
+          }
+        }
+      }
+    },
+    "451:10": {
+      "questID:3": 451,
+      "preRequisites:11": [
+        28
+      ],
+      "properties:10": {
+        "betterquesting:10": {
+          "snd_complete:8": "minecraft:entity.player.levelup",
+          "taskLogic:8": "AND",
+          "visibility:8": "ALWAYS",
+          "isMain:1": 0,
+          "simultaneous:1": 0,
+          "icon:10": {
+            "id:8": "minecraft:skull",
+            "Count:3": 1,
+            "Damage:2": 2,
+            "OreDict:8": ""
+          },
+          "snd_update:8": "minecraft:entity.player.levelup",
+          "repeatTime:3": -1,
+          "globalShare:1": 0,
+          "questLogic:8": "AND",
+          "name:8": "Mutant Creatures: Mutant Zombie",
+          "lockedProgress:1": 0,
+          "autoClaim:1": 0,
+          "isSilent:1": 0,
+          "desc:8": "\u00a7oIt hits the ground and the ground files a complaint.\u00a7r\n\nA Mutant Zombie slams the ground hard enough to throw you, and it brings the dead up with it. Keep moving sideways, and do not fight it next to anything you built. It is also where the Hulk Hammer comes from.\n\n\u00a77\"We kept backing up. It kept being closer.\" - Range Report\u00a7r\n\n\u00a7eKill a Mutant Zombie.\u00a7r"
+        }
+      },
+      "tasks:9": {
+        "0:10": {
+          "index:3": 0,
+          "target:8": "MutantCreatures.MutantZombie",
+          "required:3": 1,
+          "subtypes:1": 1,
+          "ignoreNBT:1": 1,
+          "targetNBT:10": {},
+          "damageType:8": "",
+          "taskID:8": "bq_standard:hunt"
+        }
+      },
+      "rewards:9": {
+        "0:10": {
+          "rewardID:8": "bq_standard:item",
+          "index:3": 0,
+          "rewards:9": {
+            "0:10": {
+              "id:8": "lootbags:lootbag",
+              "Count:3": 1,
+              "Damage:2": 0,
+              "OreDict:8": ""
+            },
+            "1:10": {
+              "id:8": "minecraft:experience_bottle",
+              "Count:3": 8,
+              "Damage:2": 0,
+              "OreDict:8": ""
+            }
+          }
+        }
+      }
+    },
+    "452:10": {
+      "questID:3": 452,
+      "preRequisites:11": [
+        28
+      ],
+      "properties:10": {
+        "betterquesting:10": {
+          "snd_complete:8": "minecraft:entity.player.levelup",
+          "taskLogic:8": "AND",
+          "visibility:8": "ALWAYS",
+          "isMain:1": 0,
+          "simultaneous:1": 0,
+          "icon:10": {
+            "id:8": "MutantCreatures:item.creeperShard",
+            "Count:3": 1,
+            "Damage:2": 0,
+            "OreDict:8": ""
+          },
+          "snd_update:8": "minecraft:entity.player.levelup",
+          "repeatTime:3": -1,
+          "globalShare:1": 0,
+          "questLogic:8": "AND",
+          "name:8": "Mutant Creatures: Mutant Creeper",
+          "lockedProgress:1": 0,
+          "autoClaim:1": 0,
+          "isSilent:1": 0,
+          "desc:8": "\u00a7oA creeper that stopped being polite about it.\u00a7r\n\nIt jumps, it charges, and it does not need to reach you to go off. Fight it from range, and pick ground you do not mind losing.\n\n\u00a77\"It did not hiss. That was worse.\" - Demolition Survey\u00a7r\n\n\u00a7eKill a Mutant Creeper.\u00a7r"
+        }
+      },
+      "tasks:9": {
+        "0:10": {
+          "index:3": 0,
+          "target:8": "MutantCreatures.MutantCreeper",
+          "required:3": 1,
+          "subtypes:1": 1,
+          "ignoreNBT:1": 1,
+          "targetNBT:10": {},
+          "damageType:8": "",
+          "taskID:8": "bq_standard:hunt"
+        }
+      },
+      "rewards:9": {
+        "0:10": {
+          "rewardID:8": "bq_standard:choice",
+          "index:3": 0,
+          "choices:9": {
+            "0:10": {
+              "id:8": "qfcontent:sealed_tome",
+              "Count:3": 1,
+              "Damage:2": 0,
+              "OreDict:8": ""
+            },
+            "1:10": {
+              "id:8": "minecraft:experience_bottle",
+              "Count:3": 8,
+              "Damage:2": 0,
+              "OreDict:8": ""
+            },
+            "2:10": {
+              "id:8": "lootbags:lootbag",
+              "Count:3": 1,
+              "Damage:2": 0,
+              "OreDict:8": ""
+            }
+          }
+        }
+      }
+    },
+    "453:10": {
+      "questID:3": 453,
+      "preRequisites:11": [
+        28
+      ],
+      "properties:10": {
+        "betterquesting:10": {
+          "snd_complete:8": "minecraft:entity.player.levelup",
+          "taskLogic:8": "AND",
+          "visibility:8": "ALWAYS",
+          "isMain:1": 0,
+          "simultaneous:1": 0,
+          "icon:10": {
+            "id:8": "MutantCreatures:item.endersoulHand",
+            "Count:3": 1,
+            "Damage:2": 0,
+            "OreDict:8": ""
+          },
+          "snd_update:8": "minecraft:entity.player.levelup",
+          "repeatTime:3": -1,
+          "globalShare:1": 0,
+          "questLogic:8": "AND",
+          "name:8": "Mutant Creatures: Mutant Enderman",
+          "lockedProgress:1": 0,
+          "autoClaim:1": 0,
+          "isSilent:1": 0,
+          "desc:8": "\u00a7oFour arms, and every one of them is holding part of your house.\u00a7r\n\nA Mutant Enderman throws blocks, splits into clones to spoil your count, and is the hardest of the four. Keep your back to a wall, and do not trust the first one you see.\n\n\u00a77\"It threw the bridge at us. Then it threw the other half.\" - Survey Crew\u00a7r\n\n\u00a7eKill a Mutant Enderman.\u00a7r"
+        }
+      },
+      "tasks:9": {
+        "0:10": {
+          "index:3": 0,
+          "target:8": "MutantCreatures.MutantEnderman",
+          "required:3": 1,
+          "subtypes:1": 1,
+          "ignoreNBT:1": 1,
+          "targetNBT:10": {},
+          "damageType:8": "",
+          "taskID:8": "bq_standard:hunt"
+        }
+      },
+      "rewards:9": {
+        "0:10": {
+          "rewardID:8": "bq_standard:choice",
+          "index:3": 0,
+          "choices:9": {
+            "0:10": {
+              "id:8": "qfcontent:sealed_tome",
+              "Count:3": 1,
+              "Damage:2": 1,
+              "OreDict:8": ""
+            },
+            "1:10": {
+              "id:8": "minecraft:ender_pearl",
+              "Count:3": 16,
+              "Damage:2": 0,
+              "OreDict:8": ""
+            }
+          }
+        }
+      }
     }
   },
   "questLines:9": {
@@ -26605,7 +26794,7 @@
         },
         "5:10": {
           "sizeX:3": 24,
-          "x:3": 48,
+          "x:3": 144,
           "y:3": 96,
           "id:3": 29,
           "sizeY:3": 24
@@ -26636,6 +26825,27 @@
           "x:3": 48,
           "y:3": 192,
           "id:3": 434,
+          "sizeY:3": 24
+        },
+        "10:10": {
+          "sizeX:3": 24,
+          "x:3": 96,
+          "y:3": 96,
+          "id:3": 451,
+          "sizeY:3": 24
+        },
+        "11:10": {
+          "sizeX:3": 24,
+          "x:3": 96,
+          "y:3": 144,
+          "id:3": 452,
+          "sizeY:3": 24
+        },
+        "12:10": {
+          "sizeX:3": 24,
+          "x:3": 96,
+          "y:3": 192,
+          "id:3": 453,
           "sizeY:3": 24
         }
       },
@@ -27799,6 +28009,13 @@
           "y:3": 240,
           "id:3": 140,
           "sizeY:3": 24
+        },
+        "11:10": {
+          "sizeX:3": 24,
+          "x:3": 96,
+          "y:3": 96,
+          "id:3": 450,
+          "sizeY:3": 24
         }
       },
       "lineID:3": 16,
@@ -28656,7 +28873,7 @@
       "hardcore:1": 0,
       "home_image:8": "betterquesting:textures/gui/default_title.png",
       "party_enable:1": 1,
-      "pack_version:3": 7,
+      "pack_version:3": 8,
       "editMode:1": 0,
       "home_offset_x:3": -128,
       "home_offset_y:3": 0
