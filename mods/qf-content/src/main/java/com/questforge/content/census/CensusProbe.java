@@ -443,7 +443,7 @@ public final class CensusProbe {
         return Math.max(0F, before - target.getHealth());
     }
 
-    /** Part name to strike on a multipart target (census option part=), or null for nearest. */
+    /** Part name to strike on a multipart target (census option part=), or null for the main body. */
     static String preferredPart;
     private static final java.util.Set<String> partsLogged = new java.util.HashSet<String>();
 
@@ -454,9 +454,12 @@ public final class CensusProbe {
      * resolves to one (WorldServer registers every part's entity id). TragicMC's
      * Enyvil refuses every player-sourced hit on its main body outright, so a
      * probe swinging at the main entity dealt nothing in 53 of 53 melee cells
-     * (anomalies #1b). The part named by part= is used when there is one,
-     * otherwise the part nearest the probe's eye. The damage is still read off
-     * the main entity. The choice is logged once per target and part.
+     * (anomalies #1b). With part=<name>, every swing strikes that part (or,
+     * if it has none by that name, the part nearest the probe's eye). Without
+     * it the main body is struck, as before: most multipart bosses take hits
+     * there, and striking the nearest part instead put every Naga swing on a
+     * body segment and moved its control TTK from 30 s to 51 s. The damage is
+     * always read off the main entity. The choice is logged once.
      */
     static net.minecraft.entity.Entity partFor(EntityPlayer probe, net.minecraft.entity.EntityLivingBase target) {
         net.minecraft.entity.Entity[] parts;
@@ -465,14 +468,12 @@ public final class CensusProbe {
         } catch (Throwable t) {
             return target;
         }
-        if (parts == null || parts.length == 0) return target;
+        if (preferredPart == null || parts == null || parts.length == 0) return target;
         net.minecraft.entity.Entity pick = null;
-        if (preferredPart != null) {
-            for (net.minecraft.entity.Entity p : parts) {
-                if (p != null && preferredPart.equalsIgnoreCase(partName(p))) {
-                    pick = p;
-                    break;
-                }
+        for (net.minecraft.entity.Entity p : parts) {
+            if (p != null && preferredPart.equalsIgnoreCase(partName(p))) {
+                pick = p;
+                break;
             }
         }
         if (pick == null) {
@@ -492,7 +493,7 @@ public final class CensusProbe {
         if (partsLogged.add(key)) {
             QuestForgeContent.log.info("[census] " + target.getClass().getSimpleName() + " has " + parts.length
                     + " parts; the probe strikes " + partName(pick)
-                    + (preferredPart == null ? " (nearest)" : " (part=" + preferredPart + ")"));
+                    + " (part=" + preferredPart + ")");
         }
         return pick;
     }
