@@ -89,7 +89,13 @@ rem -XX:+FailOverToOldVerifier, so older-version bytecode is fine here.
   "%HERE%src\com\questforge\MmmScanTransformer.java" ^
   "%HERE%src\com\questforge\MmmScanGuard.java" ^
   "%HERE%src\com\questforge\LuckyScriptTransformer.java" ^
-  "%HERE%src\com\questforge\LuckyScriptFix.java"
+  "%HERE%src\com\questforge\LuckyScriptFix.java" ^
+  "%HERE%src\com\questforge\SplashTransformer.java" ^
+  "%HERE%src\qf\splash\QFSplash.java" ^
+  "%HERE%..\..\tools\branding\splash-bars\java\qf\splash\QFBars.java" ^
+  "%HERE%..\..\tools\music\java\qf\splash\SplashMusic.java" ^
+  "%HERE%..\..\tools\music\java\qf\splash\SplashChantFade.java" ^
+  "%HERE%..\..\tools\music\java\qf\splash\SplashMenuPreload.java"
 
 if errorlevel 1 (
   echo.

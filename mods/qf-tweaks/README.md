@@ -168,6 +168,53 @@ or `the JDK has no JavaScript engine; using the game class loader's` (Java 25).
 Tested 2026-10-17: Java 8 server boots unchanged; Java 25 server and client
 boot with 0 expression errors, and broken Lucky Blocks drop items and mobs.
 
+## The loading screen and splash music on any Forge jar
+
+Until 2026-10-17 the Quest Forge loading sequence (the full-screen mural, the
+magma progress bars, the breathing corner emblem, the HD splash font, the
+splash chant and its hand-off to the menu music) lived only in a hand-patched
+Forge 1558 jar. The Angelica client runs stock Forge 1614, so
+`SplashTransformer` now makes the same changes at load time. The list comes
+from decompiling the live 1558 jar against stock 1614, whose `SplashProgress`
+is otherwise identical:
+
+| Class | Change |
+|---|---|
+| `SplashProgress` | `SplashMusic.start()` / `stop()` at the head of `start()` / `finish()`; the texture upload buffer 4M -> 16M ints (stock throws `BufferOverflowException` on the 3840x2160 mural) |
+| `SplashProgress$3` | the logo quad becomes the full-screen mural; `drawBar`'s first `glScalef` and three `drawBox` go to `qf.splash.QFBars`; the two `drawString` colours become `splash.properties font=` |
+| `SplashProgress$SplashFontRenderer` | glyph widths read from the splash's own `resources/` font |
+| `SplashProgress$Texture` | the corner emblem's pulse at the head of `bind()` |
+
+The Forge-side classes (`qf/splash/QFBars`, `SplashMusic`, `SplashChantFade`,
+`SplashMenuPreload`) are compiled into this jar from `tools/branding/splash-bars/java`
+and `tools/music/java`, plus `src/qf/splash/QFSplash.java` for the reflective
+helpers. Each patch first looks for the stock code and skips what is already
+there, so on the OptiFine client's hand-patched 1558 jar it changes nothing
+visible and adds only two logging hooks. Look for:
+
+```
+Transform applied: cpw.mods.fml.client.SplashProgress$3: full-screen mural; frame hook; textured bars; 2 text colour(s);
+[QFSplash] first splash frame at 730 ms: 1920x1080, textured bars on, chant PLAYING at 1.1s of 53.3s, ...
+[QFSplash] splash finishing after 103595 ms and 10039 frames; chant PLAYING ..., menu PLAYING at 0.0s of 132.0s
+[QFSplash] 4000 ms after the splash: chant none, menu PLAYING at 4.0s of 132.0s
+```
+
+On the E7 jar the first line reads `hand-off log; (music already in this Forge jar)`
+and `frame hook;` only. With `-Dqf.splash.shots=DIR` the splash thread also
+saves its frame to `DIR` every 5 s (`-Dqf.splash.shotEvery=ms`), which is how
+the two clients were compared: the mural, bars, text and corners came out
+pixel-identical; only the emblem's pulse phase differed. Under Angelica,
+`config/angelica-modules.cfg` `showSplashMemoryBar=false` keeps Angelica's own
+memory bar off the mural.
+
+## Shader packs under Angelica
+
+`ShaderState.active()` (used by the GraveStones beam patch) asks OptiFine's
+`Config.isShaders()` and Iris's `IrisApi.getInstance().isShaderPackInUse()`
+(shipped inside Angelica), both reflectively, so one jar serves both clients.
+It logs one line each time the answer changes:
+`[QuestForgeTweaks] shader pack ON (Angelica/Iris): patched mods take the shader-safe path`.
+
 ---
 
 ## Building

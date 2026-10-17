@@ -37,6 +37,7 @@ import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
         "com.questforge.MorphOptifineTransformer",
         "com.questforge.MmmScanTransformer",
         "com.questforge.LuckyScriptTransformer",
+        "com.questforge.SplashTransformer",
         // Not transformers, but loaded from code patched into GraveStones and
         // OptiFine; there is nothing in them any transformer needs to touch.
         "com.questforge.ShaderState",
@@ -61,7 +62,8 @@ public class QuestForgeCore implements IFMLLoadingPlugin {
                 "com.questforge.ChunkCleanTransformer",
                 "com.questforge.MorphOptifineTransformer",
                 "com.questforge.MmmScanTransformer",
-                "com.questforge.LuckyScriptTransformer"
+                "com.questforge.LuckyScriptTransformer",
+                "com.questforge.SplashTransformer"
         };
     }
 
