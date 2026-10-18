@@ -72,11 +72,16 @@ def meander(points, amp, seed, step=160.0):
     return out
 
 
-def pond_distance(x, z, cx, cz, r, seed):
-    """Normalised distance to a lake centre (1 = shore); the shore wobbles with noise.
-    The same function runs at plan and at block resolution, so both agree on the shape."""
-    wob = 1 + 0.3 * fbm(x, z, max(r * 0.8, 64), 2, seed)
-    return np.hypot(x - cx, z - cz) / (r * wob)
+def pond_distance(x, z, p, seed):
+    """Normalised distance to a lake centre (1 = shore). The lake is stretched (aspect),
+    turned (rot) and its shore pushed in and out by noise at two scales, so no lake is a
+    circle. The same function runs at plan and at block resolution, so both agree."""
+    cx, cz, r = p["at"][0], p["at"][1], p["r"]
+    c, s = math.cos(p.get("rot", 0.0)), math.sin(p.get("rot", 0.0))
+    dx, dz = x - cx, z - cz
+    u, v = (dx * c + dz * s), (-dx * s + dz * c) * p.get("aspect", 1.0)
+    wob = 1 + 0.45 * fbm(x, z, max(r * 0.7, 64), 3, seed) + 0.15 * fbm(x, z, max(r * 0.2, 24), 2, seed + 1)
+    return np.hypot(u, v) / (r * np.maximum(wob, 0.35))
 
 
 def ridged(x, z, cell, octaves, seed):
@@ -147,9 +152,21 @@ def render(spec_path, plan_dir):
     lakes = [region_polygon(l) for l in spec.get("lakes", [])]
     if lakes:
         land &= ~warped_mask(lakes, gx + 0.3 * (wx - gx), gz + 0.3 * (wz - gz))
-    isl = [region_polygon(i) if isinstance(i, dict) else i for i in spec.get("islands", [])]
+    iwx, iwz = gx + 0.3 * (wx - gx), gz + 0.3 * (wz - gz)
+    isl = [region_polygon(i) if isinstance(i, dict) else i for i in spec.get("islands", []) if not (isinstance(i, dict) and "ring" in i)]
     if isl:
-        land |= warped_mask(isl, gx + 0.3 * (wx - gx), gz + 0.3 * (wz - gz))
+        land |= warped_mask(isl, iwx, iwz)
+    for i in spec.get("islands", []):   # {ring: [x, z, r_out, r_in]}: an atoll around a lagoon
+        if isinstance(i, dict) and "ring" in i:
+            x, z, ro, rin = i["ring"]
+            land |= warped_mask([region_polygon({"circle": [x, z, ro]})], iwx, iwz) & \
+                ~warped_mask([region_polygon({"circle": [x, z, rin]})], iwx, iwz)
+
+    # Raised plateaus ({circle|polygon, top, wall}): sheer-sided table mountains (tepuis, mesas).
+    plateaus = []
+    for pl in spec.get("plateaus", []):
+        pm = warped_mask([region_polygon(pl)], iwx, iwz) & land
+        plateaus.append((pl, pm))
 
     d_in = ndimage.distance_transform_edt(land) * PX       # blocks to the sea, on land
     d_out = ndimage.distance_transform_edt(~land) * PX     # blocks to land, at sea
@@ -243,6 +260,39 @@ def render(spec_path, plan_dir):
         relief = np.maximum(relief, np.where(prof > 0.05, ridge.get("relief", 200) * np.minimum(1, prof * 3), 0))
         if "biome" in ridge:
             biome[land & (prof > ridge.get("biome_above", 0.35))] = ridge["biome"]
+    extra_tiers = []
+    for pl, pm in plateaus:
+        din = ndimage.distance_transform_edt(pm) * PX
+        rise = np.clip(din / pl.get("wall", 64), 0, 1) ** 0.35          # sheer wall, then a flat top
+        top = pl["top"] + fbm(gx, gz, 600, 3, seed + 31) * pl.get("top_relief", 10)
+        h = np.where(pm, np.maximum(h, h + (top - h) * rise), h)
+        relief = np.where(pm & (rise >= 0.99), np.minimum(relief, pl.get("relief", 50)), relief)
+        if "biome" in pl:
+            biome[pm & (rise > 0.6)] = pl["biome"]
+        if "tier" in pl and pm.any():
+            zz, xx = np.nonzero(pm)
+            extra_tiers.append({"tier": pl["tier"], "x": float(xx.mean() * PX - half), "z": float(zz.mean() * PX - half)})
+    # Canyons ({points, width, depth, wall_biome, floor_biome}): a broad cut with steep walls
+    # and a flat floor, wandering like a river.
+    for ck, cn in enumerate(spec.get("canyons", [])):
+        pts = meander(cn["points"], cn.get("meander", 500), seed + 600 + ck)
+        ci = Image.new("L", (n, n), 0)
+        ImageDraw.Draw(ci).line(_poly(n, pts, size), fill=255, width=1)
+        d = ndimage.distance_transform_edt(~(np.asarray(ci) > 0)) * PX
+        hw = cn["width"] / 2 * (1 + 0.3 * fbm(gx, gz, 1200, 3, seed + 650 + ck))
+        t = np.clip(1 - d / hw, 0, 1)
+        frac = np.clip(t / 0.35, 0, 1)
+        frac = frac * frac * (3 - 2 * frac)
+        inside = land & (t > 0)
+        h = np.where(inside, h - cn["depth"] * frac, h)
+        relief = np.where(inside, np.minimum(relief, 30 + 120 * (1 - frac)), relief)
+        if "wall_biome" in cn:
+            biome[inside & (frac < 0.95)] = cn["wall_biome"]
+        if "floor_biome" in cn:
+            biome[inside & (frac >= 0.95)] = cn["floor_biome"]
+        if "tier" in cn:
+            mid = pts[len(pts) // 2]
+            extra_tiers.append({"tier": cn["tier"], "x": float(mid[0]), "z": float(mid[1])})
     # Sea floor: shelf, then deep water.
     depth = np.clip(d_out / spec.get("shelf_width", 1200), 0, 1)
     h = np.where(land, h, SEA - 4 - (SEA - 4 - spec.get("deep_floor", 28)) * depth)
@@ -293,6 +343,9 @@ def render(spec_path, plan_dir):
     for i, p in enumerate(ponds):
         p["id"] = i
         p.setdefault("depth", max(4, min(14, p["r"] / 40)))
+        prng = np.random.default_rng(seed + 9500 + i)
+        p.setdefault("rot", float(prng.uniform(0, math.pi)))
+        p.setdefault("aspect", float(prng.uniform(1.0, 2.2)))
         cx, cz, rad = p["at"][0], p["at"][1], p["r"]
         j0, j1 = max(0, int((cx - 1.7 * rad + half) / PX)), min(n, int((cx + 1.7 * rad + half) / PX) + 2)
         i0, i1 = max(0, int((cz - 1.7 * rad + half) / PX)), min(n, int((cz + 1.7 * rad + half) / PX) + 2)
@@ -300,7 +353,7 @@ def render(spec_path, plan_dir):
             continue
         sl = (slice(i0, i1), slice(j0, j1))
         bx, bz = gx[sl], gz[sl]
-        d = pond_distance(bx, bz, cx, cz, rad, seed + 9000 + i)
+        d = pond_distance(bx, bz, p, seed + 9000 + i)
         rr = np.hypot(bx - cx, bz - cz)
         ring = (rr > rad * 1.2) & (rr < rad * 1.6) & land[sl]
         if not ring.any():
@@ -338,9 +391,11 @@ def render(spec_path, plan_dir):
     # only carry their tier, shown at the centre of the land they own.
     meta["regions"] = []
     for k, r in enumerate(spec["regions"]):
-        zz, xx = np.nonzero(land & (owner == k))
-        if len(xx) and "tier" in r:
-            meta["regions"].append({"tier": r["tier"], "x": float(xx.mean() * PX - half), "z": float(zz.mean() * PX - half)})
+        own = land & (owner == k)
+        if own.any() and "tier" in r:   # marker at the most interior point (a ring's mean is in its hole)
+            zz, xx = np.unravel_index(ndimage.distance_transform_edt(own).argmax(), own.shape)
+            meta["regions"].append({"tier": r["tier"], "x": float(xx * PX - half), "z": float(zz * PX - half)})
+    meta["regions"] += extra_tiers
     Image.fromarray(np.where(land, owner + 1, 0).astype(np.uint8)).save(f"{plan_dir}/regions.png")
     meta["points"] = spec.get("points", [])
     json.dump(meta, open(f"{plan_dir}/plan.json", "w"), indent=1)
@@ -505,7 +560,7 @@ def expand(plan_dir, out_dir, pi, pj, piece):
                 continue
             c0, c1 = max(0, int(cx - 1.4 * rad - x0)), min(piece, int(cx + 1.4 * rad - x0) + 1)
             sx, sz = X[:, c0:c1], Z[:, c0:c1]
-            dd = pond_distance(sx, sz, cx, cz, rad, seed + 9000 + p["id"])
+            dd = pond_distance(sx, sz, p, seed + 9000 + p["id"])
             hs = h[:, c0:c1]
             hs = np.where(dd < 1, np.minimum(hs, p["level"] - 1 - p["depth"] * (1 - dd * dd)), hs)
             h[:, c0:c1] = hs
