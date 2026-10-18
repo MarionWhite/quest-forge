@@ -12,6 +12,8 @@ rem Forge 1614 and the same mods (docs/setup/angelica-client.md).
 rem
 rem Heap from installed RAM: 8 GB -> 3 GB, 12 GB -> 4 GB, 16 GB -> 5 GB,
 rem 32 GB or more -> 7 GB. set QF_XMX=6144M before launching to override.
+rem QF_USER sets the player name (default Dev). QF_JVM_ARGS / QF_GAME_ARGS add arguments,
+rem e.g. QF_GAME_ARGS=--server 1.2.3.4 --port 25565 to connect straight away.
 
 cd /d "%~dp0" || (echo Could not change to "%~dp0" & pause & exit /b 1)
 set "INST=%CD%"
@@ -67,7 +69,7 @@ echo.
  -Xms%XMS% -Xmx%XMX% -XX:MaxPermSize=256M ^
  -XX:+UseG1GC -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=16M ^
  -XX:+ParallelRefProcEnabled -XX:+DisableExplicitGC -XX:+UseCompressedOops ^
- -XX:+UseSplitVerifier -XX:+FailOverToOldVerifier -XX:-HeapDumpOnOutOfMemoryError ^
+ -XX:+UseSplitVerifier -XX:+FailOverToOldVerifier -XX:-HeapDumpOnOutOfMemoryError %QF_JVM_ARGS% ^
  -cp "!CP!" ^
  net.minecraft.launchwrapper.Launch ^
  --username %QF_USER% --accessToken 0 ^
@@ -75,7 +77,7 @@ echo.
  --version 1.7.10 --assetIndex 1.7.10 ^
  --tweakClass cpw.mods.fml.common.launcher.FMLTweaker ^
  --gameDir "%INST%" --assetsDir "%INST%\assets" ^
- --userProperties {}
+ --userProperties {} %QF_GAME_ARGS%
 
 echo.
 echo ---- Minecraft exited with code %ERRORLEVEL% ----
