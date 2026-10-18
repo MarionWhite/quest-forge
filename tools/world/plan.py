@@ -123,6 +123,61 @@ def region_polygon(r):
     return [(x + rad * math.cos(2 * math.pi * i / 32), z + rad * math.sin(2 * math.pi * i / 32)) for i in range(32)]
 
 
+def fractal_land(spec, gx, gz, n, size, half, seed):
+    """Land from rough sketch shapes with a fractal edge.
+
+    spec: landmasses: [polygon, ...]        rough outlines; the noise does the detail
+          coast_rough: {amp, scale, octaves} edge noise: amp in blocks (how far bays cut in and
+                                             capes reach out), scale = the largest bay
+          rough_zones: [{circle|polygon, mul}] scale amp locally (fjord coast 2.0, desert 0.5)
+          island_chains: [{points, count, r: [rmin, rmax], jitter}] islands strung along a path
+    Land is where (signed distance to the sketch + noise) > 0, so the coast breaks up at every
+    scale and islands form just offshore wherever the noise is high."""
+    cr = spec.get("coast_rough", {})
+    amp, scale, octv = cr.get("amp", 1400), cr.get("scale", 6000), cr.get("octaves", 7)
+
+    def poly_mask(polys):
+        img = Image.new("L", (n, n), 0)
+        for p in polys:
+            ImageDraw.Draw(img).polygon(_poly(n, p, size), fill=255)
+        return np.asarray(img) > 0
+
+    inside = poly_mask(spec["landmasses"])
+    sdf = (ndimage.distance_transform_edt(inside) - ndimage.distance_transform_edt(~inside)) * PX
+    mul = np.ones((n, n), np.float32)
+    for z in spec.get("rough_zones", []):
+        mul = np.where(poly_mask([region_polygon(z)]), z["mul"], mul)
+    mul = ndimage.gaussian_filter(mul, 2000 / PX)
+    # Domain-warp the sketch's distance field so bays twist into inlets and fjords, then add
+    # fractal noise whose small scales stay strong (gain 0.62) so the edge is rough at every size.
+    wa = amp * 0.9 * mul
+    sx = gx + wa * fbm(gx, gz, scale * 0.6, 5, seed + 3)
+    sz = gz + wa * fbm(gx, gz, scale * 0.6, 5, seed + 4)
+    sdf = ndimage.map_coordinates(sdf, [(sz + half) / PX - 0.5, (sx + half) / PX - 0.5], order=1, mode="nearest")
+    noise = fbm(gx, gz, scale, octv, seed + 1, gain=0.62)
+    noise = noise / (noise.std() + 1e-6)
+    land = sdf + amp * mul * noise > 0
+    # Island chains: islands of varied size strung along a path, jittered off it.
+    rng = np.random.default_rng(seed + 4242)
+    for ch in spec.get("island_chains", []):
+        pts = np.array(ch["points"], float)
+        seg = np.hypot(*np.diff(pts, axis=0).T)
+        cum = np.concatenate([[0], np.cumsum(seg)])
+        for t in np.linspace(0, cum[-1], ch.get("count", 8)):
+            k = min(np.searchsorted(cum, t, side="right") - 1, len(seg) - 1)
+            f = (t - cum[k]) / (seg[k] or 1)
+            x, z = pts[k] + (pts[k + 1] - pts[k]) * f + rng.normal(0, ch.get("jitter", 300), 2)
+            r = rng.uniform(*ch.get("r", [150, 500]))
+            d = np.hypot(gx - x, gz - z) - r * (1 + 0.5 * fbm(gx, gz, max(r, 64), 3, seed + 99))
+            land |= d < 0
+    # Specks under ~3 plan pixels read as noise, not islands.
+    lab, nl = ndimage.label(land)
+    if nl:
+        sizes = ndimage.sum(np.ones_like(lab), lab, range(1, nl + 1))
+        land &= np.isin(lab, np.nonzero(sizes >= 3)[0] + 1)
+    return land
+
+
 def render(spec_path, plan_dir):
     import yaml
     spec = yaml.safe_load(open(spec_path, encoding="utf-8"))
@@ -147,7 +202,10 @@ def render(spec_path, plan_dir):
         return ndimage.map_coordinates((np.asarray(img) > 0).astype(np.float32),
                                        [(wzz + half) / PX - 0.5, (wxx + half) / PX - 0.5], order=1, mode="constant") > 0.5
 
-    land = warped_mask([spec["coast"]], wx, wz)
+    if "landmasses" in spec:
+        land = fractal_land(spec, gx, gz, n, size, half, seed)
+    else:
+        land = warped_mask([spec["coast"]], wx, wz)
     # Lakes ({polygon} or {circle: [x, z, r]}) cut the land; islands come after, so an island
     # can stand in a lake.
     lakes = [region_polygon(l) for l in spec.get("lakes", [])]
