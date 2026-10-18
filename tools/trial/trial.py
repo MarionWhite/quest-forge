@@ -41,6 +41,7 @@ Usage (py -3.10):
     trial.py launch NAME [--wait] [--xmx 3G] [-D key=value ...] [--commands FILE]
     trial.py status                             running clients/servers, lock, RAM
     trial.py install JAR [--why TEXT]           put a built jar into the live instance
+    trial.py uninstall NAME --why TEXT          take a jar out of the live instance (kept in a backup)
     trial.py stage JAR                          candidate jar for trials only (catalog "staged": true)
     trial.py bisect start|good|bad|status|reset ...   halve a mod set to find a culprit
     trial.py guard [--fix-links] [--accept]     hard links into live, live jars changed without install
@@ -48,7 +49,7 @@ Usage (py -3.10):
     trial.py stop NAME [--force]                stop this trial's own JVM (never anyone else's)
     trial.py remove NAME
 """
-import argparse, datetime, hashlib, json, os, re, shutil, subprocess, sys, time, zipfile
+import argparse, datetime, fnmatch, hashlib, json, os, re, shutil, subprocess, sys, time, zipfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 APPDATA = os.environ.get("APPDATA", os.path.expanduser("~/AppData/Roaming"))
@@ -1138,51 +1139,135 @@ def cmd_install(a):
     if jar.lower().endswith("-dev.jar"):
         sys.exit("that is the deobfuscated -dev jar; it crashes in the pack with NoSuchMethodError. "
                  "Install build/libs/<name>.jar (the reobfuscated one).")
-    live_users = [p for p in java_processes()
-                  if os.path.normcase(LIVE) in os.path.normcase(p["cmd"]) and
-                  (p["kind"] == "server" or os.path.normcase(p["gameDir"]) == os.path.normcase(LIVE))]
-    if live_users and not a.force:
-        print("refusing to install: the live instance is in use (the user's game, or a server built from it):")
-        for p in live_users:
-            print(f"  {p['kind']} pid {p['pid']} {p['gameDir']}")
-        print("A jar swapped under a running game is not what that game loaded. Wait for it to exit.")
-        sys.exit(2)
+    if not a.force:
+        refuse_if_live_in_use("install")
     name = os.path.basename(jar)
     mods = os.path.join(LIVE, "mods")
     dst = os.path.join(mods, a.as_name or name)
+    # --replace: the jar this one supersedes under another file name (a version bump,
+    # or GTNH CodeChickenCore-1.4.22.jar for stock CodeChickenCore.jar). It leaves
+    # mods/ in the same step, so neither "both loaded" nor "neither there" is ever left behind.
+    rep = find_live_jar(a.replace) if a.replace else None
+    if rep and os.path.normcase(os.path.join(LIVE, rep)) == os.path.normcase(dst):
+        rep = None
     if not os.path.isfile(dst):
         cat = load_catalog()
         k = key_of_jar(cat, name)
-        same = [r for r in instance_jars(LIVE) if k and key_of_jar(cat, os.path.basename(r)) == k]
+        same = [r for r in instance_jars(LIVE)
+                if k and r != rep and key_of_jar(cat, os.path.basename(r)) == k]
         if same:
             sys.exit(f"{name} would sit next to {', '.join(same)}; FML would load both. "
-                     f"Pass --as {os.path.basename(same[0])} to replace it.")
+                     f"Pass --replace {os.path.basename(same[0])} (or --as it) to replace it.")
     stamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+    bdir = os.path.join(LIVE, f"_backup-install-{stamp}")
     old_sha = None
     if os.path.isfile(dst):
         old_sha = sha1(dst)
         if old_sha == sha1(jar):
             print(f"{os.path.basename(dst)} is already that build ({old_sha}); nothing to do")
             return
-        bdir = os.path.join(LIVE, f"_backup-install-{stamp}")
         os.makedirs(bdir, exist_ok=True)
         shutil.copy2(dst, os.path.join(bdir, os.path.basename(dst)))
     tmp = dst + ".installing"
     shutil.copy2(jar, tmp)
     os.replace(tmp, dst)
+    rep_sha = None
+    if rep:
+        rep_sha = sha1(os.path.join(LIVE, rep))
+        rdst = os.path.join(bdir, os.path.relpath(rep, "mods"))
+        os.makedirs(os.path.dirname(rdst), exist_ok=True)
+        os.replace(os.path.join(LIVE, rep), rdst)
     os.makedirs(TRIALS, exist_ok=True)
     who = a.owner or os.environ.get("CLAUDE_SESSION_NAME", "?")
     line = (f"{stamp}\t{who}\t{os.path.basename(dst)}\t{old_sha or '-'} -> {sha1(dst)}\t"
-            f"{jar}\t{a.why or ''}\n")
+            f"{jar}\t{a.why or ''}" + (f" (replaces {rep} {rep_sha})" if rep else "") + "\n")
     with open(INSTALL_LOG, "a", encoding="utf-8") as f:
         f.write(line)
     print(f"installed {os.path.basename(dst)} ({old_sha or 'new'} -> {sha1(dst)})"
           + (f"; previous kept in _backup-install-{stamp}" if old_sha else ""))
+    if rep:
+        print(f"replaced {rep} ({rep_sha}); kept in {rdst}")
     print(f"logged in {INSTALL_LOG}")
     m = load_live_manifest() or {"jars": {}}
     jars = m["jars"]
     jars[os.path.relpath(dst, LIVE)] = sha1(dst)
+    if rep:
+        jars.pop(rep, None)
     save_live_manifest(jars)
+
+
+def find_live_jar(pattern):
+    """The one live jar a name means: a path under mods/ (1.7.10/x.jar), a file name, or a glob."""
+    want = pattern.replace("/", os.sep).replace("\\", os.sep)
+    if want.lower().startswith("mods" + os.sep):
+        want = want[5:]
+    hits = [rel for rel in instance_jars(LIVE)
+            if fnmatch.fnmatch(os.path.relpath(rel, "mods").lower(), want.lower())
+            or (os.sep not in want and fnmatch.fnmatch(os.path.basename(rel).lower(), want.lower()))]
+    if len(hits) != 1:
+        found = ", ".join(hits) if hits else "nothing"
+        sys.exit(f"'{pattern}' must name exactly one live jar under mods/; it matches {found}")
+    return hits[0]
+
+
+def refuse_if_live_in_use(verb):
+    """Exit while the user's game, or a server running from the live instance, is up."""
+    live_users = [p for p in java_processes()
+                  if os.path.normcase(LIVE) in os.path.normcase(p["cmd"]) and
+                  (p["kind"] == "server" or os.path.normcase(p["gameDir"]) == os.path.normcase(LIVE))]
+    if live_users:
+        print(f"refusing to {verb}: the live instance is in use (the user's game, or a server built from it):")
+        for p in live_users:
+            print(f"  {p['kind']} pid {p['pid']} {p['gameDir']}")
+        print("A jar changed under a running game is not what that game loaded. Wait for it to exit.")
+        sys.exit(2)
+
+
+def cmd_uninstall(a):
+    """The one way a jar leaves the live instance: the mirror of `install`.
+
+    Removing a jar changes the pack as much as adding one (a missing library is a
+    crash at the next start; a missing mod deletes its blocks from every world
+    that loads without it), so it gets the same checks: guard first, refuse while
+    anything runs from the live instance, refuse if another live jar still needs
+    it, keep the jar in _backup-install-<time>/, and log it.
+    """
+    if not a.why:
+        sys.exit("uninstall needs --why: the install log is how the next person learns why a jar is gone")
+    if not a.force:
+        guard_check("uninstall", strict=True)
+    live = instance_jars(LIVE)
+    rel = find_live_jar(a.jar)
+    if not a.force:
+        refuse_if_live_in_use("uninstall")
+    # A jar another live jar requires (catalog `requires`) leaves that one broken.
+    cat = load_catalog()
+    k = key_of_jar(cat, os.path.basename(rel))
+    if k and not a.force:
+        others = [r for r in live if r != rel and key_of_jar(cat, os.path.basename(r)) == k]
+        needers = sorted({os.path.basename(r) for r in live if r != rel and
+                          k in cat["mods"].get(key_of_jar(cat, os.path.basename(r)) or "", {}).get("requires", [])})
+        if needers and not others:
+            sys.exit(f"{os.path.basename(rel)} is '{k}', which these live jars require: {', '.join(needers)}. "
+                     f"Uninstall or update them first, or fix catalog.json if the requirement is gone.")
+    src = live[rel]
+    old_sha = sha1(src)
+    stamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+    bdir = os.path.join(LIVE, f"_backup-install-{stamp}")
+    dst = os.path.join(bdir, os.path.relpath(rel, "mods"))
+    os.makedirs(os.path.dirname(dst), exist_ok=True)
+    # A move on one volume is a rename: the jar is in mods/ or in the backup, never half of each.
+    os.replace(src, dst)
+    os.makedirs(TRIALS, exist_ok=True)
+    who = a.owner or os.environ.get("CLAUDE_SESSION_NAME", "?")
+    with open(INSTALL_LOG, "a", encoding="utf-8") as f:
+        f.write(f"{stamp}\t{who}\tUNINSTALL {rel}\t{old_sha} -> -\t{dst}\t{a.why}\n")
+    print(f"uninstalled {rel} ({old_sha}); kept in _backup-install-{stamp}\\{os.path.relpath(rel, 'mods')}")
+    print(f"  undo: trial.py install \"{dst}\" --as {os.path.relpath(rel, 'mods')} --why \"undo uninstall\"")
+    print(f"logged in {INSTALL_LOG}")
+    m = load_live_manifest() or {"jars": {}}
+    m["jars"].pop(rel, None)
+    save_live_manifest(m["jars"])
 
 
 # -------------------------------------------------------------------- bisect
@@ -1481,10 +1566,19 @@ def main():
 
     p = sp.add_parser("install"); p.add_argument("jar")
     p.add_argument("--as", dest="as_name", help="filename in mods/ to replace (default: the jar's own)")
+    p.add_argument("--replace", help="a live jar under another name that this one supersedes; moved to the "
+                                     "backup in the same step (name or path under mods/, globs allowed)")
     p.add_argument("--why", help="one line for the install log")
     p.add_argument("--owner", help="who to log (default: $CLAUDE_SESSION_NAME)")
     p.add_argument("--force", action="store_true", help="install even though the live instance is in use")
     p.set_defaults(fn=cmd_install)
+
+    p = sp.add_parser("uninstall", help="move a live jar into _backup-install-<time>/ (logged)")
+    p.add_argument("jar", help="file name or path under mods/ (1.7.10/x.jar), globs allowed; must match one jar")
+    p.add_argument("--why", help="one line for the install log (required)")
+    p.add_argument("--owner", help="who to log (default: $CLAUDE_SESSION_NAME)")
+    p.add_argument("--force", action="store_true", help="skip the guard, in-use and required-by checks")
+    p.set_defaults(fn=cmd_uninstall)
 
     p = sp.add_parser("bisect"); p.add_argument("action", choices=["start", "good", "bad", "status", "reset"])
     p.add_argument("--name", default="bisect")

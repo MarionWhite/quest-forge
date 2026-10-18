@@ -95,6 +95,27 @@ This is the only way a jar should go into `%APPDATA%\.crazycraft4\mods`.
 - It replaces atomically and keeps the old jar in `_backup-install-<time>/`.
 - It logs who installed what to `%APPDATA%\.qf-trials\install.log`.
 
+A jar that supersedes one with a different file name (a version in the name, or GTNH
+`CodeChickenCore-1.4.22.jar` for stock `CodeChickenCore.jar`) goes in with `--replace OLD`: the old jar
+moves into the same backup folder in the same step, so FML never sees both and the pack is never
+left with neither.
+
+### Taking a jar out
+
+```
+py -3.10 tools/trial/trial.py uninstall "1.7.10/CodeChickenLib-*.jar" --why "merged into GTNH CodeChickenCore"
+```
+
+Removing a jar changes the pack as much as adding one, so `uninstall` gets the same checks:
+
+- `--why` is required.
+- It runs the guard first and refuses on an unexplained change, like `install`.
+- It refuses while the user's game, or a server running from the live instance, is up.
+- The name is a file name or a path under `mods/` (`1.7.10/x.jar`), globs allowed, and must match exactly one jar.
+- It refuses when another live jar requires it (catalog `requires`) and nothing else provides it.
+- The jar moves to `_backup-install-<time>/` (keeping `1.7.10/`), the line goes into `install.log`
+  (`UNINSTALL ...`), and `live-manifest.json` drops it. It prints the `install --as` line that undoes it.
+
 Never drop probe jars into the live `mods/`. Put the probe in a trial.
 
 ## Guard: nothing writes the live pack behind `install`
