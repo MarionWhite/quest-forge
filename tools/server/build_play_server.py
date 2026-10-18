@@ -30,6 +30,12 @@ jars are downloaded once into --cache and checked by sha256; Forge 1614 is
 installed there from its installer unless --forge-install names an install.
 Without --java25 the build is the Java 8 server it has always been, so going
 back is one rebuild.
+
+CodeChickenCore: the server takes whatever the instance runs, and must, because
+NEI's packets differ between stock CCC and GTNH CCC. Since 2026-10-18 that is GTNH
+CodeChickenCore 1.4.22 (CodeChickenLib merged in, its unloadChunk null-guarded, so
+pregeneration needs no patch) and no --ccl. --ccl remains only for an instance still
+on stock CCC + CodeChickenLib, and is refused otherwise.
 """
 import argparse, fnmatch, glob, hashlib, json, os, shutil, socket, subprocess, sys, urllib.request
 import uuid, zipfile
@@ -590,6 +596,28 @@ def copy_tree(src, dst):
     shutil.copytree(src, dst, ignore=lambda d, names: [n for n in names if is_junk(n)])
 
 
+def codechicken_of(inst):
+    """Which CodeChickenCore the instance runs: 'GTNH CodeChickenCore <ver>', 'stock', or exit.
+
+    Since 2026-10-18 the pack runs GTNH CodeChickenCore 1.4.22 (CodeChickenLib merged
+    in) so Angelica clients can join; its NEI packets differ from stock CCC's, so the
+    server must run exactly what the clients run, and never both."""
+    mods = os.path.join(inst, "mods")
+    top = [e for e in os.listdir(mods) if e.startswith("CodeChickenCore") and e.endswith(".jar")]
+    lib = os.path.join(mods, "1.7.10")
+    ccl = [e for e in os.listdir(lib) if e.startswith("CodeChickenLib")] if os.path.isdir(lib) else []
+    gtnh = [e for e in top if e != "CodeChickenCore.jar"]
+    if len(top) != 1:
+        sys.exit("the instance has %s CodeChickenCore jars (%s); it needs exactly one"
+                 % (len(top), ", ".join(top) or "no"))
+    if gtnh:
+        if ccl:
+            sys.exit("the instance has GTNH %s and %s: CodeChickenLib is merged into GTNH "
+                     "CodeChickenCore, so this is a duplicate mod" % (gtnh[0], ", ".join(ccl)))
+        return "GTNH " + gtnh[0][:-4]
+    return "stock"
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -598,7 +626,9 @@ def main():
                     help="stock Forge 1.7.10 server install: 1558, or with --java25 1614 "
                          "(optional then: the build installs one into --cache)")
     ap.add_argument("--out", required=True, help="server directory to create")
-    ap.add_argument("--ccl", help="patched CodeChickenLib jar to use instead of the client's")
+    ap.add_argument("--ccl", help="only for a pack on stock CodeChickenCore + CodeChickenLib (before "
+                                  "2026-10-18): patched CodeChickenLib jar to use instead of the "
+                                  "client's. Refused with GTNH CodeChickenCore, which needs no patch")
     ap.add_argument("--java", help="the java.exe start.bat runs; default: the Java 8 JRE, or "
                                    "with --java25 the newest Temurin 25 found")
     ap.add_argument("--java25", action="store_true",
@@ -656,6 +686,16 @@ def main():
     tweaks = args.tweaks and os.path.abspath(args.tweaks)
     if tweaks and not os.path.isfile(tweaks):
         sys.exit("--tweaks %s does not exist" % tweaks)
+    ccc = codechicken_of(inst)
+    print("ccc:     %s" % ccc)
+    if args.ccl and ccc != "stock":
+        sys.exit("--ccl patches stock CodeChickenLib, but the instance runs %s (CodeChickenLib "
+                 "merged in, unloadChunk already null-guarded). Adding a CodeChickenLib jar "
+                 "would load it twice. Drop --ccl." % ccc)
+    if ccc == "stock" and not args.ccl:
+        print("WARNING: the instance runs stock CodeChickenCore + CodeChickenLib. Without --ccl "
+              "every pregeneration run dies in seconds (WorldExtension.unloadChunk NPE), and "
+              "Angelica clients are kicked 5 s after login (NEI packets differ).")
     if args.java25:
         entries = [e for e in os.listdir(os.path.join(inst, "mods")) if not is_junk(e)]
         bad = [e for e in entries if any(e.lower().startswith(f) for f in J25_FORBIDDEN)]
@@ -762,9 +802,12 @@ def main():
             print("java25:  %s" % dest)
         forge = J25_LAUNCHER
 
-    # CodeChickenLib's WorldExtension.unloadChunk NPEs when a chunk unloads
+    # Stock CodeChickenLib's WorldExtension.unloadChunk NPEs when a chunk unloads
     # mid-generation; the patched build guards it. CCL has no @Mod, so the
-    # server may differ from clients here without refusing anyone.
+    # server may differ from clients here without refusing anyone. Only for a
+    # pack still on stock CCC (before 2026-10-18): GTNH CodeChickenCore 1.4.22
+    # merges CCL in with that guard already, and 40,000 chunks pregenerated on it
+    # with 0 failures where stock CCL crashed in a second (2026-10-18).
     if args.ccl:
         libdir = os.path.join(out, "mods", "1.7.10")
         for fn in os.listdir(libdir):
@@ -868,6 +911,8 @@ def main():
                      "      Back to Java 8: rebuild without --java25.\n" % java)
         else:
             fh.write("Mode: Java 8 (%s), Forge %s\n" % (java, forge))
+        fh.write("CodeChickenCore: %s%s\n" % (ccc, ", CodeChickenLib patched from %s" % args.ccl
+                                                  if args.ccl else ""))
         if tweaks:
             fh.write("QuestForgeTweaks: %s, not the instance's\n" % tweaks)
         fh.write("Mods kept: %d   dropped: %d\n\n" % (kept, dropped))
