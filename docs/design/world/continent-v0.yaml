@@ -1,0 +1,127 @@
+# Continent v0: the first rough draft (docs/design/world/continent-v0.md explains the why).
+# Render: py -3.10 tools/world/plan.py render docs/design/world/continent-v0.yaml PLANDIR
+# Coordinates are blocks, 0,0 at the centre, +x east, +z south. Sector angles: 0 = east,
+# 90 = south, 180 = west, 270 = north. Earlier regions win where regions overlap, so the
+# small hidden places come first.
+size: 32768
+seed: 20261017
+coast_warp: 900
+region_warp: 700
+blend_px: 14
+shore_width: 900
+shelf_width: 1400
+
+coast:
+  - [-1500, -12900]
+  - [2500, -12300]
+  - [5200, -13100]
+  - [8200, -11600]
+  - [10600, -9300]
+  - [12300, -6200]
+  - [12900, -3000]
+  - [12400, -500]
+  - [14000, 1500]
+  - [13300, 3600]
+  - [12100, 5600]
+  - [12300, 8200]
+  - [10200, 10600]
+  - [7400, 12300]
+  - [4200, 12900]
+  - [1200, 12300]
+  - [-1800, 13200]
+  - [-5200, 12600]
+  - [-8000, 11200]
+  - [-10200, 9000]
+  - [-11400, 6800]
+  - [-9400, 5200]
+  - [-9800, 3400]
+  - [-12300, 2400]
+  - [-13300, -500]
+  - [-12800, -3900]
+  - [-11600, -7000]
+  - [-9400, -9900]
+  - [-5800, -12000]
+
+islands:
+  - [[12100, -12300], [13300, -12500], [13700, -11500], [12600, -11000]]   # Mushroom Isle
+  - [[8600, 13500], [9700, 13300], [9900, 14200], [8900, 14500]]           # Sunken Isles
+
+regions:
+  # Hidden places, found rather than shown
+  - {name: Mystic Hollow, tier: 2, biome: 185, base: 80, relief: 40, circle: [-6400, -1800, 700]}
+  - {name: Sacred Springs, tier: 3, biome: 197, base: 105, relief: 50, circle: [1800, -3600, 450]}
+  - {name: Lavender Sea, tier: 1, biome: 147, base: 72, relief: 20, circle: [-1200, 9600, 900]}
+  - {name: Canyon Oasis, tier: 2, biome: 186, base: 70, relief: 10, circle: [6200, 900, 450]}
+  - {name: Mushroom Isle, tier: 2, biome: 14, base: 68, relief: 30, circle: [12900, -11800, 900]}
+  - {name: Sunken Isles, tier: 1, biome: 224, base: 66, relief: 20, circle: [9200, 13900, 800]}
+  - {name: Coral Shallows, biome: 75, sea: true, circle: [5000, 14400, 1800]}
+  - {name: Kelp Deeps, biome: 144, sea: true, circle: [-12200, 10600, 1800]}
+
+  # The Wound: the endgame at the centre
+  - {name: The Wound, tier: 4, biome: 250, base: 95, relief: 120, circle: [0, 0, 2300]}
+
+  # Inner ring, beyond the Crown Range
+  - {name: Glacier Spine, tier: 3, biome: 60, base: 115, relief: 150, sector: [180, 360, 2200, 4900]}
+  - {name: Jade Terraces, tier: 3, biome: 143, base: 100, relief: 130, sector: [0, 180, 2200, 4900]}
+
+  # Middle ring
+  - {name: Frostwood, tier: 2, biome: 86, base: 78, relief: 60, sector: [250, 310, 4900, 8000]}
+  - {name: Heather Highlands, tier: 2, biome: 142, base: 92, relief: 80, sector: [310, 355, 4900, 8000]}
+  - {name: Red Canyons, tier: 2, biome: 190, base: 78, relief: 120, sector: [355, 35, 4900, 8000]}
+  - {name: Deadwood, tier: 3, biome: 78, base: 74, relief: 50, sector: [35, 70, 4900, 8000]}
+  - {name: Jungle Basin, tier: 2, biome: 245, base: 68, relief: 60, sector: [70, 115, 4900, 8000]}
+  - {name: Great Marsh, tier: 2, biome: 159, base: 63, relief: 8, sector: [115, 160, 4900, 8000]}
+  - {name: Maple Highlands, tier: 2, biome: 154, base: 86, relief: 70, sector: [160, 210, 4900, 8000]}
+  - {name: Ominous Woods, tier: 3, biome: 187, base: 78, relief: 60, sector: [210, 250, 4900, 8000]}
+
+  # Outer ring: the coasts, where the spawns are
+  - {name: Frostharbor Fjords, tier: 2, biome: 239, base: 72, relief: 100, sector: [245, 295, 8000, 15000]}
+  - {name: Tundra Reach, tier: 2, biome: 247, base: 68, relief: 25, sector: [295, 335, 8000, 15000]}
+  - {name: Windward Steppe, tier: 1, biome: 242, base: 70, relief: 40, sector: [335, 15, 8000, 15000]}
+  - {name: Ashen Reach, tier: 3, biome: 251, base: 71, relief: 50, sector: [15, 50, 8000, 15000]}
+  - {name: Mangrove Delta, tier: 1, biome: 153, base: 63, relief: 8, sector: [50, 80, 8000, 15000]}
+  - {name: Sunfields, tier: 1, biome: 193, base: 70, relief: 30, sector: [80, 120, 8000, 15000]}
+  - {name: Lantern Coast, tier: 1, biome: 73, base: 72, relief: 55, sector: [120, 165, 8000, 15000]}
+  - {name: Redwood Coast, tier: 1, biome: 196, base: 76, relief: 70, sector: [165, 215, 8000, 15000]}
+  - {name: Rainward, tier: 2, biome: 243, base: 74, relief: 80, sector: [215, 245, 8000, 15000]}
+
+ridges:
+  # The Crown Range rings the inner lands; four passes break it.
+  - {arc: [0, 0, 4400, 62, 118], height: 180, width: 1300, relief: 220, biome: 60, biome_above: 0.6}
+  - {arc: [0, 0, 4400, 152, 208], height: 185, width: 1300, relief: 220, biome: 60, biome_above: 0.6}
+  - {arc: [0, 0, 4400, 242, 298], height: 190, width: 1300, relief: 220, biome: 60, biome_above: 0.6}
+  - {arc: [0, 0, 4400, 332, 388], height: 180, width: 1300, relief: 220, biome: 60, biome_above: 0.6}
+  # The volcano at the heart of the Wound
+  - {points: [[-200, -150], [200, 150]], height: 215, width: 2200, relief: 160, biome: 250}
+  # Northern fjord spine, the western coastal range, the canyon mesas
+  - {points: [[-3500, -9600], [500, -10200], [4500, -10600]], height: 150, width: 1400, relief: 200}
+  - {points: [[-11000, -4500], [-10900, -1500], [-10500, 1800]], height: 135, width: 1200, relief: 160}
+  - {points: [[8300, -2600], [9000, 0], [9600, 2600]], height: 120, width: 900, relief: 220}
+
+rivers:
+  - {points: [[-1500, 5000], [-800, 8000], [-2000, 10500], [-1800, 13400]], width: 40}
+  - {points: [[-5200, 0], [-8000, 500], [-10500, 800], [-13500, 1000]], width: 40}
+  - {points: [[1000, -5200], [500, -8000], [-1000, -10500], [-1500, -13200]], width: 32}
+  - {points: [[5200, -800], [8000, -1500], [11000, -200], [14200, 600]], width: 32}
+  - {points: [[-4000, 5500], [-6500, 8000], [-9000, 9800], [-10800, 9800]], width: 32}
+  - {points: [[3800, -4800], [6500, -7500], [9500, -10000], [11600, -10600]], width: 32}
+
+points:
+  - {name: Driftwood Landing (T1), kind: spawn, x: -12300, z: -1500}
+  - {name: Lantern Bay (T1), kind: spawn, x: -8600, z: 6200}
+  - {name: Sunfield Crossing (T1), kind: spawn, x: -1000, z: 11000}
+  - {name: Stilt Town (T1), kind: spawn, x: 4000, z: 11200}
+  - {name: Windward (T1), kind: spawn, x: 12000, z: 800}
+  - {name: Frostharbor (T2), kind: spawn, x: -500, z: -11800}
+  - {name: Rainward Camp (T2), kind: spawn, x: -8500, z: -8000}
+  - {name: The Elder Redwood, kind: landmark, x: -10000, z: -3000}
+  - {name: Lantern Shrine, kind: landmark, x: -7000, z: 7600}
+  - {name: Sunfield Colosseum, kind: landmark, x: 2500, z: 9500}
+  - {name: Ash Crater, kind: landmark, x: 7500, z: 6000}
+  - {name: Drowned Abbey, kind: landmark, x: -4800, z: 6600}
+  - {name: Canyon Arch, kind: landmark, x: 7000, z: -400}
+  - {name: Ember Pass, kind: landmark, x: 3110, z: 3110}
+  - {name: Marsh Pass, kind: landmark, x: -3110, z: 3110}
+  - {name: Shade Pass, kind: landmark, x: -3110, z: -3110}
+  - {name: Frost Pass, kind: landmark, x: 3110, z: -3110}
+  - {name: The Spire, kind: landmark, x: 0, z: 600}

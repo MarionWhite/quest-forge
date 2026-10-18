@@ -73,9 +73,29 @@ def _poly(draw_size, pts, size):
     return [((x + half) / PX, (z + half) / PX) for x, z in pts]
 
 
+def region_polygon(r):
+    """A region is a polygon, a ring sector {sector: [deg0, deg1, r0, r1]} (0 deg = east,
+    90 = south, as Minecraft's +z) or a circle {circle: [x, z, radius]}."""
+    if "polygon" in r:
+        return r["polygon"]
+    if "sector" in r:
+        a0, a1, r0, r1 = r["sector"]
+        if a1 < a0:
+            a1 += 360
+        steps = max(4, int((a1 - a0) / 3))
+        angs = [math.radians(a0 + (a1 - a0) * i / steps) for i in range(steps + 1)]
+        outer = [(r1 * math.cos(a), r1 * math.sin(a)) for a in angs]
+        inner = [(r0 * math.cos(a), r0 * math.sin(a)) for a in reversed(angs)] if r0 > 0 else [(0, 0)]
+        return outer + inner
+    x, z, rad = r["circle"]
+    return [(x + rad * math.cos(2 * math.pi * i / 32), z + rad * math.sin(2 * math.pi * i / 32)) for i in range(32)]
+
+
 def render(spec_path, plan_dir):
     import yaml
     spec = yaml.safe_load(open(spec_path, encoding="utf-8"))
+    for r in spec["regions"]:
+        r["polygon"] = region_polygon(r)
     size = spec["size"]
     n = size // PX
     seed = spec.get("seed", 1)
@@ -110,11 +130,15 @@ def render(spec_path, plan_dir):
     rwarp = spec.get("region_warp", 500)
     rx = gx + rwarp * fbm(gx, gz, 1800, 4, seed + 3)
     rz = gz + rwarp * fbm(gx, gz, 1800, 4, seed + 4)
+    sea_regions = []
     for k, r in enumerate(spec["regions"]):
         ri = Image.new("L", (n, n), 0)
         ImageDraw.Draw(ri).polygon(_poly(n, r["polygon"], size), fill=255)
         m = ndimage.map_coordinates((np.asarray(ri) > 0).astype(np.float32),
                                     [(rz + half) / PX - 0.5, (rx + half) / PX - 0.5], order=1, mode="constant") > 0.5
+        if r.get("sea"):          # a sea biome (reef, kelp): painted over water only, after the floor
+            sea_regions.append((m, r["biome"]))
+            continue
         m &= land
         owner[m & (owner < 0)] = k
         soft = ndimage.gaussian_filter(m.astype(np.float32), spec.get("blend_px", 12))
@@ -125,7 +149,7 @@ def render(spec_path, plan_dir):
     if unowned.any():   # land outside every region takes its nearest region
         idx = ndimage.distance_transform_edt(owner < 0, return_distances=False, return_indices=True)
         owner[unowned] = owner[idx[0][unowned], idx[1][unowned]]
-    ids = np.array([r["biome"] for r in spec["regions"]], np.uint8)
+    ids = np.array([r["biome"] for r in spec["regions"]], np.uint8)   # sea regions never own land
     biome[land] = ids[owner[land]]
     w = np.maximum(weight, 1e-3)
     base, relief = base / w, relief / w
@@ -137,6 +161,13 @@ def render(spec_path, plan_dir):
     hills = fbm(gx, gz, 1600, 4, seed + 5) * (4 + relief * 0.12)
     h = np.where(land, SEA + 2 + (base + hills - SEA - 2) * shore, 0).astype(np.float32)
     for ridge in spec.get("ridges", []):
+        if "arc" in ridge:        # {arc: [x, z, radius, deg0, deg1]}
+            cx, cz, rad, a0, a1 = ridge["arc"]
+            if a1 < a0:
+                a1 += 360
+            steps = max(2, int((a1 - a0) / 4))
+            ridge["points"] = [(cx + rad * math.cos(math.radians(a0 + (a1 - a0) * i / steps)),
+                                cz + rad * math.sin(math.radians(a0 + (a1 - a0) * i / steps))) for i in range(steps + 1)]
         pts = _poly(n, ridge["points"], size)
         ri = Image.new("L", (n, n), 0)
         ImageDraw.Draw(ri).line(pts, fill=255, width=1)
@@ -154,6 +185,8 @@ def render(spec_path, plan_dir):
     depth = np.clip(d_out / spec.get("shelf_width", 1200), 0, 1)
     h = np.where(land, h, SEA - 4 - (SEA - 4 - spec.get("deep_floor", 28)) * depth)
     biome[~land & (depth > 0.6)] = DEEP_OCEAN
+    for m, b in sea_regions:
+        biome[m & ~land] = b
 
     # Rivers: carved channels, river biome.
     for river in spec.get("rivers", []):
@@ -178,7 +211,8 @@ def render(spec_path, plan_dir):
     Image.fromarray(biome).save(f"{plan_dir}/biome.png")
     Image.fromarray(np.clip(relief, 0, 255).astype(np.uint8)).save(f"{plan_dir}/relief.png")
     meta = {k: spec[k] for k in ("size", "seed") if k in spec}
-    meta["labels"] = [{"name": r["name"], "polygon": r["polygon"]} for r in spec["regions"]]
+    meta["labels"] = [{"name": r["name"] + (f" (T{r['tier']})" if "tier" in r else ""), "polygon": r["polygon"]}
+                      for r in spec["regions"]]
     meta["points"] = spec.get("points", [])
     json.dump(meta, open(f"{plan_dir}/plan.json", "w"), indent=1)
     print(f"plan {n}x{n} px ({size} blocks): land {land.mean():.0%}, max y {h.max():.0f}")
@@ -221,8 +255,15 @@ def preview(plan_dir):
     half, k = meta["size"] / 2, scale / PX
     names = biome_names()
     for lab in meta["labels"]:
-        xs, zs = zip(*lab["polygon"])
-        cx, cz = (sum(xs) / len(xs) + half) * k, (sum(zs) / len(zs) + half) * k
+        # Label at the polygon's area centroid (a ring sector's vertex mean sits off the ring).
+        pts = lab["polygon"]
+        a = cx = cz = 0.0
+        for (x1, z1), (x2, z2) in zip(pts, pts[1:] + pts[:1]):
+            c = x1 * z2 - x2 * z1
+            a, cx, cz = a + c, cx + (x1 + x2) * c, cz + (z1 + z2) * c
+        if abs(a) < 1e-6:
+            continue
+        cx, cz = (cx / (3 * a) + half) * k, (cz / (3 * a) + half) * k
         dr.text((cx, cz), lab["name"], fill="white", font=font, anchor="mm", stroke_width=2, stroke_fill="black")
     for p in meta["points"]:
         x, z = (p["x"] + half) * k, (p["z"] + half) * k
