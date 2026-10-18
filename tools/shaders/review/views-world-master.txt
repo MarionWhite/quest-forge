@@ -3,14 +3,17 @@
 # region files: a flat biome-1 plain, a biome-4 forest clearing, and the shore of a 60-block
 # sand-floored lake (depth 2-8), which serves as the "ocean shore" until a real ocean scene exists.
 # yaw: 0 = +z (south), 90 = -x (west, where the sun sets), 180 = -z, 270 = +x.
-# worldTime 18000 = full moon (day 0), 114000 = new moon (day 4).
+# worldTime 18000 = full moon (day 0), 114000 = new moon (day 4). The sun meets the
+# horizon near 12000: golden hour is about 11300-11800, after 12000 it is dusk.
 #
 # name           x       y      z        yaw    pitch  worldTime  [measureTicks]
 plains_noon      264.5   auto   176.5    135    8      6000
-forest_golden    259.5   auto   -44.5    60     2      12000
+forest_golden    259.5   auto   -44.5    60     2      11450
 shore_noon       272.5   auto   -268.5   135    14     6000
-shore_sunset     272.5   auto   -268.5   100    6      12300
+shore_sunset     272.5   auto   -268.5   100    6      11800
+shore_dusk       272.5   auto   -268.5   100    6      12300
 night_full       272.5   auto   -268.5   135    8      18000
 night_new        272.5   auto   -268.5   135    8      114000
 underwater       250.5   59.2   -288.5   135    -4     6000
 night_moon       272.5   auto   -268.5   90     -72    18000
+leafview         109.5   110.0  104.5    180    0      10000  60

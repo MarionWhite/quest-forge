@@ -1,0 +1,263 @@
+# Shader milestone 1: lighting, water and sky baseline
+
+**Status, 2026-10-18 morning:** a working baseline: round 5 of 7 (rounds 6 and 7 were
+reverted).
+
+- **Working:** the pack runs on all five presets, and every preset is inside its
+  frame-time budget. Colour is near vanilla, shadows work, nights are dark but readable
+  and follow the moon phase, and the water and sky are physically based.
+- **Not yet:** golden hour has no warmth, and auto-exposure needs the fix described under
+  Known issues.
+- **Critic's last score:** 5.9 out of 10. The look is deliberately unfinished: the owner steers it from
+here (see [Iterating](#iterating-first-thing)). The source is
+[`shaders/QuestForge/`](../../../shaders/QuestForge/).
+
+Written from scratch for Angelica's Iris backport; no code, ID tables or option names
+from Complementary or any other pack ([`LICENSES/`](../../../shaders/QuestForge/LICENSES/)).
+Every program starts with the `IS_ANGELICA` guard.
+
+## Iterating first thing
+
+The dev pack is a junction from the Angelica test client into the repo, so an edit in
+the repo is live after F9.
+
+1. Check nobody else holds the client: `py -3.10 -I tools/trial/trial.py status`.
+   If it lists a client, wait.
+2. Start `C:\qfb\client-ang2\LAUNCH-ANGELICA.bat` (the full pack on Angelica; 3–5 min to
+   the menu).
+3. Open a world, press **F8**, pick **QuestForge-dev**, Done. **Options** on that screen
+   holds the preset (Potato … Ultra; Medium is the default), Night Brightness, Exposure,
+   Waving and the debug views.
+4. Edit any file under `shaders/QuestForge/shaders/`, then press **F9** to reload. A
+   compile error shows in chat with the line (`enableDebugOptions=true` is set); the
+   GLSL as Angelica rewrote it is in `C:\qfb\client-ang2\patched_shaders\`, so read
+   that when a line number doesn't match.
+5. Before F9, `py -3.10 -I tools/shaders/check_glsl.py` compiles every program on every
+   preset offline in about 10 seconds (Khronos glslang), so errors cost no reload.
+6. **F4** toggles shaders, to compare with vanilla.
+
+**If `client-ang2` misbehaves.** It runs the full pack, and tonight's rounds ran only on
+the slim trial. Hand-test on the slim trial instead:
+`py -3.10 -I tools/trial/trial.py launch shaderdev --size 1920x1080`. Every launch
+re-copies the repo's pack, but it is a copy, so F9 does not see repo edits: quit and
+launch again after an edit.
+
+If the client dies at the first world frame right after a pack change, start it again
+(see [Angelica problems](#angelica-problems-found)); F9 inside a running game is safe.
+
+**Measured rounds** (frame times plus the review scenes, no full-pack boot):
+
+```
+py -3.10 -I tools/shaders/review/bench_round.py --tag r06h --preset 3 --size 2560x1440
+py -3.10 -I tools/shaders/review/check_frames.py --client C:\qfb\shaderdev\rounds --tag r06h --off off1440 --tier ultra --no-hud --vsync-off
+```
+
+This builds a slim Angelica trial (9 jars, `trial.py --renderer angelica`), copies the
+repo's pack in, lets FrameBench fly 11 scenes and quits: about 10 minutes, mostly scene
+settling. Frames land in `C:\qfb\shaderdev\rounds\screenshots\bench-<tag>-<scene>.png`.
+Run it as a background task. It waits for the client slot and a 10-minute quiet period
+(`--quiet-min`), so the live-game tests of other sessions go first. Use tags without `-`,
+and no tag that is a prefix of another (`r06h`, `r06l`, `r06p`).
+
+**Removing the junction** (if `client-ang2` is ever rebuilt or deleted):
+`cmd /c rmdir C:\qfb\client-ang2\shaderpacks\QuestForge-dev`. Never delete it
+recursively: that follows the junction and deletes the pack source in the repo.
+
+**Regenerating `block.properties`** after mods change:
+`py -3.10 -I tools/shaders/gen_surface_pack.py --target questforge --instance C:\qfb\client-ang2 --world C:\qfb\world-master --shader-pack shaders\QuestForge --out C:\qfb\shaderdev\QuestForge-Surface.zip`
+(375 blocks today, vanilla and modded, with the 1.7.10 guard).
+
+## What is implemented
+
+| Milestone 1 item | Status | Where |
+|---|---|---|
+| Sky: Hillaire transmittance + multi-scatter tables, per-frame sky-view, sun disk, moon | done; blue zenith at golden hour; moon phases and stars | `lib/atmosphere.glsl`, `program/prepare.glsl`, `lib/sky.glsl` |
+| Shadows 2048/112 High, 1024/48 Low; Potato none | done; manual 2×2 PCF + 8 Vogel taps on High | `lib/shadows.glsl`, `program/shadow.glsl`, `lib/settings.glsl` |
+| Warm block light (~2800 K) | done; eased so stone stays grey | `lib/sky.glsl`, `lib/lighting.glsl` |
+| Moon-phase night floor | done; floor halves at new moon; player slider | `lib/sky.glsl` (`nightFloor`) |
+| Slow bounded auto-exposure | done; 1.2 s up, 3 s down; partial adaptation in dim scenes | `program/prepare.glsl` |
+| Neutral tone mapper | Khronos PBR Neutral, minus its toe | `lib/tonemap.glsl` |
+| Water: clear shallows, Beer–Lambert, Fresnel with sky fallback, normal-only waves, underwater volume | done; Snell's window from below | `lib/water.glsl`, `program/composite.glsl` |
+| TAA with variance clipping and disocclusion | done (Low and up); Potato has an edge filter | `program/taa.glsl` |
+| Low and Potato presets pass proxy budgets | pass (table below) | `shaders.properties` profiles |
+| Modded leaves wave via generated IDs | done: Twilight Forest leaves wave and read as leaves in the ID view | `lib/waving.glsl`, `lib/materials.glsl` |
+
+Not in milestone 1 (later milestones): clouds (`clouds=off` for now), AO beyond vanilla's,
+reflections beyond the sky fallback, bloom, wetness, normal-mapped relief (the generated
+`_n` maps are ready but unused), per-dimension skies, custom-renderer fixes.
+
+**Pipeline.** `prepare` (256×320, not full screen: sky tables, light constants,
+exposure) → `shadow` → G-buffer programs → `deferred` (lighting and sky) → water, glass,
+hand and weather forward → `composite` (water, underwater volume, haze) → `composite1`
+(TAA) → `final` (tone map, sRGB, dither). One deferred and two composite passes on Low
+and up; Potato drops TAA and the shadow pass. Five full-screen targets (four on Potato).
+
+**Debug views** (Options → Debug View): 1 material IDs from `block.properties`,
+2 normals, 3 lightmap, 4 raw scene, 5 sun visibility, 6 the shadow map, 7 shadow depth
+test, 8 moon phase / moon light / exposure. `QF_STILL` freezes animation for noise tests.
+
+## Screenshots
+
+Round r05, High preset, 2560×1440 (left), vanilla with shaders off at the same camera
+(right). Full-size frames of every round are in `C:\qfb\shaderdev\rounds\screenshots\`
+(`bench-<round><h|l|p>-<scene>.png`; `bench-comp-*` is Complementary at the same cameras,
+for reference only).
+
+| | |
+|---|---|
+| Plains, noon ![](milestone-1/plains_noon.jpg) | Forest, low sun ![](milestone-1/forest_golden.jpg) |
+| Lake shore, noon ![](milestone-1/shore_noon.jpg) | Lake shore, sunset ![](milestone-1/shore_sunset.jpg) |
+| Full moon ![](milestone-1/night_full.jpg) | New moon ![](milestone-1/night_new.jpg) |
+| Under the lake ![](milestone-1/underwater.jpg) | Torch-lit tunnel, midnight ![](milestone-1/torch.jpg) |
+| Looking up at the full moon ![](milestone-1/night_moon.jpg) | Block gallery (bottom row: vanilla and Twilight Forest leaves) ![](milestone-1/gallery.jpg) |
+
+Low (1920×1080) and Potato (1280×720): plains, shore, full moon.
+
+![](milestone-1/preset-low.jpg)
+![](milestone-1/preset-potato.jpg)
+
+**The ID path, end to end** (milestone 1, item 7). The gallery wall in debug view 1:
+
+![](milestone-1/leaf-ids.jpg)
+
+Every bottom-row block, vanilla and Twilight Forest leaves alike, reads as *leaves*
+(green). The top row: gold and iron are metal (violet), glowstone is emissive (yellow),
+glass is cyan and diamond ore is ore (magenta); log, planks, sand and stone carry no
+special ID. Between two frames one tick apart, 42.5% of the leaf-row pixels change
+(vanilla leaves 52%, Twilight Forest leaves 37%), against 1.9% for the static blocks
+above (dither and TAA). The modded leaves wave from `block.properties` IDs that
+`gen_surface_pack.py` generated. Frames: `C:\qfb\shaderdevounds\screenshotsench-leafid-leafview*.png`.
+
+## Performance
+
+Shader cost = the FrameBench p50 frame time with the pack, minus the same scene with
+shaders off, in the same slim client at the same resolution, vsync off (`Frame pacing:
+vsync off` in the log). Dev PC: RTX 5070 Ti, 7900X. Budgets come from
+[`performance-rules.md`](performance-rules.md). The Low and Potato budgets are proxies for
+a GTX 1060 and an Iris Xe until a friend's PC runs the pack.
+
+| Preset | Resolution | Worst shader cost | Typical | Budget (dev PC) | Result |
+|---|---|---|---|---|---|
+| High (2048 map, 112 blocks, 8 taps, TAA) | 2560×1440 | **0.95 ms** (torch) | 0.56–0.67 ms | ≤ 3.0 ms (the Ultra row; High has no dev-PC row) | pass |
+| Low (1024 map, 48 blocks, TAA) | 1920×1080 | **0.47 ms** (static) | 0.16–0.40 ms | ≤ 0.9 ms proxy | pass |
+| Potato (no shadow pass, no TAA) | 1280×720 | **0.34 ms** (torch) | 0.16–0.31 ms | ≤ 0.4 ms proxy | pass, with little margin |
+
+- **Whole frame on High at 1440p:** p50 0.9–1.4 ms (700–1,100 fps), 1% low 288–388 fps.
+- **Frames over 33 ms:** 1 in the torch scene and 2 in the gallery, on every preset and
+  also with shaders off. They come from chunk rebuilds as the scene loads, not the pack.
+- **Potato's cost** is mostly the fixed-size sky tables in `prepare`, which don't shrink
+  with resolution. Look there first if a real integrated GPU misses its budget.
+- **CPU side not measured** (the shadow pass on a 4-core proxy, `run_bench_lo.ps1`). The
+  slim trial has almost no entities, so it would say little. Measure it on the full pack
+  at Low before release.
+
+## Review rounds
+
+Each round rendered High (1440p), Low (1080p) and Potato (720p) and ran `check_frames.py`.
+A critic subagent then read the PNGs against the look bible: pixels only, with
+Complementary and vanilla frames as reference.
+
+| Round | What changed | Worst cost High / Low / Potato | Critic |
+|---|---|---|---|
+| r01 | First full render, after fixing the trial setup (below) | ~1.0 ms whole frame on High | not run; obvious faults: blue stone in shade, near-black nights, glowing cyan water |
+| r02 | Ambient lifted, water in-scatter cut, night light raised | 0.93 / 0.47 / 0.36 ms | mean ~4: neon saturation, no shadows on High, no golden hour, black nights |
+| r03 | Tone-mapper toe removed (saturation 0.82 → 0.53; vanilla 0.53). Shadows fixed (manual PCF in place of `shadowtex0HW`). Torch, haze, water | 0.97 / 0.46 / 0.36 ms | **6.1**: colour and shadows fixed; golden hour colourless, torch too bright, moon phase invisible |
+| r04 | Night floor follows moon phase; partial adaptation; bigger moon and sun, stars; glint | 0.97 / 0.46 / 0.37 ms | not run; nights differed by preset, traced to the exposure meter |
+| r05 | Exposure metered from level 0 (the mips were stale); floor on the adaptation factor | **0.95 / 0.47 / 0.34 ms** | **5.9**: stars, moon, glint, greyer torch better; golden hour still colourless. *This is the baseline.* |
+| r06, r07 | Stochastic rounding of the stored exposure; meter moved to a `composite2` pass; ambient, torch, water tweaks; golden-hour views retimed | 0.95 / 0.48 / 0.33 ms | not run: exposure collapsed to near black on Low and Potato. **Reverted to r05.** |
+
+Mean luma of the r05 High frames:
+
+| Scene | Ours | Vanilla | Complementary |
+|---|---|---|---|
+| Plains | 0.43 | 0.46 | |
+| Forest | 0.21 | | |
+| Shore, noon | 0.43 | | |
+| Sunset | 0.27 | | |
+| Full moon | 0.064 | 0.037 | 0.067 |
+| New moon | 0.042 | | |
+| Torch tunnel | 0.28 | 0.17 | |
+
+Mean saturation of the lower half of the frame matches vanilla on the plains (0.53 vs 0.53)
+and in the torch tunnel (0.37 vs 0.37).
+
+## Known issues
+
+In the order to tackle them. The r05 critic's gate (every Tier A item at 7 or more,
+nothing severe) does not pass yet; items 1–3 are why.
+
+1. **Golden hour and sunset have no warmth** (critic: severe; Tier A item 4).
+   - Partly the scenes. In Minecraft the sun meets the horizon near world time 12000.
+     The r05 forest view (12000) and sunset view (12300) had the sun on or below the
+     horizon, which renders as a cold dusk.
+   - `views-world-master.txt` now uses 11450 and 11800, with the sun a few degrees up,
+     where the transmittance table turns the light orange. It also adds a separate
+     `shore_dusk` at 12300. No round has rendered these yet.
+   - If it is still cold with the sun up, the sky ambient is too strong against the
+     direct light at low sun. Try `AMBIENT_GAIN` 1.5 in `lib/lut.glsl`.
+2. **Auto-exposure is not trustworthy yet.** Two faults were measured:
+   - **(a) Updates freeze at high frame rates.** At 1000+ fps the per-frame exposure step
+     is below half a half-float ULP, so the stored value stops moving. Potato's nights
+     froze at about half brightness: exposure 4.3 against 9 on Low, with the same raw
+     radiance.
+   - **(b) The meter reads the scene too bright.** At night it reads about 0.012 against
+     a true 0.0005. The likely cause is the wrong copy of the ping-ponged `colortex3`.
+   - **What was tried.** Stochastic rounding (r06) fixed (a) and let exposure converge,
+     so the wrong readings from (b) drove it to near black. Moving the meter into a small
+     `composite2` pass right after `composite` (r07) did not cure it.
+   - **Next step:** show the meter's own average in debug view 8 and compare it with the
+     frame, before touching the rounding again.
+   - Until then exposure mostly stays where it starts, which is why r05 looks calm.
+3. **The torch-lit tunnel is too bright**: 0.28 against vanilla's 0.17, with too little
+   falloff. Exposure (item 2) is probably part of it. The steeper falloff curve from r06
+   (`pow(b, 3.2)`) is untested.
+4. **Shallow water tints sand mint** and the sand glows at night; Potato's shallows look
+   opaque (critic: moderate). The untested r06 change is less red absorption
+   (`WATER_ABSORB` 0.085, 0.045, 0.04).
+5. **Noon sun shadows are faint** because the ambient fills them. Same `AMBIENT_GAIN` knob.
+6. **Moon**: a featureless disk with a halo, no texture. Stars are small and sparse.
+7. **Under water**, Snell's window is a hard-edged flat ellipse, and suspended particles
+   draw as dark squares (look-bible failure class 4).
+8. **Enchantment glint** shows on held items but tints the diamond green. On worn armour
+   it is lost under the deferred lighting.
+9. **Dirt sides show a few blue texels**: grey texels lit by sky light alone. Minor.
+10. **Not checked: the full pack** (all mods, entities, custom renderers, other dimensions)
+    with this shader pack. Every round ran on the 9-jar slim trial, but the morning steps
+    use `C:\qfb\client-ang2`, which runs the full pack, so expect surprises there first.
+    The Psychedelicraft, jukebox and MCHeli failure classes are milestone-3 work.
+11. **Temporal noise is untested.** `check_frames.py --auto-pairs` flags the still pairs,
+    but leaves, grass and water animate between the two ticks. Render with
+    `--opt QF_STILL=1` for a real noise number.
+
+## Angelica problems found
+
+Problems in Angelica 2.2.33 cost most of the night. The first three have workarounds in place.
+
+1. **`shadowtex0HW` (the separate hardware-compare shadow sampler) gives wrong results.**
+   Sunlit open ground read as fully shadowed on Low and High. Comparing against plain
+   `shadowtex0` at the same coordinates was right (debug view 7). The pack does its own
+   2×2 comparison with `texelFetch`, which needs nothing beyond GL 3.3. The README's
+   platform note about `shadowtex0HW` should carry this caveat.
+2. **A shader-cache miss at startup can crash the first world frame.** When Angelica
+   has to transform the pack (first boot after an edit, or a new preset), Iris builds the
+   pipeline before the game's last resource reload and again after it (`[Load #1]`, then
+   `[Load #2]`). The rebuilt pipeline's full-screen quad then draws with no vertex buffer
+   bound: `EXCEPTION_ACCESS_VIOLATION` in `glDrawArrays` from `CenterDepthSampler`.
+   Complementary does the same. The failed boot fills the cache, so a second start
+   works; `bench_round.py` retries automatically. F9 reloads in a running game were
+   tested (two in one run) and do not crash. It is worth reporting upstream.
+3. **Mipmaps of `colortex3` are not rebuilt for a read in `prepare`.** The exposure
+   meter read stale mip levels (night exposure stuck near 9 on every preset). It now
+   samples level 0 sparsely (32×18 texels). The meter still reads night brighter than
+   the final frame's own average; buffer ping-pong (`shaderParityFlip`) is the likely
+   reason, still to confirm (Known issues, item 2).
+4. **Half-float persistent values freeze at high frame rates** (colortex5 is RGBA16F).
+   See Known issues, item 2.
+
+And one in the test setup, fixed in `trial.py`: an Angelica trial whose `config/` lacks
+the files Angelica writes on its first boot (`mixingasm` lists, `angelica-compat.cfg`
+and others) crashes in the same `glDrawArrays` with shaders on, because those files take
+effect only on the next boot. `trial.py stage-angelica` now stages them as templates.
+**`tools/angelica-client/build_angelica_client.py` has the same gap** on a fresh E7
+install with no Angelica configs: it writes only the overlay keys. Worth a check before
+friends install it.
