@@ -195,7 +195,32 @@ public class ItemDump {
 
     // -------------------------------------------------------------- collecting
 
+    /**
+     * Runs the pack's CraftTweaker scripts now. MineTweaker 3 only runs them from its
+     * server-start hook, so at the title screen the recipe list is still every mod's
+     * default, and gated recipes (ProjectE's, for one) would be shown as they ship. This is
+     * what onServerAboutToStart does, minus the per-world script folder.
+     */
+    private static void applyTweakerScripts() {
+        try {
+            Class<?> mod = Class.forName("minetweaker.mc1710.MineTweakerMod");
+            Object instance = mod.getField("INSTANCE").get(null);
+            Field global = mod.getDeclaredField("scriptsGlobal");
+            global.setAccessible(true);
+            Class<?> api = Class.forName("minetweaker.MineTweakerImplementationAPI");
+            Class<?> provider = Class.forName("minetweaker.runtime.IScriptProvider");
+            api.getMethod("setScriptProvider", provider).invoke(null, global.get(instance));
+            api.getMethod("reload").invoke(null);
+            System.out.println("[ItemDump] CraftTweaker scripts applied");
+        } catch (ClassNotFoundException absent) {
+            System.out.println("[ItemDump] no CraftTweaker; recipes are the mods' own");
+        } catch (Throwable t) {
+            System.out.println("[ItemDump] CraftTweaker scripts NOT applied: " + t);
+        }
+    }
+
     private void collect(Minecraft mc) {
+        applyTweakerScripts();
         Set<String> seen = new LinkedHashSet<String>();
         List<String> names = new ArrayList<String>();
         for (Object k : Item.itemRegistry.getKeys()) names.add(String.valueOf(k));
