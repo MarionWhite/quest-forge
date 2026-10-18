@@ -79,6 +79,18 @@ STAGED = os.path.join(TRIALS, "_staged")
 ANGELICA_DIR = os.path.join(os.path.dirname(HERE), "angelica-client")
 ANGELICA_MANIFEST = os.path.join(ANGELICA_DIR, "manifest.json")
 ANGELICA_FROM = [r"C:\qfb\dl", r"C:\qfb\client-ang2"]
+# Everything Angelica and its libraries write under config/ on their first boot. Several
+# (mixingasm's transformer lists, angelica-compat.cfg) only take effect on the NEXT boot, and
+# a trial's config/ is rebuilt from the E7 instance, which has none of them. Without them
+# every trial boot is a first boot: the compat transformers that route mods' GL calls
+# through Angelica's state cache are missing, the cache desyncs, and with shaders on Iris's
+# full-screen quad draws with no vertex buffer bound and the JVM dies in glDrawArrays
+# (CenterDepthSampler; our pack and Complementary alike, 2026-10-17).
+ANGELICA_CONFIGS = ["angelica-options.json", "angelica-modules.cfg", "angelica-compat.cfg", "angelica.cfg",
+                    "falsepatternlib-early.json", "gtnhlib.cfg", "gtnhlib-number-formatting.cfg",
+                    "mcpatcherforge.cfg", "unimixins.properties", "notfine/notfine.cfg",
+                    "mixingasm/transformer_exclusion_list.txt", "mixingasm/transformer_inclusion_list.txt",
+                    "mixingasm/transformer_inclusion_list_default.txt"]
 
 # Small top-level folders some mods read at startup. Copied, not linked: mods
 # write into them (journeymap, customnpcs, hats).
@@ -306,6 +318,20 @@ def cmd_stage_angelica(a):
             continue
         copy_file(found, dst)
         print(f"  staged  {name}  from {found}")
+    # Angelica's own config files as templates (see ANGELICA_CONFIGS).
+    td = os.path.join(STAGED, "config-angelica")
+    for name in ANGELICA_CONFIGS:
+        if os.path.isfile(os.path.join(td, name)):
+            continue
+        for d in dirs:
+            src = os.path.join(d, "config", name)
+            if os.path.isfile(src) and os.path.getsize(src) > 0:
+                copy_file(src, os.path.join(td, name))
+                print(f"  staged  config/{name}  from {src}")
+                break
+        else:
+            bad.append(name)
+            print(f"  MISSING a complete config/{name} (one an Angelica client has written) in {', '.join(dirs)}")
     fp = os.path.join(STAGED, "falsepattern")
     if not os.path.isdir(fp):
         for d in dirs:
@@ -329,6 +355,12 @@ def angelica_client_setup(d, shader):
     import build_angelica_client as bac
     cd = os.path.join(d, "config")
     os.makedirs(cd, exist_ok=True)
+    for name in ANGELICA_CONFIGS:
+        t = os.path.join(STAGED, "config-angelica", name)
+        if not os.path.isfile(t):
+            sys.exit(f"no complete {name} template in {os.path.dirname(t)}: run `trial.py stage-angelica`")
+        if not os.path.isfile(os.path.join(cd, name)):
+            copy_file(t, os.path.join(cd, name))
     ao = os.path.join(cd, "angelica-options.json")
     base = json.load(open(ao, encoding="utf-8")) if os.path.exists(ao) else {}
     bac.merge_json(base, json.load(open(os.path.join(ANGELICA_DIR, "overlay", "config", "angelica-options.json"),
