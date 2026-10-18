@@ -1,0 +1,157 @@
+# Refs round, design 5: Formena's asymmetric body (deep bay biting in from the north-east, a
+# semi-separate eastern lobe with its own range, island clusters in the corners) + image 1's
+# great tropical river nearly cutting the continent + a detached northern tundra landmass
+# bridged by an island chain + a gulf off the southern point.
+# Render: py -3.10 tools/world/plan.py render docs/design/world/refs/5-formena-river.yaml PLANDIR [--px 64]
+# Blocks, 0,0 at the centre, +x east, +z south. Biome IDs: docs/survey/biome-ids.tsv.
+size: 49152
+seed: 505
+region_warp: 2600
+blend_px: 18
+shore_width: 900
+shelf_width: 1400
+
+coast_rough: {amp: 2300, scale: 8000, octaves: 8}
+landmasses:
+  # The mainland: a broad body, the north-east bay notch, the eastern lobe, the tropical
+  # south-east lobe, the gulf, and the long south-west arm ending in the southern point.
+  - [[-21000, -12000], [-12000, -12800], [-5000, -11800], [1000, -12400], [6500, -12300], [10500, -10500],
+     [8000, -8500], [5200, -6500], [4800, -3500], [7500, -1500], [11000, -2500], [12500, -6500],
+     [16000, -9000], [20500, -7500], [21500, -2000], [20500, 4000], [19000, 8000], [15500, 9500],
+     [11000, 8500], [9500, 11500], [9500, 16000], [6500, 19000], [3000, 17500], [1800, 12500],
+     [-1500, 8200], [-5200, 12500], [-6000, 18500], [-8000, 22800], [-11500, 20500], [-14500, 15000],
+     [-17500, 9000], [-20500, 3000], [-22200, -4000], [-22200, -9000]]
+  # The detached northern tundra
+  - [[-3000, -19500], [2000, -22500], [10000, -23800], [18000, -23000], [22500, -20000], [19000, -17500],
+     [11000, -17500], [4000, -18000]]
+rough_zones:
+  - {polygon: [[-24576, -24576], [24576, -24576], [24576, -11000], [-24576, -11000]], mul: 1.15}   # cold coasts: fjords
+  - {polygon: [[-12000, 6000], [6000, 6000], [6000, 23000], [-12000, 23000]], mul: 0.55}           # the gulf: clean shores
+  - {polygon: [[-24576, -12000], [-17000, -12000], [-14000, 18000], [-24576, 18000]], mul: 0.65}   # redwood coast: keep the strip whole
+  - {polygon: [[-9000, -24576], [3000, -24576], [3000, -12800], [-9000, -12800]], mul: 0.3}      # the strait: calm, so the chain reads as islands
+island_chains:
+  - {points: [[-1500, -18600], [-3000, -16300], [-4300, -14300]], count: 9, r: [120, 380], jitter: 220}   # tundra bridge
+  - {points: [[-21800, -19000], [-18200, -21800]], count: 6, r: [250, 800], jitter: 500}                    # north-west isles
+  - {points: [[16500, 14500], [19000, 17200], [21500, 20000]], count: 8, r: [300, 950], jitter: 700}        # south-east isles
+
+# The old centre: crater lake, black-sand volcano island
+lakes:
+  - {circle: [-4500, -2500, 1750]}
+islands:
+  - {circle: [-4500, -2500, 650]}
+  - {ring: [-17500, 21000, 1500, 950]}      # coral atoll; the blue hole is in its lagoon
+surfaces:
+  - {material: black_sand, circle: [-4500, -2500, 1800]}
+
+plateaus:
+  - {circle: [-11000, -9000, 3000], top: 150, wall: 90, top_relief: 14, relief: 60, biome: 89, tier: 3}   # glacial caldera
+canyons:
+  - {points: [[-9200, 6500], [-8100, 10000], [-6900, 14000], [-5300, 17500]], width: 1300, depth: 40, meander: 450, wall_biome: 71, floor_biome: 82, tier: 3}
+basins:
+  - {circle: [-17500, 21000, 380], floor: 6, wall: 40, biome: 24}
+
+regions:
+  # Old centre: island T5, rim T4, band T3
+  - {tier: 5, biome: 250, base: 80, relief: 120, circle: [-4500, -2500, 700]}
+  - {tier: 4, biomes: [[77, 3], [60, 1]], base: 95, relief: 140, patch: 2500, circle: [-4500, -2500, 2700]}
+  - {tier: 3, biomes: [[77, 3], [251, 2], [78, 1]], base: 92, relief: 110, patch: 2200, circle: [-4500, -2500, 4400]}
+  # Glacial caldera
+  - {tier: 3, biomes: [[89, 3], [192, 1]], base: 120, relief: 60, patch: 2500, circle: [-11000, -9000, 3200]}
+  # The frozen fairy forest round the ice castle, in the middle of the tundra
+  - {tier: 4, biome: 86, base: 74, relief: 30, circle: [9500, -20800, 800]}
+  # Corner islands
+  - {tier: 1, biome: 224, base: 66, relief: 15, circle: [-17500, 21000, 1800]}
+  - {tier: 1, biomes: [[246, 2], [62, 1]], base: 68, relief: 40, patch: 1500, circle: [19000, 17200, 4200]}
+  - {tier: 2, biomes: [[89, 2], [192, 1]], base: 78, relief: 60, circle: [-20000, -20500, 3200]}
+  # Small hidden biomes
+  - {tier: 2, biome: 185, base: 80, relief: 40, circle: [-12500, 2500, 650]}
+  - {tier: 2, biome: 186, base: 100, relief: 8, circle: [-9000, 12500, 600]}
+  - {tier: 2, biome: 240, base: 86, relief: 30, circle: [14000, -4000, 600]}
+
+  # Seas by climate; reefs in the warm south-east and the gulf, kelp off the redwood coast
+  - {biome: 211, sea: true, polygon: [[-24576, -24576], [24576, -24576], [24576, -14000], [-24576, -14000]]}
+  - {biome: 210, sea: true, polygon: [[-24576, -24576], [24576, -24576], [24576, -21000], [-24576, -21000]]}
+  - {biome: 212, sea: true, polygon: [[-24576, -14000], [24576, -14000], [24576, 6000], [-24576, 6000]]}
+  - {biome: 213, sea: true, polygon: [[-24576, 6000], [24576, 6000], [24576, 24576], [-24576, 24576]]}
+  - {biome: 75, sea: true, shallow: true, polygon: [[-5000, 8000], [24576, 8000], [24576, 24576], [-5000, 24576]]}
+  - {biome: 144, sea: true, shallow: true, polygon: [[-24576, -13000], [-17000, -13000], [-14000, 18000], [-24576, 18000]]}
+  - {biome: 75, sea: true, circle: [-17500, 21000, 1000]}
+  - {biome: 24, sea: true, circle: [-17500, 21000, 400]}
+  - {biome: 250, sea: true, circle: [-4500, -2500, 1950]}
+
+  # The redwood coast, down the whole west shore and the south-west arm
+  - {tier: 1, biomes: [[196, 6], [243, 1]], base: 76, relief: 70, patch: 3500, lakes: [8, 100, 300],
+     polygon: [[-26000, -12500], [-17600, -12500], [-16900, -3000], [-15700, 6000], [-13000, 14000], [-10800, 20000], [-26000, 24576]]}
+
+  # The detached tundra
+  - {tier: 2, biomes: [[247, 4], [61, 1]], base: 70, relief: 30, patch: 3500, lakes: [24, 150, 650], at: [8000, -20500]}
+  - {tier: 3, biomes: [[89, 3], [192, 1]], base: 78, relief: 70, patch: 3000, lakes: [6, 120, 400], at: [19000, -20200], size: 0.7}
+
+  # Mainland north
+  - {tier: 2, biomes: [[239, 4], [66, 1]], base: 72, relief: 110, patch: 3500, lakes: [12, 120, 500], at: [-15500, -10500]}
+  - {tier: 2, biomes: [[74, 4], [142, 1]], base: 88, relief: 90, patch: 3500, lakes: [10, 100, 400], at: [-3500, -9800]}
+  - {tier: 2, biomes: [[66, 3], [241, 2]], base: 76, relief: 80, patch: 3500, lakes: [10, 120, 450], at: [5000, -10500], size: 0.8}
+
+  # Mainland middle
+  - {tier: 1, biomes: [[154, 4], [80, 1]], base: 76, relief: 55, patch: 3500, lakes: [10, 100, 400], at: [-12000, -1000]}
+  - {tier: 2, biomes: [[159, 3], [63, 1]], base: 63, relief: 8, patch: 3000, lakes: [18, 60, 250], at: [2800, -5000], size: 0.7}
+  - {tier: 1, biomes: [[138, 3], [169, 1]], base: 72, relief: 45, patch: 3500, lakes: [8, 120, 400], at: [1500, 2800]}
+  - {tier: 1, biomes: [[73, 3], [188, 1]], base: 72, relief: 45, patch: 3000, lakes: [4, 100, 300], at: [-4500, 6500], size: 0.6}
+
+  # The eastern lobe: moorland west of its range, steppe on the east coast, savanna to the south
+  - {tier: 2, biomes: [[142, 3], [183, 2]], base: 86, relief: 70, patch: 3500, lakes: [14, 80, 300], at: [14500, -4500]}
+  - {tier: 1, biomes: [[242, 3], [193, 1]], base: 70, relief: 35, patch: 3500, lakes: [4, 100, 300], at: [20500, -500], size: 0.6}
+  - {tier: 2, biomes: [[35, 3], [70, 1]], base: 72, relief: 40, patch: 3500, lakes: [4, 80, 250], at: [15500, 6000], size: 0.8}
+
+  # The tropical south-east lobe (the great river's country), and the gulf's mangroves
+  - {tier: 2, biomes: [[245, 4], [62, 1]], base: 70, relief: 80, patch: 3500, lakes: [8, 120, 350], at: [7000, 12800]}
+  - {tier: 1, biomes: [[153, 3], [246, 1]], base: 66, relief: 30, patch: 3000, lakes: [4, 80, 250], at: [3800, 15500], size: 0.6}
+
+  # The south-west arm: a raised desert in the coastal range's rain shadow, the canyon, the point
+  - {tier: 2, biomes: [[2, 3], [190, 2], [37, 1]], base: 100, relief: 50, patch: 3500, at: [-8200, 12000], size: 0.9}
+  - {tier: 1, biomes: [[254, 2], [246, 1]], base: 70, relief: 40, patch: 2000, at: [-7500, 19800], size: 0.5}
+
+ponds:
+  - {at: [-11000, -9000], r: 1400, biome: 89}     # the glacial caldera's frozen crater lake
+  - {at: [-9000, 12500], r: 180, biome: 186}      # oasis
+
+ridges:
+  # Glacial caldera rim
+  - {arc: [-11000, -9000, 2100, 0, 150], height: 205, width: 1000, relief: 200, biome: 60, biome_above: 0.5}
+  - {arc: [-11000, -9000, 2100, 190, 340], height: 210, width: 1000, relief: 200, biome: 60, biome_above: 0.5}
+  # Old centre rim and volcano
+  - {arc: [-4500, -2500, 2300, 25, 155], height: 195, width: 1300, relief: 220, biome: 77, biome_above: 0.5}
+  - {arc: [-4500, -2500, 2300, 205, 335], height: 195, width: 1300, relief: 220, biome: 77, biome_above: 0.5}
+  - {points: [[-4500, -2500], [-4499, -2499]], height: 220, width: 1300, relief: 160, biome: 250, biome_above: 0.2}
+  # The eastern lobe's own range
+  - {points: [[17200, -8200], [18200, -4000], [17600, 0], [16600, 4000]], height: 210, width: 2200, relief: 220, biome: 60, biome_above: 0.55}
+  # The coastal range behind the redwoods, down into the south-west arm
+  - {points: [[-17200, -11500], [-16600, -3000], [-15200, 6000], [-12600, 14000], [-10600, 19000]], height: 150, width: 1500, relief: 170}
+  # The tundra's spine
+  - {points: [[13000, -22000], [17000, -21000], [20500, -19500]], height: 175, width: 1800, relief: 190, biome: 60, biome_above: 0.6}
+
+rivers:
+  # The great river: wide and winding, from the east coast west across the south to the gulf's head,
+  # nearly cutting the continent's southern third away
+  - {points: [[20200, 3200], [15500, 5000], [11000, 7400], [6000, 8600], [1500, 9200], [-1200, 9000]], width: 120, meander: 500, valley: 300, biome: 150}
+  - {points: [[8500, 1000], [7200, 4800], [6000, 8600]], width: 44, biome: 150}
+  - {points: [[6000, 15200], [4200, 11800], [1500, 9200]], width: 40, biome: 150}
+  - {points: [[10500, 13500], [9200, 10400], [8600, 8200]], width: 36, biome: 150}
+  - {points: [[13500, 9200], [12600, 8200], [11000, 7400]], width: 32, biome: 150}
+  # Crater outflows: west to the redwood coast, south to the gulf's head
+  - {points: [[-6800, -2500], [-11000, -1800], [-16000, -1000], [-21500, -500]], width: 52}
+  - {points: [[-4500, -200], [-3500, 4500], [-1600, 8800]], width: 44}
+  # Frozen rivers: mainland north and the tundra
+  - {points: [[-3000, -7000], [-2500, -10500], [-3000, -13600]], width: 36, biome: 11}
+  - {points: [[6000, -9000], [5500, -11500], [6000, -13500]], width: 28, biome: 11}
+  - {points: [[6000, -20000], [4500, -18800], [3500, -17600]], width: 32, biome: 11}
+
+points:
+  - {kind: spawn, tier: 1, x: -20500, z: -3000}
+  - {kind: spawn, tier: 1, x: 7500, z: 16500}
+  - {kind: spawn, tier: 1, x: 20500, z: -1500}
+  - {kind: spawn, tier: 1, x: 1500, z: 4200}
+  - {kind: spawn, tier: 1, x: -7600, z: 20500}
+  - {kind: spawn, tier: 2, x: -16000, z: -11500}
+  - {kind: spawn, tier: 2, x: 13000, z: -19500}
+  - {name: Ice castle, kind: landmark, x: 9500, z: -20800}

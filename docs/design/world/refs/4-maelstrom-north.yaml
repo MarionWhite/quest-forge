@@ -1,0 +1,161 @@
+# Refs design 4: main continent and a separate northern tundra landmass, with a dark
+# maelstrom sea between them (references 1 + 3). An island chain skirts the maelstrom from
+# the main continent's fjord-shredded north-west to the tundra; a great Lush River nearly
+# cuts the tropical south in two.
+# Render: py -3.10 tools/world/plan.py render docs/design/world/refs/4-maelstrom-north.yaml PLANDIR --px 64
+size: 49152
+seed: 404
+region_warp: 2400
+blend_px: 18
+shore_width: 1000
+shelf_width: 1600
+
+coast_rough: {amp: 2100, scale: 8500, octaves: 8}
+landmasses:
+  # Main continent
+  - [[-17600, -11900], [-13200, -14100], [-9200, -12800], [-7500, -9200], [-3500, -7000], [900, -5700],
+     [5300, -5700], [8800, -7500], [12300, -6600], [15800, -4000], [17200, 900], [15800, 5700],
+     [17200, 10600], [14100, 15400], [8800, 18000], [2600, 18900], [-3500, 17200], [-9700, 18500],
+     [-15000, 16300], [-19000, 10600], [-19800, 5300], [-20300, 0], [-19500, -6200]]
+  # Northern tundra landmass
+  - [[-6000, -18000], [0, -22800], [8000, -24000], [16000, -23800], [22500, -22000], [23000, -15000],
+     [16000, -13500], [9000, -15000], [2000, -15200], [-3000, -15000]]
+rough_zones:
+  - {polygon: [[-22000, -17000], [-8000, -17000], [-8000, -7000], [-22000, -7000]], mul: 1.5}   # fjord north-west
+  - {polygon: [[-6000, -24576], [24576, -24576], [24576, -15000], [-6000, -15000]], mul: 0.9}   # ragged tundra
+  - {polygon: [[8000, 2000], [21000, 2000], [21000, 11000], [8000, 11000]], mul: 0.6}           # smooth desert coast
+island_chains:
+  - {points: [[-8600, -13400], [-7200, -15000], [-6200, -16500]], count: 8, r: [180, 520], jitter: 380}
+
+# The old centre: crater lake, black-sand volcano island
+lakes:
+  - {circle: [-2000, 1000, 1750]}
+islands:
+  - {circle: [-2000, 1000, 650]}
+  # The maelstrom's ring of sea stacks
+  - {circle: [7800, -11000, 260]}
+  - {circle: [6800, -8700, 220]}
+  - {circle: [4500, -7700, 240]}
+  - {circle: [2200, -8700, 210]}
+  - {circle: [1200, -11000, 250]}
+  - {circle: [2200, -13300, 230]}
+  - {circle: [4500, -14300, 260]}
+  - {circle: [6800, -13300, 220]}
+
+surfaces:
+  - {material: black_sand, circle: [-2000, 1000, 1800]}
+
+plateaus:
+  # Glacial caldera on the north-west arm
+  - {circle: [-13000, -10300, 2400], top: 150, wall: 90, top_relief: 14, relief: 60, biome: 89, tier: 3}
+  # Sea stacks
+  - {circle: [7800, -11000, 250], top: 150, wall: 30, top_relief: 4, relief: 20, biome: 77}
+  - {circle: [6800, -8700, 210], top: 128, wall: 30, top_relief: 4, relief: 20, biome: 77}
+  - {circle: [4500, -7700, 230], top: 160, wall: 30, top_relief: 4, relief: 20, biome: 77}
+  - {circle: [2200, -8700, 200], top: 122, wall: 30, top_relief: 4, relief: 20, biome: 77}
+  - {circle: [1200, -11000, 240], top: 145, wall: 30, top_relief: 4, relief: 20, biome: 77}
+  - {circle: [2200, -13300, 220], top: 135, wall: 30, top_relief: 4, relief: 20, biome: 77}
+  - {circle: [4500, -14300, 250], top: 155, wall: 30, top_relief: 4, relief: 20, biome: 77}
+  - {circle: [6800, -13300, 210], top: 125, wall: 30, top_relief: 4, relief: 20, biome: 77}
+
+canyons:
+  - {points: [[8000, 3000], [10500, 5500], [13000, 7500], [17000, 7200]], width: 1400, depth: 44, meander: 450, wall_biome: 71, floor_biome: 82, tier: 3}
+
+# The maelstrom's abyss: a sheer hole down to y 5
+basins:
+  - {circle: [4500, -11000, 2000], floor: 5, wall: 140, biome: 24}
+
+regions:
+  # Old centre
+  - {tier: 5, biome: 250, base: 80, relief: 120, circle: [-2000, 1000, 700]}
+  - {tier: 4, biomes: [[77, 3], [60, 1]], base: 95, relief: 140, patch: 2500, circle: [-2000, 1000, 2700]}
+  - {tier: 3, biomes: [[77, 3], [251, 2], [78, 1]], base: 92, relief: 110, patch: 2200, circle: [-2000, 1000, 4500]}
+
+  # Glacial caldera
+  - {tier: 3, biomes: [[89, 3], [192, 1]], base: 120, relief: 60, patch: 2500, circle: [-13000, -10300, 2600]}
+
+  # The frozen fairy forest round the ice castle, mid-tundra
+  - {tier: 4, biome: 86, base: 74, relief: 30, circle: [8000, -19000, 800]}
+
+  # Seas by climate, then the maelstrom (after the bands so it keeps its biomes)
+  - {biome: 210, sea: true, polygon: [[-24576, -24576], [24576, -24576], [24576, -16000], [-24576, -16000]]}
+  - {biome: 211, sea: true, polygon: [[-24576, -16000], [24576, -16000], [24576, -4000], [-24576, -4000]]}
+  - {biome: 212, sea: true, polygon: [[-24576, -4000], [24576, -4000], [24576, 9000], [-24576, 9000]]}
+  - {biome: 213, sea: true, polygon: [[-24576, 9000], [24576, 9000], [24576, 24576], [-24576, 24576]]}
+  - {biome: 75, sea: true, shallow: true, polygon: [[-24576, 13000], [24576, 13000], [24576, 24576], [-24576, 24576]]}
+  - {biome: 144, sea: true, shallow: true, polygon: [[-24576, -8000], [-18500, -8000], [-18500, 12000], [-24576, 12000]]}
+  - {tier: 4, biome: 214, sea: true, circle: [4500, -11000, 5000]}
+  - {biome: 24, sea: true, circle: [4500, -11000, 2700]}
+  - {biome: 250, sea: true, circle: [-2000, 1000, 1950]}
+
+  # The redwood coast: one long BoP Redwood Forest strip down the west
+  - {tier: 1, biomes: [[196, 6], [243, 1]], base: 76, relief: 70, patch: 3500, lakes: [8, 100, 300],
+     polygon: [[-26000, -8000], [-15900, -8000], [-15600, 0], [-15300, 10000], [-26000, 11000]]}
+
+  # Main continent, north (facing the maelstrom)
+  - {tier: 2, biomes: [[239, 4], [66, 1]], base: 72, relief: 110, patch: 3500, lakes: [12, 120, 450], at: [-14000, -12000]}
+  - {tier: 2, biomes: [[74, 4], [241, 1]], base: 80, relief: 80, patch: 3500, lakes: [10, 100, 400], at: [6000, -4800]}
+  - {tier: 2, biomes: [[183, 3], [142, 1]], base: 86, relief: 70, patch: 3500, lakes: [14, 80, 300], at: [12500, -3500]}
+
+  # Middle
+  - {tier: 2, biomes: [[154, 4], [80, 1]], base: 76, relief: 55, patch: 3500, lakes: [8, 100, 400], at: [-12000, -1500]}
+  - {tier: 2, biomes: [[159, 3], [63, 1]], base: 63, relief: 8, patch: 3000, lakes: [18, 60, 250], at: [-12500, 6500]}
+  - {tier: 1, biomes: [[73, 3], [188, 1]], base: 72, relief: 45, patch: 3000, lakes: [4, 100, 300], at: [-5500, 6500], size: 0.7}
+  - {tier: 2, biomes: [[253, 3], [138, 1]], base: 74, relief: 50, patch: 3000, lakes: [6, 100, 350], at: [4500, 3000]}
+  - {tier: 1, biomes: [[242, 4], [193, 1]], base: 70, relief: 35, patch: 3500, lakes: [4, 100, 300], at: [15000, 1500], size: 0.7}
+
+  # South-east: the desert plateau the canyon cuts
+  - {tier: 2, biomes: [[2, 4], [190, 2], [37, 1]], base: 104, relief: 50, patch: 3500, at: [11500, 6000], size: 1.1}
+
+  # South: savanna on the river's north bank, tropics and rainforest beyond it
+  - {tier: 2, biomes: [[35, 4], [70, 1]], base: 72, relief: 40, patch: 3500, lakes: [3, 80, 250], at: [2500, 8000], size: 0.8}
+  - {tier: 2, biomes: [[245, 4], [62, 1]], base: 70, relief: 80, patch: 3500, lakes: [8, 120, 350], at: [-7500, 14500]}
+  - {tier: 1, biomes: [[153, 3], [246, 2]], base: 66, relief: 30, patch: 3000, lakes: [4, 80, 250], at: [5500, 15500], size: 0.8}
+
+  # The tundra landmass
+  - {tier: 2, biomes: [[247, 4], [61, 1]], base: 70, relief: 30, patch: 3500, lakes: [24, 150, 650], at: [4500, -19000]}
+  - {tier: 3, biomes: [[89, 3], [86, 1]], base: 82, relief: 90, patch: 3500, lakes: [10, 120, 400], at: [18000, -18500]}
+
+ponds:
+  - {at: [-13000, -10300], r: 1200, biome: 89}       # the glacial caldera's frozen crater lake
+
+ridges:
+  # Glacial caldera rim
+  - {arc: [-13000, -10300, 1750, 10, 160], height: 205, width: 1000, relief: 200, biome: 60, biome_above: 0.5}
+  - {arc: [-13000, -10300, 1750, 200, 350], height: 210, width: 1000, relief: 200, biome: 60, biome_above: 0.5}
+  # The north-west arm's spine and the coastal range behind the redwoods
+  - {points: [[-16800, -11500], [-14500, -12700], [-10500, -11800]], height: 200, width: 1800, relief: 220, biome: 60, biome_above: 0.55}
+  - {points: [[-15600, -6000], [-15300, 1000], [-15000, 9000]], height: 150, width: 1400, relief: 170}
+  # Eastern highlands range
+  - {points: [[10000, -6000], [13200, -3000], [15200, 1000]], height: 175, width: 1800, relief: 200, biome: 60, biome_above: 0.6}
+  # Glacier range on the tundra landmass
+  - {points: [[14000, -20000], [17500, -19000], [21000, -17500]], height: 195, width: 1800, relief: 210, biome: 60, biome_above: 0.5}
+  # The old crater's rim and volcano
+  - {arc: [-2000, 1000, 2300, 25, 155], height: 195, width: 1300, relief: 220, biome: 77, biome_above: 0.5}
+  - {arc: [-2000, 1000, 2300, 205, 335], height: 195, width: 1300, relief: 220, biome: 77, biome_above: 0.5}
+  - {points: [[-2000, 1000], [-1999, 1001]], height: 220, width: 1300, relief: 160, biome: 250, biome_above: 0.2}
+
+rivers:
+  # The great river: nearly cuts the south in two, west to the sea
+  - {points: [[11000, 11000], [6000, 10800], [1500, 11500], [-4000, 11000], [-9000, 11800], [-13500, 11200], [-20000, 11800]], width: 120, meander: 450, valley: 300, biome: 150}
+  - {points: [[3500, 16000], [2500, 13500], [1500, 11500]], width: 40, biome: 150}
+  - {points: [[-5500, 16500], [-4800, 13800], [-4000, 11000]], width: 40, biome: 150}
+  - {points: [[-11000, 16000], [-10200, 13800], [-9000, 11800]], width: 36, biome: 150}
+  - {points: [[-3000, 7000], [-3500, 9000], [-4000, 11000]], width: 36, biome: 150}
+  - {points: [[7500, 8200], [6600, 9500], [6000, 10800]], width: 32, biome: 150}
+  # Crater outflows: west to the redwood coast, north into the maelstrom
+  - {points: [[-4300, 1000], [-9000, 1500], [-14000, 500], [-22000, 500]], width: 56}
+  - {points: [[-2000, -1300], [-1500, -4000], [0, -6500]], width: 48}
+  # A frozen river on the tundra landmass
+  - {points: [[11000, -20500], [10000, -17500], [9500, -15200]], width: 32, biome: 11}
+
+points:
+  - {kind: spawn, tier: 1, x: -17500, z: -3000}
+  - {kind: spawn, tier: 1, x: 15000, z: 2000}
+  - {kind: spawn, tier: 1, x: 5500, z: 16500}
+  - {kind: spawn, tier: 1, x: -5500, z: 7000}
+  - {kind: spawn, tier: 2, x: -14500, z: -12500}
+  - {kind: spawn, tier: 2, x: -12500, z: 7000}
+  - {kind: spawn, tier: 3, x: 3000, z: -19500}
+  - {name: Ice castle, kind: landmark, x: 8000, z: -19000}
+  - {name: Maelstrom, kind: landmark, x: 4500, z: -11000}

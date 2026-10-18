@@ -1,0 +1,185 @@
+# Refs round, design 2: inspired by the author's "Formena" reference (asymmetry, a deep bay
+# biting in from the north-east, a mountain-spined east lobe, a snowy north, a desert south-west
+# behind its range, island groups in the corners), plus the keepers: redwood coast, the old
+# crater-lake centre, the glacial caldera, a canyon, tundra with a frost-forest ice castle,
+# and a gulf off a southern point.
+# Render: py -3.10 tools/world/plan.py render docs/design/world/refs/2-formena.yaml PLANDIR --px 64
+size: 49152
+seed: 2202
+region_warp: 2400
+blend_px: 18
+shore_width: 1000
+shelf_width: 1600
+
+coast_rough: {amp: 2300, scale: 8000, octaves: 8}
+
+landmasses:
+  # Main body and east lobe, one outline: the NE bay bites in between them, the gulf opens
+  # south between the southern point and the east lobe.
+  - [[-21000, -15500], [-15000, -18500], [-7000, -18000], [0, -16500], [2000, -13000],
+     [1000, -9000], [500, -5500], [2500, -2500], [5500, -1500],
+     [9500, -4000], [10500, -9000], [11000, -14000],
+     [15000, -16500], [19500, -15500], [21500, -11000], [21500, -4000], [20000, 2000], [21000, 7000], [18500, 11000], [14500, 13000],
+     [11000, 11500], [8500, 9000], [6000, 7500],
+     [5500, 11000], [5500, 16000], [4000, 21000], [0, 22000], [-3500, 19500], [-6000, 16500],
+     [-9000, 19500], [-14000, 20500], [-19000, 18000],
+     [-21500, 12000], [-20500, 5000], [-22000, -2000], [-21000, -9000]]
+  # North-west isle
+  - [[-21300, -21300], [-19300, -22000], [-18000, -20700], [-18900, -19300], [-20900, -19600]]
+  # South-east island group: one main isle
+  - [[18800, 19300], [20800, 19000], [21800, 20500], [20500, 22000], [19000, 21600]]
+
+rough_zones:
+  - {polygon: [[-24576, -24576], [24576, -24576], [24576, -11500], [-24576, -11500]], mul: 1.9}   # fjorded north
+  - {polygon: [[-24576, 6000], [-9000, 6000], [-9000, 24576], [-24576, 24576]], mul: 0.55}         # smooth desert coast
+  - {polygon: [[16000, -16000], [24576, -16000], [24576, 16000], [16000, 16000]], mul: 1.25}       # ragged east coast
+  - {polygon: [[-7000, 14000], [6000, 14000], [6000, 24576], [-7000, 24576]], mul: 0.65}         # keep the southern point whole
+  - {polygon: [[0, -17500], [11500, -17500], [11500, -1500], [0, -1500]], mul: 0.4}            # keep the north-east bay open
+  - {polygon: [[13000, 13500], [24576, 13500], [24576, 24576], [13000, 24576]], mul: 0.6}        # keep the south-east isles apart
+
+island_chains:
+  - {points: [[15500, -19500], [19500, -21000], [23000, -20500]], count: 9, r: [250, 900], jitter: 600}   # NE snowy isles
+  - {points: [[-4500, -21000], [500, -22500], [5000, -21500]], count: 7, r: [150, 500], jitter: 400}      # ice skerries
+  - {points: [[-16500, 21800], [-20000, 21000], [-23000, 17500]], count: 9, r: [200, 650], jitter: 500}   # SW scatter
+  - {points: [[14000, 18500], [16500, 20500], [21000, 22500]], count: 8, r: [200, 650], jitter: 450}      # SE group
+
+# The old centre: a crater lake inside a broken rim, a black-sand volcano island in the middle.
+lakes:
+  - {circle: [-5000, -1000, 1750]}
+islands:
+  - {circle: [-5000, -1000, 650]}
+
+surfaces:
+  - {material: black_sand, circle: [-5000, -1000, 1800]}
+
+plateaus:
+  # The glacial caldera, at the east end of the snowy north, above the bay
+  - {circle: [-1500, -14000, 2800], top: 150, wall: 90, top_relief: 14, relief: 60, biome: 89, tier: 3}
+
+canyons:
+  # Through the desert plateau behind the south-west range, out to the coast
+  - {points: [[-9500, 9500], [-12500, 12000], [-15500, 14500], [-19500, 16500]], width: 1500, depth: 44, meander: 450, wall_biome: 71, floor_biome: 82, tier: 3}
+
+regions:
+  # Old centre: island T5, crater rim T4, a T3 band round it
+  - {tier: 5, biome: 250, base: 80, relief: 120, circle: [-5000, -1000, 700]}
+  - {tier: 4, biomes: [[77, 3], [60, 1]], base: 95, relief: 140, patch: 2500, circle: [-5000, -1000, 2700]}
+  - {tier: 3, biomes: [[77, 3], [251, 2], [78, 1]], base: 92, relief: 110, patch: 2200, circle: [-5000, -1000, 4400]}
+
+  # The glacial caldera
+  - {tier: 3, biomes: [[89, 3], [192, 1]], base: 120, relief: 60, patch: 2500, circle: [-1500, -14000, 3000]}
+
+  # The frozen fairy forest round the ice castle, in the middle of the tundra
+  - {tier: 4, biome: 86, base: 72, relief: 30, circle: [-11500, -15200, 800]}
+
+  # Small hidden biomes
+  - {tier: 2, biome: 185, base: 80, relief: 40, circle: [-15800, -6500, 650]}
+  - {tier: 2, biome: 240, base: 86, relief: 30, circle: [17000, -8000, 550]}
+  - {tier: 2, biome: 186, base: 100, relief: 8, circle: [-14000, 8800, 600]}
+  - {tier: 3, biome: 197, base: 96, relief: 40, circle: [12200, -2500, 450]}
+  - {tier: 1, biome: 147, base: 72, relief: 20, circle: [-1500, 14500, 700]}
+
+  # Seas by climate; reefs on the warm shelf, kelp off the redwood coast
+  - {biome: 211, sea: true, polygon: [[-24576, -24576], [24576, -24576], [24576, -10000], [-24576, -10000]]}
+  - {biome: 210, sea: true, polygon: [[-24576, -24576], [24576, -24576], [24576, -21800], [-24576, -21800]]}
+  - {biome: 212, sea: true, polygon: [[-24576, -10000], [24576, -10000], [24576, 6000], [-24576, 6000]]}
+  - {biome: 213, sea: true, polygon: [[-24576, 6000], [24576, 6000], [24576, 24576], [-24576, 24576]]}
+  - {biome: 75, sea: true, shallow: true, polygon: [[-9000, 8000], [24576, 8000], [24576, 24576], [-9000, 24576]]}
+  - {biome: 144, sea: true, shallow: true, polygon: [[-24576, -14000], [-19000, -14000], [-19000, 6000], [-24576, 6000]]}
+  - {biome: 250, sea: true, circle: [-5000, -1000, 1950]}
+
+  # The redwood coast: one long BoP Redwood Forest strip down the west shore, behind it a range
+  - {tier: 1, biomes: [[196, 6], [243, 1]], base: 76, relief: 70, patch: 3500, lakes: [8, 100, 300],
+     polygon: [[-26000, -11500], [-18800, -11500], [-18300, -2000], [-18300, 5500], [-26000, 6500]]}
+
+  # Snowy north: fjord forest west, expansive tundra, the range's south slope
+  - {tier: 2, biomes: [[239, 4], [66, 1]], base: 72, relief: 110, patch: 3500, lakes: [14, 120, 500], at: [-19500, -14500], size: 0.8}
+  - {tier: 2, biomes: [[247, 5], [61, 1]], base: 70, relief: 30, patch: 3500, lakes: [24, 150, 650], at: [-10500, -15500], size: 1.3}
+  - {tier: 2, biomes: [[74, 4], [59, 1]], base: 86, relief: 90, patch: 3500, lakes: [8, 100, 400], at: [-9500, -8500]}
+  - {tier: 2, biomes: [[139, 3], [199, 2]], base: 78, relief: 50, patch: 3500, lakes: [8, 100, 350], at: [-1000, -7000], size: 0.8}
+
+  # Wet west-middle, behind the coastal range
+  - {tier: 2, biomes: [[154, 4], [80, 1]], base: 76, relief: 55, patch: 3500, lakes: [10, 100, 400], at: [-13500, -3500]}
+  - {tier: 2, biomes: [[159, 4], [84, 1]], base: 63, relief: 8, patch: 3000, lakes: [22, 60, 250], at: [-13000, 3200], size: 0.9}
+
+  # Middle south of the centre, the bay head
+  - {tier: 2, biomes: [[138, 4], [169, 1]], base: 72, relief: 45, patch: 3500, lakes: [8, 120, 400], at: [-2000, 4500]}
+  - {tier: 1, biomes: [[73, 3], [85, 1]], base: 72, relief: 45, patch: 3000, lakes: [4, 100, 300], at: [3500, 1000], size: 0.6}
+
+  # South-west: the desert plateau behind its range, a dry scrub coast
+  - {tier: 2, biomes: [[2, 4], [190, 2], [37, 1]], base: 100, relief: 50, patch: 3500, at: [-15000, 12500], size: 1.2}
+  - {tier: 2, biomes: [[254, 2], [198, 1]], base: 72, relief: 40, patch: 2500, at: [-19500, 17500], size: 0.6}
+
+  # The southern point: savanna, then mangrove and tropics at the tip, the gulf to its east
+  - {tier: 2, biomes: [[35, 4], [83, 1]], base: 74, relief: 40, patch: 3500, lakes: [4, 80, 250], at: [-3500, 11500]}
+  - {tier: 1, biomes: [[153, 3], [246, 2]], base: 66, relief: 30, patch: 3000, lakes: [4, 80, 250], at: [500, 18500], size: 0.8}
+
+  # East lobe: bay shore woods, a snowy-boreal north, the spine range, steppe and moor east,
+  # jungle south along the great river, mangrove on the gulf
+  - {tier: 2, biomes: [[80, 4], [139, 1]], base: 78, relief: 55, patch: 3500, lakes: [8, 100, 350], at: [10500, -7000]}
+  - {tier: 2, biomes: [[66, 3], [241, 2]], base: 76, relief: 80, patch: 3500, lakes: [12, 120, 450], at: [17000, -12500]}
+  - {tier: 1, biomes: [[242, 4], [193, 1]], base: 70, relief: 35, patch: 3500, lakes: [5, 100, 300], at: [19000, -3000], size: 0.9}
+  - {tier: 2, biomes: [[183, 3], [141, 1]], base: 84, relief: 70, patch: 3500, lakes: [16, 80, 300], at: [17500, 3500], size: 0.9}
+  - {tier: 2, biomes: [[245, 4], [62, 1]], base: 70, relief: 80, patch: 3500, lakes: [8, 120, 350], at: [13500, 9000]}
+  - {tier: 1, biomes: [[153, 3], [63, 1]], base: 64, relief: 15, patch: 3000, lakes: [6, 80, 250], at: [10500, 9500], size: 0.6}
+  - {tier: 1, biomes: [[246, 3], [62, 1]], base: 68, relief: 40, patch: 3000, lakes: [4, 80, 250], at: [18500, 12500], size: 0.7}
+
+  # Corner islands
+  - {tier: 2, biomes: [[239, 3], [60, 1]], base: 80, relief: 110, patch: 2000, at: [-19600, -20600], size: 0.5}
+  - {tier: 3, biomes: [[89, 2], [192, 1]], base: 78, relief: 70, patch: 2000, at: [19500, -20500], size: 0.6}
+  - {tier: 2, biomes: [[61, 3], [89, 1]], base: 70, relief: 30, patch: 2000, at: [500, -22500], size: 0.5}
+  - {tier: 1, biome: 224, base: 66, relief: 20, at: [-20500, 20500], size: 0.6}
+  - {tier: 2, biomes: [[246, 2], [195, 1]], base: 68, relief: 50, patch: 2000, at: [20300, 20500], size: 0.5}
+
+ponds:
+  - {at: [-1500, -14000], r: 1300, biome: 89}      # the glacial caldera's frozen crater lake
+  - {at: [-14000, 8800], r: 200, biome: 186}
+
+ridges:
+  # Snowy northern range, walling the tundra from the temperate middle
+  - {points: [[-18500, -11500], [-13000, -10500], [-7500, -11800], [-3500, -10500]], height: 210, width: 2400, relief: 220, biome: 60, biome_above: 0.55}
+  # The glacial caldera's rim
+  - {arc: [-1500, -14000, 2100, 0, 150], height: 205, width: 1000, relief: 200, biome: 60, biome_above: 0.5}
+  - {arc: [-1500, -14000, 2100, 190, 340], height: 210, width: 1000, relief: 200, biome: 60, biome_above: 0.5}
+  # Coastal range behind the redwoods
+  - {points: [[-19200, -10000], [-18500, -3000], [-18300, 4500]], height: 140, width: 1500, relief: 170}
+  # The south-west range: the desert lies in its rain shadow
+  - {points: [[-6500, 4500], [-8200, 9500], [-9000, 14500], [-8300, 19500]], height: 175, width: 2000, relief: 200, biome: 60, biome_above: 0.65}
+  # The east lobe's spine, with a spur toward the bay
+  - {points: [[14200, -13500], [13600, -7000], [14600, -1000], [14000, 6000]], height: 220, width: 2600, relief: 230, biome: 60, biome_above: 0.5}
+  - {points: [[13800, -6000], [11500, -3500], [9800, -1800]], height: 160, width: 1400, relief: 180}
+  # The old crater's rim and the volcano
+  - {arc: [-5000, -1000, 2300, 25, 155], height: 195, width: 1300, relief: 220, biome: 77, biome_above: 0.5}
+  - {arc: [-5000, -1000, 2300, 205, 335], height: 195, width: 1300, relief: 220, biome: 77, biome_above: 0.5}
+  - {points: [[-5000, -1000], [-4999, -999]], height: 220, width: 1300, relief: 160, biome: 250, biome_above: 0.2}
+
+rivers:
+  # Crater outflows: west across the coastal range, east to the bay head, south to the gulf head
+  - {points: [[-7300, -1000], [-11000, -500], [-15000, -1500], [-19000, -1000], [-24000, -1500]], width: 56}
+  - {points: [[-2700, -1000], [0, -1500], [3200, -2200]], width: 48}
+  - {points: [[-5000, 1300], [-3000, 5000], [0, 7500], [5500, 9000]], width: 60}
+  - {points: [[2000, 3000], [1000, 6000], [0, 7500]], width: 32}
+  - {points: [[-6300, 6500], [-4600, 6400], [-3000, 5000]], width: 28}
+  # The great jungle river of the east lobe, out into the gulf
+  - {points: [[14500, 3000], [13000, 7000], [11000, 10500], [8500, 12500]], width: 96, meander: 450, valley: 280, biome: 150}
+  - {points: [[17500, 5500], [15500, 6500], [13000, 7000]], width: 40, biome: 150}
+  - {points: [[9000, 6000], [10500, 8500], [11000, 10500]], width: 36, biome: 150}
+  - {points: [[16500, 11000], [13500, 10800], [11000, 10500]], width: 32, biome: 150}
+  # East lobe: west to the bay, east to the sea
+  - {points: [[13000, -4000], [10500, -5500], [8000, -6500]], width: 40}
+  - {points: [[15500, -2000], [18000, -1000], [22500, -1500]], width: 40}
+  # Frozen rivers north through the tundra
+  - {points: [[-12500, -12500], [-12800, -15500], [-13000, -19500]], width: 36, biome: 11}
+  - {points: [[-6500, -12800], [-7000, -15500], [-6500, -19000]], width: 32, biome: 11}
+  - {points: [[-16500, -16500], [-14500, -16800], [-12800, -15500]], width: 24, biome: 11}
+
+points:
+  - {kind: spawn, tier: 1, x: -21000, z: -5000}
+  - {kind: spawn, tier: 1, x: 1500, z: 18500}
+  - {kind: spawn, tier: 1, x: 20500, z: -2500}
+  - {kind: spawn, tier: 1, x: 4000, z: 500}
+  - {kind: spawn, tier: 2, x: -12000, z: -17000}
+  - {kind: spawn, tier: 2, x: -20000, z: 13500}
+  - {kind: spawn, tier: 2, x: 16500, z: -12000}
+  - {name: Ice castle, kind: landmark, x: -11500, z: -15200}
+  - {name: Centre, kind: landmark, x: -5000, z: -400}
