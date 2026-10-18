@@ -119,6 +119,7 @@ void main() {
         float amount = 1.0 - exp(-max(dist0 - start, 0.0) * density);
         amount = max(amount, smoothstep(far * 0.82, far * 1.0, dist0));
         vec3 haze = skyScatter(viewDir);
+        haze = mix(haze, vec3(luminance(haze)), 0.3);   // round 2: a beige band at the horizon
         color = mix(color, haze, amount * smoothstep(0.0, 0.3, max(skyLight, eyeSky)));
     }
     outColor = vec4(max(color, vec3(0.0)), 1.0);

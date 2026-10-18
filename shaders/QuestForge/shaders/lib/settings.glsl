@@ -6,7 +6,7 @@
 #define QF_NIGHT_FLOOR 1.0 // [0.0 0.5 0.75 1.0 1.5 2.0 3.0]
 #define QF_EXPOSURE_BIAS 0.0 // [-1.5 -1.0 -0.5 0.0 0.5 1.0 1.5]
 #define QF_WAVING 1 // [0 1]
-#define QF_DEBUG_VIEW 0 // [0 1 2 3 4]
+#define QF_DEBUG_VIEW 0 // [0 1 2 3 4 5 6 7]
 #define QF_STILL 0 // [0 1]   development: freeze wind, waves and twinkle (temporal-noise test)
 
 // 0 Potato, 1 Low, 2 Medium, 3 High, 4 Ultra.
@@ -59,4 +59,4 @@
 #endif
 const float shadowDistanceRenderMul = 1.0;
 const float sunPathRotation = -22.0;
-// Hardware PCF comes from the separate shadowtex0HW sampler, so shadowtex0 stays a plain depth texture.
+// shadowtex0 stays a plain depth texture: lib/shadows.glsl compares it itself (see there why).

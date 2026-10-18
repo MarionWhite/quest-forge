@@ -31,3 +31,5 @@ option.QF_STILL=Freeze Animation
 option.QF_STILL.comment=Development only: stops wind, waves and star twinkle, for the temporal-noise test.
 value.QF_STILL.0=Off
 value.QF_STILL.1=On
+value.QF_DEBUG_VIEW.5=Sun visibility
+value.QF_DEBUG_VIEW.6=Shadow map

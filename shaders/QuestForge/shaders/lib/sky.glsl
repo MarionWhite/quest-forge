@@ -8,8 +8,8 @@
 const float SUN_I = 3.0;
 const float MOON_I = SUN_I * 0.008;              // full moon, before the phase factor
 const vec3  MOON_TINT = vec3(0.78, 0.88, 1.0);     // a slight blue shift for scotopic night
-const vec3  BLOCK_LIGHT_COLOR = vec3(1.0, 0.64, 0.38);   // about 2800 K, linear, eased so stone stays stone
-const float BLOCK_I = 1.25;
+const vec3  BLOCK_LIGHT_COLOR = vec3(1.0, 0.70, 0.46);   // about 2800 K, linear, eased so stone stays stone
+const float BLOCK_I = 0.95;
 const float NIGHT_FLOOR_I = 0.009;                // irradiance everywhere, scaled by QF_NIGHT_FLOOR
 const vec3  NIGHT_FLOOR_TINT = vec3(0.8, 0.88, 1.0);
 
@@ -68,7 +68,7 @@ vec3 stars(vec3 dir) {
     float b = (h - 0.9975) / 0.0025;
     float twinkle = 0.75 + 0.25 * sin(animTime() * (2.0 + 3.0 * b) + h * 100.0);
     vec3 tint = mix(vec3(0.8, 0.88, 1.0), vec3(1.0, 0.9, 0.75), hash13(cell + 9.1));
-    return tint * SUN_I * 0.0018 * b * b * twinkle * smoothstep(0.55, 0.0, d);
+    return tint * SUN_I * 0.006 * b * b * twinkle * smoothstep(0.55, 0.0, d);
 }
 
 // Scattered light only: what the sky adds in front of anything (fog, reflections).

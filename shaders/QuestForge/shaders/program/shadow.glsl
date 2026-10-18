@@ -27,7 +27,10 @@ void main() {
     bool top = gl_MultiTexCoord0.t < mc_midTexCoord.t;
     scenePos += windOffset(scenePos + cameraPosition, vMat, top, lm.y);
     sv = shadowModelView * vec4(scenePos, 1.0);
-    gl_Position = gl_ProjectionMatrix * sv;
+    // The shadowProjection uniform, not gl_ProjectionMatrix: lib/shadows.glsl looks the map
+    // up with the uniform, and the two must be the same matrix. (Round 2: High's 112-block
+    // shadows were missing while Low's 48 were fine, worse with distance.)
+    gl_Position = shadowProjection * sv;
     gl_Position.xyz = distortShadow(gl_Position.xyz);
 }
 

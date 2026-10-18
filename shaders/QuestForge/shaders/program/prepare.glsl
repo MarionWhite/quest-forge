@@ -27,7 +27,7 @@ layout(location = 0) out vec4 outLut;
 // Exposure bounds (linear multipliers on scene radiance). The upper bound keeps nights
 // dark instead of letting the camera turn them into a grey day (look bible 1 and 2).
 const float EXPOSURE_MIN = 0.12;
-const float EXPOSURE_MAX = 30.0;
+const float EXPOSURE_MAX = 48.0;
 const float EXPOSURE_KEY = 0.17;
 
 bool inRegion(ivec2 p, ivec2 origin, ivec2 size) {

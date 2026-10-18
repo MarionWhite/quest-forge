@@ -53,6 +53,11 @@ vec3 shadeSurface(Surface s, vec3 viewDir, vec2 pixel) {
     shadow = sampleShadow(s.scenePos, s.geoNormal, clamp(abs(geoNdotL), 0.0, 1.0),
                           smoothstep(0.75, 0.95, s.skyLight), pixel);
     shadow *= outside;
+#if QF_DEBUG_VIEW == 5
+    return vec3(shadow);   // raw sun visibility; final shows it untouched
+#elif QF_DEBUG_VIEW == 7
+    return qfShadowDebug;  // r: map depth, g: surface depth, b: difference (0.5 = equal)
+#endif
 #else
     shadow = smoothstep(0.80, 0.97, s.skyLight);   // Potato: outdoors means lit
 #endif

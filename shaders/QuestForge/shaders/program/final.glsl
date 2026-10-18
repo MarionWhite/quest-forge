@@ -30,6 +30,9 @@ uniform sampler2D colortex3;
 uniform sampler2D colortex4;
 #endif
 uniform sampler2D depthtex0;
+#if QF_DEBUG_VIEW == 6 && QF_SHADOWS
+uniform sampler2D shadowtex0;
+#endif
 
 layout(location = 0) out vec4 outColor;
 
@@ -73,8 +76,10 @@ void main() {
     col = decodeNormal(texelFetch(colortex1, px, 0).rg) * 0.5 + 0.5;
 #elif QF_DEBUG_VIEW == 3
     col = texelFetch(colortex2, px, 0).rgg * vec3(1.0, 1.0, 0.0) + vec3(0.0, 0.0, texelFetch(colortex2, px, 0).b);
-#elif QF_DEBUG_VIEW == 4
+#elif QF_DEBUG_VIEW == 4 || QF_DEBUG_VIEW == 5 || QF_DEBUG_VIEW == 7
     col = linearToSrgb(texelFetch(colortex3, px, 0).rgb);
+#elif QF_DEBUG_VIEW == 6 && QF_SHADOWS
+    col = vec3(pow(texture(shadowtex0, uv).r, 8.0));   // the shadow map itself, contrast-stretched
 #endif
     // Triangular dither: no banding in dark skies and water.
     float dn = hash12(gl_FragCoord.xy + float(frameCounter % 16) * 17.0) + hash12(gl_FragCoord.yx * 1.37 + 3.0) - 1.0;

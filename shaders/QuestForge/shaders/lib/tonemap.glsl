@@ -4,12 +4,14 @@
 // highlights towards white, so wood, chests, sand and gold do not turn neon (look bible 3),
 // and bright orange keeps its hue (no AgX-style skew needed).
 
+//
+// The operator's toe (subtracting a "black flare" offset of up to 0.04 from every channel)
+// is left out. It assumes brighter exposure than ours: at our levels most pixels sit below
+// 0.08, the offset removed the weakest channel outright, and round 2 came out neon (mean
+// saturation 0.82 against vanilla's 0.53), with blue stone in shade and rust dirt at night.
 vec3 tonemapNeutral(vec3 color) {
     const float startCompression = 0.8 - 0.04;
     const float desaturation = 0.15;
-    float x = min(color.r, min(color.g, color.b));
-    float offset = x < 0.08 ? x - 6.25 * x * x : 0.04;
-    color -= offset;
     float peak = max(color.r, max(color.g, color.b));
     if (peak < startCompression) return color;
     const float d = 1.0 - startCompression;
