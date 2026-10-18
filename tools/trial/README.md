@@ -69,6 +69,19 @@ This is the only way a jar should go into `%APPDATA%\.crazycraft4\mods`.
 
 Never drop probe jars into the live `mods/`. Put the probe in a trial.
 
+## Guard: nothing writes the live pack behind `install`
+
+`trial.py guard` checks two things:
+
+- **Hard links into the live `mods/`.** A hard link is a second name for the same file, so a `cp` onto it overwrites the live jar.
+  On 2026-10-17 an agent copied test builds into a test client whose jars were linked to the live ones, and two live jars changed.
+  `--fix-links` turns every link outside the live pack into a real copy, skipping folders a JVM is running from.
+- **Live jars that changed without `install`.** `install` keeps `%APPDATA%\.qf-trials\live-manifest.json`, a hash of every live jar.
+  Any other change is reported with its file and time.
+
+It runs on its own: `launch` warns, and `install` **refuses** while there is an unexplained change, so an accident gets looked at instead of buried under the next install.
+If the change was intended, record it with `guard --accept`. If not, restore the previous jar from the `_backup-install-*` copy that `install` keeps.
+
 ## Bisecting
 
 ```

@@ -39,6 +39,7 @@ Usage (py -3.10):
     trial.py install JAR [--why TEXT]           put a built jar into the live instance
     trial.py stage JAR                          candidate jar for trials only (catalog "staged": true)
     trial.py bisect start|good|bad|status|reset ...   halve a mod set to find a culprit
+    trial.py guard [--fix-links] [--accept]     hard links into live, live jars changed without install
     trial.py disk                               instance copies on this PC and who uses them
     trial.py stop NAME [--force]                stop this trial's own JVM (never anyone else's)
     trial.py remove NAME
@@ -52,6 +53,7 @@ TRIALS = os.path.join(APPDATA, ".qf-trials")
 LOCK = os.path.join(TRIALS, "client.lock")
 INSTALL_LOG = os.path.join(TRIALS, "install.log")
 BISECT = os.path.join(TRIALS, "bisect.json")
+LIVE_MANIFEST = os.path.join(TRIALS, "live-manifest.json")
 JAVA_CANDIDATES = [r"C:\Program Files\Java\jre1.8.0_241\bin\java.exe"]
 MAIN = "net.minecraft.launchwrapper.Launch"
 FORGE_JAR = "forge-1.7.10-10.13.4.1558-1.7.10-universal.jar"
@@ -565,6 +567,7 @@ def start_detached(java, args, d, stdin=None):
 
 
 def cmd_launch(a):
+    guard_check("launch")
     man = read_manifest(a.name)
     d = trial_dir(a.name)
     if man.get("side") == "server":
@@ -777,6 +780,131 @@ def sha1(p):
     return h.hexdigest()[:12]
 
 
+# --------------------------------------------------------------------- guard
+
+def fsutil_links(path):
+    """Every other path that is the same file on disk (hard links), via fsutil."""
+    r = subprocess.run(["fsutil", "hardlink", "list", path], capture_output=True, text=True)
+    drive = os.path.splitdrive(os.path.abspath(path))[0]
+    out = []
+    for line in r.stdout.splitlines():
+        q = line.strip()
+        if q:
+            q = drive + q if q.startswith("\\") else q
+            if os.path.normcase(os.path.abspath(q)) != os.path.normcase(os.path.abspath(path)):
+                out.append(q)
+    return out
+
+
+def live_link_report():
+    """Live jars that have a second name somewhere. A write to that other name is
+    a write to the live pack -- how two live jars were overwritten on 2026-10-17."""
+    found = {}
+    for rel, p in instance_jars(LIVE).items():
+        try:
+            if os.stat(p).st_nlink > 1:
+                found[rel] = fsutil_links(p)
+        except OSError:
+            pass
+    return found
+
+
+def live_hashes():
+    return {rel: sha1(p) for rel, p in instance_jars(LIVE).items()}
+
+
+def load_live_manifest():
+    try:
+        with open(LIVE_MANIFEST, encoding="utf-8") as f:
+            return json.load(f)
+    except (OSError, ValueError):
+        return None
+
+
+def save_live_manifest(hashes):
+    os.makedirs(TRIALS, exist_ok=True)
+    with open(LIVE_MANIFEST, "w", encoding="utf-8") as f:
+        json.dump({"at": datetime.datetime.now().isoformat(timespec="seconds"), "jars": hashes}, f, indent=1)
+
+
+def live_drift():
+    """(changed, added, removed) since the manifest, i.e. live jars that changed
+    without `install`. None if there is no manifest yet."""
+    m = load_live_manifest()
+    if m is None:
+        return None
+    old, now = m["jars"], live_hashes()
+    changed = sorted(k for k in now if k in old and now[k] != old[k])
+    added = sorted(k for k in now if k not in old)
+    removed = sorted(k for k in old if k not in now)
+    return changed, added, removed
+
+
+def guard_check(context, strict=False):
+    """Run before launch/install. Prints problems; with strict, exits on drift."""
+    links = live_link_report()
+    if links:
+        print(f"WARNING ({context}): {len(links)} live jar(s) are hard-linked elsewhere; a write to any of")
+        print("  these paths overwrites the live pack. Fix: `trial.py guard --fix-links`.")
+        for rel, others in sorted(links.items()):
+            for o in others:
+                print(f"    {os.path.basename(rel)}  <->  {o}")
+    drift = live_drift()
+    if drift is None:
+        save_live_manifest(live_hashes())
+        print(f"guard: no live manifest yet; recorded the current {len(instance_jars(LIVE))} jars as the baseline")
+        return
+    changed, added, removed = drift
+    if changed or added or removed:
+        print(f"ALERT ({context}): the live mods/ changed WITHOUT `trial.py install`:")
+        for k in changed:
+            p = os.path.join(LIVE, k)
+            when = datetime.datetime.fromtimestamp(os.path.getmtime(p)).strftime("%m-%d %H:%M")
+            print(f"    changed  {k}  (modified {when})")
+        for k in added:
+            print(f"    added    {k}")
+        for k in removed:
+            print(f"    removed  {k}")
+        print("  Find out what wrote it before going on. If the change is intended, record it with")
+        print("  `trial.py guard --accept`; otherwise restore the previous jar from its _backup-install-* copy.")
+        if strict:
+            sys.exit(3)
+
+
+def cmd_guard(a):
+    if a.fix_links:
+        links = live_link_report()
+        procs = java_processes()
+        fixed = skipped = 0
+        for rel, others in links.items():
+            for o in others:
+                d = os.path.normcase(o)
+                # Never touch the live instance itself, and never a dir a JVM runs from.
+                if os.path.normcase(LIVE) in d:
+                    continue
+                busy = [p for p in procs if any(os.path.normcase(x) in d for x in
+                        [p["gameDir"]] if x) or (os.path.dirname(os.path.dirname(d)) in os.path.normcase(p["cmd"]))]
+                if busy:
+                    print(f"  skip (in use by pid {busy[0]['pid']}): {o}")
+                    skipped += 1
+                    continue
+                tmp = o + ".unlink"
+                shutil.copyfile(o, tmp)
+                os.remove(o)
+                os.replace(tmp, o)
+                fixed += 1
+        print(f"guard: replaced {fixed} hard link(s) with copies; {skipped} skipped")
+    if a.accept:
+        save_live_manifest(live_hashes())
+        print("guard: current live jars recorded as the baseline")
+        return
+    links = live_link_report()
+    drift = live_drift()
+    guard_check("guard")
+    if not links and drift is not None and not any(drift):
+        print(f"guard: OK. No hard links into the live mods/; all {len(instance_jars(LIVE))} live jars match the manifest.")
+
+
 def cmd_install(a):
     """The one way a jar goes into the live instance.
 
@@ -786,6 +914,9 @@ def cmd_install(a):
     sees the old jar or the new one, never half of one), keeps the old jar out
     of mods/ so FML cannot load both, and logs who did it.
     """
+    # An unexplained change to the live pack is investigated, not installed over.
+    if not a.force:
+        guard_check("install", strict=True)
     jar = os.path.abspath(a.jar)
     if not os.path.isfile(jar) or not jar.lower().endswith(".jar"):
         sys.exit(f"not a jar: {jar}")
@@ -833,6 +964,10 @@ def cmd_install(a):
     print(f"installed {os.path.basename(dst)} ({old_sha or 'new'} -> {sha1(dst)})"
           + (f"; previous kept in _backup-install-{stamp}" if old_sha else ""))
     print(f"logged in {INSTALL_LOG}")
+    m = load_live_manifest() or {"jars": {}}
+    jars = m["jars"]
+    jars[os.path.relpath(dst, LIVE)] = sha1(dst)
+    save_live_manifest(jars)
 
 
 # -------------------------------------------------------------------- bisect
@@ -1139,6 +1274,10 @@ def main():
     p = sp.add_parser("resolve"); mods_args(p); p.set_defaults(fn=cmd_resolve)
     sp.add_parser("list").set_defaults(fn=cmd_list)
     sp.add_parser("status").set_defaults(fn=cmd_status)
+    p = sp.add_parser("guard", help="hard links into the live pack, and live jars changed without install")
+    p.add_argument("--fix-links", action="store_true", help="replace hard links outside the live pack with copies")
+    p.add_argument("--accept", action="store_true", help="record the current live jars as intended")
+    p.set_defaults(fn=cmd_guard)
     sp.add_parser("disk").set_defaults(fn=cmd_disk)
     p = sp.add_parser("stop"); p.add_argument("name")
     p.add_argument("--force", action="store_true", help="kill a server trial instead of asking for a clean stop")
