@@ -157,6 +157,9 @@ def fractal_land(spec, gx, gz, n, size, half, seed):
     noise = fbm(gx, gz, scale, octv, seed + 1, gain=0.62)
     noise = noise / (noise.std() + 1e-6)
     land = sdf + amp * mul * noise > 0
+    # Noise can punch holes inside a landmass that read as stray inland "ocean". Fill them;
+    # real lakes are placed on purpose (lakes, ponds, region lakes).
+    land = ndimage.binary_fill_holes(land)
     # Island chains: islands of varied size strung along a path, jittered off it.
     rng = np.random.default_rng(seed + 4242)
     for ch in spec.get("island_chains", []):
