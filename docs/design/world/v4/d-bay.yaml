@@ -1,0 +1,269 @@
+# Continent v4, variation D: the southern bay and its archipelago (2026-10-18).
+# Same continent as continent-v4.yaml; the bay has coves, hooked horns that narrow its
+# mouth, and a richer archipelago of about a dozen islands.
+# Render: py -3.10 tools/world/plan.py render docs/design/world/v4/d-bay.yaml PLANDIR
+# Blocks, 0,0 at the centre, +x east, +z south (north is up on the map). 49,152 blocks:
+# a 3 x 3 grid of 16,384-block pieces.
+# Large regions with one dominant biome and big secondary patches (patch 3000+), so the
+# biome does not change every few hundred blocks.
+# Biome IDs: docs/survey/biome-ids.tsv.
+size: 49152
+seed: 77
+coast_warp: 1500
+region_warp: 1800
+blend_px: 18
+shore_width: 1000
+shelf_width: 1600
+
+# A horseshoe opening south: a broad northern mass, a long western arm (the redwood coast
+# on its outer shore), an eastern arm ending in a hooked horn, and the southern bay between.
+coast:
+  - [-17000, -19500]
+  - [-12500, -21500]
+  - [-10200, -19300]
+  - [-9000, -21800]
+  - [-5500, -20600]
+  - [-2500, -22200]
+  - [1000, -21000]
+  - [4500, -22800]
+  - [9000, -21500]
+  - [12500, -22300]
+  - [16500, -19000]
+  - [19500, -15500]
+  - [21500, -11000]
+  - [18500, -8200]
+  - [16800, -6800]
+  - [18800, -4600]
+  - [21800, -3200]
+  - [22400, 1500]
+  - [20500, 5500]
+  - [21500, 9500]
+  - [20000, 14000]
+  - [18000, 18500]
+  - [16000, 21800]
+  - [13200, 22700]
+  - [10000, 22600]
+  - [8600, 21300]
+  - [9400, 19700]
+  - [11600, 19000]
+  - [12400, 17800]
+  - [10900, 15700]
+  - [11700, 13600]
+  - [10000, 12100]
+  - [8800, 9400]
+  - [7000, 7900]
+  - [5900, 5800]
+  - [5600, 3900]
+  - [3900, 3500]
+  - [1000, 3600]
+  - [-3000, 4100]
+  - [-5000, 5300]
+  - [-6100, 3700]
+  - [-7700, 5300]
+  - [-9000, 9600]
+  - [-10200, 12300]
+  - [-9000, 14000]
+  - [-10600, 15700]
+  - [-11800, 18500]
+  - [-11400, 20800]
+  - [-8600, 21700]
+  - [-6600, 21400]
+  - [-7000, 22500]
+  - [-10200, 23000]
+  - [-13200, 22400]
+  - [-15800, 21200]
+  - [-17600, 16500]
+  - [-19300, 11000]
+  - [-20800, 6000]
+  - [-21800, 0]
+  - [-22200, -5000]
+  - [-21200, -10000]
+  - [-19700, -14500]
+  - [-21800, -17200]
+
+# The old centre: a crater lake inside a broken rim, a volcano island in the middle.
+lakes:
+  - {circle: [0, -5000, 1750]}
+islands:
+  - {circle: [0, -5000, 650]}
+  # The southern bay's archipelago
+  - {circle: [-1500, 15500, 1250]}           # volcanic isle, black sand
+  - {circle: [5000, 10600, 950]}             # Mushroom Island
+  - {ring: [-3600, 19300, 1750, 1100]}       # coral atoll; the blue hole is in its lagoon
+  - {circle: [-950, 20700, 260]}             # cays by the atoll
+  - {circle: [-1400, 21300, 200]}
+  - {circle: [4800, 17600, 1100]}            # jungle tepui isle
+  - {circle: [-6300, 12000, 1050]}           # mangrove isle
+  - {circle: [1800, 7900, 700]}              # lavender isle
+  - {circle: [-3600, 9300, 650]}             # Sacred Springs isle
+  - {circle: [7700, 12600, 380]}             # tropics island chain
+  - {circle: [8500, 13300, 300]}
+  - {circle: [9100, 14100, 260]}
+  - {circle: [8100, 13900, 200]}
+  - {circle: [7800, 17200, 250]}             # sea stacks
+  - {circle: [8500, 17900, 210]}
+  - {circle: [7400, 18300, 230]}
+  - {circle: [8600, 16800, 190]}
+  - {circle: [2800, 5300, 650]}              # cherry isle, tied to the shore by a sand spit
+  - {polygon: [[2450, 3800], [3150, 3800], [3150, 4900], [2450, 4900]]}
+  # Beyond the coasts
+  - {circle: [5000, -23300, 900]}            # glacier isle, far north
+  - {circle: [-23300, 4000, 800]}            # Origin Valley isle, off the redwood coast
+
+surfaces:
+  - {material: black_sand, circle: [0, -5000, 1800]}
+  - {material: black_sand, circle: [-1500, 15500, 1450]}
+
+# Raised table-lands: the glacial caldera (north), the tepui (western arm), the jungle tepui
+# isle and the sea stacks (bay).
+plateaus:
+  - {circle: [6000, -16000, 3300], top: 150, wall: 90, top_relief: 14, relief: 60, biome: 89, tier: 3}
+  - {circle: [-13200, 12200, 1000], top: 155, wall: 70, top_relief: 12, relief: 60, biome: 195, tier: 3}
+  - {circle: [4800, 17600, 950], top: 140, wall: 60, top_relief: 10, relief: 50, biome: 245, tier: 3}
+  - {circle: [7800, 17200, 240], top: 145, wall: 30, top_relief: 4, relief: 20, biome: 77}
+  - {circle: [8500, 17900, 200], top: 132, wall: 30, top_relief: 4, relief: 20, biome: 77}
+  - {circle: [7400, 18300, 220], top: 152, wall: 30, top_relief: 4, relief: 20, biome: 77}
+  - {circle: [8600, 16800, 180], top: 124, wall: 30, top_relief: 4, relief: 20, biome: 77}
+
+# The grand canyon through the eastern arm's desert plateau.
+canyons:
+  - {points: [[11500, 3000], [13500, 6500], [15000, 10000], [16000, 14000], [17200, 18800]], width: 1500, depth: 44, meander: 450, wall_biome: 71, floor_biome: 82, tier: 3}
+
+# The blue hole: a sheer, dark, deep disc in the atoll's shallow lagoon.
+basins:
+  - {circle: [-3600, 19300, 380], floor: 6, wall: 40, biome: 24}
+
+regions:
+  # Old centre: island T5, crater rim T4, a T3 band round it
+  - {tier: 5, biome: 250, base: 80, relief: 120, circle: [0, -5000, 700]}
+  - {tier: 4, biomes: [[77, 3], [60, 1]], base: 95, relief: 140, patch: 2500, circle: [0, -5000, 2700]}
+  - {tier: 3, biomes: [[77, 3], [251, 2], [78, 1]], base: 92, relief: 110, patch: 2200, circle: [0, -5000, 4600]}
+
+  # The glacial caldera: a raised ice plateau with a frozen crater lake (T3), ringed by peaks
+  - {tier: 3, biomes: [[89, 3], [192, 1]], base: 120, relief: 60, patch: 2500, circle: [6000, -16000, 3500]}
+
+  # A T3 zone in sight of every T1 spawn
+  - {tier: 3, biomes: [[187, 2], [78, 1]], base: 80, relief: 60, circle: [-20000, -5200, 600]}
+  - {tier: 3, biome: 194, base: 64, relief: 10, circle: [-12800, 18000, 500]}
+  - {tier: 3, biome: 79, base: 64, relief: 10, circle: [-1600, 2700, 500]}
+  - {tier: 3, biomes: [[251, 2], [78, 1]], base: 72, relief: 50, circle: [19700, -100, 600]}
+  - {tier: 3, biomes: [[251, 2], [78, 1]], base: 74, relief: 50, circle: [14700, 17400, 500]}
+
+  # Bay archipelago and outer islands
+  - {tier: 3, biome: 250, base: 70, relief: 80, circle: [-1500, 15500, 1450]}
+  - {tier: 2, biome: 14, base: 68, relief: 30, circle: [5000, 10600, 1100]}
+  - {tier: 1, biome: 224, base: 66, relief: 15, circle: [-3600, 19300, 1950]}
+  - {tier: 1, biome: 224, base: 66, relief: 10, circle: [-1100, 21000, 650]}
+  - {tier: 3, biome: 245, base: 70, relief: 60, circle: [4800, 17600, 1250]}
+  - {tier: 1, biomes: [[153, 2], [246, 1]], base: 65, relief: 20, patch: 800, circle: [-6300, 12000, 1200]}
+  - {tier: 1, biome: 147, base: 70, relief: 20, circle: [1800, 7900, 850]}
+  - {tier: 2, biome: 197, base: 72, relief: 40, circle: [-3600, 9300, 800]}
+  - {tier: 1, biome: 246, base: 66, relief: 20, circle: [8400, 13400, 1200]}
+  - {tier: 3, biome: 77, base: 70, relief: 40, circle: [8000, 17500, 1300]}
+  - {tier: 1, biome: 73, base: 70, relief: 25, circle: [2800, 5100, 1000]}
+  - {tier: 2, biomes: [[89, 2], [192, 1]], base: 80, relief: 60, circle: [5000, -23300, 1000]}
+  - {tier: 2, biome: 189, base: 72, relief: 40, circle: [-23300, 4000, 950]}
+
+  # Small hidden biomes
+  - {tier: 2, biome: 185, base: 80, relief: 40, circle: [-10500, -8500, 700]}
+  - {tier: 1, biome: 147, base: 72, relief: 20, circle: [-6800, 7600, 700]}
+  - {tier: 2, biome: 186, base: 104, relief: 8, circle: [14600, 6200, 650]}
+  - {tier: 2, biome: 186, base: 104, relief: 8, circle: [17800, 10500, 550]}
+
+  # Seas by climate, reefs in the bay and the south, kelp off the redwood coast
+  - {biome: 211, sea: true, polygon: [[-24576, -24576], [24576, -24576], [24576, -10000], [-24576, -10000]]}
+  - {biome: 210, sea: true, polygon: [[-24576, -24576], [24576, -24576], [24576, -21500], [-24576, -21500]]}
+  - {biome: 212, sea: true, polygon: [[-24576, -10000], [24576, -10000], [24576, 6000], [-24576, 6000]]}
+  - {biome: 213, sea: true, polygon: [[-24576, 6000], [24576, 6000], [24576, 24576], [-24576, 24576]]}
+  - {biome: 75, sea: true, shallow: true, polygon: [[-12000, 5000], [13000, 5000], [13000, 24576], [-12000, 24576]]}
+  - {biome: 75, sea: true, shallow: true, polygon: [[13000, 12000], [24576, 12000], [24576, 24576], [13000, 24576]]}
+  - {biome: 144, sea: true, shallow: true, polygon: [[-24576, -16000], [-19000, -16000], [-17000, 18000], [-24576, 18000]]}
+  - {biome: 75, sea: true, circle: [-3600, 19300, 1200]}
+  - {biome: 24, sea: true, circle: [-3600, 19300, 420]}
+  - {biome: 250, sea: true, circle: [0, -5000, 1950]}
+
+  # The redwood coast: one long, unbroken BoP Redwood Forest strip down the whole west shore
+  - {tier: 1, biomes: [[196, 6], [243, 1]], base: 76, relief: 70, patch: 3500, lakes: [8, 100, 300],
+     polygon: [[-26000, -15000], [-18200, -15000], [-17600, -5000], [-17400, 5000], [-16200, 14000], [-14600, 19500], [-26000, 23000]]}
+
+  # North
+  - {tier: 2, biomes: [[239, 4], [66, 1]], base: 72, relief: 110, patch: 3500, lakes: [14, 120, 500], at: [-14500, -17000]}
+  - {tier: 2, biomes: [[247, 4], [61, 1]], base: 70, relief: 30, patch: 3500, lakes: [20, 150, 650], at: [-3500, -18000]}
+  - {tier: 2, biomes: [[86, 4], [59, 1]], base: 82, relief: 90, patch: 3500, lakes: [10, 120, 400], at: [16000, -15000]}
+
+  # Middle
+  - {tier: 2, biomes: [[154, 4], [80, 1]], base: 76, relief: 55, patch: 3500, lakes: [10, 100, 400], at: [-12000, -6000]}
+  - {tier: 2, biomes: [[74, 4], [142, 1]], base: 90, relief: 90, patch: 3500, lakes: [8, 100, 400], at: [-1500, -12500]}
+  - {tier: 2, biomes: [[183, 3], [141, 1]], base: 86, relief: 70, patch: 3500, lakes: [16, 80, 300], at: [12500, -9500]}
+  - {tier: 2, biomes: [[138, 4], [253, 1]], base: 72, relief: 45, patch: 3500, lakes: [8, 120, 400], at: [9500, -2500]}
+  - {tier: 2, biomes: [[159, 4], [84, 1]], base: 63, relief: 8, patch: 3000, lakes: [20, 60, 250], at: [-8500, 500]}
+  - {tier: 1, biomes: [[242, 4], [193, 1]], base: 70, relief: 35, patch: 3500, lakes: [5, 100, 300], at: [19500, -2000], size: 0.8}
+  - {tier: 1, biomes: [[73, 3], [188, 1]], base: 72, relief: 45, patch: 3000, lakes: [4, 100, 300], at: [-2500, 3600], size: 0.45}
+  - {tier: 2, biomes: [[253, 3], [244, 1]], base: 76, relief: 55, patch: 3000, lakes: [5, 100, 300], at: [-1000, 600], size: 0.7}
+
+  # Western arm (warm, wet): the great river runs east into the bay
+  - {tier: 2, biomes: [[245, 4], [62, 1]], base: 70, relief: 80, patch: 3500, lakes: [8, 120, 350], at: [-13000, 7500]}
+  - {tier: 1, biomes: [[153, 3], [246, 2]], base: 66, relief: 30, patch: 3000, lakes: [4, 80, 250], at: [-13800, 18500], size: 0.7}
+
+  # Eastern arm (hot, dry): savanna, then the desert plateau the canyon cuts, then the horn
+  - {tier: 2, biomes: [[35, 4], [70, 1]], base: 74, relief: 40, patch: 3500, lakes: [4, 80, 250], at: [12000, 3500], size: 0.8}
+  - {tier: 2, biomes: [[2, 4], [190, 2], [37, 1]], base: 104, relief: 50, patch: 3500, at: [16500, 9500], size: 1.2}
+  - {tier: 1, biomes: [[254, 2], [236, 1]], base: 70, relief: 40, patch: 2000, at: [15500, 18800], size: 0.6}
+
+ponds:
+  - {at: [6000, -16000], r: 1500, biome: 89}      # the glacial caldera's frozen crater lake
+  - {at: [14600, 6200], r: 200, biome: 186}
+  - {at: [17800, 10500], r: 170, biome: 186}
+
+ridges:
+  # The glacial caldera's rim
+  - {arc: [6000, -16000, 2300, 0, 150], height: 205, width: 1100, relief: 200, biome: 60, biome_above: 0.5}
+  - {arc: [6000, -16000, 2300, 190, 340], height: 210, width: 1100, relief: 200, biome: 60, biome_above: 0.5}
+  # Northern range in three massifs with passes between
+  - {points: [[-19500, -12500], [-15500, -13500], [-11500, -12800]], height: 200, width: 2200, relief: 220, biome: 60, biome_above: 0.55}
+  - {points: [[-7500, -14800], [-3500, -14000], [-500, -15200]], height: 215, width: 2400, relief: 230, biome: 60, biome_above: 0.5}
+  - {points: [[11500, -12500], [15000, -11800], [19000, -12800]], height: 195, width: 2000, relief: 210, biome: 60, biome_above: 0.55}
+  # The old crater's rim, the volcano, and the bay's volcanic isle
+  - {arc: [0, -5000, 2300, 25, 155], height: 195, width: 1300, relief: 220, biome: 77, biome_above: 0.5}
+  - {arc: [0, -5000, 2300, 205, 335], height: 195, width: 1300, relief: 220, biome: 77, biome_above: 0.5}
+  - {points: [[0, -5000], [1, -4999]], height: 220, width: 1300, relief: 160, biome: 250, biome_above: 0.2}
+  - {points: [[-1500, 15500], [-1499, 15501]], height: 178, width: 1900, relief: 160, biome: 250, biome_above: 0.25}
+  # The coastal range behind the redwoods
+  - {points: [[-18500, -14000], [-17200, -6000], [-16900, 3000], [-15800, 12000], [-14800, 17000]], height: 150, width: 1500, relief: 170}
+
+rivers:
+  # Crater outflows: west across the coastal range, east to the gulf, south into the bay
+  - {points: [[-2300, -5000], [-6000, -4200], [-10000, -3600], [-14000, -2600], [-17000, -2000], [-23000, -1600]], width: 56}
+  - {points: [[-9500, -9500], [-9800, -6500], [-10000, -3600]], width: 32}
+  - {points: [[-7000, 1500], [-8200, -1500], [-10000, -3600]], width: 28}
+  - {points: [[2300, -5000], [7000, -5600], [12000, -6600], [16500, -7200], [19000, -7800]], width: 56}
+  - {points: [[12500, -10500], [12300, -8500], [12000, -6600]], width: 32}
+  - {points: [[9500, 500], [8500, -2800], [7000, -5600]], width: 28}
+  - {points: [[0, -2700], [-600, 0], [400, 3800]], width: 48}
+  # The great river: wide, winding, east across the western arm into the bay
+  - {points: [[-16000, 5000], [-14200, 7600], [-12200, 8800], [-10600, 9600], [-8600, 10200]], width: 104, meander: 450, valley: 280, biome: 150}
+  - {points: [[-15800, 2200], [-15000, 5000], [-14200, 7600]], width: 40, biome: 150}
+  - {points: [[-15000, 11000], [-13800, 9800], [-12200, 8800]], width: 40, biome: 150}
+  - {points: [[-12500, 4500], [-12000, 6800], [-12200, 8800]], width: 36, biome: 150}
+  - {points: [[-12000, 14500], [-11300, 11800], [-10600, 9600]], width: 32, biome: 150}
+  # Short streams off the coastal range, west to the sea
+  - {points: [[-17800, -11000], [-20500, -11500], [-23000, -11600]], width: 24}
+  - {points: [[-17400, -7500], [-20000, -8200], [-23000, -8400]], width: 24}
+  - {points: [[-17000, 7500], [-19500, 8200], [-22000, 8600]], width: 24}
+  # North: rise south of the range, run north through the passes, freeze
+  - {points: [[-9500, -11500], [-9500, -14000], [-10000, -17000], [-10200, -20000]], width: 40, biome: 11}
+  - {points: [[-13000, -16500], [-11600, -17600], [-10000, -17000]], width: 28, biome: 11}
+  - {points: [[2000, -12500], [1500, -16000], [1000, -19500], [800, -22000]], width: 40, biome: 11}
+  - {points: [[-3500, -17500], [-1000, -18500], [1200, -18500]], width: 28, biome: 11}
+  - {points: [[9800, -11500], [10200, -14500], [9800, -18500], [10000, -21800]], width: 36, biome: 11}
+  # A side wadi into the canyon
+  - {points: [[20500, 6500], [18200, 7800], [15000, 9800]], width: 24, biome: 82, dry: true}
+
+points:
+  - {kind: spawn, tier: 1, x: -21000, z: -6000}
+  - {kind: spawn, tier: 1, x: -13500, z: 18500}
+  - {kind: spawn, tier: 1, x: -2600, z: 3300}
+  - {kind: spawn, tier: 1, x: 19500, z: -1000}
+  - {kind: spawn, tier: 1, x: 15500, z: 18000}
+  - {kind: spawn, tier: 2, x: -15000, z: -18500}
+  - {kind: spawn, tier: 2, x: -2000, z: -19800}

@@ -126,6 +126,7 @@ def region_polygon(r):
 def render(spec_path, plan_dir):
     import yaml
     spec = yaml.safe_load(open(spec_path, encoding="utf-8"))
+    _cache = {}
     for r in spec["regions"]:
         if "at" not in r:
             r["polygon"] = region_polygon(r)
@@ -251,11 +252,16 @@ def render(spec_path, plan_dir):
         ri = Image.new("L", (n, n), 0)
         ImageDraw.Draw(ri).line(pts, fill=255, width=1)
         d = ndimage.distance_transform_edt(~(np.asarray(ri) > 0)) * PX
-        jag = 1 + 0.45 * fbm(gx, gz, 900, 4, seed + 7)
+        if "jag" not in _cache:
+            _cache["jag"] = 1 + 0.45 * fbm(gx, gz, 900, 4, seed + 7)
+        jag = _cache["jag"]
         prof = np.clip(1 - d / (ridge["width"] / 2 * jag), 0, 1)
         prof = prof * prof * (3 - 2 * prof)
         # Peaks and saddles along the crest, spurs off it: ridged noise, not a smooth tube.
-        crest = 0.55 + 0.45 * ridged(gx, gz, ridge.get("peak_spacing", 1400), 5, seed + 8)
+        ck = ("crest", ridge.get("peak_spacing", 1400))
+        if ck not in _cache:
+            _cache[ck] = 0.55 + 0.45 * ridged(gx, gz, ck[1], 5, seed + 8)
+        crest = _cache[ck]
         h = np.where(land, np.maximum(h, h + (ridge["height"] - SEA) * prof * crest * shore), h)
         relief = np.maximum(relief, np.where(prof > 0.05, ridge.get("relief", 200) * np.minimum(1, prof * 3), 0))
         if "biome" in ridge:
@@ -400,6 +406,7 @@ def render(spec_path, plan_dir):
         surf[np.asarray(si) > 0] = SURFACES.index(s_["material"]) + 1
     Image.fromarray(surf).save(f"{plan_dir}/surface.png")
     meta = {k: spec[k] for k in ("size", "seed") if k in spec}
+    meta["px"] = PX
     meta["ponds"] = [p for p in ponds if "level" in p]
     # Biome patches are labelled in the preview from biome.png by their real names; regions
     # only carry their tier, shown at the centre of the land they own.
@@ -541,6 +548,8 @@ def expand(plan_dir, out_dir, pi, pj, piece):
     bp = np.asarray(Image.open(f"{plan_dir}/biome.png"))
     rp = np.asarray(Image.open(f"{plan_dir}/relief.png")).astype(np.float32) / 255
     meta = json.load(open(f"{plan_dir}/plan.json"))
+    if meta.get("px", 16) != PX:
+        sys.exit(f"{plan_dir} is a {meta['px']}-block draft; re-render at full resolution (no --px) before expanding")
     size, seed = meta["size"], meta.get("seed", 1)
     half = size // 2
     x0, z0 = -half + pi * piece, -half + pj * piece
@@ -602,11 +611,14 @@ def main():
     ap = argparse.ArgumentParser()
     sub = ap.add_subparsers(dest="cmd", required=True)
     a = sub.add_parser("render"); a.add_argument("spec"); a.add_argument("plan")
+    a.add_argument("--px", type=int, default=16, help="blocks per plan pixel; 32 = fast draft (not for expand)")
     a = sub.add_parser("preview"); a.add_argument("plan")
     a = sub.add_parser("expand"); a.add_argument("plan"); a.add_argument("out")
     a.add_argument("--piece", nargs=2, type=int, required=True); a.add_argument("--piece-size", type=int, default=16384)
     args = ap.parse_args()
     if args.cmd == "render":
+        global PX
+        PX = args.px
         render(args.spec, args.plan)
         preview(args.plan)
     elif args.cmd == "preview":
