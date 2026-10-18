@@ -121,12 +121,25 @@ bench run, or launch the final client, which binds the keys in its build.
      owner saw.
 
    Otherwise the critic's top change becomes step 1.
-6. **Round.** When the gate passes, the frames are uploaded to the Shader Lab
-   page (https://claude.ai/artifact/C7LvLPJEpxazScuaLjJo3Q, source in
-   `tools/shaders/review/shader-review.html`) as a round. Where the critic found
-   a genuine taste choice (a warmer or cooler sunset, haze density), the round
-   offers two or three variants of that one axis instead of a single frame. A
-   push notification goes to the owner's phone.
+6. **Round.** Post to the Shader Lab page
+   (https://claude.ai/artifact/C7LvLPJEpxazScuaLjJo3Q, source in
+   `tools/shaders/review/shader-review.html`) whenever every Tier A item is at 7 or
+   more with no severe defect. Post sooner for a genuine taste axis (golden-hour
+   warmth, night darkness, haze density): two or three variants of that one axis
+   instead of a single frame. The owner wants to see options and steer, so don't
+   wait for an overall 8 (changed 2026-10-18).
+   - **Before every round**, read `responses/r000` (the calibration round) and any
+     later rounds' responses with the ArtifactData tool. Fold the answers into the
+     taste profile (`meta/taste`'s `summary` field and the end of `look-bible.md`).
+     Where an answer contradicts the current tuning, the owner's answer wins.
+   - **Posting:** downscale the frames to 1920 px JPEG (quality 90). Upload them with
+     the Artifact tool (publish, `url` = the Lab, `asset: true`, `file_paths`). Write
+     the round document to the `rounds` collection with ArtifactData: `n`, `title`,
+     `intro`, `status: "open"`, and `scenes[]`, each with options
+     `{key, label, img: "/_blob/<id>", critic, ms}`. Then set the previous open
+     round's `status` to `"closed"`: the page shows only the newest open round.
+     Never close `r000` until it has a response.
+   - Then send a push notification if you can.
 7. **Learn.** The owner's picks, ratings and notes are read from the page's
    database and summarised into the taste profile: the page's "What I've
    learned" panel and the end of `look-bible.md`. Any rule they contradict is
