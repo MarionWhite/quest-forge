@@ -130,7 +130,7 @@ the server and on every client in one step.
 
 ### Switching the friends' server to Java 25
 
-Do this at the next batch install, after the clients have the batch:
+Done for `C:qfsriends` in the 2026-10-17 batch ([`batch-2026-10-17.md`](batch-2026-10-17.md)). For another server, do this after the clients have the batch:
 
 1. Stop the server (`stop` or Ctrl+C in the supervisor window) and wait for the
    supervisor to exit.
