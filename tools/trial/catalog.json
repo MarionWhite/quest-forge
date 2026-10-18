@@ -16,16 +16,16 @@
   "client_only": ["optifine", "angelica", "unimixins", "gtnhlib", "soundfilters", "custommenu", "damageindicators", "mobdismemberment", "mobamputation", "inventorytweaks", "controlling", "journeymap"],
   "_renderers_doc": [
     "`build --renderer angelica`: the Angelica client's stack (tools/angelica-client/manifest.json) instead",
-    "of OptiFine E7. base_remove leaves the base set, base_add joins it, swap replaces an entry wherever",
-    "it is resolved (null drops it: GTNH CodeChickenCore has CodeChickenLib merged in). The jars are not",
-    "in the live pack: stage them once with `trial.py stage-angelica` (copies, sha1-checked against the",
-    "manifest). 'forge' is the universal jar the client launches with instead of the live 1558 one."
+    "of OptiFine E7. base_remove leaves the base set, base_add joins it, swap (optional) replaces an entry",
+    "wherever it is resolved (null drops it). The jars are not in the live pack: stage them once with",
+    "`trial.py stage-angelica` (copies, sha1-checked against the manifest). 'forge' is the universal jar",
+    "the client launches with instead of the live 1558 one. No swap since 2026-10-18: the live pack itself",
+    "runs GTNH CodeChickenCore 1.4.22, which both renderers use."
   ],
   "renderers": {
     "angelica": {"forge": "1614",
                  "base_remove": ["optifine", "betterfps", "fastcraft"],
-                 "base_add": ["angelica"],
-                 "swap": {"codechickencore": "gtnhccc", "codechickenlib": null}}
+                 "base_add": ["angelica"]}
   },
   "bundles": {
     "inspect":  {"mods": ["nei", "waila"], "why": "look up IDs, block names and item tooltips in-game"},
@@ -48,12 +48,10 @@
     "qfcontent":       {"match": "QuestForgeContent-1.0.0.jar", "role": "mod"},
     "qfcommands":      {"match": "QuestForgeCommands",     "role": "mod"},
 
-    "codechickenlib":  {"match": "CodeChickenLib",         "role": "lib"},
     "angelica":        {"match": "angelica-",              "role": "base", "staged": true, "requires": ["unimixins", "gtnhlib"], "why": "renderer for --renderer angelica: Celeritas chunks + the Iris shader backport"},
     "unimixins":       {"match": "+unimixins",             "role": "lib",  "staged": true},
     "gtnhlib":         {"match": "gtnhlib",                "role": "lib",  "staged": true},
-    "gtnhccc":         {"match": "CodeChickenCore-1.4",    "role": "lib",  "staged": true, "why": "GTNH CodeChickenCore 1.4.22, CodeChickenLib merged in; stands in for codechickencore under Angelica"},
-    "codechickencore": {"match": "CodeChickenCore",        "role": "lib", "requires": ["codechickenlib"]},
+    "codechickencore": {"match": "CodeChickenCore",        "role": "lib", "why": "GTNH CodeChickenCore 1.4.22 (CodeChickenLib merged in) since 2026-10-18, for E7 and Angelica alike"},
     "forgemultipart":  {"match": "ForgeMultipart",         "role": "lib", "requires": ["codechickencore"]},
     "codinglib":       {"match": "CodingLib",              "role": "lib", "why": "Built Broken jlib; VoltzEngine needs it (found by a trial boot 2026-10-16)"},
     "openmodslib":     {"match": "OpenModsLib",            "role": "lib"},

@@ -3,9 +3,10 @@
 
 The E7 folder is only read. The new folder gets:
   bin/       the E7 bin/ with Forge 1558 swapped for stock Forge 1614
-  mods/      the E7 mods minus OptiFine, FastCraft, BetterFps and stock
-             CodeChickenCore/CodeChickenLib, plus Angelica, UniMixins, GTNHLib
-             and GTNH CodeChickenCore 1.4.22 (manifest.json; sha1-checked)
+  mods/      the E7 mods minus OptiFine, FastCraft and BetterFps, plus Angelica,
+             UniMixins and GTNHLib (manifest.json; sha1-checked). The E7 folder
+             must already run GTNH CodeChickenCore 1.4.22 (the pack does since
+             2026-10-18); the build refuses one with stock CCC + CodeChickenLib.
   config/    the E7 config plus overlay/config (vsync off, no splash memory bar)
   options    the E7 options.txt plus overlay/options-keys.txt (zoom on C, Iris keys);
              the E7 shader pack choice carried into config/shaders.properties
@@ -205,6 +206,21 @@ def main():
     fresh = not os.path.exists(dst) or not os.listdir(dst)
     if not fresh and not a.force:
         sys.exit(f"{dst} exists; --force rebuilds it (keeping {', '.join(sorted(KEEP_ON_FORCE))})")
+
+    # Since 2026-10-18 the E7 pack itself runs GTNH CodeChickenCore, so the Angelica build
+    # no longer swaps it. An E7 folder from before that would come across with stock CCC.
+    smods = os.path.join(src, "mods")
+    lacks = [m for m in man.get("source_must_have", [])
+             if not os.path.isfile(os.path.join(smods, *m["file"].split("/")))
+             or sha1(os.path.join(smods, *m["file"].split("/"))) != m["sha1"]]
+    stale = [m for m in man.get("source_must_not_have", [])
+             if os.path.exists(os.path.join(smods, *m["file"].split("/")))]
+    if lacks or stale:
+        for m in lacks:
+            print(f"the E7 folder lacks mods/{m['file']} (sha1 {m['sha1']}): {m['why']}\n      {m['url']}")
+        for m in stale:
+            print(f"the E7 folder still has mods/{m['file']}: {m['why']}")
+        sys.exit("update the E7 folder to the current pack first (GTNH CodeChickenCore since 2026-10-18)")
 
     # Resolve every added jar first, so a missing download stops before anything is written.
     dirs = [os.path.abspath(d) for d in a.jars]
