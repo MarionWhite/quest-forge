@@ -15,6 +15,136 @@ Hodgepodge 2.7.216, ArchaicFix 0.8.0 and GTNH CodeChickenCore 1.4.22 on Forge
 10.13.4.1614, with OptiFine, FastCraft and BetterFps removed. "Java 25 server"
 means Temurin 25.0.4 + lwjgl3ify 3.0.39 (forgePatches launcher).
 
+## Update, 2026-10-17 evening: the Angelica client is built
+
+The user approved the Angelica client on 2026-10-17. It is built in the one
+shape that lets Angelica and E7 clients share a server: **Angelica 2.2.33,
+UniMixins 0.3.2, GTNHLib 0.11.54 and GTNH CodeChickenCore 1.4.22 on stock
+Forge 1614, without Hodgepodge or ArchaicFix.** The OptiFine E7 client stays as
+the fallback for GPUs without OpenGL 3.3. Install guide:
+[`../setup/angelica-client.md`](../setup/angelica-client.md). Hand test:
+[`../setup/angelica-hand-test.md`](../setup/angelica-hand-test.md).
+
+| Item | Status | How |
+|---|---|---|
+| Loading screen and splash music | **done** | `SplashTransformer` in QuestForgeTweaks makes the hand-patched 1558 jar's changes on any Forge jar; the `qf/splash` classes ship in the coremod. Inert on the E7 jar apart from two log hooks. |
+| Four shader checks | **done** | qf-content `Shaders` (now also used by `RenderRecordCase`), qf-tweaks `ShaderState`, Transformers `TFRenderHelper` ask Iris's `IrisApi.getInstance().isShaderPackInUse()` as well as OptiFine's `Config.isShaders()`, both reflectively. One jar per mod serves both clients. |
+| Zoom and frame pacing | **done** | Zoom on C; Iris toggle/pick/reload on F4/F8/F9. `angelica-options.json` `vsync_mode: OFF`. |
+| Lite profile | **done** | `apply-lite.ps1` detects Angelica and writes the equivalents into Angelica's three config files. |
+| Packaging | **done** | `tools/angelica-client/` (manifest with sha1s and URLs, `build_angelica_client.py`, `LAUNCH-ANGELICA.bat`). |
+| At-risk mods | **pass** where the probe can check; the rest is the hand test | below |
+| "Error creating mob morph" | **explained, not a bug** | below |
+| Psychedelicraft drug overlays | **open, undecided** | still fail to compile ("Error creating shader", twice per boot). Not touched. |
+
+**The splash, measured.** Both clients ran with `-Dqf.splash.shots`, which
+saves the splash thread's own frame every 5 s. The E7 (patched 1558) and
+Angelica (stock 1614 + `SplashTransformer`) frames are pixel-identical in the
+mural, the bars, the text and the corners; only the emblem's pulse phase
+differs (max 9/255). Comparison image: `C:\qfb\ang2\shots\compare-splash.png`.
+The music, from the logs:
+
+```
+E7       [QFSplash] first splash frame at 0 ms: 1920x1080, textured bars on, chant PLAYING at 0.5s of 53.3s, menu stopped at 0.0s of 132.0s
+E7       [QFSplash] splash finishing after 61004 ms and 5961 frames; chant PLAYING at 61.5s of 53.3s, menu PLAYING at 0.0s of 132.0s
+E7       [QFSplash] 4000 ms after the splash: chant none, menu PLAYING at 4.0s of 132.0s
+Angelica [QFSplash] first splash frame at 730 ms: 1920x1080, textured bars on, chant PLAYING at 1.1s of 53.3s, menu stopped at 0.0s of 132.0s
+Angelica [QFSplash] splash finishing after 103595 ms and 10039 frames; chant PLAYING at 104.0s of 53.3s, menu PLAYING at 0.0s of 132.0s
+Angelica [QFSplash] 4000 ms after the splash: chant none, menu PLAYING at 4.0s of 132.0s
+```
+
+(The chant loops, so its position passes its length.) The two unknowns in the
+estimate turned out small: the "texture-buffer overflow" is stock Forge's 4M-int
+upload buffer, which the 1558 jar had raised to 16M by hand, and the splash hang
+did not occur without ArchaicFix. Angelica's own splash memory bar is turned off
+(`showSplashMemoryBar=false`) so it does not sit on the mural.
+
+**Frame pacing.** Angelica's vsync comes from `advanced.vsync_mode` in
+`config/angelica-options.json`; when that key is absent it follows vanilla's
+`enableVsync`, and its pacer then waits for the monitor ("vsync 240Hz ...
+paced by wall clock"). With `vsync_mode: OFF` the log says `Frame pacing: vsync
+off` in game and `vsync off, cap 30` in menus (vanilla's 30 fps menu cap).
+
+**At-risk mods on the final build** (`C:\qfb\client-ang2`, singleplayer, probe
+mod, shaders off and Complementary Unbound r5.9.3; logs and screenshots in
+`C:\qfb\ang2\shots\atrisk-off` and `atrisk-comp`):
+
+| Mod | Shaders off | Complementary |
+|---|---|---|
+| Carpenter's Blocks: slope, collapsible block, planks cover | placed, covered, renders | same |
+| Decocraft props | placed from the creative inventory, render | same, with shadows |
+| TARDIS exterior | renders | renders |
+| CustomNPCs | summoned (`EntityCustomNpc`), renders | same |
+| Malisis door | opens (`net.malisis.doors.door.block.Door`, open bit set) | same |
+| qf-content jukebox | renders; `/jb play` advances at real time (recycled buffers 10 -> 41 -> 72 over 6 s) | renders, chrome not dark |
+| Record case with a record | glass, mat, disc and plaque render | the guard engages (`[QuestForge] shader pack ON (Angelica/Iris): record case and jukebox take the shader-safe path`); mat, disc and plaque visible, no black rectangle |
+| Morph | Pig and Cow morphs take effect on the client | same |
+| Key bindings | `angelica.keybind.zoom code=46` (C), `iris.keybind.toggleShaders code=62` (F4) | |
+
+Not drivable by the probe, so in the hand test: firing portals and looking
+through them, transforming a Transformer, MCHeli rotors, watching a door swing,
+Morph through its selector. A key press simulated through `KeyBinding` does not
+reach Iris's toggle (it polls the key itself), so the probe set the shader pack
+in `shaders.properties` instead.
+
+**Both clients on one server, with the pack check (2026-10-17, 20:29-20:39).**
+A full-pack Java 8 server trial (`trial.py build angsrv --server`, every
+non-client mod, GTNH CodeChickenCore 1.4.22 in place of CCC + CCL, no
+Hodgepodge/ArchaicFix/GTNHLib) with QuestForgeTweaks `1.1.0+20261017.16bb92a1`
+and QuestForgeContent `1.1.0+20261017.7ec7091d`, built from commit 7ec7091.
+Each client connected for about 3 minutes and quit through the probe:
+
+| Client | Server log |
+|---|---|
+| Angelica (`client-ang2`, Forge 1614) | `[packcheck] Dev OK: pack (undated), fingerprint 3f7f089e6508` |
+| E7 with GTNH CodeChickenCore (`client-e7b`, Forge 1558) | `[packcheck] Dev OK: pack (undated), fingerprint 3f7f089e6508` |
+
+No server errors in either session apart from the two `NetworkDispatcher`
+"connection forcibly closed" lines the clients' own quits produce. (The pack
+check ignores the Forge version since 7ec7091, which is what lets 1558 and
+1614 clients share it.)
+
+**"Error creating mob morph" is Morph refusing a morph the player already
+has.** `CommandMorph` prints it whenever `EntityHelper.morphPlayer` returns
+false, and one of those returns is `hasMorphState(player, nextState)`: the
+player already owns that morph. In test 1 the E7 run morphed Dev into a pig on
+the same server world minutes before the Angelica run asked for the pig again.
+Reproduced on the final Angelica client in a fresh world: `/morph morph Dev Pig`
+works, demorph works, the same command again answers "Error creating mob
+morph", and `/morph morph Dev Cow` then works. Same on E7 by the code path; not
+a renderer or Hodgepodge effect. Nothing to fix.
+
+**Benchmark: Angelica without Hodgepodge/ArchaicFix vs E7, uncapped.** The
+open item from test 4. Same FrameBench harness and scenes as 10-16 (debug-tools
+qf-content, 2560x1440 window, 6 GB, fresh copy of the bench world each run),
+both clients built from the live instance (`C:\qfb\client-e7b`,
+`C:\qfb\client-ang2`) with the same pack jars, `enableVsync:false`,
+`maxFps:260`, and Angelica's `vsync_mode: OFF`, so nothing is capped at the
+240 Hz refresh: every Angelica run logged `Frame pacing: vsync off`. Three
+rounds, alternating E7 and Angelica. E-off-2 and E-vib-3 lost their slot to
+another session's client and were run straight after round 3. Other sessions'
+servers (4-12 GB) ran throughout, so absolute numbers wander between rounds
+(Angelica shaders-off static: 1,124 / 589 / 821).
+
+Mean fps with the mean 1% low in brackets, over three runs (all nine runs per
+row in `C:\qfb\ang2\matrix-results.txt`):
+
+| Configuration | static | fly | torch tunnel | worst frame |
+|---|---|---|---|---|
+| E7, shaders off | 401 (91) | 283 (64) | 249 (71) | 52-113 ms |
+| **Angelica, shaders off** | **845 (152)** | **837 (142)** | **836 (174)** | 44-54 ms |
+| E7, Sildur's Vibrant High | 130 (41) | 116 (37) | 74 (34) | 64-156 ms |
+| **Angelica, Sildur's Vibrant High** | **313 (82)** | **346 (92)** | **332 (108)** | 44-77 ms |
+| **Angelica, Complementary Unbound** | **278 (72)** | **297 (78)** | **288 (110)** | 43-52 ms |
+
+So without Hodgepodge and ArchaicFix Angelica is about 2.1x / 3.0x / 3.4x E7
+with shaders off and 2.4x / 3.0x / 4.5x with Vibrant, with roughly double the
+1% lows and a lower worst frame everywhere. Complementary, which E7 cannot run,
+lands at 278-297 fps, a little under Vibrant. Uncapping changed the earlier
+picture: the 10-16 Angelica numbers (590 / 554 / 261 off, 245-249 with
+Complementary, Hodgepodge in) were held down by the 240 Hz pacer, and dropping
+Hodgepodge/ArchaicFix costs nothing measurable.
+
+
 ## Bottom line
 
 **Angelica on the client costs about 11–16 hours.** Most of that is porting
@@ -52,6 +182,7 @@ that separates them:
 - An Angelica client that keeps Hodgepodge can't join a server without it
   (packet 53 mismatch). Angelica's measured gains were taken with Hodgepodge
   and ArchaicFix in, so the Angelica-without-Hodgepodge fps is unmeasured.
+  (Measured that evening: no loss; see the update at the top.)
 
 So the order with the least risk: move the server to slim Java 25 now. It
 needs no client change and keeps the whole GC win. Swap everyone to GTNH
