@@ -79,12 +79,13 @@ const float EXPOSURE_MEAN_WEIGHT = 0.75;  // prepare.glsl, meteredLog
 //   below the full moon: steeper (0.55 stop per stop), so a new moon stays readable.
 const float EXPO_DAY_M = -3.64, EXPO_DAY_E = 1.24;
 const float EXPO_NIGHT_M = -10.7, EXPO_NIGHT_E = 2.26;
-const float EXPO_DEEP_SLOPE = 0.8;
+const float EXPO_DEEP_SLOPE = 1.0;   // r12: 0.8 crushed 3% of the new-moon frame
 // Under open sky a dark scene is night, which must stay readable; underground it is a cave
 // or a tunnel, which should stay dark (round 9: the torch tunnel matched vanilla's 0.17-0.2
 // mean luma, but the full moon fell to 0.038 and the new moon crushed). So the sky light
 // at the eye adds up to EXPO_SKY_LIFT stops, scaled by how far below daylight the scene is.
-const float EXPO_SKY_LIFT = 0.8;   // r10: 1.5 gave 0.085 / 0.065, a little bright
+const float EXPO_DUSK_LIFT = 0.6;
+const float EXPO_SKY_LIFT = 0.3;   // owner (r000): between truly dark and moonlit; r11 0.8 gave 0.060 / 0.045
 float exposureTargetLog(float m) {
     float e;
     if (m >= EXPO_DAY_M) {
@@ -97,6 +98,9 @@ float exposureTargetLog(float m) {
     float darkness = clamp((EXPO_DAY_M - m) / (EXPO_DAY_M - EXPO_NIGHT_M), 0.0, 1.0);
     float eyeSky = clamp(float(eyeBrightnessSmooth.y) / 240.0, 0.0, 1.0);
     e += EXPO_SKY_LIFT * darkness * eyeSky * eyeSky;
+    // Golden hour and dusk under open sky: a little more, peaking between day and night, so a
+    // low-sun foreground reads lit rather than murky (r10-r12 critic and owner, round 0).
+    e += EXPO_DUSK_LIFT * sin(PI * darkness) * eyeSky * eyeSky;
 #if QF_CAL_NIGHT == 1
     e -= 1.2 * darkness * eyeSky * eyeSky;   // calibration A: truly dark
 #elif QF_CAL_NIGHT == 3

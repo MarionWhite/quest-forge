@@ -141,6 +141,12 @@ void main() {
         // fade into the sky; thicker in rain.
         float start = far * mix(0.35, 0.12, rainStrength);
         float density = mix(2.2, 4.0, rainStrength) / max(far, 32.0);
+        // Night: visibility falls off with distance into the night sky's colour, so the
+        // moonlit near field stays playable while a mob 40 blocks out is only a shape
+        // (owner, round 0).
+        float nightFog = smoothstep(-0.02, -0.12, sunDirWorld().y);
+        start = mix(start, 20.0, nightFog);
+        density = mix(density, 1.0 / 64.0, nightFog);
 #if QF_CAL_FOG == 1        // calibration A: crisp (only the chunk-edge fade)
         density = 0.0;
 #elif QF_CAL_FOG == 3      // calibration C: thick, low-lying fog
@@ -152,6 +158,10 @@ void main() {
         amount = max(amount, smoothstep(far * 0.82, far * 1.0, dist0));
         vec3 haze = skyScatter(viewDir);
         haze = mix(haze, vec3(luminance(haze)), 0.3);   // round 2: a beige band at the horizon
+        // At night the fade goes towards a darker sky, so distant land becomes a silhouette
+        // instead of a moonlit wall of fog (r12 critic: the full moon hid the mountain that
+        // the new moon kept).
+        haze *= mix(1.0, 0.45, nightFog);
         color = mix(color, haze, amount * smoothstep(0.0, 0.3, max(skyLight, eyeSky)));
     }
     outColor = vec4(max(color, vec3(0.0)), 1.0);

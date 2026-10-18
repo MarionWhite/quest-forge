@@ -1,16 +1,17 @@
 # Shader milestone 1: lighting, water and sky baseline
 
-**Status, 2026-10-18 morning:** a working baseline: round 5 of 7 (rounds 6 and 7 were
-reverted).
+**Status, 2026-10-18 evening:** round 14, critic 6 out of 10 (from 5.9 at r05). The gate is
+not passed: golden hour 5, and the rest of Tier A at 6-7. The full history is in the
+[rounds log](#rounds-log-2026-10-18-afternoon-session) at the end.
 
-- **Working:** the pack runs on all five presets, and every preset is inside its
-  frame-time budget. Colour is near vanilla, shadows work, nights are dark but readable
-  and follow the moon phase, and the water and sky are physically based.
-- **Not yet:** golden hour has no warmth, and auto-exposure needs the fix described under
-  Known issues.
-- **Critic's last score:** 5.9 out of 10. The look is deliberately unfinished: the owner steers it from
-here (see [Iterating](#iterating-first-thing)). The source is
-[`shaders/QuestForge/`](../../../shaders/QuestForge/).
+- **Fixed today:** auto-exposure now adapts. It had read a colortex5 up to 26 frames old
+  (buffer ping-pong; `prepare1` makes the flip count even) and froze at high fps (log
+  exposure in hi/lo halves). The sky-view table now has its horizon (`pi - beta`). The
+  torch tunnel is at 0.20 mean luma (vanilla 0.17). Nights follow the owner's round-0
+  answer (0.047), with a distance fade. Golden-hour views are retimed to a sun that is really low.
+- **Every preset is inside its budget:** High 0.93 ms, Low 0.47 (budget 0.9), Potato 0.36 (budget 0.4).
+- **The owner's taste profile** (round 0) is at the end of [`look-bible.md`](look-bible.md).
+  The survey image set is from `tools/shaders/review/calibration.py`.
 
 Written from scratch for Angelica's Iris backport; no code, ID tables or option names
 from Complementary or any other pack ([`LICENSES/`](../../../shaders/QuestForge/LICENSES/)).
@@ -277,4 +278,27 @@ Low 1080p / Potato 720p, against 3.0 / 0.9 / 0.4 ms. Luma is the High frame's me
 | r08 | `prepare1` second write of colortex5 (even flip count); exposure stored as log2 in hi/lo halves; meter blends log-average with mean; vanilla-like torch falloff `pow(b,4.2)`; water red absorption 0.13 to 0.075; Snell's window with refracted sky and Fresnel; less sky fill at low sun; `golden_lit` view added | 0.96 / 0.48 / **0.44** | not run | exposure adapts at last, which lifted nights to 0.186 (3x Complementary) and the torch tunnel to 0.40; Potato torch over budget (the 576-read meter on one thread) |
 | r09 | log-space exposure curve (partial adaptation below daylight); sky-view horizon bug fixed (`pi/2 + beta` to Hillaire's `pi - beta`); meter split over 32 column texels | 0.94 / 0.60 / not run | **5** (darkness 4, exposure 7, colour 6, golden 5, stability 7, near field 7) | torch tunnel 0.195 (vanilla 0.17): done. Nights too dark (0.038; new moon 22% crushed, severe). Hard tan band under the horizon. Potato run failed to start (0xC0000142) while another session held the slot |
 | r10 | +1.5 stops under open sky at night (eye sky light), deeper slope below full moon; sky clamped at the horizon (no ground colour in haze); golden views retimed (the sun was 14-19 deg up, not 3-8: Minecraft eases the celestial angle; horizon at 12785); debug view 9 (colortex5 raw) | 0.93 (1.03 static while another session's server ran) / 0.48 / **0.37** | **6** (darkness 7, exposure 7, colour 6, golden 5, stability 7, near field 7) | nights 0.085 / 0.065, no crush (severe fixed); sunset has a warm horizon band; forest golden sat in the ridge's shadow and low-sun shade read murky; all budgets pass |
+| r11 | night lift 1.5 to 0.8 stops; no low-sun ambient cut; Mie 1.5x (low-sun glow); warmer block light (1.0, 0.70, 0.45); softer Snell's window rim with ripple shading; forest_golden 12150, golden_lit 12250. High only: paused for the calibration set | 0.91 / – / – | not run | nights 0.060 / 0.045, torch 0.117 (warmer light read darker) |
+| cal | owner's taste survey: 15 slim runs, 36 frames, one `QF_CAL_*` option per question (`tools/shaders/review/calibration.py`); owner answered round 0 the same afternoon (look-bible taste profile) | – | – | – |
+| r12 | owner's answers: night lift 0.3 (between "truly dark" and "moonlit"), night distance fade into the night sky (from 14 blocks, 1/40), block light 0.95 to 1.1 | 0.92 / 0.48 / 0.37 | **6** (darkness 5, exposure 7, colour 6, golden 5, stability 7, near field 6) | nights 0.050 / 0.034, torch 0.202. Potato new moon 18% crushed (major). Night fog hides the full-moon mountain but not the new-moon one (backwards). Golden foreground still in murky shade |
+| r13 | exposure slope below full moon 0.8 to 1.0; dusk lift (+0.6 stop x sin(pi x darkness), open sky only); golden_lit camera raised to y 84 | 0.92 / 0.49 / failed to start twice (cache-miss crash, then a pack change during the retry) | not run | golden_lit 0.341 with a warm-lit ridge and long shadows; new moon 0.95% crushed on High |
+| r14 | night fade from 20 blocks at 1/64, towards a darker sky (x0.45), so silhouettes stay | **0.93 / 0.47 / 0.36** | **6** (darkness 6, exposure 6, colour 6, golden 5, stability 7, near field 6) | nights 0.047 / 0.043, torch 0.20 on all three presets, all budgets pass. Fails: new moon crushes on Low (7%) and Potato (4.5%), and the moon phase barely shows on High; forest_golden and shore_sunset still read cool; beige horizon haze in golden_lit; lime grass at noon |
+
+**Where it stands after r14 (stopped at the round limit; gate not passed).** The best Tier A
+scores reached are 7 for darkness (r10), exposure (r09, r10, r12), stability and near field; golden hour is
+stuck at 5. The critic's consistent asks, in order:
+
+1. **Golden hour:** warm amber light on whatever the low sun reaches, and gold sky within
+   about 20 degrees of the sun (it reads grey-white). The direct light is physically
+   orange (transmittance at 5.7 deg is about (1, 0.49, 0.13)), so look at the tone mapper's
+   highlight desaturation near the sun, and at the grey-mauve sky above the band (ozone, multi-scatter).
+2. **New moon:** keep a visible phase difference. Raise the ambient floor on Low and Potato
+   rather than lifting exposure, which cancels the phase on High.
+3. **Haze:** the 1.5x Mie gives a beige wall at the horizon at golden hour. The owner wants fog
+   per biome, so tie Mie and haze density to biome or weather, not one global value.
+4. Lime grass at noon (neutral colour), the featureless moon, black underwater particles, and Potato's murky underwater.
+
+The scene set also misleads: forest_golden faces a sun hidden behind a ridge at every
+tried time. The torch scene's held light (Torchlight enchantment) varies run to run; its
+brightness swung between 0.12 and 0.20 with the same code.
 
