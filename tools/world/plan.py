@@ -260,6 +260,10 @@ def render(spec_path, plan_dir):
         relief = np.maximum(relief, np.where(prof > 0.05, ridge.get("relief", 200) * np.minimum(1, prof * 3), 0))
         if "biome" in ridge:
             biome[land & (prof > ridge.get("biome_above", 0.35))] = ridge["biome"]
+    # Soft cap: ridge heights add onto the ground beneath them, so stacked ranges could pass the
+    # 256 build limit and clip flat. Squash everything above 230 smoothly into 230..252.
+    over = h > 230
+    h = np.where(over, 230 + 22 * np.tanh((h - 230) / 22), h)
     extra_tiers = []
     for pl, pm in plateaus:
         din = ndimage.distance_transform_edt(pm) * PX
@@ -299,6 +303,16 @@ def render(spec_path, plan_dir):
     biome[~land & (depth > 0.6)] = DEEP_OCEAN
     for m, b, shallow in sea_regions:
         biome[m & ~land & ((depth < 0.6) if shallow else True)] = b
+    # Deep basins ({circle, floor, wall, biome}): a sheer-walled hole in the sea floor, e.g. a
+    # blue hole: a dark disc of deep water dropping out of shallow reef.
+    for bs in spec.get("basins", []):
+        bx_, bz_, br = bs["circle"]
+        wob = 1 + 0.08 * fbm(gx, gz, max(br * 0.5, 64), 2, seed + 77)
+        t = np.clip((br * wob - np.hypot(gx - bx_, gz - bz_)) / bs.get("wall", 48), 0, 1)
+        inside = (t > 0) & ~land
+        h = np.where(inside, np.minimum(h, h + (bs["floor"] - h) * t ** 0.5), h)
+        if "biome" in bs:
+            biome[inside] = bs["biome"]
 
     # Rivers: meandering carved channels. {points, width, biome (default River), meander
     # (blocks of sideways wander), dry: true for a shallow dry bed with no water}.
