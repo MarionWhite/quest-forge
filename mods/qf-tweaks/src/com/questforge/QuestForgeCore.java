@@ -40,6 +40,7 @@ import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
         "com.questforge.SplashTransformer",
         "com.questforge.RecNbtTransformer",
         "com.questforge.AsieNickTransformer",
+        "com.questforge.RwgPaintTransformer",
         // Not transformers, but loaded from code patched into GraveStones and
         // OptiFine; there is nothing in them any transformer needs to touch.
         "com.questforge.ShaderState",
@@ -52,7 +53,9 @@ import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
         "com.questforge.LuckyScriptFix",
         // Called from Recurrent Complex's and AsieLib's patched Gson code.
         "com.questforge.RecNbtFix",
-        "com.questforge.AsieNickFix"
+        "com.questforge.AsieNickFix",
+        // Called from RWG's patched ChunkGeneratorRealistic.
+        "com.questforge.RwgPaintHook"
 })
 public class QuestForgeCore implements IFMLLoadingPlugin {
 
@@ -70,7 +73,8 @@ public class QuestForgeCore implements IFMLLoadingPlugin {
                 "com.questforge.LuckyScriptTransformer",
                 "com.questforge.SplashTransformer",
                 "com.questforge.RecNbtTransformer",
-                "com.questforge.AsieNickTransformer"
+                "com.questforge.AsieNickTransformer",
+                "com.questforge.RwgPaintTransformer"
         };
     }
 

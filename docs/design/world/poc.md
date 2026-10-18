@@ -130,3 +130,94 @@ Slim server trial: 11 mods plus the base set, Java 8, 4 GB heap, Chunk Pregenera
 - `tools/world/biomedump/`: the biome-registry probe.
 
 Downloads for this run, in the session scratchpad: `BiomesOPlenty-1.7.10-2.1.0.2308-universal.jar` (Modrinth, sha1 b0d13f22…), `RWG-alpha-1.5.2.jar` (GitHub GTNewHorizons/Realistic-World-Gen) and WorldPainter 2.27.1 (sha256 matches worldpainter.net). The trial worlds are still on disk at `%APPDATA%\.qf-trials\w-rwg` and `w-bop`.
+
+## RWG decoration hook
+
+**Date:** 2026-10-17. **Code:** `mods/qf-tweaks/src/com/questforge/RwgPaintTransformer.java` and `RwgPaintHook.java`. The jar is built by `build.bat --no-install` and is not installed in the live pack.
+
+**What it patches** (`rwg.world.ChunkGeneratorRealistic` in RWG alpha-1.5.2; RWG's own methods gain no branches):
+- **`populate`, the one `RealisticBiomeBase.rDecorate` call.** It now goes through a new static bridge, `qf$rDecorate`, which first asks `RwgPaintHook.decoratePainted(...)`.
+  - Outside the painted area that returns false, and RWG's own `rDecorate` call runs unchanged.
+  - Inside the area, the chunk is decorated once by its stored biomes, and every noise-biome call is skipped.
+- **`populate`, the `snow < 0.59f` test.** For a painted chunk the test reads 1, so RWG's noise-keyed snow pass is skipped. Vanilla's ice step runs in its place (`isBlockFreezable` and `func_147478_e` per column), and it reads each column's stored biome temperature.
+- **`provideChunk`.** It records the chunks RWG itself generates inside the rectangle, for the safety check below.
+
+**How painted decoration works.**
+1. It takes 8×8 stored-biome samples over the population window `[x+8, x+24)`. That window lies inside the four chunks population already has loaded, so nothing new is loaded.
+2. It decorates each biome present, in biome-ID order. A biome's strength is its share of the samples, the way RWG blends.
+3. **BoP biomes:** RWG's `RealisticBiomeSupport` wrapper decorates them. That is BoP's `decorate()` when the share is over 0.3, plus RWG's edits.
+4. **RWG base biomes:** one RWG variant decorates each. Several variants share a base, so `rwgPreferred` in the config picks one (Hot Desert → `RealisticBiomeDesert`). RWG's placeholder `*Test*` biomes are never used.
+5. **Vanilla biomes, and BoP biomes RWG does not support:** they get their own `decorate()` when their share is over 0.3.
+6. The dominant biome always decorates.
+- RWG's `baseRedwood` (225) has no RWG variant, so a painted RWG Redwood comes out bare, as it does under BIOMESOP. **Paint redwoods with BoP Redwood Forest (196).**
+
+**How a chunk counts as painted.**
+- **The config rectangle.** It lives in `config/qftweaks-rwgpaint.cfg`, written on first use. The default is blocks ±16384, the continent's piece-built, 512-aligned extent. A chunk must lie wholly inside it.
+- **Safety check.** Any chunk that RWG's own `provideChunk` generated inside the rectangle during this session keeps stock decoration. That covers a hole in the export, or a rectangle larger than the export. Painted chunks come from disk with `TerrainPopulated=0` and never pass through `provideChunk`.
+- **Limit of the check.** The check is held in memory. A chunk that RWG generated inside the rectangle in an *earlier* session and left unpopulated would be treated as painted. Only a hole in the export can produce one.
+- `enabled=false` turns the hook off. Any reflection failure also disables it, with one log line, and RWG then runs stock.
+
+**Test.**
+- **World:** the PoC export, a 2,560 × 2,560 island with seed 20261017 and `generatorName=RWG`.
+- **Servers:** slim Forge 1614 trials with the base set, BoP, RWG and Chunk Pregenerator, plus `--overlay pack`.
+- **Runs:** two with the hook (rectangle ±1280, the export's bounds) and two stock, with the live qf-tweaks.
+- **Steps:** `pregen_island.py ... 81:PostProcessingOnly 112`, then `scan_island.py`.
+- **Log:** `Transform applied: RWG decorates painted chunks ...` and about 25,000 painted chunks decorated. Neither world had an exception.
+
+Per chunk, by painted region:
+
+| Painted region | Hook: signature | Stock RWG: signature | BIOMESOP control (§1): signature | Vanilla ores: hook / stock / BIOMESOP |
+|---|---|---|---|---|
+| BoP Redwood Forest | **redwood logs 265**, leaves 583 | logs 27, leaves 205 | logs 254, leaves 557 | 649 / 652 / 356 |
+| BoP Ominous Woods | **ominous leaves 415** | 28 | 400 | 642 / 642 / 347 |
+| BoP Boreal Forest | leaves 436 | 158 | 426 | 643 / 467 / 357 |
+| BoP Mystic Grove | leaves 281 | 22 | 342 | 645 / 530 / 352 |
+| BoP Tundra | leaves 91 | 11 | 80 | 654 / 642 / 360 |
+| BoP Lavender Fields | leaves 48 | 525 (a forest) | 190 | 834 / 900 / 450 |
+| Vanilla Forest | leaves 298 | 30 | 285 | 942 / 708 / 671 |
+| RWG Hot Desert | **leaves 24** | 131 (forest) | 8 | 383 / 758 / 395 |
+| RWG Snow Forest | leaves 59, **snow layers 216** | leaves 514, snow 0.2 | leaves 16 | 449 / 955 / 456 |
+| RWG Redwood | leaves 7 (bare, see above) | 426 | 7 | 725 / 767 / 396 |
+| Deep Ocean (sea) | **ice 0.9 per chunk, in 124 of 13,182 chunks** | **ice 44.5 per chunk, in 3,475 chunks** | n/a | 397 / 400 / 223 |
+
+- **Painted biomes now decorate like the BIOMESOP control.**
+- **Painted sea no longer freezes.** The little ice left is on the coast next to the painted Snow Forest.
+- **Lavender Fields comes out below the control** (48 vs 190). The cause is the vanilla `WorldGenBigTree` bug described under the outskirts below.
+- **Ores now follow the painted biome.**
+  - RWG's own ore pass, about 380–450 vanilla ore blocks per chunk, runs in every chunk.
+  - A painted BoP or vanilla biome adds its decorator's ore pass on top, for about 640–940. An RWG base biome adds none.
+  - Under stock RWG, the noise biome decided this instead.
+  - BoP gem ore also follows the painted biome: about 12 per chunk in BoP land, 0 in sea and desert.
+  - **This is for the ore survey and an approval decision. Nothing was rebalanced.**
+- **Structures:** the mineshaft, village, stronghold, dungeon and `IWorldGenerator` passes run before or outside the patched calls.
+  - Tile entities per region match within ±5 between hook and stock. Redwood Forest, for example, has 45 spawners and 18 chests with the hook, and 46 and 20 stock.
+  - §1's structure mods were not in this slim set. §1 showed they read the stored biome on their own.
+- **Speed:** with each server running alone, painted population ran at 328 chunks/s with the hook and 198 chunks/s stock. Each painted chunk makes fewer decorate calls than RWG's 9×9 noise blend. Speed is not a concern.
+
+**Outskirts stay stock.**
+- **No hook work runs there.** Outside the rectangle the bridge makes RWG's original `rDecorate` call, and the snow test reads RWG's own value.
+- **A block-for-block comparison does not work, because stock RWG is not reproducible run to run.**
+  - Two stock runs of the same world and seed matched block-for-block in only 31% of outskirts chunks (median 20 blocks different).
+  - Hook against stock gave the same picture: 32% matched, median 17 blocks different.
+- **The aggregates agree:**
+
+| Outskirts, per chunk | Hook | Stock run 1 | Stock run 2 |
+|---|---|---|---|
+| Vanilla ores | 586 | 587 | 585 |
+| Gem ore | 10.2 | 10.2 | 10.2 |
+| Ice | 4.2 | 4.2 | 4.2 |
+| Coal | 349 | 350 | 348 |
+
+  - The biome mix is identical in all three.
+  - Spawners and chests: 699 and 759 with the hook, 694 and 753 in stock run 1, and 699 and 759 in stock run 2.
+- **The one difference: trees in a few outskirts biomes.** Vanilla-leaf counts differ in BoP Lavender Fields, RWG Temperate River and Hot Plains. Lavender Fields has 23.5 per chunk in both hook runs, against 165 and 119 in the two stock runs.
+  - **The cause is vanilla 1.7.10's `WorldGenBigTree`.** Each biome shares one instance, and it sets `heightLimit` only while that is still 0, so **the first big tree of the session fixes the size of every later big tree in that biome.**
+  - Stock varies with whichever chunk populates first. With the hook, the first Lavender big tree is always the same painted one, so the outskirts are stable but different.
+  - So the difference comes from that bug's session-order dependence. No hook code runs in the outskirts.
+  - Resetting `heightLimit` per tree would fix it, as a separate patch.
+
+**Installing, after review.**
+- Rebuild with `mods/qf-tweaks/build.bat --no-install`.
+- Install with `py -3.10 tools/trial/trial.py install mods/qf-tweaks/QuestForgeTweaks-1.0.jar --why "RWG paint hook"`.
+- On the server, set the rectangle in `config/qftweaks-rwgpaint.cfg` to the continent's real export bounds.
+- Only servers that run `level-type=rwg` need the hook. It does nothing on clients, but they share the same coremod jar.

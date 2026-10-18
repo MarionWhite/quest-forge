@@ -102,7 +102,9 @@ rem -XX:+FailOverToOldVerifier, so older-version bytecode is fine here.
   "%HERE%src\com\questforge\RecNbtTransformer.java" ^
   "%HERE%src\com\questforge\RecNbtFix.java" ^
   "%HERE%src\com\questforge\AsieNickTransformer.java" ^
-  "%HERE%src\com\questforge\AsieNickFix.java"
+  "%HERE%src\com\questforge\AsieNickFix.java" ^
+  "%HERE%src\com\questforge\RwgPaintTransformer.java" ^
+  "%HERE%src\com\questforge\RwgPaintHook.java"
 
 if errorlevel 1 (
   echo.
