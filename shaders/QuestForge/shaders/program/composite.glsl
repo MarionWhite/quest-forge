@@ -85,6 +85,9 @@ void main() {
             R.y = abs(R.y);
             vec3 refl = skyScatter(R) * smoothstep(0.3, 0.9, skyLight);
             float F = 0.02 + 0.98 * pow(1.0 - NdotV, 5.0);
+#if QF_CAL_WATER == 2
+            F = min(1.0, F * 1.6 + 0.08);   // calibration B: strong reflections
+#endif
             color = mix(refracted, refl, F);
             // Sun and moon glints: tight GGX, shadowed.
             vec3 L = lightDirWorld();
@@ -108,19 +111,23 @@ void main() {
             vec3 Rt = refract(viewDir, -nUp, 1.333);
             float c = abs(dot(viewDir, nUp));
             vec3 deep = waterAmbient(eyeSky) * (WATER_SCATTER / (WATER_ABSORB + WATER_SCATTER));
-            float ripple = clamp(0.5 + 6.0 * dot(n.xz, vec2(0.7, 0.7)), 0.0, 1.0);
-            vec3 mirrored = deep * mix(0.75, 1.3, ripple);
+            // The surface's own slope shades the mirrored part, so the waves read from below.
+            float ripple = clamp(0.5 + 9.0 * (n.x * 0.7 + n.z * 0.7), 0.0, 1.0);
+            vec3 mirrored = deep * mix(0.6, 1.5, ripple);
+            float F = 1.0;
+            vec3 above = deep;
             if (dot(Rt, Rt) > 0.0) {
                 float cT = abs(Rt.y);
                 // Unpolarised Fresnel for the water-to-air interface.
                 float rs = (1.333 * c - cT) / (1.333 * c + cT);
                 float rp = (c - 1.333 * cT) / (c + 1.333 * cT);
-                float F = clamp(0.5 * (rs * rs + rp * rp), 0.0, 1.0);
-                vec3 above = depth1 >= 1.0 ? skyRadiance(normalize(vec3(Rt.x, abs(Rt.y), Rt.z))) : color;
-                color = mix(above, mirrored, F);
-            } else {
-                color = mirrored;
+                F = clamp(0.5 * (rs * rs + rp * rp), 0.0, 1.0);
+                above = depth1 >= 1.0 ? skyRadiance(normalize(vec3(Rt.x, abs(Rt.y), Rt.z))) : color;
             }
+            // Physically the rim is sharp; a real surface's ripples and the eye's blur soften
+            // it over a few degrees (round 9 critic: "hard, artificial rim").
+            F = max(F, 1.0 - smoothstep(0.64, 0.78, c));
+            color = mix(above, mirrored, F);
         }
     }
 
@@ -134,6 +141,13 @@ void main() {
         // fade into the sky; thicker in rain.
         float start = far * mix(0.35, 0.12, rainStrength);
         float density = mix(2.2, 4.0, rainStrength) / max(far, 32.0);
+#if QF_CAL_FOG == 1        // calibration A: crisp (only the chunk-edge fade)
+        density = 0.0;
+#elif QF_CAL_FOG == 3      // calibration C: thick, low-lying fog
+        start = 4.0;
+        float lowY = scene0.y + cameraPosition.y;
+        density *= 3.0 * (1.0 + 3.0 * exp(-max(lowY - 62.0, 0.0) / 10.0));
+#endif
         float amount = 1.0 - exp(-max(dist0 - start, 0.0) * density);
         amount = max(amount, smoothstep(far * 0.82, far * 1.0, dist0));
         vec3 haze = skyScatter(viewDir);

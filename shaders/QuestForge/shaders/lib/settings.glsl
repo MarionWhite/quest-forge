@@ -9,6 +9,16 @@
 #define QF_DEBUG_VIEW 0 // [0 1 2 3 4 5 6 7 8 9]
 #define QF_STILL 0 // [0 1]   development: freeze wind, waves and twinkle (temporal-noise test)
 
+// Calibration variants for the owner's taste survey (Shader Lab round r000). 0 is the
+// pack as tuned; 1-3 are the survey's options A-C. Development only: not on the option
+// screen, and never a default. tools/shaders/review/calibration.py renders them.
+#define QF_CAL_GRADE 0 // [0 1 2 3]   direction: A photoreal, B cinematic, C storybook
+#define QF_CAL_NIGHT 0 // [0 1 2 3]   night: A truly dark, B moonlit blue, C gentle
+#define QF_CAL_SUNSET 0 // [0 1 2 3]  golden hour: A intense gold, B pastel, C naturalistic
+#define QF_CAL_WATER 0 // [0 1 2 3]   water: A clear tropical, B deep dark, C depth gradient
+#define QF_CAL_FOG 0 // [0 1 2 3]     distance: A crisp, B natural haze, C thick valley fog
+#define QF_CAL_BLOOM 0 // [0 1 2 3]   bloom: A none, B subtle, C strong
+
 // 0 Potato, 1 Low, 2 Medium, 3 High, 4 Ultra.
 #if QF_PRESET == 0
     #define QF_SHADOWS 0

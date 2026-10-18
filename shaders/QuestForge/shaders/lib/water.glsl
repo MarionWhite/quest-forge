@@ -5,8 +5,16 @@
 // green-blue scattering gives deep water its colour without hiding clear shallows.
 // Round 5's red absorption (0.13) turned pale sand mint under a metre or two of water
 // (the view path through it is longer than the depth); 0.075 keeps shallows clear.
+#if QF_CAL_WATER == 1      // calibration A: clear tropical
+const vec3 WATER_ABSORB = vec3(0.03, 0.012, 0.014);
+const vec3 WATER_SCATTER = vec3(0.0008, 0.006, 0.006);
+#elif QF_CAL_WATER == 2    // calibration B: deep and dark
+const vec3 WATER_ABSORB = vec3(0.30, 0.16, 0.12);
+const vec3 WATER_SCATTER = vec3(0.0006, 0.0018, 0.0028);
+#else
 const vec3 WATER_ABSORB = vec3(0.075, 0.042, 0.038);
 const vec3 WATER_SCATTER = vec3(0.0015, 0.005, 0.006);
+#endif
 
 // Height field: four long crossing swells plus short ripples. Returns the slope (dh/dx, dh/dz).
 vec2 waterSlope(vec2 p, float t) {

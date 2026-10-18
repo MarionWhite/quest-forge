@@ -84,7 +84,7 @@ const float EXPO_DEEP_SLOPE = 0.8;
 // or a tunnel, which should stay dark (round 9: the torch tunnel matched vanilla's 0.17-0.2
 // mean luma, but the full moon fell to 0.038 and the new moon crushed). So the sky light
 // at the eye adds up to EXPO_SKY_LIFT stops, scaled by how far below daylight the scene is.
-const float EXPO_SKY_LIFT = 1.5;
+const float EXPO_SKY_LIFT = 0.8;   // r10: 1.5 gave 0.085 / 0.065, a little bright
 float exposureTargetLog(float m) {
     float e;
     if (m >= EXPO_DAY_M) {
@@ -97,6 +97,11 @@ float exposureTargetLog(float m) {
     float darkness = clamp((EXPO_DAY_M - m) / (EXPO_DAY_M - EXPO_NIGHT_M), 0.0, 1.0);
     float eyeSky = clamp(float(eyeBrightnessSmooth.y) / 240.0, 0.0, 1.0);
     e += EXPO_SKY_LIFT * darkness * eyeSky * eyeSky;
+#if QF_CAL_NIGHT == 1
+    e -= 1.2 * darkness * eyeSky * eyeSky;   // calibration A: truly dark
+#elif QF_CAL_NIGHT == 3
+    e += 1.5 * darkness * eyeSky * eyeSky;   // calibration C: gentle
+#endif
     return clamp(e, log2(EXPOSURE_MIN), log2(EXPOSURE_MAX)) + QF_EXPOSURE_BIAS;
 }
 
@@ -109,7 +114,7 @@ vec3 moonIrradiance() { return lutFetch(C_MOON).rgb; }
 // neutral, so the sky term is lifted and part-desaturated (look bible 3).
 const float AMBIENT_GAIN = 1.9;
 const float AMBIENT_DESAT = 0.45;
-const float AMBIENT_LOW_SUN_CUT = 0.45;
+const float AMBIENT_LOW_SUN_CUT = 0.0;   // r10 critic: 0.45 left golden-hour shade murky; shade should read cool blue
 
 vec3 skyIrradiance(vec3 n) {
     vec3 up = lutFetch(C_AMB_UP).rgb;

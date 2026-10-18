@@ -13,8 +13,10 @@ const float ATM_RG = 6360.0;            // ground radius
 const float ATM_RT = 6460.0;            // top of the atmosphere
 const vec3  RAYLEIGH_SCATTER = vec3(5.802, 13.558, 33.100) * 1e-3;   // per km
 const float RAYLEIGH_H = 8.0;
-const float MIE_SCATTER = 3.996e-3;
-const float MIE_EXTINCT = 4.440e-3;
+// Mie at 1.5x the paper's clear-day value: a light haze, so a low sun has a visible warm
+// glow around it (r10 critic: no glow when facing a sun 2-6 deg up).
+const float MIE_SCATTER = 3.996e-3 * 1.5;
+const float MIE_EXTINCT = 4.440e-3 * 1.5;
 const float MIE_H = 1.2;
 const float MIE_G = 0.8;
 const vec3  OZONE_ABSORB = vec3(0.650, 1.881, 0.085) * 1e-3;

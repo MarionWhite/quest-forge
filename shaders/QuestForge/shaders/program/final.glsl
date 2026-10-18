@@ -36,8 +36,9 @@ uniform sampler2D shadowtex0;
 
 layout(location = 0) out vec4 outColor;
 
+vec3 calGrade(vec3 c);
 vec3 display(vec3 exposed) {
-    return linearToSrgb(tonemapNeutral(exposed));
+    return linearToSrgb(tonemapNeutral(calGrade(exposed)));
 }
 
 #if QF_TAA
@@ -125,11 +126,82 @@ vec3 meterReadout(int i) {
 }
 #endif
 
+// Calibration grades (QF_CAL_*), on the exposed linear colour before the tone mapper.
+vec3 calSat(vec3 c, float s) {
+    float l = luminance(c);
+    return max(vec3(l) + (c - vec3(l)) * s, vec3(0.0));
+}
+vec3 calContrast(vec3 c, float k) {
+    return pow(max(c, vec3(0.0)) / 0.18, vec3(k)) * 0.18;
+}
+vec3 calGrade(vec3 c) {
+#if QF_CAL_GRADE == 2      // B cinematic: teal shadows, orange highlights, deeper contrast
+    float l = luminance(c);
+    float hl = smoothstep(0.05, 0.6, l);
+    c *= mix(vec3(0.90, 1.0, 1.10), vec3(1.10, 1.0, 0.86), hl);
+    c = calContrast(c, 1.18);
+#elif QF_CAL_GRADE == 3    // C storybook: softer contrast, richer colour, lifted blacks
+    c = calSat(c, 1.3);
+    c = calContrast(c, 0.85) + 0.008;
+#endif
+    float sunY = sunDirWorld().y;
+    float low = smoothstep(0.30, 0.06, sunY) * smoothstep(-0.10, 0.0, sunY);
+#if QF_CAL_SUNSET == 1     // A intense gold
+    c = calSat(c, 1.0 + 0.5 * low) * mix(vec3(1.0), vec3(1.22, 1.04, 0.74), low);
+#elif QF_CAL_SUNSET == 2   // B soft pastel: pink, peach and lilac
+    c = calSat(c, 1.0 - 0.3 * low) * mix(vec3(1.0), vec3(1.08, 0.93, 1.06), low) + 0.01 * low;
+#elif QF_CAL_SUNSET == 3   // C naturalistic: brief gold, then a cool blue hour
+    float blue = smoothstep(0.0, -0.08, sunY) * smoothstep(-0.25, -0.1, sunY);
+    c *= mix(vec3(1.0), vec3(1.06, 1.0, 0.92), low * 0.6) * mix(vec3(1.0), vec3(0.9, 0.97, 1.12), blue);
+#endif
+    float night = smoothstep(-0.02, -0.15, sunY) * clamp(float(eyeBrightnessSmooth.y) / 240.0, 0.0, 1.0);
+#if QF_CAL_NIGHT == 1      // A truly dark: little colour
+    c = mix(c, calSat(c, 0.5), night);
+#elif QF_CAL_NIGHT == 2    // B moonlit: a cool blue cast
+    c *= mix(vec3(1.0), vec3(0.82, 0.95, 1.18), night);
+#elif QF_CAL_NIGHT == 3    // C gentle: near-neutral
+    c = mix(c, calSat(c, 0.85) * vec3(1.03, 1.0, 0.97), night);
+#endif
+    return c;
+}
+
+#if QF_CAL_BLOOM > 0 || QF_CAL_GRADE > 0
+// A cheap three-ring glow of the bright part of the frame (calibration only).
+vec3 calBloom(ivec2 px) {
+#if QF_CAL_BLOOM == 3 || QF_CAL_GRADE == 2
+    const float thr = 0.45, gain = 0.30;
+#elif QF_CAL_BLOOM == 1
+    const float thr = 1e9, gain = 0.0;
+#else
+    const float thr = 0.85, gain = 0.10;
+#endif
+    vec3 sum = vec3(0.0);
+    float wsum = 0.0;
+    for (int r = 1; r <= 3; r++) {
+        float rad = viewHeight * 0.012 * float(r * r);
+        int n = 12 * r * r;   // taps about 7 px apart on every ring, so no ghost copies
+        for (int i = 0; i < n; i++) {
+            float a = (float(i) + 0.5 * float(r)) * (2.0 * PI / float(n));
+            ivec2 q = clamp(px + ivec2(vec2(cos(a), sin(a)) * rad), ivec2(0), ivec2(viewWidth, viewHeight) - 1);
+            vec3 s = sceneExposed(q);
+            float w = 1.0 / float(r * n);
+            sum += min(max(s - vec3(thr), vec3(0.0)), vec3(6.0)) * w;
+            wsum += w;
+        }
+    }
+    return sum / wsum * gain;
+}
+#endif
+
 void main() {
     ivec2 px = ivec2(gl_FragCoord.xy);
     vec3 col;
 #if QF_TAA
+#if QF_CAL_BLOOM > 0 || QF_CAL_GRADE > 0
+    col = display(sceneExposed(px) + calBloom(px));
+#else
     col = display(sceneExposed(px));
+#endif
 #else
     // Potato: a cheap edge-aware blend over the 4 neighbours where contrast is high.
     vec3 c = display(sceneExposed(px));

@@ -8,7 +8,7 @@
 const float SUN_I = 3.0;
 const float MOON_I = SUN_I * 0.008;              // full moon, before the phase factor
 const vec3  MOON_TINT = vec3(0.78, 0.88, 1.0);     // a slight blue shift for scotopic night
-const vec3  BLOCK_LIGHT_COLOR = vec3(1.0, 0.76, 0.56);   // about 2800 K, linear, eased so stone stays stone
+const vec3  BLOCK_LIGHT_COLOR = vec3(1.0, 0.70, 0.45);   // about 2900 K, linear (r10 critic: 0.76/0.56 read grey-brown)
 const float BLOCK_I = 0.95;
 const float NIGHT_FLOOR_I = 0.009;                // irradiance everywhere, scaled by QF_NIGHT_FLOOR
 const vec3  NIGHT_FLOOR_TINT = vec3(0.8, 0.88, 1.0);
