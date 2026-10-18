@@ -1,0 +1,169 @@
+# Continent v2 draft (author feedback on v1, 2026-10-17). Render: py -3.10 tools/world/plan.py render docs/design/world/continent-v2.yaml PLANDIR
+# Blocks, 0,0 at the centre, +x east, +z south (north is up on the map).
+# Regions with `at` share the land by nearest centre (organic borders); `size` makes one
+# claim more. `biomes` is a patchwork of real biome IDs with relative weights. Earlier
+# regions win, so the small hidden biomes and the centre come first.
+# Biome IDs: docs/survey/biome-ids.tsv.
+size: 32768
+seed: 41
+coast_warp: 1100
+region_warp: 1300
+blend_px: 16
+shore_width: 900
+shelf_width: 1500
+
+coast:
+  - [-8000, -12800]
+  - [-4000, -13600]
+  - [0, -13000]
+  - [3500, -13800]
+  - [7000, -12500]
+  - [9500, -10500]
+  - [10200, -7500]
+  - [11800, -5200]
+  - [11000, -2500]
+  - [8800, -1300]
+  - [9500, 1000]
+  - [12000, 2500]
+  - [12500, 5500]
+  - [11000, 8500]
+  - [9000, 10500]
+  - [6500, 11000]
+  - [4500, 13500]
+  - [2500, 14300]
+  - [600, 13200]
+  - [-1500, 11800]
+  - [-4500, 12300]
+  - [-7500, 11000]
+  - [-9800, 8500]
+  - [-11000, 5500]
+  - [-9000, 4200]
+  - [-9600, 2000]
+  - [-12000, 800]
+  - [-12500, -2500]
+  - [-11500, -5500]
+  - [-12600, -8500]
+  - [-10500, -11000]
+
+# Centre: a crater lake inside a broken crater rim, a volcano island in the middle.
+lakes:
+  - {circle: [0, -500, 1750]}
+islands:
+  - {circle: [0, -500, 650]}
+  - {circle: [10800, -12600, 800]}
+
+# Black sand: the crater lake's bed and the volcano island's shores (WorldPainter terrain).
+surfaces:
+  - {material: black_sand, circle: [0, -500, 1800]}
+
+regions:
+  # Centre: the island is the hardest place on the map (T5), the rim T4
+  - {tier: 5, biome: 250, base: 80, relief: 120, circle: [0, -500, 700]}
+  - {tier: 4, biomes: [[77, 2], [60, 1]], base: 95, relief: 140, circle: [0, -500, 2700]}
+
+  # Small hidden biomes
+  - {tier: 2, biome: 185, base: 78, relief: 40, circle: [-5200, -4800, 600]}
+  - {tier: 3, biome: 197, base: 100, relief: 50, circle: [3200, -4300, 450]}
+  - {tier: 1, biome: 147, base: 72, relief: 20, circle: [-7000, 6300, 700]}
+  - {tier: 2, biome: 189, base: 74, relief: 30, circle: [1600, 4300, 500]}
+  - {tier: 2, biome: 14, base: 68, relief: 30, circle: [10800, -12600, 900]}
+  # Desert oases, each around a pond
+  - {tier: 3, biome: 186, base: 70, relief: 8, circle: [6800, 5200, 600]}
+  - {tier: 3, biome: 186, base: 70, relief: 8, circle: [8900, 7800, 520]}
+  - {tier: 3, biome: 186, base: 70, relief: 8, circle: [6200, 8900, 460]}
+
+  # Seas by climate (RWG ocean biomes), then reefs and kelp on the shallow shelf
+  - {biome: 211, sea: true, polygon: [[-16384, -16384], [16384, -16384], [16384, -6000], [-16384, -6000]]}
+  - {biome: 210, sea: true, polygon: [[-16384, -16384], [16384, -16384], [16384, -12800], [-16384, -12800]]}
+  - {biome: 212, sea: true, polygon: [[-16384, -6000], [16384, -6000], [16384, 4000], [-16384, 4000]]}
+  - {biome: 213, sea: true, polygon: [[-16384, 4000], [16384, 4000], [16384, 16384], [-16384, 16384]]}
+  - {biome: 75, sea: true, shallow: true, polygon: [[-16384, 6500], [16384, 6500], [16384, 16384], [-16384, 16384]]}
+  - {biome: 75, sea: true, shallow: true, polygon: [[9000, 3000], [16384, 3000], [16384, 6500], [9000, 6500]]}
+  - {biome: 144, sea: true, shallow: true, polygon: [[-16384, -9000], [-9500, -9000], [-9500, 6500], [-16384, 6500]]}
+  - {biome: 144, sea: true, shallow: true, polygon: [[9500, -9000], [16384, -9000], [16384, -1000], [9500, -1000]]}
+
+  # The crater lake (after the sea bands, so it keeps its own biome)
+  - {biome: 250, sea: true, circle: [0, -500, 1950]}
+
+  # North: cold, beyond the northern range; its lakes freeze
+  - {tier: 2, biomes: [[239, 3], [66, 2], [74, 1]], base: 70, relief: 110, lakes: [10, 120, 450], at: [-8500, -10500]}
+  - {tier: 3, biomes: [[247, 3], [61, 1], [89, 1], [66, 1]], base: 70, relief: 30, lakes: [16, 150, 600], at: [-1000, -11000]}
+  - {tier: 3, biomes: [[89, 2], [86, 2], [192, 1]], base: 80, relief: 90, lakes: [8, 120, 400], at: [6500, -10500]}
+
+  # Temperate middle
+  - {tier: 1, biomes: [[196, 3], [243, 2], [74, 1]], base: 76, relief: 70, lakes: [4, 100, 300], at: [-9800, -2800]}
+  - {tier: 1, biomes: [[154, 2], [80, 2], [139, 1]], base: 74, relief: 50, lakes: [6, 100, 350], at: [-5200, -3400]}
+  - {tier: 3, biomes: [[187, 2], [78, 1]], base: 74, relief: 60, lakes: [3, 100, 250], at: [-6800, -300], size: 0.6}
+  - {tier: 2, biomes: [[74, 2], [59, 1], [142, 1]], base: 90, relief: 90, lakes: [6, 100, 400], at: [0, -5200]}
+  - {tier: 2, biomes: [[142, 2], [183, 2], [141, 1]], base: 88, relief: 70, lakes: [10, 80, 300], at: [7200, -6000]}
+  - {tier: 1, biomes: [[242, 2], [193, 1], [236, 1]], base: 70, relief: 35, lakes: [3, 100, 300], at: [9800, -3800], size: 0.9}
+  - {tier: 2, biomes: [[138, 2], [253, 1], [70, 1]], base: 72, relief: 45, lakes: [4, 120, 400], at: [5200, 300]}
+  - {tier: 2, biomes: [[159, 2], [84, 1], [64, 1]], base: 63, relief: 8, lakes: [14, 60, 250], at: [-4600, 2600]}
+  - {tier: 1, biomes: [[73, 2], [188, 1], [85, 1]], base: 72, relief: 45, lakes: [4, 100, 300], at: [-8200, 4600], size: 0.9}
+
+  # South: warm, tropical and desert
+  - {tier: 2, biomes: [[245, 3], [62, 1], [21, 1]], base: 70, relief: 80, lakes: [6, 120, 350], at: [-6500, 9000]}
+  - {tier: 2, biomes: [[35, 2], [70, 1], [254, 1]], base: 72, relief: 40, lakes: [3, 80, 250], at: [-1200, 6800]}
+  - {tier: 1, biomes: [[246, 2], [153, 2], [195, 1]], base: 66, relief: 30, lakes: [4, 80, 250], at: [3000, 11800]}
+  - {tier: 3, biomes: [[2, 3], [190, 2], [148, 1], [37, 1]], base: 70, relief: 60, at: [7800, 6400], size: 1.3}
+  - {tier: 3, biomes: [[251, 2], [78, 1]], base: 71, relief: 50, lakes: [2, 80, 200], at: [11000, 2600], size: 0.55}
+
+ponds:
+  - {at: [6800, 5200], r: 190, biome: 186}
+  - {at: [8900, 7800], r: 160, biome: 186}
+  - {at: [6200, 8900], r: 140, biome: 186}
+
+ridges:
+  - {points: [[-10500, -5600], [-8000, -7400], [-5000, -8300], [-2500, -7600]], height: 200, width: 2200, relief: 220, biome: 60, biome_above: 0.55}
+  - {points: [[-1500, -8600], [1500, -7800], [4500, -8900], [7000, -8200]], height: 225, width: 2800, relief: 230, biome: 60, biome_above: 0.5}
+  - {points: [[6500, -7000], [8500, -6200], [10500, -7600]], height: 185, width: 1900, relief: 210, biome: 60, biome_above: 0.6}
+  - {arc: [0, -500, 2300, 25, 155], height: 195, width: 1300, relief: 220, biome: 77, biome_above: 0.5}
+  - {arc: [0, -500, 2300, 205, 335], height: 195, width: 1300, relief: 220, biome: 77, biome_above: 0.5}
+  - {points: [[0, -500], [1, -499]], height: 220, width: 1300, relief: 160, biome: 250, biome_above: 0.2}
+  - {points: [[-10200, -6000], [-10700, -2000], [-10000, 2000]], height: 140, width: 1300, relief: 160}
+  - {points: [[6000, 4500], [8000, 6000], [9000, 8500]], height: 112, width: 900, relief: 230}
+
+# River networks: main channels with forked tributaries that meet them exactly.
+rivers:
+  # The great tropical river (BoP Lush River), Amazon style: wide, winding, many tributaries
+  - {points: [[-900, 7200], [-2600, 8400], [-4300, 8700], [-6000, 9300], [-7600, 9500], [-9600, 9900]], width: 96, meander: 420, valley: 260, biome: 150}
+  - {points: [[-4400, 5600], [-4200, 7300], [-4300, 8700]], width: 40, biome: 150}
+  - {points: [[-7300, 7000], [-6600, 8200], [-6000, 9300]], width: 40, biome: 150}
+  - {points: [[-3200, 11300], [-3500, 9800], [-4300, 8700]], width: 40, biome: 150}
+  - {points: [[-5600, 11100], [-5900, 10100], [-6000, 9300]], width: 36, biome: 150}
+  - {points: [[-1800, 10600], [-2300, 9400], [-2600, 8400]], width: 32, biome: 150}
+  - {points: [[-8400, 10900], [-8000, 10100], [-7600, 9500]], width: 28, biome: 150}
+  # Crater outflow east, to the gulf
+  - {points: [[2300, -500], [4200, 300], [6000, -200], [7600, -700], [9300, -600]], width: 48}
+  - {points: [[6400, -4400], [6600, -2200], [6000, -200]], width: 32}
+  - {points: [[5600, 2600], [5300, 1200], [4200, 300]], width: 28}
+  - {points: [[8200, 1800], [7900, 600], [7600, -700]], width: 28}
+  # Crater outflow west, to the cherry bay
+  - {points: [[-2300, -500], [-4200, 100], [-6000, 600], [-7800, 1500], [-9300, 3000]], width: 48}
+  - {points: [[-5600, -2600], [-5000, -1200], [-4200, 100]], width: 32}
+  - {points: [[-4200, 2600], [-5100, 1500], [-6000, 600]], width: 28}
+  - {points: [[-8800, -1000], [-8300, 300], [-7800, 1500]], width: 28}
+  # South from the crater rim to the tropics peninsula
+  - {points: [[0, 1900], [-500, 3800], [-200, 5600], [700, 7600], [1300, 9800], [1800, 14000]], width: 48}
+  - {points: [[2800, 5200], [1600, 6400], [700, 7600]], width: 28}
+  - {points: [[3600, 9000], [2400, 9600], [1300, 9800]], width: 28}
+  - {points: [[-2600, 4600], [-1400, 4800], [-500, 3800]], width: 28}
+  # Frozen rivers in the north
+  - {points: [[-3000, -8300], [-3600, -9800], [-4200, -11200], [-4000, -13800]], width: 40, biome: 11}
+  - {points: [[-7000, -9200], [-5600, -10300], [-4200, -11200]], width: 28, biome: 11}
+  - {points: [[-1200, -10600], [-2600, -11500], [-4100, -12300]], width: 28, biome: 11}
+  - {points: [[3800, -8600], [4600, -10200], [5000, -11800], [4600, -14000]], width: 40, biome: 11}
+  - {points: [[7600, -10200], [6200, -11100], [5000, -11800]], width: 28, biome: 11}
+  - {points: [[2200, -11400], [3600, -12200], [4800, -12800]], width: 24, biome: 11}
+  # Dry riverbeds in the desert (BoP Dry River)
+  - {points: [[5200, 4200], [6500, 5600], [7600, 7200], [8400, 9500], [9000, 10600]], width: 32, meander: 300, biome: 82, dry: true}
+  - {points: [[10500, 5500], [9200, 6400], [7600, 7200]], width: 24, biome: 82, dry: true}
+
+points:
+  - {kind: spawn, tier: 1, x: -11300, z: -2600}
+  - {kind: spawn, tier: 1, x: -8600, z: 5300}
+  - {kind: spawn, tier: 1, x: 3000, z: 12600}
+  - {kind: spawn, tier: 1, x: 10400, z: -4300}
+  - {kind: spawn, tier: 2, x: -9000, z: -10800}
+  - {kind: spawn, tier: 2, x: -8000, z: 9600}
+  - {kind: spawn, tier: 3, x: 0, z: -12300}

@@ -18,6 +18,7 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 from scipy import ndimage
 
+SURFACES = ["black_sand"]   # surface.png value = index + 1
 PX = 16          # blocks per plan pixel
 SEA = 62
 OCEAN, DEEP_OCEAN, RIVER, BEACH, STONE_BEACH = 0, 24, 7, 16, 25
@@ -50,6 +51,32 @@ def fbm(x, z, cell, octaves, seed, gain=0.5):
         amp *= gain
         cell /= 2.0
     return total / norm
+
+
+def meander(points, amp, seed, step=160.0):
+    """Densify a polyline and push it sideways with smooth noise, so rivers wander."""
+    if amp <= 0:
+        return points
+    out, s = [], 0.0
+    for (x1, z1), (x2, z2) in zip(points, points[1:]):
+        L = math.hypot(x2 - x1, z2 - z1)
+        nx, nz = -(z2 - z1) / (L or 1), (x2 - x1) / (L or 1)
+        steps = max(1, int(L / step))
+        for i in range(steps):
+            t = i / steps
+            off = amp * float(fbm(np.array([s + t * L]), np.array([seed * 13.0]), 900, 3, seed)[0])
+            out.append((x1 + (x2 - x1) * t + nx * off, z1 + (z2 - z1) * t + nz * off))
+        s += L
+    out.append(tuple(points[-1]))   # ends stay put, so tributaries still meet their river
+    out[0] = tuple(points[0])
+    return out
+
+
+def pond_distance(x, z, cx, cz, r, seed):
+    """Normalised distance to a lake centre (1 = shore); the shore wobbles with noise.
+    The same function runs at plan and at block resolution, so both agree on the shape."""
+    wob = 1 + 0.3 * fbm(x, z, max(r * 0.8, 64), 2, seed)
+    return np.hypot(x - cx, z - cz) / (r * wob)
 
 
 def ridged(x, z, cell, octaves, seed):
@@ -156,8 +183,8 @@ def render(spec_path, plan_dir):
             ImageDraw.Draw(ri).polygon(_poly(n, r["polygon"], size), fill=255)
             m = ndimage.map_coordinates((np.asarray(ri) > 0).astype(np.float32),
                                         [(rz + half) / PX - 0.5, (rx + half) / PX - 0.5], order=1, mode="constant") > 0.5
-        if r.get("sea"):          # a sea biome (reef, kelp): painted over water only, after the floor
-            sea_regions.append((m, r["biome"]))
+        if r.get("sea"):          # a sea biome (reef, kelp): painted over water only, after the floor;
+            sea_regions.append((m, r["biome"], r.get("shallow", False)))   # shallow: the shelf only
             continue
         m &= land
         owner[m & (owner < 0)] = k
@@ -220,19 +247,71 @@ def render(spec_path, plan_dir):
     depth = np.clip(d_out / spec.get("shelf_width", 1200), 0, 1)
     h = np.where(land, h, SEA - 4 - (SEA - 4 - spec.get("deep_floor", 28)) * depth)
     biome[~land & (depth > 0.6)] = DEEP_OCEAN
-    for m, b in sea_regions:
-        biome[m & ~land] = b
+    for m, b, shallow in sea_regions:
+        biome[m & ~land & ((depth < 0.6) if shallow else True)] = b
 
-    # Rivers: carved channels, river biome.
-    for river in spec.get("rivers", []):
+    # Rivers: meandering carved channels. {points, width, biome (default River), meander
+    # (blocks of sideways wander), dry: true for a shallow dry bed with no water}.
+    for ri_k, river in enumerate(spec.get("rivers", [])):
+        pts = meander(river["points"], river.get("meander", 220), seed + 500 + ri_k)
         ri = Image.new("L", (n, n), 0)
-        ImageDraw.Draw(ri).line(_poly(n, river["points"], size), fill=255, width=max(1, round(river.get("width", 32) / PX)))
+        ImageDraw.Draw(ri).line(_poly(n, pts, size), fill=255, width=max(1, round(river.get("width", 32) / PX)), joint="curve")
         m = (np.asarray(ri) > 0) & land
         d = ndimage.distance_transform_edt(~m) * PX
         bank = np.clip(d / river.get("valley", 160), 0, 1) ** 0.5
-        h = np.where(land, np.minimum(h, SEA - 3 + (h - SEA + 3) * bank), h)
-        biome[m] = RIVER
+        if river.get("dry"):
+            h = np.where(land, h - river.get("depth", 5) * (1 - bank), h)
+        else:
+            h = np.where(land, np.minimum(h, SEA - 3 + (h - SEA + 3) * bank), h)
+        biome[m] = river.get("biome", RIVER)
         relief = np.where(m, 0, relief)
+
+    # Lakes inside the land, at their own surface level (WorldPainter sets that water level per
+    # block). Explicit {ponds: [{at, r, depth, biome}]} plus per-region {lakes: [count, rmin, rmax]}.
+    ponds = [dict(p) for p in spec.get("ponds", [])]
+    taken = np.zeros((n, n), bool)
+    for k, r in enumerate(spec["regions"]):
+        if "lakes" not in r or r.get("sea"):
+            continue
+        count, rmin, rmax = r["lakes"]
+        rng = np.random.default_rng(seed + 7000 + k)
+        ok = land & (owner == k) & (d_in > 400 + rmax) & (biome != RIVER) & (h > SEA)
+        cand = np.argwhere(ok)
+        rng.shuffle(cand)
+        placed = 0
+        for zz, xx in cand:
+            if placed >= count:
+                break
+            if taken[zz, xx]:
+                continue
+            rad = float(rng.uniform(rmin, rmax))
+            ponds.append({"at": [float(xx * PX - half + PX / 2), float(zz * PX - half + PX / 2)], "r": rad})
+            sp = int(2.5 * rmax / PX)
+            taken[max(0, zz - sp):zz + sp, max(0, xx - sp):xx + sp] = True
+            placed += 1
+    water = np.zeros((n, n), np.float32)
+    for i, p in enumerate(ponds):
+        p["id"] = i
+        p.setdefault("depth", max(4, min(14, p["r"] / 40)))
+        cx, cz, rad = p["at"][0], p["at"][1], p["r"]
+        j0, j1 = max(0, int((cx - 1.7 * rad + half) / PX)), min(n, int((cx + 1.7 * rad + half) / PX) + 2)
+        i0, i1 = max(0, int((cz - 1.7 * rad + half) / PX)), min(n, int((cz + 1.7 * rad + half) / PX) + 2)
+        if j1 <= j0 or i1 <= i0:
+            continue
+        sl = (slice(i0, i1), slice(j0, j1))
+        bx, bz = gx[sl], gz[sl]
+        d = pond_distance(bx, bz, cx, cz, rad, seed + 9000 + i)
+        rr = np.hypot(bx - cx, bz - cz)
+        ring = (rr > rad * 1.2) & (rr < rad * 1.6) & land[sl]
+        if not ring.any():
+            continue
+        p["level"] = int(max(SEA, math.floor(np.percentile(h[sl][ring], 10)) - 1))
+        inside = (d < 1) & land[sl]
+        h[sl] = np.where(inside, np.minimum(h[sl], p["level"] - 1 - p["depth"] * (1 - d * d)), h[sl])
+        water[sl] = np.where(inside, p["level"], water[sl])
+        relief[sl] = np.where(inside, 0, relief[sl])
+        if "biome" in p:
+            biome[sl][inside] = p["biome"]
     # Within a few pixels of the coast, height follows a blurred land mask, so the sea-level
     # contour is smooth after cubic upsampling instead of a 16-block staircase.
     cf = ndimage.gaussian_filter(land.astype(np.float32), 1.2)
@@ -245,7 +324,16 @@ def render(spec_path, plan_dir):
     Image.fromarray(np.clip(h * 257, 0, 65535).astype(np.uint16)).save(f"{plan_dir}/height.png")
     Image.fromarray(biome).save(f"{plan_dir}/biome.png")
     Image.fromarray(np.clip(relief, 0, 255).astype(np.uint8)).save(f"{plan_dir}/relief.png")
+    Image.fromarray(water.astype(np.uint8)).save(f"{plan_dir}/water.png")
+    # Surface materials the expansion carries to WorldPainter ({circle|polygon, material}).
+    surf = np.zeros((n, n), np.uint8)
+    for s_ in spec.get("surfaces", []):
+        si = Image.new("L", (n, n), 0)
+        ImageDraw.Draw(si).polygon(_poly(n, region_polygon(s_), size), fill=255)
+        surf[np.asarray(si) > 0] = SURFACES.index(s_["material"]) + 1
+    Image.fromarray(surf).save(f"{plan_dir}/surface.png")
     meta = {k: spec[k] for k in ("size", "seed") if k in spec}
+    meta["ponds"] = [p for p in ponds if "level" in p]
     # Biome patches are labelled in the preview from biome.png by their real names; regions
     # only carry their tier, shown at the centre of the land they own.
     meta["regions"] = []
@@ -262,6 +350,14 @@ def render(spec_path, plan_dir):
 # ---------------------------------------------------------------- preview
 
 PREVIEW_PALETTE = [
+    (r"dry river", (190, 160, 110)),
+    (r"river", (70, 130, 220)),
+    (r"ice ocean|frozenocean", (170, 200, 225)),
+    (r"cold ocean", (40, 80, 150)),
+    (r"hot ocean", (40, 110, 175)),
+    (r"ocean", (45, 95, 165)),
+    (r"coral", (70, 190, 200)),
+    (r"kelp", (40, 110, 110)),
     (r"volcan|wasteland|ash", (95, 80, 80)),
     (r"snow|frost|glacier|polar|arctic|ice|tundra|frozen", (225, 232, 240)),
     (r"alps|crag|mountain|cliff|highland|extreme", (150, 150, 150)),
@@ -309,6 +405,17 @@ def preview(plan_dir):
     shade = np.clip(1 + (gx - gy) * 0.06, 0.6, 1.4)[..., None]
     land = h >= SEA
     rgb = np.where(land[..., None], rgb * shade * (0.75 + 0.35 * np.clip((h - SEA) / 140, 0, 1))[..., None], rgb)
+    # Lakes above sea level (water.png), frozen where the biome is cold; then black sand.
+    if os.path.exists(f"{plan_dir}/water.png"):
+        wl = np.asarray(Image.open(f"{plan_dir}/water.png")).astype(np.float32)
+        lake = (wl > 0) & (h < wl)
+        cold = np.zeros(256, bool)
+        for bid, nm in names.items():
+            cold[bid] = bool(re.search(r"snow|frost|glacier|polar|arctic|ice|tundra|frozen|boreal|alps", nm, re.I))
+        rgb[lake] = np.where(cold[b[lake]][:, None], (190, 225, 240), (55, 105, 200))
+    if os.path.exists(f"{plan_dir}/surface.png"):
+        sf = np.asarray(Image.open(f"{plan_dir}/surface.png"))
+        rgb[sf == 1] = rgb[sf == 1] * 0.25 + np.array((20, 20, 24)) * 0.75
     im = Image.fromarray(np.clip(rgb, 0, 255).astype(np.uint8))
     n = b.shape[0]
     scale = max(1, 2048 // n)
@@ -332,7 +439,7 @@ def preview(plan_dir):
     # Label each patch of each biome at its most interior pixel, so the text sits inside it.
     min_px = (n / 32) ** 2
     for bid in np.unique(b):
-        if bid in (OCEAN, DEEP_OCEAN, RIVER, BEACH):
+        if bid in (OCEAN, DEEP_OCEAN, RIVER, BEACH, 10, 11, 82, 150):   # seas and rivers: too thin or too big to label usefully
             continue
         lab, nlab = ndimage.label(b == bid)
         for i in range(1, nlab + 1):
@@ -370,8 +477,13 @@ def expand(plan_dir, out_dir, pi, pj, piece):
     x0, z0 = -half + pi * piece, -half + pj * piece
     d = f"{out_dir}/piece_{pi}_{pj}"
     os.makedirs(d, exist_ok=True)
+    sp = np.asarray(Image.open(f"{plan_dir}/surface.png")) if os.path.exists(f"{plan_dir}/surface.png") \
+        else np.zeros_like(bp)
+    ponds = meta.get("ponds", [])
     H = np.zeros((piece, piece), np.uint16)
     B = np.zeros((piece, piece), np.uint8)
+    S = np.zeros((piece, piece), np.uint8)
+    Wt = np.zeros((piece, piece), np.uint8)
     xs = np.arange(piece, dtype=np.float64) + x0 + 0.5
     for r0 in range(0, piece, 256):   # 256-row strips: ~1 GB peak; 1024 needed ~5 GB and paged
         zs = np.arange(r0, min(piece, r0 + 256), dtype=np.float64) + z0 + 0.5
@@ -384,14 +496,37 @@ def expand(plan_dir, out_dir, pi, pj, piece):
         rel = ndimage.map_coordinates(rp, [pz, px], order=1, mode="nearest")
         detail = fbm(X, Z, 256, 6, seed + 11) * (2 + 22 * rel) + fbm(X, Z, 48, 3, seed + 12) * (0.6 + 4 * rel)
         h = h + detail * (0.25 + 0.75 * np.clip((h - SEA) / 8, 0, 1))
+        # Lakes: re-carve at block resolution with the plan's own shore function, then flood
+        # every depression near the lake that lies below its level.
+        zlo, zhi = zs[0], zs[-1]
+        for p in ponds:
+            cx, cz, rad = p["at"][0], p["at"][1], p["r"]
+            if cz + 1.4 * rad < zlo or cz - 1.4 * rad > zhi or cx + 1.4 * rad < x0 or cx - 1.4 * rad > x0 + piece:
+                continue
+            c0, c1 = max(0, int(cx - 1.4 * rad - x0)), min(piece, int(cx + 1.4 * rad - x0) + 1)
+            sx, sz = X[:, c0:c1], Z[:, c0:c1]
+            dd = pond_distance(sx, sz, cx, cz, rad, seed + 9000 + p["id"])
+            hs = h[:, c0:c1]
+            hs = np.where(dd < 1, np.minimum(hs, p["level"] - 1 - p["depth"] * (1 - dd * dd)), hs)
+            h[:, c0:c1] = hs
+            if p["level"] > SEA:
+                wsl = Wt[r0:r0 + len(zs), c0:c1]
+                Wt[r0:r0 + len(zs), c0:c1] = np.where((dd < 1.3) & (hs < p["level"]), p["level"], wsl)
         H[r0:r0 + len(zs)] = np.clip(h * 257, 0, 255 * 257).astype(np.uint16)
         bi = np.clip(((wz + half) / PX).astype(np.int64), 0, bp.shape[0] - 1)
         bj = np.clip(((wx + half) / PX).astype(np.int64), 0, bp.shape[1] - 1)
         B[r0:r0 + len(zs)] = bp[bi, bj]
+        S[r0:r0 + len(zs)] = sp[bi, bj]
     Image.fromarray(H).save(f"{d}/height.png")
     Image.fromarray(B).save(f"{d}/biome.png")
+    Image.fromarray(Wt).save(f"{d}/water.png")       # 0 = the world's sea level
+    Image.fromarray(S).save(f"{d}/surface.png")      # SURFACES index + 1, 0 = none
+    mine = [p for p in ponds if p["level"] > SEA and x0 - 1.4 * p["r"] <= p["at"][0] <= x0 + piece + 1.4 * p["r"]
+            and z0 - 1.4 * p["r"] <= p["at"][1] <= z0 + piece + 1.4 * p["r"]]
+    json.dump([{"x": p["at"][0], "z": p["at"][1], "r": p["r"] * 1.6, "level": p["level"]} for p in mine],
+              open(f"{d}/lakes.json", "w"))
     open(f"{d}/origin.txt", "w").write(f"{x0} {z0}\n")
-    print(f"piece {pi},{pj}: origin {x0},{z0}, {piece} blocks -> {d}")
+    print(f"piece {pi},{pj}: origin {x0},{z0}, {piece} blocks, {len(mine)} raised lakes -> {d}")
 
 
 def main():

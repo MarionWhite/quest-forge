@@ -30,6 +30,27 @@ wp.applyHeightMap(biomes).toWorld(world).shift(x0, z0)
     .applyToLayer(biomeLayer).fromLevels(0, 255).toLevels(0, 255).go();
 biomes = null;
 
+// Lakes above sea level: water.png holds each block's water level (0 = the world's 62);
+// lakes.json bounds the few areas worth scanning.
+var lakesFile = new java.io.File(dir, "lakes.json");
+var raised = 0;
+if (lakesFile.exists()) {
+    var lakes = JSON.parse(String(new java.lang.String(java.nio.file.Files.readAllBytes(lakesFile.toPath()), "UTF-8")));
+    var wimg = javax.imageio.ImageIO.read(new java.io.File(dir, "water.png")).getRaster();
+    var size = wimg.getWidth();
+    for (var i = 0; i < lakes.length; i++) {
+        var L = lakes[i];
+        var ax = Math.max(0, Math.floor(L.x - L.r - x0)), bx = Math.min(size - 1, Math.ceil(L.x + L.r - x0));
+        var az = Math.max(0, Math.floor(L.z - L.r - z0)), bz = Math.min(size - 1, Math.ceil(L.z + L.r - z0));
+        for (var pz = az; pz <= bz; pz++)
+            for (var px = ax; px <= bx; px++) {
+                var lvl = wimg.getSample(px, pz, 0);
+                if (lvl > 0) { dim.setWaterLevelAt(x0 + px, z0 + pz, lvl); raised++; }
+            }
+    }
+}
+print("raised lake blocks: " + raised);
+
 wp.saveWorld(world).toFile(out).go();
 print("saved " + out + ": origin " + x0 + "," + z0 + ", " + dim.getTileCount() + " tiles, " + nb + " custom biomes");
 if (exportDir != null) {
