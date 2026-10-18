@@ -19,6 +19,13 @@ Biomes O' Plenty generates the **outskirts** as players explore.
 - Danger is designed by region. The JustAnotherSpawner tables are rebuilt around the painted
   biomes and spawn points.
 
+- The **outskirts beyond the sea are the hardest content in the game**, Valheim style. The
+  author decided this on 2026-10-17; the mechanism is not chosen yet.
+- The overworld continent is **sized after the author has tried WorldPainter**. The layout
+  keeps a striking focal point at the centre and a natural climate: cold and mountains to
+  the north, desert and tropics to the south. The pie-slice ring layout of draft v0 is
+  rejected.
+
 ## Why
 
 The author wanted RLCraft's biome quality and danger gradient, along with a hand in building
