@@ -631,9 +631,7 @@ function describe(idx) {
   // into. Quests and recipes have their own sections below, so nothing here repeats them.
   const it = items[idx], m = mods[it.m], box = el("div", "d-desc");
   const base0 = base(it.k), id0 = base0.slice(0, base0.lastIndexOf("@"));
-  const entry = LORE[base0] || LORE[id0];
-  const lore = entry && typeof entry === "object" ? entry.d : entry;
-  const get = entry && typeof entry === "object" ? entry.get : "";
+  const {lore, get} = entryOf(idx);
   const parts = [];
   if (!lore) { const what = whatItIs(it); parts.push(`${what[0].toUpperCase() + what.slice(1)} from ${m.name}.`); }
   if (it.a != null && D.kinds[it.c] === "weapon" && !it.u)
@@ -665,9 +663,17 @@ function describe(idx) {
   return box;
 }
 
+// The written entry for an item: an enchant book's own enchantment first, then the exact
+// variant, then the id. "How to get it" falls back the same way, so a book whose
+// enchantment entry says nothing on sourcing still shows how books are found.
+function entryOf(idx) {
+  const it = items[idx], b = base(it.k), id = b.slice(0, b.lastIndexOf("@"));
+  const chain = [it.en && LORE["enchant:" + it.en], LORE[b], LORE[id]].filter(Boolean);
+  const pick = f => { for (const e of chain) { const v = typeof e === "object" ? e[f] : (f === "d" ? e : ""); if (v) return v; } return ""; };
+  return {lore: pick("d"), get: pick("get")};
+}
 function lootOf(idx) {
-  const e = LORE[base(items[idx].k)] || LORE[base(items[idx].k).replace(/@[^@]*$/, "")];
-  return (e && typeof e === "object" && e.get) || (items[idx].lt || []).length ? "See “How to get it” above." : "";
+  return (entryOf(idx).get || (items[idx].lt || []).length) ? "See “How to get it” above." : "";
 }
 
 // ------------------------------------------------------------------ detail

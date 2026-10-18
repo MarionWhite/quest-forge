@@ -123,6 +123,9 @@ def main():
                          ('food', 'f'), ('ores', 'o'), ('tooltip', 'tt'), ('nbt', 'nbt'), ('unloc', 'ul')):
             if e.get(src) not in (None, '', []): r[dst] = e[src]
         if e.get('stack', 64) != 64: r['s'] = e['stack']
+        # qf-content's enchant books share one id; the enchantment inside names the description.
+        m = re.search(r'ench:"enchantment\.qf\.([A-Za-z0-9_]+)"', e.get('nbt') or '')
+        if m: r['en'] = m.group(1)
         if 'a' in r:
             r['a'] = round(r['a'] - 1, 2)  # the dump adds the player's base 1; show the tooltip's "+N"
         if e.get('rarity') not in (None, 'Common'): r['r'] = e['rarity']
