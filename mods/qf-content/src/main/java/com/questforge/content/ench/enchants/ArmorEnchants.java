@@ -93,7 +93,7 @@ public class ArmorEnchants {
             for (Object o : ctx.user.getActivePotionEffects().toArray()) {
                 PotionEffect effect = (PotionEffect) o;
                 Potion potion = Potion.potionTypes[effect.getPotionID()];
-                if (potion == null || !potion.isBadEffect()) continue;
+                if (potion == null || !isBadEffect(potion)) continue;
 
                 ctx.user.removePotionEffect(effect.getPotionID());
 
@@ -102,6 +102,20 @@ public class ArmorEnchants {
                     PotionEnchants.Tank.suppressSlowness((EntityPlayer) ctx.user);
                 }
                 return;   // one per hit
+            }
+        }
+
+        /**
+         * The same guard as Accelerant's (WeaponEnchants2): one potion in this pack
+         * throws NoSuchMethodError from isBadEffect(), and this runs inside
+         * LivingHurtEvent, so an unguarded call takes the hit down with it.
+         * Unanswerable means harmless: Cleansing skips it rather than crashing.
+         */
+        private static boolean isBadEffect(Potion potion) {
+            try {
+                return potion.isBadEffect();
+            } catch (Throwable t) {
+                return false;
             }
         }
     }
