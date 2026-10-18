@@ -1,0 +1,33 @@
+profile.POTATO=Potato
+profile.LOW=Low
+profile.MEDIUM=Medium
+profile.HIGH=High
+profile.ULTRA=Ultra
+profile.comment=Potato for integrated graphics, Low for a GTX 1060-class card, Medium is the default.
+
+option.QF_PRESET=Quality
+option.QF_PRESET.comment=Set by the profile. Potato: no shadows, no TAA. Low: 48-block shadows. High: 112-block shadows.
+value.QF_PRESET.0=Potato
+value.QF_PRESET.1=Low
+value.QF_PRESET.2=Medium
+value.QF_PRESET.3=High
+value.QF_PRESET.4=Ultra
+
+option.QF_NIGHT_FLOOR=Night Brightness
+option.QF_NIGHT_FLOOR.comment=The least light anywhere: how readable nights and caves are. 1.0 is the intended look.
+option.QF_EXPOSURE_BIAS=Exposure
+option.QF_EXPOSURE_BIAS.comment=Shifts the automatic exposure, in stops.
+option.QF_WAVING=Waving Plants
+value.QF_WAVING.0=Off
+value.QF_WAVING.1=On
+option.QF_DEBUG_VIEW=Debug View
+option.QF_DEBUG_VIEW.comment=For pack development: material IDs from block.properties, normals, the lightmap, the raw scene.
+value.QF_DEBUG_VIEW.0=Off
+value.QF_DEBUG_VIEW.1=Material IDs
+value.QF_DEBUG_VIEW.2=Normals
+value.QF_DEBUG_VIEW.3=Lightmap
+value.QF_DEBUG_VIEW.4=Raw scene
+option.QF_STILL=Freeze Animation
+option.QF_STILL.comment=Development only: stops wind, waves and star twinkle, for the temporal-noise test.
+value.QF_STILL.0=Off
+value.QF_STILL.1=On
