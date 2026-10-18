@@ -1,0 +1,123 @@
+# Continent v1 draft. Render: py -3.10 tools/world/plan.py render docs/design/world/continent-v1.yaml PLANDIR
+# Blocks, 0,0 at the centre, +x east, +z south (north is up on the map).
+# Regions with `at` share the land by nearest centre (organic borders); `size` makes one
+# claim more. `biomes` is a patchwork of real biome IDs with relative weights. Earlier
+# regions win, so the small hidden biomes and the centre come first.
+# Biome IDs: docs/survey/biome-ids.tsv.
+size: 32768
+seed: 41
+coast_warp: 1100
+region_warp: 1300
+blend_px: 16
+shore_width: 900
+shelf_width: 1500
+
+coast:
+  - [-8000, -12800]
+  - [-4000, -13600]
+  - [0, -13000]
+  - [3500, -13800]
+  - [7000, -12500]
+  - [9500, -10500]
+  - [10200, -7500]
+  - [11800, -5200]
+  - [11000, -2500]
+  - [8800, -1300]
+  - [9500, 1000]
+  - [12000, 2500]
+  - [12500, 5500]
+  - [11000, 8500]
+  - [9000, 10500]
+  - [6500, 11000]
+  - [4500, 13500]
+  - [2500, 14300]
+  - [600, 13200]
+  - [-1500, 11800]
+  - [-4500, 12300]
+  - [-7500, 11000]
+  - [-9800, 8500]
+  - [-11000, 5500]
+  - [-9000, 4200]
+  - [-9600, 2000]
+  - [-12000, 800]
+  - [-12500, -2500]
+  - [-11500, -5500]
+  - [-12600, -8500]
+  - [-10500, -11000]
+
+# Centre: a crater lake inside a broken crater rim, a volcano island in the middle.
+lakes:
+  - {circle: [0, -500, 1750]}
+islands:
+  - {circle: [0, -500, 650]}
+  - {circle: [10800, -12600, 800]}
+
+regions:
+  # Centre (T4)
+  - {tier: 4, biome: 250, base: 80, relief: 120, circle: [0, -500, 700]}
+  - {tier: 4, biomes: [[77, 2], [60, 1]], base: 95, relief: 140, circle: [0, -500, 2700]}
+
+  # Small hidden biomes
+  - {tier: 2, biome: 185, base: 78, relief: 40, circle: [-5200, -4800, 600]}
+  - {tier: 3, biome: 197, base: 100, relief: 50, circle: [3200, -4300, 450]}
+  - {tier: 1, biome: 147, base: 72, relief: 20, circle: [-7000, 6300, 700]}
+  - {tier: 3, biome: 186, base: 70, relief: 10, circle: [7200, 7600, 450]}
+  - {tier: 2, biome: 189, base: 74, relief: 30, circle: [1600, 4300, 500]}
+  - {tier: 2, biome: 14, base: 68, relief: 30, circle: [10800, -12600, 900]}
+  - {biome: 75, sea: true, circle: [5500, 14000, 1800]}
+  - {biome: 144, sea: true, circle: [-11800, 9600, 1700]}
+
+  # North: cold, beyond the northern range
+  - {tier: 2, biomes: [[239, 3], [66, 2], [74, 1]], base: 70, relief: 110, at: [-8500, -10500]}
+  - {tier: 3, biomes: [[247, 3], [61, 1], [89, 1]], base: 70, relief: 30, at: [-1000, -11000]}
+  - {tier: 3, biomes: [[89, 2], [86, 2], [192, 1]], base: 80, relief: 90, at: [6500, -10500]}
+
+  # Temperate middle
+  - {tier: 1, biomes: [[196, 3], [243, 2], [74, 1]], base: 76, relief: 70, at: [-9800, -2800]}
+  - {tier: 1, biomes: [[154, 2], [80, 2], [139, 1]], base: 74, relief: 50, at: [-5200, -3400]}
+  - {tier: 3, biomes: [[187, 2], [78, 1]], base: 74, relief: 60, at: [-6800, -300], size: 0.6}
+  - {tier: 2, biomes: [[74, 2], [59, 1], [142, 1]], base: 90, relief: 90, at: [0, -5200]}
+  - {tier: 2, biomes: [[142, 2], [183, 2], [141, 1]], base: 88, relief: 70, at: [7200, -6000]}
+  - {tier: 1, biomes: [[242, 2], [193, 1], [236, 1]], base: 70, relief: 35, at: [9800, -3800], size: 0.9}
+  - {tier: 2, biomes: [[138, 2], [253, 1], [70, 1]], base: 72, relief: 45, at: [5200, 300]}
+  - {tier: 2, biomes: [[159, 2], [84, 1], [64, 1]], base: 63, relief: 8, at: [-4600, 2600]}
+  - {tier: 1, biomes: [[73, 2], [188, 1], [85, 1]], base: 72, relief: 45, at: [-8200, 4600], size: 0.9}
+
+  # South: warm, tropical and desert
+  - {tier: 2, biomes: [[245, 3], [62, 1], [21, 1]], base: 70, relief: 80, at: [-6500, 9000]}
+  - {tier: 2, biomes: [[35, 2], [70, 1], [254, 1]], base: 72, relief: 40, at: [-1200, 6800]}
+  - {tier: 1, biomes: [[246, 2], [153, 2], [195, 1]], base: 66, relief: 30, at: [3000, 11800]}
+  - {tier: 3, biomes: [[2, 3], [190, 2], [148, 1], [37, 1]], base: 70, relief: 60, at: [7800, 6400], size: 1.3}
+  - {tier: 3, biomes: [[251, 2], [78, 1]], base: 71, relief: 50, at: [11000, 2600], size: 0.55}
+
+ridges:
+  # The northern range: the cold lands lie beyond it
+  - {points: [[-10500, -5600], [-8000, -7400], [-5000, -8300], [-2500, -7600]], height: 200, width: 2200, relief: 220, biome: 60, biome_above: 0.55}
+  - {points: [[-1500, -8600], [1500, -7800], [4500, -8900], [7000, -8200]], height: 225, width: 2800, relief: 230, biome: 60, biome_above: 0.5}
+  - {points: [[6500, -7000], [8500, -6200], [10500, -7600]], height: 185, width: 1900, relief: 210, biome: 60, biome_above: 0.6}
+  # Crater rim, broken east and west where the lake drains
+  - {arc: [0, -500, 2300, 25, 155], height: 195, width: 1300, relief: 220, biome: 77, biome_above: 0.5}
+  - {arc: [0, -500, 2300, 205, 335], height: 195, width: 1300, relief: 220, biome: 77, biome_above: 0.5}
+  # Volcano cone on the island
+  - {points: [[0, -500], [1, -499]], height: 220, width: 1300, relief: 160, biome: 250, biome_above: 0.2}
+  # Western coastal range (the rain falls on the redwoods west of it)
+  - {points: [[-10200, -6000], [-10700, -2000], [-10000, 2000]], height: 140, width: 1300, relief: 160}
+  # Desert mesas
+  - {points: [[6000, 4500], [8000, 6000], [9000, 8500]], height: 112, width: 900, relief: 230}
+
+rivers:
+  - {points: [[2300, -500], [5000, 800], [7800, -800], [9300, -600]], width: 40}
+  - {points: [[-2300, -500], [-5000, 300], [-7800, 1500], [-9300, 3000]], width: 40}
+  - {points: [[-3000, -7800], [-4000, -10500], [-4000, -13800]], width: 32}
+  - {points: [[4000, -8000], [5000, -11000], [4600, -14000]], width: 32}
+  - {points: [[0, 1900], [-800, 5000], [1000, 9000], [1800, 14000]], width: 40}
+  - {points: [[-4000, 4000], [-6500, 7500], [-8800, 9500], [-10500, 9800]], width: 32}
+
+points:
+  - {kind: spawn, tier: 1, x: -11300, z: -2600}
+  - {kind: spawn, tier: 1, x: -8600, z: 5300}
+  - {kind: spawn, tier: 1, x: 3000, z: 12600}
+  - {kind: spawn, tier: 1, x: 10400, z: -4300}
+  - {kind: spawn, tier: 2, x: -9000, z: -10800}
+  - {kind: spawn, tier: 2, x: -8000, z: 9600}
+  - {kind: spawn, tier: 3, x: 0, z: -12300}

@@ -13,7 +13,7 @@ hand-editable images:
 `expand` writes OUTDIR/piece_I_J/{height.png,biome.png,origin.txt} for tools/world/wp_piece.js.
 All noise is a function of world coordinates, so neighbouring pieces meet without a seam.
 """
-import argparse, json, math, os, sys
+import argparse, json, math, os, re, sys
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 from scipy import ndimage
@@ -95,7 +95,8 @@ def render(spec_path, plan_dir):
     import yaml
     spec = yaml.safe_load(open(spec_path, encoding="utf-8"))
     for r in spec["regions"]:
-        r["polygon"] = region_polygon(r)
+        if "at" not in r:
+            r["polygon"] = region_polygon(r)
     size = spec["size"]
     n = size // PX
     seed = spec.get("seed", 1)
@@ -106,17 +107,22 @@ def render(spec_path, plan_dir):
     warp = spec.get("coast_warp", 600)
     wx = gx + warp * fbm(gx, gz, 2400, 4, seed + 1)
     wz = gz + warp * fbm(gx, gz, 2400, 4, seed + 2)
-    img = Image.new("L", (n, n), 0)
-    ImageDraw.Draw(img).polygon(_poly(n, spec["coast"], size), fill=255)
-    for isl in spec.get("islands", []):
-        ImageDraw.Draw(img).polygon(_poly(n, isl, size), fill=255)
-    land0 = np.asarray(img) > 0
-    land = ndimage.map_coordinates(land0.astype(np.float32), [(wz + half) / PX - 0.5, (wx + half) / PX - 0.5],
-                                   order=1, mode="constant") > 0.5
-    for lake in spec.get("lakes", []):
-        li = Image.new("L", (n, n), 0)
-        ImageDraw.Draw(li).polygon(_poly(n, lake["polygon"], size), fill=255)
-        land &= ~(np.asarray(li) > 0)
+    def warped_mask(polys, wxx, wzz):
+        img = Image.new("L", (n, n), 0)
+        for p in polys:
+            ImageDraw.Draw(img).polygon(_poly(n, p, size), fill=255)
+        return ndimage.map_coordinates((np.asarray(img) > 0).astype(np.float32),
+                                       [(wzz + half) / PX - 0.5, (wxx + half) / PX - 0.5], order=1, mode="constant") > 0.5
+
+    land = warped_mask([spec["coast"]], wx, wz)
+    # Lakes ({polygon} or {circle: [x, z, r]}) cut the land; islands come after, so an island
+    # can stand in a lake.
+    lakes = [region_polygon(l) for l in spec.get("lakes", [])]
+    if lakes:
+        land &= ~warped_mask(lakes, gx + 0.3 * (wx - gx), gz + 0.3 * (wz - gz))
+    isl = [region_polygon(i) if isinstance(i, dict) else i for i in spec.get("islands", [])]
+    if isl:
+        land |= warped_mask(isl, gx + 0.3 * (wx - gx), gz + 0.3 * (wz - gz))
 
     d_in = ndimage.distance_transform_edt(land) * PX       # blocks to the sea, on land
     d_out = ndimage.distance_transform_edt(~land) * PX     # blocks to land, at sea
@@ -130,12 +136,26 @@ def render(spec_path, plan_dir):
     rwarp = spec.get("region_warp", 500)
     rx = gx + rwarp * fbm(gx, gz, 1800, 4, seed + 3)
     rz = gz + rwarp * fbm(gx, gz, 1800, 4, seed + 4)
+    # Regions given as {at: [x, z], size: s} split the land between them by (warped) nearest
+    # centre, size-weighted: organic shapes with no drawn borders.
+    cells = [k for k, r in enumerate(spec["regions"]) if "at" in r]
+    if cells:
+        best = np.full((n, n), np.inf, np.float32)
+        cell_owner = np.full((n, n), -1, np.int32)
+        for k in cells:
+            (cx, cz), s = spec["regions"][k]["at"], spec["regions"][k].get("size", 1.0)
+            dd = np.hypot(rx - cx, rz - cz) / s
+            closer = dd < best
+            best[closer], cell_owner[closer] = dd[closer], k
     sea_regions = []
     for k, r in enumerate(spec["regions"]):
-        ri = Image.new("L", (n, n), 0)
-        ImageDraw.Draw(ri).polygon(_poly(n, r["polygon"], size), fill=255)
-        m = ndimage.map_coordinates((np.asarray(ri) > 0).astype(np.float32),
-                                    [(rz + half) / PX - 0.5, (rx + half) / PX - 0.5], order=1, mode="constant") > 0.5
+        if "at" in r:
+            m = cell_owner == k
+        else:
+            ri = Image.new("L", (n, n), 0)
+            ImageDraw.Draw(ri).polygon(_poly(n, r["polygon"], size), fill=255)
+            m = ndimage.map_coordinates((np.asarray(ri) > 0).astype(np.float32),
+                                        [(rz + half) / PX - 0.5, (rx + half) / PX - 0.5], order=1, mode="constant") > 0.5
         if r.get("sea"):          # a sea biome (reef, kelp): painted over water only, after the floor
             sea_regions.append((m, r["biome"]))
             continue
@@ -149,8 +169,23 @@ def render(spec_path, plan_dir):
     if unowned.any():   # land outside every region takes its nearest region
         idx = ndimage.distance_transform_edt(owner < 0, return_distances=False, return_indices=True)
         owner[unowned] = owner[idx[0][unowned], idx[1][unowned]]
-    ids = np.array([r["biome"] for r in spec["regions"]], np.uint8)   # sea regions never own land
-    biome[land] = ids[owner[land]]
+    # A region paints one biome ({biome: id}) or a patchwork ({biomes: [[id, weight], ...]}):
+    # each biome gets its own noise field plus a weight bias, and the highest wins.
+    for k, r in enumerate(spec["regions"]):
+        if r.get("sea"):
+            continue
+        m = land & (owner == k)
+        mix = r.get("biomes") or [[r["biome"], 1]]
+        if len(mix) == 1:
+            biome[m] = mix[0][0]
+            continue
+        ws = np.array([w for _, w in mix], np.float32)
+        ws = ws / ws.sum()
+        patch = r.get("patch", 1600)
+        score = np.stack([fbm(gx[m], gz[m], patch, 3, seed + 1000 + 37 * b) + 2.2 * (w - ws.mean())
+                          for (b, _), w in zip(mix, ws)])
+        biome[m] = np.array([b for b, _ in mix], np.uint8)[score.argmax(0)]
+        r.setdefault("biome", mix[0][0])
     w = np.maximum(weight, 1e-3)
     base, relief = base / w, relief / w
 
@@ -211,16 +246,35 @@ def render(spec_path, plan_dir):
     Image.fromarray(biome).save(f"{plan_dir}/biome.png")
     Image.fromarray(np.clip(relief, 0, 255).astype(np.uint8)).save(f"{plan_dir}/relief.png")
     meta = {k: spec[k] for k in ("size", "seed") if k in spec}
-    # Regions are labelled by their real biome name, never an invented one.
-    names = biome_names()
-    meta["labels"] = [{"name": names.get(r["biome"], f"biome {r['biome']}") + (f" (T{r['tier']})" if "tier" in r else ""),
-                       "polygon": r["polygon"]} for r in spec["regions"]]
+    # Biome patches are labelled in the preview from biome.png by their real names; regions
+    # only carry their tier, shown at the centre of the land they own.
+    meta["regions"] = []
+    for k, r in enumerate(spec["regions"]):
+        zz, xx = np.nonzero(land & (owner == k))
+        if len(xx) and "tier" in r:
+            meta["regions"].append({"tier": r["tier"], "x": float(xx.mean() * PX - half), "z": float(zz.mean() * PX - half)})
+    Image.fromarray(np.where(land, owner + 1, 0).astype(np.uint8)).save(f"{plan_dir}/regions.png")
     meta["points"] = spec.get("points", [])
     json.dump(meta, open(f"{plan_dir}/plan.json", "w"), indent=1)
     print(f"plan {n}x{n} px ({size} blocks): land {land.mean():.0%}, max y {h.max():.0f}")
 
 
 # ---------------------------------------------------------------- preview
+
+PREVIEW_PALETTE = [
+    (r"volcan|wasteland|ash", (95, 80, 80)),
+    (r"snow|frost|glacier|polar|arctic|ice|tundra|frozen", (225, 232, 240)),
+    (r"alps|crag|mountain|cliff|highland|extreme", (150, 150, 150)),
+    (r"redwood", (120, 55, 40)),
+    (r"desert|dune|mesa|outback|xeric|steppe|savanna|brush|scrub|oasis", (215, 185, 110)),
+    (r"swamp|bog|fen|marsh|moor|bayou|wetland|mangrove|quagmire", (80, 100, 70)),
+    (r"jungle|tropic|rainforest|bamboo", (40, 140, 50)),
+    (r"ominous|dead|mystic|spectral", (90, 70, 110)),
+    (r"taiga|conifer|boreal|spruce|pine", (45, 95, 75)),
+    (r"cherry|lavender|flower|orchard|garden", (215, 150, 190)),
+    (r"forest|wood|grove|maple|thicket", (70, 130, 55)),
+    (r"plain|prairie|meadow|grass|heath|shrub|field", (140, 180, 95)),
+]
 
 MOD_PREFIX = {"Biomes O' Plenty": "BoP ", "Realistic World Gen": "RWG ", "Welcome to the Jungle": "Jungle "}
 
@@ -241,8 +295,14 @@ def preview(plan_dir):
     h = np.asarray(Image.open(f"{plan_dir}/height.png")).astype(np.float32) / 257
     b = np.asarray(Image.open(f"{plan_dir}/biome.png"))
     meta = json.load(open(f"{plan_dir}/plan.json"))
+    names = biome_names()
     rng = np.random.default_rng(7)
     lut = rng.integers(60, 220, (256, 3)).astype(np.float32)
+    for bid, nm in names.items():   # family colour by name, jittered so neighbours still differ
+        for pat, col in PREVIEW_PALETTE:
+            if re.search(pat, nm, re.I):
+                lut[bid] = np.clip(np.array(col) + rng.integers(-22, 23, 3), 0, 255)
+                break
     lut[OCEAN], lut[DEEP_OCEAN], lut[RIVER], lut[BEACH] = (60, 110, 190), (30, 60, 140), (70, 130, 220), (220, 205, 150)
     rgb = lut[b]
     gy, gx = np.gradient(h)
@@ -260,17 +320,33 @@ def preview(plan_dir):
         font = ImageFont.load_default()
     half, k = meta["size"] / 2, scale / PX
     names = biome_names()
-    for lab in meta["labels"]:
-        # Label at the polygon's area centroid (a ring sector's vertex mean sits off the ring).
-        pts = lab["polygon"]
-        a = cx = cz = 0.0
-        for (x1, z1), (x2, z2) in zip(pts, pts[1:] + pts[:1]):
-            c = x1 * z2 - x2 * z1
-            a, cx, cz = a + c, cx + (x1 + x2) * c, cz + (z1 + z2) * c
-        if abs(a) < 1e-6:
+    small = ImageFont.truetype("arial.ttf", max(10, n * scale // 150)) if font != ImageFont.load_default() else font
+    # Region borders (thin dark lines) from regions.png.
+    if os.path.exists(f"{plan_dir}/regions.png"):
+        reg = np.asarray(Image.open(f"{plan_dir}/regions.png")).astype(np.int32)
+        edge = ((reg != np.roll(reg, 1, 0)) | (reg != np.roll(reg, 1, 1))) & (reg > 0) & (np.roll(reg, 1, 0) > 0) & (np.roll(reg, 1, 1) > 0)
+        ez, ex = np.nonzero(edge)
+        for z, x in zip(ez, ex):
+            dr.rectangle((x * scale, z * scale, x * scale + scale - 1, z * scale + scale - 1), fill=(25, 25, 25))
+    # Every biome patch big enough to read gets its real name.
+    # Label each patch of each biome at its most interior pixel, so the text sits inside it.
+    min_px = (n / 32) ** 2
+    for bid in np.unique(b):
+        if bid in (OCEAN, DEEP_OCEAN, RIVER, BEACH):
             continue
-        cx, cz = (cx / (3 * a) + half) * k, (cz / (3 * a) + half) * k
-        dr.text((cx, cz), lab["name"], fill="white", font=font, anchor="mm", stroke_width=2, stroke_fill="black")
+        lab, nlab = ndimage.label(b == bid)
+        for i in range(1, nlab + 1):
+            comp = lab == i
+            if comp.sum() < min_px:
+                continue
+            inner = ndimage.distance_transform_edt(comp)
+            zz, xx = np.unravel_index(inner.argmax(), inner.shape)
+            dr.text((xx * scale, zz * scale), names.get(int(bid), f"biome {bid}"), fill="white", font=small,
+                    anchor="mm", stroke_width=2, stroke_fill="black")
+    for r in meta.get("regions", []):
+        x, z = (r["x"] + half) * k, (r["z"] + half) * k
+        dr.ellipse((x - 16, z - 16, x + 16, z + 16), fill=(20, 20, 20), outline="white", width=2)
+        dr.text((x, z), f"T{r['tier']}", fill="white", font=small, anchor="mm")
     for p in meta["points"]:
         x, z = (p["x"] + half) * k, (p["z"] + half) * k
         col = {"spawn": "#ffe14d", "landmark": "#ff5050"}.get(p.get("kind"), "white")
