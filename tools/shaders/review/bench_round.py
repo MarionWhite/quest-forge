@@ -35,7 +35,7 @@ GALLERY = os.path.join(HERE, "gallery-shader.txt")
 DEBUG_JAR = r"C:\qfb\shaderdev\jars\QuestForgeContent-1.0.0.jar"
 WORLD = r"C:\qfb\world-master"
 ROUNDS = r"C:\qfb\shaderdev\rounds"
-ALL_SCENES = "static,plains_noon,forest_golden,shore_noon,shore_sunset,night_full,night_new,underwater,torch,gallery"
+ALL_SCENES = "static,plains_noon,forest_golden,shore_noon,shore_sunset,night_full,night_new,night_moon,underwater,torch,gallery"
 SHADER_ERR = re.compile(r"(error|Error|ERROR|Failed to|failed to|Exception).*(shader|Shader|program|GLSL|Iris|iris)"
                         r"|(shader|Shader|Iris|iris).*(error|Error|ERROR|failed|Failed)")
 
@@ -80,6 +80,39 @@ def set_kv(path, kv, sep):
         f.write("\n".join(lines) + "\n")
 
 
+def run_client(a, d, cmd, t0):
+    """Launch, follow until exit. True if it died early after a pipeline rebuild."""
+    r = subprocess.run(cmd, capture_output=True, text=True)
+    print(r.stdout.strip())
+    if r.returncode != 0:
+        print(r.stderr.strip())
+        sys.exit(f"launch failed ({r.returncode})")
+    pid = int(open(os.path.join(d, "pid")).read().strip())
+    shown = 0
+    while trial.pid_alive(pid):
+        # A client started from a non-interactive shell can come up minimized and stall;
+        # SW_SHOWNOACTIVATE makes it visible without stealing focus (as trial.py --wait does).
+        if shown < 3 and time.time() - t0 > 10 + 20 * shown:
+            trial.ps("Add-Type -Name W -Namespace Q -MemberDefinition '[DllImport(\"user32.dll\")] "
+                     "public static extern bool ShowWindow(System.IntPtr h, int c);'; "
+                     f"$p = Get-Process -Id {pid} -ErrorAction SilentlyContinue; "
+                     "if ($p -and $p.MainWindowHandle -ne 0) { [Q.W]::ShowWindow($p.MainWindowHandle, 4) | Out-Null }")
+            shown += 1
+        if time.time() - t0 > a.timeout_min * 60:
+            print("timeout: stopping the trial")
+            subprocess.run([sys.executable, "-I", TRIAL_PY, "stop", a.name])
+            break
+        time.sleep(10)
+    held = trial.read_lock()
+    if held and held.get("pid") == pid and os.path.exists(trial.LOCK):
+        os.remove(trial.LOCK)
+    took = time.time() - t0
+    print(f"client exited after {took:.0f} s")
+    log = os.path.join(d, "logs", "latest.log")
+    rebuilt = os.path.exists(log) and "[Load #2]" in open(log, encoding="utf-8", errors="replace").read()
+    return took < 120 and rebuilt
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--tag", required=True)
@@ -92,6 +125,8 @@ def main():
                     help="render this pack instead (unmodified; e.g. Complementary as a reference frame only)")
     ap.add_argument("--source", default=trial.LIVE, help="instance the trial copies jars, config and options from")
     ap.add_argument("--mods", default="qfcontent,twilightforest", help="catalog keys beyond the base set")
+    ap.add_argument("--reload", default="", metavar="SCENES",
+                    help="call Iris.reload() (the F9 key) before these scenes, comma-separated")
     ap.add_argument("--name", default="shaderdev", help="trial name")
     ap.add_argument("--xmx", default="3G")
     ap.add_argument("--wait-min", type=int, default=240, help="how long to wait for the GPU")
@@ -133,35 +168,21 @@ def main():
     cmd = [sys.executable, "-I", TRIAL_PY, "launch", a.name, "--size", a.size, "--xmx", a.xmx, "--owner", "shader-dev"]
     for p in props:
         cmd += ["-D", p]
-    t0 = time.time()
-    r = subprocess.run(cmd, capture_output=True, text=True)
-    print(r.stdout.strip())
-    if r.returncode != 0:
-        print(r.stderr.strip())
-        sys.exit(f"launch failed ({r.returncode})")
-    pid = int(open(os.path.join(d, "pid")).read().strip())
+    if a.reload:
+        cmd += ["-D", f"qf.bench.reload={a.reload}"]
     result = os.path.join(d, "bench", a.tag + ".txt")
-    shown = 0
-    while trial.pid_alive(pid):
-        # A client started from a non-interactive shell can come up minimized and stall;
-        # SW_SHOWNOACTIVATE makes it visible without stealing focus (as trial.py --wait does).
-        if shown < 3 and time.time() - t0 > 10 + 20 * shown:
-            trial.ps("Add-Type -Name W -Namespace Q -MemberDefinition '[DllImport(\"user32.dll\")] "
-                     "public static extern bool ShowWindow(System.IntPtr h, int c);'; "
-                     f"$p = Get-Process -Id {pid} -ErrorAction SilentlyContinue; "
-                     "if ($p -and $p.MainWindowHandle -ne 0) { [Q.W]::ShowWindow($p.MainWindowHandle, 4) | Out-Null }")
-            shown += 1
-        if time.time() - t0 > a.timeout_min * 60:
-            print("timeout: stopping the trial")
-            subprocess.run([sys.executable, "-I", TRIAL_PY, "stop", a.name])
-            break
-        time.sleep(10)
-    held = trial.read_lock()
-    if held and held.get("pid") == pid and os.path.exists(trial.LOCK):
-        os.remove(trial.LOCK)
-    print(f"client exited after {time.time() - t0:.0f} s")
-
     log = os.path.join(d, "logs", "latest.log")
+    for attempt in (1, 2):
+        t0 = time.time()
+        crashed_early = run_client(a, d, cmd, t0)
+        if os.path.exists(result) or not crashed_early or attempt == 2:
+            break
+        # Angelica 2.2.33: when the pack's transform misses the shader disk cache, Iris builds
+        # the pipeline before the game's last resource reload and again after it ([Load #2]);
+        # the rebuilt pipeline's full-screen quad then draws with a stale VAO and the JVM dies
+        # at the first world frame. The failed boot has filled the cache, so the retry loads once.
+        print("  early crash after a pipeline rebuild ([Load #2]): retrying once with the warm shader cache")
+
     if os.path.exists(log):
         errs = [l.strip() for l in open(log, encoding="utf-8", errors="replace") if SHADER_ERR.search(l)]
         for l in errs[:40]:
