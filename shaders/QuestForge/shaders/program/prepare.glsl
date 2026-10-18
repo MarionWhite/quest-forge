@@ -19,7 +19,6 @@ void main() {
 #ifdef FSH
 
 uniform sampler2D colortex3;
-const bool colortex3MipmapEnabled = true;
 
 /* RENDERTARGETS: 5 */
 layout(location = 0) out vec4 outLut;
@@ -146,15 +145,18 @@ void ambientIrradiance(out vec3 up, out vec3 side) {
 }
 
 vec4 computeExposure(float prevExposure) {
-    float lod = max(floor(log2(max(viewWidth, viewHeight))) - 5.0, 0.0);
+    // Level 0, sampled sparsely. Not the mip chain: Angelica does not rebuild colortex3's
+    // mips for a read in prepare, and round 4 found the meter reading stale levels (night
+    // exposure stuck near 9 on every preset, its ceiling 48). 576 texel reads, one pixel.
     float sum = 0.0, wsum = 0.0;
-    const int GX = 16, GY = 9;
+    const int GX = 32, GY = 18;
+    ivec2 size = ivec2(viewWidth, viewHeight);
     for (int y = 0; y < GY; y++) {
         for (int x = 0; x < GX; x++) {
             vec2 uv = (vec2(x, y) + 0.5) / vec2(GX, GY);
             vec2 c = uv - 0.5;
             float w = exp(-dot(c, c) * 4.0);   // centre-weighted
-            float l = luminance(textureLod(colortex3, uv, lod).rgb);
+            float l = luminance(texelFetch(colortex3, ivec2(uv * vec2(size)), 0).rgb);
             sum += log2(max(l, 1e-6)) * w;
             wsum += w;
         }
