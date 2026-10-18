@@ -15,6 +15,49 @@ Hodgepodge 2.7.216, ArchaicFix 0.8.0 and GTNH CodeChickenCore 1.4.22 on Forge
 10.13.4.1614, with OptiFine, FastCraft and BetterFps removed. "Java 25 server"
 means Temurin 25.0.4 + lwjgl3ify 3.0.39 (forgePatches launcher).
 
+## Update, 2026-10-18: GTNH CodeChickenCore everywhere, server in online mode
+
+The user decided on 2026-10-18 to run **GTNH CodeChickenCore 1.4.22** on the
+server and every client, and to put the friends' server in **online mode**. Both
+are done. This was the last step of the shape above. E7 and Angelica clients now
+run the same CodeChickenCore, so both can join the same server.
+
+| Item | Status | How |
+|---|---|---|
+| Live pack | **done** | `trial.py install CodeChickenCore-1.4.22.jar --replace CodeChickenCore.jar` (sha1 `f4b6d5e12fdd`, the same as nexus.gtnewhorizons.com) and `trial.py uninstall "1.7.10/CodeChickenLib-*.jar"`. Backups `_backup-install-20261018-104324` and `-104326`. NEI, ForgeMultipart, ChickenChunks, EnderStorage and WR-CBE only ask for CCC 1.0.3 to 1.0.7 or newer, so ForgeMultipart stays stock. |
+| Friends' server | **done** | Rebuilt with `--java25 --online-mode true` and no `--ccl`. Booted supervised with no offline-mode warning, then stopped. Still no world. |
+| Pregeneration | **no patch needed** | GTNH CCC already null-guards `unloadChunk`. 40,000 chunks, 0 failed. The stock CCC + CCL control crashed on the NPE in its first second. |
+| Tooling | **done** | `trial.py uninstall` and `install --replace`; the catalog, the Angelica manifest (no CCC swap) and `build_play_server.py` (`--ccl` only for stock CCL) updated. |
+
+Tested, one client at a time:
+
+- **E7 client, full live pack** (`trial.py` copy of all 112 live jars, Enhanced
+  Default). It boots to a fresh world. The ERROR signatures match the 10-17
+  baseline, apart from trial paths and the shader pack. In NEI, the furnace has
+  2 recipe handlers, iron ingot 6 (crafting, smelting, ProjectE) and 9 for its
+  uses (Railcraft, BuildCraft and others). The Ender Chest recipe opens too.
+- **E7 join** to a scratch copy of the server with `online-mode=false` (the
+  friends' server needs a real account, which the offline test launcher doesn't
+  have). `[packcheck] Dev OK`, connected 3 min 25 s, about 200 fps.
+- **Angelica client** (`C:\qfb\client-ang2`, given live's three pack jars):
+  - Joined the same scratch server with Complementary Unbound: `[packcheck] Dev OK`,
+    connected 3 min 26 s, about 150 fps. The only server ERROR was at the client's quit.
+  - With Sildur's Vibrant it crashed twice (access violation) at the first frame
+    in the world. Each time `Shader disk cache write failed (AccessDeniedException)`
+    came just before, then `[Load #2]`, the second pipeline build. That is the
+    Angelica cache-miss trap already known from the shader work.
+  - The same client with the same Vibrant pack ran cleanly in singleplayer (no
+    `Load #2`), and the 10-17 Vibrant join had no `Load #2` either. So this is
+    Angelica's shader cache, not CodeChickenCore.
+  - Vanilla `--server` connects on the first menu frame. Twice that was too
+    early ("Timeout waiting for client thread to catch up!"), so the test probe
+    connected after 45 s at the menu instead.
+- **Not tested: a real online-mode join.** It needs the user's own account and a
+  launcher that logs in. Before friends join, the whitelist needs their real
+  names (`docs/setup/hosting-a-server.md`, "Online mode").
+
+Evidence: `C:\qfb\ccc-2026-10-18\evidence\`.
+
 ## Update, 2026-10-17 evening: the Angelica client is built
 
 The user approved the Angelica client on 2026-10-17. It is built in the one
@@ -490,7 +533,8 @@ them). How to build, switch and switch back: `docs/setup/hosting-a-server.md`,
 **Stock CodeChickenCore stays on the server for now.** With it, Angelica
 clients are kicked (test 1, coupled path), so the Angelica client phase must
 swap CodeChickenCore + CodeChickenLib for GTNH CodeChickenCore 1.4.22 on the
-server and on every client at once.
+server and on every client at once. (Done on 2026-10-18; see the update at the
+top.)
 
 Tested in throwaway dirs (`C:\qfs\friends-j25-test`, port 25650, and a Java 8
 twin `C:\qfs\friends-j8-test`), both built by the builder from the live

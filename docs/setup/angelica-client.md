@@ -17,7 +17,7 @@ older. Both clients can play on the same server (see below).
 |---|---|---|
 | Forge | 10.13.4.1558, hand-patched jar | 10.13.4.1614, stock jar |
 | Renderer mods | OptiFine E7, FastCraft, BetterFps | Angelica 2.2.33, UniMixins 0.3.2, GTNHLib 0.11.54 |
-| CodeChicken | CodeChickenCore + CodeChickenLib | GTNH CodeChickenCore 1.4.22 (CCL merged in) |
+| CodeChicken | GTNH CodeChickenCore 1.4.22 (CCL merged in), since 2026-10-18 | the same |
 | Loading screen and splash music | from the patched Forge jar | from QuestForgeTweaks (`SplashTransformer`); looks and sounds the same |
 | Shader packs | Sildur's Vibrant, Enhanced Default | the same, plus Complementary Unbound |
 | Zoom | C | C |
@@ -36,7 +36,7 @@ You need a working E7 install first (the client-instance release; see
 [`transfer-from-windows.md`](transfer-from-windows.md)). The script copies it
 into a new folder and changes only the new copy.
 
-1. Download the four jars in `manifest.json` (`mods_add`) and the Forge 1614
+1. Download the three jars in `manifest.json` (`mods_add`) and the Forge 1614
    universal jar (`forge.add`) into one folder, e.g. `C:\QuestForge-downloads`.
    The script checks each SHA-1 and refuses a jar that differs.
 2. Optionally download Complementary Unbound
@@ -50,6 +50,9 @@ into a new folder and changes only the new copy.
        --add-shaderpack C:\QuestForge-downloads\ComplementaryUnbound_r5.9.3.zip
    ```
 
+   `--from` must already run GTNH CodeChickenCore 1.4.22 (any E7 install updated
+   on or after 2026-10-18; `source_must_have` in the manifest). The script
+   refuses one that still has stock `CodeChickenCore.jar` or CodeChickenLib.
    `--from` is only read. Add `--with-saves` to copy your worlds,
    `--pack-jars DIR` to use freshly built pack jars, `--shader off` to start
    with shaders off. On one drive the big files (assets, mods, resources) are
@@ -72,9 +75,9 @@ singleplayer and LAN, not for the online-mode friends' server.
 What the script changes in the copy:
 
 - `bin\lib`: Forge 1558 out, Forge 1614 in.
-- `mods`: OptiFine, FastCraft, BetterFps, `CodeChickenCore.jar` and
-  `1.7.10\CodeChickenLib-...jar` out; Angelica, UniMixins, GTNHLib and GTNH
-  CodeChickenCore in. Hodgepodge and ArchaicFix are removed if present.
+- `mods`: OptiFine, FastCraft and BetterFps out; Angelica, UniMixins and GTNHLib
+  in. Hodgepodge and ArchaicFix are removed if present. CodeChickenCore is not
+  touched: the E7 pack already runs GTNH CodeChickenCore 1.4.22.
 - `config\angelica-options.json`: `vsync_mode: OFF`, so Angelica does not pace
   frames to the monitor (E7 ran with vsync off too; `maxFps` in Options still
   caps it).
@@ -95,9 +98,11 @@ What the script changes in the copy:
    **10.13.4.1614**. This replaces the patched 1558 jar with stock 1614; the
    loading screen and music still work because QuestForgeTweaks carries them.
 3. **Edit -> Mods**: disable or delete `OptiFine_1.7.10_HD_U_E7.jar`,
-   `fastcraft-1.25.jar`, `BetterFps-1.0.1.jar`, `CodeChickenCore.jar` and
-   `1.7.10/CodeChickenLib-1.7.10-1.1.3.138-universal.jar`. Add the four jars
-   from `manifest.json` (`mods_add`).
+   `fastcraft-1.25.jar` and `BetterFps-1.0.1.jar`. Add the three jars from
+   `manifest.json` (`mods_add`). The instance must already have
+   `CodeChickenCore-1.4.22.jar` and no `CodeChickenCore.jar` or
+   `1.7.10/CodeChickenLib-*.jar`. If it has them, it predates 2026-10-18: make
+   that swap in the E7 instance first.
 4. Open the instance folder (`.minecraft`) and copy in
    `tools/angelica-client/overlay/config/angelica-options.json` and
    `angelica-modules.cfg` (into `config\`; if Angelica already wrote them, set
@@ -112,9 +117,13 @@ What the script changes in the copy:
   at all. An Angelica client with Hodgepodge in its own mods is kicked by a
   server without it (`packet 53` mismatch).
 - Everyone, server included, runs **GTNH CodeChickenCore 1.4.22** instead of
-  stock CodeChickenCore + CodeChickenLib. With a mismatch, NEI's packets differ
-  and the client is kicked 5 s after login. E7 clients swap the same two jars
-  and keep OptiFine. (`docs/setup/hosting-a-server.md` covers the server side.)
+  stock CodeChickenCore + CodeChickenLib, since 2026-10-18. With a mismatch,
+  NEI's packets differ and the client is kicked 5 s after login. E7 clients run
+  the same jar and keep OptiFine. (`docs/setup/hosting-a-server.md`,
+  "CodeChickenCore", covers it.)
+- The friends' server is in **online mode**: join from a launcher that signs in
+  with a real account (Prism). `LAUNCH-ANGELICA.bat` is offline and is refused
+  there (hosting guide, "Online mode").
 - The server's pack check compares the versions of mods both sides have
   (QuestForgeTweaks, QuestForgeContent, qf-commands...). Use the pack jars the
   server was built from; Angelica's own jars are client-only and ignored.

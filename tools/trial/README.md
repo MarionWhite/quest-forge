@@ -53,8 +53,9 @@ py -3.10 tools/trial/trial.py launch shaders --size 1920x1080 --wait
 ```
 
 `--renderer angelica` swaps the base set's OptiFine, BetterFps and FastCraft for Angelica 2.2.33,
-UniMixins and GTNHLib, resolves `codechickencore` to GTNH CodeChickenCore 1.4.22 (CodeChickenLib
-merged in), and launches on stock Forge 1614 instead of the live 1558 jar. The jars and hashes are
+UniMixins and GTNHLib, and launches on stock Forge 1614 instead of the live 1558 jar. CodeChickenCore
+needs no swap: since 2026-10-18 the live pack itself runs GTNH CodeChickenCore 1.4.22 (CodeChickenLib
+merged in), for both renderers. The jars and hashes are
 [`../angelica-client/manifest.json`](../angelica-client/manifest.json): the stack friends install.
 They are not in the live pack, so `stage-angelica` copies them (from `C:\qfb\dl` and
 `C:\qfb\client-ang2` by default, `--from DIR` otherwise) into `%APPDATA%\.qf-trials\_staged`, refusing

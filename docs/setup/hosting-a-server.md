@@ -14,7 +14,6 @@ any mod or config change:
 py -3.10 tools/server/build_play_server.py ^
   --instance %APPDATA%\.crazycraft4 ^
   --forge-install C:\qfs\forge-install ^
-  --ccl C:\qfs\tools\CodeChickenLib-patched.jar ^
   --out C:\qfs\friends --force
 ```
 
@@ -40,9 +39,11 @@ What it does, and why:
 - **Keeps `mods/saintspack/`, and `start.bat` always starts from the server
   folder.** Saintscore reads `mods\saintspack\Packs.txt` relative to the working
   directory and crashes the boot without it.
-- **Swaps in the patched CodeChickenLib.** The stock one NPEs when a chunk
-  unloads mid-generation. CCL has no `@Mod`, so the server may differ from
-  clients here.
+- **Takes the instance's CodeChickenCore as it is.** Since 2026-10-18 that is
+  GTNH CodeChickenCore 1.4.22, with CodeChickenLib merged in (see
+  "CodeChickenCore" below). It needs no patch for pregeneration. The build
+  prints which CCC it found, and refuses `--ccl` or a leftover CodeChickenLib
+  next to GTNH CCC (a duplicate mod).
 - **Writes play settings:** survival, Normal difficulty, whitelist on,
   `allow-flight=true` (otherwise vanilla kicks Transformers jets, Legends heroes
   and OreSpawn gliders after four seconds airborne), 15 players, view distance 6,
@@ -72,7 +73,6 @@ Build it with `--java25` added. `--forge-install` is not needed:
 ```
 py -3.10 tools/server/build_play_server.py --java25 ^
   --instance %APPDATA%\.crazycraft4 ^
-  --ccl C:\qfs\tools\CodeChickenLib-patched.jar ^
   --out C:\qfs\friends --force
 ```
 
@@ -122,11 +122,8 @@ that does nothing on Java 8:
 | Recurrent Complex | The loot tables Holy, Unholy, TribalChest and PeacefulCrypt fail to load. They hold enchanted books as wrapped NBT, which lwjgl3ify's Gson 2.10 rejects. Their structures then generate without loot. | `RecNbtTransformer` asks Gson for `NBTBase` for wrapped tags. |
 | AsieLib | `nicknames.json` fails to load from the second boot on, because Gson 2.10 can't build a `HashBiMap`. `/nick` names are lost. | `AsieNickTransformer` falls back to reading the file as a plain map. |
 
-The server keeps **stock CodeChickenCore** for now. Angelica clients need GTNH
-CodeChickenCore 1.4.22, and against a server with stock CodeChickenCore they are
-kicked about 5 seconds after login (NEI packet mismatch). So the Angelica client
-phase must swap CodeChickenCore + CodeChickenLib for GTNH CodeChickenCore on
-the server and on every client in one step.
+Like every client, the server runs GTNH CodeChickenCore 1.4.22 since
+2026-10-18 (next section), so Angelica clients can join it.
 
 ### Switching the friends' server to Java 25
 
@@ -168,7 +165,6 @@ Stop the server and rebuild without `--java25`, with the usual Java 8 command:
 py -3.10 tools/server/build_play_server.py ^
   --instance %APPDATA%\.crazycraft4 ^
   --forge-install C:\qfs\forge-install ^
-  --ccl C:\qfs\tools\CodeChickenLib-patched.jar ^
   --out C:\qfs\friends --force
 ```
 
@@ -176,6 +172,36 @@ The world carries over. On the first Java 8 boot, FML logs `This world was saved
 with mod lwjgl3ify which appears to be missing` (and the same for the UniMixins
 modules). Those mods add no blocks or items, so nothing is lost. Tested
 2026-10-17 by switching the test server back and forth.
+
+## CodeChickenCore
+
+Since 2026-10-18 the pack, the server and every client run **GTNH
+CodeChickenCore 1.4.22** (`CodeChickenCore-1.4.22.jar`, sha1 `f4b6d5e12fdd`, the
+same as on nexus.gtnewhorizons.com) instead of stock `CodeChickenCore.jar` +
+`mods/1.7.10/CodeChickenLib-1.7.10-1.1.3.138-universal.jar`. CodeChickenLib is
+merged into it. Why:
+
+- **Angelica clients need it,** and NEI's packets differ between the two. With
+  stock CCC on the server, a client running GTNH CCC is kicked about 5 seconds
+  after login. So the server and **every** client, E7 or Angelica, must run the
+  same one. A friend still on stock CCC is kicked from the friends' server.
+- **The OptiFine E7 client runs on it unchanged.** NEI, ForgeMultipart,
+  ChickenChunks, EnderStorage and WR-CBE ask only for CodeChickenCore 1.0.3 to
+  1.0.7 or newer. ForgeMultipart's DepLoader finds CodeChickenLib's classes
+  inside it, so it downloads nothing. The stock ForgeMultipart stays.
+- **Pregeneration needs no patch any more.** Stock CodeChickenLib's
+  `WorldExtension.unloadChunk` has no null check, and pregeneration crashes on it
+  within seconds. GTNH CCC has the check. On 2026-10-18 a slim server
+  (ForgeMultipart + Chunk Pregenerator) pregenerated 40,000 chunks on GTNH CCC
+  with 0 failures. The same server with stock CCC + CCL crashed on that NPE in
+  its first second. `--ccl` is still there for a pack on stock CCC, and is
+  refused otherwise.
+
+In the live pack the swap was `trial.py install CodeChickenCore-1.4.22.jar
+--replace CodeChickenCore.jar` and `trial.py uninstall
+"1.7.10/CodeChickenLib-*.jar"`. A friend's own install makes the same swap:
+delete those two jars and add `CodeChickenCore-1.4.22.jar` (link in
+`tools/angelica-client/manifest.json`, `source_must_have`).
 
 ## Running the server
 
@@ -240,24 +266,54 @@ starts the server itself. For a Java 8 build choose **Java 8**, since Forge
 choose **Java 25** (see below). Paste the JVM flags from `start.sh` into its
 startup field, and upload the whole server folder over SFTP.
 
-`online-mode` is `true` by default. Every player signs in with their own
-Microsoft account, so names are proven. That rules out the offline
-`TEST-LAUNCH.bat`: friends need a launcher that signs in, such as Prism.
-Rebuild with `--online-mode false` only for a local test with offline-launched
-clients. An offline server lets anyone join under any name, so the whitelist
-filters names but does not prove identity.
+## Online mode
 
-**Adding players depends on that setting:**
+**The friends' server runs in online mode** (`online-mode=true`): the user's
+decision of 2026-10-18, and the builder's default. The server asks Mojang's
+session servers to confirm every login, so a name on the server is that
+player's real account and nobody can join under someone else's name. A rebuild
+keeps the setting in `server.properties`; `--online-mode true` or `false`
+changes it.
 
-- **Online mode (the default):** `whitelist add <name>` in the console.
-- **Offline mode: do not use `whitelist add`.** It stores the UUID of whatever
-  paid Mojang account has that name. An offline player is identified by a UUID
-  derived from the name instead, so they are refused with "You are not
-  white-listed". Pass each name to the build with `--player <name>`
-  (repeatable; existing entries are kept), then run `whitelist reload` if the
-  server is up.
+**What each friend needs:**
 
-Either way, `op <name>` makes someone an operator.
+- **A real Minecraft: Java Edition account** (a Microsoft account that owns the
+  game).
+- **A launcher that logs in with it.** Prism Launcher is the recommended one: add
+  the account under Accounts, and run the pack as a Forge 1.7.10 instance. The
+  pack's own `TEST-LAUNCH.bat`, `LAUNCH-ANGELICA.bat` and the 10-17 release's
+  `PLAY*.bat` start the game **offline** (`--accessToken 0`). The server refuses
+  them at login. They are for singleplayer and LAN only.
+- The same mods and config as the server ("What every friend needs" below).
+
+**The whitelist holds real account names.** In online mode a player is
+identified by their account's UUID. With the server running, `whitelist add
+<name>` in the console looks the name up at Mojang and stores that UUID. So add
+each friend by their exact Minecraft name, and op yourself the same way:
+
+```
+whitelist add TheirRealName
+op YourRealName
+```
+
+`--player` is refused in online mode, because it writes the offline UUID. The
+`Dev` entry in `whitelist.json` and `ops.json` is the offline test account from
+2026-10-16. Its UUID (`380df991-...`) is the offline one, which no real account
+has, so it does nothing in online mode. Remove it with `whitelist remove Dev`
+and `deop Dev`, or leave it.
+
+**Testing without an account.** Build a scratch copy with `--online-mode false
+--player Dev --port <N> --out C:\qfs\<scratch>` and join it from an offline
+launcher (`trial.py launch NAME --join 127.0.0.1:<N>`). Never switch the friends'
+server itself to offline mode. An offline server lets anyone join under any
+name, so the whitelist filters names but does not prove identity.
+
+**In offline mode, do not use `whitelist add`.** It stores the UUID of the paid
+account that has that name, but an offline player is identified by a UUID
+derived from the name, so they are refused with "You are not white-listed". Pass
+each name to the build with `--player <name>` (repeatable; existing entries are
+kept), then run `whitelist reload` if the server is up. `op <name>` has the same
+problem in offline mode.
 
 ## Performance
 
@@ -329,6 +385,10 @@ yourself:
 - A differing ID-bearing config gets it refused by the pack check, below.
   Before the check existed, such a client got in and then played with the
   wrong enchantments, potions or biomes.
+- An install from before 2026-10-18 still has stock `CodeChickenCore.jar` and
+  CodeChickenLib, and is kicked about 5 seconds after login. Swap them for GTNH
+  CodeChickenCore 1.4.22 ("CodeChickenCore" above).
+- A real account and a launcher that logs in ("Online mode" above).
 
 Friends who are refused should read
 [`why-was-i-refused.md`](why-was-i-refused.md).
@@ -436,7 +496,7 @@ reopening the grave. Four problems never show up in singleplayer:
   like everything else.
 - **Soulbound items burned to death on lava.** An item resting on a lava pool
   never counted as "in lava". Fixed in qf-content.
-- **Offline-mode whitelisting** (see "Run it").
+- **Offline-mode whitelisting** (see "Online mode").
 - **ChickenChunks' chunk cleanup is hardened, defensively.** It walks the live
   loaded-chunk list while removing players from chunks they have left, so any
   mod that loads a chunk in response would end the session with a

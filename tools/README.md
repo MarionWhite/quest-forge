@@ -70,7 +70,7 @@ step by step in [`../docs/survey/README.md`](../docs/survey/README.md):
 | script | job |
 |---|---|
 | `build_server.py` | assemble a headless server from the live instance |
-| `PatchCCL.java` | null-guard CodeChickenLib — **without it every pregeneration run crashes within seconds** |
+| `PatchCCL.java` | null-guard stock CodeChickenLib — without it every pregeneration run crashes within seconds. Not needed since 2026-10-18: GTNH CodeChickenCore 1.4.22 already has the guard |
 | `pregen.py` | drive Chunk Pregenerator over stdin, one dimension at a time |
 | `scan_regions.py` | count every block in the finished region files, per dimension / Y / biome |
 | `aggregate_scans.py` | average several seeds into a rate with an honest standard deviation |

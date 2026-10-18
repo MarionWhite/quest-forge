@@ -185,9 +185,18 @@ It also copies `config/`, `scripts/`, `structures/` and — importantly —
 > That map also ships a nested `data/region/` of its own. See Step 5: counting
 > it as dimension 53's chunks inflated its rate from 15.2 to 28.5.
 
-## Step 3 — patch CodeChickenLib (required)
+## Step 3 — patch CodeChickenLib (only for a pack on stock CodeChickenLib)
 
-**Without this the server dies a couple of seconds into every pregeneration
+**Since 2026-10-18 the pack runs GTNH CodeChickenCore 1.4.22, and this step is
+not needed.** GTNH CCC has CodeChickenLib merged in, and its
+`WorldExtension.unloadChunk` and `saveChunkData` already carry the null check
+(read from its bytecode). On 2026-10-18 a slim server (ForgeMultipart + Chunk
+Pregenerator) pregenerated 40,000 chunks on it with 0 failures, while the same
+server on stock CodeChickenCore + CodeChickenLib hit the NPE below in its first
+second. `mods/1.7.10/` no longer holds a CodeChickenLib jar, so there is nothing
+to patch. The rest of this step applies only to a pack from before that date.
+
+**On stock CodeChickenLib, without this the server dies a couple of seconds into every pregeneration
 run.** It boots fine and idles fine, so it looks like a pack bug rather than a
 survey one.
 
