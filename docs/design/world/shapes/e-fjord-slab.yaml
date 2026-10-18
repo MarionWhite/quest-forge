@@ -1,0 +1,205 @@
+# Shape E, "Fjord Slab" (Scandinavia and Iceland). docs/design/world/research/continent-shapes.md 3E.
+# A top-heavy block: fjords shred the north and west coasts, and a coastal range (the
+# Scandes) runs down the west. BoP Redwood Forest fills the sheltered southwest coast; the
+# interior behind the range is a dry plateau cut by the canyon; the east coast is smooth and
+# low. The body tapers south-east to one point, split by a long gulf (Baja style).
+size: 49152
+seed: 501
+coast_warp: 900
+region_warp: 2400
+blend_px: 18
+shore_width: 900
+shelf_width: 1600
+
+coast:
+  - [-21500, -20000]
+  - [-19800, -21600]
+  - [-17750, -22300]
+  - [-16900, -19050]
+  - [-16100, -15800]
+  - [-16200, -19050]
+  - [-16250, -22300]
+  - [-13250, -22300]
+  - [-13200, -19700]
+  - [-13200, -17100]
+  - [-12500, -19700]
+  - [-11750, -22300]
+  - [-8750, -22300]
+  - [-7800, -18800]
+  - [-6900, -15300]
+  - [-7100, -18800]
+  - [-7250, -22300]
+  - [-3950, -22300]
+  - [-4000, -19900]
+  - [-4100, -17500]
+  - [-3300, -19900]
+  - [-2450, -22300]
+  - [750, -22300]
+  - [1450, -19200]
+  - [2100, -16100]
+  - [2150, -19200]
+  - [2250, -22300]
+  - [5750, -22300]
+  - [5900, -20300]
+  - [6000, -18300]
+  - [6600, -20300]
+  - [7250, -22300]
+  - [10500, -22000]
+  - [13000, -22400]
+  - [16000, -21000]
+  - [18500, -19500]
+  - [20500, -17000]
+  - [21800, -13500]
+  - [21200, -10500]
+  - [22300, -7500]
+  - [21000, -4500]
+  - [19300, -2800]
+  - [20200, -500]
+  - [21700, 1500]
+  - [20800, 4500]
+  - [19300, 7500]
+  - [19800, 10500]
+  - [19300, 14000]
+  - [18200, 18000]
+  - [16900, 21200]
+  - [15200, 23000]
+  - [13500, 23000]
+  - [14400, 21800]
+  - [15400, 19000]
+  - [15100, 14500]
+  - [13700, 11000]
+  - [12500, 9300]
+  - [10800, 11500]
+  - [9500, 14500]
+  - [8400, 16300]
+  - [6600, 15700]
+  - [4500, 14200]
+  - [2600, 13400]
+  - [800, 11600]
+  - [-1200, 10600]
+  - [-3000, 8200]
+  - [-4900, 7400]
+  - [-6500, 5200]
+  - [-7600, 4000]
+  - [-8300, 2200]
+  - [-9800, 1700]
+  - [-10600, 2600]
+  - [-11200, 1500]
+  - [-13000, 300]
+  - [-13600, -1000]
+  - [-15500, -1600]
+  - [-16300, -600]
+  - [-17000, -2000]
+  - [-19500, -3000]
+  - [-21500, -4300]
+  - [-22500, -6950]
+  - [-19750, -6150]
+  - [-17000, -5400]
+  - [-19750, -5450]
+  - [-22500, -5450]
+  - [-22500, -11550]
+  - [-19250, -11600]
+  - [-16000, -11700]
+  - [-19250, -10900]
+  - [-22500, -10050]
+  - [-22500, -16250]
+  - [-20000, -15500]
+  - [-17500, -14800]
+  - [-20000, -14800]
+  - [-22500, -14750]
+  - [-22800, -18500]
+
+# The old centre, in the central highlands.
+lakes:
+  - {circle: [-1500, -5500, 1750]}
+islands:
+  - {circle: [-1500, -5500, 650]}
+surfaces:
+  - {material: black_sand, circle: [-1500, -5500, 1800]}
+
+plateaus:
+  # The glacial caldera, among the northern fjords
+  - {circle: [-9000, -15500, 3200], top: 160, wall: 90, top_relief: 14, relief: 60, biome: 89, tier: 3}
+
+canyons:
+  # Cut into the dry interior plateau, draining to the head of the gulf
+  - {points: [[2500, -1500], [5000, 1800], [8200, 4200], [10800, 7200], [12500, 9800]], width: 1600, depth: 46, meander: 0, wall_biome: 71, floor_biome: 82, tier: 3}
+
+regions:
+  # The old centre
+  - {tier: 5, biome: 250, base: 80, relief: 120, circle: [-1500, -5500, 700]}
+  - {tier: 4, biomes: [[77, 3], [60, 1]], base: 98, relief: 140, patch: 2500, circle: [-1500, -5500, 2700]}
+  - {tier: 3, biomes: [[77, 3], [251, 2], [78, 1]], base: 95, relief: 110, patch: 2500, circle: [-1500, -5500, 4500]}
+  # Glacial caldera
+  - {tier: 3, biomes: [[89, 3], [192, 1]], base: 120, relief: 60, patch: 2500, circle: [-9000, -15500, 3400]}
+  # The frozen fairy forest in the middle of the tundra
+  - {tier: 4, biome: 86, base: 74, relief: 25, circle: [9500, -15500, 750]}
+
+  # Seas
+  - {biome: 211, sea: true, polygon: [[-24576, -24576], [24576, -24576], [24576, -8000], [-24576, -8000]]}
+  - {biome: 210, sea: true, polygon: [[-24576, -24576], [24576, -24576], [24576, -20500], [-24576, -20500]]}
+  - {biome: 212, sea: true, polygon: [[-24576, -8000], [24576, -8000], [24576, 8000], [-24576, 8000]]}
+  - {biome: 213, sea: true, polygon: [[-24576, 8000], [24576, 8000], [24576, 24576], [-24576, 24576]]}
+  - {biome: 75, sea: true, shallow: true, polygon: [[5000, 9000], [24576, 9000], [24576, 24576], [5000, 24576]]}
+  - {biome: 144, sea: true, shallow: true, polygon: [[-24576, -8000], [-12000, -8000], [-6000, 8000], [-24576, 8000]]}
+  - {biome: 250, sea: true, circle: [-1500, -5500, 1950]}
+
+  # The redwood coast: the sheltered southwest shore, west of the coastal range
+  - {tier: 1, biomes: [[196, 6], [243, 1]], base: 76, relief: 70, patch: 3500, lakes: [8, 100, 300],
+     polygon: [[-24576, -9000], [-16500, -9000], [-13600, -4600], [-10000, -1400], [-7000, 1200], [-5000, 4400], [-24576, 9000]]}
+
+  # North: fjordland in the west, expansive tundra across the north-east
+  - {tier: 2, biomes: [[239, 4], [66, 1]], base: 72, relief: 110, patch: 3500, lakes: [12, 120, 450], at: [-17000, -15500]}
+  - {tier: 2, biomes: [[74, 4], [66, 1]], base: 84, relief: 80, patch: 3500, lakes: [10, 120, 400], at: [-1500, -14500], size: 0.9}
+  - {tier: 2, biomes: [[247, 6], [61, 1]], base: 68, relief: 25, patch: 4000, lakes: [26, 150, 650], at: [11000, -15000], size: 1.5}
+
+  # Middle: maple behind the range, low grassland and steppe down the smooth east coast
+  - {tier: 2, biomes: [[154, 4], [80, 1]], base: 80, relief: 55, patch: 3500, lakes: [8, 100, 400], at: [-10500, -8500], size: 0.9}
+  - {tier: 1, biomes: [[138, 4], [193, 2]], base: 68, relief: 30, patch: 3500, lakes: [8, 120, 400], at: [15500, -6500], size: 1.1}
+  - {tier: 1, biomes: [[242, 4], [236, 1]], base: 68, relief: 30, patch: 3500, lakes: [3, 100, 300], at: [17500, 3500]}
+
+  # The dry interior plateau the canyon cuts
+  - {tier: 2, biomes: [[190, 4], [242, 1]], base: 110, relief: 45, patch: 3500, at: [6500, -1000], size: 1.2}
+
+  # The south taper: savanna and jungle west of the gulf, mangroves on its shore, desert down the arm
+  - {tier: 2, biomes: [[35, 4], [70, 1]], base: 74, relief: 40, patch: 3500, lakes: [3, 80, 250], at: [3500, 4000]}
+  - {tier: 2, biomes: [[245, 4], [62, 1]], base: 70, relief: 80, patch: 3500, lakes: [6, 120, 350], at: [2500, 9500], size: 0.9}
+  - {tier: 1, biomes: [[153, 3], [246, 1]], base: 65, relief: 20, patch: 2500, lakes: [3, 80, 200], at: [9800, 13500], size: 0.6}
+  - {tier: 2, biomes: [[2, 4], [37, 1]], base: 80, relief: 50, patch: 3500, at: [16800, 13000], size: 0.9}
+  - {tier: 1, biomes: [[254, 2], [236, 1]], base: 68, relief: 30, patch: 2500, at: [16300, 20500], size: 0.5}
+
+ponds:
+  - {at: [-9000, -15500], r: 1400, biome: 89}
+
+ridges:
+  # The coastal range: down the fjord coast, then between the redwoods and the interior
+  - {points: [[-19800, -18500], [-17600, -14000], [-15600, -10200], [-12800, -7000], [-10400, -4800], [-8000, -3000], [-6000, -400], [-4600, 2600]], height: 195, width: 2300, relief: 220, biome: 60, biome_above: 0.55}
+  # Glacial caldera rim, broken toward the fjords
+  - {arc: [-9000, -15500, 2250, 0, 160], height: 210, width: 1100, relief: 200, biome: 60, biome_above: 0.5}
+  - {arc: [-9000, -15500, 2250, 200, 330], height: 215, width: 1100, relief: 200, biome: 60, biome_above: 0.5}
+  # The old centre's rim and volcano
+  - {arc: [-1500, -5500, 2300, 25, 155], height: 200, width: 1300, relief: 220, biome: 77, biome_above: 0.5}
+  - {arc: [-1500, -5500, 2300, 205, 335], height: 200, width: 1300, relief: 220, biome: 77, biome_above: 0.5}
+  - {points: [[-1500, -5500], [-1499, -5499]], height: 225, width: 1300, relief: 160, biome: 250, biome_above: 0.2}
+
+rivers:
+  # West from the crater, through a gorge in the coastal range, to the redwood coast
+  - {points: [[-3800, -5200], [-7500, -4500], [-11500, -2600], [-14500, -1200], [-17000, -400]], width: 56}
+  # East from the crater into the canyon, down the canyon floor to the gulf head
+  - {points: [[700, -4200], [2500, -1500], [5000, 1800], [8200, 4200], [10800, 7200], [12500, 9800], [12800, 11500]], width: 40, meander: 0}
+  # Tundra: frozen river to the north coast, with a tributary
+  - {points: [[5500, -10500], [5200, -15500], [4500, -19500], [4000, -23500]], width: 40, biome: 11}
+  - {points: [[13500, -11500], [9000, -13000], [5200, -15500]], width: 28, biome: 11}
+  # Down the smooth east coast
+  - {points: [[9500, -6500], [14000, -4500], [18000, -3200], [22500, -2600]], width: 40}
+  # Through the jungle to the gulf
+  - {points: [[-1500, 3500], [500, 6500], [2200, 9500], [3600, 12500], [4800, 15500]], width: 64, meander: 300, biome: 150}
+
+points:
+  - {name: Ice castle, kind: landmark, x: 9500, z: -15500}
+  - {kind: spawn, tier: 1, x: -18500, z: -2600}
+  - {kind: spawn, tier: 1, x: 19500, z: -7000}
+  - {kind: spawn, tier: 1, x: 18300, z: 3000}
+  - {kind: spawn, tier: 1, x: 9600, z: 14800}
+  - {kind: spawn, tier: 2, x: -20200, z: -17800}
+  - {kind: spawn, tier: 2, x: 14000, z: -20500}

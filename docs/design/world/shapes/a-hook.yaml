@@ -1,0 +1,159 @@
+# Shape A, "Hook" (Baja-led): a broad northern shoulder of tundra that sweeps into one long
+# southern arm, with a rift gulf between the arm and the shorter eastern mainland.
+# Geology first: a western coastal range runs the whole west coast and down the arm (redwoods
+# on its windward side, desert and canyon in its rain shadow); a northern range walls off the
+# tundra. The old crater sits where the shoulder narrows above the gulf's head.
+# Render: py -3.10 tools/world/plan.py render docs/design/world/shapes/a-hook.yaml PLANDIR [--px 64]
+size: 49152
+seed: 101
+coast_warp: 1200
+region_warp: 2400
+blend_px: 18
+shore_width: 1000
+shelf_width: 1600
+
+coast:
+  # the northern shoulder: a north-west cape, then the coast slants down to the north-east
+  - [-20500, -17000]
+  - [-22500, -21000]
+  - [-18000, -22500]
+  - [-12000, -23000]
+  - [-6000, -22000]
+  - [0, -21500]
+  - [5000, -20500]
+  - [10000, -19000]
+  - [14500, -16500]
+  - [18500, -13000]
+  - [21000, -9000]
+  # east coast of the mainland
+  - [21500, -5000]
+  - [20000, -1000]
+  - [21000, 3000]
+  - [18500, 6500]
+  - [15000, 9000]
+  # the mainland's south coast, trending south-west to its point
+  - [11500, 11500]
+  - [7500, 13500]
+  - [4000, 15500]
+  - [1500, 17500]
+  # the gulf's east shore, north to its head
+  - [-500, 15000]
+  - [-1500, 11000]
+  - [-2500, 7000]
+  - [-3500, 3500]
+  - [-4500, 1000]
+  # the gulf's west shore = the arm's east coast, south to the tip
+  - [-6000, 3000]
+  - [-6500, 7000]
+  - [-7000, 11000]
+  - [-7800, 15000]
+  - [-8800, 19000]
+  - [-10000, 22500]
+  - [-11500, 23800]
+  # the arm's west coast, north to the shoulder
+  - [-13500, 21500]
+  - [-15000, 17000]
+  - [-16500, 12000]
+  - [-18200, 7000]
+  - [-19800, 2000]
+  - [-20800, -3000]
+  - [-21300, -8000]
+  - [-20600, -12500]
+  - [-21200, -15000]
+
+# The old centre: crater lake, black-sand volcano island.
+lakes:
+  - {circle: [-2000, -3000, 1750]}
+islands:
+  - {circle: [-2000, -3000, 650]}
+
+surfaces:
+  - {material: black_sand, circle: [-2000, -3000, 1800]}
+
+# The glacial caldera: a raised ice plateau in the tundra's north-east.
+plateaus:
+  - {circle: [8000, -15500, 3300], top: 150, wall: 90, top_relief: 14, relief: 60, biome: 89, tier: 3}
+
+# The canyon, cut through the arm's raised desert in the coastal range's rain shadow.
+canyons:
+  - {points: [[-9500, 3500], [-10500, 8000], [-11000, 12500], [-11000, 17000], [-10500, 21000]], width: 1500, depth: 40, meander: 450, wall_biome: 71, floor_biome: 82, tier: 3}
+
+regions:
+  # Old centre: island, rim, and a band of crag and wasteland round it
+  - {tier: 5, biome: 250, base: 80, relief: 120, circle: [-2000, -3000, 700]}
+  - {tier: 4, biomes: [[77, 3], [60, 1]], base: 95, relief: 140, patch: 2500, circle: [-2000, -3000, 2700]}
+  - {tier: 3, biomes: [[77, 3], [251, 2], [78, 1]], base: 92, relief: 110, patch: 2500, circle: [-2000, -3000, 4600]}
+
+  # The glacial caldera
+  - {tier: 3, biomes: [[89, 3], [192, 1]], base: 120, relief: 60, patch: 2500, circle: [8000, -15500, 3500]}
+
+  # The frozen fairy forest in the middle of the tundra, around the ice castle
+  - {tier: 4, biome: 86, base: 72, relief: 30, circle: [-1500, -15000, 800]}
+
+  # Seas by climate; reef in the warm gulf, kelp off the redwood coast
+  - {biome: 211, sea: true, polygon: [[-24576, -24576], [24576, -24576], [24576, -9000], [-24576, -9000]]}
+  - {biome: 210, sea: true, polygon: [[-24576, -24576], [24576, -24576], [24576, -22500], [-24576, -22500]]}
+  - {biome: 212, sea: true, polygon: [[-24576, -9000], [24576, -9000], [24576, 5000], [-24576, 5000]]}
+  - {biome: 213, sea: true, polygon: [[-24576, 5000], [24576, 5000], [24576, 24576], [-24576, 24576]]}
+  - {biome: 75, sea: true, shallow: true, polygon: [[-9500, 0], [4000, 0], [4000, 24576], [-9500, 24576]]}
+  - {biome: 144, sea: true, shallow: true, polygon: [[-24576, -16000], [-18000, -16000], [-15500, 14000], [-24576, 14000]]}
+  - {biome: 250, sea: true, circle: [-2000, -3000, 1950]}
+
+  # The redwood coast: one unbroken strip down the west coast and the arm, windward of the range
+  - {tier: 1, biomes: [[196, 6], [243, 1]], base: 76, relief: 70, patch: 3500, lakes: [8, 100, 300],
+     polygon: [[-26000, -15500], [-19200, -15500], [-18000, -6000], [-16700, 2000], [-14500, 10000], [-12700, 18000], [-12000, 24576], [-26000, 24576]]}
+
+  # North: the expansive tundra, snowy forest to the west, spruce to the east
+  - {tier: 2, biomes: [[247, 6], [61, 1]], base: 70, relief: 30, patch: 4000, lakes: [26, 150, 700], at: [-1000, -16500], size: 1.4}
+  - {tier: 2, biomes: [[239, 4], [66, 1]], base: 72, relief: 100, patch: 3500, lakes: [12, 120, 500], at: [-14500, -17000]}
+  - {tier: 2, biomes: [[241, 3], [66, 1]], base: 78, relief: 80, patch: 3500, lakes: [10, 120, 400], at: [16000, -10500], size: 0.8}
+
+  # The shoulder, south of the northern range
+  - {tier: 2, biomes: [[154, 4], [80, 1]], base: 76, relief: 55, patch: 3500, lakes: [10, 100, 400], at: [-12500, -4000]}
+  - {tier: 2, biomes: [[138, 4], [253, 1]], base: 72, relief: 45, patch: 3500, lakes: [8, 120, 400], at: [8500, -4500]}
+  - {tier: 1, biomes: [[242, 4], [193, 1]], base: 70, relief: 35, patch: 3500, lakes: [5, 100, 300], at: [18000, -1500], size: 0.8}
+
+  # The mainland's south: savanna, then mangrove on its point at the gulf's mouth
+  - {tier: 2, biomes: [[35, 4], [70, 1]], base: 74, relief: 40, patch: 3500, lakes: [4, 80, 250], at: [9000, 6500]}
+  - {tier: 1, biomes: [[153, 3], [246, 2]], base: 66, relief: 30, patch: 3000, lakes: [4, 80, 250], at: [2500, 12500], size: 0.7}
+
+  # The arm: raised desert in the rain shadow, dry scrub at its tip
+  - {tier: 2, biomes: [[2, 4], [190, 2], [37, 1]], base: 104, relief: 50, patch: 3500, at: [-10500, 9500], size: 1.2}
+  - {tier: 1, biomes: [[254, 3], [236, 1]], base: 72, relief: 40, patch: 2500, at: [-11500, 20500], size: 0.6}
+
+ponds:
+  - {at: [8000, -15500], r: 1500, biome: 89}
+
+ridges:
+  # The western coastal range, down the whole west coast and the arm
+  - {points: [[-19500, -14500], [-18300, -6000], [-17000, 2000], [-14800, 10000], [-13000, 18000], [-12300, 22000]], height: 175, width: 2200, relief: 200, biome: 60, biome_above: 0.6}
+  # The northern range, in two massifs with a pass between
+  - {points: [[-13000, -9500], [-8500, -10800], [-4500, -10000]], height: 200, width: 2400, relief: 220, biome: 60, biome_above: 0.55}
+  - {points: [[2500, -10200], [7500, -9300], [12500, -10600], [17500, -8800]], height: 210, width: 2400, relief: 220, biome: 60, biome_above: 0.55}
+  # The glacial caldera's rim
+  - {arc: [8000, -15500, 2300, 0, 150], height: 205, width: 1100, relief: 200, biome: 60, biome_above: 0.5}
+  - {arc: [8000, -15500, 2300, 190, 340], height: 210, width: 1100, relief: 200, biome: 60, biome_above: 0.5}
+  # The old crater's rim and volcano
+  - {arc: [-2000, -3000, 2300, 25, 155], height: 195, width: 1300, relief: 220, biome: 77, biome_above: 0.5}
+  - {arc: [-2000, -3000, 2300, 205, 335], height: 195, width: 1300, relief: 220, biome: 77, biome_above: 0.5}
+  - {points: [[-2000, -3000], [-1999, -2999]], height: 220, width: 1300, relief: 160, biome: 250, biome_above: 0.2}
+
+rivers:
+  # Out of the crater: south to the gulf's head, west across the coastal range, east to the sea
+  - {points: [[-2000, -700], [-3500, 300], [-5000, 1200]], width: 56}
+  - {points: [[-4300, -3000], [-9000, -2400], [-14000, -1800], [-19000, -1200], [-23000, -900]], width: 48}
+  - {points: [[300, -3000], [6000, -2400], [12000, -1400], [17000, -400], [22000, 200]], width: 48}
+  # North: through the pass and across the tundra, frozen
+  - {points: [[-1000, -9000], [-1500, -13000], [-3500, -17500], [-4000, -23000]], width: 40, biome: 11}
+  - {points: [[3000, -12000], [3500, -17000], [4000, -22500]], width: 32, biome: 11}
+  # The mainland's south, to its coast
+  - {points: [[8000, 1000], [10000, 5500], [11500, 11000]], width: 40}
+
+points:
+  - {name: Ice castle, kind: landmark, x: -1500, z: -15000}
+  - {kind: spawn, tier: 1, x: -21000, z: -6000}
+  - {kind: spawn, tier: 1, x: -11500, z: 21500}
+  - {kind: spawn, tier: 1, x: 19000, z: -1500}
+  - {kind: spawn, tier: 1, x: 2500, z: 15000}
+  - {kind: spawn, tier: 2, x: -17500, z: -20000}
+  - {kind: spawn, tier: 2, x: -3000, z: -20500}

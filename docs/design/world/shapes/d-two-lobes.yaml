@@ -1,0 +1,161 @@
+# Shape D: Two Lobes (Kalimdor-like). docs/design/world/research/continent-shapes.md section 3D.
+# A big, wide north lobe (tundra, glacial caldera, taiga) joined through a volcanic isthmus,
+# which holds the old crater centre, to a smaller south lobe of desert and canyon. The south
+# lobe splits into two prongs around a long gulf (Baja). A western cordillera runs the whole
+# length; BoP Redwood Forest lines its seaward side.
+# Render: py -3.10 tools/world/plan.py render docs/design/world/shapes/d-two-lobes.yaml PLANDIR --px 64
+size: 49152
+seed: 404
+coast_warp: 1100
+region_warp: 2400
+blend_px: 18
+shore_width: 1000
+shelf_width: 1600
+
+coast:
+  # North lobe, from the northwest corner clockwise
+  - [-21500, -15000]
+  - [-18000, -21000]
+  - [-11000, -22200]
+  - [-5000, -21200]
+  - [1000, -22600]
+  - [7000, -21600]
+  - [12500, -22200]
+  - [17500, -19200]
+  - [20800, -14000]
+  - [21200, -9000]
+  - [18500, -5600]
+  - [14000, -3900]
+  - [9000, -3300]
+  - [4000, -2700]
+  # The isthmus, east shore
+  - [-1200, -1200]
+  - [-1500, 2200]
+  - [800, 4600]
+  # South lobe, east shore, down to the east prong's tip
+  - [4600, 5800]
+  - [6400, 9200]
+  - [6000, 13200]
+  - [4600, 17200]
+  - [3000, 20800]
+  - [1000, 21200]
+  # The gulf: up the east prong's inner shore to the head, down the west prong
+  - [-1600, 17600]
+  - [-3400, 13000]
+  - [-5400, 9400]
+  - [-7000, 12600]
+  - [-8000, 17200]
+  - [-8800, 22600]
+  # West prong, back up the west coast
+  - [-10600, 23000]
+  - [-12200, 19000]
+  - [-12900, 14000]
+  - [-12500, 9000]
+  - [-11600, 5600]
+  # The isthmus, west shore
+  - [-11200, 2000]
+  - [-11600, -1600]
+  # North lobe, west coast
+  - [-14200, -4600]
+  - [-17600, -6600]
+  - [-20200, -10000]
+
+# The old centre in the isthmus: crater lake, black-sand volcano island.
+lakes:
+  - {circle: [-5800, 300, 1750]}
+islands:
+  - {circle: [-5800, 300, 650]}
+  - {circle: [-5300, 15800, 650]}           # a volcanic isle in the gulf
+surfaces:
+  - {material: black_sand, circle: [-5800, 300, 1800]}
+
+plateaus:
+  - {circle: [6000, -15200, 3000], top: 150, wall: 90, top_relief: 14, relief: 60, biome: 89, tier: 3}
+
+canyons:
+  - {points: [[800, 6600], [2400, 10200], [3400, 14600], [3800, 20000]], width: 1400, depth: 44, meander: 400, wall_biome: 71, floor_biome: 82, tier: 3}
+
+regions:
+  # Old centre
+  - {tier: 5, biome: 250, base: 80, relief: 120, circle: [-5800, 300, 700]}
+  - {tier: 4, biomes: [[77, 3], [60, 1]], base: 95, relief: 140, patch: 2500, circle: [-5800, 300, 2700]}
+  - {tier: 3, biomes: [[77, 3], [251, 2], [78, 1]], base: 90, relief: 110, patch: 2200, circle: [-5800, 300, 4300]}
+
+  # Glacial caldera, and the frozen fairy forest in the middle of the tundra
+  - {tier: 3, biomes: [[89, 3], [192, 1]], base: 120, relief: 60, patch: 2500, circle: [6000, -15200, 3300]}
+  - {tier: 4, biome: 86, base: 74, relief: 30, circle: [-4500, -16000, 800]}
+  - {tier: 2, biome: 247, base: 68, relief: 20, circle: [10600, -21800, 1000]}
+
+  # Gulf island, an oasis on the west prong
+  - {tier: 3, biome: 250, base: 70, relief: 60, circle: [-5300, 15800, 800]}
+  - {tier: 2, biome: 186, base: 72, relief: 8, circle: [-10200, 19400, 550]}
+
+  # Seas: climate bands, kelp off the redwood coast, reef in the gulf
+  - {biome: 211, sea: true, polygon: [[-24576, -24576], [24576, -24576], [24576, -8000], [-24576, -8000]]}
+  - {biome: 210, sea: true, polygon: [[-24576, -24576], [24576, -24576], [24576, -23200], [-24576, -23200]]}
+  - {biome: 212, sea: true, polygon: [[-24576, -8000], [24576, -8000], [24576, 6000], [-24576, 6000]]}
+  - {biome: 213, sea: true, polygon: [[-24576, 6000], [24576, 6000], [24576, 24576], [-24576, 24576]]}
+  - {biome: 144, sea: true, shallow: true, polygon: [[-24576, -18000], [-17000, -18000], [-11000, 4000], [-24576, 4000]]}
+  - {biome: 75, sea: true, shallow: true, polygon: [[-9000, 8000], [-1500, 8000], [-1500, 24576], [-9000, 24576]]}
+  - {biome: 250, sea: true, circle: [-5800, 300, 1950]}
+
+  # Redwood coast: the cordillera's seaward side, north lobe and isthmus
+  - {tier: 1, biomes: [[196, 6], [243, 1]], base: 76, relief: 70, patch: 3500, lakes: [6, 100, 300],
+     polygon: [[-26000, -23000], [-17600, -23000], [-15900, -18500], [-13600, -9500], [-10000, -4000], [-8200, 2800], [-9800, 6500], [-26000, 6500]]}
+
+  # North lobe
+  - {tier: 2, biomes: [[247, 6], [61, 1]], base: 68, relief: 25, patch: 4000, lakes: [26, 150, 650], at: [-4000, -17500], size: 1.4}
+  - {tier: 2, biomes: [[239, 4], [66, 1]], base: 74, relief: 100, patch: 3500, lakes: [10, 120, 450], at: [15500, -16000]}
+  - {tier: 2, biomes: [[66, 4], [74, 1]], base: 74, relief: 70, patch: 3500, lakes: [14, 120, 450], at: [-7500, -9000]}
+  - {tier: 2, biomes: [[183, 3], [142, 1]], base: 86, relief: 70, patch: 3500, lakes: [14, 80, 300], at: [12000, -9500]}
+  - {tier: 1, biomes: [[154, 4], [80, 1]], base: 74, relief: 50, patch: 3500, lakes: [8, 100, 350], at: [4000, -6200]}
+  - {tier: 1, biomes: [[242, 4], [193, 1]], base: 70, relief: 35, patch: 3500, lakes: [4, 100, 300], at: [18500, -8000], size: 0.7}
+
+  # South lobe
+  - {tier: 2, biomes: [[35, 4], [70, 1]], base: 74, relief: 40, patch: 3500, lakes: [3, 80, 250], at: [-3000, 6200], size: 0.8}
+  - {tier: 2, biomes: [[2, 4], [190, 2], [37, 1]], base: 104, relief: 50, patch: 3500, at: [2600, 11500]}
+  - {tier: 1, biomes: [[153, 3], [246, 1]], base: 66, relief: 25, patch: 2500, lakes: [3, 80, 250], at: [-1400, 16200], size: 0.5}
+  - {tier: 2, biomes: [[254, 3], [190, 2]], base: 74, relief: 50, patch: 3000, at: [-10400, 15500]}
+
+ponds:
+  - {at: [6000, -15200], r: 1400, biome: 89}     # the glacial caldera's frozen crater lake
+  - {at: [-10200, 19400], r: 180, biome: 186}
+
+ridges:
+  # The western cordillera, the whole length of the continent
+  - {points: [[-16800, -19000], [-14300, -9500], [-10600, -3600], [-8600, 3400], [-10200, 9000], [-11000, 15000], [-10000, 21000]], height: 185, width: 2000, relief: 210, biome: 60, biome_above: 0.65}
+  # Glacial caldera rim
+  - {arc: [6000, -15200, 2200, 0, 160], height: 205, width: 1100, relief: 200, biome: 60, biome_above: 0.5}
+  - {arc: [6000, -15200, 2200, 200, 340], height: 210, width: 1100, relief: 200, biome: 60, biome_above: 0.5}
+  # Crater rim and volcano
+  - {arc: [-5800, 300, 2300, 25, 155], height: 195, width: 1300, relief: 220, biome: 77, biome_above: 0.5}
+  - {arc: [-5800, 300, 2300, 205, 335], height: 195, width: 1300, relief: 220, biome: 77, biome_above: 0.5}
+  - {points: [[-5800, 300], [-5799, 301]], height: 220, width: 1300, relief: 160, biome: 250, biome_above: 0.2}
+  - {points: [[-5300, 15800], [-5299, 15801]], height: 160, width: 1400, relief: 150, biome: 250, biome_above: 0.25}
+
+rivers:
+  # From the glacial caldera south to the lobe's southern shore
+  - {points: [[6000, -12800], [5000, -9000], [3200, -6000], [3000, -2600]], width: 56}
+  - {points: [[12000, -12500], [8000, -10500], [5000, -9000]], width: 32}
+  # Frozen river across the tundra to the north coast
+  - {points: [[-6500, -11500], [-6000, -16000], [-6800, -22800]], width: 44, biome: 11}
+  - {points: [[-11500, -15000], [-8500, -16500], [-6000, -16000]], width: 28, biome: 11}
+  - {points: [[1500, -13000], [-1500, -14500], [-6000, -16000]], width: 28, biome: 11}
+  # Moors to the east coast
+  - {points: [[9500, -12500], [14500, -11000], [21500, -10800]], width: 36}
+  # Crater outflow west through the cordillera
+  - {points: [[-8100, 300], [-9800, 500], [-13000, 900]], width: 48}
+  # Short streams off the cordillera through the redwoods
+  - {points: [[-16800, -11500], [-19500, -12000], [-22500, -12200]], width: 24}
+  - {points: [[-13600, -5200], [-16000, -5800], [-19000, -6400]], width: 24}
+  # A dry wadi into the canyon
+  - {points: [[5600, 8000], [3800, 9400], [2400, 10200]], width: 24, biome: 82, dry: true}
+
+points:
+  - {name: Ice castle, kind: landmark, x: -4500, z: -16000}
+  - {kind: spawn, tier: 1, x: -19000, z: -10500}
+  - {kind: spawn, tier: 1, x: 4000, z: -4800}
+  - {kind: spawn, tier: 1, x: 19000, z: -7000}
+  - {kind: spawn, tier: 1, x: -1800, z: 15800}
+  - {kind: spawn, tier: 2, x: -4000, z: -20200}
+  - {kind: spawn, tier: 2, x: -10600, z: 17800}

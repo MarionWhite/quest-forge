@@ -1,0 +1,157 @@
+# Shape C, "Crescent" (after Kamchatka): a thick arc whose outer curve faces west and whose
+# two horns point east around an inner sea. The thick north horn is tundra with the glacial
+# caldera; the outer west curve is the redwood coast behind a coastal range; the old centre
+# sits off-centre on the inner side of the arc, joined to the inner sea by a flooded canyon
+# cut; the south end splits into a Baja-style desert arm and a south horn around a long gulf.
+# Render: py -3.10 tools/world/plan.py render docs/design/world/shapes/c-crescent.yaml PLANDIR --px 64
+size: 49152
+seed: 303
+coast_warp: 1300
+region_warp: 2600
+blend_px: 18
+shore_width: 1000
+shelf_width: 1600
+
+coast:
+  # outer curve: north horn tip, round the north and down the west
+  - [14000, -16500]
+  - [11000, -20500]
+  - [5000, -22500]
+  - [-2000, -22800]
+  - [-9000, -21500]
+  - [-15000, -18500]
+  - [-19500, -13500]
+  - [-21800, -7500]
+  - [-22300, -1000]
+  - [-21500, 5500]
+  - [-19500, 11000]
+  - [-16500, 15500]
+  # the Baja arm running south-east to its tip
+  - [-13000, 19000]
+  - [-9000, 22000]
+  - [-5500, 23800]
+  # up the gulf's west shore to its head, down its east shore
+  - [-4200, 21000]
+  - [-6800, 17500]
+  - [-8800, 14200]
+  - [-9600, 12600]
+  - [-8300, 13000]
+  - [-5800, 15600]
+  - [-2500, 18800]
+  - [2000, 21200]
+  # the south horn, east to its tip
+  - [5500, 20500]
+  - [9500, 18500]
+  - [12000, 16000]
+  # inner (concave) coast back north round the inner sea
+  - [9000, 14500]
+  - [4500, 14000]
+  - [0, 12500]
+  - [-4000, 9500]
+  - [-6500, 5500]
+  - [-7500, 1000]
+  - [-7000, -3500]
+  - [-5000, -8000]
+  - [-1000, -11500]
+  - [4000, -13500]
+  - [9500, -14000]
+
+# The old centre: a crater lake with a volcano island, on the inner side of the arc.
+lakes:
+  - {circle: [-12500, -2500, 1750]}
+islands:
+  - {circle: [-12500, -2500, 650]}
+  - {circle: [4500, -1000, 2200]}            # volcanic island in the inner sea
+
+surfaces:
+  - {material: black_sand, circle: [-12500, -2500, 1800]}
+
+# The glacial caldera in the north horn.
+plateaus:
+  - {circle: [-3000, -17500, 3000], top: 150, wall: 90, top_relief: 14, relief: 60, biome: 89, tier: 3}
+
+canyons:
+  # The cut that joins the crater lake to the inner sea; its floor drops below sea level and floods.
+  - {points: [[-10500, -2600], [-9200, -2300], [-7800, -2000], [-6200, -1800]], width: 900, depth: 48, meander: 150, wall_biome: 77, floor_biome: 0, tier: 3}
+  # The desert canyon on the Baja arm, running down to the gulf's head.
+  - {points: [[-15500, 8500], [-13500, 11000], [-11300, 12200], [-9700, 12900]], width: 1400, depth: 44, meander: 400, wall_biome: 71, floor_biome: 82, tier: 3}
+
+regions:
+  # Old centre: island T5, crater rim T4, a T3 band round it
+  - {tier: 5, biome: 250, base: 80, relief: 120, circle: [-12500, -2500, 700]}
+  - {tier: 4, biomes: [[77, 3], [60, 1]], base: 95, relief: 140, patch: 2500, circle: [-12500, -2500, 2700]}
+  - {tier: 3, biomes: [[77, 3], [251, 2], [78, 1]], base: 92, relief: 110, patch: 2200, circle: [-12500, -2500, 4300]}
+
+  # The inner sea's volcanic island
+  - {tier: 3, biomes: [[250, 2], [78, 1]], base: 74, relief: 80, patch: 2000, circle: [4500, -1000, 2500]}
+
+  # Glacial caldera, and the frozen fairy forest in the middle of the tundra
+  - {tier: 3, biomes: [[89, 3], [192, 1]], base: 120, relief: 60, patch: 2500, circle: [-3000, -17500, 3200]}
+  - {tier: 4, biome: 86, base: 72, relief: 20, circle: [7000, -18000, 800]}
+
+  # Seas
+  - {biome: 211, sea: true, polygon: [[-24576, -24576], [24576, -24576], [24576, -12000], [-24576, -12000]]}
+  - {biome: 210, sea: true, polygon: [[-24576, -24576], [24576, -24576], [24576, -21500], [-24576, -21500]]}
+  - {biome: 212, sea: true, polygon: [[-24576, -12000], [24576, -12000], [24576, 9000], [-24576, 9000]]}
+  - {biome: 213, sea: true, polygon: [[-24576, 9000], [24576, 9000], [24576, 24576], [-24576, 24576]]}
+  - {biome: 75, sea: true, shallow: true, polygon: [[-12000, 13000], [16000, 13000], [16000, 24576], [-12000, 24576]]}
+  - {biome: 144, sea: true, shallow: true, polygon: [[-24576, -15000], [-19000, -15000], [-17000, 14000], [-24576, 14000]]}
+  - {biome: 250, sea: true, circle: [-12500, -2500, 1950]}
+
+  # The redwood coast: one long strip down the outer west curve
+  - {tier: 1, biomes: [[196, 6], [243, 1]], base: 76, relief: 70, patch: 3500, lakes: [6, 100, 300],
+     polygon: [[-26000, -13000], [-19200, -13000], [-19000, -5000], [-19300, 3000], [-17800, 10000], [-15500, 14500], [-26000, 16000]]}
+
+  # North horn: snowy forest on the cold west, then expansive tundra running east to the horn's tip
+  - {tier: 2, biomes: [[239, 4], [66, 1]], base: 72, relief: 100, patch: 3500, lakes: [10, 120, 450], at: [-16000, -16000], size: 0.8}
+  - {tier: 2, biomes: [[247, 5], [61, 1]], base: 70, relief: 30, patch: 4000, lakes: [24, 150, 650], at: [6500, -18500], size: 1.4}
+
+  # The thick middle of the arc
+  - {tier: 2, biomes: [[74, 4], [59, 1]], base: 90, relief: 90, patch: 3500, lakes: [8, 100, 400], at: [-11500, -10500]}
+  - {tier: 2, biomes: [[154, 4], [80, 1]], base: 76, relief: 55, patch: 3500, lakes: [10, 100, 400], at: [-14500, 5500]}
+  - {tier: 1, biomes: [[138, 4], [193, 1]], base: 70, relief: 35, patch: 3500, lakes: [6, 100, 300], at: [-7800, 7800], size: 0.7}
+
+  # South: the Baja arm is a raised desert plateau, the south horn savanna then tropics at its tip
+  - {tier: 2, biomes: [[2, 4], [254, 1], [37, 1]], base: 104, relief: 50, patch: 3500, at: [-11500, 17500]}
+  - {tier: 2, biomes: [[35, 4], [190, 1]], base: 74, relief: 40, patch: 3500, lakes: [4, 80, 250], at: [1500, 17000]}
+  - {tier: 1, biomes: [[246, 3], [153, 2]], base: 66, relief: 30, patch: 3000, lakes: [4, 80, 250], at: [9800, 16800], size: 0.7}
+
+ponds:
+  - {at: [-3000, -17500], r: 1400, biome: 89}
+
+ridges:
+  # The coastal range behind the redwoods
+  - {points: [[-19000, -12500], [-18600, -5000], [-18800, 2500], [-17200, 9500]], height: 155, width: 1600, relief: 180, biome: 60, biome_above: 0.7}
+  # The glacial caldera's rim
+  - {arc: [-3000, -17500, 2300, 10, 160], height: 205, width: 1100, relief: 200, biome: 60, biome_above: 0.5}
+  - {arc: [-3000, -17500, 2300, 200, 350], height: 210, width: 1100, relief: 200, biome: 60, biome_above: 0.5}
+  # Uneven peaks round the old centre: a broken rim, and the volcano
+  - {arc: [-12500, -2500, 2300, 30, 150], height: 200, width: 1300, relief: 220, biome: 77, biome_above: 0.5}
+  - {arc: [-12500, -2500, 2300, 200, 330], height: 185, width: 1300, relief: 220, biome: 77, biome_above: 0.5}
+  - {points: [[-12500, -2500], [-12499, -2499]], height: 222, width: 1300, relief: 160, biome: 250, biome_above: 0.2}
+  - {points: [[4500, -1000], [4501, -999]], height: 200, width: 2600, relief: 170, biome: 250, biome_above: 0.35}
+  # The north horn's spine, falling away east towards the tip
+  - {points: [[-9500, -14500], [-5000, -13800], [500, -15000]], height: 195, width: 2000, relief: 210, biome: 60, biome_above: 0.55}
+
+rivers:
+  # West from the crater, through the coastal range, to the sea
+  - {points: [[-14800, -2500], [-17000, -2200], [-19500, -1800], [-23000, -1500]], width: 48}
+  # The maple river, east to the inner sea
+  - {points: [[-17000, 2500], [-14500, 5500], [-11000, 7300], [-7200, 7000]], width: 56}
+  - {points: [[-13000, 1500], [-12500, 4000], [-11000, 7300]], width: 32}
+  # Frozen rivers: north off the caldera, and east across the tundra to the horn
+  - {points: [[-3000, -20000], [-3300, -21800], [-3500, -23500]], width: 36, biome: 11}
+  - {points: [[1000, -17500], [4500, -16200], [9000, -15600], [11000, -15200]], width: 40, biome: 11}
+  - {points: [[6000, -21500], [5500, -18500], [4500, -16200]], width: 28, biome: 11}
+  # Short streams off the coastal range to the west coast
+  - {points: [[-18800, -9500], [-21000, -9800], [-23000, -10000]], width: 24}
+  - {points: [[-18600, 6500], [-20000, 7200], [-21800, 7600]], width: 24}
+
+points:
+  - {kind: spawn, tier: 1, x: -21000, z: -4500}
+  - {kind: spawn, tier: 1, x: -7800, z: 8200}
+  - {kind: spawn, tier: 1, x: 10000, z: 17000}
+  - {kind: spawn, tier: 1, x: -6500, z: 22300}
+  - {kind: spawn, tier: 2, x: -16500, z: -16500}
+  - {kind: spawn, tier: 2, x: 3500, z: -21000}
+  - {name: Ice castle, kind: landmark, x: 7000, z: -18000}

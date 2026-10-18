@@ -1,0 +1,136 @@
+# Shape B, "Spine" (Italy and New Zealand's South Island). Render: py -3.10 tools/world/plan.py render docs/design/world/shapes/b-spine.yaml PLANDIR [--px 64]
+# One diagonal landmass, NW to SE, with a single mountain spine. Wet west: redwoods on the coast,
+# rainforest and maple up the slope. Dry east: rain shadow, steppe, outback, then the desert
+# plateau and its canyon. The north splays into a tundra plateau with the glacial caldera, and
+# the south forks into two prongs around a long gulf. The old centre sits mid-spine.
+size: 49152
+seed: 202
+coast_warp: 1300
+region_warp: 2400
+blend_px: 18
+shore_width: 1000
+shelf_width: 1600
+
+coast:
+  - [-21000, -15000]
+  - [-18500, -19500]
+  - [-13000, -21500]
+  - [-7000, -21000]
+  - [-2000, -22500]
+  - [3500, -20500]
+  - [8000, -18000]
+  - [7500, -14500]
+  - [9500, -11000]
+  - [12500, -8000]
+  - [13500, -4000]
+  - [16500, -1000]
+  - [19000, 3000]
+  - [20500, 7500]
+  - [21500, 12000]
+  - [21000, 16500]
+  - [19500, 20500]
+  - [17500, 21500]
+  - [15500, 19000]
+  - [13000, 15000]
+  - [10000, 9000]
+  - [7800, 4800]
+  - [6400, 8800]
+  - [6000, 15000]
+  - [4500, 19500]
+  - [3000, 23000]
+  - [1000, 22500]
+  - [-500, 19000]
+  - [-2500, 14500]
+  - [-5500, 10500]
+  - [-9000, 7000]
+  - [-12500, 3000]
+  - [-16000, -1500]
+  - [-19000, -6000]
+  - [-21500, -10500]
+
+# The old centre, mid-spine: a crater lake with a black-sand volcano island.
+lakes:
+  - {circle: [-3000, -1500, 1750]}
+islands:
+  - {circle: [-3000, -1500, 650]}
+surfaces:
+  - {material: black_sand, circle: [-3000, -1500, 1800]}
+
+# The glacial caldera on the northern tundra plateau.
+plateaus:
+  - {circle: [2500, -16500, 3200], top: 150, wall: 90, top_relief: 14, relief: 60, biome: 89, tier: 3}
+
+# The canyon, cut through the dry eastern plateau to the east coast.
+canyons:
+  - {points: [[11000, 2000], [14500, 6000], [16500, 10500], [18500, 15000], [20500, 17500]], width: 1500, depth: 44, meander: 450, wall_biome: 71, floor_biome: 82, tier: 3}
+
+regions:
+  # Old centre
+  - {tier: 5, biome: 250, base: 80, relief: 120, circle: [-3000, -1500, 700]}
+  - {tier: 4, biomes: [[77, 3], [60, 1]], base: 95, relief: 140, patch: 2500, circle: [-3000, -1500, 2700]}
+  # Glacial caldera, and the frozen fairy forest in the middle of the tundra
+  - {tier: 3, biomes: [[89, 3], [192, 1]], base: 120, relief: 60, patch: 2500, circle: [2500, -16500, 3400]}
+  - {tier: 4, biome: 86, base: 92, relief: 40, circle: [-7000, -17000, 800]}
+
+  # Seas
+  - {biome: 211, sea: true, polygon: [[-24576, -24576], [24576, -24576], [24576, -12000], [-24576, -12000]]}
+  - {biome: 210, sea: true, polygon: [[-24576, -24576], [24576, -24576], [24576, -22000], [-24576, -22000]]}
+  - {biome: 212, sea: true, polygon: [[-24576, -12000], [24576, -12000], [24576, 8000], [-24576, 8000]]}
+  - {biome: 213, sea: true, polygon: [[-24576, 8000], [24576, 8000], [24576, 24576], [-24576, 24576]]}
+  - {biome: 144, sea: true, shallow: true, polygon: [[-24576, -16000], [-14000, -16000], [-4000, 9000], [-24576, 9000]]}
+  - {biome: 75, sea: true, shallow: true, polygon: [[-4000, 9000], [24576, 9000], [24576, 24576], [-4000, 24576]]}
+  - {biome: 250, sea: true, circle: [-3000, -1500, 1950]}
+
+  # Wet west: the long redwood coast, then the slopes up to the spine
+  - {tier: 1, biomes: [[196, 6], [243, 1]], base: 76, relief: 70, patch: 3500, lakes: [6, 100, 300],
+     polygon: [[-26000, -12600], [-18700, -12600], [-2700, 8400], [-2700, 12000], [-12000, 14000], [-26000, 2000]]}
+  - {tier: 2, biomes: [[243, 3], [74, 2]], base: 80, relief: 80, patch: 3500, lakes: [6, 100, 350], at: [-14000, -7500]}
+  - {tier: 2, biomes: [[154, 3], [80, 1]], base: 78, relief: 60, patch: 3500, lakes: [6, 100, 350], at: [-7500, 1500]}
+  - {tier: 1, biomes: [[73, 3], [188, 1]], base: 72, relief: 45, patch: 3000, lakes: [4, 100, 300], at: [-4500, 8000], size: 0.8}
+
+  # The southern prongs
+  - {tier: 2, biomes: [[245, 4], [62, 1]], base: 72, relief: 80, patch: 3500, lakes: [6, 120, 350], at: [2500, 14000]}
+  - {tier: 1, biomes: [[153, 3], [246, 2]], base: 66, relief: 30, patch: 3000, lakes: [3, 80, 250], at: [2500, 21000], size: 0.7}
+  - {tier: 1, biomes: [[35, 3], [254, 1]], base: 72, relief: 40, patch: 3000, at: [18500, 18500], size: 0.7}
+
+  # Dry east: rain shadow, then the desert plateau the canyon cuts
+  - {tier: 2, biomes: [[142, 3], [183, 2]], base: 88, relief: 70, patch: 3500, lakes: [10, 80, 300], at: [1500, -9000]}
+  - {tier: 1, biomes: [[242, 4], [193, 1]], base: 70, relief: 35, patch: 3500, lakes: [3, 100, 300], at: [9500, -5000]}
+  - {tier: 2, biomes: [[190, 3], [70, 1]], base: 76, relief: 45, patch: 3500, at: [10500, 3000]}
+  - {tier: 3, biomes: [[2, 4], [37, 1]], base: 100, relief: 50, patch: 3500, at: [15500, 9500], size: 1.2}
+
+  # North: the tundra plateau
+  - {tier: 2, biomes: [[239, 4], [66, 1]], base: 74, relief: 110, patch: 3500, lakes: [10, 120, 450], at: [-16500, -16000]}
+  - {tier: 2, biomes: [[247, 5], [61, 1]], base: 90, relief: 30, patch: 4000, lakes: [18, 150, 650], at: [-6000, -17500], size: 1.3}
+
+ponds:
+  - {at: [2500, -16500], r: 1500, biome: 89}
+
+ridges:
+  # The spine, broken only by the crater; it runs on, lower, down the western prong
+  - {points: [[-17000, -13500], [-12000, -9500], [-6800, -4600]], height: 215, width: 3200, relief: 230, biome: 60, biome_above: 0.55}
+  - {points: [[700, 1800], [3800, 6500], [5000, 11500], [3800, 17500]], height: 170, width: 2600, relief: 200, biome: 60, biome_above: 0.65}
+  # Crater rim and volcano
+  - {arc: [-3000, -1500, 2300, 25, 155], height: 195, width: 1300, relief: 220, biome: 77, biome_above: 0.5}
+  - {arc: [-3000, -1500, 2300, 205, 335], height: 195, width: 1300, relief: 220, biome: 77, biome_above: 0.5}
+  - {points: [[-3000, -1500], [-2999, -1499]], height: 220, width: 1300, relief: 160, biome: 250, biome_above: 0.2}
+  # Glacial caldera rim
+  - {arc: [2500, -16500, 2300, 0, 150], height: 205, width: 1100, relief: 200, biome: 60, biome_above: 0.5}
+  - {arc: [2500, -16500, 2300, 190, 340], height: 210, width: 1100, relief: 200, biome: 60, biome_above: 0.5}
+
+rivers:
+  - {points: [[-9500, -6500], [-14000, -4500], [-18500, -3800], [-21500, -4200]], width: 48}
+  - {points: [[-4750, -1500], [-7500, 1500], [-10000, 4000], [-12000, 5200]], width: 56}
+  - {points: [[-1250, -1500], [3000, -2500], [8000, -2000], [15500, -2000]], width: 56}
+  - {points: [[500, 12500], [3200, 12800], [6800, 12600]], width: 80, meander: 380, valley: 260, biome: 150}
+  - {points: [[-4000, -12500], [-5000, -16500], [-4500, -22800]], width: 40, biome: 11}
+  - {points: [[6500, -13000], [7600, -15500], [8600, -18600]], width: 32, biome: 11}
+
+points:
+  - {kind: spawn, tier: 1, x: -19500, z: -5000}
+  - {kind: spawn, tier: 1, x: -6000, z: 9500}
+  - {kind: spawn, tier: 1, x: 2500, z: 21500}
+  - {kind: spawn, tier: 1, x: 11000, z: -6000}
+  - {kind: spawn, tier: 1, x: 18500, z: 18500}
+  - {kind: spawn, tier: 2, x: -17500, z: -17500}
+  - {name: Ice castle, kind: landmark, x: -7000, z: -17000}
