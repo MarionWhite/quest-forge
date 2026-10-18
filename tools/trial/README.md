@@ -113,7 +113,7 @@ Everything else is opt-in. Name the mods with catalog keys or jar prefixes, and 
 
 ## Safety
 
-- **The live instance is never written to.** Jars are hard links, while `config/`,
+- **The live instance is never written to.** Jars, `config/`, `scripts/`, resources and options are real copies (until 2026-10-17 jars were hard links, and a `cp` onto a trial jar overwrote two live jars), while `config/`,
   `scripts/` and options are real copies. To test a config change before it is installed,
   layer it on top with `--overlay pack`.
 - **There are no junctions.** `remove` or any recursive delete cannot follow a link into

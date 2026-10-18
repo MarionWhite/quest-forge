@@ -8,7 +8,8 @@ a minute -- but it was a hand-built folder, and every other agent kept booting
 all 122 jars.
 
 A trial is a throwaway game dir under %APPDATA%\\.qf-trials\\<name>:
-  mods/    hard links to the live instance's jars -- the base set from
+  mods/    copies of the live instance's jars (never hard links: a link
+           makes a write into the trial a write into the live pack) -- the base set from
            catalog.json, plus what you ask for, plus everything they require
   config/  a real copy, so a mod rewriting its config cannot touch the live pack
   options  copied from the live instance; pauseOnLostFocus off
@@ -69,7 +70,7 @@ STAGED = os.path.join(TRIALS, "_staged")
 # Small top-level folders some mods read at startup. Copied, not linked: mods
 # write into them (journeymap, customnpcs, hats).
 COPY_DIRS = ["config", "scripts", "fonts", "customnpcs", "hats", "structures", "CustomDISkins"]
-# Read-only client data, large: hard-linked file by file.
+# Client data from the live instance: copied (see copy_file on why never linked).
 LINK_DIRS = ["resources", "resourcepacks", "shaderpacks"]
 COPY_FILES = ["options.txt", "optionsof.txt", "optionsshaders.txt", "log4j2_17-111.xml",
               "betterfps.txt", "usernamecache.json", "pack.png"]
@@ -190,6 +191,13 @@ def lookup(cat, name):
              f"if it is a new jar, add an entry.")
 
 
+def copy_file(src, dst):
+    os.makedirs(os.path.dirname(dst), exist_ok=True)
+    if os.path.exists(dst):
+        os.remove(dst)
+    shutil.copy2(src, dst)
+
+
 def link_or_copy(src, dst):
     os.makedirs(os.path.dirname(dst), exist_ok=True)
     if os.path.exists(dst):
@@ -270,7 +278,10 @@ def build(name, mods, bundle=(), src=LIVE, no_base=False, server=False, server_s
     os.makedirs(d, exist_ok=True)
 
     for _, rel, path in picked:
-        link_or_copy(path, os.path.join(d, rel))
+        # A real copy, never a hard link into the live instance: a link turns any
+        # later `cp` onto the trial's jar into a write to the live pack (it happened
+        # on 2026-10-17 and overwrote two live jars).
+        copy_file(path, os.path.join(d, rel))
     # Folders a mod reads from mods/ at load time (catalog "data"); copied, never linked.
     for k in dict.fromkeys(k for k, _, _ in picked):
         for rel in cat["mods"][k].get("data", []):
@@ -305,7 +316,7 @@ def build(name, mods, bundle=(), src=LIVE, no_base=False, server=False, server_s
         for sub in LINK_DIRS:
             s = os.path.join(src, sub)
             if os.path.isdir(s):
-                link_tree(s, os.path.join(d, sub))
+                shutil.copytree(s, os.path.join(d, sub), dirs_exist_ok=True)
         for f in COPY_FILES:
             s = os.path.join(src, f)
             if os.path.isfile(s) and (force or not os.path.exists(os.path.join(d, f))):
