@@ -1,0 +1,25 @@
+# FrameBench gallery for the shader pack (-Dqf.bench.gallery=<this file>): one block per
+# line, modid:name[@meta]; "--" starts the next row up. Row 0 proves the generated
+# block.properties end to end: vanilla and Twilight Forest leaves side by side should both
+# wave, and both read as "leaves" (green) in QF_DEBUG_VIEW=1.
+minecraft:leaves
+minecraft:leaves@1
+minecraft:leaves@2
+minecraft:leaves2
+TwilightForest:tile.TFLeaves
+TwilightForest:tile.TFLeaves@1
+TwilightForest:tile.TFLeaves@2
+TwilightForest:tile.DarkLeaves
+TwilightForest:tile.TFMagicLeaves
+TwilightForest:tile.TFLeaves3
+--
+minecraft:log
+minecraft:planks
+minecraft:sand
+minecraft:cobblestone
+minecraft:stonebrick
+minecraft:gold_block
+minecraft:iron_block
+minecraft:glowstone
+minecraft:glass
+minecraft:diamond_ore

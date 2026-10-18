@@ -54,12 +54,15 @@ def bench(client, tag):
     return out
 
 
+MASK_HUD = True
+
+
 def luma(path):
     a = np.asarray(Image.open(path).convert("RGB"), dtype=np.float32)
     y = 0.2126 * a[..., 0] + 0.7152 * a[..., 1] + 0.0722 * a[..., 2]   # on the sRGB-encoded values
     keep = np.ones(y.shape, bool)
     h, w = y.shape
-    for x0, y0, x1, y1 in HUD:
+    for x0, y0, x1, y1 in (HUD if MASK_HUD else []):
         keep[int(y0 * h):int(y1 * h), int(x0 * w):int(x1 * w)] = False
     return y, keep
 
@@ -87,7 +90,14 @@ def main():
     ap.add_argument("--pair", nargs=2, action="append", default=[], metavar=("A", "B"),
                     help="two consecutive still-camera frames: temporal noise")
     ap.add_argument("--max-noise", type=float, default=1.5, help="mean |A-B| in luma levels (0-255)")
+    ap.add_argument("--vsync-off", action="store_true",
+                    help="the log says 'Frame pacing: vsync off', so a 4.0-4.2 ms p50 is real, not the cap")
+    ap.add_argument("--no-hud", action="store_true", help="frames were shot with the GUI hidden (FrameBench views)")
+    ap.add_argument("--auto-pairs", action="store_true",
+                    help="treat every bench-<tag>-NAME.png / bench-<tag>-NAME-b.png as a still-camera pair")
     a = ap.parse_args()
+    global MASK_HUD
+    MASK_HUD = not a.no_hud
 
     fails, report = [], {"tag": a.tag, "client": a.client, "tier": a.tier}
     budget = a.budget_ms if a.budget_ms is not None else BUDGET_MS[a.tier]
@@ -101,7 +111,7 @@ def main():
             r["shader_cost_ms"] = round(s["p50_ms"] - off[name]["p50_ms"], 2)
             if r["shader_cost_ms"] > budget:
                 fails.append("%s: shader cost %.2f ms > %.2f ms budget" % (name, r["shader_cost_ms"], budget))
-        if 4.0 <= s["p50_ms"] <= 4.2:   # 240 Hz = 4.17 ms; capped runs read 4.03-4.16
+        if 4.0 <= s["p50_ms"] <= 4.2 and not a.vsync_off:   # 240 Hz = 4.17 ms; capped runs read 4.03-4.16
             fails.append("%s: p50 %.2f ms is almost certainly the 240 Hz vsync cap; set vsync_mode OFF "
                          "in config/angelica-options.json and re-run" % (name, s["p50_ms"]))
         if name in prev:
@@ -122,6 +132,8 @@ def main():
         bands[k] = (lo, hi)
     shots = {}
     for path in sorted(glob.glob(os.path.join(a.client, "screenshots", "bench-%s*.png" % a.tag))):
+        if path.endswith("-b.png"):
+            continue   # the second frame of a still pair: measured as noise, not again here
         st = frame_stats(path)
         name = os.path.basename(path)
         if st["crushed_pct"] > a.max_crushed:
@@ -137,6 +149,11 @@ def main():
     report["screenshots"] = shots
 
     noise = {}
+    if a.auto_pairs:
+        for p1 in sorted(glob.glob(os.path.join(a.client, "screenshots", "bench-%s-*-b.png" % a.tag))):
+            p0 = p1[:-len("-b.png")] + ".png"
+            if os.path.exists(p0):
+                a.pair.append([p0, p1])
     for p0, p1 in a.pair:
         y0, keep = luma(p0)
         y1, _ = luma(p1)
