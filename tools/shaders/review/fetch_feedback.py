@@ -108,7 +108,7 @@ def main():
         text = json.dumps(doc, indent=1, ensure_ascii=False) + "\n"
         old = path.read_text(encoding="utf-8") if path.exists() else None
         if old != text:
-            path.write_text(text, encoding="utf-8")
+            path.write_text(text, encoding="utf-8", newline="\n")
             print(f"r{n:03d}: {len(resp)} response(s) -> {path.relative_to(REPO)}")
         else:
             print(f"r{n:03d}: {len(resp)} response(s), unchanged")

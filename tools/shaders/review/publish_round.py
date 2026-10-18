@@ -203,15 +203,15 @@ def main():
         return
 
     out_dir.mkdir(parents=True, exist_ok=True)
-    (ROUNDS / f"{rid}.json").write_text(json.dumps(round_doc, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
+    (ROUNDS / f"{rid}.json").write_text(json.dumps(round_doc, indent=1, ensure_ascii=False) + "\n", encoding="utf-8", newline="\n")
     for cid in closed:
         p = ROUNDS / f"{cid}.json"
         if p.exists():
             d = json.loads(p.read_text(encoding="utf-8"))
             d["status"] = "closed"
-            p.write_text(json.dumps(d, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
+            p.write_text(json.dumps(d, indent=1, ensure_ascii=False) + "\n", encoding="utf-8", newline="\n")
             touched.append(p)
-    index_path.write_text(json.dumps(index, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
+    index_path.write_text(json.dumps(index, indent=1, ensure_ascii=False) + "\n", encoding="utf-8", newline="\n")
     touched += [index_path, out_dir]
     print(f"  wrote {rid}.json, index.json; closed {closed or 'nothing'}")
     if a.no_git:
