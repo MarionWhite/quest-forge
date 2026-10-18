@@ -48,6 +48,16 @@ import com.questforge.content.ench.QFEnchantments;
  * frame time, the "1% low" (mean FPS of the slowest 1% of frames), the worst
  * frame, how many frames took over 33 ms, and the chunk updates the game
  * itself counted.
+ *
+ * View scenes (shader review, docs/design/shaders/review-loop.md):
+ * -Dqf.bench.views=<file> defines still-camera scenes by name, one per line:
+ *   name  x  y|auto  z  yaw  pitch  worldTime  [measureTicks]
+ * Any name in qf.bench.scenes that is not a built-in scene is looked up there.
+ * A view hides the GUI (F1), so frames carry no HUD; it is measured standing
+ * still, then shot twice on consecutive ticks AFTER measuring (bench-TAG-NAME.png
+ * and bench-TAG-NAME-b.png): the pair gives check_frames.py its temporal-noise
+ * test, and no screenshot hitch lands inside a measured window. worldTime picks
+ * the moon phase too: 18000 is a full moon, 114000 (day 4) a new moon.
  */
 @SideOnly(Side.CLIENT)
 public class FrameBench {
@@ -66,7 +76,46 @@ public class FrameBench {
     private static final int MEASURE_TICKS = 400;       // 20 s per scene
     private static final int SETTLE_MAX = 900;          // 45 s to finish building chunks
 
-    private enum Stage { TITLE, SELECTING, LOADING, SETUP, SETTLE, MEASURE, DONE }
+    private enum Stage { TITLE, SELECTING, LOADING, SETUP, SETTLE, MEASURE, SHOOT, DONE }
+
+    /** A still-camera scene from the qf.bench.views file. */
+    private static final class View {
+        String name;
+        double x, y, z;     // y NaN: stand on the top block
+        float yaw, pitch;
+        long time;
+        int ticks;
+    }
+
+    private final java.util.Map<String, View> views = loadViews();
+
+    private static java.util.Map<String, View> loadViews() {
+        java.util.Map<String, View> out = new java.util.HashMap<String, View>();
+        String path = System.getProperty("qf.bench.views");
+        if (path == null) return out;
+        try {
+            for (String line : java.nio.file.Files.readAllLines(new File(path).toPath(),
+                    java.nio.charset.StandardCharsets.UTF_8)) {
+                line = line.trim();
+                if (line.isEmpty() || line.startsWith("#")) continue;
+                String[] f = line.split("\\s+");
+                View v = new View();
+                v.name = f[0];
+                v.x = Double.parseDouble(f[1]);
+                v.y = f[2].equals("auto") ? Double.NaN : Double.parseDouble(f[2]);
+                v.z = Double.parseDouble(f[3]);
+                v.yaw = Float.parseFloat(f[4]);
+                v.pitch = Float.parseFloat(f[5]);
+                v.time = Long.parseLong(f[6]);
+                v.ticks = f.length > 7 ? Integer.parseInt(f[7]) : 200;
+                out.put(v.name, v);
+            }
+        } catch (Exception e) {
+            log("views: cannot read " + path + ": " + e);
+        }
+        log("views: " + out.keySet());
+        return out;
+    }
 
     private Stage stage = Stage.TITLE;
     private int ticks, quiet, sceneIdx = -1;
@@ -168,10 +217,23 @@ public class FrameBench {
                 return;
             case MEASURE:
                 move(mc);
-                if (ticks >= MEASURE_TICKS) {
+                View mv = views.get(scene());
+                if (ticks >= (mv != null ? mv.ticks : MEASURE_TICKS)) {
                     summarise(mc);
-                    nextScene(mc);
+                    if (mv != null || scene().equals("torch")) {
+                        stage = Stage.SHOOT;
+                        ticks = 0;
+                    } else {
+                        nextScene(mc);
+                    }
                 }
+                return;
+            case SHOOT:
+                // After measuring, so the screenshot hitch is never a measured frame.
+                hold(mc);
+                if (ticks == 2) shot(mc, scene());
+                if (ticks == 3) shot(mc, scene() + "-b");
+                if (ticks >= 4) nextScene(mc);
                 return;
             default:
         }
@@ -254,6 +316,12 @@ public class FrameBench {
             w.setWorldTime(Long.getLong("qf.bench.time", 10000L));
             buildGallery(w);
             place(mc, galleryCx, GALLERY_Y + 0.5, GALLERY_Z + 11.0, 180F, 4F, true);
+        } else if (views.containsKey(scene)) {
+            View v = views.get(scene);
+            w.setWorldTime(v.time);
+            double y = Double.isNaN(v.y)
+                    ? w.getTopSolidOrLiquidBlock((int) Math.floor(v.x), (int) Math.floor(v.z)) + 1.0 : v.y;
+            place(mc, v.x, y, v.z, v.yaw, v.pitch, true);
         } else if (scene.equals("fly")) {
             w.setWorldTime(6000);
             place(mc, FLY_X0, FLY_Y, FLY_Z, -90F, 20F, true);
@@ -382,6 +450,9 @@ public class FrameBench {
     /** Pins the player where the scene put them, so settling happens in place. */
     private void hold(Minecraft mc) {
         if (mc.thePlayer == null) return;
+        // F1 for view scenes: review frames carry no HUD for the critic to mistake for the world.
+        mc.gameSettings.hideGUI = sceneIdx >= 0 && sceneIdx < scenes.length
+                && (views.containsKey(scene()) || scene().equals("gallery"));
         mc.thePlayer.capabilities.isFlying = flying;
         mc.thePlayer.motionX = mc.thePlayer.motionY = mc.thePlayer.motionZ = 0;
         mc.thePlayer.setPositionAndRotation(px, py + mc.thePlayer.yOffset, pz, yaw, pitch);
