@@ -34,6 +34,10 @@ Usage (py -3.10):
     trial.py list                               catalog, bundles, uncatalogued jars
     trial.py resolve qfcontent twilightforest   print the jar set, build nothing
     trial.py build NAME MOD... [--bundle inspect] [--world SAVE] [--shader off] [--server]
+                  [--renderer angelica] [--jar BUILT.jar] [--shaderpack DIR]
+    trial.py stage-angelica [--from DIR]        stage the Angelica jars + Forge 1614 (sha1-checked)
+                  [--renderer angelica] [--jar BUILT.jar] [--shaderpack DIR]
+    trial.py stage-angelica [--from DIR]        stage the Angelica jars + Forge 1614 (sha1-checked)
     trial.py launch NAME [--wait] [--xmx 3G] [-D key=value ...] [--commands FILE]
     trial.py status                             running clients/servers, lock, RAM
     trial.py install JAR [--why TEXT]           put a built jar into the live instance
@@ -68,6 +72,13 @@ RAM_BUDGET_GB = float(os.environ.get("QF_RAM_BUDGET_GB", "22"))
 # resolve() falls back to it for any catalog entry the source instance lacks, so a
 # trial can load a candidate without it ever touching %APPDATA%\.crazycraft4\mods.
 STAGED = os.path.join(TRIALS, "_staged")
+# --renderer angelica. The jar list and hashes are the Angelica client's own manifest, so a
+# slim shader trial runs exactly the stack friends install. Stock Forge 1614 is staged in
+# _staged/bin/lib and swapped onto the classpath for the live 1558 jar; FalsePatternLib's
+# first-boot download (~26 MB, needs internet) is staged in _staged/falsepattern.
+ANGELICA_DIR = os.path.join(os.path.dirname(HERE), "angelica-client")
+ANGELICA_MANIFEST = os.path.join(ANGELICA_DIR, "manifest.json")
+ANGELICA_FROM = [r"C:\qfb\dl", r"C:\qfb\client-ang2"]
 
 # Small top-level folders some mods read at startup. Copied, not linked: mods
 # write into them (journeymap, customnpcs, hats).
@@ -137,10 +148,24 @@ def key_of_jar(cat, filename):
     return best
 
 
-def resolve(cat, wanted, bundles, src, no_base=False, server=False):
+def renderer_of(cat, renderer):
+    if renderer in (None, "", "e7", "optifine"):
+        return None
+    r = cat.get("renderers", {}).get(renderer)
+    if r is None:
+        sys.exit(f"--renderer {renderer}: one of e7, {', '.join(cat.get('renderers', {}))}")
+    return r
+
+
+def resolve(cat, wanted, bundles, src, no_base=False, server=False, renderer=None):
     mods = cat["mods"]
     client_only = set(cat.get("client_only", []))
-    keys = [] if no_base else [k for k in cat["base"] if not (server and k in client_only)]
+    r = renderer_of(cat, renderer)
+    base = list(cat["base"])
+    if r:
+        base = [k for k in base if k not in r.get("base_remove", [])] + r.get("base_add", [])
+    swap = r.get("swap", {}) if r else {}
+    keys = [] if no_base else [k for k in base if not (server and k in client_only)]
     for b in bundles:
         if b not in cat["bundles"]:
             sys.exit(f"unknown bundle '{b}'. Bundles: {', '.join(cat['bundles'])}")
@@ -149,6 +174,10 @@ def resolve(cat, wanted, bundles, src, no_base=False, server=False):
     order, seen = [], set()
 
     def visit(k, chain):
+        if k in swap:
+            k = swap[k]
+            if k is None:
+                return
         if k in seen:
             return
         if k not in mods:
@@ -217,6 +246,118 @@ def link_tree(src, dst):
             link_or_copy(s, os.path.join(dst, os.path.relpath(s, src)))
 
 
+def copy_pack(src, dst):
+    """A shader pack (folder or zip) into a trial's shaderpacks/: a real copy, replacing the old one."""
+    if is_junction(dst):
+        sys.exit(f"{dst} is a junction; a trial never holds one (unlink it with `cmd /c rmdir`)")
+    if os.path.isdir(dst):
+        shutil.rmtree(dst)
+    elif os.path.exists(dst):
+        os.remove(dst)
+    if os.path.isdir(src):
+        shutil.copytree(src, dst)
+    else:
+        copy_file(src, dst)
+
+
+def angelica_manifest():
+    with open(ANGELICA_MANIFEST, encoding="utf-8") as f:
+        return json.load(f)
+
+
+def full_sha1(p):
+    h = hashlib.sha1()
+    with open(p, "rb") as f:
+        for b in iter(lambda: f.read(1 << 20), b""):
+            h.update(b)
+    return h.hexdigest()
+
+
+def staged_forge(version):
+    p = os.path.join(STAGED, "bin", "lib", FORGE_JARS[version])
+    if not os.path.isfile(p):
+        sys.exit(f"Forge {version} is not staged ({p}). Run `trial.py stage-angelica` first.")
+    return p
+
+
+def cmd_stage_angelica(a):
+    """Copy the Angelica client's jars (manifest mods_add + forge.add) into _staged, by sha1."""
+    man = angelica_manifest()
+    want = [(e["file"], e["sha1"], os.path.join(STAGED, "mods", e["file"])) for e in man["mods_add"]]
+    fa = man["forge"]["add"]
+    want.append((fa["file"], fa["sha1"], os.path.join(STAGED, "bin", "lib", fa["file"])))
+    dirs = a.from_ or ANGELICA_FROM
+    bad = []
+    for name, sha, dst in want:
+        if os.path.isfile(dst) and full_sha1(dst) == sha:
+            print(f"  ok      {name}")
+            continue
+        found = None
+        for d in dirs:
+            for root, _, files in os.walk(d):
+                if name in files and full_sha1(os.path.join(root, name)) == sha:
+                    found = os.path.join(root, name)
+                    break
+            if found:
+                break
+        if not found:
+            bad.append(name)
+            print(f"  MISSING {name} (sha1 {sha}) in {', '.join(dirs)}; download it from the manifest url")
+            continue
+        copy_file(found, dst)
+        print(f"  staged  {name}  from {found}")
+    fp = os.path.join(STAGED, "falsepattern")
+    if not os.path.isdir(fp):
+        for d in dirs:
+            src = os.path.join(d, "falsepattern")
+            if os.path.isdir(src):
+                shutil.copytree(src, fp)
+                print(f"  staged  falsepattern/  from {src}")
+                break
+        else:
+            print("  note: no falsepattern/ to stage; the first Angelica boot downloads it (needs internet)")
+    if bad:
+        sys.exit(2)
+    print(f"Angelica stack staged in {STAGED}")
+
+
+def angelica_client_setup(d, shader):
+    """The Angelica client's overlay (tools/angelica-client/overlay), as build_angelica_client.py
+    applies it: vsync off, no splash memory bar, the Iris keys on F4/F8/F9. Plus Iris's debug
+    output, which a shader trial always wants (compile errors in game, patched_shaders/)."""
+    sys.path.insert(0, ANGELICA_DIR)
+    import build_angelica_client as bac
+    cd = os.path.join(d, "config")
+    os.makedirs(cd, exist_ok=True)
+    ao = os.path.join(cd, "angelica-options.json")
+    base = json.load(open(ao, encoding="utf-8")) if os.path.exists(ao) else {}
+    bac.merge_json(base, json.load(open(os.path.join(ANGELICA_DIR, "overlay", "config", "angelica-options.json"),
+                                        encoding="utf-8")))
+    with open(ao, "w", encoding="utf-8", newline="\n") as f:
+        json.dump(base, f, indent=2)
+    bac.merge_forge_cfg(os.path.join(cd, "angelica-modules.cfg"),
+                        os.path.join(ANGELICA_DIR, "overlay", "config", "angelica-modules.cfg"))
+    bac.set_keys(os.path.join(cd, "splash.properties"), {"enabled": "true"}, "=")
+    bac.set_keys(os.path.join(d, "options.txt"),
+                 bac.read_keys(os.path.join(ANGELICA_DIR, "overlay", "options-keys.txt"), ":"), ":")
+    pack = SHADERS.get(shader, shader) if shader else "OFF"
+    on = pack not in ("OFF", "")
+    bac.set_keys(os.path.join(cd, "shaders.properties"),
+                 {"shaderPack": pack if on else "", "enableShaders": "true" if on else "false",
+                  "enableDebugOptions": "true", "saveCompiledShaders": "true",
+                  "maxShadowRenderDistance": "32"}, "=")
+    fp = os.path.join(STAGED, "falsepattern")
+    if os.path.isdir(fp) and not os.path.isdir(os.path.join(d, "falsepattern")):
+        shutil.copytree(fp, os.path.join(d, "falsepattern"))
+
+
+def sync_shaderpacks(d, man):
+    """Re-copy every folder pack the trial was built with, so a launch sees the latest edits."""
+    for sp in man.get("shaderpacks", []):
+        if os.path.isdir(sp["src"]):
+            copy_pack(sp["src"], os.path.join(d, "shaderpacks", sp["name"]))
+
+
 def set_option(path, key, value, sep=":"):
     lines = []
     if os.path.exists(path):
@@ -261,10 +402,27 @@ def find_server_source(given, forge_jar=FORGE_JAR):
 
 def build(name, mods, bundle=(), src=LIVE, no_base=False, server=False, server_source=None,
           world=None, shader=None, overlay=(), force=False, port=None, seed="", quiet=False,
-          forge="1558"):
+          forge="1558", renderer=None, jars=(), shaderpacks=()):
     cat = load_catalog()
     src = os.path.abspath(src)
-    picked, missing = resolve(cat, mods, bundle, src, no_base, server)
+    rend = renderer_of(cat, renderer)
+    if rend and not server:
+        forge = rend.get("forge", forge)
+        staged_forge(forge)   # fail before building anything
+    picked, missing = resolve(cat, mods, bundle, src, no_base, server, renderer)
+    # --jar: a jar built from the repo (e.g. the -PqfDebugTools qf-content) stands in for the
+    # live jar of the same catalog entry, or joins the set if none matches.
+    for j in jars:
+        j = os.path.abspath(j)
+        if not os.path.isfile(j):
+            sys.exit(f"--jar {j}: no such file")
+        k = key_of_jar(cat, os.path.basename(j))
+        rel = os.path.join("mods", os.path.basename(j))
+        picked = [p for p in picked if not (k and p[0] == k)] + [(k or "--jar", rel, j)]
+        missing = [m for m in missing if m != k]
+    staged_missing = [m for m in missing if cat["mods"].get(m, {}).get("staged")]
+    if rend and staged_missing:
+        sys.exit(f"not staged yet: {', '.join(staged_missing)}. Run `trial.py stage-angelica` first.")
     if missing and not quiet:
         print(f"note: no jar in {src} for: {', '.join(missing)}")
     d = trial_dir(name)
@@ -297,7 +455,8 @@ def build(name, mods, bundle=(), src=LIVE, no_base=False, server=False, server_s
     manifest = {"built": datetime.datetime.now().isoformat(timespec="seconds"),
                 "source": src, "asked": list(mods), "bundles": list(bundle),
                 "side": "server" if server else "client",
-                "jars": [rel for _, rel, _ in picked]}
+                "jars": [rel for _, rel, _ in picked],
+                "renderer": renderer if rend else "e7"}
     if server:
         if forge not in FORGE_JARS:
             sys.exit(f"--forge {forge}: one of {', '.join(FORGE_JARS)}")
@@ -324,7 +483,20 @@ def build(name, mods, bundle=(), src=LIVE, no_base=False, server=False, server_s
             if os.path.isfile(s) and (force or not os.path.exists(os.path.join(d, f))):
                 shutil.copy2(s, os.path.join(d, f))
         set_option(os.path.join(d, "options.txt"), "pauseOnLostFocus", "false")
-        if shader:
+        packs = []
+        for sp in shaderpacks:
+            sp = os.path.abspath(sp)
+            if not os.path.exists(sp):
+                sys.exit(f"--shaderpack {sp}: not found")
+            name = os.path.basename(sp.rstrip("\\/"))
+            copy_pack(sp, os.path.join(d, "shaderpacks", name))
+            packs.append({"src": sp, "name": name})
+        manifest["shaderpacks"] = packs
+        if rend:
+            # Iris reads config/shaders.properties, never optionsshaders.txt.
+            angelica_client_setup(d, shader)
+            manifest["forge_jar"] = staged_forge(forge)
+        elif shader:
             set_option(os.path.join(d, "optionsshaders.txt"), "shaderPack",
                        SHADERS.get(shader, shader), sep="=")
     # Configs and scripts from the repo (or anywhere) on top -- how you trial a
@@ -362,7 +534,8 @@ def build(name, mods, bundle=(), src=LIVE, no_base=False, server=False, server_s
 
 def cmd_build(a):
     build(a.name, a.mods, a.bundle, a.source, a.no_base, a.server, a.server_source,
-          a.world, a.shader, a.overlay, a.force, a.port, a.seed, forge=a.forge)
+          a.world, a.shader, a.overlay, a.force, a.port, a.seed, forge=a.forge,
+          renderer=a.renderer, jars=a.jar, shaderpacks=a.shaderpack)
 
 
 # -------------------------------------------------------------- processes/lock
@@ -513,10 +686,14 @@ GC = ["-XX:+UseG1GC", "-XX:MaxGCPauseMillis=50", "-XX:G1HeapRegionSize=16M",
       "-XX:+DisableExplicitGC", "-XX:-OmitStackTraceInFastThrow", "-XX:MaxPermSize=256M"]
 
 
-def client_args(d, src, xmx, props):
+def client_args(d, src, xmx, props, forge_jar=None):
     binp = os.path.join(src, "bin")
-    cp = [os.path.join(binp, "minecraft.jar")] + sorted(
-        os.path.join(binp, "lib", f) for f in os.listdir(os.path.join(binp, "lib")) if f.endswith(".jar"))
+    libs = sorted(f for f in os.listdir(os.path.join(binp, "lib")) if f.endswith(".jar"))
+    if forge_jar:
+        # --renderer angelica: stock Forge 1614 in place of the live (patched 1558) universal jar.
+        libs = [f for f in libs if not re.fullmatch(r"forge-1\.7\.10-.*-universal\.jar", f)]
+    cp = [os.path.join(binp, "minecraft.jar")] + [os.path.join(binp, "lib", f) for f in libs] \
+        + ([forge_jar] if forge_jar else [])
     jvm = [
         "-Djava.net.preferIPv4Stack=true",
         "-Dfml.ignoreInvalidMinecraftCertificates=true",
@@ -590,13 +767,19 @@ def cmd_launch(a):
                  f"(pid {held.get('pid')}, owner {held.get('owner') or '?'})")
 
     java = find_java()
-    args = client_args(d, src, a.xmx, a.D)
+    sync_shaderpacks(d, man)
+    args = client_args(d, src, a.xmx, a.D, man.get("forge_jar") if man.get("renderer", "e7") != "e7" else None)
     if a.join:
         # Vanilla's --server/--port: the client connects as soon as the menu is up.
         host, _, port = a.join.rpartition(":")
         if not host or not port.isdigit():
             sys.exit(f"--join {a.join}: use HOST:PORT, e.g. 127.0.0.1:25600")
         args += ["--server", host, "--port", port]
+    if a.size:
+        w, _, h = a.size.lower().partition("x")
+        if not (w.isdigit() and h.isdigit()):
+            sys.exit(f"--size {a.size}: use WIDTHxHEIGHT, e.g. 1920x1080")
+        args += ["--width", w, "--height", h]
     clear_logs(d, "client")
     write_bat(d, java, args)
     pid = start_detached(java, args, d)
@@ -1167,7 +1350,8 @@ def cmd_stage(a):
 
 
 def cmd_resolve(a):
-    picked, missing = resolve(load_catalog(), a.mods, a.bundle, os.path.abspath(a.source), a.no_base, a.server)
+    picked, missing = resolve(load_catalog(), a.mods, a.bundle, os.path.abspath(a.source), a.no_base, a.server,
+                              a.renderer)
     for k, rel, p in picked:
         print(f"{k:18} {os.path.getsize(p) / 1e6:7.1f} MB  {rel}")
     if missing:
@@ -1231,6 +1415,7 @@ def main():
         p.add_argument("--no-base", action="store_true", help="skip the base visual/perf set (rarely right)")
         p.add_argument("--source", default=LIVE, help="instance to take jars/config from (default: live)")
         p.add_argument("--server", action="store_true", help="dedicated server; client-only jars dropped")
+        p.add_argument("--renderer", default="e7", help="e7 (OptiFine, the default) or angelica (catalog 'renderers')")
 
     p = sp.add_parser("build"); p.add_argument("name"); mods_args(p)
     p.add_argument("--world", help="save name in the source's saves/, or a path; copied in")
@@ -1242,7 +1427,14 @@ def main():
     p.add_argument("--forge", default="1558", help="server: Forge build, 1558 (the pack's) or 1614")
     p.add_argument("--seed", default="", help="server world seed")
     p.add_argument("--force", action="store_true", help="rebuild an existing trial")
+    p.add_argument("--jar", action="append", default=[],
+                   help="a built jar (copied) that replaces the live jar of the same catalog entry")
+    p.add_argument("--shaderpack", action="append", default=[],
+                   help="client: shader pack folder or zip, copied into shaderpacks/ (folders re-copied on every launch)")
     p.set_defaults(fn=cmd_build)
+    p = sp.add_parser("stage-angelica", help="stage the Angelica client's jars and Forge 1614 (sha1-checked)")
+    p.add_argument("--from", dest="from_", action="append", help="where to look (default: C:\\qfb\\dl, C:\\qfb\\client-ang2)")
+    p.set_defaults(fn=cmd_stage_angelica)
 
     p = sp.add_parser("launch"); p.add_argument("name")
     p.add_argument("--xmx", default="3G", help="heap; the slim set rarely needs more than 3G")
@@ -1251,6 +1443,7 @@ def main():
     p.add_argument("--timeout", type=int, default=300)
     p.add_argument("--commands", help="server: file of console commands fed on stdin")
     p.add_argument("--join", metavar="HOST:PORT", help="client: connect to this server once the menu is up")
+    p.add_argument("--size", metavar="WxH", help="client: window size, e.g. 1920x1080 (shader budgets are per resolution)")
     p.add_argument("--owner", help="who to name in the lock (default: $CLAUDE_SESSION_NAME)")
     p.set_defaults(fn=cmd_launch)
 

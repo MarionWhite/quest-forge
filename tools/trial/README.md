@@ -43,6 +43,34 @@ Every launch, client or server, refuses when the heaps of all running Minecraft 
 new one would pass **22 GB** (`QF_RAM_BUDGET_GB`). The PC has 31 GB, and the user's own game
 takes 7.
 
+## Angelica trials (`--renderer angelica`)
+
+```
+py -3.10 tools/trial/trial.py stage-angelica          # once: copies the Angelica stack into _staged, by sha1
+py -3.10 tools/trial/trial.py build shaders --renderer angelica qfcontent twilightforest ^
+    --shaderpack shaders/QuestForge --shader QuestForge --world C:\qfb\world-master
+py -3.10 tools/trial/trial.py launch shaders --size 1920x1080 --wait
+```
+
+`--renderer angelica` swaps the base set's OptiFine, BetterFps and FastCraft for Angelica 2.2.33,
+UniMixins and GTNHLib, resolves `codechickencore` to GTNH CodeChickenCore 1.4.22 (CodeChickenLib
+merged in), and launches on stock Forge 1614 instead of the live 1558 jar. The jars and hashes are
+[`../angelica-client/manifest.json`](../angelica-client/manifest.json): the stack friends install.
+They are not in the live pack, so `stage-angelica` copies them (from `C:\qfb\dl` and
+`C:\qfb\client-ang2` by default, `--from DIR` otherwise) into `%APPDATA%\.qf-trials\_staged`, refusing
+any jar whose SHA-1 differs. It also stages `falsepattern\`, the libraries Angelica downloads on its
+first boot, so trials start offline.
+
+The trial gets the Angelica client's overlay (vsync off, the Iris keys on F4/F8/F9, no splash memory bar)
+and Iris's debug output (`enableDebugOptions`, `saveCompiledShaders`: errors in game, transformed GLSL in
+`patched_shaders\`). `--shader NAME` picks the pack in `config\shaders.properties`; `--shaderpack DIR`
+copies a pack folder in, and **every launch re-copies it**, so a launch always runs the repo's current
+source. `--jar BUILT.jar` swaps in a built jar for the live one of the same catalog entry (for example
+qf-content built with `-PqfDebugTools=true` for FrameBench). `launch --size WxH` sets the window size,
+because shader budgets are per resolution.
+
+The shader review loop drives these trials through `tools/shaders/review/bench_round.py`.
+
 ## Candidate jars that are not in the pack
 
 A mod being evaluated never goes into the live `mods/`. Stage it instead:
