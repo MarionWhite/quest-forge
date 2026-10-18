@@ -58,6 +58,7 @@ import com.questforge.content.ench.QFEnchantments;
  * and bench-TAG-NAME-b.png): the pair gives check_frames.py its temporal-noise
  * test, and no screenshot hitch lands inside a measured window. worldTime picks
  * the moon phase too: 18000 is a full moon, 114000 (day 4) a new moon.
+ * -Dqf.bench.reload=scene,scene calls Iris.reload() (the F9 key) before those scenes.
  */
 @SideOnly(Side.CLIENT)
 public class FrameBench {
@@ -257,6 +258,16 @@ public class FrameBench {
         // ConcurrentModificationExceptions (once in ChickenChunks, once in the
         // entity tracker) that were the harness's fault, not the pack's.
         final String sc = scene();
+        // -Dqf.bench.reload=a,b: Iris.reload() before those scenes -- what F9 does -- so a
+        // run proves a shader pack survives a live reload (Angelica rebuilds the pipeline).
+        if (Arrays.asList(System.getProperty("qf.bench.reload", "").split(",")).contains(sc)) {
+            try {
+                Class.forName("net.coderbot.iris.Iris").getMethod("reload").invoke(null);
+                log("reload: Iris.reload() before " + sc);
+            } catch (Throwable t) {
+                log("reload failed: " + t);
+            }
+        }
         serverTasks.add(new Runnable() {
             public void run() {
                 try {
