@@ -484,8 +484,8 @@ client later. `tools/server/build_play_server.py --java25` builds it: Temurin
 25.0.4 + lwjgl3ify 3.0.39 + UniMixins 0.3.2 on Forge 1614, with stock
 CodeChickenCore and no Hodgepodge, ArchaicFix or GTNHLib (the build refuses
 them). How to build, switch and switch back: `docs/setup/hosting-a-server.md`,
-"The Java 25 server". The friends' server (`C:\qfs\friends`) has **not** been
-switched; that happens at the next batch install.
+"The Java 25 server". The friends' server (`C:\qfs\friends`) was switched in the
+2026-10-17 overnight batch ([`../setup/batch-2026-10-17.md`](../setup/batch-2026-10-17.md)).
 
 **Stock CodeChickenCore stays on the server for now.** With it, Angelica
 clients are kicked (test 1, coupled path), so the Angelica client phase must
