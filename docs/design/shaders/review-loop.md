@@ -121,29 +121,63 @@ bench run, or launch the final client, which binds the keys in its build.
      owner saw.
 
    Otherwise the critic's top change becomes step 1.
-6. **Round.** Post to the Shader Lab page
-   (https://claude.ai/artifact/C7LvLPJEpxazScuaLjJo3Q, source in
-   `tools/shaders/review/shader-review.html`) whenever every Tier A item is at 7 or
+6. **Round.** Post to the **Shader Lab**, a static page on the project's GitHub Pages
+   site: https://marionwhite.github.io/quest-forge/shaders/ (source in
+   [`site/shaders/`](../../../site/shaders/)). Post whenever every Tier A item is at 7 or
    more with no severe defect. Post sooner for a genuine taste axis (golden-hour
    warmth, night darkness, haze density): two or three variants of that one axis
    instead of a single frame. The owner wants to see options and steer, so don't
-   wait for an overall 8 (changed 2026-10-18).
-   - **Before every round**, read `responses/r000` (the calibration round) and any
-     later rounds' responses with the ArtifactData tool. Fold the answers into the
-     taste profile (`meta/taste`'s `summary` field and the end of `look-bible.md`).
-     Where an answer contradicts the current tuning, the owner's answer wins.
-   - **Posting:** downscale the frames to 1920 px JPEG (quality 90). Upload them with
-     the Artifact tool (publish, `url` = the Lab, `asset: true`, `file_paths`). Write
-     the round document to the `rounds` collection with ArtifactData: `n`, `title`,
-     `intro`, `status: "open"`, and `scenes[]`, each with options
-     `{key, label, img: "/_blob/<id>", critic, ms}`. Then set the previous open
-     round's `status` to `"closed"`: the page shows only the newest open round.
-     Never close `r000` until it has a response.
+   wait for an overall 8 (changed 2026-10-18). Every preference question gets example
+   images: our renders, and for a pure taste question a real-world reference too.
+   - **Before every round**, run
+     `py -3.10 -I tools/shaders/review/fetch_feedback.py` and read
+     `docs/design/shaders/feedback/rNNN.json` for r000 (the calibration round) and every
+     later round. Fold the answers into the taste profile at the end of
+     `look-bible.md`. Where an answer contradicts the current tuning, the owner's
+     answer wins.
+   - **Posting:** write a round spec, a JSON file with local image paths:
+     ```json
+     {"title": "Golden hour warmth", "intro": "One axis, three strengths.",
+      "scenes": [{"id": "golden", "name": "Forest at golden hour",
+                  "question": "Which warmth?", "notePrompt": "Too orange? Too grey?",
+                  "options": [{"key": "A", "label": "Cooler", "img": "C:/qfb/client-ang/screenshots/bench-r12a-gallery.png",
+                               "critic": "Neutral, a little flat.", "ms": 4.1}]}]}
+     ```
+     then run
+     `py -3.10 -I tools/shaders/review/publish_round.py spec.json` (add `--dry-run`
+     first to check). It numbers the round, turns the frames into 1920 px JPEG q90 in
+     `site/shaders/rounds/rNNN/`, writes `rNNN.json`, updates `rounds/index.json`
+     (closing the previous open round; r000 stays open until
+     `feedback/r000.json` exists), commits only those paths and pushes to `main`,
+     which deploys in a minute or two. A scene id is lower-case letters, digits and
+     dashes. An option may carry `ref: {img, credit, source}`; the page shows the
+     credit under the image.
+   - **Reference images** are openly licensed only (CC0, public domain, CC BY,
+     CC BY-SA), from Wikimedia Commons, credited as "<Artist>, <licence>, via
+     Wikimedia Commons" with the file page as `source`, and listed in the round
+     folder's `CREDITS.md`. Never shader-pack or game screenshots, stock photos, or
+     anything without a clear licence: the site is public. Our renders are the only
+     other images allowed. Never copy another pack's files.
+   - **Calibration renders** for r000's text questions (direction, night, sunset,
+     water, fog, bloom) are added with
+     `py -3.10 -I tools/shaders/review/publish_round.py --round 0 --calibration C:\qfb\shaderdev\calibration\manifest.json`.
+     The manifest is `[{question, key, label, scene, path, ms}]`; each render becomes
+     the option `key` of the scene whose id is `question`, next to its reference.
    - Then send a push notification if you can.
-7. **Learn.** The owner's picks, ratings and notes are read from the page's
-   database and summarised into the taste profile: the page's "What I've
-   learned" panel and the end of `look-bible.md`. Any rule they contradict is
-   rewritten. The next critic call sees the new profile.
+7. **Learn.** The owner sends answers from the page with "Send feedback", which
+   opens a GitHub issue titled "Shader Lab feedback: round N" whose body holds a
+   readable summary and a fenced json block:
+   `{round, scenes: {id: {choice, rating, note}}, overall}`. `choice` is an option
+   key or `"neither"`; `rating` is 1-5. `fetch_feedback.py` reads those issues from
+   the public API (unauthenticated, read-only) and rebuilds
+   `docs/design/shaders/feedback/rNNN.json`; it is safe to re-run. Summarise the
+   answers into the taste profile at the end of `look-bible.md`, and rewrite any rule
+   they contradict. The next critic call sees the new profile.
+
+   The earlier claude.ai artifact Lab (`C7LvLPJEpxazScuaLjJo3Q`, source
+   `tools/shaders/review/shader-review.html`) is **retired**: it failed to connect in
+   the owner's viewer. Don't post to it or read from it. Its r000 was ported to the
+   Pages Lab on 2026-10-18; it had no responses.
 
 ## Rubric (each 0–10)
 

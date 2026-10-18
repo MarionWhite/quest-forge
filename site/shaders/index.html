@@ -1,0 +1,563 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Shader Lab · Quest Forge</title>
+<meta name="description" content="Quest Forge Shader Lab: review shader rounds, pick an option for each scene, rate it and send the answers back.">
+<meta name="robots" content="noindex">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#1C1C1C">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+<style>
+/* A grading suite: every surface is neutral grey (R = G = B), so nothing around a frame
+   tints the colour judgement. The page is dark on purpose, in any OS theme. Selection
+   is shown with brightness and outline, never with a hue. */
+:root{
+  --bg:#1C1C1C; --surface:#242424; --raised:#2D2D2D; --sunk:#141414; --stage:#101010;
+  --ink:#E8E8E8; --ink-2:#C4C4C4; --muted:#8E8E8E; --rule:#3A3A3A; --rule-2:#4A4A4A;
+  --on:#E8E8E8; --on-ink:#161616;
+  --pad-l:max(16px,env(safe-area-inset-left)); --pad-r:max(16px,env(safe-area-inset-right));
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Source Serif 4",Georgia,serif;font-size:16px;
+  line-height:1.55;-webkit-font-smoothing:antialiased;padding-bottom:env(safe-area-inset-bottom)}
+h1,h2,h3,button,.ui{font-family:Archivo,"Helvetica Neue",Arial,sans-serif}
+.mono{font-family:"JetBrains Mono",ui-monospace,Menlo,monospace}
+a{color:var(--ink)}
+.wrap{max-width:1180px;margin:0 auto;padding-left:var(--pad-l);padding-right:var(--pad-r)}
+:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+button{cursor:pointer;color:inherit;font:inherit}
+
+/* ---- top bar ---- */
+.bar{position:sticky;top:0;z-index:20;background:rgba(28,28,28,.94);backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--rule);padding-top:env(safe-area-inset-top)}
+.bar .wrap{display:flex;align-items:center;gap:14px;height:52px}
+.bar a.home{font-family:Archivo,sans-serif;font-weight:700;text-decoration:none;font-size:15px;letter-spacing:-.01em;white-space:nowrap}
+.bar a.home span{color:var(--muted);font-weight:500}
+.bar .prog{margin-left:auto;font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--muted);white-space:nowrap}
+.bar .send-top{font-family:Archivo,sans-serif;font-weight:600;font-size:13px;padding:7px 12px;border-radius:3px;
+  border:1px solid var(--rule-2);background:var(--raised)}
+
+/* ---- head ---- */
+header.round{padding:30px 0 6px}
+.kicker{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin:0 0 10px}
+h1{font-size:clamp(26px,5vw,40px);font-weight:800;letter-spacing:-.025em;line-height:1.08;margin:0 0 14px}
+.intro{max-width:68ch;color:var(--ink-2);margin:0;font-size:16.5px}
+.notice{border:1px solid var(--rule-2);background:var(--surface);padding:12px 14px;border-radius:3px;margin:18px 0 0;max-width:68ch;font-size:15px}
+
+/* ---- scene ---- */
+.scene{margin:34px 0 0;border-top:2px solid var(--rule-2);padding-top:16px}
+.scene-h{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:4px}
+.scene-h .num{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--muted)}
+.scene h2{font-size:clamp(20px,3.4vw,26px);font-weight:700;letter-spacing:-.015em;margin:0;line-height:1.2}
+.scene .q{margin:2px 0 14px;font-size:17px;color:var(--ink)}
+.scene .done{margin-left:auto;font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--muted)}
+.scene .done.yes{color:var(--ink)}
+
+.viewer{background:var(--sunk);border:1px solid var(--rule);border-radius:3px;overflow:hidden}
+.tabs{display:flex;gap:0;border-bottom:1px solid var(--rule)}
+.tablist{display:flex;flex:1;min-width:0;overflow-x:auto;scrollbar-width:none}
+.tablist::-webkit-scrollbar{display:none}
+.tab{flex:0 0 auto;background:none;border:0;border-right:1px solid var(--rule);padding:10px 16px;min-height:44px;
+  font-weight:600;font-size:14px;color:var(--muted);display:flex;align-items:center;gap:8px}
+.tab .k{font-family:"JetBrains Mono",monospace;font-weight:500}
+.tab[aria-selected="true"]{background:var(--raised);color:var(--ink);box-shadow:inset 0 -2px 0 var(--ink)}
+.mode{display:flex;border-left:1px solid var(--rule);flex:0 0 auto}
+.mode[hidden]{display:none}
+.mode button{background:none;border:0;padding:10px 12px;min-height:44px;font-size:13px;font-weight:600;color:var(--muted)}
+.mode button[aria-pressed="true"]{color:var(--ink);background:var(--raised)}
+.fsbtn{flex:0 0 auto;background:none;border:0;border-left:1px solid var(--rule);padding:0 14px;min-height:44px;color:var(--ink-2)}
+.fsbtn svg{width:18px;height:18px;display:block}
+
+.stage{position:relative;background:var(--stage);aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.stage img{max-width:100%;max-height:100%;width:100%;height:100%;object-fit:contain;display:block}
+.stage .badge{position:absolute;top:10px;left:10px;font-family:"JetBrains Mono",monospace;font-size:12px;
+  background:rgba(16,16,16,.82);color:var(--ink);padding:4px 8px;border-radius:2px;pointer-events:none}
+.stage .hint{position:absolute;bottom:10px;right:10px;font-family:"JetBrains Mono",monospace;font-size:11px;
+  background:rgba(16,16,16,.75);color:var(--ink-2);padding:3px 7px;border-radius:2px;pointer-events:none}
+.stage .empty{color:var(--muted);font-family:Archivo,sans-serif;font-size:14px;padding:20px;text-align:center}
+.cap{padding:12px 14px 14px;display:grid;gap:6px;font-size:15px}
+.cap .lab{font-family:Archivo,sans-serif;font-weight:600;font-size:15.5px}
+.cap .critic{color:var(--ink-2)}
+.cap .critic b{font-family:Archivo,sans-serif;font-weight:600;color:var(--muted);font-size:12px;letter-spacing:.06em;text-transform:uppercase;margin-right:6px}
+.cap .meta{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--muted);display:flex;gap:4px 16px;flex-wrap:wrap}
+.cap .meta b{color:var(--ink);font-weight:500}
+.credit{font-family:"JetBrains Mono",monospace;font-size:11.5px;color:var(--muted);line-height:1.45}
+.credit a{color:var(--ink-2)}
+
+/* ---- answer ---- */
+.answer{margin-top:14px;display:grid;gap:14px}
+.lbl{font-family:Archivo,sans-serif;font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}
+.picks{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(200px,100%),1fr));gap:8px}
+.pick{text-align:left;background:var(--surface);border:1px solid var(--rule-2);border-radius:3px;padding:10px 12px;min-height:48px;
+  display:flex;gap:10px;align-items:flex-start;font-size:14.5px;line-height:1.35}
+.pick .k{font-family:"JetBrains Mono",monospace;font-weight:500;flex:0 0 auto;width:22px;height:22px;border-radius:2px;
+  display:inline-flex;align-items:center;justify-content:center;background:var(--raised);font-size:12px;margin-top:-1px}
+.pick[aria-pressed="true"]{background:var(--on);color:var(--on-ink);border-color:var(--on)}
+.pick[aria-pressed="true"] .k{background:var(--on-ink);color:var(--on)}
+.rate{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.rate button{width:48px;height:44px;border-radius:3px;border:1px solid var(--rule-2);background:var(--surface);
+  font-family:"JetBrains Mono",monospace;font-size:15px}
+.rate button[aria-pressed="true"]{background:var(--on);color:var(--on-ink);border-color:var(--on)}
+.rate .scale{font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--muted);margin-left:4px}
+textarea{width:100%;min-height:84px;resize:vertical;background:var(--sunk);color:var(--ink);border:1px solid var(--rule-2);
+  border-radius:3px;padding:10px 12px;font-family:"Source Serif 4",Georgia,serif;font-size:16px;line-height:1.45}
+textarea::placeholder{color:#7A7A7A}
+textarea:focus{outline:none;border-color:var(--ink-2)}
+
+/* ---- send ---- */
+.send{margin:44px 0 0;border-top:2px solid var(--rule-2);padding-top:18px}
+.send h2{font-size:24px;font-weight:800;margin:0 0 8px;letter-spacing:-.02em}
+.send p{color:var(--ink-2);margin:0 0 12px;max-width:66ch}
+.btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.btn{font-family:Archivo,sans-serif;font-weight:600;font-size:15px;padding:12px 18px;border-radius:3px;border:1px solid var(--rule-2);
+  background:var(--raised);color:var(--ink);text-decoration:none;min-height:46px}
+.btn.primary{background:var(--on);color:var(--on-ink);border-color:var(--on)}
+.btn[disabled]{opacity:.5;cursor:default}
+.status-line{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--muted);margin-top:10px;min-height:1.4em}
+details.preview{margin-top:14px}
+details.preview summary{cursor:pointer;font-family:Archivo,sans-serif;font-size:14px;color:var(--ink-2)}
+details.preview pre{white-space:pre-wrap;word-break:break-word;background:var(--sunk);border:1px solid var(--rule);padding:12px;
+  border-radius:3px;font-size:12px;max-height:340px;overflow:auto}
+
+/* ---- history ---- */
+.history{margin:52px 0 0;border-top:2px solid var(--rule-2);padding-top:18px}
+.history h2{font-size:20px;font-weight:700;margin:0 0 10px}
+.history ol{list-style:none;padding:0;margin:0;display:grid;gap:0}
+.history li{display:flex;gap:12px;align-items:baseline;padding:10px 0;border-bottom:1px solid var(--rule);flex-wrap:wrap}
+.history .n{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--muted);width:3.2em}
+.history a{font-family:Archivo,sans-serif;font-weight:600;text-decoration:none;flex:1;min-width:12ch;overflow-wrap:anywhere}
+.history a:hover{text-decoration:underline}
+.history .st{font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em}
+.history .st.open{color:var(--ink)}
+.history .cur a{text-decoration:underline}
+footer{margin:48px 0 32px;font-size:13px;color:var(--muted);font-family:Archivo,sans-serif}
+
+/* ---- full screen ---- */
+.fs{position:fixed;inset:0;z-index:100;background:#000;display:none;flex-direction:column}
+.fs.on{display:flex}
+.fs .top{display:flex;align-items:center;gap:6px;padding:calc(6px + env(safe-area-inset-top)) var(--pad-r) 6px var(--pad-l);background:#0B0B0B}
+.fs .top .t{font-family:Archivo,sans-serif;font-weight:600;font-size:14px;color:var(--ink-2);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fs .top button{background:#1E1E1E;border:1px solid #333;border-radius:3px;min-width:44px;height:40px;padding:0 10px;font-family:"JetBrains Mono",monospace;font-size:13px}
+.fs .top button[aria-pressed="true"]{background:var(--on);color:var(--on-ink)}
+.fs .pic{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;touch-action:manipulation;cursor:pointer}
+.fs .pic img{max-width:100%;max-height:100%;object-fit:contain;display:block}
+.fs .bot{padding:6px var(--pad-r) calc(8px + env(safe-area-inset-bottom)) var(--pad-l);background:#0B0B0B;font-size:13px;color:var(--ink-2);min-height:30px}
+body.locked{overflow:hidden}
+
+@media (max-width:620px){
+  header.round{padding-top:22px}
+  .tab{padding:10px 13px}
+  .bar .send-top{display:none}
+  .cap{padding:10px 12px 12px}
+}
+</style>
+</head>
+<body>
+<div class="bar"><div class="wrap">
+  <a class="home" href="../">Quest Forge <span>/ Shader Lab</span></a>
+  <span class="prog" id="prog"></span>
+  <button class="send-top" id="sendTop" type="button">Send feedback</button>
+</div></div>
+
+<main class="wrap" id="main">
+  <header class="round" id="head">
+    <p class="kicker">Shader Lab</p>
+    <h1>Loading the latest round…</h1>
+  </header>
+  <div id="scenes"></div>
+  <section class="send" id="send" hidden>
+    <h2>Send feedback</h2>
+    <p>Your answers save on this device as you go. When you're done, send them: this opens a new GitHub issue
+      with your answers already filled in. Check it, then press <b>Create</b> (you need to be signed in to GitHub).</p>
+    <p class="lbl" style="margin-top:18px">Anything else about this round?</p>
+    <textarea id="overall" placeholder="Overall impression, things that bug you, what you'd like to see next."></textarea>
+    <div class="btns">
+      <button class="btn primary" id="sendBtn" type="button">Send feedback on GitHub</button>
+      <button class="btn" id="copyBtn" type="button">Copy answers</button>
+      <button class="btn" id="clearBtn" type="button">Clear my answers</button>
+    </div>
+    <div class="status-line" id="sendStatus" role="status" aria-live="polite"></div>
+    <details class="preview"><summary>Preview what will be sent</summary><pre id="previewText"></pre></details>
+  </section>
+  <section class="history" id="history" hidden>
+    <h2>Rounds</h2>
+    <ol id="histList"></ol>
+  </section>
+  <footer>Frames are our own renders. Reference photos are from Wikimedia Commons under the licences credited below each one.
+    <a href="../">Back to Quest Forge</a></footer>
+</main>
+
+<div class="fs" id="fs" role="dialog" aria-modal="true" aria-label="Full-screen viewer">
+  <div class="top"><span class="t" id="fsTitle"></span><span id="fsTabs" style="display:flex;gap:6px"></span>
+    <button type="button" id="fsClose" aria-label="Close full screen">✕</button></div>
+  <div class="pic" id="fsPic"></div>
+  <div class="bot" id="fsBot"></div>
+</div>
+
+<script>
+(() => {
+"use strict";
+const REPO_ISSUES = "https://github.com/MarionWhite/quest-forge/issues/new";
+const MAX_URL = 7000;
+const $ = (s, el = document) => el.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const h = (tag, attrs = {}, ...kids) => {
+  const el = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (v == null || v === false) continue;
+    if (k === "class") el.className = v; else if (k === "html") el.innerHTML = v;
+    else if (k.startsWith("on")) el.addEventListener(k.slice(2), v); else el.setAttribute(k, v === true ? "" : v);
+  }
+  for (const c of kids.flat()) if (c != null) el.append(c.nodeType ? c : document.createTextNode(c));
+  return el;
+};
+const store = {
+  get(k) { try { return JSON.parse(localStorage.getItem(k) || "null"); } catch { return null; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch { return false; } },
+  del(k) { try { localStorage.removeItem(k); } catch {} }
+};
+
+let round = null, rounds = [], answers = null, draftKey = "";
+const views = {};   // scene id -> {opt index, mode: "ours"|"ref"}
+
+async function getJSON(url) {
+  const r = await fetch(url, {cache: "no-cache"});
+  if (!r.ok) throw new Error(url + ": HTTP " + r.status);
+  return r.json();
+}
+
+async function boot() {
+  try {
+    const idx = await getJSON("rounds/index.json");
+    rounds = (idx.rounds || []).slice().sort((a, b) => a.n - b.n);
+    const want = new URLSearchParams(location.search).get("r");
+    let pick = want != null ? rounds.find(r => String(r.n) === want || r.id === want) : null;
+    if (!pick) pick = [...rounds].reverse().find(r => r.status === "open") || rounds[rounds.length - 1];
+    if (!pick) throw new Error("no rounds posted yet");
+    round = await getJSON(`rounds/${pick.id}.json`);
+    render();
+  } catch (e) {
+    $("#head").innerHTML = `<p class="kicker">Shader Lab</p><h1>Couldn't load the round</h1>
+      <p class="intro">${esc(e.message)}. Reload in a minute: a round that was just posted can take a moment to deploy.</p>`;
+  }
+}
+
+function emptyAnswers() {
+  return {round: round.n, scenes: {}, overall: ""};
+}
+
+function render() {
+  draftKey = `qf-shaderlab-${round.id}`;
+  answers = store.get(draftKey);
+  if (!answers || answers.round !== round.n || typeof answers.scenes !== "object") answers = emptyAnswers();
+  document.title = `Shader Lab · round ${round.n} · Quest Forge`;
+  const head = $("#head");
+  head.innerHTML = "";
+  head.append(...[
+    h("p", {class: "kicker"}, `Shader Lab · round ${round.n} · ${round.status === "open" ? "open" : "closed"}${round.created ? " · " + round.created : ""}`),
+    h("h1", {}, round.title || `Round ${round.n}`),
+    round.intro ? h("p", {class: "intro"}, round.intro) : null,
+    round.status !== "open" ? h("p", {class: "notice"}, "This round is closed. You can still look through it and send late notes.") : null
+  ].filter(Boolean));
+  const box = $("#scenes");
+  box.innerHTML = "";
+  round.scenes.forEach((s, i) => box.append(sceneEl(s, i)));
+  $("#overall").value = answers.overall || "";
+  $("#send").hidden = false;
+  renderHistory();
+  progress();
+  preload();
+}
+
+function frames(o) {
+  const f = [];
+  // Image paths in a round are relative to rounds/ ("r000/ocean-A.jpg").
+  if (o.img) f.push({mode: "ours", src: "rounds/" + o.img});
+  if (o.ref && o.ref.img) f.push({mode: "ref", src: "rounds/" + o.ref.img});
+  return f;
+}
+
+function sceneEl(s, i) {
+  const a = answers.scenes[s.id] || (answers.scenes[s.id] = {choice: null, rating: null, note: ""});
+  const opts = (s.options || []);
+  const visual = opts.filter(o => frames(o).length);
+  const sec = h("section", {class: "scene", id: "s-" + s.id, "aria-labelledby": "h-" + s.id});
+  const done = h("span", {class: "done"});
+  sec.append(h("div", {class: "scene-h"},
+    h("span", {class: "num"}, String(i + 1).padStart(2, "0")),
+    h("h2", {id: "h-" + s.id}, s.name || s.id), done));
+  if (s.question) sec.append(h("p", {class: "q"}, s.question));
+
+  if (visual.length) {
+    const v = views[s.id] || (views[s.id] = {i: 0, mode: null});
+    const viewer = h("div", {class: "viewer"});
+    const tabs = h("div", {class: "tabs"});
+    const tablist = h("div", {class: "tablist", role: "tablist", "aria-label": "Options"});
+    const stage = h("div", {class: "stage", role: "button", tabindex: "0", "aria-label": "Tap to show the next option"});
+    const cap = h("div", {class: "cap"});
+    const mode = h("div", {class: "mode", role: "group", "aria-label": "Which image"});
+    const fsb = h("button", {class: "fsbtn", type: "button", "aria-label": "Full screen", html:
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>'});
+    const tabBtns = visual.map((o, j) => h("button", {class: "tab", type: "button", role: "tab",
+      onclick: () => { v.i = j; draw(); }}, h("span", {class: "k"}, o.key), short(o.label)));
+    tablist.append(...tabBtns);
+    tabs.append(tablist, mode, fsb);
+    viewer.append(tabs, stage, cap);
+    sec.append(viewer);
+
+    const draw = () => {
+      const o = visual[v.i], fr = frames(o);
+      if (!fr.find(f => f.mode === v.mode)) v.mode = fr[0].mode;
+      tabBtns.forEach((b, j) => b.setAttribute("aria-selected", j === v.i ? "true" : "false"));
+      mode.innerHTML = "";
+      if (fr.length > 1) for (const f of fr) mode.append(h("button", {type: "button", "aria-pressed": f.mode === v.mode ? "true" : "false",
+        onclick: ev => { ev.stopPropagation(); v.mode = f.mode; draw(); }}, f.mode === "ours" ? "Our render" : "Reference"));
+      mode.hidden = fr.length < 2;
+      const cur = fr.find(f => f.mode === v.mode);
+      stage.innerHTML = "";
+      stage.append(h("img", {src: cur.src, alt: `${o.key}: ${o.label || ""}${cur.mode === "ref" ? " (real-world reference)" : ""}`, decoding: "async"}),
+        h("span", {class: "badge"}, `${o.key}${cur.mode === "ref" ? " · reference photo" : (o.ref ? " · our render" : "")}`),
+        visual.length > 1 ? h("span", {class: "hint"}, `${v.i + 1}/${visual.length} · tap to flip`) : null);
+      cap.innerHTML = "";
+      cap.append(h("div", {class: "lab"}, `${o.key} · ${o.label || ""}`));
+      if (cur.mode === "ours" && o.critic) cap.append(h("div", {class: "critic"}, h("b", {}, "Critic"), o.critic));
+      const meta = [];
+      if (cur.mode === "ours" && o.ms != null) meta.push(h("span", {}, "Shader cost ", h("b", {}, `${o.ms} ms`), " per frame"));
+      if (cur.mode === "ref") meta.push(h("span", {}, "A real photo or painting, to show the mood. Not our shader."));
+      if (meta.length) cap.append(h("div", {class: "meta"}, meta));
+      if (cur.mode === "ref") cap.append(creditEl(o.ref));
+    };
+    const next = () => { v.i = (v.i + 1) % visual.length; draw(); };
+    stage.addEventListener("click", next);
+    stage.addEventListener("keydown", ev => {
+      if (ev.key === "Enter" || ev.key === " " || ev.key === "ArrowRight") { ev.preventDefault(); next(); }
+      if (ev.key === "ArrowLeft") { ev.preventDefault(); v.i = (v.i + visual.length - 1) % visual.length; draw(); }
+    });
+    fsb.addEventListener("click", () => openFS(s, visual, v, draw));
+    draw();
+  }
+
+  const ans = h("div", {class: "answer"});
+  if (opts.length) {
+    const picks = h("div", {class: "picks", role: "group", "aria-label": "Your pick"});
+    const choices = [...opts.map(o => ({key: o.key, label: o.label})), {key: "neither", label: opts.length === 1 ? "Not right yet" : "Neither"}];
+    const btns = choices.map(c => h("button", {class: "pick", type: "button", "aria-pressed": a.choice === c.key ? "true" : "false",
+      onclick: () => { a.choice = a.choice === c.key ? null : c.key; btns.forEach((b, j) => b.setAttribute("aria-pressed", choices[j].key === a.choice ? "true" : "false")); save(); mark(); }},
+      h("span", {class: "k"}, c.key === "neither" ? "–" : c.key), h("span", {}, c.label || c.key)));
+    picks.append(...btns);
+    ans.append(h("div", {}, h("p", {class: "lbl"}, opts.length === 1 ? "Is it right?" : "Your pick"), picks));
+    const rate = h("div", {class: "rate", role: "group", "aria-label": "Rating"});
+    const rb = [1, 2, 3, 4, 5].map(n => h("button", {type: "button", "aria-pressed": a.rating === n ? "true" : "false", "aria-label": `${n} of 5`,
+      onclick: () => { a.rating = a.rating === n ? null : n; rb.forEach((b, j) => b.setAttribute("aria-pressed", j + 1 === a.rating ? "true" : "false")); save(); mark(); }}, String(n)));
+    rate.append(...rb, h("span", {class: "scale"}, "1 poor · 5 great"));
+    ans.append(h("div", {}, h("p", {class: "lbl"}, visual.length ? "How good is your pick?" : "How strongly do you feel?"), rate));
+  }
+  const ta = h("textarea", {placeholder: s.notePrompt || "A sentence on why, or what you'd change (optional).", "aria-label": "Note"});
+  ta.value = a.note || "";
+  ta.addEventListener("input", () => { a.note = ta.value; save(); mark(); });
+  ans.append(h("div", {}, h("p", {class: "lbl"}, opts.length ? "Note" : "Your answer"), ta));
+  sec.append(ans);
+
+  const mark = () => {
+    const ok = a.choice || a.rating || (a.note && a.note.trim());
+    done.textContent = ok ? "answered" : "";
+    done.classList.toggle("yes", !!ok);
+    progress();
+  };
+  mark();
+  return sec;
+}
+
+function short(label) {
+  const t = String(label || "").split(/[:(]/)[0].trim();
+  return t.length > 28 ? t.slice(0, 26) + "…" : t;
+}
+
+function creditEl(ref) {
+  const c = h("div", {class: "credit"});
+  c.append("Reference: ", ref.source ? h("a", {href: ref.source, target: "_blank", rel: "noopener"}, ref.title || "source") : (ref.title || ""),
+    ref.credit ? " · " + ref.credit : "");
+  return c;
+}
+
+/* ---- full screen: an overlay (works on iPhone, which has no element fullscreen) ---- */
+let fsState = null;
+function openFS(s, visual, v, drawInline) {
+  fsState = {s, visual, v, drawInline};
+  $("#fs").classList.add("on");
+  document.body.classList.add("locked");
+  try { const el = $("#fs"); if (el.requestFullscreen) el.requestFullscreen().catch(() => {}); } catch {}
+  drawFS();
+  $("#fsClose").focus();
+}
+function drawFS() {
+  const {s, visual, v} = fsState, o = visual[v.i], fr = frames(o);
+  if (!fr.find(f => f.mode === v.mode)) v.mode = fr[0].mode;
+  const cur = fr.find(f => f.mode === v.mode);
+  $("#fsTitle").textContent = s.name || s.id;
+  const tabs = $("#fsTabs");
+  tabs.innerHTML = "";
+  visual.forEach((oo, j) => tabs.append(h("button", {type: "button", "aria-pressed": j === v.i ? "true" : "false",
+    onclick: () => { v.i = j; drawFS(); }}, oo.key)));
+  if (fr.length > 1) tabs.append(h("button", {type: "button", "aria-pressed": v.mode === "ref" ? "true" : "false",
+    onclick: () => { v.mode = v.mode === "ref" ? "ours" : "ref"; drawFS(); }}, "Ref"));
+  const pic = $("#fsPic");
+  pic.innerHTML = "";
+  pic.append(h("img", {src: cur.src, alt: `${o.key}: ${o.label || ""}`}));
+  const bot = $("#fsBot");
+  bot.innerHTML = "";
+  bot.append(h("div", {}, `${o.key} · ${o.label || ""}${cur.mode === "ours" && o.ms != null ? ` · ${o.ms} ms` : ""}`));
+  if (cur.mode === "ref") bot.append(creditEl(o.ref));
+}
+function closeFS() {
+  if (!fsState) return;
+  const {drawInline} = fsState;
+  fsState = null;
+  $("#fs").classList.remove("on");
+  document.body.classList.remove("locked");
+  try { if (document.fullscreenElement) document.exitFullscreen().catch(() => {}); } catch {}
+  drawInline();
+}
+$("#fsPic").addEventListener("click", () => { const {visual, v} = fsState; v.i = (v.i + 1) % visual.length; drawFS(); });
+$("#fsClose").addEventListener("click", closeFS);
+document.addEventListener("fullscreenchange", () => { if (!document.fullscreenElement && fsState) closeFS(); });
+document.addEventListener("keydown", ev => {
+  if (!fsState) return;
+  const {visual, v} = fsState;
+  if (ev.key === "Escape") closeFS();
+  else if (ev.key === "ArrowRight" || ev.key === " ") { ev.preventDefault(); v.i = (v.i + 1) % visual.length; drawFS(); }
+  else if (ev.key === "ArrowLeft") { v.i = (v.i + visual.length - 1) % visual.length; drawFS(); }
+});
+
+/* ---- answers ---- */
+let saveT = 0;
+function save() {
+  answers.overall = $("#overall").value;
+  clearTimeout(saveT);
+  saveT = setTimeout(() => {
+    const ok = store.set(draftKey, answers);
+    if ($(".preview").open) updatePreview();
+    $("#sendStatus").textContent = ok ? "Draft saved on this device." : "This browser won't save drafts (private mode?). Send before you leave.";
+  }, 250);
+}
+$("#overall").addEventListener("input", save);
+
+function progress() {
+  if (!round) return;
+  const n = round.scenes.filter(s => { const a = answers.scenes[s.id]; return a && (a.choice || a.rating || (a.note || "").trim()); }).length;
+  $("#prog").textContent = `${n}/${round.scenes.length} answered`;
+}
+
+function cleanAnswers() {
+  const out = {round: round.n, scenes: {}, overall: ($("#overall").value || "").trim()};
+  for (const s of round.scenes) {
+    const a = answers.scenes[s.id] || {};
+    const note = (a.note || "").trim();
+    if (a.choice || a.rating || note) out.scenes[s.id] = {choice: a.choice || null, rating: a.rating || null, note};
+  }
+  return out;
+}
+
+function summary(ans) {
+  const lines = [`Shader Lab feedback for round ${round.n}: ${round.title || ""}`, ""];
+  for (const s of round.scenes) {
+    const a = ans.scenes[s.id];
+    if (!a) continue;
+    const o = (s.options || []).find(o => o.key === a.choice);
+    const pick = a.choice === "neither" ? "Neither" : o ? `${o.key} (${o.label})` : null;
+    const bits = [pick ? `pick ${pick}` : null, a.rating ? `${a.rating}/5` : null].filter(Boolean).join(", ");
+    lines.push(`- **${s.name || s.id}**${bits ? ": " + bits : ""}${a.note ? `\n  > ${a.note.replace(/\n+/g, " ")}` : ""}`);
+  }
+  if (ans.overall) lines.push("", "**Overall:** " + ans.overall.replace(/\n+/g, " "));
+  return lines.join("\n");
+}
+
+function body(ans) {
+  return `${summary(ans)}\n\n<!-- Machine-readable answers for fetch_feedback.py. Please leave this block as it is. -->\n\`\`\`json\n${JSON.stringify(ans, null, 1)}\n\`\`\`\n`;
+}
+
+function issueURL(b) {
+  const p = new URLSearchParams({title: `Shader Lab feedback: round ${round.n}`, labels: "shader-feedback", body: b});
+  return `${REPO_ISSUES}?${p.toString()}`;
+}
+
+async function copy(text) {
+  try { await navigator.clipboard.writeText(text); return true; } catch {}
+  try {
+    const ta = h("textarea", {readonly: true, style: "position:fixed;top:0;left:0;opacity:0"});
+    ta.value = text; document.body.append(ta); ta.select(); ta.setSelectionRange(0, text.length);
+    const ok = document.execCommand("copy"); ta.remove(); return ok;
+  } catch { return false; }
+}
+
+function updatePreview() { if (round) $("#previewText").textContent = body(cleanAnswers()); }
+$("#send").addEventListener("toggle", updatePreview, true);
+
+async function send() {
+  const ans = cleanAnswers();
+  if (!Object.keys(ans.scenes).length && !ans.overall) {
+    $("#sendStatus").textContent = "Nothing to send yet: pick, rate or write something first.";
+    return;
+  }
+  const full = body(ans);
+  let url = issueURL(full);
+  if (url.length > MAX_URL) {
+    const copied = await copy(full);
+    const shortBody = `Shader Lab feedback for round ${round.n}: ${Object.keys(ans.scenes).length} scenes answered.\n\n` +
+      (copied ? "**Paste your answers here** (they are on your clipboard: long-press or Ctrl+V), replacing this line.\n"
+              : "**Paste your answers here**: go back to the Lab, press \"Copy answers\", then paste them over this line.\n");
+    url = issueURL(shortBody);
+    $("#sendStatus").textContent = copied ? "Your answers are long, so they were copied: paste them into the issue body." :
+      "Your answers are long. Press \"Copy answers\", then paste them into the issue.";
+  } else {
+    $("#sendStatus").textContent = "Opening GitHub…";
+  }
+  const w = window.open(url, "_blank");
+  if (w) { try { w.opener = null; } catch {} } else location.href = url;
+}
+$("#sendBtn").addEventListener("click", send);
+$("#sendTop").addEventListener("click", () => $("#send").scrollIntoView({behavior: "smooth"}));
+$("#copyBtn").addEventListener("click", async () => {
+  const ok = await copy(body(cleanAnswers()));
+  if (ok) $("#sendStatus").textContent = "Answers copied.";
+  else { const d = $(".preview"); d.open = true; updatePreview(); $("#sendStatus").textContent = "Couldn't copy here: select the text under \"Preview\" and copy it by hand."; }
+});
+$("#clearBtn").addEventListener("click", () => {
+  if (!confirm("Clear all your answers for this round on this device?")) return;
+  store.del(draftKey); answers = emptyAnswers(); render();
+  $("#sendStatus").textContent = "Cleared.";
+});
+
+function renderHistory() {
+  const list = $("#histList");
+  list.innerHTML = "";
+  for (const r of [...rounds].reverse()) {
+    list.append(h("li", {class: r.id === round.id ? "cur" : null},
+      h("span", {class: "n"}, `r${String(r.n).padStart(3, "0")}`),
+      h("a", {href: `?r=${r.n}`}, r.title || `Round ${r.n}`),
+      h("span", {class: "st" + (r.status === "open" ? " open" : "")},
+        `${r.status}${r.feedback ? " · answered" : ""}${r.created ? " · " + r.created : ""}`)));
+  }
+  $("#history").hidden = !rounds.length;
+}
+
+function preload() {
+  const all = [];
+  for (const s of round.scenes) for (const o of s.options || []) for (const f of frames(o)) all.push(f.src);
+  let i = 0;
+  const step = () => { if (i >= all.length) return; const im = new Image(); im.decoding = "async"; im.onload = im.onerror = step; im.src = all[i++]; };
+  const go = () => { step(); step(); };
+  if (window.requestIdleCallback) window.requestIdleCallback(go); else setTimeout(go, 300);
+}
+
+boot();
+})();
+</script>
+</body>
+</html>
