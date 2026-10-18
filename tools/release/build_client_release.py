@@ -109,7 +109,7 @@ if exist player-name.txt set /p QF_USER=<player-name.txt
 if not defined QF_USER set /p QF_USER=Your Minecraft name:
 if not defined QF_USER (echo No name given. & pause & exit /b 1)
 >player-name.txt echo !QF_USER!
-call LAUNCH-ANGELICA.bat
+call "%~dp0LAUNCH-ANGELICA.bat"
 """
 
 
