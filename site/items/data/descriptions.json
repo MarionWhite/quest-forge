@@ -10295,6 +10295,946 @@
 "d": "Trophy head of The Wall, the stone golem guarding El D'dora.",
 "get": "Left behind when The Wall dies."
 },
+"TragicMC:aeris": {
+"d": "Mountain-top flower. Kept underground below y 50, it slowly corrupts in three stages, spawning corrupted mobs and breaking blocks around it; Corrupted Aeris is the Corrupted Spire seed ingredient.",
+"get": "Generates rarely on Overworld mountain tops above y 100."
+},
+"TragicMC:amuletRelease": {
+"d": "Right-click to unlock another active amulet slot (you start with 1 of 3). Crafted with a worn amulet, it restores that amulet's charge to full.",
+"get": "Tragic structure chests; boss bonus loot; Challenge Scroll rewards."
+},
+"TragicMC:apisAmulet": {
+"d": "Cursed amulet: cancels all explosion damage you take, but projectiles hit you 1.75x harder.",
+"get": "Also in Tragic structure chests. Rare Overlord Core drop."
+},
+"TragicMC:aquaOrb": {
+"d": "Elemental orb for the Sunken Amulet and Rain Dance Talisman.",
+"get": "Dropped by Pirah."
+},
+"TragicMC:archangelFeather": {
+"d": "Holy feather for Wings of Liberation and Impossible Reaction.",
+"get": "Rare Archangel drop."
+},
+"TragicMC:ash": {
+"d": "Burnt residue for Shadowskin, Nauseating Concoction and the Greater Stin statue; also crafts into coal.",
+"get": "Dropped by burning zombies and skeletons, Plagues, Inklings, Jabba, Stin."
+},
+"TragicMC:ashenBush": {
+"d": "Dry shrub of the Ashen biomes.",
+"get": "Generates in the Collision's Ashen biomes."
+},
+"TragicMC:ashenGrass": {
+"d": "Ashen grass; drops Dead Dirt and spreads onto it in light.",
+"get": "Generates in the Collision's Ashen biomes."
+},
+"TragicMC:ashenLeaves": {
+"d": "Ashen tree leaves; drop its saplings.",
+"get": "Grows on trees in the Collision's Ashen biomes."
+},
+"TragicMC:ashenPlanks": "Ashen wood planks; work as normal planks.",
+"TragicMC:ashenTallGrass": {
+"d": "Glowing tall grass.",
+"get": "Generates in the Collision's Ashen biomes."
+},
+"TragicMC:ashenWood": {
+"d": "Ashen log; glows faintly and burns into charcoal.",
+"get": "Grows on trees in the Collision's Ashen biomes."
+},
+"TragicMC:awakeningStone": {
+"d": "Core ingredient of every amulet recipe. Has no awakening function of its own.",
+"get": "Also in Tragic chests (common in Time Altar chests), boss bonus loot and Challenge rewards."
+},
+"TragicMC:banana": "Gives Jump Boost II; left-click a mob to throw it.",
+"TragicMC:bananaSplit": "Gives Jump Boost II and Speed for 30 seconds.",
+"TragicMC:beastlyClaws": "Combo weapon: quick successive hits stack up to +10 bonus damage. Doomsday: Beastly Impulses (Resistance and Speed).",
+"TragicMC:blacksmithAmulet": {
+"d": "Slowly repairs a random damaged item in your inventory (not the held one); faster at higher levels. Levels 1-3.",
+"get": "Also in Tragic structure chests. Rare boss bonus loot."
+},
+"TragicMC:bleachedLeaves": {
+"d": "Bleached tree leaves; drop its saplings.",
+"get": "Grows on trees in the Collision's Starlit biomes."
+},
+"TragicMC:bleachedPlanks": "Bleached wood planks; work as normal planks.",
+"TragicMC:bleachedWood": {
+"d": "Bleached log; glows faintly and burns into charcoal.",
+"get": "Grows on trees in the Collision's Starlit biomes."
+},
+"TragicMC:bleedingObsidianOrb": "Right-click to teleport to your spawn point in this dimension, or to the Overworld if you have none. Consumed. Also a Collision key ingredient.",
+"TragicMC:blindingLight": "Hits can set targets in darkness on fire and cure Corruption; right-click fires a Solar Bomb; while held it cancels projectile damage for Doom. Doomsday: Piercing Light.",
+"TragicMC:bloodSacrifice": {
+"d": "Drops you to one heart and converts the health lost into Doom; leaves you with Inhibit, plus Convergence, which skips the next doomsday cooldown.",
+"get": "Also dropped by Parasmites; Tragic chests."
+},
+"TragicMC:boneBlock": {
+"d": "Block of bones (plain or rotten) that breaks into bone meal; base for summoning Skultar with a Time Disruption Cube.",
+"get": "Bone spikes in the Collision's Decaying biomes."
+},
+"TragicMC:boneMarrow": {
+"d": "Drinkable; returns the bowl, with a 50% chance of brief Wither.",
+"get": "Dropped by zombies, skeletons, Parasmites, Skultar and Enyvil."
+},
+"TragicMC:bowOfJustice": {
+"d": "Admin bow: its arrow kills almost anything, and the bow is used up outside Creative.",
+"get": "Creative only."
+},
+"TragicMC:brushedGrass": {
+"d": "Painted grass; drops Dead Dirt and spreads onto it in light.",
+"get": "Generates in the Collision's Painted biomes."
+},
+"TragicMC:butcher": {
+"d": "Epic weapon: hits can weaken and always shove the target; while held you gain knockback resistance. Doomsday: Bloodlust, a burst of strong buffs.",
+"get": "Rare boss bonus loot; Time Altar and Spire chests; Challenge rewards."
+},
+"TragicMC:candle": {
+"d": "Wax candle; a dim light source.",
+"get": "Also in Claymation Ruins; Pumpkinhead drop."
+},
+"TragicMC:carrotBlock": {
+"d": "Oversized carrot block; breaks into 2-4 carrots.",
+"get": "Bonemealing a fully grown carrot crop may turn it into one."
+},
+"TragicMC:catalyticCompound": {
+"d": "Reagent for Complex Circuitry and Purified Energy.",
+"get": "Dropped by Synapse robots, Fusea, Ranmas and Aegar."
+},
+"TragicMC:celestialAegis": "Cuts all damage you take while held. Doomsdays: Purge (normal) and Moonlight Sonata, which refills Doom at night (sneaking).",
+"TragicMC:celestialDiamond": "Enhanced diamond behind the Celestial gear and Celestial Steel.",
+"TragicMC:celestialJack": "Diamond-tier multitool that mines everything at full speed and tills soil. Doomsday: Reality Alter, transmuting nearby blocks.",
+"TragicMC:celestialLongbow": "Slow-drawing, hard-hitting long-range bow; sneak-right-click teleports you up to about 50 blocks to where you look. Doomsday: Snipe.",
+"TragicMC:celestialSteel": {
+"d": "Endgame alloy for the Celestial Aegis, Jack and Longbow and the Time Disruption Cube; crafted from a Celestial Diamond plus any boss trophy.",
+"get": "Also a rare drop of the Time Controller and the Overlord Core."
+},
+"TragicMC:celled": {
+"d": "Dark cellular block of the Corrupted Spire; the Overlord turns the ground into it.",
+"get": "Also in the Corrupted Spire."
+},
+"TragicMC:celledLamp": {
+"d": "Glowing Celled Block lamp in 16 colours.",
+"get": "Also in the Corrupted Spire."
+},
+"TragicMC:challengeScroll": {
+"d": "Right-click to draw a random challenge (kill, collect, find, survive and so on). Finish it, then right-click again for rewards that scale with difficulty, up to boss spawn eggs and epic weapons.",
+"get": "Tragic structure chests; rarely dropped by any hostile mob killed by a player."
+},
+"TragicMC:chickenAmulet": {
+"d": "Sleeping in a bed heals you and refills Doom by a fraction that grows with level; level 3 also clears bad effects. Levels 1-3.",
+"get": "Rare boss bonus loot."
+},
+"TragicMC:chitin": {
+"d": "Insect shell for Infallible Metal and the Creepy Idol.",
+"get": "Dropped by Stin, the Stin King and Queen, Enyvil and the Overlord Core."
+},
+"TragicMC:circuit": {
+"d": "The Synapse's ground: circuit-board blocks in five wear states (live ones glow and emit redstone). A plus of them under a Synapse Core summons the Overlord.",
+"get": "Generates throughout the Synapse."
+},
+"TragicMC:claymationAmulet": {
+"d": "Every few seconds may strip your bad potion effects and cast them onto nearby mobs; higher levels add a chance of a random buff. Levels 1-3.",
+"get": "Rare boss bonus loot."
+},
+"TragicMC:compactOre": {
+"d": "Storage blocks for the five TragicMC metals and gems (ruby, sapphire, tungsten, red mercury, quicksilver).",
+"get": "Also boss bonus loot and Tragic chests."
+},
+"TragicMC:complexCircuitry": "Electronics for the Neko Rocket Launcher and IreNet Particle Cannon.",
+"TragicMC:conduit": {
+"d": "Glowing tech-coral that hangs from Synapse ceilings.",
+"get": "Generates in the Synapse; Memory Caches."
+},
+"TragicMC:consumptionAmulet": {
+"d": "Cursed amulet: sometimes halves a doomsday's Doom cost, but a backlash then drains your entire Doom bar.",
+"get": "Also in Tragic structure chests. Rare Overlord Core drop."
+},
+"TragicMC:cooldownDefuse": {
+"d": "Right-click to cut your doomsday cooldown by 30 units (about 12 seconds), or clear it. Doom does not recharge while on cooldown.",
+"get": "Vanilla dungeon, mineshaft, temple, stronghold and blacksmith chests; Tragic chests; boss bonus loot."
+},
+"TragicMC:corruptedEgg": "Use on a block to spawn one random monster from the current biome's spawn list. Consumed.",
+"TragicMC:corruptedEssence": {
+"d": "Overlord-tier material: the Overlord armour and amulet, Overlord statues and Corrupted Eggs.",
+"get": "Also a rare Overlord Core drop."
+},
+"TragicMC:corruptedEye": {
+"d": "Overlord trophy; makes Corrupted Essence and the Overlord Core statue.",
+"get": "Dropped by the Overlord Core."
+},
+"TragicMC:corruptedGas": {
+"d": "Gas released by the Overlord: Corruption and choking damage while inside.",
+"get": "Technical block, not obtainable."
+},
+"TragicMC:corsin": {
+"d": "Spider-nest stone in nine looks, two of them glowing crystal.",
+"get": "Found in Spider Nests in the Collision's Dark Forest."
+},
+"TragicMC:creeperAmulet": {
+"d": "Permanent Haste while worn: Haste II, III or IV by level. Levels 1-3.",
+"get": "Also in Tragic structure chests. Rare boss bonus loot."
+},
+"TragicMC:creepyIdol": "Reagent for the Mourning Star, Reaper Scythe and Blood Sacrifice.",
+"TragicMC:crushedIce": {
+"d": "Ice shards for Ice Cream, ice, Paradoxical Formula and the Mega Cryse statue.",
+"get": "Dropped by Cryse, Ragr, Abominations, Mega Cryse and Empariah."
+},
+"TragicMC:cryingObsidianOrb": "Right-click to set your spawn point where you stand, in the current dimension. Consumed. Also a Collision key ingredient.",
+"TragicMC:crystal": {
+"d": "Very hard crystal block; needs a diamond pickaxe.",
+"get": "Generates only in the rare Crystal biome of the Collision; Ranmas drop."
+},
+"TragicMC:darkBoots": {
+"d": "Dark armour: full set gives constant Immunity and removes Fear. Doomsday: Fear.",
+"get": "Also in Tragic boss-structure chests."
+},
+"TragicMC:darkCobblestone": {
+"d": "Dark Stone cobble in four kinds: plain, Hot (burns forever on top), Toxic and Ashen. Smelts back into Dark Stone.",
+"get": "Generates in the Collision: Corroded biomes, dungeon floors; mining Dark Stone."
+},
+"TragicMC:darkenedQuartz": {
+"d": "Black quartz block in plain, chiseled and pillar forms; the base for summoning Enyvil with a Time Disruption Cube.",
+"get": "Found in Celestial Temples and Soul Tombs."
+},
+"TragicMC:darkGas": {
+"d": "Blinding gas: Blindness while you stand in it.",
+"get": "Generates in the Collision's Dark Forest; not obtainable."
+},
+"TragicMC:darkGrass": {
+"d": "Dark Forest grass; drops Dead Dirt and spreads onto it in light.",
+"get": "Generates in the Collision's Dark Forest biomes."
+},
+"TragicMC:darkHelm": {
+"d": "Dark armour: full set gives constant Immunity and removes Fear. Doomsday: Fear.",
+"get": "Also in Tragic boss-structure chests."
+},
+"TragicMC:darkIngot": {
+"d": "Metal for the Dark armour and Pitch Black, Gravity Spike, Mourning Star, Withering Axe and Reaper Scythe.",
+"get": "Also dropped by the Stin King and Stin Queen."
+},
+"TragicMC:darkLeaves": {
+"d": "Darkwood leaves: prick anything inside them; drop Darkwood saplings.",
+"get": "Grows on trees in the Collision's Dark Forest biomes."
+},
+"TragicMC:darkLegs": {
+"d": "Dark armour: full set gives constant Immunity and removes Fear. Doomsday: Fear.",
+"get": "Also in Tragic boss-structure chests."
+},
+"TragicMC:darkParticles": {
+"d": "Dark essence for Dark Ingots, dark building blocks and several reagents.",
+"get": "Dropped by Plagues, Inklings, Stin, Psygotes, Endermen and many dark mobs."
+},
+"TragicMC:darkPlate": {
+"d": "Dark armour: full set gives constant Immunity and removes Fear. Doomsday: Fear.",
+"get": "Also in Tragic boss-structure chests."
+},
+"TragicMC:darkSand": {
+"d": "Black falling sand used for Dark Sandstone.",
+"get": "Found in Claymation Ruins."
+},
+"TragicMC:darkSandstone": {
+"d": "Dark sandstone in six cut styles; part of the Claymation Ruin palette.",
+"get": "Found in Claymation Ruins."
+},
+"TragicMC:darkStone": {
+"d": "The Collision's bedrock-free base stone, in 15 looks: plain, six corroded colours, beveled versions and the Tainted spike stone. Plain Dark Stone drops Dark Cobblestone.",
+"get": "Generates throughout the Collision; colour bands appear at fixed depths."
+},
+"TragicMC:darkTallGrass": {
+"d": "Glowing tall grass.",
+"get": "Generates in the Collision's Dark Forest biomes."
+},
+"TragicMC:darkVine": {
+"d": "Thorny vine that hurts on touch.",
+"get": "Hangs from Darkwood trees in the Collision."
+},
+"TragicMC:darkwood": {
+"d": "Darkwood log; glows faintly and burns into charcoal.",
+"get": "Grows on trees in the Collision's Dark Forest biomes."
+},
+"TragicMC:darkwoodPlanks": {
+"d": "Darkwood planks; work as normal planks.",
+"get": "No recipe in this version; found in Dark Huts in the Dark Forest."
+},
+"TragicMC:deadBush": {
+"d": "Dead shrub of the Ashen biomes.",
+"get": "Generates in the Collision's Ashen biomes."
+},
+"TragicMC:deadDirt": {
+"d": "The Collision's dirt, in plain, rugged and mixed kinds; grass spreads onto it in light.",
+"get": "Generates throughout the Collision."
+},
+"TragicMC:deathglow": {
+"d": "Deathglow crop block.",
+"get": "Technical block; grow it from Deathglow Seeds."
+},
+"TragicMC:deathglowSeeds": "Plants a Deathglow crop that grows like sugar cane on TragicMC grass or dark cobblestone.",
+"TragicMC:deathlyHallow": {
+"d": "Skultar's trophy. Used for the Mourning Star, the Reaper Scythe, bone blocks, its statue and the Corrupted Spire seed; also a Celestial Steel catalyst.",
+"get": "Dropped by Skultar."
+},
+"TragicMC:diamondCharm": {
+"d": "Ore charm: makes the Awakening Stone, and with two identical amulets or weapons it upgrades their level or lore rarity.",
+"get": "Also in Tragic chests; Aegar drop."
+},
+"TragicMC:digitalSea": {
+"d": "Intangible, purely visual data block speckling the Synapse's void.",
+"get": "Technical block, not obtainable."
+},
+"TragicMC:dimensionalKey": {
+"d": "The way into the Collision, TragicMC's night-locked dimension: hold right-click for three seconds, then release. Used inside the Collision, it returns you to the Overworld. 30 trips.",
+"get": "Also a rare Psygote drop."
+},
+"TragicMC:dimensionalKeyEnd": {
+"d": "Hold right-click for three seconds, then release, to travel to the End; used there, it returns you to the Overworld. 30 trips.",
+"get": "Dropped by every Ender Dragon kill."
+},
+"TragicMC:dimensionalKeyNether": {
+"d": "Hold right-click for three seconds, then release, to travel to the Nether; used there, it returns you to the Overworld. 30 trips.",
+"get": "Creative only."
+},
+"TragicMC:dimensionalKeySynapse": {
+"d": "Hold right-click for three seconds, then release, to travel to the Synapse; used there, it returns you to the Overworld. 30 trips.",
+"get": "Creative only."
+},
+"TragicMC:doomConsume": {
+"d": "Right-click to raise your maximum Doom by 100 (up to 500) and refill half the bar; at the cap it only refills.",
+"get": "Time Altar and Spire soul chests; boss bonus loot; Challenge Scroll rewards."
+},
+"TragicMC:doomsdayScroll": {
+"d": "One-shot cast of a doomsday ability (70 kinds, one per scroll): right-click to use it once at its normal Doom cost. Teaches nothing and is used up even if the cast fails.",
+"get": "Boss bonus loot; Psygote and Overlord Core drops."
+},
+"TragicMC:dragonFang": {
+"d": "Epic fire weapon: hits ignite; right-click is a flamethrower, sneak for a ghast fireball; keeps you from burning. Doomsdays: Fire Rain and Dragon's Roar (sneaking).",
+"get": "Rare boss bonus loot; Time Altar and Spire chests; Challenge rewards."
+},
+"TragicMC:driedTallGrass": {
+"d": "Glowing tall grass.",
+"get": "Generates in the Collision's Ashen biomes."
+},
+"TragicMC:dyingObsidianOrb": "Right-click to return to your Overworld bed or world spawn from any dimension. Consumed. Also a Collision key ingredient.",
+"TragicMC:ectoplasm": {
+"d": "Ghostly slime for Lunar Powder, the Supernatural Amulet and two reagents.",
+"get": "Dropped by slimes, magma cubes, witches, Plagues, Gragul, Inklings, Psygotes."
+},
+"TragicMC:emeraldCharm": {
+"d": "Ore charm: makes the Awakening Stone, and with two identical amulets or weapons it upgrades their level or lore rarity.",
+"get": "Also in Tragic chests; Aegar drop."
+},
+"TragicMC:enchantedTears": {
+"d": "Magic water for Corrupted Essence, Wax, quicksand blocks, Purified Energy and the Hydration Talisman.",
+"get": "Dropped by Cryse, Pirah, Abominations, Mega Cryse and Claymation."
+},
+"TragicMC:enderDragonAmulet": {
+"d": "Cursed amulet: when you suffocate inside blocks, it breaks the blocks at your head and feet to free you.",
+"get": "Also in Tragic structure chests. Rare Overlord Core drop."
+},
+"TragicMC:endermanAmulet": {
+"d": "Cursed amulet: blocks you break bare-handed drop themselves, as with Silk Touch.",
+"get": "Also in Tragic structure chests. Rare Overlord Core drop."
+},
+"TragicMC:enyvilAmulet": "Epic amulet: constantly inflicts Fear on every living thing within 16 blocks, allies and other players included.",
+"TragicMC:erodedStone": {
+"d": "Weathered surface stone of the Tainted biomes, in three looks; also used for Celled Blocks.",
+"get": "Generates in the Collision's Tainted biomes."
+},
+"TragicMC:etherealDistortion": {
+"d": "Boss-kill token with no use in this version: nothing crafts with it.",
+"get": "Dropped by every TragicMC boss killed by a player."
+},
+"TragicMC:everlastingLight": "Right-click to place a light orb, using charge. Recharges by itself in bright daylight.",
+"TragicMC:exoticFruit": {
+"d": "Always edible; brief Regeneration VII. A brewing ingredient; plant its seeds to grow more.",
+"get": "Grows wild in Hallowed biomes; dropped by Tox and Magmox; Tragic chests."
+},
+"TragicMC:explosiveGas": {
+"d": "Buried gas that explodes next to fire or lava, chaining through other pockets.",
+"get": "Generates underground in Corroded biomes; not obtainable."
+},
+"TragicMC:fireOrb": {
+"d": "Elemental orb for lava rocks, Radiated Infusion and the Sunny Day Talisman.",
+"get": "Dropped by Jabba, Magmox, Kitsunakuma, Skultar."
+},
+"TragicMC:fragileLight": {
+"d": "Floating light that dims for a moment when something touches it.",
+"get": "Generates in the Collision's Hallowed biomes."
+},
+"TragicMC:frozenLightning": {
+"d": "Hits may slow; right-click fires icicles; sneak-right-click calls lightning and an explosion where you look. Doomsday: Freeze.",
+"get": "Also in Tragic boss-structure chests."
+},
+"TragicMC:frozenNetherrack": "Icy-blue netherrack; decorative.",
+"TragicMC:fuseaAmulet": {
+"d": "Each time you are hurt, sets off an explosion around you that harms nearby attackers but not blocks; bigger at higher levels. Levels 1-3.",
+"get": "Also in Tragic structure chests. Rare boss bonus loot."
+},
+"TragicMC:generator": {
+"d": "Creative world-editing tools (12 kinds): void pits, spikes, spheres, trees, lightning and explosions at the block you look at.",
+"get": "Creative only."
+},
+"TragicMC:glowvine": {
+"d": "Brightly glowing climbable vine.",
+"get": "Hangs from large Painted trees in the Collision."
+},
+"TragicMC:goldenSushi": {
+"d": "Top food: Immunity, Absorption V, Regeneration III and more, plus brief Invulnerability. Feeding it to a Corrupted mob cures it.",
+"get": "Also dropped by Ragr and Tragic Nekos; Tragic chests."
+},
+"TragicMC:gooeyFruit": {
+"d": "Always edible; gives Resurrection II, which cancels your next death. A brewing ingredient.",
+"get": "Dropped by Jarra and Magmox; Tragic boss-structure chests."
+},
+"TragicMC:gravityOrb": {
+"d": "Elemental orb for the Gravity Spike and Time Manipulator Talisman.",
+"get": "Dropped by Gragul, Kragul and Lockbots."
+},
+"TragicMC:gravitySpike": {
+"d": "Each hit launches the target up and away (7 Doom). Doomsday: Pulse, slamming nearby entities up and down.",
+"get": "Also in Tragic boss-structure chests."
+},
+"TragicMC:guiltyThorn": {
+"d": "Hits can poison and stun. Doomsday: Torment (Wither and Stun around you).",
+"get": "Also in Tragic boss-structure chests."
+},
+"TragicMC:hallowedGrass": {
+"d": "Hallowed, glowing grass; drops Dead Dirt and spreads onto it in light.",
+"get": "Generates in the Collision's Hallowed biomes."
+},
+"TragicMC:hallowedLeafTrim": {
+"d": "Glowing leaf trim on top of Hallowed trees.",
+"get": "Grows on Hallowed trees in the Collision."
+},
+"TragicMC:hallowedLeaves": {
+"d": "Hallowed tree leaves; drop its saplings.",
+"get": "Grows on trees in the Collision's Hallowed biomes."
+},
+"TragicMC:hallowedPlanks": {
+"d": "Hallowed wood planks; work as normal planks.",
+"get": "No recipe in this version; Creative only."
+},
+"TragicMC:hallowedWood": {
+"d": "Hallowed log; glows faintly and burns into charcoal.",
+"get": "Grows on trees in the Collision's Hallowed biomes."
+},
+"TragicMC:harmonyBell": "Deals no damage: hits pacify the target with Harmony, and while held it slowly heals you. Doomsday: Harmonizer.",
+"TragicMC:honeydrop": {
+"d": "Honeydrop crop block.",
+"get": "Technical block; grow it from Honeydrop Seeds."
+},
+"TragicMC:honeydropSeeds": "Plants a Honeydrop crop that grows like sugar cane on TragicMC grass.",
+"TragicMC:horn": {
+"d": "Animal horn for the Creepy Idol, the Lightning Rod Talisman and bone meal.",
+"get": "Dropped by cows, Minotaurs and Apis."
+},
+"TragicMC:huntersBoots": "Hunter's leather armour, light protection; no set bonus. Doomsday: Hunter's Instinct (Speed, Jump and Strength).",
+"TragicMC:huntersBow": {
+"d": "Draws faster and shoots harder than a vanilla bow. Doomsday: Rapid Fire, a stream of crit arrows.",
+"get": "Also in Tragic boss-structure chests."
+},
+"TragicMC:huntersCap": "Hunter's leather armour, light protection; no set bonus. Doomsday: Hunter's Instinct (Speed, Jump and Strength).",
+"TragicMC:huntersLegs": "Hunter's leather armour, light protection; no set bonus. Doomsday: Hunter's Instinct (Speed, Jump and Strength).",
+"TragicMC:huntersTunic": "Hunter's leather armour, light protection; no set bonus. Doomsday: Hunter's Instinct (Speed, Jump and Strength).",
+"TragicMC:hydrationTalisman": "Full knockback resistance while it rains or you are in water, while carried; wears slowly.",
+"TragicMC:iceAmulet": {
+"d": "Meant to protect you in cold biomes, but a code bug ties that effect to the Time Amulet, so this one does nothing in 1.7.10. Levels 1-3.",
+"get": "Also in Tragic structure chests. Rare boss bonus loot."
+},
+"TragicMC:iceCream": "Gives Speed II for two minutes; returns the bowl.",
+"TragicMC:icedDirt": {
+"d": "Frozen subsoil under Permafrost.",
+"get": "Generates in the Collision's Frozen biomes."
+},
+"TragicMC:iceOrb": {
+"d": "Elemental orb for Frozen Lightning, the Ice Amulet and Frozen Netherrack.",
+"get": "Dropped by Cryse, Ragr, Abominations, Mega Cryse, Empariah."
+},
+"TragicMC:iceSpike": {
+"d": "Ice stalagmite (hangs as a stalactite under ceilings). Falling onto it hurts badly, and standing on it chips at you. Drops nothing.",
+"get": "Generates in the Collision's Frozen biomes."
+},
+"TragicMC:icyFur": {
+"d": "Frozen pelt for Beastly Claws and Tough Leather.",
+"get": "Dropped by Ragr, Abominations and Empariah."
+},
+"TragicMC:impossibleReaction": "Reagent for Pitch Black, the Withering Axe and Cooldown Defuse.",
+"TragicMC:infallibleMetal": "Advanced alloy for the Synapse Core and most high-tier weapons.",
+"TragicMC:interestingResin": {
+"d": "Sticky sap for the Creepy Idol and Toxic Amalgation.",
+"get": "Dropped by Tox, Jabba, Jarra, Erkels and Pumpkinheads."
+},
+"TragicMC:ireNode": {
+"d": "Energy core for Complex Circuitry and the Everlasting Light.",
+"get": "Dropped by Ire."
+},
+"TragicMC:ireParticleCannon": "Right-click fires five Ire energy bolts (5 Doom). Doomsday: Flash, filling the air with light.",
+"TragicMC:ironGolemAmulet": {
+"d": "Constant Resistance II, III or IV by level; level 3 also cancels fall damage. Levels 1-3.",
+"get": "Also in Tragic structure chests. Rare boss bonus loot."
+},
+"TragicMC:jack": "Basic multitool: mines stone, wood and dirt at full speed and tills soil like a hoe.",
+"TragicMC:kitsuneAmulet": {
+"d": "Cursed amulet: Fire Resistance, and melee attackers often catch fire and go blind; fireballs hit you 1.75x harder.",
+"get": "Also in Tragic structure chests. Rare Overlord Core drop."
+},
+"TragicMC:kitsuneTail": {
+"d": "Kitsunakuma's trophy. Used for its amulet and statue, the Harmony Bell, Foxtail Rock and the Corrupted Spire seed; also a Celestial Steel catalyst.",
+"get": "Dropped by Kitsunakuma."
+},
+"TragicMC:lichen": {
+"d": "Short ground cover of the Frozen biomes.",
+"get": "Generates in the Collision's Frozen biomes."
+},
+"TragicMC:light": {
+"d": "Floating orb of light without collision; also placed by the Everlasting Light. Drops nothing.",
+"get": "Generates in the Collision's Hallowed biomes."
+},
+"TragicMC:lightBoots": {
+"d": "Light armour, diamond-class: full set gives Night Vision and Clarity and removes Blindness and fire. Doomsday: Light Shove.",
+"get": "Also in Tragic boss-structure chests."
+},
+"TragicMC:lightCobblestone": "Glowing cobblestone in three looks (plain, frozen, glowing) made from Dark Cobblestone.",
+"TragicMC:lightHelm": {
+"d": "Light armour, diamond-class: full set gives Night Vision and Clarity and removes Blindness and fire. Doomsday: Light Shove.",
+"get": "Also in Tragic boss-structure chests."
+},
+"TragicMC:lightIngot": "Metal for the Light armour and Blinding Light.",
+"TragicMC:lightLegs": {
+"d": "Light armour, diamond-class: full set gives Night Vision and Clarity and removes Blindness and fire. Doomsday: Light Shove.",
+"get": "Also in Tragic boss-structure chests."
+},
+"TragicMC:lightningAmulet": {
+"d": "Cursed amulet: lightning that strikes you is cancelled and instead feeds you, puts out fire and grants brief Fire Resistance.",
+"get": "Also in Tragic structure chests. Rare Overlord Core drop."
+},
+"TragicMC:lightningOrb": {
+"d": "Elemental orb for Frozen Lightning, Purified Energy, Complex Circuitry and the Lightning Amulet.",
+"get": "Any lightning strike may drop one; charged creepers, Enyvil."
+},
+"TragicMC:lightningRodTalisman": "+5 attack damage during thunderstorms while carried; wears slowly.",
+"TragicMC:lightParticles": {
+"d": "Light essence for Light Ingots, Light Cobblestone, the Apis Amulet and the Harmony Bell.",
+"get": "Dropped by Ire, Archangels and Apis."
+},
+"TragicMC:lightPlate": {
+"d": "Light armour, diamond-class: full set gives Night Vision and Clarity and removes Blindness and fire. Doomsday: Light Shove.",
+"get": "Also in Tragic boss-structure chests."
+},
+"TragicMC:lightStone": "Pale decorative stone, the smelted form of Light Cobblestone.",
+"TragicMC:livingClay": {
+"d": "Claymation's trophy. Right-click a Mob Statue with it to bring that boss or mini-boss to life. Also used for all statues, talismans and the Spire seed.",
+"get": "Dropped by Claymation."
+},
+"TragicMC:luckAmulet": {
+"d": "Periodically grants experience, and boss kills drop their experience a second time. Levels 1-3.",
+"get": "Also in Tragic structure chests. Rare boss bonus loot."
+},
+"TragicMC:luminescence": {
+"d": "Invisible temporary light left by glowing mobs and some doomsdays.",
+"get": "Technical block, not obtainable."
+},
+"TragicMC:lunarPowder": "Glowing powder behind every special talisman, Celestial Diamonds and the Time Disruption Cube.",
+"TragicMC:martyrAmulet": {
+"d": "Cursed amulet: halves all damage you take, but the amulet loses that much charge, so it burns out fast.",
+"get": "Also in Tragic structure chests. Rare Overlord Core drop."
+},
+"TragicMC:mercuryBoots": "Red Mercury armour, just under iron but highly enchantable; no set bonus. Doomsday: Toxicity, firing poison barbs at everything nearby.",
+"TragicMC:mercuryDagger": "Plain dagger with no special powers. Doomsday: Poison Break (fires poison barbs).",
+"TragicMC:mercuryHelm": "Red Mercury armour, just under iron but highly enchantable; no set bonus. Doomsday: Toxicity, firing poison barbs at everything nearby.",
+"TragicMC:mercuryLegs": "Red Mercury armour, just under iron but highly enchantable; no set bonus. Doomsday: Toxicity, firing poison barbs at everything nearby.",
+"TragicMC:mercuryOre": {
+"d": "Smelts into Red Mercury.",
+"get": "Generates in Overworld stone at y 5-52."
+},
+"TragicMC:mercuryPlate": "Red Mercury armour, just under iron but highly enchantable; no set bonus. Doomsday: Toxicity, firing poison barbs at everything nearby.",
+"TragicMC:mobStatue": {
+"d": "Display statue of a boss or mini-boss (20 kinds); retexture it with metals or gems. Right-click it with Living Clay to bring the creature to life and fight it again (not the Overlord statues).",
+"get": "Each boss always drops its statue; mini-bosses do when player-killed."
+},
+"TragicMC:moltenRock": {
+"d": "Glowing surface rock of the Scorched biomes; its top burns forever.",
+"get": "Generates in the Collision's Scorched biomes."
+},
+"TragicMC:moonlightTalisman": "+10 max health on clear nights while carried; wears slowly.",
+"TragicMC:moss": {
+"d": "Non-climbable frozen vine that turns Permafrost mossy.",
+"get": "Generates in the Collision's Frozen biomes."
+},
+"TragicMC:mourningStar": "Right-click to explode around yourself (25 Doom), or sneak-right-click to blast where you look, up to 30 blocks (30 Doom). Doomsday: Ravage.",
+"TragicMC:nanoBots": {
+"d": "Synapse tech for Celled Blocks, Complex Circuitry, the Overlord armour and the Synapse Core.",
+"get": "Dropped by Synapse mobs (Nano Swarms, Hunters, Lockbots, Harvesters)."
+},
+"TragicMC:nastyFruit": {
+"d": "Always edible; gives Immunity for two minutes. Use it on a Corrupted mob to cure it. Plant its seeds to grow more.",
+"get": "Grows wild in Corroded biomes; Magmox drop."
+},
+"TragicMC:nauseatingConcoction": "Reagent for the Guilty Thorn and the Nourishment Sacrifice.",
+"TragicMC:nekoLauncher": "Right-click fires a Neko Rocket (5 Doom). Doomsday: Suicidal Tendencies, a rocket barrage.",
+"TragicMC:nekoNekoWand": {
+"d": "Creative debug wand: pick a mob, then a target, and the mob fights it; sneak to select a group.",
+"get": "Creative only."
+},
+"TragicMC:netherBrickPressurePlate": "Pressure plate triggered only by mobs.",
+"TragicMC:nourishmentSacrifice": {
+"d": "Empties your hunger bar and converts the food lost into Doom; leaves you Malnourished, plus Convergence, which skips the next doomsday cooldown.",
+"get": "Also dropped by Parasmites; Tragic chests."
+},
+"TragicMC:obsidian": "Three blast-proof obsidian variants (Crying, Bleeding, Dying) that cannot be pushed; decorative.",
+"TragicMC:obsidianOrb": {
+"d": "Base orb for the Crying, Bleeding and Dying orbs, the Awakening Stone and the Time Disruption Cube.",
+"get": "Also dropped by Nor-Vox and Vox Stellarum; Tragic chests."
+},
+"TragicMC:overlordAmulet": "Epic amulet: cures the Hacked effect and cuts damage you take in the Synapse by about a third.",
+"TragicMC:overlordBarrier": {
+"d": "Temporary unbreakable platform the Overlord lays under itself in its Combat phase.",
+"get": "Technical block, not obtainable."
+},
+"TragicMC:overlordBoots": "Top-tier set from the Overlord's Corrupted Essence: +5 max health per piece, always Epic lore, and the full set removes Cripple and Weakness. Doomsday: Harden.",
+"TragicMC:overlordHelm": "Top-tier set from the Overlord's Corrupted Essence: +5 max health per piece, always Epic lore, and the full set removes Cripple and Weakness. Doomsday: Harden.",
+"TragicMC:overlordLegs": "Top-tier set from the Overlord's Corrupted Essence: +5 max health per piece, always Epic lore, and the full set removes Cripple and Weakness. Doomsday: Harden.",
+"TragicMC:overlordPlate": "Top-tier set from the Overlord's Corrupted Essence: +5 max health per piece, always Epic lore, and the full set removes Cripple and Weakness. Doomsday: Harden.",
+"TragicMC:paintedLeaves": {
+"d": "Painted tree leaves; drop its saplings.",
+"get": "Grows on trees in the Collision's Painted biomes."
+},
+"TragicMC:paintedPlanks": "Painted wood planks; work as normal planks.",
+"TragicMC:paintedTallGrass": {
+"d": "Glowing tall grass.",
+"get": "Generates in the Collision's Painted biomes."
+},
+"TragicMC:paintedWood": {
+"d": "Painted log; glows faintly and burns into charcoal.",
+"get": "Grows on trees in the Collision's Painted biomes."
+},
+"TragicMC:paradoxicalFormula": "Reagent for Frozen Lightning and both sacrifice items.",
+"TragicMC:paranoia": {
+"d": "Epic weapon: hits may inflict Fear; right-click fires dark energy, sneak to spray it around you. Doomsday: Asphyxiate.",
+"get": "Rare boss bonus loot; Time Altar and Spire chests; Challenge rewards."
+},
+"TragicMC:peaceAmulet": {
+"d": "Every few seconds may pacify nearby mobs with Harmony so they stop attacking; range and chance grow with level. Levels 1-3.",
+"get": "Rare boss bonus loot."
+},
+"TragicMC:permafrost": {
+"d": "Slippery frozen ground in plain, cracked and mossy forms.",
+"get": "Generates in the Collision's Frozen biomes."
+},
+"TragicMC:piercingAmulet": {
+"d": "Cursed amulet: your melee hits deal extra armour-piercing damage, but magic hurts you more than twice as much.",
+"get": "Also in Tragic structure chests. Rare Overlord Core drop."
+},
+"TragicMC:pitchBlack": "Right-click (5 Doom) throws the sword itself: it hits for 10 with Blindness, then drops where it lands. Doomsday: Nature Drain (strips plants to heal you).",
+"TragicMC:polarisAmulet": {
+"d": "Cursed amulet: you take less damage at night and much more during the day.",
+"get": "Also in Tragic structure chests. Rare Overlord Core drop."
+},
+"TragicMC:potatoBlock": {
+"d": "Oversized potato block; breaks into 2-4 potatoes.",
+"get": "Bonemealing a fully grown potato crop may turn it into one."
+},
+"TragicMC:projectile": {
+"d": "Throwable versions of TragicMC mob ammunition (25 kinds: rocks, pumpkin bombs, Neko rockets, spores, icicles, dark energy and more); right-click to throw.",
+"get": "Creative; some kinds drop from mobs (Nor-Vox rocks, Tox spores, Tragic Neko bombs)."
+},
+"TragicMC:pureDarkness": {
+"d": "Enyvil's trophy. Used for Pitch Black, the Enyvil Amulet and statue, Dark Particles and the Corrupted Spire seed; also a Celestial Steel catalyst.",
+"get": "Dropped by Enyvil."
+},
+"TragicMC:pureLight": {
+"d": "Apis's trophy. Used for the Apis statue, Blinding Light, the Everlasting Light and the Corrupted Spire seed; also a Celestial Steel catalyst.",
+"get": "Dropped by Apis."
+},
+"TragicMC:purifiedEnergy": "Power reagent for Blinding Light, Frozen Lightning, the IreNet Cannon and Cooldown Defuse.",
+"TragicMC:quicksand": {
+"d": "Sinking sand in four kinds: Quicksand, Mud, Drudge and poisonous Toxic Sludge. Nearly stops you and drags you down.",
+"get": "Drudge generates in the Nether and Dark Marsh; Toxic Sludge in Corroded biomes."
+},
+"TragicMC:quicksilver": {
+"d": "Liquid metal for Solidified Quicksilver, the Jack, Infallible Metal and Beastly Claws.",
+"get": "Smelted from Red Mercury; rarely dropped by zombies."
+},
+"TragicMC:quicksilverIngot": {
+"d": "Solid quicksilver bar, used for Dark Ingots, Obsidian Orbs and the Guilty Thorn.",
+"get": "Also a rare Enyvil drop."
+},
+"TragicMC:radiatedGas": {
+"d": "Toxic gas: Poison and damage while inside.",
+"get": "Generates in Corroded biomes; not obtainable."
+},
+"TragicMC:radiatedInfusion": "Reagent for Blinding Light, Gravity Spike, Harmony Bell, the Everlasting Light and Cooldown Defuse.",
+"TragicMC:rainDanceTalisman": "Starts rain while carried anywhere in your inventory; uses charge each time.",
+"TragicMC:reaperScythe": "Throws pumpkin bombs (5 Doom), or a large one when sneaking (15 Doom); also tills and cuts plants like the Scythe. Doomsday: Reaper's Laugh.",
+"TragicMC:redMercury": {
+"d": "Red metal for the Red Mercury armour and dagger; smelt it again for Quicksilver.",
+"get": "Smelted from Red Mercury Ore; dropped by Jabba, Nor-Vox; boss bonus loot."
+},
+"TragicMC:rice": "Fast-eating bowl of rice; also the rice for sushi.",
+"TragicMC:ruby": {
+"d": "Red gem for the Ruby Charm and storage block.",
+"get": "Mined from Nether Ruby Ore and Collision ore; Nor-Vox, Archangel, Aegar drops; Tragic chests."
+},
+"TragicMC:rubyCharm": {
+"d": "Ore charm: makes the Awakening Stone, and with two identical amulets or weapons it upgrades their level or lore rarity.",
+"get": "Also in Tragic chests; Aegar drop."
+},
+"TragicMC:rubyOre": {
+"d": "Yields a ruby (more with Fortune); needs a diamond pickaxe.",
+"get": "Generates in the Nether at y 15-44."
+},
+"TragicMC:sandstonePressurePlate": "Pressure plate triggered only by players.",
+"TragicMC:sapphire": {
+"d": "Blue gem for the Sapphire Charm and storage block.",
+"get": "Mined from Nether Sapphire Ore and Collision ore; Nor-Vox, Archangel, Aegar drops; Tragic chests."
+},
+"TragicMC:sapphireCharm": {
+"d": "Ore charm: makes the Awakening Stone, and with two identical amulets or weapons it upgrades their level or lore rarity.",
+"get": "Also in Tragic chests; Aegar drop."
+},
+"TragicMC:sapphireOre": {
+"d": "Yields a sapphire (more with Fortune); needs a diamond pickaxe.",
+"get": "Generates in the Nether at y 95-114."
+},
+"TragicMC:scorchedRock": {
+"d": "Burnt filler stone of the Scorched biomes; its top burns forever.",
+"get": "Generates in the Collision's Scorched biomes."
+},
+"TragicMC:scythe": "Early bone tool that cuts plants, leaves and vines quickly and tills soil.",
+"TragicMC:sentinel": {
+"d": "The Overlord's reward and the strongest regular blade, always Epic. Doomsdays: Guardian's Call (orbiting shields) and Sharpen (sneaking).",
+"get": "Always dropped by the Overlord Core."
+},
+"TragicMC:septicGas": {
+"d": "Poison gas left by the Septics doomsday; fades.",
+"get": "Technical block, not obtainable."
+},
+"TragicMC:shadowskin": "Dark hide for the Neko Rocket Launcher and Reaper Scythe.",
+"TragicMC:silentHellraiser": {
+"d": "Raw-damage blade with no doomsday or abilities; it wipes any enchantment put on it.",
+"get": "Very rare boss bonus loot; Challenge Scroll rewards."
+},
+"TragicMC:skeletonAmulet": {
+"d": "Bows sometimes fire with extra charge; at level 3 every shot does. Levels 1-3.",
+"get": "Also in Tragic structure chests. Rare boss bonus loot."
+},
+"TragicMC:skullBoots": "Bone armour: thin protection but tough; no set bonus. Doomsday: Decay, withering nearby creatures.",
+"TragicMC:skullHelmet": "Bone armour: thin protection but tough; no set bonus. Doomsday: Decay, withering nearby creatures.",
+"TragicMC:skullLegs": "Bone armour: thin protection but tough; no set bonus. Doomsday: Decay, withering nearby creatures.",
+"TragicMC:skullPlate": "Bone armour: thin protection but tough; no set bonus. Doomsday: Decay, withering nearby creatures.",
+"TragicMC:skyFruit": {
+"d": "Always edible; gives the Flight effect for two minutes.",
+"get": "Grows on Painted trees in the Collision; dropped by Pox."
+},
+"TragicMC:skyFruitBlock": {
+"d": "Sky Fruit pod block.",
+"get": "Technical block; grow it from Skyfruit Seeds."
+},
+"TragicMC:skyFruitSeeds": "Plants a Sky Fruit pod on the side of a log, like cocoa.",
+"TragicMC:smoothNetherrack": {
+"d": "Decorative netherrack in six styles, including glowing Foxtail Rock and Molten Netherrack; all burn forever on top.",
+"get": "Found in Kitsunakuma Dens and Soul Tombs."
+},
+"TragicMC:snowGolemAmulet": {
+"d": "Forces every hostile mob within 32-64 blocks (by level) to target you; a taunt rather than a protection. Levels 1-3.",
+"get": "Also in Tragic structure chests. Rare boss bonus loot."
+},
+"TragicMC:soulChest": {
+"d": "Locked loot chest: it opens only after 30 hostile mobs have died near it.",
+"get": "Found in Corrupted Spires, Outlooks and Soul Tombs."
+},
+"TragicMC:soulExcess": {
+"d": "Spirit residue for Lunar Powder, Celestial Diamonds, the Creepy Idol and the sacrifice items.",
+"get": "Dropped by Gragul, Kindling Spirits, Psygotes, Pumpkinheads, Polaris, Skultar."
+},
+"TragicMC:soundExtrapolator": {
+"d": "Creative toy meant to record a mob's sound when you hit it and replay it on right-click; likely non-functional in the release build.",
+"get": "Creative only."
+},
+"TragicMC:spawnEgg": {
+"d": "Spawn eggs for every TragicMC mob, mini-boss and boss (55 kinds), including the three Overlord forms.",
+"get": "Creative; mini-boss and boss eggs also come from Challenge Scrolls and Avris."
+},
+"TragicMC:spiderAmulet": {
+"d": "Lets you climb walls by walking into them, without fall damage while climbing; level 3 adds Immunity. Levels 1-3.",
+"get": "Also in Tragic structure chests. Rare boss bonus loot."
+},
+"TragicMC:splinter": {
+"d": "Epic weapon: hits may fling the target in a random direction. Doomsday: Marionette, holding a creature in front of you.",
+"get": "Rare boss bonus loot; Time Altar and Spire chests; Challenge rewards."
+},
+"TragicMC:starCrystal": {
+"d": "Glowing glass-like crystal in 16 colours; breaks into dye of its colour. Base for summoning Polaris with a Time Disruption Cube.",
+"get": "Starlit-biome spikes in the Collision; Celestial Temples; Cryse and Nor-Vox drops."
+},
+"TragicMC:starlitGrass": {
+"d": "Starlit, faintly glowing grass; drops Dead Dirt and spreads onto it in light.",
+"get": "Generates in the Collision's Starlit biomes."
+},
+"TragicMC:starlitTallGrass": {
+"d": "Glowing tall grass.",
+"get": "Generates in the Collision's Starlit biomes."
+},
+"TragicMC:starPieces": {
+"d": "Polaris's trophy. Used for Lunar Powder, its amulet and statue and the Corrupted Spire seed; also a Celestial Steel catalyst.",
+"get": "Dropped by Polaris."
+},
+"TragicMC:steamVent": {
+"d": "Launches whoever stands on it into the air and occasionally sets them alight.",
+"get": "Generates in the Collision's Scorched biomes."
+},
+"TragicMC:stinAmulet": {
+"d": "Changes the knockback of your melee hits, with a stronger shove on falling sprint attacks. Levels 1-3.",
+"get": "Also in Tragic structure chests. Rare boss bonus loot."
+},
+"TragicMC:stinHorn": {
+"d": "Stin trophy for the Mourning Star, Reaper Scythe, Impossible Reaction and the Stin Amulet.",
+"get": "Dropped by the Greater Stin and Stin King."
+},
+"TragicMC:stringLight": {
+"d": "Strand of floating lights. Drops nothing when broken.",
+"get": "Generates in Hallowed biomes and Light Spires."
+},
+"TragicMC:structureSeed": {
+"d": "Builds one of 18 TragicMC structures on the spot. Only the Corrupted Spire seed is craftable; the Spire never generates on its own and holds Aegar on its top floor.",
+"get": "Creative only, except the craftable Corrupted Spire seed."
+},
+"TragicMC:summonBlock": {
+"d": "Boss altar (11 kinds: Wither, Ender Dragon and the nine TragicMC bosses): when a player comes within 12 blocks, or on a redstone signal, it vanishes and spawns its boss. Mod bosses need Normal difficulty.",
+"get": "Placed in boss structures; breaking it drops nothing."
+},
+"TragicMC:sunkenAmulet": {
+"d": "Cursed amulet: fast swimming and endless air (Aqua Superiority) in water, but you take more damage while in water.",
+"get": "Also in Tragic structure chests. Rare Overlord Core drop."
+},
+"TragicMC:sunnyDayTalisman": "Clears rain and thunder while carried anywhere in your inventory; uses charge each time.",
+"TragicMC:supernaturalAmulet": {
+"d": "Every 20 seconds may give you a random potion effect; higher levels favour good ones. Levels 1-3.",
+"get": "Also in Tragic structure chests. Rare boss bonus loot."
+},
+"TragicMC:sushi": {
+"d": "Gives Strength, Resistance and Water Breathing for 30 seconds; wolves eat it too.",
+"get": "Also dropped by Ragr."
+},
+"TragicMC:swordOfJustice": {
+"d": "Admin sword: one hit kills anything, then the sword breaks outside Creative.",
+"get": "Creative only."
+},
+"TragicMC:synapseCore": {
+"d": "Overlord summoner: placed on a plus of Circuit Blocks in the Synapse, it starts the three-phase Overlord fight. Does nothing in other dimensions.",
+"get": "Also a rare Overlord Core drop."
+},
+"TragicMC:synapseCrystal": {
+"d": "Synapse Core ingredient. Also toggles a Mob Statue's animation when used on it.",
+"get": "Dropped by Lockbots, Harvesters, Aegar and the Overlord Core."
+},
+"TragicMC:synapseLink": {
+"d": "The survival key to the Synapse, a circuit-board cavern dimension and the Overlord's home: hold right-click for three seconds, then release. Only 5 trips.",
+"get": "Always dropped by Aegar (top of the Corrupted Spire); rarely by Harvesters and the Overlord Core."
+},
+"TragicMC:synthesisTalisman": "+10 max health in clear daytime weather while carried; wears slowly.",
+"TragicMC:talisman": {
+"d": "Blank talisman; the base for the eight weather, time and buff talismans.",
+"get": "Also in Tragic chests; Claymation drop; boss bonus loot."
+},
+"TragicMC:tentacle": {
+"d": "Gives Water Breathing; counts as fish for sushi.",
+"get": "Dropped by squid and Pirah."
+},
+"TragicMC:thardus": {
+"d": "Epic ice weapon: hits may freeze targets with heavy Slowness; right-click fires seven icicles. Doomsday: Permafrost, freezing the land around you.",
+"get": "Rare boss bonus loot; Time Altar and Spire chests; Challenge rewards."
+},
+"TragicMC:thorns": {
+"d": "Sharp barbs for the Piercing Amulet and Toxic Amalgation.",
+"get": "Dropped by Tox and Jarra."
+},
+"TragicMC:thunderstormTalisman": "Starts a thunderstorm while carried anywhere in your inventory; uses charge each time.",
+"TragicMC:timeAmulet": "Epic amulet: pulls dropped items within 8 blocks to you. Through a code bug it also gives the Ice Amulet's cold-biome damage reduction.",
+"TragicMC:timeDisruptor": "Boss summoner: place it on a golem-style T of the right block (quartz block, darkened quartz, hardened clay, sandstone, ice, star crystal, bone block or nether brick) to call that block's boss. Powered, it scrambles the time of day.",
+"TragicMC:timeEssence": {
+"d": "Time Controller's trophy. Used for the Time Amulet, the Time Disruption Cube, its statue and the Corrupted Spire seed; also a Celestial Steel catalyst.",
+"get": "Dropped by the Time Controller."
+},
+"TragicMC:timeManipulatorTalisman": "Speeds world time forward while carried, and rewinds it while held; burns through its charge in seconds.",
+"TragicMC:titan": {
+"d": "Epic weapon: hits can call lightning and explosions; right-click strikes a line of lightning; holding it turns lightning strikes on you into healing. Doomsday: Titanfall.",
+"get": "Rare boss bonus loot; Time Altar and Spire chests; Challenge rewards."
+},
+"TragicMC:toughLeather": {
+"d": "Reinforced leather for the Hunter's armour and bow and Shadowskin.",
+"get": "Also dropped by Minotaurs, Ragr and Apis."
+},
+"TragicMC:toxicAmalgation": "Reagent for the Guilty Thorn.",
+"TragicMC:tragicFlower": {
+"d": "Sixteen real-world flowers (spiranthes, coral, ginger, sages, bluebonnet, thistle...); each crafts into dye or another material.",
+"get": "Generates in Overworld forests, plains, jungles, taigas and swamps."
+},
+"TragicMC:tragicFlower2": {
+"d": "Sixteen alien flowers of the Collision, one or two per biome family; they craft into dyes and materials like Dark Particles and Nano Bots.",
+"get": "Generates in the Collision."
+},
+"TragicMC:tragicOres": {
+"d": "Collision versions of 11 ores, set in Dark Stone: mercury, tungsten, ruby, sapphire, lapis, diamond, emerald, gold, iron, coal and an XP ore that drops only experience. Gold, iron and tungsten drop as unsmeltable ore blocks.",
+"get": "Generates throughout the Collision; depth varies by ore (diamond low, emerald and sapphire high)."
+},
+"TragicMC:tragicSapling": {
+"d": "Saplings for the five Collision trees (Painted, Bleached, Ashen, Hallowed, Darkwood); must be grown with bone meal.",
+"get": "Dropped by Collision tree leaves."
+},
+"TragicMC:tungsten": {
+"d": "Workhorse metal: Tungsten armour and Jack, every amulet, ore charms, Light Ingots and more.",
+"get": "Smelted from Tungsten Ore; Nor-Vox, Archangel drops; Tragic chests."
+},
+"TragicMC:tungstenBoots": "Tungsten armour, iron-class protection but tougher; no set bonus. Doomsday: Berserker (Strength and Speed scaled by unused Doom).",
+"TragicMC:tungstenHelm": "Tungsten armour, iron-class protection but tougher; no set bonus. Doomsday: Berserker (Strength and Speed scaled by unused Doom).",
+"TragicMC:tungstenJack": "Iron-tier multitool that mines stone, wood and dirt at full speed and tills soil. Doomsday: Miner Skills (Haste).",
+"TragicMC:tungstenLegs": "Tungsten armour, iron-class protection but tougher; no set bonus. Doomsday: Berserker (Strength and Speed scaled by unused Doom).",
+"TragicMC:tungstenOre": {
+"d": "Smelts into Tungsten; needs an iron pickaxe.",
+"get": "Generates in Overworld stone at y 5-28."
+},
+"TragicMC:tungstenPlate": "Tungsten armour, iron-class protection but tougher; no set bonus. Doomsday: Berserker (Strength and Speed scaled by unused Doom).",
+"TragicMC:undeadAmulet": {
+"d": "Cursed amulet: turns Weakness into Strength, Poison into Regeneration and Cripple into Health Boost, but you burn in daylight.",
+"get": "Also in Tragic structure chests. Rare Overlord Core drop."
+},
+"TragicMC:unstableIsotope": {
+"d": "Volatile material for Radiated Infusion, the Fusea Amulet, Wings of Liberation and TNT.",
+"get": "Dropped by Fusea and Volatile Fusea."
+},
+"TragicMC:wax": {
+"d": "Wax block for candles.",
+"get": "Also dropped by Claymation."
+},
+"TragicMC:wickedVine": {
+"d": "Glowing thorny vine that hurts on touch; climbable.",
+"get": "Generates in the Collision's Corroded biomes."
+},
+"TragicMC:wingsOfLiberation": "Grants flight while selected in the hotbar and cancels fall damage; wears down while you are airborne.",
+"TragicMC:wispParticles": {
+"d": "Glowing particles used to colour Star Crystals and for Lunar Powder, Light Cobblestone and Wings of Liberation.",
+"get": "Dropped by Kindling Spirits and Ire."
+},
+"TragicMC:witherAmulet": "Epic amulet: Wither damage heals you instead of hurting you.",
+"TragicMC:witheringAxe": "Axe whose hits may wither; right-click fires a wither skull, sneak for a charged blue skull. Doomsday: Skull Crusher.",
+"TragicMC:witheringGas": {
+"d": "Gas left by Skultar and the Overlord Core: Wither while inside; fades.",
+"get": "Technical block, not obtainable."
+},
+"TragicMC:wovenSilk": {
+"d": "Strong thread for bows, Tough Leather, Shadowskin and candles.",
+"get": "Also dropped by spiders and the Stin Queen."
+},
+"TragicMC:yetiAmulet": {
+"d": "Landing from a fall sets off a blast around you that spares blocks; level 3 also weakens nearby creatures. Levels 1-3.",
+"get": "Rare boss bonus loot."
+},
+"TragicMC:yetiClaw": {
+"d": "Empariah's trophy. Used for Beastly Claws, the Celestial Longbow, its amulet and statue and the Corrupted Spire seed; also a Celestial Steel catalyst.",
+"get": "Dropped by Empariah."
+},
+"TragicMC:zombieAmulet": {
+"d": "You no longer take starvation damage; the amulet loses charge whenever you are hurt. Levels 1-3.",
+"get": "Also in Tragic structure chests. Rare boss bonus loot."
+},
 "TrailMix:NyanPigLauncher": "Rainbow upgrade of the TMPP Launcher: shoots pigs that trail rainbows and explode on impact.",
 "TrailMix:TMPPLauncher": "Pig cannon: aim at an adult pig to suck it in (holds up to 9), then fire it; the pig rockets off and explodes when it hits something. Also works from a dispenser.",
 "TrailMix:TrailMixMix": "Gives the Trail Mix effect: big speed, softened falls, and fireballs once enough builds up; overdosing brings nausea and wither. Feed it to a saddled pig to ride it as a flying rocket, or to a horse to make it sprint trailing fire.",
