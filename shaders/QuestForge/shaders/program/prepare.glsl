@@ -28,7 +28,8 @@ layout(location = 0) out vec4 outLut;
 // dark instead of letting the camera turn them into a grey day (look bible 1 and 2).
 const float EXPOSURE_MIN = 0.12;
 const float EXPOSURE_MAX = 48.0;
-const float EXPOSURE_KEY = 0.17;
+const float EXPOSURE_KEY = 0.19;
+const float EXPOSURE_DAY_AVG = 0.12;   // log-average scene radiance of a sunny day
 
 bool inRegion(ivec2 p, ivec2 origin, ivec2 size) {
     return all(greaterThanEqual(p, origin)) && all(lessThan(p, origin + size));
@@ -159,7 +160,13 @@ vec4 computeExposure(float prevExposure) {
         }
     }
     float avg = exp2(sum / wsum);
-    float target = clamp(EXPOSURE_KEY / avg, EXPOSURE_MIN, EXPOSURE_MAX) * exp2(QF_EXPOSURE_BIAS);
+    // Partial adaptation: a scene dimmer than daylight keeps part of its darkness, as the
+    // eye does, so a torch-lit tunnel or a dusk stays a tunnel or a dusk instead of being
+    // lifted to noon (round 3: the tunnel measured twice vanilla's brightness).
+    // Floored, so true night still reaches EXPOSURE_MAX on every preset (round 4: without
+    // the floor, nights stopped pinning and Low came out at half High's brightness).
+    float dim = pow(clamp(avg / EXPOSURE_DAY_AVG, 0.15, 1.0), 0.3);
+    float target = clamp(EXPOSURE_KEY / avg * dim, EXPOSURE_MIN, EXPOSURE_MAX) * exp2(QF_EXPOSURE_BIAS);
     float prev = prevExposure;
     if (!(prev > 0.0) || prev > 1e4) prev = target;   // first frame, or after a reload
     // Slow and asymmetric: adapting to a bright view takes ~1.2 s, to darkness ~3 s.

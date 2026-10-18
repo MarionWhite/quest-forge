@@ -7,7 +7,7 @@
 #
 # name           x       y      z        yaw    pitch  worldTime  [measureTicks]
 plains_noon      264.5   auto   176.5    135    8      6000
-forest_golden    259.5   auto   -44.5    60     2      11700
+forest_golden    259.5   auto   -44.5    60     2      12000
 shore_noon       272.5   auto   -268.5   135    14     6000
 shore_sunset     272.5   auto   -268.5   100    6      12300
 night_full       272.5   auto   -268.5   135    8      18000

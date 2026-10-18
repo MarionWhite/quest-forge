@@ -217,13 +217,17 @@ come in later milestones.
 
 ### What's in the way
 
-Nothing blocks the first iteration. Before the loop can run unattended:
+Status 2026-10-18: milestone 1's first baseline is in `shaders/QuestForge/`; see
+[`milestone-1.md`](milestone-1.md) for what works, the numbers, and how to iterate.
 
-- **There are no slim Angelica trials yet.** `tools/trial/trial.py` builds trials
-  only on the OptiFine base set. Until it learns an Angelica base, every rendered
-  round is a full-pack boot of about 3–5 minutes.
-- **FrameBench screenshots include the HUD.** `check_frames.py` masks the known
-  HUD rectangles. Hiding the GUI (F1) in FrameBench would be cleaner.
+- **Slim Angelica trials exist** (`trial.py build --renderer angelica`, 2026-10-18).
+  `tools/shaders/review/bench_round.py` renders and measures a round on one in
+  about 10 minutes for 11 scenes; the full pack is no longer needed for shader work.
+- **FrameBench view scenes hide the GUI** (`-Dqf.bench.views`), so frames carry no HUD.
+- **Two Angelica 2.2.33 problems change the rules above.** The hardware shadow
+  sampler `shadowtex0HW` gave wrong results, so the pack compares `shadowtex0`
+  itself. And a shader-cache miss at startup can crash the first world frame
+  (the pipeline is built twice); relaunch once. Details in `milestone-1.md`.
 - **The Low and Potato budgets are proxies.** No GTX 1060 or integrated-GPU PC
   has run the pack. A friend's PC has to confirm them before release (see
   [`performance-rules.md`](performance-rules.md)).

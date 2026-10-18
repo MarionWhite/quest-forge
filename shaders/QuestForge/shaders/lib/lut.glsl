@@ -75,5 +75,9 @@ vec3 skyIrradiance(vec3 n) {
     vec3 down = up * GROUND_ALBEDO * 0.6;
     vec3 e = n.y >= 0.0 ? mix(side, up, n.y) : mix(side, down, -n.y);
     float g = dot(e, vec3(0.2126, 0.7152, 0.0722));
-    return mix(e, vec3(g), AMBIENT_DESAT) * AMBIENT_GAIN;
+    // With the sun low the sky's warm horizon and blue zenith are the golden-hour look, so
+    // less desaturation then (round 3: sunset and golden hour came out colourless).
+    float sunY = normalize(mat3(gbufferModelViewInverse) * sunPosition).y;
+    float desat = AMBIENT_DESAT * smoothstep(0.05, 0.35, sunY);
+    return mix(e, vec3(g), desat) * AMBIENT_GAIN;
 }

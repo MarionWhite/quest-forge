@@ -98,6 +98,18 @@ void main() {
     discard;
 }
 
+#elif defined GB_GLINT
+
+// Enchantment glint: vanilla draws it additively over the item, so it is written straight
+// into colortex3 with vanilla's blend. Over the hand that is after deferred and works; on
+// worn armour (drawn before deferred) the lit G-buffer overwrites it (milestone 1 known issue).
+/* RENDERTARGETS: 3 */
+layout(location = 0) out vec4 outColor;
+void main() {
+    vec4 c = texture(gtexture, vUV) * vColor;
+    outColor = vec4(toLinear(c.rgb) * 0.35, c.a);
+}
+
 #elif defined GB_DAMAGE
 
 /* RENDERTARGETS: 0 */
@@ -202,7 +214,7 @@ void main() {
 #ifdef GB_WEATHER
     // Rain and snow: lit by the sky and the light, no shadow lookup (they are in front of it).
     vec3 E = skyIrradiance(vec3(0.0, 1.0, 0.0)) * vLM.y + lightIrradiance() * 0.25 * vLM.y
-           + blockIrradiance(vLM.x) + NIGHT_FLOOR_I * QF_NIGHT_FLOOR;
+           + blockIrradiance(vLM.x) + nightFloor();
     outColor = vec4(toLinear(c.rgb) / PI * E * 1.4, c.a * 0.55);
 #else
     Surface s;

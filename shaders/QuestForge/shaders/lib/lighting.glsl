@@ -75,7 +75,7 @@ vec3 shadeSurface(Surface s, vec3 viewDir, vec2 pixel) {
     vec3 irradiance = E * diffuse * shadow
                     + skyIrradiance(s.normal) * sky * ao
                     + blockIrradiance(s.blockLight) * ao
-                    + NIGHT_FLOOR_I * QF_NIGHT_FLOOR * NIGHT_FLOOR_TINT * ao;
+                    + nightFloor() * NIGHT_FLOOR_TINT * ao;
     // Held light (look bible 1): a soft warm pool around the player.
     if (heldBlockLightValue > 0) {
         float d = length(s.scenePos);

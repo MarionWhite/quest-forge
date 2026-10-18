@@ -33,3 +33,5 @@ value.QF_STILL.0=Off
 value.QF_STILL.1=On
 value.QF_DEBUG_VIEW.5=Sun visibility
 value.QF_DEBUG_VIEW.6=Shadow map
+value.QF_DEBUG_VIEW.7=Shadow depth test
+value.QF_DEBUG_VIEW.8=Moon phase and light

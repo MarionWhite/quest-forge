@@ -41,7 +41,7 @@ vec3 scenePosAt(vec2 p, float d) {
 vec3 waterAmbient(float skyLight) {
     float sky = skyLight * skyLight;
     return (skyIrradiance(vec3(0.0, 1.0, 0.0)) + lightIrradiance() * max(lightDirWorld().y, 0.0)) * sky / PI
-         + NIGHT_FLOOR_I * QF_NIGHT_FLOOR * NIGHT_FLOOR_TINT / PI;
+         + nightFloor() * NIGHT_FLOOR_TINT / PI;
 }
 
 vec3 waterVolume(vec3 color, float dist, float skyLight) {

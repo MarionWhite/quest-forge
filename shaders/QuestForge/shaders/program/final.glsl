@@ -78,6 +78,10 @@ void main() {
     col = texelFetch(colortex2, px, 0).rgg * vec3(1.0, 1.0, 0.0) + vec3(0.0, 0.0, texelFetch(colortex2, px, 0).b);
 #elif QF_DEBUG_VIEW == 4 || QF_DEBUG_VIEW == 5 || QF_DEBUG_VIEW == 7
     col = linearToSrgb(texelFetch(colortex3, px, 0).rgb);
+#elif QF_DEBUG_VIEW == 8
+    // moonPhase as red (0 full .. 7), the moon's irradiance as green, the sun's as blue.
+    col = vec3(float(moonPhase) / 7.0, clamp(luminance(moonIrradiance()) * 40.0, 0.0, 1.0),
+               exposure() / 48.0);   // blue: exposure against EXPOSURE_MAX
 #elif QF_DEBUG_VIEW == 6 && QF_SHADOWS
     col = vec3(pow(texture(shadowtex0, uv).r, 8.0));   // the shadow map itself, contrast-stretched
 #endif
