@@ -15,10 +15,13 @@ struct Surface {
     vec3 scenePos;    // player-relative world position
 };
 
-// Vanilla light levels are linear in blocks; this gives a torch a short warm pool with a
-// long tail, so light level 7 still reads as lit (gameplay) without a flat orange wash.
+// Vanilla light levels are linear in blocks. Vanilla's lightmap curve, taken to linear
+// light, falls to about 15% of the level-14 value at level 10 and 4% at level 7; round 5's
+// pow(b, 2.6) kept 31% and 12%, so a tunnel read evenly lit (0.28 mean luma against
+// vanilla's 0.17). This follows vanilla's falloff, with a hotter pool next to the source.
+// Level 7 still reads as lit once exposure has adapted (gameplay).
 vec3 blockIrradiance(float b) {
-    float e = pow(b, 2.6) * 0.9 + pow(b, 8.0) * 0.6;
+    float e = pow(b, 4.2) * 0.75 + pow(b, 9.0) * 0.45;
     return BLOCK_LIGHT_COLOR * BLOCK_I * e;
 }
 

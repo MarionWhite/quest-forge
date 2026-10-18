@@ -13,7 +13,7 @@ transform (core-profile rewrite, attribute renames): read patched_shaders/ for t
 
 Usage (py -3.10 -I):
     check_glsl.py [--pack shaders/QuestForge] [--glslang C:\\qfb\\shaderdev\\tools-dl\\glslang\\x\\bin\\glslang.exe]
-                  [--presets 0,1,2,3,4] [--program gbuffers_terrain]
+                  [--presets 0,1,2,3,4] [--program gbuffers_terrain] [--opt QF_DEBUG_VIEW=8]
 Exit status 1 on any error.
 """
 import argparse, os, re, subprocess, sys, tempfile
@@ -44,7 +44,7 @@ def expand(path, root, seen=()):
     return "\n".join(out)
 
 
-def program_source(path, root, preset):
+def program_source(path, root, preset, opts=()):
     src = expand(path, root)
     lines = src.split("\n")
     if not lines[0].startswith("#version"):
@@ -55,6 +55,8 @@ def program_source(path, root, preset):
     # The option default lives in lib/settings.glsl; override it the way Iris writes the
     # player's choice into the source.
     body = re.sub(r"^#define QF_PRESET \d+", f"#define QF_PRESET {preset}", body, flags=re.M)
+    for k, v in opts:
+        body = re.sub(rf"^#define {k} \S+", f"#define {k} {v}", body, flags=re.M)
     return "\n".join(head) + "\n#line 2\n" + body
 
 
@@ -64,7 +66,10 @@ def main():
     ap.add_argument("--glslang", default=DEFAULT_GLSLANG)
     ap.add_argument("--presets", default="0,1,2,3,4")
     ap.add_argument("--program", help="only programs whose name starts with this")
+    ap.add_argument("--opt", action="append", default=[], metavar="KEY=VALUE",
+                    help="override an option's default, e.g. QF_DEBUG_VIEW=8 (repeatable)")
     a = ap.parse_args()
+    opts = [o.split("=", 1) for o in a.opt]
     if not os.path.isfile(a.glslang):
         sys.exit(f"glslang not found at {a.glslang} (Khronos release zip, bin/glslang.exe)")
     root = os.path.join(a.pack, "shaders")
@@ -76,7 +81,7 @@ def main():
     for preset in a.presets.split(","):
         for f in files:
             stage = "vert" if f.endswith(".vsh") else "frag"
-            src = program_source(os.path.join(root, f), root, preset)
+            src = program_source(os.path.join(root, f), root, preset, opts)
             p = os.path.join(tmp, f"{f}.{stage}")
             with open(p, "w", encoding="utf-8", newline="\n") as fh:
                 fh.write(src)

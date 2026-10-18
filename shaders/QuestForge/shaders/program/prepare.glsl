@@ -23,12 +23,87 @@ uniform sampler2D colortex3;
 /* RENDERTARGETS: 5 */
 layout(location = 0) out vec4 outLut;
 
-// Exposure bounds (linear multipliers on scene radiance). The upper bound keeps nights
-// dark instead of letting the camera turn them into a grey day (look bible 1 and 2).
-const float EXPOSURE_MIN = 0.12;
-const float EXPOSURE_MAX = 48.0;
-const float EXPOSURE_KEY = 0.19;
-const float EXPOSURE_DAY_AVG = 0.12;   // log-average scene radiance of a sunny day
+// --- exposure (look bible 2) -------------------------------------------------------------
+// The meter reads level 0 of colortex3, sampled sparsely: not the mip chain, because
+// Angelica does not rebuild colortex3's mips for a read in prepare (round 4 read stale
+// levels). 32 x 18 samples, split over 32 texels of row y = 65 (one column each) in
+// prepare, then summed by one texel in prepare1: one thread doing all 576 reads in turn
+// cost Potato about 0.1 ms (round 8).
+const int METER_GX = 32, METER_GY = 18;
+const ivec2 METER_ROW = ivec2(32, 65);   // x 32..63, y 65
+
+// One column of the meter: (sum of w log2 l, sum of w l, sum of w).
+vec4 meterColumn(int x) {
+    vec4 acc = vec4(0.0);
+    ivec2 size = ivec2(viewWidth, viewHeight);
+    for (int y = 0; y < METER_GY; y++) {
+        vec2 uv = (vec2(x, y) + 0.5) / vec2(METER_GX, METER_GY);
+        vec2 c = uv - 0.5;
+        float w = exp(-dot(c, c) * 4.0);   // centre-weighted
+        float l = luminance(texelFetch(colortex3, ivec2(uv * vec2(size)), 0).rgb);
+        l = l > 0.0 && l < 1e5 ? l : 0.0;  // no NaN or inf from a broken pixel
+        acc += vec4(log2(max(l, 1e-6)) * w, l * w, w, 0.0);
+    }
+    return acc;
+}
+
+// (log2 of the centre-weighted log-average, log2 of the centre-weighted arithmetic mean).
+vec2 meterScene() {
+    vec4 acc = vec4(0.0);
+    for (int x = 0; x < METER_GX; x++) acc += texelFetch(colortex5, METER_ROW + ivec2(x, 0), 0);
+    float wsum = max(acc.z, 1e-6);
+    return vec2(acc.x / wsum, log2(max(acc.y / wsum, 1e-6)));
+}
+
+// What drives the exposure, as log2 luminance. The log-average alone reads a torch-lit
+// tunnel as dark as a moonless night (its black far end dominates), so it is blended with
+// the arithmetic mean, which follows the lit walls.
+float meteredLog(vec2 m) {
+    return mix(m.x, m.y, EXPOSURE_MEAN_WEIGHT);
+}
+
+// The adapted exposure, as log2. Round 5 left two faults here:
+// (a) colortex5 was written by one pass per frame, and Angelica's buffer ping-pong then
+//     handed this pass a copy up to 26 frames old (debug view 8; see prepare1).
+// (b) At 1000+ fps the per-frame step was under half an ULP of the RGBA16F texel, so
+//     the stored value froze. The log value is now kept in two halves: hi on a 1/256
+//     grid, exact in a half float below 8, and lo, the remainder, good to about 1e-6.
+vec4 computeExposure(vec4 prevTexel, vec2 m) {
+    float metered = meteredLog(m);
+    float target = exposureTargetLog(metered);
+    float prev = prevTexel.b + prevTexel.a;
+    bool valid = prevTexel.r > 0.0 && prevTexel.r < 1e4 && abs(prev) < 8.0;
+    if (!valid) prev = target;   // first frame, or after a reload
+    // Slow and asymmetric: adapting to a bright view takes ~1.2 s, to darkness ~3 s.
+    float tau = target < prev ? 1.2 : 3.0;
+    float k = 1.0 - exp(-clamp(frameTime, 0.0, 0.25) / tau);
+    float e = mix(prev, target, k);
+    float hi = floor(e * 256.0 + 0.5) / 256.0;
+    return vec4(exp2(e), metered, hi, e - hi);
+}
+
+#ifdef PREPARE_COPY
+
+// prepare1: the meter's sum and the exposure, and a copy of everything else. Iris
+// ping-pongs a buffer each time a pass writes it. colortex5 was written by prepare alone
+// (one flip per frame), and on Angelica 2.2.33 the copy that prepare and final then read
+// was up to 26 frames old (round 8, debug view 8: patches 9 to 11); colortex3, written by
+// two passes, never showed it. A second full write makes the flips even.
+void main() {
+    ivec2 p = ivec2(gl_FragCoord.xy);
+    vec4 cur = texelFetch(colortex5, p, 0);
+    if (p == C_EXPOSURE) { outLut = computeExposure(cur, meterScene()); return; }
+#if QF_DEBUG_VIEW == 8
+    if (p == C_METER) {
+        vec2 m = meterScene();
+        outLut = vec4(m, exposureTargetLog(meteredLog(m)), float(frameCounter % 2048));
+        return;
+    }
+#endif
+    outLut = cur;
+}
+
+#else
 
 bool inRegion(ivec2 p, ivec2 origin, ivec2 size) {
     return all(greaterThanEqual(p, origin)) && all(lessThan(p, origin + size));
@@ -144,40 +219,6 @@ void ambientIrradiance(out vec3 up, out vec3 side) {
     side += up * GROUND_ALBEDO * 0.5;   // the ground a wall sees below the horizon
 }
 
-vec4 computeExposure(float prevExposure) {
-    // Level 0, sampled sparsely. Not the mip chain: Angelica does not rebuild colortex3's
-    // mips for a read in prepare, and round 4 found the meter reading stale levels (night
-    // exposure stuck near 9 on every preset, its ceiling 48). 576 texel reads, one pixel.
-    float sum = 0.0, wsum = 0.0;
-    const int GX = 32, GY = 18;
-    ivec2 size = ivec2(viewWidth, viewHeight);
-    for (int y = 0; y < GY; y++) {
-        for (int x = 0; x < GX; x++) {
-            vec2 uv = (vec2(x, y) + 0.5) / vec2(GX, GY);
-            vec2 c = uv - 0.5;
-            float w = exp(-dot(c, c) * 4.0);   // centre-weighted
-            float l = luminance(texelFetch(colortex3, ivec2(uv * vec2(size)), 0).rgb);
-            sum += log2(max(l, 1e-6)) * w;
-            wsum += w;
-        }
-    }
-    float avg = exp2(sum / wsum);
-    // Partial adaptation: a scene dimmer than daylight keeps part of its darkness, as the
-    // eye does, so a torch-lit tunnel or a dusk stays a tunnel or a dusk instead of being
-    // lifted to noon (round 3: the tunnel measured twice vanilla's brightness).
-    // Floored, so true night still reaches EXPOSURE_MAX on every preset (round 4: without
-    // the floor, nights stopped pinning and Low came out at half High's brightness).
-    float dim = pow(clamp(avg / EXPOSURE_DAY_AVG, 0.15, 1.0), 0.3);
-    float target = clamp(EXPOSURE_KEY / avg * dim, EXPOSURE_MIN, EXPOSURE_MAX) * exp2(QF_EXPOSURE_BIAS);
-    float prev = prevExposure;
-    if (!(prev > 0.0) || prev > 1e4) prev = target;   // first frame, or after a reload
-    // Slow and asymmetric: adapting to a bright view takes ~1.2 s, to darkness ~3 s.
-    float tau = target < prev ? 1.2 : 3.0;
-    float k = 1.0 - exp(-max(frameTime, 0.0) / tau);
-    float e = exp2(mix(log2(prev), log2(target), k));
-    return vec4(e, log2(avg), target, 1.0);
-}
-
 void main() {
     ivec2 p = ivec2(gl_FragCoord.xy);
     vec4 prev = texelFetch(colortex5, p, 0);
@@ -210,7 +251,11 @@ void main() {
     }
     float r = cameraRadius();
     float clearSky = 1.0 - 0.85 * rainStrength;
-    if (p == C_EXPOSURE) { outLut = computeExposure(prev.r); return; }
+    if (p.y == METER_ROW.y && p.x >= METER_ROW.x && p.x < METER_ROW.x + METER_GX) {
+        outLut = meterColumn(p.x - METER_ROW.x);
+        return;
+    }
+    if (p == C_EXPOSURE) { outLut = prev; return; }   // prepare1 updates it
     if (p == C_SUN)  { outLut = vec4(SUN_I * lightTransmittance(r, sunDirWorld().y) * clearSky, 1.0); return; }
     if (p == C_MOON) { outLut = vec4(moonIntensity() * MOON_TINT * lightTransmittance(r, moonDirWorld().y) * clearSky, 1.0); return; }
     if (p == C_AMB_UP || p == C_AMB_SIDE) {
@@ -219,8 +264,15 @@ void main() {
         outLut = vec4(p == C_AMB_UP ? up : side, 1.0);
         return;
     }
-    if (p == C_STATE) { outLut = vec4(rebuild ? (age >= 0.0 && age < 1e5 ? age + 1.0 : 0.0) : age, 0.0, 0.0, 1.0); return; }
+    if (p == C_STATE) {
+        // g: a counter carried from the previous frame, b: frameCounter. Debug view 8 compares
+        // them to show whether this pass reads the copy it wrote last frame.
+        float carried = mod(prev.g + 1.0, 2048.0);
+        outLut = vec4(rebuild ? (age >= 0.0 && age < 1e5 ? age + 1.0 : 0.0) : age, carried, float(frameCounter % 2048), 1.0);
+        return;
+    }
     outLut = vec4(0.0);
 }
 
+#endif
 #endif

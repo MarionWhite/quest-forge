@@ -98,11 +98,29 @@ void main() {
             float spec = ggx(max(dot(n, H), 0.0), 0.0016) * NdotL / (4.0 * max(NdotV, 0.05) + 0.3);
             color += lightIrradiance() * spec * F * sh * 3.0;
         } else {
-            // Under the surface, looking up: Snell's window, total internal reflection outside it.
-            float c = abs(dot(viewDir, n));
-            float window = smoothstep(0.62, 0.70, c);
+            // Under the surface, looking up: Snell's window. Inside it the whole sky is
+            // squeezed into a ~97-degree cone, so the sky is looked up along the refracted
+            // ray (its horizon glow rings the window instead of a flat disk, round 5), and
+            // the transmitted part falls with the water-to-air Fresnel term towards the
+            // critical angle. Outside it, total internal reflection mirrors the water below:
+            // the deep colour, shaded by the wave slope so the surface still reads as moving.
+            vec3 nUp = n.y > 0.0 ? n : -n;
+            vec3 Rt = refract(viewDir, -nUp, 1.333);
+            float c = abs(dot(viewDir, nUp));
             vec3 deep = waterAmbient(eyeSky) * (WATER_SCATTER / (WATER_ABSORB + WATER_SCATTER));
-            color = mix(deep, color, window * 0.92);
+            float ripple = clamp(0.5 + 6.0 * dot(n.xz, vec2(0.7, 0.7)), 0.0, 1.0);
+            vec3 mirrored = deep * mix(0.75, 1.3, ripple);
+            if (dot(Rt, Rt) > 0.0) {
+                float cT = abs(Rt.y);
+                // Unpolarised Fresnel for the water-to-air interface.
+                float rs = (1.333 * c - cT) / (1.333 * c + cT);
+                float rp = (c - 1.333 * cT) / (c + 1.333 * cT);
+                float F = clamp(0.5 * (rs * rs + rp * rp), 0.0, 1.0);
+                vec3 above = depth1 >= 1.0 ? skyRadiance(normalize(vec3(Rt.x, abs(Rt.y), Rt.z))) : color;
+                color = mix(above, mirrored, F);
+            } else {
+                color = mirrored;
+            }
         }
     }
 

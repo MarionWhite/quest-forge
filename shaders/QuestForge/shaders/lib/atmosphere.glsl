@@ -101,12 +101,17 @@ vec3 integrateTransmittance(float r, float mu) {
 }
 
 // --- sky-view table parameterisation ---
+// `horizon` is Hillaire's beta, acos(sqrt(r^2 - Rg^2) / r): just under 90 degrees near the
+// ground, so the horizon sits at zenith angle pi - beta, just past 90 degrees. Rounds 1-8
+// used pi/2 + beta (about 180 degrees), which packed the whole visible sky into the first
+// 13% of the table's rows: the horizon band near a low sun got about one row, and golden
+// hour and sunset lost their warm horizon (debug view 9 showed it).
 // u: azimuth from the light, sqrt-compressed towards it; v: elevation, squared towards the
 // horizon so the horizon band gets most rows.
 vec2 skyViewParams(vec3 dir, vec3 lightDir, float r) {
     float horizon = acos(clamp(sqrt(max(r * r - ATM_RG * ATM_RG, 0.0)) / r, -1.0, 1.0));
     float zen = acos(clamp(dir.y, -1.0, 1.0));
-    float horizonZen = 0.5 * PI + horizon;
+    float horizonZen = PI - horizon;   // Hillaire: pi - beta (round 9: was pi/2 + beta, ~180 deg)
     float v;
     if (zen < horizonZen) {
         v = 0.5 - 0.5 * sqrt((horizonZen - zen) / horizonZen);
@@ -122,7 +127,7 @@ vec2 skyViewParams(vec3 dir, vec3 lightDir, float r) {
 // The view direction (in a frame where the light's azimuth is +x) for table coordinates x.
 vec3 skyViewDir(vec2 x, float r) {
     float horizon = acos(clamp(sqrt(max(r * r - ATM_RG * ATM_RG, 0.0)) / r, -1.0, 1.0));
-    float horizonZen = 0.5 * PI + horizon;
+    float horizonZen = PI - horizon;   // Hillaire: pi - beta (round 9: was pi/2 + beta, ~180 deg)
     float zen;
     if (x.y < 0.5) {
         float t = 1.0 - 2.0 * x.y;

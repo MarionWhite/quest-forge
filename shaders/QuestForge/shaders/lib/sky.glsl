@@ -78,6 +78,10 @@ vec3 stars(vec3 dir) {
 
 // Scattered light only: what the sky adds in front of anything (fog, reflections).
 vec3 skyScatter(vec3 dir) {
+    // Below the horizon the table holds the lit ground; past the render distance and in
+    // haze that read as a brown band under the sky (round 9). Use the horizon instead.
+    dir.y = max(dir.y, 0.0);
+    dir = dot(dir, dir) > 1e-8 ? normalize(dir) : vec3(1.0, 0.0, 0.0);
     vec3 L = SUN_I * lookupSkyView(dir, sunDirWorld(), LUT_SV_SUN)
            + moonIntensity() * MOON_TINT * lookupSkyView(dir, moonDirWorld(), LUT_SV_MOON);
     // Rain: a duller, darker, less saturated sky (look bible 9).

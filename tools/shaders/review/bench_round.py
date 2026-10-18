@@ -35,7 +35,7 @@ GALLERY = os.path.join(HERE, "gallery-shader.txt")
 DEBUG_JAR = r"C:\qfb\shaderdev\jars\QuestForgeContent-1.0.0.jar"
 WORLD = r"C:\qfb\world-master"
 ROUNDS = r"C:\qfb\shaderdev\rounds"
-ALL_SCENES = "static,plains_noon,forest_golden,shore_noon,shore_sunset,shore_dusk,night_full,night_new,night_moon,underwater,torch,gallery"
+ALL_SCENES = "static,plains_noon,forest_golden,golden_lit,shore_noon,shore_sunset,shore_dusk,night_full,night_new,night_moon,underwater,torch,gallery"
 SHADER_ERR = re.compile(r"(error|Error|ERROR|Failed to|failed to|Exception).*(shader|Shader|program|GLSL|Iris|iris)"
                         r"|(shader|Shader|Iris|iris).*(error|Error|ERROR|failed|Failed)")
 

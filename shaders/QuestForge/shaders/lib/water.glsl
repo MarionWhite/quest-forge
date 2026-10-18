@@ -3,7 +3,9 @@
 
 // Absorption and in-scattering per metre (block). Pure water absorbs red first; a little
 // green-blue scattering gives deep water its colour without hiding clear shallows.
-const vec3 WATER_ABSORB = vec3(0.13, 0.05, 0.045);
+// Round 5's red absorption (0.13) turned pale sand mint under a metre or two of water
+// (the view path through it is longer than the depth); 0.075 keeps shallows clear.
+const vec3 WATER_ABSORB = vec3(0.075, 0.042, 0.038);
 const vec3 WATER_SCATTER = vec3(0.0015, 0.005, 0.006);
 
 // Height field: four long crossing swells plus short ripples. Returns the slope (dh/dx, dh/dz).

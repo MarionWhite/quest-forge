@@ -126,7 +126,8 @@ glass is cyan and diamond ore is ore (magenta); log, planks, sand and stone carr
 special ID. Between two frames one tick apart, 42.5% of the leaf-row pixels change
 (vanilla leaves 52%, Twilight Forest leaves 37%), against 1.9% for the static blocks
 above (dither and TAA). The modded leaves wave from `block.properties` IDs that
-`gen_surface_pack.py` generated. Frames: `C:\qfb\shaderdevounds\screenshotsench-leafid-leafview*.png`.
+`gen_surface_pack.py` generated. Frames: `C:\qfb\shaderdev
+ounds\screenshotsench-leafid-leafview*.png`.
 
 ## Performance
 
@@ -261,3 +262,19 @@ effect only on the next boot. `trial.py stage-angelica` now stages them as templ
 **`tools/angelica-client/build_angelica_client.py` has the same gap** on a fresh E7
 install with no Angelica configs: it writes only the overlay keys. Worth a check before
 friends install it.
+
+## Rounds log (2026-10-18, afternoon session)
+
+Costs are FrameBench p50 shader cost (pack minus shaders off), worst scene, High 1440p /
+Low 1080p / Potato 720p, against 3.0 / 0.9 / 0.4 ms. Luma is the High frame's mean
+(sRGB). The gate: every Tier A item at 7 or more from the critic, nothing severe.
+
+| Round | Change | Worst cost H / L / P | Critic | Result |
+|---|---|---|---|---|
+| r05 | baseline (de03f9f) | 0.95 / 0.47 / 0.34 | 5.9 | gate fail |
+| r06, r07 | stochastic rounding; meter in composite2 (night session) | 0.95 / 0.48 / 0.33 | not run | reverted |
+| d8, d9 | debug view 8 readout: the meter matches the frame within 0.02 stops (the "20x" theory was wrong); final read a colortex5 1-26 frames old, and prepare did not read its own last output | diagnostic | – | – |
+| r08 | `prepare1` second write of colortex5 (even flip count); exposure stored as log2 in hi/lo halves; meter blends log-average with mean; vanilla-like torch falloff `pow(b,4.2)`; water red absorption 0.13 to 0.075; Snell's window with refracted sky and Fresnel; less sky fill at low sun; `golden_lit` view added | 0.96 / 0.48 / **0.44** | not run | exposure adapts at last, which lifted nights to 0.186 (3x Complementary) and the torch tunnel to 0.40; Potato torch over budget (the 576-read meter on one thread) |
+| r09 | log-space exposure curve (partial adaptation below daylight); sky-view horizon bug fixed (`pi/2 + beta` to Hillaire's `pi - beta`); meter split over 32 column texels | 0.94 / 0.60 / not run | **5** (darkness 4, exposure 7, colour 6, golden 5, stability 7, near field 7) | torch tunnel 0.195 (vanilla 0.17): done. Nights too dark (0.038; new moon 22% crushed, severe). Hard tan band under the horizon. Potato run failed to start (0xC0000142) while another session held the slot |
+| r10 (WIP) | +1.5 stops under open sky at night (eye sky light), deeper slope below full moon; sky clamped at the horizon (no ground colour in haze); golden views retimed (the sun was 14-19 deg up, not 3-8: Minecraft eases the celestial angle; horizon at 12785); debug view 9 (colortex5 raw) | High 1.03 static (others 0.47-0.93; a server of another session was running) | pending | nights 0.085 / 0.065, torch 0.196, dusk 0.104 |
+
