@@ -211,8 +211,10 @@ def render(spec_path, plan_dir):
     Image.fromarray(biome).save(f"{plan_dir}/biome.png")
     Image.fromarray(np.clip(relief, 0, 255).astype(np.uint8)).save(f"{plan_dir}/relief.png")
     meta = {k: spec[k] for k in ("size", "seed") if k in spec}
-    meta["labels"] = [{"name": r["name"] + (f" (T{r['tier']})" if "tier" in r else ""), "polygon": r["polygon"]}
-                      for r in spec["regions"]]
+    # Regions are labelled by their real biome name, never an invented one.
+    names = biome_names()
+    meta["labels"] = [{"name": names.get(r["biome"], f"biome {r['biome']}") + (f" (T{r['tier']})" if "tier" in r else ""),
+                       "polygon": r["polygon"]} for r in spec["regions"]]
     meta["points"] = spec.get("points", [])
     json.dump(meta, open(f"{plan_dir}/plan.json", "w"), indent=1)
     print(f"plan {n}x{n} px ({size} blocks): land {land.mean():.0%}, max y {h.max():.0f}")
@@ -220,14 +222,18 @@ def render(spec_path, plan_dir):
 
 # ---------------------------------------------------------------- preview
 
+MOD_PREFIX = {"Biomes O' Plenty": "BoP ", "Realistic World Gen": "RWG ", "Welcome to the Jungle": "Jungle "}
+
+
 def biome_names():
+    """id -> name as the game shows it, prefixed by mod (e.g. 'BoP Redwood Forest')."""
     tsv = os.path.join(os.path.dirname(__file__), "..", "..", "docs", "survey", "biome-ids.tsv")
     out = {}
     for line in open(tsv, encoding="utf-8"):
         if line.startswith("#") or line.startswith("id\t"):
             continue
         f = line.rstrip("\n").split("\t")
-        out.setdefault(int(f[0]), f[1])
+        out.setdefault(int(f[0]), MOD_PREFIX.get(f[2], "") + f[1])
     return out
 
 
@@ -269,7 +275,8 @@ def preview(plan_dir):
         x, z = (p["x"] + half) * k, (p["z"] + half) * k
         col = {"spawn": "#ffe14d", "landmark": "#ff5050"}.get(p.get("kind"), "white")
         dr.ellipse((x - 6, z - 6, x + 6, z + 6), fill=col, outline="black")
-        dr.text((x + 9, z), p["name"], fill=col, font=font, anchor="lm", stroke_width=2, stroke_fill="black")
+        label = p.get("name") or (p.get("kind", "point").capitalize() + (f" T{p['tier']}" if "tier" in p else ""))
+        dr.text((x + 9, z), label, fill=col, font=font, anchor="lm", stroke_width=2, stroke_fill="black")
     im.save(f"{plan_dir}/preview.png")
     used = sorted(set(np.unique(b).tolist()))
     print("biomes used:", ", ".join(f"{i} {names.get(i, '?')}" for i in used))
@@ -290,8 +297,8 @@ def expand(plan_dir, out_dir, pi, pj, piece):
     H = np.zeros((piece, piece), np.uint16)
     B = np.zeros((piece, piece), np.uint8)
     xs = np.arange(piece, dtype=np.float64) + x0 + 0.5
-    for r0 in range(0, piece, 1024):
-        zs = np.arange(r0, min(piece, r0 + 1024), dtype=np.float64) + z0 + 0.5
+    for r0 in range(0, piece, 256):   # 256-row strips: ~1 GB peak; 1024 needed ~5 GB and paged
+        zs = np.arange(r0, min(piece, r0 + 256), dtype=np.float64) + z0 + 0.5
         X, Z = np.meshgrid(xs, zs)
         # One warp for terrain and biome, so coasts and biome edges are organic and agree.
         wx = X + 40 * fbm(X, Z, 320, 3, seed + 13)
