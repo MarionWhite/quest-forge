@@ -1,0 +1,157 @@
+# World option B: one long north-south continent with a colossal mountain spine.
+# Render: py -3.10 tools/world/plan.py render docs/design/world/options/b-spine.yaml PLANDIR
+# Blocks, 0,0 at the centre, +x east, +z south. West is wet (redwoods, rainforest, tropics),
+# east is in the rain shadow (steppe, outback, desert, mesa), the north is frozen. Difficulty
+# rises toward the spine; the highest basin, a glacier-fed lake under the tallest peak, is T4.
+# Biome IDs: docs/survey/biome-ids.tsv.
+size: 32768
+seed: 77
+coast_warp: 1000
+region_warp: 1100
+blend_px: 16
+shore_width: 900
+shelf_width: 1500
+
+coast:
+  - [-1500, -14200]
+  - [2000, -13600]
+  - [4800, -12200]
+  - [6200, -9800]
+  - [5600, -7600]
+  - [6800, -5200]
+  - [6200, -2600]
+  - [7200, 0]
+  - [6400, 2400]
+  - [7000, 5200]
+  - [6000, 8000]
+  - [6600, 10600]
+  - [5000, 12800]
+  - [2400, 14000]
+  - [-800, 14600]
+  - [-3600, 13400]
+  - [-5600, 11800]
+  - [-6400, 9200]
+  - [-5600, 7400]
+  - [-6800, 5200]
+  - [-6000, 2600]
+  - [-7000, 0]
+  - [-6200, -2400]
+  - [-7200, -5200]
+  - [-6000, -7800]
+  - [-6600, -10400]
+  - [-4800, -12600]
+
+islands:
+  - {circle: [10500, -3000, 900]}          # vanilla Mushroom Island, east sea
+  - {circle: [-10500, 7500, 1000]}         # BoP Volcano isle, west sea
+  - {ring: [10000, 11500, 1200, 750]}      # coral atoll around a lagoon, southeast
+
+surfaces:
+  - {material: black_sand, circle: [-10500, 7500, 1100]}
+
+# The high basin: a raised table under the tallest peak, holding the glacier-fed lake.
+plateaus:
+  - {circle: [300, -1100, 2700], top: 150, wall: 320, top_relief: 10, relief: 70}
+  # The dry eastern tableland, cut by a canyon; its western edge is an escarpment.
+  - {polygon: [[2700, 3300], [3900, 2700], [5300, 3400], [6100, 3100], [6300, 5000], [5700, 6600], [6400, 8200], [5500, 10300], [4300, 9600], [2900, 10100], [2500, 8300], [3000, 6800], [2300, 5200]], top: 112, wall: 90, top_relief: 8, relief: 50, tier: 2}
+
+canyons:
+  - {points: [[2400, 4400], [3600, 6000], [4600, 7400], [5600, 8600], [6800, 9200]], width: 1100, depth: 40, meander: 300, wall_biome: 71, floor_biome: 82, tier: 3}
+
+ponds:
+  # The glacier-fed alpine lake (River biome so the water stays liquid)
+  - {at: [300, -1000], r: 1500, depth: 14, biome: 7, rot: 0.3, aspect: 1.4}
+  - {at: [4300, 5200], r: 160, biome: 186}
+
+regions:
+  # T4: the high basin round the lake
+  - {tier: 4, biomes: [[89, 3], [60, 2], [59, 1]], base: 90, relief: 80, patch: 700, circle: [300, -1100, 2700]}
+
+  # A T3 "not yet" zone in sight of every T1 spawn
+  - {tier: 3, biomes: [[187, 2], [78, 1]], base: 78, relief: 60, circle: [-4900, -4100, 500]}
+  - {tier: 3, biome: 79, base: 64, relief: 10, circle: [-3900, 7400, 450]}
+  - {tier: 3, biome: 194, base: 64, relief: 10, circle: [-2600, 12000, 450]}
+  - {tier: 3, biomes: [[251, 2], [78, 1]], base: 72, relief: 50, circle: [4400, -4300, 500]}
+  - {tier: 3, biomes: [[251, 2], [250, 1]], base: 72, relief: 50, circle: [4200, 600, 450]}
+
+  # Islands
+  - {tier: 2, biome: 14, base: 68, relief: 30, circle: [10500, -3000, 1000]}
+  - {tier: 3, biome: 250, base: 75, relief: 100, circle: [-10500, 7500, 1100]}
+  - {tier: 1, biome: 224, base: 66, relief: 15, circle: [10000, 11500, 1500]}
+
+  # The spine itself: T3 all along (Alps, Alps Forest, Crag), passes included
+  - {tier: 3, biomes: [[60, 3], [59, 2], [77, 1]], base: 78, relief: 160, patch: 900, polygon: [[-1100, -14000], [1700, -14000], [1900, 14000], [-1300, 14000]]}
+
+  # Small hidden biomes
+  - {tier: 2, biome: 185, base: 80, relief: 40, circle: [-3200, -800, 550]}
+  - {tier: 2, biome: 197, base: 90, relief: 40, circle: [-2700, 4300, 450]}
+  - {tier: 1, biome: 147, base: 72, relief: 20, circle: [-5800, 1600, 600]}
+
+  # Seas by climate, then kelp and reefs on the shallow shelf
+  - {biome: 210, sea: true, polygon: [[-16384, -16384], [16384, -16384], [16384, -11500], [-16384, -11500]]}
+  - {biome: 211, sea: true, polygon: [[-16384, -11500], [16384, -11500], [16384, -5000], [-16384, -5000]]}
+  - {biome: 212, sea: true, polygon: [[-16384, -5000], [16384, -5000], [16384, 5000], [-16384, 5000]]}
+  - {biome: 213, sea: true, polygon: [[-16384, 5000], [16384, 5000], [16384, 16384], [-16384, 16384]]}
+  - {biome: 144, sea: true, shallow: true, polygon: [[-16384, -10000], [-4000, -10000], [-4000, 5000], [-16384, 5000]]}
+  - {biome: 75, sea: true, shallow: true, polygon: [[-16384, 5000], [16384, 5000], [16384, 16384], [-16384, 16384]]}
+  - {biome: 75, sea: true, circle: [10000, 11500, 780]}
+
+  # Frozen north (T2 coasts)
+  - {tier: 2, biomes: [[247, 3], [89, 1], [61, 1], [66, 1]], base: 70, relief: 40, lakes: [12, 120, 450], at: [0, -12400]}
+  - {tier: 2, biomes: [[239, 3], [66, 2], [241, 1]], base: 72, relief: 90, lakes: [8, 100, 400], at: [-4300, -9600]}
+  - {tier: 2, biomes: [[247, 2], [218, 2], [86, 1]], base: 70, relief: 40, lakes: [8, 120, 400], at: [4200, -10200]}
+
+  # West, wet: coasts T1, foothills T2
+  - {tier: 1, biomes: [[196, 3], [243, 2], [74, 1]], base: 74, relief: 70, lakes: [4, 100, 300], at: [-5000, -5200]}
+  - {tier: 1, biomes: [[243, 3], [228, 2], [154, 1]], base: 72, relief: 60, lakes: [5, 100, 300], at: [-5300, 300]}
+  - {tier: 1, biomes: [[195, 3], [245, 2], [62, 1]], base: 70, relief: 70, lakes: [5, 100, 300], at: [-5000, 5600]}
+  - {tier: 1, biomes: [[246, 2], [153, 2], [21, 1]], base: 66, relief: 35, lakes: [4, 80, 250], at: [-3600, 11000]}
+  - {tier: 2, biomes: [[74, 2], [59, 1], [142, 1]], base: 92, relief: 100, lakes: [6, 100, 350], at: [-2800, -5000], size: 0.7}
+  - {tier: 2, biomes: [[80, 2], [154, 2], [139, 1]], base: 88, relief: 80, lakes: [5, 100, 350], at: [-3000, 1600], size: 0.7}
+  - {tier: 2, biomes: [[245, 2], [67, 1], [62, 1]], base: 86, relief: 90, lakes: [4, 100, 300], at: [-2600, 7600], size: 0.7}
+
+  # East, dry rain shadow: coasts T1, foothills and tableland T2
+  - {tier: 1, biomes: [[242, 3], [193, 2], [236, 1]], base: 70, relief: 35, lakes: [3, 100, 300], at: [5200, -5600]}
+  - {tier: 1, biomes: [[190, 3], [70, 2], [254, 1]], base: 72, relief: 40, lakes: [2, 80, 200], at: [5400, 1000]}
+  - {tier: 2, biomes: [[2, 3], [37, 2], [148, 1]], base: 104, relief: 50, at: [4400, 6600]}
+  - {tier: 2, biomes: [[35, 2], [70, 1], [251, 1]], base: 72, relief: 45, lakes: [2, 80, 200], at: [3600, 11800]}
+  - {tier: 2, biomes: [[142, 2], [77, 1], [198, 1]], base: 92, relief: 90, lakes: [4, 80, 250], at: [3200, -5200], size: 0.7}
+  - {tier: 2, biomes: [[198, 2], [190, 1], [242, 1]], base: 90, relief: 80, lakes: [2, 80, 200], at: [3300, 1800], size: 0.6}
+
+ridges:
+  # The spine, in four massifs: a north pass and a south pass cross it, and the high basin
+  # breaks it in the middle (open east and west)
+  - {points: [[-300, -13200], [200, -11200], [500, -9600]], height: 220, width: 2600, relief: 230, biome: 60, biome_above: 0.5}
+  - {points: [[600, -7200], [400, -5800], [300, -4700]], height: 226, width: 2800, relief: 240, biome: 60, biome_above: 0.5}
+  - {arc: [300, -1100, 2350, 200, 340], height: 200, width: 1500, relief: 230, biome: 60, biome_above: 0.5}
+  - {arc: [300, -1100, 2350, 20, 160], height: 195, width: 1500, relief: 230, biome: 60, biome_above: 0.5}
+  - {points: [[500, 1800], [700, 3200], [800, 4600]], height: 222, width: 2400, relief: 220, biome: 60, biome_above: 0.5}
+  - {points: [[700, 7200], [400, 9800], [0, 12800]], height: 215, width: 2400, relief: 220, biome: 60, biome_above: 0.5}
+
+rivers:
+  # West: long wet rivers with tributaries
+  - {points: [[-1800, -6800], [-3200, -6600], [-4600, -7200], [-6400, -6900]], width: 40}
+  - {points: [[-3600, -8400], [-3900, -7500], [-4600, -7200]], width: 24}
+  - {points: [[-1900, -2200], [-3300, -1600], [-4600, -1900], [-6800, -1400]], width: 44}
+  - {points: [[-3800, 600], [-4200, -800], [-4600, -1900]], width: 28}
+  - {points: [[-1900, 3200], [-3300, 3800], [-4800, 3500], [-6500, 3900]], width: 44}
+  - {points: [[-1800, 6400], [-3000, 7000], [-4300, 8600], [-5400, 9400], [-6600, 9600]], width: 72, meander: 380, valley: 220, biome: 150}
+  - {points: [[-3000, 5400], [-3600, 7300], [-4300, 8600]], width: 32, biome: 150}
+  - {points: [[-2400, 10200], [-3300, 9600], [-4300, 8600]], width: 32, biome: 150}
+  # East: shorter rivers; dry beds on the tableland
+  - {points: [[1900, -6400], [3300, -6800], [4800, -6300], [6400, -6600]], width: 36}
+  - {points: [[2000, -2600], [3400, -2000], [5000, -2600], [6600, -2200]], width: 36}
+  - {points: [[4600, 3600], [3900, 5000], [3600, 6000]], width: 24, biome: 82, dry: true}
+  - {points: [[2400, 11200], [3800, 12600], [4800, 13300]], width: 32}
+  # North: frozen rivers off the spine
+  - {points: [[-1000, -10200], [-2400, -11400], [-3200, -13000]], width: 36, biome: 11}
+  - {points: [[1800, -10800], [3200, -11800], [4000, -12800]], width: 32, biome: 11}
+
+points:
+  - {kind: spawn, tier: 1, x: -5300, z: -4700}
+  - {kind: spawn, tier: 1, x: -4500, z: 7000}
+  - {kind: spawn, tier: 1, x: -2900, z: 12700}
+  - {kind: spawn, tier: 1, x: 5300, z: -4400}
+  - {kind: spawn, tier: 1, x: 5100, z: 400}
+  - {kind: spawn, tier: 2, x: -800, z: -12800}
+  - {kind: spawn, tier: 2, x: 4200, z: 11900}

@@ -1,0 +1,138 @@
+# World option D: fire and ice, split by the rift.
+# Render: py -3.10 tools/world/plan.py render docs/design/world/options/d-fire-ice-rift.yaml PLANDIR
+# Blocks, 0,0 at the centre, +x east, +z south. The continent runs long from the NW to the SE.
+# A rift crosses it SW-NE through the centre. NW of the rift it grows colder towards a
+# glacier ice-sheet (T4). SE of it it grows hotter towards a volcano field (T4). The temperate
+# lands on both rims are raised rift shoulders (T1), and the rift floor is T3.
+# Biome IDs: docs/survey/biome-ids.tsv.
+size: 32768
+seed: 77
+coast_warp: 1100
+region_warp: 1200
+blend_px: 16
+shore_width: 1000
+shelf_width: 1500
+
+coast:
+  - [-13000, -13000]
+  - [-8000, -13600]
+  - [-3000, -12000]
+  - [1500, -11000]
+  - [5500, -9800]
+  - [8000, -9800]
+  - [10500, -7000]
+  - [11500, -3000]
+  - [12800, 1500]
+  - [13500, 6000]
+  - [13200, 10500]
+  - [11000, 13200]
+  - [6500, 13600]
+  - [2000, 12500]
+  - [-2500, 11500]
+  - [-6500, 10500]
+  - [-9000, 8800]
+  - [-11000, 5500]
+  - [-12000, 1000]
+  - [-13000, -3500]
+  - [-13800, -8500]
+
+islands:
+  - {circle: [14500, 13600, 800]}         # volcanic isle (BoP Volcano), SE
+  - {circle: [-15100, -5600, 520]}        # iceberg isles (BoP Glacier), W
+  - {circle: [-14700, -3900, 380]}
+  - {circle: [12600, -11700, 800]}        # vanilla Mushroom Island, NE
+
+# The rift: a 2,600-block valley cut 42 blocks into the raised shoulders. Its floor sits near
+# sea level, so it fills into a chain of lakes with dry ground between (WorldPainter floods
+# everything below y 62).
+canyons:
+  - {points: [[-10500, 10500], [-7400, 6000], [-3000, 3800], [400, -400], [3000, -4200], [7400, -6000], [10000, -10000]], width: 2600, depth: 42, meander: 0, wall_biome: 143, floor_biome: 84, tier: 3}
+
+# Centrepiece: the ice-sheet, a raised glacier with a frozen inland lake on top.
+plateaus:
+  - {circle: [-11200, -11200, 2400], top: 132, wall: 70, top_relief: 8, relief: 40, biome: 89, tier: 4}
+ponds:
+  - {at: [-11200, -11200], r: 900, biome: 89}
+
+regions:
+  # A T3 zone 300-450 blocks from every T1 spawn
+  - {tier: 3, biomes: [[187, 2], [78, 1]], base: 90, relief: 60, circle: [-9400, 5500, 500]}
+  - {tier: 3, biome: 79, base: 80, relief: 10, circle: [-5500, 9300, 450]}
+  - {tier: 3, biome: 78, base: 95, relief: 50, circle: [5600, -8500, 450]}
+  - {tier: 3, biomes: [[251, 2], [78, 1]], base: 90, relief: 50, circle: [8600, -5100, 450]}
+
+  # Islands
+  - {tier: 3, biome: 250, base: 70, relief: 60, circle: [14500, 13600, 900]}
+  - {tier: 3, biome: 89, base: 74, relief: 40, circle: [-15100, -5600, 600]}
+  - {tier: 3, biome: 89, base: 72, relief: 40, circle: [-14700, -3900, 460]}
+  - {tier: 2, biome: 14, base: 68, relief: 30, circle: [12600, -11700, 900]}
+
+  # The two ends: the ice-sheet heart (NW) and the volcano-field heart (SE), both T4
+  - {tier: 4, biomes: [[89, 3], [192, 1], [61, 1]], base: 100, relief: 70, circle: [-10500, -10500, 3600]}
+  - {tier: 4, biomes: [[250, 3], [251, 2], [78, 1]], base: 90, relief: 120, circle: [10200, 9800, 3600]}
+
+  # Seas: cold on the NW side, ice farther out, hot on the SE side; kelp and reefs on the shelf
+  - {biome: 211, sea: true, polygon: [[-16384, -16384], [16384, -16384], [-16384, 16384]]}
+  - {biome: 213, sea: true, polygon: [[16384, -16384], [16384, 16384], [-16384, 16384]]}
+  - {biome: 210, sea: true, polygon: [[-16384, -16384], [2384, -16384], [-16384, 2384]]}
+  - {biome: 144, sea: true, shallow: true, polygon: [[-16384, -16384], [12384, -16384], [-16384, 12384]]}
+  - {biome: 75, sea: true, shallow: true, polygon: [[16384, -12384], [16384, 16384], [-12384, 16384]]}
+
+  # Cold side. Rift rim T1 (raised shoulder), then T2 boreal, then T3 tundra
+  - {tier: 1, biomes: [[196, 3], [243, 2], [154, 1]], base: 106, relief: 70, lakes: [3, 100, 300], at: [-7400, 4600]}
+  - {tier: 1, biomes: [[154, 3], [80, 2], [139, 1]], base: 106, relief: 55, lakes: [4, 100, 300], at: [-1400, -1400]}
+  - {tier: 1, biomes: [[74, 2], [73, 2], [188, 1]], base: 106, relief: 60, lakes: [3, 100, 300], at: [4600, -7400]}
+  - {tier: 2, biomes: [[66, 3], [239, 2], [30, 1]], base: 85, relief: 90, lakes: [8, 120, 400], at: [-11000, 3000]}
+  - {tier: 2, biomes: [[239, 3], [86, 2], [66, 1]], base: 85, relief: 90, lakes: [8, 120, 400], at: [-5000, -3000]}
+  - {tier: 2, biomes: [[86, 2], [66, 2], [30, 1]], base: 85, relief: 80, lakes: [6, 120, 400], at: [1000, -9000]}
+  - {tier: 3, biomes: [[247, 3], [61, 2], [192, 1]], base: 76, relief: 30, lakes: [14, 150, 550], at: [-11200, -3200]}
+  - {tier: 3, biomes: [[247, 3], [61, 1], [89, 1]], base: 76, relief: 30, lakes: [12, 150, 550], at: [-5200, -9200]}
+
+  # Hot side. Rift rim T1, then T2 savanna and outback, then T3 wasteland and mesa
+  - {tier: 1, biomes: [[138, 3], [193, 2], [169, 1]], base: 106, relief: 40, lakes: [3, 100, 300], at: [-4600, 7400]}
+  - {tier: 1, biomes: [[85, 2], [73, 2], [147, 1]], base: 106, relief: 40, lakes: [3, 100, 300], at: [1400, 1400]}
+  - {tier: 1, biomes: [[253, 3], [236, 2], [138, 1]], base: 106, relief: 45, lakes: [3, 100, 300], at: [7400, -4600]}
+  - {tier: 2, biomes: [[35, 3], [70, 2], [254, 1]], base: 88, relief: 45, lakes: [3, 80, 250], at: [-3000, 11000]}
+  - {tier: 2, biomes: [[190, 3], [2, 2], [254, 1]], base: 88, relief: 50, at: [3000, 5000]}
+  - {tier: 2, biomes: [[35, 2], [190, 2], [70, 1]], base: 88, relief: 50, lakes: [2, 80, 250], at: [9000, -1000]}
+  - {tier: 3, biomes: [[251, 3], [37, 2], [78, 1]], base: 82, relief: 70, at: [3200, 11200]}
+  - {tier: 3, biomes: [[37, 3], [251, 2], [71, 1]], base: 82, relief: 90, at: [9200, 5200]}
+
+ridges:
+  # A broken mountain arc rings the ice-sheet heart; the pass faces the rift
+  - {arc: [-10500, -10500, 4300, 340, 388], height: 190, width: 1500, relief: 220, biome: 60, biome_above: 0.55}
+  - {arc: [-10500, -10500, 4300, 62, 110], height: 190, width: 1500, relief: 220, biome: 60, biome_above: 0.55}
+  # The volcano field: five cones in the hot heart
+  - {points: [[9600, 9200], [9601, 9201]], height: 215, width: 1500, relief: 160, biome: 250, biome_above: 0.2}
+  - {points: [[11800, 8200], [11801, 8201]], height: 185, width: 1100, relief: 160, biome: 250, biome_above: 0.2}
+  - {points: [[10400, 11400], [10401, 11401]], height: 175, width: 1000, relief: 160, biome: 250, biome_above: 0.2}
+  - {points: [[8300, 10800], [8301, 10801]], height: 160, width: 900, relief: 160, biome: 250, biome_above: 0.2}
+  - {points: [[12200, 10600], [12201, 10601]], height: 165, width: 900, relief: 160, biome: 250, biome_above: 0.2}
+  # The volcanic isle's cone
+  - {points: [[14500, 13600], [14501, 13601]], height: 150, width: 1100, relief: 140, biome: 250, biome_above: 0.3}
+
+rivers:
+  # The rift river, down the floor from end to end
+  - {points: [[-10500, 10500], [-7400, 6000], [-3000, 3800], [400, -400], [3000, -4200], [7400, -6000], [10000, -10000]], width: 64, meander: 150}
+  # Cold-side tributaries falling into the rift, and frozen rivers to the north coast
+  - {points: [[-8200, -1200], [-5800, 1000], [-4300, 4300]], width: 32}
+  - {points: [[-3800, -5600], [-1000, -4400], [1800, -1800]], width: 32}
+  - {points: [[-1500, -8200], [-1000, -4400]], width: 24}
+  - {points: [[-5000, -3500], [-6400, -7000], [-6600, -10500], [-6200, -13400]], width: 36, biome: 11}
+  - {points: [[-9500, -5000], [-7600, -6200], [-6400, -7000]], width: 24, biome: 11}
+  - {points: [[-10000, 1500], [-11800, 300], [-12800, 400]], width: 28, biome: 11}
+  # Hot-side tributaries into the rift, a river to the south coast, dry beds in the outback
+  - {points: [[1500, 6500], [200, 4000], [-1800, 1800]], width: 32}
+  - {points: [[7000, 1800], [4600, 200], [3800, -3800]], width: 32}
+  - {points: [[3000, 5600], [4600, 9200], [5600, 13800]], width: 36}
+  - {points: [[6600, 8600], [5200, 7400], [4300, 7500]], width: 24, biome: 82, dry: true}
+  - {points: [[2400, 3400], [3600, 6800]], width: 20, biome: 82, dry: true}
+
+points:
+  - {kind: spawn, tier: 1, x: -9900, z: 5800}
+  - {kind: spawn, tier: 1, x: -5800, z: 9700}
+  - {kind: spawn, tier: 1, x: 5300, z: -8900}
+  - {kind: spawn, tier: 1, x: 9000, z: -5500}
+  - {kind: spawn, tier: 1, x: -1800, z: -300}
+  - {kind: spawn, tier: 2, x: -11500, z: 1500}
+  - {kind: spawn, tier: 2, x: -2500, z: 10900}
