@@ -50,6 +50,7 @@ Regenerate rather than edit.
 | [`reference/enchantment-list.md`](reference/enchantment-list.md) | The full custom enchantment roster. |
 | [`reference/enchantment-ground-truth.md`](reference/enchantment-ground-truth.md) | Measured effect values, as opposed to intended ones. |
 | [`reference/enchantment-tuning.md`](reference/enchantment-tuning.md) | Balance passes and what each changed. |
+| [`reference/enchantment-combat-results.md`](reference/enchantment-combat-results.md) | **What each enchantment is worth in a fight, measured.** Supersedes the offensive figures in the tuning doc. Includes the error bar, so you can tell a result from a coincidence. |
 
 Raw generated output — ore surveys, vein parameters, the enchantment registry dump —
 lives in [`../pack/reports/`](../pack/reports/), not here.
