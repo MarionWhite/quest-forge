@@ -84,5 +84,30 @@ From the Shader Fixer patch list (50 fixes across 1.7.10 mods):
 
 ## Owner's taste profile
 
-*Empty until Round 0 is answered.* Each round's picks, ratings and notes are
-summarised here and in the review page's "What I've learned" panel.
+From round 0 (calibration), answered 2026-10-18 (GitHub issue #1,
+`feedback/r000.json`). Each later round's picks, ratings and notes are added here.
+Where these contradict a rule above, these win.
+
+- **Direction: between photoreal and cinematic.** Photoreal water and light, but blocks
+  rendered as rich, high-quality surfaces, not bit-crushed textures (the generated
+  normal maps are the start). Biome- and weather-driven screen atmosphere: fog,
+  limited vision in a tundra storm. The aim is immersion: people should stop and look.
+- **Night: between "truly dark" and "moonlit".** Light sources must matter. The night
+  sky should be strikingly beautiful. The immediate area stays visible (playable), but
+  visibility falls off naturally with distance, so a mob is unclear until it is fairly
+  close. (Round 10's 0.085 was too bright; aim for about 0.04-0.05 mean luma at full moon.)
+- **Golden hour: naturalistic** (option C, the physical sky). The owner will design
+  sky effects later. Liked: foreground and background lit differently by the low
+  sun, as long as the lit foreground is properly lit and saturated. Round 9's frame
+  read better than round 10's (round 10's shade was murky).
+- **Water: realistic depth gradient** (C). The balance of surface reflection against
+  what shows through is a big part of the look.
+- **Fog: per biome.** Crisp mountains and plains, natural haze elsewhere, moody thick
+  fog in some biomes, and a heavy, vision-limiting tundra storm.
+- **Bloom: subtle**, a natural halo that scales with light intensity. Never too much.
+- **Performance: 60+ fps for everyone** comes first. Effects that need 30 fps are not
+  worth having; pour the effort into optimised looks.
+- **Dislikes:** motion blur, too much bloom.
+- **Wants (later milestones):** unobtrusive cave dust; cheap block-break effects that
+  survive mass breaking (Mobzilla); rain as misted air, not only particles; lava and
+  fire light that moves naturally, not a looped flicker; realistic water and light.
