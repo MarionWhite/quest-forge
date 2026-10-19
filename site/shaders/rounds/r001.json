@@ -1,0 +1,219 @@
+{
+ "n": 1,
+ "id": "r001",
+ "title": "Golden hour, nights, haze and the torch tunnel",
+ "intro": "Four taste questions from your round 0 answers. Tap an image to flip between options; some options also have a real photo (Reference) to show the mood. Every option costs the same within measurement noise (about 0.6 ms a frame on High at 1440p, against a 3 ms budget), so pick on looks alone. The critic's notes are honest: the moody and blizzard haze are strength previews, not finished looks, and the new-moon frame has a known bug that is being fixed.",
+ "status": "open",
+ "created": "2026-10-19",
+ "scenes": [
+  {
+   "id": "golden",
+   "name": "Golden hour, low sun behind you",
+   "question": "Which golden-hour light? A adds amber to whatever the low sun reaches; B adds a gold sky near the sun on top of that; C is the current naturalistic light.",
+   "notePrompt": "Too orange? Too grey? Is the lit ridge saturated enough?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Amber light",
+     "img": "r001/golden-A.jpg",
+     "critic": "Ridge dirt glows amber, but here it is hard to tell from C; the beige haze band at the horizon stays.",
+     "ms": 0.56
+    },
+    {
+     "key": "B",
+     "label": "Amber + gold sky",
+     "img": "r001/golden-B.jpg",
+     "critic": "The same warm ridge; facing away from the sun the gold sky barely shows. B also warms the beige haze wall.",
+     "ms": 0.6
+    },
+    {
+     "key": "C",
+     "label": "Current (naturalistic)",
+     "img": "r001/golden-C.jpg",
+     "critic": "Calm and natural, lit faces saturated; a khaki haze band sits on the horizon.",
+     "ms": 0.57
+    }
+   ]
+  },
+  {
+   "id": "sunset",
+   "name": "Sunset, looking into the sun",
+   "question": "The same three options, looking into the setting sun over the lake. Which one?",
+   "notePrompt": "Does the sky near the sun glow enough? Is anything washed orange?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Amber light",
+     "img": "r001/sunset-A.jpg",
+     "critic": "Very close to C: the sky above the band stays grey-violet.",
+     "ms": 0.59,
+     "ref": {
+      "img": "r001/ref-sunset-A.jpg",
+      "credit": "Basile Morin, CC BY-SA 4.0, via Wikimedia Commons",
+      "source": "https://commons.wikimedia.org/wiki/File:Colorful_sky_with_orange_clouds_reflecting_in_the_water_of_a_paddy_field,_at_sunset,_Vang_Vieng,_Laos.jpg",
+      "title": "Colorful sky with orange clouds reflecting in the water of a paddy field, at sunset, Vang Vieng, Laos.jpg"
+     }
+    },
+    {
+     "key": "B",
+     "label": "Amber + gold sky",
+     "img": "r001/sunset-B.jpg",
+     "critic": "Critic's pick: a real warm glow round the sun, blue zenith kept, no wash. B also warms the beige haze wall.",
+     "ms": 0.63
+    },
+    {
+     "key": "C",
+     "label": "Current (naturalistic)",
+     "img": "r001/sunset-C.jpg",
+     "critic": "Calm and natural, but the sky above the golden band reads grey-mauve and lifeless.",
+     "ms": 0.62,
+     "ref": {
+      "img": "r001/ref-sunset-C.jpg",
+      "credit": "Uoaei1, CC BY-SA 4.0, via Wikimedia Commons",
+      "source": "https://commons.wikimedia.org/wiki/File:Kleinarl_J%C3%A4gersee_20180209.jpg",
+      "title": "Kleinarl Jägersee 20180209.jpg"
+     }
+    }
+   ]
+  },
+  {
+   "id": "night-full",
+   "name": "Night, full moon",
+   "question": "How dark should a full-moon night be? The near shore should stay playable, with the distance fading.",
+   "notePrompt": "Can you see enough near you? Should a mob 30 blocks out be visible?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Darker",
+     "img": "r001/night-full-A.jpg",
+     "critic": "Too black: about 11% of the land crushed, far shore lost (mean 0.034).",
+     "ms": 0.6,
+     "ref": {
+      "img": "r001/ref-night-full-A.jpg",
+      "credit": "Martin Mark, CC BY-SA 4.0, via Wikimedia Commons",
+      "source": "https://commons.wikimedia.org/wiki/File:In_the_photo_there_is_one_Perseid,_Milky_Way_and_Andromega_galaxy_and_light_pollution_on_the_horizon_-_Luhasoo_bog_in_Estonia.jpg",
+      "title": "In the photo there is one Perseid, Milky Way and Andromega galaxy and light pollution on the horizon - Luhasoo bog in Estonia.jpg"
+     }
+    },
+    {
+     "key": "B",
+     "label": "Current",
+     "img": "r001/night-full-B.jpg",
+     "critic": "On target (mean 0.046): the sand island reads and the distance falls off well.",
+     "ms": 0.63
+    },
+    {
+     "key": "C",
+     "label": "Brighter",
+     "img": "r001/night-full-C.jpg",
+     "critic": "Readable, but reads as moonlit dusk; the far shore is too clear (mean 0.061).",
+     "ms": 0.61,
+     "ref": {
+      "img": "r001/ref-night-full-C.jpg",
+      "credit": "Abdul Muqtadir Salik, CC BY-SA 4.0, via Wikimedia Commons",
+      "source": "https://commons.wikimedia.org/wiki/File:Nang_Parbat_Night.jpg",
+      "title": "Nang Parbat Night.jpg"
+     }
+    }
+   ]
+  },
+  {
+   "id": "night-new",
+   "name": "Night, new moon",
+   "question": "The same three strengths with no moon. Judge how dark it should feel; the land being brighter than under the full moon is a known bug.",
+   "notePrompt": "Should a new moon be much darker than a full moon, or only a little?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Darker",
+     "img": "r001/night-new-A.jpg",
+     "critic": "Most of the sky and much of the land go to black (mean 0.030).",
+     "ms": 0.52
+    },
+    {
+     "key": "B",
+     "label": "Current",
+     "img": "r001/night-new-B.jpg",
+     "critic": "Bug: the land is lit more than under the full moon (exposure compensates); fix in progress (mean 0.040).",
+     "ms": 0.55
+    },
+    {
+     "key": "C",
+     "label": "Brighter",
+     "img": "r001/night-new-C.jpg",
+     "critic": "Brighter still (mean 0.053); little sense of a moonless night.",
+     "ms": 0.53
+    }
+   ]
+  },
+  {
+   "id": "haze",
+   "name": "Haze strength, the palette for per-biome fog",
+   "question": "You asked for fog per biome. These are four strengths on one wide view. For each, would you use it somewhere? Pick the one you like best as the everyday look, and say in the note which biome each should go to.",
+   "notePrompt": "For example: crisp for mountains, current for forests, moody for swamps, blizzard for tundra storms.",
+   "options": [
+    {
+     "key": "A",
+     "label": "Current (natural haze)",
+     "img": "r001/haze-A.jpg",
+     "critic": "Natural depth, but the distance ends in a flat beige band, not blue aerial haze.",
+     "ms": 0.57,
+     "ref": {
+      "img": "r001/ref-haze-A.jpg",
+      "credit": "Andrew Cattoir (Lake Mead National Recreation Area), Public domain, via Wikimedia Commons",
+      "source": "https://commons.wikimedia.org/wiki/File:Fishing_at_Government_Point_Cove_(f1866a68-2ed8-4e6d-80ba-7e09ad716160).jpg",
+      "title": "Fishing at Government Point Cove (f1866a68-2ed8-4e6d-80ba-7e09ad716160).jpg"
+     }
+    },
+    {
+     "key": "B",
+     "label": "Crisp",
+     "img": "r001/haze-B.jpg",
+     "critic": "Crisp, saturated distance that suits mountains and plains; the beige band stays.",
+     "ms": 0.55,
+     "ref": {
+      "img": "r001/ref-haze-B.jpg",
+      "credit": "ALMA (ESO/NAOJ/NRAO), CC BY 4.0, via Wikimedia Commons",
+      "source": "https://commons.wikimedia.org/wiki/File:ALMA_Dwarfed_by_Mountain_Peaks.jpg",
+      "title": "ALMA Dwarfed by Mountain Peaks.jpg"
+     }
+    },
+    {
+     "key": "C",
+     "label": "Moody (thick)",
+     "img": "r001/haze-C.jpg",
+     "critic": "Strength preview only: a flat beige wall that hides the near field; the final one should pool low in valleys.",
+     "ms": 0.56,
+     "ref": {
+      "img": "r001/ref-haze-C.jpg",
+      "credit": "böhringer friedrich, CC BY-SA 2.5, via Wikimedia Commons",
+      "source": "https://commons.wikimedia.org/wiki/File:Lienz_SG8.JPG",
+      "title": "Lienz SG8.JPG"
+     }
+    },
+    {
+     "key": "D",
+     "label": "Blizzard",
+     "img": "r001/haze-D.jpg",
+     "critic": "Strength preview only: grey not snow-white, the sky stays clear and there is no snowfall yet.",
+     "ms": 0.58
+    }
+   ]
+  },
+  {
+   "id": "torch",
+   "name": "Torch-lit tunnel at midnight",
+   "question": "Is the torch light right? Rate it.",
+   "notePrompt": "Warm enough? Should the light fall off more around each torch?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Current",
+     "img": "r001/torch-A.jpg",
+     "critic": "Walls read well with a mild warm tint, but the light is even, with little falloff (mean 0.20; vanilla 0.17).",
+     "ms": 0.94
+    }
+   ]
+  }
+ ]
+}
