@@ -11,6 +11,7 @@ py -3.10 -I tools/quests/qb.py tally               # reward totals per tab, and 
 py -3.10 -I tools/quests/qb.py dump --out dump.txt # one readable line per task and reward
 py -3.10 -I tools/quests/qb.py show 63             # one quest as JSON
 py -3.10 -I tools/quests/qb.py diff                # where the pack and server books differ
+py -3.10 -I tools/quests/qb.py check --book tools/quests/drafts/DefaultQuests.wp5.json   # any book file
 py -3.10 -I tools/quests/qb.py registry --save "%APPDATA%\.crazycraft4\saves\Stress Test\level.dat"
 ```
 
@@ -46,6 +47,13 @@ chapter's quest. Two numbered tabs are exceptions, set in `SIDE_CHAPTERS` and
 ladder whose rungs open at the boss each recipe needs (the Philosopher's Stone at the Lich),
 so only its last rung has to come after Ch 8 opens. "Needs" is the cheapest set of quests
 that must be complete, so an OR prerequisite counts its cheapest branch.
+
+## Drafts
+
+`drafts/` holds copies of the pack book with a proposed work package applied, for the author to
+review before anything touches the real books. Every `qb.py` command takes one with
+`--book PATH`. A draft is rebuilt from the current pack book each time its patch runs without
+`--book`, so it never drifts; nothing installs it.
 
 ## `entities.json`
 
@@ -111,11 +119,12 @@ patch can be re-run. `patches/` holds the applied work packages:
 | `patches/wp2_tier_leaks.py` | WP-2: rewards that skip tiers, and the Pets/Heroes faucet |
 | `patches/wp3_chapter_order.py` | WP-3: cross-chapter prerequisites, later chapters hidden until they open, chapter-order texts |
 | `patches/wp4_boss_hunts.py` | WP-4: boss proofs become hunt and location tasks; the Overlord and Mutant quests |
+| `patches/wp5_prologue.py` | WP-5 **draft, not applied**: the Prologue tab "Arrival", plus the WP-10 voice sample on the old Ch 1. With no `--book` it writes `drafts/DefaultQuests.wp5.json`; `--book all` applies it once approved ([review](../../docs/design/quests/review-2026-10-19.md)) |
 
 More helpers for those: `set_prereqs`, `set_visibility`, `set_tasks` (checks the task list it
 expects), `add_quest` (copies every property key from an existing quest), `move_in_line`,
-`set_pack_version`, and the task builders `retrieval`, `hunt`, `location`, `item_reward`,
-`choice_reward`, written with the keys and defaults Standard Expansion 3.0.181 reads.
+`set_pack_version`, `add_line` (a new tab; later tabs move right), `move_to_line`, and the task
+builders `retrieval`, `hunt`, `location`, `checkbox`, `item_reward`, `choice_reward`, written with the keys and defaults Standard Expansion 3.0.181 reads.
 
 **Booting a changed book.** BQ writes `world/betterquesting/QuestDatabase.json` only when the
 database is dirty, so a trial that only starts and stops leaves no copy to inspect. End the

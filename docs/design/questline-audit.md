@@ -528,6 +528,11 @@ Each item can be done in one session. Do them in order: earlier items make later
 
 ### WP-5: Prologue `Arrival`
 
+**Drafted 2026-10-19, awaiting review:** `tools/quests/patches/wp5_prologue.py` builds it into
+`tools/quests/drafts/DefaultQuests.wp5.json`. The plan for the acts is
+[`quests/act-structure.md`](quests/act-structure.md); what needs deciding is in
+[`quests/review-2026-10-19.md`](quests/review-2026-10-19.md).
+
 - **Scope:** 8–10 quests per 4.2. Move 0, 430, 431 and 35 into it. Add lottery-ticket and sealed-tome rewards.
 - **Files:** `DefaultQuests.json`.
 - **Validate:** slim boot `--bundle quests --bundle qf --bundle hud` plus gravestones, levelup, infernalmobs and backpack. Walk it on a fresh world in under 20 minutes.
