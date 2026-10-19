@@ -108,6 +108,12 @@
       "class": "thehippomaster.MutantCreatures.MutantEnderman",
       "how": "registerModEntity only",
       "summon": "present in EntityList.stringToClassMapping, server trial 2026-10-17 (/qfcensus find)"
+    },
+    "Zombie": {
+      "mod": "Minecraft 1.7.10",
+      "class": "net.minecraft.entity.monster.EntityZombie",
+      "how": "vanilla EntityList.addMapping(EntityZombie.class, \"Zombie\", 54); also the target Standard Expansion's TaskHunt starts with. subtypes=1 also credits Zombie Pigmen (EntityPigZombie extends EntityZombie) and any modded subclass",
+      "summon": "NOT YET CHECKED with /qfcensus find: do it in the WP-5 slim server trial before the draft is applied"
     }
   },
   "dimensions": {

@@ -18,7 +18,7 @@ copy with raw UTF-8; save() keeps whichever style the file already had, and
 load() refuses to work on a file it cannot write back byte for byte.
 
 Usage (py -3.10 -I tools/quests/qb.py ...):
-    check [--book pack|server|all]      lint + ids + cheese + stack + text + hunt + path (exit 1 on error)
+    check [--book pack|server|all|PATH] lint + ids + cheese + stack + text + hunt + path (exit 1 on error)
     lint | ids | cheese | stack | text | hunt   one check at a time
     path [--book ...]                   the chapter order: what opens each numbered chapter
     tally [--book ...]                  reward totals per quest line, ungated totals
@@ -41,6 +41,9 @@ BOOKS = {
     'pack': os.path.join(REPO, 'pack', 'config', 'betterquesting', 'DefaultQuests.json'),
     'server': os.path.join(REPO, 'server', 'config', 'betterquesting', 'DefaultQuests.json'),
 }
+# Drafts for review: copies of the pack book with a proposed work package applied.
+# Every command takes one with --book PATH; nothing installs them.
+DRAFTS = os.path.join(HERE, 'drafts')
 # Namespaces a book may use that the pack registry does not have. The survey server
 # runs HBM, so its book keeps the HBM chapter; the pack does not ship HBM.
 EXTRA_NAMESPACES = {'pack': set(), 'server': {'hbm'}}
@@ -252,6 +255,12 @@ def location(name, dim):
     return {'index:3': 0, 'name:8': name, 'posX:3': 0, 'posY:3': 0, 'posZ:3': 0, 'dimension:3': dim,
             'biome:3': -1, 'structure:8': '', 'range:3': -1, 'visible:1': 0, 'hideInfo:1': 0,
             'invert:1': 0, 'taxiCabDist:1': 0, 'taskID:8': 'bq_standard:location'}
+
+
+def checkbox():
+    """The player ticks it. Honour system: use it only where no task type can see the
+    thing (reading a page, choosing a Level Up class, joining a party)."""
+    return {'index:3': 0, 'taskID:8': 'bq_standard:checkbox'}
 
 
 def item_reward(*stacks):
@@ -491,6 +500,55 @@ def move_in_line(log, book, line_id, qid, x, y):
     raise SystemExit('q%d is not in line %d' % (qid, line_id))
 
 
+def add_line(log, book, line_id, order, name_, desc, icon, vis='ALWAYS', template=0):
+    """Add an empty quest line (or report that it is there) at tab position `order`.
+    Every other line at `order` or later moves one place right, so Secrets stays last.
+    Copies the property keys from line `template`."""
+    import copy
+    if any(l['lineID:3'] == line_id for l in book.lines):
+        l = book.line(line_id)
+        if strip(l['properties:10']['betterquesting:10']['name:8']) != strip(name_):
+            raise SystemExit('line %d exists as %r, not %r' % (line_id, strip(book.line_name(line_id)), strip(name_)))
+        log('line %d %s: already added' % (line_id, strip(name_)))
+        return l
+    l = copy.deepcopy(book.line(template))
+    l['lineID:3'] = line_id
+    l['quests:9'] = {}
+    l['properties:10']['betterquesting:10'].update(
+        {'name:8': name_, 'desc:8': desc, 'icon:10': icon, 'visibility:8': vis, 'bg_image:8': ''})
+    for other in book.data['questLines:9'].values():
+        if other['order:3'] >= order:
+            other['order:3'] += 1
+    l['order:3'] = order
+    book.data['questLines:9']['%d:10' % line_id] = l
+    log('line %d %s: added at tab %d' % (line_id, strip(name_), order))
+    return l
+
+
+def move_to_line(log, book, qid, line_id, x, y, size=24):
+    """Move a quest from whatever line holds it into `line_id` at (x, y)."""
+    entries = book.line(line_id)['quests:9']
+    for e in entries.values():
+        if e['id:3'] == qid:
+            if (e['x:3'], e['y:3']) != (x, y):
+                log('q%d position in line %d: (%d,%d) -> (%d,%d)' % (qid, line_id, e['x:3'], e['y:3'], x, y))
+                e['x:3'], e['y:3'] = x, y
+            else:
+                log('q%d: already in line %d' % (qid, line_id))
+            return
+    old = None
+    for l in book.lines:
+        es = l['quests:9']
+        keep = [e for e in es.values() if e['id:3'] != qid]
+        if len(keep) != len(es):
+            old = l['lineID:3']
+            l['quests:9'] = {'%d:10' % i: e for i, e in enumerate(keep)}
+    if old is None:
+        raise SystemExit('q%d is in no line' % qid)
+    entries['%d:10' % len(entries)] = {'sizeX:3': size, 'x:3': x, 'y:3': y, 'id:3': qid, 'sizeY:3': size}
+    log('q%d: line %d -> line %d at (%d,%d)' % (qid, old, line_id, x, y))
+
+
 def set_pack_version(log, book, version):
     s = book.settings
     if s['pack_version:3'] >= version:
@@ -501,8 +559,17 @@ def set_pack_version(log, book, version):
 
 
 def load(which):
+    """'pack', 'server', or the path of a book file (a draft under drafts/)."""
     path = BOOKS.get(which, which)
-    return Book(path, which if which in BOOKS else None)
+    if which not in BOOKS and not os.path.isfile(path):
+        raise SystemExit('no book %r: use pack, server, all or the path of a DefaultQuests.json' % which)
+    if which in BOOKS:
+        return Book(path, which)
+    try:
+        label = os.path.relpath(path, REPO).replace('\\', '/')
+    except ValueError:  # another drive
+        label = path
+    return Book(path, label)
 
 
 def books_for(arg):
@@ -847,7 +914,7 @@ CHAPTER_RE = re.compile(r'^Ch (\d+):')
 # Numbered tabs that are not links in the chain, and why. Every other numbered chapter
 # must open strictly after the one before it.
 SIDE_CHAPTERS = {
-    2: 'Base is storage QoL, a Prologue side tab (audit 4.4); it opens with Ch 1 at quest 2',
+    2: 'Base is storage QoL, a Prologue side tab (audit 4.4); it opens at quest 2 Crafting Station',
 }
 LADDER_CHAPTERS = {
     9: 'ProjectE is a ladder: each rung opens at the boss its recipe needs (crazycraft_gating.zs), '
@@ -1188,6 +1255,9 @@ def cmd_registry(a):
 
 # ---------------------------------------------------------------------------
 
+BOOK_HELP = 'pack, server, all, or the path of a book file such as tools/quests/drafts/DefaultQuests.wp5.json'
+
+
 def main():
     if hasattr(sys.stdout, 'reconfigure'):
         sys.stdout.reconfigure(encoding='utf-8', errors='replace')
@@ -1195,16 +1265,16 @@ def main():
     sub = ap.add_subparsers(dest='cmd', required=True)
     for n in ['check'] + list(CHECKS):
         p = sub.add_parser(n)
-        p.add_argument('--book', choices=['pack', 'server', 'all'], default='all')
+        p.add_argument('--book', default='all', help=BOOK_HELP)
         p.add_argument('-v', '--verbose', action='store_true')
     p = sub.add_parser('tally')
-    p.add_argument('--book', choices=['pack', 'server', 'all'], default='pack')
+    p.add_argument('--book', default='pack', help=BOOK_HELP)
     p = sub.add_parser('dump')
-    p.add_argument('--book', choices=['pack', 'server', 'all'], default='pack')
+    p.add_argument('--book', default='pack', help=BOOK_HELP)
     p.add_argument('--out')
     p = sub.add_parser('show')
     p.add_argument('qid', type=int, nargs='+')
-    p.add_argument('--book', choices=['pack', 'server'], default='pack')
+    p.add_argument('--book', default='pack', help=BOOK_HELP)
     sub.add_parser('diff')
     p = sub.add_parser('registry')
     p.add_argument('--save', required=True, help='a world level.dat (read only)')
