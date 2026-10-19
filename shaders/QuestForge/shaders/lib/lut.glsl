@@ -79,7 +79,10 @@ const float EXPOSURE_MEAN_WEIGHT = 0.75;  // prepare.glsl, meteredLog
 //   below the full moon: steeper (0.55 stop per stop), so a new moon stays readable.
 const float EXPO_DAY_M = -3.64, EXPO_DAY_E = 1.24;
 const float EXPO_NIGHT_M = -10.7, EXPO_NIGHT_E = 2.26;
-const float EXPO_DEEP_SLOPE = 1.0;   // r12: 0.8 crushed 3% of the new-moon frame
+// Below a full-moon night the eye adapts only partly, so a new moon reads darker than a full one.
+// 1.0 (r12-r14) compensated fully: the meter, dominated by the darker sky, drove new-moon exposure
+// up 1.95 stops for a 2.1-stop darker scene and lit the land MORE than at full moon (a2d8 view 8).
+const float EXPO_DEEP_SLOPE = QF_DEEP_SLOPE;
 // Under open sky a dark scene is night, which must stay readable; underground it is a cave
 // or a tunnel, which should stay dark (round 9: the torch tunnel matched vanilla's 0.17-0.2
 // mean luma, but the full moon fell to 0.038 and the new moon crushed). So the sky light

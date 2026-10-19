@@ -18,6 +18,9 @@
 #define QF_CAL_WATER 0 // [0 1 2 3]   water: A clear tropical, B deep dark, C depth gradient
 #define QF_CAL_FOG 0 // [0 1 2 3 4]   distance: A crisp, B natural haze, C thick valley fog, 4 blizzard (r001)
 #define QF_CAL_BLOOM 0 // [0 1 2 3]   bloom: A none, B subtle, C strong
+#define QF_DEEP_SLOPE 0.6 // [0.3 0.45 0.6 0.8 1.0]   development (a2): exposure compensation below a full moon
+#define QF_NEW_MOON_FLOOR 1.0 // [0.5 0.7 1.0 1.2]   development (a2): night floor left at new moon
+#define QF_MOON_GAIN 4.0 // [2.0 3.0 4.0 6.0 10.0 14.0 60.0]   development (a2): moon disk brightness
 #define QF_CAL_GOLD 0 // [0 1 2]     golden hour (r001): 1 amber light on lit faces, 2 that plus gold sky near the sun
 
 // 0 Potato, 1 Low, 2 Medium, 3 High, 4 Ultra.

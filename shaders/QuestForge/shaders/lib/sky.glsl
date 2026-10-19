@@ -15,10 +15,20 @@ const vec3  NIGHT_FLOOR_TINT = vec3(0.8, 0.88, 1.0);
 
 const float SUN_DISK_RADIUS = 0.016;    // radians; about three times the real sun, for readability
 const float MOON_DISK_RADIUS = 0.035;   // about vanilla's moon size
+const float MOON_DISK_GAIN = QF_MOON_GAIN;   // disk radiance in MOON_I units (was 60: clipped)
 
-// The night floor follows the moon (look bible 1): a new moon leaves half the floor.
+// The night floor (look bible 1). The moon phase now shows through partial exposure
+// compensation (EXPO_DEEP_SLOPE), so the floor no longer has to fall at new moon; it is what
+// keeps the near field readable then (a2: 0.7 crushed 19% of the new-moon land on High).
+// Low and Potato get a little more: their shading crushes more at the same exposure (a2: Low's
+// new-moon land 35% crushed against High's 19%, r14 critic: raise the floor, not exposure).
+#if QF_PRESET <= 1
+const float NIGHT_FLOOR_PRESET = 1.25;
+#else
+const float NIGHT_FLOOR_PRESET = 1.0;
+#endif
 float nightFloor() {
-    return NIGHT_FLOOR_I * QF_NIGHT_FLOOR * mix(0.5, 1.0, moonBrightness());
+    return NIGHT_FLOOR_I * NIGHT_FLOOR_PRESET * QF_NIGHT_FLOOR * mix(QF_NEW_MOON_FLOOR, 1.0, moonBrightness());
 }
 
 float moonIntensity() {
@@ -48,9 +58,16 @@ vec3 moonDisk(vec3 dir, vec3 moonDir) {
     float a = float(moonPhase) * (PI / 4.0);
     vec3 l = vec3(sin(a), 0.0, cos(a));
     float lit = smoothstep(-0.05, 0.12, dot(n, l));
-    float maria = 0.72 + 0.28 * valueNoise(p * 3.1 + 7.0) * valueNoise(p * 7.3 + 1.0);
+    // Maria: a few large dark seas plus finer mottling, so the disk reads as the moon. Round 14
+    // drew it at 60x MOON_I, which clipped 98% of the disk to white after night exposure: no
+    // maria and no visible phase. MOON_DISK_GAIN keeps the brightest highland under the clip.
+    float seas = smoothstep(0.42, 0.62, valueNoise(p * 1.7 + vec2(3.3, 8.1)) * 0.65
+                                     + valueNoise(p * 3.9 + 11.0) * 0.35);
+    float mottle = 0.85 + 0.15 * valueNoise(p * 9.0 + 2.0);
+    float maria = mix(1.0, 0.58, seas) * mottle;
+    float limb = 0.82 + 0.18 * n.z;
     float edge = smoothstep(1.0, 0.93, rr);
-    return MOON_I * 60.0 * (lit * maria + 0.015) * edge * MOON_TINT;
+    return MOON_I * MOON_DISK_GAIN * (lit * maria * limb + 0.012) * edge * MOON_TINT;
 }
 
 vec3 sunDisk(vec3 dir, vec3 sunDir) {
