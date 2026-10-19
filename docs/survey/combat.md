@@ -56,7 +56,7 @@ routinely disagree:
 |---|---|
 | `marginal_pct` | Sustained damage per second against the control. The tuning number. |
 | `marginal_ttk_pct` | Time to kill a target allowed to die. The felt number, and where health-scaling effects stop resembling their DPS figure. |
-| `observed_proc_pct` | How often the enchantment actually fired, counted at the point of dispatch. |
+| `observed_proc_pct` | How often the enchantment actually fired, counted at the point of dispatch. Only triggers the enchantment has a hook for count; a held weapon also rolls every tick, and those rolls do nothing for an attack-only effect such as Rage. |
 
 The third is a check on the **code**, not the balance. If an enchantment
 documented at 24% fires at 8%, that is a bug, and tuning the effect will not fix

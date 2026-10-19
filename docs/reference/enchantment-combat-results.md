@@ -508,6 +508,78 @@ Strength I for 4/6/8 s. Expected: level I about +25%, level III unchanged. Separ
 make the Excalibur clash visible: a tooltip line "does nothing while Excalibur is
 held". That is not a balance change.
 
+#### Investigation, 2026-10-19
+
+**Verdict: a census artifact, not a bug. Rage I works as designed, and there is no
+cliff.** The campaign's Rage I figures come from one unlucky cell per boss. The
+proc column hid that, because it counted rolls that can never do anything.
+
+*Cause 1: one replicate of a proc-luck enchantment.* The levels phase runs each
+level once per boss. On Mantis the band figures can be read swing by swing. Control
+is 24.6 a hit (49.2 dps), and every swing under Strength I hits for ×2.3 (113.16 dps).
+A Rage proc boosts the next 7 / 11 / 15 swings at I / II / III, because its 80 /
+120 / 160-tick Strength is ticked down before each 10-tick swing. The campaign's
+Rage I cell reads `49.2 49.2 49.2 49.1 77.06`. That is 7 boosted swings out of 80,
+so it drew **one proc on 80 swings where four were expected**. The chance of one
+proc or fewer is 8.6%. Naga's Rage I cell shows the same thing (only band 5 rises),
+under WeaponScaler's ×1–4 noise.
+
+*Cause 2: the proc column counted dead rolls.* The dispatcher rolls each
+enchantment's chance on every trigger. A held weapon therefore rolls once a tick as
+well as once a swing, even though Rage only has an `onAttack` hook. The cell's 883
+rolls were 80 ATTACK rolls and 803 TICK rolls, and the TICK rolls do nothing. "47 of
+883 = 5.3%" was almost all TICK rolls. It looked like "fires at its intended rate"
+and hid the single real proc. The per-trigger file was right all along (ATTACK at
+the declared rate over the whole run). The per-cell column was not.
+
+*Ruled out.*
+- Duration within the attack cadence: 80 ticks covers 7 swings at 2 swings/s.
+- Potion amplifier rounding: Rage always grants Strength I (amplifier 0, ×2.3)
+  at every level, and the deterministic bands show exactly ×2.3.
+- Cooldown: Rage has none.
+- WeaponScaler: it does not apply to the OreSpawn sword on Mantis, and Mantis shows
+  the effect most cleanly.
+- Strength stacking: only with Excalibur (see the pair table). Neither is
+  involved here.
+- Probe timing: potion ticking is correct since the `pumpTick` fix, and the 15-swing
+  Rage III windows match 160 ticks exactly.
+
+*Evidence: one targeted run.* Node c4 ran the campaign jar
+(1.1.0+20261017.0a2cec6b) with `-Dqf.census.tickwarp=true` and `-Xmx4G`. Mantis was
+listed 20 times (`only=rage levels=all controls=1 modes=melee pairs`), giving 20
+replicates per level. ATTACK fired 473 times on 4,800 rolls, against an expected 480.
+TTK speed-up against the 20 controls (12.16 s, spread ±0.01 s):
+
+| Level | Campaign (1 cell) | 20 cells: mean ± sd | min / median / max | Model (100k sims) |
+|---|---:|---:|---:|---:|
+| I | +3.6 | **+25.0 ± 9.2** | 0 / +26 / +41 | +22 (p10 +9, p90 +35) |
+| II | +48.3 | **+37.0 ± 10.2** | +16 / +38 / +52 | +41 |
+| III | +42.4 | **+50.1 ± 6.7** | +30 / +53 / +56 | +50 |
+
+One of the 20 Rage I cells drew no proc and read exactly control. The scaling is roughly linear, at about +12 points a level. The
+campaign's "−7 / +52 / +57" (Naga) and "+4 / +48 / +42" (Mantis) were one draw each.
+
+*Census fix (committed, census-only).* `CombatCensus.collectProcs` now counts a
+trigger's rolls in `proc_rolls` / `proc_fires` / `observed_proc_pct` only when the
+enchantment overrides that trigger's hook. Attributed damage is unchanged. Re-run on
+5 Mantis replicates with the fixed jar: Rage I rows now read 80 rolls with 6 / 5 / 3
+/ 1 / 1 fires, and the 1-fire cells are the slow ones (11.1 s against 12.17 s). The
+damage figures are unaffected. The dispatcher's extra TICK rolls are left alone,
+because changing them changes gameplay RNG consumption. The per-trigger
+procs file still lists them, as it should.
+
+*What this means for P4 (balance input; nothing applied).*
+- **Withdraw the proposed proc change.** Old: 5 / 10 / 15%. Proposed: 10 / 12 / 15%.
+  It was meant to fix a cliff that does not exist. Rage I already gives about +25% on an
+  uncapped boss. At 10% it would give about +37%, the current Rage II.
+- Rage is proc luck by construction. A single fight swings ±9–10 points at I and II.
+  Treat any single-cell Rage figure as ±15 (open question 5).
+- Real per-level strength on uncapped bosses is about +25 / +37 / +50, and 0 on the
+  750-capped bosses. The singles' +42% for Rage III on Mantis was also on the low side
+  of +50 ± 7. The rarity question (Epic → Legendary, §8) should use those numbers.
+- The Excalibur tooltip line stands as proposed.
+- Open question 6 is answered by this section.
+
 ### P5. The 750/hit cap on Mobzilla, The King and The Queen. **Recommend no change, but confirm.**
 
 *Evidence.* The Royal sword's 751 raw is already over the cap, so every T4 weapon
@@ -645,8 +717,9 @@ an enchantment one.
 5. **Proc luck is wider than the noise band** on deterministic bosses (§1). Roulette
    on Mobzilla read −1, +13 and +23 in three runs. Treat single cells of Roulette,
    Rage and Colossus on T3/T4 as ±15 points.
-6. **Rage I reads about 0 although it fires at its 5% rate** (§6 P4). The Strength
-   from a Rage I proc barely shows in band damage. That has not been explained.
+6. **Rage I reads about 0 although it fires at its 5% rate** (§6 P4). *Answered
+   2026-10-19:* the campaign cell drew one proc in 80 swings, and the proc column
+   was counting TICK rolls. Over 20 replicates, Rage I is +25 ± 9. See P4, Investigation.
 7. **King and Queen are capped like Mobzilla.** This is not in the anomaly doc, but
    the first-swing logs show it (120.0 dealt for raw 751 or 1,727).
 8. **The `qfcontent-census-combat.tsv` header says defensive cells take "a fixed

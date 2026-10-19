@@ -25,6 +25,7 @@ import com.questforge.content.QuestForgeContent;
 import com.questforge.content.ench.CombatState;
 import com.questforge.content.ench.Cooldowns;
 import com.questforge.content.ench.EnchantCategory;
+import com.questforge.content.ench.EnchantDispatcher;
 import com.questforge.content.ench.EnchantTap;
 import com.questforge.content.ench.QFEnchantment;
 import com.questforge.content.ench.QFEnchantments;
@@ -2429,22 +2430,73 @@ public class CombatCensus {
      * against a declared 30%, which reads exactly like a bug in Poisonous. The
      * per-trigger file, which was always keyed by enchantment, showed 29.4% and
      * gave the game away.
+     *
+     * Only rolls on a trigger the enchantment actually has a hook for count. The
+     * dispatcher rolls every enchantment's chance on every trigger, so a held
+     * weapon rolls once per tick as well as once per swing. Rage's row read 47
+     * fires in 883 rolls -- "5%, as declared" -- when 803 of those rolls were
+     * TICK rolls whose hook does nothing; the 80 ATTACK rolls that grant the
+     * Strength fired about once. The rate looked right and hid that the cell had
+     * drawn one proc where four were expected (2026-10-19).
      */
     private static void collectProcs() {
         for (EnchantTap.Counts c : EnchantTap.snapshot()) {
-            if (!measures(c.enchant)) continue;
+            QFEnchantment e = measured(c.enchant);
+            if (e == null) continue;
+            result.attributedDamage += c.attributedDamage;
+            if (!hasHook(e, c.trigger)) continue;
             result.procRolls += c.rolls;
             result.procFires += c.fires;
-            result.attributedDamage += c.attributedDamage;
         }
     }
 
     /** Whether this cell's loadout contains the named enchantment. */
     private static boolean measures(String displayKey) {
+        return measured(displayKey) != null;
+    }
+
+    /** The loadout's enchantment with this display key, or null. */
+    private static QFEnchantment measured(String displayKey) {
         for (QFEnchantment e : cell.loadout.enchants) {
-            if (e.displayKey().equals(displayKey)) return true;
+            if (e.displayKey().equals(displayKey)) return e;
         }
-        return false;
+        return null;
+    }
+
+    /**
+     * Whether the enchantment overrides the hook the dispatcher calls for this
+     * trigger, i.e. whether a fire on it can do anything. A hook QFEnchantment
+     * leaves empty is a roll and nothing else.
+     */
+    private static boolean hasHook(QFEnchantment e, String trigger) {
+        String method;
+        try {
+            switch (EnchantDispatcher.Trigger.valueOf(trigger)) {
+                case ATTACK: method = "onAttack"; break;
+                case DAMAGED: method = "onDamaged"; break;
+                case KILL: method = "onKill"; break;
+                case TICK: method = "onTick"; break;
+                case HARVEST: method = "onHarvest"; break;
+                case BREAK: method = "onBreak"; break;
+                case ITEM_DESTROYED: method = "onItemDestroyed"; break;
+                case XP_PICKUP: method = "onXpPickup"; break;
+                case TARGETED: method = "onTargeted"; break;
+                case DEATH: method = "onDeath"; break;
+                case DROPS: method = "onDrops"; break;
+                case ARROW_HIT: method = "onArrowHit"; break;
+                case ARROW_LAND: method = "onArrowLand"; break;
+                case ARROW_TICK: method = "onArrowTick"; break;
+                default: return true;
+            }
+        } catch (IllegalArgumentException unknown) {
+            return true;
+        }
+        for (java.lang.reflect.Method m : e.getClass().getMethods()) {
+            if (m.getName().equals(method) && m.getParameterTypes().length == 1) {
+                return m.getDeclaringClass() != QFEnchantment.class;
+            }
+        }
+        return true;
     }
 
     private static void writeRow() {
