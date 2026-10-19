@@ -1,0 +1,92 @@
+{
+ "round": 0,
+ "id": "r000",
+ "note": "Built by tools/shaders/review/fetch_feedback.py from GitHub issues; the latest response is last.",
+ "responses": [
+  {
+   "issue": 1,
+   "url": "https://github.com/MarionWhite/quest-forge/issues/1",
+   "user": "Etnadozaus",
+   "state": "open",
+   "created_at": "2026-10-18T17:29:20Z",
+   "updated_at": "2026-10-18T17:29:20Z",
+   "from": "body",
+   "answers": {
+    "round": 0,
+    "scenes": {
+     "direction": {
+      "choice": "neither",
+      "rating": 3,
+      "note": "I want some sort of combination between photorealistic and cinematic. I want the water to give a photorealistic effect, and light's effects throughout the world. I don't want blocks themselves to look photorealistic like sandstone, but I want a cinematic look to them where they aren't just bit crushed textures, but rather compelling, high quality, high resolution renditions of blocks. I also want cinematic screen effects that relate to biome and environment like fog and vision/light aberration when traversing the tundra.\n\nTo summarize, when people look at the pack I want them to feel immersion, and take in the beauty."
+     },
+     "ocean": {
+      "choice": "A",
+      "rating": 4,
+      "note": "There doesn't seem to be a big enough difference to justify a performance drop off."
+     },
+     "wall": {
+      "choice": "B",
+      "rating": 2,
+      "note": "I don't really see what is changing here other than the textures on one of the glass blocks on the right as well as the player hand."
+     },
+     "night": {
+      "choice": "B",
+      "rating": 3,
+      "note": "Somewhere between truly dark and moonlit. I want light sources to matter at first, and I want the night sky to stick out and be incredibly beautiful, but I do not want the game up be unplayable at night. Players should be able to see what is going on in their immediate area. I do kind of like the idea of not fully being able to tell what mobs are until being somewhat close to them."
+     },
+     "sunset": {
+      "choice": "C",
+      "rating": 4,
+      "note": "I like the naturalistic aesthetic, and I intend to design some sky effects within the shaders pack."
+     },
+     "water": {
+      "choice": "C",
+      "rating": 5,
+      "note": "I also think that balancing the surface reflection with the water is a huge component of how it looks in game."
+     },
+     "fog": {
+      "choice": "neither",
+      "rating": 5,
+      "note": "I feel like all 3 of these options (as well as many more) fit on their respective biomes. Mountainous plains could be crisp, another biome could benefit from natural haze, another would look amazing with moody, thick atmosphere, and a tundra would be awesome with a much heavier affect where vision is limited, and a mob could seemingly come out of nowhere amidst the storm."
+     },
+     "bloom": {
+      "choice": "B",
+      "rating": 4,
+      "note": "I don't think these images portray their effects very well other than the last, but a subtle natural halo affected by light intensity makes sense and lends itself to photorealistic light."
+     },
+     "fps": {
+      "choice": "A",
+      "rating": 4,
+      "note": "We should 100% make sure that everyone is getting 60+ fps because the effects are pointless if nobody can experience them, but I really want to make this look amazing, so we should do everything in our power to pour effort into looks that are optimized, and can meet lower performing PCs."
+     },
+     "dislikes": {
+      "choice": null,
+      "rating": null,
+      "note": "I think motion blur causes performance issues, so probably not a good fit. I don't like too much bloom, so we will have to make sure to balance that out."
+     },
+     "references": {
+      "choice": null,
+      "rating": null,
+      "note": "I like things that are ambient. I've seen shaders that add dust particles to caves that are not obstructive at all, and just add to the atmosphere. I like small things like effects when breaking things as long as they come with low performance cost even at a large scale like when mobzilla breaks a fuck ton of blocks in an instant. I like environmental perspective effects like limited visibility in a tundra, or rain that isn't just a bunch of particles falling from the sky, but rather the clouded, misted environment. I like when lava isn't just a static glow, and there is some movement to the light that comes from sources where you would expect variation (not just a predictable loop of the fucking light, but more of a naturalistic affect). I really like realistic water. Realistic light behavior is really important. Performance matters a lot because all of this looks like shit at 30fps."
+     },
+     "qf-golden": {
+      "choice": "A",
+      "rating": 3,
+      "note": "Round 9 definitely looks better, but what 10 does well is that the foreground and background are lit up differently depending on the perspective and light source, which is a cool effect when the foreground is properly lit and saturated."
+     },
+     "qf-night": {
+      "choice": "neither",
+      "rating": 3,
+      "note": "maybe we can come up with a creative way to degrade visibility over distance to still allow the immediate area to be well lit by the moonlight, but also have a naturalistic fall off in visibility."
+     },
+     "qf-noon": {
+      "choice": "neither",
+      "rating": 3,
+      "note": "I need to see more options before giving too strong of an opinion."
+     }
+    },
+    "overall": "Let's keep moving!"
+   }
+  }
+ ]
+}

@@ -16,8 +16,9 @@
 #define QF_CAL_NIGHT 0 // [0 1 2 3]   night: A truly dark, B moonlit blue, C gentle
 #define QF_CAL_SUNSET 0 // [0 1 2 3]  golden hour: A intense gold, B pastel, C naturalistic
 #define QF_CAL_WATER 0 // [0 1 2 3]   water: A clear tropical, B deep dark, C depth gradient
-#define QF_CAL_FOG 0 // [0 1 2 3]     distance: A crisp, B natural haze, C thick valley fog
+#define QF_CAL_FOG 0 // [0 1 2 3 4]   distance: A crisp, B natural haze, C thick valley fog, 4 blizzard (r001)
 #define QF_CAL_BLOOM 0 // [0 1 2 3]   bloom: A none, B subtle, C strong
+#define QF_CAL_GOLD 0 // [0 1 2]     golden hour (r001): 1 amber light on lit faces, 2 that plus gold sky near the sun
 
 // 0 Potato, 1 Low, 2 Medium, 3 High, 4 Ultra.
 #if QF_PRESET == 0

@@ -153,6 +153,9 @@ void main() {
         start = 4.0;
         float lowY = scene0.y + cameraPosition.y;
         density *= 3.0 * (1.0 + 3.0 * exp(-max(lowY - 62.0, 0.0) / 10.0));
+#elif QF_CAL_FOG == 4      // blizzard (r001): a tundra storm, sight cut to a few dozen blocks
+        start = 2.0;
+        density = 1.0 / 16.0;
 #endif
         float amount = 1.0 - exp(-max(dist0 - start, 0.0) * density);
         amount = max(amount, smoothstep(far * 0.82, far * 1.0, dist0));
@@ -162,6 +165,9 @@ void main() {
         // instead of a moonlit wall of fog (r12 critic: the full moon hid the mountain that
         // the new moon kept).
         haze *= mix(1.0, 0.45, nightFog);
+#if QF_CAL_FOG == 4
+        haze = mix(haze, vec3(luminance(haze)) * vec3(0.96, 1.0, 1.06), 0.75);   // snow-white
+#endif
         color = mix(color, haze, amount * smoothstep(0.0, 0.3, max(skyLight, eyeSky)));
     }
     outColor = vec4(max(color, vec3(0.0)), 1.0);

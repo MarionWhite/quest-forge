@@ -9,7 +9,7 @@ const float SUN_I = 3.0;
 const float MOON_I = SUN_I * 0.008;              // full moon, before the phase factor
 const vec3  MOON_TINT = vec3(0.78, 0.88, 1.0);     // a slight blue shift for scotopic night
 const vec3  BLOCK_LIGHT_COLOR = vec3(1.0, 0.70, 0.45);   // about 2900 K, linear (r10 critic: 0.76/0.56 read grey-brown)
-const float BLOCK_I = 0.95;
+const float BLOCK_I = 1.1;   // owner (r000): light sources must matter
 const float NIGHT_FLOOR_I = 0.009;                // irradiance everywhere, scaled by QF_NIGHT_FLOOR
 const vec3  NIGHT_FLOOR_TINT = vec3(0.8, 0.88, 1.0);
 
@@ -76,6 +76,13 @@ vec3 stars(vec3 dir) {
     return tint * SUN_I * 0.02 * (0.3 + b) * twinkle * smoothstep(0.6, 0.0, d);
 }
 
+// How far into golden hour the sun is: 1 with the sun a few degrees up, 0 by mid-afternoon
+// and once it has set. Used by the QF_CAL_GOLD variants (Shader Lab r001).
+float goldenHour() {
+    float y = sunDirWorld().y;
+    return smoothstep(0.32, 0.08, y) * smoothstep(-0.04, 0.03, y);
+}
+
 // Scattered light only: what the sky adds in front of anything (fog, reflections).
 vec3 skyScatter(vec3 dir) {
     // Below the horizon the table holds the lit ground; past the render distance and in
@@ -85,6 +92,14 @@ vec3 skyScatter(vec3 dir) {
     vec3 L = SUN_I * lookupSkyView(dir, sunDirWorld(), LUT_SV_SUN)
            + moonIntensity() * MOON_TINT * lookupSkyView(dir, moonDirWorld(), LUT_SV_MOON);
     // Rain: a duller, darker, less saturated sky (look bible 9).
+#if QF_CAL_GOLD == 2
+    // Gold sky near the sun: warm the glow within about 25 degrees of it, and pull the
+    // grey-mauve above the horizon band slightly towards peach.
+    float gh = goldenHour();
+    float nearSun = pow(clamp(dot(dir, sunDirWorld()), 0.0, 1.0), 6.0);
+    L *= mix(vec3(1.0), vec3(1.30, 1.0, 0.58), gh * nearSun);
+    L *= mix(vec3(1.0), vec3(1.06, 1.0, 0.90), gh * (1.0 - nearSun));
+#endif
     float g = luminance(L);
     return mix(L, vec3(g) * 0.55, rainStrength * 0.75);
 }

@@ -75,8 +75,16 @@ vec3 shadeSurface(Surface s, vec3 viewDir, vec2 pixel) {
     }
     float sky = s.skyLight * s.skyLight * s.skyLight;
     float ao = mix(1.0, s.ao, QF_AO_STRENGTH);
+    vec3 skyE = skyIrradiance(s.normal);
+#if QF_CAL_GOLD > 0
+    // Amber light on whatever the low sun reaches: a stronger, warmer direct term and a
+    // little less blue fill, so lit faces read gold against cool shade (Shader Lab r001).
+    float gh = goldenHour();
+    E *= mix(vec3(1.0), vec3(1.45, 1.12, 0.80), gh);
+    skyE *= mix(1.0, 0.80, gh);
+#endif
     vec3 irradiance = E * diffuse * shadow
-                    + skyIrradiance(s.normal) * sky * ao
+                    + skyE * sky * ao
                     + blockIrradiance(s.blockLight) * ao
                     + nightFloor() * NIGHT_FLOOR_TINT * ao;
     // Held light (look bible 1): a soft warm pool around the player.
