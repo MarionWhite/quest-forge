@@ -126,3 +126,6 @@ __pycache__/
 !pack/resourcepack/**
 # ...but a stray build artefact inside a source tree is still not source.
 mods/*/src/**/*.class
+
+# Wrangler local secrets for the Shader Lab relay; never commit
+tools/shaders/relay/.dev.vars

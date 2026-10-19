@@ -120,6 +120,14 @@ textarea:focus{outline:none;border-color:var(--ink-2)}
 .btn.primary{background:var(--on);color:var(--on-ink);border-color:var(--on)}
 .btn[disabled]{opacity:.5;cursor:default}
 .status-line{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--muted);margin-top:10px;min-height:1.4em}
+.pass{margin-top:14px;padding:12px 14px;border:1px solid var(--rule-2);border-radius:3px;background:var(--sunk);max-width:520px}
+.pass label{display:block;font-family:Archivo,sans-serif;font-size:14px;color:var(--ink-2);margin-bottom:8px}
+.pass .row{display:flex;gap:8px;flex-wrap:wrap}
+.pass input{flex:1;min-width:12ch;min-height:44px;background:var(--surface);color:var(--ink);border:1px solid var(--rule-2);border-radius:3px;
+  padding:8px 10px;font-family:"JetBrains Mono",monospace;font-size:15px}
+.pass input:focus{outline:none;border-color:var(--ink-2)}
+.status-line a{color:var(--ink)}
+.status-line.err{color:var(--ink)}
 details.preview{margin-top:14px}
 details.preview summary{cursor:pointer;font-family:Archivo,sans-serif;font-size:14px;color:var(--ink-2)}
 details.preview pre{white-space:pre-wrap;word-break:break-word;background:var(--sunk);border:1px solid var(--rule);padding:12px;
@@ -173,14 +181,20 @@ body.locked{overflow:hidden}
   <div id="scenes"></div>
   <section class="send" id="send" hidden>
     <h2>Send feedback</h2>
-    <p>Your answers save on this device as you go. When you're done, send them: this opens a new GitHub issue
+    <p id="sendHow">Your answers save on this device as you go. When you're done, send them: this opens a new GitHub issue
       with your answers already filled in. Check it, then press <b>Create</b> (you need to be signed in to GitHub).</p>
     <p class="lbl" style="margin-top:18px">Anything else about this round?</p>
     <textarea id="overall" placeholder="Overall impression, things that bug you, what you'd like to see next."></textarea>
     <div class="btns">
+      <button class="btn primary" id="relayBtn" type="button" hidden>Send feedback</button>
       <button class="btn primary" id="sendBtn" type="button">Send feedback on GitHub</button>
       <button class="btn" id="copyBtn" type="button">Copy answers</button>
       <button class="btn" id="clearBtn" type="button">Clear my answers</button>
+    </div>
+    <div class="pass" id="passBox" hidden>
+      <label for="passIn">Passphrase (asked once, then remembered on this device)</label>
+      <div class="row"><input id="passIn" type="password" autocomplete="current-password" spellcheck="false">
+        <button class="btn primary" id="passGo" type="button">Save and send</button></div>
     </div>
     <div class="status-line" id="sendStatus" role="status" aria-live="polite"></div>
     <details class="preview"><summary>Preview what will be sent</summary><pre id="previewText"></pre></details>
@@ -223,7 +237,8 @@ const store = {
   del(k) { try { localStorage.removeItem(k); } catch {} }
 };
 
-let round = null, rounds = [], answers = null, draftKey = "";
+const PASS_KEY = "qf-shader-lab-passphrase";
+let round = null, rounds = [], answers = null, draftKey = "", relayURL = "";
 const views = {};   // scene id -> {opt index, mode: "ours"|"ref"}
 
 async function getJSON(url) {
@@ -232,7 +247,21 @@ async function getJSON(url) {
   return r.json();
 }
 
+async function loadConfig() {
+  try {
+    const c = await getJSON("config.json");
+    relayURL = typeof c.relay_url === "string" ? c.relay_url.trim() : "";
+  } catch { relayURL = ""; }
+  if (!relayURL) return;
+  $("#relayBtn").hidden = false;
+  $("#sendBtn").classList.remove("primary");
+  $("#sendBtn").textContent = "Send through GitHub instead";
+  $("#sendHow").textContent = "Your answers save on this device as you go. When you're done, press Send feedback: they go " +
+    "straight to the project, no GitHub account needed. The first time, it asks for the passphrase you were given.";
+}
+
 async function boot() {
+  await loadConfig();
   try {
     const idx = await getJSON("rounds/index.json");
     rounds = (idx.rounds || []).slice().sort((a, b) => a.n - b.n);
@@ -522,6 +551,59 @@ async function send() {
   if (w) { try { w.opener = null; } catch {} } else location.href = url;
 }
 $("#sendBtn").addEventListener("click", send);
+
+/* ---- one-tap send through the relay (site/shaders/config.json relay_url) ---- */
+function status(text, link, err) {
+  const el = $("#sendStatus");
+  el.textContent = text;
+  el.classList.toggle("err", !!err);
+  if (link) { el.append(" ", h("a", {href: link, target: "_blank", rel: "noopener"}, link.replace(/^https:\/\/github\.com\//, ""))); }
+}
+function readPass() { try { return localStorage.getItem(PASS_KEY) || ""; } catch { return ""; } }
+function writePass(v) { try { if (v) localStorage.setItem(PASS_KEY, v); else localStorage.removeItem(PASS_KEY); } catch {} }
+function askPass(msg) {
+  $("#passBox").hidden = false;
+  status(msg || "Enter the passphrase to send.", null, !!msg);
+  $("#passIn").focus();
+}
+
+let sending = false;
+async function relaySend() {
+  if (sending) return;
+  clearTimeout(saveT);                       // flush the draft now so its "saved" message can't overwrite ours
+  answers.overall = $("#overall").value; store.set(draftKey, answers);
+  const ans = cleanAnswers();
+  if (!Object.keys(ans.scenes).length && !ans.overall) { status("Nothing to send yet: pick, rate or write something first."); return; }
+  const pass = readPass() || ($("#passBox").hidden ? "" : $("#passIn").value.trim());
+  if (!pass) { askPass(); return; }
+  sending = true; $("#relayBtn").disabled = true; $("#passGo").disabled = true;
+  status("Sending…");
+  try {
+    const r = await fetch(relayURL.replace(/\/+$/, "") + "/feedback", {
+      method: "POST", headers: {"Content-Type": "application/json", "X-QF-Passphrase": pass}, body: JSON.stringify(ans)});
+    let j = {};
+    try { j = await r.json(); } catch {}
+    if (r.ok && j.ok && j.issue_url) {
+      writePass(pass);
+      $("#passBox").hidden = true; $("#passIn").value = "";
+      status("Sent ✓", j.issue_url);
+    } else if (r.status === 401) {
+      writePass("");
+      askPass("That passphrase didn't work. Check it and try again.");
+    } else if (r.status === 429) {
+      status("Too many sends in a short time. Wait ten minutes, or use \"Send through GitHub instead\".", null, true);
+    } else {
+      status(`Couldn't send (${j.error || "HTTP " + r.status}). Your answers are still saved here; try again, or use "Send through GitHub instead".`, null, true);
+    }
+  } catch {
+    status("Couldn't reach the feedback relay (offline?). Your answers are still saved here; try again, or use \"Send through GitHub instead\".", null, true);
+  } finally {
+    sending = false; $("#relayBtn").disabled = false; $("#passGo").disabled = false;
+  }
+}
+$("#relayBtn").addEventListener("click", relaySend);
+$("#passGo").addEventListener("click", relaySend);
+$("#passIn").addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); relaySend(); } });
 $("#sendTop").addEventListener("click", () => $("#send").scrollIntoView({behavior: "smooth"}));
 $("#copyBtn").addEventListener("click", async () => {
   const ok = await copy(body(cleanAnswers()));

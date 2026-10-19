@@ -165,8 +165,9 @@ bench run, or launch the final client, which binds the keys in its build.
      the option `key` of the scene whose id is `question`, next to its reference.
    - Then send a push notification if you can.
 7. **Learn.** The owner sends answers from the page with "Send feedback", which
-   opens a GitHub issue titled "Shader Lab feedback: round N" whose body holds a
-   readable summary and a fenced json block:
+   creates a GitHub issue titled "Shader Lab feedback: round N" (through the relay
+   below when it is switched on, otherwise by opening a prefilled issue) whose body
+   holds a readable summary and a fenced json block:
    `{round, scenes: {id: {choice, rating, note}}, overall}`. `choice` is an option
    key or `"neither"`; `rating` is 1-5. `fetch_feedback.py` reads those issues from
    the public API (unauthenticated, read-only) and rebuilds
@@ -178,6 +179,30 @@ bench run, or launch the final client, which binds the keys in its build.
    `tools/shaders/review/shader-review.html`) is **retired**: it failed to connect in
    the owner's viewer. Don't post to it or read from it. Its r000 was ported to the
    Pages Lab on 2026-10-18; it had no responses.
+
+## Feedback relay
+
+"Send feedback" is one tap when `site/shaders/config.json` has a `relay_url`: the
+page POSTs `{round, scenes, overall}` with the `X-QF-Passphrase` header to a free
+Cloudflare Worker ([`tools/shaders/relay/`](../../../tools/shaders/relay/)), which
+creates the issue with a fine-grained token limited to Issues on this repo. The
+issue body is the same summary plus json block, so `fetch_feedback.py` needs no
+change. The page asks for the passphrase once, inline, and keeps it in the
+browser's localStorage. With `relay_url` empty the page opens a prefilled issue as
+before, and that route stays available as "Send through GitHub instead".
+
+- **Rotate the passphrase:** Cloudflare dashboard → the Worker → Settings →
+  Variables and Secrets → edit `QF_PASSPHRASE` → Deploy, then tell the owner the new
+  one. Each device gets "That passphrase didn't work", forgets the stored one and
+  asks again.
+- **Rotate the token** (it expires yearly): new fine-grained token, Issues read and
+  write on this repo only, replace `GITHUB_TOKEN` the same way, delete the old one.
+- **Switch off:** set `relay_url` to `""` and push.
+- **Test** without creating issues: `node tools/shaders/relay/test/test_relay.mjs`
+  (mock GitHub; the README has the `wrangler dev` variant).
+
+Setup steps are in [`tools/shaders/relay/README.md`](../../../tools/shaders/relay/README.md).
+Secrets live only in the Worker's settings, never in the repo.
 
 ## Rubric (each 0–10)
 

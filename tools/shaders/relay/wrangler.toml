@@ -1,0 +1,9 @@
+# Only needed if you deploy with the wrangler CLI instead of the dashboard.
+#   npx wrangler deploy
+#   npx wrangler secret put QF_PASSPHRASE
+#   npx wrangler secret put GITHUB_TOKEN
+# Secrets never go in this file.
+name = "qf-feedback-relay"
+main = "worker.js"
+compatibility_date = "2026-10-01"
+workers_dev = true
