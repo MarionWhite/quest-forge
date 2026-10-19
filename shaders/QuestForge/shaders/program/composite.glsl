@@ -29,6 +29,11 @@ uniform sampler2D colortex2;
 uniform sampler2D colortex3;
 uniform sampler2D depthtex0;
 uniform sampler2D depthtex1;
+#if QF_BIOME_FOG == 1
+uniform float qfFogCrisp;   // shaders.properties: smoothed biome and weather weights
+uniform float qfFogMoody;
+uniform float qfFogStorm;
+#endif
 
 /* RENDERTARGETS: 3 */
 layout(location = 0) out vec4 outColor;
@@ -136,39 +141,77 @@ void main() {
     } else if (isEyeInWater == 2) {
         vec3 T = exp(-vec3(0.9, 1.6, 3.0) * dist0);
         color = color * T + vec3(1.0, 0.35, 0.08) * BLOCK_I * 0.5 * (1.0 - T);
-    } else if (depth0 < 1.0) {
-        // Haze: none in the near field, rising towards the render distance so chunk edges
-        // fade into the sky; thicker in rain.
-        float start = far * mix(0.35, 0.12, rainStrength);
-        float density = mix(2.2, 4.0, rainStrength) / max(far, 32.0);
-        // Night: visibility falls off with distance into the night sky's colour, so the
-        // moonlit near field stays playable while a mob 40 blocks out is only a shape
-        // (owner, round 0).
-        float nightFog = smoothstep(-0.02, -0.12, sunDirWorld().y);
-        start = mix(start, 20.0, nightFog);
-        density = mix(density, 1.0 / 64.0, nightFog);
-#if QF_CAL_FOG == 1        // calibration A: crisp (only the chunk-edge fade)
-        density = 0.0;
-#elif QF_CAL_FOG == 3      // calibration C: thick, low-lying fog
-        start = 4.0;
-        float lowY = scene0.y + cameraPosition.y;
-        density *= 3.0 * (1.0 + 3.0 * exp(-max(lowY - 62.0, 0.0) / 10.0));
-#elif QF_CAL_FOG == 4      // blizzard (r001): a tundra storm, sight cut to a few dozen blocks
-        start = 2.0;
-        density = 1.0 / 16.0;
+    } else {
+        bool sky = depth0 >= 1.0;
+        // Fog modes (owner, round 0: fog per biome). Weights 0-1 from the smoothed biome and
+        // weather uniforms in shaders.properties; QF_CAL_FOG forces one for the Shader Lab.
+        float wCrisp = 0.0, wMoody = 0.0, wStorm = 0.0;
+#if QF_BIOME_FOG == 1
+        wCrisp = qfFogCrisp; wMoody = qfFogMoody; wStorm = qfFogStorm;
 #endif
-        float amount = 1.0 - exp(-max(dist0 - start, 0.0) * density);
-        amount = max(amount, smoothstep(far * 0.82, far * 1.0, dist0));
-        vec3 haze = skyScatter(viewDir);
-        haze = mix(haze, vec3(luminance(haze)), 0.3);   // round 2: a beige band at the horizon
-        // At night the fade goes towards a darker sky, so distant land becomes a silhouette
-        // instead of a moonlit wall of fog (r12 critic: the full moon hid the mountain that
-        // the new moon kept).
-        haze *= mix(1.0, 0.45, nightFog);
-#if QF_CAL_FOG == 4
-        haze = mix(haze, vec3(luminance(haze)) * vec3(0.96, 1.0, 1.06), 0.75);   // snow-white
+#if QF_CAL_FOG == 1
+        wCrisp = 1.0;
+#elif QF_CAL_FOG == 3
+        wMoody = 1.0;
+#elif QF_CAL_FOG == 4
+        wStorm = 1.0;
 #endif
-        color = mix(color, haze, amount * smoothstep(0.0, 0.3, max(skyLight, eyeSky)));
+        float lit = sky ? 1.0 : smoothstep(0.0, 0.3, max(skyLight, eyeSky));
+        if (!sky) {
+            // Haze: none in the near field, rising towards the render distance so chunk edges
+            // fade into the sky; thicker in rain.
+            float start = far * mix(0.35, 0.12, rainStrength);
+            float density = mix(2.2, 4.0, rainStrength) / max(far, 32.0);
+            // Night: visibility falls off with distance into the night sky's colour, so the
+            // moonlit near field stays playable while a mob 40 blocks out is only a shape
+            // (owner, round 0).
+            float nightFog = smoothstep(-0.02, -0.12, sunDirWorld().y);
+            start = mix(start, 20.0, nightFog);
+            density = mix(density, 1.0 / 64.0, nightFog);
+            density *= mix(1.0, 0.2, wCrisp);   // crisp: mountains and plains
+            float amount = 1.0 - exp(-max(dist0 - start, 0.0) * density);
+            amount = max(amount, smoothstep(far * 0.82, far * 1.0, dist0));
+            vec3 haze = skyScatter(viewDir);
+            haze = mix(haze, vec3(luminance(haze)), 0.3);   // round 2: a beige band at the horizon
+            // At night the fade goes towards a darker sky, so distant land becomes a silhouette
+            // instead of a moonlit wall of fog (r12 critic: the full moon hid the mountain that
+            // the new moon kept).
+            haze *= mix(1.0, 0.45, nightFog);
+            color = mix(color, haze, amount * lit);
+        }
+        if (wMoody + wStorm > 0.0) {
+            // Heavy fog is a lit medium, not a sky-coloured wall (r001 critic: the moody and
+            // blizzard previews were flat beige and grey slabs that stopped at the sky): droplets
+            // or snow lit by the sky dome, the sun or moon (with a forward-scatter lobe, so it
+            // glows towards the low sun) and the night floor. It covers the sky as well, so the
+            // land fades into it instead of cutting a silhouette.
+            vec3 L = lightDirWorld();
+            float mu = dot(viewDir, L);
+            float g = 0.6;
+            float hg = (1.0 - g * g) / (4.0 * PI * pow(1.0 + g * g - 2.0 * g * mu, 1.5));
+            vec3 medium = skyIrradiance(vec3(0.0, 1.0, 0.0)) * 0.8 / PI
+                        + lightIrradiance() * max(L.y, 0.0) * (0.25 / PI + 0.75 * hg)
+                        + nightFloor() * NIGHT_FLOOR_TINT / PI;
+            float d = sky ? far : dist0;
+            // Moody: exponential height fog, densest at the water line and thin 15 blocks up, so
+            // it pools in valleys and over lakes and leaves the near field readable.
+            if (wMoody > 0.0) {
+                const float H = 7.0, Y0 = 63.0, D0 = 1.0 / 14.0;
+                float yc = cameraPosition.y, yp = yc + viewDir.y * d;
+                float dy = yp - yc;
+                float avg = abs(dy) < 0.05 ? exp(-(yc - Y0) / H)
+                          : H * (exp(-(yc - Y0) / H) - exp(-(yp - Y0) / H)) / dy;
+                float tau = D0 * min(avg, 4.0) * max(d - 6.0, 0.0);
+                vec3 fogC = medium * vec3(0.92, 0.96, 1.0) * 0.9;
+                color = mix(color, fogC, wMoody * (1.0 - exp(-tau)) * lit);
+            }
+            // Storm (snowfall or a tundra blizzard): sight cut to a few dozen blocks, sky included.
+            if (wStorm > 0.0) {
+                float tau = max(d - 3.0, 0.0) / 18.0;
+                vec3 snow = medium * vec3(0.97, 1.0, 1.04);
+                color = mix(color, snow, wStorm * (1.0 - exp(-tau)) * lit);
+            }
+        }
     }
     outColor = vec4(max(color, vec3(0.0)), 1.0);
 }

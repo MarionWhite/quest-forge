@@ -87,7 +87,19 @@ vec4 baseColor() {
 #else
     vec4 c = texture(gtexture, vUV);
     // separateAo: rgb is the biome tint, alpha the vertex AO (handled below).
-    c.rgb *= vColor.rgb;
+    vec3 tint = vColor.rgb;
+#if defined GB_TERRAIN && !defined GB_WATER
+    // Biome tints (grass, leaves, vines) are made for vanilla's flat light. Under a bright,
+    // slightly warm sun they read lime (r14 critic: neutral colour at noon), so pull coloured
+    // tints a little towards a deeper, less yellow green. Untinted blocks (tint ~white) and
+    // water are unchanged.
+    float spread = max(tint.r, max(tint.g, tint.b)) - min(tint.r, min(tint.g, tint.b));
+    if (spread > 0.04) {
+        float tl = dot(tint, vec3(0.2126, 0.7152, 0.0722));
+        tint = mix(vec3(tl), tint, QF_TINT_SAT) * vec3(QF_TINT_RED, 1.0, 1.0);
+    }
+#endif
+    c.rgb *= tint;
     return c;
 #endif
 }
@@ -133,6 +145,11 @@ void main() {
 #ifdef GB_ENTITY
     c.rgb = mix(c.rgb, entityColor.rgb, entityColor.a);
 #endif
+#ifdef GB_PARTICLE
+    // Under water, vanilla's suspended-particle texture is near black; against the pack's lit
+    // water it read as dark squares (r14 critic; look bible failure class 4). Make it pale silt.
+    if (isEyeInWater == 1) c.rgb = mix(c.rgb, vec3(0.62, 0.70, 0.66), 0.7);
+#endif
     int mat = vMat;
     int flag = FLAG_STATIC;
 #ifdef GB_ENTITY
@@ -144,7 +161,9 @@ void main() {
 #endif
     vec3 n = normalize(vNormal);
     if (!gl_FrontFacing) n = -n;
-#ifdef GB_UNTEXTURED
+#if defined GB_UNTEXTURED || defined GB_PARTICLE
+    // Particles are camera-facing quads without a usable vertex normal; lit through it they
+    // came out near black (dark specks under water, r14 critic). Light them as if facing up.
     n = vec3(0.0, 1.0, 0.0);
 #endif
     float ao = 1.0;

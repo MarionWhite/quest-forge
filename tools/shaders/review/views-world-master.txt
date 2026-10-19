@@ -16,6 +16,9 @@
 plains_noon      264.5   auto   176.5    135    8      6000
 forest_golden    259.5   auto   -44.5    60     2      12150
 golden_lit       264.5   84.0   176.5    270    14     12250
+# forest_lit (a5): the forest_golden clearing with the low sun behind-left of the camera, so the
+# lit trunks and canopy are in view (forest_golden faces a sun hidden behind a ridge at every time tried).
+forest_lit       259.5   auto   -44.5    250    4      12150
 shore_noon       272.5   auto   -268.5   135    14     6000
 shore_sunset     272.5   auto   -268.5   100    6      12650
 shore_dusk       272.5   auto   -268.5   100    6      13000

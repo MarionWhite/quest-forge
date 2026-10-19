@@ -62,7 +62,11 @@ vec3 shadeSurface(Surface s, vec3 viewDir, vec2 pixel) {
     return qfShadowDebug;  // r: map depth, g: surface depth, b: difference (0.5 = equal)
 #endif
 #else
-    shadow = smoothstep(0.80, 0.97, s.skyLight);   // Potato: outdoors means lit
+    // Potato: outdoors means lit. 0.80 left anything under a few blocks of water unlit (water
+    // cuts sky light by 3 a block), so Potato's lake beds and underwater view were murky (r14).
+    // With the eye under water everything in view is under water, so go lower still (a3p: the
+    // lake bed 4 blocks down stayed unlit at 0.55).
+    shadow = smoothstep(isEyeInWater == 1 ? 0.25 : 0.55, 0.92, s.skyLight);
 #endif
     // Foliage: wrapped diffuse plus light through the leaf from behind (look bible 10).
     float diffuse;

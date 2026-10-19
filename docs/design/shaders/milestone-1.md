@@ -302,3 +302,34 @@ The scene set also misleads: forest_golden faces a sun hidden behind a ridge at 
 tried time. The torch scene's held light (Torchlight enchantment) varies run to run; its
 brightness swung between 0.12 and 0.20 with the same code.
 
+## Rounds log (2026-10-19)
+
+Shader Lab **round 1 (r001)** posted at 11:00: golden hour (A amber, B amber + gold sky,
+C current), full- and new-moon nights (darker, current, brighter), haze strength (current, crisp,
+moody, blizzard) and the torch tunnel, each with its cost and a critic note
+(https://marionwhite.github.io/quest-forge/shaders/?r=r001). Every option costs the same
+within noise (0.52-0.63 ms on High; torch 0.94). Defaults are unchanged by r001 until the
+owner answers; the work below is the critic's open list.
+
+| Round | Change | Cost H / L / P (worst) | Critic | Result |
+|---|---|---|---|---|
+| a1 | r001 variants (`QF_CAL_GOLD`, `QF_CAL_FOG`, `QF_EXPOSURE_BIAS`); shaders-off baseline a1off at 1440p for every r001 scene | 0.94 (torch) | 5 (darkness 6, exposure 5, colour 7, golden 5, stability 8, near 6) | posted as r001. Haze critic: current 7, crisp 7, moody 2, blizzard 3 (fog stopped at the sky) |
+| a2 | **Moon phase.** Debug view 8: the meter read the new moon 2.1 stops darker and exposure rose 1.95 stops (`EXPO_DEEP_SLOPE` 1.0), so new-moon land was *brighter* than full-moon land. Slope 0.6 (`QF_DEEP_SLOPE`), night floor no longer halved at new moon, 1.25x floor on Low and Potato. **Moon disk** drawn at 60x `MOON_I` clipped 98% white; now `QF_MOON_GAIN` 7 with maria, mottling and limb | 0.58 / 0.14 / 0.32 | – | new-moon land 0.046 vs full 0.050; land crush 4.4 / 4.4 / 7.6% |
+| a3 | **Fog modes** in composite: crisp (haze x0.2), moody (exponential height fog from the water line, H 7 blocks) and storm (sight ~40 blocks), lit as a medium (sky dome + sun or moon with a forward lobe + night floor) and covering the sky too. `QF_BIOME_FOG` drives them from smoothed custom uniforms (`biome_category`, `biome_precipitation`, `rainStrength`; Angelica defines `CAT_*` and `PPT_*`); **off by default** until the owner answers r001's haze question. Biome tints pulled less yellow (`QF_TINT_SAT` 0.85, `QF_TINT_RED` 0.92): noon grass hue 86 -> 94 deg, saturation 0.53 -> 0.45. Potato sun stand-in `smoothstep(0.55, 0.92)` (0.80 left lake beds unlit). `forest_lit` camera | 0.62 / 0.41 / – | moody 6 (was 2), storm 5 (was 3) | moody pools in valleys, the ridge and near field stay clear |
+| a4 | **Underwater particles** were dark specks: particle quads have no usable normal; lit as facing up (Potato dark specks 75 -> 6). Potato underwater uses a lower sun ramp. Full High scene set + Low | 0.93 torch / 0.41 / – | **6.5** (r14: 6): darkness 6, exposure 7, colour 7, golden 5, stability 8, near 7 | moon disk and particles fixed; new-moon *sky* crushed (22% at luma <= 2) |
+| a5-a7 | **Airglow**: `QF_AIRGLOW` 0.004 x `MOON_I`, brighter towards the horizon (1.6x on Low and Potato, whose 12-step sky table draws the night zenith ~30% darker), so a moonless sky is deep blue-black, not black | **0.63 / 0.21 / 0.30** | – | `check_frames` passes on all three presets. Full / new moon mean luma 0.050 / 0.034 (High), 0.049 / 0.034 (Low), 0.047 / 0.032 (Potato), crushed <= 0.01% (a4h new moon was 22.5%) |
+
+Traps found today:
+- `trial.py launch` re-copies the repo pack on **every** launch, including `bench_round.py`'s
+  cache-miss retry. An edit between the two launches gives a second cache miss and a second
+  crash (a4p).
+- The static scene's warm pool near the hand is the held-light term (the Torchlight enchant),
+  and it varies run to run (none in r14h, faint in a1c, strong in a3m). It is not a gravel specular.
+- The storm preview (`QF_CAL_FOG=4`) runs without rain, so the sun and its water glints stay at
+  full strength through the fog. Driven by biome, the storm weight is `rainStrength`, which
+  already dims the sun.
+
+Still open (critic, a4): golden hour 5 (warm directional light on lit foreground and leaves;
+the beige band at the horizon is the sky table's Mie glow); the torch scene has no torches
+in view, only the held light; no clouds; the enchantment glint is missing on the held pickaxe;
+a thin dark seam under the forest canopy.

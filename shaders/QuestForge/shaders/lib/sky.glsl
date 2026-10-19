@@ -27,6 +27,12 @@ const float NIGHT_FLOOR_PRESET = 1.25;
 #else
 const float NIGHT_FLOOR_PRESET = 1.0;
 #endif
+// Their 12-step sky table also draws the night zenith ~30% darker (a6: luma 2 of 255 on Low).
+#if QF_PRESET <= 1
+const float AIRGLOW_PRESET = 1.6;
+#else
+const float AIRGLOW_PRESET = 1.0;
+#endif
 float nightFloor() {
     return NIGHT_FLOOR_I * NIGHT_FLOOR_PRESET * QF_NIGHT_FLOOR * mix(QF_NEW_MOON_FLOOR, 1.0, moonBrightness());
 }
@@ -117,6 +123,11 @@ vec3 skyScatter(vec3 dir) {
     L *= mix(vec3(1.0), vec3(1.30, 1.0, 0.58), gh * nearSun);
     L *= mix(vec3(1.0), vec3(1.06, 1.0, 0.90), gh * (1.0 - nearSun));
 #endif
+    // Airglow and starlight: a moonless sky is never black, and is brightest towards the
+    // horizon (van Rhijn). With exposure now letting a new moon read darker (EXPO_DEEP_SLOPE),
+    // the bare sky fell to luma 1-2 of 255 (a4h: 22% of the new-moon frame crushed).
+    float night = 1.0 - smoothstep(-0.12, 0.04, sunDirWorld().y);
+    L += MOON_I * QF_AIRGLOW * AIRGLOW_PRESET * vec3(0.62, 0.76, 1.0) * night * (1.0 + 0.6 * (1.0 - dir.y));
     float g = luminance(L);
     return mix(L, vec3(g) * 0.55, rainStrength * 0.75);
 }
