@@ -1,0 +1,338 @@
+{
+ "n": 2,
+ "id": "r002",
+ "title": "Water, torches, night sky and haze",
+ "intro": "Your round 1 answers are in. Golden hour and sunset now use B (amber light plus a gold sky) by default, with the gold kept above the horizon, so the beige haze wall is gone. Torches are warm (tungsten fading to candle). Water now reflects the land and has a sun glitter path and fine ripples. The full-moon night is unchanged. You said more questions are welcome, so this round has eleven. Each option shows its cost per frame on High at 1440p. The budget is 3 ms; the dearest frame here is 0.95 ms. Low (worst 0.45 of 0.9 ms) and Potato (worst 0.34 of 0.4 ms) also fit. The critic's notes are blunt: the sunset water is better but not there yet.",
+ "status": "open",
+ "created": "2026-10-21",
+ "scenes": [
+  {
+   "id": "golden",
+   "name": "Golden hour, the new default",
+   "question": "Is this the golden hour you picked (B), now without the beige wall under the horizon? A is the new default; B is the frame you picked in round 1.",
+   "notePrompt": "Warm enough on the blocks? Is the horizon band still too cream?",
+   "options": [
+    {
+     "key": "A",
+     "label": "New default",
+     "img": "r002/golden-A.jpg",
+     "critic": "Critic 7.5: a big win. The beige wall below the horizon is gone, the far hills read and the zenith stays blue. A thin cream band remains at the horizon.",
+     "ms": 0.66
+    },
+    {
+     "key": "B",
+     "label": "Round 1 pick (B)",
+     "img": "r002/golden-B.jpg",
+     "critic": "Your choice last round: the same warm ridge, but the distance ends in a flat beige wall.",
+     "ms": 0.6
+    }
+   ]
+  },
+  {
+   "id": "sunset",
+   "name": "Sunset over the lake, the new default",
+   "question": "The same check, looking into the sunset. A is the new default with the new water; B is your round 1 pick.",
+   "notePrompt": "Which water looks better here? Is the sky near the sun golden enough?",
+   "options": [
+    {
+     "key": "A",
+     "label": "New default",
+     "img": "r002/sunset-A.jpg",
+     "critic": "Critic 6: no orange wash and a crisper far shore, but the sky is grey-blue and the water by the hill is dull. This water isn't finished.",
+     "ms": 0.82,
+     "ref": {
+      "img": "r002/ref-sunset-A.jpg",
+      "credit": "Basile Morin, CC BY-SA 4.0, via Wikimedia Commons",
+      "source": "https://commons.wikimedia.org/wiki/File:Colorful_sky_with_orange_clouds_reflecting_in_the_water_of_a_paddy_field,_at_sunset,_Vang_Vieng,_Laos.jpg",
+      "title": "Colorful sky with orange clouds reflecting in the water of a paddy field, at sunset, Vang Vieng, Laos.jpg"
+     }
+    },
+    {
+     "key": "B",
+     "label": "Round 1 pick (B)",
+     "img": "r002/sunset-B.jpg",
+     "critic": "Critic: the right half of the lake is brighter and more mirror-like here, with warm streaks. The new water lost some of that shine, which is the next fix.",
+     "ms": 0.63
+    }
+   ]
+  },
+  {
+   "id": "water-sunset",
+   "name": "Water at sunset, out on the lake",
+   "question": "Three water surfaces, looking into a low sun. Which is closest to what you want?",
+   "notePrompt": "Calm mirror or lively sparkle? Should the near water be brighter?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Round 1 water",
+     "img": "r002/water-sunset-A.jpg",
+     "critic": "Critic 5: one narrow gold streak. The lake is dark teal, the hill isn't reflected, and it looks plasticky.",
+     "ms": 0.64
+    },
+    {
+     "key": "B",
+     "label": "Calm (new default)",
+     "img": "r002/water-sunset-B.jpg",
+     "critic": "Critic 6: fine ripples, a soft glitter path under the sun and a faint reflection of the hill. The near water is still dark.",
+     "ms": 0.88,
+     "ref": {
+      "img": "r002/ref-water-sunset-B.jpg",
+      "credit": "Piotrus (Piotr Konieczny), CC BY-SA 3.0, via Wikimedia Commons",
+      "source": "https://commons.wikimedia.org/wiki/File:Sunset_sea_Tenerife.JPG",
+      "title": "Sunset sea Tenerife.JPG"
+     }
+    },
+    {
+     "key": "C",
+     "label": "Lively",
+     "img": "r002/water-sunset-C.jpg",
+     "critic": "Critic's pick, 7: the clearest glitter path, running towards you, with real surface detail on the right. The near water is still dark.",
+     "ms": 0.89
+    }
+   ]
+  },
+  {
+   "id": "water-noon",
+   "name": "Water at noon over sand",
+   "question": "The same three surfaces at noon. Which one?",
+   "notePrompt": "Too rippled? Too flat? Enough reflection of the shore?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Round 1 water",
+     "img": "r002/water-noon-A.jpg",
+     "critic": "Critic 7: clear turquoise over sand, with good refraction of the sandbar; broad, soft swells.",
+     "ms": 0.65
+    },
+    {
+     "key": "B",
+     "label": "Calm (new default)",
+     "img": "r002/water-noon-B.jpg",
+     "critic": "Critic's pick, 8: the same clarity plus fine ripples and the shore reflected, building towards the far side.",
+     "ms": 0.86,
+     "ref": {
+      "img": "r002/ref-water-noon-B.jpg",
+      "credit": "Oregon's Mt. Hood Territory., Public domain, via Wikimedia Commons",
+      "source": "https://commons.wikimedia.org/wiki/File:Mount_Hood_reflected_in_Mirror_Lake,_Oregon.jpg",
+      "title": "Mount Hood reflected in Mirror Lake, Oregon.jpg"
+     }
+    },
+    {
+     "key": "C",
+     "label": "Lively",
+     "img": "r002/water-noon-C.jpg",
+     "critic": "Critic 6: the ripples on the right turn into regular parallel streaks, like scanlines.",
+     "ms": 0.86
+    }
+   ]
+  },
+  {
+   "id": "water-colour",
+   "name": "Water colour",
+   "question": "Which colour should lakes be? Oceans and swamps can differ later.",
+   "notePrompt": "Clear, teal or deep blue? Should deep water darken faster?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Clear depth gradient (current)",
+     "img": "r002/water-colour-A.jpg",
+     "critic": "Critic 8: natural aqua with a good depth gradient around the sandbar; the foreground is a little milky.",
+     "ms": 0.86
+    },
+    {
+     "key": "B",
+     "label": "Teal-green",
+     "img": "r002/water-colour-B.jpg",
+     "critic": "Critic 6: tropical and over-saturated for a temperate lake.",
+     "ms": 0.83
+    },
+    {
+     "key": "C",
+     "label": "Deep blue",
+     "img": "r002/water-colour-C.jpg",
+     "critic": "Critic 7: a rich deep blue with strong sky reflection; a bit dark in the foreground.",
+     "ms": 0.86
+    }
+   ]
+  },
+  {
+   "id": "torch",
+   "name": "Torch-lit mineshaft, with real torches",
+   "question": "Only the torches on the walls light this hall (no held light). All four are equally bright; only the colour changes. Which reads as torchlight?",
+   "notePrompt": "Warm enough now? Too orange? Should the light fall off faster?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Tungsten",
+     "img": "r002/torch-A.jpg",
+     "critic": "Critic 7: warm brown stone and natural planks; slightly cool at the far end.",
+     "ms": 0.59
+    },
+    {
+     "key": "B",
+     "label": "Tungsten to candle (new default)",
+     "img": "r002/torch-B.jpg",
+     "critic": "Critic's pick, 8: the most like a real torch. The falloff is warm, the stone still reads as stone, and the planks, chest and gold aren't neon.",
+     "ms": 0.6,
+     "ref": {
+      "img": "r002/ref-torch-B.jpg",
+      "credit": "Pascal Reusch, CC BY 3.0, via Wikimedia Commons",
+      "source": "https://commons.wikimedia.org/wiki/File:Residence_W%C3%BCrzburg_-_Wine_cellar.JPG",
+      "title": "Residence Würzburg - Wine cellar.JPG"
+     }
+    },
+    {
+     "key": "C",
+     "label": "Candle",
+     "img": "r002/torch-C.jpg",
+     "critic": "Critic 6: the stone turns dirt-orange and loses its look; the ceiling planks go orange.",
+     "ms": 0.61
+    },
+    {
+     "key": "D",
+     "label": "Round 1 (rejected)",
+     "img": "r002/torch-D.jpg",
+     "critic": "For comparison: the colour you called a fluorescent bulb. The stone stays grey-white.",
+     "ms": 0.6
+    }
+   ]
+  },
+  {
+   "id": "night-new",
+   "name": "New-moon night",
+   "question": "You asked for a little lighter than the darkest, and clearly darker than the full moon (D, for comparison). Which new moon?",
+   "notePrompt": "Can you see enough near you? Too close to the full moon?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Darker",
+     "img": "r002/night-new-A.jpg",
+     "critic": "Critic 6: very dark. The sandbar reads, but the grass and dirt on the left go black (mean luma 0.033).",
+     "ms": 0.85
+    },
+    {
+     "key": "B",
+     "label": "Middle (default)",
+     "img": "r002/night-new-B.jpg",
+     "critic": "Critic 6-7: clearly darker than the full moon and not crushed; the sky is brownish black, not deep blue (0.036).",
+     "ms": 0.89
+    },
+    {
+     "key": "C",
+     "label": "Lighter",
+     "img": "r002/night-new-C.jpg",
+     "critic": "Critic's pick, 7: the most playable. The sand, the water's edge and the stone read, nothing looks lifted grey, and it is still clearly darker than the full moon (0.039).",
+     "ms": 0.84
+    },
+    {
+     "key": "D",
+     "label": "Full moon (unchanged, for comparison)",
+     "img": "r002/night-new-D.jpg",
+     "critic": "Kept as you rated it (5). Critic 8: navy sky, readable land, dark but never black (0.050).",
+     "ms": 0.9
+    }
+   ]
+  },
+  {
+   "id": "night-sky",
+   "name": "Night sky, new moon",
+   "question": "How much night sky? Stars and the Milky Way are drawn only on the sky, so they cost almost nothing.",
+   "notePrompt": "More stars? A brighter or fainter Milky Way? Its colour?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Round 1 stars",
+     "img": "r002/night-sky-A.jpg",
+     "critic": "Critic 4: sparse, even stars on near-black. Fine, but not memorable.",
+     "ms": 0.46
+    },
+    {
+     "key": "B",
+     "label": "Stars and a faint Milky Way (default)",
+     "img": "r002/night-sky-B.jpg",
+     "critic": "Critic 7: a real Milky Way with dust lanes runs diagonally up the right. Subtle, and the land stays readable.",
+     "ms": 0.53,
+     "ref": {
+      "img": "r002/ref-night-sky-B.jpg",
+      "credit": "Santa Monica Mountains National Recreation Area, Public domain, via Wikimedia Commons",
+      "source": "https://commons.wikimedia.org/wiki/File:Night_Sky_-_Boney_Mountain_%26_Milky_Way_(11074300594).jpg",
+      "title": "Night Sky - Boney Mountain & Milky Way (11074300594).jpg"
+     }
+    },
+    {
+     "key": "C",
+     "label": "Rich Milky Way",
+     "img": "r002/night-sky-C.jpg",
+     "critic": "Critic's pick, 8: the most striking, and it still doesn't light the land. The dark lanes in the middle look like a row of beads; they should be longer, wispier streaks.",
+     "ms": 0.53
+    }
+   ]
+  },
+  {
+   "id": "haze",
+   "name": "Haze baseline",
+   "question": "Three haze strengths between round 1's (1.0) and crisp (0.2): A is 0.8, B is 0.6 (now the default), C is 0.35. In this view they differ very little. Pick one, or say in the note to go further either way.",
+   "notePrompt": "Push further towards crisp, or is the difference too small to matter here?",
+   "options": [
+    {
+     "key": "A",
+     "label": "0.8",
+     "img": "r002/haze-A.jpg",
+     "critic": "Critic 6: a grey veil over the distant hills on the left.",
+     "ms": 0.63
+    },
+    {
+     "key": "B",
+     "label": "0.6 (default)",
+     "img": "r002/haze-B.jpg",
+     "critic": "Critic 6: almost the same as A.",
+     "ms": 0.66
+    },
+    {
+     "key": "C",
+     "label": "0.35",
+     "img": "r002/haze-C.jpg",
+     "critic": "Critic 7: the distant hills on the left are slightly clearer; otherwise the same.",
+     "ms": 0.61
+    }
+   ]
+  },
+  {
+   "id": "gold-sky",
+   "name": "How much gold near the sun",
+   "question": "How strong should the gold sky be at golden hour, looking into the low sun through a forest? A is the default; B is 1.5 times as strong.",
+   "notePrompt": "More gold? Should the lit leaves and trunks turn amber too?",
+   "options": [
+    {
+     "key": "A",
+     "label": "1.0x (default)",
+     "img": "r002/gold-sky-A.jpg",
+     "critic": "Critic 5: the gold near the sun is a small, pale glow, and the blocks get almost no amber.",
+     "ms": 0.64
+    },
+    {
+     "key": "B",
+     "label": "1.5x",
+     "img": "r002/gold-sky-B.jpg",
+     "critic": "Critic 6: a slightly warmer halo in the gap in the forest, still with no wash.",
+     "ms": 0.63
+    }
+   ]
+  },
+  {
+   "id": "biome-hills",
+   "name": "Biome fog: Extreme Hills (crisp)",
+   "question": "Biome fog is now on, but only where you clearly asked for it: crisp air in the mountains, and a heavy storm when it snows (this test world has no snowy biome, so there's no snow frame yet). Swamps get only a faint hint of moody fog. Rate the mountain look; the next rounds will show each biome from the inside.",
+   "notePrompt": "Crisp enough? Which biome should I show next?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Crisp mountain air",
+     "img": "r002/biome-hills-A.jpg",
+     "critic": "Critic 8: the crisp biome fog works well; there's a small hard fog edge in the valley on the left. (Cost estimated: no shaders-off frame for this view yet.)",
+     "ms": 0.56
+    }
+   ]
+  }
+ ]
+}

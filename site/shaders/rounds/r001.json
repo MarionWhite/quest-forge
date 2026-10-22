@@ -3,7 +3,7 @@
  "id": "r001",
  "title": "Golden hour, nights, haze and the torch tunnel",
  "intro": "Four taste questions from your round 0 answers. Tap an image to flip between options; some options also have a real photo (Reference) to show the mood. Every option costs the same within measurement noise (about 0.6 ms a frame on High at 1440p, against a 3 ms budget), so pick on looks alone. The critic's notes are honest: the moody and blizzard haze are strength previews, not finished looks, and the new-moon frame has a known bug that is being fixed.",
- "status": "open",
+ "status": "closed",
  "created": "2026-10-19",
  "scenes": [
   {

@@ -13,9 +13,18 @@
    "n": 1,
    "id": "r001",
    "title": "Golden hour, nights, haze and the torch tunnel",
-   "status": "open",
+   "status": "closed",
    "created": "2026-10-19",
    "scenes": 6,
+   "feedback": true
+  },
+  {
+   "n": 2,
+   "id": "r002",
+   "title": "Water, torches, night sky and haze",
+   "status": "open",
+   "created": "2026-10-21",
+   "scenes": 11,
    "feedback": false
   }
  ]
