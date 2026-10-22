@@ -333,3 +333,20 @@ Still open (critic, a4): golden hour 5 (warm directional light on lit foreground
 the beige band at the horizon is the sky table's Mie glow); the torch scene has no torches
 in view, only the held light; no clouds; the enchantment glint is missing on the held pickaxe;
 a thin dark seam under the forest canopy.
+
+## Rounds log (2026-10-21): r001 answered, r002 posted
+
+The owner answered r001 (issue #2, `feedback/r001.json`; folded into the look bible's taste
+profile). Costs are p50 shader cost against shaders-off baselines off2h/off2l/off2p (worst scene),
+budgets 3.0 / 0.9 / 0.4 ms.
+
+| Round | Change | Cost H / L / P | Critic | Result |
+|---|---|---|---|---|
+| b1-b4 | test renders: `torch_wall` (new FrameBench scene, wall torches only), `lake_glow` (out on the lake; `auto` put the camera under water), `night_sky` | – | – | the beige wall is gone with the horizon floor; Milky Way invisible at 2-4x airglow |
+| c | defaults: `QF_CAL_GOLD` 2 (peach pull only above the horizon band), `QF_HORIZON_FLOOR` (below-horizon sky fades to a darker, cooler veil), `QF_HAZE` 0.6, `QF_TORCH_WARM` 2 (3000 K core to 2400 K edge, luminance-matched to r001), `QF_WATER_STYLE` 1 (SSR on Medium+ at 12/20 steps, glitter path, wind ripples), `QF_NIGHT_SKY` 1 (denser stars, Milky Way), `QF_BIOME_FOG` 1 (crisp hills, swamp moody 0.35, snow storm); variants cv1-cv5 | **0.95 / 0.45 / 0.34** | **6.9** (golden_lit 7.5, night_full 8, torch B 8) | SSR costs ~0.25 ms on High. Weak: sunset water and sky, no amber on forest blocks |
+| d | glitter core back at full strength (0.6x had dimmed the path); Milky Way tilted, tinted, 1.75x; wider haze and new-moon spreads | 0.89 / – / – | **6.5** on the water/sky set | posted as **r002** (11 questions). Sunset water still below r001's B on the right half (critic) |
+
+Open after r002 (critic): sunset/dawn sky reads grey-lavender above the band, so even good
+reflections mirror cold colour; near water at sunset is dark; forest blocks get almost no amber
+at golden hour; the haze options are nearly indistinguishable on golden_lit; Potato's new moon is
+0.027 with 1.5% crushed; Milky Way dust lanes look like beads.

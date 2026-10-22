@@ -28,3 +28,21 @@ underwater       250.5   59.2   -288.5   135    -4     6000
 night_moon       272.5   auto   -268.5   90     -72    18000
 dawn_wide        272.5   auto   -268.5   135    4      23400
 leafview         109.5   110.0  104.5    180    0      10000  60
+# r002: lake_glow looks into a sun ~6 deg up from out on the lake (shore_sunset's sun, 2 deg up, sits
+# behind the hill and leaves the near water in its shadow), for the water question.
+# night_sky: a new-moon sky 45 deg up, facing away from the hill, for the stars / Milky Way question.
+lake_glow        285.5   63.4   -287.5   97     3      12400
+night_sky        272.5   auto   -268.5   200    -45    114000
+# Biome views (r002 on), one per biome, for dialling in each biome's fog from inside it (owner,
+# r001). Centres of single-biome chunks found from the region files' Biomes arrays (vanilla ids);
+# the world has no snowy biome, so the tundra storm still needs a world that has one. Over
+# water "auto" puts the camera under the surface (FrameBench stands on the top solid block), so
+# water views give y explicitly.
+biome_swamp      -7.5    65.0   8.5      135    4      6000
+biome_hills      8.5     auto   -23.5    180    4      6000
+biome_hillsplus  -39.5   auto   -183.5   180    2      6000
+biome_roofed     -151.5  auto   -135.5   135    4      6000
+biome_savanna    -375.5  auto   -231.5   135    4      6000
+biome_desert     -471.5  auto   -7.5     90     4      6000
+biome_taiga      -311.5  auto   -567.5   135    4      6000
+biome_ocean      -567.5  64.5   232.5    90     4      6000

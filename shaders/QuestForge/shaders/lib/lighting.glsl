@@ -20,9 +20,28 @@ struct Surface {
 // pow(b, 2.6) kept 31% and 12%, so a tunnel read evenly lit (0.28 mean luma against
 // vanilla's 0.17). This follows vanilla's falloff, with a hotter pool next to the source.
 // Level 7 still reads as lit once exposure has adapted (gameplay).
+//
+// Colour (owner r001: "not warm at all ... a fluorescent light bulb"): a flame's light is
+// whitest at the source and redder where it is dim, so the colour runs from a hot core (b near
+// 1) to a warmer edge. Each colour is scaled to r001's luminance, so brightness stays
+// vanilla-like and only the hue changes (QF_TORCH_WARM, Shader Lab r002).
+#if QF_TORCH_WARM == 0
+const vec3 TORCH_CORE = vec3(1.0, 0.70, 0.45), TORCH_EDGE = vec3(1.0, 0.70, 0.45);
+#elif QF_TORCH_WARM == 1
+const vec3 TORCH_CORE = vec3(1.0, 0.58, 0.28), TORCH_EDGE = vec3(1.0, 0.47, 0.17);   // ~3300 K to 2900 K
+#elif QF_TORCH_WARM == 2
+const vec3 TORCH_CORE = vec3(1.0, 0.52, 0.20), TORCH_EDGE = vec3(1.0, 0.37, 0.09);   // ~3000 K to 2400 K
+#else
+const vec3 TORCH_CORE = vec3(1.0, 0.44, 0.13), TORCH_EDGE = vec3(1.0, 0.29, 0.04);   // ~2700 K to 2000 K
+#endif
+vec3 blockLightColor(float b) {
+    vec3 c = mix(TORCH_EDGE, TORCH_CORE, smoothstep(0.45, 0.95, b));
+    return c * (luminance(BLOCK_LIGHT_COLOR) / luminance(c));
+}
+
 vec3 blockIrradiance(float b) {
     float e = pow(b, 4.2) * 0.75 + pow(b, 9.0) * 0.45;
-    return BLOCK_LIGHT_COLOR * BLOCK_I * e;
+    return blockLightColor(b) * BLOCK_I * e;
 }
 
 float ggx(float NdotH, float a2) {

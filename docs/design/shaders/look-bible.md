@@ -4,8 +4,8 @@ What the pack should look like, in order of priority. The critic scores every
 frame against this document and the owner's taste profile; when they disagree,
 the owner's answers win and this file is updated to match.
 
-**Version 0**, 2026-10-16: drafted from [`research/desirability.md`](research/desirability.md).
-Round 0 (calibration) answers have not been folded in yet.
+**Version 2**, 2026-10-21: drafted 2026-10-16 from [`research/desirability.md`](research/desirability.md);
+the Shader Lab answers to round 0 (2026-10-18) and round 1 (2026-10-21) are folded in below.
 
 ## North star
 
@@ -43,8 +43,10 @@ alien".
 11. Grounding ambient occlusion, subtle at block corners so the voxels still read.
 12. Water: clear in the shallows, deeper blue-green with depth, Fresnel
     reflections with a sky fallback, gentle waves, an underwater fog volume.
-13. Warm block light (about 2700–3000 K for torches); colour per source where it
-    can be done.
+13. Warm block light: torches read as a flame, not a lamp. Tungsten at the source
+    (about 3000 K) warming towards candle (about 2400 K) where the light is dim, at
+    vanilla-like brightness. r001's (1.0, 0.70, 0.45) was about 4000 K on screen and
+    read as "a fluorescent light bulb". Colour per source where it can be done.
 14. Wetness after rain that dries over minutes; puddles in hollows.
 15. Restrained, energy-conserving bloom on genuinely emissive pixels only.
 
@@ -85,7 +87,8 @@ From the Shader Fixer patch list (50 fixes across 1.7.10 mods):
 ## Owner's taste profile
 
 From round 0 (calibration), answered 2026-10-18 (GitHub issue #1,
-`feedback/r000.json`). Each later round's picks, ratings and notes are added here.
+`feedback/r000.json`), and round 1, answered 2026-10-19 (issue #2, `feedback/r001.json`;
+folded in 2026-10-21). Each later round's picks, ratings and notes are added here.
 Where these contradict a rule above, these win.
 
 - **Direction: between photoreal and cinematic.** Photoreal water and light, but blocks
@@ -96,18 +99,35 @@ Where these contradict a rule above, these win.
   sky should be strikingly beautiful. The immediate area stays visible (playable), but
   visibility falls off naturally with distance, so a mob is unclear until it is fairly
   close. (Round 10's 0.085 was too bright; aim for about 0.04-0.05 mean luma at full moon.)
-- **Golden hour: naturalistic** (option C, the physical sky). The owner will design
-  sky effects later. Liked: foreground and background lit differently by the low
-  sun, as long as the lit foreground is properly lit and saturated. Round 9's frame
-  read better than round 10's (round 10's shade was murky).
+  - **Full moon: keep it** (r001: current, rated 5, mean luma about 0.046-0.050). More
+    beauty comes from extra effects (sky, stars), not from changing its brightness.
+  - **New moon: clearly darker than the full moon, a little lighter than r001's
+    darkest** (r001: A, rated 3). r001's darkest was 0.030 and crushed; the target is
+    about 0.033-0.037, never crushed, with the phase difference plain to see.
+- **Golden hour: amber light plus a gold sky near the sun** (r001: B, rated 4, for both
+  the wide view and the sunset; replaces r000's "naturalistic"). Liked: "how the light
+  hits the blocks in the background", and foreground and background lit differently by
+  the low sun, as long as the lit foreground is properly lit and saturated. The gold
+  stays near the sun and above the horizon band: it must not warm the haze into a
+  beige wall. The owner will design sky effects of his own later.
 - **Water: realistic depth gradient** (C). The balance of surface reflection against
-  what shows through is a big part of the look.
+  what shows through is a big part of the look. **It is the weakest part now** (r001
+  sunset note: "the water doesn't look amazing"): it needs the warm sky and the land
+  mirrored in it, a sun glitter path, Fresnel and surface detail. First priority after
+  r001.
 - **Fog: per biome.** Crisp mountains and plains, natural haze elsewhere, moody thick
   fog in some biomes, and a heavy, vision-limiting tundra storm.
+  - **Baseline: between r001's haze and crisp** (r001: current, rated 3). The biome
+    looks are dialled in from real views inside each biome, round by round; until then
+    biome fog is on only where clearly justified (crisp mountains, the snow storm) and
+    subtle elsewhere.
 - **Bloom: subtle**, a natural halo that scales with light intensity. Never too much.
 - **Performance: 60+ fps for everyone** comes first. Effects that need 30 fps are not
   worth having; pour the effort into optimised looks.
 - **Dislikes:** motion blur, too much bloom.
+- **Questions: more per round** (r001 overall: "happy to field more questions with each
+  iteration"). Ask wherever taste decides: water colour and surface, torch warmth, sky
+  gold, night-sky beauty, and each biome's fog.
 - **Wants (later milestones):** unobtrusive cave dust; cheap block-break effects that
   survive mass breaking (Mobzilla); rain as misted air, not only particles; lava and
   fire light that moves naturally, not a looped flicker; realistic water and light.

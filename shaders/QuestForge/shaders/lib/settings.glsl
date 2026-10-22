@@ -18,14 +18,21 @@
 #define QF_CAL_WATER 0 // [0 1 2 3]   water: A clear tropical, B deep dark, C depth gradient
 #define QF_CAL_FOG 0 // [0 1 2 3 4]   distance: A crisp, B natural haze, C thick valley fog, 4 blizzard (r001)
 #define QF_CAL_BLOOM 0 // [0 1 2 3]   bloom: A none, B subtle, C strong
-#define QF_BIOME_FOG 0 // [0 1]   fog by biome and weather (a3; off until the owner picks the r001 haze palette)
+#define QF_BIOME_FOG 1 // [0 1]   fog by biome and weather (r001: on, only where justified; shaders.properties)
 #define QF_TINT_SAT 0.85 // [0.7 0.85 1.0]   development (a4): biome-tint saturation (1.0 = vanilla)
 #define QF_TINT_RED 0.92 // [0.85 0.92 1.0]   development (a4): biome-tint red (less yellow)
-#define QF_DEEP_SLOPE 0.6 // [0.3 0.45 0.6 0.8 1.0]   development (a2): exposure compensation below a full moon
+#define QF_DEEP_SLOPE 0.6 // [0.3 0.45 0.5 0.6 0.72 0.8 1.0]   development (a2): exposure compensation below a full moon
 #define QF_NEW_MOON_FLOOR 1.0 // [0.5 0.7 1.0 1.2]   development (a2): night floor left at new moon
 #define QF_AIRGLOW 0.004 // [0.0 0.002 0.004 0.006 0.012]   development (a4): night-sky airglow, in MOON_I units
 #define QF_MOON_GAIN 7.0 // [3.0 4.0 5.5 7.0 10.0 14.0 60.0]   development (a2): moon disk brightness
-#define QF_CAL_GOLD 0 // [0 1 2]     golden hour (r001): 1 amber light on lit faces, 2 that plus gold sky near the sun
+#define QF_CAL_GOLD 2 // [0 1 2]     golden hour: 1 amber light on lit faces, 2 that plus gold sky near the sun (owner r001: B)
+#define QF_GOLD_SKY 1.0 // [0.6 1.0 1.5 2.0]   development (r002): strength of the gold sky near the sun
+#define QF_HAZE 0.6 // [0.2 0.4 0.6 0.8 1.0]   development (r002): distance-haze density (owner r001: between current 1.0 and crisp 0.2)
+#define QF_HORIZON_FLOOR 1 // [0 1]   development (r002): the sky below the horizon fades to a darker, cooler far-land tone (no beige wall)
+#define QF_TORCH_WARM 2 // [0 1 2 3]   development (r002): block-light colour. 0 r001 (~4000 K), 1 tungsten, 2 tungsten to candle with distance, 3 candle
+#define QF_WATER_STYLE 1 // [0 1 2]   development (r002): 0 r001 (sky-only Fresnel), 1 calm (reflections, glitter, ripples), 2 lively
+#define QF_WATER_COLOR 0 // [0 1 2]   development (r002): 0 clear depth gradient, 1 teal-green, 2 deep blue
+#define QF_NIGHT_SKY 1 // [0 1 2]   development (r002): 0 r001 stars, 1 denser stars and a faint Milky Way, 2 rich
 
 // 0 Potato, 1 Low, 2 Medium, 3 High, 4 Ultra.
 #if QF_PRESET == 0
@@ -34,24 +41,28 @@
     #define QF_SHADOW_TAPS 0
     #define QF_SKY_STEPS 12
     #define QF_AO_STRENGTH 0.6
+    #define QF_SSR_STEPS 0
 #elif QF_PRESET == 1
     #define QF_SHADOWS 1
     #define QF_TAA 1
     #define QF_SHADOW_TAPS 0
     #define QF_SKY_STEPS 12
     #define QF_AO_STRENGTH 0.6
+    #define QF_SSR_STEPS 0
 #elif QF_PRESET == 2
     #define QF_SHADOWS 1
     #define QF_TAA 1
     #define QF_SHADOW_TAPS 4
     #define QF_SKY_STEPS 20
     #define QF_AO_STRENGTH 0.8
+    #define QF_SSR_STEPS 12
 #else
     #define QF_SHADOWS 1
     #define QF_TAA 1
     #define QF_SHADOW_TAPS 8
     #define QF_SKY_STEPS 24
     #define QF_AO_STRENGTH 0.8
+    #define QF_SSR_STEPS 20
 #endif
 
 // Shadow map per tier (rules 2 and 5). Iris reads these consts after preprocessing.

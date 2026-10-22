@@ -1,0 +1,52 @@
+{
+ "round": 1,
+ "id": "r001",
+ "note": "Built by tools/shaders/review/fetch_feedback.py from GitHub issues; the latest response is last.",
+ "responses": [
+  {
+   "issue": 2,
+   "url": "https://github.com/MarionWhite/quest-forge/issues/2",
+   "user": "Etnadozaus",
+   "state": "open",
+   "created_at": "2026-10-19T17:35:37Z",
+   "updated_at": "2026-10-19T17:35:37Z",
+   "from": "body",
+   "answers": {
+    "round": 1,
+    "scenes": {
+     "golden": {
+      "choice": "B",
+      "rating": 4,
+      "note": "I like how the light hits the blocks in the background"
+     },
+     "sunset": {
+      "choice": "B",
+      "rating": 4,
+      "note": "I like this effect, but the water doesn't look amazing here so it is a little hard to say how much further we have to go on it."
+     },
+     "night-full": {
+      "choice": "B",
+      "rating": 5,
+      "note": "This is pretty good, and anything else can come from auxiliary effects."
+     },
+     "night-new": {
+      "choice": "A",
+      "rating": 3,
+      "note": "Maybe a little bit lighter than the darkest one here, but it should definitely be a bit darker than the full moon one."
+     },
+     "haze": {
+      "choice": "A",
+      "rating": 3,
+      "note": "Somewhere between the current and crisp for the baseline or average, and the other biome ones will have to be iterated by seeing the actual perspective within the respective biome so we can dial it in."
+     },
+     "torch": {
+      "choice": "neither",
+      "rating": 5,
+      "note": "It's not warm at all. It looks like there is a florescent light bulb in the tunnel somewhere."
+     }
+    },
+    "overall": "I think some of the right questions are being asked here, but I am happy to field more questions with each iteration if it is helpful."
+   }
+  }
+ ]
+}

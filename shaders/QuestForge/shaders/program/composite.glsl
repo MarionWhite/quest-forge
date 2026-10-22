@@ -49,6 +49,46 @@ vec3 waterAmbient(float skyLight) {
          + nightFloor() * NIGHT_FLOOR_TINT / PI;
 }
 
+#if QF_SSR_STEPS > 0 && QF_WATER_STYLE > 0
+// Screen-space reflection for water (Medium and up): march the reflected ray in view space
+// against the opaque depth, refine the hit by bisection, and fade out towards the screen
+// edges, for rays that turn back towards the camera and for long rays. The sky table is the
+// fallback, so a miss is never black. Returns rgb and the hit weight.
+vec4 waterSSR(vec3 viewPos, vec3 viewRefl, float jitter) {
+    float stepLen = 0.6 + 0.02 * length(viewPos);
+    vec3 p = viewPos + viewRefl * stepLen * jitter;
+    vec3 prev = viewPos;
+    for (int i = 0; i < QF_SSR_STEPS; i++) {
+        vec4 clip = gbufferProjection * vec4(p, 1.0);
+        if (clip.w <= 0.0) break;
+        vec2 suv = clip.xy / clip.w * 0.5 + 0.5;
+        if (any(lessThan(suv, vec2(0.0))) || any(greaterThan(suv, vec2(1.0)))) break;
+        float sd = texture(depthtex1, suv).r;
+        float sceneZ = -viewFromScreen(suv, sd).z;   // exact for any projection far plane
+        float rayZ = -p.z;
+        if (sd < 1.0 && rayZ > sceneZ && rayZ - sceneZ < stepLen * 2.0 + 0.5) {
+            // Bisection between the last miss and this hit.
+            vec3 a = prev, b = p;
+            for (int k = 0; k < 4; k++) {
+                vec3 m = 0.5 * (a + b);
+                vec4 mc = gbufferProjection * vec4(m, 1.0);
+                vec2 mu = mc.xy / mc.w * 0.5 + 0.5;
+                if (-m.z > -viewFromScreen(mu, texture(depthtex1, mu).r).z) b = m; else a = m;
+            }
+            vec4 bc = gbufferProjection * vec4(b, 1.0);
+            vec2 huv = bc.xy / bc.w * 0.5 + 0.5;
+            vec2 edge = smoothstep(vec2(0.0), vec2(0.08), huv) * smoothstep(vec2(1.0), vec2(0.92), huv);
+            float w = edge.x * edge.y * (1.0 - float(i) / float(QF_SSR_STEPS)) * smoothstep(0.0, 0.25, -viewRefl.z + 0.3);
+            return vec4(texture(colortex3, huv).rgb, clamp(w, 0.0, 1.0));
+        }
+        prev = p;
+        p += viewRefl * stepLen;
+        stepLen *= 1.25;
+    }
+    return vec4(0.0);
+}
+#endif
+
 vec3 waterVolume(vec3 color, float dist, float skyLight) {
     vec3 T = exp(-WATER_ABSORB * dist);
     vec3 scatterAlbedo = WATER_SCATTER / (WATER_ABSORB + WATER_SCATTER);
@@ -89,6 +129,17 @@ void main() {
             vec3 R = reflect(viewDir, n);
             R.y = abs(R.y);
             vec3 refl = skyScatter(R) * smoothstep(0.3, 0.9, skyLight);
+#if QF_WATER_STYLE > 0
+            // Reflected land and sky from the screen (a hill mirrored in a lake at sunset); the
+            // sky table stays the fallback. The sun itself is the glitter path below.
+#if QF_SSR_STEPS > 0
+            vec3 viewPos0 = viewFromScreen(uv, depth0);
+            vec3 viewN = mat3(gbufferModelView) * n;
+            vec3 viewR = reflect(normalize(viewPos0), viewN);
+            vec4 ssr = waterSSR(viewPos0, viewR, ign(gl_FragCoord.xy + float(frameCounter % 64) * 7.0));
+            refl = mix(refl, ssr.rgb, ssr.a);
+#endif
+#endif
             float F = 0.02 + 0.98 * pow(1.0 - NdotV, 5.0);
 #if QF_CAL_WATER == 2
             F = min(1.0, F * 1.6 + 0.08);   // calibration B: strong reflections
@@ -103,8 +154,30 @@ void main() {
 #else
             float sh = smoothstep(0.8, 0.97, skyLight);
 #endif
-            float spec = ggx(max(dot(n, H), 0.0), 0.0016) * NdotL / (4.0 * max(NdotV, 0.05) + 0.3);
+            float NdotH = max(dot(n, H), 0.0);
+            float spec = ggx(NdotH, 0.0016) * NdotL / (4.0 * max(NdotV, 0.05) + 0.3);
+#if QF_WATER_STYLE > 0
+            // Glitter path (owner r001: sunset water): a low sun on rippled water is a long
+            // column of sparkles, not one highlight. A broad lobe gives the column and a very
+            // tight one, gated by a sparkle hash on a fine grid that drifts with the waves, the
+            // sparkles. Fresnel is evaluated at the half vector (F above is for the view).
+            float FH = 0.02 + 0.98 * pow(1.0 - max(dot(H, -viewDir), 0.0), 5.0);
+#if QF_WATER_STYLE == 2
+            const float GLITTER_A2 = 0.05, GLITTER_SPARK = 1.6;   // GGX alpha^2 of the broad lobe
+#else
+            const float GLITTER_A2 = 0.03, GLITTER_SPARK = 1.0;
+#endif
+            float broad = ggx(NdotH, GLITTER_A2) * NdotL / (4.0 * max(NdotV, 0.05) + 0.3);
+            vec2 g = (scene0.xz + cameraPosition.xz) * 6.0 + vec2(animTime() * 1.3, -animTime() * 0.9);
+            float sparkle = step(0.93, hash12(floor(g))) * (1.0 - smoothstep(16.0, 96.0, dist0));
+            float tight = ggx(NdotH, 0.0004) * NdotL / (4.0 * max(NdotV, 0.05) + 0.3);
+            // r002 c-round: 0.6 x the core lobe made the path near the sun dimmer than r001's;
+            // keep the core at full strength and add the column and sparkles on top.
+            spec = spec + broad * 0.35 + tight * sparkle * GLITTER_SPARK * 0.15;
+            color += lightIrradiance() * spec * FH * sh * 3.0;
+#else
             color += lightIrradiance() * spec * F * sh * 3.0;
+#endif
         } else {
             // Under the surface, looking up: Snell's window. Inside it the whole sky is
             // squeezed into a ~97-degree cone, so the sky is looked up along the refracted
@@ -162,6 +235,8 @@ void main() {
             // fade into the sky; thicker in rain.
             float start = far * mix(0.35, 0.12, rainStrength);
             float density = mix(2.2, 4.0, rainStrength) / max(far, 32.0);
+            // Owner (r001): the everyday baseline sits between r001's haze (1.0) and crisp (0.2).
+            density *= QF_HAZE;
             // Night: visibility falls off with distance into the night sky's colour, so the
             // moonlit near field stays playable while a mob 40 blocks out is only a shape
             // (owner, round 0).
