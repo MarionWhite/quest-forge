@@ -42,6 +42,9 @@ import com.questforge.content.ench.QFEnchantments;
  *   torch  -- midnight, sprinting through a sealed tunnel holding a
  *             Torchlight III pickaxe (or a plain one): the cost of the
  *             light following the player.
+ *   torch_wall -- midnight, standing still in a sealed mineshaft-style tunnel
+ *             lit only by torches placed on its walls (no held light, no HUD):
+ *             the shader review's block-light scene. Shot like a view scene.
  *
  * Why frame times and not FPS: an average hides exactly the thing people
  * complain about. Each scene reports mean FPS, the median and 99th-percentile
@@ -221,7 +224,7 @@ public class FrameBench {
                 View mv = views.get(scene());
                 if (ticks >= (mv != null ? mv.ticks : MEASURE_TICKS)) {
                     summarise(mc);
-                    if (mv != null || scene().equals("torch")) {
+                    if (mv != null || scene().equals("torch") || scene().equals("torch_wall")) {
                         stage = Stage.SHOOT;
                         ticks = 0;
                     } else {
@@ -323,6 +326,10 @@ public class FrameBench {
             mp.inventory.markDirty();
             log("torch: holding " + (lit ? "Torchlight III" : "plain") + " diamond pickaxe");
             place(mc, TUNNEL_X0 + 0.5, TUNNEL_Y, TUNNEL_Z + 0.5, -90F, 0F, false);
+        } else if (scene.equals("torch_wall")) {
+            w.setWorldTime(18000);
+            buildTorchHall(w);
+            place(mc, TH_X0 + 1.5, TH_Y, TH_Z + 0.5, -90F, 6F, false);
         } else if (scene.equals("gallery")) {
             w.setWorldTime(Long.getLong("qf.bench.time", 10000L));
             buildGallery(w);
@@ -360,6 +367,41 @@ public class FrameBench {
                 }
             }
         }
+    }
+
+    // The torch hall: 5 wide, 4 high, 40 long, along +x. Oak frames (fence posts and a plank
+    // beam) every 6 blocks, a torch on alternate posts, cobblestone floor with a plank walk,
+    // and the surfaces warm light turns neon first (look bible 3): a chest, planks, a gold block.
+    private static final int TH_X0 = -70, TH_Y = 14, TH_Z = 150, TH_LEN = 40;
+
+    private static void buildTorchHall(WorldServer w) {
+        for (int x = TH_X0 - 2; x <= TH_X0 + TH_LEN + 2; x++) {
+            for (int dz = -4; dz <= 4; dz++) {
+                for (int dy = -2; dy <= 5; dy++) {
+                    boolean inside = x >= TH_X0 && x <= TH_X0 + TH_LEN && Math.abs(dz) <= 2 && dy >= 0 && dy <= 3;
+                    net.minecraft.block.Block b = inside ? Blocks.air
+                            : (dy == -1 && Math.abs(dz) <= 2 ? (dz == 0 ? Blocks.planks : Blocks.cobblestone) : Blocks.stone);
+                    w.setBlock(x, TH_Y + dy, TH_Z + dz, b, 0, 2);
+                }
+            }
+        }
+        int frame = 0;
+        for (int x = TH_X0 + 4; x <= TH_X0 + TH_LEN - 2; x += 6, frame++) {
+            for (int dy = 0; dy <= 2; dy++) {
+                w.setBlock(x, TH_Y + dy, TH_Z - 2, Blocks.fence, 0, 2);
+                w.setBlock(x, TH_Y + dy, TH_Z + 2, Blocks.fence, 0, 2);
+            }
+            for (int dz = -2; dz <= 2; dz++) w.setBlock(x, TH_Y + 3, TH_Z + dz, Blocks.planks, 0, 2);
+            // A wall torch beside the post, on the side the camera sees (meta 3 points south,
+            // off the north wall; 4 points north, off the south wall). Alternating sides.
+            boolean north = frame % 2 == 0;
+            w.setBlock(x - 1, TH_Y + 2, north ? TH_Z - 2 : TH_Z + 2, Blocks.torch, north ? 3 : 4, 3);
+        }
+        w.setBlock(TH_X0 + 7, TH_Y, TH_Z + 2, Blocks.chest, 2, 2);
+        w.setBlock(TH_X0 + 8, TH_Y, TH_Z + 2, Blocks.planks, 0, 2);
+        w.setBlock(TH_X0 + 8, TH_Y + 1, TH_Z + 2, Blocks.planks, 0, 2);
+        w.setBlock(TH_X0 + 13, TH_Y, TH_Z - 2, Blocks.gold_block, 0, 2);
+        w.setBlock(TH_X0 + 14, TH_Y, TH_Z - 2, Blocks.log, 0, 2);
     }
 
     // The gallery: a wall of blocks on a floating platform, so a texture pack or
@@ -463,7 +505,7 @@ public class FrameBench {
         if (mc.thePlayer == null) return;
         // F1 for view scenes: review frames carry no HUD for the critic to mistake for the world.
         mc.gameSettings.hideGUI = sceneIdx >= 0 && sceneIdx < scenes.length
-                && (views.containsKey(scene()) || scene().equals("gallery"));
+                && (views.containsKey(scene()) || scene().equals("gallery") || scene().equals("torch_wall"));
         mc.thePlayer.capabilities.isFlying = flying;
         mc.thePlayer.motionX = mc.thePlayer.motionY = mc.thePlayer.motionZ = 0;
         mc.thePlayer.setPositionAndRotation(px, py + mc.thePlayer.yOffset, pz, yaw, pitch);
