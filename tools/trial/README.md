@@ -20,13 +20,18 @@ A client trial never appears on the owner's screen, takes focus or makes a sound
 can work or play a game while it renders. This became the default on 2026-10-23, after a
 trial went fullscreen over the owner's game and console windows took focus.
 
-- **Window.** The JVM is `javaw` (no console), started with `-WindowStyle Normal`. A hidden,
+- **Window.** The JVM is `javaw` (no console), started with `-WindowStyle Hidden`: STARTUPINFO SW_HIDE
+  keeps the game window hidden through LWJGL's first ShowWindow, so it can only appear once it is
+  already off-screen (verified 2026-10-23: no on-screen sample at 10 ms; no stall, same fps). A hidden,
   detached `window.ps1 -Mode hide` watches every top-level window of that pid for the JVM's
   whole life: every 100 ms for the first 40 s (the splash, then the main window), then every
   second. It restores the window if it is minimized, because a minimized LWJGL window stalls.
   It moves the window left of the virtual screen with `SWP_NOACTIVATE|SWP_NOZORDER`, adds
   `WS_EX_TOOLWINDOW|WS_EX_NOACTIVATE`, removes `WS_EX_APPWINDOW`, and drops the taskbar tab.
-  It never calls `SetForegroundWindow`. The requested `--size` is kept. Its log is
+  It shows the hidden window with one async `SetWindowPos(SWP_SHOWWINDOW|SWP_NOACTIVATE)` plus
+  `ShowWindowAsync(SW_SHOWNOACTIVATE)`. All calls are async, because the main thread pumps no messages
+  during the splash. A visible window not yet off-screen is veiled (layered, alpha 0) until the move
+  lands. It never calls `SetForegroundWindow`. The requested `--size` is kept. Its log is
   `logs\window.log`. `launch --foreground` shows the window on the desktop as before.
 - **No console windows.** Every process `trial.py` and the shader review scripts start uses
   `CREATE_NO_WINDOW`, or a Hidden PowerShell. Started from an agent's shell, a console program
