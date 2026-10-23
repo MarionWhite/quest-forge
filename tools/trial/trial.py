@@ -38,7 +38,10 @@ Usage (py -3.10):
     trial.py stage-angelica [--from DIR]        stage the Angelica jars + Forge 1614 (sha1-checked)
                   [--renderer angelica] [--jar BUILT.jar] [--shaderpack DIR]
     trial.py stage-angelica [--from DIR]        stage the Angelica jars + Forge 1614 (sha1-checked)
-    trial.py launch NAME [--wait] [--xmx 3G] [-D key=value ...] [--commands FILE]
+    trial.py launch NAME [--wait] [--xmx 3G] [-D key=value ...] [--commands FILE] [--foreground]
+                  a client starts in the BACKGROUND: off every monitor, no taskbar button,
+                  never focused (window.ps1); --foreground shows it on the desktop as before
+    trial.py userbusy                           JSON: is the owner gaming? (frame times noisy)
     trial.py status                             running clients/servers, lock, RAM
     trial.py install JAR [--why TEXT]           put a built jar into the live instance
     trial.py uninstall NAME --why TEXT          take a jar out of the live instance (kept in a backup)
@@ -407,6 +410,55 @@ def set_option(path, key, value, sep=":"):
         f.write("\n".join(lines) + "\n")
 
 
+# Agent clients make no sound and never go fullscreen (2026-10-23: a trial went fullscreen
+# over the owner's game). Applied at build and again at every launch, because options.txt
+# is copied from the live instance, where the owner may have fullscreen on.
+SOUND_CATEGORIES = ["master", "music", "record", "weather", "block", "hostile", "neutral", "player", "ambient"]
+QUIET_OPTIONS = dict({f"soundCategory_{c}": "0.0" for c in SOUND_CATEGORIES},
+                     fullscreen="false", **{"key_key.fullscreen": "0"})   # F11 unbound
+# The splash chant and title music are played by qf/splash/SplashMusic (in the pack's
+# patched Forge jar) through Java Sound, outside the game's volume settings. It reads
+# these files from the game dir and plays nothing without them; no jar carries a copy.
+SPLASH_WAVS = [os.path.join("resources", "assets", "minecraft", "sounds", "music", n)
+               for n in ("splash.wav", "menu.wav")]
+# Agent launches also pass -Dqf.silent=true: SplashMusic, the qf-content jukebox and
+# voice chat stay silent with it (in jars built from 2026-10-23 on).
+SILENT_PROPS = ["qf.silent=true"]
+
+
+def rewrite_keys(path, kv, sep=":"):
+    """set_option for several keys, unlinking first: never writes through a hard link."""
+    lines = []
+    if os.path.exists(path):
+        with open(path, encoding="utf-8", errors="replace") as f:
+            lines = f.read().splitlines()
+    for k, v in kv.items():
+        for i, l in enumerate(lines):
+            if l.startswith(k + sep):
+                lines[i] = f"{k}{sep}{v}"
+                break
+        else:
+            lines.append(f"{k}{sep}{v}")
+    if os.path.exists(path):
+        os.remove(path)
+    with open(path, "w", encoding="utf-8") as f:
+        f.write("\n".join(lines) + "\n")
+
+
+def quiet_client(d):
+    """No sound, no fullscreen, no F11, no microphone in a client trial dir."""
+    d = os.path.abspath(d)
+    if os.path.normcase(d).startswith(os.path.normcase(os.path.abspath(LIVE))):
+        sys.exit(f"quiet_client: refusing to touch the live instance ({d})")
+    rewrite_keys(os.path.join(d, "options.txt"), QUIET_OPTIONS)
+    for rel in SPLASH_WAVS:
+        p = os.path.join(d, rel)
+        if os.path.isfile(p):
+            os.remove(p)
+    os.makedirs(os.path.join(d, "config"), exist_ok=True)
+    rewrite_keys(os.path.join(d, "config", "qf-voice.properties"), {"enabled": "false", "volume": "0"}, "=")
+
+
 def trial_dir(name):
     if not re.fullmatch(r"[A-Za-z0-9_.-]+", name):
         sys.exit("trial name: letters, digits, _ . - only")
@@ -516,6 +568,7 @@ def build(name, mods, bundle=(), src=LIVE, no_base=False, server=False, server_s
             if os.path.isfile(s) and (force or not os.path.exists(os.path.join(d, f))):
                 shutil.copy2(s, os.path.join(d, f))
         set_option(os.path.join(d, "options.txt"), "pauseOnLostFocus", "false")
+        quiet_client(d)
         packs = []
         for sp in shaderpacks:
             sp = os.path.abspath(sp)
@@ -573,14 +626,21 @@ def cmd_build(a):
 
 # -------------------------------------------------------------- processes/lock
 
+# Every process these tools start gets no console window. Run from an agent's shell, which
+# has no visible console, a console program otherwise opens a new one (a Windows Terminal
+# window, since that is the default terminal) and it takes focus from whatever the owner
+# is doing (2026-10-23).
+NO_WINDOW = 0x08000000 if os.name == "nt" else 0   # CREATE_NO_WINDOW
+
+
 def ps(script):
     # Output goes through a temp file, not a pipe: a JVM started by Start-Process
     # inherits PowerShell's handles, and a pipe would then stay open -- and this
     # call would block -- until the game exited.
     import tempfile
     with tempfile.TemporaryFile() as out:
-        subprocess.run(["powershell", "-NoProfile", "-NonInteractive", "-Command", script],
-                       stdout=out, stderr=subprocess.DEVNULL, stdin=subprocess.DEVNULL)
+        subprocess.run(["powershell", "-NoProfile", "-NonInteractive", "-WindowStyle", "Hidden", "-Command", script],
+                       stdout=out, stderr=subprocess.DEVNULL, stdin=subprocess.DEVNULL, creationflags=NO_WINDOW)
         out.seek(0)
         return out.read().decode("utf-8", "replace")
 
@@ -758,6 +818,62 @@ def gb(xmx):
     return int(m.group(1)) / (1024 if m.group(2) in "Mm" else 1)
 
 
+WINDOW_PS1 = os.path.join(HERE, "window.ps1")
+
+
+def window_ps(mode, *args):
+    """Run window.ps1 (read-only modes) and return its parsed JSON, or None."""
+    out = ps_file(WINDOW_PS1, ["-Mode", mode] + [str(x) for x in args])
+    try:
+        return json.loads(out.strip().splitlines()[-1])
+    except (ValueError, IndexError):
+        return None
+
+
+def ps_file(path, args):
+    import tempfile
+    with tempfile.TemporaryFile() as out:
+        subprocess.run(["powershell", "-NoProfile", "-NonInteractive", "-WindowStyle", "Hidden",
+                        "-ExecutionPolicy", "Bypass", "-File", path] + args,
+                       stdout=out, stderr=subprocess.DEVNULL, stdin=subprocess.DEVNULL, creationflags=NO_WINDOW)
+        out.seek(0)
+        return out.read().decode("utf-8", "replace")
+
+
+def start_window_hider(pid, d):
+    """Background launch: a hidden, detached PowerShell keeps the client's windows off every
+    monitor, out of the taskbar and Alt-Tab, unfocusable and never minimized, for the life
+    of the JVM (window.ps1 -Mode hide). Detached like the JVM, so it outlives this call."""
+    def q(s):
+        return "'" + s.replace("'", "''") + "'"
+    argl = subprocess.list2cmdline(["-NoProfile", "-NonInteractive", "-WindowStyle", "Hidden",
+                                    "-ExecutionPolicy", "Bypass", "-File", WINDOW_PS1,
+                                    "-Mode", "hide", "-ProcessId", str(pid), "-Log", os.path.join(d, "logs", "window.log")])
+    ps(f"Start-Process -FilePath powershell -ArgumentList {q(argl)} -WindowStyle Hidden")
+
+
+def trial_client_pids():
+    """Pids of Minecraft clients that agents run (anything not from the live instance)."""
+    live = os.path.normcase(os.path.abspath(LIVE))
+    return [p["pid"] for p in java_processes()
+            if p["kind"] == "client" and os.path.normcase(os.path.abspath(p["gameDir"] or LIVE)) != live]
+
+
+def user_busy():
+    """Is the owner gaming? A foreground window that covers its monitor, a game-store exe in the
+    foreground, Windows' fullscreen/D3D notification state, or another process loading the
+    GPU's 3D engine >= 40 %. Agent clients are excluded; the owner's own pack client is not."""
+    ours = trial_client_pids()
+    r = window_ps("userbusy", *(["-OurPids", ",".join(map(str, ours))] if ours else []))
+    return r or {"busy": None, "reasons": ["window.ps1 userbusy gave no answer"]}
+
+
+def cmd_userbusy(a):
+    r = user_busy()
+    print(json.dumps(r))
+    sys.exit(1 if r.get("busy") else 0)
+
+
 def start_detached(java, args, d, stdin=None):
     # Started through PowerShell Start-Process so the JVM is not a child of the
     # calling shell: a client launched from a backgrounded Bash task is reaped
@@ -765,8 +881,18 @@ def start_detached(java, args, d, stdin=None):
     def q(s):
         return "'" + s.replace("'", "''") + "'"
     extra = f"-RedirectStandardInput {q(stdin)} " if stdin else ""
+    server = bool(stdin) or "nogui" in args
+    if not server:
+        # javaw: a client needs no console, and Start-Process would open a new one for
+        # java.exe (a Windows Terminal window that steals focus). Its stdout/stderr are
+        # still redirected to the files below.
+        w = os.path.join(os.path.dirname(java), "javaw.exe")
+        java = w if os.path.isfile(w) else java
+    # Normal for a client: a minimized LWJGL window stalls (in the background the
+    # window.ps1 hider moves it off-screen instead). Hidden for a server: its console
+    # has nothing to show (logs go to files) and must never appear or take focus.
     script = (f"$p = Start-Process -FilePath {q(java)} -ArgumentList {q(subprocess.list2cmdline(args))} "
-              f"-WorkingDirectory {q(d)} -WindowStyle {'Minimized' if stdin or 'nogui' in args else 'Normal'} "
+              f"-WorkingDirectory {q(d)} -WindowStyle {'Hidden' if server else 'Normal'} "
               f"-RedirectStandardOutput {q(os.path.join(d, 'stdout.log'))} "
               f"-RedirectStandardError {q(os.path.join(d, 'stderr.log'))} {extra}-PassThru; $p.Id")
     out = ps(script).strip().splitlines()
@@ -801,7 +927,8 @@ def cmd_launch(a):
 
     java = find_java()
     sync_shaderpacks(d, man)
-    args = client_args(d, src, a.xmx, a.D, man.get("forge_jar") if man.get("renderer", "e7") != "e7" else None)
+    quiet_client(d)
+    args = client_args(d, src, a.xmx, SILENT_PROPS + a.D, man.get("forge_jar") if man.get("renderer", "e7") != "e7" else None)
     if a.join:
         # Vanilla's --server/--port: the client connects as soon as the menu is up.
         host, _, port = a.join.rpartition(":")
@@ -815,18 +942,31 @@ def cmd_launch(a):
         args += ["--width", w, "--height", h]
     clear_logs(d, "client")
     write_bat(d, java, args)
+    background = not a.foreground
+    busy = user_busy()
+    fg_before = window_ps("foreground") or {}
     pid = start_detached(java, args, d)
     if not pid:
         os.remove(LOCK)
         sys.exit("launch failed: Start-Process returned no pid")
+    if background:
+        start_window_hider(pid, d)
     me["pid"] = pid
     write_lock(me)
     with open(os.path.join(d, "pid"), "w") as f:
         f.write(str(pid))
-    print(f"launched client trial {a.name}: pid {pid}, {len(man['jars'])} jars, -Xmx{a.xmx}")
+    print(f"launched client trial {a.name}: pid {pid}, {len(man['jars'])} jars, -Xmx{a.xmx}"
+          f"{', background (off-screen, no taskbar, no focus)' if background else ', foreground'}")
     print(f"  log: {os.path.join(d, 'logs', 'latest.log')}")
+    if busy.get("busy"):
+        print("  owner busy (frame times will be noisy): " + "; ".join(busy.get("reasons", [])))
+    info = {"trial": a.name, "pid": pid, "background": background, "at": time.time(),
+            "userbusy": busy, "foreground_before": fg_before.get("hwnd")}
+    with open(os.path.join(d, "launch.json"), "w", encoding="utf-8") as f:
+        json.dump(info, f)
+    print("launch-info: " + json.dumps(info))
     if a.wait:
-        sys.exit(wait_loaded(d, pid, a.timeout, "client"))
+        sys.exit(wait_loaded(d, pid, a.timeout, "client", unminimize=not background))
 
 
 def check_ram(new_gb):
@@ -907,13 +1047,14 @@ FAIL = re.compile(r"(MissingModsException|requires mods \[|DuplicateModsFoundExc
                   r"There was a critical error|---- Minecraft Crash Report ----|FAILED TO BIND)")
 
 
-def wait_loaded(d, pid, timeout, side):
+def wait_loaded(d, pid, timeout, side, unminimize=True):
     """Follow the FML log until loaded, a crash, or the JVM exits.
     Bounded and quiet: run it as a background task, not a foreground sleep loop."""
     log = os.path.join(d, "logs", "latest.log")
     t0, pos, classes, hits = time.time(), 0, set(), 0
     need = 2 if side == "client" else 1
-    unminimized = side == "server"
+    # A background client's window.ps1 hider restores it instead (and keeps it off-screen).
+    unminimized = side == "server" or not unminimize
     while time.time() - t0 < timeout:
         if os.path.exists(log):
             with open(log, encoding="utf-8", errors="replace") as f:
@@ -1000,7 +1141,7 @@ def sha1(p):
 
 def fsutil_links(path):
     """Every other path that is the same file on disk (hard links), via fsutil."""
-    r = subprocess.run(["fsutil", "hardlink", "list", path], capture_output=True, text=True)
+    r = subprocess.run(["fsutil", "hardlink", "list", path], capture_output=True, text=True, creationflags=NO_WINDOW)
     drive = os.path.splitdrive(os.path.abspath(path))[0]
     out = []
     for line in r.stdout.splitlines():
@@ -1562,6 +1703,8 @@ def main():
     p.add_argument("--join", metavar="HOST:PORT", help="client: connect to this server once the menu is up")
     p.add_argument("--size", metavar="WxH", help="client: window size, e.g. 1920x1080 (shader budgets are per resolution)")
     p.add_argument("--owner", help="who to name in the lock (default: $CLAUDE_SESSION_NAME)")
+    p.add_argument("--foreground", action="store_true",
+                   help="client: show the window on the desktop (the old behaviour); default is background")
     p.set_defaults(fn=cmd_launch)
 
     p = sp.add_parser("install"); p.add_argument("jar")
@@ -1593,6 +1736,7 @@ def main():
     p = sp.add_parser("resolve"); mods_args(p); p.set_defaults(fn=cmd_resolve)
     sp.add_parser("list").set_defaults(fn=cmd_list)
     sp.add_parser("status").set_defaults(fn=cmd_status)
+    sp.add_parser("userbusy", help="JSON: is the owner gaming? exit 1 if so (frame times noisy)").set_defaults(fn=cmd_userbusy)
     p = sp.add_parser("guard", help="hard links into the live pack, and live jars changed without install")
     p.add_argument("--fix-links", action="store_true", help="replace hard links outside the live pack with copies")
     p.add_argument("--accept", action="store_true", help="record the current live jars as intended")

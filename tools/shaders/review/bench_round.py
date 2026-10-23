@@ -12,7 +12,10 @@ Each round:
      the shader pack from the repo (shaders/QuestForge);
   3. sets the preset (QF_PRESET in shaderpacks/QuestForge.txt), the window size and an
      uncapped frame rate (maxFps 260 = unlimited; vsync_mode OFF comes from the trial);
-  4. launches with -Dqf.bench=1 and waits for the JVM to exit;
+  4. launches with -Dqf.bench=1 and waits for the JVM to exit. The client runs in the
+     background (trial.py: off every monitor, no taskbar button, never focused) unless
+     --foreground; if the owner is gaming at any check (trial.py userbusy, every minute), the round's
+     frame times are marked noisy in bench/<tag>.userbusy.json;
   5. copies bench/<tag>.txt and the frames into ROUNDS (default C:\\qfb\\shaderdev\\rounds),
      laid out as check_frames.py expects (--client ROUNDS), and prints any shader error.
 
@@ -21,7 +24,7 @@ Usage (py -3.10 -I, run it as a BACKGROUND task):
   bench_round.py --tag off-1080 --preset off --size 1920x1080 --scenes static,plains_noon
   bench_round.py --tag r1-ids --preset 3 --debug-view 1 --scenes gallery
 """
-import argparse, glob, os, re, shutil, subprocess, sys, time
+import argparse, glob, json, os, re, shutil, subprocess, sys, time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(HERE)))
@@ -80,9 +83,10 @@ def set_kv(path, kv, sep):
         f.write("\n".join(lines) + "\n")
 
 
-def run_client(a, d, cmd, t0):
-    """Launch, follow until exit. True if it died early after a pipeline rebuild."""
-    r = subprocess.run(cmd, capture_output=True, text=True)
+def run_client(a, d, cmd, t0, busy):
+    """Launch, follow until exit. True if it died early after a pipeline rebuild.
+    Appends a `trial.user_busy()` sample to busy every minute while the client runs."""
+    r = subprocess.run(cmd, capture_output=True, text=True, creationflags=trial.NO_WINDOW)
     print(r.stdout.strip())
     if r.returncode != 0:
         print(r.stderr.strip())
@@ -90,17 +94,20 @@ def run_client(a, d, cmd, t0):
     pid = int(open(os.path.join(d, "pid")).read().strip())
     shown = 0
     while trial.pid_alive(pid):
-        # A client started from a non-interactive shell can come up minimized and stall;
-        # SW_SHOWNOACTIVATE makes it visible without stealing focus (as trial.py --wait does).
-        if shown < 3 and time.time() - t0 > 10 + 20 * shown:
+        # A client started from a non-interactive shell can come up minimized and stall.
+        # In the background (default) trial.py's window.ps1 hider restores it and keeps it
+        # off-screen; in the foreground SW_SHOWNOACTIVATE shows it without stealing focus.
+        if a.foreground and shown < 3 and time.time() - t0 > 10 + 20 * shown:
             trial.ps("Add-Type -Name W -Namespace Q -MemberDefinition '[DllImport(\"user32.dll\")] "
                      "public static extern bool ShowWindow(System.IntPtr h, int c);'; "
                      f"$p = Get-Process -Id {pid} -ErrorAction SilentlyContinue; "
                      "if ($p -and $p.MainWindowHandle -ne 0) { [Q.W]::ShowWindow($p.MainWindowHandle, 4) | Out-Null }")
             shown += 1
+        if time.time() - t0 > 60 * len(busy):
+            busy.append(trial.user_busy())
         if time.time() - t0 > a.timeout_min * 60:
             print("timeout: stopping the trial")
-            subprocess.run([sys.executable, "-I", TRIAL_PY, "stop", a.name])
+            subprocess.run([sys.executable, "-I", TRIAL_PY, "stop", a.name], creationflags=trial.NO_WINDOW)
             break
         time.sleep(10)
     held = trial.read_lock()
@@ -133,6 +140,8 @@ def main():
     ap.add_argument("--timeout-min", type=int, default=20)
     ap.add_argument("--quiet-min", type=float, default=10,
                     help="launch only after no client has run for this long (yield to other sessions)")
+    ap.add_argument("--foreground", action="store_true",
+                    help="show the client on the desktop (trial.py launch --foreground); default is background")
     a = ap.parse_args()
     if not re.fullmatch(r"[A-Za-z0-9_.]+", a.tag) or "-" in a.tag:
         sys.exit("--tag: letters, digits, _ and . only (check_frames.py matches bench-<tag>*.png)")
@@ -166,15 +175,19 @@ def main():
     props = ["qf.bench=1", f"qf.bench.tag={a.tag}", f"qf.bench.scenes={a.scenes}", f"qf.bench.views={VIEWS}",
              f"qf.bench.gallery={GALLERY}", "fml.queryResult=confirm"]
     cmd = [sys.executable, "-I", TRIAL_PY, "launch", a.name, "--size", a.size, "--xmx", a.xmx, "--owner", "shader-dev"]
+    if a.foreground:
+        cmd.append("--foreground")
     for p in props:
         cmd += ["-D", p]
     if a.reload:
         cmd += ["-D", f"qf.bench.reload={a.reload}"]
     result = os.path.join(d, "bench", a.tag + ".txt")
     log = os.path.join(d, "logs", "latest.log")
+    busy = []
     for attempt in (1, 2):
         t0 = time.time()
-        crashed_early = run_client(a, d, cmd, t0)
+        busy.append(trial.user_busy())
+        crashed_early = run_client(a, d, cmd, t0, busy)
         if os.path.exists(result) or not crashed_early or attempt == 2:
             break
         # Angelica 2.2.33: when the pack's transform misses the shader disk cache, Iris builds
@@ -191,6 +204,12 @@ def main():
         shutil.copy2(log, os.path.join(ROUNDS, "logs", a.tag + ".log"))
     for sub in ("bench", "screenshots"):
         os.makedirs(os.path.join(ROUNDS, sub), exist_ok=True)
+    # Frame times taken while the owner games share the GPU: mark them, don't trust them.
+    reasons = sorted({r for b in busy for r in b.get("reasons", [])}) if any(b.get("busy") for b in busy) else []
+    with open(os.path.join(ROUNDS, "bench", a.tag + ".userbusy.json"), "w", encoding="utf-8") as f:
+        json.dump({"noisy": bool(reasons), "reasons": reasons, "background": not a.foreground, "checks": busy}, f)
+    if reasons:
+        print("NOISY: owner gaming during the round -- frame times are not comparable: " + "; ".join(reasons))
     if os.path.exists(result):
         shutil.copy2(result, os.path.join(ROUNDS, "bench", a.tag + ".txt"))
         print(open(result, encoding="utf-8").read())

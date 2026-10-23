@@ -85,7 +85,8 @@ def main():
             p = os.path.join(tmp, f"{f}.{stage}")
             with open(p, "w", encoding="utf-8", newline="\n") as fh:
                 fh.write(src)
-            r = subprocess.run([a.glslang, "-S", stage, p], capture_output=True, text=True)
+            r = subprocess.run([a.glslang, "-S", stage, p], capture_output=True, text=True,
+                               creationflags=0x08000000 if os.name == "nt" else 0)  # CREATE_NO_WINDOW
             msg = (r.stdout + r.stderr).strip()
             bad = r.returncode != 0 or "ERROR" in msg
             if bad:

@@ -104,7 +104,8 @@ def merge_calibration(spec, manifest_path):
 
 
 def git(*args, check=True):
-    r = subprocess.run(["git", "-C", str(REPO), *args], capture_output=True, text=True)
+    r = subprocess.run(["git", "-C", str(REPO), *args], capture_output=True, text=True,
+                       creationflags=0x08000000 if os.name == "nt" else 0)  # CREATE_NO_WINDOW: no console pops up
     if check and r.returncode:
         die(f"git {' '.join(args)} failed:\n{r.stdout}{r.stderr}")
     return r

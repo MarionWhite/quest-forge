@@ -113,7 +113,8 @@ def main():
             for k, v in opts.items():
                 cmd += ["--opt", f"{k}={v}"]
             print("render", tag, opts, flush=True)
-            r = subprocess.run(cmd, capture_output=True, text=True)
+            r = subprocess.run(cmd, capture_output=True, text=True,
+                               creationflags=0x08000000 if os.name == "nt" else 0)  # CREATE_NO_WINDOW: no console pops up
             ok = os.path.exists(os.path.join(ROUNDS, "bench", tag + ".txt"))
             print("  ", "ok" if ok else "FAILED: " + (r.stdout + r.stderr)[-400:], flush=True)
     os.makedirs(OUT, exist_ok=True)
