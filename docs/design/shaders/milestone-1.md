@@ -350,3 +350,15 @@ Open after r002 (critic): sunset/dawn sky reads grey-lavender above the band, so
 reflections mirror cold colour; near water at sunset is dark; forest blocks get almost no amber
 at golden hour; the haze options are nearly indistinguishable on golden_lit; Potato's new moon is
 0.027 with 1.5% crushed; Milky Way dust lanes look like beads.
+
+## Rounds log (2026-10-23): r002 answered, r003 posted
+
+The owner answered r002 from a phone (issue #3); the answers were pasted inside `overall`, which
+`fetch_feedback.py` now parses (e363cd0). Folded into the look bible (v3). Costs are p50 shader
+cost against off2*/off3* (worst scene), budgets 3.0 / 0.9 / 0.4 ms.
+
+| Round | Change | Cost H / L / P | Critic | Result |
+|---|---|---|---|---|
+| es, es2 | smoke tests of the new code | 1.32 / – / – | – | micro-ripple glitter formed a regular lattice and a blown-out blob (plane waves, slopes 5x too big): now noise gradients plus world-anchored glints; clouds were smudges |
+| e | defaults from r002 (haze 0.35, gold 1.5, r001 stars, QF_NEW_MOON 0.5, torch 2850-2200 K, water style 3), water by biome (QF_BIOME_WATER, camera-biome uniforms), QF_GLITTER, QF_FLECKS, QF_AMBER, QF_MOTES, QF_FLICKER, QF_AERIAL, QF_CLOUDS (experimental) | **1.23 / 0.45 / 0.37** (pushed 1.37) | **6.5** (coast 8, ocean 7, new moon 7, golden 7; swamp 4, river 4, clouds 3) | posted as **r003** (9 questions). Clouds rejected (off); motes drew over the sky |
+| f | critic fixes: motes only in front of land, glints occluded by SSR hits, softer noon highlight, smaller flecks, murky swamp, brighter reef, lighter glassy, torch 2750-2100 K, stronger aerial perspective; view lake_glitter | not rendered | – | committed in 8b9e001, unrendered: launches stopped (client windows over the owner's game) |
