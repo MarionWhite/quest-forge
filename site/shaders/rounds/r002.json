@@ -3,7 +3,7 @@
  "id": "r002",
  "title": "Water, torches, night sky and haze",
  "intro": "Your round 1 answers are in. Golden hour and sunset now use B (amber light plus a gold sky) by default, with the gold kept above the horizon, so the beige haze wall is gone. Torches are warm (tungsten fading to candle). Water now reflects the land and has a sun glitter path and fine ripples. The full-moon night is unchanged. You said more questions are welcome, so this round has eleven. Each option shows its cost per frame on High at 1440p. The budget is 3 ms; the dearest frame here is 0.95 ms. Low (worst 0.45 of 0.9 ms) and Potato (worst 0.34 of 0.4 ms) also fit. The critic's notes are blunt: the sunset water is better but not there yet.",
- "status": "open",
+ "status": "closed",
  "created": "2026-10-21",
  "scenes": [
   {

@@ -1,0 +1,325 @@
+{
+ "n": 3,
+ "id": "r003",
+ "title": "Water by biome, glitter, torches and ambient effects",
+ "intro": "Your round 2 answers are in, and they are the new defaults: golden hour with the gold sky at 1.5x, haze 0.35, round 1's stars (the Milky Way is gone), calm water by day that turns lively as the sun gets low, and a new moon that is the full-moon night made a little darker, with a navy sky instead of brown-black. New this round: water colour by biome, a glitter that comes from the water's own surface, amber light through leaves, bubble flecks on near water, and cheap ambient particles. Each option shows its cost per frame on High at 1440p. The budget is 3 ms; the dearest frame here is 1.37 ms. Low (worst 0.45 of 0.9 ms) and Potato (worst 0.37 of 0.4 ms) still fit. The critic's notes are blunt, and three of its complaints are already fixed in the code but not in these pictures (the next round shows them): the dust drew over open sky like daytime stars; the swamp water was too clear; and the torch warming was too small to see. The experimental clouds failed the critic. They are switched off, and there is a question about them below.",
+ "status": "open",
+ "created": "2026-10-23",
+ "scenes": [
+  {
+   "id": "golden",
+   "name": "Golden hour, the new default",
+   "question": "A is the new default: your round 2 picks plus amber on lit faces and leaves, and haze 0.35. B is round 2 for comparison. C pushes further (stronger amber, 2x gold). Ignore C's clouds: they are an experiment, asked about below.",
+   "notePrompt": "Push further, or is A the right amount? Is the haze still right?",
+   "options": [
+    {
+     "key": "A",
+     "label": "New default",
+     "img": "r003/golden-A.jpg",
+     "critic": "Critic's pick, 7: a warmer gold band above the horizon, the zenith stays blue and the mesa faces glow amber. The haze is starting to warm towards beige, so stop about here.",
+     "ms": 0.96
+    },
+    {
+     "key": "B",
+     "label": "Round 2",
+     "img": "r003/golden-B.jpg",
+     "critic": "Critic 6: the blue zenith and the amber on the far cliffs work, but the horizon band is a flat grey haze with almost no gold.",
+     "ms": 0.62
+    },
+    {
+     "key": "C",
+     "label": "Pushed further",
+     "img": "r003/golden-C.jpg",
+     "critic": "Critic 5: the extra gold is barely visible over A, and the clouds pull the eye off the lit land. Without the clouds it would be about a 7.",
+     "ms": 1.09
+    }
+   ]
+  },
+  {
+   "id": "leaves",
+   "name": "Amber on the leaves",
+   "question": "The same forest clearing with the low sun behind you. Which leaves?",
+   "notePrompt": "Amber enough? Does it look like late light, or just yellow-green?",
+   "options": [
+    {
+     "key": "A",
+     "label": "New default",
+     "img": "r003/leaves-A.jpg",
+     "critic": "Critic's pick, 6.5: the lit leaf tops and the birch pick up amber, and a soft gold glow hangs in the canopy gap. (The specks on the sky are the dust bug, fixed since.)",
+     "ms": 0.9
+    },
+    {
+     "key": "B",
+     "label": "Round 2",
+     "img": "r003/leaves-B.jpg",
+     "critic": "Critic 5.5: plain vanilla green leaves. The lit birch shows some amber, and the backlit gap reads dull and flat.",
+     "ms": 0.64
+    },
+    {
+     "key": "C",
+     "label": "Stronger amber",
+     "img": "r003/leaves-C.jpg",
+     "critic": "Critic 6: slightly richer amber than A. The cream blur over the canopy is the experimental cloud layer.",
+     "ms": 0.99
+    }
+   ]
+  },
+  {
+   "id": "water-sunset",
+   "name": "Water at sunset: glitter",
+   "question": "You asked for lively water, a more cinematic light source and glitter that comes from the surface texture, but only if it can be done well. In this view the sun is partly behind the cliff, so the near water is in shadow. The next round adds a view with the sun clear of it.",
+   "notePrompt": "Which glitter is closest? Is the sun's glow too much or not enough?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Round 2 (lively)",
+     "img": "r003/water-sunset-A.jpg",
+     "critic": "Critic 6: a clean warm path on the ripples near the horizon. The near water is dead dark, and there is no glitter.",
+     "ms": 0.84,
+     "ref": {
+      "img": "r003/ref-water-sunset-A.jpg",
+      "credit": "Daiannie Vera, CC BY 3.0, via Wikimedia Commons",
+      "source": "https://commons.wikimedia.org/wiki/File:Beautiful_Rippling_Water_With_Gentle_Sun_S_Reflection_(175626645).jpeg"
+     }
+    },
+    {
+     "key": "B",
+     "label": "Surface glitter (default)",
+     "img": "r003/water-sunset-B.jpg",
+     "critic": "Critic 6.5: a stronger glow around the sun and a warmer path, but not yet real sparkle. A faint light column runs down below the cliff; that is fixed since (land now blocks the reflected sun).",
+     "ms": 1.11
+    },
+    {
+     "key": "C",
+     "label": "Cinematic sun",
+     "img": "r003/water-sunset-C.jpg",
+     "critic": "Critic's pick, 7: the most lively. The highlights break up along the wave crests and start to work with the surface. Still a smear, not glints. The pink streaks are the experimental clouds.",
+     "ms": 1.31,
+     "ref": {
+      "img": "r003/ref-water-sunset-C.jpg",
+      "credit": "Dietmar Rabich, CC BY-SA 4.0, via Wikimedia Commons",
+      "source": "https://commons.wikimedia.org/wiki/File:K%C3%BChlungsborn,_Blick_von_der_Seebr%C3%BCcke,_Sonnenuntergang_--_2024_--_4955.jpg"
+     }
+    }
+   ]
+  },
+  {
+   "id": "water-biomes",
+   "name": "Water by biome",
+   "question": "Water now takes its colour from the biome you are in, fading over a few seconds when you cross a border: turquoise on coasts and reefs, deep blue in the ocean, clear and glassy in rivers and lakes, murky teal in swamps. Which of these is closest to what you want? Rate the whole set, and use the note for the ones that are off.",
+   "notePrompt": "Which biome looks wrong? More turquoise on the coast? Darker ocean?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Coast (Beach)",
+     "img": "r003/water-biomes-A.jpg",
+     "critic": "Critic 8: a real Maldives turquoise over the sand shelves, with readable depth steps. The best water in the set.",
+     "ms": 1.23,
+     "ref": {
+      "img": "r003/ref-water-biomes-A.jpg",
+      "credit": "Martin Falbisoner, CC BY-SA 4.0, via Wikimedia Commons",
+      "source": "https://commons.wikimedia.org/wiki/File:Diamonds_Thudufushi_Beach_and_Water_Villas,_May_2017_-08.jpg"
+     }
+    },
+    {
+     "key": "B",
+     "label": "Ocean",
+     "img": "r003/water-biomes-B.jpg",
+     "critic": "Critic 7: a convincing deep blue with a nice depth falloff. The nearest flecks are too big; they are smaller and softer since.",
+     "ms": 1.17,
+     "ref": {
+      "img": "r003/ref-water-biomes-B.jpg",
+      "credit": "Sergei Gussev, CC BY 2.0, via Wikimedia Commons",
+      "source": "https://commons.wikimedia.org/wiki/File:Sunlit_Atlantic_Ocean_and_rugged_coastal_landscape_with_sea_stacks_near_Lagos,_Faro,_Algarve,_Portugal,_February_2025_(54460174166).jpg"
+     }
+    },
+    {
+     "key": "C",
+     "label": "River",
+     "img": "r003/water-biomes-C.jpg",
+     "critic": "Critic 4: dark slate rather than glassy, and the noon sun's reflection is a blown-out blob. Both are fixed since: a lighter clear tint and a softer noon highlight.",
+     "ms": 1.07,
+     "ref": {
+      "img": "r003/ref-water-biomes-C.jpg",
+      "credit": "amanderson2, CC BY 2.0, via Wikimedia Commons",
+      "source": "https://commons.wikimedia.org/wiki/File:Clear_River_water_Bled_Vintgar_Slovenia_(8095482709).jpg"
+     }
+    },
+    {
+     "key": "D",
+     "label": "Lake",
+     "img": "r003/water-biomes-D.jpg",
+     "critic": "Critic 6.5: clear enough to show the sand island below, with a calm distant surface. A little darker and more teal than round 2's.",
+     "ms": 1.17
+    },
+    {
+     "key": "E",
+     "label": "Swamp",
+     "img": "r003/water-biomes-E.jpg",
+     "critic": "Critic 4: the most transparent water in the set, the opposite of the brief. Fixed since: swamp water is now murky teal-olive and hides the bed within two or three blocks.",
+     "ms": 1.18,
+     "ref": {
+      "img": "r003/ref-water-biomes-E.jpg",
+      "credit": "JamesDeMers, CC0, via Wikimedia Commons",
+      "source": "https://commons.wikimedia.org/wiki/File:Bayou-439881.jpg"
+     }
+    }
+   ]
+  },
+  {
+   "id": "water-looks",
+   "name": "One lake, four biome waters",
+   "question": "The same lake as round 2's noon view, with each biome's water forced on, so only the water changes. Do the four looks feel right for their biomes?",
+   "notePrompt": "Which look is off, and how?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Lakes and rivers: glassy",
+     "img": "r003/water-looks-A.jpg",
+     "critic": "Critic 6.5: clear and calm; slightly darker than round 2's lake.",
+     "ms": 1.17
+    },
+    {
+     "key": "B",
+     "label": "Ocean: deep blue",
+     "img": "r003/water-looks-B.jpg",
+     "critic": "Critic 7: a good deep blue; too saturated for a small lake, fine for open sea.",
+     "ms": 1.17
+    },
+    {
+     "key": "C",
+     "label": "Coast and reef: turquoise",
+     "img": "r003/water-looks-C.jpg",
+     "critic": "Critic 7.5: a lovely turquoise glow around the sandbar. It should be brighter and more cyan in the shallows; that is done since.",
+     "ms": 1.18
+    },
+    {
+     "key": "D",
+     "label": "Swamp: murky teal",
+     "img": "r003/water-looks-D.jpg",
+     "critic": "Critic 5: bright jade, more tropical lagoon than swamp. Fixed since: darker, browner and far less clear.",
+     "ms": 1.14
+    }
+   ]
+  },
+  {
+   "id": "night-new",
+   "name": "New moon, fixed",
+   "question": "You said the new moons regressed and picked the full moon (C here, for comparison). A is the new default: the same night, a bit darker (mean brightness 0.040 against 0.048). B is darker still (0.037).",
+   "notePrompt": "Does A keep the full-moon feel? Dark enough to tell the phases apart?",
+   "options": [
+    {
+     "key": "A",
+     "label": "New moon (default)",
+     "img": "r003/night-new-A.jpg",
+     "critic": "Critic's pick, 7: the navy sky is back and the sand and island read, a touch darker than the full moon. This fixes the brown-black regression.",
+     "ms": 1.21
+    },
+    {
+     "key": "B",
+     "label": "Darker",
+     "img": "r003/night-new-B.jpg",
+     "critic": "Critic 5.5: only slightly darker, but the sky drifts back towards grey-black. The faint smudges are the experimental clouds.",
+     "ms": 1.37
+    },
+    {
+     "key": "C",
+     "label": "Full moon (for comparison)",
+     "img": "r003/night-new-C.jpg",
+     "critic": "Kept as you rated it. Critic 7: navy sky, readable land, stars.",
+     "ms": 1.21
+    }
+   ]
+  },
+  {
+   "id": "torch",
+   "name": "Torches: a little warmer, plus ambient effects",
+   "question": "A is round 2's torch colour. B is a little warmer, with a slow flicker that varies from place to place and faint dust in the air (neither shows well in a still). The critic could hardly see the warmer colour, so the code now warms it a little more (about 2750 K at the flame to 2100 K at the edge); the next round shows that.",
+   "notePrompt": "Warmer still? Which other cheap effects do you want here: heat shimmer above flames, drifting embers, dust?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Round 2",
+     "img": "r003/torch-A.jpg",
+     "critic": "Critic 6: a warm amber tunnel with a clear falloff to the far frames.",
+     "ms": 0.59,
+     "ref": {
+      "img": "r003/ref-torch-A.jpg",
+      "credit": "Pascal Reusch, CC BY 3.0, via Wikimedia Commons",
+      "source": "https://commons.wikimedia.org/wiki/File:Residence_W%C3%BCrzburg_-_Wine_cellar.JPG"
+     }
+    },
+    {
+     "key": "B",
+     "label": "Warmer, flicker and dust (default)",
+     "img": "r003/torch-B.jpg",
+     "critic": "Critic 6: the extra warmth barely shows in this frame (red +2 of 255), and the dust is too faint to see. The flame particle is missing in this capture.",
+     "ms": 0.77
+    }
+   ]
+  },
+  {
+   "id": "particles",
+   "name": "Ambient particles: bubbles under water",
+   "question": "Cheap particles drawn by the shader: bubbles rising under water, and dust and pollen that light up where sunbeams catch them. A has none, B is the default, C is denser. (Above water the dust also drew over the open sky like daytime stars. That bug is fixed: dust now shows only in the air in front of land.)",
+   "notePrompt": "Worth having? More or fewer? Rounder or softer bubbles?",
+   "options": [
+    {
+     "key": "A",
+     "label": "None (round 2)",
+     "img": "r003/particles-A.jpg",
+     "critic": "Critic 4: only the game's own sparse square specks; dark and murky.",
+     "ms": 0.49
+    },
+    {
+     "key": "B",
+     "label": "Bubbles (default)",
+     "img": "r003/particles-B.jpg",
+     "critic": "Critic 5: a few more small specks, harmless but not yet pretty.",
+     "ms": 0.67,
+     "ref": {
+      "img": "r003/ref-particles-B.jpg",
+      "credit": "Jakub Hałun, CC BY 4.0, via Wikimedia Commons",
+      "source": "https://commons.wikimedia.org/wiki/File:Crepuscular_rays_in_the_forest_near_Przeginia_Duchowna,_Lesser_Poland_Voivodeship,_20240225_0830_6640.jpg"
+     }
+    },
+    {
+     "key": "C",
+     "label": "Denser",
+     "img": "r003/particles-C.jpg",
+     "critic": "Critic 4: more square motes, one large grey block by the window: noise, not bubbles. Needs round, soft bubbles before it is worth it.",
+     "ms": 0.77
+    }
+   ]
+  },
+  {
+   "id": "hills",
+   "name": "Extreme Hills: depth and sky",
+   "question": "You found this view crisp but bland. B adds aerial perspective: distant ridges turn bluer and paler, in layers. C also tries a cheap cloud layer with cloud shadows. The critic rejected the clouds as a half-done sky effect, so they are off. Would you like clouds at all? Real volumetric clouds are a bigger, dearer job.",
+   "notePrompt": "Do you want clouds? Puffy cumulus, high wisps, or a clear sky with more light and depth instead?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Round 2",
+     "img": "r003/hills-A.jpg",
+     "critic": "Critic 4: crisp and bland, as you said: an empty blue sky and flat noon light.",
+     "ms": 0.56
+    },
+    {
+     "key": "B",
+     "label": "Aerial perspective (default)",
+     "img": "r003/hills-B.jpg",
+     "critic": "Critic 5: it helps a little; the far forest and peaks fade to blue-grey. Still a flat noon frame with an empty sky. The code now makes it a little stronger.",
+     "ms": 0.87
+    },
+    {
+     "key": "C",
+     "label": "Plus experimental clouds",
+     "img": "r003/hills-C.jpg",
+     "critic": "Critic 3: blurry streaks converging overhead, with no form or lighting. Reject, as with the Milky Way.",
+     "ms": 0.96
+    }
+   ]
+  }
+ ]
+}
