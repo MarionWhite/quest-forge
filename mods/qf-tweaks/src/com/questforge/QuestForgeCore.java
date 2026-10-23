@@ -41,6 +41,7 @@ import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
         "com.questforge.RecNbtTransformer",
         "com.questforge.AsieNickTransformer",
         "com.questforge.RwgPaintTransformer",
+        "com.questforge.SilentTransformer",
         // Not transformers, but loaded from code patched into GraveStones and
         // OptiFine; there is nothing in them any transformer needs to touch.
         "com.questforge.ShaderState",
@@ -74,7 +75,8 @@ public class QuestForgeCore implements IFMLLoadingPlugin {
                 "com.questforge.SplashTransformer",
                 "com.questforge.RecNbtTransformer",
                 "com.questforge.AsieNickTransformer",
-                "com.questforge.RwgPaintTransformer"
+                "com.questforge.RwgPaintTransformer",
+                "com.questforge.SilentTransformer"
         };
     }
 

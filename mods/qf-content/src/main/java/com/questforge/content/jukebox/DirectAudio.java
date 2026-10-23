@@ -258,7 +258,24 @@ public final class DirectAudio {
         return fs;
     }
 
+    /**
+     * -Dqf.silent=true (every agent-launched test client, tools/trial/trial.py): play
+     * nothing. Players never set it. The jukebox's AL sources share the game's OpenAL
+     * context, so master volume 0 already mutes them; this keeps a silent client silent
+     * even if something resets the listener gain.
+     */
+    public static final boolean SILENT = Boolean.getBoolean("qf.silent");
+
     public static String start(PcmSource src, double x, double y, double z) {
+        if (SILENT) {
+            try {
+                if (src instanceof FileSource) ((FileSource) src).close();
+                if (src instanceof CaptureSource) ((CaptureSource) src).close();
+                if (src instanceof HelperSource) ((HelperSource) src).close();
+                if (src instanceof StreamSource) ((StreamSource) src).close();
+            } catch (Throwable ignored) { }
+            return "silenced (-Dqf.silent)";
+        }
         stop();
         AL10.alGetError();                              // clear stale error state
 

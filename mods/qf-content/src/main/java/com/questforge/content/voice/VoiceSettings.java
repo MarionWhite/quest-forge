@@ -150,7 +150,10 @@ public final class VoiceSettings {
 
     public static void setMode(Mode m) { mode = m; save(); }
 
-    public static boolean isEnabled() { return enabled; }
+    /** Off under -Dqf.silent=true (agent test clients): no microphone, no playback. */
+    public static boolean isEnabled() { return enabled && !SILENT; }
+
+    private static final boolean SILENT = Boolean.getBoolean("qf.silent");
 
     public static void setEnabled(boolean b) { enabled = b; save(); }
 
