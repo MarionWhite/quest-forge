@@ -46,3 +46,8 @@ biome_savanna    -375.5  auto   -231.5   135    4      6000
 biome_desert     -471.5  auto   -7.5     90     4      6000
 biome_taiga      -311.5  auto   -567.5   135    4      6000
 biome_ocean      -567.5  64.5   232.5    90     4      6000
+# r003: per-biome water (owner r002). river_noon looks along a vanilla River (id 7) from just above
+# it; beach_noon stands on a Beach (16) looking out over the Ocean, so the camera biome is the
+# coast and the water reads turquoise. Both need an explicit y (auto would stand in the water).
+river_noon       514.5   65.5   491.5    344    8      6000
+beach_noon       -638.5  66.5   202.5    293    10     6000

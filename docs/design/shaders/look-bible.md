@@ -4,8 +4,9 @@ What the pack should look like, in order of priority. The critic scores every
 frame against this document and the owner's taste profile; when they disagree,
 the owner's answers win and this file is updated to match.
 
-**Version 2**, 2026-10-21: drafted 2026-10-16 from [`research/desirability.md`](research/desirability.md);
-the Shader Lab answers to round 0 (2026-10-18) and round 1 (2026-10-21) are folded in below.
+**Version 3**, 2026-10-23: drafted 2026-10-16 from [`research/desirability.md`](research/desirability.md);
+the Shader Lab answers to round 0 (2026-10-18), round 1 (2026-10-21) and round 2 (2026-10-23)
+are folded in below.
 
 ## North star
 
@@ -41,11 +42,13 @@ alien".
 10. Soft shadows with contact hardening, reaching the shadow distance; light
     through leaves (subsurface).
 11. Grounding ambient occlusion, subtle at block corners so the voxels still read.
-12. Water: clear in the shallows, deeper blue-green with depth, Fresnel
-    reflections with a sky fallback, gentle waves, an underwater fog volume.
+12. Water: clear in the shallows, deeper with depth, Fresnel reflections with a sky
+    fallback, gentle waves, an underwater fog volume. **Its colour follows the biome**
+    (owner r002): lakes and rivers clear and glassy, oceans deep blue, coasts and coral
+    reefs a Maldives turquoise, swamps and marshes a murky teal.
 13. Warm block light: torches read as a flame, not a lamp. Tungsten at the source
-    (about 3000 K) warming towards candle (about 2400 K) where the light is dim, at
-    vanilla-like brightness. r001's (1.0, 0.70, 0.45) was about 4000 K on screen and
+    (about 3000 K, r003: 2850 K) warming towards candle (about 2400 K, r003: 2200 K) where
+    the light is dim, at vanilla-like brightness. r001's (1.0, 0.70, 0.45) was about 4000 K on screen and
     read as "a fluorescent light bulb". Colour per source where it can be done.
 14. Wetness after rain that dries over minutes; puddles in hollows.
 15. Restrained, energy-conserving bloom on genuinely emissive pixels only.
@@ -72,6 +75,9 @@ alien".
 - Neon saturation
 - Puddles that never dry
 - Rounded-off voxel edges (heavy parallax, over-smooth normals)
+- Sky effects that are not genuinely beautiful (r002: the Milky Way was rejected outright;
+  a half-done sky effect is worse than none)
+- Bland, flat views: a crisp scene still needs depth, light and an interesting sky (r002)
 
 ## Modded failure classes (each needs a test scene)
 
@@ -87,9 +93,14 @@ From the Shader Fixer patch list (50 fixes across 1.7.10 mods):
 ## Owner's taste profile
 
 From round 0 (calibration), answered 2026-10-18 (GitHub issue #1,
-`feedback/r000.json`), and round 1, answered 2026-10-19 (issue #2, `feedback/r001.json`;
-folded in 2026-10-21). Each later round's picks, ratings and notes are added here.
-Where these contradict a rule above, these win.
+`feedback/r000.json`), round 1, answered 2026-10-19 (issue #2, `feedback/r001.json`;
+folded in 2026-10-21), and round 2, answered 2026-10-23 from a phone (issue #3,
+`feedback/r002.json`; folded in 2026-10-23). Each later round's picks, ratings and notes
+are added here. Where these contradict a rule above, these win.
+
+- **Round 2 overall:** "I am definitely seeing progress! ... I have very high expectations."
+  Keep asking questions wherever taste decides. Sending from the phone means signing in to
+  GitHub every time, "a huge pain": the feedback relay is worth switching on.
 
 - **Direction: between photoreal and cinematic.** Photoreal water and light, but blocks
   rendered as rich, high-quality surfaces, not bit-crushed textures (the generated
@@ -101,23 +112,39 @@ Where these contradict a rule above, these win.
   close. (Round 10's 0.085 was too bright; aim for about 0.04-0.05 mean luma at full moon.)
   - **Full moon: keep it** (r001: current, rated 5, mean luma about 0.046-0.050). More
     beauty comes from extra effects (sky, stars), not from changing its brightness.
-  - **New moon: clearly darker than the full moon, a little lighter than r001's
-    darkest** (r001: A, rated 3). r001's darkest was 0.030 and crushed; the target is
-    about 0.033-0.037, never crushed, with the phase difference plain to see.
+  - **New moon: the full-moon night, a bit darker** (r002: picked the full-moon frame over
+    all three new-moon options, rated 4: "we regressed with the new proposed changes"). The
+    r002 new moons had a brown-black sky; the full moon's navy sky and readable land are
+    the look. Darker than the full moon, never that regressed look. (r001: A, rated 3, asked
+    for 0.033-0.037; superseded.)
+  - **Night sky: r001's stars** (r002: A, 5/5). The Milky Way was rejected ("the execution
+    is not good"). Open to sky effects, but only ones that are genuinely beautiful.
 - **Golden hour: amber light plus a gold sky near the sun** (r001: B, rated 4, for both
-  the wide view and the sunset; replaces r000's "naturalistic"). Liked: "how the light
+  the wide view and the sunset; replaces r000's "naturalistic"). r002 confirmed it (5/5,
+  "keep pushing in this direction"), with the gold sky at 1.5x (5/5, "maybe more gold")
+  and **amber on the leaves and other lit surfaces**. Liked: "how the light
   hits the blocks in the background", and foreground and background lit differently by
   the low sun, as long as the lit foreground is properly lit and saturated. The gold
   stays near the sun and above the horizon band: it must not warm the haze into a
   beige wall. The owner will design sky effects of his own later.
 - **Water: realistic depth gradient** (C). The balance of surface reflection against
-  what shows through is a big part of the look. **It is the weakest part now** (r001
-  sunset note: "the water doesn't look amazing"): it needs the warm sky and the land
-  mirrored in it, a sun glitter path, Fresnel and surface detail. First priority after
-  r001.
+  what shows through is a big part of the look. r001 said "the water doesn't look
+  amazing"; r002's new water is "much better" (sunset over the lake 5/5).
+  - **Colour by biome** (r002: neither fixed colour; rated 5): teal and murky in swamps and
+    marshes, deep blue for most oceans, transparent and glassy for most rivers and lakes,
+    Maldives turquoise for coasts and coral reefs. The pregenerated map makes this work.
+  - **At sunset: lively** (r002: C, 3/5). The light source should look more cinematic, with
+    a glitter that interacts with the surface texture, "but only if we can get it right".
+  - **At noon: calm** (r002: B, 4/5): the distant surface texture must not dominate. Loved
+    the "bubble" flecks on the near water and wants more effects like that. Room to improve.
 - **Fog: per biome.** Crisp mountains and plains, natural haze elsewhere, moody thick
   fog in some biomes, and a heavy, vision-limiting tundra storm.
-  - **Baseline: between r001's haze and crisp** (r001: current, rated 3). The biome
+  - **Baseline: haze 0.35** (r002: C, 5/5, "definitely the best ... not too crisp, and not
+    too murky"; r001 asked for between r001's haze and crisp).
+  - **Crisp is not enough on its own** (r002 Extreme Hills, 4/5: "crisp enough, but this
+    scene still looks very bland"): give such views depth (aerial perspective), light and
+    a sky with something in it.
+  - (r001:) The biome
     looks are dialled in from real views inside each biome, round by round; until then
     biome fog is on only where clearly justified (crisp mountains, the snow storm) and
     subtle elsewhere.
@@ -128,6 +155,11 @@ Where these contradict a rule above, these win.
 - **Questions: more per round** (r001 overall: "happy to field more questions with each
   iteration"). Ask wherever taste decides: water colour and surface, torch warmth, sky
   gold, night-sky beauty, and each biome's fog.
+- **Torches: tungsten to candle, a little warmer** (r002: B, 4/5). Inexpensive
+  environmental and ambient effects are welcome (heat shimmer, dust motes, flicker), within
+  the budget.
+- **Ambient particles: yes, more** (r002 water and torch notes): cheap environmental effects
+  such as the water's bubble flecks, dust in sunbeams and around torches.
 - **Wants (later milestones):** unobtrusive cave dust; cheap block-break effects that
   survive mass breaking (Mobzilla); rain as misted air, not only particles; lava and
   fire light that moves naturally, not a looped flicker; realistic water and light.
