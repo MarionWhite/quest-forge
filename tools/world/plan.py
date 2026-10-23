@@ -216,7 +216,17 @@ def render(spec_path, plan_dir):
         land &= ~warped_mask(lakes, gx + 0.3 * (wx - gx), gz + 0.3 * (wz - gz))
     iwx, iwz = gx + 0.3 * (wx - gx), gz + 0.3 * (wz - gz)
     isl = [region_polygon(i) if isinstance(i, dict) else i for i in spec.get("islands", []) if not (isinstance(i, dict) and "ring" in i)]
-    if isl:
+    if isl and "landmasses" in spec:
+        # Fractal maps get fractal islands: a circle's edge pushed in and out by noise scaled
+        # to its size, so islands get coves and capes instead of looking stamped on.
+        for i in spec.get("islands", []):
+            if isinstance(i, dict) and "circle" in i:
+                cx_, cz_, cr_ = i["circle"]
+                d = np.hypot(gx - cx_, gz - cz_) - cr_
+                land |= d + 0.55 * cr_ * fbm(gx, gz, max(cr_ * 1.2, 96), 5, seed + int(cx_ + cz_) % 997, gain=0.6) * 2.2 < 0
+            elif not (isinstance(i, dict) and "ring" in i):
+                land |= warped_mask([i if not isinstance(i, dict) else region_polygon(i)], iwx, iwz)
+    elif isl:
         land |= warped_mask(isl, iwx, iwz)
     for i in spec.get("islands", []):   # {ring: [x, z, r_out, r_in]}: an atoll around a lagoon
         if isinstance(i, dict) and "ring" in i:
@@ -260,8 +270,9 @@ def render(spec_path, plan_dir):
         else:
             ri = Image.new("L", (n, n), 0)
             ImageDraw.Draw(ri).polygon(_poly(n, r["polygon"], size), fill=255)
+            ex, ez = (gx, gz) if r.get("exact") else (rx, rz)   # exact: no border wobble (islands)
             m = ndimage.map_coordinates((np.asarray(ri) > 0).astype(np.float32),
-                                        [(rz + half) / PX - 0.5, (rx + half) / PX - 0.5], order=1, mode="constant") > 0.5
+                                        [(ez + half) / PX - 0.5, (ex + half) / PX - 0.5], order=1, mode="constant") > 0.5
         if r.get("sea"):          # a sea biome (reef, kelp): painted over water only, after the floor;
             sea_regions.append((m, r["biome"], r.get("shallow", False)))   # shallow: the shelf only
             continue
