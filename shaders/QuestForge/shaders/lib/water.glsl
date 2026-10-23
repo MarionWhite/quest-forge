@@ -22,17 +22,96 @@ const vec3 WATER_ABSORB = vec3(0.075, 0.042, 0.038);
 const vec3 WATER_SCATTER = vec3(0.0015, 0.005, 0.006);
 #endif
 
+// Water by biome (owner r002: "different color gradients for different biomes"). The map is
+// pregenerated, so the biome decides the water: lakes and rivers clear and glassy, oceans deep
+// blue, coasts and coral reefs a Maldives turquoise over pale sand, swamps and marshes a murky
+// teal. The weights are the camera's biome, faded over a few seconds (shaders.properties), so
+// crossing a coast is a blend, not a cut. QF_WATER_FORCE pins one look for the Shader Lab.
+#if QF_BIOME_WATER == 1 && QF_CAL_WATER == 0
+uniform float qfWaterOcean;
+uniform float qfWaterReef;
+uniform float qfWaterSwamp;
+// Absorption (what the water takes out per block) and scattering (what it sends back).
+// Glassy: little scattering, so the bed shows through and deep water goes dark, not milky.
+const vec3 WA_GLASSY = vec3(0.065, 0.032, 0.028), WS_GLASSY = vec3(0.0012, 0.0042, 0.0052);   // r003 critic: 0.0026 g read dark slate
+// Ocean: red and green go within a few blocks; blue scattering is the colour.
+const vec3 WA_OCEAN = vec3(0.16, 0.060, 0.030),   WS_OCEAN = vec3(0.0006, 0.0034, 0.0105);
+// Reef and coast: red absorbed, green and blue scattered over the sand: turquoise shallows.
+const vec3 WA_REEF = vec3(0.20, 0.022, 0.026),    WS_REEF = vec3(0.0010, 0.0125, 0.0125);
+// Swamp: tannin and algae absorb blue as well as red, and the silt scatters: murky teal-olive,
+// the bed gone within two or three blocks (r003 critic: the first try was the clearest water).
+const vec3 WA_SWAMP = vec3(0.85, 0.48, 0.62),     WS_SWAMP = vec3(0.012, 0.042, 0.030);
+vec4 waterBiomeWeights() {   // ocean, reef, swamp, glassy
+#if QF_WATER_FORCE == 1
+    return vec4(0.0, 0.0, 0.0, 1.0);
+#elif QF_WATER_FORCE == 2
+    return vec4(1.0, 0.0, 0.0, 0.0);
+#elif QF_WATER_FORCE == 3
+    return vec4(0.0, 1.0, 0.0, 0.0);
+#elif QF_WATER_FORCE == 4
+    return vec4(0.0, 0.0, 1.0, 0.0);
+#else
+    vec3 w = clamp(vec3(qfWaterOcean, qfWaterReef, qfWaterSwamp), 0.0, 1.0);
+    float sum = w.x + w.y + w.z;
+    if (sum > 1.0) { w /= sum; sum = 1.0; }
+    return vec4(w, 1.0 - sum);
+#endif
+}
+vec3 waterAbsorb() {
+    vec4 w = waterBiomeWeights();
+    return WA_OCEAN * w.x + WA_REEF * w.y + WA_SWAMP * w.z + WA_GLASSY * w.w;
+}
+vec3 waterScatter() {
+    vec4 w = waterBiomeWeights();
+    return WS_OCEAN * w.x + WS_REEF * w.y + WS_SWAMP * w.z + WS_GLASSY * w.w;
+}
+// Glassy water is calmer: fewer wind ripples, so it mirrors more cleanly.
+float waterBiomeRipple() {
+    vec4 w = waterBiomeWeights();
+    return w.x * 1.15 + w.y * 1.0 + w.z * 0.55 + w.w * 0.75;
+}
+#else
+vec3 waterAbsorb() { return WATER_ABSORB; }
+vec3 waterScatter() { return WATER_SCATTER; }
+float waterBiomeRipple() { return 1.0; }
+#endif
+
 // Surface style (Shader Lab r002; owner r001: the sunset water "doesn't look amazing").
 // 0 is r001: five long swells only. 1 (calm) adds short wind ripples that fade out with
 // distance (they would alias there), and composite.glsl adds screen-space reflections and a
 // sun glitter path. 2 (lively) has taller swells and stronger ripples.
-#if QF_WATER_STYLE == 2
+// 3 (owner r002: lively at sunset, calm at noon) is calm by day and eases to lively as the sun
+// gets low, where the extra ripples feed the glitter path; at noon lively's ripples aliased into
+// parallel streaks in the distance.
+#if QF_WATER_STYLE == 3
+#define WAVE_AMP (1.0 + 0.7 * goldenHour())
+#define RIPPLE_AMP ((1.0 + 0.6 * goldenHour()) * waterBiomeRipple())
+#elif QF_WATER_STYLE == 2
 const float WAVE_AMP = 1.7, RIPPLE_AMP = 1.6;
 #elif QF_WATER_STYLE == 1
 const float WAVE_AMP = 1.0, RIPPLE_AMP = 1.0;
 #else
 const float WAVE_AMP = 1.0, RIPPLE_AMP = 0.0;
 #endif
+
+// Micro-ripples for the glitter (QF_GLITTER 1-2): two short capillary wavelets, 5-10 cm, that
+// tilt each patch of the surface a little differently. The glint is then a tight highlight on
+// this normal, so the sparkles sit on the surface's own texture and move with it (owner r002:
+// "glittery interaction with the water's surface texture") instead of a hash grid. Faded out
+// with distance, where the broad lobe stands in for them (they would only alias there).
+vec2 microSlope(vec2 p, float t, float fade) {
+    if (fade <= 0.0) return vec2(0.0);
+    // Gradients of two drifting value-noise fields (5 and 11 cm cells), irregular by design:
+    // r003 smoke's plane waves interfered into a regular lattice of dots.
+    const float e = 0.3;
+    vec2 q1 = mat2(0.8, 0.6, -0.6, 0.8) * p * 9.0 + vec2(t * 1.1, t * 0.5);
+    vec2 q2 = mat2(0.6, -0.8, 0.8, 0.6) * p * 19.0 - vec2(t * 0.7, -t * 1.3);
+    vec2 g1 = vec2(valueNoise(q1 + vec2(e, 0.0)) - valueNoise(q1 - vec2(e, 0.0)),
+                   valueNoise(q1 + vec2(0.0, e)) - valueNoise(q1 - vec2(0.0, e))) / (2.0 * e);
+    vec2 g2 = vec2(valueNoise(q2 + vec2(e, 0.0)) - valueNoise(q2 - vec2(e, 0.0)),
+                   valueNoise(q2 + vec2(0.0, e)) - valueNoise(q2 - vec2(0.0, e))) / (2.0 * e);
+    return (g1 * 0.030 + g2 * 0.018) * fade;
+}
 
 // Height field: four long crossing swells plus short ripples. Returns the slope (dh/dx, dh/dz).
 vec2 waterSlope(vec2 p, float t) {

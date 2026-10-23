@@ -51,3 +51,6 @@ biome_ocean      -567.5  64.5   232.5    90     4      6000
 # coast and the water reads turquoise. Both need an explicit y (auto would stand in the water).
 river_noon       514.5   65.5   491.5    344    8      6000
 beach_noon       -638.5  66.5   202.5    293    10     6000
+# lake_glitter: lake_glow with the sun 9 deg up, just clear of the cliff, so the glitter path
+# runs all the way to the camera (at 12400 the cliff shades the near water).
+lake_glitter     285.5   63.4   -287.5   97     3      12150

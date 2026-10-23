@@ -96,7 +96,10 @@ vec4 baseColor() {
     float spread = max(tint.r, max(tint.g, tint.b)) - min(tint.r, min(tint.g, tint.b));
     if (spread > 0.04) {
         float tl = dot(tint, vec3(0.2126, 0.7152, 0.0722));
-        tint = mix(vec3(tl), tint, QF_TINT_SAT) * vec3(QF_TINT_RED, 1.0, 1.0);
+        // Only yellow-greens get the red pull: the blue-green Extreme Hills grass turned mint
+        // under it (r002 biome-hills).
+        float yellow = smoothstep(0.02, 0.2, tint.r - tint.b);
+        tint = mix(vec3(tl), tint, QF_TINT_SAT) * vec3(mix(1.0, QF_TINT_RED, yellow), 1.0, 1.0);
     }
 #endif
     c.rgb *= tint;

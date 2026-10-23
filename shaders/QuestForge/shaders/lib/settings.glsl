@@ -26,13 +26,22 @@
 #define QF_AIRGLOW 0.004 // [0.0 0.002 0.004 0.006 0.012]   development (a4): night-sky airglow, in MOON_I units
 #define QF_MOON_GAIN 7.0 // [3.0 4.0 5.5 7.0 10.0 14.0 60.0]   development (a2): moon disk brightness
 #define QF_CAL_GOLD 2 // [0 1 2]     golden hour: 1 amber light on lit faces, 2 that plus gold sky near the sun (owner r001: B)
-#define QF_GOLD_SKY 1.0 // [0.6 1.0 1.5 2.0]   development (r002): strength of the gold sky near the sun
-#define QF_HAZE 0.6 // [0.2 0.4 0.6 0.8 1.0]   development (r002): distance-haze density (owner r001: between current 1.0 and crisp 0.2)
+#define QF_GOLD_SKY 1.5 // [0.6 1.0 1.5 2.0 2.5]   development (r002): strength of the gold sky near the sun (owner r002: 1.5, "maybe more gold")
+#define QF_HAZE 0.35 // [0.2 0.35 0.4 0.6 0.8 1.0]   development (r002): distance-haze density (owner r002: 0.35, "definitely the best")
 #define QF_HORIZON_FLOOR 1 // [0 1]   development (r002): the sky below the horizon fades to a darker, cooler far-land tone (no beige wall)
-#define QF_TORCH_WARM 2 // [0 1 2 3]   development (r002): block-light colour. 0 r001 (~4000 K), 1 tungsten, 2 tungsten to candle with distance, 3 candle
-#define QF_WATER_STYLE 1 // [0 1 2]   development (r002): 0 r001 (sky-only Fresnel), 1 calm (reflections, glitter, ripples), 2 lively
-#define QF_WATER_COLOR 0 // [0 1 2]   development (r002): 0 clear depth gradient, 1 teal-green, 2 deep blue
-#define QF_NIGHT_SKY 1 // [0 1 2]   development (r002): 0 r001 stars, 1 denser stars and a faint Milky Way, 2 rich
+#define QF_TORCH_WARM 4 // [0 1 2 3 4]   development (r002): block-light colour. 0 r001 (~4000 K), 1 tungsten, 2 tungsten to candle with distance (r002 pick), 3 candle, 4 a little warmer than 2 (owner r002)
+#define QF_WATER_STYLE 3 // [0 1 2 3]   development (r002): 0 r001 (sky-only Fresnel), 1 calm (reflections, glitter, ripples), 2 lively, 3 calm by day and lively at low sun (owner r002: C at sunset, B at noon)
+#define QF_WATER_COLOR 0 // [0 1 2]   development (r002): 0 clear depth gradient, 1 teal-green, 2 deep blue (fallback when QF_BIOME_WATER is 0)
+#define QF_BIOME_WATER 1 // [0 1]   water colour by biome (owner r002): glassy lakes and rivers, deep-blue ocean, turquoise coast and reef, murky teal swamp
+#define QF_WATER_FORCE 0 // [0 1 2 3 4]   development (r003): force one biome water (1 glassy, 2 ocean, 3 reef, 4 swamp) for the Shader Lab
+#define QF_GLITTER 1 // [0 1 2]   development (r003): sunset water. 0 r002 lively (hash sparkles), 1 sparkles from the surface's own micro-ripples, 2 that plus a cinematic sun (aureole, a brighter, wider path)
+#define QF_FLECKS 1 // [0 1]   development (r003): bright bubble and foam flecks on near water (owner r002 liked the "bubbles")
+#define QF_AMBER 1 // [0 1 2]   development (r003): golden-hour amber on lit faces and through leaves. 0 r002, 1 amber with sunlit leaves glowing, 2 strong
+#define QF_NEW_MOON 0.5 // [0.1 0.25 0.35 0.5 0.65]   development (r003): moon and sky light left at new moon (r002 0.1 crushed the sky to brown-black; owner r002: keep the full-moon feel, a bit darker)
+#define QF_MOTES 1 // [0 1 2]   development (r003): ambient particles: dust and pollen in sunbeams, torch-lit dust underground, bubbles under water. 2 denser
+#define QF_FLICKER 1 // [0 1]   development (r003): torchlight breathes slightly, varying from place to place
+#define QF_AERIAL 1 // [0 1]   development (r003): aerial perspective, distant land turns blue and pale (owner r002: Extreme Hills bland)
+#define QF_CLOUDS 0 // [0 1]   development (r003): a cheap cloud layer with its shadows on the land
 
 // 0 Potato, 1 Low, 2 Medium, 3 High, 4 Ultra.
 #if QF_PRESET == 0

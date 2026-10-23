@@ -42,8 +42,11 @@ float nightFloor() {
 }
 
 float moonIntensity() {
-    // A new moon still leaves starlight and airglow: a tenth of the full moon.
-    return MOON_I * mix(0.1, 1.0, moonBrightness());
+    // The moon's light, and the moonlit sky, across the phases. r002 left a tenth at new moon:
+    // the sky fell to airglow alone and read brown-black, and the owner picked the full-moon
+    // frame instead ("we regressed"). QF_NEW_MOON keeps more, so a new moon is the full-moon
+    // night a little darker: the same navy sky and readable land, the phase still plain.
+    return MOON_I * mix(QF_NEW_MOON, 1.0, moonBrightness());
 }
 
 float valueNoise(vec2 p) {
@@ -90,16 +93,10 @@ vec3 sunDisk(vec3 dir, vec3 sunDir) {
     return vec3(SUN_I * 150.0 * limb * smoothstep(1.0, 0.85, x));
 }
 
-// Night sky (look bible 8; owner r000: "strikingly beautiful"). QF_NIGHT_SKY 0 is r001's sparse
-// stars; 1 and 2 add fainter stars (a magnitude spread, most of them dim) and the Milky Way: a
-// soft band along a fixed great circle, mottled by dust lanes. Sky pixels only, at night only.
-#if QF_NIGHT_SKY == 0
+// Night sky (look bible 8; owner r000: "strikingly beautiful"). r001's sparse stars, which the
+// owner kept in r002 (5/5); the r002 Milky Way was rejected ("the execution is not good") and
+// is gone. A new sky effect comes back only when it is genuinely beautiful.
 const float STAR_CUT = 0.9975;
-#elif QF_NIGHT_SKY == 1
-const float STAR_CUT = 0.9950;
-#else
-const float STAR_CUT = 0.9925;
-#endif
 vec3 stars(vec3 dir) {
     vec3 p = dir * 420.0;
     vec3 cell = floor(p);
@@ -108,38 +105,10 @@ vec3 stars(vec3 dir) {
     vec3 centre = cell + 0.5 + (vec3(hash13(cell + 1.7), hash13(cell + 3.1), hash13(cell + 5.3)) - 0.5) * 0.6;
     float d = length(p - centre);
     float b = (h - STAR_CUT) / (1.0 - STAR_CUT);
-#if QF_NIGHT_SKY > 0
-    b = b * b * b;   // many faint stars, few bright ones
-#endif
     float twinkle = 0.75 + 0.25 * sin(animTime() * (2.0 + 3.0 * b) + h * 100.0);
     vec3 tint = mix(vec3(0.8, 0.88, 1.0), vec3(1.0, 0.9, 0.75), hash13(cell + 9.1));
     return tint * SUN_I * 0.02 * (0.3 + b) * twinkle * smoothstep(0.6, 0.0, d);
 }
-
-#if QF_NIGHT_SKY > 0
-const vec3 MILKY_POLE = vec3(0.83, -0.53, -0.19);   // normal of the band's great circle: it crosses the night_sky view on a diagonal (c-round critic: a dead-straight vertical band)
-// In MOON_I units, like the airglow (QF_AIRGLOW 0.004): the band's core is 5-10x the airglow (b1: 2-4x was invisible).
-#if QF_NIGHT_SKY == 1
-const float MILKY_I = 0.035;   // c-round: 0.020 read as "a faint grey stripe"
-#else
-const float MILKY_I = 0.060;
-#endif
-vec3 milkyWay(vec3 dir) {
-    vec3 pole = normalize(MILKY_POLE);
-    float lat = dot(dir, pole);
-    float band = exp(-lat * lat * 38.0);
-    if (band < 0.01) return vec3(0.0);
-    vec3 q = dir * 9.0;
-    float n = valueNoise(q.xy + q.z * 1.7) * 0.6 + valueNoise(q.yz * 2.3 + 4.1) * 0.4;
-    float dust = smoothstep(0.35, 0.75, valueNoise(q.xz * 3.1 + 7.7));
-    float core = band * (0.45 + 0.9 * n) * mix(1.0, 0.35, dust * smoothstep(0.2, 0.0, abs(lat)));
-    // Fine unresolved stars inside the band.
-    float grain = step(0.985, hash13(floor(dir * 900.0))) * band;
-    // A faint warm core and bluer edges, as in long exposures (c-round critic: grey band).
-    vec3 tint = mix(vec3(0.70, 0.82, 1.0), vec3(1.0, 0.90, 0.78), smoothstep(0.35, 0.0, abs(lat)) * n);
-    return MOON_I * MILKY_I * tint * core + SUN_I * 0.0015 * grain * vec3(0.9, 0.93, 1.0);
-}
-#endif
 
 // How far into golden hour the sun is: 1 with the sun a few degrees up, 0 by mid-afternoon
 // and once it has set. Used by the QF_CAL_GOLD variants (Shader Lab r001).
@@ -147,6 +116,20 @@ float goldenHour() {
     float y = sunDirWorld().y;
     return smoothstep(0.32, 0.08, y) * smoothstep(-0.04, 0.03, y);
 }
+
+#if QF_GLITTER == 2
+// A cinematic low sun (owner r002: "the light source doesn't look as cinematic as I would
+// hope"): the eye and lens see a low sun as a large warm glow, not a small white dot. A soft
+// aureole around the disk, strongest a few degrees above the horizon and gone by mid-afternoon.
+// Coloured by the transmittance it is multiplied with, so it is orange near the horizon.
+vec3 sunAureole(vec3 dir, vec3 sunDir) {
+    float gh = goldenHour();
+    if (gh <= 0.0) return vec3(0.0);
+    float c = max(dot(dir, sunDir), 0.0);
+    float glow = pow(c, 900.0) * 0.9 + pow(c, 120.0) * 0.18 + pow(c, 24.0) * 0.035;
+    return vec3(1.0, 0.82, 0.62) * SUN_I * glow * gh;
+}
+#endif
 
 // Scattered light only: what the sky adds in front of anything (fog, reflections).
 vec3 skyScatter(vec3 dir) {
@@ -186,6 +169,67 @@ vec3 skyScatter(vec3 dir) {
     return mix(L, vec3(g) * 0.55, rainStrength * 0.75);
 }
 
+#if QF_CLOUDS == 1
+// A cheap cloud layer (owner r002: the Extreme Hills view "looks very bland"; sky interest).
+// One thin deck of fair-weather cumulus at a fixed world height, so it parallaxes as you move,
+// drifting with the wind; fuller and greyer in rain. Lit by the sun (a forward lobe, so the
+// edges glow towards a low sun) and the sky, self-shadowed by one look towards the light.
+// Its shadows drift over the land (lib/lighting.glsl). Volumetric clouds are a later milestone.
+const float CLOUD_Y = 260.0, CLOUD_SCALE = 1.0 / 340.0;
+vec2 cloudWind() { return vec2(animTime() * 2.2, animTime() * 0.9); }
+float cloudCoverage() { return mix(0.47, 0.30, rainStrength); }
+float cloudFbm(vec2 p, int octaves) {
+    float v = 0.0, a = 0.5;
+    for (int i = 0; i < octaves; i++) {
+        v += a * valueNoise(p);
+        p = mat2(1.6, 1.2, -1.2, 1.6) * p + 7.3;
+        a *= 0.5;
+    }
+    return v;
+}
+float cloudDensity(vec2 worldXZ, int octaves) {
+    vec2 p = (worldXZ + cloudWind()) * CLOUD_SCALE;
+    // Clumps from two broad octaves, edges eaten by finer ones, so a cloud has a body and
+    // ragged edges instead of a smooth smudge (r003 smoke).
+    float base = cloudFbm(p * 0.55, 2);
+    float n = base;
+    if (octaves > 2) n = base * 0.62 + cloudFbm(p * 2.3 + 3.1, octaves - 2) * 0.38;
+    float c = cloudCoverage();
+    return smoothstep(c, c + 0.12, n);
+}
+float cloudShadow(vec3 worldPos, vec3 L) {
+    if (L.y < 0.05 || worldPos.y > CLOUD_Y) return 1.0;
+    vec2 q = worldPos.xz + L.xz * ((CLOUD_Y - worldPos.y) / L.y);
+    return 1.0 - 0.55 * cloudDensity(q, 3) * smoothstep(0.05, 0.2, L.y);
+}
+// Blend the cloud deck over sky radiance L in direction dir (world space).
+vec3 applyClouds(vec3 L, vec3 dir) {
+    float camY = cameraPosition.y;
+    if (dir.y < 0.015 || camY > CLOUD_Y) return L;
+    float t = (CLOUD_Y - camY) / dir.y;
+    vec2 q = cameraPosition.xz + dir.xz * t;
+    float d = cloudDensity(q, 5);
+    if (d <= 0.0) return L;
+    vec3 Ld = normalize(mat3(gbufferModelViewInverse) * shadowLightPosition);
+    // Self-shadow: denser cloud towards the light means a darker base.
+    float toward = cloudDensity(q + Ld.xz / max(Ld.y, 0.08) * 60.0, 3);
+    float mu = dot(dir, Ld);
+    float g = 0.55;
+    float hg = (1.0 - g * g) / (4.0 * PI * pow(1.0 + g * g - 2.0 * g * mu, 1.5));
+    bool day = sunDirWorld().y > -0.02;
+    vec3 E = day ? sunIrradiance() : moonIrradiance();
+    vec3 amb = lutFetch(C_AMB_UP).rgb * 1.3;
+    // A cloud deck is lit even by a sun on the horizon (it is a few hundred metres up), so at
+    // golden hour the clouds take the orange light: no N.L.
+    float sunUp = smoothstep(-0.05, 0.03, Ld.y);
+    vec3 col = (E * sunUp * (0.30 + 2.4 * hg) * mix(1.0, 0.22, toward) + amb) * (0.85 / PI);
+    col = mix(col, vec3(luminance(col)) * 0.6, rainStrength * 0.7);
+    // Thin and faded with distance: far clouds melt into the horizon haze instead of aliasing.
+    float a = d * smoothstep(0.015, 0.14, dir.y) * exp(-t / 9000.0);
+    return mix(L, col, clamp(a, 0.0, 1.0));
+}
+#endif
+
 // The full sky in a direction: scattering plus the sun, moon and stars seen through it.
 vec3 skyRadiance(vec3 dir) {
     vec3 L = skyScatter(dir);
@@ -196,9 +240,12 @@ vec3 skyRadiance(vec3 dir) {
         L += T * (sunDisk(dir, sunDir) + moonDisk(dir, moonDirWorld()));
         float night = 1.0 - smoothstep(-0.12, 0.04, sunDir.y);
         L += T * stars(dir) * night;
-#if QF_NIGHT_SKY > 0
-        L += T * milkyWay(dir) * night * smoothstep(0.0, 0.25, dir.y) * (1.0 - 0.8 * moonBrightness());
+#if QF_GLITTER == 2
+        L += T * sunAureole(dir, sunDir);
 #endif
     }
+#if QF_CLOUDS == 1
+    L = applyClouds(L, dir);
+#endif
     return L;
 }
