@@ -1,0 +1,78 @@
+{
+ "round": 2,
+ "id": "r002",
+ "note": "Built by tools/shaders/review/fetch_feedback.py from GitHub issues; the latest response is last.",
+ "responses": [
+  {
+   "issue": 3,
+   "url": "https://github.com/MarionWhite/quest-forge/issues/3",
+   "user": "Etnadozaus",
+   "state": "open",
+   "created_at": "2026-10-23T20:44:36Z",
+   "updated_at": "2026-10-23T20:44:36Z",
+   "from": "body",
+   "answers": {
+    "round": 2,
+    "scenes": {
+     "golden": {
+      "choice": "A",
+      "rating": 5,
+      "note": "The new one looks a lot cleaner, but I think we should keep pushing in this direction if we can."
+     },
+     "sunset": {
+      "choice": "A",
+      "rating": 5,
+      "note": "The new water is much better, and the lighting effect interact with the scene much cleaner."
+     },
+     "water-sunset": {
+      "choice": "C",
+      "rating": 3,
+      "note": "I think of the 3, lively looks the best here, but the reference image is terrible, and the light source doesn’t look as cinematic as I would hope. I would like a bit of glittery interaction with the water’s surface texture, but only if we can get it right."
+     },
+     "water-noon": {
+      "choice": "B",
+      "rating": 4,
+      "note": "I like that the distant surface texture does not dominate what captures your attention. I also really like the “bubble” particle effect that we can see in the nearby water. That’s a really cool effect, and I want to see more things like that. We definitely still have room to improve here with all of that being said."
+     },
+     "water-colour": {
+      "choice": "neither",
+      "rating": 5,
+      "note": "I think we should have different color gradients for different biomes. I would expect something more teal and murky for a swamp or marsh, something deep blue for most oceans, a more transparent, glassy look for most rivers and lakes, and something like the Maldives color for coastal regions and coral reefs. We are going to pregenerate a map, so this concept will work well."
+     },
+     "torch": {
+      "choice": "B",
+      "rating": 4,
+      "note": "Maybe a little warmer, and I welcome inexpensive environmental or ambient effects."
+     },
+     "night-new": {
+      "choice": "D",
+      "rating": 4,
+      "note": "I think we regressed with the new proposed changes."
+     },
+     "night-sky": {
+      "choice": "A",
+      "rating": 5,
+      "note": "The Milky Way effect that you have come up with is not good. I am definitely open to effects with the sky, but the execution on these is shit."
+     },
+     "haze": {
+      "choice": "C",
+      "rating": 5,
+      "note": "This one is definitely the best. It’s not too crisp, and not too murky."
+     },
+     "gold-sky": {
+      "choice": "B",
+      "rating": 5,
+      "note": "Maybe more gold, and definitely try some amber effects on the leaves and other things."
+     },
+     "biome-hills": {
+      "choice": "neither",
+      "rating": 4,
+      "note": "It’s crisp enough, but this scene still looks very bland."
+     }
+    },
+    "overall": "I am definitely seeing progress! This seems to be a good workflow, and I have very high expectations for this.",
+    "preamble": "I tried giving responses on my phone, but it still wants me to sign into GitHub with my MarionWhite account every time I submit this, and it is a huge pain in the ass. Below are the copied answers from my phone."
+   }
+  }
+ ]
+}

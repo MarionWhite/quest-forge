@@ -15,6 +15,12 @@ only when its content changes, so re-running never duplicates an answer. If an
 issue's body has no json block (a long answer pasted into a comment instead),
 its comments are searched too. The unauthenticated API allows 60 requests an
 hour, which is plenty.
+
+Pasted answers are found too: a json block on one line (a phone paste folds the
+newlines into spaces), a block inside a json string such as `overall` (feedback
+copied into the overall box and sent again), or a bare {"round": .., "scenes": ..}
+object anywhere in the body. The candidate with the most answered scenes wins;
+on a tie, the last one.
 """
 import argparse
 import json
@@ -30,7 +36,6 @@ API = "https://api.github.com/repos/MarionWhite/quest-forge/issues?state=all&per
 UA = {"User-Agent": "quest-forge-shader-lab", "Accept": "application/vnd.github+json"}
 TITLE = re.compile(r"^\s*Shader Lab feedback\b", re.I)
 TITLE_N = re.compile(r"round\s+(\d+)", re.I)
-BLOCK = re.compile(r"```json\s*\n(.*?)\n\s*```", re.S)
 
 
 def get(url):
@@ -51,16 +56,52 @@ def issues():
         yield from batch
 
 
-def parse(text):
-    """The last json block in `text` that looks like Lab answers, or None."""
-    for m in reversed(BLOCK.findall(text or "")):
+MARK = re.compile(r"```json|\{\s*\"round\"")
+DEC = json.JSONDecoder()
+
+
+def _candidates(text, depth=0):
+    """Every Lab-answers dict in `text`, outermost first, including ones nested in strings."""
+    if not text or depth > 4:
+        return
+    seen = set()
+    for m in MARK.finditer(text):
+        start = text.find("{", m.start())
+        if start < 0 or start in seen:
+            continue
+        seen.add(start)
         try:
-            d = json.loads(m)
+            d, _ = DEC.raw_decode(text, start)
         except json.JSONDecodeError:
             continue
-        if isinstance(d, dict) and isinstance(d.get("scenes"), dict):
-            return d
-    return None
+        if not (isinstance(d, dict) and isinstance(d.get("scenes"), dict)):
+            continue
+        yield d
+        for v in d.values():
+            if isinstance(v, str) and "{" in v:
+                yield from _candidates(v, depth + 1)
+
+
+def parse(text):
+    """The Lab answers in `text` with the most answered scenes (the last on a tie), or None."""
+    found = list(_candidates(text))
+    best = None
+    for d in found:
+        if best is None or len(d["scenes"]) >= len(best["scenes"]):
+            best = d
+    # Answers pasted into another submission's `overall`: keep what the owner wrote before
+    # the paste (the wrapper has fewer answered scenes and a block inside its overall).
+    for w in found:
+        outer = w.get("overall")
+        if best is None or w is best or len(w["scenes"]) >= len(best["scenes"]) or not isinstance(outer, str):
+            continue
+        m = MARK.search(outer)
+        if m:
+            pre = outer[:m.start()].split("Shader Lab feedback for round")[0].strip()
+            if pre:
+                best = dict(best, preamble=pre)
+                break
+    return best
 
 
 def main():
