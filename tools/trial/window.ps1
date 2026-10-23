@@ -7,7 +7,8 @@ Window helper for tools/trial/trial.py (background client launches).
       screen, WS_EX_TOOLWINDOW|WS_EX_NOACTIVATE added and WS_EX_APPWINDOW removed
       (no taskbar button, no Alt-Tab entry, never takes focus), and its taskbar tab
       deleted. Never calls SetForegroundWindow and never shows with an activating
-      flag. Polls every 100 ms for the first FastSeconds (the splash, then the main
+      flag (all calls async: the splash leaves the window unpumped). Until the move
+      lands it is veiled (layered, alpha 0, click-through). Polls every 10 ms for the first FastSeconds (the splash, then the main
       window), then every second for the life of the process, because LWJGL may
       recreate or reposition the window (F11, a display-mode change).
   window.ps1 -Mode inspect -ProcessId N     JSON: that process's windows (read only)
@@ -70,6 +71,12 @@ namespace QF {
     public const uint SWP_NOSIZE = 0x1, SWP_NOZORDER = 0x4, SWP_NOACTIVATE = 0x10, SWP_FRAMECHANGED = 0x20,
                       SWP_NOOWNERZORDER = 0x200;
     public const int SW_SHOWNOACTIVATE = 4;
+    public const long WS_EX_LAYERED = 0x80000, WS_EX_TRANSPARENT = 0x20;
+    public const uint SWP_ASYNCWINDOWPOS = 0x4000, LWA_ALPHA = 0x2;
+    [DllImport("user32.dll")] public static extern bool ShowWindowAsync(IntPtr h, int c);
+    [DllImport("user32.dll")] public static extern bool SetLayeredWindowAttributes(IntPtr h, uint key, byte alpha, uint flags);
+    static HashSet<long> veiled = new HashSet<long>();
+    static Dictionary<long, DateTime> asked = new Dictionary<long, DateTime>();
 
     public static List<IntPtr> WindowsOf(uint pid) {
       var list = new List<IntPtr>();
@@ -101,17 +108,37 @@ namespace QF {
       RECT r0; GetWindowRect(h, out r0);
       if (!IsIconic(h) && (r0.R - r0.L <= 0 || r0.B - r0.T <= 0)) return null;
       var did = new List<string>();
-      if (IsIconic(h)) { ShowWindow(h, SW_SHOWNOACTIVATE); did.Add("restored"); }
-      long ex = GetLong(h, GWL_EXSTYLE).ToInt64();
-      long want = (ex | WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE) & ~WS_EX_APPWINDOW;
-      uint frame = 0;
-      if (want != ex) { SetLong(h, GWL_EXSTYLE, new IntPtr(want)); frame = SWP_FRAMECHANGED; did.Add("exstyle"); DeleteTab(h); }
+      // Async: the client's main thread pumps no messages while Forge loads mods behind
+      // the splash, so a synchronous ShowWindow/SetWindowPos blocks until it does -- 9.6 s
+      // on screen in the 2026-10-23 test. Window styles and layered alpha apply at once.
+      if (IsIconic(h)) { ShowWindowAsync(h, SW_SHOWNOACTIVATE); did.Add("restored"); }
       RECT r; GetWindowRect(h, out r);
       int w = r.R - r.L, vx = GetSystemMetrics(76), vy = GetSystemMetrics(77);
       int x = vx - w - 100;
-      if (r.L != x || frame != 0) {
-        SetWindowPos(h, IntPtr.Zero, x, vy, 0, 0, SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_NOOWNERZORDER | frame);
-        if (r.L != x) did.Add("moved from " + r.L + "," + r.T);
+      bool off = r.R <= vx;
+      long ex = GetLong(h, GWL_EXSTYLE).ToInt64();
+      long want = (ex | WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE) & ~WS_EX_APPWINDOW;
+      // Until the move lands, the window is veiled: layered at alpha 0 and click-through,
+      // so it is invisible where it is. Unveiled once it is off-screen, so the game renders
+      // through the normal (non-layered) path.
+      bool veil = !off && !veiled.Contains(h.ToInt64());
+      if (veil) want |= WS_EX_LAYERED | WS_EX_TRANSPARENT;
+      bool unveil = off && veiled.Contains(h.ToInt64());
+      if (unveil) want &= ~(WS_EX_LAYERED | WS_EX_TRANSPARENT);
+      uint frame = 0;
+      if (want != ex) {
+        SetLong(h, GWL_EXSTYLE, new IntPtr(want)); frame = SWP_FRAMECHANGED; did.Add("exstyle");
+        if ((ex & WS_EX_APPWINDOW) != 0 || (ex & WS_EX_TOOLWINDOW) == 0) DeleteTab(h);
+      }
+      if (veil) { SetLayeredWindowAttributes(h, 0, 0, LWA_ALPHA); veiled.Add(h.ToInt64()); did.Add("veiled"); }
+      if (unveil) { veiled.Remove(h.ToInt64()); did.Add("unveiled"); }
+      DateTime last;
+      bool due = veil || frame != 0 || !asked.TryGetValue(h.ToInt64(), out last) || (DateTime.Now - last).TotalSeconds > 1;
+      if ((!off && due) || frame != 0) {
+        asked[h.ToInt64()] = DateTime.Now;
+        SetWindowPos(h, IntPtr.Zero, off ? r.L : x, off ? r.T : vy, 0, 0,
+                     SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_ASYNCWINDOWPOS | frame);
+        if (!off) did.Add("move requested from " + r.L + "," + r.T);
       }
       return did.Count == 0 ? null : string.Join(" ", did.ToArray());
     }
@@ -159,7 +186,7 @@ switch ($Mode) {
                 $did = [QF.Win]::Banish($h)
                 if ($did) { Write-Log ("hwnd {0} {1} '{2}': {3}" -f $h, [QF.Win]::Class($h), [QF.Win]::Title($h), $did) }
             }
-            if (((Get-Date) - $t0).TotalSeconds -lt $FastSeconds) { Start-Sleep -Milliseconds 100 }
+            if (((Get-Date) - $t0).TotalSeconds -lt $FastSeconds) { Start-Sleep -Milliseconds 10 }
             else { Start-Sleep -Seconds 1 }
         }
         Write-Log "hide: pid $ProcessId exited"
