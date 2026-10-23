@@ -72,7 +72,7 @@ namespace QF {
                       SWP_NOOWNERZORDER = 0x200;
     public const int SW_SHOWNOACTIVATE = 4;
     public const long WS_EX_LAYERED = 0x80000, WS_EX_TRANSPARENT = 0x20;
-    public const uint SWP_ASYNCWINDOWPOS = 0x4000, LWA_ALPHA = 0x2;
+    public const uint SWP_ASYNCWINDOWPOS = 0x4000, SWP_SHOWWINDOW = 0x40, LWA_ALPHA = 0x2;
     [DllImport("user32.dll")] public static extern bool ShowWindowAsync(IntPtr h, int c);
     [DllImport("user32.dll")] public static extern bool SetLayeredWindowAttributes(IntPtr h, uint key, byte alpha, uint flags);
     static HashSet<long> veiled = new HashSet<long>();
@@ -101,9 +101,13 @@ namespace QF {
 
     // Keep one window off-screen, unfocusable and out of the taskbar. Returns what it changed.
     public static string Banish(IntPtr h) {
-      // Hidden helper windows (wgl dummies, D3DFocusWindow, AWT, IME) and the zero-size
-      // ConPTY PseudoConsoleWindow: leave alone.
-      if (!IsWindowVisible(h) && !IsIconic(h)) return null;
+      // The game window is class LWJGL. trial.py starts the JVM hidden (STARTUPINFO SW_HIDE),
+      // so LWJGL's first ShowWindow leaves it hidden; it is shown here, off-screen, with no
+      // activation. Other hidden windows (wgl dummies, D3DFocusWindow, AWT, IME) and the
+      // zero-size ConPTY PseudoConsoleWindow: leave alone.
+      bool game = Class(h) == "LWJGL";
+      bool hidden = !IsWindowVisible(h) && !IsIconic(h);
+      if (hidden && !game) return null;
       if (Class(h) == "PseudoConsoleWindow") return null;
       RECT r0; GetWindowRect(h, out r0);
       if (!IsIconic(h) && (r0.R - r0.L <= 0 || r0.B - r0.T <= 0)) return null;
@@ -134,11 +138,15 @@ namespace QF {
       if (unveil) { veiled.Remove(h.ToInt64()); did.Add("unveiled"); }
       DateTime last;
       bool due = veil || frame != 0 || !asked.TryGetValue(h.ToInt64(), out last) || (DateTime.Now - last).TotalSeconds > 1;
-      if ((!off && due) || frame != 0) {
+      if (((!off || hidden) && due) || frame != 0) {
         asked[h.ToInt64()] = DateTime.Now;
+        // For a hidden window, SWP_SHOWWINDOW makes the move and the show one queued
+        // message, so it can only become visible already off-screen.
         SetWindowPos(h, IntPtr.Zero, off ? r.L : x, off ? r.T : vy, 0, 0,
-                     SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_ASYNCWINDOWPOS | frame);
+                     SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_ASYNCWINDOWPOS | frame
+                     | (hidden ? SWP_SHOWWINDOW : 0));
         if (!off) did.Add("move requested from " + r.L + "," + r.T);
+        if (hidden) { ShowWindowAsync(h, SW_SHOWNOACTIVATE); did.Add("show (no activate) requested"); }
       }
       return did.Count == 0 ? null : string.Join(" ", did.ToArray());
     }

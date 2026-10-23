@@ -874,7 +874,7 @@ def cmd_userbusy(a):
     sys.exit(1 if r.get("busy") else 0)
 
 
-def start_detached(java, args, d, stdin=None):
+def start_detached(java, args, d, stdin=None, hidden=False):
     # Started through PowerShell Start-Process so the JVM is not a child of the
     # calling shell: a client launched from a backgrounded Bash task is reaped
     # within seconds at the title screen.
@@ -888,11 +888,14 @@ def start_detached(java, args, d, stdin=None):
         # still redirected to the files below.
         w = os.path.join(os.path.dirname(java), "javaw.exe")
         java = w if os.path.isfile(w) else java
-    # Normal for a client: a minimized LWJGL window stalls (in the background the
-    # window.ps1 hider moves it off-screen instead). Hidden for a server: its console
-    # has nothing to show (logs go to files) and must never appear or take focus.
+    # A background client starts Hidden: STARTUPINFO SW_HIDE makes LWJGL's first ShowWindow
+    # leave the game window hidden, so it is never on screen, not even for the ~0.1 s the
+    # window.ps1 helper takes to react; the helper then shows it off-screen without
+    # activating it. Never Minimized: a minimized LWJGL window stalls. --foreground: Normal.
+    # A server is Hidden too: its console has nothing to show (logs go to files).
+    style = "Hidden" if server or hidden else "Normal"
     script = (f"$p = Start-Process -FilePath {q(java)} -ArgumentList {q(subprocess.list2cmdline(args))} "
-              f"-WorkingDirectory {q(d)} -WindowStyle {'Hidden' if server else 'Normal'} "
+              f"-WorkingDirectory {q(d)} -WindowStyle {style} "
               f"-RedirectStandardOutput {q(os.path.join(d, 'stdout.log'))} "
               f"-RedirectStandardError {q(os.path.join(d, 'stderr.log'))} {extra}-PassThru; $p.Id")
     out = ps(script).strip().splitlines()
@@ -945,7 +948,7 @@ def cmd_launch(a):
     background = not a.foreground
     busy = user_busy()
     fg_before = window_ps("foreground") or {}
-    pid = start_detached(java, args, d)
+    pid = start_detached(java, args, d, hidden=background)
     if not pid:
         os.remove(LOCK)
         sys.exit("launch failed: Start-Process returned no pid")
