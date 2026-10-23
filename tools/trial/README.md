@@ -14,6 +14,37 @@ py -3.10 tools/trial/trial.py stop grave                        # kills only thi
 py -3.10 tools/trial/trial.py remove grave
 ```
 
+## Background, silent clients (the default)
+
+A client trial never appears on the owner's screen, takes focus or makes a sound. The owner
+can work or play a game while it renders. This became the default on 2026-10-23, after a
+trial went fullscreen over the owner's game and console windows took focus.
+
+- **Window.** The JVM is `javaw` (no console), started with `-WindowStyle Normal`. A hidden,
+  detached `window.ps1 -Mode hide` watches every top-level window of that pid for the JVM's
+  whole life: every 100 ms for the first 40 s (the splash, then the main window), then every
+  second. It restores the window if it is minimized, because a minimized LWJGL window stalls.
+  It moves the window left of the virtual screen with `SWP_NOACTIVATE|SWP_NOZORDER`, adds
+  `WS_EX_TOOLWINDOW|WS_EX_NOACTIVATE`, removes `WS_EX_APPWINDOW`, and drops the taskbar tab.
+  It never calls `SetForegroundWindow`. The requested `--size` is kept. Its log is
+  `logs\window.log`. `launch --foreground` shows the window on the desktop as before.
+- **No console windows.** Every process `trial.py` and the shader review scripts start uses
+  `CREATE_NO_WINDOW`, or a Hidden PowerShell. Started from an agent's shell, a console program
+  otherwise opens a Windows Terminal window that steals focus. Servers start Hidden.
+- **Silent and windowed.** Each build and launch writes `fullscreen:false`, `key_key.fullscreen:0`
+  (F11 unbound) and `soundCategory_*:0.0` into the trial's `options.txt`. It deletes the trial's
+  copy of `resources\...\music\splash.wav` and `menu.wav`, which `qf/splash/SplashMusic`
+  plays through Java Sound regardless of volume. It writes `enabled=false` into
+  `config\qf-voice.properties` and passes `-Dqf.silent=true`, which silences SplashMusic,
+  the jukebox and voice chat in qf-tweaks/qf-content jars built from 5450145 on.
+- **Is the owner gaming?** `trial.py userbusy` prints JSON and exits 1 when the owner is busy.
+  Busy means one of these: the foreground window covers its monitor, the foreground exe is
+  under a game store's folder, Windows reports a fullscreen or D3D app, or a process that
+  isn't one of our clients uses at least 40% of the GPU 3D engine (any game-store exe counts
+  at a lower load). `launch` prints the same answer on its `launch-info:` JSON line and in
+  `<trial>\launch.json`. Launches are not blocked on it. Screenshots stay valid, but frame
+  times taken while busy share the GPU with the game, so mark them noisy or wait.
+
 Run `launch --wait` as a **background task**. It follows the log, bounded by `--timeout`, and
 returns as soon as the client reaches the title screen or crashes. Do not sit in a foreground
 `until grep …; sleep` loop. In the 10-16 audit those loops cost about 85 minutes.

@@ -54,6 +54,17 @@ bench run, or launch the final client, which binds the keys in its build.
        -PackOpts @{QF_PRESET='4'} -TimeoutMin 25"
    ```
    Run it as a background task, never in a foreground wait loop.
+   - **The client runs in the background and makes no sound** (since 2026-10-23; the same goes for
+     `tools/shaders/review/bench_round.py` and `trial.py launch`). It starts as `javaw` with no console window.
+     `tools/trial/window.ps1 -Mode hide` keeps its window off every monitor, out of the taskbar and Alt-Tab,
+     unable to take focus, and never minimized (a minimized client stalls). Every sound category is set to 0,
+     F11 is unbound, fullscreen is off, the splash wavs are renamed to `*.silenced`, and `-Dqf.silent=true`
+     is passed. The owner can keep working or gaming while a round renders. `bench_round.py --foreground`
+     shows the window as before.
+   - **Frame times taken while the owner games are noise:** the GPU is shared. `bench_round.py` runs
+     `trial.py userbusy` once a minute and writes `bench/<tag>.userbusy.json`. When `"noisy": true`, do not
+     compare that round's frame times; its screenshots are still valid. Re-measure frame times when the owner
+     is idle, or wait for idle with `trial.py userbusy` (exit 1 means busy).
    - `-Shader` is the pack folder's name. The script writes
      `config\shaders.properties` (`shaderPack=`, `enableShaders=true`), and
      `-PackOpts` goes into `shaderpacks\QuestForge-dev.txt`, the option file
