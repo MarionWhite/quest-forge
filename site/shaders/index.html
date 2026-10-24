@@ -182,12 +182,14 @@ body.locked{overflow:hidden}
   <section class="send" id="send" hidden>
     <h2>Send feedback</h2>
     <p id="sendHow">Your answers save on this device as you go. When you're done, send them: this opens a new GitHub issue
-      with your answers already filled in. Check it, then press <b>Create</b> (you need to be signed in to GitHub).</p>
+      with all your answers already filled in, however long: just press <b>Create</b> (you need to be signed in to GitHub).
+      Very long answers go in two or three issues: a "Submit part 2" button appears here after the first.</p>
     <p class="lbl" style="margin-top:18px">Anything else about this round?</p>
     <textarea id="overall" placeholder="Overall impression, things that bug you, what you'd like to see next."></textarea>
     <div class="btns">
       <button class="btn primary" id="relayBtn" type="button" hidden>Send feedback</button>
       <button class="btn primary" id="sendBtn" type="button">Send feedback on GitHub</button>
+      <button class="btn primary" id="partBtn" type="button" hidden>Submit part 2 of 2</button>
       <button class="btn" id="copyBtn" type="button">Copy answers</button>
       <button class="btn" id="clearBtn" type="button">Clear my answers</button>
     </div>
@@ -218,7 +220,7 @@ body.locked{overflow:hidden}
 (() => {
 "use strict";
 const REPO_ISSUES = "https://github.com/MarionWhite/quest-forge/issues/new";
-const MAX_URL = 7000;
+const MAX_URL = 7500;
 const $ = (s, el = document) => el.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const h = (tag, attrs = {}, ...kids) => {
@@ -301,6 +303,7 @@ function render() {
   $("#send").hidden = false;
   renderHistory();
   progress();
+  showParts();
   preload();
 }
 
@@ -493,27 +496,127 @@ function cleanAnswers() {
   return out;
 }
 
-function summary(ans) {
-  const lines = [`Shader Lab feedback for round ${round.n}: ${round.title || ""}`, ""];
+/* ---- compressed answers for the GitHub new-issue URL ----
+   The body carries one line, qf-answers-v2:<base64url>, of the raw-deflated short form
+   {r: round, s: {sceneId: [choice, rating, note]}, o: overall}, plus a short readable summary.
+   tools/shaders/review/fetch_feedback.py decodes it. When even that won't fit one URL, it is split
+   over issues "round N (part k/m)", each holding qf-answers-v2:<id>:<k>/<m>:<chunk>. */
+const V2 = "qf-answers-v2:";
+const shortForm = ans => {
+  const s = {};
+  for (const [id, a] of Object.entries(ans.scenes)) s[id] = [a.choice ?? null, a.rating ?? null, a.note ?? ""];
+  return {r: ans.round, s, o: ans.overall || ""};
+};
+
+// A small raw-DEFLATE encoder (LZ77 + the fixed Huffman code, RFC 1951) for browsers without
+// CompressionStream("deflate-raw"). Any inflater reads it, zlib.decompress(data, -15) included.
+const LBASE = [3,4,5,6,7,8,9,10,11,13,15,17,19,23,27,31,35,43,51,59,67,83,99,115,131,163,195,227,258];
+const LEXT = [0,0,0,0,0,0,0,0,1,1,1,1,2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,0];
+const DBASE = [1,2,3,4,5,7,9,13,17,25,33,49,65,97,129,193,257,385,513,769,1025,1537,2049,3073,4097,6145,8193,12289,16385,24577];
+const DEXT = [0,0,0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10,11,11,12,12,13,13];
+function deflateRawJS(src) {
+  const out = []; let acc = 0, nb = 0;
+  const bits = (v, n) => { acc |= v << nb; nb += n; while (nb >= 8) { out.push(acc & 255); acc >>>= 8; nb -= 8; } };
+  const code = (c, n) => { let r = 0; for (let i = 0; i < n; i++) r |= ((c >> i) & 1) << (n - 1 - i); bits(r, n); };
+  const lit = v => v < 144 ? code(0x30 + v, 8) : v < 256 ? code(0x190 + v - 144, 9) : v < 280 ? code(v - 256, 7) : code(0xC0 + v - 280, 8);
+  const find = (t, x) => { let i = t.length - 1; while (t[i] > x) i--; return i; };
+  bits(1, 1); bits(1, 2);                                  // final block, fixed Huffman
+  const W = 32768, head = new Int32Array(1 << 15).fill(-1), prev = new Int32Array(src.length);
+  const hash = i => ((src[i] << 10) ^ (src[i + 1] << 5) ^ src[i + 2]) & 0x7FFF;
+  for (let i = 0; i < src.length;) {
+    let best = 0, dist = 0;
+    if (i + 2 < src.length) {
+      const max = Math.min(258, src.length - i);
+      for (let j = head[hash(i)], chain = 0; j >= 0 && i - j <= W && chain < 128; j = prev[j], chain++) {
+        let l = 0;
+        while (l < max && src[j + l] === src[i + l]) l++;
+        if (l > best) { best = l; dist = i - j; if (l === max) break; }
+      }
+    }
+    const n = best >= 3 ? best : 1;
+    for (let k = 0; k < n && i + k + 2 < src.length; k++) { const hv = hash(i + k); prev[i + k] = head[hv]; head[hv] = i + k; }
+    if (best >= 3) {
+      const li = find(LBASE, best); lit(257 + li); if (LEXT[li]) bits(best - LBASE[li], LEXT[li]);
+      const di = find(DBASE, dist); code(di, 5); if (DEXT[di]) bits(dist - DBASE[di], DEXT[di]);
+    } else lit(src[i]);
+    i += n;
+  }
+  lit(256);
+  if (nb) out.push(acc & 255);
+  return new Uint8Array(out);
+}
+
+async function deflateRaw(bytes, forceJS) {
+  if (!forceJS && typeof CompressionStream === "function") {
+    try {
+      const st = new Blob([bytes]).stream().pipeThrough(new CompressionStream("deflate-raw"));
+      return new Uint8Array(await new Response(st).arrayBuffer());
+    } catch {}
+  }
+  return deflateRawJS(bytes);
+}
+function b64url(bytes) {
+  let s = "";
+  for (let i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+  return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+async function packAnswers(ans, forceJS) {
+  return b64url(await deflateRaw(new TextEncoder().encode(JSON.stringify(shortForm(ans))), forceJS));
+}
+
+const clip = (t, n) => { t = String(t || "").replace(/\s+/g, " ").trim(); return t.length > n ? t.slice(0, n - 1).trimEnd() + "…" : t; };
+// The human-skimmable part of the issue. level 0: picks, ratings and notes cut to 60 chars;
+// 1: notes cut to 25; 2: picks and ratings only; 3: just a count.
+function summary(ans, level = 0) {
+  const n = Object.keys(ans.scenes).length;
+  const lines = [`Shader Lab feedback for round ${round.n}: ${round.title || ""}`.trim(), ""];
+  if (level >= 3) return [...lines, `${n} scene${n === 1 ? "" : "s"} answered${ans.overall ? ", plus overall notes" : ""}.`].join("\n");
+  const noteMax = [60, 25, 0][level];
   for (const s of round.scenes) {
     const a = ans.scenes[s.id];
     if (!a) continue;
-    const o = (s.options || []).find(o => o.key === a.choice);
-    const pick = a.choice === "neither" ? "Neither" : o ? `${o.key} (${o.label})` : null;
+    const pick = a.choice === "neither" ? "neither" : a.choice;
     const bits = [pick ? `pick ${pick}` : null, a.rating ? `${a.rating}/5` : null].filter(Boolean).join(", ");
-    lines.push(`- **${s.name || s.id}**${bits ? ": " + bits : ""}${a.note ? `\n  > ${a.note.replace(/\n+/g, " ")}` : ""}`);
+    const note = noteMax && a.note ? ` · “${clip(a.note, noteMax)}”` : "";
+    lines.push(`- **${s.name || s.id}**${bits ? ": " + bits : ""}${note}`);
   }
-  if (ans.overall) lines.push("", "**Overall:** " + ans.overall.replace(/\n+/g, " "));
+  if (ans.overall) lines.push("", "**Overall:** " + (noteMax ? clip(ans.overall, noteMax * 2) : "(in the answers line)"));
   return lines.join("\n");
 }
-
-function body(ans) {
-  return `${summary(ans)}\n\n<!-- Machine-readable answers for fetch_feedback.py. Please leave this block as it is. -->\n\`\`\`json\n${JSON.stringify(ans, null, 1)}\n\`\`\`\n`;
-}
-
-function issueURL(b) {
-  const p = new URLSearchParams({title: `Shader Lab feedback: round ${round.n}`, labels: "shader-feedback", body: b});
+const LEAVE = "<!-- Your full answers, compressed for fetch_feedback.py. Please leave this line as it is. -->";
+function issueURL(title, b) {
+  const p = new URLSearchParams({title, labels: "shader-feedback", body: b});
   return `${REPO_ISSUES}?${p.toString()}`;
+}
+// -> [{title, body, url}]: one issue when it fits MAX_URL, else 2 or more parts.
+async function buildIssues(ans, opts = {}) {
+  const packed = await packAnswers(ans, opts.forceJS);
+  const title = `Shader Lab feedback: round ${round.n}`;
+  for (let level = 0; level <= 3; level++) {
+    const body = `${summary(ans, level)}\n\n${LEAVE}\n\`\`\`\n${V2}${packed}\n\`\`\`\n`;
+    const url = issueURL(title, body);
+    if (url.length <= MAX_URL) return [{title, body, url}];
+  }
+  const id = Math.random().toString(36).slice(2, 8) || "x";
+  for (let m = 2; m <= 50; m++) {
+    const size = Math.ceil(packed.length / m), parts = [];
+    for (let k = 1; k <= m; k++) {
+      const t = `${title} (part ${k}/${m})`;
+      const chunk = `${V2}${id}:${k}/${m}:${packed.slice((k - 1) * size, k * size)}`;
+      const head = `Shader Lab feedback for round ${round.n}, part ${k} of ${m}. ` +
+        (k === 1 ? `The rest follows in the next issue${m > 2 ? "s" : ""}.` : "Continues part 1.");
+      let body = null, url = null;
+      for (let level = k === 1 ? 0 : 3; level <= 3 && !body; level++) {
+        const b = `${head}\n\n${k === 1 ? summary(ans, level) + "\n\n" : ""}${LEAVE}\n\`\`\`\n${chunk}\n\`\`\`\n`;
+        const u = issueURL(t, b);
+        if (u.length <= MAX_URL) { body = b; url = u; }
+      }
+      if (!body) break;
+      parts.push({title: t, body, url});
+    }
+    if (parts.length === m) return parts;
+  }
+  throw new Error("answers too long to send");
 }
 
 async function copy(text) {
@@ -524,33 +627,72 @@ async function copy(text) {
     const ok = document.execCommand("copy"); ta.remove(); return ok;
   } catch { return false; }
 }
+function fullText(ans) {   // "Copy answers" only: readable and uncompressed (fetch_feedback reads it too)
+  return `${summary(ans)}\n\n\`\`\`json\n${JSON.stringify(ans, null, 1)}\n\`\`\`\n`;
+}
 
-function updatePreview() { if (round) $("#previewText").textContent = body(cleanAnswers()); }
+let previewN = 0;
+async function updatePreview() {
+  if (!round) return;
+  const me = ++previewN, ans = cleanAnswers();
+  let text;
+  try {
+    const list = await buildIssues(ans);
+    text = list.map(p => (list.length > 1 ? `── ${p.title} ──\n` : "") + p.body).join("\n");
+  } catch (e) { text = "Couldn't build the issue: " + e.message; }
+  if (me === previewN) $("#previewText").textContent = text;
+}
 $("#send").addEventListener("toggle", updatePreview, true);
 
+/* Parts still to open after a split send; kept in storage so they survive this tab navigating away. */
+const partsKey = () => `${draftKey}-parts`;
+function showParts() {
+  const p = store.get(partsKey()), btn = $("#partBtn");
+  const pending = !!(p && Array.isArray(p.urls) && p.next < p.urls.length);
+  btn.hidden = !pending;
+  $("#sendBtn").classList.toggle("primary", !pending && !relayURL);   // the part button is the next thing to press
+  if (!pending) return;
+  btn.textContent = `Submit part ${p.next + 1} of ${p.urls.length}`;
+}
+function openIssue(url, w) {
+  if (w && !w.closed) { try { w.opener = null; } catch {} w.location.href = url; }
+  else location.href = url;
+}
+
 async function send() {
+  clearTimeout(saveT);
+  answers.overall = $("#overall").value; store.set(draftKey, answers);
   const ans = cleanAnswers();
-  if (!Object.keys(ans.scenes).length && !ans.overall) {
-    $("#sendStatus").textContent = "Nothing to send yet: pick, rate or write something first.";
-    return;
-  }
-  const full = body(ans);
-  let url = issueURL(full);
-  if (url.length > MAX_URL) {
-    const copied = await copy(full);
-    const shortBody = `Shader Lab feedback for round ${round.n}: ${Object.keys(ans.scenes).length} scenes answered.\n\n` +
-      (copied ? "**Paste your answers here** (they are on your clipboard: long-press or Ctrl+V), replacing this line.\n"
-              : "**Paste your answers here**: go back to the Lab, press \"Copy answers\", then paste them over this line.\n");
-    url = issueURL(shortBody);
-    $("#sendStatus").textContent = copied ? "Your answers are long, so they were copied: paste them into the issue body." :
-      "Your answers are long. Press \"Copy answers\", then paste them into the issue.";
+  if (!Object.keys(ans.scenes).length && !ans.overall) { status("Nothing to send yet: pick, rate or write something first."); return; }
+  const w = window.open("", "_blank");       // opened inside the tap so popup blockers allow it; pointed at GitHub below
+  let list;
+  try { list = await buildIssues(ans); }
+  catch (e) { if (w) w.close(); status(`Couldn't build the issue (${e.message}).`, null, true); return; }
+  if (list.length > 1) {
+    store.set(partsKey(), {urls: list.map(p => p.url), next: 1});
+    showParts();
+    status(`Your answers are long, so they go in ${list.length} issues. Press Create on GitHub for part 1, ` +
+      `then come back here and press "Submit part 2 of ${list.length}".`);
   } else {
-    $("#sendStatus").textContent = "Opening GitHub…";
+    store.del(partsKey()); showParts();
+    status("Opening GitHub: check the issue, then press Create.");
   }
-  const w = window.open(url, "_blank");
-  if (w) { try { w.opener = null; } catch {} } else location.href = url;
+  openIssue(list[0].url, w);
 }
 $("#sendBtn").addEventListener("click", send);
+$("#partBtn").addEventListener("click", () => {
+  const p = store.get(partsKey());
+  if (!p || p.next >= p.urls.length) { showParts(); return; }
+  const url = p.urls[p.next];
+  p.next++;
+  store.set(partsKey(), p);
+  showParts();
+  status(p.next >= p.urls.length ? "Opening the last part: press Create on GitHub and you're done."
+                                 : `Opening part ${p.next}: press Create, then come back for part ${p.next + 1}.`);
+  const w = window.open(url, "_blank");
+  if (w) { try { w.opener = null; } catch {} } else location.href = url;
+});
+window.__qfLab = {buildIssues, packAnswers, deflateRawJS, cleanAnswers: () => cleanAnswers(), MAX_URL};
 
 /* ---- one-tap send through the relay (site/shaders/config.json relay_url) ---- */
 function status(text, link, err) {
@@ -606,13 +748,13 @@ $("#passGo").addEventListener("click", relaySend);
 $("#passIn").addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); relaySend(); } });
 $("#sendTop").addEventListener("click", () => $("#send").scrollIntoView({behavior: "smooth"}));
 $("#copyBtn").addEventListener("click", async () => {
-  const ok = await copy(body(cleanAnswers()));
+  const ok = await copy(fullText(cleanAnswers()));
   if (ok) $("#sendStatus").textContent = "Answers copied.";
   else { const d = $(".preview"); d.open = true; updatePreview(); $("#sendStatus").textContent = "Couldn't copy here: select the text under \"Preview\" and copy it by hand."; }
 });
 $("#clearBtn").addEventListener("click", () => {
   if (!confirm("Clear all your answers for this round on this device?")) return;
-  store.del(draftKey); answers = emptyAnswers(); render();
+  store.del(draftKey); store.del(partsKey()); answers = emptyAnswers(); render();
   $("#sendStatus").textContent = "Cleared.";
 });
 
