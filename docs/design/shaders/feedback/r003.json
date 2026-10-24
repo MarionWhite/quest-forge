@@ -1,0 +1,67 @@
+{
+ "round": 3,
+ "id": "r003",
+ "note": "Built by tools/shaders/review/fetch_feedback.py from GitHub issues; the latest response is last.",
+ "responses": [
+  {
+   "issue": 4,
+   "url": "https://github.com/MarionWhite/quest-forge/issues/4",
+   "user": "Etnadozaus",
+   "state": "open",
+   "created_at": "2026-10-24T00:07:52Z",
+   "updated_at": "2026-10-24T00:07:52Z",
+   "from": "body",
+   "answers": {
+    "round": 3,
+    "scenes": {
+     "golden": {
+      "choice": "B",
+      "rating": 5,
+      "note": "The horizon band is pretty flat, but this one definitely looks the best of the three."
+     },
+     "leaves": {
+      "choice": "B",
+      "rating": 4,
+      "note": "This gives the environment depth, and none of the other ones show the effect that you described."
+     },
+     "water-sunset": {
+      "choice": "A",
+      "rating": 4,
+      "note": "Lively shows the fullest range of colors as a whole, and neither of the other 2 hit the mark with what they are trying to do. Both have an ugly orange cone artifact right down the middle of the screen, and the water does not have the intended design. One thing I like about the cinematic sun is that there are spots right below the sun that have the light intensity depth that lively doesn't have, but lively is so much more balanced. It may help to look for other water designs from other shaders and texture packs online so that we can decide together what an appropriate direction to take would be."
+     },
+     "water-biomes": {
+      "choice": "A",
+      "rating": 5,
+      "note": "I think the critic is right on the fucking money. The coast and ocean are the best in the set, and the others were well judged by it. I'd like to see its advise realized and iterated on."
+     },
+     "water-looks": {
+      "choice": "B",
+      "rating": 3,
+      "note": "I agree with the critic again, and I would also like to say that the little white particles are becoming a bit much in the still image. I liked how they were when I mentioned them, and we could have used a little bit more, but this looks like a lot more than we had unless it's a matter of timing of the image."
+     },
+     "night-new": {
+      "choice": "B",
+      "rating": 5,
+      "note": "This seems about right for new moon. The sky looks fuller in this one and has a deep rich darkness."
+     },
+     "torch": {
+      "choice": "B",
+      "rating": 4,
+      "note": "heat shimmer around the flame could be cool, and small embers don't sound like a bad idea, and definitely ambient dust like some of the modern effects mods have."
+     },
+     "particles": {
+      "choice": "neither",
+      "rating": 5,
+      "note": "These all look the exact fucking same. I like the bubbles and dust effect, but we still need to strike the right balance, and perhaps play around with other aspects of them or other creative ideas."
+     },
+     "hills": {
+      "choice": "neither",
+      "rating": 5,
+      "note": "I'm honestly not sure what this scene needs, but I'm not loving the color range, the environment, or the clouds that you have come up with. I think you should search for some inspiration for the clouds and we can come up with a direction together."
+     }
+    },
+    "overall": "Some improvements, and some things to work on for sure. I had a thought that we could work on a texture pack in parallel with the shaders because that could dramatically influence the direction of some of these things. I imagine that we have a few options with that. We could either sample from existing texture packs, and work together to see what is good and what is lacking. I imagine that we could also develop a custom texture pack, which I imagine introduces a lot more work and could extend this whole process, or maybe we could take an existing texture pack with a solid foundation and make changes to it to spruce it up a bit and make it inclusive of all of the custom blocks. Regardless, what we will need to do is see what things look like with a broad range of texture packs to either find inspiration or to roll with them. Please take into consideration the feedback that I have given on design when coming up with prospects for the right fit for texture packs."
+   }
+  }
+ ]
+}
