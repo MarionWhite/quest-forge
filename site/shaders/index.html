@@ -116,6 +116,27 @@ textarea{width:100%;min-height:84px;resize:vertical;background:var(--sunk);color
 textarea::placeholder{color:#7A7A7A}
 textarea:focus{outline:none;border-color:var(--ink-2)}
 
+/* ---- reference images (shown only when the relay's /caps says it takes them) ---- */
+.att{display:none;gap:8px}
+body.can-attach .att{display:grid}
+#overallAtt .att{margin-top:12px}
+.drop{border:1px dashed var(--rule-2);border-radius:3px;background:var(--sunk);padding:10px 12px;display:flex;gap:8px 12px;
+  align-items:center;flex-wrap:wrap;font-family:Archivo,sans-serif;font-size:14px;color:var(--ink-2)}
+.drop.over{border-style:solid;border-color:var(--ink);background:var(--raised);color:var(--ink)}
+.drop .btn{padding:8px 14px;min-height:44px;font-size:14px}
+.drop .how{flex:1;min-width:16ch}
+.thumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:8px}
+.thumbs:empty{display:none}
+.thumb{position:relative;aspect-ratio:1;margin:0;background:var(--stage);border:1px solid var(--rule);border-radius:3px;overflow:hidden}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.thumb button{position:absolute;top:4px;right:4px;width:36px;height:36px;border-radius:2px;border:1px solid var(--rule-2);
+  background:rgba(16,16,16,.86);color:var(--ink);font-size:17px;line-height:1;padding:0}
+.thumb figcaption{position:absolute;left:0;right:0;bottom:0;font-family:"JetBrains Mono",monospace;font-size:10.5px;color:var(--ink-2);
+  background:rgba(16,16,16,.78);padding:2px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.att-msg{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--muted)}
+.att-msg:empty{display:none}
+.att-msg.err{color:var(--ink)}
+
 /* ---- send ---- */
 .send{margin:44px 0 0;border-top:2px solid var(--rule-2);padding-top:18px}
 .send h2{font-size:24px;font-weight:800;margin:0 0 8px;letter-spacing:-.02em}
@@ -185,13 +206,14 @@ body.locked{overflow:hidden}
     <h1>Loading the latest round…</h1>
   </header>
   <div id="scenes"></div>
-  <section class="send" id="send" hidden>
+  <section class="send" id="send" data-zone="_overall" hidden>
     <h2>Send feedback</h2>
     <p id="sendHow">Your answers save on this device as you go. When you're done, send them: this opens a new GitHub issue
       with all your answers already filled in, however long: just press <b>Create</b> (you need to be signed in to GitHub).
       Very long answers go in two or three issues: a "Submit part 2" button appears here after the first.</p>
     <p class="lbl" style="margin-top:18px">Anything else about this round?</p>
     <textarea id="overall" placeholder="Overall impression, things that bug you, what you'd like to see next."></textarea>
+    <div id="overallAtt"></div>
     <div class="btns">
       <button class="btn primary" id="relayBtn" type="button" hidden>Send feedback</button>
       <button class="btn primary" id="sendBtn" type="button">Send feedback on GitHub</button>
@@ -260,7 +282,12 @@ async function loadConfig() {
     const c = await getJSON("config.json");
     relayURL = typeof c.relay_url === "string" ? c.relay_url.trim() : "";
   } catch { relayURL = ""; }
+  // ?relay=http://127.0.0.1:PORT points the page at a local test relay. Only loopback
+  // addresses are taken, so a link can't send the passphrase anywhere else.
+  const ov = new URLSearchParams(location.search).get("relay");
+  if (ov && /^http:\/\/(127\.0\.0\.1|localhost)(:\d{1,5})?\/?$/.test(ov)) relayURL = ov;
   if (!relayURL) return;
+  loadCaps().then(c => { if (c) enableAttach(c); });   // never holds up the page
   $("#relayBtn").hidden = false;
   $("#sendBtn").classList.remove("primary");
   $("#sendBtn").textContent = "Send through GitHub instead";
@@ -292,6 +319,7 @@ function emptyAnswers() {
 function render() {
   draftKey = `qf-shaderlab-${round.id}`;
   answers = store.get(draftKey);
+  loadImgs(); zones = {};
   if (!answers || answers.round !== round.n || typeof answers.scenes !== "object") answers = emptyAnswers();
   document.title = `Shader Lab · round ${round.n} · Quest Forge`;
   const head = $("#head");
@@ -306,6 +334,7 @@ function render() {
   box.innerHTML = "";
   round.scenes.forEach((s, i) => box.append(sceneEl(s, i)));
   $("#overall").value = answers.overall || "";
+  $("#overallAtt").replaceChildren(attEl(OVERALL));
   $("#send").hidden = false;
   renderHistory();
   progress();
@@ -325,7 +354,7 @@ function sceneEl(s, i) {
   const a = answers.scenes[s.id] || (answers.scenes[s.id] = {choice: null, rating: null, note: ""});
   const opts = (s.options || []);
   const visual = opts.filter(o => frames(o).length);
-  const sec = h("section", {class: "scene", id: "s-" + s.id, "aria-labelledby": "h-" + s.id});
+  const sec = h("section", {class: "scene", id: "s-" + s.id, "aria-labelledby": "h-" + s.id, "data-zone": s.id});
   const done = h("span", {class: "done"});
   sec.append(h("div", {class: "scene-h"},
     h("span", {class: "num"}, String(i + 1).padStart(2, "0")),
@@ -408,6 +437,7 @@ function sceneEl(s, i) {
   ta.value = a.note || "";
   ta.addEventListener("input", () => { a.note = ta.value; save(); mark(); });
   ans.append(h("div", {}, h("p", {class: "lbl"}, opts.length ? "Note" : "Your answer"), ta));
+  ans.append(attEl(s.id));
   sec.append(ans);
 
   const mark = () => {
@@ -479,6 +509,230 @@ document.addEventListener("keydown", ev => {
   if (ev.key === "Escape") closeFS();
   else if (ev.key === "ArrowRight" || ev.key === " ") { ev.preventDefault(); v.i = (v.i + 1) % visual.length; drawFS(); }
   else if (ev.key === "ArrowLeft") { v.i = (v.i + visual.length - 1) % visual.length; drawFS(); }
+});
+
+/* ---- reference images ----
+   Only when the relay's GET /caps answers {attachments: true, ...}: otherwise nothing here
+   shows and nothing is sent. Each image is shrunk to 1600 px on its long side and re-encoded
+   as JPEG before it is kept; they go with "Send feedback" as attachments: [{scene, name, type, data}],
+   scene "_overall" for the overall box. The relay commits them to the repo and links them in the issue. */
+const OVERALL = "_overall";
+const LONG_SIDE = 1600, JPEG_Q = 0.85;
+const IMG_DRAFT_MAX = 2.5e6;           // characters of images kept in localStorage; past that, not kept
+let caps = null;                       // {maxBytes, maxFiles, perScene, fileBytes} once the relay says yes
+let atts = {};                         // zone (scene id | OVERALL) -> [{name, type, data, bytes, w, h}]
+let zones = {};                        // zone -> {box, drop, thumbs, msg, count}
+let lastZone = OVERALL;
+const imgKey = () => `${draftKey}-images`;
+const isMac = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent || "");
+const mb = n => `${(n / 1048576).toFixed(n < 1048576 ? 2 : 1)} MB`;
+
+async function loadCaps() {
+  const ctl = typeof AbortController === "function" ? new AbortController() : null;
+  const t = setTimeout(() => { if (ctl) ctl.abort(); }, 6000);
+  try {
+    const r = await fetch(relayURL.replace(/\/+$/, "") + "/caps", {cache: "no-store", signal: ctl ? ctl.signal : undefined});
+    if (!r.ok) return null;
+    const j = await r.json();
+    if (!j || j.attachments !== true) return null;
+    const num = (v, d) => (Number.isFinite(v) && v > 0 ? Math.min(v, d) : d);   // never above our own caps
+    return {maxBytes: num(j.max_bytes, 8 * 1048576), maxFiles: num(j.max_files, 20),
+            perScene: num(j.max_per_scene, 6), fileBytes: num(j.max_file_bytes, 2.5 * 1048576)};
+  } catch { return null; } finally { clearTimeout(t); }
+}
+function enableAttach(c) {
+  caps = c;
+  document.body.classList.add("can-attach");
+  for (const z of Object.keys(zones)) drawZone(z);
+  $("#sendHow").textContent += " You can add reference images too: under any scene or the overall box, pick them, drop them, " +
+    `or paste a screen grab (${isMac ? "⌘V" : "Ctrl+V"}).`;
+}
+
+function loadImgs() {
+  atts = {};
+  const d = store.get(imgKey());
+  if (!d || typeof d !== "object") return;
+  for (const [z, list] of Object.entries(d)) {
+    if (!Array.isArray(list)) continue;
+    const ok = list.filter(a => a && typeof a.data === "string" && a.type === "image/jpeg");
+    if (ok.length) atts[z] = ok;
+  }
+}
+let imgsKept = true;
+function saveImgs() {
+  const n = attCount();
+  if (!n) { store.del(imgKey()); imgsKept = true; return; }
+  imgsKept = attChars() <= IMG_DRAFT_MAX && store.set(imgKey(), atts);
+  if (!imgsKept) store.del(imgKey());          // never leave a half-saved set, and leave room for the answers
+}
+const attCount = () => Object.values(atts).reduce((n, l) => n + l.length, 0);
+const attChars = () => Object.values(atts).reduce((n, l) => n + l.reduce((m, a) => m + a.data.length, 0), 0);
+// Room for images in one send: the relay's cap less the answers (60 KB at most) and per-image JSON.
+const attBudget = () => caps.maxBytes - 64 * 1024 - 256 * caps.maxFiles;
+function attList() {
+  const out = [];
+  if (!caps || !round) return out;
+  for (const z of [...round.scenes.map(s => s.id), OVERALL])
+    for (const a of atts[z] || []) out.push({scene: z, name: a.name, type: a.type, data: a.data});
+  return out;
+}
+
+function attEl(zone) {
+  const input = h("input", {type: "file", accept: "image/*", multiple: true, hidden: true, "aria-hidden": "true", tabindex: "-1"});
+  const count = h("span", {});
+  const drop = h("div", {class: "drop"},
+    h("button", {class: "btn", type: "button", onclick: () => { lastZone = zone; input.click(); }}, "Add images"),
+    h("span", {class: "how"}, `or drop them here, or paste a screen grab (${isMac ? "⌘V" : "Ctrl+V"})`), input);
+  const thumbs = h("div", {class: "thumbs"});
+  const msg = h("div", {class: "att-msg", role: "status", "aria-live": "polite"});
+  const box = h("div", {class: "att"}, h("p", {class: "lbl", style: "margin:0"}, "Reference images", count), drop, thumbs, msg);
+  input.addEventListener("change", () => { const f = [...input.files]; input.value = ""; addFiles(zone, f); });
+  zones[zone] = {box, drop, thumbs, msg, count};
+  drawZone(zone);
+  return box;
+}
+function drawZone(zone) {
+  const z = zones[zone];
+  if (!z) return;
+  const list = atts[zone] || [];
+  z.count.textContent = list.length && caps ? ` · ${list.length}/${caps.perScene}` : "";
+  z.thumbs.replaceChildren(...list.map((a, i) => h("figure", {class: "thumb", title: `${a.name} · ${a.w}×${a.h} · ${Math.round(a.bytes / 1024)} KB`},
+    h("img", {src: "data:image/jpeg;base64," + a.data, alt: `Reference image ${i + 1}: ${a.name}`, loading: "lazy"}),
+    h("figcaption", {}, `${Math.round(a.bytes / 1024)} KB`),
+    h("button", {type: "button", "aria-label": `Remove image ${i + 1} (${a.name})`, title: "Remove",
+      onclick: () => { list.splice(i, 1); if (!list.length) delete atts[zone]; saveImgs(); drawZone(zone); attMsg(zone, keptNote("Removed.")); }}, "✕"))));
+}
+function attMsg(zone, text, err) {
+  const z = zones[zone];
+  if (!z) return;
+  z.msg.textContent = text || "";
+  z.msg.classList.toggle("err", !!err);
+}
+const keptNote = t => imgsKept ? t : `${t} These images are too big to keep on this device: send before you leave the page.`;
+
+function decodeImage(file) {
+  if (typeof createImageBitmap === "function") {
+    return createImageBitmap(file, {imageOrientation: "from-image"}).then(b => ({src: b, w: b.width, h: b.height, done: () => b.close && b.close()}))
+      .catch(() => decodeViaImg(file));
+  }
+  return decodeViaImg(file);
+}
+function decodeViaImg(file) {
+  return new Promise((ok, no) => {
+    const url = URL.createObjectURL(file), im = new Image();
+    im.onload = () => ok({src: im, w: im.naturalWidth, h: im.naturalHeight, done: () => URL.revokeObjectURL(url)});
+    im.onerror = () => { URL.revokeObjectURL(url); no(new Error("decode")); };
+    im.src = url;
+  });
+}
+function blobB64(blob) {
+  return new Promise((ok, no) => {
+    const fr = new FileReader();
+    fr.onload = () => ok(String(fr.result).replace(/^data:[^,]*,/, ""));
+    fr.onerror = () => no(fr.error);
+    fr.readAsDataURL(blob);
+  });
+}
+// Any image the browser can decode -> JPEG, 1600 px long side at most.
+async function shrink(file) {
+  const img = await decodeImage(file);
+  try {
+    if (!img.w || !img.h) throw new Error("empty");
+    const k = Math.min(1, LONG_SIDE / Math.max(img.w, img.h));
+    const w = Math.max(1, Math.round(img.w * k)), hh = Math.max(1, Math.round(img.h * k));
+    const c = document.createElement("canvas");
+    c.width = w; c.height = hh;
+    const g = c.getContext("2d");
+    g.fillStyle = "#fff"; g.fillRect(0, 0, w, hh);      // transparent PNGs flatten onto white, not black
+    g.imageSmoothingEnabled = true; g.imageSmoothingQuality = "high";
+    g.drawImage(img.src, 0, 0, w, hh);
+    let blob = await new Promise(r => c.toBlob ? c.toBlob(r, "image/jpeg", JPEG_Q) : r(null));
+    let data;
+    if (blob) data = await blobB64(blob);
+    else { data = c.toDataURL("image/jpeg", JPEG_Q).replace(/^data:[^,]*,/, ""); }
+    if (!data || !data.startsWith("/9j/")) throw new Error("encode");   // "/9j/" is base64 of a JPEG's FF D8 FF
+    return {data, bytes: blob ? blob.size : Math.floor(data.length * 3 / 4), w, h: hh};
+  } finally { img.done(); }
+}
+function fileName(f, i) {
+  const base = String((f && f.name) || "").replace(/\.[A-Za-z0-9]{1,5}$/, "").replace(/[^A-Za-z0-9 ._()-]+/g, "_").trim().slice(0, 60);
+  return (!base || /^image$/i.test(base) ? `pasted-${new Date().toTimeString().slice(0, 8).replace(/:/g, "")}-${i + 1}` : base) + ".jpg";
+}
+const looksImage = f => f && (/^image\//.test(f.type) || /\.(png|jpe?g|webp|gif|bmp|avif|heic|heif|tiff?)$/i.test(f.name || ""));
+
+let adding = Promise.resolve();
+function addFiles(zone, files) {                 // one batch at a time, so the caps are checked in order
+  adding = adding.then(() => addNow(zone, files)).catch(() => {});
+  return adding;
+}
+async function addNow(zone, files) {
+  if (!caps || !zones[zone]) return;
+  const list = [...(files || [])];
+  const imgs = list.filter(looksImage);
+  if (!imgs.length) { if (list.length) attMsg(zone, "Only images can be attached here.", true); return; }
+  const notes = [];
+  let added = 0;
+  attMsg(zone, `Preparing ${imgs.length} image${imgs.length === 1 ? "" : "s"}…`);
+  for (const [i, f] of imgs.entries()) {
+    const mine = atts[zone] || [];
+    if (mine.length >= caps.perScene) { notes.push(`At most ${caps.perScene} images ${zone === OVERALL ? "here" : "per scene"}.`); break; }
+    if (attCount() >= caps.maxFiles) { notes.push(`At most ${caps.maxFiles} images in one send.`); break; }
+    let im;
+    try { im = await shrink(f); }
+    catch { notes.push(`Couldn't read ${f.name || "that image"}; try a PNG or JPEG.`); continue; }
+    if (im.bytes > caps.fileBytes) { notes.push(`${f.name || "That image"} is still ${mb(im.bytes)} after shrinking (${mb(caps.fileBytes)} max).`); continue; }
+    if (attChars() + im.data.length > attBudget()) {
+      notes.push(`That would take the images past ${mb(attBudget())} in one send. Remove one first, or send these and then add more.`); break;
+    }
+    mine.push({name: fileName(f, i), type: "image/jpeg", data: im.data, bytes: im.bytes, w: im.w, h: im.h});
+    atts[zone] = mine;
+    added++;
+    drawZone(zone);
+  }
+  saveImgs();
+  if ($(".preview").open) updatePreview();
+  const head = added ? `Added ${added} image${added === 1 ? "" : "s"}.` : "";
+  attMsg(zone, keptNote([head, ...notes].filter(Boolean).join(" ")), notes.length > 0);
+}
+
+const zoneOf = el => { const z = el && el.closest ? el.closest("[data-zone]") : null; return z && zones[z.dataset.zone] ? z.dataset.zone : null; };
+const hasFiles = e => !!(e.dataTransfer && [...(e.dataTransfer.types || [])].includes("Files"));
+let overZone = null;
+function markOver(z) {
+  if (z === overZone) return;
+  if (overZone && zones[overZone]) zones[overZone].drop.classList.remove("over");
+  overZone = z;
+  if (z && zones[z]) zones[z].drop.classList.add("over");
+}
+document.addEventListener("dragover", e => {
+  if (!caps || !hasFiles(e)) return;
+  e.preventDefault();                          // also keeps a stray drop from navigating away from the answers
+  const z = zoneOf(e.target);
+  e.dataTransfer.dropEffect = z ? "copy" : "none";
+  markOver(z);
+});
+document.addEventListener("dragleave", e => { if (!e.relatedTarget) markOver(null); });
+document.addEventListener("drop", e => {
+  if (!caps || !hasFiles(e)) return;
+  e.preventDefault();
+  markOver(null);
+  const z = zoneOf(e.target);
+  if (z) { lastZone = z; addFiles(z, e.dataTransfer.files); }
+});
+document.addEventListener("pointerdown", e => { const z = zoneOf(e.target); if (z) lastZone = z; }, true);
+document.addEventListener("focusin", e => { const z = zoneOf(e.target); if (z) lastZone = z; });
+document.addEventListener("paste", e => {
+  if (!caps || !e.clipboardData) return;
+  let files = [...(e.clipboardData.files || [])].filter(looksImage);
+  if (!files.length) files = [...(e.clipboardData.items || [])].filter(it => it.kind === "file" && /^image\//.test(it.type)).map(it => it.getAsFile()).filter(Boolean);
+  if (!files.length) return;
+  // Text that came along with an image (copied from a web page) still pastes as text into a text box.
+  const t = e.target, typing = t && (t.tagName === "TEXTAREA" || t.tagName === "INPUT");
+  if (typing && (e.clipboardData.getData("text/plain") || "").trim()) return;
+  e.preventDefault();
+  const z = zoneOf(t) || zoneOf(document.activeElement) || lastZone;
+  addFiles(z, files);
+  if (zones[z]) zones[z].box.scrollIntoView({block: "nearest", behavior: "smooth"});
 });
 
 /* ---- answers ---- */
@@ -654,6 +908,9 @@ async function updatePreview() {
     const list = await buildIssues(ans);
     text = list.map(p => (list.length > 1 ? `── ${p.title} ──\n` : "") + p.body).join("\n");
   } catch (e) { text = "Couldn't build the issue: " + e.message; }
+  const imgs = attList();
+  if (imgs.length) text += `\n── plus ${imgs.length} reference image${imgs.length === 1 ? "" : "s"} (${mb(attChars())}), ` +
+    `sent with Send feedback only ──\n` + imgs.map(a => `${a.scene === OVERALL ? "overall" : a.scene}: ${a.name}`).join("\n");
   if (me === previewN) $("#previewText").textContent = text;
 }
 $("#send").addEventListener("toggle", updatePreview, true);
@@ -691,6 +948,9 @@ async function send() {
     store.del(partsKey()); showParts();
     status("Opening GitHub: check the issue, then press Create.");
   }
+  const nImg = attList().length;
+  if (nImg) $("#sendStatus").append(` Your ${nImg} image${nImg === 1 ? "" : "s"} can't go this way: ` +
+    "they go only with Send feedback (or drag them into the GitHub issue yourself).");
   openIssue(list[0].url, w);
 }
 $("#sendBtn").addEventListener("click", send);
@@ -706,7 +966,8 @@ $("#partBtn").addEventListener("click", () => {
   const w = window.open(url, "_blank");
   if (w) { try { w.opener = null; } catch {} } else location.href = url;
 });
-window.__qfLab = {buildIssues, packAnswers, deflateRawJS, cleanAnswers: () => cleanAnswers(), MAX_URL};
+window.__qfLab = {buildIssues, packAnswers, deflateRawJS, cleanAnswers: () => cleanAnswers(), MAX_URL,
+  caps: () => caps, attach: (zone, files) => addFiles(zone, files), attachments: () => attList()};
 
 /* ---- one-tap send through the relay (site/shaders/config.json relay_url) ---- */
 function status(text, link, err) {
@@ -729,27 +990,42 @@ async function relaySend() {
   clearTimeout(saveT);                       // flush the draft now so its "saved" message can't overwrite ours
   answers.overall = $("#overall").value; store.set(draftKey, answers);
   const ans = cleanAnswers();
-  if (!Object.keys(ans.scenes).length && !ans.overall) { status("Nothing to send yet: pick, rate or write something first."); return; }
+  const imgs = attList();
+  if (!Object.keys(ans.scenes).length && !ans.overall && !imgs.length) { status("Nothing to send yet: pick, rate or write something first."); return; }
   const pass = readPass() || ($("#passBox").hidden ? "" : $("#passIn").value.trim());
   if (!pass) { askPass(); return; }
+  const body = JSON.stringify(imgs.length ? {...ans, attachments: imgs} : ans);
+  if (imgs.length && body.length > caps.maxBytes) {
+    status(`The images add up to more than ${mb(caps.maxBytes)}. Remove one or two and send again.`, null, true); return;
+  }
   sending = true; $("#relayBtn").disabled = true; $("#passGo").disabled = true;
-  status("Sending…");
+  status(imgs.length ? `Sending, with ${imgs.length} image${imgs.length === 1 ? "" : "s"} (${mb(body.length)})…` : "Sending…");
   try {
     const r = await fetch(relayURL.replace(/\/+$/, "") + "/feedback", {
-      method: "POST", headers: {"Content-Type": "application/json", "X-QF-Passphrase": pass}, body: JSON.stringify(ans)});
+      method: "POST", headers: {"Content-Type": "application/json", "X-QF-Passphrase": pass}, body});
     let j = {};
     try { j = await r.json(); } catch {}
     if (r.ok && j.ok && j.issue_url) {
       writePass(pass);
       $("#passBox").hidden = true; $("#passIn").value = "";
-      status("Sent ✓", j.issue_url);
+      const a = j.attachments;
+      if (imgs.length && a && a.failed) {
+        status(`Sent ✓, but ${a.failed} of ${imgs.length} images couldn't be saved (${a.error || "GitHub refused them"}). ` +
+          "They're still here; the issue says which.", j.issue_url, true);
+      } else if (imgs.length) {
+        atts = {}; saveImgs(); for (const z of Object.keys(zones)) { drawZone(z); attMsg(z, ""); }
+        status(`Sent ✓ with ${imgs.length} image${imgs.length === 1 ? "" : "s"}`, j.issue_url);
+      } else status("Sent ✓", j.issue_url);
+    } else if (r.status === 413 && imgs.length) {
+      status(`Too large for the relay (${j.error || "HTTP 413"}). Remove an image or two and send again.`, null, true);
     } else if (r.status === 401) {
       writePass("");
       askPass("That passphrase didn't work. Check it and try again.");
     } else if (r.status === 429) {
       status("Too many sends in a short time. Wait ten minutes, or use \"Send through GitHub instead\".", null, true);
     } else {
-      status(`Couldn't send (${j.error || "HTTP " + r.status}). Your answers are still saved here; try again, or use "Send through GitHub instead".`, null, true);
+      status(`Couldn't send (${j.error || "HTTP " + r.status}). Your answers are still saved here; try again` +
+        (imgs.length ? ", or with fewer images" : "") + `, or use "Send through GitHub instead".`, null, true);
     }
   } catch {
     status("Couldn't reach the feedback relay (offline?). Your answers are still saved here; try again, or use \"Send through GitHub instead\".", null, true);
@@ -768,7 +1044,7 @@ $("#copyBtn").addEventListener("click", async () => {
 });
 $("#clearBtn").addEventListener("click", () => {
   if (!confirm("Clear all your answers for this round on this device?")) return;
-  store.del(draftKey); store.del(partsKey()); answers = emptyAnswers(); render();
+  store.del(draftKey); store.del(partsKey()); store.del(imgKey()); answers = emptyAnswers(); render();
   $("#sendStatus").textContent = "Cleared.";
 });
 
