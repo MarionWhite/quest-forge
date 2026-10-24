@@ -1,0 +1,87 @@
+{
+ "round": 6,
+ "id": "r006",
+ "note": "Built by tools/shaders/review/fetch_feedback.py from GitHub issues; the latest response is last.",
+ "responses": [
+  {
+   "issue": 7,
+   "url": "https://github.com/MarionWhite/quest-forge/issues/7",
+   "user": "MarionWhite",
+   "state": "open",
+   "created_at": "2026-10-24T22:29:20Z",
+   "updated_at": "2026-10-24T22:29:20Z",
+   "from": "body",
+   "answers": {
+    "round": 6,
+    "scenes": {
+     "water-sunset": {
+      "choice": "A",
+      "rating": 5,
+      "note": "very fucking nice. Well done on the water and the light interaction. I don't know if I can detect the little dust particle things anymore, but we can work that out."
+     },
+     "lake-sunset": {
+      "choice": "A",
+      "rating": 5,
+      "note": "This is looking better than lively, but the critics concerns echo my own. The water texture gets splotchy in some areas when not enough light sources are present."
+     },
+     "water-noon": {
+      "choice": "A",
+      "rating": 5,
+      "note": "I think this looks pretty good, but with that being said, if there are other improvements that you can think of I am open to them."
+     },
+     "water-biomes": {
+      "choice": "C",
+      "rating": 5,
+      "note": "The coast and the ocean look fucking unbelievable, and the critic response on the other two is spot on. One other thing that we haven't addressed yet is boundary conditions. When an ocean meets a swamp or other interactions, we should have a pleasant gradient to the next instead of stark cutoffs or anything weird."
+     },
+     "clouds": {
+      "choice": "A",
+      "rating": 4,
+      "note": "They definitely look better, but we have some room for improvement."
+     },
+     "golden": {
+      "choice": "A",
+      "rating": 4,
+      "note": "I think this is a step in the right direction, but maybe more of a sharper highlight effect on the edges of the clouds for more of a cinematic effect."
+     },
+     "sunset-sky": {
+      "choice": "A",
+      "rating": 5,
+      "note": "The water has improved dramatically. The clouds have improved, but not as much as the water has, and the sun has not improved at all."
+     },
+     "forest-light": {
+      "choice": "C",
+      "rating": 4,
+      "note": "I don't know how much the new texture pack is affecting this, but the old one just looks better here. The color is warmer, the rays are better formed, but it is still far from perfect."
+     },
+     "leaves": {
+      "choice": "A",
+      "rating": 4,
+      "note": "I am beginning to think that I don't like this texture pack very much, so we will definitely have to work on customizing it."
+     },
+     "night-sky": {
+      "choice": "B",
+      "rating": null,
+      "note": "These are fucking beautiful. Another idea that I had for a sky is a meteor shower if we can come up with something of this quality that would last the whole night and not impact performance very much."
+     },
+     "night-new": {
+      "choice": "A",
+      "rating": 5,
+      "note": "The night clouds look pretty good and have shape."
+     },
+     "faithful": {
+      "choice": "neither",
+      "rating": 5,
+      "note": "Maybe this is just not the right scene for it, but I am not loving either of these. We have a massive gap to hurdle with texture quality and direction, but we are making phenomenal progress on the shaders so I am confident that we can perfect this as well."
+     },
+     "faithful-modded": {
+      "choice": "A",
+      "rating": 3,
+      "note": "I like the faithful stone, the gold, the iron, glowstone, the glass, and the diamond, but primarily because they have a higher resolution. I am not in love with the style of this pack, just that a lot of blocks have more texture to them. We will need to work hard on texture pack in parallel."
+     }
+    },
+    "overall": "Water is improving drastically, and I want to continue the momentum, and see all of the feedback ramped up. I want to fall in love with the visuals that we are able to come up with. I think I enjoy a lot of Minecraft's block designs, and we don't need to stray too far for most of them, but some things that I really like is some of the added detail that some the the blocks that I mentioned above received, I like connected textures where applicable, like especially on glass, I like the light to interact with the blocks realistically, and I like a little more vibrance. I don't like the grass in faithful because it kinda blends the texture too much and it looks like noisy green carpet. If there are other packs that I should check out to better define some of the things that I am looking for then I am happy to do some research with some direction, but hopefully this is enough to at least get started with."
+   }
+  }
+ ]
+}
