@@ -342,7 +342,7 @@ vec3 shadeWaterAbove(vec3 color, vec3 n, float var, vec3 scene0, float dist0, ve
     spec *= mix(0.55, 1.0, smoothstep(2.0, 30.0, dist0));
     // A high sun on the near water: a field of blinding facets read as the river's white patch
     // (r004-r005 critic, owner r005: follow the critic). Tamed by day, full at golden hour.
-    spec *= mix(0.35, 1.0, gh);
+    spec *= mix(0.20, 1.0, gh);   // kh: 0.35 still left a sparkling patch on river_noon
     // The long column at low sun (owner r005: lively's reach): a broad lobe, balanced by distance.
     float a2b = mix(0.004, 0.050, gh) + 2.0 * var;
     float broad = ggx(NdotH, a2b) * G;
@@ -367,7 +367,7 @@ vec3 shadeWaterAbove(vec3 color, vec3 n, float var, vec3 scene0, float dist0, ve
         spec += bpk * on * dotS * core * 3.0 * gh;
     }
 #endif
-    col += lightIrradiance() * min(spec, 400.0) * FH * sh * 3.0;
+    col += lightIrradiance() * min(spec, mix(80.0, 400.0, gh)) * FH * sh * 3.0;
 
 #if QF_FLECKS == 1
     // Bubbles and foam flecks (owner r002 loved the "bubble" effect on near water and

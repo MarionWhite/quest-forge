@@ -430,7 +430,7 @@ float hgPhase(float mu, float g) {
 }
 // What lights the clouds this hour: the light (sun or moon, its colour after the atmosphere), the
 // sky dome above, and the warm horizon sky toward a low sun, which lights the bases from below.
-struct CloudLight { vec3 L; vec3 E; vec3 top; vec3 under; float night; };
+struct CloudLight { vec3 L; vec3 E; vec3 top; vec3 under; float night; vec3 ph; };
 CloudLight cloudLight() {
     CloudLight c;
     c.L = normalize(mat3(gbufferModelViewInverse) * shadowLightPosition);
@@ -450,17 +450,23 @@ CloudLight cloudLight() {
     vec3 hz = normalize(vec3(lh.x * 0.5 - lh.y * 0.866, 0.05, lh.x * 0.866 + lh.y * 0.5));
     vec3 horizon = day ? SUN_I * lookupSkyView(hz, sunDirWorld(), LUT_SV_SUN) : vec3(0.0);
     c.under = amb * mix(0.35, 0.12, c.night) + horizon * gh * 0.8;
+    c.ph = vec3(1.0);
     return c;
 }
-vec3 cloudLum(CloudLight c, float od, float h, float mu, float dens) {
-    // Wrenninge's multiple-scattering octaves: each bounce sees less extinction and a softer lobe.
-    vec3 s = vec3(0.0);
-    float a = 1.0, b = 1.0, gk = 1.0;
+// The three octaves' phase functions depend only on the view and light directions: once per pixel.
+vec3 cloudPhases(float mu) {
+    vec3 ph;
+    float gk = 1.0;
     for (int k = 0; k < 3; k++) {
-        float ph = mix(hgPhase(mu, -0.20 * gk), hgPhase(mu, 0.82 * gk), 0.62) * 4.0 * PI;
-        s += c.E * (a * exp(-od * b) * ph);
-        a *= 0.52; b *= 0.42; gk *= 0.55;
+        ph[k] = mix(hgPhase(mu, -0.20 * gk), hgPhase(mu, 0.82 * gk), 0.62) * 4.0 * PI;
+        gk *= 0.55;
     }
+    return ph;
+}
+vec3 cloudLum(CloudLight c, float od, float h, float mu, float dens) {
+    // Wrenninge's multiple-scattering octaves: each bounce sees less extinction and a softer lobe
+    // (the lobes, c.ph, from cloudPhases).
+    vec3 s = c.E * (exp(-od) * c.ph.x + 0.52 * exp(-od * 0.42) * c.ph.y + 0.2704 * exp(-od * 0.1764) * c.ph.z);
     // Powder: the sunward side of a thick body is darker than its thin edges.
     float powder = 1.0 - 0.7 * exp(-od * 0.9 - dens * 2.0);
     s *= mix(1.0, powder, 0.75) / (4.0 * PI) * 2.2;
@@ -483,6 +489,7 @@ vec4 cloudMarch(vec3 dir, int steps, float jitter) {
     float dt = (t1 - t0) / float(steps);
     CloudLight c = cloudLight();
     float mu = dot(dir, c.L);
+    c.ph = cloudPhases(mu);
     float T = 1.0;
     vec3 S = vec3(0.0);
     float t = t0 + dt * jitter;
@@ -522,6 +529,7 @@ vec3 applyCloudsCheap(vec3 L, vec3 dir) {
     if (dir.y < 0.015 || camY > CL_BASE) return L;
     CloudLight c = cloudLight();
     float mu = dot(dir, c.L);
+    c.ph = cloudPhases(mu);
     float T = 1.0;
     vec3 S = vec3(0.0);
     for (int i = 0; i < 2; i++) {
