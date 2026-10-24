@@ -1,0 +1,77 @@
+{
+ "round": 4,
+ "id": "r004",
+ "note": "Built by tools/shaders/review/fetch_feedback.py from GitHub issues; the latest response is last.",
+ "responses": [
+  {
+   "issue": 5,
+   "url": "https://github.com/MarionWhite/quest-forge/issues/5",
+   "user": "MarionWhite",
+   "state": "open",
+   "created_at": "2026-10-24T03:05:35Z",
+   "updated_at": "2026-10-24T03:05:35Z",
+   "from": "body",
+   "answers": {
+    "round": 4,
+    "scenes": {
+     "golden": {
+      "choice": "A",
+      "rating": 3,
+      "note": "This is in a good spot, but we can always do better."
+     },
+     "leaves": {
+      "choice": "neither",
+      "rating": 4,
+      "note": "I agree with the critic. I just expect more cinematic light."
+     },
+     "water-sunset": {
+      "choice": "neither",
+      "rating": 4,
+      "note": "This is a really good starting platform and I hope that this isn't the best quality that we can produce because I am hoping to get more beauty out of a scene like this."
+     },
+     "night-new": {
+      "choice": "neither",
+      "rating": 4,
+      "note": "I think the lighting profile is right, but I would like to give the sky a little more texture and beauty to it. We should introduce a rotation of skies so that it doesn't get too samey."
+     },
+     "torch": {
+      "choice": "A",
+      "rating": 3,
+      "note": "Warmer was definitely the right call."
+     },
+     "hills": {
+      "choice": "B",
+      "rating": 3,
+      "note": "I kind of like the haze off to the left where the elevation drops, but I don't like that it washes out the color of everything at the same elevation as the camera."
+     },
+     "water-biomes": {
+      "choice": "B",
+      "rating": 5,
+      "note": "The critic is right on the fucking money again."
+     },
+     "flecks": {
+      "choice": "neither",
+      "rating": 5,
+      "note": "Do like 125% of whichever of these has more."
+     },
+     "water-direction": {
+      "choice": "A",
+      "rating": 5,
+      "note": "I would like a combination of complementary's unbound (realistic) style, and photons strict realism. I really like the screenshots from those 2 the best."
+     },
+     "clouds": {
+      "choice": "D",
+      "rating": 5,
+      "note": "This one looks much better, but is only good with the right execution. I don't want it to look like a png of this pasted onto the sky. I would want something more dynamic that looks beautiful and natural. I want this pack to have a truly beautiful sky."
+     },
+     "texture-pack": {
+      "choice": "neither",
+      "rating": 5,
+      "note": "A combination of A and C. We use faithful as a base, and get broad range of other packs to look for inspiration and references from."
+     }
+    },
+    "overall": "I feel like this is beginning to take shape, and I am really eager to get this to a really polished product. It would help to be able to add reverence images to this form. Like if I could screen grab on my Mac, and just drag and drop it in to the form to send over."
+   }
+  }
+ ]
+}
