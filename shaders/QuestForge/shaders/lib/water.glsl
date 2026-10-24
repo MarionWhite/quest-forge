@@ -31,6 +31,7 @@ const vec3 WATER_SCATTER = vec3(0.0015, 0.005, 0.006);
 uniform float qfWaterOcean;
 uniform float qfWaterReef;
 uniform float qfWaterSwamp;
+uniform float qfWaterRiver;
 // Absorption (what the water takes out per block) and scattering (what it sends back).
 // Glassy: little scattering, so the bed shows through and deep water goes dark, not milky.
 const vec3 WA_GLASSY = vec3(0.050, 0.024, 0.026), WS_GLASSY = vec3(0.0013, 0.0031, 0.0030);   // r003 critic: 0.0026 g read dark slate; round f read too cyan
@@ -40,7 +41,14 @@ const vec3 WA_OCEAN = vec3(0.16, 0.060, 0.030),   WS_OCEAN = vec3(0.0006, 0.0034
 const vec3 WA_REEF = vec3(0.20, 0.022, 0.026),    WS_REEF = vec3(0.0010, 0.0125, 0.0125);
 // Swamp: tannin and algae absorb blue as well as red, and the silt scatters: murky teal-olive,
 // the bed gone within two or three blocks (r003 critic: the first try was the clearest water).
-const vec3 WA_SWAMP = vec3(0.85, 0.50, 0.70),     WS_SWAMP = vec3(0.010, 0.022, 0.012);   // round f read as mint jade
+// r004 critic and owner: still too clear and grass-green. Silt has to scatter, not only absorb:
+// with scattering a tenth of absorption the water only darkened the bed; now the in-scattered
+// olive-brown hides it within a block or two of path.
+const vec3 WA_SWAMP = vec3(1.10, 0.80, 1.25),     WS_SWAMP = vec3(0.045, 0.060, 0.020);   // round f mint jade; ih (0.15, 0.19, 0.065) pea soup
+// River (r005; owner r004 agreed with the critic: the river was "a milky blob"): moving water
+// carries fine sediment, so a slightly green-brown, half-clear stream instead of glassy lake water;
+// the bed shows for two or three blocks.
+const vec3 WA_RIVER = vec3(0.15, 0.080, 0.115),   WS_RIVER = vec3(0.0030, 0.0060, 0.0040);   // ih: twice this read milky mint
 vec4 waterBiomeWeights() {   // ocean, reef, swamp, glassy
 #if QF_WATER_FORCE == 1
     return vec4(0.0, 0.0, 0.0, 1.0);
@@ -50,6 +58,8 @@ vec4 waterBiomeWeights() {   // ocean, reef, swamp, glassy
     return vec4(0.0, 1.0, 0.0, 0.0);
 #elif QF_WATER_FORCE == 4
     return vec4(0.0, 0.0, 1.0, 0.0);
+#elif QF_WATER_FORCE == 5
+    return vec4(0.0, 0.0, 0.0, 1.0);
 #else
     vec3 w = clamp(vec3(qfWaterOcean, qfWaterReef, qfWaterSwamp), 0.0, 1.0);
     float sum = w.x + w.y + w.z;
@@ -57,13 +67,25 @@ vec4 waterBiomeWeights() {   // ocean, reef, swamp, glassy
     return vec4(w, 1.0 - sum);
 #endif
 }
+// The share of the glassy weight that is river water (camera in a River biome).
+float waterRiverShare() {
+#if QF_WATER_FORCE == 5
+    return 1.0;
+#elif QF_WATER_FORCE > 0
+    return 0.0;
+#else
+    return clamp(qfWaterRiver, 0.0, 1.0);
+#endif
+}
 vec3 waterAbsorb() {
     vec4 w = waterBiomeWeights();
-    return WA_OCEAN * w.x + WA_REEF * w.y + WA_SWAMP * w.z + WA_GLASSY * w.w;
+    float r = waterRiverShare();
+    return WA_OCEAN * w.x + WA_REEF * w.y + WA_SWAMP * w.z + mix(WA_GLASSY, WA_RIVER, r) * w.w;
 }
 vec3 waterScatter() {
     vec4 w = waterBiomeWeights();
-    return WS_OCEAN * w.x + WS_REEF * w.y + WS_SWAMP * w.z + WS_GLASSY * w.w;
+    float r = waterRiverShare();
+    return WS_OCEAN * w.x + WS_REEF * w.y + WS_SWAMP * w.z + mix(WS_GLASSY, WS_RIVER, r) * w.w;
 }
 // Glassy water is calmer: fewer wind ripples, so it mirrors more cleanly.
 float waterBiomeRipple() {
@@ -83,7 +105,13 @@ float waterBiomeRipple() { return 1.0; }
 // 3 (owner r002: lively at sunset, calm at noon) is calm by day and eases to lively as the sun
 // gets low, where the extra ripples feed the glitter path; at noon lively's ripples aliased into
 // parallel streaks in the distance.
-#if QF_WATER_STYLE == 3
+// 4 (owner r004: A, the calm mirror, toward Complementary's realistic water and Photon's strict
+// realism): low swells and faint ripples, so the water mirrors the land and sky cleanly and the sun
+// makes one soft path; a little more life at low sun so the path still breaks up near the sun.
+#if QF_WATER_STYLE == 4
+#define WAVE_AMP (0.50 + 0.25 * goldenHour())
+#define RIPPLE_AMP ((0.45 + 0.25 * goldenHour()) * waterBiomeRipple())
+#elif QF_WATER_STYLE == 3
 #define WAVE_AMP (1.0 + 0.7 * goldenHour())
 #define RIPPLE_AMP ((1.0 + 0.6 * goldenHour()) * waterBiomeRipple())
 #elif QF_WATER_STYLE == 2

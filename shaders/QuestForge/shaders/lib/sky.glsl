@@ -110,6 +110,94 @@ vec3 stars(vec3 dir) {
     return tint * SUN_I * 0.02 * (0.3 + b) * twinkle * smoothstep(0.6, 0.0, d);
 }
 
+uniform int worldDay;
+
+// Night sky texture (r005; owner r004: "the lighting profile is right, but I would like to give the
+// sky a little more texture and beauty ... a rotation of skies so that it doesn't get too samey").
+// Drawn on sky pixels only (skyRadiance), never in skyScatter, so the light on the land, which
+// prepare.fsh integrates from skyScatter, is unchanged. Three nights, chosen per world day:
+//   1 deep clear: a dense field of faint stars under the bright ones, and a navy zenith;
+//   2 airglow: the faint green (and higher, red) bands long exposures show near the horizon;
+//   3 Milky Way: a soft band with dust lanes (the r002 one was rejected for beaded lanes: these
+//     are stretched along the band), washed out by a bright moon as in life.
+int nightVariant() {
+#if QF_NIGHT_SKY > 0
+    return QF_NIGHT_SKY;
+#else
+    return 1 + int(floor(hash12(vec2(float(worldDay) * 1.37 + 0.5, 7.1)) * 2.999));
+#endif
+}
+
+// Faint background stars: many, dim, slightly coloured; denser where `boost` is high.
+vec3 faintStars(vec3 dir, float boost) {
+    vec3 p = dir * 900.0;
+    vec3 cell = floor(p);
+    float h = hash13(cell + 0.37);
+    float cut = mix(0.982, 0.94, boost);
+    if (h < cut) return vec3(0.0);
+    vec3 centre = cell + 0.5 + (vec3(hash13(cell + 2.3), hash13(cell + 4.7), hash13(cell + 6.1)) - 0.5) * 0.5;
+    float d = length(p - centre);
+    float b = (h - cut) / (1.0 - cut);
+    b = b * b;
+    vec3 tint = mix(vec3(0.75, 0.85, 1.0), vec3(1.0, 0.88, 0.72), hash13(cell + 8.3));
+    return tint * SUN_I * 0.0045 * (0.25 + b) * smoothstep(0.7, 0.0, d);
+}
+
+float fbm2(vec2 p) {
+    float v = 0.0, a = 0.5;
+    for (int i = 0; i < 4; i++) {
+        v += a * valueNoise(p);
+        p = mat2(1.6, 1.2, -1.2, 1.6) * p + 4.7;
+        a *= 0.5;
+    }
+    return v;
+}
+
+vec3 nightSkyTexture(vec3 dir) {
+    int v = nightVariant();
+    float moonWash = 1.0 - 0.85 * moonBrightness();   // a bright moon hides the faint sky
+    float up = clamp(dir.y, 0.0, 1.0);
+    // A touch of navy towards the zenith on every night (r004 critic: near-black).
+    vec3 L = vec3(0.10, 0.16, 0.42) * MOON_I * 0.0035 * smoothstep(0.0, 0.6, up);
+    if (v == 1) {
+        L += faintStars(dir, 0.35) * mix(0.5, 1.0, moonWash);
+        L *= 1.15;
+    } else if (v == 2) {
+        L += faintStars(dir, 0.15) * mix(0.5, 1.0, moonWash);
+        // Airglow: a green layer about 90 km up seen edge-on, so brightest 5-20 degrees above the
+        // horizon, combed by gravity waves into slow ripples; a fainter red layer above it.
+        float az = atan(dir.z, dir.x);
+        float el = asin(clamp(dir.y, -1.0, 1.0));
+        float wave = fbm2(vec2(az * 5.0 + animTime() * 0.004, el * 9.0));
+        float ripple = 0.55 + 0.45 * sin(az * 23.0 + el * 40.0 + wave * 6.0);
+        float green = exp(-pow((el - 0.20) / 0.11, 2.0)) * smoothstep(0.0, 0.05, el) * (0.45 + 0.55 * wave) * mix(0.75, 1.0, ripple);
+        float red = exp(-pow((el - 0.42) / 0.16, 2.0)) * (0.5 + 0.5 * fbm2(vec2(az * 3.0, el * 4.0) + 9.0));
+        L += (vec3(0.30, 1.0, 0.42) * green * 0.010 + vec3(1.0, 0.30, 0.22) * red * 0.0035) * MOON_I * moonWash;
+    } else {
+        // Milky Way: a great circle tilted across the sky; coordinates along and across the band.
+        const vec3 POLE = vec3(0.946, -0.324, 0.0);   // the band crosses the night_sky view (yaw 200, 45 deg up)
+        vec3 a1 = normalize(cross(POLE, vec3(0.0, 1.0, 0.0)));
+        vec3 a2 = cross(POLE, a1);
+        float across = dot(dir, POLE);
+        float along = atan(dot(dir, a2), dot(dir, a1));
+        // The bulge (galactic centre) towards one end: wider, brighter, warmer.
+        float bulge = exp(-pow((along - 0.9) / 0.55, 2.0));
+        float width = mix(0.11, 0.20, bulge);
+        float band = exp(-pow(across / width, 2.0));
+        // Clumpy star clouds, stretched along the band (anisotropic coordinates).
+        float clouds = smoothstep(0.30, 0.80, fbm2(vec2(along * 12.0, across * 48.0)));
+        // Dust lanes: dark, long and thin, wandering a little off the centre line.
+        float laneC = across - 0.025 * sin(along * 2.3) - 0.02 * (fbm2(vec2(along * 3.0, 1.3)) - 0.5);
+        float lane = exp(-pow(laneC / mix(0.018, 0.04, bulge), 2.0)) * smoothstep(0.35, 0.65, fbm2(vec2(along * 4.0, across * 12.0) + 3.3));
+        float lanes2 = smoothstep(0.55, 0.75, fbm2(vec2(along * 5.0, across * 40.0) + 11.0)) * 0.5;
+        float glow = band * (0.12 + 0.88 * clouds) * (1.0 - 0.8 * lane) * (1.0 - lanes2 * band);
+        vec3 col = mix(vec3(0.78, 0.84, 1.0), vec3(1.0, 0.90, 0.74), bulge * 0.7 + 0.15);
+        L += col * glow * (1.0 + 1.2 * bulge) * MOON_I * 0.012 * moonWash * smoothstep(-0.02, 0.12, dir.y);
+        L += faintStars(dir, 0.15 + 0.85 * band * (1.0 - lane)) * mix(0.5, 1.0, moonWash);
+    }
+    return L;
+}
+
 // How far into golden hour the sun is: 1 with the sun a few degrees up, 0 by mid-afternoon
 // and once it has set. Used by the QF_CAL_GOLD variants (Shader Lab r001).
 float goldenHour() {
@@ -230,6 +318,144 @@ vec3 applyClouds(vec3 L, vec3 dir) {
 }
 #endif
 
+#if QF_CLOUDS == 2
+// Broken clouds, raymarched (r005; owner r004: D, dramatic broken clouds, "I don't want it to
+// look like a png of this pasted onto the sky ... something more dynamic that looks beautiful and
+// natural"). A slab of cloud 300-620 blocks up, marched along the view ray: big clumps from a
+// low-frequency field whose threshold rises with height (flat bases, domed tops), edges eaten by
+// finer noise that shifts with height and time, so the clouds billow as they drift. Each sample is
+// lit by two looks towards the sun (Beer-Lambert, plus a soft multiple-scattering term), a
+// two-lobe phase function (silver linings towards the sun) and the sky dome, darker underneath.
+// Coverage changes from day to day.
+// i0 smoke: at 1/1100 the clumps were sky-sized smooth blobs and the long slab near the horizon
+// smeared into streaks; smaller, more broken clumps, and a shorter path at low angles.
+// i1: a 2D field through a 260-block slab drew vertical walls that streaked towards the horizon;
+// thinner, pinched tops, sheared by the wind, and 3D noise eats the edges.
+// i2: still smeared radially: soft, thin clumps let each ray integrate density over hundreds of
+// blocks of horizontal path. Dense clumps with a sharp edge go opaque at the first wall.
+const float CL_BASE = 300.0, CL_TOP = 470.0, CL_SCALE = 1.0 / 520.0, CL_SIGMA = 0.16;
+#if QF_PRESET >= 3
+const int CL_STEPS = 14;
+#elif QF_PRESET == 2
+const int CL_STEPS = 10;
+#elif QF_PRESET == 1
+const int CL_STEPS = 7;
+#else
+const int CL_STEPS = 5;
+#endif
+vec2 cloudWind() { return vec2(animTime() * 3.2, animTime() * 1.1); }
+float cloudThreshold() {
+    float day = hash12(vec2(float(worldDay) * 0.731 + 0.2, 2.9));
+    // Thinner at night, so most nights show the night sky (r005: the night views were all cloud).
+    float night = 1.0 - smoothstep(-0.12, 0.04, sunDirWorld().y);
+    return mix(mix(0.53, 0.47, day) + 0.07 * night, 0.32, rainStrength);   // i3: blue gaps too few
+}
+float valueNoise3(vec3 p) {
+    vec3 i = floor(p), f = fract(p);
+    f = f * f * (3.0 - 2.0 * f);
+    float a = mix(mix(hash13(i), hash13(i + vec3(1, 0, 0)), f.x), mix(hash13(i + vec3(0, 1, 0)), hash13(i + vec3(1, 1, 0)), f.x), f.y);
+    float b = mix(mix(hash13(i + vec3(0, 0, 1)), hash13(i + vec3(1, 0, 1)), f.x), mix(hash13(i + vec3(0, 1, 1)), hash13(i + vec3(1, 1, 1)), f.x), f.y);
+    return mix(a, b, f.z);
+}
+float cloudDens(vec3 p, bool detail) {
+    float h = (p.y - CL_BASE) / (CL_TOP - CL_BASE);
+    if (h <= 0.0 || h >= 1.0) return 0.0;
+    vec2 q = (p.xz + cloudWind()) * CL_SCALE + vec2(0.30, 0.18) * h;   // tops sheared downwind
+    float base = valueNoise(q) * 0.50 + valueNoise(q * 2.03 + 5.1) * 0.26 + valueNoise(q * 4.13 + 1.7) * 0.15
+               + valueNoise(q * 8.37 + 3.9) * 0.09;
+    float th = cloudThreshold() + 0.50 * h + 0.10 * h * h + 0.05 * (1.0 - smoothstep(0.0, 0.08, h));   // ih: vertical walls streaked
+    float d = base - th;
+    if (d <= -0.10) return 0.0;
+    if (detail) {
+        vec3 q3 = vec3(q.x * 10.0 + animTime() * 0.010, h * 3.2 - animTime() * 0.004, q.y * 10.0);
+        float e = valueNoise3(q3) * 0.62 + valueNoise3(q3 * 2.6 + 9.2) * 0.38;
+        d -= (e - 0.40) * 0.30 * (0.6 + 1.0 * h);
+    }
+    return clamp(d * 11.0, 0.0, 1.0);
+}
+float cloudShadow(vec3 worldPos, vec3 L) {
+    if (L.y < 0.05 || worldPos.y > CL_BASE) return 1.0;
+    float ym = mix(CL_BASE, CL_TOP, 0.25);
+    vec3 q = worldPos + L * ((ym - worldPos.y) / L.y);
+    q.y = ym;
+    return 1.0 - 0.6 * cloudDens(q, false) * smoothstep(0.05, 0.2, L.y);
+}
+float hgPhase(float mu, float g) {
+    return (1.0 - g * g) / (4.0 * PI * pow(1.0 + g * g - 2.0 * g * mu, 1.5));
+}
+// Scattered light (rgb) and transmittance (a) of the cloud slab along dir.
+vec4 cloudMarch(vec3 dir, int steps, float jitter) {
+    float camY = cameraPosition.y;
+    if (dir.y < 0.012 || camY > CL_BASE) return vec4(0.0, 0.0, 0.0, 1.0);
+    float t0 = (CL_BASE - camY) / dir.y;
+    if (t0 > 20000.0) return vec4(0.0, 0.0, 0.0, 1.0);
+    float t1 = min((CL_TOP - camY) / dir.y, t0 + 600.0);
+    float dt = (t1 - t0) / float(steps);
+    vec3 Ld = normalize(mat3(gbufferModelViewInverse) * shadowLightPosition);
+    bool day = sunDirWorld().y > -0.02;
+    vec3 E = (day ? sunIrradiance() : moonIrradiance()) * smoothstep(-0.06, 0.03, Ld.y) * mix(1.0, 0.35, rainStrength);
+    float mu = dot(dir, Ld);
+    float ph = mix(hgPhase(mu, -0.15), hgPhase(mu, 0.80), 0.55) * 4.0;
+    vec3 amb = lutFetch(C_AMB_UP).rgb / PI * mix(1.0, 0.6, rainStrength);
+    float T = 1.0;
+    vec3 S = vec3(0.0);
+    float t = t0 + dt * jitter;
+    for (int i = 0; i < steps; i++) {
+        vec3 p = cameraPosition + dir * t;
+        float dens = cloudDens(p, true);
+        if (dens > 0.002) {
+            float h = (p.y - CL_BASE) / (CL_TOP - CL_BASE);
+            float od = (cloudDens(p + Ld * 18.0, false) * 18.0 + cloudDens(p + Ld * 70.0, false) * 50.0
+                      + cloudDens(p + Ld * 220.0, false) * 140.0) * CL_SIGMA;
+            float beer = exp(-od);
+            float ms = exp(-od * 0.10);
+            // Powder: the sunward rim of a thick cloud is darker than its thin edges.
+            float powder = 1.0 - 0.75 * exp(-od * 0.8);
+            // i3: the bodies were one flat grey. Multiple scattering carries light deep into a cloud,
+            // more of it near the sunlit top; the base stays darker.
+            vec3 lum = E * (beer * (ph + 0.15) * powder + ms * mix(0.05, 0.22, h))
+                     + amb * mix(0.30, 1.10, h * h);
+            float Ts = exp(-dens * CL_SIGMA * dt);
+            S += T * lum * (1.0 - Ts);
+            T *= Ts;
+            if (T < 0.02) break;
+            t += dt;
+        } else {
+            t += dt * 1.6;   // empty air: stride on
+        }
+        if (t > t1) break;
+    }
+    // Far clouds melt into the sky towards the horizon.
+    float fade = exp(-t0 / 6000.0) * smoothstep(0.015, 0.10, dir.y);
+    return vec4(S * fade, mix(1.0, T, fade));
+}
+vec3 applyClouds2(vec3 L, vec3 dir, int steps) {
+    float j = 0.5;
+#ifdef FSH
+    j = ign(gl_FragCoord.xy + float(frameCounter % 64) * vec2(5.588, 3.124));
+#endif
+    vec4 c = cloudMarch(dir, steps, j);
+    return L * c.a + c.rgb;
+}
+// One look at the slab's lower third, for reflections (water): no march.
+vec3 applyCloudsCheap(vec3 L, vec3 dir) {
+    float camY = cameraPosition.y;
+    if (dir.y < 0.015 || camY > CL_BASE) return L;
+    float t = (mix(CL_BASE, CL_TOP, 0.3) - camY) / dir.y;
+    vec3 p = cameraPosition + dir * t;
+    float d = cloudDens(p, false);
+    if (d <= 0.0) return L;
+    vec3 Ld = normalize(mat3(gbufferModelViewInverse) * shadowLightPosition);
+    bool day = sunDirWorld().y > -0.02;
+    vec3 E = (day ? sunIrradiance() : moonIrradiance()) * smoothstep(-0.06, 0.03, Ld.y);
+    float beer = exp(-cloudDens(p + Ld * 40.0, false) * 40.0 * CL_SIGMA);
+    float ph = mix(hgPhase(dot(dir, Ld), -0.15), hgPhase(dot(dir, Ld), 0.80), 0.55) * 4.0;
+    vec3 col = E * (beer * (ph + 0.15) * 0.7 + 0.06) + lutFetch(C_AMB_UP).rgb / PI * 0.6;
+    float a = clamp(d * 1.4, 0.0, 1.0) * exp(-t / 6000.0) * smoothstep(0.015, 0.10, dir.y);
+    return mix(L, col, a);
+}
+#endif
+
 // The full sky in a direction: scattering plus the sun, moon and stars seen through it.
 vec3 skyRadiance(vec3 dir) {
     vec3 L = skyScatter(dir);
@@ -240,12 +466,15 @@ vec3 skyRadiance(vec3 dir) {
         L += T * (sunDisk(dir, sunDir) + moonDisk(dir, moonDirWorld()));
         float night = 1.0 - smoothstep(-0.12, 0.04, sunDir.y);
         L += T * stars(dir) * night;
+        if (night > 0.0) L += T * nightSkyTexture(dir) * night;
 #if QF_GLITTER == 2
         L += T * sunAureole(dir, sunDir);
 #endif
     }
 #if QF_CLOUDS == 1
     L = applyClouds(L, dir);
+#elif QF_CLOUDS == 2
+    L = applyClouds2(L, dir, CL_STEPS);
 #endif
     return L;
 }

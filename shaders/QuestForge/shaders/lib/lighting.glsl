@@ -104,7 +104,7 @@ vec3 shadeSurface(Surface s, vec3 viewDir, vec2 pixel) {
     // lake bed 4 blocks down stayed unlit at 0.55).
     shadow = smoothstep(isEyeInWater == 1 ? 0.25 : 0.55, 0.92, s.skyLight);
 #endif
-#if QF_CLOUDS == 1
+#if QF_CLOUDS > 0
     shadow *= cloudShadow(s.scenePos + cameraPosition, L);
 #endif
     // Foliage: wrapped diffuse plus light through the leaf from behind (look bible 10).

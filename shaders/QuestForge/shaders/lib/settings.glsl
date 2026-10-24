@@ -30,19 +30,22 @@
 #define QF_HAZE 0.35 // [0.2 0.35 0.4 0.6 0.8 1.0]   development (r002): distance-haze density (owner r002: 0.35, "definitely the best")
 #define QF_HORIZON_FLOOR 1 // [0 1]   development (r002): the sky below the horizon fades to a darker, cooler far-land tone (no beige wall)
 #define QF_TORCH_WARM 4 // [0 1 2 3 4]   development (r002): block-light colour. 0 r001 (~4000 K), 1 tungsten, 2 tungsten to candle with distance (r002 pick), 3 candle, 4 a little warmer than 2 (owner r002)
-#define QF_WATER_STYLE 3 // [0 1 2 3]   development (r002): 0 r001 (sky-only Fresnel), 1 calm (reflections, glitter, ripples), 2 lively, 3 calm by day and lively at low sun (owner r002: C at sunset, B at noon)
+#define QF_WATER_STYLE 4 // [0 1 2 3 4]   development (r002): 0 r001 (sky-only Fresnel), 1 calm (reflections, glitter, ripples), 2 lively, 3 calm by day and lively at low sun (owner r002: C at sunset, B at noon), 4 calm mirror (owner r004: A, Complementary/Photon realism)
 #define QF_WATER_COLOR 0 // [0 1 2]   development (r002): 0 clear depth gradient, 1 teal-green, 2 deep blue (fallback when QF_BIOME_WATER is 0)
 #define QF_BIOME_WATER 1 // [0 1]   water colour by biome (owner r002): glassy lakes and rivers, deep-blue ocean, turquoise coast and reef, murky teal swamp
-#define QF_WATER_FORCE 0 // [0 1 2 3 4]   development (r003): force one biome water (1 glassy, 2 ocean, 3 reef, 4 swamp) for the Shader Lab
+#define QF_WATER_FORCE 0 // [0 1 2 3 4 5]   development (r003): force one biome water (1 glassy, 2 ocean, 3 reef, 4 swamp, 5 river) for the Shader Lab
 #define QF_GLITTER 0 // [0 1 2]   development (r003; owner r003: A, 0 "so much more balanced"): sunset water. 0 r002 lively (hash sparkles), 1 sparkles from the surface's own micro-ripples, 2 that plus a cinematic sun (aureole, a brighter, wider path)
-#define QF_FLECKS 0 // [0 1]   development (r003): bright bubble and foam flecks on near water (owner r003: "a bit much"; r002's near-water sparkles, QF_GLITTER 0, are the "bubbles" he liked)
+#define QF_FLECKS 1 // [0 1]   development (r003): bright bubble and foam flecks on near water (owner r003: "a bit much"; r002's near-water sparkles, QF_GLITTER 0, are the "bubbles" he liked; owner r004: 1.25x round 3's full amount)
 #define QF_AMBER 0 // [0 1 2]   development (r003): golden-hour amber on lit faces and through leaves. 0 r002 (owner r003: B on golden and leaves), 1 amber with sunlit leaves glowing, 2 strong
 #define QF_NEW_MOON 0.25 // [0.1 0.25 0.35 0.5 0.65]   development (r003): moon and sky light left at new moon (r002 0.1 crushed the sky to brown-black; owner r002: keep the full-moon feel, a bit darker; owner r003: B 0.25, "deep rich darkness")
-#define QF_SUN_SPARKLE 0 // [0 1]   development (r004): bright glints right under a low sun on r002's lively water
+#define QF_SUN_SPARKLE 1 // [0 1]   development (r004/r005): bright, steady glints right under a low sun (owner r003: "spots right below the sun that have the light intensity depth")
 #define QF_MOTES 1 // [0 1 2]   development (r003): ambient particles: dust and pollen in sunbeams, torch-lit dust underground, bubbles under water. 2 denser
 #define QF_FLICKER 1 // [0 1]   development (r003): torchlight breathes slightly, varying from place to place
-#define QF_AERIAL 0 // [0 1]   development (r003): aerial perspective, distant land turns blue and pale (owner r002: Extreme Hills bland; r003: his golden and leaves picks had it off, and he rejected the hills colour range)
-#define QF_CLOUDS 0 // [0 1]   development (r003): a cheap cloud layer with its shadows on the land
+#define QF_AERIAL 1 // [0 1]   development (r003): aerial perspective, distant land turns blue and pale (owner r002: Extreme Hills bland; r003: his golden and leaves picks had it off, and he rejected the hills colour range; r004: B, on)
+#define QF_HAZE_HEIGHT 1 // [0 1]   development (r005): haze and aerial perspective by height below the camera as well as distance (owner r004: haze where the land drops away, not over land at eye level)
+#define QF_SHAFTS 1 // [0 1 2]   development (r005): volumetric sunlight through gaps (light shafts), warm at golden hour (owner r004: "more cinematic light"). 2 stronger
+#define QF_NIGHT_SKY 0 // [0 1 2 3]   development (r005): night sky. 0 a rotation night by night, 1 deep clear starfield, 2 airglow bands, 3 Milky Way (owner r004: more texture, a rotation so it is not samey)
+#define QF_CLOUDS 2 // [0 1 2]   development (r003/r005): 1 the r003 flat deck, 2 raymarched broken clouds (owner r004: D, dramatic broken clouds, "dynamic ... beautiful and natural"), with shadows on the land
 
 // 0 Potato, 1 Low, 2 Medium, 3 High, 4 Ultra.
 #if QF_PRESET == 0

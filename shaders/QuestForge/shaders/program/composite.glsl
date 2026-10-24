@@ -159,7 +159,7 @@ vec3 ambientMotes(vec3 viewDir, float dist0, float pixelBlock, float eyeSky) {
             float along = dot(v, d);
             if (along > 0.15 && along < maxD) {
                 float perp2 = max(dot(v, v) - along * along, 0.0);
-                float rw = along * pxA * (under ? 1.2 : 1.1);
+                float rw = along * pxA * (under ? 1.4 : 1.6);   // r005: ~1.3 px dots vanished under TAA
                 float cov = smoothstep(rw * rw * 1.6, 0.0, perp2);
                 if (cov > 0.0) {
                     vec3 lit;
@@ -173,9 +173,9 @@ vec3 ambientMotes(vec3 viewDir, float dist0, float pixelBlock, float eyeSky) {
 #endif
                         // Only the forward cone: away from the sun the dust is too faint to see,
                         // and against the bright sky it read as daytime stars (r003 smoke).
-                        lit = E * vis * max(phase - 0.04, 0.0) * 2.0
+                        lit = E * vis * (max(phase - 0.04, 0.0) * 2.4 + 0.03)
                             + skyIrradiance(vec3(0.0, 1.0, 0.0)) * eyeSky * eyeSky * 0.005
-                            + Eblock * 0.10;
+                            + Eblock * 0.32;
                     }
                     float fadeD = smoothstep(maxD, maxD * 0.6, along) * smoothstep(0.15, 0.8, along);
                     sum += lit * tint * cov * fadeD * fadeLife * 0.08 * MOTE_GAIN;
@@ -188,6 +188,53 @@ vec3 ambientMotes(vec3 viewDir, float dist0, float pixelBlock, float eyeSky) {
         else                                    { cell.z += stepv.z; tMax.z += inv.z; if (tMax.z * MOTE_CELL > maxD + 2.0) break; }
     }
     return sum;
+}
+#endif
+
+#if QF_SHAFTS > 0 && QF_SHADOWS
+// Light shafts (r005; owner r004, leaves: "I just expect more cinematic light"; the critic missed
+// round f's warm shaft through the trees). Sunlit air along the view ray, from the shadow map:
+// a few samples, denser near the camera and dithered per pixel and frame (TAA resolves it), give
+// the metres of lit air; a forward-scattering phase makes it show mostly towards the sun, where
+// trunks and leaves cut it into beams. Thicker and amber at golden hour.
+#if QF_PRESET >= 3
+const int SHAFT_STEPS = 12;
+#elif QF_PRESET == 2
+const int SHAFT_STEPS = 8;
+#else
+const int SHAFT_STEPS = 6;
+#endif
+#if QF_SHAFTS == 2
+const float SHAFT_GAIN = 2.0;
+#else
+const float SHAFT_GAIN = 1.0;
+#endif
+float shadowRaw(vec3 scenePos) {
+    vec3 clip = (shadowProjection * (shadowModelView * vec4(scenePos, 1.0))).xyz;
+    if (max(abs(clip.x), abs(clip.y)) > 0.98) return 1.0;
+    vec3 sp = distortShadow(clip) * 0.5 + 0.5;
+    ivec2 t = clamp(ivec2(sp.xy * float(shadowMapResolution)), ivec2(0), ivec2(shadowMapResolution - 1));
+    return step(sp.z - 0.0004, texelFetch(shadowtex0, t, 0).r);
+}
+vec3 lightShafts(vec3 viewDir, float dist, float eyeSky) {
+    vec3 L = lightDirWorld();
+    float outside = smoothstep(0.1, 0.5, eyeSky);
+    if (outside <= 0.0 || L.y < 0.0) return vec3(0.0);
+    float maxD = min(dist, 96.0);
+    float mu = dot(viewDir, L);
+    const float g = 0.78;
+    float phase = 0.85 * (1.0 - g * g) / (4.0 * PI * pow(1.0 + g * g - 2.0 * g * mu, 1.5)) + 0.15 / (4.0 * PI);
+    float j = ign(gl_FragCoord.xy + float(frameCounter % 64) * vec2(3.17, 7.91));
+    float lit = 0.0;
+    for (int i = 0; i < SHAFT_STEPS; i++) {
+        float f = (float(i) + j) / float(SHAFT_STEPS);
+        lit += shadowRaw(viewDir * (f * f * maxD)) * 2.0 * f;
+    }
+    lit *= maxD / float(SHAFT_STEPS);   // metres of sunlit air along the ray
+    float gh = goldenHour();
+    float sigma = mix(0.0008, 0.0036, gh) * SHAFT_GAIN * (1.0 + rainStrength);   // i0: 0.0013 barely showed
+    vec3 E = lightIrradiance() * mix(vec3(1.0), vec3(1.25, 0.95, 0.62), gh);
+    return E * phase * sigma * lit * outside * smoothstep(0.0, 0.06, L.y);
 }
 #endif
 
@@ -228,6 +275,8 @@ void main() {
             vec3 refl = skyScatter(R);
 #if QF_CLOUDS == 1
             refl = applyClouds(refl, R);
+#elif QF_CLOUDS == 2
+            refl = applyCloudsCheap(refl, R);
 #endif
             refl *= smoothstep(0.3, 0.9, skyLight);
 #if QF_WATER_STYLE > 0
@@ -272,27 +321,48 @@ void main() {
             lively = 1.0;
 #elif QF_WATER_STYLE == 3
             lively = goldenHour();
+#elif QF_WATER_STYLE == 4
+            lively = goldenHour() * 0.5;
 #endif
+#if QF_WATER_STYLE == 4
+            // Calm mirror (owner r004: A): one soft path, much narrower than the lively water's.
+            float GLITTER_A2 = mix(0.0030, 0.022, goldenHour()), GLITTER_SPARK = 1.0;   // ih: 0.010 at noon was the milky blob
+#else
             float GLITTER_A2 = mix(0.03, 0.05, lively), GLITTER_SPARK = mix(1.0, 1.6, lively);   // GGX alpha^2 of the broad lobe
+#endif
             float broad = ggx(NdotH, GLITTER_A2) * NdotL / (4.0 * max(NdotV, 0.05) + 0.3);
 #if QF_GLITTER == 0
             // r002: sparkles gated by a hash on a fine grid that drifts with the waves.
             vec2 g = (scene0.xz + cameraPosition.xz) * 6.0 + vec2(animTime() * 1.3, -animTime() * 0.9);
-            float sparkle = step(0.93, hash12(floor(g))) * (1.0 - smoothstep(16.0, 96.0, dist0));
-            float tight = ggx(NdotH, 0.0004) * NdotL / (4.0 * max(NdotV, 0.05) + 0.3);
+#if QF_WATER_STYLE == 4
+            const float SPARK_CUT = 0.975, BROAD_W = 0.30;
+            float noonTame0 = mix(0.22, 1.0, goldenHour());   // r004: river_noon's milky blob
+#else
+            const float SPARK_CUT = 0.93, BROAD_W = 0.35;
             float noonTame0 = mix(0.45, 1.0, lively);   // r003 critic: river_noon's blown highlight
-            spec = (spec + broad * 0.35) * noonTame0 + tight * sparkle * GLITTER_SPARK * 0.15;
+#endif
+            float sparkle = step(SPARK_CUT, hash12(floor(g))) * (1.0 - smoothstep(16.0, 96.0, dist0));
+            float tight = ggx(NdotH, 0.0004) * NdotL / (4.0 * max(NdotV, 0.05) + 0.3);
+            spec = (spec + broad * BROAD_W) * noonTame0 + tight * sparkle * GLITTER_SPARK * 0.15;
 #if QF_SUN_SPARKLE == 1
             {
+                // r005: r004's glints moved and twinkled six times a second, so TAA averaged them
+                // into the path and they never showed in a still frame. These are world-anchored
+                // facets that hold for a second or two, sized from the pixel footprint (cells in
+                // powers of two, flattened like the water seen edge-on), lit with a probability that
+                // follows the path's core, and several times brighter than the path itself.
                 float bpk = ggx(1.0, GLITTER_A2) * NdotL / (4.0 * max(NdotV, 0.05) + 0.3);
-                float core = clamp(broad / max(bpk, 1e-4), 0.0, 1.0);
-                core = core * core * core;
-                vec2 g2 = (scene0.xz + cameraPosition.xz) * 3.0 + vec2(-animTime() * 0.8, animTime() * 1.1);
+                float core = smoothstep(0.06, 0.6, clamp(broad / max(bpk, 1e-4), 0.0, 1.0));
+                float pxS = 2.0 / (gbufferProjection[1][1] * viewHeight);
+                float lc = ceil(log2(max(dist0 * pxS * 2.5 / max(NdotV, 0.12), 0.02)));
+                float cw = exp2(lc);
+                vec2 g2 = (scene0.xz + cameraPosition.xz + vec2(animTime() * 0.03, -animTime() * 0.02)) / cw;
                 vec2 id2 = floor(g2);
-                float tw = floor(animTime() * 6.0 + hash12(id2) * 6.0);
-                float on = step(1.0 - 0.55 * core, hash12(id2 + tw * 7.31));
-                float dotS = smoothstep(0.5, 0.15, length(fract(g2) - 0.5));
-                spec += broad * on * dotS * core * 2.2 * goldenHour();
+                float tw = floor(animTime() * 0.6 + hash12(id2 + lc * 3.3) * 4.0);
+                float on = step(1.0 - 0.42 * core, hash12(id2 + tw * 7.31 + lc * 1.7));
+                vec2 off = (vec2(hash12(id2 + 1.3), hash12(id2 + 2.7)) - 0.5) * 0.4;
+                float dotS = smoothstep(0.30, 0.08, length(fract(g2) - 0.5 - off));
+                spec += bpk * on * dotS * core * 3.0 * goldenHour();
             }
 #endif
 #else
@@ -351,7 +421,7 @@ void main() {
                 vec2 cell = floor(gp);
                 float h = hash12(cell);
                 float shallow = 1.0 - smoothstep(0.6, 2.5, thick);
-                float keep = mix(0.994, 0.972, shallow);   // r003: about half of round f
+                float keep = mix(0.98125, 0.925, shallow);   // owner r004: 1.25x round f (0.985, 0.94)
                 if (h > keep) {
                     vec2 c = cell + 0.25 + 0.5 * vec2(hash12(cell + 3.7), hash12(cell + 9.1));
                     // Smaller and softer close up (r003 critic: the nearest read as confetti).
@@ -433,6 +503,19 @@ void main() {
             start = mix(start, 20.0, nightFog);
             density = mix(density, 1.0 / 64.0, nightFog);
             density *= mix(1.0, 0.2, wCrisp);   // crisp: mountains and plains
+            // Height (owner r004, hills: liked "the haze off to the left where the elevation drops",
+            // not that "it washes out the color of everything at the same elevation as the camera").
+            // Air thickens towards the valley floor and the eye looks through more of it there, so
+            // land well below the camera takes the full haze and land at eye level keeps its colour.
+            float hw = 1.0;
+#if QF_HAZE_HEIGHT == 1
+            {
+                float below = -scene0.y;   // blocks below the camera
+                hw = mix(0.25, 1.25, smoothstep(1.5, 40.0, below)) + 0.2 * smoothstep(10.0, 80.0, -below);
+                hw = mix(hw, 1.0, nightFog);
+            }
+#endif
+            density *= hw;
             float amount = 1.0 - exp(-max(dist0 - start, 0.0) * density);
             amount = max(amount, smoothstep(far * 0.82, far * 1.0, dist0));
             vec3 haze = skyScatter(viewDir);
@@ -452,12 +535,15 @@ void main() {
                 vec3 hdir = normalize(vec3(side.x, max(viewDir.y, 0.03), side.y));
                 vec3 air = skyScatter(hdir) * mix(1.0, 0.45, nightFog);
                 float apD = mix(400.0, 900.0, nightFog);
-                vec3 T = exp(-dist0 / apD * vec3(0.55, 0.78, 1.15));
+                vec3 T = exp(-dist0 * hw / apD * vec3(0.55, 0.78, 1.15));
                 color = mix(color, color * T + air * (1.0 - T), lit);
             }
 #endif
             color = mix(color, haze, amount * lit);
         }
+#if QF_SHAFTS > 0 && QF_SHADOWS
+        color += lightShafts(viewDir, dist0, eyeSky);
+#endif
         if (wMoody + wStorm > 0.0) {
             // Heavy fog is a lit medium, not a sky-coloured wall (r001 critic: the moody and
             // blizzard previews were flat beige and grey slabs that stopped at the sky): droplets

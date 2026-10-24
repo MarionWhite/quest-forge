@@ -54,3 +54,8 @@ beach_noon       -638.5  66.5   202.5    293    10     6000
 # lake_glitter: lake_glow with the sun 9 deg up, just clear of the cliff, so the glitter path
 # runs all the way to the camera (at 12400 the cliff shades the near water).
 lake_glitter     285.5   63.4   -287.5   97     3      12150
+# r005: ocean_sunset looks west over open ocean into a sun 9 deg up, with no land to shade the water
+# or catch the reflected rays, for the sun path and its glints (lake views put the sun behind the
+# cliff). sky_noon tilts the plains view up into the noon sky, for the clouds.
+ocean_sunset     -567.5  64.5   232.5    96     3      12150
+sky_noon         264.5   auto   176.5    135    -22    6000
