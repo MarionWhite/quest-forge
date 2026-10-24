@@ -1,0 +1,82 @@
+{
+ "round": 5,
+ "id": "r005",
+ "note": "Built by tools/shaders/review/fetch_feedback.py from GitHub issues; the latest response is last.",
+ "responses": [
+  {
+   "issue": 6,
+   "url": "https://github.com/MarionWhite/quest-forge/issues/6",
+   "user": "MarionWhite",
+   "state": "open",
+   "created_at": "2026-10-24T12:29:13Z",
+   "updated_at": "2026-10-24T12:29:13Z",
+   "from": "body",
+   "answers": {
+    "round": 5,
+    "scenes": {
+     "clouds": {
+      "choice": "A",
+      "rating": 4,
+      "note": "This is a very good start, but we have a lot of ground to cover to get to perfect."
+     },
+     "sunset-sky": {
+      "choice": "A",
+      "rating": 3,
+      "note": "The clouds, the water, and the sun all still need improvements, but I see the vision here and this is progress."
+     },
+     "sunset-water": {
+      "choice": "C",
+      "rating": 4,
+      "note": "Lively is still the best here. I like how the glint looks right below the sun in the new picture, but it doesn't extend as far as lively does, and for it to do that it will have to fade and balance as it draws closer to the camera."
+     },
+     "lake-sunset": {
+      "choice": "neither",
+      "rating": 5,
+      "note": "Lively is better, but I still expect a LOT more out of the water and the light effects."
+     },
+     "forest-light": {
+      "choice": "A",
+      "rating": 4,
+      "note": "The new default looks good. If we could sharpen the rays that come through without significantly intensifying the light source and washing out the sky then I would be on board."
+     },
+     "leaves": {
+      "choice": "B",
+      "rating": 4,
+      "note": "I think B looks pretty good, especially in comparison."
+     },
+     "hills": {
+      "choice": "A",
+      "rating": 5,
+      "note": "way better"
+     },
+     "golden": {
+      "choice": "A",
+      "rating": 4,
+      "note": "I think if the clouds' lighting was also affected by the hour then it would take the scene to the next level."
+     },
+     "night-sky": {
+      "choice": "A",
+      "rating": 4,
+      "note": "Deep clear is already a success, and the critic is pretty on point with the other 2. Air glow is underwhelming and the milky way looks kinda hand drawn and low quality."
+     },
+     "night-new": {
+      "choice": "A",
+      "rating": 3,
+      "note": "The clouds look kinda weird at night and need some work, and I already gave my feedback on Milky Way"
+     },
+     "water-biomes": {
+      "choice": "B",
+      "rating": 4,
+      "note": "Follow the critic here"
+     },
+     "flecks": {
+      "choice": "A",
+      "rating": 4,
+      "note": "We're good for now"
+     }
+    },
+    "overall": "Have we switched to faithful yet? Also I would like to see stronger progress on the water and light quality. I know we are still teasing out the vibe a little bit, but I want to see a serious jump in quality this iteration."
+   }
+  }
+ ]
+}
