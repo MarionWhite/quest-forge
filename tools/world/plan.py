@@ -123,6 +123,135 @@ def region_polygon(r):
     return [(x + rad * math.cos(2 * math.pi * i / 32), z + rad * math.sin(2 * math.pi * i / 32)) for i in range(32)]
 
 
+_NAMES = None
+
+
+def names_cache():
+    global _NAMES
+    if _NAMES is None:
+        _NAMES = biome_names()
+    return _NAMES
+
+
+class Drainage:
+    """Coarse drainage of the plan's terrain: filled levels, downstream receivers, flow counts."""
+
+    def __init__(self, F, rec, acc, land_c, cell_blocks, half):
+        self.F, self.rec, self.acc, self.land_c = F, rec, acc, land_c
+        self.cell, self.half, self.nc = cell_blocks, half, F.shape[0]
+
+    def ij(self, x, z):
+        return (min(self.nc - 1, max(0, int((z + self.half) / self.cell))),
+                min(self.nc - 1, max(0, int((x + self.half) / self.cell))))
+
+    def level_at(self, x, z):
+        i, j = self.ij(x, z)
+        return float(self.F[i, j]) if self.land_c[i, j] else float(SEA)
+
+    def centre(self, k):
+        i, j = divmod(k, self.nc)
+        return ((j + 0.5) * self.cell - self.half, (i + 0.5) * self.cell - self.half)
+
+
+def drainage(h, land, size, half, cell_blocks=128):
+    """Priority-flood drainage on a coarse grid (Barnes et al. 2014): every land cell gets a
+    filled level that never rises downstream and a receiver one step closer to the sea."""
+    import heapq
+    n = h.shape[0]
+    c = max(1, int(round(cell_blocks / PX)))
+    nc = n // c
+    hc = h[:nc * c, :nc * c].reshape(nc, c, nc, c).mean(axis=(1, 3))
+    land_c = land[:nc * c, :nc * c].reshape(nc, c, nc, c).mean(axis=(1, 3)) > 0.5
+    F = np.where(land_c, hc, SEA).astype(np.float64).ravel()
+    lc = land_c.ravel()
+    rec = np.full(nc * nc, -1, np.int64)
+    done = ~lc.copy()
+    heap = []
+    # Seed with the ocean cells that touch land; everything drains to one of them.
+    ocean = ~land_c
+    edge = ocean & ndimage.binary_dilation(land_c, structure=np.ones((3, 3)))
+    for k in np.flatnonzero(edge.ravel()):
+        heapq.heappush(heap, (float(SEA), int(k)))
+    order = []
+    nbrs = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)]
+    while heap:
+        f, k = heapq.heappop(heap)
+        i, j = divmod(k, nc)
+        for di, dj in nbrs:
+            a, b = i + di, j + dj
+            if 0 <= a < nc and 0 <= b < nc:
+                q = a * nc + b
+                if not done[q]:
+                    done[q] = True
+                    F[q] = max(F[q], f + 1e-3)
+                    rec[q] = k
+                    order.append(q)
+                    heapq.heappush(heap, (F[q], q))
+    acc = lc.astype(np.float64)
+    for q in reversed(order):
+        r = rec[q]
+        if r >= 0 and lc[r]:
+            acc[r] += acc[q]
+    return Drainage(F.reshape(nc, nc), rec, acc, land_c, c * PX, half)
+
+
+def auto_rivers(cfg, flow, biome, names):
+    """River polylines along real drainage lines: {cell, threshold_km2, min_width, max_width,
+    meander, min_cells}. Width grows with the area drained; the biome follows the climate
+    (frozen in the cold, lush in the tropics, plain River elsewhere)."""
+    cell = flow.cell
+    cell_km2 = (cell / 1000.0) ** 2
+    thr = cfg.get("threshold_km2", 30) / cell_km2
+    lc = flow.land_c.ravel()
+    river = lc & (flow.acc >= thr)
+    up = np.zeros_like(river)
+    for k in np.flatnonzero(river):
+        r = flow.rec[k]
+        if r >= 0:
+            up[r] = True
+    heads = np.flatnonzero(river & ~up)
+    amax = max(flow.acc[river].max() if river.any() else 1, 1)
+    minw, maxw = cfg.get("min_width", 16), cfg.get("max_width", 110)
+    seen = np.zeros_like(river)
+    n_plan = biome.shape[0]
+    half = flow.half
+    out = []
+    for hd in heads:
+        path, cur = [int(hd)], int(hd)
+        seen[cur] = True
+        while True:
+            nxt = int(flow.rec[cur])
+            if nxt < 0:
+                break
+            path.append(nxt)
+            if not lc[nxt] or seen[nxt]:
+                break
+            seen[nxt] = True
+            cur = nxt
+        if len(path) < cfg.get("min_cells", 6):
+            continue
+        for s in range(0, len(path) - 1, 6):
+            seg = path[s:s + 7]
+            if len(seg) < 2:
+                continue
+            a = max(flow.acc[k] for k in seg)
+            w = minw + (maxw - minw) * math.sqrt(a / amax)
+            pts = [flow.centre(k) for k in seg]
+            mx, mz = pts[len(pts) // 2]
+            pi = min(n_plan - 1, max(0, int((mz + half) / PX)))
+            pj = min(n_plan - 1, max(0, int((mx + half) / PX)))
+            nm = names.get(int(biome[pi, pj]), "")
+            if re.search(r"snow|frost|glacier|polar|arctic|ice|tundra|frozen|alps|boreal|spike", nm, re.I):
+                b = 11
+            elif re.search(r"tropic|jungle|rainforest|mangrove|bamboo|bayou|lush", nm, re.I):
+                b = 150
+            else:
+                b = RIVER
+            out.append({"points": pts, "width": int(w), "meander": cfg.get("meander", int(cell * 0.35)),
+                        "valley": int(120 + w * 1.5), "biome": b})
+    return out
+
+
 def fractal_land(spec, gx, gz, n, size, half, seed):
     """Land from rough sketch shapes with a fractal edge.
 
@@ -392,19 +521,52 @@ def render(spec_path, plan_dir):
         if "biome" in bs:
             biome[inside] = bs["biome"]
 
+    # Drainage: where water really flows over this terrain (coarse grid, priority-flood so every
+    # basin drains to the sea). Feeds terrain-following auto rivers, and gives every river,
+    # hand-drawn or not, a water level that steps down toward the sea instead of a sea-level trench.
+    rivers = [dict(r) for r in spec.get("rivers", [])]
+    flow = drainage(h, land, size, half, spec.get("auto_rivers", {}).get("cell", 128))
+    if "auto_rivers" in spec:
+        rivers += auto_rivers(spec["auto_rivers"], flow, biome, names_cache())
+
     # Rivers: meandering carved channels. {points, width, biome (default River), meander
-    # (blocks of sideways wander), dry: true for a shallow dry bed with no water}.
-    for ri_k, river in enumerate(spec.get("rivers", [])):
+    # (blocks of sideways wander), dry: true for a shallow dry bed with no water}. Points run
+    # from source to mouth; the water level follows the drained terrain and only ever falls.
+    water = np.zeros((n, n), np.float32)
+    for ri_k, river in enumerate(rivers):
         pts = meander(river["points"], river.get("meander", 220), seed + 500 + ri_k)
+        lv = np.minimum.accumulate(np.array([flow.level_at(x, z) for x, z in pts]))
         ri = Image.new("L", (n, n), 0)
-        ImageDraw.Draw(ri).line(_poly(n, pts, size), fill=255, width=max(1, round(river.get("width", 32) / PX)), joint="curve")
+        li = Image.new("L", (n, n), 0)
+        w = max(1, round(river.get("width", 32) / PX))
+        pp = _poly(n, pts, size)
+        ImageDraw.Draw(ri).line(pp, fill=255, width=w, joint="curve")
+        for (a, b), l in zip(zip(pp, pp[1:]), lv[1:]):
+            ImageDraw.Draw(li).line([a, b], fill=int(np.clip(l, 0, 255)), width=w)
         m = (np.asarray(ri) > 0) & land
-        d = ndimage.distance_transform_edt(~m) * PX
+        if not m.any():
+            continue
+        lvl = np.asarray(li).astype(np.float32)
+        d, idx = ndimage.distance_transform_edt(~m, return_indices=True)
+        d = d * PX
+        bed_l = lvl[idx[0], idx[1]]                      # level of the nearest channel pixel
         bank = np.clip(d / river.get("valley", 160), 0, 1) ** 0.5
         if river.get("dry"):
             h = np.where(land, h - river.get("depth", 5) * (1 - bank), h)
         else:
-            h = np.where(land, np.minimum(h, SEA - 3 + (h - SEA + 3) * bank), h)
+            surf = np.maximum(bed_l, SEA)                  # water surface; never below the sea
+            hw = max(PX, river.get("width", 32) / 2.0)     # channel half-width in blocks
+            bed = surf - 3 - river.get("width", 32) / 40.0  # deeper channel for wider rivers
+            valley = river.get("valley", 160)
+            near = d < hw + valley
+            # Channel floor inside the half-width; outside it the banks climb from just above the
+            # water toward the original ground, so the water stays in its channel.
+            t = np.clip((d - hw) / valley, 0, 1) ** 0.5
+            bank_h = surf + 1 + (h - surf - 1) * t
+            target = np.where(d <= hw, bed, np.maximum(bank_h, surf + 1))
+            h = np.where(land & near, np.minimum(h, target), h)
+            up = land & (d <= hw) & (surf > SEA)
+            water = np.where(up, np.maximum(water, surf), water)
         biome[m] = river.get("biome", RIVER)
         relief = np.where(m, 0, relief)
 
@@ -431,7 +593,6 @@ def render(spec_path, plan_dir):
             sp = int(2.5 * rmax / PX)
             taken[max(0, zz - sp):zz + sp, max(0, xx - sp):xx + sp] = True
             placed += 1
-    water = np.zeros((n, n), np.float32)
     for i, p in enumerate(ponds):
         p["id"] = i
         p.setdefault("depth", max(4, min(14, p["r"] / 40)))
@@ -630,6 +791,8 @@ def expand(plan_dir, out_dir, pi, pj, piece):
     sp = np.asarray(Image.open(f"{plan_dir}/surface.png")) if os.path.exists(f"{plan_dir}/surface.png") \
         else np.zeros_like(bp)
     ponds = meta.get("ponds", [])
+    wp_ = np.asarray(Image.open(f"{plan_dir}/water.png")).astype(np.uint8) if os.path.exists(f"{plan_dir}/water.png") \
+        else np.zeros_like(bp)
     H = np.zeros((piece, piece), np.uint16)
     B = np.zeros((piece, piece), np.uint8)
     S = np.zeros((piece, piece), np.uint8)
@@ -662,9 +825,14 @@ def expand(plan_dir, out_dir, pi, pj, piece):
             if p["level"] > SEA:
                 wsl = Wt[r0:r0 + len(zs), c0:c1]
                 Wt[r0:r0 + len(zs), c0:c1] = np.where((dd < 1.3) & (hs < p["level"]), p["level"], wsl)
-        H[r0:r0 + len(zs)] = np.clip(h * 257, 0, 255 * 257).astype(np.uint16)
         bi = np.clip(((wz + half) / PX).astype(np.int64), 0, bp.shape[0] - 1)
         bj = np.clip(((wx + half) / PX).astype(np.int64), 0, bp.shape[1] - 1)
+        # River water above sea level comes from the plan's water map: flood whatever ground
+        # lies below the river's surface there.
+        pw = wp_[bi, bj]
+        rows = slice(r0, r0 + len(zs))
+        Wt[rows] = np.where((pw > SEA) & (h < pw), np.maximum(Wt[rows], pw), Wt[rows])
+        H[rows] = np.clip(h * 257, 0, 255 * 257).astype(np.uint16)
         B[r0:r0 + len(zs)] = bp[bi, bj]
         S[r0:r0 + len(zs)] = sp[bi, bj]
     Image.fromarray(H).save(f"{d}/height.png")
@@ -675,6 +843,10 @@ def expand(plan_dir, out_dir, pi, pj, piece):
             and z0 - 1.4 * p["r"] <= p["at"][1] <= z0 + piece + 1.4 * p["r"]]
     json.dump([{"x": p["at"][0], "z": p["at"][1], "r": p["r"] * 1.6, "level": p["level"]} for p in mine],
               open(f"{d}/lakes.json", "w"))
+    # 512-block tiles holding raised water (lakes and rivers), so wp_piece.js scans only those.
+    tiles = [[tx * 512, tz * 512] for tz in range(piece // 512) for tx in range(piece // 512)
+             if Wt[tz * 512:(tz + 1) * 512, tx * 512:(tx + 1) * 512].any()]
+    json.dump(tiles, open(f"{d}/water_tiles.json", "w"))
     open(f"{d}/origin.txt", "w").write(f"{x0} {z0}\n")
     print(f"piece {pi},{pj}: origin {x0},{z0}, {piece} blocks, {len(mine)} raised lakes -> {d}")
 
