@@ -16,6 +16,10 @@ Each round:
      background (trial.py: off every monitor, no taskbar button, never focused) unless
      --foreground; if the owner is gaming at any check (trial.py userbusy, every minute), the round's
      frame times are marked noisy in bench/<tag>.userbusy.json;
+   - guarded (2026-10-23): before each launch config/shaders.properties must ask for the pack (or for
+     shaders off); after it the log must show the pack loaded and compiled, else the run is INVALID,
+     its frames are discarded and it is re-run once; a client with no log progress for 5 min is
+     stopped (this trial only) and retried once;
   5. copies bench/<tag>.txt and the frames into ROUNDS (default C:\\qfb\\shaderdev\\rounds),
      laid out as check_frames.py expects (--client ROUNDS), and prints any shader error.
 
@@ -93,6 +97,9 @@ def run_client(a, d, cmd, t0, busy):
         sys.exit(f"launch failed ({r.returncode})")
     pid = int(open(os.path.join(d, "pid")).read().strip())
     shown = 0
+    log = os.path.join(d, "logs", "latest.log")
+    last_size, last_change = -1, time.time()
+    hung = False
     while trial.pid_alive(pid):
         # A client started from a non-interactive shell can come up minimized and stall.
         # In the background (default) trial.py's window.ps1 hider restores it and keeps it
@@ -109,6 +116,16 @@ def run_client(a, d, cmd, t0, busy):
             print("timeout: stopping the trial")
             subprocess.run([sys.executable, "-I", TRIAL_PY, "stop", a.name], creationflags=trial.NO_WINDOW)
             break
+        # Hung client (2026-10-23 gf3: a cache-miss retry froze at world join with no log line
+        # for 18 min): no log growth for HANG_MIN minutes -> stop this trial only.
+        size = os.path.getsize(log) if os.path.exists(log) else 0
+        if size != last_size:
+            last_size, last_change = size, time.time()
+        elif time.time() - last_change > HANG_MIN * 60:
+            print(f"HUNG: no log progress for {HANG_MIN} min: stopping the trial")
+            subprocess.run([sys.executable, "-I", TRIAL_PY, "stop", a.name], creationflags=trial.NO_WINDOW)
+            hung = True
+            break
         time.sleep(10)
     held = trial.read_lock()
     if held and held.get("pid") == pid and os.path.exists(trial.LOCK):
@@ -117,7 +134,41 @@ def run_client(a, d, cmd, t0, busy):
     print(f"client exited after {took:.0f} s")
     log = os.path.join(d, "logs", "latest.log")
     rebuilt = os.path.exists(log) and "[Load #2]" in open(log, encoding="utf-8", errors="replace").read()
-    return took < 120 and rebuilt
+    return (took < 120 and rebuilt) or hung
+
+
+HANG_MIN = 5
+
+
+def shader_config_ok(d, pack):
+    """Pre-launch: the trial's Angelica config must ask for `pack` (or for shaders off when pack is None).
+    2026-10-23 gh: a whole High round rendered vanilla because enableShaders was false at boot."""
+    p = os.path.join(d, "config", "shaders.properties")
+    kv = {}
+    if os.path.exists(p):
+        for l in open(p, encoding="utf-8", errors="replace"):
+            if "=" in l and not l.startswith("#"):
+                k, v = l.strip().split("=", 1)
+                kv[k.strip()] = v.strip()
+    want = {"enableShaders": "true", "shaderPack": pack} if pack else {"enableShaders": "false"}
+    bad = {k: kv.get(k) for k, v in want.items() if kv.get(k) != v}
+    return want, bad
+
+
+def shader_log_ok(log, pack):
+    """Post-run: the client log must show the pack loaded and compiled (or shaders off)."""
+    if not os.path.exists(log):
+        return False, "no client log"
+    t = open(log, encoding="utf-8", errors="replace").read()
+    if pack:
+        if "Shaders are disabled" in t:
+            return False, "log: Shaders are disabled"
+        if f"Using shaderpack: {pack}" not in t:
+            return False, f"log: no 'Using shaderpack: {pack}'"
+        if "createProg name=" not in t:
+            return False, "log: no shader program was compiled"
+        return True, "pack loaded and compiled"
+    return ("Shaders are disabled" in t), "shaders off" if "Shaders are disabled" in t else "log: shaders were ON in an off run"
 
 
 def main():
@@ -184,11 +235,29 @@ def main():
     result = os.path.join(d, "bench", a.tag + ".txt")
     log = os.path.join(d, "logs", "latest.log")
     busy = []
-    for attempt in (1, 2):
+    pack = None if shader == "off" else (os.path.basename(packs[0]) if a.reference else "QuestForge")
+    invalid = None
+    for attempt in (1, 2, 3):
+        want, bad = shader_config_ok(d, pack)
+        if bad:
+            print(f"  PRECHECK: config/shaders.properties has {bad}, want {want}: rewriting it")
+            set_kv(os.path.join(d, "config", "shaders.properties"), want, "=")
+            want, bad = shader_config_ok(d, pack)
+            if bad:
+                sys.exit(f"PRECHECK failed: config/shaders.properties still has {bad}")
         t0 = time.time()
         busy.append(trial.user_busy())
         crashed_early = run_client(a, d, cmd, t0, busy)
-        if os.path.exists(result) or not crashed_early or attempt == 2:
+        ok, why = shader_log_ok(log, pack)
+        invalid = None if ok else why
+        if os.path.exists(result) and invalid:
+            print(f"  INVALID run ({why}): discarding its frames and re-running once")
+            os.remove(result)
+            for old in glob.glob(os.path.join(d, "screenshots", f"bench-{a.tag}*.png")):
+                os.remove(old)
+            if attempt < 3:
+                continue
+        if os.path.exists(result) or not crashed_early or attempt == 3:
             break
         # Angelica 2.2.33: when the pack's transform misses the shader disk cache, Iris builds
         # the pipeline before the game's last resource reload and again after it ([Load #2]);
@@ -214,7 +283,7 @@ def main():
         shutil.copy2(result, os.path.join(ROUNDS, "bench", a.tag + ".txt"))
         print(open(result, encoding="utf-8").read())
     else:
-        print("NO RESULT FILE")
+        print("NO RESULT FILE" + (f" (INVALID: {invalid})" if invalid else ""))
     shots = glob.glob(os.path.join(d, "screenshots", f"bench-{a.tag}*.png"))
     for s in shots:
         shutil.copy2(s, os.path.join(ROUNDS, "screenshots", os.path.basename(s)))
