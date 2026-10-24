@@ -140,7 +140,7 @@ vec3 faintStars(vec3 dir, float boost) {
     float b = (h - cut) / (1.0 - cut);
     b = b * b;
     vec3 tint = mix(vec3(0.75, 0.85, 1.0), vec3(1.0, 0.88, 0.72), hash13(cell + 8.3));
-    return tint * SUN_I * 0.0045 * (0.25 + b) * smoothstep(0.7, 0.0, d);
+    return tint * SUN_I * 0.010 * (0.25 + b) * smoothstep(0.7, 0.0, d);   // in1: 0.0045 vanished
 }
 
 float fbm2(vec2 p) {
@@ -158,7 +158,7 @@ vec3 nightSkyTexture(vec3 dir) {
     float moonWash = 1.0 - 0.85 * moonBrightness();   // a bright moon hides the faint sky
     float up = clamp(dir.y, 0.0, 1.0);
     // A touch of navy towards the zenith on every night (r004 critic: near-black).
-    vec3 L = vec3(0.10, 0.16, 0.42) * MOON_I * 0.0035 * smoothstep(0.0, 0.6, up);
+    vec3 L = vec3(0.10, 0.16, 0.42) * MOON_I * 0.006 * smoothstep(0.0, 0.6, up);
     if (v == 1) {
         L += faintStars(dir, 0.35) * mix(0.5, 1.0, moonWash);
         L *= 1.15;
@@ -172,7 +172,7 @@ vec3 nightSkyTexture(vec3 dir) {
         float ripple = 0.55 + 0.45 * sin(az * 23.0 + el * 40.0 + wave * 6.0);
         float green = exp(-pow((el - 0.20) / 0.11, 2.0)) * smoothstep(0.0, 0.05, el) * (0.45 + 0.55 * wave) * mix(0.75, 1.0, ripple);
         float red = exp(-pow((el - 0.42) / 0.16, 2.0)) * (0.5 + 0.5 * fbm2(vec2(az * 3.0, el * 4.0) + 9.0));
-        L += (vec3(0.30, 1.0, 0.42) * green * 0.010 + vec3(1.0, 0.30, 0.22) * red * 0.0035) * MOON_I * moonWash;
+        L += (vec3(0.30, 1.0, 0.42) * green * 0.045 + vec3(1.0, 0.30, 0.22) * red * 0.014) * MOON_I * moonWash;   // in2: 4.5x, was invisible
     } else {
         // Milky Way: a great circle tilted across the sky; coordinates along and across the band.
         const vec3 POLE = vec3(0.946, -0.324, 0.0);   // the band crosses the night_sky view (yaw 200, 45 deg up)
@@ -185,14 +185,15 @@ vec3 nightSkyTexture(vec3 dir) {
         float width = mix(0.11, 0.20, bulge);
         float band = exp(-pow(across / width, 2.0));
         // Clumpy star clouds, stretched along the band (anisotropic coordinates).
-        float clouds = smoothstep(0.30, 0.80, fbm2(vec2(along * 12.0, across * 48.0)));
+        // in3b: across * 48 drew thin scratches; star clouds are broad, soft clumps.
+        float clouds = smoothstep(0.25, 0.80, fbm2(vec2(along * 6.0, across * 14.0)));
         // Dust lanes: dark, long and thin, wandering a little off the centre line.
         float laneC = across - 0.025 * sin(along * 2.3) - 0.02 * (fbm2(vec2(along * 3.0, 1.3)) - 0.5);
         float lane = exp(-pow(laneC / mix(0.018, 0.04, bulge), 2.0)) * smoothstep(0.35, 0.65, fbm2(vec2(along * 4.0, across * 12.0) + 3.3));
-        float lanes2 = smoothstep(0.55, 0.75, fbm2(vec2(along * 5.0, across * 40.0) + 11.0)) * 0.5;
-        float glow = band * (0.12 + 0.88 * clouds) * (1.0 - 0.8 * lane) * (1.0 - lanes2 * band);
+        float lanes2 = smoothstep(0.55, 0.75, fbm2(vec2(along * 4.0, across * 12.0) + 11.0)) * 0.5;
+        float glow = band * (0.40 + 0.60 * clouds) * (1.0 - 0.8 * lane) * (1.0 - lanes2 * band);
         vec3 col = mix(vec3(0.78, 0.84, 1.0), vec3(1.0, 0.90, 0.74), bulge * 0.7 + 0.15);
-        L += col * glow * (1.0 + 1.2 * bulge) * MOON_I * 0.012 * moonWash * smoothstep(-0.02, 0.12, dir.y);
+        L += col * glow * (1.0 + 1.2 * bulge) * MOON_I * 0.045 * moonWash * smoothstep(-0.02, 0.12, dir.y);
         L += faintStars(dir, 0.15 + 0.85 * band * (1.0 - lane)) * mix(0.5, 1.0, moonWash);
     }
     return L;
