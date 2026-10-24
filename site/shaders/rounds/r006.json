@@ -1,0 +1,360 @@
+{
+ "n": 6,
+ "id": "r006",
+ "title": "New water, clouds lit by the hour, sharper light, and Faithful 32x",
+ "intro": "Your round 5 answers are built in, and this round is the quality jump you asked for rather than small tweaks. Every render now uses Faithful 32x (more on that below). Water is rebuilt from the waves up: a real ocean-wave spectrum laid over itself at eight sizes and angles, so it never shows a repeating tile. Its fine detail fades with distance, the way real water's does, and the detail it loses becomes a softer, wider sun path instead of shimmering noise. It also has true Fresnel reflections, refraction, caustics dancing on shallow sand and foam where it meets the shore. At sunset it is lively again, as you picked: the tight glints right under the sun, plus a long glitter path that reaches toward you and fades as it gets close. Clouds are now properly 3D, which fixes the brush streaks that fanned from overhead. Their light follows the hour: gold and orange undersides and rims at golden hour, dark bodies with moonlit edges at night, and no glow. The light shafts are sharper without a brighter sun or a washed-out sky. The sun has a proper disk and a tight glow. Deep clear is now the default night. The drawn Milky Way is gone; in its place is a real photograph of the Milky Way (ESO/S. Brunier, CC BY 4.0), as one option for you to judge. Faithful 32x is the official Faithful pack for 1.7.10 (faithfulpack.net), from its GitHub. Its licence (faithfulpack.net/license) lets us modify and ship it with credit and a link. For now it is loaded only in the test client, never in the game, and two questions compare it with the vanilla 16x textures. Modded blocks stay 16x until we have Faithful-style textures for them. Costs are per frame on High at 1440p, measured against the same view with shaders off and Faithful on. The budget is 3 ms and the dearest frame here is about 2.3 ms. Low and Potato stay in their budgets: Low at 1080p costs at most 0.68 ms (budget 0.9) and Potato at 720p at most 0.28 ms (budget 0.4). Frames marked 'round 5' are last round's renders, shown for comparison. The clouds drift, so two renders of the same view never have quite the same sky.",
+ "status": "open",
+ "created": "2026-10-24",
+ "scenes": [
+  {
+   "id": "water-sunset",
+   "name": "Sunset over the ocean: the new water",
+   "question": "Open ocean into a sun 9 degrees up. A is the new water: spectral waves, true Fresnel, and the tight glints under the sun with a long glitter path that fades as it nears you. B is round 5's lively water (your pick) under the same sky. The photo shows a real glitter path.",
+   "notePrompt": "Is this the jump you wanted? Does the path reach far enough, and fade the right way near you?",
+   "options": [
+    {
+     "key": "A",
+     "label": "New water (default)",
+     "img": "r006/water-sunset-A.jpg",
+     "critic": "Critic 8: The best water yet: irregular, natural waves with no repeating pattern, and a long glitter path running from the sun almost to the camera, dense near the sun and thinning into scattered glints close by. Warm-rimmed clouds and a soft glow round the sun. The near water is still a very dark navy, and the island's reflection cuts the path short under the sun.",
+     "ms": 2.3,
+     "ref": {
+      "img": "r006/ref-water-sunset-A.jpg",
+      "credit": "Dietmar Rabich, CC BY-SA 4.0, via Wikimedia Commons",
+      "source": "https://commons.wikimedia.org/wiki/File:K%C3%BChlungsborn,_Blick_von_der_Seebr%C3%BCcke,_Sonnenuntergang_--_2024_--_4955.jpg",
+      "title": "Kühlungsborn, Blick von der Seebrücke, Sonnenuntergang -- 2024 -- 4955.jpg"
+     }
+    },
+    {
+     "key": "B",
+     "label": "Round 5 lively",
+     "img": "r006/water-sunset-B.jpg",
+     "critic": "Critic 6: Round 5's lively water in the same sky: the regular rings of its crossing ripples are obvious across the foreground and the path breaks into a repeating dot pattern. Busier and more artificial than A.",
+     "ms": 2.14
+    }
+   ]
+  },
+  {
+   "id": "lake-sunset",
+   "name": "The lake at sunset",
+   "question": "The lake view into the low sun: the new water (A) against round 5's lively water (B), same sky.",
+   "notePrompt": "What does the lake still need?",
+   "options": [
+    {
+     "key": "A",
+     "label": "New water (default)",
+     "img": "r006/lake-sunset-A.jpg",
+     "critic": "Critic 6: Cleaner waves and a broken gold path under the sun, with the cliff reflected. The near water is dark and its reflections of the cliff break into torn brown patches; the clouds above the sun are bright and large.",
+     "ms": 2.29
+    },
+    {
+     "key": "B",
+     "label": "Round 5 lively",
+     "img": "r006/lake-sunset-B.jpg",
+     "critic": "Critic 5: Round 5's lively lake: the ripple rings tile across the foreground; reflections less clean.",
+     "ms": 2.12
+    }
+   ]
+  },
+  {
+   "id": "water-noon",
+   "name": "Clear water at noon: caustics, refraction, foam",
+   "question": "The lake shore at noon. A is the new water: light patterns (caustics) on the shallow bed, the bed bending through the waves, foam where the water meets the blocks. B is round 5's water.",
+   "notePrompt": "Do the caustics and foam read as real? Too much or too little?",
+   "options": [
+    {
+     "key": "A",
+     "label": "New water (default)",
+     "img": "r006/water-noon-A.jpg",
+     "critic": "Critic 8: Clear teal water with the sandbar bending through the waves, light patterns on the shallow bed and a natural, non-repeating surface; reflections of the banks wobble convincingly. Foam at the waterline is subtle (barely there in places).",
+     "ms": 2.19
+    },
+    {
+     "key": "B",
+     "label": "Round 5 water",
+     "img": "r006/water-noon-B.jpg",
+     "critic": "Critic 6: Round 5's water: the surface carries a fine regular ripple lattice, the bed is flatter, no caustics.",
+     "ms": 2.04
+    }
+   ]
+  },
+  {
+   "id": "water-biomes",
+   "name": "Water by biome, new surface",
+   "question": "Four biomes with the new water. Round 5's two fixes: the river's white noon patch (now tamed sun glints), and the swamp, which is less green and more olive-brown. Rate the set and say which one is off.",
+   "notePrompt": "Which is off, and how?",
+   "options": [
+    {
+     "key": "A",
+     "label": "River at noon",
+     "img": "r006/water-biomes-A.jpg",
+     "critic": "Critic 6: The river reads as green, half-clear moving water. The patch of sparkle near the camera is calmer than round 5's white blob but still the brightest thing in the frame.",
+     "ms": 1.97,
+     "ref": {
+      "img": "r006/ref-water-biomes-A.jpg",
+      "credit": "amanderson2, CC BY 2.0, via Wikimedia Commons",
+      "source": "https://commons.wikimedia.org/wiki/File:Clear_River_water_Bled_Vintgar_Slovenia_(8095482709).jpg",
+      "title": "Clear River water Bled Vintgar Slovenia (8095482709).jpg"
+     }
+    },
+    {
+     "key": "B",
+     "label": "Swamp",
+     "img": "r006/water-biomes-B.jpg",
+     "critic": "Critic 6: Olive-brown murky water that hides the bed, less grass-green than round 5; reads as a swamp. The far water is a little flat.",
+     "ms": 2.12,
+     "ref": {
+      "img": "r006/ref-water-biomes-B.jpg",
+      "credit": "JamesDeMers, CC0, via Wikimedia Commons",
+      "source": "https://commons.wikimedia.org/wiki/File:Bayou-439881.jpg",
+      "title": "Bayou-439881.jpg"
+     }
+    },
+    {
+     "key": "C",
+     "label": "Coast",
+     "img": "r006/water-biomes-C.jpg",
+     "critic": "Critic 9: Turquoise coastal water over pale sand with caustics rippling across the shallows and a believable depth gradient: the most photographic frame of the round.",
+     "ms": 2.25,
+     "ref": {
+      "img": "r006/ref-water-biomes-C.jpg",
+      "credit": "Martin Falbisoner, CC BY-SA 4.0, via Wikimedia Commons",
+      "source": "https://commons.wikimedia.org/wiki/File:Diamonds_Thudufushi_Beach_and_Water_Villas,_May_2017_-08.jpg",
+      "title": "Diamonds Thudufushi Beach and Water Villas, May 2017 -08.jpg"
+     }
+    },
+    {
+     "key": "D",
+     "label": "Ocean",
+     "img": "r006/water-biomes-D.jpg",
+     "critic": "Critic 8: Deep blue open water with a natural surface and clean sky reflections.",
+     "ms": 2.16
+    }
+   ]
+  },
+  {
+   "id": "clouds",
+   "name": "3D clouds at noon",
+   "question": "The clouds are now built in 3D: flat bases, domed and eroded tops, and sides that lean, so the brush streaks from overhead are gone. A is the new default, B is round 5. (A less-cover option was rendered too, but the clouds had drifted so far between the two renders that it showed more cloud, not less, so it is left out.)",
+   "notePrompt": "Closer to perfect? Shape, softness, amount of sky covered?",
+   "options": [
+    {
+     "key": "A",
+     "label": "New clouds (default)",
+     "img": "r006/clouds-A.jpg",
+     "critic": "Critic 7: Real 3D cumulus: flat grey bases, sunlit domed and eroded tops, blue gaps between separate clouds. The fanning brush streaks overhead are gone in this frame; the flatter masses toward the horizon are still a little smeared.",
+     "ms": 1.62,
+     "ref": {
+      "img": "r006/ref-clouds-A.jpg",
+      "credit": "Toby Hudson, CC BY-SA 3.0, via Wikimedia Commons",
+      "source": "https://commons.wikimedia.org/wiki/File:Cumulus_humilis_clouds.jpg",
+      "title": "Cumulus humilis clouds.jpg"
+     }
+    },
+    {
+     "key": "B",
+     "label": "Round 5",
+     "img": "r006/clouds-B.jpg",
+     "critic": "Critic 6: Real clouds at last: crisp edges, grey undersides, bright sunlit rims. But the big overhead mass still shows brush-like streaks fanning from the zenith, and it covers a lot of the sky. A first version, not yet 'truly beautiful'.",
+     "ms": 1.56
+    }
+   ]
+  },
+  {
+   "id": "golden",
+   "name": "Golden hour: cloud light follows the hour",
+   "question": "Your golden-hour view. The clouds now take the low sun's colour: gold and orange undersides and rims. A is the new default, B round 5.",
+   "notePrompt": "Is this the 'next level' you meant? Too orange, not enough?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Clouds lit by the hour (default)",
+     "img": "r006/golden-A.jpg",
+     "critic": "Critic 8: The clouds now take the low sun: peach-gold tops and rims and warm undersides over the hazy plain. Much richer than round 5's grey-beige clouds. The far cloud bank is still a little streaky.",
+     "ms": 1.84
+    },
+    {
+     "key": "B",
+     "label": "Round 5",
+     "img": "r006/golden-B.jpg",
+     "critic": "Critic 6: Warm cloud bands and cloud shadows give the wide view depth, and the lit ridge glows. But the clouds near the horizon are streaky and a little brown.",
+     "ms": 1.86
+    }
+   ]
+  },
+  {
+   "id": "sunset-sky",
+   "name": "Sun, sky and clouds at sunset",
+   "question": "The ocean sunset again, this time for the sky. The sun has a limb-darkened disk and a tight glow, and the clouds have warm rims and undersides. A is the new default, B round 5.",
+   "notePrompt": "Clouds, sun and water together: what still falls short?",
+   "options": [
+    {
+     "key": "A",
+     "label": "New default",
+     "img": "r006/sunset-sky-A.jpg",
+     "critic": "Critic 8: The best water yet: irregular, natural waves with no repeating pattern, and a long glitter path running from the sun almost to the camera, dense near the sun and thinning into scattered glints close by. Warm-rimmed clouds and a soft glow round the sun. The near water is still a very dark navy, and the island's reflection cuts the path short under the sun.",
+     "ms": 2.3
+    },
+    {
+     "key": "B",
+     "label": "Round 5",
+     "img": "r006/sunset-sky-B.jpg",
+     "critic": "Critic 8: The best frame of the round: broken gold clouds catching the low sun, a glowing gap at the sun, and a calm blue sea with a bright broken path and glints. Clouds near the top are a little soft and smeared.",
+     "ms": 2.03
+    }
+   ]
+  },
+  {
+   "id": "forest-light",
+   "name": "Sharper rays through the trees",
+   "question": "The shafts are sharper: more samples along each ray, and more contrast between beams and gaps. The glow round the sun and over open sky is not raised. A is the new default (between round 5's A and B), B is stronger, C is round 5's default (your pick).",
+   "notePrompt": "Sharper, without washing out the sky? Which strength?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Sharper shafts (default)",
+     "img": "r006/forest-light-A.jpg",
+     "critic": "Critic 7: A sunlit cumulus over the gap, warm air toward the sun, a tight sun glow and a sky that is not washed out. The rays are faint in this view: the sun sits behind the ridge.",
+     "ms": 1.53,
+     "ref": {
+      "img": "r006/ref-forest-light-A.jpg",
+      "credit": "Jakub Hałun, CC BY 4.0, via Wikimedia Commons",
+      "source": "https://commons.wikimedia.org/wiki/File:Crepuscular_rays_in_the_forest_near_Przeginia_Duchowna,_Lesser_Poland_Voivodeship,_20240225_0830_6640.jpg",
+      "title": "Crepuscular rays in the forest near Przeginia Duchowna, Lesser Poland Voivodeship, 20240225 0830 6640.jpg"
+     }
+    },
+    {
+     "key": "B",
+     "label": "Stronger",
+     "img": "r006/forest-light-B.jpg",
+     "critic": "Critic 7: Stronger shafts: distinct rays fan up from the gap and the air glows amber, the sky still readable. Closer to the reference photo.",
+     "ms": 1.54
+    },
+    {
+     "key": "C",
+     "label": "Round 5 default",
+     "img": "r006/forest-light-C.jpg",
+     "critic": "Critic 7: Warm sunlit air glows through the gap and around the trees on the right; the clearing feels like late afternoon. The beams themselves are soft rather than distinct rays.",
+     "ms": 1.45
+    }
+   ]
+  },
+  {
+   "id": "leaves",
+   "name": "The lit clearing",
+   "question": "forest_lit with the new default shafts (A) and round 5's stronger shafts, your pick (B).",
+   "notePrompt": "Does A keep what you liked in B?",
+   "options": [
+    {
+     "key": "A",
+     "label": "New default",
+     "img": "r006/leaves-A.jpg",
+     "critic": "Critic 7: Lit trunks and canopy with Faithful's finer leaf and bark detail; the sky behind is warm and cloudy.",
+     "ms": 1.57
+    },
+    {
+     "key": "B",
+     "label": "Round 5 stronger (your pick)",
+     "img": "r006/leaves-B.jpg",
+     "critic": "Critic 6: More warm haze in the distance and between trunks; with the sun behind you it mostly lowers contrast.",
+     "ms": 1.47
+    }
+   ]
+  },
+  {
+   "id": "night-sky",
+   "name": "A real Milky Way, or deep clear only",
+   "question": "Deep clear is now the default (A). B adds a real photograph of the Milky Way: ESO/S. Brunier's all-sky panorama (CC BY 4.0), with its stars removed so ours sit on top, and dimmed by a bright moon as in life. If it isn't genuinely good, deep clear stays the only night.",
+   "notePrompt": "Is B convincingly photographic? Keep it in the rotation, or drop it?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Deep clear (default)",
+     "img": "r006/night-sky-A.jpg",
+     "critic": "Critic 7: Deep clear: a dense field of fine stars on a navy-black sky, with dark night clouds whose edges catch a little moonlight. No glow.",
+     "ms": 1.7
+    },
+    {
+     "key": "B",
+     "label": "Photographic Milky Way",
+     "img": "r006/night-sky-B.jpg",
+     "critic": "Critic 7: A real Milky Way: the photographed star clouds and dust lanes sit low in the sky under our stars and read as photographic, not drawn. Partly hidden by tonight's clouds, and faint, as it should be at this exposure.",
+     "ms": 1.65
+    }
+   ]
+  },
+  {
+   "id": "night-new",
+   "name": "Night clouds: dark bodies, moonlit edges",
+   "question": "The new-moon lake view. Night clouds are now dark bodies, their thin edges lit only by the moon, with no glow of their own. A is the new default, B round 5 ('weird'), C the new night with the Milky Way.",
+   "notePrompt": "Do the night clouds look right now?",
+   "options": [
+    {
+     "key": "A",
+     "label": "New default",
+     "img": "r006/night-new-A.jpg",
+     "critic": "Critic 6: The deep new-moon lake is unchanged on land. Night clouds are now dark bodies against the stars instead of grey glowing blobs; a large overhead mass reads as an almost black shape.",
+     "ms": 2.21
+    },
+    {
+     "key": "B",
+     "label": "Round 5",
+     "img": "r006/night-new-B.jpg",
+     "critic": "Critic 6: Tonight's draw with thin night clouds: dark broken clouds hide part of the stars. The land is as dark as round 4.",
+     "ms": 2.11
+    },
+    {
+     "key": "C",
+     "label": "With the Milky Way",
+     "img": "r006/night-new-C.jpg",
+     "critic": "Critic 6: The same night with the photographic Milky Way showing between the clouds above the far shore.",
+     "ms": 2.18
+    }
+   ]
+  },
+  {
+   "id": "faithful",
+   "name": "Faithful 32x against vanilla 16x",
+   "question": "The same lit clearing with Faithful 32x (A, used in every render this round) and with the vanilla 16x textures (B). The shaders are the same.",
+   "notePrompt": "Does Faithful look like the right base? Anything about it you don't like?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Faithful 32x",
+     "img": "r006/faithful-A.jpg",
+     "critic": "Critic 7: Lit trunks and canopy with Faithful's finer leaf and bark detail; the sky behind is warm and cloudy.",
+     "ms": 1.57
+    },
+    {
+     "key": "B",
+     "label": "Vanilla 16x",
+     "img": "r006/faithful-B.jpg",
+     "critic": "Critic 6: The same view with vanilla 16x textures: leaves and grass are coarser and noisier; otherwise the same light.",
+     "ms": 1.53
+    }
+   ]
+  },
+  {
+   "id": "faithful-modded",
+   "name": "Faithful next to modded blocks",
+   "question": "The block gallery: vanilla blocks on top. In the bottom row, the first four are vanilla leaves and the last six are Twilight Forest leaves. Faithful covers vanilla only, so the modded leaves are the same 16x in both until we have Faithful-style textures for them. A is Faithful 32x, B vanilla 16x.",
+   "notePrompt": "Does the 16x next to 32x mismatch bother you? Which modded blocks first?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Faithful 32x",
+     "img": "r006/faithful-modded-A.jpg",
+     "critic": "Critic 7: Faithful 32x on the vanilla blocks: crisper wood, stone, ore and leaves. The six Twilight Forest leaves at the right of the bottom row stay 16x and look coarser next to them.",
+     "ms": 1.52
+    },
+    {
+     "key": "B",
+     "label": "Vanilla 16x",
+     "img": "r006/faithful-modded-B.jpg",
+     "critic": "Critic 6: Vanilla 16x everywhere: consistent, but coarser.",
+     "ms": 1.51
+    }
+   ]
+  }
+ ]
+}

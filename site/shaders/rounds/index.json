@@ -49,9 +49,18 @@
    "n": 5,
    "id": "r005",
    "title": "Real clouds, light shafts, night skies and calm water",
-   "status": "open",
+   "status": "closed",
    "created": "2026-10-24",
    "scenes": 12,
+   "feedback": true
+  },
+  {
+   "n": 6,
+   "id": "r006",
+   "title": "New water, clouds lit by the hour, sharper light, and Faithful 32x",
+   "status": "open",
+   "created": "2026-10-24",
+   "scenes": 13,
    "feedback": false
   }
  ]

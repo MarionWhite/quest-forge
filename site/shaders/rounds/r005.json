@@ -3,7 +3,7 @@
  "id": "r005",
  "title": "Real clouds, light shafts, night skies and calm water",
  "intro": "Your round 4 answers are built in. Clouds are now real: a raymarched layer of broken clouds that drifts, billows and changes from day to day, with silver linings, darker bases, shadows on the land and reflections in the water. This is the first version, not the final sky. Light shafts bring back the warm light through the trees. The water is now a calm mirror heading towards Complementary's and Photon's realism, with steady glints under a low sun that finally show in a still frame (r004's flickered and blurred away). Haze now depends on how far the land is below you, not just how far away it is. Flecks are at 125% of round 3. Night skies rotate between three looks. Rivers and swamps have their own water. You can now attach reference images to every question once the relay is updated (drag, drop, paste or pick). Every render shows its cost per frame on High at 1440p: the budget is 3 ms, and the dearest frame here is about 2.1 ms. The clouds are the dearest new feature (about 0.5-0.8 ms), then the light shafts (about 0.3-0.5 ms). The clouds move, so they differ a little between renders of the same view even when the option being compared has nothing to do with them. Not in this round: the ambient motes. They show as dust over the water now, but the torch dust still doesn't read and the bubbles under water are the game's own, so a motes question would look the same either way.",
- "status": "open",
+ "status": "closed",
  "created": "2026-10-24",
  "scenes": [
   {
