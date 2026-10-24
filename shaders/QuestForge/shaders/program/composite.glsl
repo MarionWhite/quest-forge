@@ -197,18 +197,26 @@ vec3 ambientMotes(vec3 viewDir, float dist0, float pixelBlock, float eyeSky) {
 // a few samples, denser near the camera and dithered per pixel and frame (TAA resolves it), give
 // the metres of lit air; a forward-scattering phase makes it show mostly towards the sun, where
 // trunks and leaves cut it into beams. Thicker and amber at golden hour.
+// r006 (owner r005: "sharpen the rays ... without significantly intensifying the light source and
+// washing out the sky"; leaves: B, the stronger ones): more samples, so a beam's edge is resolved
+// along the ray instead of smeared by the dither; contrast (the lit share of the ray is raised to a
+// power, so a ray that is half in shadow reads as a gap, not a dimmer beam); and less on open-sky
+// pixels, so the glow round the sun and the sky itself do not brighten.
 #if QF_PRESET >= 3
-const int SHAFT_STEPS = 12;
+const int SHAFT_STEPS = 20;
 #elif QF_PRESET == 2
-const int SHAFT_STEPS = 8;
+const int SHAFT_STEPS = 12;
 #else
-const int SHAFT_STEPS = 6;
+const int SHAFT_STEPS = 8;
 #endif
 #if QF_SHAFTS == 2
 const float SHAFT_GAIN = 2.0;
 #else
-const float SHAFT_GAIN = 1.0;
+const float SHAFT_GAIN = 1.5;
 #endif
+float hgPhaseS(float mu, float g) {
+    return (1.0 - g * g) / (4.0 * PI * pow(1.0 + g * g - 2.0 * g * mu, 1.5));
+}
 float shadowRaw(vec3 scenePos) {
     vec3 clip = (shadowProjection * (shadowModelView * vec4(scenePos, 1.0))).xyz;
     if (max(abs(clip.x), abs(clip.y)) > 0.98) return 1.0;
@@ -222,19 +230,192 @@ vec3 lightShafts(vec3 viewDir, float dist, float eyeSky) {
     if (outside <= 0.0 || L.y < 0.0) return vec3(0.0);
     float maxD = min(dist, 96.0);
     float mu = dot(viewDir, L);
-    const float g = 0.78;
-    float phase = 0.85 * (1.0 - g * g) / (4.0 * PI * pow(1.0 + g * g - 2.0 * g * mu, 1.5)) + 0.15 / (4.0 * PI);
+    float phase = 0.75 * hgPhaseS(mu, 0.78) + 0.15 * hgPhaseS(mu, 0.35) + 0.10 / (4.0 * PI);   // j1: a flatter lobe lost the rays by the sun
     float j = ign(gl_FragCoord.xy + float(frameCounter % 64) * vec2(3.17, 7.91));
     float lit = 0.0;
     for (int i = 0; i < SHAFT_STEPS; i++) {
         float f = (float(i) + j) / float(SHAFT_STEPS);
         lit += shadowRaw(viewDir * (f * f * maxD)) * 2.0 * f;
     }
-    lit *= maxD / float(SHAFT_STEPS);   // metres of sunlit air along the ray
+    lit /= float(SHAFT_STEPS);          // the lit share of the ray, 0-1
+    lit = pow(clamp(lit, 0.0, 1.0), 1.8) * maxD * 1.25;   // metres of sunlit air, with contrast
+    if (dist >= far) lit *= 0.6;        // open sky: the beams, not a veil over the sky
     float gh = goldenHour();
     float sigma = mix(0.0008, 0.0036, gh) * SHAFT_GAIN * (1.0 + rainStrength);   // i0: 0.0013 barely showed
     vec3 E = lightIrradiance() * mix(vec3(1.0), vec3(1.25, 0.95, 0.62), gh);
     return E * phase * sigma * lit * outside * smoothstep(0.0, 0.06, L.y);
+}
+#endif
+
+#if QF_WAVES == 1
+// Exact unpolarised Fresnel reflectance, air to water (n = 1.333): 2% straight down, rising
+// steeply at grazing angles (Schlick's fit is a few percent off there, where it shows most).
+float fresnelWater(float c) {
+    c = clamp(c, 0.0, 1.0);
+    float ct = sqrt(max(1.0 - (1.0 - c * c) / (1.333 * 1.333), 0.0));
+    float rs = (c - 1.333 * ct) / (c + 1.333 * ct);
+    float rp = (1.333 * c - ct) / (1.333 * c + ct);
+    return clamp(0.5 * (rs * rs + rp * rp), 0.0, 1.0);
+}
+
+// Water seen from above (r006): refraction by the view-space slope, Beer-Lambert absorption and
+// in-scattering, caustics on a shallow sunlit bed, exact Fresnel between the refracted scene and
+// the reflection (screen-space, with the sky and clouds as the fallback), the sun's reflection on
+// the resolved wave facets plus the filtered roughness, a long glitter path at low sun balanced
+// with distance, the tight glints under the sun, and foam where the water meets the shore.
+vec3 shadeWaterAbove(vec3 color, vec3 n, float var, vec3 scene0, float dist0, vec3 viewDir,
+                     float depth0, float depth1, float skyLight) {
+    float NdotV = clamp(dot(n, -viewDir), 0.0, 1.0);
+    float t = animTime();
+    vec3 scene1 = scenePosAt(uv, depth1);
+    float thick = depth1 >= 1.0 ? 8.0 : distance(scene0, scene1);
+    vec3 L = lightDirWorld();
+    float NdotL = max(dot(n, L), 0.0);
+#if QF_SHADOWS
+    float sh = sampleShadow(scene0, vec3(0.0, 1.0, 0.0), max(L.y, 0.0), smoothstep(0.75, 0.95, skyLight), gl_FragCoord.xy);
+#else
+    float sh = smoothstep(0.8, 0.97, skyLight);
+#endif
+
+    // Refraction: the bed shifts with the slope as the eye sees it (view space), more through deep
+    // water, less far away; falls back to the straight lookup if the shift lands in front.
+    vec3 nV = mat3(gbufferModelView) * n;
+    vec3 upV = mat3(gbufferModelView) * vec3(0.0, 1.0, 0.0);
+    vec2 uvR = uv + (nV.xy - upV.xy) * 0.10 * clamp(thick / 4.0, 0.0, 1.0) / (1.0 + dist0 * 0.03);
+    float dR = texture(depthtex1, uvR).r;
+    if (dR <= depth0 || any(lessThan(uvR, vec2(0.0))) || any(greaterThan(uvR, vec2(1.0)))) {
+        uvR = uv;
+        dR = depth1;
+    }
+    vec3 behind = texture(colortex3, uvR).rgb;
+    vec3 bedP = scenePosAt(uvR, dR);
+    float d = dR >= 1.0 ? 32.0 : distance(scene0, bedP);
+#if QF_CAUSTICS == 1
+    if (dR < 1.0 && L.y > 0.05 && sunDirWorld().y > 0.0) {
+        // Sunlight focused by the waves: two drifting layers of cellular edges, projected along the
+        // light; strongest a block or two down, fading with depth (and in murky water).
+        float wd = max(scene0.y - bedP.y, 0.0);
+        vec2 cp = bedP.xz + cameraPosition.xz + L.xz / L.y * wd;
+        float c1 = texture(qfNoise, cp * 0.23 + vec2(t * 0.031, t * 0.017)).a;
+        float c2 = texture(qfNoise, mat2(0.8, 0.6, -0.6, 0.8) * cp * 0.19 + vec2(-t * 0.022, t * 0.027) + 0.37).a;
+        float caust = pow(1.0 - min(c1, c2), 6.0);
+        float w = smoothstep(0.1, 0.7, wd) * exp(-wd * 0.22) * (1.0 - smoothstep(24.0, 64.0, dist0));
+        w *= exp(-dot(waterAbsorb(), vec3(3.0)));   // murky water (swamp) hides them
+        behind *= 1.0 + caust * 2.2 * w * sh * smoothstep(0.05, 0.25, L.y);
+    }
+#endif
+    vec3 refracted = waterVolume(behind, d, skyLight);
+
+    // Reflection: the sky and clouds, then the screen where it has the reflected land.
+    vec3 R = reflect(viewDir, n);
+    R.y = abs(R.y);
+    vec3 refl = skyScatter(R);
+#if QF_CLOUDS == 1
+    refl = applyClouds(refl, R);
+#elif QF_CLOUDS == 2
+    refl = applyCloudsCheap(refl, R);
+#endif
+    refl *= smoothstep(0.3, 0.9, skyLight);
+    float sunOcc = 0.0;
+#if QF_SSR_STEPS > 0 && QF_WATER_STYLE > 0
+    vec3 viewPos0 = viewFromScreen(uv, depth0);
+    vec3 viewR = reflect(normalize(viewPos0), nV);
+    vec4 ssr = waterSSR(viewPos0, viewR, ign(gl_FragCoord.xy + float(frameCounter % 64) * 7.0));
+    refl = mix(refl, ssr.rgb, ssr.a);
+    sunOcc = ssr.a;
+#endif
+    float F = fresnelWater(NdotV);
+    vec3 col = mix(refracted, refl, F);
+
+    // The sun (or moon) on the waves.
+    sh *= 1.0 - sunOcc;
+    vec3 H = normalize(L - viewDir);
+    float NdotH = max(dot(n, H), 0.0);
+    float FH = fresnelWater(max(dot(H, -viewDir), 0.0));
+    float gh = goldenHour();
+    float G = NdotL / (4.0 * max(NdotV, 0.05) + 0.3);
+    // Resolved facets: a tight highlight, widened by the roughness the far waves filtered away.
+    float spec = ggx(NdotH, 0.0006 + 2.0 * var) * G;
+    // Near the camera the facets are big and few: keep their sparkle but balance it down, so the
+    // path fades toward the camera instead of ending in a blown patch at your feet.
+    float balance = mix(0.40, 1.0, smoothstep(2.0, 60.0, dist0));
+    spec *= mix(0.55, 1.0, smoothstep(2.0, 30.0, dist0));
+    // The long column at low sun (owner r005: lively's reach): a broad lobe, balanced by distance.
+    float a2b = mix(0.004, 0.050, gh) + 2.0 * var;
+    float broad = ggx(NdotH, a2b) * G;
+    spec += broad * mix(0.05, 0.42, gh) * balance;   // j0: 0.30 stopped short of the camera
+#if QF_SUN_SPARKLE == 1
+    {
+        // The tight core under the sun (r005, kept): world-anchored glints that hold for a second
+        // or two, sized from the pixel footprint, lit with a probability that follows the path's core.
+        float a2c = mix(0.0030, 0.022, gh);
+        float bc = ggx(NdotH, a2c) * G;
+        float bpk = ggx(1.0, a2c) * G;
+        float core = smoothstep(0.06, 0.6, clamp(bc / max(bpk, 1e-4), 0.0, 1.0));
+        float pxS = 2.0 / (gbufferProjection[1][1] * viewHeight);
+        float lc = ceil(log2(max(dist0 * pxS * 2.5 / max(NdotV, 0.12), 0.02)));
+        float cw = exp2(lc);
+        vec2 g2 = (scene0.xz + cameraPosition.xz + vec2(t * 0.03, -t * 0.02)) / cw;
+        vec2 id2 = floor(g2);
+        float tw = floor(t * 0.6 + hash12(id2 + lc * 3.3) * 4.0);
+        float on = step(1.0 - 0.42 * core, hash12(id2 + tw * 7.31 + lc * 1.7));
+        vec2 off = (vec2(hash12(id2 + 1.3), hash12(id2 + 2.7)) - 0.5) * 0.4;
+        float dotS = smoothstep(0.30, 0.08, length(fract(g2) - 0.5 - off));
+        spec += bpk * on * dotS * core * 3.0 * gh;
+    }
+#endif
+    col += lightIrradiance() * min(spec, 400.0) * FH * sh * 3.0;
+
+#if QF_FLECKS == 1
+    // Bubbles and foam flecks (owner r002 loved the "bubble" effect on near water and
+    // wants more like it). Tiny pale dots that ride the surface and drift with it,
+    // thickest in the shallows and near the shore, gone with distance (they are smaller
+    // than a pixel there). Lit like foam: sky, plus the sun where it reaches.
+    {
+        vec2 wp = scene0.xz + cameraPosition.xz;
+        float t = animTime();
+        vec2 gp = wp * 7.0 + vec2(t * 0.35, t * 0.22) + n.xz * 3.0;
+        vec2 cell = floor(gp);
+        float h = hash12(cell);
+        float shallow = 1.0 - smoothstep(0.6, 2.5, thick);
+        float keep = mix(0.98125, 0.925, shallow);   // owner r004: 1.25x round f (0.985, 0.94)
+        if (h > keep) {
+            vec2 c = cell + 0.25 + 0.5 * vec2(hash12(cell + 3.7), hash12(cell + 9.1));
+            // Smaller and softer close up (r003 critic: the nearest read as confetti).
+            float r = (0.07 + 0.07 * hash12(cell + 5.3)) * mix(0.6, 1.0, smoothstep(2.0, 10.0, dist0));
+            float dd = length(gp - c);
+            float dotA = smoothstep(r, r * 0.15, dd) * 0.8;
+            // Fade with distance, and out over a few seconds so each fleck has a life.
+            float life = sin(PI * fract(t * 0.12 + h * 7.0));
+            float fade = (1.0 - smoothstep(6.0, 28.0, dist0)) * life;
+            vec3 foamE = skyIrradiance(vec3(0.0, 1.0, 0.0)) * skyLight * skyLight
+                       + lightIrradiance() * max(lightDirWorld().y, 0.0) * sh + nightFloor() * NIGHT_FLOOR_TINT;
+            col = mix(col, foamE * (0.75 / PI), dotA * fade * 0.85);
+        }
+    }
+#endif
+#if QF_FOAM == 1
+    {
+        // Foam where the water meets a shore or a wall: there the view passes through only a sliver
+        // of water. A ragged, drifting edge of bubbly cells, lit like any white surface.
+        vec2 wp = scene0.xz + cameraPosition.xz;
+        float fn = texture(qfNoise, wp * 0.11 + vec2(t * 0.006, t * 0.004)).b;
+        float edge = 1.0 - smoothstep(0.05, 0.75, thick + (fn - 0.5) * 0.5);
+        if (edge > 0.0 && depth1 < 1.0) {
+            float cells = texture(qfNoise, wp * 0.55 + n.xz * 0.4 + vec2(t * 0.025, -t * 0.018)).a;
+            float swamp = 0.0;
+#if QF_BIOME_WATER == 1 && QF_CAL_WATER == 0
+            swamp = waterBiomeWeights().z;
+#endif
+            float foam = edge * mix(0.35, 1.0, smoothstep(0.25, 0.75, cells)) * (1.0 - smoothstep(20.0, 56.0, dist0))
+                       * (1.0 - 0.75 * swamp);
+            vec3 foamE = skyIrradiance(vec3(0.0, 1.0, 0.0)) * skyLight * skyLight
+                       + lightIrradiance() * max(L.y, 0.0) * sh + nightFloor() * NIGHT_FLOOR_TINT;
+            col = mix(col, foamE * (0.8 / PI), clamp(foam * 0.8, 0.0, 1.0));
+        }
+    }
+#endif
+    return col;
 }
 #endif
 
@@ -255,6 +436,10 @@ void main() {
         vec3 n = decodeNormal(g1.rg);
         float NdotV = clamp(dot(n, -viewDir), 0.0, 1.0);
         if (isEyeInWater == 0) {
+#if QF_WAVES == 1
+            float var = pow(texelFetch(colortex2, px, 0).a / 8.0, 2.0);
+            color = shadeWaterAbove(color, n, var, scene0, dist0, viewDir, depth0, depth1, skyLight);
+#else
             // Refraction: shift the lookup along the wave slope, more for deeper water, and
             // fall back to the straight lookup if the shifted pixel is in front of the surface.
             vec3 scene1 = scenePosAt(uv, depth1);
@@ -436,6 +621,7 @@ void main() {
                     color = mix(color, foamE * (0.75 / PI), dotA * fade * 0.85);
                 }
             }
+#endif
 #endif
         } else {
             // Under the surface, looking up: Snell's window. Inside it the whole sky is

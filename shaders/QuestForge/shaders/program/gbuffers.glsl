@@ -189,10 +189,18 @@ void main() {
     vec3 face = normalize(vNormal);
     if (vMat == MAT_WATER) {
         // The surface only. Alpha 0 leaves the lit scene below untouched for composite.fsh.
+#if QF_WAVES == 1
+        // colortex2.a carries the filtered slope variance (roughness) to composite.fsh.
+        vec4 nr = waterNormalRough(vScenePos + cameraPosition, face);
+        vec3 n = nr.xyz;
+        float roughA = clamp(sqrt(nr.w) * 8.0, 0.0, 1.0);
+#else
         vec3 n = waterNormal(vScenePos + cameraPosition, face);
+        float roughA = 0.0;
+#endif
         outColor = vec4(0.0);
         outNormal = packGbuffer1(n, MAT_WATER, FLAG_STATIC);
-        outLight = vec4(vLM, 1.0, 1.0);
+        outLight = vec4(vLM, 1.0, roughA);
         return;
     }
     vec4 c = baseColor();

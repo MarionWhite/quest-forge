@@ -30,7 +30,10 @@
 #define QF_HAZE 0.35 // [0.2 0.35 0.4 0.6 0.8 1.0]   development (r002): distance-haze density (owner r002: 0.35, "definitely the best")
 #define QF_HORIZON_FLOOR 1 // [0 1]   development (r002): the sky below the horizon fades to a darker, cooler far-land tone (no beige wall)
 #define QF_TORCH_WARM 4 // [0 1 2 3 4]   development (r002): block-light colour. 0 r001 (~4000 K), 1 tungsten, 2 tungsten to candle with distance (r002 pick), 3 candle, 4 a little warmer than 2 (owner r002)
-#define QF_WATER_STYLE 4 // [0 1 2 3 4]   development (r002): 0 r001 (sky-only Fresnel), 1 calm (reflections, glitter, ripples), 2 lively, 3 calm by day and lively at low sun (owner r002: C at sunset, B at noon), 4 calm mirror (owner r004: A, Complementary/Photon realism)
+#define QF_WATER_STYLE 3 // [0 1 2 3 4]   development (r002): 0 r001 (sky-only Fresnel), 1 calm (reflections, glitter, ripples), 2 lively, 3 calm by day and lively at low sun (owner r002: C at sunset, B at noon; owner r005: C, lively wins at sunset), 4 calm mirror (owner r004: A; reversed in r005)
+#define QF_WAVES 1 // [0 1]   development (r006): 0 r005's swells and ripples, 1 spectral waves (layered ocean-spectrum height field, detail fading with the pixel footprint, filtered detail kept as roughness), with exact Fresnel, caustics and shore foam (owner r005: "a serious jump in quality")
+#define QF_FOAM 1 // [0 1]   development (r006): foam where the water is shallow at the shore (QF_WAVES 1)
+#define QF_CAUSTICS 1 // [0 1]   development (r006): sunlight caustics on shallow beds (QF_WAVES 1)
 #define QF_WATER_COLOR 0 // [0 1 2]   development (r002): 0 clear depth gradient, 1 teal-green, 2 deep blue (fallback when QF_BIOME_WATER is 0)
 #define QF_BIOME_WATER 1 // [0 1]   water colour by biome (owner r002): glassy lakes and rivers, deep-blue ocean, turquoise coast and reef, murky teal swamp
 #define QF_WATER_FORCE 0 // [0 1 2 3 4 5]   development (r003): force one biome water (1 glassy, 2 ocean, 3 reef, 4 swamp, 5 river) for the Shader Lab
@@ -43,9 +46,11 @@
 #define QF_FLICKER 1 // [0 1]   development (r003): torchlight breathes slightly, varying from place to place
 #define QF_AERIAL 1 // [0 1]   development (r003): aerial perspective, distant land turns blue and pale (owner r002: Extreme Hills bland; r003: his golden and leaves picks had it off, and he rejected the hills colour range; r004: B, on)
 #define QF_HAZE_HEIGHT 1 // [0 1]   development (r005): haze and aerial perspective by height below the camera as well as distance (owner r004: haze where the land drops away, not over land at eye level)
-#define QF_SHAFTS 1 // [0 1 2]   development (r005): volumetric sunlight through gaps (light shafts), warm at golden hour (owner r004: "more cinematic light"). 2 stronger
-#define QF_NIGHT_SKY 0 // [0 1 2 3]   development (r005): night sky. 0 a rotation night by night, 1 deep clear starfield, 2 airglow bands, 3 Milky Way (owner r004: more texture, a rotation so it is not samey)
-#define QF_CLOUDS 2 // [0 1 2]   development (r003/r005): 1 the r003 flat deck, 2 raymarched broken clouds (owner r004: D, dramatic broken clouds, "dynamic ... beautiful and natural"), with shadows on the land
+#define QF_SHAFTS 1 // [0 1 2]   (r006: sharper, gain 1.5, owner r005 forest A + leaves B)   development (r005): volumetric sunlight through gaps (light shafts), warm at golden hour (owner r004: "more cinematic light"). 2 stronger
+#define QF_NIGHT_SKY 1 // [0 1 2 3]   development (r005): night sky. 0 a rotation night by night, 1 deep clear starfield (owner r005: A, the default), 2 airglow bands (owner r005: underwhelming), 3 Milky Way, since r006 the ESO/S. Brunier photographic panorama (owner r005: the drawn band looked hand-drawn)
+#define QF_SUN_GLOW 1 // [0 1]   development (r006): a soft halo round the sun disk (the eye's and the lens's glare), no wider than a few degrees
+#define QF_CLOUD_COVER 0.0 // [-0.04 0.0 0.04 0.08]   development (r006): cloud threshold offset; positive is fewer, smaller clouds
+#define QF_CLOUDS 2 // [0 1 2]   (r006: true 3D shapes, light by the hour, moonlit at night)   development (r003/r005): 1 the r003 flat deck, 2 raymarched broken clouds (owner r004: D, dramatic broken clouds, "dynamic ... beautiful and natural"), with shadows on the land
 
 // 0 Potato, 1 Low, 2 Medium, 3 High, 4 Ultra.
 #if QF_PRESET == 0

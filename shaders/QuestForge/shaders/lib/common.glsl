@@ -165,3 +165,19 @@ vec2 taaJitter() {
         vec2(0.625, 0.777778), vec2(0.375, 0.222222), vec2(0.875, 0.555556), vec2(0.0625, 0.888889));
     return (h[i] * 2.0 - 1.0) / vec2(viewWidth, viewHeight);
 }
+
+// Data textures (shaders.properties customTexture; tools/shaders/make_textures.py), 256 x 256,
+// linear and wrapping. qfNoise: r white noise, g = r shifted by 37 texels along x, b smooth fbm,
+// a cellular edges. qfWaves: rg the slope and b the height of an ocean-spectrum height field.
+uniform sampler2D qfNoise;
+uniform sampler2D qfWaves;
+
+// 3D value noise in one fetch (I. Quilez, "noise with a 2D texture"): z layers are the texture
+// shifted by 37 texels, and g holds the next layer, so one bilinear fetch gives both.
+float noise3t(vec3 x) {
+    vec3 p = floor(x), f = fract(x);
+    f = f * f * (3.0 - 2.0 * f);
+    vec2 uv = p.xy + vec2(37.0, 0.0) * p.z + f.xy;
+    vec2 rg = textureLod(qfNoise, (uv + 0.5) / 256.0, 0.0).rg;
+    return mix(rg.r, rg.g, f.z);
+}

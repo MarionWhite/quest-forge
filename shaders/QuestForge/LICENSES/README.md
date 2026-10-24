@@ -20,3 +20,15 @@ Techniques, implemented from their published descriptions:
 | `lib/common.glsl` | Interleaved gradient noise | J. Jimenez, "Next Generation Post Processing in Call of Duty: Advanced Warfare", SIGGRAPH 2014 | talk |
 | `lib/common.glsl` | `hash12`, `hash13` ("Hash without Sine") | D. Hoskins, Shadertoy 4djSRW | MIT; this notice serves as the credit |
 | `lib/shadows.glsl` | Vogel (golden-angle) disk sampling | H. Vogel, 1979 | maths |
+
+## Data textures (`shaders/textures/`)
+
+Made by `tools/shaders/make_textures.py`.
+
+| File | What | Source | Terms |
+|---|---|---|---|
+| `qf_waves.png` | Tileable ocean height field (slope and height) | Generated: inverse FFT of a power-law wave spectrum, after J. Tessendorf, "Simulating Ocean Water", SIGGRAPH course notes 2001 | ours; the method is from the paper |
+| `qf_noise.png` | White noise, smooth fbm, cellular edges | Generated; one-fetch 3D noise after I. Quilez's "noise with a 2D texture" article | ours |
+| `qf_milkyway.png` | The Milky Way for the QF_NIGHT_SKY 3 night | **ESO/S. Brunier**, "The Milky Way panorama" (eso0932a), https://www.eso.org/public/images/eso0932a/ | **CC BY 4.0** (https://creativecommons.org/licenses/by/4.0/). Modified: cropped to galactic latitude -45 to +45 degrees, point stars removed (grey opening, median, light blur), sky background subtracted, levels normalised, resized to 4096 x 1024. No AI was used. |
+
+Credit line, as ESO asks for it: **ESO/S. Brunier**.

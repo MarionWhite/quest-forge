@@ -44,7 +44,7 @@ const vec3 WA_REEF = vec3(0.20, 0.022, 0.026),    WS_REEF = vec3(0.0010, 0.0125,
 // r004 critic and owner: still too clear and grass-green. Silt has to scatter, not only absorb:
 // with scattering a tenth of absorption the water only darkened the bed; now the in-scattered
 // olive-brown hides it within a block or two of path.
-const vec3 WA_SWAMP = vec3(1.10, 0.80, 1.25),     WS_SWAMP = vec3(0.045, 0.060, 0.020);   // round f mint jade; ih (0.15, 0.19, 0.065) pea soup
+const vec3 WA_SWAMP = vec3(1.10, 0.80, 1.25),     WS_SWAMP = vec3(0.050, 0.050, 0.021);   // round f mint jade; ih (0.15, 0.19, 0.065) pea soup; r005 (0.045, 0.060, 0.020) a bit too green (owner r005)
 // River (r005; owner r004 agreed with the critic: the river was "a milky blob"): moving water
 // carries fine sediment, so a slightly green-brown, half-clear stream instead of glassy lake water;
 // the bed shows for two or three blocks.
@@ -174,7 +174,69 @@ vec2 rippleSlope(vec2 p, float t, float fade) {
     return s * RIPPLE_AMP * fade;
 }
 
+#if QF_WAVES == 1
+// Spectral waves (r006; owner r005: "a serious jump in quality", toward Complementary Unbound and
+// Photon). One tileable ocean-spectrum height field (qfWaves, J. Tessendorf's FFT ocean, baked)
+// laid down eight times, each at its own scale (0.7 to 41 blocks), angle and drift speed (longer
+// waves travel faster, as deep-water waves do), so no tile ever repeats visibly. Each layer fades
+// out once its finest crests get smaller than a pixel; the slope variance it would have added is
+// kept as roughness (Toksvig), so the far water turns into a broader, dimmer sun path instead of
+// aliasing, and the near water keeps real facets that sparkle. Gusts (a slow, large noise) make
+// the short waves come in patches, like cat's paws on a lake.
+const int WAVE_N = 8;
+const float WAVE_L[8] = float[8](41.0, 23.0, 12.7, 7.3, 4.1, 2.3, 1.3, 0.74);
+const float WAVE_S[8] = float[8](0.050, 0.060, 0.066, 0.068, 0.066, 0.060, 0.052, 0.046);   // slope per layer
+const float WAVE_ROT[8] = float[8](0.0, 2.39, 4.78, 0.88, 3.27, 5.66, 1.77, 4.16);   // golden-angle steps
+// Slope (dh/dx, dh/dz) in xy, and the filtered-out slope variance in z.
+vec3 spectralSlope(vec2 p, float t, float footprint, float amp, float chop) {
+    vec2 s = vec2(0.0);
+    float lost = 0.0;
+    float gust = texture(qfNoise, p / 300.0 + vec2(t * 0.0021, t * 0.0013)).b;
+    gust = mix(0.35, 1.45, smoothstep(0.2, 0.8, gust));
+#if QF_PRESET == 0
+    const int I0 = 1, I1 = 6;
+#else
+    const int I0 = 0, I1 = WAVE_N;
+#endif
+    for (int i = I0; i < I1; i++) {
+        float L = WAVE_L[i];
+        float c = cos(WAVE_ROT[i]), sn = sin(WAVE_ROT[i]);
+        mat2 R = mat2(c, sn, -sn, c);
+        // Deep-water phase speed of the layer's dominant wave (about L / 8): sqrt(g lambda / 2 pi).
+        float v = sqrt(9.8 * L / 8.0 / 6.2832);
+        vec2 q = (R * p) / L + vec2(t * v / L * 0.6, t * v / L * 0.15);
+        // The finest crests in the layer are L / 56 long: fade once they near two pixels.
+        float fade = 1.0 - smoothstep(0.6, 2.4, footprint * 112.0 / L);
+        float w = WAVE_S[i] * amp * (i >= 4 ? mix(1.0, gust, chop) : 1.0);
+        if (fade > 0.0) {
+            vec2 g = texture(qfWaves, q).rg * 2.0 - 1.0;
+            s += (g * R) * (w * fade);
+        }
+        lost += w * w * 0.09 * (1.0 - fade * fade);   // 0.09: the field's slope variance per unit
+    }
+    return vec3(s, lost);
+}
+float waveFootprint(vec3 worldPos) {
+#ifdef FSH
+    vec2 d = max(abs(dFdx(worldPos.xz)), abs(dFdy(worldPos.xz)));
+    return max(max(d.x, d.y), 1e-3);
+#else
+    return 0.05;
+#endif
+}
+// The normal of the spectral surface and its roughness (filtered slope variance).
+vec4 waterNormalRough(vec3 worldPos, vec3 faceNormal) {
+    if (faceNormal.y < 0.5) return vec4(faceNormal, 0.0);
+    float amp = WAVE_AMP * (1.0 + rainStrength * 0.6) * mix(0.7, 1.15, clamp(RIPPLE_AMP, 0.0, 1.6) / 1.6);
+    vec3 sl = spectralSlope(worldPos.xz, animTime(), waveFootprint(worldPos), amp, 0.8);
+    return vec4(normalize(vec3(-sl.x, 1.0, -sl.y)), sl.z);
+}
+#endif
+
 vec3 waterNormal(vec3 worldPos, vec3 faceNormal) {
+#if QF_WAVES == 1
+    return waterNormalRough(worldPos, faceNormal).xyz;
+#endif
     // Only the tops of water get waves; falls and sides keep the face normal.
     if (faceNormal.y < 0.5) return faceNormal;
     float t = animTime();
