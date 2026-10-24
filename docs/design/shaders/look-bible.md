@@ -4,9 +4,9 @@ What the pack should look like, in order of priority. The critic scores every
 frame against this document and the owner's taste profile; when they disagree,
 the owner's answers win and this file is updated to match.
 
-**Version 3**, 2026-10-23: drafted 2026-10-16 from [`research/desirability.md`](research/desirability.md);
-the Shader Lab answers to round 0 (2026-10-18), round 1 (2026-10-21) and round 2 (2026-10-23)
-are folded in below.
+**Version 4**, 2026-10-23: drafted 2026-10-16 from [`research/desirability.md`](research/desirability.md);
+the Shader Lab answers to round 0 (2026-10-18), round 1 (2026-10-21), round 2 (2026-10-23)
+and round 3 (2026-10-23 evening) are folded in below.
 
 ## North star
 
@@ -95,9 +95,15 @@ From the Shader Fixer patch list (50 fixes across 1.7.10 mods):
 From round 0 (calibration), answered 2026-10-18 (GitHub issue #1,
 `feedback/r000.json`), round 1, answered 2026-10-19 (issue #2, `feedback/r001.json`;
 folded in 2026-10-21), and round 2, answered 2026-10-23 from a phone (issue #3,
-`feedback/r002.json`; folded in 2026-10-23). Each later round's picks, ratings and notes
+`feedback/r002.json`; folded in 2026-10-23), and round 3, answered 2026-10-23 (issue #4,
+`feedback/r003.json`; folded in the same evening). Each later round's picks, ratings and notes
 are added here. Where these contradict a rule above, these win.
 
+- **Round 3 overall:** "Some improvements, and some things to work on for sure." Wants a **texture
+  pack worked on in parallel** with the shaders, because it changes the direction of much of this:
+  look at a broad range of existing packs first (sample them, take a solid one and extend it to the
+  modded blocks, or make a custom one), judged against the design taste below. Wants to **decide
+  directions together** from researched references: other packs' water, and cloud inspiration.
 - **Round 2 overall:** "I am definitely seeing progress! ... I have very high expectations."
   Keep asking questions wherever taste decides. Sending from the phone means signing in to
   GitHub every time, "a huge pain": the feedback relay is worth switching on.
@@ -112,7 +118,8 @@ are added here. Where these contradict a rule above, these win.
   close. (Round 10's 0.085 was too bright; aim for about 0.04-0.05 mean luma at full moon.)
   - **Full moon: keep it** (r001: current, rated 5, mean luma about 0.046-0.050). More
     beauty comes from extra effects (sky, stars), not from changing its brightness.
-  - **New moon: the full-moon night, a bit darker** (r002: picked the full-moon frame over
+  - **New moon: QF_NEW_MOON 0.25** (r003: B, 5/5, "the sky looks fuller ... a deep rich darkness").
+  - (r002:) **New moon: the full-moon night, a bit darker** (r002: picked the full-moon frame over
     all three new-moon options, rated 4: "we regressed with the new proposed changes"). The
     r002 new moons had a brown-black sky; the full moon's navy sky and readable land are
     the look. Darker than the full moon, never that regressed look. (r001: A, rated 3, asked
@@ -120,7 +127,10 @@ are added here. Where these contradict a rule above, these win.
   - **Night sky: r001's stars** (r002: A, 5/5). The Milky Way was rejected ("the execution
     is not good"). Open to sky effects, but only ones that are genuinely beautiful.
 - **Golden hour: amber light plus a gold sky near the sun** (r001: B, rated 4, for both
-  the wide view and the sunset; replaces r000's "naturalistic"). r002 confirmed it (5/5,
+  the wide view and the sunset; replaces r000's "naturalistic"). **r003: round 2's version won
+  (B, 5/5) over the extra amber on lit faces (QF_AMBER 1/2, now 0); "the horizon band is pretty
+  flat"**, so the band needs life, not more warmth. Leaves (r003: B, 4/5): round 2's leaves "give
+  the environment depth" and the amber options did not show the effect described. r002 confirmed it (5/5,
   "keep pushing in this direction"), with the gold sky at 1.5x (5/5, "maybe more gold")
   and **amber on the leaves and other lit surfaces**. Liked: "how the light
   hits the blocks in the background", and foreground and background lit differently by
@@ -133,7 +143,16 @@ are added here. Where these contradict a rule above, these win.
   - **Colour by biome** (r002: neither fixed colour; rated 5): teal and murky in swamps and
     marshes, deep blue for most oceans, transparent and glassy for most rivers and lakes,
     Maldives turquoise for coasts and coral reefs. The pregenerated map makes this work.
-  - **At sunset: lively** (r002: C, 3/5). The light source should look more cinematic, with
+  - **At sunset: r002's lively water** (r003: A, 4/5, "so much more balanced", the fullest range of
+    colours; QF_GLITTER 0). The surface-glitter and cinematic-sun options had "an ugly orange cone
+    artifact right down the middle of the screen" (critic: the aerial-perspective term sampled the
+    sun's glow for every pixel below the sun). Wanted from the cinematic one: "spots right below the
+    sun that have the light intensity depth". Direction to be chosen together from other packs' water.
+  - **Biome water** (r003: coast 5/5): coast and ocean are the best; the critic's notes were "right on
+    the money" (river dark slate with a blown noon highlight, swamp too clear): realise and iterate them.
+  - **Near-water flecks: less** (r003: "a bit much"; the r002 amount, maybe a little more, was right).
+    r002's "bubbles" were the near-water sparkles of QF_GLITTER 0, so QF_FLECKS is now 0.
+  - (r002, superseded at sunset by r003:) **At sunset: lively** (r002: C, 3/5). The light source should look more cinematic, with
     a glitter that interacts with the surface texture, "but only if we can get it right".
   - **At noon: calm** (r002: B, 4/5): the distant surface texture must not dominate. Loved
     the "bubble" flecks on the near water and wants more effects like that. Room to improve.
@@ -141,6 +160,9 @@ are added here. Where these contradict a rule above, these win.
   fog in some biomes, and a heavy, vision-limiting tundra storm.
   - **Baseline: haze 0.35** (r002: C, 5/5, "definitely the best ... not too crisp, and not
     too murky"; r001 asked for between r001's haze and crisp).
+  - **Hills (r003: neither):** not loving the colour range, the environment or the clouds. Clouds:
+    research inspiration and pick a direction together. Aerial perspective is off (QF_AERIAL 0) until
+    then: neither of his golden or leaves picks had it.
   - **Crisp is not enough on its own** (r002 Extreme Hills, 4/5: "crisp enough, but this
     scene still looks very bland"): give such views depth (aerial perspective), light and
     a sky with something in it.
@@ -155,10 +177,14 @@ are added here. Where these contradict a rule above, these win.
 - **Questions: more per round** (r001 overall: "happy to field more questions with each
   iteration"). Ask wherever taste decides: water colour and surface, torch warmth, sky
   gold, night-sky beauty, and each biome's fog.
-- **Torches: tungsten to candle, a little warmer** (r002: B, 4/5). Inexpensive
+- **Torches: tungsten to candle, a little warmer** (r002: B, 4/5; r003: B, 4/5, QF_TORCH_WARM 4).
+  Wanted next (r003): heat shimmer around the flame, small embers, ambient dust "like some of the
+  modern effects mods have". Inexpensive
   environmental and ambient effects are welcome (heat shimmer, dust motes, flicker), within
   the budget.
-- **Ambient particles: yes, more** (r002 water and torch notes): cheap environmental effects
+- **Ambient particles: visible, balanced** (r003: the three mote options "look the exact same":
+  too faint to judge). Likes the bubbles and dust; try other creative ideas.
+- (r002:) **Ambient particles: yes, more** (r002 water and torch notes): cheap environmental effects
   such as the water's bubble flecks, dust in sunbeams and around torches.
 - **Wants (later milestones):** unobtrusive cave dust; cheap block-break effects that
   survive mass breaking (Mobzilla); rain as misted air, not only particles; lava and
