@@ -1,7 +1,8 @@
 // WorldPainter script (wpscript.exe, WorldPainter 2.27.1): turn one piece from
 // `plan.py expand` into a .world file the author refines by hand, and optionally export it.
 //   wpscript.exe tools/world/wp_piece.js <piece dir> <docs/survey/biome-ids.tsv> <out .world> [export dir]
-// The piece dir holds height.png (16-bit, y * 257), biome.png (8-bit biome IDs) and origin.txt.
+// The piece dir holds height.png (16-bit, y * 257), biome.png (8-bit biome IDs), water.png (raised
+// water levels), terrain.png + grounds.json (ground blocks per column) and origin.txt.
 // Pieces have no WorldPainter border: the sea ring is part of the plan, and
 // tools/world/stitch.py joins the exported pieces into one world.
 load(new java.io.File(scriptDir, "wp_common.js").getPath());   // wpscript defines scriptDir, not __DIR__
@@ -29,6 +30,23 @@ var biomeLayer = wp.getLayer().withName("Biomes").go();
 wp.applyHeightMap(biomes).toWorld(world).shift(x0, z0)
     .applyToLayer(biomeLayer).fromLevels(0, 255).toLevels(0, 255).go();
 biomes = null;
+
+// Ground blocks: terrain.png holds a code per column (grounds.json names them; 0 = leave
+// WorldPainter's height-based default). One mapping op per piece, not a loop over blocks.
+var groundsFile = new java.io.File(dir, "grounds.json");
+if (groundsFile.exists() && new java.io.File(dir, "terrain.png").exists()) {
+    var grounds = JSON.parse(String(new java.lang.String(java.nio.file.Files.readAllBytes(groundsFile.toPath()), "UTF-8")));
+    var tmap = qfGroundTerrains(world, grounds);
+    var terr = wp.getHeightMap().fromFile(dir + "/terrain.png").go();
+    var op = wp.applyHeightMap(terr).toWorld(world).shift(x0, z0).applyToTerrain();
+    for (var g = 0; g < grounds.length; g++) {
+        if (tmap[grounds[g]] == null) throw "no WorldPainter terrain for ground " + grounds[g];
+        op = op.fromLevel(g + 1).toTerrain(tmap[grounds[g]]);
+    }
+    op.go();
+    terr = null;
+    print("ground terrains: " + JSON.stringify(tmap));
+}
 
 // Lakes and rivers above sea level: water.png holds each block's water level (0 = the world's
 // 62). water_tiles.json lists the 512-block tiles holding any (older pieces: lakes.json bounds).

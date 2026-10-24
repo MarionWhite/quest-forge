@@ -202,3 +202,85 @@ All are in `C:\qf-world\renders\`, at 1 px per block, in block colours with hill
   - Results are in `pregen-result-*.json`, the log in `pregen.log`.
   - Before reusing it for another session: chunks RWG generates inside the hook rectangle in a *later* session would count as painted (poc.md), so add pieces only to a fresh stitch.
 - The plan render, the pieces and the WorldPainter exports are in the session scratchpad (`r13t/`). They are not in the repo.
+
+## Fixes and re-test
+
+**Date:** 2026-10-24, same day. The author approved six fixes. They were made in the tools and in `r13/merge.py`'s fixups, the plan was re-rendered at full resolution (32 min), and the same 16 pieces were rebuilt. The pieces were stitched into a **fresh** world in the same trial (`r13t`; the first test's world is kept beside it as `world-test1`), and the same five areas were populated. Again 0 failed chunks, about 1.05 GB working set, 20 TPS. No client was launched.
+
+| # | Fix | Where | Result |
+|---|---|---|---|
+| 1 | Calving bay: dark open water | merge fixup: an exact Deep Ocean (24) sea region over the bay, a basin to deepen it, `surface: packed_ice` on the bergs and the snout, `beach_skip: [89]` | **Works.** 2.79 M columns of the bay are Deep Ocean: **100% open water, 0.00% ice** (was 98% ice). Glacier tops are packed ice (934k columns) under a snow layer (232k). Bergs stand sheer from the sea. |
+| 2 | Ground blocks per biome | `plan.py expand` writes `terrain.png` + `grounds.json`; `wp_piece.js` applies it in one WorldPainter mapping op | **Works.** The exports carry the right blocks per code, e.g. black sand 81% black stained clay + 19% gravel, stone_gravel 66/34, dirt_gravel 69/31, snow 83% snow block, packed ice 100%. The crater is scorched rubble, its eye black, the Outback terracotta, the Desert sand. |
+| 3 | Sheer cliffs | `expand` recuts every plateau at block resolution (`recut_plateaus`); plateaus are in `plan.json` | **Works.** Tepui: the drop from 135 to 85 takes a **median of 7 blocks** of run, against 30 in the first test. Bergs, the snout, the great-falls bench and the hot-spring risers are cut the same way. |
+| 4 | Waterfalls | new `tools/world/waterfalls.py`, run on the stitched world before populating | **Works.** 24 falls, 18,330 blocks of falling water. After population: tepui NW **148 → 72 (80-block sheet)**, N 145 → 81 (64), E 146 → 127 → 62 (21, then 66); great falls 119 → 97 (18) and **97 → 90 at the Great falls point (24)**. |
+| 5 | Meteor crater as Crag | merge fixup: the Wasteland stamps and the bowl floor become BoP Crag (77) on `scorched` ground | **Works.** Unplanned water on land fell from 1.97% to **0.45%**, and what is left is the Oasis outside the crater. The bowl still holds its sea-level half-lake (§2; not part of this round). |
+| 6 | Hot springs | merge fixup: Sacred Springs (197) on all six terraces; 146 pools placed in the treads, level pinned to `top - 1`, 1.6 radii clear of the lip | **Works.** Water covers **44%, 43%, 47%, 42% and 36%** of the five lower treads (the crown holds the vent: 11%), against 3–4%. Pool surfaces are on their tread levels (97.7% within one block). |
+
+### How each fix works
+
+1. **Calving bay** (`r13/merge.py`). Sea regions paint in list order, so the Deep Ocean circle (r 2300 round 13150, -21300) goes last and wins over RWG Ice Ocean. A basin (floor 34, wall 700) deepens the bay, so it reads dark between the bergs. Bergs and the snout get `surface: packed_ice`, a new plateau key. `beach_skip: [89]` is a new spec key: Glacier coasts get no automatic Beach ring.
+   - `expand` also stops a plateau's biome at its wall. Before this, the plan's 16-block Glacier pixels round each berg froze into stepped skirts of sea ice. Now columns outside the wall take the nearest non-plateau pixel's biome, and the nearest sea's biome where they end below sea level.
+2. **Ground blocks** (`plan.py` `GROUNDS`, `GROUND_RULES`; `wp_common.js` `qfGroundTerrains`).
+   - Code 0 keeps WorldPainter's default. Mapping:
+     - sand: Desert, Oasis, Xeric;
+     - Mesa terrain: Mesa, Canyon;
+     - terracotta: Outback;
+     - stone + gravel: Crag, Alps;
+     - snow blocks: Glacier, Tundra, Ice Plains and Mountains, frost and snowy biomes;
+     - podzol: taiga, boreal, coniferous, spruce;
+     - mycelium: Mushroom Island;
+     - coarse dirt + gravel: Wasteland;
+     - scorched: Volcano.
+   - Water and shore biomes keep the default.
+   - `surface.png` overrides the biome: `black_sand` (black stained clay + gravel), `scorched` (gravel, cobble, stone, black clay), `packed_ice`.
+   - Built-in terrains are used only where they fit 1.7.10 (no granite and the like). The mixes are custom terrains made from legacy block IDs.
+   - Cost: about 1 s per piece. WorldPainter's `applyHeightMap(...).applyToTerrain()` takes one `fromLevel(code).toTerrain(index)` per ground, and the index is the one in `Terrain.VALUES`, which is not the declaration order.
+3. **Sheer cliffs** (`plan.py recut_plateaus`).
+   - `expand` now builds the piece on a canvas 128 blocks wider on each side, so a wall near a piece edge sees the ground beyond it.
+   - For each plateau, it tests the outline per block, with plan.py's coast warp on top of expand's own warp.
+   - It takes the lowland from just outside the plan's smear band (64 blocks) and rebuilds the wall over `wall` blocks with the plan's profile.
+   - Near the edge, it sets the top to the interior's level, which removes both the smear and the cubic overshoot. The first try left an 11-block parapet round the tepui.
+   - River channels on the top keep their bed right to the outline. A top river pixel that already carries the lowland's level takes the top's level instead. Without that, the NW river stopped a pixel short, on a dry sill.
+   - Water levels follow the wall: the top's level inside the outline, the lowland's outside it.
+   - The tepui's `wall` went from 60 to 12 in the fixups, since `wall` is now real wall width.
+4. **Waterfalls** (`tools/world/waterfalls.py`).
+   - The pass finds raised water whose 4-neighbour is 3 or more blocks lower, and fills that column with block 8, metadata 8, from the upper surface down to the ground or water below.
+   - To keep to real drops, a fall must:
+     - land in water: in that column, or within 6 columns beyond it;
+     - form a run of at least 3 columns;
+     - drop at least 5 blocks somewhere;
+     - come from a body of at least 64 columns.
+   - Without the landing rule, the falls area got 223 "falls", nearly all raised river water spilling over its dry banks. With it, 7 remain there, all real.
+   - Changed chunks get `LightPopulated=0`. The falls survive population as written.
+5. **Crater** (merge fixup). BoP Wasteland decorates 10 poison lakes and 2 water lakes per chunk; Crag decorates none. BoP Volcano was the other option, but it decorates 20 lava lakes per chunk (javap of the BoP 2.1.0 jar), so it was not used.
+6. **Hot springs** (merge fixup).
+   - Tread masks are computed with plan.py's own warp, and pools are placed greedily in each tread: r 32–95, aspect 1–1.5, 1.6 r from the downhill lip and 1.05 r from the riser above, until about 42% of the tread is planned water.
+   - `ponds` take an optional `level` (a new `plan.py` key), so a pool keeps its tread's level instead of the 10th percentile of the ground round it.
+   - Three small overflow falls (9–12 blocks) formed where pools reach a riser.
+
+### Still wrong or open
+
+- **Sacred Springs is a forest.** It decorates 30 trees per chunk, its large sacred oaks among them, so between the pools the terraces are dense jungle canopy. The risers read only in the oblique view. Treads in plain ground or travertine (white stained clay, not added) would read as hot springs better. That is the author's call.
+- **River banks still step in 16-block squares** (first test, item 6). Not part of this round. It shows at the great-falls pool and along the tepui rivers.
+- **The great falls' upper step lands on a sill.** Two to four columns of ground at y 98–101 lie between the 119 water and the 97 pool, so the 18-block sheet lands on the sill, not in the pool. In the game it spills on into the pool at the first block update.
+- **The crater bowl still floods at sea level** (first test, §2). The pond and relief fix (item 7) was not part of this round.
+- **The tepui's foot is pocked.** Small gullies with puddles run along the foot, left from the plan's stepped outline beyond the 64-block band.
+- **Ice and terrain on cliff faces.** WorldPainter lays a terrain only 3–7 blocks deep, so a berg's face is packed ice near the top and stone below.
+- **Render palette.** Cobblestone shows red in `inspect_area.py`'s colours, so the scorched crater looks red-brown in the top-down render. The blocks are grey gravel, cobble, stone and black clay.
+
+### Renders
+
+All are in `C:\qf-world\renders\`. The top-down views are 1 px per block and use the same areas as the first test.
+
+| File | What |
+|---|---|
+| `r13-test2-crater.png`, `-crater-oblique.png` | Crater top-down, and a view from the south |
+| `r13-test2-tepui.png`, `-tepui-oblique.png`, `-tepui-oblique2.png` | Tepui top-down; the NW fall seen from the west; the E falls seen from the east |
+| `r13-test2-calving.png`, `-calving-oblique.png` | Calving bay top-down, and a view from the south |
+| `r13-test2-hot-springs.png`, `-hot-springs-oblique.png` | Hot-spring terraces top-down, and a view from the south |
+| `r13-test2-falls.png`, `-falls-oblique.png` | Great falls top-down, and a view from the south |
+| `r13-test2-sheet.png` | All of the above on one sheet, landmark points marked |
+
+The oblique views are drawn from `check_water.py`'s `.npz` arrays (top block and height per column) by a scratch script. They show the shape, not a game render.
+
+**Files.** The plan, pieces, exports, stitched world and scripts (`pieces.sh`, `all.sh`, `oblique.py`, `sheet.py`) are in the session scratchpad under `r13t2/`. The trial world in `%APPDATA%\.qf-trials\r13t\world` is this re-test.

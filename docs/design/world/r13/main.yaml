@@ -474,6 +474,8 @@ islands:
 - circle: [-7300, 16380, 160]
 - circle: [-6800, 16320, 120]
 surfaces:
+- material: scorched
+  circle: [-9400, 8900, 1000]
 - material: black_sand
   circle: [-8520, -150, 1548]
 - material: black_sand
@@ -680,6 +682,7 @@ plateaus:
   wall: 6
   top_relief: 1
   relief: 6
+  biome: 197
 - polygon:
   - [-5344, 1686]
   - [-5365, 1805]
@@ -725,6 +728,7 @@ plateaus:
   wall: 6
   top_relief: 1
   relief: 6
+  biome: 197
 - polygon:
   - [-5596, 1626]
   - [-5606, 1720]
@@ -770,6 +774,7 @@ plateaus:
   wall: 6
   top_relief: 1
   relief: 6
+  biome: 197
 - polygon:
   - [-5801, 1555]
   - [-5782, 1635]
@@ -815,6 +820,7 @@ plateaus:
   wall: 6
   top_relief: 1
   relief: 6
+  biome: 197
 - polygon:
   - [-6021, 1490]
   - [-6017, 1543]
@@ -860,6 +866,7 @@ plateaus:
   wall: 6
   top_relief: 1
   relief: 6
+  biome: 197
 - polygon:
   - [-6255, 1435]
   - [-6265, 1463]
@@ -905,6 +912,7 @@ plateaus:
   wall: 6
   top_relief: 1
   relief: 6
+  biome: 197
 - polygon:
   - &id001 [-8318, 8900]
   - [-8236, 9165]
@@ -972,7 +980,8 @@ plateaus:
   wall: 8
   top_relief: 0
   relief: 255
-  biome: 251
+  biome: 77
+  surface: scorched
 - polygon:
   - [-8555, 8996]
   - [-8028, 9152]
@@ -981,7 +990,8 @@ plateaus:
   wall: 8
   top_relief: 0
   relief: 255
-  biome: 251
+  biome: 77
+  surface: scorched
 - polygon:
   - [-8785, 9486]
   - [-8420, 9985]
@@ -990,7 +1000,8 @@ plateaus:
   wall: 8
   top_relief: 0
   relief: 255
-  biome: 251
+  biome: 77
+  surface: scorched
 - polygon:
   - [-9550, 9736]
   - [-9746, 10255]
@@ -999,7 +1010,8 @@ plateaus:
   wall: 8
   top_relief: 0
   relief: 255
-  biome: 251
+  biome: 77
+  surface: scorched
 - polygon:
   - [-10215, 9139]
   - [-10726, 9188]
@@ -1008,7 +1020,8 @@ plateaus:
   wall: 8
   top_relief: 0
   relief: 255
-  biome: 251
+  biome: 77
+  surface: scorched
 - polygon:
   - [-10217, 8667]
   - [-10782, 8390]
@@ -1017,7 +1030,8 @@ plateaus:
   wall: 8
   top_relief: 0
   relief: 255
-  biome: 251
+  biome: 77
+  surface: scorched
 - polygon:
   - [-9403, 8050]
   - [-9299, 7535]
@@ -1026,7 +1040,8 @@ plateaus:
   wall: 8
   top_relief: 0
   relief: 255
-  biome: 251
+  biome: 77
+  surface: scorched
 - polygon:
   - [-9136, 8091]
   - [-8869, 7603]
@@ -1035,7 +1050,8 @@ plateaus:
   wall: 8
   top_relief: 0
   relief: 255
-  biome: 251
+  biome: 77
+  surface: scorched
 - polygon:
   - [-6920, 4300]
   - [-6731, 4566]
@@ -1194,138 +1210,161 @@ plateaus:
   top_relief: 4
   relief: 10
   biome: 89
+  surface: packed_ice
 - circle: [13417, -22092, 138]
   top: 73
   wall: 8
   top_relief: 2
   relief: 6
   biome: 89
+  surface: packed_ice
 - circle: [13128, -21420, 235]
   top: 77
   wall: 8
   top_relief: 2
   relief: 6
   biome: 89
+  surface: packed_ice
 - circle: [13697, -20772, 146]
   top: 74
   wall: 8
   top_relief: 2
   relief: 6
   biome: 89
+  surface: packed_ice
 - circle: [12863, -22034, 134]
   top: 73
   wall: 8
   top_relief: 2
   relief: 6
   biome: 89
+  surface: packed_ice
 - circle: [12371, -22516, 169]
   top: 75
   wall: 8
   top_relief: 2
   relief: 6
   biome: 89
+  surface: packed_ice
 - circle: [12589, -20895, 244]
   top: 78
   wall: 8
   top_relief: 2
   relief: 6
   biome: 89
+  surface: packed_ice
 - circle: [13510, -21092, 149]
   top: 74
   wall: 8
   top_relief: 2
   relief: 6
   biome: 89
+  surface: packed_ice
 - circle: [14832, -20995, 177]
   top: 75
   wall: 8
   top_relief: 2
   relief: 6
   biome: 89
+  surface: packed_ice
 - circle: [14393, -22046, 191]
   top: 76
   wall: 8
   top_relief: 2
   relief: 6
   biome: 89
+  surface: packed_ice
 - circle: [11031, -21132, 137]
   top: 73
   wall: 8
   top_relief: 2
   relief: 6
   biome: 89
+  surface: packed_ice
 - circle: [14406, -21174, 183]
   top: 75
   wall: 8
   top_relief: 2
   relief: 6
   biome: 89
+  surface: packed_ice
 - circle: [13118, -20935, 164]
   top: 74
   wall: 8
   top_relief: 2
   relief: 6
   biome: 89
+  surface: packed_ice
 - circle: [11802, -21911, 160]
   top: 74
   wall: 8
   top_relief: 2
   relief: 6
   biome: 89
+  surface: packed_ice
 - circle: [12165, -21507, 188]
   top: 75
   wall: 8
   top_relief: 2
   relief: 6
   biome: 89
+  surface: packed_ice
 - circle: [14903, -21646, 189]
   top: 75
   wall: 8
   top_relief: 2
   relief: 6
   biome: 89
+  surface: packed_ice
 - circle: [11942, -20908, 121]
   top: 73
   wall: 8
   top_relief: 2
   relief: 6
   biome: 89
+  surface: packed_ice
 - circle: [11342, -21335, 141]
   top: 74
   wall: 8
   top_relief: 2
   relief: 6
   biome: 89
+  surface: packed_ice
 - circle: [11664, -21559, 150]
   top: 74
   wall: 8
   top_relief: 2
   relief: 6
   biome: 89
+  surface: packed_ice
 - circle: [12633, -22291, 115]
   top: 73
   wall: 8
   top_relief: 2
   relief: 6
   biome: 89
+  surface: packed_ice
 - circle: [12703, -21528, 111]
   top: 72
   wall: 8
   top_relief: 2
   relief: 6
   biome: 89
+  surface: packed_ice
 - circle: [13690, -21786, 209]
   top: 76
   wall: 8
   top_relief: 2
   relief: 6
   biome: 89
+  surface: packed_ice
 - circle: [15270, -21237, 116]
   top: 73
   wall: 8
   top_relief: 2
   relief: 6
   biome: 89
+  surface: packed_ice
 - circle: [4700, -19350, 850]
   top: 130
   wall: 36
@@ -1438,7 +1477,7 @@ plateaus:
   biome: 37
 - circle: [15500, 13000, 1050]
   top: 150
-  wall: 60
+  wall: 12
   top_relief: 10
   relief: 50
   biome: 195
@@ -1462,7 +1501,7 @@ canyons:
   depth: 36
   meander: 0
   wall_biome: 77
-  floor_biome: 251
+  floor_biome: 77
 - points:
   - [9948, 1150]
   - [9952, 1150]
@@ -1522,6 +1561,9 @@ basins:
   floor: 5
   wall: 120
   biome: 24
+- circle: [13150, -21500, 2400]
+  floor: 34
+  wall: 700
 regions:
 - tier: 4
   biome: 140
@@ -2746,6 +2788,58 @@ regions:
   lakes: [12, 80, 260]
   at: [8600, -5300]
   size: 0.6
+- biome: 24
+  sea: true
+  exact: true
+  polygon:
+  - [15450, -21300]
+  - [15430, -20999]
+  - [15371, -20704]
+  - [15274, -20419]
+  - [15141, -20150]
+  - [14974, -19899]
+  - [14776, -19673]
+  - [14550, -19475]
+  - [14300, -19308]
+  - [14030, -19175]
+  - [13745, -19078]
+  - [13450, -19019]
+  - [13150, -19000]
+  - [12849, -19019]
+  - [12554, -19078]
+  - [12269, -19175]
+  - [12000, -19308]
+  - [11749, -19475]
+  - [11523, -19673]
+  - [11325, -19899]
+  - [11158, -20150]
+  - [11025, -20419]
+  - [10928, -20704]
+  - [10869, -20999]
+  - [10850, -21300]
+  - [10869, -21600]
+  - [10928, -21895]
+  - [11025, -22180]
+  - [11158, -22450]
+  - [11325, -22700]
+  - [11523, -22926]
+  - [11749, -23124]
+  - [12000, -23291]
+  - [12269, -23424]
+  - [12554, -23521]
+  - [12849, -23580]
+  - [13150, -23600]
+  - [13450, -23580]
+  - [13745, -23521]
+  - [14030, -23424]
+  - [14300, -23291]
+  - [14550, -23124]
+  - [14776, -22926]
+  - [14974, -22700]
+  - [15141, -22450]
+  - [15274, -22180]
+  - [15371, -21895]
+  - [15430, -21600]
 ponds:
 - at: [-15270, -15868]
   r: 1118
@@ -2791,90 +2885,6 @@ ponds:
   depth: 28
   aspect: 1.2
   rot: 0.9
-- at: [-5769, 2533]
-  r: 49
-  depth: 4
-  aspect: 2.4
-  rot: 2.837
-  biome: 197
-- at: [-5297, 2144]
-  r: 53
-  depth: 4
-  aspect: 2.4
-  rot: 2.026
-  biome: 197
-- at: [-5433, 2321]
-  r: 52
-  depth: 4
-  aspect: 2.4
-  rot: 2.315
-  biome: 197
-- at: [-6010, 2345]
-  r: 51
-  depth: 4
-  aspect: 2.4
-  rot: 3.012
-  biome: 197
-- at: [-5483, 1944]
-  r: 54
-  depth: 4
-  aspect: 2.4
-  rot: 1.91
-  biome: 197
-- at: [-6141, 2351]
-  r: 56
-  depth: 4
-  aspect: 2.4
-  rot: 3.223
-  biome: 197
-- at: [-5712, 1518]
-  r: 52
-  depth: 4
-  aspect: 2.4
-  rot: 1.279
-  biome: 197
-- at: [-5874, 2029]
-  r: 46
-  depth: 4
-  aspect: 2.4
-  rot: 2.45
-  biome: 197
-- at: [-5802, 1961]
-  r: 53
-  depth: 4
-  aspect: 2.4
-  rot: 2.243
-  biome: 197
-- at: [-6008, 1803]
-  r: 51
-  depth: 4
-  aspect: 2.4
-  rot: 2.251
-  biome: 197
-- at: [-6014, 1818]
-  r: 50
-  depth: 4
-  aspect: 2.4
-  rot: 2.296
-  biome: 197
-- at: [-6085, 1901]
-  r: 54
-  depth: 4
-  aspect: 2.4
-  rot: 2.601
-  biome: 197
-- at: [-6386, 1737]
-  r: 46
-  depth: 4
-  aspect: 2.4
-  rot: 3.247
-  biome: 197
-- at: [-6176, 1603]
-  r: 51
-  depth: 4
-  aspect: 2.4
-  rot: 1.998
-  biome: 197
 - at: [-6454, 1448]
   r: 75
   depth: 9
@@ -2904,6 +2914,1028 @@ ponds:
   r: 520
   depth: 22
   biome: 245
+- at: [-6662, 2266]
+  r: 42
+  depth: 5
+  aspect: 1.32
+  rot: 1.189
+  biome: 197
+  level: 87
+- at: [-5334, 1414]
+  r: 34
+  depth: 5
+  aspect: 1.25
+  rot: 0.162
+  biome: 197
+  level: 87
+- at: [-6118, 2622]
+  r: 47
+  depth: 5
+  aspect: 1.26
+  rot: 2.559
+  biome: 197
+  level: 87
+- at: [-5782, 2574]
+  r: 76
+  depth: 5
+  aspect: 1.36
+  rot: 1.032
+  biome: 197
+  level: 87
+- at: [-5302, 2142]
+  r: 55
+  depth: 5
+  aspect: 1.13
+  rot: 1.995
+  biome: 197
+  level: 87
+- at: [-5402, 1262]
+  r: 46
+  depth: 5
+  aspect: 1.28
+  rot: 3.127
+  biome: 197
+  level: 87
+- at: [-5330, 1990]
+  r: 47
+  depth: 5
+  aspect: 1.29
+  rot: 0.589
+  biome: 197
+  level: 87
+- at: [-5230, 1778]
+  r: 80
+  depth: 5
+  aspect: 1.41
+  rot: 2.849
+  biome: 197
+  level: 87
+- at: [-5494, 2314]
+  r: 90
+  depth: 5
+  aspect: 1.22
+  rot: 0.73
+  biome: 197
+  level: 87
+- at: [-5442, 1158]
+  r: 36
+  depth: 5
+  aspect: 1.44
+  rot: 2.048
+  biome: 197
+  level: 87
+- at: [-5558, 2482]
+  r: 70
+  depth: 5
+  aspect: 1.07
+  rot: 1.135
+  biome: 197
+  level: 87
+- at: [-5582, 1090]
+  r: 49
+  depth: 5
+  aspect: 1.43
+  rot: 2.844
+  biome: 197
+  level: 87
+- at: [-5698, 1014]
+  r: 42
+  depth: 5
+  aspect: 1.48
+  rot: 2.978
+  biome: 197
+  level: 87
+- at: [-5946, 2662]
+  r: 32
+  depth: 5
+  aspect: 1.46
+  rot: 1.471
+  biome: 197
+  level: 87
+- at: [-5210, 1978]
+  r: 44
+  depth: 5
+  aspect: 1.28
+  rot: 0.308
+  biome: 197
+  level: 87
+- at: [-6530, 2434]
+  r: 35
+  depth: 5
+  aspect: 1.2
+  rot: 0.332
+  biome: 197
+  level: 87
+- at: [-5254, 1522]
+  r: 73
+  depth: 5
+  aspect: 1.33
+  rot: 2.228
+  biome: 197
+  level: 87
+- at: [-5930, 990]
+  r: 44
+  depth: 5
+  aspect: 1.03
+  rot: 0.634
+  biome: 197
+  level: 87
+- at: [-6210, 2554]
+  r: 38
+  depth: 5
+  aspect: 1.06
+  rot: 0.292
+  biome: 197
+  level: 87
+- at: [-5814, 986]
+  r: 45
+  depth: 5
+  aspect: 1.18
+  rot: 0.941
+  biome: 197
+  level: 87
+- at: [-6318, 2530]
+  r: 37
+  depth: 5
+  aspect: 1.01
+  rot: 0.255
+  biome: 197
+  level: 87
+- at: [-6606, 2358]
+  r: 39
+  depth: 5
+  aspect: 1.2
+  rot: 0.747
+  biome: 197
+  level: 87
+- at: [-5682, 2390]
+  r: 48
+  depth: 5
+  aspect: 1.32
+  rot: 1.542
+  biome: 197
+  level: 87
+- at: [-5902, 2502]
+  r: 35
+  depth: 5
+  aspect: 1.33
+  rot: 2.172
+  biome: 197
+  level: 87
+- at: [-5794, 2442]
+  r: 32
+  depth: 5
+  aspect: 1.4
+  rot: 0.693
+  biome: 197
+  level: 87
+- at: [-6406, 2514]
+  r: 39
+  depth: 5
+  aspect: 1.45
+  rot: 1.703
+  biome: 197
+  level: 87
+- at: [-5306, 1278]
+  r: 32
+  depth: 5
+  aspect: 1.23
+  rot: 1.005
+  biome: 197
+  level: 87
+- at: [-6774, 2090]
+  r: 34
+  depth: 5
+  aspect: 1.12
+  rot: 1.739
+  biome: 197
+  level: 87
+- at: [-5238, 1398]
+  r: 37
+  depth: 5
+  aspect: 1.09
+  rot: 2.444
+  biome: 197
+  level: 87
+- at: [-5350, 2258]
+  r: 45
+  depth: 5
+  aspect: 1.29
+  rot: 1.532
+  biome: 197
+  level: 87
+- at: [-6042, 2546]
+  r: 34
+  depth: 5
+  aspect: 1.32
+  rot: 2.677
+  biome: 197
+  level: 87
+- at: [-5166, 1658]
+  r: 38
+  depth: 5
+  aspect: 1.33
+  rot: 3.085
+  biome: 197
+  level: 87
+- at: [-5414, 2158]
+  r: 41
+  depth: 5
+  aspect: 1.1
+  rot: 2.927
+  biome: 197
+  level: 87
+- at: [-5654, 2594]
+  r: 39
+  depth: 5
+  aspect: 1.19
+  rot: 0.259
+  biome: 197
+  level: 87
+- at: [-5446, 2442]
+  r: 35
+  depth: 5
+  aspect: 1.1
+  rot: 3.14
+  biome: 197
+  level: 87
+- at: [-6722, 2166]
+  r: 42
+  depth: 5
+  aspect: 1.13
+  rot: 1.514
+  biome: 197
+  level: 87
+- at: [-5318, 1878]
+  r: 34
+  depth: 5
+  aspect: 1.07
+  rot: 2.9
+  biome: 197
+  level: 87
+- at: [-5226, 2066]
+  r: 32
+  depth: 5
+  aspect: 1.46
+  rot: 1.244
+  biome: 197
+  level: 87
+- at: [-6022, 2658]
+  r: 32
+  depth: 5
+  aspect: 1.26
+  rot: 2.721
+  biome: 197
+  level: 87
+- at: [-5286, 1662]
+  r: 34
+  depth: 5
+  aspect: 1.45
+  rot: 1.965
+  biome: 197
+  level: 87
+- at: [-5518, 1154]
+  r: 32
+  depth: 5
+  aspect: 1.09
+  rot: 1.268
+  biome: 197
+  level: 87
+- at: [-5166, 1886]
+  r: 32
+  depth: 5
+  aspect: 1.47
+  rot: 2.51
+  biome: 197
+  level: 87
+- at: [-5374, 2074]
+  r: 35
+  depth: 5
+  aspect: 1.43
+  rot: 1.639
+  biome: 197
+  level: 87
+- at: [-6038, 974]
+  r: 32
+  depth: 5
+  aspect: 1.49
+  rot: 2.994
+  biome: 197
+  level: 87
+- at: [-6798, 2018]
+  r: 32
+  depth: 5
+  aspect: 1.39
+  rot: 2.672
+  biome: 197
+  level: 87
+- at: [-5874, 2658]
+  r: 33
+  depth: 5
+  aspect: 1.48
+  rot: 0.032
+  biome: 197
+  level: 87
+- at: [-5362, 1342]
+  r: 35
+  depth: 5
+  aspect: 1.35
+  rot: 0.72
+  biome: 197
+  level: 87
+- at: [-6254, 2398]
+  r: 65
+  depth: 5
+  aspect: 1.49
+  rot: 2.372
+  biome: 197
+  level: 94
+- at: [-6418, 2394]
+  r: 33
+  depth: 5
+  aspect: 1.24
+  rot: 1.276
+  biome: 197
+  level: 94
+- at: [-5570, 1430]
+  r: 39
+  depth: 5
+  aspect: 1.48
+  rot: 0.492
+  biome: 197
+  level: 94
+- at: [-5922, 2298]
+  r: 66
+  depth: 5
+  aspect: 1.48
+  rot: 2.112
+  biome: 197
+  level: 94
+- at: [-6234, 2270]
+  r: 38
+  depth: 5
+  aspect: 1.13
+  rot: 2.889
+  biome: 197
+  level: 94
+- at: [-5538, 1882]
+  r: 49
+  depth: 5
+  aspect: 1.33
+  rot: 0.104
+  biome: 197
+  level: 94
+- at: [-5562, 2134]
+  r: 53
+  depth: 5
+  aspect: 1.04
+  rot: 3.076
+  biome: 197
+  level: 94
+- at: [-5470, 2022]
+  r: 44
+  depth: 5
+  aspect: 1.03
+  rot: 2.311
+  biome: 197
+  level: 94
+- at: [-6494, 2310]
+  r: 42
+  depth: 5
+  aspect: 1.46
+  rot: 0.924
+  biome: 197
+  level: 94
+- at: [-5590, 1242]
+  r: 50
+  depth: 5
+  aspect: 1.05
+  rot: 0.246
+  biome: 197
+  level: 94
+- at: [-6002, 2410]
+  r: 55
+  depth: 5
+  aspect: 1.46
+  rot: 2.738
+  biome: 197
+  level: 94
+- at: [-5546, 1534]
+  r: 32
+  depth: 5
+  aspect: 1.46
+  rot: 1.384
+  biome: 197
+  level: 94
+- at: [-5762, 2298]
+  r: 44
+  depth: 5
+  aspect: 1.25
+  rot: 0.332
+  biome: 197
+  level: 94
+- at: [-5478, 1670]
+  r: 91
+  depth: 5
+  aspect: 1.0
+  rot: 2.104
+  biome: 197
+  level: 94
+- at: [-6154, 2458]
+  r: 37
+  depth: 5
+  aspect: 1.09
+  rot: 2.44
+  biome: 197
+  level: 94
+- at: [-6402, 2262]
+  r: 34
+  depth: 5
+  aspect: 1.15
+  rot: 2.665
+  biome: 197
+  level: 94
+- at: [-5506, 1326]
+  r: 46
+  depth: 5
+  aspect: 1.1
+  rot: 0.456
+  biome: 197
+  level: 94
+- at: [-5778, 1134]
+  r: 40
+  depth: 5
+  aspect: 1.31
+  rot: 2.44
+  biome: 197
+  level: 94
+- at: [-5402, 1794]
+  r: 40
+  depth: 5
+  aspect: 1.47
+  rot: 0.468
+  biome: 197
+  level: 94
+- at: [-5690, 1162]
+  r: 40
+  depth: 5
+  aspect: 1.06
+  rot: 2.528
+  biome: 197
+  level: 94
+- at: [-6562, 2222]
+  r: 35
+  depth: 5
+  aspect: 1.46
+  rot: 0.995
+  biome: 197
+  level: 94
+- at: [-6050, 2286]
+  r: 41
+  depth: 5
+  aspect: 1.32
+  rot: 0.974
+  biome: 197
+  level: 94
+- at: [-5574, 2018]
+  r: 49
+  depth: 5
+  aspect: 1.28
+  rot: 0.938
+  biome: 197
+  level: 94
+- at: [-5458, 1470]
+  r: 63
+  depth: 5
+  aspect: 1.02
+  rot: 2.899
+  biome: 197
+  level: 94
+- at: [-5694, 1262]
+  r: 38
+  depth: 5
+  aspect: 1.2
+  rot: 3.099
+  biome: 197
+  level: 94
+- at: [-5806, 2222]
+  r: 34
+  depth: 5
+  aspect: 1.16
+  rot: 3.082
+  biome: 197
+  level: 94
+- at: [-5682, 2194]
+  r: 71
+  depth: 5
+  aspect: 1.47
+  rot: 0.216
+  biome: 197
+  level: 94
+- at: [-5422, 1942]
+  r: 34
+  depth: 5
+  aspect: 1.07
+  rot: 2.753
+  biome: 197
+  level: 94
+- at: [-5826, 2358]
+  r: 34
+  depth: 5
+  aspect: 1.13
+  rot: 1.494
+  biome: 197
+  level: 94
+- at: [-5626, 1354]
+  r: 35
+  depth: 5
+  aspect: 1.2
+  rot: 1.538
+  biome: 197
+  level: 94
+- at: [-6134, 2274]
+  r: 34
+  depth: 5
+  aspect: 1.44
+  rot: 2.718
+  biome: 197
+  level: 94
+- at: [-5378, 1562]
+  r: 32
+  depth: 5
+  aspect: 1.44
+  rot: 2.28
+  biome: 197
+  level: 94
+- at: [-5886, 2402]
+  r: 32
+  depth: 5
+  aspect: 1.41
+  rot: 1.405
+  biome: 197
+  level: 94
+- at: [-6314, 2262]
+  r: 34
+  depth: 5
+  aspect: 1.11
+  rot: 1.457
+  biome: 197
+  level: 94
+- at: [-5550, 1786]
+  r: 34
+  depth: 5
+  aspect: 1.35
+  rot: 1.403
+  biome: 197
+  level: 94
+- at: [-5742, 1950]
+  r: 79
+  depth: 5
+  aspect: 1.24
+  rot: 3.039
+  biome: 197
+  level: 101
+- at: [-5714, 1422]
+  r: 47
+  depth: 5
+  aspect: 1.06
+  rot: 0.904
+  biome: 197
+  level: 101
+- at: [-5934, 2030]
+  r: 72
+  depth: 5
+  aspect: 1.2
+  rot: 0.376
+  biome: 197
+  level: 101
+- at: [-6374, 2162]
+  r: 42
+  depth: 5
+  aspect: 1.0
+  rot: 0.208
+  biome: 197
+  level: 101
+- at: [-6558, 2018]
+  r: 42
+  depth: 5
+  aspect: 1.18
+  rot: 1.561
+  biome: 197
+  level: 101
+- at: [-6134, 2102]
+  r: 80
+  depth: 5
+  aspect: 1.26
+  rot: 1.947
+  biome: 197
+  level: 101
+- at: [-5890, 1206]
+  r: 45
+  depth: 5
+  aspect: 1.11
+  rot: 2.566
+  biome: 197
+  level: 101
+- at: [-5818, 2118]
+  r: 39
+  depth: 5
+  aspect: 1.42
+  rot: 0.525
+  biome: 197
+  level: 101
+- at: [-6238, 1050]
+  r: 32
+  depth: 5
+  aspect: 1.3
+  rot: 2.477
+  biome: 197
+  level: 101
+- at: [-5646, 1518]
+  r: 37
+  depth: 5
+  aspect: 1.49
+  rot: 2.91
+  biome: 197
+  level: 101
+- at: [-5650, 1830]
+  r: 41
+  depth: 5
+  aspect: 1.07
+  rot: 1.869
+  biome: 197
+  level: 101
+- at: [-6018, 1142]
+  r: 32
+  depth: 5
+  aspect: 1.43
+  rot: 1.106
+  biome: 197
+  level: 101
+- at: [-6522, 2138]
+  r: 35
+  depth: 5
+  aspect: 1.44
+  rot: 1.053
+  biome: 197
+  level: 101
+- at: [-5682, 1674]
+  r: 67
+  depth: 5
+  aspect: 1.23
+  rot: 1.054
+  biome: 197
+  level: 101
+- at: [-5826, 1354]
+  r: 64
+  depth: 5
+  aspect: 1.02
+  rot: 2.514
+  biome: 197
+  level: 101
+- at: [-6114, 1090]
+  r: 34
+  depth: 5
+  aspect: 1.09
+  rot: 1.615
+  biome: 197
+  level: 101
+- at: [-5946, 2170]
+  r: 38
+  depth: 5
+  aspect: 1.37
+  rot: 1.166
+  biome: 197
+  level: 101
+- at: [-6658, 1990]
+  r: 34
+  depth: 5
+  aspect: 1.39
+  rot: 0.588
+  biome: 197
+  level: 101
+- at: [-6294, 2102]
+  r: 38
+  depth: 5
+  aspect: 1.08
+  rot: 3.02
+  biome: 197
+  level: 101
+- at: [-5742, 1558]
+  r: 46
+  depth: 5
+  aspect: 1.45
+  rot: 1.604
+  biome: 197
+  level: 101
+- at: [-6458, 2050]
+  r: 35
+  depth: 5
+  aspect: 1.37
+  rot: 2.542
+  biome: 197
+  level: 101
+- at: [-5746, 1806]
+  r: 42
+  depth: 5
+  aspect: 1.46
+  rot: 0.292
+  biome: 197
+  level: 101
+- at: [-5798, 1482]
+  r: 39
+  depth: 5
+  aspect: 1.42
+  rot: 2.91
+  biome: 197
+  level: 101
+- at: [-6038, 2186]
+  r: 35
+  depth: 5
+  aspect: 1.5
+  rot: 2.112
+  biome: 197
+  level: 101
+- at: [-6266, 2178]
+  r: 32
+  depth: 5
+  aspect: 1.29
+  rot: 1.715
+  biome: 197
+  level: 101
+- at: [-5742, 2074]
+  r: 33
+  depth: 5
+  aspect: 1.27
+  rot: 0.757
+  biome: 197
+  level: 101
+- at: [-6698, 1930]
+  r: 32
+  depth: 5
+  aspect: 1.06
+  rot: 1.158
+  biome: 197
+  level: 101
+- at: [-5946, 1138]
+  r: 32
+  depth: 5
+  aspect: 1.38
+  rot: 3.075
+  biome: 197
+  level: 101
+- at: [-6070, 1238]
+  r: 47
+  depth: 5
+  aspect: 1.29
+  rot: 0.433
+  biome: 197
+  level: 108
+- at: [-5974, 1766]
+  r: 95
+  depth: 5
+  aspect: 1.47
+  rot: 1.599
+  biome: 197
+  level: 108
+- at: [-6302, 1866]
+  r: 50
+  depth: 5
+  aspect: 1.25
+  rot: 1.196
+  biome: 197
+  level: 108
+- at: [-5890, 1602]
+  r: 62
+  depth: 5
+  aspect: 1.31
+  rot: 2.192
+  biome: 197
+  level: 108
+- at: [-6430, 1954]
+  r: 39
+  depth: 5
+  aspect: 1.22
+  rot: 2.674
+  biome: 197
+  level: 108
+- at: [-6330, 1982]
+  r: 49
+  depth: 5
+  aspect: 1.09
+  rot: 1.012
+  biome: 197
+  level: 108
+- at: [-5954, 1414]
+  r: 45
+  depth: 5
+  aspect: 1.0
+  rot: 2.609
+  biome: 197
+  level: 108
+- at: [-6186, 1850]
+  r: 35
+  depth: 5
+  aspect: 1.41
+  rot: 2.313
+  biome: 197
+  level: 108
+- at: [-6194, 1978]
+  r: 33
+  depth: 5
+  aspect: 1.17
+  rot: 1.649
+  biome: 197
+  level: 108
+- at: [-6086, 1898]
+  r: 56
+  depth: 5
+  aspect: 1.48
+  rot: 0.203
+  biome: 197
+  level: 108
+- at: [-6214, 1146]
+  r: 32
+  depth: 5
+  aspect: 1.28
+  rot: 1.491
+  biome: 197
+  level: 108
+- at: [-5978, 1322]
+  r: 41
+  depth: 5
+  aspect: 1.17
+  rot: 1.17
+  biome: 197
+  level: 108
+- at: [-5902, 1494]
+  r: 34
+  depth: 5
+  aspect: 1.16
+  rot: 0.714
+  biome: 197
+  level: 108
+- at: [-6166, 1270]
+  r: 38
+  depth: 5
+  aspect: 1.02
+  rot: 2.851
+  biome: 197
+  level: 108
+- at: [-6518, 1898]
+  r: 43
+  depth: 5
+  aspect: 1.24
+  rot: 0.664
+  biome: 197
+  level: 108
+- at: [-6686, 1790]
+  r: 32
+  depth: 5
+  aspect: 1.17
+  rot: 0.441
+  biome: 197
+  level: 108
+- at: [-6626, 1846]
+  r: 32
+  depth: 5
+  aspect: 1.18
+  rot: 2.148
+  biome: 197
+  level: 108
+- at: [-5978, 1910]
+  r: 33
+  depth: 5
+  aspect: 1.36
+  rot: 2.182
+  biome: 197
+  level: 108
+- at: [-6426, 1870]
+  r: 32
+  depth: 5
+  aspect: 1.41
+  rot: 2.567
+  biome: 197
+  level: 108
+- at: [-6142, 1174]
+  r: 33
+  depth: 5
+  aspect: 1.28
+  rot: 0.069
+  biome: 197
+  level: 108
+- at: [-5822, 1714]
+  r: 35
+  depth: 5
+  aspect: 1.35
+  rot: 0.025
+  biome: 197
+  level: 108
+- at: [-6706, 1598]
+  r: 32
+  depth: 5
+  aspect: 1.07
+  rot: 1.754
+  biome: 197
+  level: 108
+- at: [-6114, 1802]
+  r: 35
+  depth: 5
+  aspect: 1.3
+  rot: 1.993
+  biome: 197
+  level: 108
+- at: [-6062, 1326]
+  r: 34
+  depth: 5
+  aspect: 1.41
+  rot: 2.373
+  biome: 197
+  level: 108
+- at: [-6170, 1602]
+  r: 88
+  depth: 5
+  aspect: 1.38
+  rot: 0.943
+  biome: 197
+  level: 115
+- at: [-6158, 1414]
+  r: 52
+  depth: 5
+  aspect: 1.03
+  rot: 2.754
+  biome: 197
+  level: 115
+- at: [-6406, 1638]
+  r: 34
+  depth: 5
+  aspect: 1.01
+  rot: 2.974
+  biome: 197
+  level: 115
+- at: [-6370, 1238]
+  r: 51
+  depth: 5
+  aspect: 1.28
+  rot: 2.308
+  biome: 197
+  level: 115
+- at: [-6322, 1722]
+  r: 55
+  depth: 5
+  aspect: 1.36
+  rot: 2.27
+  biome: 197
+  level: 115
+- at: [-6274, 1274]
+  r: 39
+  depth: 5
+  aspect: 1.35
+  rot: 2.374
+  biome: 197
+  level: 115
+- at: [-6486, 1778]
+  r: 47
+  depth: 5
+  aspect: 1.49
+  rot: 0.824
+  biome: 197
+  level: 115
+- at: [-6602, 1726]
+  r: 45
+  depth: 5
+  aspect: 1.0
+  rot: 2.524
+  biome: 197
+  level: 115
+- at: [-6066, 1486]
+  r: 42
+  depth: 5
+  aspect: 1.28
+  rot: 1.555
+  biome: 197
+  level: 115
+- at: [-6210, 1758]
+  r: 35
+  depth: 5
+  aspect: 1.11
+  rot: 1.059
+  biome: 197
+  level: 115
+- at: [-6482, 1682]
+  r: 35
+  depth: 5
+  aspect: 1.38
+  rot: 2.401
+  biome: 197
+  level: 115
+- at: [-6310, 1626]
+  r: 34
+  depth: 5
+  aspect: 1.48
+  rot: 1.391
+  biome: 197
+  level: 115
 ridges:
 - arc: [-15270, -15868, 1720, 0, 150]
   height: 205
@@ -3552,3 +4584,4 @@ auto_rivers:
   max_width: 100
   min_cells: 8
   rain: {temperate rainforest: 1.8, ^bop rainforest|tropical rainforest: 4.5}
+beach_skip: [89]

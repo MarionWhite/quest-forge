@@ -10,7 +10,7 @@ hand-editable images:
   py -3.10 tools/world/plan.py preview PLANDIR               # colour map with labels -> PLANDIR/preview.png
   py -3.10 tools/world/plan.py expand PLANDIR OUTDIR --piece I J [--piece-size 16384]
 
-`expand` writes OUTDIR/piece_I_J/{height.png,biome.png,origin.txt} for tools/world/wp_piece.js.
+`expand` writes OUTDIR/piece_I_J/{height,biome,water,surface,terrain}.png, origin.txt for wp_piece.js.
 All noise is a function of world coordinates, so neighbouring pieces meet without a seam.
 """
 import argparse, json, math, os, re, sys
@@ -18,7 +18,7 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 from scipy import ndimage
 
-SURFACES = ["black_sand"]   # surface.png value = index + 1
+SURFACES = ["black_sand", "scorched", "packed_ice"]   # surface.png value = index + 1
 PX = 16          # blocks per plan pixel
 SEA = 62
 OCEAN, DEEP_OCEAN, RIVER, BEACH, STONE_BEACH = 0, 24, 7, 16, 25
@@ -510,6 +510,7 @@ def render(spec_path, plan_dir):
     over = h > 230
     h = np.where(over, 230 + 22 * np.tanh((h - 230) / 22), h)
     extra_tiers = []
+    plateau_surf = []
     for pl, pm in plateaus:
         din = ndimage.distance_transform_edt(pm) * PX
         rise = np.clip(din / pl.get("wall", 64), 0, 1) ** 0.35          # sheer wall, then a flat top
@@ -518,6 +519,8 @@ def render(spec_path, plan_dir):
         relief = np.where(pm & (rise >= 0.99), np.minimum(relief, pl.get("relief", 50)), relief)
         if "biome" in pl:
             biome[pm & (rise > 0.6)] = pl["biome"]
+        if "surface" in pl:          # ground material on the plateau ({surface: packed_ice})
+            plateau_surf.append((pm & (rise > 0.6), SURFACES.index(pl["surface"]) + 1))
         if "tier" in pl and pm.any():
             zz, xx = np.nonzero(pm)
             extra_tiers.append({"tier": pl["tier"], "x": float(xx.mean() * PX - half), "z": float(zz.mean() * PX - half)})
@@ -651,9 +654,10 @@ def render(spec_path, plan_dir):
         d = pond_distance(bx, bz, p, seed + 9000 + p["sid"])
         rr = np.hypot(bx - cx, bz - cz)
         ring = (rr > rad * 1.2) & (rr < rad * 1.6) & land[sl]
-        if not ring.any():
-            continue
-        p["level"] = int(max(SEA, math.floor(np.percentile(h[sl][ring], 10)) - 1))
+        if "level" not in p:         # an explicit level pins a pool to its terrace
+            if not ring.any():
+                continue
+            p["level"] = int(max(SEA, math.floor(np.percentile(h[sl][ring], 10)) - 1))
         inside = (d < 1) & land[sl]
         h[sl] = np.where(inside, np.minimum(h[sl], p["level"] - 1 - p["depth"] * (1 - d * d)), h[sl])
         water[sl] = np.where(inside, p["level"], water[sl])
@@ -666,6 +670,8 @@ def render(spec_path, plan_dir):
     near = np.clip(np.where(land, d_in, d_out) / (3 * PX), 0, 1)
     h = h * near + (SEA + (cf - 0.5) * 16) * (1 - near)
     beach = land & (d_in <= spec.get("beach_width", 48)) & (h < SEA + 6)
+    # beach_skip: biomes that meet the sea directly (a glacier or an iceberg has no beach).
+    beach &= ~np.isin(biome, spec.get("beach_skip", []))
     biome[beach & (biome != RIVER)] = BEACH
 
     os.makedirs(plan_dir, exist_ok=True)
@@ -675,6 +681,8 @@ def render(spec_path, plan_dir):
     Image.fromarray(water.astype(np.uint8)).save(f"{plan_dir}/water.png")
     # Surface materials the expansion carries to WorldPainter ({circle|polygon, material}).
     surf = np.zeros((n, n), np.uint8)
+    for m, code in plateau_surf:
+        surf[m] = code
     for s_ in spec.get("surfaces", []):
         si = Image.new("L", (n, n), 0)
         ImageDraw.Draw(si).polygon(_poly(n, region_polygon(s_), size), fill=255)
@@ -682,6 +690,13 @@ def render(spec_path, plan_dir):
     Image.fromarray(surf).save(f"{plan_dir}/surface.png")
     meta = {k: spec[k] for k in ("size", "seed") if k in spec}
     meta["px"] = PX
+    meta["coast_warp"] = spec.get("coast_warp", 600)
+    # Plateaus, so expand can recut their walls at block resolution (a 16-block plan smears a
+    # cliff into a 45-degree slope). Outlines as polygons, in the spec's own coordinates.
+    meta["plateaus"] = [dict({k: v for k, v in pl.items() if k not in ("circle", "polygon")},
+                             polygon=[[float(x), float(z)] for x, z in region_polygon(pl)])
+                        for pl, pm in plateaus if pm.any()]
+    Image.fromarray((land * 255).astype(np.uint8)).save(f"{plan_dir}/land.png")
     meta["ponds"] = [p for p in ponds if "level" in p]
     # Biome patches are labelled in the preview from biome.png by their real names; regions
     # only carry their tier, shown at the centre of the land they own.
@@ -818,6 +833,161 @@ def preview(plan_dir):
 
 # ---------------------------------------------------------------- expand: plan -> piece
 
+# Ground blocks per column (terrain.png, value = index + 1; 0 = WorldPainter's height-based
+# default: grass, sand at the water's edge, stone on peaks). tools/world/wp_piece.js maps each
+# name to a WorldPainter terrain.
+GROUNDS = ["sand", "red_sand", "mesa", "terracotta", "stone_gravel", "snow", "packed_ice", "podzol",
+           "mycelium", "dirt_gravel", "black_sand", "scorched"]
+GROUND_RULES = [   # biome name (as biome_names() gives it) -> ground; first match wins
+    (r"ocean|river|beach|\bsea\b|reef|kelp|lagoon", None),          # water and shores: default
+    (r"desert|dune|oasis|xeric", "sand"),
+    (r"mesa|canyon", "mesa"),
+    (r"outback", "terracotta"),
+    (r"^BoP Crag$|^BoP Alps$", "stone_gravel"),
+    (r"volcan", "scorched"),
+    (r"wasteland", "dirt_gravel"),
+    (r"glacier|tundra|ice plains|ice mountains|frost|arctic|polar|snowy|cold taiga|alps forest", "snow"),
+    (r"taiga|boreal|coniferous|spruce", "podzol"),
+    (r"mushroom", "mycelium"),
+]
+SURFACE_GROUND = {"black_sand": "black_sand", "scorched": "scorched", "packed_ice": "packed_ice"}
+
+
+def ground_lut():
+    """biome id -> terrain.png code, and surface.png code -> terrain.png code."""
+    lut = np.zeros(256, np.uint8)
+    for bid, nm in biome_names().items():
+        for pat, g in GROUND_RULES:
+            if re.search(pat, nm, re.I):
+                lut[bid] = GROUNDS.index(g) + 1 if g else 0
+                break
+    slut = np.zeros(256, np.uint8)
+    for k, nm in enumerate(SURFACES):
+        slut[k + 1] = GROUNDS.index(SURFACE_GROUND[nm]) + 1
+    return lut, slut
+
+
+def recut_plateaus(plateaus, Hc, WX, WZ, DET, PW, SB, BB, ox, oz, meta, hp, bp, land, land_s, wp_):
+    """Re-cut each plateau's wall at block resolution, on the canvas Hc (origin ox, oz).
+
+    The plan is 16 blocks per pixel and expand samples it cubically, so a plateau's wall came
+    out as a ~100-block 45-degree slope whatever its `wall`. Here the outline is tested per
+    block (with the plan's own warps: plan.py's coast warp on top of expand's), and the wall is
+    rebuilt over `wall` blocks: the lowland ground, taken from just outside the smeared band,
+    rises to the top along the plan's own profile. River channels on the top run to the lip, so
+    a river leaves the plateau at its top level (tools/world/waterfalls.py then pours it).
+    Fills PW (block water level override, -1 = use the plan) and SB (block surface override)."""
+    seed, half = meta.get("seed", 1), meta["size"] // 2
+    cw = meta.get("coast_warp", 600)
+    n = hp.shape[0]
+    N = Hc.shape[0]
+    G = 64                                       # how far outside the outline the plan's smear reaches
+    for pl in plateaus:
+        poly = np.array(pl["polygon"], np.float64)
+        wall = max(1.0, float(pl.get("wall", 64)))
+        mw = int(wall + G + 24)
+        c0, c1 = max(0, int(poly[:, 0].min() - mw - ox)), min(N, int(poly[:, 0].max() + mw - ox) + 1)
+        r0, r1 = max(0, int(poly[:, 1].min() - mw - oz)), min(N, int(poly[:, 1].max() + mw - oz) + 1)
+        if c1 <= c0 or r1 <= r0:
+            continue
+        sl = (slice(r0, r1), slice(c0, c1))
+        wx, wz = WX[sl].astype(np.float64), WZ[sl].astype(np.float64)
+        # The polygon rasterised at 1 block, looked up at the warped position of every column.
+        px0, pz0 = poly[:, 0].min() - 400, poly[:, 1].min() - 400
+        pw_, ph_ = int(poly[:, 0].max() + 400 - px0) + 1, int(poly[:, 1].max() + 400 - pz0) + 1
+        im = Image.new("L", (pw_, ph_), 0)
+        ImageDraw.Draw(im).polygon([(x - px0, z - pz0) for x, z in poly], fill=255)
+        pim = np.asarray(im) > 0
+
+        def inside(ax, az):
+            ix = ax + 0.3 * cw * fbm(ax, az, 2400, 4, seed + 1)
+            iz = az + 0.3 * cw * fbm(ax, az, 2400, 4, seed + 2)
+            jj, ii = np.round(ix - px0).astype(np.int64), np.round(iz - pz0).astype(np.int64)
+            ok = (jj >= 0) & (jj < pw_) & (ii >= 0) & (ii < ph_)
+            res = np.zeros(ax.shape, bool)
+            res[ok] = pim[ii[ok], jj[ok]]
+            return res
+
+        lnd = ndimage.map_coordinates(land_s, [(wz + half) / PX - 0.5, (wx + half) / PX - 0.5], order=1, mode="nearest") > 0.5
+        M = inside(wx, wz) & lnd
+        if not M.any():
+            continue
+        H = Hc[sl]
+        din = ndimage.distance_transform_edt(M)
+        dout = ndimage.distance_transform_edt(~M)
+        outer = ~M & (dout > G)
+        if not outer.any():
+            continue
+        oi, oj = ndimage.distance_transform_edt(~outer, return_distances=False, return_indices=True)
+        low = ndimage.gaussian_filter(H[oi, oj], 6)
+        # The plan's own mask at plan resolution gives the water level on either side of the wall.
+        pi0, pi1 = max(0, int((r0 + oz + half) / PX) - 4), min(n, int((r1 + oz + half) / PX) + 5)
+        pj0, pj1 = max(0, int((c0 + ox + half) / PX) - 4), min(n, int((c1 + ox + half) / PX) + 5)
+        pgx, pgz = np.meshgrid((np.arange(pj0, pj1) + 0.5) * PX - half, (np.arange(pi0, pi1) + 0.5) * PX - half)
+        pm = inside(pgx, pgz) & (land[pi0:pi1, pj0:pj1] > 0.5)
+        wpl = wp_[pi0:pi1, pj0:pj1].astype(np.int16)
+        # Inside the outline, a river pixel that already took the lowland's level (the plan
+        # steps the level down a pixel or two before the edge) carries the top's level instead,
+        # so the top river runs to the lip rather than stopping a pixel short on a dry sill.
+        if pm.any() and (~pm).any():
+            thr = 0.5 * (pl["top"] + float(np.median(hp[pi0:pi1, pj0:pj1][~pm])))
+            up = pm & (wpl > thr)
+            lowin = pm & (wpl > 0) & (wpl <= thr)
+            for _ in range(2):
+                dil = ndimage.grey_dilation(np.where(up, wpl, 0), size=3)
+                fill = lowin & ~up & (dil > 0)
+                wpl = np.where(fill, dil, wpl)
+                up |= fill
+        if pm.any() and (~pm).any():
+            a, b = ndimage.distance_transform_edt(~pm, return_distances=False, return_indices=True)
+            w_in = wpl[a, b]
+            a, b = ndimage.distance_transform_edt(pm, return_distances=False, return_indices=True)
+            w_out = wpl[a, b]
+            b_out = bp[pi0:pi1, pj0:pj1][a, b]
+        else:
+            w_in = w_out = wpl
+            b_out = bp[pi0:pi1, pj0:pj1]
+        bi = np.clip(((wz + half) / PX).astype(np.int64) - pi0, 0, pi1 - pi0 - 1)
+        bj = np.clip(((wx + half) / PX).astype(np.int64) - pj0, 0, pj1 - pj0 - 1)
+        win, wout = w_in[bi, bj], w_out[bi, bj]
+        # Near the edge the smear pulled the top down (and the cubic overshoot up): set it to the top as it stands
+        # further in (the nearest ground at least wall + 48 blocks inside, plus this column's own
+        # fine detail), fading out by wall + 64 blocks in, where the plan's top is intact. Small
+        # or flat plateaus (terraces nest, so their interior is the next tread up) use the spec top.
+        inner = M & (din >= wall + 48)
+        if inner.any() and pl.get("relief", 50) > 10:
+            a, b = ndimage.distance_transform_edt(~inner, return_distances=False, return_indices=True)
+            top = ndimage.gaussian_filter(H[a, b] - DET[sl][a, b], 4) + DET[sl]
+        else:
+            top = pl["top"] + fbm(wx, wz, 600, 3, seed + 31) * pl.get("top_relief", 10) + DET[sl]
+        lift = np.clip((wall + 64 - din) / 32, 0, 1)
+        T = H + lift * (top - H)               # both ways: the cubic sampling also overshoots at a lip
+        mid = 0.5 * (low + pl["top"])
+        chan = M & (win > SEA) & (win > mid)    # a river or lake on the top: keep its bed open
+        T = np.where(chan, np.minimum(T, win - 2), T)
+        rise = np.clip(din / wall, 0, 1) ** 0.35
+        # A channel keeps its bed right to the outline: the river leaves over a sheer lip.
+        wallh = np.where(low < T, np.where(chan, T, low + (T - low) * rise), H)
+        zone = ~M & (dout <= G)
+        Hc[sl] = np.where(M, wallh, np.where(zone, np.minimum(H, low), H)).astype(np.float32)
+        # Water: the top's own level inside the outline, the lowland's outside it.
+        PW[sl] = np.where(M, win, np.where(zone, wout, PW[sl]))
+        if "surface" in pl:
+            SB[sl][M] = SURFACES.index(pl["surface"]) + 1
+        if "biome" in pl:   # the plateau's biome stops at its wall, not on the plan's 16-block pixels
+            own = zone & (bp[pi0:pi1, pj0:pj1][bi, bj] == pl["biome"])
+            BB[sl] = np.where(own, b_out[bi, bj], BB[sl])
+            # Where the wall stands in the sea (an iceberg), the plan's land pixels round it end up
+            # under water: give them the nearest sea's biome, or a glacier there freezes over.
+            sea_px = land[pi0:pi1, pj0:pj1] <= 0.5
+            if sea_px.any():
+                a, b = ndimage.distance_transform_edt(~sea_px, return_distances=False, return_indices=True)
+                b_sea = bp[pi0:pi1, pj0:pj1][a, b]
+                wet = ~M & (bp[pi0:pi1, pj0:pj1][bi, bj] == pl["biome"]) & (Hc[sl] < SEA - 1)
+                BB[sl] = np.where(wet, b_sea[bi, bj], BB[sl])
+        print(f"  plateau top {pl['top']} wall {wall:.0f}: {int(M.sum())} blocks recut")
+
+
 def expand(plan_dir, out_dir, pi, pj, piece):
     hp = np.asarray(Image.open(f"{plan_dir}/height.png")).astype(np.float32) / 257
     bp = np.asarray(Image.open(f"{plan_dir}/biome.png"))
@@ -832,16 +1002,29 @@ def expand(plan_dir, out_dir, pi, pj, piece):
     os.makedirs(d, exist_ok=True)
     sp = np.asarray(Image.open(f"{plan_dir}/surface.png")) if os.path.exists(f"{plan_dir}/surface.png") \
         else np.zeros_like(bp)
+    land = (np.asarray(Image.open(f"{plan_dir}/land.png")) > 0).astype(np.float32) \
+        if os.path.exists(f"{plan_dir}/land.png") else (hp >= SEA).astype(np.float32)
+    land_s = ndimage.gaussian_filter(land, 0.8)    # so a coast cut by a plateau wall is round, not stepped
     ponds = meta.get("ponds", [])
     wp_ = np.asarray(Image.open(f"{plan_dir}/water.png")).astype(np.uint8) if os.path.exists(f"{plan_dir}/water.png") \
         else np.zeros_like(bp)
-    H = np.zeros((piece, piece), np.uint16)
-    B = np.zeros((piece, piece), np.uint8)
-    S = np.zeros((piece, piece), np.uint8)
-    Wt = np.zeros((piece, piece), np.uint8)
-    xs = np.arange(piece, dtype=np.float64) + x0 + 0.5
-    for r0 in range(0, piece, 256):   # 256-row strips: ~1 GB peak; 1024 needed ~5 GB and paged
-        zs = np.arange(r0, min(piece, r0 + 256), dtype=np.float64) + z0 + 0.5
+    # Plateaus that raise ground (not the biome-only stamps) and reach this piece. The canvas
+    # runs E blocks past the piece, so a wall cut near the piece edge sees the ground beyond it.
+    E = 128
+    N = piece + 2 * E
+    ox, oz = x0 - E, z0 - E
+    plats = [pl for pl in meta.get("plateaus", []) if pl.get("top", 0) > SEA + 2
+             and min(x for x, _ in pl["polygon"]) - 300 < ox + N and max(x for x, _ in pl["polygon"]) + 300 > ox
+             and min(z for _, z in pl["polygon"]) - 300 < oz + N and max(z for _, z in pl["polygon"]) + 300 > oz]
+    if not plats:
+        E, N, ox, oz = 0, piece, x0, z0
+    Hc = np.zeros((N, N), np.float32)
+    WX = np.zeros((N, N), np.float32)
+    WZ = np.zeros((N, N), np.float32)
+    DET = np.zeros((N, N), np.float32) if plats else None
+    xs = np.arange(N, dtype=np.float64) + ox + 0.5
+    for r0 in range(0, N, 256):   # 256-row strips: ~1 GB peak; 1024 needed ~5 GB and paged
+        zs = np.arange(r0, min(N, r0 + 256), dtype=np.float64) + oz + 0.5
         X, Z = np.meshgrid(xs, zs)
         # One warp for terrain and biome, so coasts and biome edges are organic and agree.
         wx = X + 40 * fbm(X, Z, 320, 3, seed + 13)
@@ -850,7 +1033,31 @@ def expand(plan_dir, out_dir, pi, pj, piece):
         h = ndimage.map_coordinates(hp, [pz, px], order=3, mode="nearest")
         rel = ndimage.map_coordinates(rp, [pz, px], order=1, mode="nearest")
         detail = fbm(X, Z, 256, 6, seed + 11) * (2 + 22 * rel) + fbm(X, Z, 48, 3, seed + 12) * (0.6 + 4 * rel)
-        h = h + detail * (0.25 + 0.75 * np.clip((h - SEA) / 8, 0, 1))
+        rows = slice(r0, r0 + len(zs))
+        Hc[rows] = h + detail * (0.25 + 0.75 * np.clip((h - SEA) / 8, 0, 1))
+        WX[rows], WZ[rows] = wx, wz
+        if DET is not None:
+            DET[rows] = detail
+    PW = np.full((N, N), -1, np.int16)
+    SB = np.zeros((N, N), np.uint8)
+    BB = np.full((N, N), 255, np.uint8)            # block biome override, 255 = use the plan
+    if plats:
+        recut_plateaus(plats, Hc, WX, WZ, DET, PW, SB, BB, ox, oz, meta, hp, bp, land, land_s, wp_)
+    DET = None
+    Hc, WX, WZ, PW, SB, BB = (a[E:E + piece, E:E + piece] for a in (Hc, WX, WZ, PW, SB, BB))
+    glut, slut = ground_lut()
+    H = np.zeros((piece, piece), np.uint16)
+    B = np.zeros((piece, piece), np.uint8)
+    S = np.zeros((piece, piece), np.uint8)
+    T = np.zeros((piece, piece), np.uint8)
+    Wt = np.zeros((piece, piece), np.uint8)
+    xs = np.arange(piece, dtype=np.float64) + x0 + 0.5
+    for r0 in range(0, piece, 256):
+        zs = np.arange(r0, min(piece, r0 + 256), dtype=np.float64) + z0 + 0.5
+        X, Z = np.meshgrid(xs, zs)
+        rows = slice(r0, r0 + len(zs))
+        wx, wz = WX[rows].astype(np.float64), WZ[rows].astype(np.float64)
+        h = Hc[rows].astype(np.float64)
         # Lakes: re-carve at block resolution with the plan's own shore function, then flood
         # every depression near the lake that lies below its level.
         zlo, zhi = zs[0], zs[-1]
@@ -869,14 +1076,16 @@ def expand(plan_dir, out_dir, pi, pj, piece):
                 Wt[r0:r0 + len(zs), c0:c1] = np.where((dd < 1.3) & (hs < p["level"]), p["level"], wsl)
         bi = np.clip(((wz + half) / PX).astype(np.int64), 0, bp.shape[0] - 1)
         bj = np.clip(((wx + half) / PX).astype(np.int64), 0, bp.shape[1] - 1)
-        # River water above sea level comes from the plan's water map: flood whatever ground
-        # lies below the river's surface there.
-        pw = wp_[bi, bj]
-        rows = slice(r0, r0 + len(zs))
+        # River water above sea level comes from the plan's water map (by a plateau wall, from its
+        # own side of the wall): flood whatever ground lies below the river's surface there.
+        pw = np.where(PW[rows] >= 0, PW[rows], wp_[bi, bj])
         Wt[rows] = np.where((pw > SEA) & (h < pw), np.maximum(Wt[rows], pw), Wt[rows])
         H[rows] = np.clip(h * 257, 0, 255 * 257).astype(np.uint16)
-        B[r0:r0 + len(zs)] = bp[bi, bj]
-        S[r0:r0 + len(zs)] = sp[bi, bj]
+        B[rows] = np.where(BB[rows] != 255, BB[rows], bp[bi, bj])
+        S[rows] = np.where(SB[rows] > 0, SB[rows], sp[bi, bj])
+        T[rows] = np.where(S[rows] > 0, slut[S[rows]], glut[B[rows]])
+    Image.fromarray(T).save(f"{d}/terrain.png")       # GROUNDS index + 1, 0 = WorldPainter's default
+    json.dump(GROUNDS, open(f"{d}/grounds.json", "w"))
     Image.fromarray(H).save(f"{d}/height.png")
     Image.fromarray(B).save(f"{d}/biome.png")
     Image.fromarray(Wt).save(f"{d}/water.png")       # 0 = the world's sea level

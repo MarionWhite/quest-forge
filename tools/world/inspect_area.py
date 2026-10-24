@@ -128,7 +128,9 @@ def block_lut(bname):
         elif re.search(r"log", p) or p.endswith("wood"): c = (104, 78, 46)
         elif p in ("grass",) or p.endswith("grass") and "tall" not in p: c = (96, 150, 62)
         elif "sand" in p and "stone" not in p: c = (219, 207, 160)
-        elif "snow" in p or p in ("ice", "packed_ice"): c = (238, 242, 250)
+        elif p in ("ice", "packed_ice"): c = (170, 200, 240)
+        elif "snow" in p: c = (238, 242, 250)
+        elif p == "stained_hardened_clay": c = (52, 46, 48)   # by id only: the ground mixes use black
         elif "dirt" in p or "mud" in p or "farmland" in p: c = (130, 96, 64)
         elif "gravel" in p: c = (140, 130, 125)
         elif "clay" in p or "hardened" in p: c = (160, 100, 70)
