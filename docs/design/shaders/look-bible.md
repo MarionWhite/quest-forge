@@ -90,6 +90,30 @@ copied, traced or shipped. **Nothing that is not licensed for derivatives ships*
 appears on the public site (of the packs surveyed, only Faithful and Soartex Grove allow
 derivatives). Every shipped texture records its source and licence.
 
+**Faithful 32x: source and licence (recorded 2026-10-24, r006).**
+- Source: the official Faithful GitHub org, repository Faithful-Resource-Pack/Faithful-32x-Java
+  (branch `1.7.10`), release `R17-december-2025-release` (2026-01-01, the newest with a 1.7.10
+  zip): `Faithful.32x.-.1.7.10.zip`, 2,959,562 bytes, sha256
+  `4016fdcf8270bd57f2273b0e0ca4f235a70985cc893b97ceea80906b03fa7558`, pack_format 1. Kept in
+  `C:\qfbaithful\dl\`, never installed in the live instance: trials load it with
+  `trial.py build --resourcepack` / `bench_round.py --resourcepack`.
+- Licence: the **Faithful License, Version 4 (2026-07-31)**, https://faithfulpack.net/license (the
+  zip itself carries Version 3, 2023-02-20; v4 governs). It allows us to "Use, modify, and
+  distribute our work for both Minecraft and non-Minecraft projects", on these terms: **clear
+  credit** in an obvious place (README, credits.txt or the pack's pack.mcmeta), **a visible link
+  to https://faithfulpack.net**, citing the specific pack ("Faithful 32x") and what we use, **only
+  what we need** (prefer an add-on over a near-copy of their pack), and **an unmodified copy of the
+  licence or a link to it** with every distribution. Not allowed: paywalls (Patreon, Ko-fi,
+  Marketplace), monetised download links or shorteners, indirect donations for content based on
+  it, passing it off as official, crypto/NFT use, training AI models on it, or using it to stand in
+  for Minecraft's textures where the defaults would not be allowed. Small private servers are
+  exempt from the requirements; we meet them anyway because the repo and site are public. Text:
+  `C:\qfbaithful\LICENSE-faithful.txt` (v4 plus the bundled v3).
+- Caveat: v3 said textures made before March 2016 fall under Vattic's original Faithful 32x
+  licence; v4 dropped that. We follow v4 and credit "Faithful 32x" by name with the link.
+- Faithful covers vanilla only. **Modded blocks stay 16x** until the pack's own Faithful-style
+  textures for them exist (GTNH-Faithful first, then our own).
+
 ## Modded failure classes (each needs a test scene)
 
 From the Shader Fixer patch list (50 fixes across 1.7.10 mods):
@@ -109,7 +133,27 @@ folded in 2026-10-21), and round 2, answered 2026-10-23 from a phone (issue #3,
 `feedback/r002.json`; folded in 2026-10-23), and round 3, answered 2026-10-23 (issue #4,
 `feedback/r003.json`; folded in the same evening), and round 4, answered 2026-10-24 (issue #5,
 `feedback/r004.json`). Each later round's picks, ratings and notes
-are added here. Where these contradict a rule above, these win.
+are added here. Where these contradict a rule above, these win. Round 5 answered 2026-10-24
+(issue #6, `feedback/r005.json`).
+
+- **Round 5 overall:** "Have we switched to faithful yet?" Wants "stronger progress on the water
+  and light quality ... a serious jump in quality this iteration", not small tweaks.
+  - **Clouds (A, 4/5):** "a very good start ... a lot of ground to cover to get to perfect."
+    **Cloud light must follow the hour** (golden, 4/5): golden and orange undersides and rims at
+    golden hour and sunset. **Night clouds look weird** (night-new, 3/5): moonlit edges, dark
+    bodies, no glow.
+  - **Sunset (A, 3/5):** the vision is right; clouds, water and sun all still need work.
+  - **Sunset water (C, lively, 4/5): lively wins; the calm-mirror default is reversed.** Keep the
+    new tight glint core right under the sun, but the path must reach as far as lively's, which
+    means it **fades and balances as it nears the camera**. Lake sunset (neither, 5/5): lively is
+    better, and he expects "a LOT more out of the water and the light effects".
+  - **Forest light (A, 4/5):** sharper rays, without a brighter source or a washed-out sky.
+    **Leaves (B, 4/5):** the stronger shafts.
+  - **Hills (A, 5/5, "way better"):** keep the height-aware haze.
+  - **Night sky (A, deep clear, 4/5): the default.** Airglow is underwhelming; the drawn Milky Way
+    "looks kinda hand drawn and low quality". Photographic or nothing.
+  - **Water biomes (B, 4/5):** follow the critic (the river's white patch, the swamp a bit green).
+  - **Flecks (A, 4/5):** 125% is fine for now.
 
 - **Round 4 overall:** "beginning to take shape", and "really eager to get this to a really polished
   product". Wants to **attach reference images** to the Lab form (screen-grab on a Mac, drag and
