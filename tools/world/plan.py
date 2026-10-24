@@ -133,6 +133,29 @@ def names_cache():
     return _NAMES
 
 
+RAIN = [  # relative rainfall by biome family; first match wins
+    (r"rainforest|jungle|tropic|bayou|mangrove|lush|bamboo|redwood", 3.0),
+    (r"swamp|marsh|fen|bog|wetland|quagmire|land of lakes|shield|silkglade|fungi|sludge", 2.2),
+    (r"kelp|temperate|seasonal|maple|deciduous|grove|mystic|roofed|ominous|spectral", 1.4),
+    (r"desert|outback|mesa|xeric|canyon|wasteland|dry|scrub|oasis", 0.25),
+    (r"steppe|savanna|brush|prairie|chaparral", 0.55),
+    (r"tundra|glacier|ice|polar|arctic|alps|frost|crag|volcan", 0.6),
+]
+
+
+def rainfall(biome, overrides=None):
+    """Rainfall per plan pixel from the painted biome (spec auto_rivers.rain: {regex: value} adds or overrides)."""
+    names = names_cache()
+    lut = np.ones(256, np.float32)
+    rules = list((overrides or {}).items()) + RAIN
+    for bid, nm in names.items():
+        for pat, v in rules:
+            if re.search(pat, nm, re.I):
+                lut[bid] = v
+                break
+    return lut[biome]
+
+
 class Drainage:
     """Coarse drainage of the plan's terrain: filled levels, downstream receivers, flow counts."""
 
@@ -153,7 +176,7 @@ class Drainage:
         return ((j + 0.5) * self.cell - self.half, (i + 0.5) * self.cell - self.half)
 
 
-def drainage(h, land, size, half, cell_blocks=128):
+def drainage(h, land, size, half, cell_blocks=128, rain=None):
     """Priority-flood drainage on a coarse grid (Barnes et al. 2014): every land cell gets a
     filled level that never rises downstream and a receiver one step closer to the sea."""
     import heapq
@@ -187,7 +210,12 @@ def drainage(h, land, size, half, cell_blocks=128):
                     rec[q] = k
                     order.append(q)
                     heapq.heappush(heap, (F[q], q))
-    acc = lc.astype(np.float64)
+    # Flow carries rainfall: wet biomes (rainforest, swamp) feed rivers far faster than desert.
+    if rain is not None:
+        rc = rain[:nc * c, :nc * c].reshape(nc, c, nc, c).mean(axis=(1, 3)).ravel()
+        acc = np.where(lc, rc, 0.0).astype(np.float64)
+    else:
+        acc = lc.astype(np.float64)
     for q in reversed(order):
         r = rec[q]
         if r >= 0 and lc[r]:
@@ -249,6 +277,8 @@ def auto_rivers(cfg, flow, biome, names):
                 b = RIVER
             out.append({"points": pts, "width": int(w), "meander": cfg.get("meander", int(cell * 0.35)),
                         "valley": int(120 + w * 1.5), "biome": b})
+    print(f"auto rivers: {int(river.sum())} river cells, {len(heads)} heads, {len(out)} segments "
+          f"(cell {cell} blocks, threshold {thr:.0f} cells)")
     return out
 
 
@@ -525,7 +555,8 @@ def render(spec_path, plan_dir):
     # basin drains to the sea). Feeds terrain-following auto rivers, and gives every river,
     # hand-drawn or not, a water level that steps down toward the sea instead of a sea-level trench.
     rivers = [dict(r) for r in spec.get("rivers", [])]
-    flow = drainage(h, land, size, half, spec.get("auto_rivers", {}).get("cell", 128))
+    flow = drainage(h, land, size, half, spec.get("auto_rivers", {}).get("cell", 128),
+                    rain=rainfall(biome, spec.get("auto_rivers", {}).get("rain", {})))
     if "auto_rivers" in spec:
         rivers += auto_rivers(spec["auto_rivers"], flow, biome, names_cache())
 
