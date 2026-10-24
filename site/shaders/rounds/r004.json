@@ -1,0 +1,348 @@
+{
+ "n": 4,
+ "id": "r004",
+ "title": "New defaults, water and cloud directions, and texture packs",
+ "intro": "Your round 3 answers are now the defaults: round 2's golden hour and leaves, round 2's lively sunset water, a new moon at 0.25 and the warmer torches. The orange cone below the sun is gone. It came from the aerial-perspective term, not the water, and is fixed whether aerial is on or off. Also fixed: river water is clear and neutral instead of cyan, river_noon's highlight no longer clips, and the near-water flecks are back at about half of round 3. Not in this round, on purpose: the sun-core sparkle and the stronger motes were built and rendered, but in the critic's check (and mine) they still look identical to off, so showing them would repeat round 3's \"these all look the exact same\". They come back once they read clearly in a still frame. The last three questions are directions to choose together: water from other packs' approaches (links only, plus real photos), cloud inspiration (photos) and a texture pack. Every render shows its cost per frame on High at 1440p. The budget is 3 ms; the dearest frame here is about 1.05 ms.",
+ "status": "open",
+ "created": "2026-10-23",
+ "scenes": [
+  {
+   "id": "golden",
+   "name": "Golden hour: round 2's look, now the default",
+   "question": "Your B pick from round 3 is the default again (no extra amber on lit faces). You said the horizon band is pretty flat: the critic agrees, and that band is the next golden-hour job. Is this the base to build on?",
+   "notePrompt": "Right base? What should the horizon band do: more gold, more colour bands, clouds?",
+   "options": [
+    {
+     "key": "A",
+     "label": "New default",
+     "img": "r004/golden-A.jpg",
+     "critic": "Critic 6: Lit ridge faces are a nice amber against the shade. The horizon band is still a flat beige strip, and the grass in front is dull dark green.",
+     "ms": 0.79
+    }
+   ]
+  },
+  {
+   "id": "leaves",
+   "name": "Leaves: round 2's look, now the default",
+   "question": "The same clearing as round 3, with round 2's leaves (your B). The critic notes that the forest_golden view lost round 3's warm light shaft through the trees along with the extra amber.",
+   "notePrompt": "Right? Do you want a warm shaft of light through gaps in the canopy, without the amber on every leaf?",
+   "options": [
+    {
+     "key": "A",
+     "label": "New default",
+     "img": "r004/leaves-A.jpg",
+     "critic": "Critic 6: Sunlit leaves at upper right and the birch highlight read well; the ground is one dark green mass.",
+     "ms": 0.8
+    }
+   ]
+  },
+  {
+   "id": "water-sunset",
+   "name": "Sunset water: lively, the cone fixed",
+   "question": "Round 2's lively water (your A), in the view where the sun is clear of the cliff. The orange cone is gone.",
+   "notePrompt": "Is this balanced? What should happen right under the sun?",
+   "options": [
+    {
+     "key": "A",
+     "label": "New default",
+     "img": "r004/water-sunset-A.jpg",
+     "critic": "Critic 7: Cone gone. The sun path is a soft amber band mid-frame on neutral glassy grey-teal water. The bottom third is flat dark green with no depth gradient.",
+     "ms": 0.9
+    }
+   ]
+  },
+  {
+   "id": "night-new",
+   "name": "New moon at 0.25",
+   "question": "Your B from round 3, now the default.",
+   "notePrompt": "Still the deep, rich dark you picked? The critic would like the sky a touch more navy.",
+   "options": [
+    {
+     "key": "A",
+     "label": "New default",
+     "img": "r004/night-new-A.jpg",
+     "critic": "Critic 6: Deep dark with stars (mean brightness 0.037), sand and water readable. The sky is near-black rather than visibly navy; the dirt is nearly lost.",
+     "ms": 1.04
+    }
+   ]
+  },
+  {
+   "id": "torch",
+   "name": "Warmer torches, now the default",
+   "question": "Your B from round 3. Heat shimmer, embers and torch dust are on the list but not built yet.",
+   "notePrompt": "Warm enough? Which comes first: heat shimmer, embers or dust?",
+   "options": [
+    {
+     "key": "A",
+     "label": "New default",
+     "img": "r004/torch-A.jpg",
+     "critic": "Critic 7: Warm tungsten-to-candle falloff on the planks reads as flame light; corners dark but legible.",
+     "ms": 0.73
+    }
+   ]
+  },
+  {
+   "id": "hills",
+   "name": "Extreme Hills: aerial perspective, without the cone",
+   "question": "Aerial perspective (distant land fading into the air's colour) is fixed: it no longer paints the sun's glow below the sun. A is the default (off), B has it on. The critic thinks neither fixes the scene: the colour range itself (pale mint grass, flat mountains, empty sky) is the problem, and the texture-pack and cloud questions below bear on it.",
+   "notePrompt": "Is the depth in B worth the haze? What would you change about the colours here?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Aerial off (default)",
+     "img": "r004/hills-A.jpg",
+     "critic": "Critic 4: Pale mint-grey grass, an empty sky gradient and flat orange-grey mountains: still bland.",
+     "ms": 0.69
+    },
+    {
+     "key": "B",
+     "label": "Aerial on",
+     "img": "r004/hills-B.jpg",
+     "critic": "Critic 4: Adds some depth, but the haze turns the mountains pinkish-grey and the left valley milky: it washes out a colour range you already dislike.",
+     "ms": 0.71
+    }
+   ]
+  },
+  {
+   "id": "water-biomes",
+   "name": "Glassy rivers and lakes, murky swamp",
+   "question": "You agreed with round 3's critic, so: river and lake water is now clear and neutral instead of cyan, the noon highlight no longer clips, and swamp water was pushed towards murky olive. The critic says the swamp is still too clear and the river highlight still too milky.",
+   "notePrompt": "Which is off, and how? How murky should a swamp be?",
+   "options": [
+    {
+     "key": "A",
+     "label": "River at noon (glassy)",
+     "img": "r004/water-biomes-A.jpg",
+     "critic": "Critic 5: No longer clipping, but a large milky-white smear still dominates the bottom-centre. The ledges seen through the water show as salmon-orange stripes.",
+     "ms": 0.93,
+     "ref": {
+      "img": "r004/ref-water-biomes-A.jpg",
+      "credit": "amanderson2, CC BY 2.0, via Wikimedia Commons",
+      "source": "https://commons.wikimedia.org/wiki/File:Clear_River_water_Bled_Vintgar_Slovenia_(8095482709).jpg",
+      "title": "Clear River water Bled Vintgar Slovenia (8095482709).jpg"
+     }
+    },
+    {
+     "key": "B",
+     "label": "Lake at noon (glassy)",
+     "img": "r004/water-biomes-B.jpg",
+     "critic": "Critic 7: Neutral, clear lake water with a good sand island and reflections; a touch slate-teal at front left.",
+     "ms": 1.05
+    },
+    {
+     "key": "C",
+     "label": "Swamp (murky olive)",
+     "img": "r004/water-biomes-C.jpg",
+     "critic": "Critic 5: Less jade than round f, but the shallows are still clear grass-green, not murky olive: you see the bottom sharply. The far water is pale cyan-white.",
+     "ms": 0.99,
+     "ref": {
+      "img": "r004/ref-water-biomes-C.jpg",
+      "credit": "JamesDeMers, CC0, via Wikimedia Commons",
+      "source": "https://commons.wikimedia.org/wiki/File:Bayou-439881.jpg",
+      "title": "Bayou-439881.jpg"
+     }
+    }
+   ]
+  },
+  {
+   "id": "flecks",
+   "name": "Near-water flecks at half",
+   "question": "You said round 3's flecks were a bit much, and that round 2's amount, or a little more, was right. A has none (the default since round 3), B has them at about half of round 3.",
+   "notePrompt": "Is B the amount you meant? More, fewer?",
+   "options": [
+    {
+     "key": "A",
+     "label": "No flecks (default)",
+     "img": "r004/flecks-A.jpg",
+     "critic": "Critic 8: Deep saturated blue with a turquoise shoal at right: the best of the set. Slightly plain without flecks.",
+     "ms": 0.96
+    },
+    {
+     "key": "B",
+     "label": "Flecks at half",
+     "img": "r004/flecks-B.jpg",
+     "critic": "Critic 8: A few more faint flecks in the near blue add a little life without clutter. Marginally better than without.",
+     "ms": 0.95
+    }
+   ]
+  },
+  {
+   "id": "water-direction",
+   "name": "Water: which direction?",
+   "question": "You asked to look at other packs' water and decide together. We don't show their screenshots, but their own pages are linked below. Broadly, packs pick one of three looks, shown here with real photos: a calm mirror with one soft sun path; a broken field of glitter on choppy water; or cool, clear water with a narrow path. D is ours today. Pick a direction (or say which pack's water you like on its page).",
+   "notePrompt": "Which direction? Any pack whose water you love, and what about it?",
+   "links": [
+    {
+     "text": "BSL Shaders",
+     "href": "https://www.capttatsu.com/bslshaders/",
+     "note": "lists waves, reflections, refraction and water fog; water colour and waves are adjustable"
+    },
+    {
+     "text": "Complementary Reimagined",
+     "href": "https://modrinth.com/shader/complementary-reimagined",
+     "note": "stylised; offers a more realistic water style as an option"
+    },
+    {
+     "text": "Photon",
+     "href": "https://github.com/sixthsurge/photon",
+     "note": "realism-leaning, with a fully revamped sky, lighting and water"
+    },
+    {
+     "text": "Sildur's Vibrant",
+     "href": "https://modrinth.com/shader/sildurs-vibrant-shaders",
+     "note": "the classic vivid look (we compare against it in testing)"
+    }
+   ],
+   "options": [
+    {
+     "key": "A",
+     "label": "Calm mirror, one soft path",
+     "desc": "Still water mirrors the sky; the sun makes one soft, smooth path. Quiet and cinematic.",
+     "ref": {
+      "img": "r004/ref-water-direction-A.jpg",
+      "credit": "PattayaPatrol, CC BY-SA 4.0, via Wikimedia Commons",
+      "source": "https://commons.wikimedia.org/wiki/File:DSC_7757_Golden_sun_dips_toward_the_horizon_casting_a_shimmering_path_across_calm_waters_as_evening_settles_over_a_quiet_shoreline.jpg",
+      "title": "DSC 7757 Golden sun dips toward the horizon casting a shimmering path across calm waters as evening settles over a quiet shoreline.jpg"
+     }
+    },
+    {
+     "key": "B",
+     "label": "Broken glitter field",
+     "desc": "Choppy water breaks the sun into thousands of sharp glints: lively and bright, harder to get right.",
+     "ref": {
+      "img": "r004/ref-water-direction-B.jpg",
+      "credit": "Pdpics, CC BY-SA 3.0, via Wikimedia Commons",
+      "source": "https://commons.wikimedia.org/wiki/File:Yellow_sea_light.jpg",
+      "title": "Yellow sea light.jpg"
+     }
+    },
+    {
+     "key": "C",
+     "label": "Cool and clear, narrow path",
+     "desc": "Cooler, clearer water with a narrow broken path under the sun; you see into the shallows.",
+     "ref": {
+      "img": "r004/ref-water-direction-C.jpg",
+      "credit": "Txllxt TxllxT, CC BY-SA 4.0, via Wikimedia Commons",
+      "source": "https://commons.wikimedia.org/wiki/File:Texel_-_North_Sea_Beach_-_De_Hors_-_View_WSW.jpg",
+      "title": "Texel - North Sea Beach - De Hors - View WSW.jpg"
+     }
+    },
+    {
+     "key": "D",
+     "label": "Ours today (lively)",
+     "img": "r004/water-direction-D.jpg",
+     "critic": "Critic 7: Cone gone. The sun path is a soft amber band mid-frame on neutral glassy grey-teal water. The bottom third is flat dark green with no depth gradient.",
+     "ms": 0.9,
+     "desc": "Round 2's lively water, the current default, refined from here."
+    }
+   ]
+  },
+  {
+   "id": "clouds",
+   "name": "Clouds: which inspiration?",
+   "question": "You asked for cloud inspiration before we build any. Four directions, as real photos, plus none. Real volumetric clouds are a bigger, dearer job, so this picks the look first.",
+   "notePrompt": "Which sky? Mixed by weather or time of day? How much of the sky should they cover?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Fair-weather cumulus",
+     "desc": "Scattered puffy white clouds with flat bases over a blue sky, casting shadows on the land.",
+     "ref": {
+      "img": "r004/ref-clouds-A.jpg",
+      "credit": "Toby Hudson, CC BY-SA 3.0, via Wikimedia Commons",
+      "source": "https://commons.wikimedia.org/wiki/File:Cumulus_humilis_clouds.jpg",
+      "title": "Cumulus humilis clouds.jpg"
+     }
+    },
+    {
+     "key": "B",
+     "label": "High wispy cirrus",
+     "desc": "Thin, feathery streaks high up. Cheap, catches sunset colour, never blocks the sun.",
+     "ref": {
+      "img": "r004/ref-clouds-B.jpg",
+      "credit": "ADARSHluck, CC BY-SA 4.0, via Wikimedia Commons",
+      "source": "https://commons.wikimedia.org/wiki/File:Cirrus_uncinus_clouds_in_the_morning_sky.jpg",
+      "title": "Cirrus uncinus clouds in the morning sky.jpg"
+     }
+    },
+    {
+     "key": "C",
+     "label": "Altocumulus sheet",
+     "desc": "A mid-level layer of small rounded puffs, a 'mackerel sky' that glows at sunrise and sunset.",
+     "ref": {
+      "img": "r004/ref-clouds-C.jpg",
+      "credit": "LivingShadow, CC BY-SA 3.0, via Wikimedia Commons",
+      "source": "https://commons.wikimedia.org/wiki/File:Altocumulus_clouds_-_2004.jpg",
+      "title": "Altocumulus clouds - 2004.jpg"
+     }
+    },
+    {
+     "key": "D",
+     "label": "Dramatic broken clouds",
+     "desc": "Dark broken clouds with the sun behind them and rays fanning out: moody and cinematic.",
+     "ref": {
+      "img": "r004/ref-clouds-D.jpg",
+      "credit": "Brocken Inaglory, retouched by User:Flamurai, CC BY-SA 3.0, via Wikimedia Commons",
+      "source": "https://commons.wikimedia.org/wiki/File:Sunset_clouds_and_crepuscular_rays_over_pacific_edit.jpg",
+      "title": "Sunset clouds and crepuscular rays over pacific edit.jpg"
+     }
+    },
+    {
+     "key": "E",
+     "label": "No clouds",
+     "desc": "A clear sky; put the effort into light, colour and depth instead."
+    }
+   ]
+  },
+  {
+   "id": "texture-pack",
+   "name": "Texture pack: which way?",
+   "question": "You suggested working on a texture pack in parallel. Images of other texture packs are not shown here: some are all-rights-reserved, and the site is public. Three routes, with what their licences allow:",
+   "notePrompt": "Which route? Any pack you already like or dislike?",
+   "links": [
+    {
+     "text": "Faithful 32x",
+     "href": "https://faithfulpack.net/",
+     "note": "licence: https://faithfulpack.net/license (use, modify, redistribute with credit and a link)"
+    },
+    {
+     "text": "Soartex Invictus (modded)",
+     "href": "https://www.curseforge.com/minecraft/texture-packs/soartex-invictus-modded",
+     "note": "64x, all rights reserved, no public redistribution"
+    },
+    {
+     "text": "Conquest_",
+     "href": "https://www.curseforge.com/minecraft/texture-packs/conquest_",
+     "note": "32x, all rights reserved; link to the official download only"
+    },
+    {
+     "text": "John Smith Legacy",
+     "href": "https://www.curseforge.com/minecraft/texture-packs/john-smith-legacy",
+     "note": "all rights reserved"
+    }
+   ],
+   "options": [
+    {
+     "key": "A",
+     "label": "Faithful-based",
+     "desc": "Start from Faithful 32x, whose licence lets us change it and ship it with credit, and extend it to the modded and custom blocks. A solid, vanilla-faithful base at double resolution."
+    },
+    {
+     "key": "B",
+     "label": "Keep vanilla style",
+     "desc": "Stay with 16x vanilla-style textures (our custom blocks already match them) and let the shaders carry the look. No licence questions, least work."
+    },
+    {
+     "key": "C",
+     "label": "Sample the others first",
+     "desc": "Try Soartex Invictus, Conquest_ and John Smith Legacy in a private test client to find what you like, then build our own in that spirit. They are all-rights-reserved, so they can't ship in the pack or appear on this site."
+    },
+    {
+     "key": "D",
+     "label": "A custom pack from scratch",
+     "desc": "Our own textures for everything. The most control, but by far the most work, and it extends the whole process."
+    }
+   ]
+  }
+ ]
+}

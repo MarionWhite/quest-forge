@@ -3,7 +3,7 @@
  "id": "r003",
  "title": "Water by biome, glitter, torches and ambient effects",
  "intro": "Your round 2 answers are in, and they are the new defaults: golden hour with the gold sky at 1.5x, haze 0.35, round 1's stars (the Milky Way is gone), calm water by day that turns lively as the sun gets low, and a new moon that is the full-moon night made a little darker, with a navy sky instead of brown-black. New this round: water colour by biome, a glitter that comes from the water's own surface, amber light through leaves, bubble flecks on near water, and cheap ambient particles. Each option shows its cost per frame on High at 1440p. The budget is 3 ms; the dearest frame here is 1.37 ms. Low (worst 0.45 of 0.9 ms) and Potato (worst 0.37 of 0.4 ms) still fit. The critic's notes are blunt, and three of its complaints are already fixed in the code but not in these pictures (the next round shows them): the dust drew over open sky like daytime stars; the swamp water was too clear; and the torch warming was too small to see. The experimental clouds failed the critic. They are switched off, and there is a question about them below.",
- "status": "open",
+ "status": "closed",
  "created": "2026-10-23",
  "scenes": [
   {
