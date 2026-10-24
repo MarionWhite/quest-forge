@@ -53,6 +53,14 @@ def fbm(x, z, cell, octaves, seed, gain=0.5):
     return total / norm
 
 
+def hash_str(t):
+    """Stable string hash (Python's hash() changes between runs)."""
+    v = 2166136261
+    for ch in t.encode("utf-8"):
+        v = ((v ^ ch) * 16777619) & 0xFFFFFFFF
+    return v
+
+
 def meander(points, amp, seed, step=160.0):
     """Densify a polyline and push it sideways with smooth noise, so rivers wander."""
     if amp <= 0:
@@ -609,15 +617,17 @@ def render(spec_path, plan_dir):
         if "lakes" not in r or r.get("sea"):
             continue
         count, rmin, rmax = r["lakes"]
-        rng = np.random.default_rng(seed + 7000 + k)
+        # Seeded by the region's own definition, and candidates drawn from a fixed sequence of
+        # map positions: adding a feature elsewhere (or prepending regions) can't move these lakes.
+        key = json.dumps([r.get("at"), r.get("circle"), (r.get("polygon") or [None])[0], r.get("biomes"), r.get("biome")])
+        rng = np.random.default_rng([seed, 7000, abs(hash_str(key))])
         ok = land & (owner == k) & (d_in > 400 + rmax) & (biome != RIVER) & (h > SEA)
-        cand = np.argwhere(ok)
-        rng.shuffle(cand)
         placed = 0
-        for zz, xx in cand:
+        for _ in range(count * 4000):
             if placed >= count:
                 break
-            if taken[zz, xx]:
+            zz, xx = int(rng.integers(0, n)), int(rng.integers(0, n))
+            if not ok[zz, xx] or taken[zz, xx]:
                 continue
             rad = float(rng.uniform(rmin, rmax))
             ponds.append({"at": [float(xx * PX - half + PX / 2), float(zz * PX - half + PX / 2)], "r": rad})
@@ -627,7 +637,8 @@ def render(spec_path, plan_dir):
     for i, p in enumerate(ponds):
         p["id"] = i
         p.setdefault("depth", max(4, min(14, p["r"] / 40)))
-        prng = np.random.default_rng(seed + 9500 + i)
+        p["sid"] = (int(p["at"][0]) // 16 * 7919 + int(p["at"][1]) // 16 * 104729) % 1000003   # stable per lake
+        prng = np.random.default_rng([seed, 9500, p["sid"]])
         p.setdefault("rot", float(prng.uniform(0, math.pi)))
         p.setdefault("aspect", float(prng.uniform(1.0, 2.2)))
         cx, cz, rad = p["at"][0], p["at"][1], p["r"]
@@ -637,7 +648,7 @@ def render(spec_path, plan_dir):
             continue
         sl = (slice(i0, i1), slice(j0, j1))
         bx, bz = gx[sl], gz[sl]
-        d = pond_distance(bx, bz, p, seed + 9000 + i)
+        d = pond_distance(bx, bz, p, seed + 9000 + p["sid"])
         rr = np.hypot(bx - cx, bz - cz)
         ring = (rr > rad * 1.2) & (rr < rad * 1.6) & land[sl]
         if not ring.any():
@@ -849,7 +860,7 @@ def expand(plan_dir, out_dir, pi, pj, piece):
                 continue
             c0, c1 = max(0, int(cx - 1.4 * rad - x0)), min(piece, int(cx + 1.4 * rad - x0) + 1)
             sx, sz = X[:, c0:c1], Z[:, c0:c1]
-            dd = pond_distance(sx, sz, p, seed + 9000 + p["id"])
+            dd = pond_distance(sx, sz, p, seed + 9000 + p.get("sid", p["id"]))
             hs = h[:, c0:c1]
             hs = np.where(dd < 1, np.minimum(hs, p["level"] - 1 - p["depth"] * (1 - dd * dd)), hs)
             h[:, c0:c1] = hs
