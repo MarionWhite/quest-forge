@@ -221,6 +221,10 @@ Everything else is opt-in. Name the mods with catalog keys or jar prefixes, and 
 - **Only one client runs at a time.** Servers are bounded by the RAM budget instead. `launch` checks every running JVM for
   `launchwrapper.Launch`, whoever started it, and holds `%APPDATA%\.qf-trials\client.lock`.
   On 2026-10-13 a second client reset the GPU and killed the user's game.
+- **Never over the owner's game.** A background client launch waits until `userbusy` has said idle
+  for 5 minutes in a row (`--idle-min`); `bench_round.py` waits the same way before each run. On
+  2026-10-24 a shader round rendered through three hours of the owner's Deadlock because the runs
+  were only marked noisy. `--busy-ok` overrides it, and only the owner can ask for that.
 - **The heap defaults to 3G.** The slim set rarely needs more, and the user's own game and
   other agents' servers share the same 31 GB of RAM.
 

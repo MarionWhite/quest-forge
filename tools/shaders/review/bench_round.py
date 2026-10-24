@@ -15,7 +15,8 @@ Each round:
   4. launches with -Dqf.bench=1 and waits for the JVM to exit. The client runs in the
      background (trial.py: off every monitor, no taskbar button, never focused) unless
      --foreground; if the owner is gaming at any check (trial.py userbusy, every minute), the round's
-     frame times are marked noisy in bench/<tag>.userbusy.json;
+     frame times are marked noisy in bench/<tag>.userbusy.json; a background run first waits until
+     the owner has been idle for 5 minutes (trial.wait_user_idle), so it never renders over a game;
    - guarded (2026-10-23): before each launch config/shaders.properties must ask for the pack (or for
      shaders off); after it the log must show the pack loaded and compiled, else the run is INVALID,
      its frames are discarded and it is re-run once; a client with no log progress for 5 min is
@@ -228,7 +229,8 @@ def main():
 
     props = ["qf.bench=1", f"qf.bench.tag={a.tag}", f"qf.bench.scenes={a.scenes}", f"qf.bench.views={VIEWS}",
              f"qf.bench.gallery={GALLERY}", "fml.queryResult=confirm"]
-    cmd = [sys.executable, "-I", TRIAL_PY, "launch", a.name, "--size", a.size, "--xmx", a.xmx, "--owner", "shader-dev"]
+    cmd = [sys.executable, "-I", TRIAL_PY, "launch", a.name, "--size", a.size, "--xmx", a.xmx, "--owner", "shader-dev",
+           "--idle-min", "1"]
     if a.foreground:
         cmd.append("--foreground")
     for p in props:
@@ -248,6 +250,10 @@ def main():
             want, bad = shader_config_ok(d, pack)
             if bad:
                 sys.exit(f"PRECHECK failed: config/shaders.properties still has {bad}")
+        if not a.foreground:
+            # Wait out the owner's game here, before the timeout clock starts; the launch's own
+            # gate then needs a single idle check.
+            trial.wait_user_idle(5, a.wait_min)
         t0 = time.time()
         busy.append(trial.user_busy())
         crashed_early = run_client(a, d, cmd, t0, busy)

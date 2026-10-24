@@ -930,6 +930,23 @@ def start_detached(java, args, d, stdin=None, hidden=False):
         return None
 
 
+def wait_user_idle(idle_min, max_min):
+    """Background clients never start over the owner's game: wait until userbusy has said
+    idle for idle_min minutes in a row. On 2026-10-24 a shader round rendered through
+    three hours of the owner's Deadlock because only the frame times were marked noisy."""
+    t0, idle = time.time(), 0
+    while True:
+        b = user_busy()
+        idle = idle + 1 if b.get("busy") is False else 0
+        if idle >= max(1, int(idle_min)):
+            return
+        if b.get("busy") and time.time() - t0 > max_min * 60:
+            sys.exit(f"gave up after {max_min} min: the owner is still busy ({'; '.join(b.get('reasons', []))})")
+        if b.get("busy"):
+            print(f"  owner busy {time.strftime('%H:%M')}: waiting ({'; '.join(b.get('reasons', []))})", flush=True)
+        time.sleep(60)
+
+
 def cmd_launch(a):
     guard_check("launch")
     man = read_manifest(a.name)
@@ -945,6 +962,8 @@ def cmd_launch(a):
         print("Two clients at once has reset the GPU and killed both. Wait for it to exit,\n"
               "or ask whoever owns it. (`trial.py status` shows who holds the lock.)")
         sys.exit(2)
+    if not a.foreground and not a.busy_ok:
+        wait_user_idle(a.idle_min, a.idle_wait_min)
     check_ram(gb(a.xmx))
     me = {"trial": a.name, "pid": None, "at": time.time(),
           "owner": a.owner or os.environ.get("CLAUDE_SESSION_NAME", "")}
@@ -1735,6 +1754,11 @@ def main():
     p.add_argument("--owner", help="who to name in the lock (default: $CLAUDE_SESSION_NAME)")
     p.add_argument("--foreground", action="store_true",
                    help="client: show the window on the desktop (the old behaviour); default is background")
+    p.add_argument("--idle-min", type=float, default=5,
+                   help="client: launch only after the owner has been idle (userbusy) this many minutes in a row")
+    p.add_argument("--idle-wait-min", type=float, default=600, help="client: give up after waiting this long")
+    p.add_argument("--busy-ok", action="store_true",
+                   help="client: launch even while the owner is gaming (only when they asked for it)")
     p.set_defaults(fn=cmd_launch)
 
     p = sp.add_parser("install"); p.add_argument("jar")
