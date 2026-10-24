@@ -111,9 +111,9 @@ const int MOTE_STEPS = 16;
 const int MOTE_STEPS = 10;
 #endif
 #if QF_MOTES == 2
-const float MOTE_DENSITY = 0.30;
+const float MOTE_DENSITY = 0.40, MOTE_GAIN = 3.0;
 #else
-const float MOTE_DENSITY = 0.16;
+const float MOTE_DENSITY = 0.20, MOTE_GAIN = 1.8;   // r003: too faint to tell the options apart
 #endif
 const float MOTE_CELL = 1.25;
 
@@ -178,7 +178,7 @@ vec3 ambientMotes(vec3 viewDir, float dist0, float pixelBlock, float eyeSky) {
                             + Eblock * 0.10;
                     }
                     float fadeD = smoothstep(maxD, maxD * 0.6, along) * smoothstep(0.15, 0.8, along);
-                    sum += lit * tint * cov * fadeD * fadeLife * 0.08;
+                    sum += lit * tint * cov * fadeD * fadeLife * 0.08 * MOTE_GAIN;
                 }
             }
         }
@@ -280,7 +280,21 @@ void main() {
             vec2 g = (scene0.xz + cameraPosition.xz) * 6.0 + vec2(animTime() * 1.3, -animTime() * 0.9);
             float sparkle = step(0.93, hash12(floor(g))) * (1.0 - smoothstep(16.0, 96.0, dist0));
             float tight = ggx(NdotH, 0.0004) * NdotL / (4.0 * max(NdotV, 0.05) + 0.3);
-            spec = spec + broad * 0.35 + tight * sparkle * GLITTER_SPARK * 0.15;
+            float noonTame0 = mix(0.45, 1.0, lively);   // r003 critic: river_noon's blown highlight
+            spec = (spec + broad * 0.35) * noonTame0 + tight * sparkle * GLITTER_SPARK * 0.15;
+#if QF_SUN_SPARKLE == 1
+            {
+                float bpk = ggx(1.0, GLITTER_A2) * NdotL / (4.0 * max(NdotV, 0.05) + 0.3);
+                float core = clamp(broad / max(bpk, 1e-4), 0.0, 1.0);
+                core = core * core * core;
+                vec2 g2 = (scene0.xz + cameraPosition.xz) * 3.0 + vec2(-animTime() * 0.8, animTime() * 1.1);
+                vec2 id2 = floor(g2);
+                float tw = floor(animTime() * 6.0 + hash12(id2) * 6.0);
+                float on = step(1.0 - 0.55 * core, hash12(id2 + tw * 7.31));
+                float dotS = smoothstep(0.5, 0.15, length(fract(g2) - 0.5));
+                spec += broad * on * dotS * core * 2.2 * goldenHour();
+            }
+#endif
 #else
             // r003: each sparkle is a facet of the surface's own micro-ripples (lib/water.glsl)
             // catching the sun. Near the camera the micro normal is resolved and the highlight is
@@ -337,7 +351,7 @@ void main() {
                 vec2 cell = floor(gp);
                 float h = hash12(cell);
                 float shallow = 1.0 - smoothstep(0.6, 2.5, thick);
-                float keep = mix(0.985, 0.94, shallow);
+                float keep = mix(0.994, 0.972, shallow);   // r003: about half of round f
                 if (h > keep) {
                     vec2 c = cell + 0.25 + 0.5 * vec2(hash12(cell + 3.7), hash12(cell + 9.1));
                     // Smaller and softer close up (r003 critic: the nearest read as confetti).
@@ -434,7 +448,8 @@ void main() {
             // It starts at the camera and is far gentler than the haze; crisp biomes keep it, so
             // they stay sharp but gain depth.
             {
-                vec3 hdir = normalize(vec3(viewDir.x, max(viewDir.y, 0.03), viewDir.z));
+                vec3 sH = sunDirWorld(); vec2 side = normalize(vec2(-sH.z, sH.x) + vec2(1e-4, 0.0));
+                vec3 hdir = normalize(vec3(side.x, max(viewDir.y, 0.03), side.y));
                 vec3 air = skyScatter(hdir) * mix(1.0, 0.45, nightFog);
                 float apD = mix(400.0, 900.0, nightFog);
                 vec3 T = exp(-dist0 / apD * vec3(0.55, 0.78, 1.15));

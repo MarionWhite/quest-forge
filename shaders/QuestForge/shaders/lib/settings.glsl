@@ -38,6 +38,7 @@
 #define QF_FLECKS 0 // [0 1]   development (r003): bright bubble and foam flecks on near water (owner r003: "a bit much"; r002's near-water sparkles, QF_GLITTER 0, are the "bubbles" he liked)
 #define QF_AMBER 0 // [0 1 2]   development (r003): golden-hour amber on lit faces and through leaves. 0 r002 (owner r003: B on golden and leaves), 1 amber with sunlit leaves glowing, 2 strong
 #define QF_NEW_MOON 0.25 // [0.1 0.25 0.35 0.5 0.65]   development (r003): moon and sky light left at new moon (r002 0.1 crushed the sky to brown-black; owner r002: keep the full-moon feel, a bit darker; owner r003: B 0.25, "deep rich darkness")
+#define QF_SUN_SPARKLE 0 // [0 1]   development (r004): bright glints right under a low sun on r002's lively water
 #define QF_MOTES 1 // [0 1 2]   development (r003): ambient particles: dust and pollen in sunbeams, torch-lit dust underground, bubbles under water. 2 denser
 #define QF_FLICKER 1 // [0 1]   development (r003): torchlight breathes slightly, varying from place to place
 #define QF_AERIAL 0 // [0 1]   development (r003): aerial perspective, distant land turns blue and pale (owner r002: Extreme Hills bland; r003: his golden and leaves picks had it off, and he rejected the hills colour range)

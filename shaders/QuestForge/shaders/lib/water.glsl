@@ -33,14 +33,14 @@ uniform float qfWaterReef;
 uniform float qfWaterSwamp;
 // Absorption (what the water takes out per block) and scattering (what it sends back).
 // Glassy: little scattering, so the bed shows through and deep water goes dark, not milky.
-const vec3 WA_GLASSY = vec3(0.065, 0.032, 0.028), WS_GLASSY = vec3(0.0012, 0.0042, 0.0052);   // r003 critic: 0.0026 g read dark slate
+const vec3 WA_GLASSY = vec3(0.050, 0.024, 0.026), WS_GLASSY = vec3(0.0013, 0.0031, 0.0030);   // r003 critic: 0.0026 g read dark slate; round f read too cyan
 // Ocean: red and green go within a few blocks; blue scattering is the colour.
 const vec3 WA_OCEAN = vec3(0.16, 0.060, 0.030),   WS_OCEAN = vec3(0.0006, 0.0034, 0.0105);
 // Reef and coast: red absorbed, green and blue scattered over the sand: turquoise shallows.
 const vec3 WA_REEF = vec3(0.20, 0.022, 0.026),    WS_REEF = vec3(0.0010, 0.0125, 0.0125);
 // Swamp: tannin and algae absorb blue as well as red, and the silt scatters: murky teal-olive,
 // the bed gone within two or three blocks (r003 critic: the first try was the clearest water).
-const vec3 WA_SWAMP = vec3(0.85, 0.48, 0.62),     WS_SWAMP = vec3(0.012, 0.042, 0.030);
+const vec3 WA_SWAMP = vec3(0.85, 0.50, 0.70),     WS_SWAMP = vec3(0.010, 0.022, 0.012);   // round f read as mint jade
 vec4 waterBiomeWeights() {   // ocean, reef, swamp, glassy
 #if QF_WATER_FORCE == 1
     return vec4(0.0, 0.0, 0.0, 1.0);
