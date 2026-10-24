@@ -61,7 +61,10 @@ show their images on our site.
 - **Risk:** the module is alpha.
   - I could not verify whether CTM tiles pick up their own `_n`/`_s` PBR maps.
   - QF v0 generates maps for the tiles anyway.
-  - The r007 renders show whether the connections draw.
+  - **Verified in the r007 renders** (2026-10-24, `glass_close`, High 1440p): the 4×4 glass panel
+    and the stained glass draw as one pane in all three packs. With vanilla textures, Angelica's
+    default glass covers the panel in white streaks; Faithful's connected glass is a thin frame,
+    nearly clear.
 
 ## 2. PBR: what Angelica reads and what our shader would need
 
@@ -224,3 +227,13 @@ py -3.10 -I tools/textures/build_qf_textures.py --out C:\qfb\textures\QFTextures
   gold, iron, diamond and glowstone on the plain behind golden_lit's camera.
 - Views `texture_wall` and `glass_close` are in `tools/shaders/review/views-world-master.txt`.
 - Render with `bench_round.py --world C:\qfb\textures\world-showcase`.
+
+**r007 renders** (bench tags in `C:\qfb\shaderdevounds`):
+- `tx0v` vanilla, `tx0f` Faithful 32x, `tx0r` QF v0 (`tx0q` is an earlier QF v0 run), and
+  `tx0o` with shaders off.
+- Views: texture_wall, glass_close, forest_lit, golden_lit and gallery.
+- Run script: `C:\qfb	extures	x0.sh`. Lab scenes: `C:\qfb\shaderdev007	exture_scenes.json`.
+- The pack makes no measurable difference to cost: frame times are within 0.02 ms of vanilla on
+  every view.
+- In forest_lit, QF v0 is almost identical to vanilla, by design. On the wall it has Faithful's
+  detail with vanilla's grass.
