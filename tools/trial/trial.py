@@ -487,7 +487,7 @@ def find_server_source(given, forge_jar=FORGE_JAR):
 
 def build(name, mods, bundle=(), src=LIVE, no_base=False, server=False, server_source=None,
           world=None, shader=None, overlay=(), force=False, port=None, seed="", quiet=False,
-          forge="1558", renderer=None, jars=(), shaderpacks=()):
+          forge="1558", renderer=None, jars=(), shaderpacks=(), resourcepacks=()):
     cat = load_catalog()
     src = os.path.abspath(src)
     rend = renderer_of(cat, renderer)
@@ -578,6 +578,31 @@ def build(name, mods, bundle=(), src=LIVE, no_base=False, server=False, server_s
             copy_pack(sp, os.path.join(d, "shaderpacks", name))
             packs.append({"src": sp, "name": name})
         manifest["shaderpacks"] = packs
+        # --resourcepack: a resource pack (zip or folder) copied into the trial's resourcepacks/
+        # and put at the bottom of the active list, under the source's own packs (QuestForge.zip
+        # stays on top). Trials only: this never writes to the live instance.
+        rps = []
+        for rp in resourcepacks:
+            rp = os.path.abspath(rp)
+            if not os.path.exists(rp):
+                sys.exit(f"--resourcepack {rp}: not found")
+            rname = os.path.basename(rp.rstrip("\\/"))
+            copy_pack(rp, os.path.join(d, "resourcepacks", rname))
+            rps.append({"src": rp, "name": rname})
+        if rps:
+            opt = os.path.join(d, "options.txt")
+            cur = []
+            if os.path.exists(opt):
+                for l in open(opt, encoding="utf-8", errors="replace"):
+                    if l.startswith("resourcePacks:"):
+                        try:
+                            cur = json.loads(l.split(":", 1)[1])
+                        except ValueError:
+                            cur = []
+            names = [r["name"] for r in rps]
+            # 1.7.10 stacks the list in order: the last entry wins.
+            set_option(opt, "resourcePacks", json.dumps(names + [c for c in cur if c not in names], separators=(",", ":")))
+        manifest["resourcepacks"] = rps
         if rend:
             # Iris reads config/shaders.properties, never optionsshaders.txt.
             angelica_client_setup(d, shader)
@@ -621,7 +646,7 @@ def build(name, mods, bundle=(), src=LIVE, no_base=False, server=False, server_s
 def cmd_build(a):
     build(a.name, a.mods, a.bundle, a.source, a.no_base, a.server, a.server_source,
           a.world, a.shader, a.overlay, a.force, a.port, a.seed, forge=a.forge,
-          renderer=a.renderer, jars=a.jar, shaderpacks=a.shaderpack)
+          renderer=a.renderer, jars=a.jar, shaderpacks=a.shaderpack, resourcepacks=a.resourcepack)
 
 
 # -------------------------------------------------------------- processes/lock
@@ -1692,6 +1717,8 @@ def main():
                    help="a built jar (copied) that replaces the live jar of the same catalog entry")
     p.add_argument("--shaderpack", action="append", default=[],
                    help="client: shader pack folder or zip, copied into shaderpacks/ (folders re-copied on every launch)")
+    p.add_argument("--resourcepack", action="append", default=[],
+                   help="client: resource pack zip or folder, copied into resourcepacks/ and enabled under the source's packs (trials only)")
     p.set_defaults(fn=cmd_build)
     p = sp.add_parser("stage-angelica", help="stage the Angelica client's jars and Forge 1614 (sha1-checked)")
     p.add_argument("--from", dest="from_", action="append", help="where to look (default: C:\\qfb\\dl, C:\\qfb\\client-ang2)")

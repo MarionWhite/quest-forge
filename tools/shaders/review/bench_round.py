@@ -181,6 +181,8 @@ def main():
     ap.add_argument("--opt", action="append", default=[], metavar="KEY=VALUE", help="extra pack option")
     ap.add_argument("--reference", metavar="ZIP",
                     help="render this pack instead (unmodified; e.g. Complementary as a reference frame only)")
+    ap.add_argument("--resourcepack", action="append", default=[], metavar="ZIP",
+                    help="resource pack for this trial only (e.g. Faithful 32x), under the source's packs")
     ap.add_argument("--source", default=trial.LIVE, help="instance the trial copies jars, config and options from")
     ap.add_argument("--mods", default="qfcontent,twilightforest", help="catalog keys beyond the base set")
     ap.add_argument("--reload", default="", metavar="SCENES",
@@ -204,7 +206,8 @@ def main():
         shader = os.path.basename(a.reference)
         packs = [a.reference]
     man = trial.build(a.name, [m for m in a.mods.split(",") if m], src=a.source, world=WORLD, shader=shader, force=True,
-                      renderer="angelica", jars=[DEBUG_JAR], shaderpacks=packs, quiet=True)
+                      renderer="angelica", jars=[DEBUG_JAR], shaderpacks=packs, quiet=True,
+                      resourcepacks=a.resourcepack)
     d = trial.trial_dir(a.name)
     set_kv(os.path.join(d, "options.txt"), {"maxFps": "260", "fullscreen": "false",
                                              "pauseOnLostFocus": "false", "enableVsync": "false"}, ":")
