@@ -297,7 +297,7 @@
   {
    "id": "texture-pack",
    "name": "Texture pack: which way?",
-   "question": "You suggested working on a texture pack in parallel. Images of other texture packs are not shown here: some are all-rights-reserved, and the site is public. Three routes, with what their licences allow:",
+   "question": "You suggested working on a texture pack in parallel. Images of other texture packs are not shown here: some are all-rights-reserved, and the site is public. Four routes, with what their licences allow:",
    "notePrompt": "Which route? Any pack you already like or dislike?",
    "links": [
     {
