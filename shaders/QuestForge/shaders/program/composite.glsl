@@ -290,7 +290,7 @@ vec3 shadeWaterAbove(vec3 color, vec3 n, float var, vec3 scene0, float dist0, ve
     vec3 behind = texture(colortex3, uvR).rgb;
     vec3 bedP = scenePosAt(uvR, dR);
     float d = dR >= 1.0 ? 32.0 : distance(scene0, bedP);
-#if QF_CAUSTICS == 1
+#if QF_CAUSTICS == 1 && QF_PRESET > 0
     if (dR < 1.0 && L.y > 0.05 && sunDirWorld().y > 0.0) {
         // Sunlight focused by the waves: two drifting layers of cellular edges, projected along the
         // light; strongest a block or two down, fading with depth (and in murky water).
@@ -397,7 +397,7 @@ vec3 shadeWaterAbove(vec3 color, vec3 n, float var, vec3 scene0, float dist0, ve
         }
     }
 #endif
-#if QF_FOAM == 1
+#if QF_FOAM == 1 && QF_PRESET > 0
     {
         // Foam where the water meets a shore or a wall: there the view passes through only a sliver
         // of water. A ragged, drifting edge of bubbly cells, lit like any white surface.

@@ -194,7 +194,7 @@ vec3 spectralSlope(vec2 p, float t, float footprint, float amp, float chop) {
     float gust = texture(qfNoise, p / 300.0 + vec2(t * 0.0021, t * 0.0013)).b;
     gust = mix(0.35, 1.45, smoothstep(0.2, 0.8, gust));
 #if QF_PRESET == 0
-    const int I0 = 1, I1 = 6;
+    const int I0 = 2, I1 = 6;   // Potato: four layers (m round: five put lake_glitter at 0.46 ms)
 #else
     const int I0 = 0, I1 = WAVE_N;
 #endif

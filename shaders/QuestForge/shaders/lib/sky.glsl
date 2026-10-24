@@ -383,7 +383,7 @@ const int CL_STEPS = 16;
 #elif QF_PRESET == 1
 const int CL_STEPS = 9;
 #else
-const int CL_STEPS = 6;
+const int CL_STEPS = 4;   // m round: 6 put Potato's night_sky at 0.42 ms (budget 0.4)
 #endif
 vec2 cloudWind() { return vec2(animTime() * 3.2, animTime() * 1.1); }
 float cloudNight() { return 1.0 - smoothstep(-0.12, 0.04, sunDirWorld().y); }
@@ -498,8 +498,12 @@ vec4 cloudMarch(vec3 dir, int steps, float jitter) {
         float dens = cloudDens(p, true);
         if (dens > 0.002) {
             float h = (p.y - CL_BASE) / (CL_TOP - CL_BASE);
+#if QF_PRESET == 0
+            float od = (cloudDens(p + c.L * 24.0, false) * 24.0 + cloudDens(p + c.L * 120.0, false) * 150.0) * CL_SIGMA;
+#else
             float od = (cloudDens(p + c.L * 16.0, false) * 16.0 + cloudDens(p + c.L * 60.0, false) * 44.0
                       + cloudDens(p + c.L * 190.0, false) * 130.0) * CL_SIGMA;
+#endif
             vec3 lum = cloudLum(c, od, h, mu, dens);
             float Ts = exp(-dens * CL_SIGMA * dt);
             S += T * lum * (1.0 - Ts);
