@@ -368,7 +368,7 @@ function sceneEl(s, i) {
       stage.innerHTML = "";
       stage.append(h("img", {src: cur.src, alt: `${o.key}: ${o.label || ""}${cur.mode === "ref" ? " (real-world reference)" : ""}`, decoding: "async"}),
         h("span", {class: "badge"}, `${o.key}${cur.mode === "ref" ? " · reference photo" : (o.ref ? " · our render" : "")}`),
-        visual.length > 1 ? h("span", {class: "hint"}, `${v.i + 1}/${visual.length} · tap to flip`) : null);
+        ...(visual.length > 1 ? [h("span", {class: "hint"}, `${v.i + 1}/${visual.length} · tap to flip`)] : []));
       cap.innerHTML = "";
       cap.append(h("div", {class: "lab"}, `${o.key} · ${o.label || ""}`));
       if (o.desc) cap.append(h("div", {class: "desc"}, o.desc));
