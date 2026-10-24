@@ -89,6 +89,12 @@ h1{font-size:clamp(26px,5vw,40px);font-weight:800;letter-spacing:-.025em;line-he
 .cap .meta b{color:var(--ink);font-weight:500}
 .credit{font-family:"JetBrains Mono",monospace;font-size:11.5px;color:var(--muted);line-height:1.45}
 .credit a{color:var(--ink-2)}
+.links{margin:6px 0 14px;padding-left:18px;max-width:68ch;color:var(--ink-2);font-size:14.5px;line-height:1.5}
+.links a{color:var(--ink)}
+.optlist{margin:4px 0 14px;display:grid;gap:8px;max-width:72ch}
+.optlist div{font-size:14.5px;line-height:1.5;color:var(--ink-2)}
+.optlist b{font-family:"JetBrains Mono",monospace;font-weight:500;color:var(--ink);margin-right:6px}
+.cap .desc{color:var(--ink-2)}
 
 /* ---- answer ---- */
 .answer{margin-top:14px;display:grid;gap:14px}
@@ -325,6 +331,13 @@ function sceneEl(s, i) {
     h("span", {class: "num"}, String(i + 1).padStart(2, "0")),
     h("h2", {id: "h-" + s.id}, s.name || s.id), done));
   if (s.question) sec.append(h("p", {class: "q"}, s.question));
+  // Optional reading list: [{text, href, note}] (links only, never other packs' images).
+  if (s.links && s.links.length) sec.append(h("ul", {class: "links"}, ...s.links.map(l =>
+    h("li", {}, l.href ? h("a", {href: l.href, target: "_blank", rel: "noopener"}, l.text) : l.text, l.note ? " · " + l.note : ""))));
+  // Options without any image (pick-only) are described here in full.
+  const textOnly = opts.filter(o => !frames(o).length && (o.desc || o.label));
+  if (textOnly.length && opts.some(o => o.desc)) sec.append(h("div", {class: "optlist"}, ...textOnly.map(o =>
+    h("div", {}, h("b", {}, o.key), o.label || "", o.desc ? " · " + o.desc : ""))));
 
   if (visual.length) {
     const v = views[s.id] || (views[s.id] = {i: 0, mode: null});
@@ -358,6 +371,7 @@ function sceneEl(s, i) {
         visual.length > 1 ? h("span", {class: "hint"}, `${v.i + 1}/${visual.length} · tap to flip`) : null);
       cap.innerHTML = "";
       cap.append(h("div", {class: "lab"}, `${o.key} · ${o.label || ""}`));
+      if (o.desc) cap.append(h("div", {class: "desc"}, o.desc));
       if (cur.mode === "ours" && o.critic) cap.append(h("div", {class: "critic"}, h("b", {}, "Critic"), o.critic));
       const meta = [];
       if (cur.mode === "ours" && o.ms != null) meta.push(h("span", {}, "Shader cost ", h("b", {}, `${o.ms} ms`), " per frame"));
