@@ -17,7 +17,19 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 
 let created = [];          // issues the mock GitHub received
 let labelMode = "ok";      // "ok" | "reject" (422 when labels are sent)
+let committed = [];        // files the mock contents API received: {path, message, content}
+let contentsMode = "ok";   // "ok" | "deny" (403, a token without Contents: write)
+const CONTENTS = /\/repos\/MarionWhite\/quest-forge\/contents\/(.+)$/;
 function github(method, url, headers, bodyText) {
+  const cm = CONTENTS.exec(url);
+  if (method === "PUT" && cm) {
+    if (headers.authorization !== "Bearer dummy-token") return [401, {message: "Bad credentials"}];
+    if (contentsMode === "deny") return [403, {message: "Resource not accessible by personal access token"}];
+    const b = JSON.parse(bodyText);
+    committed.push({path: cm[1], message: b.message, content: b.content});
+    return [201, {content: {path: cm[1], html_url: `https://github.com/MarionWhite/quest-forge/blob/main/${cm[1]}`,
+      download_url: `https://raw.githubusercontent.com/MarionWhite/quest-forge/main/${cm[1]}`}}];
+  }
   if (method !== "POST" || !url.endsWith("/repos/MarionWhite/quest-forge/issues")) return [404, {message: "Not Found"}];
   if (headers.authorization !== "Bearer dummy-token") return [401, {message: "Bad credentials"}];
   const b = JSON.parse(bodyText);
@@ -107,10 +119,86 @@ let parsed = null; try { parsed = JSON.parse(pr.stdout); } catch {}
 ok(parsed && JSON.stringify(parsed) === JSON.stringify(good), "fetch_feedback.parse() returns exactly the posted answers" + (parsed ? "" : `: ${pr.stderr || pr.stdout}`));
 ok(!(iss.body || "").split("```json")[0].includes("@someone"), "summary notes can not @-mention anyone (code block is inert)");
 
+// ---- reference images ----
+r = await call("/caps", {method: "GET", headers: {Origin: ORIGIN}}); j = await r.json();
+ok(r.status === 200 && j.attachments === true && j.max_files === 20 && j.max_bytes === 8 * 1024 * 1024 &&
+   r.headers.get("access-control-allow-origin") === ORIGIN, "GET /caps from the Lab -> 200 caps + CORS");
+r = await call("/caps", {method: "GET", headers: {Origin: "https://evil.example"}});
+ok(r.status === 403 && !r.headers.get("access-control-allow-origin"), "GET /caps from another origin -> 403, no CORS header");
+r = await call("/caps", {method: "GET", headers: {}});
+ok(r.status === 200, "GET /caps without Origin (curl) -> 200");
+r = await call("/feedback", {method: "OPTIONS", headers: {Origin: ORIGIN, "Access-Control-Request-Method": "GET"}});
+ok(/GET/.test(r.headers.get("access-control-allow-methods") || ""), "preflight allows GET");
+
+const b64 = bytes => Buffer.from(bytes).toString("base64");
+const jpeg = (n = 600) => b64([0xFF, 0xD8, 0xFF, 0xE0, ...new Uint8Array(n).map((_, i) => i & 255), 0xFF, 0xD9]);
+const png = b64([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, ...Array(64).fill(7)]);
+const webp = b64([...Buffer.from("RIFF"), 1, 0, 0, 0, ...Buffer.from("WEBPVP8 "), ...Array(64).fill(3)]);
+const img = (scene, data = jpeg(), type = "image/jpeg", name = "grab.jpg") => ({scene, name, type, data});
+const withImgs = (atts, base = good) => ({...base, attachments: atts});
+const before = created.length;
+const big = n => { const b = Buffer.alloc(n, 1); b[0] = 0xFF; b[1] = 0xD8; b[2] = 0xFF; return b.toString("base64"); };
+
+r = await post(withImgs([img("golden")]), {"X-QF-Passphrase": "wrong"});
+ok(r.status === 401 && committed.length === 0, "images + wrong passphrase -> 401, nothing committed");
+for (const [atts, code, what] of [
+    [[img("golden", jpeg(), "image/gif")], 400, "gif type"],
+    [[img("golden", "not base64!!xxxxxxxx")], 400, "bad base64"],
+    [[img("golden", jpeg().slice(0, -1))], 400, "base64 with bad length"],
+    [[img("golden", png, "image/jpeg")], 400, "PNG bytes declared as JPEG"],
+    [[img("golden", b64(Array(40).fill(65)), "image/png")], 400, "no magic bytes"],
+    [[img("../../etc")], 400, "scene id with a path"],
+    [[{...img("golden"), extra: 1}], 400, "unknown image field"],
+    ["nope", 400, "attachments not an array"],
+    [Array.from({length: 7}, () => img("golden")), 413, "7 images on one scene"],
+    [Array.from({length: 21}, (_, i) => img(`s${i}`)), 413, "21 images"],
+    [[img("golden", big(Math.round(2.6 * 1024 * 1024)))], 413, "2.6 MB image"]]) {
+  r = await post(withImgs(atts)); ok(r.status === code, `${what} -> ${code}`);
+}
+r = await post(withImgs(Array.from({length: 4}, (_, i) => img(`s${i}`, big(Math.round(2.2 * 1024 * 1024))))));
+ok(r.status === 413, "8.8 MB request -> 413");
+r = await post(withImgs([img("golden")], {round: 1, scenes: {}, overall: "x".repeat(61 * 1024)}));
+ok(r.status === 413, "61 KB of answers plus an image -> 413 (answers keep their cap)");
+ok(committed.length === 0 && created.length === before, "no commit and no issue from any rejected image post");
+
+r = await post(withImgs([img("golden"), img("golden", png, "image/png", "screen <shot>.png"), img(null, webp, "image/webp", "mood.webp")],
+  {...good, round: 4})); j = await r.json();
+ok(r.status === 200 && j.ok && j.attachments && j.attachments.saved === 3 && j.attachments.failed === 0, "3 images -> 200, saved 3");
+const P = /^docs\/design\/shaders\/feedback\/attachments\/r004\/\d{8}T\d{9}Z-(golden|overall)-\d\.(jpg|png|webp)$/;
+ok(committed.length === 3 && committed.every(c => P.test(c.path)), "committed under attachments/r004/<stamp>-<scene>-<n>.<ext>: " + committed.map(c => c.path.split("/").pop()).join(" "));
+ok(committed.length === 3 && committed[0].path.endsWith("-golden-1.jpg") && committed[1].path.endsWith("-golden-2.png") &&
+   committed[2].path.endsWith("-overall-1.webp"), "numbered per scene, overall named overall");
+ok(committed.length === 3 && committed[0].content === jpeg() && committed[2].content === webp, "committed content is the posted base64, unchanged");
+const ib = created[created.length - 1].body;
+ok(/### Reference images/.test(ib) && /\*\*golden\*\* \(2\)/.test(ib) && /\*\*Overall\*\* \(1\)/.test(ib) &&
+   ib.indexOf("**golden** (2)") < ib.indexOf("**Overall** (1)"), "issue groups images per scene, overall last");
+ok(/!\[golden: grab\.jpg\]\(https:\/\/raw\.githubusercontent\.com\/MarionWhite\/quest-forge\/main\/docs\/design\/shaders\/feedback\/attachments\/r004\//.test(ib) &&
+   /\[grab\.jpg\]\(https:\/\/github\.com\/MarionWhite\/quest-forge\/blob\/main\//.test(ib), "issue has inline image + blob link");
+ok(ib.includes("screen _shot_.png") && !ib.includes("<shot>"), "file names are sanitised");
+const pyA = `import json,sys,importlib.util
+spec=importlib.util.spec_from_file_location("ff",sys.argv[1]);m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
+t=sys.stdin.read();print(json.dumps({"answers":m.parse(t),"att":m.attachments(t)}))`;
+const pa = spawnSync("py", ["-3.10", "-I", "-c", pyA, ff], {input: ib, encoding: "utf8"});
+let pj = null; try { pj = JSON.parse(pa.stdout); } catch {}
+ok(pj && JSON.stringify(pj.answers) === JSON.stringify({...good, round: 4}), "answers block still parses exactly" + (pj ? "" : `: ${pa.stderr}`));
+ok(pj && pj.att.length === 3 && pj.att.map(a => a.scene).join() === "golden,golden,_overall" &&
+   pj.att.every((a, i) => a.path === committed[i].path && a.url.endsWith(a.path)), "fetch_feedback.attachments() lists all 3 with path, url, scene");
+
+r = await post(withImgs([img("night")], {round: 4, scenes: {}, overall: ""})); j = await r.json();
+ok(r.status === 200 && j.attachments && j.attachments.saved === 1, "images alone (no answers) are enough to send");
+
+contentsMode = "deny"; const nIss = created.length;
+r = await post(withImgs([img("golden"), img("night")], {...good, round: 4})); j = await r.json();
+const fb = (created[nIss] || {}).body || "";
+ok(r.status === 200 && j.ok && j.issue_url && j.attachments.saved === 0 && j.attachments.failed === 2 && /403/.test(j.attachments.error || ""),
+   "contents API refuses -> issue still filed, response reports 2 failed");
+ok(/2 images couldn't be saved to the repo\*\* \(GitHub said: HTTP 403\)/.test(fb) && !fb.includes("qf-attachments-v1"), "issue notes the failure, lists no images");
+contentsMode = "ok";
+
 // label fallback
-labelMode = "reject";
+labelMode = "reject"; const nLab = created.length;
 r = await post(good); j = await r.json();
-ok(r.status === 200 && created.length === 2 && !created[1].labels, "label rejected -> retried without label");
+ok(r.status === 200 && created.length === nLab + 1 && !created[nLab].labels, "label rejected -> retried without label");
 labelMode = "ok";
 
 // rate limit: 10 per 10 minutes per IP (the in-process run pins one IP; wrangler dev sees 127.0.0.1)

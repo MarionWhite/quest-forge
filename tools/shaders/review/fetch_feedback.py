@@ -32,6 +32,17 @@ and, when even that is too long for one issue URL, splits it over issues titled
 id) are joined in part order and decoded together; a submission missing a part is
 reported as skipped until the rest arrives. Both forms map back to the same
 {round, scenes: {id: {choice, rating, note}}, overall} answers as the json block.
+
+Reference images: the relay commits images the owner attached to
+docs/design/shaders/feedback/attachments/rNNN/ and lists them in the issue as
+
+    <!-- qf-attachments-v1: [{"scene", "name", "path", "url"}, ...] -->
+
+Each response then gets "attachments": [{scene, name, path, url}] (scene is the
+scene id, or "_overall" for the overall comment). An image that isn't in the
+working tree yet (no git pull since) is downloaded to its path, unless
+--no-images. Only paths under that folder with a .jpg/.png/.webp name are
+accepted, and only from this repo's raw URLs, since anyone can open an issue.
 """
 import argparse
 import base64
@@ -49,6 +60,11 @@ API = "https://api.github.com/repos/MarionWhite/quest-forge/issues?state=all&per
 UA = {"User-Agent": "quest-forge-shader-lab", "Accept": "application/vnd.github+json"}
 TITLE = re.compile(r"^\s*Shader Lab feedback\b", re.I)
 TITLE_N = re.compile(r"round\s+(\d+)", re.I)
+ATT_LIST = re.compile(r"<!--\s*qf-attachments-v1:\s*(\[.*?\])\s*-->", re.S)
+ATT_PATH = re.compile(r"^docs/design/shaders/feedback/attachments/r\d{3,4}/[A-Za-z0-9][A-Za-z0-9_-]{0,120}\.(?:jpg|png|webp)$")
+RAW = "https://raw.githubusercontent.com/MarionWhite/quest-forge/main/"
+MAX_IMG = 3 * 1024 * 1024
+MAGIC = (b"\xff\xd8\xff", b"\x89PNG\r\n\x1a\n", b"RIFF")
 
 
 def get(url):
@@ -151,6 +167,46 @@ def parse(text):
     return best
 
 
+def attachments(text):
+    """The images a relay issue lists: [{scene, name, path, url}], keeping only safe paths."""
+    out, seen = [], set()
+    for m in ATT_LIST.finditer(text or ""):
+        try:
+            lst = json.loads(m.group(1))
+        except ValueError:
+            continue
+        for a in lst if isinstance(lst, list) else []:
+            if not isinstance(a, dict):
+                continue
+            path, scene = a.get("path"), a.get("scene")
+            if not (isinstance(path, str) and ATT_PATH.match(path) and isinstance(scene, str)) or path in seen:
+                continue
+            seen.add(path)
+            url = a.get("url") if isinstance(a.get("url"), str) and a["url"].startswith(RAW) else RAW + path
+            out.append({"scene": scene, "name": str(a.get("name") or "")[:80], "path": path, "url": url})
+    return out
+
+
+def download(att):
+    """Fetch one listed image into the working tree if it isn't there. -> 'have' | 'got' | error text."""
+    dest = REPO / att["path"]
+    if dest.exists():
+        return "have"
+    req = urllib.request.Request(RAW + att["path"], headers={"User-Agent": UA["User-Agent"]})
+    try:
+        with urllib.request.urlopen(req, timeout=60) as r:
+            data = r.read(MAX_IMG + 1)
+    except (urllib.error.URLError, OSError) as e:
+        return f"download failed ({e})"
+    if len(data) > MAX_IMG or not data.startswith(MAGIC) or (data.startswith(b"RIFF") and data[8:12] != b"WEBP"):
+        return "not an image, skipped"
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    tmp = dest.with_suffix(dest.suffix + ".part")
+    tmp.write_bytes(data)
+    tmp.replace(dest)
+    return "got"
+
+
 def collect(items, round_filter=None, comments=None):
     """Group the Lab answers in GitHub issue dicts by round: ({n: [response, ...]}, [skipped, ...]).
     `comments(issue)` returns an issue's comment dicts (used when the body has no answers)."""
@@ -161,8 +217,11 @@ def collect(items, round_filter=None, comments=None):
                 "state": it.get("state"), "created_at": it.get("created_at"), "updated_at": it.get("updated_at"),
                 "from": where}
 
-    def add(n, resp):
+    def add(n, resp, it):
         if round_filter is None or n == round_filter:
+            atts = attachments(it.get("body"))
+            if atts:
+                resp["attachments"] = atts
             by_round.setdefault(n, []).append(resp)
 
     for it in items:
@@ -191,7 +250,7 @@ def collect(items, round_filter=None, comments=None):
         if n is None:
             skipped.append(f"#{it['number']} (no round number)")
             continue
-        add(n, dict(meta(it, where), answers=ans))
+        add(n, dict(meta(it, where), answers=ans), it)
 
     for (title_n, pid), p in sorted(partial.items(), key=lambda kv: (kv[0][0] or -1, kv[0][1])):
         have = p["chunks"]
@@ -207,7 +266,7 @@ def collect(items, round_filter=None, comments=None):
             continue
         n = ans.get("round") if isinstance(ans.get("round"), int) else title_n
         first = have[1][1]
-        add(n, dict(first, parts=[have[k][1]["issue"] for k in range(1, p["total"] + 1)], answers=ans))
+        add(n, dict(first, parts=[have[k][1]["issue"] for k in range(1, p["total"] + 1)], answers=ans), {})
     return by_round, skipped
 
 
@@ -215,6 +274,7 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--round", type=int, help="only this round")
     ap.add_argument("--print", action="store_true", help="also print the answers")
+    ap.add_argument("--no-images", action="store_true", help="record attached images but don't download missing ones")
     a = ap.parse_args()
 
     by_round, skipped = collect(issues(), a.round,
@@ -234,6 +294,14 @@ def main():
             print(f"r{n:03d}: {len(resp)} response(s) -> {path.relative_to(REPO)}")
         else:
             print(f"r{n:03d}: {len(resp)} response(s), unchanged")
+        atts = [x for r in resp for x in r.get("attachments", [])]
+        if atts:
+            res = {} if a.no_images else {x["path"]: download(x) for x in atts}
+            got = sum(v == "got" for v in res.values())
+            print(f"r{n:03d}: {len(atts)} attached image(s)" + ("" if a.no_images else f", {got} downloaded"))
+            for pth, v in res.items():
+                if v not in ("have", "got"):
+                    print(f"  {pth}: {v}")
         if a.print:
             print(json.dumps(resp[-1]["answers"], indent=1, ensure_ascii=False))
     if not by_round:
