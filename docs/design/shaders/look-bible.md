@@ -4,9 +4,9 @@ What the pack should look like, in order of priority. The critic scores every
 frame against this document and the owner's taste profile; when they disagree,
 the owner's answers win and this file is updated to match.
 
-**Version 4**, 2026-10-23: drafted 2026-10-16 from [`research/desirability.md`](research/desirability.md);
-the Shader Lab answers to round 0 (2026-10-18), round 1 (2026-10-21), round 2 (2026-10-23)
-and round 3 (2026-10-23 evening) are folded in below.
+**Version 5**, 2026-10-24: drafted 2026-10-16 from [`research/desirability.md`](research/desirability.md);
+the Shader Lab answers to round 0 (2026-10-18), round 1 (2026-10-21), round 2 (2026-10-23),
+round 3 (2026-10-23 evening) and round 4 (2026-10-24) are folded in below.
 
 ## North star
 
@@ -79,6 +79,17 @@ alien".
   a half-done sky effect is worse than none)
 - Bland, flat views: a crisp scene still needs depth, light and an interesting sky (r002)
 
+## Texture pack (decided 2026-10-24, Shader Lab round 4)
+
+The owner's pick (r004, "a combination of A and C", 5/5): **Faithful is the base.** We start
+from Faithful 32x (GTNH-Faithful first for the GTNH-era blocks), whose licence lets us change
+it and ship it with credit, and extend it to the modded and custom blocks in the same style.
+A **broad range of other packs** (Soartex Invictus-Modded, Conquest_, John Smith Legacy and
+others) is used **only for inspiration and reference**: sampled in a private test client, never
+copied, traced or shipped. **Nothing that is not licensed for derivatives ships** in the pack or
+appears on the public site (of the packs surveyed, only Faithful and Soartex Grove allow
+derivatives). Every shipped texture records its source and licence.
+
 ## Modded failure classes (each needs a test scene)
 
 From the Shader Fixer patch list (50 fixes across 1.7.10 mods):
@@ -96,9 +107,13 @@ From round 0 (calibration), answered 2026-10-18 (GitHub issue #1,
 `feedback/r000.json`), round 1, answered 2026-10-19 (issue #2, `feedback/r001.json`;
 folded in 2026-10-21), and round 2, answered 2026-10-23 from a phone (issue #3,
 `feedback/r002.json`; folded in 2026-10-23), and round 3, answered 2026-10-23 (issue #4,
-`feedback/r003.json`; folded in the same evening). Each later round's picks, ratings and notes
+`feedback/r003.json`; folded in the same evening), and round 4, answered 2026-10-24 (issue #5,
+`feedback/r004.json`). Each later round's picks, ratings and notes
 are added here. Where these contradict a rule above, these win.
 
+- **Round 4 overall:** "beginning to take shape", and "really eager to get this to a really polished
+  product". Wants to **attach reference images** to the Lab form (screen-grab on a Mac, drag and
+  drop): the Lab and relay gained image attachments (live once the relay is redeployed).
 - **Round 3 overall:** "Some improvements, and some things to work on for sure." Wants a **texture
   pack worked on in parallel** with the shaders, because it changes the direction of much of this:
   look at a broad range of existing packs first (sample them, take a solid one and extend it to the
@@ -118,6 +133,10 @@ are added here. Where these contradict a rule above, these win.
   close. (Round 10's 0.085 was too bright; aim for about 0.04-0.05 mean luma at full moon.)
   - **Full moon: keep it** (r001: current, rated 5, mean luma about 0.046-0.050). More
     beauty comes from extra effects (sky, stars), not from changing its brightness.
+  - **Night sky (r004: neither, 4/5): the lighting profile is right**, but the sky wants "a little
+    more texture and beauty", and **a rotation of skies** so nights are not samey. Land light
+    stays as it is; the sky itself changes (r005: a deep clear starfield, airglow bands and a
+    Milky Way, chosen per night, the faint ones washed out by a bright moon).
   - **New moon: QF_NEW_MOON 0.25** (r003: B, 5/5, "the sky looks fuller ... a deep rich darkness").
   - (r002:) **New moon: the full-moon night, a bit darker** (r002: picked the full-moon frame over
     all three new-moon options, rated 4: "we regressed with the new proposed changes"). The
@@ -126,6 +145,10 @@ are added here. Where these contradict a rule above, these win.
     for 0.033-0.037; superseded.)
   - **Night sky: r001's stars** (r002: A, 5/5). The Milky Way was rejected ("the execution
     is not good"). Open to sky effects, but only ones that are genuinely beautiful.
+- **Golden hour (r004): keep the current default** (A, 3/5: "a good spot, but we can always do
+  better"). **Leaves (r004: neither, 4/5): "more cinematic light"**: he agrees with the critic
+  that forest_golden lost round f's warm shaft through the trees. Light shafts (volumetric sun
+  through gaps, warm at golden hour) are the answer being tried in r005.
 - **Golden hour: amber light plus a gold sky near the sun** (r001: B, rated 4, for both
   the wide view and the sunset; replaces r000's "naturalistic"). **r003: round 2's version won
   (B, 5/5) over the extra amber on lit faces (QF_AMBER 1/2, now 0); "the horizon band is pretty
@@ -140,6 +163,18 @@ are added here. Where these contradict a rule above, these win.
 - **Water: realistic depth gradient** (C). The balance of surface reflection against
   what shows through is a big part of the look. r001 said "the water doesn't look
   amazing"; r002's new water is "much better" (sunset over the lake 5/5).
+  - **Direction (r004: A, the calm mirror, 5/5):** still water that mirrors the sky with one soft
+    sun path, heading for "a combination of Complementary's Unbound (realistic) style and Photon's
+    strict realism" ("I really like the screenshots from those 2 the best").
+  - **At sunset (r004: neither, 4/5):** "a really good starting platform", but he hopes for "more
+    beauty out of a scene like this". Still wanted: bright spots right below the sun with depth to
+    their light (r003).
+  - **Biome water (r004: the lake at noon, B, 5/5):** the critic was "right on the money" again:
+    the river at noon is a milky blob, the swamp too clear and too grass-green. The glassy lake is
+    the reference. Rivers get their own slightly green, half-clear water; swamps get silt that hides
+    the bed.
+  - **Flecks (r004: 1.25x round 3's full amount)**, i.e. "125% of whichever of these has more";
+    QF_FLECKS is on again.
   - **Colour by biome** (r002: neither fixed colour; rated 5): teal and murky in swamps and
     marshes, deep blue for most oceans, transparent and glassy for most rivers and lakes,
     Maldives turquoise for coasts and coral reefs. The pregenerated map makes this work.
@@ -160,6 +195,10 @@ are added here. Where these contradict a rule above, these win.
   fog in some biomes, and a heavy, vision-limiting tundra storm.
   - **Baseline: haze 0.35** (r002: C, 5/5, "definitely the best ... not too crisp, and not
     too murky"; r001 asked for between r001's haze and crisp).
+  - **Hills (r004: B, aerial perspective on, 3/5):** likes "the haze off to the left where the
+    elevation drops", not that "it washes out the color of everything at the same elevation as the
+    camera". **Haze and aerial perspective depend on height below the camera as well as distance**
+    (QF_HAZE_HEIGHT): full where the land drops away, light over land at eye level.
   - **Hills (r003: neither):** not loving the colour range, the environment or the clouds. Clouds:
     research inspiration and pick a direction together. Aerial perspective is off (QF_AERIAL 0) until
     then: neither of his golden or leaves picks had it.
@@ -170,6 +209,11 @@ are added here. Where these contradict a rule above, these win.
     looks are dialled in from real views inside each biome, round by round; until then
     biome fog is on only where clearly justified (crisp mountains, the snow storm) and
     subtle elsewhere.
+- **Clouds (r004: D, dramatic broken clouds, 5/5):** "only good with the right execution. I don't
+  want it to look like a png of this pasted onto the sky. I would want something more dynamic that
+  looks beautiful and natural. I want this pack to have a truly beautiful sky." Clouds must be
+  volumetric-looking, lit by the sun and sky (silver linings, darker bases), moving and changing,
+  never a texture. Raymarched clouds start in r005.
 - **Bloom: subtle**, a natural halo that scales with light intensity. Never too much.
 - **Performance: 60+ fps for everyone** comes first. Effects that need 30 fps are not
   worth having; pour the effort into optimised looks.
@@ -177,7 +221,8 @@ are added here. Where these contradict a rule above, these win.
 - **Questions: more per round** (r001 overall: "happy to field more questions with each
   iteration"). Ask wherever taste decides: water colour and surface, torch warmth, sky
   gold, night-sky beauty, and each biome's fog.
-- **Torches: tungsten to candle, a little warmer** (r002: B, 4/5; r003: B, 4/5, QF_TORCH_WARM 4).
+- **Torches: tungsten to candle, a little warmer** (r002: B, 4/5; r003: B, 4/5, QF_TORCH_WARM 4;
+  r004: A, 3/5, "warmer was definitely the right call": keep it).
   Wanted next (r003): heat shimmer around the flame, small embers, ambient dust "like some of the
   modern effects mods have". Inexpensive
   environmental and ambient effects are welcome (heat shimmer, dust motes, flicker), within
