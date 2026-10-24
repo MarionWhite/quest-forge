@@ -59,3 +59,10 @@ lake_glitter     285.5   63.4   -287.5   97     3      12150
 # cliff). sky_noon tilts the plains view up into the noon sky, for the clouds.
 ocean_sunset     -567.5  64.5   232.5    96     3      12150
 sky_noon         264.5   auto   176.5    135    -22    6000
+# r007 textures: the texture showcase wall exists only in tools/textures/build_showcase.py's copy of
+# the world (bench_round.py --world C:/qfb/textures/world-showcase); in world-master these look at a
+# bare plain. texture_wall: the whole wall (glass, stained glass, stone with ores, gold/iron/diamond,
+# glowstone) from 8.5 blocks, afternoon sun; glass_close: the 4x4 clear-glass panel from 3.5 blocks,
+# for connected textures.
+texture_wall     252.5   69.6   186.5    180    6      7000
+glass_close      247.0   70.2   181.8    180    4      7000

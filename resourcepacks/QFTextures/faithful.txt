@@ -1,0 +1,14 @@
+# Block textures taken from Faithful 32x (1.7.10 branch, R17), by name under
+# assets/minecraft/textures/blocks/ ("*" = any characters). Only what the owner asked for
+# (Shader Lab round 6: "stone, gold, iron, glowstone, glass and diamond"), plus the other
+# ores so every ore reads at the same resolution. Faithful License v4: only use what we need.
+stone
+*_ore
+gold_block
+iron_block
+diamond_block
+glowstone
+glass
+glass_*
+glass_pane_top
+glass_pane_top_*

@@ -188,6 +188,8 @@ def main():
     ap.add_argument("--mods", default="qfcontent,twilightforest", help="catalog keys beyond the base set")
     ap.add_argument("--reload", default="", metavar="SCENES",
                     help="call Iris.reload() (the F9 key) before these scenes, comma-separated")
+    ap.add_argument("--world", default=WORLD,
+                    help="world the trial copies (e.g. tools/textures/build_showcase.py's copy with the texture wall)")
     ap.add_argument("--name", default="shaderdev", help="trial name")
     ap.add_argument("--xmx", default="3G")
     ap.add_argument("--wait-min", type=int, default=240, help="how long to wait for the GPU")
@@ -206,7 +208,7 @@ def main():
     if a.reference:
         shader = os.path.basename(a.reference)
         packs = [a.reference]
-    man = trial.build(a.name, [m for m in a.mods.split(",") if m], src=a.source, world=WORLD, shader=shader, force=True,
+    man = trial.build(a.name, [m for m in a.mods.split(",") if m], src=a.source, world=a.world, shader=shader, force=True,
                       renderer="angelica", jars=[DEBUG_JAR], shaderpacks=packs, quiet=True,
                       resourcepacks=a.resourcepack)
     d = trial.trial_dir(a.name)
