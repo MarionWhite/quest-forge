@@ -1,0 +1,119 @@
+"""r12 main: r11 main with the rainforest calmed down (the author: the rivers "shredded" the north).
+
+Fewer, bigger, well-spaced rivers; water held in a few large lakes instead of a channel mesh.
+Original r11 notes:
+
+Builds main.yaml from divide.yaml. Only the rainforest changes: a wide belt region along the
+foot of the divide, a big foot river in two branches feeding the thousand-islands lake's
+northern arms, short tributaries off the slopes, rainforest lakes, and heavier rainfall.
+Run: py -3.10 make_main.py
+"""
+import copy
+import math
+import os
+import random
+
+import yaml
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+src = yaml.safe_load(open(os.path.join(HERE, "..", "r11", "divide.yaml")))
+d = copy.deepcopy(src)
+rng = random.Random(1111)
+
+# Crest of the divide (the main ridge chain), used as the belt's upper edge.
+crest = []
+for r in d["ridges"][11:18]:
+    crest += [tuple(p) for p in r["points"]]
+crest.sort()
+
+# --- the belt: several km deep, gentler than the old steep strip --------------------------
+top = [(-11600, -7000)] + [(x, z - 250) for x, z in crest if -11000 < x < 5800] + [(6100, -6300)]
+bottom = [(6300, -5000), (5000, -3700), (3800, -3100), (3000, -2700), (1500, -1900),
+          (-200, -1700), (-2200, -1700), (-4200, -2100), (-6200, -3100), (-8800, -3300),
+          (-10800, -3500), (-11800, -4300)]
+belt = {
+    "tier": 2,
+    "biomes": [[243, 6], [32, 1], [152, 1]],
+    "base": 74,
+    "relief": 45,
+    "patch": 2200,
+    "lakes": [5, 300, 600],
+    "polygon": [[int(x), int(z)] for x, z in top + bottom],
+}
+d["regions"].insert(40, belt)   # after the volcano rings, before the patchwork cells
+
+# --- the foot river: two branches into the lake's northern arms ---------------------------
+west = [[-11200, -5300], [-9900, -4700], [-8300, -4500], [-6600, -4300], [-5000, -4150],
+        [-3500, -3900], [-2000, -3700], [-500, -3500], [900, -3250], [1800, -2950], [2210, -2754]]
+east = [[5900, -5300], [5000, -4700], [4000, -4200], [3200, -3700], [2600, -3200], [2210, -2754]]
+d["rivers"].append({"points": west, "width": 90, "biome": 150, "meander": 420, "valley": 320})
+d["rivers"].append({"points": east, "width": 70, "biome": 150, "meander": 360, "valley": 280})
+
+
+def foot_z(x, pts):
+    for (x0, z0), (x1, z1) in zip(pts, pts[1:]):
+        if x0 <= x <= x1 or x1 <= x <= x0:
+            t = (x - x0) / (x1 - x0) if x1 != x0 else 0
+            return z0 + t * (z1 - z0)
+    return None
+
+
+def crest_z(x):
+    best = min(crest, key=lambda p: abs(p[0] - x))
+    return best[1]
+
+
+# --- tributaries pouring off the slopes, every ~650 blocks -------------------------------
+xs, x = [], -10600
+while x < 5600:
+    xs.append(x)
+    x += rng.randint(2400, 3400)          # was 700-1300: far fewer tributaries
+for x in xs:
+    fz = foot_z(x, west if x < 2600 else east)
+    if fz is None:
+        continue
+    cz = crest_z(x)
+    sx = x + rng.randint(-200, 200)
+    sz = cz + 650 + rng.randint(0, 300)          # source high on the slope, below the snow
+    if fz - sz < 500:
+        continue
+    lean = rng.choice([-1, 1]) * rng.randint(150, 450)
+    mid = [sx + lean * 0.6, sz + (fz - sz) * 0.55]
+    d["rivers"].append({"points": [[sx, sz], [int(mid[0]), int(mid[1])], [x + lean, int(fz)]],
+                        "width": rng.choice([18, 22, 26, 30]), "biome": 150,
+                        "meander": 160, "valley": 140})
+    if False:                                  # no Y-shaped side branches   # a side branch joining at mid-slope: Y-shaped headwaters
+        bx = sx + rng.choice([-1, 1]) * rng.randint(350, 600)
+        d["rivers"].append({"points": [[bx, sz + rng.randint(-150, 150)], [int(mid[0]), int(mid[1])]],
+                            "width": 16, "biome": 150, "meander": 120, "valley": 120})
+
+# A few tributaries from the south side too (out of the lake country into the main river).
+for x, z0 in [(-4700, -2400)]:            # one southern tributary, was four
+    fz = foot_z(x, west)
+    d["rivers"].append({"points": [[x, z0], [x + 250, int((z0 + fz) / 2)], [x + 100, int(fz)]],
+                        "width": 22, "biome": 150, "meander": 150, "valley": 130})
+
+# --- rainforest lakes: a chain of bigger lakes strung along the foot ---------------------
+for at, r in [((-6500, -3500), 820), ((-500, -2650), 640), ((4400, -3500), 560)]:
+    d["ponds"].append({"at": list(at), "r": r, "biome": 243})
+
+# --- rain: the rainforest sheds a lot more water --------------------------------------------
+d["auto_rivers"]["rain"] = {"temperate rainforest": 1.8,
+                            "^bop rainforest|tropical rainforest": 4.5}
+
+
+class Dumper(yaml.SafeDumper):
+    pass
+
+
+def _list(dumper, data):
+    flow = all(isinstance(v, (int, float)) for v in data)
+    return dumper.represent_sequence("tag:yaml.org,2002:seq", data, flow_style=flow)
+
+
+Dumper.add_representer(list, _list)
+Dumper.add_representer(tuple, _list)
+with open(os.path.join(HERE, "main.yaml"), "w") as f:
+    f.write("# r11 main: generated by make_main.py from divide.yaml (rainforest belt + water)\n")
+    yaml.dump(d, f, Dumper=Dumper, sort_keys=False, default_flow_style=False)
+print("wrote main.yaml")
