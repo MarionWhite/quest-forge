@@ -4,7 +4,7 @@ What the pack should look like, in order of priority. The critic scores every
 frame against this document and the owner's taste profile; when they disagree,
 the owner's answers win and this file is updated to match.
 
-**Version 5**, 2026-10-24: drafted 2026-10-16 from [`research/desirability.md`](research/desirability.md);
+**Version 7**, 2026-10-24 (r006 answers): drafted 2026-10-16 from [`research/desirability.md`](research/desirability.md);
 the Shader Lab answers to round 0 (2026-10-18), round 1 (2026-10-21), round 2 (2026-10-23),
 round 3 (2026-10-23 evening) and round 4 (2026-10-24) are folded in below.
 
@@ -134,7 +134,30 @@ folded in 2026-10-21), and round 2, answered 2026-10-23 from a phone (issue #3,
 `feedback/r003.json`; folded in the same evening), and round 4, answered 2026-10-24 (issue #5,
 `feedback/r004.json`). Each later round's picks, ratings and notes
 are added here. Where these contradict a rule above, these win. Round 5 answered 2026-10-24
-(issue #6, `feedback/r005.json`).
+(issue #6, `feedback/r005.json`). Round 6 answered 2026-10-24 (issue #7, `feedback/r006.json`).
+
+- **Round 6 overall:** "Water is improving drastically ... see all of the feedback ramped up. I want to
+  fall in love with the visuals." Likes Minecraft's block designs, but wants **added detail** on some
+  blocks (Faithful's stone, gold, iron, glowstone, glass and diamond, for the resolution), **connected
+  textures** where they apply (glass above all), **light that interacts with blocks realistically**,
+  and **a little more vibrance** (a Vibrance option, QF_VIBRANCE, since r007). Dislikes Faithful's grass
+  ("noisy green carpet") and is "not in love with the style" of Faithful: the texture direction is open,
+  worked on in parallel. **Renders use vanilla textures** unless a question is about textures
+  (Faithful hurt the forest light).
+  - **Water: a huge win.** Water-sunset A 5/5 ("very fucking nice ... the light interaction"), lake A
+    5/5 but splotchy where little light reaches, noon A 5/5 (open to more), biomes: coast and ocean
+    "unbelievable", river and swamp as the critic said. **New: biome borders on water blend** (ocean
+    into swamp and so on): pleasant gradients, never stark cutoffs; water colour and fog both.
+  - **Dust motes:** no longer visible. Make them visible, tastefully.
+  - **Clouds (A, 4/5):** better, room to improve. **Golden (A, 4/5):** sharper, cinematic highlights on
+    the cloud edges (silver linings, rim light).
+  - **Sunset sky (A, 5/5):** water much better, clouds somewhat, **"the sun has not improved at all"**:
+    a real sun (true size, sharp limb-darkened disk, reddening at the horizon, glare that does not wash
+    out; a lens effect only if subtle).
+  - **Forest light (C, round 5's, 4/5):** round 5's frame is warmer with better-formed rays.
+  - **Night sky (B, the photographic Milky Way):** "fucking beautiful": in the rotation, with more nights.
+    **New: a meteor shower night** of the same quality, all night long, nearly free. Night clouds
+    (A, 5/5) "look pretty good and have shape".
 
 - **Round 5 overall:** "Have we switched to faithful yet?" Wants "stronger progress on the water
   and light quality ... a serious jump in quality this iteration", not small tweaks.
