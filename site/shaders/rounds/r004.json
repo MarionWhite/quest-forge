@@ -3,7 +3,7 @@
  "id": "r004",
  "title": "New defaults, water and cloud directions, and texture packs",
  "intro": "Your round 3 answers are now the defaults: round 2's golden hour and leaves, round 2's lively sunset water, a new moon at 0.25 and the warmer torches. The orange cone below the sun is gone. It came from the aerial-perspective term, not the water, and is fixed whether aerial is on or off. Also fixed: river water is clear and neutral instead of cyan, river_noon's highlight no longer clips, and the near-water flecks are back at about half of round 3. Not in this round, on purpose: the sun-core sparkle and the stronger motes were built and rendered, but in the critic's check (and mine) they still look identical to off, so showing them would repeat round 3's \"these all look the exact same\". They come back once they read clearly in a still frame. The last three questions are directions to choose together: water from other packs' approaches (links only, plus real photos), cloud inspiration (photos) and a texture pack. Every render shows its cost per frame on High at 1440p. The budget is 3 ms; the dearest frame here is about 1.05 ms.",
- "status": "open",
+ "status": "closed",
  "created": "2026-10-23",
  "scenes": [
   {

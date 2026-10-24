@@ -40,9 +40,18 @@
    "n": 4,
    "id": "r004",
    "title": "New defaults, water and cloud directions, and texture packs",
-   "status": "open",
+   "status": "closed",
    "created": "2026-10-23",
    "scenes": 11,
+   "feedback": true
+  },
+  {
+   "n": 5,
+   "id": "r005",
+   "title": "Real clouds, light shafts, night skies and calm water",
+   "status": "open",
+   "created": "2026-10-24",
+   "scenes": 12,
    "feedback": false
   }
  ]

@@ -1,0 +1,332 @@
+{
+ "n": 5,
+ "id": "r005",
+ "title": "Real clouds, light shafts, night skies and calm water",
+ "intro": "Your round 4 answers are built in. Clouds are now real: a raymarched layer of broken clouds that drifts, billows and changes from day to day, with silver linings, darker bases, shadows on the land and reflections in the water. This is the first version, not the final sky. Light shafts bring back the warm light through the trees. The water is now a calm mirror heading towards Complementary's and Photon's realism, with steady glints under a low sun that finally show in a still frame (r004's flickered and blurred away). Haze now depends on how far the land is below you, not just how far away it is. Flecks are at 125% of round 3. Night skies rotate between three looks. Rivers and swamps have their own water. You can now attach reference images to every question once the relay is updated (drag, drop, paste or pick). Every render shows its cost per frame on High at 1440p: the budget is 3 ms, and the dearest frame here is about 2.1 ms. The clouds are the dearest new feature (about 0.5-0.8 ms), then the light shafts (about 0.3-0.5 ms). The clouds move, so they differ a little between renders of the same view even when the option being compared has nothing to do with them. Not in this round: the ambient motes. They show as dust over the water now, but the torch dust still doesn't read and the bubbles under water are the game's own, so a motes question would look the same either way.",
+ "status": "open",
+ "created": "2026-10-24",
+ "scenes": [
+  {
+   "id": "clouds",
+   "name": "Dramatic broken clouds, first version",
+   "question": "Your D pick, built for real: a raymarched cloud layer (not a picture), lit by the sun and the sky, moving with the wind and changing each day. A has the clouds, B the same noon sky without them. The photo is the D reference from round 4.",
+   "notePrompt": "Is this the right start? What is most wrong: shape, size, softness, brightness, how much sky they cover?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Clouds (new default)",
+     "img": "r005/clouds-A.jpg",
+     "critic": "Critic 6: Real clouds at last: crisp edges, grey undersides, bright sunlit rims. But the big overhead mass still shows brush-like streaks fanning from the zenith, and it covers a lot of the sky. A first version, not yet 'truly beautiful'.",
+     "ms": 1.56,
+     "ref": {
+      "img": "r005/ref-clouds-A.jpg",
+      "credit": "Brocken Inaglory, retouched by User:Flamurai, CC BY-SA 3.0, via Wikimedia Commons",
+      "source": "https://commons.wikimedia.org/wiki/File:Sunset_clouds_and_crepuscular_rays_over_pacific_edit.jpg",
+      "title": "Sunset clouds and crepuscular rays over pacific edit.jpg"
+     }
+    },
+    {
+     "key": "B",
+     "label": "No clouds",
+     "img": "r005/clouds-B.jpg",
+     "critic": "Critic 4: A clean blue gradient with nothing in it: the bland noon sky you called out in round 2.",
+     "ms": 1.02
+    }
+   ]
+  },
+  {
+   "id": "sunset-sky",
+   "name": "Sunset over open water, with and without clouds",
+   "question": "A new view west over the open ocean, into a sun 9 degrees up, with nothing to shade the water. A is the new default, B is the same frame without clouds.",
+   "notePrompt": "Is this the kind of beauty you were after? What should change first?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Clouds (new default)",
+     "img": "r005/sunset-sky-A.jpg",
+     "critic": "Critic 8: The best frame of the round: broken gold clouds catching the low sun, a glowing gap at the sun, and a calm blue sea with a bright broken path and glints. Clouds near the top are a little soft and smeared.",
+     "ms": 2.03
+    },
+    {
+     "key": "B",
+     "label": "No clouds",
+     "img": "r005/sunset-sky-B.jpg",
+     "critic": "Critic 6: The same calm water and sun path under an empty gradient: clean, but none of the drama.",
+     "ms": 1.34
+    }
+   ]
+  },
+  {
+   "id": "sunset-water",
+   "name": "Calm mirror water under a low sun",
+   "question": "Your A from round 4 (calm mirror), heading for Complementary's and Photon's realism. A is the new default with steady glints right under the sun. B is the same calm water without them. C is round 4's lively water for comparison. The photo is round 4's calm-mirror reference.",
+   "notePrompt": "Which is closest? Are the glints under the sun the 'light intensity depth' you meant?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Calm mirror + glints (new default)",
+     "img": "r005/sunset-water-A.jpg",
+     "critic": "Critic 8: The best frame of the round: broken gold clouds catching the low sun, a glowing gap at the sun, and a calm blue sea with a bright broken path and glints. Clouds near the top are a little soft and smeared.",
+     "ms": 2.03,
+     "ref": {
+      "img": "r005/ref-sunset-water-A.jpg",
+      "credit": "PattayaPatrol, CC BY-SA 4.0, via Wikimedia Commons",
+      "source": "https://commons.wikimedia.org/wiki/File:DSC_7757_Golden_sun_dips_toward_the_horizon_casting_a_shimmering_path_across_calm_waters_as_evening_settles_over_a_quiet_shoreline.jpg",
+      "title": "DSC 7757 Golden sun dips toward the horizon casting a shimmering path across calm waters as evening settles over a quiet shoreline.jpg"
+     }
+    },
+    {
+     "key": "B",
+     "label": "Calm mirror, no glints",
+     "img": "r005/sunset-water-B.jpg",
+     "critic": "Critic 7: Same calm mirror without the steady glints: the path is a smoother column under the sun; less sparkle and depth right below it.",
+     "ms": 2.01
+    },
+    {
+     "key": "C",
+     "label": "Round 4's lively water",
+     "img": "r005/sunset-water-C.jpg",
+     "critic": "Critic 6: Round 4's lively water: choppier, the sun path spread into a wide shimmering band; busier and less mirror-like than A.",
+     "ms": 2.02
+    }
+   ]
+  },
+  {
+   "id": "lake-sunset",
+   "name": "The lake at sunset, calm",
+   "question": "The round 4 lake view with the new calm water and clouds (A) against round 4's lively water with the same clouds (B).",
+   "notePrompt": "Better? What does the lake still need?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Calm mirror (new default)",
+     "img": "r005/lake-sunset-A.jpg",
+     "critic": "Critic 6: Calm water now mirrors the cliff and sky; the clouds glow amber over the sun. The near water is still very dark teal, and the clouds above the sun are large, smooth blobs.",
+     "ms": 1.84
+    },
+    {
+     "key": "B",
+     "label": "Round 4's lively water",
+     "img": "r005/lake-sunset-B.jpg",
+     "critic": "Critic 6: Lively water: more ripple texture in the foreground and a more broken path; the reflections are less clean.",
+     "ms": 1.83
+    }
+   ]
+  },
+  {
+   "id": "forest-light",
+   "name": "Warm light through the trees",
+   "question": "Light shafts: sunlit air measured through the shadow map, so trunks and leaves cut the low sun into beams, warm at golden hour. A is the new default, B is twice as strong, C has none (round 4). The photo shows the real effect.",
+   "notePrompt": "Which? Is this the cinematic light you expected, or should the beams be sharper and more visible?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Shafts (new default)",
+     "img": "r005/forest-light-A.jpg",
+     "critic": "Critic 7: Warm sunlit air glows through the gap and around the trees on the right; the clearing feels like late afternoon. The beams themselves are soft rather than distinct rays.",
+     "ms": 1.45,
+     "ref": {
+      "img": "r005/ref-forest-light-A.jpg",
+      "credit": "Jakub Hałun, CC BY 4.0, via Wikimedia Commons",
+      "source": "https://commons.wikimedia.org/wiki/File:Crepuscular_rays_in_the_forest_near_Przeginia_Duchowna,_Lesser_Poland_Voivodeship,_20240225_0830_6640.jpg",
+      "title": "Crepuscular rays in the forest near Przeginia Duchowna, Lesser Poland Voivodeship, 20240225 0830 6640.jpg"
+     }
+    },
+    {
+     "key": "B",
+     "label": "Stronger shafts",
+     "img": "r005/forest-light-B.jpg",
+     "critic": "Critic 7: Stronger: distinct rays fan out right of the centre tree and the air glows amber. Close to the reference photo's mood; at the edge of looking hazy.",
+     "ms": 1.43
+    },
+    {
+     "key": "C",
+     "label": "No shafts (round 4)",
+     "img": "r005/forest-light-C.jpg",
+     "critic": "Critic 5: No shafts: round 4's cooler, flatter clearing (the critic's round 4 complaint).",
+     "ms": 1.12
+    }
+   ]
+  },
+  {
+   "id": "leaves",
+   "name": "The lit clearing, with shafts",
+   "question": "The forest_lit view (low sun behind you) with the new default shafts (A) and the stronger ones (B).",
+   "notePrompt": "Do the lit leaves and trunks read well? Too much haze in B?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Shafts (new default)",
+     "img": "r005/leaves-A.jpg",
+     "critic": "Critic 7: Lit canopy and birch trunks against warm clouds; a light warm haze in the distance. Ground still one dark green mass.",
+     "ms": 1.53
+    },
+    {
+     "key": "B",
+     "label": "Stronger shafts",
+     "img": "r005/leaves-B.jpg",
+     "critic": "Critic 6: More warm haze in the distance and between trunks; with the sun behind you it mostly lowers contrast.",
+     "ms": 1.47
+    }
+   ]
+  },
+  {
+   "id": "hills",
+   "name": "Haze by height below you",
+   "question": "Your B from round 4 (aerial perspective on), now with haze that depends on how far the land is below the camera: full where the land drops away, light over land at eye level. A is the new default; B is round 4's distance-only haze. Both have the new clouds.",
+   "notePrompt": "Does A keep the colour at eye level while keeping the haze you liked where the land drops?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Height-aware haze (new default)",
+     "img": "r005/hills-A.jpg",
+     "critic": "Critic 6: The grass and ridges at eye level keep their colour, while the valley on the left fades into haze. Clouds give the sky something; their shadows dapple the land.",
+     "ms": 1.54
+    },
+    {
+     "key": "B",
+     "label": "Distance only (round 4 B)",
+     "img": "r005/hills-B.jpg",
+     "critic": "Critic 5: Distance-only haze: the mid-distance at eye level is a little paler and flatter than A. Clouds differ only because they drift between renders.",
+     "ms": 1.48
+    }
+   ]
+  },
+  {
+   "id": "golden",
+   "name": "Golden hour with clouds",
+   "question": "Your golden-hour default with the new clouds and haze (A) and without clouds (B). The critic and you found the horizon band flat; the clouds are one answer.",
+   "notePrompt": "Do the clouds help the golden hour? Their colour here?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Clouds (new default)",
+     "img": "r005/golden-A.jpg",
+     "critic": "Critic 6: Warm cloud bands and cloud shadows give the wide view depth, and the lit ridge glows. But the clouds near the horizon are streaky and a little brown.",
+     "ms": 1.86
+    },
+    {
+     "key": "B",
+     "label": "No clouds",
+     "img": "r005/golden-B.jpg",
+     "critic": "Critic 5: No clouds: the flat horizon band you and the critic called flat.",
+     "ms": 1.16
+    }
+   ]
+  },
+  {
+   "id": "night-sky",
+   "name": "A rotation of night skies",
+   "question": "You asked for more texture in the night sky and a rotation so it isn't samey. Three nights, shown here without clouds at new moon: A a deep clear sky with many faint stars, B faint airglow bands near the horizon, C a Milky Way with dust lanes. The land light is unchanged. The game picks one each night; a bright moon washes out the faint ones, as in life.",
+   "notePrompt": "Which belong in the rotation? Which do you love, and which should go?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Deep clear",
+     "img": "r005/night-sky-A.jpg",
+     "critic": "Critic 6: A deep navy sky dense with faint stars; textured, calm, no single feature.",
+     "ms": 0.95
+    },
+    {
+     "key": "B",
+     "label": "Airglow",
+     "img": "r005/night-sky-B.jpg",
+     "critic": "Critic 6: A faint green airglow band low over the hills with a hint of red above: subtle, and easy to miss on a dim screen.",
+     "ms": 1.01
+    },
+    {
+     "key": "C",
+     "label": "Milky Way",
+     "img": "r005/night-sky-C.jpg",
+     "critic": "Critic 7: A soft Milky Way band with a dark dust lane rises across the sky: the most striking of the three. Still a first version; the band is narrow.",
+     "ms": 1.09
+    }
+   ]
+  },
+  {
+   "id": "night-new",
+   "name": "New moon over the lake, with the rotation",
+   "question": "The round 4 new-moon view: A is the default as the game draws it tonight (night clouds included), B is the Milky Way night without clouds.",
+   "notePrompt": "Is the land still the deep, rich dark you picked? Night clouds: keep, fewer, none?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Tonight's sky (default)",
+     "img": "r005/night-new-A.jpg",
+     "critic": "Critic 6: Tonight's draw with thin night clouds: dark broken clouds hide part of the stars. The land is as dark as round 4.",
+     "ms": 2.11
+    },
+    {
+     "key": "B",
+     "label": "Milky Way, clear",
+     "img": "r005/night-new-B.jpg",
+     "critic": "Critic 7: The Milky Way rising at the right over the dark lake; the land unchanged.",
+     "ms": 1.45
+    }
+   ]
+  },
+  {
+   "id": "water-biomes",
+   "name": "River, lake and swamp water",
+   "question": "From your round 4 answer: rivers now have their own slightly green, half-clear water and a much smaller noon glint; swamps have silt that hides the bed; the lake (your 5/5) is unchanged apart from the calm surface. Photos for the river and the swamp are the round 3 references.",
+   "notePrompt": "Which is off, and how?",
+   "options": [
+    {
+     "key": "A",
+     "label": "River at noon",
+     "img": "r005/water-biomes-A.jpg",
+     "critic": "Critic 5: The water is now green-teal and half-clear, but a bright white patch still sits at the bottom centre: now it is mostly the clouds overhead mirrored in calm water.",
+     "ms": 1.74,
+     "ref": {
+      "img": "r005/ref-water-biomes-A.jpg",
+      "credit": "amanderson2, CC BY 2.0, via Wikimedia Commons",
+      "source": "https://commons.wikimedia.org/wiki/File:Clear_River_water_Bled_Vintgar_Slovenia_(8095482709).jpg",
+      "title": "Clear River water Bled Vintgar Slovenia (8095482709).jpg"
+     }
+    },
+    {
+     "key": "B",
+     "label": "Lake at noon",
+     "img": "r005/water-biomes-B.jpg",
+     "critic": "Critic 7: Clear lake water, sand island and clean reflections of the new clouds.",
+     "ms": 1.91
+    },
+    {
+     "key": "C",
+     "label": "Swamp",
+     "img": "r005/water-biomes-C.jpg",
+     "critic": "Critic 6: Murkier olive-green; the bed is mostly hidden. Still a bit too green rather than brown-olive.",
+     "ms": 1.88,
+     "ref": {
+      "img": "r005/ref-water-biomes-C.jpg",
+      "credit": "JamesDeMers, CC0, via Wikimedia Commons",
+      "source": "https://commons.wikimedia.org/wiki/File:Bayou-439881.jpg",
+      "title": "Bayou-439881.jpg"
+     }
+    }
+   ]
+  },
+  {
+   "id": "flecks",
+   "name": "Flecks at 125% of round 3",
+   "question": "Your ask: 125% of round 3's flecks. A has them (the new default), B none.",
+   "notePrompt": "Right amount now?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Flecks at 125% (new default)",
+     "img": "r005/flecks-A.jpg",
+     "critic": "Critic 8: Deep blue with clouds mirrored; small pale flecks dot the near water. Some flecks read slightly lilac.",
+     "ms": 1.89
+    },
+    {
+     "key": "B",
+     "label": "No flecks",
+     "img": "r005/flecks-B.jpg",
+     "critic": "Critic 7: No flecks: the near water is plainer. The cloud reflections differ only because the clouds drift between renders.",
+     "ms": 1.89
+    }
+   ]
+  }
+ ]
+}
