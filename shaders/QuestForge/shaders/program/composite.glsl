@@ -340,6 +340,9 @@ vec3 shadeWaterAbove(vec3 color, vec3 n, float var, vec3 scene0, float dist0, ve
     // path fades toward the camera instead of ending in a blown patch at your feet.
     float balance = mix(0.40, 1.0, smoothstep(2.0, 60.0, dist0));
     spec *= mix(0.55, 1.0, smoothstep(2.0, 30.0, dist0));
+    // A high sun on the near water: a field of blinding facets read as the river's white patch
+    // (r004-r005 critic, owner r005: follow the critic). Tamed by day, full at golden hour.
+    spec *= mix(0.35, 1.0, gh);
     // The long column at low sun (owner r005: lively's reach): a broad lobe, balanced by distance.
     float a2b = mix(0.004, 0.050, gh) + 2.0 * var;
     float broad = ggx(NdotH, a2b) * G;

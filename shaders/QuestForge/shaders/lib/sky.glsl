@@ -377,13 +377,13 @@ vec3 applyClouds(vec3 L, vec3 dir) {
 // All noise comes from qfNoise (one fetch per lookup), cheaper than r005's hashed value noise.
 const float CL_BASE = 300.0, CL_TOP = 470.0, CL_SCALE = 1.0 / 520.0, CL_SIGMA = 0.16;
 #if QF_PRESET >= 3
-const int CL_STEPS = 18;
+const int CL_STEPS = 24;
 #elif QF_PRESET == 2
-const int CL_STEPS = 12;
+const int CL_STEPS = 16;
 #elif QF_PRESET == 1
-const int CL_STEPS = 8;
+const int CL_STEPS = 9;
 #else
-const int CL_STEPS = 5;
+const int CL_STEPS = 6;
 #endif
 vec2 cloudWind() { return vec2(animTime() * 3.2, animTime() * 1.1); }
 float cloudNight() { return 1.0 - smoothstep(-0.12, 0.04, sunDirWorld().y); }
@@ -476,7 +476,10 @@ vec4 cloudMarch(vec3 dir, int steps, float jitter) {
     if (dir.y < 0.012 || camY > CL_BASE) return vec4(0.0, 0.0, 0.0, 1.0);
     float t0 = (CL_BASE - camY) / dir.y;
     if (t0 > 20000.0) return vec4(0.0, 0.0, 0.0, 1.0);
-    float t1 = min((CL_TOP - camY) / dir.y, t0 + 700.0);
+    // jh: overhead masses still fanned into brush streaks. They were undersampling along the ray:
+    // a 30-40 block step blurs each cloud edge along the ray, and on screen "along the ray" points
+    // away from the zenith. Shorter segments, fine steps inside cloud, long strides through air.
+    float t1 = min((CL_TOP - camY) / dir.y, t0 + 520.0);
     float dt = (t1 - t0) / float(steps);
     CloudLight c = cloudLight();
     float mu = dot(dir, c.L);
@@ -495,9 +498,9 @@ vec4 cloudMarch(vec3 dir, int steps, float jitter) {
             S += T * lum * (1.0 - Ts);
             T *= Ts;
             if (T < 0.02) break;
-            t += dt;
+            t += dt * 0.6;
         } else {
-            t += dt * 1.6;   // empty air: stride on
+            t += dt * 1.5;   // empty air: stride on
         }
         if (t > t1) break;
     }
