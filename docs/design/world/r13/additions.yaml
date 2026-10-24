@@ -1,0 +1,43 @@
+# r13 additions on top of r12 main + its feature slots (merged by merge.py).
+
+regions:
+  # Southern desert lobe
+  - {tier: 2, biome: 186, base: 70, relief: 10, circle: [3500, 12400, 650], exact: true}     # BoP Oasis at the sinkhole floor
+  # Tropical south-east lobe
+  - {tier: 3, biome: 195, base: 72, relief: 60, circle: [15500, 13000, 1250], exact: true}   # BoP Rainforest on the tepui
+  - {tier: 3, biome: 245, base: 72, relief: 60, circle: [17600, 15200, 900], exact: true}    # BoP Tropical Rainforest crater
+
+plateaus:
+  # Three desert buttes: sheer-sided, flat-topped
+  - {circle: [8200, 15200, 520], top: 128, wall: 40, top_relief: 4, relief: 20, biome: 37}
+  - {circle: [9100, 15900, 380], top: 118, wall: 40, top_relief: 4, relief: 20, biome: 37}
+  - {circle: [8700, 14500, 300], top: 112, wall: 40, top_relief: 4, relief: 20, biome: 37}
+  # Jungle tepui, a river spilling off its north-west edge
+  - {circle: [15500, 13000, 1050], top: 150, wall: 60, top_relief: 10, relief: 50, biome: 195, tier: 3}
+
+ridges:
+  # Desert sinkhole: a low rim round a deep oasis pool
+  - {arc: [3500, 12400, 620, 0, 360], height: 104, width: 380, relief: 90}
+  # Jungle crater: a forested ring round a crater lake
+  - {arc: [17600, 15200, 720, 0, 360], height: 128, width: 520, relief: 120, biome: 245, biome_above: 0.3}
+
+ponds:
+  - {at: [3500, 12400], r: 430, depth: 28, biome: 186}
+  - {at: [17600, 15200], r: 520, depth: 22, biome: 245}
+
+canyons:
+  # Two passes through the divide: saddles cut across the crest where the massifs meet
+  - {points: [[-5750, -7500], [-5750, -6300], [-5720, -5100]], width: 900, depth: 70, meander: 80}
+  - {points: [[3080, -7650], [3080, -6450], [3110, -5250]], width: 900, depth: 70, meander: 80}
+
+rivers:
+  - {points: [[15300, 12600], [14700, 12200], [13900, 11900], [12900, 11600]], width: 32, biome: 150, meander: 120}
+
+points:
+  - {name: Desert buttes, kind: landmark, x: 8600, z: 15300}
+  - {name: Sinkhole oasis, kind: landmark, x: 3500, z: 12400}
+  - {name: Jungle tepui, kind: landmark, x: 15500, z: 13000}
+  - {name: Tepui falls, kind: landmark, x: 14650, z: 12250}
+  - {name: Crater lake, kind: landmark, x: 17600, z: 15200}
+  - {name: West pass, kind: landmark, x: -5750, z: -6300}
+  - {name: East pass, kind: landmark, x: 3080, z: -6450}
