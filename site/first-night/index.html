@@ -23,7 +23,7 @@
   --ember:#A33F17; --ember-ink:#8E3712; --ember-wash:rgba(163,63,23,.10);
   --patina:#2C4A43; --patina-wash:rgba(44,74,67,.12);
   --shadow:rgba(23,27,25,.10);
-  --night:#0E0B12; --night-ink:#ECE6F2; --night-2:#B9AFC6; --glow:#F08A3C;
+  --night:#0E0B12; --night-ink:#ECE6F2; --night-2:#B9AFC6; --glow:#F08A3C; --lav:#C9A2FF;
 }
 @media (prefers-color-scheme:dark){
   :root:not([data-theme="light"]){
@@ -92,7 +92,7 @@ h1 .amp{color:var(--ember);font-weight:600}
 .toc li a.on{color:var(--ember-ink);border-color:var(--ember)}
 
 /* ---- sections ---- */
-.step{padding:0 0 44px;scroll-margin-top:16px;max-width:760px}
+.step{position:relative;padding:0 0 44px;scroll-margin-top:16px;max-width:760px}
 .step h2{font-size:clamp(24px,3vw,30px);font-weight:800;letter-spacing:-.022em;margin:0 0 6px;line-height:1.12}
 .step h3{font-size:17px;font-weight:700;margin:22px 0 6px;letter-spacing:-.01em}
 .step p{margin:10px 0 0;color:var(--ink-2);font-size:15.5px}
@@ -150,7 +150,53 @@ footer.site a:hover{color:var(--ember-ink);border-color:var(--ember)}
   table{font-size:14px}
   td,th{padding-right:8px}
 }
-@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+/* ---- the Weeping Angel: a rail at the foot of the night section, pinned to the bottom of the screen ---- */
+.angel-rail{position:sticky;bottom:16px;height:0;z-index:5;pointer-events:none}
+.angel-rail.beside{position:absolute;left:0;right:0;top:0}
+.angel-rail .angel{position:absolute;right:calc(-1 * var(--ax,0px));bottom:0}
+.angel-rail.beside .angel{top:0;bottom:auto}
+.angel{--aw:56px;display:block;width:var(--aw);margin:0;padding:0;border:0;background:none;pointer-events:auto;
+  cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M4 20L15 9' stroke='%23C9A2FF' stroke-width='2.4' stroke-linecap='round'/%3E%3Cpath d='M2 9Q12-1 22 9L20 10.5Q12 5 4 10.5Z' fill='%23B9AFC6' stroke='%23171B19' stroke-width='1' stroke-linejoin='round'/%3E%3C/svg%3E") 4 20, pointer;
+  opacity:.42;filter:drop-shadow(0 0 6px rgba(201,162,255,.35));transition:width .8s ease,opacity .8s ease}
+.angel[hidden]{display:none}
+.angel[data-stage="2"]{--aw:78px;opacity:.8}
+.angel[data-stage="3"]{--aw:94px;opacity:.95}
+.angel[data-stage="4"]{--aw:102px;opacity:1}
+.angel svg{display:block;width:100%;height:auto;overflow:visible}
+.angel .s-d{fill:#3A3642}.angel .s-m{fill:#5E5A68}.angel .s-l{fill:#8A8496}.angel .s-h{fill:#B2ACBB}.angel .rim{fill:#C9A2FF;opacity:.9}
+.angel[data-pose="reach"] .weep,.angel[data-pose="weep"] .reach{display:none}
+.angel:focus-visible{outline:2px solid var(--lav);outline-offset:4px;border-radius:2px}
+.angel.crumbling svg{animation:crumble .9s ease-in forwards}
+.angel .bit{position:absolute;left:46%;top:44%;width:5px;height:5px;background:#8A8496;animation:bit .9s ease-out forwards}
+.angel-rail.gone .angel{opacity:0;transition:opacity .6s}
+@keyframes crumble{0%{opacity:1}55%{opacity:.8;transform:translateY(3px) skewX(2deg)}100%{opacity:0;transform:translateY(34px) rotate(5deg)}}
+@keyframes bit{to{transform:translate(var(--dx),var(--dy)) rotate(var(--r));opacity:0}}
+.angel-flash{position:fixed;inset:0;z-index:20;pointer-events:none;opacity:0;
+  background:radial-gradient(ellipse at 85% 90%,rgba(201,162,255,.42),rgba(201,162,255,.1) 55%,transparent 75%)}
+.angel-flash.go{animation:angelFlash .9s ease-out}
+@keyframes angelFlash{0%{opacity:0}18%{opacity:1}100%{opacity:0}}
+.angel-toast{position:fixed;left:50%;bottom:22px;z-index:21;margin:0;transform:translate(-50%,12px);width:max-content;max-width:min(92vw,460px);
+  padding:11px 16px;background:#14101C;color:#ECE6F2;border:1px solid rgba(201,162,255,.35);border-radius:3px;
+  font-family:Archivo,sans-serif;font-size:14.5px;line-height:1.4;opacity:0;pointer-events:none;transition:opacity .35s ease,transform .35s ease;
+  box-shadow:0 10px 30px rgba(0,0,0,.35)}
+.angel-toast.on{opacity:1;transform:translate(-50%,0)}
+.angel-toast cite{display:block;margin-top:4px;font-style:normal;font-family:"JetBrains Mono",monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--lav)}
+@media (max-width:640px){
+  /* No gutter on a phone, so the angel docks in a strip of its own at the foot of the section
+     instead of floating over the words. It still only moves while unobserved. */
+  .angel-rail,.angel-rail.beside{position:static;height:auto;display:flex;justify-content:flex-end;padding-top:12px}
+  .angel-rail .angel,.angel-rail.beside .angel{position:static;right:auto;bottom:auto;top:auto}
+  .angel{--aw:52px}
+  .angel[data-stage="2"]{--aw:64px}
+  .angel[data-stage="3"]{--aw:76px}
+  .angel[data-stage="4"]{--aw:84px}
+  .angel-toast{bottom:14px;font-size:13.5px}
+}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .angel,.angel-rail.gone .angel{transition:none}
+  .angel.crumbling svg,.angel .bit,.angel-flash.go{animation:none}
+}
 </style>
 </head>
 <body>
@@ -222,11 +268,11 @@ footer.site a:hover{color:var(--ember-ink);border-color:var(--ember)}
     <tr><td><kbd>M</kbd></td><td>Choose your gravestone design (GraveStones). A new one unlocks every 5 levels.</td></tr>
     <tr><td><kbd>R</kbd> <kbd>U</kbd></td><td>Over any item in an inventory: R shows how it is made, U what it goes into (NEI). The quickest way to learn a mod you have never seen.</td></tr>
     <tr><td><kbd>V</kbd></td><td>Menu for the record you are pointing at.</td></tr>
-    <tr><td><kbd>B</kbd></td><td>Push-to-talk for voice chat, and the Adventure Backpack's inventory key. <b>Both are B.</b></td></tr>
-    <tr><td><kbd>N</kbd></td><td>Mutes your microphone. The backpack's Toggle Action Key also defaults to N.</td></tr>
+    <tr><td><kbd>Tab</kbd></td><td>Push-to-talk for voice chat. Holding it also shows the player list.</td></tr>
+    <tr><td><kbd>U</kbd></td><td>Mutes your microphone. Inside an inventory, U is still NEI's uses.</td></tr>
+    <tr><td><kbd>B</kbd></td><td>Opens the Adventure Backpack you wear.</td></tr>
+    <tr><td><kbd>N</kbd></td><td>The backpack's hose: switch its tank and mode.</td></tr>
   </table>
-  <div class="note"><b>B collides.</b> Voice push-to-talk and the Adventure Backpack's inventory key are both bound to B.
-    Until you rebind one of them in Controls, a press of B does both. Rebind one now, before you need either.</div>
 </section>
 
 <section class="step" id="night">
@@ -237,7 +283,7 @@ footer.site a:hover{color:var(--ember-ink);border-color:var(--ember)}
       <p>They walk through an open door. Fight from the doorway, and step back inside when you are under half health.</p></div>
     <div class="card"><span class="for">Roughly one mob in fifteen</span><h3>Infernal names</h3>
       <p>A long name and extra modifiers: more health, more powers, enchanted loot. The quest <i>The Name Was Longer</i> asks you to survive one.</p></div>
-    <div class="card pick"><span class="for">Below Y 40, light level 8 or less</span><h3>Weeping Angels</h3>
+    <div class="card pick" id="weepCard"><span class="for">Below Y 40, light level 8 or less</span><h3>Weeping Angels</h3>
       <p>They move only while nobody looks, and only a pickaxe hurts them. A hit can teleport you 5 to 25 blocks away, or start an infection
         (10 percent). Light your mines, keep a pickaxe in the hotbar, and stay out of the dark below Y 40 until you have iron.
         They do not steal your inventory.</p></div>
@@ -246,6 +292,76 @@ footer.site a:hover{color:var(--ember-ink);border-color:var(--ember)}
         off in its config. If it is taller than your house, walk away.</p></div>
   </div>
   <p class="quote">Five is a good night. Six is when you learn to count.<span>Gate Log</span></p>
+  <div class="angel-rail" id="angelRail">
+    <button class="angel" id="angel" type="button" data-stage="1" data-pose="weep" hidden
+      aria-label="Weeping angel. Press to dismiss it. Only a pickaxe hurts them.">
+      <svg viewBox="0 0 48 64" aria-hidden="true" focusable="false" shape-rendering="crispEdges">
+        <rect class="s-d" x="8" y="56" width="32" height="8"/>
+        <rect class="s-m" x="6" y="54" width="36" height="3"/>
+        <rect class="s-l" x="6" y="54" width="36" height="1"/>
+        <g class="weep">
+          <rect class="s-m" x="5" y="13" width="9" height="26"/>
+          <rect class="s-d" x="3" y="19" width="6" height="25"/>
+          <rect class="s-d" x="2" y="30" width="4" height="18"/>
+          <rect class="s-l" x="6" y="15" width="2" height="22"/>
+          <rect class="rim" x="5" y="13" width="1" height="9"/>
+          <rect class="s-m" x="34" y="13" width="9" height="26"/>
+          <rect class="s-d" x="39" y="19" width="6" height="25"/>
+          <rect class="s-d" x="42" y="30" width="4" height="18"/>
+          <rect class="s-l" x="40" y="15" width="2" height="22"/>
+          <rect class="rim" x="42" y="13" width="1" height="9"/>
+        </g>
+        <g class="reach">
+          <g transform="rotate(-14 14 40)">
+            <rect class="s-m" x="4" y="8" width="10" height="32"/>
+            <rect class="s-d" x="2" y="14" width="6" height="30"/>
+            <rect class="s-d" x="0" y="26" width="4" height="20"/>
+            <rect class="s-l" x="6" y="10" width="2" height="26"/>
+            <rect class="rim" x="4" y="8" width="1" height="10"/>
+          </g>
+          <g transform="rotate(14 34 40)">
+            <rect class="s-m" x="34" y="8" width="10" height="32"/>
+            <rect class="s-d" x="40" y="14" width="6" height="30"/>
+            <rect class="s-d" x="44" y="26" width="4" height="20"/>
+            <rect class="s-l" x="40" y="10" width="2" height="26"/>
+            <rect class="rim" x="43" y="8" width="1" height="10"/>
+          </g>
+        </g>
+        <rect class="s-m" x="17" y="26" width="14" height="12"/>
+        <rect class="s-m" x="15" y="38" width="18" height="10"/>
+        <rect class="s-m" x="13" y="48" width="22" height="6"/>
+        <rect class="s-d" x="27" y="26" width="4" height="28"/>
+        <rect class="s-l" x="17" y="26" width="2" height="20"/>
+        <rect class="s-d" x="21" y="40" width="1" height="12"/>
+        <rect class="s-d" x="25" y="42" width="1" height="10"/>
+        <rect class="s-h" x="19" y="14" width="10" height="12"/>
+        <rect class="s-m" x="18" y="12" width="12" height="3"/>
+        <rect class="s-m" x="18" y="12" width="2" height="14"/>
+        <rect class="s-m" x="28" y="12" width="2" height="14"/>
+        <rect class="rim" x="18" y="12" width="1" height="8"/>
+        <g class="reach">
+          <rect class="s-d" x="21" y="18" width="2" height="2"/>
+          <rect class="s-d" x="25" y="18" width="2" height="2"/>
+          <rect class="s-d" x="22" y="22" width="4" height="3"/>
+          <rect class="s-m" x="11" y="26" width="4" height="18"/>
+          <rect class="s-m" x="9" y="42" width="4" height="5"/>
+          <rect class="s-h" x="8" y="46" width="4" height="3"/>
+          <rect class="s-m" x="33" y="26" width="4" height="18"/>
+          <rect class="s-m" x="35" y="42" width="4" height="5"/>
+          <rect class="s-h" x="36" y="46" width="4" height="3"/>
+        </g>
+        <g class="weep">
+          <rect class="s-m" x="13" y="26" width="4" height="10"/>
+          <rect class="s-m" x="15" y="18" width="4" height="9"/>
+          <rect class="s-m" x="31" y="26" width="4" height="10"/>
+          <rect class="s-m" x="29" y="18" width="4" height="9"/>
+          <rect class="s-h" x="19" y="15" width="5" height="6"/>
+          <rect class="s-h" x="24" y="15" width="5" height="6"/>
+          <rect class="s-d" x="23" y="15" width="1" height="6"/>
+        </g>
+      </svg>
+    </button>
+  </div>
 </section>
 
 <section class="step" id="dying">
@@ -266,7 +382,7 @@ footer.site a:hover{color:var(--ember-ink);border-color:var(--ember)}
   <p class="sum">Parties, voice chat, and a few things that are safer with friends.</p>
   <ul>
     <li><b>Parties.</b> Open the quest book, choose Party, and invite by name. A kill by any member counts for the party.</li>
-    <li><b>Voice chat.</b> Hold <kbd>B</kbd> to talk and <kbd>N</kbd> to mute. You hear a player within 40 blocks in the same
+    <li><b>Voice chat.</b> Hold <kbd>Tab</kbd> to talk (it also shows the player list) and press <kbd>U</kbd> to mute. You hear a player within 40 blocks in the same
       dimension, at full volume inside 6 blocks, fading to silence at 40. <code>/voice</code> shows your status;
       <code>/voice mode open</code> for an open mic; <code>/voice level</code> and <code>/voice threshold &lt;n&gt;</code> tune it.</li>
     <li><b>EnderStorage.</b> A chest shares its colour code with everyone unless it is locked with a diamond
@@ -283,7 +399,7 @@ footer.site a:hover{color:var(--ember-ink);border-color:var(--ember)}
     <tr><th>Item</th><th>What to know</th></tr>
     <tr><td>Lucky Block</td><td>Break it for one of about 300 outcomes: gear, ores, mobs, traps, explosions. Craft it with diamonds, gold or
       emeralds to raise its luck; rotten flesh or spider eyes lower it. The pack removed the boss-tier jackpots.
-      Quest: <i>Feeling Lucky?</i></td></tr>
+      Quest: <i>Feeling Lucky?</i> You can <a href="../lucky/">break one here</a> first, with the real odds.</td></tr>
     <tr><td>Loot Bag</td><td>Right-click to open for 1 to 5 random items from the pack's chest pools. Five tiers, Common to Legendary, and
       mobs drop one only when a player kills them. A Loot Recycler pays out Common bags for what you no longer want.
       Quest: <i>Loot Bag Basics</i>.</td></tr>
@@ -333,6 +449,8 @@ footer.site a:hover{color:var(--ember-ink);border-color:var(--ember)}
   <a href="https://github.com/MarionWhite/quest-forge">Source on GitHub</a>
   <span>An independent project. Minecraft belongs to Mojang and every mod to its author.</span>
 </div></footer>
+<div class="angel-flash" id="flash" aria-hidden="true"></div>
+<p class="angel-toast" id="toast" role="status"></p>
 
 <script>
 "use strict";
@@ -348,6 +466,107 @@ if ("IntersectionObserver" in window) {
   }, {rootMargin: "-10% 0px -70% 0px"});
   document.querySelectorAll(".step").forEach(s => io.observe(s));
 }
+</script>
+
+<script>
+"use strict";
+// The Weeping Angel (see the CSS above). It appears at the foot of this section once you reach it, and it moves
+// only while nobody looks. An unobserved period is one of: the tab is hidden; the angel is out of view for more
+// than two seconds; or the pointer has not moved for twenty seconds while the angel is out of view. Each period
+// ends when you look again, and then the angel advances one stage: 2 nearer and larger, 3 beside the card,
+// 4 reaching. The fourth period touches you. Click it (or press it) to dismiss it: only a pickaxe hurts them.
+// Reduced motion: no stages, a static angel, click to dismiss. Hash #angel=1 to #angel=4 forces a stage (for stills).
+(function angel() {
+  const rail = document.getElementById("angelRail"), btn = document.getElementById("angel"), night = document.getElementById("night");
+  const card = document.getElementById("weepCard"), toast = document.getElementById("toast"), flash = document.getElementById("flash");
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const forced = +((location.hash.match(/^#angel=([1-4])$/) || [])[1] || 0);
+  let gone = false;
+  try { gone = sessionStorage.getItem("qf-angel") === "gone"; } catch (e) {}
+  if (gone && !forced) { rail.remove(); return; }
+  const rnd = (a, b) => a + Math.random() * (b - a);
+  let stage = 0, pending = false, tabOK = !document.hidden, inView = false, offT = 0, tt = 0, lastMove = Date.now();
+
+  // Lay the rail out for the current stage. The sideways room is measured, and the rail goes beside the card only
+  // when there is a gutter wide enough for the angel; otherwise it stays pinned to the bottom corner.
+  function place() {
+    if (!stage) return;
+    const gap = document.documentElement.clientWidth - rail.getBoundingClientRect().right - 8;
+    rail.style.setProperty("--ax", Math.max(0, Math.min(110, gap)) + "px");
+    const beside = stage >= 3 && gap >= 90;
+    rail.classList.toggle("beside", beside);
+    rail.style.top = beside ? card.offsetTop + "px" : "";
+    btn.dataset.stage = stage;
+    btn.dataset.pose = stage === 4 ? "reach" : "weep";
+    btn.hidden = false;
+  }
+  function save() { try { sessionStorage.setItem("qf-angel", "gone"); } catch (e) {} }
+  function say(line, who) {
+    toast.textContent = "";
+    toast.append(line);
+    if (who) { const c = document.createElement("cite"); c.textContent = "- " + who; toast.append(c); }
+    toast.classList.add("on");
+    clearTimeout(tt); tt = setTimeout(() => toast.classList.remove("on"), 4600);
+  }
+  // The fourth unobserved period: a lavender flash, the page throws you back to the top, and the angel is gone.
+  function touch() {
+    gone = true; save();
+    rail.classList.add("gone");
+    flash.classList.remove("go"); void flash.offsetWidth; flash.classList.add("go");
+    scrollTo({top: 0, behavior: reduce ? "instant" : "smooth"});
+    setTimeout(() => say("It threw you. Twenty-five blocks, roughly.", "Survey Crew"), 350);
+    setTimeout(() => rail.remove(), 900);
+  }
+  function advance() {
+    if (stage === 4) return touch();
+    stage += 1; place();
+  }
+  // Decide whether the angel is being observed right now, and act on a change.
+  function sync() {
+    clearTimeout(offT);
+    if (!stage || forced || reduce || gone) return;
+    if (!tabOK) { pending = true; return; }                         // a hidden tab is unobserved at once
+    if (!inView) { offT = setTimeout(() => { pending = true; }, 2000); return; }
+    if (pending) { pending = false; advance(); }                    // observation resumes
+  }
+
+  // Click, or press with the keyboard: it crumbles, says so, and is gone for the session.
+  btn.addEventListener("click", () => {
+    if (gone) return;
+    gone = true; save();
+    say("Only a pickaxe hurts them.");
+    if (reduce) { rail.remove(); return; }
+    btn.classList.add("crumbling");
+    for (let i = 0; i < 8; i++) {
+      const b = document.createElement("i");
+      b.className = "bit";
+      b.style.setProperty("--dx", rnd(-60, 60).toFixed(0) + "px");
+      b.style.setProperty("--dy", rnd(10, 70).toFixed(0) + "px");
+      b.style.setProperty("--r", rnd(-200, 200).toFixed(0) + "deg");
+      b.style.animationDelay = rnd(0, 0.15).toFixed(2) + "s";
+      btn.append(b);
+    }
+    setTimeout(() => rail.remove(), 1000);
+  });
+
+  addEventListener("pointermove", () => { lastMove = Date.now(); }, {passive: true});
+  setInterval(() => {
+    if (stage && !pending && tabOK && !inView && !reduce && !forced && !gone && Date.now() - lastMove >= 20000) pending = true;
+  }, 1000);
+  new IntersectionObserver(es => { inView = es[0].isIntersecting; sync(); }, {threshold: 0}).observe(btn);
+  // The first appearance: once the section is on screen, the angel is at stage 1.
+  new IntersectionObserver(es => {
+    if (es[0].isIntersecting && !stage && !gone) { stage = 1; place(); sync(); }
+  }, {threshold: 0.2}).observe(night);
+  document.addEventListener("visibilitychange", () => { tabOK = !document.hidden; sync(); });
+  addEventListener("resize", place);
+
+  if (forced) {
+    stage = forced; place();
+    if (forced >= 3) card.scrollIntoView({block: "center", behavior: "instant"});
+    else scrollTo({top: night.getBoundingClientRect().top + scrollY - 40, behavior: "instant"});
+  }
+})();
 </script>
 
 <script>(function(){var b=document.querySelector('[data-theme-toggle]');if(!b)return;var h=document.documentElement,mq=matchMedia('(prefers-color-scheme: dark)');function mode(){try{var t=localStorage.getItem('qf-theme');return t==='light'||t==='dark'?t:'auto'}catch(e){return 'auto'}}function sys(){return mq.matches?'dark':'light'}function show(){var m=mode();b.dataset.mode=m;var s=m==='auto'?'Theme follows your system ('+sys()+')':'Theme: '+m;b.title=s+'. Click to switch.';b.setAttribute('aria-label',s)}b.addEventListener('click',function(){var m=mode(),s=sys(),n=(m==='auto'||m===s)?(s==='dark'?'light':'dark'):'auto';try{if(n==='auto')localStorage.removeItem('qf-theme');else localStorage.setItem('qf-theme',n)}catch(e){}if(n==='auto')h.removeAttribute('data-theme');else h.setAttribute('data-theme',n);show()});if(mq.addEventListener)mq.addEventListener('change',show);show()})();</script>

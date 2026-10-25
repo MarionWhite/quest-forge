@@ -92,6 +92,14 @@ nav.site .theme[data-mode="auto"] .i-auto,nav.site .theme[data-mode="light"] .i-
 .hero .tag em{font-style:normal;color:var(--night-2)}
 .hero .lede{max-width:54ch;margin:0;font-size:clamp(16px,1.6vw,18.5px);line-height:1.55;color:var(--night-2)}
 .hero .lede b{color:var(--night-ink);font-weight:600}
+/* the Konami line: a chronicle quote over the cracked sky (see the konami block in the script) */
+.hero .omen{position:absolute;left:0;right:0;top:26%;z-index:3;margin:0;padding:0 28px;text-align:center;pointer-events:none;
+  opacity:0;transition:opacity 1.2s ease;color:var(--night-ink);text-shadow:0 1px 16px rgba(14,11,18,.85)}
+.hero .omen.on{opacity:1}
+.hero .omen span{display:block;max-width:30ch;margin:0 auto;font-family:"Source Serif 4",Georgia,serif;font-style:italic;
+  font-weight:600;font-size:clamp(20px,2.6vw,32px);line-height:1.25}
+.hero .omen cite{display:block;margin-top:12px;font-style:normal;font-family:"JetBrains Mono",monospace;font-size:11px;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--lav)}
 .cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}
 .btn{font-family:Archivo,sans-serif;font-weight:600;font-size:15px;text-decoration:none;padding:11px 20px;
   border-radius:2px;border:1px solid rgba(236,230,242,.32);color:var(--night-ink);background:rgba(14,11,18,.38);
@@ -262,7 +270,7 @@ footer.site #packv:empty{display:none}
   /* A portrait screen would crop the wordmark: the nav sits above the art, the art shows whole,
      the words come under it, and the particle sky is skipped (it would cover a 220px picture). */
   .hero{min-height:0;display:block}
-  nav.site{position:static;background:var(--night)}
+  nav.site{position:relative;z-index:4;background:var(--night)}
   .hero picture{position:relative;display:block;height:auto}
   .hero img.bg{position:static;height:auto;aspect-ratio:16/9;animation:none}
   .hero canvas,.hero::after{display:none}
@@ -317,6 +325,7 @@ footer.site #packv:empty{display:none}
       </div>
     </div>
   </div>
+  <p class="omen" id="omen"><span>The old chronicle called this CrazyCraft. Same shattered sky. Same titans.</span><cite>Welcome to Quest Forge</cite></p>
 </header>
 
 <div class="band" aria-label="The pack in numbers"><div class="wrap">
@@ -476,6 +485,32 @@ footer.site #packv:empty{display:none}
         <div class="meta"><span>Refreshes every minute</span></div>
       </div>
     </a>
+    <a class="page" href="lucky/">
+      <div class="art"><img src="img/plates/27-chaos.jpg" alt="" loading="lazy"></div>
+      <div class="body">
+        <h3>Break a Lucky Block <span class="go" aria-hidden="true">&rarr;</span></h3>
+        <p>Every outcome the pack's own Lucky Block table can roll, with its odds, opened the way a CS:GO case opens.</p>
+        <div class="meta"><span>About 300 outcomes</span></div>
+      </div>
+    </a>
+    <a class="page" href="graves/">
+      <span class="status">Opens with the server</span>
+      <div class="art"><img src="img/plates/05-torment.jpg" alt="" loading="lazy"></div>
+      <div class="body">
+        <h3>The Wall of Graves <span class="go" aria-hidden="true">&rarr;</span></h3>
+        <p>Every death on the server as a gravestone, placed where it happened.</p>
+        <div class="meta"><span>Opens with the server</span></div>
+      </div>
+    </a>
+    <a class="page" href="players/">
+      <span class="status">Opens with the server</span>
+      <div class="art"><img src="img/plates/22-utopia.jpg" alt="" loading="lazy"></div>
+      <div class="body">
+        <h3>Players <span class="go" aria-hidden="true">&rarr;</span></h3>
+        <p>A card for everyone on the server, and who killed each boss first.</p>
+        <div class="meta"><span>One card per player</span></div>
+      </div>
+    </a>
   </div>
 </section>
 
@@ -541,6 +576,7 @@ footer.site #packv:empty{display:none}
     <span>Quest Forge &middot; Minecraft 1.7.10 &middot; Forge 10.13.4.1558</span>
     <a href="play/">Get the pack</a><a href="first-night/">First night</a><a href="mods/">Mod list</a><a href="items/">Item index</a>
     <a href="worlds/">Worlds</a><a href="enchantments/">Enchantments</a><a href="ore-atlas/">Ore atlas</a><a href="online/">Server</a>
+    <a href="lucky/">Lucky block</a><a href="graves/">Wall of Graves</a><a href="players/">Players</a>
     <a href="https://github.com/MarionWhite/quest-forge">Source on GitHub</a>
   </div>
   <div class="row">
@@ -556,13 +592,17 @@ const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 // The sky over the main-menu art: embers rising from the smeltery at the left, ash drifting across, and
 // now and then a meteor over the planet. Drawn only while the hero is on screen and the tab is visible.
-(function sky() {
-  const c = document.getElementById("sky"), hero = c.parentElement;
-  if (reduce || !c.getContext) return;
+// sky.crack() plays the Konami sequence in the same canvas (see the konami block below).
+const sky = (function sky() {
+  const c = document.getElementById("sky"), hero = c.parentElement, omen = document.getElementById("omen");
+  if (reduce || !c.getContext) return null;
   const ctx = c.getContext("2d");
-  let W = 0, H = 0, dpr = 1, on = false, raf = 0, last = 0, nextMeteor = 4 + Math.random() * 6;
+  const LAV = "201,162,255";
+  let W = 0, H = 0, dpr = 1, on = false, inView = false, raf = 0, last = 0, nextMeteor = 4 + Math.random() * 6;
+  let seq = null, phoneCanvas = false;   // seq: the crack sequence while it plays
   const embers = [], ash = [], meteors = [];
   const rnd = (a, b) => a + Math.random() * (b - a);
+  const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
   function size() {
     dpr = Math.min(devicePixelRatio || 1, 2);
     W = c.clientWidth; H = c.clientHeight; c.width = W * dpr; c.height = H * dpr;
@@ -574,16 +614,106 @@ const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
   function flake() {
     return {x: rnd(0, W), y: rnd(-H, H), vx: rnd(-4, 2), vy: rnd(6, 16), r: rnd(0.5, 1.4), a: rnd(0.08, 0.26), w: rnd(0, 6.28)};
   }
+  function meteor(burst) {
+    const k = burst ? 1.5 : 1;   // a shower's meteors are faster, and some are brighter
+    return {x: rnd(burst ? 0.2 : 0.55, burst ? 1.1 : 0.95) * W, y: rnd(burst ? -0.05 : 0.02, burst ? 0.25 : 0.18) * H,
+      vx: -rnd(380, 560) * k, vy: rnd(150, 260) * k, t: 0, life: burst ? rnd(0.7, 1.1) : rnd(0.9, 1.5),
+      b: burst && Math.random() < 0.3 ? 1.9 : 1};
+  }
+
+  // ---- the crack ----
+  // A jagged walk from (x, y): each step wobbles sideways and turns a little, but stays within `bound` of a0.
+  function walk(x, y, a0, len, n, kick, bound) {
+    const pts = [[x, y]], s = len / n;
+    let a = a0;
+    for (let i = 0; i < n; i++) {
+      a = clamp(a + rnd(-kick, kick), a0 - bound, a0 + bound);
+      const d = s * rnd(0.6, 1.4);
+      x += Math.cos(a) * d + rnd(-0.12, 0.12) * s;
+      y += Math.sin(a) * d;
+      pts.push([x, y]);
+    }
+    return pts;
+  }
+  // A path, its total length, and when it opens: it grows over the fraction `span` of the opening, from `start`.
+  function path(pts, start, span, weight) {
+    let total = 0;
+    for (let i = 1; i < pts.length; i++) total += Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]);
+    return {pts, total, start, span, weight};
+  }
+  // The main line runs down from the top edge; branches split off it and some fork again.
+  function makeCrack() {
+    const out = [], steps = 40;
+    const main = walk(rnd(0.3, 0.7) * W, -8, Math.PI / 2, H * 0.92, steps, 0.16, 0.35);
+    out.push(path(main, 0, 1, 1));
+    for (let b = 0; b < 7; b++) {
+      const k = 3 + Math.floor(Math.random() * (steps - 8)), [bx, by] = main[k];
+      const a0 = Math.PI / 2 + (Math.random() < 0.5 ? -1 : 1) * rnd(0.55, 1.05);
+      const t0 = k / steps * 0.8, pts = walk(bx, by, a0, H * rnd(0.12, 0.3), 9, 0.2, 0.4);
+      out.push(path(pts, t0, 0.4, 0.75));
+      if (Math.random() < 0.35) {
+        const m = pts[4];
+        out.push(path(walk(m[0], m[1], a0 + rnd(-0.6, 0.6), H * rnd(0.05, 0.11), 5, 0.25, 0.5), t0 + 0.22, 0.3, 0.5));
+      }
+    }
+    return out;
+  }
+  // The first q (0..1) of a path's length.
+  function part(p, q) {
+    let want = q * p.total;
+    const out = [p.pts[0]];
+    for (let i = 1; i < p.pts.length; i++) {
+      const a = p.pts[i - 1], b = p.pts[i], d = Math.hypot(b[0] - a[0], b[1] - a[1]);
+      if (d >= want) { const f = want / d; out.push([a[0] + (b[0] - a[0]) * f, a[1] + (b[1] - a[1]) * f]); break; }
+      out.push(b); want -= d;
+    }
+    return out;
+  }
+  // Three strokes: a wide soft glow, a closer glow with a bloom, and a thin bright core.
+  function strokeCrack(pts, I) {
+    ctx.beginPath(); ctx.moveTo(pts[0][0], pts[0][1]);
+    for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1]);
+    ctx.lineJoin = "round"; ctx.lineCap = "round";
+    ctx.strokeStyle = `rgba(${LAV},${0.1 * I})`; ctx.lineWidth = 26; ctx.stroke();
+    ctx.save(); ctx.shadowColor = `rgba(${LAV},${0.9 * I})`; ctx.shadowBlur = 16;
+    ctx.strokeStyle = `rgba(${LAV},${0.34 * I})`; ctx.lineWidth = 4.5; ctx.stroke(); ctx.restore();
+    ctx.strokeStyle = `rgba(252,248,255,${0.85 * I})`; ctx.lineWidth = 1; ctx.stroke();
+  }
+  function crackFrame(s) {
+    const t = s.t, g = 1 - Math.pow(1 - Math.min(1, t / 1.5), 3);   // opens over 1.5 s, fast, then slowing
+    // A lavender wash that peaks as the crack finishes opening. Kept low: a tint, never a white-out.
+    const fl = 0.16 * Math.exp(-Math.pow((t - 1.5) / 0.35, 2));
+    if (fl > 0.002) { ctx.fillStyle = `rgba(${LAV},${fl})`; ctx.fillRect(0, 0, W, H); }
+    let I = 0.9 + 0.1 * Math.sin(t * 9);                 // a slow pulse
+    if (t > 7) I *= Math.max(0, 1 - (t - 7) / 3);       // settles and fades over the last three seconds
+    for (const p of s.paths) {
+      const q = clamp((g - p.start) / p.span, 0, 1);
+      if (q > 0) strokeCrack(q < 1 ? part(p, q) : p.pts, I * p.weight * (0.94 + 0.06 * Math.random()));
+    }
+  }
+  function finish() {
+    seq = null; omen.classList.remove("on");
+    if (phoneCanvas) { c.style.display = ""; phoneCanvas = false; }
+  }
+
   function step(now) {
     if (!on) return;
     const dt = Math.min(0.05, (now - last) / 1000 || 0.016); last = now;
     ctx.clearRect(0, 0, W, H);
-    const want = Math.round(W / 22);
+    const s = seq;
+    if (s && !s.hold) s.t += dt;
+    const surge = s ? 1 + 2.2 * Math.exp(-Math.max(0, s.t - 0.3) / 1.4) : 1;   // embers surge, then settle
+    if (s) {
+      crackFrame(s);
+      omen.classList.toggle("on", s.t >= 2 && s.t < 7);
+    }
+    const want = Math.round(W / 22 * (1 + (surge - 1) * 0.5));
     while (embers.length < want) { const e = ember(); e.t = rnd(0, e.life); e.y = H - e.t * 20; embers.push(e); }
+    while (embers.length > want) embers.pop();
     while (ash.length < Math.round(W / 40)) ash.push(flake());
     for (let i = embers.length - 1; i >= 0; i--) {
       const e = embers[i]; e.t += dt; e.w += dt * 1.6;
-      e.x += (e.vx + Math.sin(e.w) * 9) * dt; e.y += e.vy * dt; e.vy *= 0.999;
+      e.x += (e.vx + Math.sin(e.w) * 9) * dt; e.y += e.vy * surge * dt; e.vy *= 0.999;
       const k = 1 - e.t / e.life;
       if (k <= 0 || e.y < -5) { embers[i] = ember(); continue; }
       const g = ctx.createRadialGradient(e.x, e.y, 0, e.x, e.y, e.r * 3);
@@ -598,22 +728,69 @@ const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
     }
     ctx.globalAlpha = 1;
     nextMeteor -= dt;
-    if (nextMeteor <= 0) { meteors.push({x: rnd(0.55, 0.95) * W, y: rnd(0.02, 0.18) * H, vx: -rnd(380, 560), vy: rnd(150, 260), t: 0, life: rnd(0.9, 1.5)}); nextMeteor = rnd(7, 16); }
+    if (nextMeteor <= 0) { meteors.push(meteor(false)); nextMeteor = rnd(7, 16); }
+    if (s && s.t > 1.2 && s.t < 5.5) {                    // the shower
+      s.nextM -= dt;
+      if (s.nextM <= 0) { meteors.push(meteor(true)); s.nextM = rnd(0.12, 0.3); }
+    }
     for (let i = meteors.length - 1; i >= 0; i--) {
       const m = meteors[i]; m.t += dt; if (m.t > m.life) { meteors.splice(i, 1); continue; }
-      const k = Math.sin(Math.PI * m.t / m.life), x = m.x + m.vx * m.t, y = m.y + m.vy * m.t, len = 90;
-      const nx = m.vx / Math.hypot(m.vx, m.vy), ny = m.vy / Math.hypot(m.vx, m.vy);
+      const k = Math.sin(Math.PI * m.t / m.life), x = m.x + m.vx * m.t, y = m.y + m.vy * m.t, len = m.b > 1 ? 150 : 90;
+      const sp = Math.hypot(m.vx, m.vy), nx = m.vx / sp, ny = m.vy / sp;
       const g = ctx.createLinearGradient(x - nx * len, y - ny * len, x, y);
-      g.addColorStop(0, "rgba(236,230,242,0)"); g.addColorStop(1, `rgba(236,230,242,${0.85 * k})`);
-      ctx.strokeStyle = g; ctx.lineWidth = 1.4; ctx.lineCap = "round";
+      g.addColorStop(0, "rgba(236,230,242,0)"); g.addColorStop(1, `rgba(236,230,242,${Math.min(1, 0.85 * k * m.b)})`);
+      ctx.strokeStyle = g; ctx.lineWidth = m.b > 1 ? 2.2 : 1.4; ctx.lineCap = "round";
       ctx.beginPath(); ctx.moveTo(x - nx * len, y - ny * len); ctx.lineTo(x, y); ctx.stroke();
     }
+    if (seq && seq.t >= 10) finish();
+    if (!seq && !inView) { on = false; return; }
     raf = requestAnimationFrame(step);
   }
-  function run(v) { v = v && !document.hidden; if (v === on) return; on = v; if (on) { last = performance.now(); raf = requestAnimationFrame(step); } else cancelAnimationFrame(raf); }
+  function run(v) {
+    v = (v || !!seq) && !document.hidden;
+    if (v === on) return;
+    on = v;
+    if (on) { last = performance.now(); raf = requestAnimationFrame(step); } else cancelAnimationFrame(raf);
+  }
+  // Plays the ten-second sequence from `at` seconds. With `hold`, it stays at that moment (for stills).
+  function crack(at, hold) {
+    if (seq || !c.getContext) return;
+    if (getComputedStyle(c).display === "none") { c.style.display = "block"; phoneCanvas = true; }   // phones hide the ambient canvas
+    size();
+    if (hero.getBoundingClientRect().bottom < 80) scrollTo({top: 0, behavior: "smooth"});
+    seq = {t: at || 0, hold: !!hold, paths: makeCrack(), nextM: 0};
+    run(true);
+  }
   size(); addEventListener("resize", () => { size(); embers.length = 0; ash.length = 0; });
-  new IntersectionObserver(es => run(es[0].isIntersecting), {threshold: 0.05}).observe(hero);
-  document.addEventListener("visibilitychange", () => run(!document.hidden && hero.getBoundingClientRect().bottom > 0));
+  new IntersectionObserver(es => { inView = es[0].isIntersecting; run(inView); }, {threshold: 0.05}).observe(hero);
+  document.addEventListener("visibilitychange", () => run(inView));
+  return {crack};
+})();
+
+// The Konami code, typed anywhere on the page but in a field, opens the sky (sky.crack). Reduced motion skips it.
+// Touch users: seven taps on the kicker line do the same. This is not written on the page.
+(function konami() {
+  if (!sky) return;
+  const KEYS = ["ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown", "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight", "b", "a"];
+  let i = 0;
+  document.addEventListener("keydown", e => {
+    if (!e.key || e.ctrlKey || e.metaKey || e.altKey) return;
+    const t = e.target;
+    if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;
+    const k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+    if (k === KEYS[i]) { if (++i === KEYS.length) { i = 0; sky.crack(); } }
+    else i = k === KEYS[0] ? 1 : 0;
+  });
+  const kicker = document.querySelector(".hero .kicker");
+  let taps = [];
+  kicker.addEventListener("click", () => {
+    const now = Date.now();
+    taps = taps.filter(x => now - x < 4000); taps.push(now);
+    if (taps.length === 7) { taps = []; sky.crack(); }
+  });
+  // #crack plays it; #crack=2.6 holds it at 2.6 seconds (for stills).
+  const m = location.hash.match(/^#crack(?:=([\d.]+))?$/);
+  if (m) sky.crack(m[1] ? +m[1] : 0, !!m[1]);
 })();
 
 // Theme toggle, shared with every page: auto follows the system; a click flips the page, a second one returns to auto.
