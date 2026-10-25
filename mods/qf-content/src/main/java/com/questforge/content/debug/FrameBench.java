@@ -98,6 +98,7 @@ public class FrameBench {
     private static final double SPRINT = 0.28;          // blocks/tick, vanilla sprint
     private static final int MEASURE_TICKS = 400;       // 20 s per scene
     private static final int SETTLE_MAX = 900;          // 45 s to finish building chunks
+    private static final int BATCH_QUIET_UPDATES = 25;  // chunk updates/s that count as settled (batch)
 
     private enum Stage { TITLE, SELECTING, LOADING, SETUP, SETTLE, MEASURE, SHOOT, DONE }
 
@@ -371,7 +372,11 @@ public class FrameBench {
             lastDebug = mc.debug;
             int n = parseChunkUpdates(lastDebug);
             if (stage == Stage.MEASURE) chunkUpdates += n;
-            quiet = n == 0 ? quiet + 1 : 0;
+            // Batch mode settles on "no more than a trickle": a world with flowing water or lava
+            // never reports 0 for long (r007's qh measured 1-22 updates/s standing still), so the
+            // single-run rule hit the 45 s SETTLE_MAX on most scenes; after a reload or teleport the
+            // rebuild runs at hundreds a second. Single runs keep the old rule.
+            quiet = n <= (stepJob != null ? BATCH_QUIET_UPDATES : 0) ? quiet + 1 : 0;
         }
 
         switch (stage) {
