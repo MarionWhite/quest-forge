@@ -208,7 +208,7 @@ other gain is an estimate.
 | 5 | **Shader tier = hardware tier.** Vibrant on the 5070 Ti only. Enhanced Default at 0.5× shadow for mid cards. Off for lite. 58's own pack replaces this when it lands | 2.2–2.8× (measured, 58) | None | Already measured |
 | 6 | **FPS cap** 260 → monitor refresh (e.g. 144) | Lower GPU heat and power, steadier frame pacing. No visible loss above the refresh rate | None | GPU power in `nvidia-smi` at the menu and in-world |
 | 7 | **Release must include `assets\mcheli`** (357 MB) | Correctness, not speed: without it MCHeli silently has no vehicles | None | `dir assets\mcheli\helicopters` in a friend's instance |
-| 8 | **Decocraft lazy model load** — **done 2026-10-25**: qf-tweaks `DecoLazyTransformer` frees each prop's per-rotation vertex arrays and decoded texture after startup and rebuilds them on first use | **Measured −491 MB live heap at the title screen (674 → 183), −460 MB in a world with props placed (653 → 193), −465 MB on a dedicated server (580 → 115).** ~~About −550 MB live heap (measured cost) and about −6 s load~~ — load time unchanged, 14 s to the title screen either way: the work is still done at startup, only the results are dropped | Low after measurement: props render identically on first sight; the rebuilt geometry was verified bit for bit against Decocraft's own (799,008 node-rotations, 0 mismatches). Switch: `config/qftweaks.cfg` `decocraft.lazyModels=false` | Done (see "Win #8, measured" below). Not yet installed into the live pack or the server; the jar goes in through `trial.py install` |
+| 8 | **Decocraft lazy model load** — **done 2026-10-25**: qf-tweaks `DecoLazyTransformer` frees each prop's per-rotation vertex arrays and decoded texture after startup and rebuilds them on first use | **Measured −491 MB live heap at the title screen (674 → 183), −460 MB in a world with props placed (653 → 193), −465 MB on a dedicated server (580 → 115).** ~~About −550 MB live heap (measured cost) and about −6 s load~~ — load time unchanged, 14 s to the title screen either way: the work is still done at startup, only the results are dropped | Low after measurement: props render identically on first sight; the rebuilt geometry was verified bit for bit against Decocraft's own (799,008 node-rotations, 0 mismatches). Switch: `config/qftweaks.cfg` `decocraft.lazyModels=false` | Done (see "Win #8, measured" below). **Installed 2026-10-25** on the live client (`trial.py install`, qf-tweaks `1.1.0+20261025.b87ed70d`) and in the rebuilt friends' server (same jar, same hash in its `MANIFEST.sha256`). Full-pack heap: pending measurement request (command below) |
 | 9 | **MCHeli / Legends lazy models**: the same idea | −231 / −211 MB (measured cost) | Medium–high: both are large closed-source mods | Same, per mod |
 | 10 | `-XX:+ParallelRefProcEnabled` (in the lite args) | Small. Modded 1.7.10 holds many weak and soft references (caches, WeakHashMaps), and this parallelises their processing in GC pauses | Very low; standard G1 flag on Java 8 | GC log pause times |
 | 11 | Quieter load: patch or blacklist the soft-integration `ClassNotFound` dumps (3,022 lines) | About 1–2 s of load | Low | Load-log timestamps |
@@ -256,8 +256,30 @@ Decobench call sites) and would be a second, smaller patch.
 
 The slim-trial numbers predict the full pack: Decocraft was 564 MB of the
 1,321 MB live heap measured in a loaded world, so the full pack should land
-near 850 MB. Worth measuring once the jar is installed (`trial.py heap` on a
-full-pack boot).
+near 850 MB.
+
+**Installed 2026-10-25.** Live client `%APPDATA%\.crazycraft4\mods\QuestForgeTweaks-1.0.jar`
+is `1.1.0+20261025.b87ed70d` (SHA-1 `27c68ccf44b6…`, SHA-256
+`5c890910e4b2…`), put in by `trial.py install` (previous jar in
+`_backup-install-20261025-180555`); the friends' server `C:\qfs\friends` was
+rebuilt from the instance the same day and its `MANIFEST.sha256` carries the
+same hash for `mods/QuestForgeTweaks-1.0.jar`, so the packcheck sees one
+qf-tweaks on both sides. The switch (`config/qftweaks.cfg`) is written with
+its default on the first boot of each.
+
+**Pending: measurement request** (no full-pack client was run for it — one
+client at a time, and the render loop holds the slot). Whoever next boots the
+full pack to a loaded world, with nothing else on the GPU:
+
+```
+py -3.10 tools/trial/trial.py heap <trial> --label fullpack-world
+```
+
+where `<trial>` is any trial built from the live instance with the full mod
+set (or the live client itself: `jcmd <pid> GC.class_histogram` then
+`jcmd <pid> GC.heap_info`, the same thing by hand). Expected: about 850 MB live
+against the 1,321 MB of 2026-10-16, and no `com.mia.craftstudio.libgdx.Vector3`
+entry in the histogram's top ten.
 
 Considered and **not** recommended (keeping REPORT.md's verdicts, with reasons):
 
@@ -301,10 +323,10 @@ untested and GTNHLib may be needed on both sides.
 2. **Should a friend's release be checked for `assets\mcheli` and the
    2026-10-16 QuestForgeTweaks jar?** (#1, #7.) Both are invisible when missing.
 3. ~~**Worth a qf-tweaks patch for Decocraft's eager model build?** (#8.)~~
-   Built and measured 2026-10-25: −460 to −491 MB on the client, −465 MB on
-   the server. Open now: **install it** (client release and the friends'
-   server, through `trial.py install`), and whether to spend a second patch on
-   Decocraft's load time.
+   Built, measured and installed 2026-10-25 (live client and the rebuilt
+   friends' server): −460 to −491 MB on the client, −465 MB on the server.
+   Open now: the full-pack measurement (request above), and whether to spend a
+   second patch on Decocraft's load time.
 4. **The lite drop list removes JourneyMap only in potato.** Is the minimap
    essential enough to keep it even there?
 5. **Modernization.** If Angelica is chosen, the lite profile is rewritten for
