@@ -65,22 +65,50 @@ more: OptiFine's Smooth FPS, Fast Render and Fast Math do not exist under
 Angelica (its renderer is faster with shaders off than E7 with Fast Render on),
 and `optionsof.txt` is ignored there.
 
-## Measured
+## Measured (2026-10-25, dev PC)
 
-Pending: one FrameBench cycle on the dev PC (RTX 5070 Ti), a slim Angelica
-trial (base set + qf-content debug build + Twilight Forest), the static, fly and
-torch scenes, each profile at its target resolution, shaders on at the profile's
-preset. From the repo, as a background task, only when `trial.py status` shows
-no client:
+One FrameBench cycle on the dev PC (7900X / RTX 5070 Ti) with
+[`tools/lite-client/measure_profiles.py`](../../tools/lite-client/measure_profiles.py):
+a slim Angelica trial (Angelica 2.2.33 base set, qf-content debug build,
+Twilight Forest; `tools/trial`), the bench world, the real profile applied by
+`apply-profile.ps1`, the QuestForge pack at the profile's preset, `maxFps` 260
+for the measurement, the owner idle, no other client. Whole-frame numbers; the
+client ran off-screen.
 
-```
-py -3.10 -I tools/trial/trial.py build liteprof --renderer angelica qfcontent twilightforest --jar C:\qfb\shaderdev\jars\QuestForgeContent-1.0.0.jar --shaderpack shaders/QuestForge --shader QuestForge --world C:\qfb\world-master --force
-rem per profile p in full (2560x1440), lite (1920x1080), potato (1280x720):
-powershell -ExecutionPolicy Bypass -File tools\lite-client\apply-profile.ps1 -Instance %APPDATA%\.qf-trials\liteprof -Profile p
-rem then set maxFps:260 in the trial's options.txt (measurement only) and
-py -3.10 -I tools/trial/trial.py launch liteprof --size WxH --xmx 3G -D qf.bench=1 -D qf.bench.tag=prof_p -D qf.bench.scenes=static,fly,torch -D fml.queryResult=confirm
-rem result: %APPDATA%\.qf-trials\liteprof\bench\prof_p.txt
-```
+| Profile | Preset, resolution | Scene | Mean fps | p50 | p99 | 1% low | Worst | Frames > 33 ms |
+|---|---|---|---|---|---|---|---|---|
+| full | Medium, 2560×1440 | static | 414 | 2.39 ms | 3.27 ms | 164 fps | 11.2 ms | 0 |
+| full | | fly | 432 | 2.27 ms | 3.19 ms | 127 fps | 20.0 ms | 0 |
+| full | | torch (dynamic light on) | 627 | 1.58 ms | 2.21 ms | 340 fps | 15.8 ms | 0 |
+| lite | Low, 1920×1080 | static | 891 | 1.12 ms | 1.56 ms | 593 fps | 5.0 ms | 0 |
+| lite | | fly | 795 | 0.95 ms | 1.83 ms | *reducer* | *reducer* | *46* |
+| potato | Potato, 1280×720 | static | 1306 | 0.51 ms | 1.21 ms | *reducer* | *reducer* | *56* |
+
+*reducer*: the lite and potato runs were cut short by the profiles' own FPS
+reducer. The bench client is never focused, so Angelica's `unfocused_fps_limit`
+(10 fps) engaged part-way through: lite's torch scene and potato's fly and torch
+scenes ran at exactly 10.0 fps (p50 100 ms) and are discarded; lite fly and
+potato static keep their mean and p50 (the cap hit near the end) but not their
+1% low. That is a background-bench artefact, not a cost a player sees (the
+reducer only acts while another window has focus). `measure_profiles.py` now
+disables the reducer for the measurement. **Pending** (one more cycle, when the
+client slot is free): `py -3.10 -I tools/lite-client/measure_profiles.py lite potato`
+as a background task, which fills in the missing lite and potato rows.
+
+Reading the table:
+
+- Lite at Low/1080p renders a whole frame in 1.1 ms on the dev PC, Potato at
+  720p in 0.5 ms, against full at Medium/1440p in 2.4 ms. Shaders-off on the
+  full pack at 1440p measured 0.86 ms p50 on 2026-10-16 (a different client,
+  so not subtracted here); a shaders-off run of this trial at each resolution
+  is what turns these into the shader-cost numbers the budgets want.
+- Full is clean: no frame over 33 ms in any scene, 1% lows above 120 fps.
+- Every first boot of a preset crashed at world entry (the JVM died, no crash
+  report) and the second boot ran: Angelica 2.2.33 rebuilds the shader pipeline
+  after the last resource reload when the preset's shader cache is cold
+  (`[Load #2]` in the log). See Troubleshooting.
+
+Raw results: `C:\qfb\lite-profiles\` (`prof_<profile>.txt`, `.log`, frames).
 
 ## What the numbers mean for a friend's PC
 
@@ -136,3 +164,9 @@ Java memory for the Mac: [`jvm-args.md`](jvm-args.md).
 - **Shaders off although lite was applied:** the QuestForge pack is not in
   `shaderpacks\`; lite and potato then turn shaders off on purpose. Install the
   pack and re-apply.
+- **The game dies entering a world on the first launch after a profile or
+  preset change** (no crash report): Angelica 2.2.33's cold shader cache
+  (`[Load #2]` in `logs\latest.log`). Seen on every first boot of each preset
+  in the 2026-10-25 measurement, with Iris's debug options on. Launch again;
+  the cache is filled and the second start runs. Whether a plain client without
+  the debug options does the same is unverified.
