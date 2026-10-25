@@ -313,3 +313,56 @@ def cloud(rng, cy, rx, ry, n=6, ymin=None, lobe=0.55, cx=0.0, cz=0.0, flat_top=F
             m &= P[:, 1] >= ymin
         return m
     return inside
+
+
+# ---------------------------------------------------------------------------------------
+# small trees: explicit 1-block frame
+# ---------------------------------------------------------------------------------------
+def small_frame(g, rng, cb, leader_top, crown_r, n_limbs, elev, limb_top=None, len_f=(0.75, 1.05),
+                gravity=0.0, up_bend=0.0, wobble=0.1, fork_p=0.45, crook=0.0, lean=(0.0, 0.0),
+                trunk_role=R['trunk'], branch_role=R['branch'], centre=None, steeper_up=0.25, base=-1):
+    """Readable skeleton for small trees, where space colonisation only makes a blob.
+
+    A one-block trunk (gently crooked or leaning) runs from `base` to `leader_top`; `n_limbs`
+    single-log limbs leave it between heights `cb` and `limb_top`, spread round the trunk by the
+    golden angle, each optionally forking once. Upper limbs are steeper and shorter, so the
+    crown keeps a shape. Returns clump sites: list of (point, kind, t) where kind is 'tip',
+    'fork' or 'top' and t is the limb's relative height (0 lowest .. 1 top).
+    centre(y) -> (x, z) overrides the trunk path (e.g. a twisting ice trunk)."""
+    lx, lz = lean
+    ph_c = rng.uniform(0, 2 * math.pi)
+
+    if centre is None:
+        def centre(y):
+            f = max(y, 0) / max(leader_top, 1)
+            bow = crook * math.sin(math.pi * f)
+            return (lx * f + bow * math.cos(ph_c), lz * f + bow * math.sin(ph_c))
+
+    ys = list(range(int(base), int(round(leader_top)) + 1))
+    trunk = [np.array([centre(y)[0], y, centre(y)[1]]) for y in ys]
+    for a, b in zip(trunk, trunk[1:]):
+        g.line(a, b, trunk_role, axis=0)
+    sites = [(trunk[-1], 'top', 1.0)]
+    limb_top = leader_top - 1 if limb_top is None else limb_top
+    phase = rng.uniform(0, 2 * math.pi)
+    for k in range(n_limbs):
+        f = (k + rng.uniform(0.25, 0.75)) / n_limbs
+        y0 = cb + (limb_top - cb) * f
+        cx, cz = centre(y0)
+        az = phase + k * 2.39996 + rng.uniform(-0.35, 0.35)
+        el = math.radians(rng.uniform(*elev)) + steeper_up * f
+        L = crown_r * rng.uniform(*len_f) * (1.0 - 0.35 * f)
+        pts = limb((cx, y0, cz), direction(az, el), max(1.5, L), rng, step=1.0, gravity=gravity,
+                   wobble=wobble, up_bend=up_bend)
+        for a, b in zip(pts, pts[1:]):
+            g.line(a, b, branch_role)
+        sites.append((pts[-1], 'tip', f))
+        if rng.random() < fork_p and len(pts) >= 4:
+            j = len(pts) // 2
+            d = direction(az + rng.choice([-1, 1]) * rng.uniform(0.6, 1.0), el + rng.uniform(-0.1, 0.35))
+            sub = limb(pts[j], d, max(1.5, L * 0.55), rng, step=1.0, gravity=gravity, wobble=wobble,
+                       up_bend=up_bend)
+            for a, b in zip(sub, sub[1:]):
+                g.line(a, b, branch_role)
+            sites.append((sub[-1], 'fork', f))
+    return sites

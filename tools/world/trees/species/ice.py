@@ -13,7 +13,7 @@ import math
 import numpy as np
 from voxel import Grid, R, PRIO
 from growth import (draw_trunk, draw_roots, limb, draw_polyline, direction, unit, trunk_chain,
-                    grow_crown, sample_envelope, cloud, hang)
+                    grow_crown, sample_envelope, cloud, hang, small_frame)
 
 COUNTS = {'small': 8, 'medium': 10, 'large': 8, 'giant': 5}
 
@@ -48,6 +48,8 @@ def grow(rng, size):
     H = rng.uniform(*s['h']); r0 = rng.uniform(*s['r'])
     style = rng.choice(['frost', 'shard', 'weeping'], p=[0.4, 0.35, 0.25])
     scheme = rng.choice(['frost', 'glacier', 'aurora'], p=[0.35, 0.3, 0.35])
+    if size == 'small':
+        return grow_small(rng, H, r0, str(style), str(scheme))
     cr = H * (0.5 if style != 'weeping' else 0.55)
     g = Grid(cr + 6, H + 6, 1)
     twist_a = rng.uniform(0.3, 0.8) * (r0 + 0.5) * 0.6
@@ -145,6 +147,65 @@ def grow(rng, size):
     decorate(g, rng, size)
     g.prune_floating_leaves()
     return g, dict(style=str(style), scheme=str(scheme), height=round(H, 1), trunk_r=round(r0, 2))
+
+
+def grow_small(rng, H, r0, style, scheme):
+    """Small ice trees on an explicit frame: a twisting 1-block packed-ice trunk (2x2 at the foot
+    when it is thick), single-block limbs, and separate glass clumps or crystal fans on the limb
+    ends, so they read as trees at 7-10 blocks instead of a glass blob."""
+    ph = rng.uniform(0, 6.3)
+    tw = rng.uniform(0.5, 0.9)
+
+    def centre(y):            # a gentle corkscrew, one block of travel over the height
+        f = max(y, 0) / H
+        return tw * f * math.sin(0.5 * y + ph), tw * f * math.cos(0.5 * y + ph)
+
+    if style == 'frost':
+        cb, top, cr, n, elev, clump = H * 0.36, H * 0.8, H * 0.52, (4, 5), (22, 42), (1.6, 2.0)
+    elif style == 'shard':
+        cb, top, cr, n, elev, clump = H * 0.32, H * 0.8, H * 0.5, (4, 5), (32, 50), None
+    else:   # weeping
+        cb, top, cr, n, elev, clump = H * 0.5, H * 0.92, H * 0.48, (5, 6), (10, 28), (1.0, 1.2)
+    g = Grid(cr + 6, H + 5, 1)
+    sites = small_frame(g, rng, cb, top, cr, int(rng.integers(*n, endpoint=True)), elev,
+                        limb_top=top - 1, fork_p=0.5 if style != 'weeping' else 0.3, centre=centre,
+                        gravity=-0.1 if style == 'weeping' else 0.0, up_bend=0.1 if style == 'shard' else 0.02,
+                        trunk_role=R['trunk'], branch_role=R['branch'], wobble=0.08)
+    if r0 > 0.75:             # thick foot: 2x2 for the lowest layers, then the 1-block trunk
+        sx, sz = rng.choice([-1, 1]), rng.choice([-1, 1])
+        for y in range(-1, 2):
+            for dx, dz in ((sx, 0), (0, sz), (sx, sz)):
+                if y < 1 or (dx and dz) == 0:
+                    g.put(dx, y, dz, R['trunk'])
+    g.put(rng.choice([-1, 1]), 0, 0, R['root'], 1)          # a snowy root stub
+    for q, kind, f in sites:
+        q = np.asarray(q, float)
+        t = min(1.0, max(0.0, (q[1] - cb) / max(H - cb, 1)))
+        d = unit(q - [0, cb, 0])
+        if style == 'shard':
+            # a fan of thin crystal shards with a clear-ice heart at the joint
+            g.blob(q, 1.0, 1.0, 1.0, R['accent'], rng, rough=0.1)
+            k = int(rng.integers(3, 5))
+            a0 = math.atan2(d[2], d[0])
+            for j in range(k):     # spread round the limb direction, all pointing up and out
+                dd = unit(direction(a0 + (j - (k - 1) / 2) * 0.7 + rng.normal(0, 0.15), rng.uniform(0.6, 1.2)))
+                g.capsule(q, q + dd * rng.uniform(2.2, 3.6), 0.8, 0.3, scheme_role(scheme, t, rng))
+            continue
+        rx = rng.uniform(*clump) * (1.25 if kind == 'top' else 0.85 if kind == 'fork' else 1.0)
+        if style == 'weeping':
+            g.blob(q + [0, 0.4, 0], rx, 0.9, rx, scheme_role(scheme, t, rng), rng, rough=0.2, fill=0.9)
+            for _ in range(int(rng.integers(2, 4))):         # glass curtain ending in an icicle
+                o = q + [rng.uniform(-1.2, 1.2), 0, rng.uniform(-1.2, 1.2)]
+                L = int(rng.uniform(0.35, 0.6) * max(q[1], 2))
+                hang(g, o, L, scheme_role(scheme, t, rng))
+                g.put(o[0], o[1] - L, o[2], R['accent'])
+            continue
+        g.blob(q + [0, 0.3, 0], rx, rx * 0.8, rx, scheme_role(scheme, t, rng), rng, rough=0.2, fill=0.88)
+        if rng.random() < 0.6:        # a crystal point poking out of the clump
+            g.line(q, q + unit(d + [0, 0.5, 0]) * (rx + rng.uniform(1.0, 2.0)), scheme_role(scheme, t, rng))
+    decorate(g, rng, 'small')
+    g.prune_floating_leaves()
+    return g, dict(style=style, scheme=scheme, height=round(H, 1), trunk_r=round(r0, 2), small=True)
 
 
 def decorate(g, rng, size):

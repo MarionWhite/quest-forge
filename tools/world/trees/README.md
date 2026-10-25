@@ -11,7 +11,7 @@ all 256 trees takes under a minute on one core.
 py -3.10 treegen.py                       # all species, default counts -> C:\qf-world\trees\generated
 py -3.10 treegen.py redwood mangrove      # only these species
 py -3.10 treegen.py cherry --sizes medium,large --count 6 --seed 7
-py -3.10 treegen.py autumn --palette vanilla-leaves
+py -3.10 treegen.py autumn --palette vanilla-wool   # dyed-wool canopies (opt-in, see below)
 py -3.10 treegen.py redwood --palette bop --idmap C:\qfs\friends\world\level.dat
 py -3.10 treegen.py --list                # species and default counts
 ```
@@ -37,11 +37,21 @@ The same `--seed` always produces the same trees. Change it to get a fresh fores
 | `schematic.py` | Role grid → blocks (log axis bits, patchy block mixing) → `.schematic` |
 | `render.py` | Preview renderer (depth, sky occlusion, translucent glass) and contact sheets |
 | `species/*.py` | One style module per species. Each module exposes `COUNTS` and `grow(rng, size) -> (Grid, info)` |
+| `worldtest/` | WorldPainter test world: build, export, check and render (see *Testing in a real world*) |
 
 ## Species
 
 Every module draws its parameters per seed from ranges for each size class: small, medium, large and giant.
 The giant class is for landmark trees.
+
+Small trees are too small for space colonisation: at 6–10 blocks it fills the crown into one blob.
+Small ice and autumn trees therefore use `growth.small_frame` instead: a one-block trunk (crooked,
+leaning or, for ice, a corkscrew with a 2×2 foot), 3–6 single-log limbs spread round it by the golden
+angle (upper limbs steeper and shorter), one fork on about half of them, and separate foliage clumps
+on the limb ends plus a crown dome. The forms keep their character at that size: oak is a low flat
+dome on spreading limbs, maple an oval, elm an open vase with no centre clump, aspen a narrow birch
+column; ice frost trees carry glass clumps with crystal points, shard trees fans of tapering
+crystals round a clear-ice heart, weeping trees short arching limbs with glass curtains.
 
 | Species | Count (S/M/L/G) | Model | Heights | Randomised per seed |
 |---|---|---|---|---|
@@ -71,31 +81,105 @@ The `vanilla` palette uses only 1.7.10 blocks with IDs 0–175:
 | ice | packed ice 174 trunk; stained glass 95 canopy (light blue, white, cyan, magenta, purple); ice 79 icicles; snow block roots; glowstone 89 |
 | eucalyptus | birch logs (oak on the rough stocking); birch and spruce leaves |
 | petrified | stone, stone brick (plain, cracked, mossy), cobblestone, mossy cobblestone |
-| autumn | oak logs (birch for aspen); wool 35 for bright colour with stained clay 159 for depth, plus some oak and dark-oak leaves inside the crown |
-| cherry | dark-oak logs; pink wool, white wool, white clay and magenta wool, with a few oak leaves |
+| autumn | oak logs (birch for aspen); dark-oak, acacia, birch and oak leaves (spruce for the dead-leaf accent) |
+| cherry | dark-oak logs; birch and oak leaves |
 
-Wool versus leaves: the autumn and cherry canopies use wool and clay because vanilla 1.7.10 has no orange,
-red or pink leaves. To make them read as foliage rather than solid blocks, the canopies are kept ragged
-and gappy, built from many small clumps, and mixed with real leaves. Whether this works can only be
-judged in game. If it doesn't, run `--palette vanilla-leaves`, which maps every coloured role to real
-leaves. The colour then has to come from the biome tint. The proper fix is the BoP re-skin below.
+Wool versus leaves: vanilla 1.7.10 has no orange, red or pink leaves, so the autumn and cherry
+canopies were first built from dyed wool and stained clay. The 2026-10-25 world test (below) settled
+it against wool, so the default `vanilla` palette now uses real leaves for both, and the wool version
+is the opt-in `--palette vanilla-wool` (`vanilla-leaves` is kept as an old name for `vanilla`):
+- wool and clay are opaque full cubes. Each autumn tree in the test plot had about 140 canopy-top
+  wool blocks with two air blocks above, which is a mob spawn floor at night, and each cherry about 77.
+  Leaves are not a spawn surface;
+- the canopy blocks skylight completely and hides the branch structure the crowns are built around;
+- punching wool drops it, so every autumn grove is a free dyed-wool farm;
+- seen from a distance, in the offline renders, the ragged wool clumps do read as foliage. Up close it
+  is cloth texture on solid cubes. Nobody has looked at it in a client.
+
+Leaves take their colour from the biome. Oak, dark-oak and acacia leaves follow the foliage tint, and
+birch and spruce leaves have fixed colours, so the "yellow" clumps use birch to stay lighter whatever
+the biome. Real autumn and blossom colour needs the BoP re-skin below, or a biome with an autumn
+foliage tint (to check in game before relying on it).
 
 ## Loading into WorldPainter (1.2–1.12 map, Minecraft 1.7.10)
 
+What follows was measured on WorldPainter 2.27.1: from its exporter (`Bo2LayerExporter`, read with
+`javap`) and from the test world, where all 650 generated trees were found where they should be.
+
 1. Add a **Custom Objects** layer in the Layers panel, then **Add…** the schematics. You can select a
    whole species folder at once.
-2. Each schematic stores WorldEdit `WEOffsetX/Y/Z`, which put the placement point at the trunk base. Big
-   trees have one or two layers of root flare below that point, which WorldPainter sinks into the ground.
-   Check that the **Offset** in the object editor reads `(-x, -z, -depth)` before mass-painting. If your
-   WorldPainter version ignores the tags, set the offset by hand to the trunk centre.
-3. Allow random rotation. Turn mirroring off: the trees are asymmetric, and mirroring is the Essential
-   Trees advice for packs like these.
-4. Mangroves: `y = 0` is the end of the roots. Place them on the lagoon or sea bed, with the object's
+2. **Offset.** WorldPainter reads `WEOffsetX/Y/Z` from each schematic as the object's offset, so the
+   object editor already shows the trunk-centre offset, for example `(-11, -10, -2)`, and nothing needs
+   setting by hand. The offset block goes at terrain height + 1, the first air block above the ground,
+   in the middle of the trunk. The one or two root-flare layers below it replace the top ground
+   blocks, so the trunk comes out of the ground with no gap and no plinth. Downloaded packs that have
+   no `WEOffset` tags (H2CO3, for one) get a guessed offset instead. In the test it was 1–3 blocks off
+   the trunk centre, and some of those objects carry their own bedrock or stone foot.
+3. **Rotation and mirroring.** Leave the object's default *random rotation* on. In WorldPainter it
+   means a random quarter turn **plus** a 50 % mirror, so each tree appears in 8 orientations. The
+   test found all 8, and every rotated log kept a correct axis (east-west and north-south swap on
+   quarter turns). The generated trees have no handed blocks, so mirroring is safe and doubles the
+   variety. Use "rotation only" just for objects with stairs, doors or text.
+4. **Frequency.** The layer's *density* `d` and the painted intensity `v` (0–15; a 100 % brush is 15,
+   50 % is about 8) give every painted block a `(1 + v²) / (64·d)` chance of starting an object. On top
+   of that, the default *solid* collision mode skips an object whose blocks would hit blocks already
+   placed. At a 50 % brush this means **density ≈ (mean spacing between trunks)²**. The default density
+   of 20 is a near-solid thicket. Starting points, worked out from the formula and the tree footprints
+   (not yet judged by eye in a painted forest):
+
+   | Stand | Spacing | Density at a 50 % brush |
+   |---|---|---|
+   | small and medium broadleaf (autumn, cherry, ice) | 7–10 | 50–100 |
+   | large broadleaf, baobab, eucalyptus | 14–20 | 200–400 |
+   | redwood large, open savanna baobab | 20–30 | 400–900 |
+   | giants | landmarks | place by hand, or a 1–2 % brush at density 400 |
+
+   Leave the grid at 1 and random displacement at 0. A grid lays trees out in rows, which reads as an
+   orchard. Grid plus zero displacement is only for tests like the one below.
+5. **Mixing sizes.** Put a species' small, medium and large trees in one layer and weight them with each
+   object's *frequency* attribute (default 100). For example: small 100, medium 100, large 40, and
+   giants in their own sparse layer. Within a layer, an object's share is its frequency over the
+   frequency sum, and the per-class file counts differ, so set the weights per file.
+6. Mangroves: `y = 0` is the end of the roots. Place them on the lagoon or sea bed, with the object's
    "spawn in water" attribute on, in water 2–4 deep. The trunk base is 2.5–8 blocks up, so the arches
-   stand clear of the surface.
-5. Use the size classes as separate layers or with different frequencies. Giants are landmarks: paint them
-   sparsely or place them by hand.
-6. Leaves are written with the vanilla no-decay bit (meta | 4), so they never decay without a log nearby.
+   stand clear of the surface. On dry land they stand on their root tips, as in the test plot.
+7. Leaves are written with the vanilla no-decay bit (meta | 4), and the object's leaf-decay setting
+   defaults to "no change", so they never decay without a log nearby.
+
+## Testing in a real world (`worldtest/`)
+
+```
+py -3.10 worldtest/build_test_world.py --wp <WorldPainter dir>     # plan + WorldPainter export
+py -3.10 worldtest/check_test_world.py --json C:\qf-world\trees\test\report.json
+```
+
+`build_test_world.py` writes a flat 1024 × 1024 grass world at y = 64 to `C:\qf-world\trees\test`.
+It has a 3 × 3 set of 320-block plots, one per species plus one plot of the first 40 H2CO3 1.7.10
+trees, each on its own biome (mega taiga, swamp, savanna, ice plains, forest, desert, birch forest), with a
+few forest and meadow patches between them. Every plot is one Custom Objects layer, built through the
+scripting API (`Bo2ObjectTube.load` and `new Bo2Layer`, then `dim.setLayerValueAt`, then
+`dim.setCustomLayers`). The layers use density 1 and a grid one footprint wide, so every grid point
+gets exactly one tree. The script then exports in the 1.2–1.12 Anvil format. WorldPainter runs as
+`java -Xmx2g … ScriptingTool`, because `wpscript.exe`'s vmoptions ask for an 8 GB heap.
+
+`check_test_world.py` reads the region files back. At every grid point it finds which schematic was
+placed, and in which of the 8 orientations, by matching the exported blocks against each schematic
+hung from its offset at (x, ground + 1, z). If nothing fits exactly, it searches shifts of ±3 blocks,
+so floating, buried and off-centre placements show up. It also checks log axis bits and lists every
+block ID above the ground. It writes `<plot>-top.png`, `<plot>-oblique.png` and `sheet.png` to the
+test dir.
+
+Results on 2026-10-25:
+- **Placement.** 650 of 650 generated trees were exact fits: every one stood on its trunk centre at
+  ground + 1, with no floating or buried trees. All 8 orientations appeared, and log axes were 100 %
+  correct after rotation.
+- **Block IDs.** Every block above the ground was in the palettes, apart from WorldPainter's own grass,
+  flowers and double plants (31, 37, 38, 175) and the chest it puts at spawn.
+- **H2CO3 pack.** The trees landed on the ground, but 1–3 blocks off their guessed centre.
+- **Server load.** A slim server trial (`trial.py build --server --world …`, base set only) loaded the
+  export and saved it again with 0 changed blocks across all plots. Its only warning was
+  `Skipping BlockEntity with id minecraft:chest`, which is WorldPainter's spawn chest written with a
+  1.13-style ID. It is not a tree problem.
 
 ## BoP re-skin plan
 
@@ -121,6 +205,9 @@ world to world (`custom-trees.md` → "BoP IDs"). The generator therefore keeps 
 
 ## Known weak spots
 
-- Small ice and small autumn trees are only a few blocks wide and look crude next to the large ones.
 - Redwood bark in vanilla is spruce, which is dark brown rather than red. BoP `logs3:0` fixes this.
 - Glass in the previews is drawn translucent over a dark background. In game the colours are brighter.
+- With the leaves palette, autumn and cherry trees are green apart from the birch-lightened clumps.
+  They need BoP leaves, or an autumn-tinted biome, for their colour.
+- Small trees of the other species still use the large-tree growth models. They have not been
+  reworked onto `small_frame` or looked at closely at that size.

@@ -9,8 +9,11 @@ Logs (any block listed in LOG_BLOCKS) get their axis bits added on export: +0 up
 Leaves: give the no-decay meta explicitly (vanilla: type | 4).
 
 Palette sets:
-  vanilla        default. Vanilla 1.7.10 blocks only (IDs 0-175).
-  vanilla-leaves same, but every coloured canopy (wool, clay) swapped for real leaves.
+  vanilla        default. Vanilla 1.7.10 blocks only (IDs 0-175); every canopy is real leaves.
+  vanilla-wool   same, but the autumn and cherry canopies are dyed wool and stained clay. Opt-in
+                 only: wool is an opaque full cube, so mobs spawn on the canopy tops at night,
+                 punching drops free dyed wool, and nothing shows through the crown.
+  vanilla-leaves old name for `vanilla`.
   bop            Biomes O' Plenty woods and leaves (needs --idmap). Meta values are from BoP 2.1
                  for 1.7.10 and must be checked in game (F3 / NEI) before a real export.
 """
@@ -82,7 +85,7 @@ VANILLA = {
         'core': one(STONE),
     },
     'autumn': {
-        'trunk': one(OAK), 'branch': one(OAK), 'root': one(OAK), 'bark': one(DARKOAK),
+        'trunk': one(OAK), 'branch': one(OAK), 'root': one(OAK), 'bark': one(BIRCH),   # bark = aspen
         # wool reads softer than terracotta; terracotta gives the shaded depth inside the crown
         'leaf': w(WOOL['red'], 4, CLAY['red'], 1),
         'leaf2': w(WOOL['orange'], 4, CLAY['orange'], 1),
@@ -99,13 +102,15 @@ VANILLA = {
     },
 }
 
-# leaves-only fallback for the wool/clay canopies
+# leaves-only canopies (the default). Oak, dark-oak and acacia leaves take the biome foliage
+# colour; birch and spruce leaves have a fixed colour, so birch gives the lighter "yellow" clumps
+# and spruce the dark ones whatever the biome.
 VANILLA_LEAVES = {k: dict(v) for k, v in VANILLA.items()}
 VANILLA_LEAVES['autumn'].update({
-    'leaf': w(L_DARKOAK, 1), 'leaf2': w(L_OAK, 1), 'leaf3': w(L_ACACIA, 1), 'leaf4': w(L_OAK, 1),
-    'accent': w(L_DARKOAK, 1)})
+    'leaf': w(L_DARKOAK, 1), 'leaf2': w(L_ACACIA, 1), 'leaf3': w(L_BIRCH, 1), 'leaf4': w(L_OAK, 1),
+    'accent': w(L_SPRUCE, 1)})
 VANILLA_LEAVES['cherry'].update({
-    'leaf': w(L_OAK, 1), 'leaf2': w(L_BIRCH, 1), 'leaf3': w(L_OAK, 1), 'leaf4': w(L_OAK, 1)})
+    'leaf': w(L_BIRCH, 1), 'leaf2': w(L_BIRCH, 2, L_OAK, 1), 'leaf3': w(L_OAK, 1), 'leaf4': w(L_OAK, 1)})
 
 # Biomes O' Plenty (1.7.10, BoP 2.1). Names resolve through --idmap; meta = wood/leaf type.
 # Leaves: BoP sets "no decay" differently from vanilla - confirm the meta in game before use.
@@ -130,7 +135,7 @@ BOP['cherry'].update({'trunk': [(B + 'logs1', 1, 1)], 'branch': [(B + 'logs1', 1
 BOP['petrified'] = dict(VANILLA['petrified'])
 BOP['ice'] = dict(VANILLA['ice'])
 
-PALETTES = {'vanilla': VANILLA, 'vanilla-leaves': VANILLA_LEAVES, 'bop': BOP}
+PALETTES = {'vanilla': VANILLA_LEAVES, 'vanilla-leaves': VANILLA_LEAVES, 'vanilla-wool': VANILLA, 'bop': BOP}
 
 
 def load_idmap(path):

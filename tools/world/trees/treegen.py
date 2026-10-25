@@ -3,7 +3,7 @@
   py -3.10 treegen.py                         # every species, default counts, vanilla palette
   py -3.10 treegen.py redwood mangrove        # just these species
   py -3.10 treegen.py cherry --sizes medium --count 4 --seed 7
-  py -3.10 treegen.py autumn --palette vanilla-leaves --out C:/tmp/trees
+  py -3.10 treegen.py autumn --palette vanilla-wool --out C:/tmp/trees
   py -3.10 treegen.py redwood --palette bop --idmap C:/qfs/friends/world/level.dat
   py -3.10 treegen.py --list
 
