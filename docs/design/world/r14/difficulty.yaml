@@ -4,8 +4,9 @@
 # reads a rendered plan dir plus this file and writes difficulty.png (a tier per plan pixel),
 # a preview overlay, and the spawn ratings for the Ark-style picker.
 #
-# Tiers: 1 safe pocket, 2 apron, 3 quite difficult (most land), 4 hard, 5 very difficult,
-# 6 beyond (the outer sea and ring, leading to the RWG outskirts; decision 0003).
+# Tiers: 2 spawn pocket, 3 quite difficult (most land), 4 hard, 5 very difficult, 6 beyond (the
+# outer sea and ring, leading to the RWG outskirts; decision 0003). There is no T1 (the author's
+# decision of 2026-10-25): the pockets are T2 and small, enough for the very early game only.
 # Coordinates are world blocks, x east, z south, origin at the map centre.
 
 # Base tier per region: each region of regions.png takes the tier of the zone that covers most
@@ -44,9 +45,10 @@ hot:
 # `amp` tiers of low-frequency noise (clamped at 2 sigma) blur the region-tier borders.
 wobble: {amp: 0.22, scale: 1200, edge: 450, edge_scale: 700, seed: 14}
 
-# Around each spawn: T1 within `safe`, a T2 apron `apron` blocks wider, then a ramp of
-# `blend` blocks back into the surrounding tier.
-pocket: {safe: 750, apron: 800, blend: 1200}
+# Around each spawn: tier `tier` (T2) within `safe` blocks, then a ramp of `blend` blocks back
+# into the surrounding tier. The ramp runs from 2 to 6, so T2 reads out to about safe + blend/8
+# (650 blocks) and T3 resumes there. (Until 2026-10-25: T1 to 750, a T2 apron to 1,550.)
+pocket: {tier: 2, safe: 500, blend: 1200}
 
 # The outskirts beyond the painted sea: the edge ring of the plan, plus open sea joined to it
 # that lies more than `open_sea` blocks from any land.

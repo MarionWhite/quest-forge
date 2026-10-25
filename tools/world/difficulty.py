@@ -1,28 +1,37 @@
 """Difficulty layer for a continent plan: danger tiers per plan pixel, spawn pockets and picker ratings.
 
     py -3.10 tools/world/difficulty.py PLANDIR SPEC.yaml [--out DIR] [--map ILLUSTRATED.png --preview OUT.png]
-                                       [--write-spawns]
+                                       [--write-spawns] [--bake qf-tiers.bin[.gz]]
+    py -3.10 tools/world/difficulty.py --read-grid qf-tiers.bin[.gz] [--at X Z ...]
 
 Reads the plan layers tools/world/plan.py writes (regions.png, biome.png, height.png, land.png,
 water.png, plan.json) and a difficulty spec (docs/design/world/r14/difficulty.yaml). Writes, into
 --out (default PLANDIR):
-  difficulty.png   tier per plan pixel (1..5 on land and the inner sea, 6 = beyond)
+  difficulty.png   tier per plan pixel (2..5 on land and the inner sea, 6 = beyond)
   difficulty.json  land share per tier and each spawn's rating
 --preview draws the tiers as a tinted overlay with a legend, over --map (an illustrated map from
 illustrate.py, ideally --no-labels; the plan must fill its inner frame) or else the plan preview.
 --write-spawns replaces the spawn points in PLANDIR/plan.json with the spec's, rating included,
 so illustrate.py labels them ("Spawn: Hard").
+--bake writes the tier grid the game reads (qf-content's difficulty hook): one byte per chunk over
+the whole plan, with the header described at write_grid(). A name ending in .gz is gzipped (the
+mod reads either). Copy it into a world as <world>/data/qf-tiers.bin.
+--read-grid checks a baked file: header, tier counts, and the tier at each --at X Z.
 
 The layer is independent of terrain: it changes no blocks. Design: a base tier per region (the
 zone covering most of the region's land), blended across region borders; T5 hot zones that pull
-difficulty up with a smooth falloff; a small safe pocket around each spawn (T1, then a T2 apron,
-then a ramp back); and the outer sea and ring marked T6, the way to the outskirts.
+difficulty up with a smooth falloff; a small pocket around each spawn (T2, then a ramp back; there
+is no T1); and the outer sea and ring marked T6, the way to the outskirts.
 """
 import argparse
+import gzip
+import hashlib
 import json
 import math
 import os
+import struct
 import sys
+import zlib
 
 import numpy as np
 import yaml
@@ -32,7 +41,8 @@ from scipy import ndimage
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from plan import RIVER  # noqa: E402
 
-TIER_NAMES = {1: "Safe", 2: "Apron", 3: "Quite difficult", 4: "Hard", 5: "Very difficult", 6: "Beyond"}
+MIN_TIER = 2   # no T1 (the author's decision, 2026-10-25): the spawn pockets are T2
+TIER_NAMES = {1: "Safe", 2: "Spawn pocket", 3: "Quite difficult", 4: "Hard", 5: "Very difficult", 6: "Beyond"}
 TIER_COLS = {1: (96, 168, 92), 2: (176, 186, 84), 3: (214, 164, 70), 4: (200, 96, 46), 5: (150, 24, 40),
              6: (66, 26, 92)}
 
@@ -126,14 +136,15 @@ def build(p, spec):
     # A low-frequency wobble (in tiers) so region-tier borders are not exact region outlines.
     if wb.get("amp", 0):
         D = D + wb["amp"] * noise(wb.get("scale", 1200)) * np.clip(5 - D, 0, 1) * np.clip(D - 2, 0, 1)
-    # ---- spawn pockets
+    # ---- spawn pockets: the pocket tier (T2) within `safe`, then a ramp from it to 6 over `blend`
     pk = spec.get("pocket", {})
-    safe, apron, blend = pk.get("safe", 750), pk.get("apron", 800), pk.get("blend", 1200)
+    low, safe, blend = pk.get("tier", MIN_TIER), pk.get("safe", 500), pk.get("blend", 1200)
     for s in spec.get("spawns", []):
         d = np.hypot(p.X - s["x"], p.Z - s["z"])
-        cap = np.where(d < safe, 1.0, np.where(d < safe + apron, 2.0, 2.0 + 4.0 * (d - safe - apron) / blend))
+        cap = np.where(d < safe, float(low), low + (6.0 - low) * (d - safe) / blend)
         D = np.minimum(D, cap)
-    tier = np.clip(np.round(D), 1, 5).astype(np.uint8)
+    D = np.maximum(D, MIN_TIER)
+    tier = np.clip(np.round(D), MIN_TIER, 5).astype(np.uint8)
     # ---- beyond: the edge ring of the plan and the open sea joined to it
     by = spec.get("beyond", {})
     ring = by.get("ring", 2500)
@@ -189,7 +200,7 @@ def ratings(p, spec, tier):
 
 def shares(p, tier):
     m = p.land
-    return {t: float((tier[m] == t).mean()) for t in range(1, 7)}
+    return {t: float((tier[m] == t).mean()) for t in range(MIN_TIER, 7)}
 
 
 def preview(p, spec, D, tier, rates, sh, out, base_img=None):
@@ -242,7 +253,7 @@ def preview(p, spec, D, tier, rates, sh, out, base_img=None):
     # Legend, bottom right inside the map.
     fl = font("pala.ttf", int(26 * s))
     fh = font("palab.ttf", int(30 * s))
-    rows = [t for t in range(1, 7)]
+    rows = [t for t in range(MIN_TIER, 7)]
     lw, lh = 560 * s, (90 + 46 * len(rows)) * s
     lx, ly = N - m0 - lw - 40 * s, N - m0 - lh - 40 * s
     d.rectangle((lx, ly, lx + lw, ly + lh), fill=(232, 218, 182, 235), outline=ink, width=max(2, round(3 * s)))
@@ -257,7 +268,101 @@ def preview(p, spec, D, tier, rates, sh, out, base_img=None):
     print(f"wrote {out}")
 
 
+# ---- the baked tier grid (read by qf-content's com.questforge.content.difficulty.TierGrid)
+GRID_MAGIC = b"QFTG"
+GRID_VERSION = 1
+GRID_HEADER = 64
+OUTSIDE_TIER = 6
+
+
+def chunk_grid(p, D, tier):
+    """The tier of every chunk the plan covers (rows = z, columns = x), sampled at chunk centres.
+
+    The continuous difficulty is interpolated bilinearly, so a 32-block plan pixel does not show
+    as a 2x2 block of chunks; the beyond mask (T6) is taken from the nearest plan pixel."""
+    n = int(round(p.half * 2 / 16))
+    c = (np.arange(n, dtype=np.float64) + 0.5) * 16 - p.half            # chunk centres, in blocks
+    u = (c + p.half) / p.px - 0.5                                         # in plan pixels
+    U, V = np.meshgrid(u, u, indexing="ij")                               # U = row (z), V = column (x)
+    Dc = ndimage.map_coordinates(D.astype(np.float32), [U, V], order=1, mode="nearest")
+    near = np.clip(((c + p.half) // p.px).astype(np.int64), 0, p.n - 1)
+    beyond = (tier == 6)[near[:, None], near[None, :]]
+    out = np.clip(np.round(Dc), MIN_TIER, 5).astype(np.uint8)
+    out[beyond] = 6
+    return out
+
+
+def write_grid(path, grid, origin_cx, origin_cz, spec_bytes):
+    """Writes the tier grid. Big-endian (Java's DataInputStream), 64-byte header:
+
+        0  4s   magic "QFTG"
+        4  u16  version (1)
+        6  u16  header length in bytes (64); data starts here
+        8  i32  origin chunk x (the chunk of column 0)
+       12  i32  origin chunk z (the chunk of row 0)
+       16  i32  width in chunks (columns, along x)
+       20  i32  height in chunks (rows, along z)
+       24  u8   min tier in the data (2)
+       25  u8   max tier in the data (6)
+       26  u8   tier just outside the grid (6; the mod raises it with distance)
+       27  u8   reserved (0)
+       28  u32  CRC-32 of the data
+       32  32s  SHA-256 of the difficulty spec (difficulty.yaml) it was baked from
+       64  data: width*height bytes, row-major; chunk (cx, cz) is at (cz-z0)*width + (cx-x0)
+
+    A path ending in .gz is gzipped; the mod detects gzip by its magic bytes either way."""
+    h, w = grid.shape
+    data = np.ascontiguousarray(grid, dtype=np.uint8).tobytes()
+    head = struct.pack(">4sHHiiiiBBBBI32s", GRID_MAGIC, GRID_VERSION, GRID_HEADER, origin_cx, origin_cz, w, h,
+                       int(grid.min()), int(grid.max()), OUTSIDE_TIER, 0, zlib.crc32(data) & 0xFFFFFFFF,
+                       hashlib.sha256(spec_bytes).digest())
+    assert len(head) == GRID_HEADER
+    if path.endswith(".gz"):
+        # mtime 0 and no file name, so the same grid always bakes to the same bytes
+        with open(path, "wb") as raw, gzip.GzipFile(filename="", fileobj=raw, mode="wb", mtime=0) as f:
+            f.write(head + data)
+    else:
+        with open(path, "wb") as f:
+            f.write(head + data)
+    print(f"wrote {path}: {w}x{h} chunks from chunk ({origin_cx}, {origin_cz}), {os.path.getsize(path):,} bytes")
+
+
+def read_grid(path):
+    raw = open(path, "rb").read()
+    if raw[:2] == b"\x1f\x8b":
+        raw = gzip.decompress(raw)
+    magic, ver, hl, x0, z0, w, h, tmin, tmax, tout, _, crc, sha = struct.unpack(">4sHHiiiiBBBBI32s", raw[:64])
+    if magic != GRID_MAGIC:
+        raise SystemExit(f"{path}: not a tier grid (magic {magic!r})")
+    data = raw[hl:hl + w * h]
+    if len(data) != w * h or zlib.crc32(data) & 0xFFFFFFFF != crc:
+        raise SystemExit(f"{path}: truncated or corrupt (CRC mismatch)")
+    hdr = dict(version=ver, header=hl, origin=(x0, z0), size=(w, h), tiers=(tmin, tmax), outside=tout,
+               spec_sha256=sha.hex())
+    return hdr, np.frombuffer(data, np.uint8).reshape(h, w)
+
+
+def grid_report(path, points):
+    hdr, g = read_grid(path)
+    print(json.dumps(hdr))
+    vals, cnt = np.unique(g, return_counts=True)
+    print("chunks per tier: " + ", ".join(f"T{v} {c:,} ({c / g.size * 100:.1f}%)" for v, c in zip(vals, cnt)))
+    x0, z0 = hdr["origin"]
+    w, h = hdr["size"]
+    for x, z in points:
+        cx, cz = math.floor(x / 16), math.floor(z / 16)
+        inside = 0 <= cx - x0 < w and 0 <= cz - z0 < h
+        print(f"  ({x}, {z}) chunk ({cx}, {cz}): " + (f"T{g[cz - z0, cx - x0]}" if inside else "outside the grid"))
+
+
 def main():
+    if "--read-grid" in sys.argv:
+        ap = argparse.ArgumentParser(description="check a baked tier grid")
+        ap.add_argument("--read-grid", required=True)
+        ap.add_argument("--at", nargs=2, type=int, action="append", default=[], metavar=("X", "Z"))
+        a = ap.parse_args()
+        grid_report(a.read_grid, a.at)
+        return
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("plan_dir")
     ap.add_argument("spec")
@@ -265,6 +370,7 @@ def main():
     ap.add_argument("--map", help="illustrated map to draw the preview over (illustrate.py --no-labels)")
     ap.add_argument("--preview", help="write the tinted overlay here")
     ap.add_argument("--write-spawns", action="store_true", help="replace the spawn points in plan.json with the spec's")
+    ap.add_argument("--bake", metavar="OUT.bin[.gz]", help="write the per-chunk tier grid the game reads")
     a = ap.parse_args()
     spec = yaml.safe_load(open(a.spec))
     p = Plan(a.plan_dir)
@@ -292,6 +398,10 @@ def main():
         print(f"wrote {len(rates)} spawns into {pj}")
     if a.preview:
         preview(p, spec, D, tier, rates, sh, a.preview, a.map)
+    if a.bake:
+        grid = chunk_grid(p, D, tier)
+        origin = -int(round(p.half / 16))
+        write_grid(a.bake, grid, origin, origin, open(a.spec, "rb").read())
 
 
 if __name__ == "__main__":

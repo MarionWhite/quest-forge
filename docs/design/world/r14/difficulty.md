@@ -20,14 +20,21 @@ py -3.10 tools/world/illustrate.py PLAN r14-illustrated.png
 py -3.10 tools/world/illustrate.py PLAN r14-illustrated-clean.png --no-labels
 py -3.10 tools/world/difficulty.py PLAN docs/design/world/r14/difficulty.yaml \
     --map r14-illustrated-clean.png --preview r14-difficulty.png
+py -3.10 tools/world/difficulty.py PLAN docs/design/world/r14/difficulty.yaml     --bake docs/design/world/r14/qf-tiers-r13.bin.gz
 ```
+
+The last line bakes the tier grid the game reads; see
+[`difficulty-mechanism.md`](difficulty-mechanism.md). The renders in `C:\qf-worldenders` predate
+the 2026-10-25 pocket change (they still show T1).
 
 ## Tiers
 
+There is no T1 (the author's decision of 2026-10-25). The spawn pockets are T2, and they are
+small: enough for the very early game only.
+
 | Tier | Meaning | Where |
 |---|---|---|
-| T1 Safe | Room to build a first base | Within 750 blocks of a spawn |
-| T2 Apron | First outings from spawn | A ring 800 blocks wide around T1 |
+| T2 Spawn pocket | The very early game: bearings and a starter kit | Within about 650 blocks of a spawn |
 | T3 Quite difficult | The normal state of the world | Most land |
 | T4 Hard | Gear and a group expected | The northern ice landmass, the northwest island, the northeast tundra, the dark woods around the corrupted core, the Maelstrom and haunted isles, the crag ring, both desert lobes, the southern volcanic isle |
 | T5 Very difficult | Destinations, not places to pass through | The hot zones below |
@@ -40,8 +47,10 @@ How the layer is built:
 2. **Hot zones.** Each zone pulls difficulty up to 5. The falloff is smooth, so a T4 band
    forms between a hot zone and its T3 surroundings. Noise roughens the zone edges so they
    are not perfect circles.
-3. **Spawn pockets.** Each spawn gets T1 within 750 blocks, then T2 out to 1,550 blocks.
-   From there the tier ramps back up to the surrounding tier over 1,200 blocks.
+3. **Spawn pockets.** Each spawn is T2 within 500 blocks. From there the difficulty ramps
+   from 2 to 6 over 1,200 blocks, capped by the surrounding tier, so T2 reads out to about
+   650 blocks and T3 resumes there. (Until 2026-10-25 the pocket was T1 to 750 blocks and a
+   T2 apron to 1,550.)
 4. **Beyond.** T6 covers the sea within 2,500 blocks of the plan's edge. It also covers any
    open sea joined to that band that lies more than 4,000 blocks from land. Inner seas and
    straits keep the tier of their nearest shore.
@@ -66,36 +75,38 @@ There are ten spawns. Each sits on flat, dry land (no sea, lake or river, low lo
 least 1,200 blocks from any landmark. The closest pair is 8,688 blocks apart.
 `difficulty.py` checks all of this and warns on any spawn that fails.
 
-The picker rating is the mean tier of the land within 3,000 blocks of the spawn. The spawn's
-own T1/T2 pocket takes up about a quarter of that circle, so scores are compressed into the
-range 2.5 to 3.2. The labels are: Gentle below 2.65, Hard below 2.9, Brutal below 3.08, and
-Deadly at 3.08 or above.
+The picker rating is the mean tier of the land within 3,000 blocks of the spawn. The labels
+are: Gentle below 2.65, Hard below 2.9, Brutal below 3.08, and Deadly at 3.08 or above.
 
-| Area | x | z | Score | Rating |
+**The labels need recalibrating.** They were set when each spawn's T1/T2 pocket covered about
+a quarter of the circle. With the small T2 pocket (2026-10-25) every score rose by 0.4 to 1.0,
+and the old cut-offs now call eight of the ten spawns Deadly. The scores below are current;
+the cut-offs are the picker's job and wait for it.
+
+| Area | x | z | Score | Old label |
 |---|---:|---:|---:|---|
-| Redwood west coast | -16500 | 2500 | 2.52 | Gentle |
-| Central lowlands, west of the Thousand Islands | 1400 | 5800 | 2.57 | Gentle |
-| East steppe peninsula | 15900 | 2700 | 2.51 | Gentle |
-| North rainforest belt (Temperate Rainforest, south of the divide) | -3200 | -2500 | 2.84 | Hard |
-| Northern ice landmass (Tundra, west end) | 1500 | -16400 | 2.83 | Hard |
-| Southwest desert tip | -7900 | 13100 | 3.08 | Brutal |
-| Tropical southeast lobe | 13700 | 14700 | 2.97 | Brutal |
-| Northwest glacial-caldera island | -15300 | -11400 | 3.05 | Brutal |
-| South desert lobe | 3200 | 14300 | 3.12 | Deadly |
-| Northeast tundra | 13200 | -9000 | 3.12 | Deadly |
+| Redwood west coast | -16500 | 2500 | 2.92 | Brutal |
+| Central lowlands, west of the Thousand Islands | 1400 | 5800 | 2.94 | Brutal |
+| East steppe peninsula | 15900 | 2700 | 3.13 | Deadly |
+| North rainforest belt (Temperate Rainforest, south of the divide) | -3200 | -2500 | 3.28 | Deadly |
+| Tropical southeast lobe | 13700 | 14700 | 3.57 | Deadly |
+| Southwest desert tip | -7900 | 13100 | 3.66 | Deadly |
+| Northern ice landmass (Tundra, west end) | 1500 | -16400 | 3.78 | Deadly |
+| Northeast tundra | 13200 | -9000 | 3.84 | Deadly |
+| South desert lobe | 3200 | 14300 | 3.87 | Deadly |
+| Northwest glacial-caldera island | -15300 | -11400 | 4.01 | Deadly |
 
-The southwest desert tip scores 3.08, right at the Brutal/Deadly line. Its label can flip
-with small edits to the plan.
+The order is close to the old one: the coastal and lowland spawns are the gentlest, and the
+desert, ice and caldera spawns the hardest.
 
 ## Land share per tier
 
 | Tier | Share of land | Target |
 |---|---:|---:|
-| T1 | 1.7% | 3% or less |
-| T2 | 6.6% | about 7% |
-| T3 | 44.5% | about 45% |
-| T4 | 30.9% | about 30% |
-| T5 | 16.3% | about 15% |
+| T2 | 1.3% | small: the very early game only |
+| T3 | 46.8% | about 45% |
+| T4 | 34.9% | about 30% |
+| T5 | 17.0% | about 15% |
 
 T6 covers only sea.
 
