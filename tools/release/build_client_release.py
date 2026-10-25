@@ -9,6 +9,8 @@ Writes, under --out:
                            Forge 1558 jar, mods\\, config\\, assets\\ (vanilla + assets\\mcheli), resources\\ ...
   QuestForge-Angelica\\    the same folder rebuilt by tools/angelica-client/build_angelica_client.py
   each edition's SHA1SUMS.txt, and player-name.txt (the name used to join)
+  with --prism, also <out>\prism\QuestForge-client-instance-{optifine,angelica}.zip: the same
+  folders as Prism instances (tools/release/build_prism_instance.py)
 
 WHY A RAW FOLDER AND NOT A PRISM INSTANCE. The pack has always run on Windows from
 %APPDATA%\\.crazycraft4 through TEST-LAUNCH.bat, and that is the layout every boot test uses.
@@ -152,6 +154,7 @@ def main():
     ap.add_argument("--jars", action="append", default=[], help="folder(s) with the Angelica manifest jars")
     ap.add_argument("--add-shaderpack", help="shader pack zip for the Angelica edition")
     ap.add_argument("--no-angelica", action="store_true")
+    ap.add_argument("--prism", action="store_true", help="also build the Prism instance zips into OUT\\prism")
     a = ap.parse_args()
     src, out = os.path.abspath(a.src), os.path.abspath(a.out)
     if os.path.normcase(out).startswith(os.path.normcase(src)):
@@ -194,6 +197,12 @@ def main():
         with open(os.path.join(ang, "PLAY-ANGELICA.bat"), "w", newline="\r\n") as fh:
             fh.write(PLAY_ANGELICA)
         print("Angelica edition: %d files hashed" % sha1sums(ang))
+
+    if a.prism:
+        prism_out = os.path.join(out, "prism")
+        for folder in [e7] + ([] if a.no_angelica else [os.path.join(out, "QuestForge-Angelica")]):
+            subprocess.check_call([sys.executable, "-I", os.path.join(HERE, "build_prism_instance.py"),
+                                   "--raw", folder, "--out", prism_out])
 
 
 if __name__ == "__main__":
