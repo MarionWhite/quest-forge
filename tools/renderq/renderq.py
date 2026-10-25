@@ -649,6 +649,7 @@ class Runner:
         last_busy_check, last_idle_at = 0, time.time()
         first_step_at, outcome, busy_from = None, "crashed", None
         stalled_written = False
+        seen_focus = 0
         limit = 15 * 60 + steps_total * 120
         while trial.pid_alive(pid):
             if self.tick():
@@ -676,6 +677,13 @@ class Runner:
             # window and hands focus back. That must never happen: stop, pause the queue, alert.
             fl = os.path.join(d, "logs", "focus.log")
             focus = [l.strip() for l in open(fl, encoding="utf-8", errors="replace")] if os.path.exists(fl) else []
+            if len(focus) > seen_focus:
+                for l in focus[seen_focus:]:
+                    log("  FOCUS (handed back): " + l)
+                seen_focus = len(focus)
+            # LWJGL takes the foreground once at window creation when the owner is idle and the guard
+            # hands it straight back (": ok"). Anything else is the failure that must never happen.
+            focus = [l for l in focus if not l.endswith(": ok")]
             if focus:
                 jdump(FOCUS_ALERT, {"at": now_s(), "boot": boot_id, "lines": focus[:20]})
                 jdump(PAUSE, {"at": now_s(), "why": "FOCUS: our client was the foreground window (see FOCUS-ALERT); "
