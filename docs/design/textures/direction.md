@@ -158,6 +158,7 @@ The rest are for direction only.
 | Conquest_ | https://modrinth.com/resourcepack/conquest_ | 32x | Yes | No | **Yes** | ARR (modpack listing allowed by its FAQ, no redistribution otherwise) | How far 1.7.10 CTM can go; medieval, so off-style |
 | Soartex Grove | https://modrinth.com/resourcepack/soartex-grove | 64x | not verified | not verified | No (modern) | CC-BY-NC-SA-4.0 | Remixable high-detail art, if we ever want a 64x direction |
 | Jicklus | https://modrinth.com/resourcepack/jicklus | 16x | not stated | No | No (1.16+) | ARR ("personal use only") | Warm, rustic recolour: a vibrance reference |
+| **Faithless** (owner's pick, 2026-10-25) | https://modrinth.com/resourcepack/faithless · https://www.curseforge.com/minecraft/texture-packs/faithless | 16x | not stated | not stated | No (1.20–1.21) | ARR on Modrinth; no derivative permission stated | **Owner likes a lot of its elements.** Inspiration for direction only: we study what it does and draw our own; nothing is copied, traced or recoloured from it |
 | Bare Bones | https://modrinth.com/resourcepack/bare-bones | 16x | No | No | Listed from 1.6.1 | ARR | The contrast: less detail, flat colour. Shows what "not that" means |
 
 **Dropped from the list:**
@@ -170,8 +171,13 @@ The rest are for direction only.
 
 **Recommendation:** the route our sources support is Faithful 32x for detail, our own art
 direction for grass, foliage and colour, Angelica's CTM, and our own LabPBR maps. That route is
-QF v0, below. The owner picks the 2–3 packs above that come closest to what he wants, and later
+QF v0, below. The owner picks the 2–3 packs above that come closest to what they want, and later
 versions aim at those.
+
+**Owner, 2026-10-25:** has looked at packs and likes a lot of things from **Faithless**. It is
+ARR and 1.20+, so it is inspiration only: name the elements they like (shapes, palette,
+shading, detail level, specific blocks), then draw our own versions of those ideas over the
+Faithful/vanilla base.
 
 ## 4. QF Textures v0 (prototype)
 
@@ -228,11 +234,13 @@ py -3.10 -I tools/textures/build_qf_textures.py --out C:\qfb\textures\QFTextures
 - Views `texture_wall` and `glass_close` are in `tools/shaders/review/views-world-master.txt`.
 - Render with `bench_round.py --world C:\qfb\textures\world-showcase`.
 
-**r007 renders** (bench tags in `C:\qfb\shaderdevounds`):
+**r007 renders** (bench tags in `C:\qfb\shaderdev
+ounds`):
 - `tx0v` vanilla, `tx0f` Faithful 32x, `tx0r` QF v0 (`tx0q` is an earlier QF v0 run), and
   `tx0o` with shaders off.
 - Views: texture_wall, glass_close, forest_lit, golden_lit and gallery.
-- Run script: `C:\qfb	extures	x0.sh`. Lab scenes: `C:\qfb\shaderdev007	exture_scenes.json`.
+- Run script: `C:\qfb	extures	x0.sh`. Lab scenes: `C:\qfb\shaderdev
+007	exture_scenes.json`.
 - The pack makes no measurable difference to cost: frame times are within 0.02 ms of vanilla on
   every view.
 - In forest_lit, QF v0 is almost identical to vanilla, by design. On the wall it has Faithful's
