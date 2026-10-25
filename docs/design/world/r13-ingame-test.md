@@ -379,3 +379,17 @@ Each piece carries:
 - `waterfalls.py` with no `--area`. It now runs in tiles of 8 × 8 regions, tested on two pieces with `--tile 2`;
 - `ice_faces.py`;
 - give the qf-tweaks RWG hook the whole map as its rectangle.
+
+## Terrain changed after this test (2026-10-25, r16)
+
+The mountains in `r13/main.yaml` are no longer what this test built. The coordinates of the
+five landmarks are unchanged, but `merge.py` now:
+- shapes the divide, the coastal and ice ranges and the rims as ranges with crests, spurs and
+  erosion (commit 40c62a4), with stronger erosion overall (50 iterations, k 0.007);
+- rebuilds the west coastal range as an en-echelon chain of ten massifs on a broad base;
+- bridges the massifs at West and East pass, so each pass is a notch about 70 below its
+  shoulders;
+- erodes the crater and caldera rims harder, and closes the crater rim's open east and west
+  gaps with a lower rim.
+
+Heights near the mountains will differ from the numbers above. Re-test before reusing them.

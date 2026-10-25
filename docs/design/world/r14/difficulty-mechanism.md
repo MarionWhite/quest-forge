@@ -40,7 +40,7 @@ and 5 and marks the "beyond" sea as T6. A name ending in `.gz` gets gzipped dete
 up points.
 
 The r13 grid: 3,072 × 3,072 chunks from chunk (−1536, −1536), so blocks ±24,576. By chunk count it
-is T2 0.5%, T3 35.4%, T4 34.8%, T5 9.0% and T6 20.2% (sea included).
+is T2 0.5%, T3 36.0%, T4 35.1%, T5 8.1% and T6 20.2% (sea included; rebaked on the r16 terrain, 2026-10-25).
 
 ## File format (version 1)
 

@@ -4,6 +4,10 @@ additions in r13/additions.yaml (south and south-east landmarks, passes through 
 Each r12 slot only appended to r12/main.yaml (new regions prepended), so the merge takes each
 slot's additions and stacks them onto one copy of the base.
 Run: py -3.10 merge.py
+
+The terrain changed after the r13 in-game test (r16, 2026-10-25): the coastal range is an
+en-echelon chain, the passes are notches bridged across the crest, the rims erode harder and the
+crater rim is closed. See r13-ingame-test.md, "Terrain changed after this test".
 """
 import os
 import yaml

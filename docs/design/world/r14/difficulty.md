@@ -8,24 +8,26 @@ unaffected.
 - Tool: `tools/world/difficulty.py`. It reads a plan dir (regions, biome, height, land, water
   and plan.json) and writes `difficulty.png` with one tier per plan pixel, `difficulty.json`
   with the shares and ratings, and a tinted preview.
-- Renders:
-  - `C:\qf-world\renders\r14-illustrated.png` (labelled; each spawn shows its rating)
-  - `C:\qf-world\renders\r14-illustrated-clean.png`
-  - `C:\qf-world\renders\r14-difficulty.png` (the tiers over the clean map, with a legend)
+- Renders (r16, on the 2026-10-25 terrain: coastal chain, notched passes, eroded rims):
+  - `C:\qf-worldenders16-illustrated.png` (labelled; each spawn shows its rating)
+  - `C:\qf-worldenders16-illustrated-clean.png` (2048)
+  - `C:\qf-worldenders16-divide-crop.png` (the divide and both passes)
+  - `C:\qf-worldenders16-difficulty.png` (the tiers over the clean map, with a legend)
 
 ```
+py -3.10 docs/design/world/r13/merge.py
 py -3.10 tools/world/plan.py render docs/design/world/r13/main.yaml PLAN --px 32
 py -3.10 tools/world/difficulty.py PLAN docs/design/world/r14/difficulty.yaml --write-spawns
-py -3.10 tools/world/illustrate.py PLAN r14-illustrated.png
-py -3.10 tools/world/illustrate.py PLAN r14-illustrated-clean.png --no-labels
-py -3.10 tools/world/difficulty.py PLAN docs/design/world/r14/difficulty.yaml \
-    --map r14-illustrated-clean.png --preview r14-difficulty.png
-py -3.10 tools/world/difficulty.py PLAN docs/design/world/r14/difficulty.yaml     --bake docs/design/world/r14/qf-tiers-r13.bin.gz
+py -3.10 tools/world/illustrate.py PLAN r16-illustrated.png --crop 1100,1000,1450,r16-divide-crop.png
+py -3.10 tools/world/illustrate.py PLAN r16-illustrated-clean.png --no-labels --size 2048
+py -3.10 tools/world/illustrate.py PLAN clean-4096.png --no-labels
+py -3.10 tools/world/difficulty.py PLAN docs/design/world/r14/difficulty.yaml     --map clean-4096.png --preview r16-difficulty.png
+py -3.10 tools/world/difficulty.py PLAN docs/design/world/r14/difficulty.yaml --bake docs/design/world/r14/qf-tiers-r13.bin.gz
 ```
 
 The last line bakes the tier grid the game reads; see
-[`difficulty-mechanism.md`](difficulty-mechanism.md). The renders in `C:\qf-worldenders` predate
-the 2026-10-25 pocket change (they still show T1).
+[`difficulty-mechanism.md`](difficulty-mechanism.md). It was rebaked on the r16 terrain. The
+r14 and r15 renders predate the pocket change and the new terrain.
 
 ## Tiers
 
@@ -73,30 +75,35 @@ How the layer is built:
 
 There are ten spawns. Each sits on flat, dry land (no sea, lake or river, low local relief) at
 least 1,200 blocks from any landmark. The closest pair is 8,688 blocks apart.
-`difficulty.py` checks all of this and warns on any spawn that fails.
+`difficulty.py` checks all of this and warns on any spawn that fails. The new terrain moved two
+of them 100 to 200 blocks: the north rainforest belt spawn (to z -2400) was on rough ground and
+the southwest desert tip spawn (to x -8100) was in a river.
 
-The picker rating is the mean tier of the land within 3,000 blocks of the spawn. The labels
-are: Gentle below 2.65, Hard below 2.9, Brutal below 3.08, and Deadly at 3.08 or above.
+**Picker rating (r16).** The score is the mean tier of the land a new player meets first: from
+the pocket's edge (650 blocks, which every spawn shares) out to 2,500 blocks, weighted toward the
+spawn (linear, 1 at 650 and 0 at 2,500). The labels go by **rank** among the ten spawns: the two
+gentlest are Gentle, then three Hard, three Brutal and two Deadly. Most of the map is hard by
+design, so Gentle means the gentlest start there is, not an easy one. The score is shown next
+to the label, so the picker still says how hard each start is.
 
-**The labels need recalibrating.** They were set when each spawn's T1/T2 pocket covered about
-a quarter of the circle. With the small T2 pocket (2026-10-25) every score rose by 0.4 to 1.0,
-and the old cut-offs now call eight of the ten spawns Deadly. The scores below are current;
-the cut-offs are the picker's job and wait for it.
+The fixed cut-offs (Gentle below 2.65, and so on, over 3,000 blocks) were set when each pocket
+covered about a quarter of the circle. Once the pockets shrank to about 650 blocks they called
+eight of the ten spawns Deadly. Ranking cannot drift like that when tiers change again.
 
-| Area | x | z | Score | Old label |
+| Area | x | z | Score | Rating |
 |---|---:|---:|---:|---|
-| Redwood west coast | -16500 | 2500 | 2.92 | Brutal |
-| Central lowlands, west of the Thousand Islands | 1400 | 5800 | 2.94 | Brutal |
-| East steppe peninsula | 15900 | 2700 | 3.13 | Deadly |
-| North rainforest belt (Temperate Rainforest, south of the divide) | -3200 | -2500 | 3.28 | Deadly |
-| Tropical southeast lobe | 13700 | 14700 | 3.57 | Deadly |
-| Southwest desert tip | -7900 | 13100 | 3.66 | Deadly |
-| Northern ice landmass (Tundra, west end) | 1500 | -16400 | 3.78 | Deadly |
-| Northeast tundra | 13200 | -9000 | 3.84 | Deadly |
-| South desert lobe | 3200 | 14300 | 3.87 | Deadly |
-| Northwest glacial-caldera island | -15300 | -11400 | 4.01 | Deadly |
+| Redwood west coast | -16500 | 2500 | 3.00 | Gentle |
+| Central lowlands, west of the Thousand Islands | 1400 | 5800 | 3.00 | Gentle |
+| East steppe peninsula | 15900 | 2700 | 3.14 | Hard |
+| North rainforest belt (Temperate Rainforest, south of the divide) | -3200 | -2400 | 3.16 | Hard |
+| Tropical southeast lobe | 13700 | 14700 | 3.41 | Hard |
+| Southwest desert tip | -8100 | 13100 | 3.61 | Brutal |
+| Northern ice landmass (Tundra, west end) | 1500 | -16400 | 3.77 | Brutal |
+| Northeast tundra | 13200 | -9000 | 3.79 | Brutal |
+| South desert lobe | 3200 | 14300 | 3.88 | Deadly |
+| Northwest glacial-caldera island | -15300 | -11400 | 3.88 | Deadly |
 
-The order is close to the old one: the coastal and lowland spawns are the gentlest, and the
+The order is the same as before: the coastal and lowland spawns are the gentlest, and the
 desert, ice and caldera spawns the hardest.
 
 ## Land share per tier
@@ -104,9 +111,16 @@ desert, ice and caldera spawns the hardest.
 | Tier | Share of land | Target |
 |---|---:|---:|
 | T2 | 1.3% | small: the very early game only |
-| T3 | 46.8% | about 45% |
-| T4 | 34.9% | about 30% |
-| T5 | 17.0% | about 15% |
+| T3 | 48.3% | about 45% |
+| T4 | 35.5% | about 30% |
+| T5 | 14.9% | about 15% |
+
+**The divide's crest zone on the eroded terrain.** Erosion cut the crest into separate high
+massifs, so the "above y 185" zone is seven solid T5 patches along the divide, with lower ground
+at the passes and between massifs. That is the intent: the high peaks are destinations, the
+passes are the way through. It is less speckled than before (7 patches in the divide box against
+many single-pixel specks on the old terrain). Lowering the threshold to 175–180 only added small
+fragments, so it stays at 185.
 
 T6 covers only sea.
 
