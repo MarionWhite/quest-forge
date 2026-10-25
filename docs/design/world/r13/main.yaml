@@ -4547,14 +4547,7 @@ points:
 - {name: Maelstrom, kind: landmark, x: 12766, z: 6578}
 - {name: Wreck, kind: landmark, x: 15433, z: 7549}
 - {name: Wreck, kind: landmark, x: 10099, z: 5607}
-- {kind: spawn, tier: 1, x: -18280, z: -2280}
-- {kind: spawn, tier: 1, x: 5800, z: 14490}
-- {kind: spawn, tier: 1, x: -400, z: 900}
-- {kind: spawn, tier: 1, x: -7702, z: 15522}
-- {kind: spawn, tier: 2, x: -14410, z: -9590}
-- {kind: spawn, tier: 2, x: 10530, z: -15782}
 - {name: Ice castle, kind: landmark, x: 7520, z: -16298}
-- {kind: spawn, tier: 1, x: 16550, z: 644}
 - {name: Corrupted core, kind: landmark, x: 10500, z: -3200}
 - {name: Haunted isle, kind: landmark, x: 18500, z: 7300}
 - {name: Thousand Islands, kind: landmark, x: 2600, z: 2500}
@@ -4582,6 +4575,16 @@ points:
 - {name: Crater lake, kind: landmark, x: 17600, z: 15200}
 - {name: West pass, kind: landmark, x: -5750, z: -6300}
 - {name: East pass, kind: landmark, x: 3080, z: -6450}
+- {kind: spawn, name: 'Spawn: redwood west coast', x: -16500, z: 2500}
+- {kind: spawn, name: 'Spawn: central lowlands west of the Thousand Islands', x: 1400, z: 5800}
+- {kind: spawn, name: 'Spawn: north rainforest belt', x: -3200, z: -2500}
+- {kind: spawn, name: 'Spawn: southwest desert tip', x: -7900, z: 13100}
+- {kind: spawn, name: 'Spawn: south desert lobe', x: 3200, z: 14300}
+- {kind: spawn, name: 'Spawn: tropical southeast lobe', x: 13700, z: 14700}
+- {kind: spawn, name: 'Spawn: east steppe peninsula', x: 15900, z: 2700}
+- {kind: spawn, name: 'Spawn: northeast tundra', x: 13200, z: -9000}
+- {kind: spawn, name: 'Spawn: northern ice landmass', x: 1500, z: -16400}
+- {kind: spawn, name: 'Spawn: northwest glacial-caldera island', x: -15300, z: -11400}
 auto_rivers:
   cell: 64
   threshold_km2: 2.5
