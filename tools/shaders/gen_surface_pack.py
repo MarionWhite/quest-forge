@@ -231,16 +231,19 @@ def png(arr):
     return buf.getvalue()
 
 
-def texture_maps(png_bytes, name, strength, fmt, kind=None, stone=None):
+def texture_maps(png_bytes, name, strength, fmt, kind=None, stone=None, emissive=False):
     """{suffix: png bytes} for one texture (animated strips included): {'_n'} in the legacy
     layout, {'_n', '_s'} for LabPBR. `stone` is the vanilla stone at the texture's size, so an
-    ore's flecks can be told from its host rock."""
+    ore's flecks can be told from its host rock; `emissive` marks the bright pixels as emitting."""
     img = np.array(Image.open(io.BytesIO(png_bytes)).convert("RGBA"))
     if fmt == "legacy":
         return {"_n": png(labpbr.legacy_normals(img, strength))}
     st = stone if (stone is not None and stone.shape[1] == img.shape[1]) else None
-    n, s = labpbr.pbr_maps(name, img, strength, kind, st)
+    n, s = labpbr.pbr_maps(name, img, strength, kind, st, emissive)
     return {"_n": png(n), "_s": png(s)}
+
+
+EMISSIVE_DEFAULT = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "textures", "emissive-modded.txt")
 
 
 def texture_normals(png_bytes, strength):
@@ -277,17 +280,7 @@ def texture_sources(instance, mc_jar=None, extra_mods=()):
 
 def read_only_list(path):
     """Texture paths from an --only file: full asset paths, <domain>/<name> or <domain>:<name>."""
-    out = set()
-    for l in open(path, encoding="utf-8"):
-        l = l.split("#", 1)[0].strip()
-        if not l:
-            continue
-        if l.startswith("assets/"):
-            out.add(l if l.endswith(".png") else l + ".png")
-        else:
-            dom, name = re.split(r"[:/]", l, 1)
-            out.add("assets/%s/textures/blocks/%s.png" % (dom.lower(), name))
-    return out
+    return labpbr.read_texture_list(path)
 
 
 def main():
@@ -303,11 +296,17 @@ def main():
     ap.add_argument("--format", choices=["labpbr", "legacy"], help="map layout (default: labpbr for questforge, legacy for vibrant)")
     ap.add_argument("--only", help="file listing the textures to build maps for (one per line); default: every block texture")
     ap.add_argument("--mods", action="append", default=[], help="extra mod jar folder (repeatable), read after <instance>/mods")
+    ap.add_argument("--emissive", default=EMISSIVE_DEFAULT,
+                    help="file listing textures whose bright pixels emit (LabPBR _s alpha); 'none' to disable "
+                         "(default: tools/textures/emissive-modded.txt)")
     args = ap.parse_args()
     if args.target == "questforge" and not args.shader_pack:
         ap.error("--target questforge needs --shader-pack DIR (Iris reads block.properties only from the pack)")
     fmt = args.format or ("labpbr" if args.target == "questforge" else "legacy")
     only = read_only_list(args.only) if args.only else None
+    emissive = set()
+    if args.emissive and args.emissive.lower() != "none" and os.path.exists(args.emissive):
+        emissive = labpbr.read_texture_list(args.emissive)
 
     out = zipfile.ZipFile(args.out, "w", zipfile.ZIP_DEFLATED)
     out.writestr("pack.mcmeta", json.dumps({"pack": {"pack_format": 1, "description":
@@ -355,7 +354,7 @@ def main():
                     continue   # the mod ships its own; never override an artist's map
                 kind, _, strength = classify(g.group(2))
                 try:
-                    maps = texture_maps(z.read(m), g.group(2), strength * args.strength, fmt, kind, stone)
+                    maps = texture_maps(z.read(m), g.group(2), strength * args.strength, fmt, kind, stone, m in emissive)
                 except Exception as e:
                     print("  skip %s: %s" % (m, e))
                     continue
@@ -364,8 +363,9 @@ def main():
                     if m + ".mcmeta" in members:
                         out.writestr(m[:-4] + suffix + ".png.mcmeta", z.read(m + ".mcmeta"))
                 done[g.group(1)] += 1
-        print("surface maps (%s): %d textures across %d domains%s" % (
-            fmt, sum(done.values()), len(done), "; %d left to the mod's own _n" % own if own else ""))
+        print("surface maps (%s): %d textures across %d domains%s%s" % (
+            fmt, sum(done.values()), len(done), "; %d left to the mod's own _n" % own if own else "",
+            "; %d of %d listed emissive textures seen" % (len(emissive & seen), len(emissive)) if emissive else ""))
         if only is not None:
             missing = sorted(only - seen)
             print("--only: %d of %d listed textures built%s" % (

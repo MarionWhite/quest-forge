@@ -177,9 +177,10 @@ def ore_mask(frame, stone=None):
     return d > 60
 
 
-def labpbr_specular(name, frame, kind=None, stone=None):
+def labpbr_specular(name, frame, kind=None, stone=None, emissive=False):
     """LabPBR _s for one frame. `kind` is gen_surface_pack.classify's material kind (emissive,
-    glass, metal, polished, leaves, plant, web, ore, rough, wood, soil, cloth, default)."""
+    glass, metal, polished, leaves, plant, web, ore, rough, wood, soil, cloth, default);
+    `emissive` forces emission for the bright pixels (gen_surface_pack --emissive list)."""
     h, w = frame.shape[:2]
     lname = name.lower()
     sm, f0, por = 0.25, 10, 0
@@ -217,7 +218,7 @@ def labpbr_specular(name, frame, kind=None, stone=None):
         smooth = np.where(m, op[0], smooth)
         F0 = np.where(m, float(op[1]), F0)
     emis = np.full((h, w), 255.0)
-    if EMISSIVE.search(os.path.basename(lname)) or kind == "emissive":
+    if emissive or EMISSIVE.search(os.path.basename(lname)) or kind == "emissive":
         e = np.clip((L - 0.45) / 0.5, 0.0, 1.0)
         emis = np.where(e > 0.02, np.minimum(e * 254.0, 254.0), 255.0)
     out = np.dstack([smooth * 255.0, F0, np.full((h, w), float(por)), emis])
@@ -227,14 +228,30 @@ def labpbr_specular(name, frame, kind=None, stone=None):
     return out
 
 
-def pbr_maps(name, rgba, strength, kind=None, stone=None):
+def pbr_maps(name, rgba, strength, kind=None, stone=None, emissive=False):
     """(_n, _s) LabPBR maps for a whole texture, animated strips included. `stone` is the host rock
     texture at the same size (vanilla 16x stone for modded ores, Faithful stone for Faithful ores)."""
     fr = frames(rgba)
     st = frames(stone)[0] if stone is not None else None
     n = np.vstack([labpbr_normal(f, strength) for f in fr])
-    s = np.vstack([labpbr_specular(name, f, kind, st) for f in fr])
+    s = np.vstack([labpbr_specular(name, f, kind, st, emissive) for f in fr])
     return n, s
+
+
+def read_texture_list(path):
+    """Texture paths from a list file (one per line, # comments): full asset paths,
+    <domain>/<name> or <domain>:<name>; returned as full 'assets/<domain>/textures/blocks/<name>.png'."""
+    out = set()
+    for l in open(path, encoding="utf-8"):
+        l = l.split("#", 1)[0].strip()
+        if not l:
+            continue
+        if l.startswith("assets/"):
+            out.add(l if l.endswith(".png") else l + ".png")
+        else:
+            dom, name = re.split(r"[:/]", l, 1)
+            out.add("assets/%s/textures/blocks/%s.png" % (dom.lower(), name))
+    return out
 
 
 def check_layout(n, s):
