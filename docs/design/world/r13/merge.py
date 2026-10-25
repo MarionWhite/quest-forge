@@ -183,7 +183,9 @@ for r in out["ridges"]:
     p = r.get("points") or []
     if "arc" in r:
         if r.get("biome") in (60, 77) and r["arc"][2] > 1500:            # caldera and volcano rims
-            r.update(crest={"asym": 0.4, "steep": 1, "foothills": 1.5, "width_var": 0.25, "wiggle": 0.15}, erode=True)
+            # (r16) harder erosion, not spurs: gullies down both faces, no sawtooth crown
+            r.update(crest={"asym": 0.4, "steep": 1, "foothills": 1.5, "width_var": 0.25, "wiggle": 0.15},
+                     erode={"k": 0.008, "seed_noise": 10, "iterations": 60})
         continue
     if len(p) < 2 or math.hypot(p[0][0] - p[-1][0], p[0][1] - p[-1][1]) < 10 or r["height"] <= SEA_LEVEL:
         continue                                                          # cones, biome-only strips
@@ -192,13 +194,64 @@ for r in out["ridges"]:
                  erode=True)
     elif r.get("biome") == 60 and r["width"] > 1800:                      # the divide's massifs
         r.update(crest={"asym": 0.35, "steep": -1}, spurs={"branch": 2}, erode=True)
-    elif p[0] == [-15442, -9590]:                                         # west coastal range
-        r.update(crest={"asym": 0.35, "steep": 1, "peaks": 1800}, spurs={"branch": 2}, erode=True)
     elif p[0] == [10530, -17072]:                                         # northern ice range
         r.update(crest={"asym": 0.3, "steep": -1}, spurs={"branch": 2}, erode=True)
     elif "biome" not in r and r.get("relief") == 190:                     # the divide's side ranges
         r.update(crest={"asym": 0.15, "foothills": 1.4, "wiggle": 0.4}, spurs={"spacing": 0.5, "branch": 2}, erode=True)
-out["erosion"] = {"iterations": 40}
+out["erosion"] = {"iterations": 50, "k": 0.007, "seed_noise": 8}     # (r16: was 40 iterations at k 0.004)
+
+# (r16) The volcano crater's rim had open gaps east and west (only flat ground at y 87); a lower
+# rim runs through each now, so the ring is whole with two saddles in it.
+for a0, a1 in ((150, 210), (330, 30)):
+    out["ridges"].append({"arc": [-8520, -150, 1978, a0, a1], "height": 118, "width": 1000, "relief": 180,
+                          "biome": 77, "biome_above": 0.5,
+                          "crest": {"asym": 0.4, "steep": 1, "foothills": 1.5, "width_var": 0.25, "wiggle": 0.15},
+                          "erode": {"k": 0.008, "seed_noise": 10, "iterations": 60}})
+
+# (r16) The west coastal range as a chain like the divide, not one straight crest: a broad
+# base along the old line, carrying a chain of massifs set en echelon (each offset and turned
+# a little off the line, with low gaps between), so the crest steps, wanders and dips.
+coast = next(r for r in out["ridges"] if (r.get("points") or [[0, 0]])[0] == [-15442, -9590])
+line = coast["points"]
+out["ridges"].remove(coast)
+seg = [math.hypot(b[0] - a[0], b[1] - a[1]) for a, b in zip(line, line[1:])]
+cum = [0.0]
+for d_ in seg:
+    cum.append(cum[-1] + d_)
+
+
+def along(s_, off):
+    """Point at arclength s_ on the coastal line, `off` blocks to its west (+) or east (-)."""
+    k_ = max(0, min(len(seg) - 1, next((i for i in range(len(seg)) if cum[i + 1] >= s_), len(seg) - 1)))
+    t_ = (s_ - cum[k_]) / seg[k_]
+    (ax, az), (bx, bz) = line[k_], line[k_ + 1]
+    nx, nz = -(bz - az) / seg[k_], (bx - ax) / seg[k_]     # left of the southward line: west
+    return [int(ax + (bx - ax) * t_ + nx * off), int(az + (bz - az) * t_ + nz * off)]
+
+
+out["ridges"].append({"points": line, "height": 98, "width": 3600, "relief": 150,
+                      "crest": {"asym": 0.3, "steep": 1, "width_var": 0.3, "foothills": 1.3, "peaks": 4500, "wiggle": 0.25},
+                      "erode": True})
+crng = random.Random(1316)
+s_, side = 300.0, 1
+while s_ < cum[-1] - 900:
+    ln = crng.uniform(2300, 3400)
+    e_ = min(s_ + ln, cum[-1] - 300)
+    o0, o1 = side * crng.uniform(150, 450), -side * crng.uniform(100, 400)   # turned across the line
+    mid = (o0 + o1) / 2 + crng.uniform(-250, 250)
+    out["ridges"].append({"points": [along(s_, o0), along((2 * s_ + e_) / 3, mid), along((s_ + 2 * e_) / 3, mid), along(e_, o1)],
+                          "height": int(crng.uniform(132, 168)), "width": int(crng.uniform(1500, 2100)), "relief": 180,
+                          "crest": {"asym": 0.35, "steep": 1, "peaks": 1500, "wiggle": 0.35}, "spurs": {"branch": 2},
+                          "erode": True})
+    s_ = e_ + crng.uniform(250, 600)
+    side = -side
+
+# (r16) The two passes read as notches in a running crest: a lower ridge bridges the massifs
+# either side of each pass (into both), and the saddle canyon cuts its broad notch into it.
+for a_, b_ in (([-6950, -6150], [-4550, -5700]), ([1900, -6600], [4300, -6300])):
+    mx, mz = (a_[0] + b_[0]) / 2, (a_[1] + b_[1]) / 2
+    out["ridges"].append({"points": [a_, [int(mx), int(mz - 150)], b_], "height": 132, "width": 1900, "relief": 190,
+                          "crest": {"asym": 0.3, "steep": -1, "peaks": 900, "wiggle": 0.2}, "erode": True})
 
 # Spawns come from the r14 difficulty layer (ten rated spawns, spread over the whole map);
 # tiers live there too (difficulty.py), so the old per-region spawn points are replaced.

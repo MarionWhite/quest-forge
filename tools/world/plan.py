@@ -107,7 +107,8 @@ def ridged(x, z, cell, octaves, seed):
 
 # ---------------------------------------------------------------- mountain ranges (opt-in)
 # A ridge with `crest:` and/or `spurs:` is shaped as a range instead of a smooth tube; with
-# `erode: true` it also gets the erosion pass. Maps without these keys render exactly as before.
+# `erode: true` it also gets the erosion pass (`erode: {k, iterations, seed_noise, ...}` gives its
+# area its own settings). Maps without these keys render exactly as before.
 
 def _densify(points, step):
     out = []
@@ -356,7 +357,8 @@ def saddle_pass(cn, h, gx, gz, n, half, seed):
     below the crest where the path crosses it (the highest ground on the path, or saddle.at),
     with a valley winding up to it from each foot. The valley deepens as the ground climbs and
     its walls rise from the floor as a V (shape: v) or a U (shape: u); it widens toward the feet.
-    {points: [foot, ..., foot], width, depth, meander, saddle: {shape: v|u, at: [x, z], walls: 1.5}}
+    {points: [foot, ..., foot], width, depth, meander, saddle: {shape: v|u, at: [x, z], walls: 1.5, width: 0.75}}
+    saddle.width: the notch's width over the canyon width (above 0.75 the saddle broadens).
     Returns (slices, new heights, floor fraction 0..1) for the crop it touches, or None."""
     sd = cn["saddle"] if isinstance(cn["saddle"], dict) else {}
     P = _densify([tuple(map(float, p)) for p in cn["pts"]], PX / 2.0)
@@ -402,8 +404,11 @@ def saddle_pass(cn, h, gx, gz, n, half, seed):
     k, t, d, _ = near
     s_px = S[k] + t * seg[k]
     fl = np.interp(s_px, S, floor)
-    # Wider toward the feet, narrower near the notch; the walls wobble.
-    hwp = hw * (0.75 + 0.5 * np.clip(np.abs(s_px - sS) / max(sS, L - sS, 1), 0, 1)) * \
+    # Narrow in the valleys that climb to the notch, opening toward the feet; saddle.width > 1
+    # widens the notch itself into a broad saddle between the shoulders. The walls wobble.
+    sw = sd.get("width", 0.75)
+    hwp = hw * (0.75 + 0.5 * np.clip(np.abs(s_px - sS) / max(sS, L - sS, 1), 0, 1) +
+                (sw - 0.75) * np.exp(-(np.abs(s_px - sS) / (1.3 * hw)) ** 2)) * \
         (1 + 0.25 * fbm(cx, cz, 900, 3, seed + 6600))
     u = d / hwp
     if sd.get("shape", "v") == "u":
@@ -798,6 +803,7 @@ def render(spec_path, plan_dir):
     hills = fbm(gx, gz, 1600, 4, seed + 5) * (4 + relief * 0.12)
     h = np.where(land, SEA + 2 + (base + hills - SEA - 2) * shore, 0).astype(np.float32)
     erode_w = None
+    erode_cfgs = []          # per-range erosion settings (erode: {k, iterations, ...}; true = the spec's)
     for ridge in spec.get("ridges", []):
         if "arc" in ridge:        # {arc: [x, z, radius, deg0, deg1]}
             cx, cz, rad, a0, a1 = ridge["arc"]
@@ -816,7 +822,11 @@ def render(spec_path, plan_dir):
             if ridge.get("erode"):
                 if erode_w is None:
                     erode_w = np.zeros((n, n), np.float32)
-                erode_w[sl] = np.maximum(erode_w[sl], np.clip(f * 6, 0, 1) * ls)
+                    erode_c = np.zeros((n, n), np.int16)
+                wr = np.clip(f * 6, 0, 1) * ls
+                erode_cfgs.append(ridge["erode"] if isinstance(ridge["erode"], dict) else {})
+                erode_c[sl] = np.where(wr > 0.5, len(erode_cfgs), erode_c[sl])
+                erode_w[sl] = np.maximum(erode_w[sl], wr)
             continue
         pts = _poly(n, ridge["points"], size)
         ri = Image.new("L", (n, n), 0)
@@ -902,13 +912,33 @@ def render(spec_path, plan_dir):
     # Erosion over the ranges marked `erode: true` (plateaus keep their walls), one crop per
     # mountain area. Spec erosion: {iterations, k, talus} tunes it (see erode).
     if erode_w is not None:
+        # Plateau walls stay sheer; a range standing on a plateau's top (the caldera rims) is
+        # eroded like any other.
         for pl, pm in plateaus:
-            erode_w[pm] = 0
+            if not pm.any():
+                continue
+            (zi, zj), (xi, xj) = [(int(a.min()), int(a.max())) for a in np.nonzero(pm)]
+            sl = (slice(max(0, zi - 1), zj + 2), slice(max(0, xi - 1), xj + 2))
+            top = ndimage.distance_transform_edt(pm[sl]) * PX > 2 * pl.get("wall", 64) + 2 * PX
+            erode_w[sl][pm[sl] & ~top] = 0
         erode_w = ndimage.gaussian_filter(erode_w, 1.0)
         lab, _ = ndimage.label(ndimage.binary_dilation(erode_w > 0.01, iterations=3))
+        # Each pixel takes the settings of the nearest range core (erode: {...} or the spec's).
+        if (erode_c > 0).any():
+            near = ndimage.distance_transform_edt(erode_c == 0, return_distances=False, return_indices=True)
+            erode_c = erode_c[near[0], near[1]]
+        keys = [json.dumps(c, sort_keys=True) for c in erode_cfgs]
         for k, box in enumerate(ndimage.find_objects(lab)):
             sl = tuple(slice(max(0, b.start - 3), min(n, b.stop + 3)) for b in box)
-            h[sl] = erode(h[sl], erode_w[sl] * (lab[sl] == k + 1), spec.get("erosion", {}), seed + 97 * k)
+            mine = lab[sl] == k + 1
+            groups = {}
+            for i in np.unique(erode_c[sl][mine]):
+                if i > 0:
+                    groups.setdefault(keys[i - 1], []).append(i)
+            for g, (key, ids) in enumerate(sorted(groups.items())):
+                cfg = dict(spec.get("erosion", {}), **json.loads(key))
+                wg = erode_w[sl] * (mine & np.isin(erode_c[sl], ids)) if len(groups) > 1 else erode_w[sl] * mine
+                h[sl] = erode(h[sl], wg, cfg, seed + 97 * k + 7919 * g)
     # Sea floor: shelf, then deep water.
     depth = np.clip(d_out / spec.get("shelf_width", 1200), 0, 1)
     h = np.where(land, h, SEA - 4 - (SEA - 4 - spec.get("deep_floor", 28)) * depth)
