@@ -62,6 +62,20 @@ import com.questforge.content.ench.QFEnchantments;
  * test, and no screenshot hitch lands inside a measured window. worldTime picks
  * the moon phase too: 18000 is a full moon, 114000 (day 4) a new moon.
  * -Dqf.bench.reload=scene,scene calls Iris.reload() (the F9 key) before those scenes.
+ *
+ * Batch mode (tools/renderq, 2026-10-25): -Dqf.bench.jobs=<file> renders many jobs -- each a
+ * tag, shaders on or off and a shader option file -- in ONE boot, instead of one boot per
+ * option set. The file, written by tools/renderq/batch.py:
+ *   target <path>                          the pack's option file (shaderpacks/QuestForge.txt)
+ *   boot on|off                            whether the client booted with shaders on
+ *   job <tag> on|off <warmTicks> <opts|->  opts is copied onto target before the job's frames
+ *   step <tag> <scene>                     one measured scene of one job, in the order given
+ * Before a step whose job differs from the live state, the option file is rewritten and
+ * Iris.reload() (or Iris.toggleShaders) runs; that step then settles for at least warmTicks
+ * more, so no measured frame belongs to the rebuilt pipeline's first seconds. Each finished
+ * step appends its block to bench/<tag>.part (a crash keeps the steps done); at the end
+ * every job gets bench/<tag>.txt in the same format as a single run. bench/_progress.txt is
+ * rewritten at every stage change, for the runner's stall watchdog.
  */
 @SideOnly(Side.CLIENT)
 public class FrameBench {
@@ -130,8 +144,151 @@ public class FrameBench {
     private String lastDebug = "";
     private final List<String> report = new ArrayList<String>();
 
+    /** One job of a batch (-Dqf.bench.jobs): a tag, shaders on/off, an option file to apply. */
+    private static final class Job {
+        String tag;
+        boolean shaders;
+        int warm;
+        String opts;          // null: leave the option file as it is
+        final List<String> report = new ArrayList<String>();
+    }
+
+    private final java.util.Map<String, Job> jobs = new java.util.LinkedHashMap<String, Job>();
+    private Job[] stepJob;            // per step; null in a single run
+    private String optsTarget;
+    private Job live;                 // the job whose state the pipeline has now
+    private boolean liveShaders;      // shaders on at boot? (config/shaders.properties)
+    private int warmTicks;            // settle at least this long (set after a reload)
+    private final long batchStart = System.currentTimeMillis();
+
     public FrameBench() {
-        scenes = System.getProperty("qf.bench.scenes", "static,fly,torch").split(",");
+        String jf = System.getProperty("qf.bench.jobs");
+        if (jf != null) {
+            loadJobs(jf);
+        } else {
+            scenes = System.getProperty("qf.bench.scenes", "static,fly,torch").split(",");
+        }
+    }
+
+    private void loadJobs(String path) {
+        List<String> sc = new ArrayList<String>();
+        List<Job> sj = new ArrayList<Job>();
+        try {
+            for (String line : java.nio.file.Files.readAllLines(new File(path).toPath(),
+                    java.nio.charset.StandardCharsets.UTF_8)) {
+                line = line.trim();
+                if (line.isEmpty() || line.startsWith("#")) continue;
+                String[] f = line.split("\\s+", 5);
+                if (f[0].equals("target")) {
+                    optsTarget = line.substring(6).trim();
+                } else if (f[0].equals("boot")) {
+                    liveShaders = f[1].equals("on");
+                } else if (f[0].equals("job")) {
+                    Job j = new Job();
+                    j.tag = f[1];
+                    j.shaders = f[2].equals("on");
+                    j.warm = Integer.parseInt(f[3]);
+                    j.opts = f.length > 4 && !f[4].equals("-") ? f[4] : null;
+                    jobs.put(j.tag, j);
+                } else if (f[0].equals("step")) {
+                    Job j = jobs.get(f[1]);
+                    if (j == null) {
+                        log("jobs: step for unknown job " + f[1]);
+                        continue;
+                    }
+                    sj.add(j);
+                    sc.add(f[2]);
+                }
+            }
+        } catch (Exception e) {
+            log("jobs: cannot read " + path + ": " + e);
+        }
+        scenes = sc.toArray(new String[0]);
+        stepJob = sj.toArray(new Job[0]);
+        log("jobs: " + jobs.size() + " jobs, " + scenes.length + " steps, boot shaders "
+                + (liveShaders ? "on" : "off"));
+    }
+
+    private String tag() {
+        if (stepJob != null && sceneIdx >= 0 && sceneIdx < stepJob.length) return stepJob[sceneIdx].tag;
+        return System.getProperty("qf.bench.tag", "bench");
+    }
+
+    private List<String> rep() {
+        if (stepJob != null && sceneIdx >= 0 && sceneIdx < stepJob.length) return stepJob[sceneIdx].report;
+        return report;
+    }
+
+    /** bench/_progress.txt: what the batch is doing now, for the runner's watchdog and ETA. */
+    private void progress(Minecraft mc, String what) {
+        try {
+            File dir = new File(mc.mcDataDir, "bench");
+            dir.mkdirs();
+            File tmp = new File(dir, "_progress.tmp");
+            PrintWriter out = new PrintWriter(new FileWriter(tmp));
+            out.println("at " + System.currentTimeMillis());
+            out.println("step " + (sceneIdx + 1) + " " + (scenes == null ? 0 : scenes.length));
+            out.println("tag " + tag());
+            out.println("scene " + (sceneIdx >= 0 && scenes != null && sceneIdx < scenes.length ? scene() : "-"));
+            out.println("stage " + what);
+            out.println("elapsed " + (System.currentTimeMillis() - batchStart));
+            out.close();
+            File dst = new File(dir, "_progress.txt");
+            dst.delete();
+            tmp.renameTo(dst);
+        } catch (Throwable t) {
+            log("progress: " + t);
+        }
+    }
+
+    /**
+     * Brings the pipeline to job j's state: its option file, shaders on or off. Iris.reload()
+     * re-reads shaderpacks/<pack>.txt and rebuilds the pipeline (the F9 key);
+     * Iris.toggleShaders turns the pack on or off (the K key). Returns false if nothing changed.
+     */
+    private boolean apply(Job j) {
+        if (live == j) return false;
+        boolean optsChange = j.opts != null && (live == null || !j.opts.equals(live.opts));
+        long t0 = System.nanoTime();
+        String did = "nothing to rebuild";
+        try {
+            if (optsChange && optsTarget != null) {
+                File dst = new File(optsTarget);
+                byte[] b = java.nio.file.Files.readAllBytes(new File(j.opts).toPath());
+                dst.delete();
+                java.nio.file.Files.write(dst.toPath(), b);
+            }
+            Class<?> iris = Class.forName("net.coderbot.iris.Iris");
+            if (j.shaders != liveShaders) {
+                iris.getMethod("toggleShaders", Minecraft.class, boolean.class)
+                        .invoke(null, Minecraft.getMinecraft(), j.shaders);
+                did = "toggleShaders(" + j.shaders + ")";
+            } else if (j.shaders && optsChange) {
+                iris.getMethod("reload").invoke(null);
+                did = "reload()";
+            }
+            liveShaders = j.shaders;
+        } catch (Throwable t) {
+            log("job " + j.tag + ": apply failed: " + t);
+            t.printStackTrace();
+        }
+        log(String.format("job %s: %s in %.0f ms", j.tag, did, (System.nanoTime() - t0) / 1e6));
+        live = j;
+        return !did.equals("nothing to rebuild");
+    }
+
+    /** A finished step's lines, appended to bench/<tag>.part so a crash keeps them. */
+    private void savePart(Minecraft mc, List<String> lines) {
+        if (stepJob == null) return;
+        try {
+            File dir = new File(mc.mcDataDir, "bench");
+            dir.mkdirs();
+            PrintWriter out = new PrintWriter(new FileWriter(new File(dir, tag() + ".part"), true));
+            for (String l : lines) out.println(l);
+            out.close();
+        } catch (Throwable t) {
+            log("part: " + t);
+        }
     }
 
     private static void log(String s) {
@@ -205,8 +362,9 @@ public class FrameBench {
                 hold(mc);
                 // Built when the game has reported no chunk updates for three
                 // seconds running, or after SETTLE_MAX regardless.
-                if ((quiet >= 3 && ticks > 100) || ticks > SETTLE_MAX) {
+                if ((quiet >= 3 && ticks > Math.max(100, warmTicks)) || ticks > SETTLE_MAX + warmTicks) {
                     log(scene() + ": settled after " + ticks + " ticks; measuring");
+                    progress(mc, "measure");
                     if (tally == null || tally.world != mc.theWorld) {
                         tally = new UpdateTally(mc.theWorld);
                         mc.theWorld.addWorldAccess(tally);
@@ -247,13 +405,25 @@ public class FrameBench {
         return scenes[sceneIdx].trim();
     }
 
+    private int stepMark;
+
     private void nextScene(final Minecraft mc) {
+        if (stepJob != null && sceneIdx >= 0 && sceneIdx < scenes.length) {
+            List<String> r = rep();
+            savePart(mc, new ArrayList<String>(r.subList(stepMark, r.size())));
+        }
         sceneIdx++;
         if (sceneIdx >= scenes.length) {
             finish(mc);
             return;
         }
         stage = Stage.SETUP;
+        warmTicks = 0;
+        if (stepJob != null) {
+            stepMark = rep().size();
+            if (apply(stepJob[sceneIdx])) warmTicks = stepJob[sceneIdx].warm;
+        }
+        progress(mc, "settle");
         // Everything a scene changes in the world -- time, blocks, the player's
         // position and inventory -- belongs to the integrated server, which runs
         // on its own thread. Doing it from this (client) thread races the server
@@ -478,11 +648,11 @@ public class FrameBench {
     }
 
     private void shot(Minecraft mc, String what) {
-        String name = "bench-" + System.getProperty("qf.bench.tag", "bench") + "-" + what + ".png";
+        String name = "bench-" + tag() + "-" + what + ".png";
         try {
             net.minecraft.util.ScreenShotHelper.saveScreenshot(mc.mcDataDir, name,
                     mc.displayWidth, mc.displayHeight, mc.getFramebuffer());
-            report.add("  screenshot screenshots/" + name);
+            rep().add("  screenshot screenshots/" + name);
         } catch (Throwable t) {
             log("screenshot failed: " + t);
         }
@@ -605,7 +775,7 @@ public class FrameBench {
     private void summarise(Minecraft mc) {
         int n = frames.size();
         if (n == 0) {
-            report.add(String.format("%-7s no frames recorded", scene()));
+            rep().add(String.format("%-7s no frames recorded", scene()));
             return;
         }
         long[] ns = new long[n];
@@ -627,17 +797,17 @@ public class FrameBench {
                         + "  worst %7.1f ms  >33ms %4d  chunkUpdates %5d",
                 scene(), n, meanFps, ns[n / 2] / 1e6, ns[(int) (n * 0.99)] / 1e6, low1,
                 ns[n - 1] / 1e6, over33, chunkUpdates);
-        log(line);
-        report.add(line);
-        report.add("  wall " + System.currentTimeMillis());
+        log((stepJob != null ? tag() + " " : "") + line);
+        rep().add(line);
+        rep().add("  wall " + System.currentTimeMillis());
         // A picture of the static view, so a setting that buys frames can be
         // judged on what it costs to look at, not just what it costs to draw.
         if (scene().equals("static")) {
-            String name = "bench-" + System.getProperty("qf.bench.tag", "bench") + ".png";
+            String name = "bench-" + tag() + ".png";
             try {
                 net.minecraft.util.ScreenShotHelper.saveScreenshot(mc.mcDataDir, name,
                         mc.displayWidth, mc.displayHeight, mc.getFramebuffer());
-                report.add("  screenshot screenshots/" + name);
+                rep().add("  screenshot screenshots/" + name);
             } catch (Throwable t) {
                 log("screenshot failed: " + t);
             }
@@ -645,13 +815,19 @@ public class FrameBench {
         if (tally != null) {
             for (String t : tally.top(12)) {
                 log(t);
-                report.add(t);
+                rep().add(t);
             }
         }
     }
 
     private void finish(Minecraft mc) {
         stage = Stage.DONE;
+        progress(mc, "done");
+        if (stepJob != null) {
+            for (Job j : jobs.values()) writeResult(mc, j.tag, j.report);
+            mc.shutdown();
+            return;
+        }
         String tag = System.getProperty("qf.bench.tag", "bench");
         try {
             File dir = new File(mc.mcDataDir, "bench");
@@ -665,5 +841,20 @@ public class FrameBench {
             log("could not write results: " + t);
         }
         mc.shutdown();
+    }
+
+    private void writeResult(Minecraft mc, String tag, List<String> lines) {
+        try {
+            File dir = new File(mc.mcDataDir, "bench");
+            dir.mkdirs();
+            PrintWriter out = new PrintWriter(new FileWriter(new File(dir, tag + ".txt")));
+            out.println("tag " + tag + "  display " + mc.displayWidth + "x" + mc.displayHeight);
+            for (String r : lines) out.println(r);
+            out.close();
+            new File(dir, tag + ".part").delete();
+            log("wrote bench/" + tag + ".txt");
+        } catch (Throwable t) {
+            log("could not write results for " + tag + ": " + t);
+        }
     }
 }
