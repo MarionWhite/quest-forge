@@ -36,24 +36,28 @@ The `ids` check skips the `hbm:` namespace in the server book only.
 | `ids` | an item id that is not in `registry.json` (exact, case-sensitive), and anything on the blocklist below. |
 | `cheese` | one claim of a quest's reward (all item rewards plus any single choice option) fully completes a quest it unlocks. Warns when it completes a quest that is not upstream of it. Quests that ask only for a Lucky Block, loot bag or tome are reward tutorials and are skipped. |
 | `stack` | a retrieval task asking for more than one of an unstackable item (swords, armour, tools, by name). Warns on such rewards. |
-| `text` | `a` before a vowel ("a Anvil"), "Beastiary" for the tab (the Lycanites GUI is spelled that way, so "Lycanites' Beastiary" is allowed), placeholder words, `..`. |
+| `text` | `a` before a vowel ("a Anvil"), "Beastiary" for the tab (the Lycanites GUI is spelled that way, so "Lycanites' Beastiary" is allowed), placeholder words, `..`. A `[WRITE: ...]` placeholder (what a data patch leaves for the writers) is a warning in a draft and an error in the pack and server books. |
 | `hunt` | a `bq_standard:hunt` target that is not in `entities.json`, or a `bq_standard:location` dimension that is not. BQ never checks a hunt target when the book loads: a misspelt name is a quest nobody can finish, and no log line says so. |
-| `path` | a quest that needs a HIDDEN quest, a prerequisite cycle, or a numbered chapter that can open before (or together with) the one before it. Prints, per chapter, the quest that opens it, what that quest needs, and how many quests come first. |
+| `path` | a quest that needs a HIDDEN quest, a prerequisite cycle, or an act (numbered chapter) that can open before (or together with) the one before it. Prints, per tab, the quest that opens it, what that quest needs, and how many quests come first. |
 
-**The chapter order `path` enforces.** Each numbered chapter's cheapest entry quest must need
-everything the previous chapter's entry needs, and more; no earlier chapter may need a later
-chapter's quest. Two numbered tabs are exceptions, set in `SIDE_CHAPTERS` and
-`LADDER_CHAPTERS`: Ch 2 Base is a side tab that opens with Ch 1, and Ch 9 ProjectE is a
-ladder whose rungs open at the boss each recipe needs (the Philosopher's Stone at the Lich),
-so only its last rung has to come after Ch 8 opens. "Needs" is the cheapest set of quests
-that must be complete, so an OR prerequisite counts its cheapest branch.
+**The order `path` enforces.** A tab is a link in the chain when its name is numbered: `Ch N:`
+(the pre-WP-6 book) or an act tab from `act-structure.md` (`Arrival` is act 0, `I: Broken Sky`
+to `IV: Titans` are 1-4, `Chronicle` is 5; `chapter_number()`). Several tabs may share an act
+(`II: Twilight` beside `II: Witchery`) and are checked as one. Every entry quest of every tab
+of an act must need everything the previous act's opening entry needs, and more; no earlier
+act may need a later act's quest. Tabs named in `SIDE_CHAPTERS` and `LADDER_CHAPTERS` (keyed
+by tab name) are exceptions: Base is a side tab that opens with the Prologue, and ProjectE is a
+ladder whose rungs open at the boss each recipe needs (the Philosopher's Stone at the Lich), so
+only its last rung has to come after the act the table names (Ch 8, or Act IV). "Needs" is the
+cheapest set of quests that must be complete, so an OR prerequisite counts its cheapest branch.
 
 ## Drafts
 
 `drafts/` holds copies of the pack book with a proposed work package applied, for the author to
 review before anything touches the real books. Every `qb.py` command takes one with
-`--book PATH`. A draft is rebuilt from the current pack book each time its patch runs without
-`--book`, so it never drifts; nothing installs it.
+`--book PATH`. A draft is rebuilt from its base (the pack book for WP-5, the WP-5 draft for
+WP-6) each time its patch runs without `--book`, so it never drifts; nothing installs it. Running
+a patch with `--book` on its own draft changes no bytes.
 
 ## `entities.json`
 
@@ -86,6 +90,11 @@ sealed tomes `tome0`–`tome4`, diamonds, diamond blocks, golden apples, nether 
 **Ungated** means no boss quest is upstream: neither the quest nor any prerequisite is in
 `BOSS_QUESTS` (Twilight bosses, the three OreSpawn titans, Rahovart), and its task does not
 ask for a boss quest's proof item. It is the faucet a fresh player can drink from.
+
+**By act.** After the per-line table, one row per act (the tabs `chapter_number()` places in
+the chain, side tabs excluded) with the best case against the audit 4.5 budget (`ACT_BUDGET`):
+the most valuable loot bag and sealed tome tier, Lucky Blocks, and diamonds counting 9 per
+block. `OVER` marks a column past its budget. `Ch N` tabs have no act budget.
 
 ## The registry
 
@@ -120,11 +129,15 @@ patch can be re-run. `patches/` holds the applied work packages:
 | `patches/wp3_chapter_order.py` | WP-3: cross-chapter prerequisites, later chapters hidden until they open, chapter-order texts |
 | `patches/wp4_boss_hunts.py` | WP-4: boss proofs become hunt and location tasks; the Overlord and Mutant quests |
 | `patches/wp5_prologue.py` | WP-5 **draft, not applied**: the Prologue tab "Arrival", plus the WP-10 voice sample on the old Ch 1. With no `--book` it writes `drafts/DefaultQuests.wp5.json`; `--book all` applies it once approved ([review](../../docs/design/quests/review-2026-10-19.md)) |
+| `patches/wp6_acts.py` | WP-6 **draft, not applied**: the four-act spine ([act-structure](../../docs/design/quests/act-structure.md)): act tabs, the finales 481-486, the Nether and Wither quests, Pack Master as the convergence. Parameterised by the Decisions page answers (`--decisions docs/decisions/answers/s001.json`, or `--act1-02 B` per card; defaults are the recommendations). Builds `drafts/DefaultQuests.wp6.json` from the WP-5 draft; new text is left as `[WRITE: ...]` placeholders for the writers ([brief](../../docs/design/quests/wp6-writing-brief.md)). `--book all` applies it once approved, after WP-5 |
 
 More helpers for those: `set_prereqs`, `set_visibility`, `set_tasks` (checks the task list it
-expects), `add_quest` (copies every property key from an existing quest), `move_in_line`,
-`set_pack_version`, `add_line` (a new tab; later tabs move right), `move_to_line`, and the task
-builders `retrieval`, `hunt`, `location`, `checkbox`, `item_reward`, `choice_reward`, written with the keys and defaults Standard Expansion 3.0.181 reads.
+expects), `set_task_field`, `add_quest` (copies every property key from an existing quest),
+`remove_quest` (refuses while anything needs it), `add_reward_stack`, `move_in_line`,
+`set_pack_version`, `add_line` (a new tab; later tabs move right), `rename_line`, `remove_line`
+(an empty tab only), `set_tab_order`, `line_by_name`, `move_to_line` (position and size), and
+the task builders `retrieval`, `hunt`, `location`, `checkbox`, `item_reward`, `choice_reward`,
+written with the keys and defaults Standard Expansion 3.0.181 reads.
 
 **Booting a changed book.** BQ writes `world/betterquesting/QuestDatabase.json` only when the
 database is dirty, so a trial that only starts and stops leaves no copy to inspect. End the
