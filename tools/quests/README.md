@@ -45,7 +45,8 @@ everything the previous chapter's entry needs, and more; no earlier chapter may 
 chapter's quest. Two numbered tabs are exceptions, set in `SIDE_CHAPTERS` and
 `LADDER_CHAPTERS`: Ch 2 Base is a side tab that opens with Ch 1, and Ch 9 ProjectE is a
 ladder whose rungs open at the boss each recipe needs (the Philosopher's Stone at the Lich),
-so only its last rung has to come after Ch 8 opens. "Needs" is the cheapest set of quests
+so only its last rung has to come after Ch 8 opens. Act tabs are numbered by their roman
+numeral (`II: Old Powers` is act 2), so the exception keys are tab labels ('Ch 2', 'Ch 9'), not numbers. "Needs" is the cheapest set of quests
 that must be complete, so an OR prerequisite counts its cheapest branch.
 
 ## Drafts
@@ -120,6 +121,7 @@ patch can be re-run. `patches/` holds the applied work packages:
 | `patches/wp3_chapter_order.py` | WP-3: cross-chapter prerequisites, later chapters hidden until they open, chapter-order texts |
 | `patches/wp4_boss_hunts.py` | WP-4: boss proofs become hunt and location tasks; the Overlord and Mutant quests |
 | `patches/wp5_prologue.py` | WP-5 **draft, not applied**: the Prologue tab "Arrival", plus the WP-10 voice sample on the old Ch 1. With no `--book` it writes `drafts/DefaultQuests.wp5.json`; `--book all` applies it once approved ([review](../../docs/design/quests/review-2026-10-19.md)) |
+| `patches/wp6_act2.py` | WP-6 **draft, not applied**: Act II "II: Old Powers" (Twilight and Witchery in one tab), finale 484, three new quests, the Act II texts. With no `--book` it rebuilds `drafts/DefaultQuests.wp5.json` and writes `drafts/DefaultQuests.act2.json`; `--book all` applies both once approved ([review](../../docs/design/quests/review-act2-2026-10-25.md)) |
 
 More helpers for those: `set_prereqs`, `set_visibility`, `set_tasks` (checks the task list it
 expects), `add_quest` (copies every property key from an existing quest), `move_in_line`,
