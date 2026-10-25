@@ -631,6 +631,9 @@ SUPERVISOR_JSON = {
     "keep_hourly": 24,
     "keep_daily": 7,
     "discord_webhook": "",
+    "status_publisher": "",
+    "status_gist_id": "",
+    "status_gist_token": "",
 }
 
 START_SH = """\
