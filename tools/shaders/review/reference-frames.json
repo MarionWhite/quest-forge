@@ -1,0 +1,1961 @@
+{
+ "plains_noon": [
+  {
+   "file": "File:20170703700DR Oberbobritzsch WEITES LAND.jpg",
+   "source": "https://commons.wikimedia.org/wiki/File:20170703700DR_Oberbobritzsch_WEITES_LAND.jpg",
+   "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f9/20170703700DR_Oberbobritzsch_WEITES_LAND.jpg/1920px-20170703700DR_Oberbobritzsch_WEITES_LAND.jpg",
+   "title": "20170703700DR Oberbobritzsch WEITES LAND.jpg",
+   "author": "Jörg Blobelt",
+   "author_as_printed": "Jörg Blobelt",
+   "licence": "CC BY-SA 4.0",
+   "licence_url": "https://creativecommons.org/licenses/by-sa/4.0",
+   "licence_on_file_page": [
+    "CC BY-SA 4.0"
+   ],
+   "page_check_version": 2,
+   "licence_check": "match",
+   "credit": "Jörg Blobelt, CC BY-SA 4.0, via Wikimedia Commons",
+   "why": "A flat field under a low horizon and a cumulus sky in early-afternoon sun: the plains_noon proportions of land to sky.",
+   "sun_elevation_deg_estimate": 55,
+   "notes": "CC BY-SA 4.0.",
+   "local_file": "C:/qfb/shaderdev/refs\\plains_noon-1.jpg",
+   "pixel_size": [
+    1920,
+    1094
+   ],
+   "original_size": [
+    3648,
+    2079
+   ],
+   "thumb_330": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f9/20170703700DR_Oberbobritzsch_WEITES_LAND.jpg/330px-20170703700DR_Oberbobritzsch_WEITES_LAND.jpg",
+   "taken": "2017-07-03 14:23:06",
+   "checked": "2026-10-25"
+  },
+  {
+   "file": "File:2013-06-07 15-54-46-cumulus.jpg",
+   "source": "https://commons.wikimedia.org/wiki/File:2013-06-07_15-54-46-cumulus.jpg",
+   "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/00/2013-06-07_15-54-46-cumulus.jpg/1920px-2013-06-07_15-54-46-cumulus.jpg",
+   "title": "2013-06-07 15-54-46-cumulus.jpg",
+   "author": "Thomas Bresson",
+   "author_as_printed": "Thomas Bresson",
+   "licence": "CC BY 3.0",
+   "licence_url": "https://creativecommons.org/licenses/by/3.0",
+   "licence_on_file_page": [
+    "CC BY 3.0"
+   ],
+   "page_check_version": 2,
+   "licence_check": "match",
+   "credit": "Thomas Bresson, CC BY 3.0, via Wikimedia Commons",
+   "why": "Green meadow with a few trees under cumulus in afternoon light: the grass tone that must not go lime.",
+   "sun_elevation_deg_estimate": 45,
+   "notes": "CC BY 3.0.",
+   "local_file": "C:/qfb/shaderdev/refs\\plains_noon-2.jpg",
+   "pixel_size": [
+    1920,
+    1280
+   ],
+   "original_size": [
+    3648,
+    2432
+   ],
+   "thumb_330": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/00/2013-06-07_15-54-46-cumulus.jpg/330px-2013-06-07_15-54-46-cumulus.jpg",
+   "taken": "2013-06-07 15:54:46",
+   "checked": "2026-10-25"
+  }
+ ],
+ "forest_golden": [
+  {
+   "file": "File:Kiwihug 2017-05-24 (Unsplash).jpg",
+   "source": "https://commons.wikimedia.org/wiki/File:Kiwihug_2017-05-24_(Unsplash).jpg",
+   "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e0/Kiwihug_2017-05-24_%28Unsplash%29.jpg/1920px-Kiwihug_2017-05-24_%28Unsplash%29.jpg",
+   "title": "Kiwihug 2017-05-24 (Unsplash).jpg",
+   "author": "Kiwihug",
+   "author_as_printed": "Kiwihug kiwihug",
+   "licence": "CC0",
+   "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+   "licence_on_file_page": [
+    "CC0"
+   ],
+   "page_check_version": 2,
+   "licence_check": "match",
+   "credit": "Kiwihug, CC0, via Wikimedia Commons",
+   "why": "Low sun seen through trunks with sharp beams, long shadows on mossy ground and a small figure for scale: the forest_golden beam scene.",
+   "sun_elevation_deg_estimate": 8,
+   "notes": "CC0 Unsplash import (pre-2017 licence). The source is bright but the sky is not washed out: the owner's r005 ask.",
+   "local_file": "C:/qfb/shaderdev/refs\\forest_golden-1.jpg",
+   "pixel_size": [
+    1920,
+    1280
+   ],
+   "original_size": [
+    4800,
+    3200
+   ],
+   "thumb_330": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e0/Kiwihug_2017-05-24_%28Unsplash%29.jpg/330px-Kiwihug_2017-05-24_%28Unsplash%29.jpg",
+   "taken": "2017-05-24",
+   "checked": "2026-10-25"
+  },
+  {
+   "file": "File:Sunrays in an autumn forest (Unsplash).jpg",
+   "source": "https://commons.wikimedia.org/wiki/File:Sunrays_in_an_autumn_forest_(Unsplash).jpg",
+   "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/ce/Sunrays_in_an_autumn_forest_%28Unsplash%29.jpg/1920px-Sunrays_in_an_autumn_forest_%28Unsplash%29.jpg",
+   "title": "Sunrays in an autumn forest (Unsplash).jpg",
+   "author": "Ricardo Gomez Angel",
+   "author_as_printed": "Ricardo Gomez Angel ripato",
+   "licence": "CC0",
+   "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+   "licence_on_file_page": [
+    "CC0"
+   ],
+   "page_check_version": 2,
+   "licence_check": "match",
+   "credit": "Ricardo Gomez Angel, CC0, via Wikimedia Commons",
+   "why": "Warm autumn beams entering from the side with the sun out of frame; shows beams that stay readable without a visible source.",
+   "sun_elevation_deg_estimate": 10,
+   "notes": "10044x7171 original; CC0.",
+   "local_file": "C:/qfb/shaderdev/refs\\forest_golden-2.jpg",
+   "pixel_size": [
+    1920,
+    1371
+   ],
+   "original_size": [
+    10044,
+    7171
+   ],
+   "thumb_330": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/ce/Sunrays_in_an_autumn_forest_%28Unsplash%29.jpg/330px-Sunrays_in_an_autumn_forest_%28Unsplash%29.jpg",
+   "taken": "2017-02-18",
+   "checked": "2026-10-25"
+  }
+ ],
+ "golden_lit": [
+  {
+   "file": "File:Abandoned pickup at Kelvin A. Lewis farm in Creeds 3.jpg",
+   "source": "https://commons.wikimedia.org/wiki/File:Abandoned_pickup_at_Kelvin_A._Lewis_farm_in_Creeds_3.jpg",
+   "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4c/Abandoned_pickup_at_Kelvin_A._Lewis_farm_in_Creeds_3.jpg/1920px-Abandoned_pickup_at_Kelvin_A._Lewis_farm_in_Creeds_3.jpg",
+   "title": "Abandoned pickup at Kelvin A. Lewis farm in Creeds 3.jpg",
+   "author": "PumpkinSky",
+   "author_as_printed": "PumpkinSky",
+   "licence": "CC BY-SA 3.0",
+   "licence_url": "https://creativecommons.org/licenses/by-sa/3.0",
+   "licence_on_file_page": [
+    "CC BY-SA 3.0"
+   ],
+   "page_check_version": 2,
+   "licence_check": "match",
+   "credit": "PumpkinSky, CC BY-SA 3.0, via Wikimedia Commons",
+   "why": "Sun a few degrees up behind the camera: every face toward it is amber, the tree line is lit from the front, and the sky stays blue; the golden_lit view with the sun at the camera's back.",
+   "sun_elevation_deg_estimate": 5,
+   "notes": "Winter afternoon in Virginia; CC BY-SA 3.0.",
+   "local_file": "C:/qfb/shaderdev/refs\\golden_lit-1.jpg",
+   "pixel_size": [
+    1920,
+    1237
+   ],
+   "original_size": [
+    7641,
+    4921
+   ],
+   "thumb_330": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4c/Abandoned_pickup_at_Kelvin_A._Lewis_farm_in_Creeds_3.jpg/330px-Abandoned_pickup_at_Kelvin_A._Lewis_farm_in_Creeds_3.jpg",
+   "taken": "2017-12-16",
+   "checked": "2026-10-25"
+  },
+  {
+   "file": "File:Cape Burhan, Shaman Rock, Olkhon Island, Lake Baikal, Russia.jpg",
+   "source": "https://commons.wikimedia.org/wiki/File:Cape_Burhan,_Shaman_Rock,_Olkhon_Island,_Lake_Baikal,_Russia.jpg",
+   "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f6/Cape_Burhan%2C_Shaman_Rock%2C_Olkhon_Island%2C_Lake_Baikal%2C_Russia.jpg/1920px-Cape_Burhan%2C_Shaman_Rock%2C_Olkhon_Island%2C_Lake_Baikal%2C_Russia.jpg",
+   "title": "Cape Burhan, Shaman Rock, Olkhon Island, Lake Baikal, Russia.jpg",
+   "author": "Vyacheslav Argenberg",
+   "author_as_printed": "Vyacheslav Argenberg",
+   "licence": "CC BY 4.0",
+   "licence_url": "https://creativecommons.org/licenses/by/4.0",
+   "licence_on_file_page": [
+    "CC BY 4.0"
+   ],
+   "page_check_version": 2,
+   "licence_check": "match",
+   "credit": "Vyacheslav Argenberg, CC BY 4.0, via Wikimedia Commons",
+   "why": "Low evening sun from behind-right gilding cliffs and larches while the lake and sky hold their blue: amber faces against blue shade, with water.",
+   "sun_elevation_deg_estimate": 8,
+   "notes": "CC BY 4.0.",
+   "local_file": "C:/qfb/shaderdev/refs\\golden_lit-2.jpg",
+   "pixel_size": [
+    1920,
+    1276
+   ],
+   "original_size": [
+    4912,
+    3264
+   ],
+   "thumb_330": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f6/Cape_Burhan%2C_Shaman_Rock%2C_Olkhon_Island%2C_Lake_Baikal%2C_Russia.jpg/330px-Cape_Burhan%2C_Shaman_Rock%2C_Olkhon_Island%2C_Lake_Baikal%2C_Russia.jpg",
+   "taken": "2015-09-09 18:39:09",
+   "checked": "2026-10-25"
+  }
+ ],
+ "forest_lit": [
+  {
+   "file": "File:Camper's morning (Unsplash).jpg",
+   "source": "https://commons.wikimedia.org/wiki/File:Camper%27s_morning_(Unsplash).jpg",
+   "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/75/Camper%27s_morning_%28Unsplash%29.jpg/1920px-Camper%27s_morning_%28Unsplash%29.jpg",
+   "title": "Camper's morning (Unsplash).jpg",
+   "author": "Michael Mroczek",
+   "author_as_printed": "Michael Mroczek mroczekm",
+   "licence": "CC0",
+   "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+   "licence_on_file_page": [
+    "CC0"
+   ],
+   "page_check_version": 2,
+   "licence_check": "match",
+   "credit": "Michael Mroczek, CC0, via Wikimedia Commons",
+   "why": "Low morning sun behind-left of the camera lighting trunks and canopy from the side with soft haze between them: the forest_lit framing.",
+   "sun_elevation_deg_estimate": 10,
+   "notes": "CC0.",
+   "local_file": "C:/qfb/shaderdev/refs\\forest_lit-1.jpg",
+   "pixel_size": [
+    1920,
+    1280
+   ],
+   "original_size": [
+    6000,
+    4000
+   ],
+   "thumb_330": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/75/Camper%27s_morning_%28Unsplash%29.jpg/330px-Camper%27s_morning_%28Unsplash%29.jpg",
+   "taken": "2016-08-15",
+   "checked": "2026-10-25"
+  },
+  {
+   "file": "File:Crepuscular rays in the wood (21450795294).jpg",
+   "source": "https://commons.wikimedia.org/wiki/File:Crepuscular_rays_in_the_wood_(21450795294).jpg",
+   "download": "https://upload.wikimedia.org/wikipedia/commons/1/14/Crepuscular_rays_in_the_wood_%2821450795294%29.jpg",
+   "title": "Crepuscular rays in the wood (21450795294).jpg",
+   "author": "Rob Kemme",
+   "author_as_printed": "Rob Kemme from Netherlands",
+   "licence": "CC BY-SA 2.0",
+   "licence_url": "https://creativecommons.org/licenses/by-sa/2.0",
+   "licence_on_file_page": [
+    "CC BY-SA 2.0"
+   ],
+   "page_check_version": 2,
+   "licence_check": "match",
+   "credit": "Rob Kemme, CC BY-SA 2.0, via Wikimedia Commons",
+   "why": "Avenue of trees with the sun off to the side, lit trunks and shafts crossing the path; the lit-side view of a beam scene.",
+   "sun_elevation_deg_estimate": 15,
+   "notes": "CC BY-SA 2.0: credit line and no edits beyond resizing.",
+   "local_file": "C:/qfb/shaderdev/refs\\forest_lit-2.jpg",
+   "pixel_size": [
+    1680,
+    1120
+   ],
+   "original_size": [
+    1680,
+    1120
+   ],
+   "thumb_330": "https://upload.wikimedia.org/wikipedia/commons/1/14/Crepuscular_rays_in_the_wood_%2821450795294%29.jpg",
+   "taken": "2015-10-03 10:38",
+   "checked": "2026-10-25"
+  }
+ ],
+ "shore_noon": [
+  {
+   "file": "File:Caustics Shallow Water Pic1.png",
+   "source": "https://commons.wikimedia.org/wiki/File:Caustics_Shallow_Water_Pic1.png",
+   "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1d/Caustics_Shallow_Water_Pic1.png/1920px-Caustics_Shallow_Water_Pic1.png",
+   "title": "Caustics Shallow Water Pic1.png",
+   "author": "Peacelovedeathmetal2",
+   "author_as_printed": "Peacelovedeathmetal2",
+   "licence": "CC BY-SA 4.0",
+   "licence_url": "https://creativecommons.org/licenses/by-sa/4.0",
+   "licence_on_file_page": [
+    "CC BY-SA 4.0"
+   ],
+   "page_check_version": 2,
+   "licence_check": "match",
+   "credit": "Peacelovedeathmetal2, CC BY-SA 4.0, via Wikimedia Commons",
+   "why": "Sunlit caustics on a sand bottom under a few centimetres of water at a beach: the caustic net's scale, contrast and sharpness at noon.",
+   "sun_elevation_deg_estimate": 60,
+   "notes": "CC BY-SA 4.0; PNG original 4128x3096.",
+   "local_file": "C:/qfb/shaderdev/refs\\shore_noon-1.png",
+   "pixel_size": [
+    1920,
+    1440
+   ],
+   "original_size": [
+    4128,
+    3096
+   ],
+   "thumb_330": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1d/Caustics_Shallow_Water_Pic1.png/330px-Caustics_Shallow_Water_Pic1.png",
+   "taken": "2021-05-01",
+   "checked": "2026-10-25"
+  },
+  {
+   "file": "File:Constructive interference.jpg",
+   "source": "https://commons.wikimedia.org/wiki/File:Constructive_interference.jpg",
+   "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0a/Constructive_interference.jpg/1920px-Constructive_interference.jpg",
+   "title": "Constructive interference.jpg",
+   "author": "Scott Robinson",
+   "author_as_printed": "Scott Robinson from Rockville, MD, USA",
+   "licence": "CC BY 2.0",
+   "licence_url": "https://creativecommons.org/licenses/by/2.0",
+   "licence_on_file_page": [
+    "CC BY 2.0"
+   ],
+   "page_check_version": 2,
+   "licence_check": "match",
+   "credit": "Scott Robinson, CC BY 2.0, via Wikimedia Commons",
+   "why": "Ripple rings on a lake with their caustics on a sandy bed: a fresh-water version of the shallows with ripples and refraction together.",
+   "sun_elevation_deg_estimate": 60,
+   "notes": "Lake Seeley, Montana; CC BY 2.0.",
+   "local_file": "C:/qfb/shaderdev/refs\\shore_noon-2.jpg",
+   "pixel_size": [
+    1920,
+    1440
+   ],
+   "original_size": [
+    2560,
+    1920
+   ],
+   "thumb_330": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0a/Constructive_interference.jpg/330px-Constructive_interference.jpg",
+   "taken": "2005-08-15 12:57",
+   "checked": "2026-10-25"
+  }
+ ],
+ "shore_sunset": [
+  {
+   "file": "File:Kühlungsborn, Blick von der Seebrücke, Sonnenuntergang -- 2024 -- 5014-8.jpg",
+   "source": "https://commons.wikimedia.org/wiki/File:K%C3%BChlungsborn,_Blick_von_der_Seebr%C3%BCcke,_Sonnenuntergang_--_2024_--_5014-8.jpg",
+   "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/35/K%C3%BChlungsborn%2C_Blick_von_der_Seebr%C3%BCcke%2C_Sonnenuntergang_--_2024_--_5014-8.jpg/1920px-K%C3%BChlungsborn%2C_Blick_von_der_Seebr%C3%BCcke%2C_Sonnenuntergang_--_2024_--_5014-8.jpg",
+   "title": "Kühlungsborn, Blick von der Seebrücke, Sonnenuntergang -- 2024 -- 5014-8.jpg",
+   "author": "Dietmar Rabich",
+   "author_as_printed": "Dietmar Rabich",
+   "licence": "CC BY-SA 4.0",
+   "licence_url": "https://creativecommons.org/licenses/by-sa/4.0",
+   "licence_on_file_page": [
+    "CC BY-SA 4.0"
+   ],
+   "page_check_version": 2,
+   "licence_check": "match",
+   "credit": "Dietmar Rabich, CC BY-SA 4.0, via Wikimedia Commons",
+   "why": "Sun on the horizon, deep red, with a short path over calm water and groynes in silhouette; the 2-degree shore_sunset moment with the horizon band and cloud undersides lit.",
+   "sun_elevation_deg_estimate": 1,
+   "notes": "Same photographer and pier as the round-6 reference (4955), minutes later.",
+   "local_file": "C:/qfb/shaderdev/refs\\shore_sunset-1.jpg",
+   "pixel_size": [
+    1920,
+    1277
+   ],
+   "original_size": [
+    6696,
+    4455
+   ],
+   "thumb_330": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/35/K%C3%BChlungsborn%2C_Blick_von_der_Seebr%C3%BCcke%2C_Sonnenuntergang_--_2024_--_5014-8.jpg/330px-K%C3%BChlungsborn%2C_Blick_von_der_Seebr%C3%BCcke%2C_Sonnenuntergang_--_2024_--_5014-8.jpg",
+   "taken": "Taken on 29 July 2024, 21",
+   "checked": "2026-10-25"
+  },
+  {
+   "file": "File:Sunset (40367604633).jpg",
+   "source": "https://commons.wikimedia.org/wiki/File:Sunset_(40367604633).jpg",
+   "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5d/Sunset_%2840367604633%29.jpg/1920px-Sunset_%2840367604633%29.jpg",
+   "title": "Sunset (40367604633).jpg",
+   "author": "Taymaz Valley",
+   "author_as_printed": "Taymaz Valley from Ottawa, Canada",
+   "licence": "CC BY 2.0",
+   "licence_url": "https://creativecommons.org/licenses/by/2.0",
+   "licence_on_file_page": [
+    "CC BY 2.0"
+   ],
+   "page_check_version": 2,
+   "licence_check": "match",
+   "credit": "Taymaz Valley, CC BY 2.0, via Wikimedia Commons",
+   "why": "Sun about 2 degrees up in an orange haze over the sea with rocks in the foreground: the gradient from the sun's glow to the zenith, and the path over rippled water.",
+   "sun_elevation_deg_estimate": 2,
+   "notes": "Flickr import (Taymaz Valley); strong orange grade, so read it for structure rather than colour.",
+   "local_file": "C:/qfb/shaderdev/refs\\shore_sunset-2.jpg",
+   "pixel_size": [
+    1920,
+    1281
+   ],
+   "original_size": [
+    2102,
+    1402
+   ],
+   "thumb_330": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5d/Sunset_%2840367604633%29.jpg/330px-Sunset_%2840367604633%29.jpg",
+   "taken": "Taken on 4 March 2019, 19",
+   "checked": "2026-10-25"
+  }
+ ],
+ "shore_dusk": [
+  {
+   "file": "File:Sunset Dscn1385.jpg",
+   "source": "https://commons.wikimedia.org/wiki/File:Sunset_Dscn1385.jpg",
+   "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c7/Sunset_Dscn1385.jpg/1920px-Sunset_Dscn1385.jpg",
+   "title": "Sunset Dscn1385.jpg",
+   "author": "Titus Tscharntke",
+   "author_as_printed": "titus tscharntke",
+   "licence": "Public domain",
+   "licence_url": "",
+   "licence_on_file_page": [
+    "Public domain"
+   ],
+   "page_check_version": 2,
+   "licence_check": "match",
+   "credit": "Titus Tscharntke, public domain, via Wikimedia Commons",
+   "why": "Looking toward the sunset point half an hour after sunset: the orange-to-blue twilight gradient over a dark ridge, which is what shore_dusk's camera (yaw 100, sun 3 degrees down) sees.",
+   "sun_elevation_deg_estimate": -5,
+   "notes": "Public domain (Titus Tscharntke). Sky only; no water.",
+   "local_file": "C:/qfb/shaderdev/refs\\shore_dusk-1.jpg",
+   "pixel_size": [
+    1920,
+    1440
+   ],
+   "original_size": [
+    2272,
+    1704
+   ],
+   "thumb_330": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c7/Sunset_Dscn1385.jpg/330px-Sunset_Dscn1385.jpg",
+   "taken": "2005-01-26",
+   "checked": "2026-10-25"
+  },
+  {
+   "file": "File:Drei.Kraniche.im.Erdschattenbogen.Gaenselake.Stangenhagen.P1106005.jpg",
+   "source": "https://commons.wikimedia.org/wiki/File:Drei.Kraniche.im.Erdschattenbogen.Gaenselake.Stangenhagen.P1106005.jpg",
+   "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a8/Drei.Kraniche.im.Erdschattenbogen.Gaenselake.Stangenhagen.P1106005.jpg/1920px-Drei.Kraniche.im.Erdschattenbogen.Gaenselake.Stangenhagen.P1106005.jpg",
+   "title": "Drei.Kraniche.im.Erdschattenbogen.Gaenselake.Stangenhagen.P1106005.jpg",
+   "author": "Bautsch",
+   "author_as_printed": "Bautsch",
+   "licence": "CC0",
+   "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+   "licence_on_file_page": [
+    "CC0"
+   ],
+   "page_check_version": 2,
+   "licence_check": "match",
+   "credit": "Bautsch, CC0, via Wikimedia Commons",
+   "why": "The other half of the same sky: Earth's shadow and the Belt of Venus over a reedy lake, for the anti-solar side of the dusk gradient.",
+   "sun_elevation_deg_estimate": -4,
+   "notes": "CC0. Looks away from the sun; use beside the primary.",
+   "local_file": "C:/qfb/shaderdev/refs\\shore_dusk-2.jpg",
+   "pixel_size": [
+    1920,
+    1440
+   ],
+   "original_size": [
+    5184,
+    3888
+   ],
+   "thumb_330": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a8/Drei.Kraniche.im.Erdschattenbogen.Gaenselake.Stangenhagen.P1106005.jpg/330px-Drei.Kraniche.im.Erdschattenbogen.Gaenselake.Stangenhagen.P1106005.jpg",
+   "taken": "2021-10-25 07:45:46",
+   "checked": "2026-10-25"
+  }
+ ],
+ "night_full": [
+  {
+   "file": "File:Moonlit Reflections.jpg",
+   "source": "https://commons.wikimedia.org/wiki/File:Moonlit_Reflections.jpg",
+   "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6e/Moonlit_Reflections.jpg/1920px-Moonlit_Reflections.jpg",
+   "title": "Moonlit Reflections.jpg",
+   "author": "Derk29",
+   "author_as_printed": "Derk29",
+   "licence": "CC BY-SA 4.0",
+   "licence_url": "https://creativecommons.org/licenses/by-sa/4.0",
+   "licence_on_file_page": [
+    "CC BY-SA 4.0"
+   ],
+   "page_check_version": 2,
+   "licence_check": "match",
+   "credit": "Derk29, CC BY-SA 4.0, via Wikimedia Commons",
+   "why": "High full moon over a lake with its glitter path, a glow halo and a navy sky with a few stars, land in silhouette: the night_full view across the lake.",
+   "sun_elevation_deg_estimate": null,
+   "notes": "CC BY-SA 4.0.",
+   "local_file": "C:/qfb/shaderdev/refs\\night_full-1.jpg",
+   "pixel_size": [
+    1920,
+    1440
+   ],
+   "original_size": [
+    4032,
+    3024
+   ],
+   "thumb_330": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6e/Moonlit_Reflections.jpg/330px-Moonlit_Reflections.jpg",
+   "taken": "2026-04-02 03:57:49",
+   "checked": "2026-10-25"
+  },
+  {
+   "file": "File:By the Light of the Moon (46694367714).jpg",
+   "source": "https://commons.wikimedia.org/wiki/File:By_the_Light_of_the_Moon_(46694367714).jpg",
+   "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/57/By_the_Light_of_the_Moon_%2846694367714%29.jpg/1920px-By_the_Light_of_the_Moon_%2846694367714%29.jpg",
+   "title": "By the Light of the Moon (46694367714).jpg",
+   "author": "Jason Jacobs",
+   "author_as_printed": "Jason Jacobs from Honolulu, USA",
+   "licence": "CC BY 2.0",
+   "licence_url": "https://creativecommons.org/licenses/by/2.0",
+   "licence_on_file_page": [
+    "CC BY 2.0"
+   ],
+   "page_check_version": 2,
+   "licence_check": "match",
+   "credit": "Jason Jacobs, CC BY 2.0, via Wikimedia Commons",
+   "why": "Moonlit coast where the land and water colours stay readable under the moon, with stars still visible: the brightness balance for a playable full-moon night.",
+   "sun_elevation_deg_estimate": null,
+   "notes": "Long exposure, so brighter than the eye sees; CC BY 2.0.",
+   "local_file": "C:/qfb/shaderdev/refs\\night_full-2.jpg",
+   "pixel_size": [
+    1920,
+    1282
+   ],
+   "original_size": [
+    6016,
+    4016
+   ],
+   "thumb_330": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/57/By_the_Light_of_the_Moon_%2846694367714%29.jpg/330px-By_the_Light_of_the_Moon_%2846694367714%29.jpg",
+   "taken": "2019-03-17 07:30",
+   "checked": "2026-10-25"
+  }
+ ],
+ "night_new": [
+  {
+   "file": "File:Milky Way - First attempt (50259168433).jpg",
+   "source": "https://commons.wikimedia.org/wiki/File:Milky_Way_-_First_attempt_(50259168433).jpg",
+   "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/54/Milky_Way_-_First_attempt_%2850259168433%29.jpg/1920px-Milky_Way_-_First_attempt_%2850259168433%29.jpg",
+   "title": "Milky Way - First attempt (50259168433).jpg",
+   "author": "Josef Laimer",
+   "author_as_printed": "Josef Laimer",
+   "licence": "CC BY 2.0",
+   "licence_url": "https://creativecommons.org/licenses/by/2.0",
+   "licence_on_file_page": [
+    "CC BY 2.0"
+   ],
+   "page_check_version": 2,
+   "licence_check": "match",
+   "credit": "Josef Laimer, CC BY 2.0, via Wikimedia Commons",
+   "why": "Moonless night over a lake with mountains: the land stays just readable while the sky carries the detail, which is the new-moon balance the owner asked for.",
+   "sun_elevation_deg_estimate": null,
+   "notes": "CC BY 2.0.",
+   "local_file": "C:/qfb/shaderdev/refs\\night_new-1.jpg",
+   "pixel_size": [
+    1920,
+    1440
+   ],
+   "original_size": [
+    5693,
+    4270
+   ],
+   "thumb_330": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/54/Milky_Way_-_First_attempt_%2850259168433%29.jpg/330px-Milky_Way_-_First_attempt_%2850259168433%29.jpg",
+   "taken": "2020-08-20 22:49",
+   "checked": "2026-10-25"
+  },
+  {
+   "file": "File:Milky Way Glacier Point (Unsplash).jpg",
+   "source": "https://commons.wikimedia.org/wiki/File:Milky_Way_Glacier_Point_(Unsplash).jpg",
+   "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1d/Milky_Way_Glacier_Point_%28Unsplash%29.jpg/1920px-Milky_Way_Glacier_Point_%28Unsplash%29.jpg",
+   "title": "Milky Way Glacier Point (Unsplash).jpg",
+   "author": "Jakub Gorajek",
+   "author_as_printed": "Jakub Gorajek cinegeek",
+   "licence": "CC0",
+   "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+   "licence_on_file_page": [
+    "CC0"
+   ],
+   "page_check_version": 2,
+   "licence_check": "match",
+   "credit": "Jakub Gorajek, CC0, via Wikimedia Commons",
+   "why": "Moonless sky over a tree line: a near-black silhouette ground with a rich, deep sky and no lamp glow.",
+   "sun_elevation_deg_estimate": null,
+   "notes": "CC0.",
+   "local_file": "C:/qfb/shaderdev/refs\\night_new-2.jpg",
+   "pixel_size": [
+    1920,
+    1280
+   ],
+   "original_size": [
+    5472,
+    3648
+   ],
+   "thumb_330": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1d/Milky_Way_Glacier_Point_%28Unsplash%29.jpg/330px-Milky_Way_Glacier_Point_%28Unsplash%29.jpg",
+   "taken": "2016-09-06",
+   "checked": "2026-10-25"
+  }
+ ],
+ "underwater": [
+  {
+   "file": "File:Soleil à travers un paysage sous-marin de Bretagne (Ifremer 00378-48922 - 902).jpg",
+   "source": "https://commons.wikimedia.org/wiki/File:Soleil_%C3%A0_travers_un_paysage_sous-marin_de_Bretagne_(Ifremer_00378-48922_-_902).jpg",
+   "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0b/Soleil_%C3%A0_travers_un_paysage_sous-marin_de_Bretagne_%28Ifremer_00378-48922_-_902%29.jpg/1920px-Soleil_%C3%A0_travers_un_paysage_sous-marin_de_Bretagne_%28Ifremer_00378-48922_-_902%29.jpg",
+   "title": "Soleil à travers un paysage sous-marin de Bretagne (Ifremer 00378-48922 - 902).jpg",
+   "author": "Olivier Dugornay",
+   "author_as_printed": "Olivier Dugornay",
+   "licence": "CC BY 4.0",
+   "licence_url": "https://creativecommons.org/licenses/by/4.0",
+   "licence_on_file_page": [
+    "CC BY 4.0"
+   ],
+   "page_check_version": 2,
+   "licence_check": "match",
+   "credit": "Olivier Dugornay, CC BY 4.0, via Wikimedia Commons",
+   "why": "The sun seen from below the surface with shafts fanning down through green water: the underwater light-shaft and fog-volume reference for a lake.",
+   "sun_elevation_deg_estimate": 50,
+   "notes": "Ifremer, CC BY 4.0; 7360x4912.",
+   "local_file": "C:/qfb/shaderdev/refs\\underwater-1.jpg",
+   "pixel_size": [
+    1920,
+    1281
+   ],
+   "original_size": [
+    7360,
+    4912
+   ],
+   "thumb_330": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0b/Soleil_%C3%A0_travers_un_paysage_sous-marin_de_Bretagne_%28Ifremer_00378-48922_-_902%29.jpg/330px-Soleil_%C3%A0_travers_un_paysage_sous-marin_de_Bretagne_%28Ifremer_00378-48922_-_902%29.jpg",
+   "taken": "12 April 2015 (upload dat",
+   "checked": "2026-10-25"
+  },
+  {
+   "file": "File:Full Shot of a Caribbean Reef Shark at Tiger Beach Bahamas.jpg",
+   "source": "https://commons.wikimedia.org/wiki/File:Full_Shot_of_a_Caribbean_Reef_Shark_at_Tiger_Beach_Bahamas.jpg",
+   "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3c/Full_Shot_of_a_Caribbean_Reef_Shark_at_Tiger_Beach_Bahamas.jpg/1920px-Full_Shot_of_a_Caribbean_Reef_Shark_at_Tiger_Beach_Bahamas.jpg",
+   "title": "Full Shot of a Caribbean Reef Shark at Tiger Beach Bahamas.jpg",
+   "author": "Dennis Hipp (Zepto)",
+   "author_as_printed": "Dennis Hipp (Zepto)",
+   "licence": "CC0",
+   "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+   "licence_on_file_page": [
+    "CC0"
+   ],
+   "page_check_version": 2,
+   "licence_check": "match",
+   "credit": "Dennis Hipp (Zepto), CC0, via Wikimedia Commons",
+   "why": "Sand ripples with caustics on the bed, the rippled surface seen from below and the blue water column between: the whole underwater composition in one frame.",
+   "sun_elevation_deg_estimate": 60,
+   "notes": "CC0; ignore the shark.",
+   "local_file": "C:/qfb/shaderdev/refs\\underwater-2.jpg",
+   "pixel_size": [
+    1920,
+    1440
+   ],
+   "original_size": [
+    3775,
+    2831
+   ],
+   "thumb_330": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3c/Full_Shot_of_a_Caribbean_Reef_Shark_at_Tiger_Beach_Bahamas.jpg/330px-Full_Shot_of_a_Caribbean_Reef_Shark_at_Tiger_Beach_Bahamas.jpg",
+   "taken": "2023-02-11",
+   "checked": "2026-10-25"
+  },
+  {
+   "file": "File:Reflet du soleil sur la mer Méditerranée (Ifremer 00729-84104 - 37514).jpg",
+   "source": "https://commons.wikimedia.org/wiki/File:Reflet_du_soleil_sur_la_mer_M%C3%A9diterran%C3%A9e_(Ifremer_00729-84104_-_37514).jpg",
+   "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b9/Reflet_du_soleil_sur_la_mer_M%C3%A9diterran%C3%A9e_%28Ifremer_00729-84104_-_37514%29.jpg/1920px-Reflet_du_soleil_sur_la_mer_M%C3%A9diterran%C3%A9e_%28Ifremer_00729-84104_-_37514%29.jpg",
+   "title": "Reflet du soleil sur la mer Méditerranée (Ifremer 00729-84104 - 37514).jpg",
+   "author": "Olivier Dugornay",
+   "author_as_printed": "Olivier Dugornay",
+   "licence": "CC BY 4.0",
+   "licence_url": "https://creativecommons.org/licenses/by/4.0",
+   "licence_on_file_page": [
+    "CC BY 4.0"
+   ],
+   "page_check_version": 2,
+   "licence_check": "match",
+   "credit": "Olivier Dugornay, CC BY 4.0, via Wikimedia Commons",
+   "why": "Clear blue water with the sun's disc and glare through the surface and the darkening with depth: the clear-water version beside the green one.",
+   "sun_elevation_deg_estimate": 55,
+   "notes": "Ifremer, CC BY 4.0.",
+   "local_file": "C:/qfb/shaderdev/refs\\underwater-3.jpg",
+   "pixel_size": [
+    1920,
+    1281
+   ],
+   "original_size": [
+    7360,
+    4912
+   ],
+   "thumb_330": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b9/Reflet_du_soleil_sur_la_mer_M%C3%A9diterran%C3%A9e_%28Ifremer_00729-84104_-_37514%29.jpg/330px-Reflet_du_soleil_sur_la_mer_M%C3%A9diterran%C3%A9e_%28Ifremer_00729-84104_-_37514%29.jpg",
+   "taken": "13 September 2017 (upload",
+   "checked": "2026-10-25"
+  }
+ ],
+ "night_moon": [
+  {
+   "file": "File:Al-Jahra Full moon.jpg",
+   "source": "https://commons.wikimedia.org/wiki/File:Al-Jahra_Full_moon.jpg",
+   "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/96/Al-Jahra_Full_moon.jpg/1920px-Al-Jahra_Full_moon.jpg",
+   "title": "Al-Jahra Full moon.jpg",
+   "author": "Miskat2006",
+   "author_as_printed": "Miskat2006",
+   "licence": "CC BY-SA 4.0",
+   "licence_url": "https://creativecommons.org/licenses/by-sa/4.0",
+   "licence_on_file_page": [
+    "CC BY-SA 4.0"
+   ],
+   "page_check_version": 2,
+   "licence_check": "match",
+   "credit": "Miskat2006, CC BY-SA 4.0, via Wikimedia Commons",
+   "why": "Full moon high in the sky with broken cloud around it, cloud edges lit and a soft corona: the night_moon look-up with cloud rims.",
+   "sun_elevation_deg_estimate": null,
+   "notes": "Portrait phone frame; CC BY-SA 4.0.",
+   "local_file": "C:/qfb/shaderdev/refs\\night_moon-1.jpg",
+   "pixel_size": [
+    1920,
+    2560
+   ],
+   "original_size": [
+    3024,
+    4032
+   ],
+   "thumb_330": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/96/Al-Jahra_Full_moon.jpg/330px-Al-Jahra_Full_moon.jpg",
+   "taken": "2024-10-17 22:40:13",
+   "checked": "2026-10-25"
+  },
+  {
+   "file": "File:Full Moon In The Clouds, August 19, 2024, 4-01 a.m. - Flickr - the bridge.jpg",
+   "source": "https://commons.wikimedia.org/wiki/File:Full_Moon_In_The_Clouds,_August_19,_2024,_4-01_a.m._-_Flickr_-_the_bridge.jpg",
+   "download": "https://upload.wikimedia.org/wikipedia/commons/c/c2/Full_Moon_In_The_Clouds%2C_August_19%2C_2024%2C_4-01_a.m._-_Flickr_-_the_bridge.jpg",
+   "title": "Full Moon In The Clouds, August 19, 2024, 4-01 a.m. - Flickr - the bridge.jpg",
+   "author": "David Saddler",
+   "author_as_printed": "David Saddler",
+   "licence": "CC BY 2.0",
+   "licence_url": "https://creativecommons.org/licenses/by/2.0",
+   "licence_on_file_page": [
+    "CC BY 2.0"
+   ],
+   "page_check_version": 2,
+   "licence_check": "match",
+   "credit": "David Saddler, CC BY 2.0, via Wikimedia Commons",
+   "why": "Moon through thin cloud with the glow spreading into the cloud sheet: the halo scale against a dark sky.",
+   "sun_elevation_deg_estimate": null,
+   "notes": "1920x1080 original; CC BY 2.0.",
+   "local_file": "C:/qfb/shaderdev/refs\\night_moon-2.jpg",
+   "pixel_size": [
+    1920,
+    1080
+   ],
+   "original_size": [
+    1920,
+    1080
+   ],
+   "thumb_330": "https://upload.wikimedia.org/wikipedia/commons/c/c2/Full_Moon_In_The_Clouds%2C_August_19%2C_2024%2C_4-01_a.m._-_Flickr_-_the_bridge.jpg",
+   "taken": "Taken on 19 August 2024, ",
+   "checked": "2026-10-25"
+  }
+ ],
+ "dawn_wide": [
+  {
+   "file": "File:Münster, Aasee -- 2020 -- 9282-6.jpg",
+   "source": "https://commons.wikimedia.org/wiki/File:M%C3%BCnster,_Aasee_--_2020_--_9282-6.jpg",
+   "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/18/M%C3%BCnster%2C_Aasee_--_2020_--_9282-6.jpg/1920px-M%C3%BCnster%2C_Aasee_--_2020_--_9282-6.jpg",
+   "title": "Münster, Aasee -- 2020 -- 9282-6.jpg",
+   "author": "Dietmar Rabich",
+   "author_as_printed": "Dietmar Rabich",
+   "licence": "CC BY-SA 4.0",
+   "licence_url": "https://creativecommons.org/licenses/by-sa/4.0",
+   "licence_on_file_page": [
+    "CC BY-SA 4.0"
+   ],
+   "page_check_version": 2,
+   "licence_check": "match",
+   "credit": "Dietmar Rabich, CC BY-SA 4.0, via Wikimedia Commons",
+   "why": "A lake at sunrise with the sun a degree or two up behind trees, a still mirror and cumulus lit from below: dawn_wide over water.",
+   "sun_elevation_deg_estimate": 2,
+   "notes": "",
+   "local_file": "C:/qfb/shaderdev/refs\\dawn_wide-1.jpg",
+   "pixel_size": [
+    1920,
+    1280
+   ],
+   "original_size": [
+    6701,
+    4467
+   ],
+   "thumb_330": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/18/M%C3%BCnster%2C_Aasee_--_2020_--_9282-6.jpg/330px-M%C3%BCnster%2C_Aasee_--_2020_--_9282-6.jpg",
+   "taken": "Taken on 13 August 2020, ",
+   "checked": "2026-10-25"
+  },
+  {
+   "file": "File:Dülmen, Börnste, Sonnenaufgang -- 2020 -- 6075-9.jpg",
+   "source": "https://commons.wikimedia.org/wiki/File:D%C3%BClmen,_B%C3%B6rnste,_Sonnenaufgang_--_2020_--_6075-9.jpg",
+   "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/59/D%C3%BClmen%2C_B%C3%B6rnste%2C_Sonnenaufgang_--_2020_--_6075-9.jpg/1920px-D%C3%BClmen%2C_B%C3%B6rnste%2C_Sonnenaufgang_--_2020_--_6075-9.jpg",
+   "title": "Dülmen, Börnste, Sonnenaufgang -- 2020 -- 6075-9.jpg",
+   "author": "Dietmar Rabich",
+   "author_as_printed": "Dietmar Rabich",
+   "licence": "CC BY-SA 4.0",
+   "licence_url": "https://creativecommons.org/licenses/by-sa/4.0",
+   "licence_on_file_page": [
+    "CC BY-SA 4.0"
+   ],
+   "page_check_version": 2,
+   "licence_check": "match",
+   "credit": "Dietmar Rabich, CC BY-SA 4.0, via Wikimedia Commons",
+   "why": "Clear-sky sunrise over a meadow with the sun on the horizon between two trees: the clean dawn sky gradient without clouds.",
+   "sun_elevation_deg_estimate": 1,
+   "notes": "",
+   "local_file": "C:/qfb/shaderdev/refs\\dawn_wide-2.jpg",
+   "pixel_size": [
+    1920,
+    1280
+   ],
+   "original_size": [
+    6527,
+    4352
+   ],
+   "thumb_330": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/59/D%C3%BClmen%2C_B%C3%B6rnste%2C_Sonnenaufgang_--_2020_--_6075-9.jpg/330px-D%C3%BClmen%2C_B%C3%B6rnste%2C_Sonnenaufgang_--_2020_--_6075-9.jpg",
+   "taken": "Taken on 22 March 2020, 0",
+   "checked": "2026-10-25"
+  }
+ ],
+ "leafview": [
+  {
+   "file": "File:Leaves-Canopy-6859.jpg",
+   "source": "https://commons.wikimedia.org/wiki/File:Leaves-Canopy-6859.jpg",
+   "download": "https://upload.wikimedia.org/wikipedia/commons/e/e3/Leaves-Canopy-6859.jpg",
+   "title": "Leaves-Canopy-6859.jpg",
+   "author": "Loadmaster (David R. Tribble)",
+   "author_as_printed": "Loadmaster (David R. Tribble) This image was made by Loadmaster (David R. Tribble). Email the author: David R. Tribble Also see my personal gallery at Google Photos",
+   "licence": "CC BY-SA 3.0",
+   "licence_url": "https://creativecommons.org/licenses/by-sa/3.0",
+   "licence_on_file_page": [
+    "CC BY-SA 3.0",
+    "GFDL"
+   ],
+   "page_check_version": 2,
+   "licence_check": "match",
+   "credit": "Loadmaster (David R. Tribble), CC BY-SA 3.0, via Wikimedia Commons",
+   "why": "Backlit leaves from inside a canopy with the sun above: the translucent green of lit leaves against the darker underside of the rest, which is what the leaves test is about.",
+   "sun_elevation_deg_estimate": 35,
+   "notes": "CC BY-SA 3.0; portrait.",
+   "local_file": "C:/qfb/shaderdev/refs\\leafview-1.jpg",
+   "pixel_size": [
+    1872,
+    2816
+   ],
+   "original_size": [
+    1872,
+    2816
+   ],
+   "thumb_330": "https://upload.wikimedia.org/wikipedia/commons/e/e3/Leaves-Canopy-6859.jpg",
+   "taken": "2008-11-27",
+   "checked": "2026-10-25"
+  },
+  {
+   "file": "File:Autumn Sunlight Penetrating the Canopy Alpine Meadow - geograph.org.uk - 2626877.jpg",
+   "source": "https://commons.wikimedia.org/wiki/File:Autumn_Sunlight_Penetrating_the_Canopy_Alpine_Meadow_-_geograph.org.uk_-_2626877.jpg",
+   "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b2/Autumn_Sunlight_Penetrating_the_Canopy_Alpine_Meadow_-_geograph.org.uk_-_2626877.jpg/1920px-Autumn_Sunlight_Penetrating_the_Canopy_Alpine_Meadow_-_geograph.org.uk_-_2626877.jpg",
+   "title": "Autumn Sunlight Penetrating the Canopy Alpine Meadow - geograph.org.uk - 2626877.jpg",
+   "author": "Martin (geograph.org.uk)",
+   "author_as_printed": "Martin",
+   "licence": "CC BY-SA 2.0",
+   "licence_url": "https://creativecommons.org/licenses/by-sa/2.0",
+   "licence_on_file_page": [
+    "CC BY-SA 2.0"
+   ],
+   "page_check_version": 2,
+   "licence_check": "match",
+   "credit": "Martin (geograph.org.uk), CC BY-SA 2.0, via Wikimedia Commons",
+   "why": "A level view inside a wood with low sun through the leaves, lit crowns and soft shafts: the leafview camera's horizontal framing.",
+   "sun_elevation_deg_estimate": 20,
+   "notes": "CC BY-SA 2.0 (geograph).",
+   "local_file": "C:/qfb/shaderdev/refs\\leafview-2.jpg",
+   "pixel_size": [
+    1920,
+    1289
+   ],
+   "original_size": [
+    2896,
+    1944
+   ],
+   "thumb_330": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b2/Autumn_Sunlight_Penetrating_the_Canopy_Alpine_Meadow_-_geograph.org.uk_-_2626877.jpg/330px-Autumn_Sunlight_Penetrating_the_Canopy_Alpine_Meadow_-_geograph.org.uk_-_2626877.jpg",
+   "taken": "2011-10-01",
+   "checked": "2026-10-25"
+  }
+ ],
+ "lake_glow": [
+  {
+   "file": "File:Dülmen, Kirchspiel, Oedlerteich -- 2016 -- 1952-8.jpg",
+   "source": "https://commons.wikimedia.org/wiki/File:D%C3%BClmen,_Kirchspiel,_Oedlerteich_--_2016_--_1952-8.jpg",
+   "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b4/D%C3%BClmen%2C_Kirchspiel%2C_Oedlerteich_--_2016_--_1952-8.jpg/1920px-D%C3%BClmen%2C_Kirchspiel%2C_Oedlerteich_--_2016_--_1952-8.jpg",
+   "title": "Dülmen, Kirchspiel, Oedlerteich -- 2016 -- 1952-8.jpg",
+   "author": "Dietmar Rabich",
+   "author_as_printed": "Dietmar Rabich",
+   "licence": "CC BY-SA 4.0",
+   "licence_url": "https://creativecommons.org/licenses/by-sa/4.0",
+   "licence_on_file_page": [
+    "CC BY-SA 4.0"
+   ],
+   "page_check_version": 2,
+   "licence_check": "match",
+   "credit": "Dietmar Rabich, CC BY-SA 4.0, via Wikimedia Commons",
+   "why": "Sun about 6 degrees up over a sheltered pond: a soft path on nearly still water, reeds in silhouette and a warm sky with cirrus; the lake_glow view.",
+   "sun_elevation_deg_estimate": 6,
+   "notes": "CC BY-SA 4.0 (Dietmar Rabich).",
+   "local_file": "C:/qfb/shaderdev/refs\\lake_glow-1.jpg",
+   "pixel_size": [
+    1920,
+    1280
+   ],
+   "original_size": [
+    5470,
+    3646
+   ],
+   "thumb_330": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b4/D%C3%BClmen%2C_Kirchspiel%2C_Oedlerteich_--_2016_--_1952-8.jpg/330px-D%C3%BClmen%2C_Kirchspiel%2C_Oedlerteich_--_2016_--_1952-8.jpg",
+   "taken": "Taken on 21 April 2016, 2",
+   "checked": "2026-10-25"
+  },
+  {
+   "file": "File:Dülmen, Kirchspiel, Oedlerteich -- 2016 -- 1966.jpg",
+   "source": "https://commons.wikimedia.org/wiki/File:D%C3%BClmen,_Kirchspiel,_Oedlerteich_--_2016_--_1966.jpg",
+   "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c5/D%C3%BClmen%2C_Kirchspiel%2C_Oedlerteich_--_2016_--_1966.jpg/1920px-D%C3%BClmen%2C_Kirchspiel%2C_Oedlerteich_--_2016_--_1966.jpg",
+   "title": "Dülmen, Kirchspiel, Oedlerteich -- 2016 -- 1966.jpg",
+   "author": "Dietmar Rabich",
+   "author_as_printed": "Dietmar Rabich",
+   "licence": "CC BY-SA 4.0",
+   "licence_url": "https://creativecommons.org/licenses/by-sa/4.0",
+   "licence_on_file_page": [
+    "CC BY-SA 4.0"
+   ],
+   "page_check_version": 2,
+   "licence_check": "match",
+   "credit": "Dietmar Rabich, CC BY-SA 4.0, via Wikimedia Commons",
+   "why": "The same pond with the sun behind the trees: the mirror where little direct light reaches the surface, which is where our water went splotchy in round 6.",
+   "sun_elevation_deg_estimate": 4,
+   "notes": "CC BY-SA 4.0 (Dietmar Rabich).",
+   "local_file": "C:/qfb/shaderdev/refs\\lake_glow-2.jpg",
+   "pixel_size": [
+    1920,
+    1280
+   ],
+   "original_size": [
+    5155,
+    3437
+   ],
+   "thumb_330": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c5/D%C3%BClmen%2C_Kirchspiel%2C_Oedlerteich_--_2016_--_1966.jpg/330px-D%C3%BClmen%2C_Kirchspiel%2C_Oedlerteich_--_2016_--_1966.jpg",
+   "taken": "Taken on 21 April 2016, 2",
+   "checked": "2026-10-25"
+  }
+ ],
+ "night_sky": [
+  {
+   "file": "File:Milky Way and tree from Inferno Cone (36882988746).jpg",
+   "source": "https://commons.wikimedia.org/wiki/File:Milky_Way_and_tree_from_Inferno_Cone_(36882988746).jpg",
+   "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ee/Milky_Way_and_tree_from_Inferno_Cone_%2836882988746%29.jpg/1920px-Milky_Way_and_tree_from_Inferno_Cone_%2836882988746%29.jpg",
+   "title": "Milky Way and tree from Inferno Cone (36882988746).jpg",
+   "author": "Craters of the Moon National Monument & Preserve (US National Park Service)",
+   "author_as_printed": "Craters of the Moon National Monument & Preserve",
+   "licence": "Public domain",
+   "licence_url": "",
+   "licence_on_file_page": [
+    "Public domain"
+   ],
+   "page_check_version": 2,
+   "licence_check": "match",
+   "credit": "Craters of the Moon National Monument & Preserve (US National Park Service), public domain, via Wikimedia Commons",
+   "why": "The Milky Way core at about 45 degrees over a lone tree with a dark horizon: the night_sky framing with a photographic galaxy, the look the owner rated in round 6.",
+   "sun_elevation_deg_estimate": null,
+   "notes": "Public domain (US National Park Service). 8688x5792.",
+   "local_file": "C:/qfb/shaderdev/refs\\night_sky-1.jpg",
+   "pixel_size": [
+    1920,
+    1280
+   ],
+   "original_size": [
+    8688,
+    5792
+   ],
+   "thumb_330": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ee/Milky_Way_and_tree_from_Inferno_Cone_%2836882988746%29.jpg/330px-Milky_Way_and_tree_from_Inferno_Cone_%2836882988746%29.jpg",
+   "taken": "2017-08-18 22:49",
+   "checked": "2026-10-25"
+  },
+  {
+   "file": "File:Meteors and the Milky Way (Meterorite-Jfuentes-CC).jpg",
+   "source": "https://commons.wikimedia.org/wiki/File:Meteors_and_the_Milky_Way_(Meterorite-Jfuentes-CC).jpg",
+   "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d5/Meteors_and_the_Milky_Way_%28Meterorite-Jfuentes-CC%29.jpg/1920px-Meteors_and_the_Milky_Way_%28Meterorite-Jfuentes-CC%29.jpg",
+   "title": "Meteors and the Milky Way (Meterorite-Jfuentes-CC).jpg",
+   "author": "NOIRLab/AURA/NSF/J. Fuentes",
+   "author_as_printed": "NOIRLab/AURA/NSF/J. Fuentes",
+   "licence": "CC BY 4.0",
+   "licence_url": "https://creativecommons.org/licenses/by/4.0",
+   "licence_on_file_page": [
+    "CC BY 4.0"
+   ],
+   "page_check_version": 2,
+   "licence_check": "match",
+   "credit": "NOIRLab/AURA/NSF/J. Fuentes, CC BY 4.0, via Wikimedia Commons",
+   "why": "Milky Way with meteor streaks and green airglow near the horizon: the reference for the meteor-shower night the owner asked for after round 6.",
+   "sun_elevation_deg_estimate": null,
+   "notes": "NOIRLab, CC BY 4.0.",
+   "local_file": "C:/qfb/shaderdev/refs\\night_sky-2.jpg",
+   "pixel_size": [
+    1920,
+    1280
+   ],
+   "original_size": [
+    5184,
+    3456
+   ],
+   "thumb_330": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d5/Meteors_and_the_Milky_Way_%28Meterorite-Jfuentes-CC%29.jpg/330px-Meteors_and_the_Milky_Way_%28Meterorite-Jfuentes-CC%29.jpg",
+   "taken": "14 January 2022, 15:15 (u",
+   "checked": "2026-10-25"
+  }
+ ],
+ "biome_swamp": [
+  {
+   "file": "File:2025-06-04 13 37 39 View east through the Trap Pond Bald Cypress Swamp within Trap Pond State Park in Sussex County, Delaware.jpg",
+   "source": "https://commons.wikimedia.org/wiki/File:2025-06-04_13_37_39_View_east_through_the_Trap_Pond_Bald_Cypress_Swamp_within_Trap_Pond_State_Park_in_Sussex_County,_Delaware.jpg",
+   "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/34/2025-06-04_13_37_39_View_east_through_the_Trap_Pond_Bald_Cypress_Swamp_within_Trap_Pond_State_Park_in_Sussex_County%2C_Delaware.jpg/1920px-2025-06-04_13_37_39_View_east_through_the_Trap_Pond_Bald_Cypress_Swamp_within_Trap_Pond_State_Park_in_Sussex_County%2C_Delaware.jpg",
+   "title": "2025-06-04 13 37 39 View east through the Trap Pond Bald Cypress Swamp within Trap Pond State Park in Sussex County, Delaware.jpg",
+   "author": "Famartin",
+   "author_as_printed": "Famartin",
+   "licence": "CC BY-SA 4.0",
+   "licence_url": "https://creativecommons.org/licenses/by-sa/4.0",
+   "licence_on_file_page": [
+    "CC BY-SA 4.0"
+   ],
+   "page_check_version": 2,
+   "licence_check": "match",
+   "credit": "Famartin, CC BY-SA 4.0, via Wikimedia Commons",
+   "why": "Dark tea-coloured water between cypress trunks at midday, reflections and almost no view of the bed: the murky teal-brown swamp water and its dim light.",
+   "sun_elevation_deg_estimate": 65,
+   "notes": "CC BY-SA 4.0 (Famartin).",
+   "local_file": "C:/qfb/shaderdev/refs\\biome_swamp-1.jpg",
+   "pixel_size": [
+    1920,
+    1440
+   ],
+   "original_size": [
+    5712,
+    4284
+   ],
+   "thumb_330": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/34/2025-06-04_13_37_39_View_east_through_the_Trap_Pond_Bald_Cypress_Swamp_within_Trap_Pond_State_Park_in_Sussex_County%2C_Delaware.jpg/330px-2025-06-04_13_37_39_View_east_through_the_Trap_Pond_Bald_Cypress_Swamp_within_Trap_Pond_State_Park_in_Sussex_County%2C_Delaware.jpg",
+   "taken": "2025-06-04 13:37:39",
+   "checked": "2026-10-25"
+  },
+  {
+   "file": "File:2025-06-04 12 08 52 Bald Cypress trees along the south shore of Trap Pond within Trap Pond State Park in Sussex County, Delaware.jpg",
+   "source": "https://commons.wikimedia.org/wiki/File:2025-06-04_12_08_52_Bald_Cypress_trees_along_the_south_shore_of_Trap_Pond_within_Trap_Pond_State_Park_in_Sussex_County,_Delaware.jpg",
+   "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a2/2025-06-04_12_08_52_Bald_Cypress_trees_along_the_south_shore_of_Trap_Pond_within_Trap_Pond_State_Park_in_Sussex_County%2C_Delaware.jpg/1920px-2025-06-04_12_08_52_Bald_Cypress_trees_along_the_south_shore_of_Trap_Pond_within_Trap_Pond_State_Park_in_Sussex_County%2C_Delaware.jpg",
+   "title": "2025-06-04 12 08 52 Bald Cypress trees along the south shore of Trap Pond within Trap Pond State Park in Sussex County, Delaware.jpg",
+   "author": "Famartin",
+   "author_as_printed": "Famartin",
+   "licence": "CC BY-SA 4.0",
+   "licence_url": "https://creativecommons.org/licenses/by-sa/4.0",
+   "licence_on_file_page": [
+    "CC BY-SA 4.0"
+   ],
+   "page_check_version": 2,
+   "licence_check": "match",
+   "credit": "Famartin, CC BY-SA 4.0, via Wikimedia Commons",
+   "why": "Open swamp water with cypress standing in it under a blue noon sky: the swamp's water colour where sky light reaches it, beside the dense version.",
+   "sun_elevation_deg_estimate": 70,
+   "notes": "CC BY-SA 4.0 (Famartin).",
+   "local_file": "C:/qfb/shaderdev/refs\\biome_swamp-2.jpg",
+   "pixel_size": [
+    1920,
+    1440
+   ],
+   "original_size": [
+    5712,
+    4284
+   ],
+   "thumb_330": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a2/2025-06-04_12_08_52_Bald_Cypress_trees_along_the_south_shore_of_Trap_Pond_within_Trap_Pond_State_Park_in_Sussex_County%2C_Delaware.jpg/330px-2025-06-04_12_08_52_Bald_Cypress_trees_along_the_south_shore_of_Trap_Pond_within_Trap_Pond_State_Park_in_Sussex_County%2C_Delaware.jpg",
+   "taken": "2025-06-04 12:08:52",
+   "checked": "2026-10-25"
+  }
+ ],
+ "biome_hills": [
+  {
+   "file": "File:Blue Mountains National Park (AU), Three Sisters -- 2019 -- 2009.jpg",
+   "source": "https://commons.wikimedia.org/wiki/File:Blue_Mountains_National_Park_(AU),_Three_Sisters_--_2019_--_2009.jpg",
+   "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b4/Blue_Mountains_National_Park_%28AU%29%2C_Three_Sisters_--_2019_--_2009.jpg/1920px-Blue_Mountains_National_Park_%28AU%29%2C_Three_Sisters_--_2019_--_2009.jpg",
+   "title": "Blue Mountains National Park (AU), Three Sisters -- 2019 -- 2009.jpg",
+   "author": "Dietmar Rabich",
+   "author_as_printed": "Dietmar Rabich",
+   "licence": "CC BY-SA 4.0",
+   "licence_url": "https://creativecommons.org/licenses/by-sa/4.0",
+   "licence_on_file_page": [
+    "CC BY-SA 4.0"
+   ],
+   "page_check_version": 2,
+   "licence_check": "match",
+   "credit": "Dietmar Rabich, CC BY-SA 4.0, via Wikimedia Commons",
+   "why": "Rock and scrub crisp at the camera's elevation while the valley floor and far cliffs go blue with distance: the height-aware haze the owner asked for in round 4.",
+   "sun_elevation_deg_estimate": 45,
+   "notes": "Daylight, CC BY-SA 4.0.",
+   "local_file": "C:/qfb/shaderdev/refs\\biome_hills-1.jpg",
+   "pixel_size": [
+    1920,
+    1280
+   ],
+   "original_size": [
+    6720,
+    4480
+   ],
+   "thumb_330": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b4/Blue_Mountains_National_Park_%28AU%29%2C_Three_Sisters_--_2019_--_2009.jpg/330px-Blue_Mountains_National_Park_%28AU%29%2C_Three_Sisters_--_2019_--_2009.jpg",
+   "taken": "Taken on 22 October 2019,",
+   "checked": "2026-10-25"
+  },
+  {
+   "file": "File:Blue ridge Mountains layered.jpg",
+   "source": "https://commons.wikimedia.org/wiki/File:Blue_ridge_Mountains_layered.jpg",
+   "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/50/Blue_ridge_Mountains_layered.jpg/1920px-Blue_ridge_Mountains_layered.jpg",
+   "title": "Blue ridge Mountains layered.jpg",
+   "author": "Pdekyvere",
+   "author_as_printed": "Pdekyvere",
+   "licence": "CC BY-SA 4.0",
+   "licence_url": "https://creativecommons.org/licenses/by-sa/4.0",
+   "licence_on_file_page": [
+    "CC BY-SA 4.0"
+   ],
+   "page_check_version": 2,
+   "licence_check": "match",
+   "credit": "Pdekyvere, CC BY-SA 4.0, via Wikimedia Commons",
+   "why": "Ridges receding in six tones toward a low sun: the aerial-perspective ramp from near to far.",
+   "sun_elevation_deg_estimate": 10,
+   "notes": "Evening light, so the haze is warm; use the ramp, not the colour.",
+   "local_file": "C:/qfb/shaderdev/refs\\biome_hills-2.jpg",
+   "pixel_size": [
+    1920,
+    1440
+   ],
+   "original_size": [
+    3072,
+    2304
+   ],
+   "thumb_330": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/50/Blue_ridge_Mountains_layered.jpg/330px-Blue_ridge_Mountains_layered.jpg",
+   "taken": "2008-05-02 17:52:43",
+   "checked": "2026-10-25"
+  }
+ ],
+ "biome_hillsplus": [
+  {
+   "file": "File:MonNatForest.jpg",
+   "source": "https://commons.wikimedia.org/wiki/File:MonNatForest.jpg",
+   "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4e/MonNatForest.jpg/1920px-MonNatForest.jpg",
+   "title": "MonNatForest.jpg",
+   "author": "Valerius Tygart",
+   "author_as_printed": "Valerius Tygart",
+   "licence": "CC BY-SA 3.0",
+   "licence_url": "https://creativecommons.org/licenses/by-sa/3.0",
+   "licence_on_file_page": [
+    "GFDL",
+    "CC BY-SA 3.0"
+   ],
+   "page_check_version": 2,
+   "licence_check": "match",
+   "credit": "Valerius Tygart, CC BY-SA 3.0, via Wikimedia Commons",
+   "why": "Forested ridges in daylight with each layer bluer and lighter than the last and the near trees fully saturated: Extreme Hills+ with trees.",
+   "sun_elevation_deg_estimate": 50,
+   "notes": "",
+   "local_file": "C:/qfb/shaderdev/refs\\biome_hillsplus-1.jpg",
+   "pixel_size": [
+    1920,
+    1440
+   ],
+   "original_size": [
+    2816,
+    2112
+   ],
+   "thumb_330": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4e/MonNatForest.jpg/330px-MonNatForest.jpg",
+   "taken": "2007-08-17",
+   "checked": "2026-10-25"
+  },
+  {
+   "file": "File:Knob lick view-26aug06.jpg",
+   "source": "https://commons.wikimedia.org/wiki/File:Knob_lick_view-26aug06.jpg",
+   "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/ba/Knob_lick_view-26aug06.jpg/1920px-Knob_lick_view-26aug06.jpg",
+   "title": "Knob lick view-26aug06.jpg",
+   "author": "Kbh3rd",
+   "author_as_printed": "Wikipedian Kbh3rd",
+   "licence": "CC BY-SA 3.0",
+   "licence_url": "http://creativecommons.org/licenses/by-sa/3.0/",
+   "licence_on_file_page": [
+    "GFDL",
+    "CC BY-SA 3.0",
+    "CC BY-SA 2.5"
+   ],
+   "page_check_version": 2,
+   "licence_check": "match",
+   "credit": "Kbh3rd, CC BY-SA 3.0, via Wikimedia Commons",
+   "why": "Fields and trees at eye level crisp, distant hills hazy: haze that depends on distance and height below the camera.",
+   "sun_elevation_deg_estimate": 45,
+   "notes": "",
+   "local_file": "C:/qfb/shaderdev/refs\\biome_hillsplus-2.jpg",
+   "pixel_size": [
+    1920,
+    1245
+   ],
+   "original_size": [
+    2516,
+    1632
+   ],
+   "thumb_330": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/ba/Knob_lick_view-26aug06.jpg/330px-Knob_lick_view-26aug06.jpg",
+   "taken": "2006-08-26",
+   "checked": "2026-10-25"
+  }
+ ],
+ "biome_roofed": [
+  {
+   "file": "File:Beech forest in Kokkozka Valley, Mystery, Crimea.jpg",
+   "source": "https://commons.wikimedia.org/wiki/File:Beech_forest_in_Kokkozka_Valley,_Mystery,_Crimea.jpg",
+   "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a8/Beech_forest_in_Kokkozka_Valley%2C_Mystery%2C_Crimea.jpg/1920px-Beech_forest_in_Kokkozka_Valley%2C_Mystery%2C_Crimea.jpg",
+   "title": "Beech forest in Kokkozka Valley, Mystery, Crimea.jpg",
+   "author": "Vyacheslav Argenberg",
+   "author_as_printed": "Vyacheslav Argenberg",
+   "licence": "CC BY 4.0",
+   "licence_url": "https://creativecommons.org/licenses/by/4.0",
+   "licence_on_file_page": [
+    "CC BY 4.0"
+   ],
+   "page_check_version": 2,
+   "licence_check": "match",
+   "credit": "Vyacheslav Argenberg, CC BY 4.0, via Wikimedia Commons",
+   "why": "Closed beech canopy with a dim, slightly misty interior and only scattered light reaching the floor: the Roofed Forest's darkness at midday.",
+   "sun_elevation_deg_estimate": 40,
+   "notes": "CC BY 4.0 (Vyacheslav Argenberg).",
+   "local_file": "C:/qfb/shaderdev/refs\\biome_roofed-1.jpg",
+   "pixel_size": [
+    1920,
+    1280
+   ],
+   "original_size": [
+    6000,
+    4000
+   ],
+   "thumb_330": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a8/Beech_forest_in_Kokkozka_Valley%2C_Mystery%2C_Crimea.jpg/330px-Beech_forest_in_Kokkozka_Valley%2C_Mystery%2C_Crimea.jpg",
+   "taken": "2016-06-05 16:35:33",
+   "checked": "2026-10-25"
+  },
+  {
+   "file": "File:Beech and ferns in Gullmarsskogen.jpg",
+   "source": "https://commons.wikimedia.org/wiki/File:Beech_and_ferns_in_Gullmarsskogen.jpg",
+   "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/bb/Beech_and_ferns_in_Gullmarsskogen.jpg/1920px-Beech_and_ferns_in_Gullmarsskogen.jpg",
+   "title": "Beech and ferns in Gullmarsskogen.jpg",
+   "author": "W.carter",
+   "author_as_printed": "W.carter",
+   "licence": "CC0",
+   "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+   "licence_on_file_page": [
+    "CC0"
+   ],
+   "page_check_version": 2,
+   "licence_check": "match",
+   "credit": "W.carter, CC0, via Wikimedia Commons",
+   "why": "Forest floor under a dark canopy with ferns picked out by filtered light: how much the floor reads under a closed canopy.",
+   "sun_elevation_deg_estimate": 55,
+   "notes": "CC0 (W.carter).",
+   "local_file": "C:/qfb/shaderdev/refs\\biome_roofed-2.jpg",
+   "pixel_size": [
+    1920,
+    1280
+   ],
+   "original_size": [
+    5472,
+    3648
+   ],
+   "thumb_330": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/bb/Beech_and_ferns_in_Gullmarsskogen.jpg/330px-Beech_and_ferns_in_Gullmarsskogen.jpg",
+   "taken": "2017-06-09 13:43:44",
+   "checked": "2026-10-25"
+  }
+ ],
+ "biome_savanna": [
+  {
+   "file": "File:Maasai-Mara-Typical-Scenery.JPG",
+   "source": "https://commons.wikimedia.org/wiki/File:Maasai-Mara-Typical-Scenery.JPG",
+   "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/bd/Maasai-Mara-Typical-Scenery.JPG/1920px-Maasai-Mara-Typical-Scenery.JPG",
+   "title": "Maasai-Mara-Typical-Scenery.JPG",
+   "author": "Bjørn Christian Tørrissen",
+   "author_as_printed": "Bjørn Christian Tørrissen",
+   "licence": "CC BY-SA 3.0",
+   "licence_url": "https://creativecommons.org/licenses/by-sa/3.0",
+   "licence_on_file_page": [
+    "CC BY-SA 3.0"
+   ],
+   "page_check_version": 2,
+   "licence_check": "match",
+   "credit": "Bjørn Christian Tørrissen, CC BY-SA 3.0, via Wikimedia Commons",
+   "why": "Gold grass to the horizon with low hills going hazy under cumulus at 13:45: the savanna biome's land, sky and distance haze at midday.",
+   "sun_elevation_deg_estimate": 70,
+   "notes": "CC BY-SA 3.0 (Bjørn Christian Tørrissen).",
+   "local_file": "C:/qfb/shaderdev/refs\\biome_savanna-1.jpg",
+   "pixel_size": [
+    1920,
+    1205
+   ],
+   "original_size": [
+    4463,
+    2801
+   ],
+   "thumb_330": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/bd/Maasai-Mara-Typical-Scenery.JPG/330px-Maasai-Mara-Typical-Scenery.JPG",
+   "taken": "2012-08-22 13:45:18",
+   "checked": "2026-10-25"
+  },
+  {
+   "file": "File:Acacia (Vachellia tortilis), parque nacional Serengueti, Tanzania, 2024-05-26, DD 26.jpg",
+   "source": "https://commons.wikimedia.org/wiki/File:Acacia_(Vachellia_tortilis),_parque_nacional_Serengueti,_Tanzania,_2024-05-26,_DD_26.jpg",
+   "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d8/Acacia_%28Vachellia_tortilis%29%2C_parque_nacional_Serengueti%2C_Tanzania%2C_2024-05-26%2C_DD_26.jpg/1920px-Acacia_%28Vachellia_tortilis%29%2C_parque_nacional_Serengueti%2C_Tanzania%2C_2024-05-26%2C_DD_26.jpg",
+   "title": "Acacia (Vachellia tortilis), parque nacional Serengueti, Tanzania, 2024-05-26, DD 26.jpg",
+   "author": "Diego Delso",
+   "author_as_printed": "Diego Delso",
+   "licence": "CC BY-SA 4.0",
+   "licence_url": "https://creativecommons.org/licenses/by-sa/4.0",
+   "licence_on_file_page": [
+    "CC BY-SA 4.0"
+   ],
+   "page_check_version": 2,
+   "licence_check": "match",
+   "credit": "Diego Delso, CC BY-SA 4.0, via Wikimedia Commons",
+   "why": "Two flat-topped acacias on green-gold grass under a hazy bright sky: the acacia form the biome's trees stand in for.",
+   "sun_elevation_deg_estimate": 45,
+   "notes": "CC BY-SA 4.0 (Diego Delso).",
+   "local_file": "C:/qfb/shaderdev/refs\\biome_savanna-2.jpg",
+   "pixel_size": [
+    1920,
+    1280
+   ],
+   "original_size": [
+    7445,
+    4963
+   ],
+   "thumb_330": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d8/Acacia_%28Vachellia_tortilis%29%2C_parque_nacional_Serengueti%2C_Tanzania%2C_2024-05-26%2C_DD_26.jpg/330px-Acacia_%28Vachellia_tortilis%29%2C_parque_nacional_Serengueti%2C_Tanzania%2C_2024-05-26%2C_DD_26.jpg",
+   "taken": "2024-05-26 11:10:54",
+   "checked": "2026-10-25"
+  }
+ ],
+ "biome_desert": [
+  {
+   "file": "File:Erg Chebbi 01.JPG",
+   "source": "https://commons.wikimedia.org/wiki/File:Erg_Chebbi_01.JPG",
+   "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0d/Erg_Chebbi_01.JPG/1920px-Erg_Chebbi_01.JPG",
+   "title": "Erg Chebbi 01.JPG",
+   "author": "Andreine",
+   "author_as_printed": "Andreine",
+   "licence": "CC BY-SA 3.0",
+   "licence_url": "https://creativecommons.org/licenses/by-sa/3.0",
+   "licence_on_file_page": [
+    "CC BY-SA 3.0"
+   ],
+   "page_check_version": 2,
+   "licence_check": "match",
+   "credit": "Andreine, CC BY-SA 3.0, via Wikimedia Commons",
+   "why": "Pale dunes under a bright, hazy desert sky near midday, soft shadows and a figure for scale: the desert biome's light and its washed sky.",
+   "sun_elevation_deg_estimate": 45,
+   "notes": "CC BY-SA 3.0.",
+   "local_file": "C:/qfb/shaderdev/refs\\biome_desert-1.jpg",
+   "pixel_size": [
+    1920,
+    1277
+   ],
+   "original_size": [
+    3008,
+    2000
+   ],
+   "thumb_330": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0d/Erg_Chebbi_01.JPG/330px-Erg_Chebbi_01.JPG",
+   "taken": "2013-01-09 16:03:30",
+   "checked": "2026-10-25"
+  },
+  {
+   "file": "File:Erg Chebbi (4804565176).jpg",
+   "source": "https://commons.wikimedia.org/wiki/File:Erg_Chebbi_(4804565176).jpg",
+   "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/98/Erg_Chebbi_%284804565176%29.jpg/1920px-Erg_Chebbi_%284804565176%29.jpg",
+   "title": "Erg Chebbi (4804565176).jpg",
+   "author": "Mike Prince",
+   "author_as_printed": "Mike Prince from Bangalore, India",
+   "licence": "CC BY 2.0",
+   "licence_url": "https://creativecommons.org/licenses/by/2.0",
+   "licence_on_file_page": [
+    "CC BY 2.0"
+   ],
+   "page_check_version": 2,
+   "licence_check": "match",
+   "credit": "Mike Prince, CC BY 2.0, via Wikimedia Commons",
+   "why": "Orange dunes with sparse scrub under a paler sky with the sun lower: dune shading and the sand colour against a clear sky.",
+   "sun_elevation_deg_estimate": 20,
+   "notes": "CC BY 2.0.",
+   "local_file": "C:/qfb/shaderdev/refs\\biome_desert-2.jpg",
+   "pixel_size": [
+    1920,
+    1280
+   ],
+   "original_size": [
+    2048,
+    1365
+   ],
+   "thumb_330": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/98/Erg_Chebbi_%284804565176%29.jpg/330px-Erg_Chebbi_%284804565176%29.jpg",
+   "taken": "2010-05-03 18:27",
+   "checked": "2026-10-25"
+  }
+ ],
+ "biome_taiga": [
+  {
+   "file": "File:Ergaki, Taiga in Siberia, Coniferous forest, Sayan Mountains, Siberia, Russia.jpg",
+   "source": "https://commons.wikimedia.org/wiki/File:Ergaki,_Taiga_in_Siberia,_Coniferous_forest,_Sayan_Mountains,_Siberia,_Russia.jpg",
+   "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/69/Ergaki%2C_Taiga_in_Siberia%2C_Coniferous_forest%2C_Sayan_Mountains%2C_Siberia%2C_Russia.jpg/1920px-Ergaki%2C_Taiga_in_Siberia%2C_Coniferous_forest%2C_Sayan_Mountains%2C_Siberia%2C_Russia.jpg",
+   "title": "Ergaki, Taiga in Siberia, Coniferous forest, Sayan Mountains, Siberia, Russia.jpg",
+   "author": "Vyacheslav Argenberg",
+   "author_as_printed": "Vyacheslav Argenberg",
+   "licence": "CC BY 4.0",
+   "licence_url": "https://creativecommons.org/licenses/by/4.0",
+   "licence_on_file_page": [
+    "CC BY 4.0"
+   ],
+   "page_check_version": 2,
+   "licence_check": "match",
+   "credit": "Vyacheslav Argenberg, CC BY 4.0, via Wikimedia Commons",
+   "why": "Siberian taiga at midday: dark conifers, a lake and lighter meadow, with the far ridge going blue; the taiga biome's palette and haze.",
+   "sun_elevation_deg_estimate": 50,
+   "notes": "CC BY 4.0 (Vyacheslav Argenberg).",
+   "local_file": "C:/qfb/shaderdev/refs\\biome_taiga-1.jpg",
+   "pixel_size": [
+    1920,
+    1280
+   ],
+   "original_size": [
+    6000,
+    4000
+   ],
+   "thumb_330": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/69/Ergaki%2C_Taiga_in_Siberia%2C_Coniferous_forest%2C_Sayan_Mountains%2C_Siberia%2C_Russia.jpg/330px-Ergaki%2C_Taiga_in_Siberia%2C_Coniferous_forest%2C_Sayan_Mountains%2C_Siberia%2C_Russia.jpg",
+   "taken": "2016-08-03 13:19:34",
+   "checked": "2026-10-25"
+  },
+  {
+   "file": "File:Lake shore, Wild taiga forest, Krasnoyarsk Reservoir, Russia.jpg",
+   "source": "https://commons.wikimedia.org/wiki/File:Lake_shore,_Wild_taiga_forest,_Krasnoyarsk_Reservoir,_Russia.jpg",
+   "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/76/Lake_shore%2C_Wild_taiga_forest%2C_Krasnoyarsk_Reservoir%2C_Russia.jpg/1920px-Lake_shore%2C_Wild_taiga_forest%2C_Krasnoyarsk_Reservoir%2C_Russia.jpg",
+   "title": "Lake shore, Wild taiga forest, Krasnoyarsk Reservoir, Russia.jpg",
+   "author": "Vyacheslav Argenberg",
+   "author_as_printed": "Vyacheslav Argenberg",
+   "licence": "CC BY 4.0",
+   "licence_url": "https://creativecommons.org/licenses/by/4.0",
+   "licence_on_file_page": [
+    "CC BY 4.0"
+   ],
+   "page_check_version": 2,
+   "licence_check": "match",
+   "credit": "Vyacheslav Argenberg, CC BY 4.0, via Wikimedia Commons",
+   "why": "Dense spruce and pine on a lake shore under an overcast sky: the taiga's near-black greens beside water.",
+   "sun_elevation_deg_estimate": 40,
+   "notes": "CC BY 4.0.",
+   "local_file": "C:/qfb/shaderdev/refs\\biome_taiga-2.jpg",
+   "pixel_size": [
+    1920,
+    1280
+   ],
+   "original_size": [
+    6000,
+    4000
+   ],
+   "thumb_330": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/76/Lake_shore%2C_Wild_taiga_forest%2C_Krasnoyarsk_Reservoir%2C_Russia.jpg/330px-Lake_shore%2C_Wild_taiga_forest%2C_Krasnoyarsk_Reservoir%2C_Russia.jpg",
+   "taken": "2016-08-12 15:51:53",
+   "checked": "2026-10-25"
+  }
+ ],
+ "biome_ocean": [
+  {
+   "file": "File:Wave open sea.jpg",
+   "source": "https://commons.wikimedia.org/wiki/File:Wave_open_sea.jpg",
+   "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/de/Wave_open_sea.jpg/1920px-Wave_open_sea.jpg",
+   "title": "Wave open sea.jpg",
+   "author": "Unknown author",
+   "author_as_printed": "Unknown authorUnknown author",
+   "licence": "Public domain",
+   "licence_url": "",
+   "licence_on_file_page": [
+    "Public domain",
+    "Public domain"
+   ],
+   "page_check_version": 2,
+   "licence_check": "match",
+   "credit": "Unknown author, public domain, via Wikimedia Commons",
+   "why": "Open sea at midday from just above the surface, saturated deep blue with a breaking crest and the horizon mid-frame: the deep-blue ocean the owner asked for.",
+   "sun_elevation_deg_estimate": 55,
+   "notes": "Public domain.",
+   "local_file": "C:/qfb/shaderdev/refs\\biome_ocean-1.jpg",
+   "pixel_size": [
+    1920,
+    1440
+   ],
+   "original_size": [
+    2560,
+    1920
+   ],
+   "thumb_330": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/de/Wave_open_sea.jpg/330px-Wave_open_sea.jpg",
+   "taken": "Not given Transferred by ",
+   "checked": "2026-10-25"
+  },
+  {
+   "file": "File:The Horizon Where Sea Meets Sky.png",
+   "source": "https://commons.wikimedia.org/wiki/File:The_Horizon_Where_Sea_Meets_Sky.png",
+   "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b9/The_Horizon_Where_Sea_Meets_Sky.png/1920px-The_Horizon_Where_Sea_Meets_Sky.png",
+   "title": "The Horizon Where Sea Meets Sky.png",
+   "author": "AustinXia",
+   "author_as_printed": "AustinXia",
+   "licence": "CC BY-SA 4.0",
+   "licence_url": "https://creativecommons.org/licenses/by-sa/4.0",
+   "licence_on_file_page": [
+    "CC BY-SA 4.0"
+   ],
+   "page_check_version": 2,
+   "licence_check": "match",
+   "credit": "AustinXia, CC BY-SA 4.0, via Wikimedia Commons",
+   "why": "Clear tropical sea from the surface: the bed showing through near the camera, deep blue toward the horizon, cumulus above; the clarity-to-depth gradient at sea.",
+   "sun_elevation_deg_estimate": 60,
+   "notes": "CC BY-SA 4.0; portrait PNG.",
+   "local_file": "C:/qfb/shaderdev/refs\\biome_ocean-2.png",
+   "pixel_size": [
+    1920,
+    2560
+   ],
+   "original_size": [
+    3024,
+    4032
+   ],
+   "thumb_330": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b9/The_Horizon_Where_Sea_Meets_Sky.png/330px-The_Horizon_Where_Sea_Meets_Sky.png",
+   "taken": "2024-04-06",
+   "checked": "2026-10-25"
+  }
+ ],
+ "river_noon": [
+  {
+   "file": "File:View of the Clear Water of the Conasauga River (5812266280).jpg",
+   "source": "https://commons.wikimedia.org/wiki/File:View_of_the_Clear_Water_of_the_Conasauga_River_(5812266280).jpg",
+   "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/eb/View_of_the_Clear_Water_of_the_Conasauga_River_%285812266280%29.jpg/1920px-View_of_the_Clear_Water_of_the_Conasauga_River_%285812266280%29.jpg",
+   "title": "View of the Clear Water of the Conasauga River (5812266280).jpg",
+   "author": "U.S. Fish and Wildlife Service Southeast Region",
+   "author_as_printed": "U.S. Fish and Wildlife Service Southeast Region",
+   "licence": "Public domain",
+   "licence_url": "",
+   "licence_on_file_page": [
+    "CC BY 2.0",
+    "Public domain"
+   ],
+   "page_check_version": 2,
+   "licence_check": "match",
+   "credit": "U.S. Fish and Wildlife Service Southeast Region, public domain, via Wikimedia Commons",
+   "why": "Looking along a clear river from just above the surface: mirror reflection far away, the bed showing through near the camera, trees both sides; the river_noon framing.",
+   "sun_elevation_deg_estimate": 55,
+   "notes": "Public domain (US Fish and Wildlife Service).",
+   "local_file": "C:/qfb/shaderdev/refs\\river_noon-1.jpg",
+   "pixel_size": [
+    1920,
+    1280
+   ],
+   "original_size": [
+    3504,
+    2336
+   ],
+   "thumb_330": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/eb/View_of_the_Clear_Water_of_the_Conasauga_River_%285812266280%29.jpg/330px-View_of_the_Clear_Water_of_the_Conasauga_River_%285812266280%29.jpg",
+   "taken": "2011-06-07 15:00",
+   "checked": "2026-10-25"
+  },
+  {
+   "file": "File:Crystal clear river water.jpg",
+   "source": "https://commons.wikimedia.org/wiki/File:Crystal_clear_river_water.jpg",
+   "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/59/Crystal_clear_river_water.jpg/1920px-Crystal_clear_river_water.jpg",
+   "title": "Crystal clear river water.jpg",
+   "author": "Satyanadipally3541",
+   "author_as_printed": "Satyanadipally3541",
+   "licence": "CC BY-SA 4.0",
+   "licence_url": "https://creativecommons.org/licenses/by-sa/4.0",
+   "licence_on_file_page": [
+    "CC BY-SA 4.0"
+   ],
+   "page_check_version": 2,
+   "licence_check": "match",
+   "credit": "Satyanadipally3541, CC BY-SA 4.0, via Wikimedia Commons",
+   "why": "A half-clear river with a faint green tint over a sandy bed: the slightly green, half-transparent river the round-4 and round-6 critic notes asked for.",
+   "sun_elevation_deg_estimate": 70,
+   "notes": "Dudhsagar river; CC BY-SA 4.0.",
+   "local_file": "C:/qfb/shaderdev/refs\\river_noon-2.jpg",
+   "pixel_size": [
+    1920,
+    1080
+   ],
+   "original_size": [
+    4128,
+    2322
+   ],
+   "thumb_330": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/59/Crystal_clear_river_water.jpg/330px-Crystal_clear_river_water.jpg",
+   "taken": "2015-08-27 11:43:40",
+   "checked": "2026-10-25"
+  }
+ ],
+ "beach_noon": [
+  {
+   "file": "File:Bathala (Maldives) 6.jpg",
+   "source": "https://commons.wikimedia.org/wiki/File:Bathala_(Maldives)_6.jpg",
+   "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/57/Bathala_%28Maldives%29_6.jpg/1920px-Bathala_%28Maldives%29_6.jpg",
+   "title": "Bathala (Maldives) 6.jpg",
+   "author": "Gzzz",
+   "author_as_printed": "Gzzz",
+   "licence": "CC BY-SA 4.0",
+   "licence_url": "https://creativecommons.org/licenses/by-sa/4.0",
+   "licence_on_file_page": [
+    "CC BY-SA 4.0"
+   ],
+   "page_check_version": 2,
+   "licence_check": "match",
+   "credit": "Gzzz, CC BY-SA 4.0, via Wikimedia Commons",
+   "why": "The Maldives gradient from white sand through turquoise to deep blue at the horizon under a noon sky: the coast colour the owner named.",
+   "sun_elevation_deg_estimate": 55,
+   "notes": "CC BY-SA 4.0.",
+   "local_file": "C:/qfb/shaderdev/refs\\beach_noon-1.jpg",
+   "pixel_size": [
+    1920,
+    1211
+   ],
+   "original_size": [
+    4714,
+    2974
+   ],
+   "thumb_330": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/57/Bathala_%28Maldives%29_6.jpg/330px-Bathala_%28Maldives%29_6.jpg",
+   "taken": "2016-02-23 10:25:49",
+   "checked": "2026-10-25"
+  },
+  {
+   "file": "File:Clear Water at Kuredu Island, Maldives (4550565234).jpg",
+   "source": "https://commons.wikimedia.org/wiki/File:Clear_Water_at_Kuredu_Island,_Maldives_(4550565234).jpg",
+   "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d8/Clear_Water_at_Kuredu_Island%2C_Maldives_%284550565234%29.jpg/1920px-Clear_Water_at_Kuredu_Island%2C_Maldives_%284550565234%29.jpg",
+   "title": "Clear Water at Kuredu Island, Maldives (4550565234).jpg",
+   "author": "wardyboy400",
+   "author_as_printed": "wardyboy400",
+   "licence": "CC BY 2.0",
+   "licence_url": "https://creativecommons.org/licenses/by/2.0",
+   "licence_on_file_page": [
+    "CC BY 2.0"
+   ],
+   "page_check_version": 2,
+   "licence_check": "match",
+   "credit": "wardyboy400, CC BY 2.0, via Wikimedia Commons",
+   "why": "Shallow lagoon with the bed showing through pale turquoise ripples and clouds reflected: the near-water clarity on a coast without land in frame.",
+   "sun_elevation_deg_estimate": 50,
+   "notes": "CC BY 2.0.",
+   "local_file": "C:/qfb/shaderdev/refs\\beach_noon-2.jpg",
+   "pixel_size": [
+    1920,
+    1440
+   ],
+   "original_size": [
+    3968,
+    2976
+   ],
+   "thumb_330": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d8/Clear_Water_at_Kuredu_Island%2C_Maldives_%284550565234%29.jpg/330px-Clear_Water_at_Kuredu_Island%2C_Maldives_%284550565234%29.jpg",
+   "taken": "2010-04-19 05:25",
+   "checked": "2026-10-25"
+  }
+ ],
+ "lake_glitter": [
+  {
+   "file": "File:Haltern am See, Seebucht Hohe Niemen -- 2014 -- 1157.jpg",
+   "source": "https://commons.wikimedia.org/wiki/File:Haltern_am_See,_Seebucht_Hohe_Niemen_--_2014_--_1157.jpg",
+   "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3a/Haltern_am_See%2C_Seebucht_Hohe_Niemen_--_2014_--_1157.jpg/1920px-Haltern_am_See%2C_Seebucht_Hohe_Niemen_--_2014_--_1157.jpg",
+   "title": "Haltern am See, Seebucht Hohe Niemen -- 2014 -- 1157.jpg",
+   "author": "Dietmar Rabich",
+   "author_as_printed": "Dietmar Rabich",
+   "licence": "CC BY-SA 4.0",
+   "licence_url": "https://creativecommons.org/licenses/by-sa/4.0",
+   "licence_on_file_page": [
+    "CC BY-SA 4.0"
+   ],
+   "page_check_version": 2,
+   "licence_check": "match",
+   "credit": "Dietmar Rabich, CC BY-SA 4.0, via Wikimedia Commons",
+   "why": "Sun about 10 degrees up in frame over a calm lake bay with a glitter path running all the way to the camera and a dark tree line: the lake_glitter framing.",
+   "sun_elevation_deg_estimate": 10,
+   "notes": "CC BY-SA 4.0 (Dietmar Rabich); the boats are incidental.",
+   "local_file": "C:/qfb/shaderdev/refs\\lake_glitter-1.jpg",
+   "pixel_size": [
+    1920,
+    1236
+   ],
+   "original_size": [
+    5120,
+    3297
+   ],
+   "thumb_330": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3a/Haltern_am_See%2C_Seebucht_Hohe_Niemen_--_2014_--_1157.jpg/330px-Haltern_am_See%2C_Seebucht_Hohe_Niemen_--_2014_--_1157.jpg",
+   "taken": "Taken on 6 June 2014, 20:",
+   "checked": "2026-10-25"
+  },
+  {
+   "file": "File:Haldensee Sunset DJI.jpg",
+   "source": "https://commons.wikimedia.org/wiki/File:Haldensee_Sunset_DJI.jpg",
+   "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e1/Haldensee_Sunset_DJI.jpg/1920px-Haldensee_Sunset_DJI.jpg",
+   "title": "Haldensee Sunset DJI.jpg",
+   "author": "Christian Namesnik",
+   "author_as_printed": "Christian Namesnik",
+   "licence": "CC BY-SA 4.0",
+   "licence_url": "https://creativecommons.org/licenses/by-sa/4.0",
+   "licence_on_file_page": [
+    "CC BY-SA 4.0"
+   ],
+   "page_check_version": 2,
+   "licence_check": "match",
+   "credit": "Christian Namesnik, CC BY-SA 4.0, via Wikimedia Commons",
+   "why": "A mountain lake with the sun just over a ridge and its path on the water between dark slopes: the cliff-shaded lake with a path, from above.",
+   "sun_elevation_deg_estimate": 3,
+   "notes": "Drone view, so higher than our camera; CC BY-SA 4.0.",
+   "local_file": "C:/qfb/shaderdev/refs\\lake_glitter-2.jpg",
+   "pixel_size": [
+    1920,
+    1280
+   ],
+   "original_size": [
+    5458,
+    3638
+   ],
+   "thumb_330": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e1/Haldensee_Sunset_DJI.jpg/330px-Haldensee_Sunset_DJI.jpg",
+   "taken": "2023-05-27",
+   "checked": "2026-10-25"
+  }
+ ],
+ "ocean_sunset": [
+  {
+   "file": "File:Zoutelande (NL), Strand, Blick auf die Nordsee -- 2022 -- 4984.jpg",
+   "source": "https://commons.wikimedia.org/wiki/File:Zoutelande_(NL),_Strand,_Blick_auf_die_Nordsee_--_2022_--_4984.jpg",
+   "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b8/Zoutelande_%28NL%29%2C_Strand%2C_Blick_auf_die_Nordsee_--_2022_--_4984.jpg/1920px-Zoutelande_%28NL%29%2C_Strand%2C_Blick_auf_die_Nordsee_--_2022_--_4984.jpg",
+   "title": "Zoutelande (NL), Strand, Blick auf die Nordsee -- 2022 -- 4984.jpg",
+   "author": "Dietmar Rabich",
+   "author_as_printed": "Dietmar Rabich",
+   "licence": "CC BY-SA 4.0",
+   "licence_url": "https://creativecommons.org/licenses/by-sa/4.0",
+   "licence_on_file_page": [
+    "CC BY-SA 4.0"
+   ],
+   "page_check_version": 2,
+   "licence_check": "match",
+   "credit": "Dietmar Rabich, CC BY-SA 4.0, via Wikimedia Commons",
+   "why": "Open sea into a sun about 8 degrees up in haze, horizon just above mid-frame, one glitter path running to the camera and a sailboat for scale: the ocean_sunset framing almost exactly.",
+   "sun_elevation_deg_estimate": 8,
+   "notes": "Western Scheldt from Zoutelande, 29 Oct 2022. The sun is a soft disc in haze, so use it for the path and the sea tone, not for limb darkening.",
+   "local_file": "C:/qfb/shaderdev/refs\\ocean_sunset-1.jpg",
+   "pixel_size": [
+    1920,
+    1440
+   ],
+   "original_size": [
+    5959,
+    4469
+   ],
+   "thumb_330": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b8/Zoutelande_%28NL%29%2C_Strand%2C_Blick_auf_die_Nordsee_--_2022_--_4984.jpg/330px-Zoutelande_%28NL%29%2C_Strand%2C_Blick_auf_die_Nordsee_--_2022_--_4984.jpg",
+   "taken": "Taken on 29 October 2022,",
+   "checked": "2026-10-25"
+  },
+  {
+   "file": "File:Sunset sea Tenerife.JPG",
+   "source": "https://commons.wikimedia.org/wiki/File:Sunset_sea_Tenerife.JPG",
+   "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d1/Sunset_sea_Tenerife.JPG/1920px-Sunset_sea_Tenerife.JPG",
+   "title": "Sunset sea Tenerife.JPG",
+   "author": "Piotr Konieczny (Piotrus)",
+   "author_as_printed": "Piotrus (Piotr Konieczny aka Prokonsul Piotrus Talk)",
+   "licence": "CC BY-SA 3.0",
+   "licence_url": "https://creativecommons.org/licenses/by-sa/3.0",
+   "licence_on_file_page": [
+    "GFDL",
+    "CC BY-SA 3.0"
+   ],
+   "page_check_version": 2,
+   "licence_check": "match",
+   "credit": "Piotr Konieczny (Piotrus), CC BY-SA 3.0, via Wikimedia Commons",
+   "why": "A whole frame of sun glitter from a higher sun kept out of frame: shows how glints densify toward the sun and break into points near the camera.",
+   "sun_elevation_deg_estimate": 20,
+   "notes": "Portrait frame; the texture reference for the glitter term, not a composition match.",
+   "local_file": "C:/qfb/shaderdev/refs\\ocean_sunset-2.jpg",
+   "pixel_size": [
+    1920,
+    2560
+   ],
+   "original_size": [
+    2304,
+    3072
+   ],
+   "thumb_330": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d1/Sunset_sea_Tenerife.JPG/330px-Sunset_sea_Tenerife.JPG",
+   "taken": "2007-03",
+   "checked": "2026-10-25"
+  }
+ ],
+ "sky_noon": [
+  {
+   "file": "File:2013-05-19 15-04-20-nuages.jpg",
+   "source": "https://commons.wikimedia.org/wiki/File:2013-05-19_15-04-20-nuages.jpg",
+   "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/ae/2013-05-19_15-04-20-nuages.jpg/1920px-2013-05-19_15-04-20-nuages.jpg",
+   "title": "2013-05-19 15-04-20-nuages.jpg",
+   "author": "Thomas Bresson",
+   "author_as_printed": "Thomas Bresson",
+   "licence": "CC BY 3.0",
+   "licence_url": "https://creativecommons.org/licenses/by/3.0",
+   "licence_on_file_page": [
+    "CC BY 3.0"
+   ],
+   "page_check_version": 2,
+   "licence_check": "match",
+   "credit": "Thomas Bresson, CC BY 3.0, via Wikimedia Commons",
+   "why": "A field of cumulus mediocris at mid-afternoon with bright tops, grey flat bases and blue between: the sky_noon tilt-up.",
+   "sun_elevation_deg_estimate": 50,
+   "notes": "CC BY 3.0 (Thomas Bresson).",
+   "local_file": "C:/qfb/shaderdev/refs\\sky_noon-1.jpg",
+   "pixel_size": [
+    1920,
+    1440
+   ],
+   "original_size": [
+    3648,
+    2736
+   ],
+   "thumb_330": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/ae/2013-05-19_15-04-20-nuages.jpg/330px-2013-05-19_15-04-20-nuages.jpg",
+   "taken": "2013-05-19 15:04:20",
+   "checked": "2026-10-25"
+  },
+  {
+   "file": "File:2013-05-25 13-20-11-nuages.jpg",
+   "source": "https://commons.wikimedia.org/wiki/File:2013-05-25_13-20-11-nuages.jpg",
+   "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ef/2013-05-25_13-20-11-nuages.jpg/1920px-2013-05-25_13-20-11-nuages.jpg",
+   "title": "2013-05-25 13-20-11-nuages.jpg",
+   "author": "Thomas Bresson",
+   "author_as_printed": "Thomas Bresson",
+   "licence": "CC BY 3.0",
+   "licence_url": "https://creativecommons.org/licenses/by/3.0",
+   "licence_on_file_page": [
+    "CC BY 3.0"
+   ],
+   "page_check_version": 2,
+   "licence_check": "match",
+   "credit": "Thomas Bresson, CC BY 3.0, via Wikimedia Commons",
+   "why": "Scattered cumulus humilis in a deep blue sky lit from the side: cloud shape and shading without a solid deck.",
+   "sun_elevation_deg_estimate": 60,
+   "notes": "",
+   "local_file": "C:/qfb/shaderdev/refs\\sky_noon-2.jpg",
+   "pixel_size": [
+    1920,
+    1440
+   ],
+   "original_size": [
+    3648,
+    2736
+   ],
+   "thumb_330": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ef/2013-05-25_13-20-11-nuages.jpg/330px-2013-05-25_13-20-11-nuages.jpg",
+   "taken": "2013-05-25 13:20:11",
+   "checked": "2026-10-25"
+  }
+ ],
+ "ocean_swamp": [
+  {
+   "file": "File:Confluence de l'Arve et du Rhône 2024.jpg",
+   "source": "https://commons.wikimedia.org/wiki/File:Confluence_de_l%27Arve_et_du_Rh%C3%B4ne_2024.jpg",
+   "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/de/Confluence_de_l%27Arve_et_du_Rh%C3%B4ne_2024.jpg/1920px-Confluence_de_l%27Arve_et_du_Rh%C3%B4ne_2024.jpg",
+   "title": "Confluence de l'Arve et du Rhône 2024.jpg",
+   "author": "Hadi",
+   "author_as_printed": "Hadi",
+   "licence": "CC0",
+   "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+   "licence_on_file_page": [
+    "CC0"
+   ],
+   "page_check_version": 2,
+   "licence_check": "match",
+   "credit": "Hadi, CC0, via Wikimedia Commons",
+   "why": "Turquoise Rhône meeting silt-grey Arve: the colour boundary is a feathered, lobed mixing front tens of metres wide, never a line; the gradient the owner asked for at ocean-to-swamp borders.",
+   "sun_elevation_deg_estimate": 50,
+   "notes": "CC0; portrait phone frame from the Pont de la Jonction, Geneva.",
+   "local_file": "C:/qfb/shaderdev/refs\\ocean_swamp-1.jpg",
+   "pixel_size": [
+    1920,
+    2560
+   ],
+   "original_size": [
+    3000,
+    4000
+   ],
+   "thumb_330": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/de/Confluence_de_l%27Arve_et_du_Rh%C3%B4ne_2024.jpg/330px-Confluence_de_l%27Arve_et_du_Rh%C3%B4ne_2024.jpg",
+   "taken": "2024-07-21",
+   "checked": "2026-10-25"
+  },
+  {
+   "file": "File:AnaClaudiaJatahy Econtro das Águas Manaus AM (41107583642).jpg",
+   "source": "https://commons.wikimedia.org/wiki/File:AnaClaudiaJatahy_Econtro_das_%C3%81guas_Manaus_AM_(41107583642).jpg",
+   "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/10/AnaClaudiaJatahy_Econtro_das_%C3%81guas_Manaus_AM_%2841107583642%29.jpg/1920px-AnaClaudiaJatahy_Econtro_das_%C3%81guas_Manaus_AM_%2841107583642%29.jpg",
+   "title": "AnaClaudiaJatahy Econtro das Águas Manaus AM (41107583642).jpg",
+   "author": "MTur Destinos",
+   "author_as_printed": "MTur Destinos",
+   "licence": "Public domain",
+   "licence_url": "",
+   "licence_on_file_page": [
+    "Public domain",
+    "Public domain"
+   ],
+   "page_check_version": 2,
+   "licence_check": "match",
+   "credit": "MTur Destinos, public domain, via Wikimedia Commons",
+   "why": "Black Rio Negro beside sandy Solimões water: a dark, tannin water meeting a bright silty one, the closest real pair to swamp water next to ocean.",
+   "sun_elevation_deg_estimate": 40,
+   "notes": "Public domain (Brazilian Ministry of Tourism). The Amazon front is sharper than most; still a mixing zone, not a texture seam.",
+   "local_file": "C:/qfb/shaderdev/refs\\ocean_swamp-2.jpg",
+   "pixel_size": [
+    1920,
+    993
+   ],
+   "original_size": [
+    6400,
+    3309
+   ],
+   "thumb_330": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/10/AnaClaudiaJatahy_Econtro_das_%C3%81guas_Manaus_AM_%2841107583642%29.jpg/330px-AnaClaudiaJatahy_Econtro_das_%C3%81guas_Manaus_AM_%2841107583642%29.jpg",
+   "taken": "2018-02-18 10:32",
+   "checked": "2026-10-25"
+  }
+ ],
+ "river_swamp": [
+  {
+   "file": "File:Converging rivers, Geneva (16197721795).jpg",
+   "source": "https://commons.wikimedia.org/wiki/File:Converging_rivers,_Geneva_(16197721795).jpg",
+   "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a6/Converging_rivers%2C_Geneva_%2816197721795%29.jpg/1920px-Converging_rivers%2C_Geneva_%2816197721795%29.jpg",
+   "title": "Converging rivers, Geneva (16197721795).jpg",
+   "author": "x70tjw",
+   "author_as_printed": "x70tjw",
+   "licence": "CC BY-SA 2.0",
+   "licence_url": "https://creativecommons.org/licenses/by-sa/2.0",
+   "licence_on_file_page": [
+    "CC BY-SA 2.0"
+   ],
+   "page_check_version": 2,
+   "licence_check": "match",
+   "credit": "x70tjw, CC BY-SA 2.0, via Wikimedia Commons",
+   "why": "Looking down the Rhône and Arve from the bridge: green clear water and tan silty water running side by side, mixing along a soft edge with sun glints on both.",
+   "sun_elevation_deg_estimate": 45,
+   "notes": "CC BY-SA 2.0.",
+   "local_file": "C:/qfb/shaderdev/refs\\river_swamp-1.jpg",
+   "pixel_size": [
+    1920,
+    1280
+   ],
+   "original_size": [
+    5184,
+    3456
+   ],
+   "thumb_330": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a6/Converging_rivers%2C_Geneva_%2816197721795%29.jpg/330px-Converging_rivers%2C_Geneva_%2816197721795%29.jpg",
+   "taken": "2014-06-08 09:08",
+   "checked": "2026-10-25"
+  },
+  {
+   "file": "File:Confluence de l'Arve et du Rhône.jpg",
+   "source": "https://commons.wikimedia.org/wiki/File:Confluence_de_l%27Arve_et_du_Rh%C3%B4ne.jpg",
+   "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/69/Confluence_de_l%27Arve_et_du_Rh%C3%B4ne.jpg/1920px-Confluence_de_l%27Arve_et_du_Rh%C3%B4ne.jpg",
+   "title": "Confluence de l'Arve et du Rhône.jpg",
+   "author": "Christian David",
+   "author_as_printed": "Christian David",
+   "licence": "CC BY 4.0",
+   "licence_url": "https://creativecommons.org/licenses/by/4.0",
+   "licence_on_file_page": [
+    "CC BY 4.0"
+   ],
+   "page_check_version": 2,
+   "licence_check": "match",
+   "credit": "Christian David, CC BY 4.0, via Wikimedia Commons",
+   "why": "The wider confluence in autumn light with the mixing zone seen at a lower angle: how far the colour front stretches downstream.",
+   "sun_elevation_deg_estimate": 25,
+   "notes": "CC BY 4.0 (Christian David), 7500x4219.",
+   "local_file": "C:/qfb/shaderdev/refs\\river_swamp-2.jpg",
+   "pixel_size": [
+    1920,
+    1080
+   ],
+   "original_size": [
+    7500,
+    4219
+   ],
+   "thumb_330": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/69/Confluence_de_l%27Arve_et_du_Rh%C3%B4ne.jpg/330px-Confluence_de_l%27Arve_et_du_Rh%C3%B4ne.jpg",
+   "taken": "2023-10-15 14:44:52",
+   "checked": "2026-10-25"
+  }
+ ]
+}

@@ -33,7 +33,10 @@ the Angelica traps that bite it.
 5. Section 7 names the Shader Lab views (`tools/shaders/review/views-world-master.txt`) and
    the Wikimedia Commons categories for reference photos. Pick the photo per round; check its
    licence on the file page (Commons licences vary per file; CC BY and CC BY-SA need the
-   credit line the round-6 publisher already writes).
+   credit line the round-6 publisher already writes). A checked set, one or two photos per
+   view with credit lines ready, is in [`reference-frames.md`](reference-frames.md) (data in
+   `tools/shaders/review/reference-frames.json`, files in `C:\qfb\shaderdev\refs`): start
+   there before searching.
 6. Section 8 lists the Angelica traps that apply. They are a subset of the shared list
    below; a brief only repeats the ones that matter for its effect.
 
