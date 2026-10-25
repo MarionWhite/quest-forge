@@ -129,3 +129,6 @@ mods/*/src/**/*.class
 
 # Wrangler local secrets for the Shader Lab relay; never commit
 tools/shaders/relay/.dev.vars
+
+# qf-tweaks: compile-time stubs of Decocraft classes, built by build.bat, never shipped
+mods/qf-tweaks/build-stubs/

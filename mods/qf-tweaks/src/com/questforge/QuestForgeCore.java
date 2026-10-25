@@ -1,5 +1,6 @@
 package com.questforge;
 
+import java.io.File;
 import java.util.Map;
 
 import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
@@ -42,6 +43,9 @@ import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
         "com.questforge.AsieNickTransformer",
         "com.questforge.RwgPaintTransformer",
         "com.questforge.SilentTransformer",
+        "com.questforge.DecoLazyTransformer",
+        // Read by the transformers that have a switch (config/qftweaks.cfg).
+        "com.questforge.TweaksConfig",
         // Not transformers, but loaded from code patched into GraveStones and
         // OptiFine; there is nothing in them any transformer needs to touch.
         "com.questforge.ShaderState",
@@ -56,9 +60,14 @@ import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
         "com.questforge.RecNbtFix",
         "com.questforge.AsieNickFix",
         // Called from RWG's patched ChunkGeneratorRealistic.
-        "com.questforge.RwgPaintHook"
+        "com.questforge.RwgPaintHook",
+        // Called from Decocraft's patched model classes.
+        "com.questforge.DecoLazyModel"
 })
 public class QuestForgeCore implements IFMLLoadingPlugin {
+
+    /** The game directory FML hands us (injectData "mcLocation"); TweaksConfig reads config/ under it. */
+    public static File gameDir;
 
     @Override
     public String[] getASMTransformerClass() {
@@ -76,7 +85,8 @@ public class QuestForgeCore implements IFMLLoadingPlugin {
                 "com.questforge.RecNbtTransformer",
                 "com.questforge.AsieNickTransformer",
                 "com.questforge.RwgPaintTransformer",
-                "com.questforge.SilentTransformer"
+                "com.questforge.SilentTransformer",
+                "com.questforge.DecoLazyTransformer"
         };
     }
 
@@ -93,7 +103,10 @@ public class QuestForgeCore implements IFMLLoadingPlugin {
 
     @Override
     public void injectData(Map<String, Object> data) {
-        // nothing needed
+        Object loc = data.get("mcLocation");
+        if (loc instanceof File) {
+            gameDir = (File) loc;
+        }
     }
 
     @Override
