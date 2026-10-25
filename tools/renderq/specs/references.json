@@ -39,5 +39,6 @@
    "reference": "C:/qfb/refpacks/bsl-shaders/dl/BSL_v10.1.8.zip",
    "scenes": "ocean_sunset,lake_glitter,shore_noon,river_noon,biome_swamp,biome_ocean,beach_noon,sky_noon,golden_lit,forest_golden,forest_lit,night_sky,night_new,biome_hills,river_swamp,ocean_swamp"
   }
- ]
+ ],
+ "priority": -1
 }

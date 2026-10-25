@@ -581,7 +581,7 @@ class Runner:
             self.power_restore(pl)
             return self.nap(60)
         pid = int(open(os.path.join(d, "pid")).read().strip())
-        outcome, busy_from, first_step_at = self.watch(d, pid, boot_id, steps_total, t0)
+        outcome, busy_from, first_step_at = self.watch(d, pid, boot_id, steps_total, t0, [j["tag"] for j in plan])
         self.power_restore(pl)
         held = trial.read_lock()
         if held and held.get("pid") == pid and os.path.exists(trial.LOCK):
@@ -640,7 +640,7 @@ class Runner:
             save_sub(s)
             self.finalize(s)
 
-    def watch(self, d, pid, boot_id, steps_total, t0):
+    def watch(self, d, pid, boot_id, steps_total, t0, tags=()):
         """Follow the client until it exits. Returns (outcome, busy_from, first_step_at)."""
         prog = os.path.join(d, "bench", "_progress.txt")
         logf = os.path.join(d, "logs", "latest.log")
@@ -669,7 +669,7 @@ class Runner:
                 last_size, last_size_t = size, time.time()
             self.status("rendering" if step else "booting",
                         f"step {step}/{steps_total}: {kv.get('tag', '')} {kv.get('scene', '')} ({kv.get('stage', 'boot')})",
-                        current={"boot": boot_id, "pid": pid, "steps": steps_total, "step": max(step - 1, 0),
+                        current={"boot": boot_id, "pid": pid, "jobs": list(tags), "steps": steps_total, "step": max(step - 1, 0),
                                  "tag": kv.get("tag"), "scene": kv.get("scene"), "stage": kv.get("stage"),
                                  "elapsed_s": round(time.time() - t0)})
             stop = None
