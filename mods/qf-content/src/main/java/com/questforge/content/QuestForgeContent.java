@@ -87,6 +87,11 @@ public class QuestForgeContent {
         cpw.mods.fml.common.FMLCommonHandler.instance().bus().register(
                 new com.questforge.content.pack.PackCheck.Events());
 
+        // Difficulty tiers by map position (server side). Inert unless the world folder
+        // holds a baked tier grid; see docs/design/world/r14/difficulty-mechanism.md.
+        net.minecraftforge.common.MinecraftForge.EVENT_BUS.register(
+                new com.questforge.content.difficulty.DifficultyEvents());
+
         proxy.init(event);
     }
 
@@ -95,6 +100,7 @@ public class QuestForgeContent {
         event.registerServerCommand(new com.questforge.content.survey.CommandOreSurvey());
         event.registerServerCommand(new com.questforge.content.census.CommandCensus());
         event.registerServerCommand(new com.questforge.content.pack.CommandPack());
+        event.registerServerCommand(new com.questforge.content.difficulty.CommandDifficulty());
         // Shared playlists belong to the world being opened, so the last world's
         // are dropped rather than carried into this one.
         com.questforge.content.jukebox.PublicPlaylists.reset();
