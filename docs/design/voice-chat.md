@@ -111,8 +111,19 @@ running it there; they are known differences handled defensively.
 
 ## Controls
 
-`B` push to talk, `N` mute microphone, deafen unbound. All rebindable under
+`Tab` push to talk, `U` mute microphone, deafen unbound. All rebindable under
 Controls -> QuestForge Voice.
+
+They were `B` and `N` until 2026-10-25. Read against the pack's own options.txt, B also
+opened the Adventure Backpack and aimed a Transformer, and N switched the backpack's
+hose, so a word spoken opened a backpack. Tab's only other tenant is vanilla's player
+list (held, cosmetic); U has none in the world, since NEI's "usage" key lives inside
+inventories where key events do not reach the mod. Every other left-hand key belongs
+to Legends, OreSpawn, Transformers or TragicMC (Y opens its amulet screen). A changed
+default only reaches an options.txt that never recorded the key, and Minecraft records
+every key on its first save, so existing installs and the client release (built from
+the live options.txt) keep B and N until `tools/pack-fixes/voice_keys.py` rewrites the
+two lines. Run it on the live instance before the next release.
 
 `/voice` shows status; `mode ptt|open`, `devices`, `device <n>`, `level`,
 `threshold <n>`, `volume <n>`, `mute <player>`, `on`, `off`.

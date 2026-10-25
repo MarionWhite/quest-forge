@@ -11,9 +11,16 @@ import org.lwjgl.input.Keyboard;
 /**
  * Push-to-talk, and the two switches worth reaching for without opening a menu.
  *
- * B and N rather than the more obvious V, which the record menu already holds -- see
- * {@link com.questforge.content.jukebox.RecordKeys}. Both are free in vanilla 1.7.10
- * and neither collides with NEI's lookup keys.
+ * Tab to talk, U to mute. Not the obvious V, which the record menu already holds (see
+ * {@link com.questforge.content.jukebox.RecordKeys}) along with four other mods' keys,
+ * and not B and N, which were the defaults until 2026-10-25: Adventure Backpack opens
+ * on B and switches its hose on N, and Transformers aims on B, so a word spoken opened
+ * a backpack. Read from the pack's options.txt on that day, Tab's only other tenant is
+ * vanilla's player list (held, cosmetic, and arguably informative while talking), and U
+ * has none in the world: NEI's "usage" U lives inside inventories, where key input
+ * events do not reach us. Every other left-hand key belongs to Legends, OreSpawn,
+ * Transformers or TragicMC. Existing installs keep whatever options.txt says, so
+ * tools/pack-fixes/voice_keys.py rewrites those two lines.
  *
  * Push-to-talk is read by polling the key rather than through KeyInputEvent, because
  * that event fires on the transition and we need to know whether the key is down
@@ -31,8 +38,8 @@ public final class VoiceKeys {
     private VoiceKeys() { }
 
     public static void register() {
-        pushToTalk = new KeyBinding("key.qfcontent.voice_ptt", Keyboard.KEY_B, CATEGORY);
-        muteSelf = new KeyBinding("key.qfcontent.voice_mute", Keyboard.KEY_N, CATEGORY);
+        pushToTalk = new KeyBinding("key.qfcontent.voice_ptt", Keyboard.KEY_TAB, CATEGORY);
+        muteSelf = new KeyBinding("key.qfcontent.voice_mute", Keyboard.KEY_U, CATEGORY);
         deafen = new KeyBinding("key.qfcontent.voice_deafen", Keyboard.KEY_NONE, CATEGORY);
 
         ClientRegistry.registerKeyBinding(pushToTalk);
