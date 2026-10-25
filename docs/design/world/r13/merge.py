@@ -203,7 +203,7 @@ out["erosion"] = {"iterations": 50, "k": 0.007, "seed_noise": 8}     # (r16: was
 # (r16) The volcano crater's rim had open gaps east and west (only flat ground at y 87); a lower
 # rim runs through each now, so the ring is whole with two saddles in it.
 for a0, a1 in ((150, 210), (330, 30)):
-    out["ridges"].append({"arc": [-8520, -150, 1978, a0, a1], "height": 118, "width": 1000, "relief": 180,
+    out["ridges"].append({"arc": [-8520, -150, 1978, a0, a1], "height": 140, "width": 1000, "relief": 180,
                           "biome": 77, "biome_above": 0.5,
                           "crest": {"asym": 0.4, "steep": 1, "foothills": 1.5, "width_var": 0.25, "wiggle": 0.15},
                           "erode": {"k": 0.008, "seed_noise": 10, "iterations": 60}})

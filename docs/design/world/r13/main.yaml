@@ -4526,7 +4526,7 @@ ridges:
   biome: 245
   biome_above: 0.3
 - arc: [-8520, -150, 1978, 150, 210]
-  height: 118
+  height: 140
   width: 1000
   relief: 180
   biome: 77
@@ -4534,7 +4534,7 @@ ridges:
   crest: {asym: 0.4, steep: 1, foothills: 1.5, width_var: 0.25, wiggle: 0.15}
   erode: {k: 0.008, seed_noise: 10, iterations: 60}
 - arc: [-8520, -150, 1978, 330, 30]
-  height: 118
+  height: 140
   width: 1000
   relief: 180
   biome: 77
