@@ -1,0 +1,169 @@
+{
+ "name": "r007-equivalent",
+ "owner": "render-loop",
+ "comment": "Round 7's whole render list (q*.sh) as one submission: High options, the PBR texture pair, Low, Potato and every shaders-off baseline.",
+ "jobs": [
+  {
+   "preset": "3",
+   "size": "2560x1440",
+   "tag": "zh",
+   "scenes": "ocean_sunset,lake_glitter,shore_noon,river_noon,biome_swamp,biome_ocean,beach_noon,sky_noon,golden_lit,forest_golden,forest_lit,night_sky,night_new,biome_hills,river_swamp,ocean_swamp"
+  },
+  {
+   "preset": "3",
+   "size": "2560x1440",
+   "tag": "zr0",
+   "opts": {
+    "QF_SUN": 0,
+    "QF_CLOUD_RIM": 0
+   },
+   "scenes": "ocean_sunset,golden_lit,sky_noon"
+  },
+  {
+   "preset": "3",
+   "size": "2560x1440",
+   "tag": "zz",
+   "opts": {
+    "QF_SUN_SIZE": 1.8,
+    "QF_LENS": 1
+   },
+   "scenes": "ocean_sunset,lake_glitter"
+  },
+  {
+   "preset": "3",
+   "size": "2560x1440",
+   "tag": "zs2",
+   "opts": {
+    "QF_SHAFTS": 2
+   },
+   "scenes": "forest_golden"
+  },
+  {
+   "preset": "3",
+   "size": "2560x1440",
+   "tag": "zm2",
+   "opts": {
+    "QF_MOTES": 2
+   },
+   "scenes": "forest_golden"
+  },
+  {
+   "preset": "3",
+   "size": "2560x1440",
+   "tag": "zm0",
+   "opts": {
+    "QF_MOTES": 0
+   },
+   "scenes": "forest_golden"
+  },
+  {
+   "preset": "3",
+   "size": "2560x1440",
+   "tag": "zv",
+   "opts": {
+    "QF_VIBRANCE": 0.35
+   },
+   "scenes": "golden_lit"
+  },
+  {
+   "preset": "3",
+   "size": "2560x1440",
+   "tag": "zv0",
+   "opts": {
+    "QF_VIBRANCE": 0.0
+   },
+   "scenes": "golden_lit"
+  },
+  {
+   "preset": "3",
+   "size": "2560x1440",
+   "tag": "zb0",
+   "opts": {
+    "QF_BOUNCE": 0
+   },
+   "scenes": "golden_lit,forest_lit"
+  },
+  {
+   "preset": "3",
+   "size": "2560x1440",
+   "tag": "zwb",
+   "opts": {
+    "QF_WATER_BLEND": 0
+   },
+   "scenes": "river_swamp,ocean_swamp"
+  },
+  {
+   "preset": "3",
+   "size": "2560x1440",
+   "tag": "zn4",
+   "opts": {
+    "QF_NIGHT_SKY": 4,
+    "QF_METEOR_RATE": 8
+   },
+   "scenes": "night_sky,night_new"
+  },
+  {
+   "preset": "3",
+   "size": "2560x1440",
+   "tag": "zpb",
+   "opts": {
+    "QF_PBR": 1
+   },
+   "scenes": "texture_wall,golden_lit",
+   "world": "C:/qfb/textures/world-showcase",
+   "resourcepacks": [
+    "C:/qfb/textures/QFTextures-v0.zip"
+   ]
+  },
+  {
+   "preset": "3",
+   "size": "2560x1440",
+   "tag": "zpb0",
+   "scenes": "texture_wall,golden_lit",
+   "world": "C:/qfb/textures/world-showcase",
+   "resourcepacks": [
+    "C:/qfb/textures/QFTextures-v0.zip"
+   ]
+  },
+  {
+   "tag": "offzpb",
+   "preset": "off",
+   "size": "2560x1440",
+   "scenes": "texture_wall,golden_lit",
+   "world": "C:/qfb/textures/world-showcase",
+   "resourcepacks": [
+    "C:/qfb/textures/QFTextures-v0.zip"
+   ]
+  },
+  {
+   "tag": "off9h",
+   "preset": "off",
+   "size": "2560x1440",
+   "scenes": "ocean_sunset,lake_glitter,shore_noon,river_noon,biome_swamp,biome_ocean,beach_noon,sky_noon,golden_lit,forest_golden,forest_lit,night_sky,night_new,biome_hills,river_swamp,ocean_swamp"
+  },
+  {
+   "tag": "zlo",
+   "preset": "1",
+   "size": "1920x1080",
+   "scenes": "golden_lit,lake_glitter,night_sky,biome_hills,ocean_sunset"
+  },
+  {
+   "tag": "off9l",
+   "preset": "off",
+   "size": "1920x1080",
+   "scenes": "golden_lit,lake_glitter,night_sky,biome_hills,ocean_sunset"
+  },
+  {
+   "tag": "zp",
+   "preset": "0",
+   "size": "1280x720",
+   "scenes": "golden_lit,lake_glitter,night_sky,biome_hills,ocean_sunset"
+  },
+  {
+   "tag": "off9p",
+   "preset": "off",
+   "size": "1280x720",
+   "scenes": "golden_lit,lake_glitter,night_sky,biome_hills,ocean_sunset"
+  }
+ ]
+}

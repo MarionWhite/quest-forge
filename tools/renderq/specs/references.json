@@ -1,0 +1,43 @@
+{
+ "name": "references",
+ "owner": "render-loop",
+ "comment": "Internal reference frames from the best packs of the genre, unmodified, default settings. NEVER published (licences): rounds dir C:/qfb/shaderdev/refs.",
+ "jobs": [
+  {
+   "mode": "shot",
+   "size": "2560x1440",
+   "preset": "3",
+   "rounds": "C:/qfb/shaderdev/refs",
+   "tag": "refcr",
+   "reference": "C:/qfb/refpacks/complementary-reimagined/dl/ComplementaryReimagined_r5.9.3.zip",
+   "scenes": "ocean_sunset,lake_glitter,shore_noon,river_noon,biome_swamp,biome_ocean,beach_noon,sky_noon,golden_lit,forest_golden,forest_lit,night_sky,night_new,biome_hills,river_swamp,ocean_swamp"
+  },
+  {
+   "mode": "shot",
+   "size": "2560x1440",
+   "preset": "3",
+   "rounds": "C:/qfb/shaderdev/refs",
+   "tag": "refcu",
+   "reference": "C:/qfb/dl/complementary/ComplementaryUnbound_r5.9.3.zip",
+   "scenes": "ocean_sunset,lake_glitter,shore_noon,river_noon,biome_swamp,biome_ocean,beach_noon,sky_noon,golden_lit,forest_golden,forest_lit,night_sky,night_new,biome_hills,river_swamp,ocean_swamp"
+  },
+  {
+   "mode": "shot",
+   "size": "2560x1440",
+   "preset": "3",
+   "rounds": "C:/qfb/shaderdev/refs",
+   "tag": "refph",
+   "reference": "C:/qfb/refpacks/photon-shader/dl/photon_v1.4.zip",
+   "scenes": "ocean_sunset,lake_glitter,shore_noon,river_noon,biome_swamp,biome_ocean,beach_noon,sky_noon,golden_lit,forest_golden,forest_lit,night_sky,night_new,biome_hills,river_swamp,ocean_swamp"
+  },
+  {
+   "mode": "shot",
+   "size": "2560x1440",
+   "preset": "3",
+   "rounds": "C:/qfb/shaderdev/refs",
+   "tag": "refbsl",
+   "reference": "C:/qfb/refpacks/bsl-shaders/dl/BSL_v10.1.8.zip",
+   "scenes": "ocean_sunset,lake_glitter,shore_noon,river_noon,biome_swamp,biome_ocean,beach_noon,sky_noon,golden_lit,forest_golden,forest_lit,night_sky,night_new,biome_hills,river_swamp,ocean_swamp"
+  }
+ ]
+}

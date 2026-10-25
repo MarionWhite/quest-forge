@@ -82,9 +82,21 @@ def tree_sig(root, content=True):
 
 
 def path_sig(p):
+    """A pack's identity. A zip by its entries (name, CRC, size), not its bytes: a rebuilt pack with
+    the same content but new timestamps is the same pack and keeps its cached frames."""
     if not p:
         return None
-    return tree_sig(p) if os.path.isdir(p) else sha1_file(p)
+    if os.path.isdir(p):
+        return tree_sig(p)
+    if p.lower().endswith(".zip"):
+        import zipfile
+        try:
+            with zipfile.ZipFile(p) as z:
+                ents = sorted(f"{i.filename}:{i.CRC}:{i.file_size}" for i in z.infolist())
+            return "zip:" + hashlib.sha1("|".join(ents).encode()).hexdigest()
+        except zipfile.BadZipFile:
+            pass
+    return sha1_file(p)
 
 
 def snapshot_pack(src=PACK):
