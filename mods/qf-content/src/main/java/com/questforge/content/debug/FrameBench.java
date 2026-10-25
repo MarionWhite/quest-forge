@@ -68,7 +68,12 @@ import com.questforge.content.ench.QFEnchantments;
  * option set. The file, written by tools/renderq/batch.py:
  *   target <path>                          the pack's option file (shaderpacks/QuestForge.txt)
  *   boot on|off                            whether the client booted with shaders on
- *   job <tag> on|off <warmTicks> <opts|->  opts is copied onto target before the job's frames
+ *   job <tag> on|off <warmTicks> <measureTicks> <opts|->
+ *                                          opts is copied onto target before the job's frames;
+ *                                          measureTicks > 0 overrides the scene's own (a
+ *                                          screenshot-only job measures 20 ticks, not 200)
+ *   rps <tag> <name>|<name>|...            the job's resource packs (options.txt order: the
+ *                                          last wins); changed in game with shaders off
  *   step <tag> <scene>                     one measured scene of one job, in the order given
  * Before a step whose job differs from the live state, the option file is rewritten and
  * Iris.reload() (or Iris.toggleShaders) runs; that step then settles for at least warmTicks
@@ -148,8 +153,9 @@ public class FrameBench {
     private static final class Job {
         String tag;
         boolean shaders;
-        int warm;
+        int warm, measure;
         String opts;          // null: leave the option file as it is
+        List<String> rps;     // null: leave the resource packs as they are
         final List<String> report = new ArrayList<String>();
     }
 
@@ -158,6 +164,7 @@ public class FrameBench {
     private String optsTarget;
     private Job live;                 // the job whose state the pipeline has now
     private boolean liveShaders;      // shaders on at boot? (config/shaders.properties)
+    private List<String> liveRps;     // resource packs now active (null: as booted)
     private int warmTicks;            // settle at least this long (set after a reload)
     private final long batchStart = System.currentTimeMillis();
 
@@ -178,7 +185,7 @@ public class FrameBench {
                     java.nio.charset.StandardCharsets.UTF_8)) {
                 line = line.trim();
                 if (line.isEmpty() || line.startsWith("#")) continue;
-                String[] f = line.split("\\s+", 5);
+                String[] f = line.split("\\s+", 6);
                 if (f[0].equals("target")) {
                     optsTarget = line.substring(6).trim();
                 } else if (f[0].equals("boot")) {
@@ -188,8 +195,16 @@ public class FrameBench {
                     j.tag = f[1];
                     j.shaders = f[2].equals("on");
                     j.warm = Integer.parseInt(f[3]);
-                    j.opts = f.length > 4 && !f[4].equals("-") ? f[4] : null;
+                    j.measure = Integer.parseInt(f[4]);
+                    j.opts = f.length > 5 && !f[5].equals("-") ? f[5] : null;
                     jobs.put(j.tag, j);
+                } else if (f[0].equals("rps")) {
+                    Job j = jobs.get(f[1]);
+                    if (j != null) {
+                        String rest = line.substring(3).trim();
+                        rest = rest.substring(f[1].length()).trim();   // names may hold spaces
+                        j.rps = rest.isEmpty() ? new ArrayList<String>() : Arrays.asList(rest.split("\\|"));
+                    }
                 } else if (f[0].equals("step")) {
                     Job j = jobs.get(f[1]);
                     if (j == null) {
@@ -252,6 +267,9 @@ public class FrameBench {
         long t0 = System.nanoTime();
         String did = "nothing to rebuild";
         try {
+            if (j.rps != null && !j.rps.equals(liveRps == null ? Minecraft.getMinecraft().gameSettings.resourcePacks : liveRps)) {
+                did = setResourcePacks(j.rps) + "; ";
+            }
             if (optsChange && optsTarget != null) {
                 File dst = new File(optsTarget);
                 byte[] b = java.nio.file.Files.readAllBytes(new File(j.opts).toPath());
@@ -262,10 +280,10 @@ public class FrameBench {
             if (j.shaders != liveShaders) {
                 iris.getMethod("toggleShaders", Minecraft.class, boolean.class)
                         .invoke(null, Minecraft.getMinecraft(), j.shaders);
-                did = "toggleShaders(" + j.shaders + ")";
+                did = (did.startsWith("nothing") ? "" : did) + "toggleShaders(" + j.shaders + ")";
             } else if (j.shaders && optsChange) {
                 iris.getMethod("reload").invoke(null);
-                did = "reload()";
+                did = (did.startsWith("nothing") ? "" : did) + "reload()";
             }
             liveShaders = j.shaders;
         } catch (Throwable t) {
@@ -275,6 +293,37 @@ public class FrameBench {
         log(String.format("job %s: %s in %.0f ms", j.tag, did, (System.nanoTime() - t0) / 1e6));
         live = j;
         return !did.equals("nothing to rebuild");
+    }
+
+    /**
+     * What the resource pack screen's Done button does (GuiScreenResourcePacks), with the shader
+     * pipeline off for the reload: Angelica rebuilding a live pipeline across a resource reload is
+     * what crashes it at boot. Names are file names in resourcepacks/, bottom first.
+     */
+    private String setResourcePacks(List<String> names) throws Exception {
+        Minecraft mc = Minecraft.getMinecraft();
+        if (liveShaders) {
+            Class.forName("net.coderbot.iris.Iris").getMethod("toggleShaders", Minecraft.class, boolean.class)
+                    .invoke(null, mc, false);
+            liveShaders = false;
+        }
+        net.minecraft.client.resources.ResourcePackRepository repo = mc.getResourcePackRepository();
+        repo.updateRepositoryEntriesAll();
+        List<Object> entries = new ArrayList<Object>();
+        for (String n : names) {
+            for (Object o : repo.getRepositoryEntriesAll()) {
+                if (((net.minecraft.client.resources.ResourcePackRepository.Entry) o).getResourcePackName().equals(n)) {
+                    entries.add(o);
+                }
+            }
+        }
+        if (entries.size() != names.size()) log("resource packs: found " + entries.size() + " of " + names);
+        repo.func_148527_a(entries);
+        mc.gameSettings.resourcePacks.clear();
+        mc.gameSettings.resourcePacks.addAll(names);
+        mc.refreshResources();
+        liveRps = new ArrayList<String>(names);
+        return "resource packs " + names;
     }
 
     /** A finished step's lines, appended to bench/<tag>.part so a crash keeps them. */
@@ -380,7 +429,11 @@ public class FrameBench {
             case MEASURE:
                 move(mc);
                 View mv = views.get(scene());
-                if (ticks >= (mv != null ? mv.ticks : MEASURE_TICKS)) {
+                int want = mv != null ? mv.ticks : MEASURE_TICKS;
+                if (stepJob != null && stepJob[sceneIdx].measure > 0 && !scene().equals("gallery")) {
+                    want = stepJob[sceneIdx].measure;
+                }
+                if (ticks >= want) {
                     summarise(mc);
                     if (mv != null || scene().equals("torch") || scene().equals("torch_wall")) {
                         stage = Stage.SHOOT;

@@ -199,6 +199,7 @@ def main():
     ap.add_argument("--world", default=WORLD,
                     help="world the trial copies (e.g. tools/textures/build_showcase.py's copy with the texture wall)")
     ap.add_argument("--name", default="shaderdev", help="trial name")
+    ap.add_argument("--jar", default=DEBUG_JAR, help="the qf-content debug build with FrameBench")
     ap.add_argument("--xmx", default="3G")
     ap.add_argument("--wait-min", type=int, default=240, help="how long to wait for the GPU")
     ap.add_argument("--timeout-min", type=int, default=20)
@@ -217,7 +218,7 @@ def main():
         shader = os.path.basename(a.reference)
         packs = [a.reference]
     man = trial.build(a.name, [m for m in a.mods.split(",") if m], src=a.source, world=a.world, shader=shader, force=True,
-                      renderer="angelica", jars=[DEBUG_JAR], shaderpacks=packs, quiet=True,
+                      renderer="angelica", jars=[a.jar], shaderpacks=packs, quiet=True,
                       resourcepacks=a.resourcepack)
     d = trial.trial_dir(a.name)
     set_kv(os.path.join(d, "options.txt"), {"maxFps": "260", "fullscreen": "false",

@@ -131,11 +131,17 @@ def mods_sig(mods):
     return hashlib.sha1("|".join(parts).encode()).hexdigest()
 
 
+# Resource packs switch in the world (FrameBench `rps`, with shaders off for the reload), so jobs
+# with different packs share a boot. False puts the packs back into the boot key.
+RPS_IN_GAME = True
+
+
 def boot_key(job):
     """Jobs with the same boot key render in one boot. Shaders-off jobs ignore the pack."""
     on = job["preset"] != "off"
+    rps = [] if RPS_IN_GAME else [os.path.normcase(os.path.abspath(r)) for r in job["resourcepacks"]]
     return json.dumps({"size": job["size"], "world": os.path.normcase(os.path.abspath(job["world"])),
-                       "rps": [os.path.normcase(os.path.abspath(r)) for r in job["resourcepacks"]],
+                       "rps": rps,
                        "mods": job["mods"], "xmx": job["xmx"], "night": bool(job.get("night")),
                        "views": os.path.normcase(os.path.abspath(job["views"])),
                        "pack": (job.get("pack_sig") if on else None)}, sort_keys=True)
@@ -155,7 +161,7 @@ def options_text(job):
 
 
 def env_sig(job, memo):
-    k = boot_key(job)
+    k = boot_key(job) + "|" + "|".join(job["resourcepacks"])
     if k not in memo:
         memo[k] = {"size": job["size"], "world": tree_sig(job["world"], content=False),
                    "rps": [path_sig(r) for r in job["resourcepacks"]], "mods": mods_sig(job["mods"]),
@@ -291,11 +297,25 @@ def prepare_boot(boot_id, jobs, log):
     pack_dir = ref or (on[0]["pack_dir"] if on else None)
     pack_name = os.path.basename(pack_dir.rstrip("\\/")) if pack_dir else None
     t0 = time.time()
+    rps_all = list(dict.fromkeys(r for j in jobs for r in j["resourcepacks"]))
     trial.build(TRIAL, [m for m in j0["mods"].split(",") if m], world=j0["world"],
                 shader=pack_name or "off", force=True, renderer="angelica", jars=[DEBUG_JAR],
-                shaderpacks=[pack_dir] if pack_dir else [], quiet=True, resourcepacks=j0["resourcepacks"])
+                shaderpacks=[pack_dir] if pack_dir else [], quiet=True, resourcepacks=rps_all)
     d = trial.trial_dir(TRIAL)
     log(f"  built trial {d} in {time.time() - t0:.0f} s")
+    # Each job's resource pack list, as trial.build orders them (ours at the bottom, the source's
+    # own packs, QuestForge.zip on top); the boot starts with the first step's.
+    opt = os.path.join(d, "options.txt")
+    cur = []
+    for l in open(opt, encoding="utf-8", errors="replace"):
+        if l.startswith("resourcePacks:"):
+            try:
+                cur = json.loads(l.split(":", 1)[1])
+            except ValueError:
+                cur = []
+    ours = {os.path.basename(r.rstrip("\\/")) for r in rps_all}
+    base = [c for c in cur if c not in ours]
+    rps_of = {j["tag"]: [os.path.basename(r.rstrip("\\/")) for r in j["resourcepacks"]] + base for j in jobs}
     night = j0.get("night") or {}
     set_kv(os.path.join(d, "options.txt"), {"maxFps": str(night.get("max_fps", 260)), "fullscreen": "false",
                                              "pauseOnLostFocus": "false", "enableVsync": "false"}, ":")
@@ -316,8 +336,12 @@ def prepare_boot(boot_id, jobs, log):
             first_opts = first_opts or op
         lines.append(f"job {j['tag']} {'off' if j['preset'] == 'off' else 'on'} {int(j['warm'])} "
                      f"{int(j.get('measure') or 0)} {op}")
+    if rps_all:
+        lines += [f"rps {j['tag']} " + "|".join(rps_of[j["tag"]]) for j in jobs]
     steps = plan_steps(jobs)
     lines += [f"step {t} {s}" for t, s in steps]
+    if rps_all and steps:
+        set_kv(opt, {"resourcePacks": json.dumps(rps_of[steps[0][0]], separators=(",", ":"))}, ":")
     jf = os.path.join(bd, "jobs.txt")
     with open(jf, "w", encoding="utf-8", newline="\n") as f:
         f.write("\n".join(lines) + "\n")
