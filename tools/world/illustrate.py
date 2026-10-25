@@ -1,11 +1,16 @@
 """Illustrated fantasy-map render of a continent plan (the layers tools/world/plan.py writes).
 
     py -3.10 tools/world/illustrate.py PLANDIR OUT.png [--size 4096] [--no-labels] [--crop OUT_CROP.png]
+        [--mountain-style relief|glyphs|both]
 
 Painterly sea with depth shading, coastal halo and shallow-water bands; land as soft biome washes
-(real biome families, muted palette) textured with noise and multiplied by hillshade; mountains
-drawn with hachure strokes and ridge crests; forests as tree stipple; rivers and lakes in clean
-blue; parchment frame and compass rose. Labels: landmarks (icons + serif names), spawns (stars + picker rating),
+(real biome families, muted palette) textured with noise; forests as tree stipple; rivers and lakes
+in clean blue; parchment frame and compass rose. Mountains are found by height above the local
+valley floor (works on any heightmap; passes read as gaps) and get a multi-directional hillshade lit
+from the north-west, strong in the mountains (warm sunlit faces, cool shadows, ridge highlights,
+snow only on the high crests). --mountain-style both (default) adds painted mountain glyphs over
+that relief, sized by prominence and drawn north to south, with hill glyphs on the foothills;
+glyphs keeps lowland-strength shading under them; relief draws shading and hachures only. Labels: landmarks (icons + serif names), spawns (stars + picker rating),
 and the largest biome patches by their real names. --no-labels gives the clean spawn-picker art.
 """
 import argparse
@@ -16,7 +21,7 @@ import re
 import sys
 
 import numpy as np
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFilter, ImageFont
 from scipy import ndimage
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -96,14 +101,12 @@ def family_luts(names):
     return col, tree
 
 
-def hillshade(H, cell, az=315.0, alt=40.0, z=1.0):
-    gy, gx = np.gradient(H, cell)
-    gx, gy = gx * z, gy * z
-    slope = np.arctan(np.hypot(gx, gy))
-    aspect = np.arctan2(-gx, gy)
+def shade_dir(gx, gy, az, alt):
+    """Lambert shade of a surface with gradients gx (east) and gy (south), light from azimuth az
+    (degrees clockwise from north) at elevation alt."""
     a, e = math.radians(az), math.radians(alt)
-    s = math.sin(e) * np.cos(slope) + math.cos(e) * np.sin(slope) * np.cos(a - math.pi / 2 - aspect)
-    return np.clip(s, 0, 1), slope
+    lx, ly, lz = math.cos(e) * math.sin(a), -math.cos(e) * math.cos(a), math.sin(e)
+    return np.clip((-gx * lx - gy * ly + lz) / np.sqrt(1 + gx * gx + gy * gy), 0, 1)
 
 
 def star(cx, cy, r_out, r_in, n=5, rot=-math.pi / 2):
@@ -138,7 +141,7 @@ def compass(img, cx, cy, R, ink, paper):
     d.text((cx, cy - R * 1.17), "N", fill=ink, font=f, anchor="mm")
 
 
-def render(plan_dir, out, size=4096, labels=True, crop=None, title="Quest Forge"):
+def render(plan_dir, out, size=4096, labels=True, crop=None, title="Quest Forge", mountain_style="both"):
     t_h = np.asarray(Image.open(f"{plan_dir}/height.png")).astype(np.float32) / 257
     t_b = np.asarray(Image.open(f"{plan_dir}/biome.png"))
     meta = json.load(open(f"{plan_dir}/plan.json"))
@@ -200,28 +203,62 @@ def render(plan_dir, out, size=4096, labels=True, crop=None, title="Quest Forge"
     del sx, sz, wx, wz
 
     # ---------------------------------------------------------------- relief + hillshade
-    detail = (1 - np.abs(fbm(sh, 31, 26 * s, 5, 0.5))) ** 2   # ridged noise for craggy mountains
+    # Mountain weight from height above the local valley floor (a prominence proxy) rather than
+    # absolute height, so it works on any heightmap: a crater rim or an ice ridge counts, a high
+    # flat plateau barely does, and a pass reads as a gap because its floor is low.
+    Hc = np.maximum(ndimage.gaussian_filter(t_h, 1.0), SEA)
+    floor_t = ndimage.gaussian_filter(ndimage.minimum_filter(Hc, size=max(9, int(61 * 1536 / n) | 1)), 8)
+    rel_t = np.clip(Hc - floor_t, 0, None)
+    rel = resize(rel_t, sh, Image.BILINEAR)
     alt = np.clip((H - SEA) / 120, 0, 1)
-    Hd = H + detail * (6 + 40 * relief + 30 * alt ** 1.5) * land
-    shade, slope = hillshade(ndimage.gaussian_filter(Hd, 1.2 * s), cell, z=2.2)
-    shade2, _ = hillshade(ndimage.gaussian_filter(H, 6 * s), cell, az=300, alt=35, z=3.0)
-    shade = 0.55 * shade + 0.45 * shade2
-    flat = math.sin(math.radians(40))
-    shade_mul = np.clip(0.62 + 0.52 * shade / flat, 0.45, 1.25)
+    mw = np.clip((rel - 22) / 75, 0, 1) ** 0.8 * np.clip((H - SEA - 12) / 40, 0, 1)
+    mw = ndimage.gaussian_filter(mw * land, 2.5 * s)
+    cold_o = ndimage.gaussian_filter(cold_t[tb_near].astype(np.float32), 6 * s)
 
-    # Land colour: wash * paper noise * shade; height lifts toward grey-white near the peaks.
+    detail = (1 - np.abs(fbm(sh, 31, 26 * s, 5, 0.5))) ** 2   # ridged noise for craggy mountains
+    Hd = H + detail * (5 + 30 * relief + 55 * mw) * land
+    Hm = ndimage.gaussian_filter(Hd, 1.0 * s)
+    gy, gx = np.gradient(Hm, cell)
+    # Multi-directional shade (light mostly from the north-west), exaggerated in the mountains.
+    z = (1.6 + 2.2 * mw)
+    gx, gy = gx * z, gy * z
+    shade = sum(wgt * shade_dir(gx, gy, az, 40) for az, wgt in ((315, .55), (270, .17), (0, .17), (225, .11)))
+    gy, gx = np.gradient(ndimage.gaussian_filter(H, 5 * s), cell)
+    shade = 0.62 * shade + 0.38 * shade_dir(gx * 3.0, gy * 3.0, 315, 35)
+    slope = np.hypot(gx, gy)
+    del gx, gy
+    flat = 0.62 * math.sin(math.radians(40)) + 0.38 * math.sin(math.radians(35))
+    sn = shade / flat - 1                         # 0 on flat ground, <0 in shadow, >0 sunlit
+
+    # Land colour: wash * paper noise; mountains turn to rock, snow on the highest ridges only.
     n_big = fbm(sh, 41, 180 * s, 4)
     n_mid = fbm(sh, 42, 30 * s, 4)
     n_fine = fbm(sh, 43, 4 * s, 2)
     landc = wash * (1 + 0.07 * n_big + 0.06 * n_mid + 0.035 * n_fine)[..., None]
-    rock = np.array((150, 140, 124), np.float32)
-    high = np.clip((H - (SEA + 70)) / 70, 0, 1) ** 1.2 * (1 - 0.6 * (np.abs(wash - (228, 233, 234)).sum(-1) < 40))
-    landc = lerp(landc, rock, (high * 0.65)[..., None])
-    snowcap = np.clip((H - (SEA + 135)) / 30, 0, 1)
-    landc = lerp(landc, np.array((236, 238, 236), np.float32), (snowcap * 0.85)[..., None])
+    rock = np.array((152, 138, 116), np.float32)
+    landc = lerp(landc, rock, (np.clip(mw * 1.3, 0, 1) * 0.7 * (1 - 0.5 * cold_o))[..., None])
     grey = landc.mean(-1, keepdims=True)
     landc = lerp(landc, grey, 0.18)              # muted, painterly saturation
-    landc = landc * shade_mul[..., None]
+    tone = landc[::4, ::4].copy()                 # unlit local colour, for the glyphs
+    # Crest convexity: positive on ridgelines, fine and broad scales.
+    crest = np.clip(-ndimage.gaussian_laplace(Hd, 1.6 * s) / 2.0, 0, 1)
+    crest_b = np.clip(-ndimage.gaussian_laplace(H, 6 * s) / 1.2, 0, 1)
+    snowline = SEA + 150 - 75 * cold_o
+    snow = np.clip((H + 28 * detail * mw + 40 * crest_b + 18 * crest - snowline) / 30, 0, 1)
+    snow *= np.clip(1.4 - slope * 0.5, 0.35, 1) * np.clip(mw * 2.5, 0, 1)
+    snow = np.clip(snow + 0.25 * n_mid * snow * (1 - snow) * 4, 0, 1)
+    landc = lerp(landc, np.array((240, 240, 236), np.float32), (snow * 0.92)[..., None])
+    # Lighting: gentle on lowland, strong in mountains; sunlit faces warm, shadow faces cool.
+    gain = 0.42 + (0.4 if mountain_style == "glyphs" else 0.95) * mw
+    landc *= np.clip(1 + gain * sn * 0.85, 0.32, 1.45)[..., None]
+    w_cool = np.clip(-sn, 0, 1) * (0.25 + 0.75 * mw)
+    landc *= lerp(1, np.array((0.80, 0.88, 1.10), np.float32), w_cool[..., None])
+    w_warm = np.clip(sn, 0, 1) * mw
+    landc *= lerp(1, np.array((1.07, 1.02, 0.90), np.float32), w_warm[..., None])
+    # Crisp ridgeline highlights on the lit side of the crests.
+    hl = crest * mw * np.clip(0.5 + sn * 2, 0, 1)
+    landc = lerp(landc, np.array((252, 244, 222), np.float32), (np.clip(hl, 0, 1) * 0.55)[..., None])
+    del crest, crest_b, Hm, slope
     # Lowland warm glow, highland cool.
     landc *= (1 + 0.04 * (1 - alt))[..., None]
 
@@ -292,43 +329,26 @@ def render(plan_dir, out, size=4096, labels=True, crop=None, title="Quest Forge"
     ov = Image.new("RGBA", (M, M), (0, 0, 0, 0))
     od = ImageDraw.Draw(ov)
     rng = np.random.default_rng(5)
-    Hs = ndimage.gaussian_filter(Hd, 2.0 * s)
-    gy, gx = np.gradient(Hs, cell)
-    sl = np.hypot(gx, gy)
-    mtn = land & (H > SEA + 40) & ~lk
-    # Hachures: short strokes down the fall line, darker on the shadow side.
-    step = 5 * s
-    g = np.mgrid[0:M:step, 0:M:step].reshape(2, -1).T.astype(np.float32)
-    g += rng.uniform(-step / 2, step / 2, g.shape)
-    g = np.clip(g, 0, M - 1)
-    gi = g.astype(int)
-    keep = mtn[gi[:, 0], gi[:, 1]] & (sl[gi[:, 0], gi[:, 1]] > 0.25)
-    for (py, px) in g[keep]:
-        iy, ix = int(py), int(px)
-        ax, ay = gx[iy, ix], gy[iy, ix]
-        m = math.hypot(ax, ay)
-        ux, uy = -ax / m, -ay / m                     # downhill
-        L = min(1.0, m / 1.6) * 9 * s + 2 * s
-        lit = shade[iy, ix]
-        if lit < 0.5:                                 # shadow side: firm ink strokes
-            c = (58, 42, 28, int(190 * min(1, 0.4 + m / 2)))
-        elif lit < 0.75:                              # half-lit: faint strokes keep the form
-            c = (70, 54, 38, int(70 * min(1, 0.4 + m / 2)))
-        else:
-            continue
-        od.line((px, py, px + ux * L, py + uy * L), fill=c, width=max(1, round(1.2 * U)))
-    # Ridge crests: where the smoothed surface is convex across the fall line.
-    lap = ndimage.gaussian_laplace(H, 3.0 * s)
-    ridge = mtn & (lap < -np.percentile(-lap[mtn], 70) if mtn.any() else mtn) & (H > SEA + 60)
-    ry, rx = np.nonzero(ridge)
-    if len(ry):
-        pick = rng.random(len(ry)) < 0.5
-        for y, x in zip(ry[pick], rx[pick]):
-            a = gx[y, x], gy[y, x]
-            m = math.hypot(*a) + 1e-6
-            tx, ty = -a[1] / m, a[0] / m               # along the ridge
-            L = 3 * s
-            od.line((x - tx * L, y - ty * L, x + tx * L, y + ty * L), fill=(44, 32, 22, 150), width=max(1, round(1.5 * U)))
+    if mountain_style == "relief":
+        # Hachures: short strokes down the fall line on the shadow side of the mountains.
+        Hs = ndimage.gaussian_filter(Hd, 2.0 * s)
+        gy, gx = np.gradient(Hs, cell)
+        sl = np.hypot(gx, gy)
+        step = 5 * s
+        g = np.mgrid[0:M:step, 0:M:step].reshape(2, -1).T.astype(np.float32)
+        g += rng.uniform(-step / 2, step / 2, g.shape)
+        g = np.clip(g, 0, M - 1)
+        gi = g.astype(int)
+        keep = (mw[gi[:, 0], gi[:, 1]] > 0.3) & ~lk[gi[:, 0], gi[:, 1]] & (sl[gi[:, 0], gi[:, 1]] > 0.25) & \
+            (sn[gi[:, 0], gi[:, 1]] < -0.1)
+        for (py, px) in g[keep]:
+            iy, ix = int(py), int(px)
+            ax, ay = gx[iy, ix], gy[iy, ix]
+            m = math.hypot(ax, ay)
+            L = min(1.0, m / 1.6) * 8 * s + 2 * s
+            c = (50, 44, 48, int(150 * min(1, 0.3 + m / 2) * min(1, mw[iy, ix])))
+            od.line((px, py, px - ax / m * L, py - ay / m * L), fill=c, width=max(1, round(1.1 * U)))
+        del Hs, gx, gy, sl
     # Forest stipple: little canopies with a shadow and a highlight.
     step = 6.2 * s
     g = np.mgrid[0:M:step, 0:M:step].reshape(2, -1).T.astype(np.float32)
@@ -337,7 +357,8 @@ def render(plan_dir, out, size=4096, labels=True, crop=None, title="Quest Forge"
     gi = g.astype(int)
     dens = trees[gi[:, 0], gi[:, 1]] * np.clip(0.6 + 0.8 * fbm(sh, 71, 50 * s, 3)[gi[:, 0], gi[:, 1]], 0, 1)
     ok = land[gi[:, 0], gi[:, 1]] & ~lk[gi[:, 0], gi[:, 1]] & ~river[gi[:, 0], gi[:, 1]] & \
-        (d_in[gi[:, 0], gi[:, 1]] > 3 * s) & (rng.random(len(g)) < dens) & (H[gi[:, 0], gi[:, 1]] < SEA + 120)
+        (d_in[gi[:, 0], gi[:, 1]] > 3 * s) & (rng.random(len(g)) < dens * np.clip(1 - 1.6 * mw[gi[:, 0], gi[:, 1]], 0, 1)) & \
+        (H[gi[:, 0], gi[:, 1]] < SEA + 120)
     basearr = np.asarray(base)
     for (py, px) in g[ok]:
         iy, ix = int(py), int(px)
@@ -350,7 +371,12 @@ def render(plan_dir, out, size=4096, labels=True, crop=None, title="Quest Forge"
         od.ellipse((px - r, py - r, px + r, py + r), fill=mid_)
         od.ellipse((px - r * 0.55, py - r * 0.6, px + r * 0.05, py), fill=hi)
     base = Image.alpha_composite(base.convert("RGBA"), ov)
-    del ov, Hs, gx, gy, sl
+    del ov
+    if mountain_style in ("glyphs", "both"):
+        avoid = [((p["x"] + meta["size"] / 2) / meta["px"] * k, (p["z"] + meta["size"] / 2) / meta["px"] * k,
+                  "pass" in p.get("name", "").lower())
+                 for p in meta.get("points", []) if p.get("kind") in ("landmark", "spawn")]
+        draw_mountain_glyphs(base, H, rel, mw, snow, cold_o, tone, land & ~lk & ~river, avoid, cell, s, U)
 
     # ---------------------------------------------------------------- frame
     paper = np.array((226, 210, 172), np.float32)
@@ -566,6 +592,182 @@ def draw_labels(canvas, meta, names, t_b, n, m0, k, s, U, corners, rose_box, tit
     return Image.alpha_composite(canvas, lay)
 
 
+def _over(rgb, a, src, sa):
+    """Paint src (a colour or a colour array) with alpha sa over rgb/a, in place."""
+    out_a = sa + a * (1 - sa)
+    rgb[:] = (np.asarray(src, np.float32) * sa[..., None] + rgb * (a * (1 - sa))[..., None]) / \
+        np.maximum(out_a, 1e-6)[..., None]
+    a[:] = out_a
+
+
+def glyph_sprite(w, h, lit, shd, ink, sf, rng, U, hill=False):
+    """A painted mountain (or hill) profile lit from the west. Returns (RGBA image, base-centre x, base y)
+    with w, h in output px; lit/shd are the face colours; sf is the snow cap as a fraction of the height."""
+    SS = 3
+    w, h = float(w), float(h)
+    ox, oy = 0.12 * w + 2, 0.06 * h + 2
+    Wp, Hp = int((w * 1.62 + 4) * SS), int((h * 1.22 + 4) * SS)
+
+    def P(pts):
+        return [((ox + x) * SS, (oy + y) * SS) for x, y in pts]
+
+    ax = w * rng.uniform(0.42, 0.58)
+    if hill:
+        n = 8
+        left = [(ax * i / n, h * (1 - math.sin(math.pi / 2 * i / n) ** 0.75)) for i in range(n + 1)]
+        right = [(ax + (w - ax) * i / n, h * (1 - math.cos(math.pi / 2 * i / n) ** 0.75)) for i in range(1, n + 1)]
+        rx = ax + w * rng.uniform(0.04, 0.12)
+        ridge = [(ax, 0), (lerp(ax, rx, 0.5) + w * rng.uniform(-0.03, 0.03), h * 0.5), (rx, h)]
+    else:
+        def side(x0, x1, y0, y1, k):
+            pts = []
+            sh_i = rng.integers(1, k) if rng.random() < 0.55 else -1   # an optional shoulder
+            for i in range(1, k):
+                t = i / k
+                y = lerp(y0, y1, t) + h * rng.normal(0, 0.03) * 4 * t * (1 - t)
+                if i == sh_i:
+                    y -= h * rng.uniform(0.08, 0.18)
+                pts.append((lerp(x0, x1, t) + w * rng.uniform(-0.02, 0.02), y))
+            return pts
+        left = [(0, h)] + side(0, ax, h, 0, 5) + [(ax, 0)]
+        right = side(ax, w, 0, h, 5) + [(w, h)]
+        rx = ax + w * rng.uniform(0.0, 0.16)
+        ridge = [(ax, 0)]
+        for t in (0.3, 0.62):
+            ridge.append((lerp(ax, rx, t) + w * rng.uniform(-0.05, 0.05), h * t))
+        ridge.append((rx, h))
+    outline = left + right
+    litm, shm, inkm, gsh = (Image.new("L", (Wp, Hp), 0) for _ in range(4))
+    ImageDraw.Draw(litm).polygon(P(left + ridge[1:]), fill=255)
+    ImageDraw.Draw(shm).polygon(P([(ax, 0)] + right + ridge[::-1]), fill=255)
+    di = ImageDraw.Draw(inkm)
+    di.line(P(outline), fill=235, width=max(1, round(1.15 * U * SS)), joint="curve")
+    if not hill:
+        di.line(P(ridge[:3]), fill=150, width=max(1, round(0.8 * U * SS)))
+    if not hill:     # hachures on the shadow face, roughly parallel to the right slope
+        for _ in range(int(rng.integers(3, 6))):
+            t0 = rng.uniform(0.2, 0.75)
+            xa, ya = lerp(ax, rx, t0) + w * 0.03, h * t0
+            L = w * rng.uniform(0.1, 0.22)
+            di.line(P([(xa, ya), (xa + L, ya + L * h / max(w - ax, 1) * 0.9)]), fill=110,
+                    width=max(1, round(0.75 * U * SS)))
+    ImageDraw.Draw(gsh).ellipse(P([(w * 0.25, h * 0.9), (w * 1.45, h * 1.12)]), fill=255)
+    gsh = gsh.filter(ImageFilter.GaussianBlur(h * 0.08 * SS + 1))
+    L_, S_, I_, G_ = (np.asarray(m_, np.float32) / 255 for m_ in (litm, shm, inkm, gsh))
+    Y = (np.arange(Hp, dtype=np.float32)[:, None] / SS - oy) / h + np.zeros((1, Wp), np.float32)
+    X = (np.arange(Wp, dtype=np.float32)[None, :] / SS - ox) / w + np.zeros((Hp, 1), np.float32)
+    fade = np.clip((1.0 - Y) / 0.2, 0, 1) ** 0.9            # the foot melts into the ground
+    rgb = np.zeros((Hp, Wp, 3), np.float32)
+    # Brush texture: soft streaks running down the faces.
+    tex = ndimage.gaussian_filter(rng.standard_normal((Hp, Wp)).astype(np.float32), (2.5 * SS, 0.6 * SS))
+    tex = 1 + 0.06 * tex / (tex.std() + 1e-6)
+    a = np.zeros((Hp, Wp), np.float32)
+    _over(rgb, a, (40, 36, 40), G_ * 0.16 * np.clip(1 - S_ - L_, 0, 1))
+    _over(rgb, a, np.asarray(lit, np.float32) * ((1 + 0.12 * (1 - Y)) * tex)[..., None], L_ * fade)
+    _over(rgb, a, np.asarray(shd, np.float32) * ((0.85 + 0.15 * np.clip((X * w - ax) / max(w - ax, 1), 0, 1)) * tex)[..., None],
+          S_ * fade)
+    if sf > 0:
+        wob = sum(np.sin(X * 2 * math.pi * f + rng.uniform(0, 6.3)) * 0.18 / f ** 0.5 for f in (1.3, 2.7, 5.1))
+        rx_y = ax + (rx - ax) * np.clip(Y, 0, 1)
+        near = np.exp(-((X * w - rx_y) / (0.06 * w)) ** 2)          # snow runs down the ridge line
+        snow_m = np.clip((sf * (1 + wob) + 0.35 * sf * near - Y) * h * SS / 3, 0, 1)
+        _over(rgb, a, (246, 246, 241), L_ * snow_m * fade)
+        _over(rgb, a, (194, 200, 212), S_ * snow_m * fade)
+    _over(rgb, a, ink, I_ * np.clip((1.0 - Y) / 0.35, 0, 1) ** 1.3 * (0.5 if hill else 0.9))
+    im = Image.fromarray(np.dstack([np.clip(rgb, 0, 255), np.clip(a * 255, 0, 255)]).astype(np.uint8), "RGBA")
+    im = im.convert("RGBa").resize((Wp // SS, Hp // SS), Image.LANCZOS).convert("RGBA")
+    return im, ox + w / 2, oy + h
+
+
+def draw_mountain_glyphs(base, H, rel, mw, snow, cold, tone, ok, avoid, cell, s, U):
+    """Painted mountain glyphs along the high ground and hill glyphs on the foothills, placed
+    greedily from the most prominent ground down, then drawn back to front (north to south)."""
+    M = H.shape[0]
+    rng = np.random.default_rng(17)
+    step = 5 * s
+    g = np.mgrid[0:M:step, 0:M:step].reshape(2, -1).T.astype(np.float32)
+    g += rng.uniform(-step / 2, step / 2, g.shape)
+    g = np.clip(g, 0, M - 1)
+    gi = g.astype(int)
+    r, m, h = rel[gi[:, 0], gi[:, 1]], mw[gi[:, 0], gi[:, 1]], H[gi[:, 0], gi[:, 1]]
+    okp = ok[gi[:, 0], gi[:, 1]]
+    mtn = okp & (m > 0.5) & (r > 52)
+    pk = (rel >= ndimage.maximum_filter(rel, size=int(55 * s)) - 2)[gi[:, 0], gi[:, 1]]   # local summits
+    hill = okp & ~mtn & (r > 15) & (m > 0.06) & (h > SEA + 8)
+    pr = np.where(mtn, r + 0.35 * (h - SEA) + 60 * pk, -1000 + r) + rng.uniform(0, 6, len(g))
+    order = np.argsort(-pr)
+    order = order[(mtn | hill)[order]]
+    pass_r = 600 / cell
+    bucket = 80 * s
+    grid = {}
+    placed = []
+    for i in order:
+        y, x = float(g[i, 0]), float(g[i, 1])
+        is_m = bool(mtn[i])
+        if is_m:
+            t = min(1.0, (r[i] - 52) / 140)
+            a_ = min(1.0, max(0.0, (h[i] - SEA) / 170))
+            w = (30 + 50 * (0.5 * t + 0.5 * a_)) * s * rng.uniform(0.85, 1.15)
+            if pk[i]:
+                w *= 1.35
+            hh = w * (0.5 + 0.25 * a_ + 0.08 * pk[i]) * rng.uniform(0.9, 1.1)
+            fx, fy = 0.74, 0.7
+        else:
+            if rng.random() > 0.22:
+                continue
+            w = (13 + 12 * min(1.0, (r[i] - 15) / 30)) * s * rng.uniform(0.85, 1.15)
+            hh = w * rng.uniform(0.38, 0.48)
+            fx, fy = 1.5, 1.4
+        by = y + 0.25 * hh
+        x0, x1 = int(x - w * 0.42), int(x + w * 0.42)
+        if x0 < 0 or x1 >= M or by >= M or by - hh < 0 or not (ok[int(by), x0] and ok[int(by), x1]):
+            continue
+        bad = False
+        for px_, py_, is_pass in avoid:
+            if is_pass:
+                bad = math.hypot(x - px_, y - py_) < pass_r + w * 0.3
+            else:     # keep landmark and spawn icons uncovered
+                bad = abs(px_ - x) < w * 0.5 + 10 * s and by - hh - 10 * s < py_ < by + 8 * s
+            if bad:
+                break
+        if bad:
+            continue
+        bx, byk = int(x // bucket), int(y // bucket)
+        for ddx in (-1, 0, 1):
+            for ddy in (-1, 0, 1):
+                for (qx, qy, qw, qh, qm) in grid.get((bx + ddx, byk + ddy), ()):
+                    kx, ky = (fx, fy) if (is_m and qm) else (1.0, 0.9)
+                    ex = (x - qx) / (kx * (w + qw) / 2)
+                    ey = (y - qy) / (ky * (hh + qh) / 2)
+                    if ex * ex + ey * ey < 1:
+                        bad = True
+                        break
+                if bad:
+                    break
+            if bad:
+                break
+        if bad:
+            continue
+        grid.setdefault((bx, byk), []).append((x, y, w, hh, is_m))
+        placed.append((by, x, y, w, hh, is_m))
+    placed.sort()
+    ts = tone.shape
+    ink = np.array((46, 38, 34), np.float32)
+    for by, x, y, w, hh, is_m in placed:
+        ty, tx = min(ts[0] - 1, int(y) // 4), min(ts[1] - 1, int(x) // 4)
+        c = tone[max(0, ty - 2):ty + 3, max(0, tx - 2):tx + 3].reshape(-1, 3).mean(0)
+        sv = float(snow[int(y), int(x)])
+        cd = float(cold[int(y), int(x)])
+        if is_m:
+            c = lerp(c, np.array((146, 134, 118), np.float32), min(0.85, 0.5 + 0.35 * cd))
+        lit = np.clip(c * 1.1 + (12, 8, 0), 0, 255)
+        shd = np.clip(lerp(c * 0.6, np.array((84, 88, 104), np.float32), 0.3), 0, 255)
+        sf = min(0.48, 0.16 + 0.3 * sv + 0.1 * cd) if is_m and (sv > 0.15 or cd > 0.5) else 0.0
+        spr, axx, ayy = glyph_sprite(w, hh, lit, shd, ink, sf, rng, U, hill=not is_m)
+        base.alpha_composite(spr, (int(round(x - axx)), int(round(by - ayy))))
+    print(f"mountain glyphs: {sum(p[5] for p in placed)} peaks, {sum(not p[5] for p in placed)} hills")
+
+
 def spawn_marker(d, x, y, R, ink, U):
     d.ellipse((x - R * 1.15, y - R * 1.15, x + R * 1.15, y + R * 1.15), fill=(244, 232, 196, 235), outline=ink,
               width=max(1, round(1.6 * U)))
@@ -598,12 +800,15 @@ def main():
     ap.add_argument("--no-labels", action="store_true", help="clean art: no names, markers, title or key")
     ap.add_argument("--crop", help="also write a zoomed crop: PATH or X,Y,W,PATH in output pixels")
     ap.add_argument("--title", default="Quest Forge")
+    ap.add_argument("--mountain-style", choices=("relief", "glyphs", "both"), default="both",
+                    help="relief: shaded terrain with hachures; glyphs: painted mountain and hill glyphs; "
+                         "both (default): glyphs over the shaded relief")
     a = ap.parse_args()
     crop = None
     if a.crop:
         parts = a.crop.split(",")
         crop = (int(parts[0]), int(parts[1]), int(parts[2]), ",".join(parts[3:])) if len(parts) >= 4 else a.crop
-    render(a.plan_dir, a.out, a.size, not a.no_labels, crop, a.title)
+    render(a.plan_dir, a.out, a.size, not a.no_labels, crop, a.title, a.mountain_style)
 
 
 if __name__ == "__main__":
