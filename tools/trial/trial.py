@@ -890,7 +890,50 @@ def user_busy():
     GPU's 3D engine >= 40 %. Agent clients are excluded; the owner's own pack client is not."""
     ours = trial_client_pids()
     r = window_ps("userbusy", *(["-OurPids", ",".join(map(str, ours))] if ours else []))
-    return r or {"busy": None, "reasons": ["window.ps1 userbusy gave no answer"]}
+    r = r or {"busy": None, "reasons": ["window.ps1 userbusy gave no answer"]}
+    note_busy(r.get("busy"))
+    return r
+
+
+BUSY_STATE = os.path.join(TRIALS, "userbusy-state.json")
+WATCH_GAP_S = 300   # checks further apart than this break the watch (a launch still needs a not-busy answer now)
+
+
+def note_busy(busy, now=None):
+    """Record every userbusy answer, so a launch right after a watched idle stretch (a run that
+    sampled every minute, a queue's gate) needn't wait out idle_min again."""
+    now = now or time.time()
+    st = read_busy_state()
+    if now - st.get("last_check", 0) > WATCH_GAP_S:
+        st["watch_since"] = now
+    st["last_check"] = now
+    if busy is not False:            # busy, or no answer: treat as not idle
+        st["last_busy"] = now
+    try:
+        tmp = BUSY_STATE + ".tmp"
+        with open(tmp, "w", encoding="utf-8") as f:
+            json.dump(st, f)
+        os.replace(tmp, BUSY_STATE)
+    except OSError:
+        pass
+
+
+def read_busy_state():
+    try:
+        with open(BUSY_STATE, encoding="utf-8") as f:
+            return json.load(f)
+    except (OSError, ValueError):
+        return {}
+
+
+def idle_for(now=None):
+    """Seconds the owner is known to have been idle: since the later of the last busy answer and
+    the start of the current unbroken watch."""
+    now = now or time.time()
+    st = read_busy_state()
+    if now - st.get("last_check", 0) > WATCH_GAP_S:
+        return 0
+    return now - max(st.get("last_busy", 0), st.get("watch_since", now))
 
 
 def cmd_userbusy(a):
@@ -933,12 +976,14 @@ def start_detached(java, args, d, stdin=None, hidden=False):
 def wait_user_idle(idle_min, max_min):
     """Background clients never start over the owner's game: wait until userbusy has said
     idle for idle_min minutes in a row. On 2026-10-24 a shader round rendered through
-    three hours of the owner's Deadlock because only the frame times were marked noisy."""
-    t0, idle = time.time(), 0
+    three hours of the owner's Deadlock because only the frame times were marked noisy.
+    Idle time already watched counts (note_busy): a queue whose last run sampled userbusy every
+    minute launches the next one at once instead of waiting idle_min again (2026-10-25: that
+    double wait was 10 of every 12.5 minutes)."""
+    t0 = time.time()
     while True:
         b = user_busy()
-        idle = idle + 1 if b.get("busy") is False else 0
-        if idle >= max(1, int(idle_min)):
+        if b.get("busy") is False and idle_for() >= idle_min * 60 - 5:
             return
         if b.get("busy") and time.time() - t0 > max_min * 60:
             sys.exit(f"gave up after {max_min} min: the owner is still busy ({'; '.join(b.get('reasons', []))})")
