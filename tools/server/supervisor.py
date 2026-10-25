@@ -13,7 +13,8 @@ supervisor itself:
 
     !backup    take a backup now          !restart   save, stop and start again
     !dump      thread dump into logs/     !status    state, players, next jobs
-    !stop      stop the server and exit   (plain `stop` and Ctrl+C do the same)
+    !jfr [s]   Flight Recorder profile    !stop      stop the server and exit
+               into logs/ (default 120 s)            (plain `stop` and Ctrl+C do the same)
 
 The same lines can be dropped into the file `supervisor.inbox` in the server
 folder (one per line); the supervisor runs and deletes it within a second. A
@@ -680,6 +681,9 @@ class Supervisor:
         if cmd == "!dump":
             self.thread_dump(srv, "requested")
             return None
+        if cmd.split()[0] == "!jfr":
+            self.jfr(srv, line.split()[1:])
+            return None
         if cmd == "!status":
             self.log("pid %s, up %.0f min, %d players (last `list`), crashes in window %d, "
                      "next daily restart %s, mirror %s, team %s" % (
@@ -689,7 +693,7 @@ class Supervisor:
                          self.cfg["backup_mirror"] or "off", self.cfg["team"] or "off"))
             return None
         if cmd.startswith("!"):
-            self.log("unknown supervisor command %s (try !backup !restart !dump !status !stop)" % line)
+            self.log("unknown supervisor command %s (try !backup !restart !dump !jfr !status !stop)" % line)
             return None
         srv.send(line)
         return None
@@ -760,6 +764,32 @@ class Supervisor:
         except (subprocess.TimeoutExpired, OSError) as e:
             self.log("jstack failed: %s" % e)
             return None
+
+    def jfr(self, srv, args):
+        """`!jfr [seconds]`: a Java Flight Recorder profile of the running JVM
+        into logs/profile-<time>.jfr, through the JDK's jcmd. Why: Opis records
+        nothing on the Java 25 (lwjgl3ify) server (scratch test 2026-10-25),
+        while JFR is built into every JDK from 11 on and samples every thread
+        with about 1% overhead. Read the file with `jfr print --events
+        jdk.ExecutionSample <file>` or JDK Mission Control. Needs the server's
+        java to be a JDK (the --java25 build is); a Java 8 JRE has no jcmd."""
+        secs = int(args[0]) if args and args[0].isdigit() else 120
+        java = self.cmd[0] if self.cmd else ""
+        jcmd = os.path.join(os.path.dirname(java), "jcmd.exe" if IS_WIN else "jcmd") \
+            if java and os.path.isabs(java) else shutil.which("jcmd")
+        if not jcmd or not os.path.exists(jcmd):
+            self.log("!jfr: no jcmd next to %s (a JDK is needed; the Java 8 JRE has none)" % java)
+            return
+        path = os.path.join(self.logs, "profile-%s.jfr" % stamp())
+        try:
+            res = subprocess.run([jcmd, str(srv.pid), "JFR.start", "duration=%ds" % secs,
+                                  "filename=%s" % path, "settings=profile"],
+                                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=60)
+            out = res.stdout.decode("utf-8", "replace").strip().splitlines()
+            self.log("!jfr: %s (exit %d); %d s recording -> %s" % (
+                out[-1] if out else "no output", res.returncode, secs, path))
+        except (subprocess.TimeoutExpired, OSError) as e:
+            self.log("!jfr failed: %s" % e)
 
     def hang(self, srv, why):
         self.alert("server HUNG: %s. Taking a thread dump, then killing pid %s." % (why, srv.pid))
