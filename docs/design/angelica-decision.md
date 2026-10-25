@@ -73,7 +73,7 @@ the fallback for GPUs without OpenGL 3.3. Install guide:
 | Loading screen and splash music | **done** | `SplashTransformer` in QuestForgeTweaks makes the hand-patched 1558 jar's changes on any Forge jar; the `qf/splash` classes ship in the coremod. Inert on the E7 jar apart from two log hooks. |
 | Four shader checks | **done** | qf-content `Shaders` (now also used by `RenderRecordCase`), qf-tweaks `ShaderState`, Transformers `TFRenderHelper` ask Iris's `IrisApi.getInstance().isShaderPackInUse()` as well as OptiFine's `Config.isShaders()`, both reflectively. One jar per mod serves both clients. |
 | Zoom and frame pacing | **done** | Zoom on C; Iris toggle/pick/reload on F4/F8/F9. `angelica-options.json` `vsync_mode: OFF`. |
-| Lite profile | **done** | `apply-lite.ps1` detects Angelica and writes the equivalents into Angelica's three config files. |
+| Lite profile | **done** | `tools/lite-client/apply-profile.ps1` with `profiles/{full,lite,potato}.json` (2026-10-25): Celeritas settings, the QuestForge Low/Potato presets, jars aside, heap by RAM. Replaced the E7-era `apply-lite.ps1`. |
 | Packaging | **done** | `tools/angelica-client/` (manifest with sha1s and URLs, `build_angelica_client.py`, `LAUNCH-ANGELICA.bat`). |
 | At-risk mods | **pass** where the probe can check; the rest is the hand test | below |
 | "Error creating mob morph" | **explained, not a bug** | below |

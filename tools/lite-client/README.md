@@ -1,165 +1,203 @@
-# Quest Forge Lite
+# Quest Forge client profiles: full, lite, potato
 
-A lighter way to run the same Quest Forge pack on an ordinary PC. You join the
-same server and see the same world, mobs, items and quests. What changes is how
-much work your PC does per frame: fewer visual extras, no shader pack, a smaller
-Java heap, and four or six cosmetic client mods turned off.
+The same Quest Forge pack on an ordinary PC. You join the same server and see the
+same world, mobs, items and quests. What changes is how much work your PC does
+per frame: a lighter shader preset, fewer visual extras, a smaller Java heap, and
+four or six cosmetic client-only mods set aside.
 
-Install the normal Quest Forge client first (the client-instance release, in
-Prism Launcher). Lite goes on top of it. Do not assemble mods yourself: one
-differing jar and the server refuses you at login.
+Install the normal Quest Forge client first (the Angelica edition of the
+client-instance release, in Prism Launcher; [`docs/setup/angelica-client.md`](../../docs/setup/angelica-client.md)).
+A profile goes on top of it. Do not assemble mods yourself: one differing jar
+and the server refuses you at login.
 
 ## Which profile?
 
-| Your PC | Profile | Java memory (max) |
-|---|---|---|
-| Gaming PC from the last ~5 years, 16 GB+ | none: play the normal pack, shaders optional | 5–6 GB |
-| GTX 1060 / RX 580 class, 4–6 cores, 8–16 GB | **lite** | 3 GB on 8 GB RAM, 4 GB on 12–16 GB |
-| Laptop / integrated graphics, 8 GB | **potato** | 3 GB |
+| Your PC | Profile | Shader preset | Play at | Java max heap |
+|---|---|---|---|---|
+| Gaming PC from the last ~5 years (RTX 3060 / RX 6600 or better, 16 GB+) | **full** (the normal pack) | QuestForge Medium; High or Ultra by hand on a stronger card | 1080p or 1440p | 5 GB on 16 GB, 6 GB on 32 GB |
+| GTX 1060 / RX 580 class, 4–6 cores, 8–16 GB | **lite** | QuestForge Low | 1080p | 3 GB on 8 GB, 4 GB on 12–16 GB |
+| Laptop or desktop on integrated graphics (Iris Xe, Vega 8), 8 GB | **potato** | QuestForge Potato | 720p | 3 GB |
+| Older integrated graphics (Intel UHD 620 and older) | **potato** with `-Shaders off` | none | 720p | 3 GB |
+| Graphics without OpenGL 3.3 (Intel HD 2000/3000, 2011) | the OptiFine E7 client + **lite** or **potato** (shaders are always off there) | none | 720p–1080p | 3 GB |
+
+The profiles are defined in [`profiles/full.json`](profiles/full.json),
+[`profiles/lite.json`](profiles/lite.json) and [`profiles/potato.json`](profiles/potato.json).
+Every setting in them has a `why` line: what it buys and what it costs in looks.
+None of them changes content.
 
 ## Install (Windows)
 
 1. Quit Minecraft.
 2. Find your game folder: in Prism, right-click the Quest Forge instance →
    **Folder**, then open `.minecraft` (the folder that holds `mods` and
-   `options.txt`).
+   `options.txt`). For the raw-folder install it is the folder with
+   `LAUNCH-ANGELICA.bat` in it.
 3. Open PowerShell in this `lite-client` folder and run, with your own path:
 
    ```
-   powershell -ExecutionPolicy Bypass -File apply-lite.ps1 -Instance "C:\Users\YOU\AppData\Roaming\PrismLauncher\instances\Quest Forge\.minecraft"
+   powershell -ExecutionPolicy Bypass -File apply-profile.ps1 -Instance "C:\Users\YOU\AppData\Roaming\PrismLauncher\instances\Quest Forge (Angelica)\.minecraft" -Profile lite
    ```
 
-   For integrated graphics add `-Tier potato`. Add `-WhatIf` first if you want
-   to see the changes without making them.
-4. In Prism: **Edit instance → Settings → Java**. Set the memory from the table
-   above and paste the Java arguments from [`jvm-args.txt`](jvm-args.txt).
+   `-Profile potato` for integrated graphics; add `-Shaders off` on a GPU below
+   the Iris Xe / Vega 8 class. Add `-WhatIf` first to see the changes without
+   making them. `-Status` shows what is applied right now.
+4. The script ends by printing the Java memory and arguments for this PC. In
+   Prism: **Edit instance → Settings → Java**, tick Memory and Java arguments and
+   paste them in.
 5. Start the game.
 
-**To undo** everything: run the same command with `-Undo`. Your original
-settings were saved to `_lite-backup\` the first time, and removed mods sit in
-`mods-lite-removed\`. Nothing is deleted.
+Running the same command again changes nothing (it says so). Switching
+profiles is just running it with another `-Profile`; mods set aside by the old
+profile come back if the new one keeps them.
 
-## What it changes
+**To undo** everything: the same command with `-Revert`. Your own settings were
+saved to `_qf-profile\original\` the first time, every run also keeps the
+files it changed in `_qf-profile\backup-<time>\`, and set-aside mods sit in
+`mods-aside\`. Nothing is deleted.
 
-**Mods moved out of `mods\`** ([`client-only-drop.txt`](client-only-drop.txt)).
-Only mods the server does not have, so nothing in the game world changes:
+## What each profile changes
+
+Only client-side files the server never sees. Keybinds, sound, chat, language
+and resource packs are untouched.
+
+**Video** (`options.txt`, Angelica's `config\angelica-options.json` and
+`config\angelica-modules.cfg`):
+
+| Setting | Full | Lite | Potato | What lite/potato lose |
+|---|---|---|---|---|
+| Render distance | 8 | 6 | 5 | Nothing on the server (it sends 6 chunks); 2–3 chunks in singleplayer |
+| Graphics | Fancy | Fast | Fast | Translucent leaves, entity blob shadows, fancy rain |
+| Smooth lighting (Celeritas) | on | on | **off** | Potato: flat per-block light; visible indoors |
+| Particles | All | Decreased | Minimal | Thinner particle storms in fights and rain |
+| Mipmap levels | 4 | 2 | 1 | A little more shimmer on distant blocks |
+| Max FPS | 120 | 90 | 60 | Nothing on a 60 Hz monitor; far less heat |
+| Clouds | on | on | off | Potato with shaders off: a clear sky |
+| Biome colour blend | 3 blocks, fancy | 1 block, fast | none | Narrower, then hard biome borders |
+| Grass block sides | overlay texture | plain | plain | The old grass side |
+| Texture filtering | RGSS + anisotropic | anisotropic | none | A little shimmer on distant floors |
+| Dynamic lights (held torch) | on | off | off | A held torch lights nothing until placed |
+| Dropped items drawn at once | 256 | 256 | 128 | Item piles beyond 128 are not all drawn (all still exist) |
+| FPS reducer (unfocused / idle) | off | 10 / 30 fps | 10 / 20 fps | Nothing while you play |
+
+**Shader pack** (`config\shaders.properties` and `shaderpacks\QuestForge.txt`):
+the pack's own QuestForge shader, at the preset the profile names. Each preset
+is one option, `QF_PRESET`; the shader screen (F8 → the pack → Profile) shows
+the same five.
+
+| Preset | Keeps | Drops |
+|---|---|---|
+| Medium (full) | sky, shadows to 80 blocks with entities, TAA, SSR, GTAO, soft shadows, bloom | volumetrics beyond what High adds |
+| Low (lite) | the physically based sky, your own shadow to 48 blocks, water, TAA, exposure, bloom, waving leaves, emissives | volumetric clouds (a 2D layer), volumetric light, SSR (sky only), GTAO (vanilla AO), puddles, soft shadows |
+| Potato | sky, water, exposure, colour | the whole shadow pass, TAA (FXAA-class instead), bloom |
+
+Budgets and the hardware they target: [`docs/design/shaders/performance-rules.md`](../../docs/design/shaders/performance-rules.md).
+If the QuestForge pack is not in `shaderpacks\`, lite and potato turn shaders
+**off** rather than leave a heavier pack on (`if_missing` in the JSON); full
+leaves your choice alone. `-Shaders off` turns them off whatever the profile says.
+
+**Mods set aside** (moved from `mods\` to `mods-aside\`). Every one is on the
+server's `CLIENT_ONLY` list in `tools/server/build_play_server.py`, so the
+server never had it and nothing in the world changes:
 
 | Profile | Mod | What you lose |
 |---|---|---|
-| lite | SoundFilters | Cave reverb and muffled sounds through walls |
-| lite | MobDismemberment, MobAmputation | Gore: limbs flying off killed mobs |
-| lite | CustomMenu | The branded title-screen buttons (the splash and menu music stay) |
+| lite, potato | SoundFilters | Cave reverb and muffled sounds through walls |
+| lite, potato | MobDismemberment, MobAmputation | Gore: limbs flying off killed mobs |
+| lite, potato | CustomMenu | The branded title-screen buttons (the mural splash and menu music stay) |
 | potato | JourneyMap | The minimap and the M map |
-| potato | DamageIndicators | The mob health bar at the top of the screen |
+| potato | DamageIndicators | The mob health bar and damage numbers |
 
-**Video settings** (only these keys; your controls, sound and chat are untouched):
+InventoryTweaks and Controlling stay in every profile (no measurable cost).
 
-| Setting | Normal pack | Lite | Potato |
+**Java** (printed by the script; set it in Prism):
+
+| Installed RAM | Full | Lite | Potato |
 |---|---|---|---|
-| Shader pack | Sildur's Vibrant High | Off | Off |
-| Render distance | 8 | 6 (= the server's) | 5 |
-| Graphics | Fancy | Fast (opaque leaves) | Fast |
-| Smooth lighting | Maximum | Minimum | Off |
-| Particles | All | Decreased | Minimal |
-| Mipmap levels | 4 | 2 | 0 |
-| Max FPS | Unlimited | 90 | 60 |
-| Fast Render (OptiFine) | Off | On | On |
-| Smooth FPS (OptiFine) | On | Off | Off |
-| Dynamic lights | Fast | Off | Off |
-| Clouds | Fancy | Fast | Off |
-| Dropped items, rain, water, trees | Fancy | Fast | Fast |
-| Smooth biomes | On | Off | Off |
+| 8 GB | 3072 MiB | 3072 MiB | 3072 MiB |
+| 12 GB | 4096 | 4096 | 3584 |
+| 16 GB | 5120 | 4096 | 4096 |
+| 32 GB+ | 6144 | 4096 | 4096 |
 
-Render distance 6 is not a loss on the server: the server only sends 6 chunks
-around you, so 8 draws nothing extra and just shows the world's hard edge
-past the fog.
+The whole pack holds about 1.3 GB of live heap in a world (measured; Angelica
+adds about 95 MB), so 3 GB is plenty. On 8 GB never go higher: Windows, Discord
+and a browser need the rest, and swapping stutters far worse than a small heap.
+The Java arguments are the same for every profile and both clients (they are in
+each JSON under `jvm.args`). Java must be 8 (1.8.0_2xx), 64-bit.
 
-## If you want a shader on a GTX 1060-class card
+## The OptiFine E7 fallback client
 
-Pick **Sildur's Enhanced Default** (already in `shaderpacks\`) under Options →
-Video Settings → Shaders, and set Shadow Resolution to 0.5x. Then go to
-Video Settings → Other and turn **Fast Render OFF**. Fast Render breaks every
-shader pack in this OptiFine version: the screen goes black or flickers. Never
-use Vibrant on a lite PC.
+On a GPU without OpenGL 3.3 the pack runs on the OptiFine E7 client, and
+shaders are off. The same script works there: it sees `OptiFine*.jar` instead
+of `angelica-*.jar` and writes `optionsof.txt` and `optionsshaders.txt`
+(the `optifine` section of the JSON: Fast Render on, Smooth FPS off, Fast Math,
+fast everything, dynamic lights off, shaders OFF) instead of the Angelica files.
+It never leaves Fast Render on while a shader pack is selected, because that
+combination breaks every shader pack on E7. `LAUNCH-LITE.bat` is the offline
+launcher for that client's raw folder layout (singleplayer and LAN only).
+
+## Mac
+
+`apply-profile.ps1` is Windows-only. The profile JSON files are the source of
+truth for the Mac's Prism tooling (the pre-Angelica `perf-preset.command` on
+the Mac knows only OptiFine's files; replace its tables with these). Each
+section maps to one file in the instance's `minecraft` folder:
+
+| JSON section | File | Format |
+|---|---|---|
+| `options_txt` | `options.txt` | `key:value`, replace the line with the same key |
+| `angelica_options` | `config/angelica-options.json` | JSON; merge the keys in, keep the rest |
+| `angelica_modules` | `config/angelica-modules.cfg` | Forge config; replace `B:key=` / `I:key=` lines inside `general { }` |
+| `shaders` | `config/shaders.properties` (`shaderPack=`, `enableShaders=`) and `shaderpacks/<pack>.txt` (`QF_PRESET=`) | `key=value` |
+| `optifine` | `optionsof.txt`, `optionsshaders.txt` | E7 client only |
+| `mods_aside` | move `mods/<prefix>*.jar` to `mods-aside/` | jar-name prefixes, case-insensitive |
+| `jvm` | Prism → Edit instance → Settings → Java | heap by installed RAM; one arguments line |
+
+Keys starting with `_` are comments; `why` is documentation. Angelica on a Mac
+is untested; the Mac notes in
+[`docs/setup/performance-tuning.md`](../../docs/setup/performance-tuning.md) are
+E7-era.
 
 ## What to expect
 
-- **Memory.** The whole pack holds about 1.3 GB of live Java heap in a
-  world (measured), so 3 GB is plenty. The game process uses about 4–4.5 GB of
-  RAM in total.
-- **Loading** is not faster: the same 140 mods load either way.
-- **Frame rate.** Most of the gain comes from having no shader: 2–3× on the
-  benchmark PC. The rest of the lite settings add an estimated 20–40% on a
-  4–6 core CPU. Nobody has measured it on friend-class hardware yet. If you
-  can, tell the host your F3 frame rate in the same spot before and after.
+- **Loading** is not faster: the same 110-odd mods load either way. 2–3 minutes
+  on a 4-core CPU is normal and not a sign the game will run badly.
+- **Memory.** The game process uses about 4–4.5 GB of RAM in total at a 3 GB heap.
+- **Frame rate.** Measured on the dev PC per profile in
+  [`docs/setup/performance-tuning.md`](../../docs/setup/performance-tuning.md).
+  Nobody has measured friend-class hardware yet. If you can, tell the host your
+  F3 frame rate in the same spot before and after.
 
 ## Planes and helicopters missing?
 
 MCHeli loads its vehicles from `.minecraft\assets\mcheli` (about 357 MB), not
 from its mod file. If that folder is missing, the game still starts, but you
-have no aircraft items or models. It ships with the client-instance release. Don't delete it to save space.
-
-## On the Angelica client
-
-The same command works on the Angelica client
-([`docs/setup/angelica-client.md`](../../docs/setup/angelica-client.md)).
-`apply-lite.ps1` sees `mods\angelica-*.jar` and switches over by itself:
-
-- The vanilla keys in `profiles/<tier>/options.txt` apply unchanged: render
-  distance 6 (5), Fast graphics, fewer particles, 2 (0) mip levels, max FPS 90
-  (60). So do the dropped mods and the heap table.
-- `optionsof.txt` and `optionsshaders.txt` are skipped; Angelica ignores them.
-  Their equivalents go into three client-only Angelica files in `config\`, which
-  are backed up and restored by `-Undo` like the rest:
-
-| OptiFine lite setting | Angelica equivalent | File |
-|---|---|---|
-| Smooth biomes off | `biome_blend_radius: 0` | `angelica-options.json` |
-| Grass Fast | `grass_quality: FAST` | `angelica-options.json` |
-| Anisotropic filtering off | `texture_filter_mode: NONE` | `angelica-options.json` |
-| VSync off | `vsync_mode: OFF` | `angelica-options.json` |
-| Dynamic lights off | `enableDynamicLights=false` | `angelica-modules.cfg` |
-| Shader pack off | `enableShaders=false` | `shaders.properties` |
-| (none) | FPS reducer on: 10 fps unfocused, 30 when idle | `angelica-options.json` |
-| Potato: smooth lighting off | `use_celeritas_smooth_lighting: false` | `angelica-options.json` |
-
-- Fast Render, Smooth FPS and Fast Math have no Angelica equivalent. Angelica
-  does not need them: its renderer is faster with shaders off than E7 with Fast
-  Render on.
-- Intel HD 2000/3000 graphics (2011) cannot run Angelica (it needs OpenGL 3.3).
-  Those PCs keep the OptiFine client and this OptiFine lite profile.
+have no aircraft items or models. It ships with the client-instance release.
+Don't delete it to save space.
 
 ## Troubleshooting
 
 - **"Mod rejections" or "missing mods" at login.** A mod the server has is
-  missing. Run `-Undo`, then re-apply; the script only ever moves the mods
+  missing. Run `-Revert`, then re-apply; the script only ever moves the mods
   listed above. If you moved something by hand, put it back.
 - **The game freezes for a second every so often, and the disk light is on.**
   Windows is swapping: lower the Java maximum, or close Chrome and Discord's
   overlay. On 8 GB never go above 3 GB.
 - **"Out of memory" crash.** Raise the maximum by 512 MB, but on 8 GB stay at
   or under 3.5 GB.
-- **Black screen or flicker with a shader.** Fast Render is on. Turn it off.
-- **It still loads slowly.** Loading takes 1.5–4 minutes on any PC: the pack
-  loads 140 mods every time and nothing here changes that. Loading is a
-  one-off; it is not a sign the game will run badly.
-
-## Mac
-
-`apply-lite.ps1` is Windows-only. On a Mac use `perf-preset.command low`
-(see `docs/setup/performance-tuning.md`) and set the memory from the table
-above. The settings in `profiles/lite/` can also be copied by hand into
-`options.txt`, `optionsof.txt` and `optionsshaders.txt`: each line replaces the
-line with the same name.
+- **Shaders are on but look like the full pack.** Check F8: the QuestForge pack
+  should show Profile LOW or POTATO. `-Status` prints the `QF_PRESET` the
+  script wrote; F8 → Profile changes it in game too.
+- **Black screen or flicker with a shader on the E7 client.** Fast Render is
+  on with a shader pack. Run the profile again; it turns one of them off.
 
 ## Files
 
 | File | What it is |
 |---|---|
-| `apply-lite.ps1` | Applies or undoes a profile on one game folder |
-| `profiles/lite/`, `profiles/potato/` | The setting overrides (potato goes on top of lite) |
-| `client-only-drop.txt` | The mods each profile moves out, and why |
-| `jvm-args.txt` | Prism memory table and Java arguments |
-| `LAUNCH-LITE.bat` | Offline launcher for the pack's own folder layout (singleplayer/LAN only; picks the heap from your RAM) |
+| `apply-profile.ps1` | Applies, shows or reverts a profile on one game folder (Angelica or E7) |
+| `profiles/full.json`, `lite.json`, `potato.json` | The profile definitions, with a `why` per setting |
+| `apply-lite.ps1` | The old command line; forwards to `apply-profile.ps1` |
+| `LAUNCH-LITE.bat` | Offline launcher for the E7 client's raw folder layout (picks the heap from your RAM) |
 
-Why each of these was chosen, and what was measured: [`docs/design/performance-plan.md`](../../docs/design/performance-plan.md).
+Why each of these was chosen, and what was measured: [`docs/design/performance-plan.md`](../../docs/design/performance-plan.md)
+and [`docs/setup/performance-tuning.md`](../../docs/setup/performance-tuning.md).

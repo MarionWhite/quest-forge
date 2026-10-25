@@ -1,7 +1,13 @@
 # Performance plan — "my PC should not be the floor"
 
-Status: **plan plus a ready lite profile ([`tools/lite-client/`](../../tools/lite-client/)).
-Nothing has been installed and no config is changed.** Measured 2026-10-16
+Status: **plan plus ready client profiles ([`tools/lite-client/`](../../tools/lite-client/)).
+Nothing has been installed and no config is changed.** The lite profile
+described in section 2 was written for OptiFine E7; since 2026-10-25 the pack's
+client is Angelica and the profiles are the JSON files in
+`tools/lite-client/profiles/` (full, lite, potato: Angelica settings plus the
+QuestForge shader presets), applied by `apply-profile.ps1` and documented in
+[`../setup/performance-tuning.md`](../setup/performance-tuning.md). The
+measurements and the per-mod costs below still hold. Measured 2026-10-16
 overnight on the 7900X / RTX 5070 Ti, with the census servers loading the CPU.
 Load times below are wall-clock and so carry some of that noise. The baseline
 was booted at the start and at the end of the run, and both came out the same
@@ -175,16 +181,18 @@ of VRAM. **Verify** with 58's `FrameBench` by running live options vs. lite
 options on the same scenes. That is an A/B the existing harness can do with
 `-Shader OFF` and an options overlay, interleaved because of census load.
 
-**If Angelica is adopted** (not decided; see section 4): the lite client
-becomes Angelica with shaders off, and E7 lite stays as the fallback for
-GL-3.3-less GPUs (Intel HD 2000/3000). Under Angelica these profile keys stop
-applying: `ofFastRender`, `ofSmoothFps` and `ofFastMath` (gone), and
-`optionsof.txt` as a whole (Angelica has its own settings). OptiFine, FastCraft
-and BetterFps are force-disabled. Render distance, Fast graphics, particles,
-smooth lighting, mipmaps and the client-only drop list carry over unchanged,
-and so does the 3 GB heap (+95 MB measured). Its scaling with cores (1016 vs
-457 fps static, shaders off, 4 cores) is exactly what a friend's 4-core CPU
-needs. iGPU behaviour and a mixed-renderer join are still untested.
+**Angelica was adopted** (2026-10-17; section 4 was written before). The
+Angelica-era profiles (2026-10-25) keep the drop list, render distance 6 (5),
+Fast graphics, particles, mipmaps and the 3 GB heap from this table, drop the
+OptiFine keys (`ofFastRender`, `ofSmoothFps`, `ofFastMath` and `optionsof.txt`
+as a whole do not exist under Angelica), add Celeritas's own levers
+(biome blend, grass quality, texture filter, smooth lighting, dynamic lights,
+the FPS reducer) and, instead of "shaders off", select the QuestForge pack's
+Low (lite) or Potato preset, which are built for exactly this hardware. The E7
+profile stays as the fallback for GL-3.3-less GPUs, now as the `optifine`
+section of the same JSON files. Angelica's scaling with cores (1016 vs 457 fps
+static, shaders off, 4 cores) is what a friend's 4-core CPU needs. iGPU
+behaviour and a mixed-renderer join are still untested.
 
 ## 3. General wins for everyone, ranked
 
@@ -232,7 +240,7 @@ untested and GTNHLib may be needed on both sides.
 | Recommendation here | If Angelica is adopted |
 |---|---|
 | #1 GlErrorTransformer | Dead code under Angelica. Our four `Config.isShaders` checks need an Iris check too (02's list) |
-| #2 Smooth FPS, Fast Render, Fast Math, the whole `optionsof.txt` profile | Gone. Angelica has its own settings; write an Angelica lite profile then |
+| #2 Smooth FPS, Fast Render, Fast Math, the whole `optionsof.txt` profile | Gone. Angelica has its own settings; the Angelica profiles are `tools/lite-client/profiles/*.json` (2026-10-25) |
 | #5 shader tiers | Complementary LOW under Angelica beat Enhanced under E7 (260 vs 195 fps static, measured by 58). The tier table moves to Angelica-compatible packs |
 | #8–9 lazy models | Unchanged; still worth it |
 | Lite drop list, render distance 6, 3 GB heap, ParallelRefProc | Unchanged (Angelica +95 MB heap, +44 MB metaspace) |

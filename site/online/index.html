@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Who's online · Quest Forge</title>
+<meta name="description" content="Who is on the Quest Forge server right now, when it was last seen, and how it is running.">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+<style>
+/* Tokens shared with the homepage, the mod list and the item index. */
+:root{
+  --paper:#E9EAE4; --surface:#F7F8F3; --sunk:#DFE1DA;
+  --ink:#171B19; --ink-2:#3E4642; --muted:#6A726C; --rule:#CDD1C8;
+  --ember:#A33F17; --ember-ink:#8E3712; --patina:#2C4A43;
+  --ok:#2E7D4F; --warn:#A33F17; --off:#6A726C;
+  --shadow:rgba(23,27,25,.10);
+  --night:#0E0B12; --night-ink:#ECE6F2; --night-2:#B9AFC6; --glow:#F08A3C;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#111412; --surface:#191D1A; --sunk:#0C0F0D;
+    --ink:#E7E9E2; --ink-2:#C2C7BE; --muted:#8B948B; --rule:#282E29;
+    --ember:#E58A55; --ember-ink:#EFA274; --patina:#7FB6A6;
+    --ok:#5FD08A; --warn:#E58A55; --off:#8B948B;
+    --shadow:rgba(0,0,0,.45);
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#111412; --surface:#191D1A; --sunk:#0C0F0D;
+  --ink:#E7E9E2; --ink-2:#C2C7BE; --muted:#8B948B; --rule:#282E29;
+  --ember:#E58A55; --ember-ink:#EFA274; --patina:#7FB6A6;
+  --ok:#5FD08A; --warn:#E58A55; --off:#8B948B;
+  --shadow:rgba(0,0,0,.45);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:"Source Serif 4",Georgia,serif;font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
+h1,h2,h3,.ui{font-family:Archivo,"Helvetica Neue",Arial,sans-serif}
+.mono{font-family:"JetBrains Mono",ui-monospace,Menlo,monospace}
+.wrap{max-width:860px;margin:0 auto;padding-left:28px;padding-right:28px}
+:focus-visible{outline:2px solid var(--ember);outline-offset:2px}
+a{color:var(--ink)}
+
+/* ---- top bar: the way back ---- */
+.bar{border-bottom:1px solid var(--rule);background:var(--surface)}
+.bar .wrap{display:flex;align-items:center;gap:14px;height:52px}
+.bar a.home{font-family:Archivo,sans-serif;font-weight:700;text-decoration:none;font-size:15px;letter-spacing:-.01em;color:var(--ink)}
+.bar a.home span{color:var(--muted);font-weight:500}
+.bar .right{margin-left:auto;font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--muted)}
+
+/* ---- head ---- */
+header.page{padding:38px 0 8px}
+.kicker{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ember);margin:0 0 10px}
+h1{font-size:clamp(28px,5vw,42px);font-weight:800;letter-spacing:-.025em;line-height:1.08;margin:0 0 12px}
+.intro{max-width:64ch;color:var(--ink-2);margin:0;font-size:16.5px}
+
+/* ---- the status card ---- */
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:3px;margin-top:26px;overflow:hidden}
+.state{display:flex;align-items:center;gap:14px;padding:22px 24px;border-bottom:1px solid var(--rule);flex-wrap:wrap}
+.dot{width:14px;height:14px;border-radius:50%;background:var(--off);flex:none;box-shadow:0 0 0 4px var(--sunk)}
+.state.online .dot{background:var(--ok)}
+.state.offline .dot{background:var(--warn)}
+.state h2{font-size:clamp(20px,3vw,26px);font-weight:700;letter-spacing:-.015em;margin:0;line-height:1.2}
+.state .seen{margin-left:auto;font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--muted);text-align:right}
+.state .seen b{color:var(--ink);font-weight:500}
+.stale{display:none;margin:0;padding:12px 24px;background:var(--ember);color:#FFF3EA;font-family:Archivo,sans-serif;font-size:14.5px;font-weight:600}
+.stale.show{display:block}
+.players{padding:20px 24px;border-bottom:1px solid var(--rule)}
+.players h3{margin:0 0 12px;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font-family:Archivo,sans-serif;font-weight:600;font-size:15px;padding:8px 14px;border-radius:999px;
+  background:var(--sunk);border:1px solid var(--rule);color:var(--ink)}
+.chip::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--ok);margin-right:9px;translate:0 -1px}
+.nobody{color:var(--muted);font-style:italic;margin:0}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:1px;background:var(--rule)}
+.fact{background:var(--surface);padding:16px 24px}
+.fact .k{font-family:"JetBrains Mono",monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 4px}
+.fact .v{font-family:Archivo,sans-serif;font-weight:700;font-size:20px;letter-spacing:-.01em;margin:0;font-variant-numeric:tabular-nums}
+.fact .v small{display:block;font-family:"JetBrains Mono",monospace;font-weight:400;font-size:11.5px;color:var(--muted);margin-top:2px}
+
+/* ---- per-dimension tick table ---- */
+.dims{margin-top:26px}
+.dims h2{font-size:20px;font-weight:700;letter-spacing:-.015em;margin:0 0 4px}
+.dims p{margin:0 0 12px;color:var(--muted);font-size:14.5px}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;background:var(--surface);border:1px solid var(--rule);border-radius:3px}
+th,td{text-align:left;padding:9px 14px;border-bottom:1px solid var(--rule);font-size:14.5px}
+th{font-family:"JetBrains Mono",monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:500}
+td.n{font-family:"JetBrains Mono",monospace;text-align:right}
+th.n{text-align:right}
+tr:last-child td{border-bottom:0}
+.bar-ms{display:inline-block;height:8px;background:var(--patina);border-radius:2px;vertical-align:middle;margin-left:8px;min-width:2px;max-width:22vw}
+.bar-ms.hot{background:var(--ember)}
+
+/* ---- not connected ---- */
+.note{margin-top:26px;border:1px dashed var(--rule);border-radius:3px;padding:18px 22px;color:var(--ink-2);font-size:15.5px;background:transparent}
+.note code{font-family:"JetBrains Mono",monospace;font-size:13px;background:var(--sunk);padding:1px 5px;border-radius:2px}
+.hidden{display:none}
+
+footer{margin-top:64px;border-top:1px solid var(--rule);padding:26px 0 56px;font-family:"JetBrains Mono",monospace;
+  font-size:11px;color:var(--muted)}
+footer .wrap{display:flex;flex-wrap:wrap;gap:6px 24px}
+footer a{color:var(--ink-2)}
+@media (max-width:640px){
+  .wrap{padding-left:16px;padding-right:16px}
+  .state{padding:18px 16px}
+  .state .seen{margin-left:0;text-align:left;width:100%}
+  .players,.fact{padding-left:16px;padding-right:16px}
+  .stale{padding-left:16px;padding-right:16px}
+}
+@media (prefers-reduced-motion:reduce){ *{transition:none !important} }
+</style>
+</head>
+<body>
+
+<nav class="bar"><div class="wrap">
+  <a class="home" href="../">Quest Forge <span>/ Who's online</span></a>
+  <span class="right" id="refreshNote"></span>
+</div></nav>
+
+<main class="wrap">
+<header class="page">
+  <p class="kicker">The friends' server</p>
+  <h1>Who's online</h1>
+  <p class="intro">Who is on right now, when the server was last seen, and how its tick is doing. The server's
+    supervisor publishes this every minute; the page re-reads it while it is open.</p>
+</header>
+
+<section class="card" id="card" aria-live="polite">
+  <div class="state" id="state">
+    <span class="dot" aria-hidden="true"></span>
+    <h2 id="headline">Checking…</h2>
+    <div class="seen" id="seen"></div>
+  </div>
+  <p class="stale" id="stale" role="alert"></p>
+  <div class="players">
+    <h3 id="playersH">Players</h3>
+    <div class="chips" id="chips"></div>
+    <p class="nobody hidden" id="nobody">Nobody on right now.</p>
+  </div>
+  <div class="facts" id="facts"></div>
+</section>
+
+<section class="dims hidden" id="dims">
+  <h2>Tick time by dimension</h2>
+  <p>Mean milliseconds per tick; the budget is 50 ms. Measured at <span id="tpsAt" class="mono"></span>.</p>
+  <table>
+    <thead><tr><th>Dimension</th><th class="n">ms / tick</th><th class="n">TPS</th></tr></thead>
+    <tbody id="dimRows"></tbody>
+  </table>
+</section>
+
+<div class="note hidden" id="notConnected">
+  <b>Not yet connected.</b> This page reads a <code>status.json</code> that the server's supervisor publishes.
+  Nothing is configured yet: set <code>feed</code> in <code>online/config.json</code> to the published URL
+  (the hosting guide, "Who's online"). Add <code>?demo</code> to this address to see the layout with sample data.
+</div>
+</main>
+
+<footer><div class="wrap">
+  <span>Quest Forge &middot; Minecraft 1.7.10</span>
+  <a href="../">Home</a><a href="../mods/">Mod list</a><a href="../items/">Item index</a>
+  <span>Not affiliated with Mojang or any mod author</span>
+</div></footer>
+
+<script>
+"use strict";
+(async () => {
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  const demo = new URLSearchParams(location.search).has("demo");
+  const getJSON = async (url) => {
+    const r = await fetch(url, {cache: "no-store"});
+    if (!r.ok) throw new Error(`${url}: HTTP ${r.status}`);
+    return r.json();
+  };
+  let cfg = {feed: "", stale_s: 300, refresh_s: 60};
+  try { cfg = Object.assign(cfg, await getJSON("config.json")); } catch (e) { /* defaults */ }
+  const feed = demo ? "sample-status.json" : cfg.feed;
+
+  const DIM_NAMES = {"0":"Overworld","-1":"Nether","1":"The End","7":"Twilight Forest","31":"Mars","51":"Wakanda",
+    "80":"Mirror World","85":"Torment"};
+  const fmtDur = s => {
+    s = Math.max(0, Math.floor(s));
+    const d = Math.floor(s / 86400), h = Math.floor(s % 86400 / 3600), m = Math.floor(s % 3600 / 60);
+    if (d) return `${d}d ${h}h`;
+    if (h) return `${h}h ${m}m`;
+    return `${m}m`;
+  };
+  const ago = iso => {
+    const t = Date.parse(iso); if (isNaN(t)) return "";
+    const s = (Date.now() - t) / 1000;
+    if (s < 50) return "just now";
+    if (s < 3600) return `${Math.round(s / 60)} min ago`;
+    if (s < 86400) return `${Math.round(s / 3600)} h ago`;
+    return `${Math.round(s / 86400)} days ago`;
+  };
+  const local = iso => { const t = new Date(iso); return isNaN(t) ? "" : t.toLocaleString(undefined,
+    {weekday: "short", hour: "2-digit", minute: "2-digit"}); };
+
+  const notConnected = () => {
+    $("state").className = "state";
+    $("headline").textContent = "Not yet connected";
+    $("seen").textContent = "";
+    $("nobody").classList.remove("hidden"); $("nobody").textContent = "No feed configured.";
+    $("notConnected").classList.remove("hidden");
+    $("facts").innerHTML = "";
+  };
+  const unreachable = (err) => {
+    $("state").className = "state offline";
+    $("headline").textContent = "Feed unreachable";
+    $("seen").innerHTML = `<b>${esc(err.message || err)}</b>`;
+    $("stale").textContent = "The status feed could not be read. The server may be fine; the publisher is not.";
+    $("stale").classList.add("show");
+  };
+
+  const render = (s) => {
+    const online = s.state === "online";
+    const stale = Date.parse(s.updated_at) && (Date.now() - Date.parse(s.updated_at)) / 1000 > cfg.stale_s;
+    $("state").className = "state " + (online && !stale ? "online" : "offline");
+    const n = Array.isArray(s.online) ? s.online.length : (s.count || 0);
+    $("headline").textContent = s.state === "starting" ? "Starting up"
+      : !online ? (s.reason ? `Offline: ${s.reason}` : "Offline")
+      : n === 0 ? "Online, nobody on" : `Online, ${n} of ${s.max ?? "?"} on`;
+    $("seen").innerHTML = `last seen <b>${esc(ago(s.updated_at))}</b><br>${esc(local(s.updated_at))}`;
+    if (stale) {
+      const mins = Math.round((Date.now() - Date.parse(s.updated_at)) / 60000);
+      $("stale").textContent = `This feed has not updated in ${mins} minutes. The server, or the supervisor that publishes this, may be down.`;
+      $("stale").classList.add("show");
+    } else { $("stale").classList.remove("show"); }
+
+    const chips = $("chips"); chips.innerHTML = "";
+    const names = (s.online || []).slice().sort((a, b) => a.localeCompare(b));
+    for (const name of names) { const c = document.createElement("span"); c.className = "chip"; c.textContent = name; chips.append(c); }
+    $("playersH").textContent = names.length ? `Players (${names.length})` : "Players";
+    $("nobody").classList.toggle("hidden", names.length > 0 || !online);
+    $("nobody").textContent = "Nobody on right now.";
+    if (!online) { $("nobody").classList.remove("hidden"); $("nobody").textContent = "The server is not running."; }
+
+    const facts = [];
+    if (online && s.uptime_s != null) facts.push(["Up for", fmtDur(s.uptime_s), ""]);
+    if (s.last_restart) facts.push([online ? "Last restart" : "Last up", local(s.last_restart), ago(s.last_restart)]);
+    if (s.tps && s.tps.overall) facts.push(["Tick, all worlds", `${Number(s.tps.overall.ms).toFixed(1)} ms`, `of 50 · ${s.tps.overall.tps} TPS`]);
+    if (s.pack) facts.push(["Pack", esc(s.pack.date || ""), esc(s.pack.fingerprint || "")]);
+    if (s.minecraft) facts.push(["Minecraft", esc(s.minecraft), s.pack && s.pack.mods ? `${s.pack.mods} mods` : ""]);
+    $("facts").innerHTML = facts.map(([k, v, extra]) =>
+      `<div class="fact"><p class="k">${esc(k)}</p><p class="v">${v}${extra ? `<small>${extra}</small>` : ""}</p></div>`).join("");
+
+    const dims = s.tps && s.tps.dims ? Object.entries(s.tps.dims) : [];
+    $("dims").classList.toggle("hidden", dims.length === 0);
+    if (dims.length) {
+      dims.sort((a, b) => Number(b[1].ms) - Number(a[1].ms));
+      const max = Math.max(1, ...dims.map(([, v]) => Number(v.ms)));
+      $("dimRows").innerHTML = dims.map(([id, v]) => {
+        const ms = Number(v.ms), w = Math.max(2, Math.round(ms / max * 140));
+        return `<tr><td>${esc(DIM_NAMES[id] || "")} <span class="mono" style="color:var(--muted)">dim ${esc(id)}</span></td>` +
+          `<td class="n">${ms.toFixed(2)}<span class="bar-ms${ms > 20 ? " hot" : ""}" style="width:${w}px"></span></td>` +
+          `<td class="n">${Number(v.tps).toFixed(1)}</td></tr>`;
+      }).join("");
+      $("tpsAt").textContent = local(s.tps.at || s.updated_at);
+    }
+  };
+
+  if (!feed) { notConnected(); return; }
+  const load = async () => {
+    try {
+      const url = feed + (feed.includes("?") ? "&" : "?") + "t=" + Date.now();   // past the gist CDN's cache
+      const s = await getJSON(url);
+      if (demo && !new URLSearchParams(location.search).has("stale")) {
+        // The sample is a snapshot; show it as fresh unless ?demo&stale asks for the warning.
+        s.updated_at = new Date().toISOString(); if (s.tps) s.tps.at = s.updated_at;
+      }
+      render(s);
+      $("refreshNote").textContent = demo ? "sample data" : `re-read every ${cfg.refresh_s} s`;
+    } catch (e) { unreachable(e); }
+  };
+  await load();
+  if (!demo) setInterval(load, Math.max(15, cfg.refresh_s) * 1000);
+})();
+</script>
+</body>
+</html>

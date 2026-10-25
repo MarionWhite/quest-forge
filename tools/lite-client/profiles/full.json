@@ -1,0 +1,97 @@
+{
+  "_about": "Quest Forge client profile. Read by tools/lite-client/apply-profile.ps1 on Windows and by the Mac's Prism tooling. Keys that start with _ are comments. Every setting is client-side video, HUD or audio: the server never sees any of it, so the world, mobs, items, recipes and quests are identical by construction. 'why' gives one line per setting: what it buys, and what it costs in looks. Section keys: options_txt (vanilla options.txt, key:value), angelica_options (merged into config/angelica-options.json), angelica_modules (config/angelica-modules.cfg, Forge B:/I:/S:/D: keys), shaders (config/shaders.properties + shaderpacks/<pack>.txt), optifine (the OptiFine E7 fallback client only), mods_aside (jar-name prefixes moved out of mods/), jvm (Prism memory by installed RAM).",
+  "schema": 1,
+  "profile": "full",
+  "title": "Full: the normal pack",
+  "hardware": "Gaming PC from the last ~5 years: RTX 3060 / RX 6600 class or better, 6+ cores, 16 GB+, 1920x1080 or 2560x1440",
+  "content_cost": "none",
+  "options_txt": {
+    "renderDistance": "8",
+    "fancyGraphics": "true",
+    "ao": "2",
+    "particles": "0",
+    "mipmapLevels": "4",
+    "anisotropicFiltering": "1",
+    "maxFps": "120",
+    "enableVsync": "false",
+    "clouds": "true",
+    "fboEnable": "true",
+    "advancedOpengl": "false"
+  },
+  "angelica_options": {
+    "quality": {
+      "biome_blend_radius": 3,
+      "biome_blend_mode": "FANCY",
+      "grass_quality": "DEFAULT",
+      "use_celeritas_smooth_lighting": true,
+      "texture_filter_mode": "RGSS_ANISOTROPIC",
+      "texel_sampling": "LINEAR"
+    },
+    "advanced": {
+      "vsync_mode": "OFF"
+    },
+    "performance": {
+      "always_defer_chunk_updates": true,
+      "use_entity_culling": true,
+      "use_fog_occlusion": true,
+      "use_occlusion_culling": true,
+      "use_block_face_culling": true,
+      "animate_only_visible_textures": true
+    },
+    "reducer": {
+      "enabled": false
+    }
+  },
+  "angelica_modules": {
+    "B:enableDynamicLights": "true",
+    "I:droppedItemLimit": "256",
+    "B:showSplashMemoryBar": "false"
+  },
+  "shaders": {
+    "pack": "QuestForge",
+    "enabled": true,
+    "options": { "QF_PRESET": "2" },
+    "if_missing": "keep"
+  },
+  "optifine": {
+    "optionsof_txt": {
+      "ofSmoothFps": "false",
+      "ofFastRender": "false"
+    }
+  },
+  "mods_aside": [],
+  "jvm": {
+    "java": "Java 8 (1.8.0_2xx), 64-bit. Not 11, 17, 21 or 25.",
+    "xmx_mb_by_ram_gb": { "8": 3072, "12": 4096, "16": 5120, "32": 6144 },
+    "xms_mb_by_ram_gb": { "8": 1024, "12": 1024, "16": 2048, "32": 2048 },
+    "args": "-XX:+UseG1GC -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=16M -XX:+ParallelRefProcEnabled -XX:+DisableExplicitGC -XX:+UseCompressedOops -XX:MaxPermSize=256M -XX:+UseSplitVerifier -XX:+FailOverToOldVerifier -XX:-HeapDumpOnOutOfMemoryError -Djava.net.preferIPv4Stack=true -Dfml.ignoreInvalidMinecraftCertificates=true -Dfml.ignorePatchDiscrepancies=true -Dlog4j2.formatMsgNoLookups=true"
+  },
+  "why": {
+    "options_txt.renderDistance": "8 chunks in singleplayer. On the friends' server the server only sends 6, so 8 draws nothing extra past the fog; lite's 6 is free there.",
+    "options_txt.fancyGraphics": "Fancy: translucent leaves, fancy rain, entity blob shadows. The normal look.",
+    "options_txt.ao": "Smooth lighting Maximum. Under Celeritas, Minimum and Maximum render the same; the value matters only on the E7 fallback.",
+    "options_txt.particles": "All particles. Lycanites and TragicMC fights are particle storms; this is the full show.",
+    "options_txt.mipmapLevels": "4 mip levels: no shimmer on distant blocks. Costs about 33% more texture memory and a per-tick re-mip of animated textures.",
+    "options_txt.anisotropicFiltering": "Vanilla key, 1 = off. Angelica filters through texture_filter_mode instead; left at the pack's value so the E7 fallback is unchanged.",
+    "options_txt.maxFps": "120 instead of the pack's 260 (unlimited): nothing visible on a 60/120 Hz monitor, far less GPU heat in menus and caves. Raise it to match a 144 or 240 Hz monitor.",
+    "options_txt.enableVsync": "Off. Angelica paces frames through vsync_mode; this stays off so the two never fight.",
+    "options_txt.clouds": "Clouds on. With the QuestForge shader pack the pack draws its own sky and clouds; with shaders off these are Angelica's cheap VBO clouds.",
+    "options_txt.fboEnable": "Framebuffer objects on; required by every shader loader. Never off.",
+    "options_txt.advancedOpengl": "Vanilla occlusion queries, off. Angelica has its own culling; the key is inert and kept false so nothing re-enables it on E7.",
+    "angelica_options.quality.biome_blend_radius": "3 blocks of biome colour blending, FANCY mode: soft grass and water borders between biomes. Costs chunk-build time on the worker threads, not on the render thread.",
+    "angelica_options.quality.grass_quality": "DEFAULT follows Fancy: grass blocks get the side overlay texture. Looks: the normal grass block.",
+    "angelica_options.quality.use_celeritas_smooth_lighting": "Celeritas's own smooth lighting on: soft corner shading in every chunk.",
+    "angelica_options.quality.texture_filter_mode": "RGSS plus anisotropic: four rotated texture samples and hardware AF, the sharpest distant floors and the least shimmer. Four times the texture samples of plain filtering; fine on a discrete GPU.",
+    "angelica_options.quality.texel_sampling": "LINEAR: Angelica's default texel sampling. NEAREST gives a harder pixel look; a taste choice, not a cost.",
+    "angelica_options.advanced.vsync_mode": "OFF: frames are not paced to the monitor (the maxFps cap does that job without the input lag). Angelica's default would follow the monitor. Measured: with it on every frame pins to 4.16 ms.",
+    "angelica_options.performance": "Celeritas's culling and deferral switches, all on: these are its defaults and cost nothing in looks. Listed so a profile puts them back if someone toggled them off.",
+    "angelica_options.reducer.enabled": "Off: the game runs at full rate when unfocused or idle. Lite and potato turn it on.",
+    "angelica_modules.B:enableDynamicLights": "Held torches, blazes and fiery Lycanites light the blocks around them. Every move re-renders the chunks around the light; the normal pack keeps it.",
+    "angelica_modules.I:droppedItemLimit": "Angelica draws at most 256 dropped items; its default.",
+    "angelica_modules.B:showSplashMemoryBar": "Angelica's loading-screen memory bar off: it would draw over the Quest Forge mural. Same in every profile.",
+    "shaders": "The pack's own shader pack, QuestForge, at QF_PRESET 2 (Medium): sun shadows to 80 blocks with entities, TAA, SSR, GTAO, 4-tap soft shadows. Medium is the pack default and the RTX 3060 at 1080p target. High (3) is for an RTX 3060-class card at 1440p; Ultra (4) is the dev PC. Pick those on the shader screen (F8). if_missing 'keep': when the QuestForge pack is not installed, the current shader choice is left alone.",
+    "optifine": "OptiFine E7 fallback client only (GPUs without OpenGL 3.3). Smooth FPS off: it called glFinish every frame. Fast Render off: it breaks every shader pack on E7.",
+    "mods_aside": "Nothing moved aside: every client-only mod stays.",
+    "jvm": "The whole pack lives in about 1.3 GB of live heap (measured). Past 5-6 GB a bigger heap only adds RAM pressure; on 8 GB never above 3 GB or Windows swaps and the game stutters. Angelica adds about 95 MB. The two -Dfml.ignore* flags are required by the E7 client's patched Forge jar and harmless on Angelica's stock Forge 1614."
+  }
+}

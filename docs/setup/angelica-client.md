@@ -138,9 +138,11 @@ What the script changes in the copy:
   `Frame pacing: vsync off` confirms it; `vsync 240Hz` means something turned
   vsync back on (Video Settings -> VSync, or `vsync_mode` in
   `config\angelica-options.json`). Menus run at 30 fps, as in vanilla.
-- **Weaker PCs.** `tools/lite-client/apply-lite.ps1` works on the Angelica
-  folder too and applies the Angelica equivalents of the lite settings
-  ([`../../tools/lite-client/README.md`](../../tools/lite-client/README.md)).
+- **Weaker PCs.** `tools/lite-client/apply-profile.ps1 -Profile lite|potato`
+  applies the Angelica-era profile: Celeritas settings, the QuestForge pack's
+  Low or Potato preset, client-only jars set aside, and the heap for the PC's
+  RAM ([`performance-tuning.md`](performance-tuning.md),
+  [`../../tools/lite-client/README.md`](../../tools/lite-client/README.md)).
 
 ## Checking that it worked
 

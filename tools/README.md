@@ -25,9 +25,10 @@ See [`quests/README.md`](quests/README.md). It replaces the dead scripts in
 
 ## `lite-client/` — the pack on weaker PCs
 
-`apply-lite.ps1` switches a friend's client to the lite or potato profile (same content,
-lighter video settings, client-only jars moved aside) and back. See
-[`lite-client/README.md`](lite-client/README.md).
+`apply-profile.ps1` switches a friend's client to the full, lite or potato profile (same
+content; Angelica settings, the QuestForge shader preset, client-only jars moved aside, the
+heap for the PC's RAM) and back. The profiles are `lite-client/profiles/*.json`, one `why`
+per setting, readable by the Mac tooling too. See [`lite-client/README.md`](lite-client/README.md).
 
 ## `branding/` — pack art
 

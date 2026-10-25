@@ -227,14 +227,16 @@ footer a{color:var(--ink-2)}
           slower PC.</p>
       </div>
     </div>
-    <div class="page soon" aria-disabled="true">
-      <span class="status">Coming soon</span>
+    <a class="page" href="online/">
+      <span class="status" id="onlineBadge">Not yet connected</span>
       <div class="art"><img src="img/plates/18-kingpin.jpg" alt="" loading="lazy"></div>
       <div class="body">
-        <h3>Who's online</h3>
-        <p>The server's player list, live: who has joined, and who is on right now.</p>
+        <h3>Who's online <span class="go" aria-hidden="true">&rarr;</span></h3>
+        <p>The server's player list, live: who is on right now, when the server was last seen, and how its
+          tick is doing.</p>
+        <div class="meta" id="onlineMeta"><span>Published by the server every minute</span></div>
       </div>
-    </div>
+    </a>
   </div>
 </section>
 
@@ -280,6 +282,22 @@ fetch("items/data/stats.json").then(r => r.ok ? r.json() : null).then(s => {
     `<span><b>${f(s.items)}</b> items</span><span><b>${f(s.recipes)}</b> recipes</span>` +
     `<span><b>${f(s.inQuest)}</b> in a quest</span><span>updated <b>${s.built}</b></span>`;
   document.getElementById("facts").insertAdjacentHTML("afterbegin", `<span><b>${f(s.items)}</b> items</span>`);
+}).catch(() => {});
+// The "Who's online" card: "Not yet connected" until online/config.json names a feed; then live.
+fetch("online/config.json", {cache: "no-store"}).then(r => r.ok ? r.json() : null).then(async c => {
+  if (!c || !c.feed) return;
+  const badge = document.getElementById("onlineBadge"), meta = document.getElementById("onlineMeta");
+  try {
+    const s = await (await fetch(c.feed + (c.feed.includes("?") ? "&" : "?") + "t=" + Date.now(), {cache: "no-store"})).json();
+    const age = (Date.now() - Date.parse(s.updated_at)) / 1000;
+    const stale = !(age < (c.stale_s || 300));
+    badge.textContent = stale ? "Feed stale" : s.state === "online" ? "Live" : "Server offline";
+    badge.className = "status" + (!stale && s.state === "online" ? " live" : "");
+    const n = (s.online || []).length;
+    meta.innerHTML = s.state === "online"
+      ? `<span><b>${n}</b> online now</span><span>of <b>${s.max ?? "?"}</b></span>`
+      : `<span>last seen <b>${new Date(s.updated_at).toLocaleString(undefined, {weekday: "short", hour: "2-digit", minute: "2-digit"})}</b></span>`;
+  } catch (e) { badge.textContent = "Feed unreachable"; }
 }).catch(() => {});
 </script>
 </body>

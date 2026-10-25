@@ -11,6 +11,7 @@ served under its own name, except `home/`, which is the site root
 | [`items/`](items/) | `/items/` | The item index: every item in the pack with its icon, recipes, uses, ore names and the quests that ask for it, give it or show it. Search like NEI (`@mod`, `$ore`, `%tab`, `#tooltip`). Its data is separate, in `items/data/`, because the icons alone are megabytes. Built by [`../tools/items/`](../tools/items/). |
 | [`ore-atlas/`](ore-atlas/) | `/ore-atlas/` | The interactive ore atlas: pick any of nineteen dimensions and get a cut through the ground, a depth profile, a rarity scale anchored to ores you already know, and a sortable table of every ore. **Its figures are stale** ([decision 0002](../docs/decisions/0002-discard-the-ore-survey.md)); it is redone after the survey that runs just before the server opens. |
 | [`shaders/`](shaders/) | `/shaders/` | The Shader Lab: the owner reviews shader rounds here, from a phone or a laptop. Each scene shows two or three options of one setting (our renders, and for taste questions a credited Wikimedia Commons reference photo); the owner picks, rates and notes, and "Send feedback" opens a GitHub issue holding the answers as JSON. Rounds are data in `shaders/rounds/` (`index.json`, `rNNN.json`, `rNNN/*.jpg`), posted by [`../tools/shaders/review/publish_round.py`](../tools/shaders/review/publish_round.py) and read back by [`fetch_feedback.py`](../tools/shaders/review/fetch_feedback.py). Answers autosave as a draft in the browser. |
+| [`online/`](online/) | `/online/` | Who's online: who is on the friends' server, when it was last seen, uptime, pack fingerprint and tick time per dimension. It reads a `status.json` the server's supervisor publishes to a GitHub Gist (`config.json` `feed`; empty until the owner sets it up, see [`../docs/setup/hosting-a-server.md`](../docs/setup/hosting-a-server.md#whos-online-the-status-feed-for-the-site)), re-reads it every minute and warns when it is older than five. `?demo` shows sample data. Check it headlessly with [`../tools/site/screenshot.py`](../tools/site/screenshot.py). |
 | [`decisions/`](decisions/) | `/decisions/` | The Decisions page: the owner's open calls (quests, balance, textures, server rules) as one card each, with the options and our recommendation; one tap answers, "Send answers" posts them through the Lab's relay as a GitHub issue. Sheets are data in `decisions/sheets/` (`index.json`, `sNNN.json`), checked and published by [`../tools/decisions/sheet.py`](../tools/decisions/sheet.py) and read back by [`fetch_answers.py`](../tools/decisions/fetch_answers.py). |
 
 ## Adding a page
@@ -18,7 +19,9 @@ served under its own name, except `home/`, which is the site root
 1. Put it in its own folder here, and link back to `../` (the homepage).
 2. Add a `cp -R site/<folder> _site/<folder>` line to `.github/workflows/pages.yml`.
 3. Give it a card in `home/index.html`'s directory. A planned page can sit there first as a
-   `page soon` card (no link), as "Get the pack" and "Who's online" do now.
+   `page soon` card (no link), as "Get the pack" does now.
+4. Look at it without a browser window: `py -3.10 -I tools/site/screenshot.py <folder>/ out.png`
+   serves `site/` locally the way Pages lays it out and shoots the page with headless Edge.
 
 The ore atlas carries its own data — 512 survey parameters and all 86 ore sprites
 are inline, the sprites as base64 PNGs. It makes no network requests, so it works

@@ -1,0 +1,6 @@
+{
+  "_comment": "feed: the URL of the status.json the supervisor publishes (a GitHub Gist raw URL, see docs/setup/hosting-a-server.md, 'Who's online'). Empty = not yet connected; the page says so. stale_s: the page warns when updated_at is older than this. refresh_s: how often the page re-reads the feed.",
+  "feed": "",
+  "stale_s": 300,
+  "refresh_s": 60
+}

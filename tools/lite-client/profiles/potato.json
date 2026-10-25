@@ -1,0 +1,141 @@
+{
+  "_about": "Quest Forge client profile. Read by tools/lite-client/apply-profile.ps1 on Windows and by the Mac's Prism tooling. Keys that start with _ are comments. Every setting is client-side video, HUD or audio: the server never sees any of it, so the world, mobs, items, recipes and quests are identical by construction. 'why' gives one line per setting: what it buys, and what it costs in looks. Section keys: options_txt (vanilla options.txt, key:value), angelica_options (merged into config/angelica-options.json), angelica_modules (config/angelica-modules.cfg, Forge B:/I:/S:/D: keys), shaders (config/shaders.properties + shaderpacks/<pack>.txt), optifine (the OptiFine E7 fallback client only), mods_aside (jar-name prefixes moved out of mods/), jvm (Prism memory by installed RAM).",
+  "schema": 1,
+  "profile": "potato",
+  "title": "Potato: integrated graphics",
+  "hardware": "Laptop or desktop on integrated graphics (Intel Iris Xe, Radeon Vega 8, Intel UHD 620 class), 4 cores, 8 GB shared RAM, 1280x720 or 1366x768",
+  "content_cost": "none",
+  "options_txt": {
+    "renderDistance": "5",
+    "fancyGraphics": "false",
+    "ao": "0",
+    "particles": "2",
+    "mipmapLevels": "1",
+    "anisotropicFiltering": "1",
+    "maxFps": "60",
+    "enableVsync": "false",
+    "clouds": "false",
+    "fboEnable": "true",
+    "advancedOpengl": "false"
+  },
+  "angelica_options": {
+    "quality": {
+      "biome_blend_radius": 0,
+      "biome_blend_mode": "FAST",
+      "grass_quality": "FAST",
+      "use_celeritas_smooth_lighting": false,
+      "texture_filter_mode": "NONE",
+      "texel_sampling": "LINEAR"
+    },
+    "advanced": {
+      "vsync_mode": "OFF"
+    },
+    "performance": {
+      "always_defer_chunk_updates": true,
+      "use_entity_culling": true,
+      "use_fog_occlusion": true,
+      "use_occlusion_culling": true,
+      "use_block_face_culling": true,
+      "animate_only_visible_textures": true
+    },
+    "reducer": {
+      "enabled": true,
+      "unfocused_fps_limit": 10,
+      "idle_timeout_minutes": 5,
+      "idle_fps_limit": 20,
+      "limit_menu_frame_rate": true
+    }
+  },
+  "angelica_modules": {
+    "B:enableDynamicLights": "false",
+    "I:droppedItemLimit": "128",
+    "B:showSplashMemoryBar": "false"
+  },
+  "shaders": {
+    "pack": "QuestForge",
+    "enabled": true,
+    "options": { "QF_PRESET": "0" },
+    "if_missing": "off"
+  },
+  "optifine": {
+    "optionsof_txt": {
+      "ofRenderDistanceChunks": "5",
+      "ofFastRender": "true",
+      "ofSmoothFps": "false",
+      "ofFastMath": "true",
+      "ofFogType": "1",
+      "ofFogStart": "0.6",
+      "ofClouds": "3",
+      "ofTrees": "1",
+      "ofGrass": "1",
+      "ofDroppedItems": "1",
+      "ofRain": "1",
+      "ofWater": "1",
+      "ofTranslucentBlocks": "1",
+      "ofVignette": "1",
+      "ofBetterGrass": "3",
+      "ofConnectedTextures": "3",
+      "ofDynamicLights": "3",
+      "ofSmoothBiomes": "false",
+      "ofVoidParticles": "false",
+      "ofDrippingWaterLava": "false",
+      "ofAnimatedItems": "false",
+      "ofRainSplash": "false",
+      "ofWaterParticles": "false",
+      "ofPortalParticles": "false",
+      "ofPotionParticles": "false",
+      "ofStars": "false",
+      "ofAoLevel": "0.0",
+      "ofChunkUpdates": "1",
+      "ofChunkUpdatesDynamic": "true",
+      "ofMipmapType": "0",
+      "ofAaLevel": "0",
+      "ofShowCapes": "false",
+      "ofAnimatedWater": "1",
+      "ofAnimatedLava": "1"
+    },
+    "optionsshaders_txt": {
+      "shaderPack": "OFF"
+    }
+  },
+  "mods_aside": ["SoundFilters", "MobDismemberment", "MobAmputation", "CustomMenu", "journeymap", "DamageIndicators"],
+  "jvm": {
+    "java": "Java 8 (1.8.0_2xx), 64-bit. Not 11, 17, 21 or 25.",
+    "xmx_mb_by_ram_gb": { "8": 3072, "12": 3584, "16": 4096, "32": 4096 },
+    "xms_mb_by_ram_gb": { "8": 1024, "12": 1024, "16": 2048, "32": 2048 },
+    "args": "-XX:+UseG1GC -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=16M -XX:+ParallelRefProcEnabled -XX:+DisableExplicitGC -XX:+UseCompressedOops -XX:MaxPermSize=256M -XX:+UseSplitVerifier -XX:+FailOverToOldVerifier -XX:-HeapDumpOnOutOfMemoryError -Djava.net.preferIPv4Stack=true -Dfml.ignoreInvalidMinecraftCertificates=true -Dfml.ignorePatchDiscrepancies=true -Dlog4j2.formatMsgNoLookups=true"
+  },
+  "why": {
+    "options_txt.renderDistance": "5 chunks: one less than the server sends. Fewer chunk sections to build on 4 cores and fewer to draw on an iGPU. Looks: the fog starts one chunk closer.",
+    "options_txt.fancyGraphics": "Fast graphics: opaque leaves, no entity blob shadows, fast rain. Looks: solid leaf blocks.",
+    "options_txt.ao": "Smooth lighting off, together with use_celeritas_smooth_lighting false: flat per-block light. Looks: visibly flatter walls and caves; this is the one potato change you will notice indoors.",
+    "options_txt.particles": "Minimal: only the particles the game needs to show what happened. Looks: fights and rain lose most of their particles.",
+    "options_txt.mipmapLevels": "1 mip level: the animated-texture re-mip each tick is nearly free, and one level still tames most distant shimmer. 0 would cost texture cache hits on an iGPU and shimmer badly; 4 is the full cost.",
+    "options_txt.anisotropicFiltering": "Vanilla key, 1 = off.",
+    "options_txt.maxFps": "Cap at 60: an iGPU shares the laptop's thermal budget with the CPU; running flat out throttles both. Nothing visible on a 60 Hz panel.",
+    "options_txt.enableVsync": "Off; Angelica paces frames through vsync_mode.",
+    "options_txt.clouds": "Clouds off with shaders off (one less draw, less overdraw). The QuestForge pack draws its own sky regardless. Looks: a clear sky.",
+    "options_txt.fboEnable": "Framebuffer objects on; required by every shader loader.",
+    "options_txt.advancedOpengl": "Vanilla occlusion queries off (Angelica culls on its own).",
+    "angelica_options.quality.biome_blend_radius": "No biome colour blending: the cheapest chunk build. Looks: hard colour lines at biome borders.",
+    "angelica_options.quality.grass_quality": "FAST: plain grass block sides.",
+    "angelica_options.quality.use_celeritas_smooth_lighting": "Off, with ao 0: no corner shading. The cheapest chunk build and the flattest look.",
+    "angelica_options.quality.texture_filter_mode": "NONE: plain bilinear plus mipmaps. An integrated GPU pays for every texture sample. Looks: distant floors blur and shimmer a little more.",
+    "angelica_options.quality.texel_sampling": "LINEAR, Angelica's default.",
+    "angelica_options.advanced.vsync_mode": "OFF: the maxFps cap paces frames without vsync's input lag.",
+    "angelica_options.performance": "Celeritas's culling and deferral switches on (its defaults). No cost in looks.",
+    "angelica_options.reducer": "Angelica's FPS reducer: 10 fps while another window has focus, 20 fps after 5 idle minutes, menus capped. Nothing changes while you play.",
+    "angelica_modules.B:enableDynamicLights": "Dynamic lights off: no chunk re-renders around a held torch. Looks: a held torch lights nothing until you place it.",
+    "angelica_modules.I:droppedItemLimit": "At most 128 dropped items drawn (Angelica's default is 256): an item explosion or a death pile stops costing a frame. Content: every item still exists and can be picked up.",
+    "angelica_modules.B:showSplashMemoryBar": "Angelica's loading-screen memory bar off: it would draw over the Quest Forge mural.",
+    "shaders": "The QuestForge pack at QF_PRESET 0 (Potato): the sky, water, auto-exposure and colour grading, with no shadow pass at all, no TAA (an FXAA-class filter instead) and no bloom. OpenGL 3.3 only. Budget: 6 ms of shader cost at 720p on Iris Xe / Vega 8 (docs/design/shaders/performance-rules.md). Below that class (Intel UHD 620 and older) run the same profile with shaders off: apply-profile.ps1 -Profile potato -Shaders off. if_missing 'off': no QuestForge pack installed means shaders off.",
+    "optifine": "OptiFine E7 fallback client only. Lite's OptiFine settings plus: clouds off, no connected textures, no stars, no rain splash, water, portal or potion particles, no animated items, vanilla AO level 0.",
+    "mods_aside.SoundFilters": "Cave reverb and muffling. Ray-traces block occlusion per sound. Content: none (the server has no such jar).",
+    "mods_aside.MobDismemberment": "Gore entities on death. Content: none.",
+    "mods_aside.MobAmputation": "Gore entities for player-like mobs. Content: none.",
+    "mods_aside.CustomMenu": "Branded title-screen buttons; splash and music stay. Content: none.",
+    "mods_aside.journeymap": "The minimap and the full-screen map (M). Its mapping threads re-render map tiles as chunks change and compete with the game for 4 cores. Content: none; you navigate by landmarks and coordinates (F3).",
+    "mods_aside.DamageIndicators": "The targeted mob's health bar and portrait (it draws the mob a second time every frame) and the damage numbers. Content: none.",
+    "jvm": "3 GB on 8 GB: with integrated graphics the GPU's memory comes out of the same 8 GB, so the heap stays small. 3.5 GB with 12 GB, 4 GB with 16 GB or more."
+  }
+}
