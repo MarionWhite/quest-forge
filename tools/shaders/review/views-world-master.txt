@@ -66,3 +66,8 @@ sky_noon         264.5   auto   176.5    135    -22    6000
 # for connected textures.
 texture_wall     252.5   69.6   186.5    180    6      7000
 glass_close      247.0   70.2   181.8    180    4      7000
+# r007: biome borders on water (owner r006: gradients, never cutoffs). ocean_swamp stands in Ocean
+# looking at Swampland water 26 blocks out; river_swamp in a River looking into Swampland water 21
+# blocks out (found from the region files' Biomes arrays, C:\qfb\shaderdev\r007\boundary).
+ocean_swamp      -567.5  65.5   616.5    220    8      6000
+river_swamp      -43.5   65.5   186.5    260    9      6000

@@ -6,7 +6,7 @@
 #define QF_NIGHT_FLOOR 1.0 // [0.0 0.5 0.75 1.0 1.5 2.0 3.0]
 #define QF_EXPOSURE_BIAS 0.0 // [-1.5 -1.0 -0.5 0.0 0.5 1.0 1.5]
 #define QF_WAVING 1 // [0 1]
-#define QF_DEBUG_VIEW 0 // [0 1 2 3 4 5 6 7 8 9]
+#define QF_DEBUG_VIEW 0 // [0 1 2 3 4 5 6 7 8 9 10]
 #define QF_STILL 0 // [0 1]   development: freeze wind, waves and twinkle (temporal-noise test)
 
 // Calibration variants for the owner's taste survey (Shader Lab round r000). 0 is the
@@ -47,7 +47,17 @@
 #define QF_AERIAL 1 // [0 1]   development (r003): aerial perspective, distant land turns blue and pale (owner r002: Extreme Hills bland; r003: his golden and leaves picks had it off, and he rejected the hills colour range; r004: B, on)
 #define QF_HAZE_HEIGHT 1 // [0 1]   development (r005): haze and aerial perspective by height below the camera as well as distance (owner r004: haze where the land drops away, not over land at eye level)
 #define QF_SHAFTS 1 // [0 1 2]   (r006: sharper, gain 1.5, owner r005 forest A + leaves B)   development (r005): volumetric sunlight through gaps (light shafts), warm at golden hour (owner r004: "more cinematic light"). 2 stronger
-#define QF_NIGHT_SKY 1 // [0 1 2 3]   development (r005): night sky. 0 a rotation night by night, 1 deep clear starfield (owner r005: A, the default), 2 airglow bands (owner r005: underwhelming), 3 Milky Way, since r006 the ESO/S. Brunier photographic panorama (owner r005: the drawn band looked hand-drawn)
+#define QF_NIGHT_SKY 0 // [0 1 2 3 4]   (r007: the rotation is the default, owner r006: the Milky Way "fucking beautiful", give it more nights; 4 a meteor shower all night)   development (r005): night sky. 0 a rotation night by night, 1 deep clear starfield (owner r005: A, the default), 2 airglow bands (owner r005: underwhelming), 3 Milky Way, since r006 the ESO/S. Brunier photographic panorama (owner r005: the drawn band looked hand-drawn)
+#define QF_METEOR_RATE 1 // [1 2 4 8]   development (r007): meteor-shower slots (QF_NIGHT_SKY 4); 1 is a meteor every few seconds somewhere in the sky, 8 a burst (used only to catch streaks in a still frame)
+#define QF_SUN 1 // [0 1]   development (r007): 1 the real sun (true size, sharp limb-darkened disk, reddening toward the horizon, glare drawn over what is in front of it, scaled by how much of the disk shows); 0 r006 (three times the size, soft edge, a halo in the sky only) (owner r006: "the sun has not improved at all")
+#define QF_SUN_SIZE 1.0 // [1.0 1.8 2.5]   development (r007): sun disk size, 1 the real sun (0.27 degrees in radius terms 0.0047 rad); larger as a longer lens would show it
+#define QF_LENS 0 // [0 1]   development (r007): a faint lens effect round a visible sun (a few dim ghosts toward the screen centre, a faint six-point starburst); off by default (look bible 7)
+#define QF_CLOUD_RIM 1 // [0 1]   development (r007): sharp silver linings and rim light on cloud edges toward a low sun (owner r006, golden: "a sharper highlight effect on the edges of the clouds")
+#define QF_SHAFT_STYLE 1 // [0 1]   development (r007): 1 round 5's warm, open rays with r006's finer sampling (owner r006: round 5's frame, "warmer, the rays are better formed"); 0 r006's contrast-shaped rays
+#define QF_VIBRANCE 0.15 // [0.0 0.1 0.15 0.25 0.35]   colour vibrance: lifts the muted colours more than the already vivid ones, so wood and gold do not turn neon (owner r006: "a little more vibrance"); 0 is r006
+#define QF_BOUNCE 1 // [0 1]   development (r007): sunlight bounced off the lit ground onto walls and undersides, and a faint sheen on every block at grazing light (owner r006: "the light to interact with the blocks realistically")
+#define QF_WATER_BLEND 1 // [0 1]   development (r007): water colour by position as well as by the camera's biome: swamp water from the game's own per-block swamp tint, blended over several blocks, deep water toward ocean blue, so biome borders are gradients (owner r006: "a pleasant gradient ... instead of stark cutoffs")
+#define QF_PBR 0 // [0 1]   development (r007): read LabPBR 1.3 normal and specular maps from the resource pack (Iris normals/specular atlases), for packs that have them
 #define QF_SUN_GLOW 1 // [0 1]   development (r006): a soft halo round the sun disk (the eye's and the lens's glare), no wider than a few degrees
 #define QF_CLOUD_COVER 0.0 // [-0.04 0.0 0.04 0.08]   development (r006): cloud threshold offset; positive is fewer, smaller clouds
 #define QF_CLOUDS 2 // [0 1 2]   (r006: true 3D shapes, light by the hour, moonlit at night)   development (r003/r005): 1 the r003 flat deck, 2 raymarched broken clouds (owner r004: D, dramatic broken clouds, "dynamic ... beautiful and natural"), with shadows on the land

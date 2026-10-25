@@ -71,10 +71,17 @@ uniform sampler2D gtexture;
 #ifdef GB_ENTITY
 uniform vec4 entityColor;
 #endif
+#if QF_PBR == 1 && defined GB_TERRAIN
+// LabPBR 1.3 maps from the resource pack (Iris stitches <name>_n / <name>_s into these atlases;
+// blocks without maps read Iris's defaults: a flat normal and no specular).
+uniform sampler2D normals;
+uniform sampler2D specular;
+#endif
 
 #if defined GB_FORWARD || defined GB_WATER
 #include "/lib/atmosphere.glsl"
 #include "/lib/lut.glsl"
+#include "/lib/sun.glsl"
 #include "/lib/sky.glsl"
 #include "/lib/shadows.glsl"
 #include "/lib/lighting.glsl"
@@ -173,9 +180,31 @@ void main() {
 #ifdef GB_TERRAIN
     ao = vColor.a;
 #endif
-    outAlbedo = vec4(c.rgb, 1.0);
+    float pbrSmooth = 0.0, pbrF0 = 0.0;
+#if QF_PBR == 1 && defined GB_TERRAIN
+    {
+        // Normal map in a cotangent frame from the screen derivatives (no tangent attribute
+        // needed); the maps are DirectX-style, +y down the texture, which is +v in the atlas.
+        vec4 nm = texture(normals, vUV);
+        vec4 sp = texture(specular, vUV);
+        vec2 nxy = nm.rg * 2.0 - 1.0;
+        vec3 nt = vec3(nxy, sqrt(clamp(1.0 - dot(nxy, nxy), 0.0, 1.0)));
+        vec3 dp1 = dFdx(vScenePos), dp2 = dFdy(vScenePos);
+        vec2 du1 = dFdx(vUV), du2 = dFdy(vUV);
+        vec3 dp2p = cross(dp2, n), dp1p = cross(n, dp1);
+        vec3 T = dp2p * du1.x + dp1p * du2.x;
+        vec3 B = dp2p * du1.y + dp1p * du2.y;
+        float im = inversesqrt(max(max(dot(T, T), dot(B, B)), 1e-24));
+        vec3 nn = T * im * nt.x + B * im * nt.y + n * nt.z;
+        if (dot(nn, nn) > 0.25) n = normalize(nn);
+        ao *= mix(1.0, nm.b, 0.8);
+        pbrSmooth = sp.r;
+        pbrF0 = sp.g;
+    }
+#endif
+    outAlbedo = vec4(c.rgb, 1.0 - pbrSmooth);
     outNormal = packGbuffer1(n, mat, flag);
-    outLight = vec4(vLM, ao, 1.0);
+    outLight = vec4(vLM, ao, 1.0 - pbrF0);
 }
 
 #elif defined GB_WATER
@@ -200,7 +229,13 @@ void main() {
 #endif
         outColor = vec4(0.0);
         outNormal = packGbuffer1(n, MAT_WATER, FLAG_STATIC);
-        outLight = vec4(vLM, 1.0, roughA);
+        // colortex2.b: the swamp share from the game's own water tint (lib/water.glsl), which
+        // composite.glsl blends over a few blocks (r007, QF_WATER_BLEND).
+        float swampT = 0.0;
+#if QF_BIOME_WATER == 1 && QF_CAL_WATER == 0
+        swampT = swampFromTint(vColor.rgb);
+#endif
+        outLight = vec4(vLM, swampT, roughA);
         return;
     }
     vec4 c = baseColor();
@@ -214,6 +249,8 @@ void main() {
     s.skyLight = vLM.y;
     s.ao = 1.0;
     s.scenePos = vScenePos;
+    s.smoothness = 0.0;
+    s.f0 = 0.0;
     vec3 viewDir = normalize(vScenePos);
     vec3 lit = shadeSurface(s, viewDir, gl_FragCoord.xy);
     // A touch of sky reflection on glass and ice.
@@ -256,6 +293,8 @@ void main() {
     s.skyLight = vLM.y;
     s.ao = 1.0;
     s.scenePos = vScenePos;
+    s.smoothness = 0.0;
+    s.f0 = 0.0;
     vec3 viewDir = normalize(vScenePos);
     outColor = vec4(shadeSurface(s, viewDir, gl_FragCoord.xy), c.a);
     int flag = FLAG_STATIC;

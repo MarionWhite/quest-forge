@@ -9,6 +9,7 @@
 #include "/lib/materials.glsl"
 #include "/lib/atmosphere.glsl"
 #include "/lib/lut.glsl"
+#include "/lib/sun.glsl"
 #include "/lib/tonemap.glsl"
 
 #ifdef VSH
@@ -37,8 +38,22 @@ uniform sampler2D shadowtex0;
 layout(location = 0) out vec4 outColor;
 
 vec3 calGrade(vec3 c);
+// Vibrance (r007; owner r006: "a little more vibrance"): saturation raised most where the colour is
+// muted, hardly at all where it is already vivid, so grass, water and sky gain colour while wood,
+// chests, sand and gold do not turn neon (look bible 3). On the exposed linear colour.
+vec3 vibrance(vec3 c) {
+    if (QF_VIBRANCE <= 0.0) return c;
+    float mx = max(c.r, max(c.g, c.b)), mn = min(c.r, min(c.g, c.b));
+    // Saturation judged perceptually (square roots), not in linear light, where almost every
+    // natural colour already reads as vivid.
+    float sat = mx > 1e-5 ? 1.0 - sqrt(max(mn, 0.0) / mx) : 0.0;
+    float l = luminance(c);
+    float k = 1.0 + float(QF_VIBRANCE) * (1.0 - sat) * 2.2 * smoothstep(0.0, 0.25, sat + 0.05);
+    c = max(vec3(l) + (c - vec3(l)) * k, vec3(0.0));
+    return c;
+}
 vec3 display(vec3 exposed) {
-    return linearToSrgb(tonemapNeutral(calGrade(exposed)));
+    return linearToSrgb(tonemapNeutral(vibrance(calGrade(exposed))));
 }
 
 #if QF_TAA
@@ -193,18 +208,74 @@ vec3 calBloom(ivec2 px) {
 }
 #endif
 
+#if QF_SUN == 1
+// Glare round the real sun (lib/sun.glsl), in exposed units, drawn over everything in front of it.
+// The visible share of the disk comes from nine taps on it: open sky at the disk's brightness counts
+// as visible, a tree or a thick cloud does not, a thin cloud edge counts in part (it glows).
+// One point-spread function, three falloffs: a bright core just outside the limb, a narrow halo
+// (about 1.5 degrees) and faint wide wings, so the sky round the sun is not washed out.
+vec3 sunGlare(ivec2 px) {
+    vec3 sv = sunPosition;
+    if (sv.z >= 0.0) return vec3(0.0);                      // behind the camera
+    vec4 sc = gbufferProjection * vec4(sv, 1.0);
+    vec2 suv = sc.xy / sc.w * 0.5 + 0.5;
+    if (any(lessThan(suv, vec2(-0.1))) || any(greaterThan(suv, vec2(1.1)))) return vec3(0.0);
+    float pxA = 2.0 / (gbufferProjection[1][1] * viewHeight);
+    float rpx = SUN_REAL_R / pxA * 0.6;
+    float vis = 0.0;
+    float want = 0.45 * sunPeak();
+    for (int i = 0; i < 9; i++) {
+        float a = float(i) * 2.39996;
+        vec2 o = i == 0 ? vec2(0.0) : vec2(cos(a), sin(a)) * rpx * sqrt(float(i) / 8.0);
+        ivec2 q = ivec2(suv * vec2(viewWidth, viewHeight) + o);
+        if (any(lessThan(q, ivec2(0))) || q.x >= int(viewWidth) || q.y >= int(viewHeight)) continue;
+        vec3 e = sceneExposed(q);
+        float sky = step(1.0, texelFetch(depthtex0, q, 0).r);
+        vis += sky * clamp(max(e.r, max(e.g, e.b)) / want, 0.0, 1.0);
+    }
+    vis /= 9.0;
+    if (vis <= 0.0) return vec3(0.0);
+    vec3 dir = normalize(viewFromScreen(uv, 1.0));
+    float th = acos(clamp(dot(dir, normalize(sv)), -1.0, 1.0));
+    float psf = 0.16 * exp(-th / 0.0045) + 0.025 * exp(-th / 0.018) + 0.004 * exp(-th / 0.09);   // pa: 0.22/0.045/0.006 washed out the gold sky
+    vec3 E = sunIrradiance() * exposure() * (1.0 - rainStrength);
+    vec3 g = E * psf * vis;
+#if QF_LENS == 1
+    // A faint lens: a six-point starburst close round the sun and three dim ghosts on the line
+    // from the sun through the screen centre, tinted as coated glass reflects.
+    vec2 d = (uv - suv) * vec2(viewWidth / viewHeight, 1.0);
+    float phi = atan(d.y, d.x);
+    float star = pow(abs(cos(3.0 * phi + 0.35)), 90.0) * exp(-th / 0.035) * 0.05;
+    g += E * star * vis;
+    vec2 axis = vec2(0.5) - suv;
+    const vec3 GC[3] = vec3[3](vec3(0.55, 0.75, 1.0), vec3(1.0, 0.75, 0.45), vec3(0.6, 1.0, 0.7));
+    const float GP[3] = float[3](0.62, 1.15, 1.6), GR[3] = float[3](0.030, 0.055, 0.018);
+    for (int k = 0; k < 3; k++) {
+        vec2 c = suv + axis * GP[k] * 2.0;
+        float r = length((uv - c) * vec2(viewWidth / viewHeight, 1.0));
+        g += E * GC[k] * smoothstep(GR[k], GR[k] * 0.6, r) * 0.0035 * vis;
+    }
+#endif
+    return g;
+}
+#endif
+
 void main() {
     ivec2 px = ivec2(gl_FragCoord.xy);
     vec3 col;
+    vec3 glare = vec3(0.0);
+#if QF_SUN == 1
+    glare = sunGlare(px);
+#endif
 #if QF_TAA
 #if QF_CAL_BLOOM > 0 || QF_CAL_GRADE > 0
-    col = display(sceneExposed(px) + calBloom(px));
+    col = display(sceneExposed(px) + calBloom(px) + glare);
 #else
-    col = display(sceneExposed(px));
+    col = display(sceneExposed(px) + glare);
 #endif
 #else
     // Potato: a cheap edge-aware blend over the 4 neighbours where contrast is high.
-    vec3 c = display(sceneExposed(px));
+    vec3 c = display(sceneExposed(px) + glare);
     vec3 n = display(sceneExposed(px + ivec2(0, 1)));
     vec3 s = display(sceneExposed(px + ivec2(0, -1)));
     vec3 e = display(sceneExposed(px + ivec2(1, 0)));

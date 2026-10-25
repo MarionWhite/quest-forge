@@ -49,7 +49,15 @@ const vec3 WA_SWAMP = vec3(1.10, 0.80, 1.25),     WS_SWAMP = vec3(0.050, 0.050, 
 // carries fine sediment, so a slightly green-brown, half-clear stream instead of glassy lake water;
 // the bed shows for two or three blocks.
 const vec3 WA_RIVER = vec3(0.15, 0.080, 0.115),   WS_RIVER = vec3(0.0030, 0.0060, 0.0040);   // ih: twice this read milky mint
+#if QF_WATER_BLEND == 1 && QF_WATER_FORCE == 0
+// Per-pixel weights (composite.glsl sets them for the water pixel it shades; x < 0: unset, use
+// the camera's). Owner r006: biome borders on water must be gradients, never cutoffs.
+vec4 gWaterW = vec4(-1.0);
+#endif
 vec4 waterBiomeWeights() {   // ocean, reef, swamp, glassy
+#if QF_WATER_BLEND == 1 && QF_WATER_FORCE == 0
+    if (gWaterW.x >= 0.0) return gWaterW;
+#endif
 #if QF_WATER_FORCE == 1
     return vec4(0.0, 0.0, 0.0, 1.0);
 #elif QF_WATER_FORCE == 2
@@ -76,6 +84,37 @@ float waterRiverShare() {
 #else
     return clamp(qfWaterRiver, 0.0, 1.0);
 #endif
+}
+// The camera's own weights, ignoring any per-pixel override.
+vec4 waterCameraWeights() {
+#if QF_WATER_BLEND == 1 && QF_WATER_FORCE == 0
+    vec4 keep = gWaterW;
+    gWaterW = vec4(-1.0);
+    vec4 w = waterBiomeWeights();
+    gWaterW = keep;
+    return w;
+#else
+    return waterBiomeWeights();
+#endif
+}
+// Swamp water from the game's own tint: 1.7.10 colours water by the biome's water colour,
+// averaged over the 3 x 3 blocks round each block (BlockLiquid.colorMultiplier); swamps are
+// 0xE0FFAE, every vanilla biome else white. A yellow-green tint reads as swamp.
+float swampFromTint(vec3 tint) {
+    return clamp((tint.g - tint.b) / max(tint.g, 1e-3) / 0.30, 0.0, 1.0);
+}
+// Weights for a water pixel: its swamp share sw (blended over a few blocks by composite.glsl),
+// and for the rest the camera's non-swamp biomes; with the camera in a swamp, the water outside
+// it is lake-clear when shallow and ocean blue when deep.
+vec4 waterWeightsAt(float sw, float depth) {
+    vec4 cam = waterCameraWeights();
+    vec3 rest = vec3(cam.x, cam.y, cam.w);
+    float rs = rest.x + rest.y + rest.z;
+    float deep = smoothstep(5.0, 14.0, depth);
+    vec3 alt = vec3(deep, 0.0, 1.0 - deep);
+    rest = rs > 0.05 ? rest / rs : alt;
+    rest = mix(alt, rest, smoothstep(0.05, 0.4, rs));
+    return vec4(rest.x, rest.y, 0.0, rest.z) * (1.0 - sw) + vec4(0.0, 0.0, sw, 0.0);
 }
 vec3 waterAbsorb() {
     vec4 w = waterBiomeWeights();

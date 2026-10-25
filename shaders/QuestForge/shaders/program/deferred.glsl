@@ -8,6 +8,7 @@
 #include "/lib/materials.glsl"
 #include "/lib/atmosphere.glsl"
 #include "/lib/lut.glsl"
+#include "/lib/sun.glsl"
 #include "/lib/sky.glsl"
 #include "/lib/shadows.glsl"
 #include "/lib/lighting.glsl"
@@ -60,6 +61,13 @@ void main() {
     s.skyLight = g2.g;
     s.ao = g2.b;
     s.scenePos = scenePos;
+    s.smoothness = 0.0;
+    s.f0 = 0.0;
+#if QF_PBR == 1
+    // gbuffers.glsl stores 1 - value, so blocks without maps (and entities) read 0.
+    s.smoothness = 1.0 - texelFetch(colortex0, px, 0).a;
+    s.f0 = 1.0 - g2.a;
+#endif
     outColor = vec4(shadeSurface(s, viewDir, gl_FragCoord.xy), 1.0);
 }
 #endif

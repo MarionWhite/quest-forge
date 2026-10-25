@@ -8,6 +8,7 @@
 #include "/lib/common.glsl"
 #include "/lib/atmosphere.glsl"
 #include "/lib/lut.glsl"
+#include "/lib/sun.glsl"
 #include "/lib/sky.glsl"
 
 #ifdef VSH

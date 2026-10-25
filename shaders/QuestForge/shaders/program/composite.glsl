@@ -8,6 +8,7 @@
 #include "/lib/materials.glsl"
 #include "/lib/atmosphere.glsl"
 #include "/lib/lut.glsl"
+#include "/lib/sun.glsl"
 #include "/lib/sky.glsl"
 #include "/lib/shadows.glsl"
 #include "/lib/lighting.glsl"
@@ -111,9 +112,12 @@ const int MOTE_STEPS = 16;
 const int MOTE_STEPS = 10;
 #endif
 #if QF_MOTES == 2
-const float MOTE_DENSITY = 0.40, MOTE_GAIN = 3.0;
+const float MOTE_DENSITY = 0.40, MOTE_GAIN = 4.5;
 #else
-const float MOTE_DENSITY = 0.20, MOTE_GAIN = 1.8;   // r003: too faint to tell the options apart
+// r007 (owner r006: "I don't know if I can detect the little dust particle things anymore"): a
+// little denser, bigger dots, a broad side-scatter so dust shows away from the sun too, and a slow
+// glint as a flake turns to the light. r006: 0.20 and 1.8.
+const float MOTE_DENSITY = 0.26, MOTE_GAIN = 3.0;
 #endif
 const float MOTE_CELL = 1.25;
 
@@ -159,7 +163,7 @@ vec3 ambientMotes(vec3 viewDir, float dist0, float pixelBlock, float eyeSky) {
             float along = dot(v, d);
             if (along > 0.15 && along < maxD) {
                 float perp2 = max(dot(v, v) - along * along, 0.0);
-                float rw = along * pxA * (under ? 1.4 : 1.6);   // r005: ~1.3 px dots vanished under TAA
+                float rw = along * pxA * (under ? 1.4 : 1.85);   // r005: ~1.3 px dots vanished under TAA; r006 1.6 too faint; 2.1 read as bokeh blobs
                 float cov = smoothstep(rw * rw * 1.6, 0.0, perp2);
                 if (cov > 0.0) {
                     vec3 lit;
@@ -173,7 +177,9 @@ vec3 ambientMotes(vec3 viewDir, float dist0, float pixelBlock, float eyeSky) {
 #endif
                         // Only the forward cone: away from the sun the dust is too faint to see,
                         // and against the bright sky it read as daytime stars (r003 smoke).
-                        lit = E * vis * (max(phase - 0.04, 0.0) * 2.4 + 0.03)
+                        // A flake turning to the light flashes now and then.
+                        float glint = 0.55 + 1.6 * pow(0.5 + 0.5 * sin(t * (0.9 + h * 7.0) + h * 91.0), 6.0);
+                        lit = E * vis * (max(phase - 0.04, 0.0) * 2.4 + 0.09) * glint
                             + skyIrradiance(vec3(0.0, 1.0, 0.0)) * eyeSky * eyeSky * 0.005
                             + Eblock * 0.32;
                     }
@@ -230,7 +236,11 @@ vec3 lightShafts(vec3 viewDir, float dist, float eyeSky) {
     if (outside <= 0.0 || L.y < 0.0) return vec3(0.0);
     float maxD = min(dist, 96.0);
     float mu = dot(viewDir, L);
+#if QF_SHAFT_STYLE == 1
+    float phase = 0.85 * hgPhaseS(mu, 0.78) + 0.15 / (4.0 * PI);   // round 5's lobe
+#else
     float phase = 0.75 * hgPhaseS(mu, 0.78) + 0.15 * hgPhaseS(mu, 0.35) + 0.10 / (4.0 * PI);   // j1: a flatter lobe lost the rays by the sun
+#endif
     float j = ign(gl_FragCoord.xy + float(frameCounter % 64) * vec2(3.17, 7.91));
     float lit = 0.0;
     for (int i = 0; i < SHAFT_STEPS; i++) {
@@ -238,11 +248,22 @@ vec3 lightShafts(vec3 viewDir, float dist, float eyeSky) {
         lit += shadowRaw(viewDir * (f * f * maxD)) * 2.0 * f;
     }
     lit /= float(SHAFT_STEPS);          // the lit share of the ray, 0-1
+    float gh = goldenHour();
+#if QF_SHAFT_STYLE == 1
+    // r007 (owner r006 picked round 5's frame: "the color is warmer, the rays are better formed"):
+    // round 5's linear lit air, which keeps the warm glow round the sun over open sky and the
+    // half-lit rays that give the beams their shape, now with r006's finer sampling. The amber
+    // at golden hour is a little deeper than round 5's.
+    lit = clamp(lit, 0.0, 1.0) * maxD;
+    if (dist >= far) lit *= 0.6;        // pa: the full veil over open sky washed out the sun
+    float sigma = mix(0.0008, 0.0038, gh) * (SHAFT_GAIN / 1.5) * (1.0 + rainStrength);
+    vec3 E = lightIrradiance() * mix(vec3(1.0), vec3(1.30, 0.93, 0.56), gh);
+#else
     lit = pow(clamp(lit, 0.0, 1.0), 1.8) * maxD * 1.25;   // metres of sunlit air, with contrast
     if (dist >= far) lit *= 0.6;        // open sky: the beams, not a veil over the sky
-    float gh = goldenHour();
     float sigma = mix(0.0008, 0.0036, gh) * SHAFT_GAIN * (1.0 + rainStrength);   // i0: 0.0013 barely showed
     vec3 E = lightIrradiance() * mix(vec3(1.0), vec3(1.25, 0.95, 0.62), gh);
+#endif
     return E * phase * sigma * lit * outside * smoothstep(0.0, 0.06, L.y);
 }
 #endif
@@ -319,8 +340,17 @@ vec3 shadeWaterAbove(vec3 color, vec3 n, float var, vec3 scene0, float dist0, ve
     float sunOcc = 0.0;
 #if QF_SSR_STEPS > 0 && QF_WATER_STYLE > 0
     vec3 viewPos0 = viewFromScreen(uv, depth0);
-    vec3 viewR = reflect(normalize(viewPos0), nV);
-    vec4 ssr = waterSSR(viewPos0, viewR, ign(gl_FragCoord.xy + float(frameCounter % 64) * 7.0));
+    // r007 (owner r006, lake: "the water texture gets splotchy ... when not enough light"): the near
+    // waves' steep facets sent the screen-space rays either into the far cliff or past it, so the
+    // dark near water broke into torn patches of mirrored land. The screen rays now follow a
+    // calmer normal (the waves' slope halved near the camera), so mirrored land is a smeared band,
+    // as on real water; the sky reflection keeps the full waves.
+    vec3 nS = normalize(mix(n, vec3(0.0, 1.0, 0.0), 0.5 * (1.0 - smoothstep(8.0, 48.0, dist0))));
+    vec3 viewR = reflect(normalize(viewPos0), mat3(gbufferModelView) * nS);
+    vec4 ssr = vec4(0.0);
+    // pa: a ray reflected downward (a steep wave facet) found the lake bed in depthtex1 and mirrored
+    // it as torn brown patches; it can only see the water itself, so it falls back to the sky.
+    if (reflect(viewDir, nS).y > 0.01) ssr = waterSSR(viewPos0, viewR, ign(gl_FragCoord.xy + float(frameCounter % 64) * 7.0));
     refl = mix(refl, ssr.rgb, ssr.a);
     sunOcc = ssr.a;
 #endif
@@ -343,6 +373,11 @@ vec3 shadeWaterAbove(vec3 color, vec3 n, float var, vec3 scene0, float dist0, ve
     // A high sun on the near water: a field of blinding facets read as the river's white patch
     // (r004-r005 critic, owner r005: follow the critic). Tamed by day, full at golden hour.
     spec *= mix(0.20, 1.0, gh);   // kh: 0.35 still left a sparkling patch on river_noon
+#if QF_BIOME_WATER == 1 && QF_CAL_WATER == 0
+    // r007 (critic r006: river_noon's near sparkle patch is still the brightest thing in the
+    // frame): moving water near the camera at a high sun, tamed further.
+    spec *= 1.0 - 0.6 * waterRiverShare() * waterBiomeWeights().w * (1.0 - gh) * (1.0 - smoothstep(6.0, 40.0, dist0));
+#endif
     // The long column at low sun (owner r005: lively's reach): a broad lobe, balanced by distance.
     float a2b = mix(0.004, 0.050, gh) + 2.0 * var;
     float broad = ggx(NdotH, a2b) * G;
@@ -369,6 +404,25 @@ vec3 shadeWaterAbove(vec3 color, vec3 n, float var, vec3 scene0, float dist0, ve
 #endif
     col += lightIrradiance() * min(spec, mix(80.0, 400.0, gh)) * FH * sh * 3.0;
 
+#if QF_BIOME_WATER == 1 && QF_CAL_WATER == 0
+    {
+        // Swamp surface (r007; critic r006: "the far water is a little flat"): drifting mats of
+        // algae and duckweed, dull olive and matte, and calm slicks between them where the film
+        // smooths the ripples and the sky mirrors brighter. Large patches, so they read far out.
+        float swW = waterBiomeWeights().z;
+        if (swW > 0.02) {
+            vec2 wp = scene0.xz + cameraPosition.xz;
+            float n1 = texture(qfNoise, wp * 0.019 + vec2(t * 0.0006, t * 0.0004)).b;
+            float n2 = texture(qfNoise, wp * 0.043 + vec2(0.31, 0.57)).b;
+            float algae = smoothstep(0.54, 0.70, n1 + (texture(qfNoise, wp * 0.21).b - 0.5) * 0.12) * swW;
+            float slick = smoothstep(0.56, 0.74, n2) * swW * (1.0 - algae);
+            vec3 Eu = skyIrradiance(vec3(0.0, 1.0, 0.0)) * skyLight * skyLight
+                    + lightIrradiance() * max(L.y, 0.0) * sh + nightFloor() * NIGHT_FLOOR_TINT;
+            col = mix(col, vec3(0.085, 0.10, 0.040) / PI * Eu + refl * 0.02, algae * 0.62);
+            col += refl * F * slick * 0.9;
+        }
+    }
+#endif
 #if QF_FLECKS == 1
     // Bubbles and foam flecks (owner r002 loved the "bubble" effect on near water and
     // wants more like it). Tiny pale dots that ride the surface and drift with it,
@@ -422,6 +476,30 @@ vec3 shadeWaterAbove(vec3 color, vec3 n, float var, vec3 scene0, float dist0, ve
 }
 #endif
 
+#if QF_WATER_BLEND == 1 && QF_BIOME_WATER == 1 && QF_CAL_WATER == 0 && QF_WATER_FORCE == 0
+// The swamp share round a water pixel (r007; owner r006: "a pleasant gradient to the next instead
+// of stark cutoffs"). The game's tint steps from block to block; averaging it over a ring of taps
+// 3 and 7 blocks out on the water plane, projected to the screen, turns the step into a gradient
+// about a dozen blocks wide. Taps that miss the water are skipped.
+float swampBlend(vec3 scene0, float sw0) {
+    float sum = sw0 * 1.5, wsum = 1.5;
+    for (int i = 0; i < 8; i++) {
+        float a = float(i) * 0.7854 + 0.39 * float(i & 1);
+        float r = (i & 1) == 0 ? 7.0 : 3.0;
+        vec3 P = scene0 + vec3(cos(a), 0.0, sin(a)) * r;
+        vec4 c = gbufferProjection * (gbufferModelView * vec4(P, 1.0));
+        if (c.w <= 0.0) continue;
+        vec2 q = c.xy / c.w * 0.5 + 0.5;
+        if (any(lessThan(q, vec2(0.0))) || any(greaterThan(q, vec2(1.0)))) continue;
+        ivec2 qp = ivec2(q * vec2(viewWidth, viewHeight));
+        if (unpackMaterial(texelFetch(colortex1, qp, 0)) != MAT_WATER) continue;
+        sum += texelFetch(colortex2, qp, 0).b;
+        wsum += 1.0;
+    }
+    return sum / wsum;
+}
+#endif
+
 void main() {
     ivec2 px = ivec2(gl_FragCoord.xy);
     float depth0 = texelFetch(depthtex0, px, 0).r;
@@ -441,7 +519,22 @@ void main() {
         if (isEyeInWater == 0) {
 #if QF_WAVES == 1
             float var = pow(texelFetch(colortex2, px, 0).a / 8.0, 2.0);
+#if QF_WATER_BLEND == 1 && QF_BIOME_WATER == 1 && QF_CAL_WATER == 0 && QF_WATER_FORCE == 0
+            {
+                float sw = swampBlend(scene0, texelFetch(colortex2, px, 0).b);
+                vec3 bed = scenePosAt(uv, depth1);
+                float wdepth = depth1 >= 1.0 ? 16.0 : max(scene0.y - bed.y, 0.0);
+                gWaterW = waterWeightsAt(sw, wdepth);
+#if QF_DEBUG_VIEW == 10
+                outColor = vec4(vec3(sw, texelFetch(colortex2, px, 0).b, gWaterW.x) * 0.6 / max(exposure(), 1e-4), 1.0);
+                return;
+#endif
+            }
+#endif
             color = shadeWaterAbove(color, n, var, scene0, dist0, viewDir, depth0, depth1, skyLight);
+#if QF_WATER_BLEND == 1 && QF_BIOME_WATER == 1 && QF_CAL_WATER == 0 && QF_WATER_FORCE == 0
+            gWaterW = vec4(-1.0);
+#endif
 #else
             // Refraction: shift the lookup along the wave slope, more for deeper water, and
             // fall back to the straight lookup if the shifted pixel is in front of the surface.

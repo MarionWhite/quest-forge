@@ -13,6 +13,8 @@ struct Surface {
     float skyLight;   // 0..1 lightmap
     float ao;
     vec3 scenePos;    // player-relative world position
+    float smoothness; // LabPBR perceptual smoothness (QF_PBR; 0 without a map)
+    float f0;         // LabPBR F0 byte / 255; from 0.9 up a metal (QF_PBR; 0 without a map)
 };
 
 // Vanilla light levels are linear in blocks. Vanilla's lightmap curve, taken to linear
@@ -157,7 +159,53 @@ vec3 shadeSurface(Surface s, vec3 viewDir, vec2 pixel) {
         irradiance += blockIrradiance(hb) * 0.8;
     }
     irradiance += vec3(nightVision * 0.25);
+#if QF_BOUNCE == 1
+    // Bounce light (r007; owner r006: "I like the light to interact with the blocks realistically"):
+    // sunlit ground throws warm light back up onto walls, the undersides of overhangs and canopy, so
+    // shade near lit ground is warmer and lifted, not only sky blue. The ground's irradiance is the
+    // light times its elevation, its colour a warm earth albedo; outdoors only.
+    {
+        float up = clamp(0.5 - 0.5 * s.normal.y, 0.0, 1.0);
+        vec3 Eg = E * max(L.y, 0.0) * vec3(0.30, 0.25, 0.18);
+        irradiance += Eg * up * outside * s.skyLight * s.skyLight * ao * 0.55;
+    }
+#endif
     vec3 color = s.albedo / PI * irradiance;
+    bool hasPbr = s.smoothness > 0.02 || s.f0 > 0.02;
+#if QF_PBR == 1
+    if (hasPbr) {
+        // LabPBR maps (r007, QF_PBR): the pack's own smoothness and F0 drive a GGX highlight from
+        // the sun or moon and a sky reflection on smooth blocks; metals take their colour into the
+        // reflection and lose most of their diffuse light.
+        bool metal = s.f0 > 0.895;
+        float r = (1.0 - s.smoothness) * (1.0 - s.smoothness);
+        float a2 = max(r * r, 0.0015);
+        vec3 f0v = metal ? s.albedo : vec3(s.f0);
+        vec3 V = -viewDir;
+        vec3 H = normalize(L + V);
+        float NdotV = max(dot(s.normal, V), 0.02);
+        vec3 F = fresnelSchlick(max(dot(H, V), 0.0), f0v);
+        float sp = ggx(max(dot(s.normal, H), 0.0), a2) * clamp(NdotL, 0.0, 1.0) / (4.0 * NdotV + 0.5);
+        if (metal) color *= 0.15;
+        color += F * E * min(sp, 60.0) * shadow;
+        vec3 R = reflect(viewDir, s.normal);
+        vec3 Fe = fresnelSchlick(NdotV, f0v);
+        color += skyScatter(R) * Fe * sky * s.smoothness * s.smoothness * ao;
+    }
+#endif
+#if QF_BOUNCE == 1
+    // A faint sheen on every block at grazing light (dielectric, F0 4%, rough), and a waxy one on
+    // leaves: stone, wood and leaves catch the low sun instead of reading as flat paint.
+    if ((s.mat == MAT_NONE || foliage) && !hasPbr) {
+        vec3 V = -viewDir;
+        vec3 H = normalize(L + V);
+        float NdotV = max(dot(s.normal, V), 0.02);
+        float a2 = foliage ? 0.05 : 0.09;
+        float Fs = fresnelSchlick(max(dot(H, V), 0.0), vec3(foliage ? 0.03 : 0.04)).x;
+        float sp = ggx(max(dot(s.normal, H), 0.0), a2) * clamp(NdotL, 0.0, 1.0) / (4.0 * NdotV + 0.5);
+        color += (foliage ? Eleaf * 0.6 : E) * sp * Fs * shadow;
+    }
+#endif
 
     // Emissive blocks: their own light, not just lit by the lightmap.
     if (s.mat == MAT_EMISSIVE || s.mat == MAT_LAVA) {

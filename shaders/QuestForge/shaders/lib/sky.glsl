@@ -140,8 +140,59 @@ int nightVariant() {
 #if QF_NIGHT_SKY > 0
     return QF_NIGHT_SKY;
 #else
-    return 1 + int(floor(hash12(vec2(float(worldDay) * 1.37 + 0.5, 7.1)) * 2.999));
+    // r007 rotation (owner r006: the Milky Way "fucking beautiful ... keep it in the rotation and
+    // give it more nights"; airglow was underwhelming in r005 and leaves the rotation): the Milky
+    // Way on 45% of nights, deep clear on 30%, a meteor shower on 25%.
+    float h = hash12(vec2(float(worldDay) * 1.37 + 0.5, 7.1));
+    return h < 0.45 ? 3 : (h < 0.75 ? 1 : 4);
 #endif
+}
+
+// A meteor shower (r007; owner r006: "a meteor shower ... that would last the whole night and not
+// impact performance very much"). All night long, streaks shoot out from one radiant (a point
+// that moves with the stars, fixed per night): short, thin, fast, brightest just before they burn
+// out, a few seconds apart, now and then a bright one. QF_METEOR_RATE slots, each with at most one
+// meteor in flight, and only sky pixels at night evaluate it: a few dot products per slot.
+float meteorTime() {
+    return frameTimeCounter;   // not animTime(): QF_STILL renders keep the shower moving
+}
+vec3 meteors(vec3 dir) {
+    vec3 R = normalize(vec3(0.35 + 0.3 * hash12(vec2(float(worldDay), 3.3)), 0.80, -0.45 + 0.4 * hash12(vec2(float(worldDay), 5.1))));
+    float pxA = 2.0 / (gbufferProjection[1][1] * viewHeight);
+    vec3 sum = vec3(0.0);
+    for (int k = 0; k < QF_METEOR_RATE * 3; k++) {
+        float P = 5.5 + 1.3 * float(k % 3);                  // seconds per slot cycle
+        float tk = meteorTime() + float(k) * 1.917;
+        float ci = floor(tk / P);
+        vec2 sd = vec2(ci * 0.713 + float(k) * 3.17, float(k) * 1.31 + float(worldDay) * 0.17);
+        if (hash12(sd) > 0.72) continue;                       // some cycles have none
+        float life = 0.45 + 0.5 * hash12(sd + 1.1);
+        float start = hash12(sd + 2.2) * (P - life);
+        float p = (tk - ci * P - start) / life;                // 0..1 while it burns
+        if (p <= 0.0 || p >= 1.0) continue;
+        // Its path: a great circle away from the radiant, starting 10-55 degrees out.
+        float az = hash12(sd + 3.3) * 6.2832;
+        vec3 a1 = normalize(cross(R, vec3(0.0, 0.0, 1.0)));
+        vec3 a2 = cross(R, a1);
+        vec3 U = a1 * cos(az) + a2 * sin(az);
+        float th0 = 0.18 + 0.78 * hash12(sd + 4.4);
+        float len = 0.10 + 0.22 * hash12(sd + 5.5);
+        float head = th0 + len * p;
+        float tail = head - len * mix(0.25, 0.55, p);
+        float thd = atan(dot(dir, U), dot(dir, R));
+        if (thd < tail - 0.01 || thd > head + 0.01) continue;
+        vec3 N = cross(R, U);
+        float perp = abs(dot(dir, N));
+        float w = pxA * 1.1;
+        float line = exp(-perp * perp / (w * w));
+        float along = clamp((thd - tail) / max(head - tail, 1e-4), 0.0, 1.0);
+        float trail = along * along * smoothstep(head + 0.004, head - 0.002, thd);
+        float flare = pow(sin(PI * p), 0.6) * mix(1.0, 1.8, p);
+        float bright = hash12(sd + 6.6) > 0.85 ? 3.5 : 1.0;   // now and then a bright one
+        vec3 tint = mix(vec3(0.85, 0.92, 1.0), vec3(0.75, 1.0, 0.80), hash12(sd + 7.7) * 0.6);
+        sum += tint * line * trail * flare * bright;
+    }
+    return sum * SUN_I * 0.05;
 }
 
 // Faint background stars: many, dim, slightly coloured; denser where `boost` is high.
@@ -175,9 +226,10 @@ vec3 nightSkyTexture(vec3 dir) {
     float up = clamp(dir.y, 0.0, 1.0);
     // A touch of navy towards the zenith on every night (r004 critic: near-black).
     vec3 L = vec3(0.10, 0.16, 0.42) * MOON_I * 0.006 * smoothstep(0.0, 0.6, up);
-    if (v == 1) {
+    if (v == 1 || v == 4) {
         L += faintStars(dir, 0.35) * mix(0.5, 1.0, moonWash);
         L *= 1.15;
+        if (v == 4) L += meteors(dir) * mix(0.6, 1.0, moonWash) * smoothstep(-0.02, 0.10, dir.y);
     } else if (v == 2) {
         L += faintStars(dir, 0.15) * mix(0.5, 1.0, moonWash);
         // Airglow: a green layer about 90 km up seen edge-on, so brightest 5-20 degrees above the
@@ -430,7 +482,7 @@ float hgPhase(float mu, float g) {
 }
 // What lights the clouds this hour: the light (sun or moon, its colour after the atmosphere), the
 // sky dome above, and the warm horizon sky toward a low sun, which lights the bases from below.
-struct CloudLight { vec3 L; vec3 E; vec3 top; vec3 under; float night; vec3 ph; };
+struct CloudLight { vec3 L; vec3 E; vec3 top; vec3 under; float night; vec3 ph; float rim; };
 CloudLight cloudLight() {
     CloudLight c;
     c.L = normalize(mat3(gbufferModelViewInverse) * shadowLightPosition);
@@ -451,6 +503,7 @@ CloudLight cloudLight() {
     vec3 horizon = day ? SUN_I * lookupSkyView(hz, sunDirWorld(), LUT_SV_SUN) : vec3(0.0);
     c.under = amb * mix(0.35, 0.12, c.night) + horizon * gh * 0.8;
     c.ph = vec3(1.0);
+    c.rim = 0.0;
     return c;
 }
 // The three octaves' phase functions depend only on the view and light directions: once per pixel.
@@ -472,6 +525,18 @@ vec3 cloudLum(CloudLight c, float od, float h, float mu, float dens) {
     s *= mix(1.0, powder, 0.75) / (4.0 * PI) * 2.2;
     // Golden hour: the near-level sun slips under the deck and lights the bases and lower sides.
     s += c.E * (goldenHour() * 0.22 * exp(-od * 0.25) * (1.0 - h));
+#if QF_CLOUD_RIM == 1
+    // Silver linings and rim light (r007; owner r006, golden: "a sharper highlight effect on the
+    // edges of the clouds for more of a cinematic effect"). Where a cloud is thin both along the
+    // view and toward the light (its fringe), the light is scattered almost straight on: a narrow,
+    // bright lobe that outlines the clouds standing in front of the sun, plus a warm rim on the
+    // sunward edges at golden hour. Sharp because it lives only in the fringe.
+    {
+        float gh = goldenHour();
+        float fringe = exp(-od * 2.6) * (1.0 - smoothstep(0.0, 0.55, dens));
+        s += c.E * fringe * (c.rim * 0.045 * (0.6 + 1.4 * gh) + 0.30 * gh);
+    }
+#endif
     // At night, only thin edges carry moonlight: the bodies stay dark (no glow).
     s *= mix(1.0, exp(-od * 0.8), c.night);
     return s + c.top * mix(0.35, 1.0, h) + c.under * (1.0 - h) * (1.0 - h);
@@ -490,6 +555,7 @@ vec4 cloudMarch(vec3 dir, int steps, float jitter) {
     CloudLight c = cloudLight();
     float mu = dot(dir, c.L);
     c.ph = cloudPhases(mu);
+    c.rim = min(hgPhase(mu, 0.92) * 4.0 * PI, 80.0);
     float T = 1.0;
     vec3 S = vec3(0.0);
     float t = t0 + dt * jitter;
@@ -560,9 +626,14 @@ vec3 skyRadiance(vec3 dir) {
     if (distToGround(r, dir.y) < 0.0) {
         vec3 T = lookupTransmittance(r, dir.y) * (1.0 - 0.9 * rainStrength);
         vec3 sunDir = sunDirWorld();
+#if QF_SUN == 1
+        // The real sun (lib/sun.glsl); its glare is drawn in final.glsl, over what is in front.
+        L += sunDiskReal(dir, sunDir, T) * (1.0 - 0.9 * rainStrength) + T * moonDisk(dir, moonDirWorld());
+#else
         L += T * (sunDisk(dir, sunDir) + moonDisk(dir, moonDirWorld()));
 #if QF_SUN_GLOW == 1
         L += T * sunGlow(dir, sunDir) * (1.0 - rainStrength);
+#endif
 #endif
         float night = 1.0 - smoothstep(-0.12, 0.04, sunDir.y);
         L += T * stars(dir) * night;
