@@ -1,5 +1,7 @@
 # Quest Forge → MacBook transfer (tonight)
 
+> **Moved 2026-10-25:** `QuestForge-Work` now lives at `C:\dev\QuestForge-Work` (out of OneDrive, which was syncing its 5.5 GB of sealed zips). Paths below are as they were at the time.
+
 Measured 2026-09-04 on this Windows machine. **Nothing was deleted. No zip was created** (see sizes below — a zip is practical, but do not drop another GB+ archive onto OneDrive Desktop).
 
 **Do not use VoidLauncher on either machine.** It MD5-resyncs and restores stock Forge / CustomMenu / mods.

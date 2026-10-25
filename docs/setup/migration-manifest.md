@@ -1,5 +1,7 @@
 Quest Forge — M1 Mac migration bundle
 =====================================
+
+> **Moved 2026-10-25:** `QuestForge-Work` now lives at `C:\dev\QuestForge-Work` (out of OneDrive, which was syncing its 5.5 GB of sealed zips). Paths below are as they were at the time.
 Built: 2026-09-04
 Source instance (NOT deleted, NOT gutted):
   C:\Users\a2dsu\AppData\Roaming\.crazycraft4

@@ -2,7 +2,7 @@
 from pathlib import Path
 from PIL import Image
 
-p = Path(r"C:\Users\a2dsu\OneDrive\Desktop\QuestForge-Work\_emblem-pulse")
+p = Path(r"C:\dev\QuestForge-Work\_emblem-pulse")
 files = ["smoke_splash1.png", "smoke_splash2.png", "smoke_splash3.png"]
 for name in files:
     im = Image.open(p / name).convert("RGB")

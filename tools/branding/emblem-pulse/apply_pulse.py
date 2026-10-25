@@ -14,7 +14,7 @@ from PIL import Image, ImageFilter
 
 INST = Path(r"C:\Users\a2dsu\AppData\Roaming\.crazycraft4")
 JAR = INST / "bin" / "lib" / "forge-1.7.10-10.13.4.1558-1.7.10-universal.jar"
-WORK = Path(r"C:\Users\a2dsu\OneDrive\Desktop\QuestForge-Work\_emblem-pulse")
+WORK = Path(r"C:\dev\QuestForge-Work\_emblem-pulse")
 EMBLEM = INST / "resources" / "assets" / "minecraft" / "textures" / "gui" / "title" / "emblem_corner.png"
 SP_INNER = "cpw/mods/fml/client/SplashProgress.class"
 TEX_INNER = "cpw/mods/fml/client/SplashProgress$Texture.class"
