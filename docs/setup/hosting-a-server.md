@@ -344,6 +344,94 @@ mirror copy was byte-identical to the daily.
 - The setting is `backup_mirror` in `supervisor.json`, kept across rebuilds;
   `--backup-mirror none` turns it off.
 
+## "Who's online": the status feed for the site
+
+The site's [`/online/`](../../site/online/) page shows who is on, when the
+server was last seen, its uptime, the pack fingerprint and the tick time per
+dimension. The data comes from the supervisor, in two steps:
+
+1. **`status.json` next to `supervisor.py`**, rewritten (whole file, renamed
+   into place) after every `list` probe, at boot, and on every stop, crash or
+   hang. Keys: `state` (`online`, `starting`, `offline`), `reason`, `online`
+   (names), `count`, `max`, `updated_at` (UTC, `Z`), `last_restart`,
+   `uptime_s`, `minecraft`, `pack` (`date`, `fingerprint`, `mods`, from
+   qf-content's boot line) and `tps` (`overall` and per-dimension `ms`/`tps`
+   from `forge tps`, sent every `status_tps_interval_s` = 300 s; it prints
+   about 35 lines each time, which is the whole cost). Names come from the
+   line after `There are N/M players online:`, and joins and leaves update
+   them between probes. Always on; `status_file: ""` turns it off.
+2. **A publisher**, off until configured, so a server with nothing set does
+   nothing. `status_publisher: "gist"` PATCHes a GitHub Gist through the API
+   after every write, at most once per `status_publish_min_interval_s` (60)
+   unless the state changed. `"dry-run"` logs what it would send. Failures
+   are logged (with the HTTP code, never the token) at the 1st, 10th and
+   100th in a row, and the page keeps showing the last good status, marked
+   stale after 5 minutes.
+
+**Why a Gist and not a push to the repo.** Every push that touches `site/**`
+redeploys the whole site through Pages (`.github/workflows/pages.yml`), so a
+status every minute would be 1,440 deploys a day and a token with write access
+to the repo on the host PC. A Gist is one JSON file behind a raw URL that
+browsers can read cross-origin, the token can only touch gists, and the site
+never redeploys for it.
+
+**Setting it up** (the owner, once):
+
+1. Create a secret Gist at gist.github.com with one file named
+   `status.json` (any content). Its id is the hex string in the URL.
+2. Create a token that can only write gists: Settings > Developer settings >
+   Personal access tokens. Fine-grained: account permission **Gists:
+   Read and write**, nothing else; or classic with only the `gist` scope.
+3. Put both in the server's `supervisor.json` (kept across rebuilds; never
+   commit it): `"status_publisher": "gist"`, `"status_gist_id": "<id>"`,
+   `"status_gist_token": "<token>"`. The token may instead go in the
+   environment variable `QF_STATUS_GIST_TOKEN` of the account that runs
+   `start-supervised.bat`. Restart the supervisor; its first lines say
+   `status feed: status.json, publisher gist`.
+4. Open the Gist, click Raw on `status.json`, and take the URL **without the
+   commit hash**: `https://gist.githubusercontent.com/<user>/<id>/raw/status.json`
+   (that form always serves the newest revision). Put it in
+   `site/online/config.json` as `feed` and commit. Until then the page and the
+   homepage card say "Not yet connected"; `/online/?demo` shows the layout with
+   sample data, `?demo&stale` the stale warning.
+
+Tested 2026-10-25 on a scratch server against a mock of the Gist API
+(`status_api_url` points the publisher at it): `status.json` was written at
+boot and after each probe with the fields above, every write was PATCHed with
+the bearer token and the GitHub headers, and the page rendered the sample
+feed, the stale warning and the not-connected state in headless Edge
+(`tools/site/screenshot.py`). Not tested: a real Gist (no token was created).
+
+## The host machine
+
+The server runs on the owner's PC, so the PC's own settings are part of the
+server. `tools/server/host_check.py` reads each of these and prints PASS, FAIL,
+WARN or MANUAL with the fix; run it before a season and after any Windows
+update:
+
+```
+py -3.10 -I tools/server/host_check.py --server C:\qfs\friends --play-hours 17-02
+```
+
+| Setting | Why | Check / fix |
+|---|---|---|
+| **Sleep and hibernation off on AC power** | A sleeping PC is a server that is down, and a world saved mid-write | `powercfg /change standby-timeout-ac 0` and `hibernate-timeout-ac 0` (the script reads the current scheme) |
+| **Windows Update active hours cover the play hours** | Outside them Windows may reboot for an update, mid-save; with the daily restart at 05:00, a reboot should land after it | Settings > Windows Update > Advanced options > Active hours, manual, at most 18 h. Or pause updates for the season. Was 11:00-05:00 on 2026-10-25 |
+| **Firewall: inbound TCP on the server port** | Without a rule, nobody outside the LAN reaches the server even with the router forwarding the port | admin PowerShell: `New-NetFirewallRule -DisplayName 'Quest Forge server' -Direction Inbound -Protocol TCP -LocalPort 25565 -Action Allow -Profile Any`. **Missing on 2026-10-25** |
+| **Router forwards TCP 25565 to this PC** | The only way friends get in | The script prints the LAN and public addresses; forward in the router, then have a friend connect while the server is up. Cannot be checked from inside (MANUAL) |
+| **Syncthing running, `C:\qf-world` connected to the Mac** | The backup mirror leaves the machine only through it | The script reads Syncthing's REST API (key from `%LOCALAPPDATA%\Syncthing\config.xml`): share present, a peer connected, state idle. Connected on 2026-10-25 |
+| **Backup mirror inside the share** | Otherwise the mirror is a second copy on the same disk | `--backup-mirror C:\qf-world\server-backups` at build time |
+| **Census `PAUSE` file during sessions** | `run_campaign.py` nodes compete for the clocks the tick needs | The script fails if a campaign runs without `C:\qfs\campaign\PAUSE` |
+| **A JDK for the server's Java** | Hang dumps need `jstack`; `!jfr` needs `jcmd` | The `--java25` build runs on Temurin's JDK: pass |
+| **Free disk** | Hourly zips plus seven dailies | At least 20 GB or ten dailies' worth |
+| **A Discord webhook** | Otherwise a crash loop at 3 a.m. is a line in a log | `discord_webhook` in `supervisor.json` (WARN if missing) |
+
+The 2026-10-25 run on this PC: sleep and hibernate never, active hours
+11:00-05:00 (play 17:00-02:00 covered), Syncthing connected, no campaign
+running, JDK 25, 2 TB free; **FAIL on the firewall rule**, WARN on the
+webhook and the mirror, MANUAL on the port forward. The firewall rule and the
+port forward need the owner (admin rights and the router).
+
 ## Server-only additions
 
 Three mods the builder can add that no client needs. Each declares

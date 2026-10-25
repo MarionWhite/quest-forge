@@ -55,10 +55,14 @@ Where it differs from the plan:
   guide. The same day: crash restart (Java killed; back in 40 s), hang
   detection (`tools/server/simulate_hang.py` froze the server thread; dump,
   kill, back in 2.5 min plus boot), the daily restart cycle, `stop.flag`, and a
-  webhook failing safely were all exercised on the scratch server. Still open:
-  the host-machine settings (Windows Update, sleep), the census `PAUSE` file,
-  and a restore with a real login (the drill read a gamerule back from the
-  console, not a player's chest).
+  webhook failing safely were all exercised on the scratch server. ~~Still
+  open: the host-machine settings (Windows Update, sleep), the census `PAUSE`
+  file~~ **Checked 2026-10-25** by `tools/server/host_check.py` (hosting guide,
+  "The host machine"): sleep and hibernate off, active hours cover the play
+  hours, Syncthing connected, no campaign running; the **firewall rule for
+  25565 is missing** and the port forward is untested, both for the owner.
+  Still open: a restore with a real login (the drill read a gamerule back from
+  the console, not a player's chest).
   `removeErroring*` stays on; the supervisor now alerts when Forge removes
   something.
 
