@@ -284,3 +284,50 @@ All are in `C:\qf-world\renders\`. The top-down views are 1 px per block and use
 The oblique views are drawn from `check_water.py`'s `.npz` arrays (top block and height per column) by a scratch script. They show the shape, not a game render.
 
 **Files.** The plan, pieces, exports, stitched world and scripts (`pieces.sh`, `all.sh`, `oblique.py`, `sheet.py`) are in the session scratchpad under `r13t2/`. The trial world in `%APPDATA%\.qf-trials\r13t\world` is this re-test.
+
+## Re-test 3
+
+**Date:** 2026-10-24, same day. The author approved four more landmark fixes. The plan was re-rendered at full resolution (33.7 min), the 12 pieces round four landmarks were rebuilt (5.8 min for all 12), and they were stitched into a fresh world in the same trial (`r13t`). The re-test 2 world is kept as `world-test2`. The tepui was not part of this round. Population took 3.4 min for 70,852 chunks, with 0 failed, 18–20 TPS and a 1.05 GB working set. No client was launched.
+
+| # | Fix | Where | Result |
+|---|---|---|---|
+| 1 | Hot springs: open terraces | merge fixup: the five lower treads and their 146 pools are BoP **Shrubland (236)**; Sacred Springs (197) is kept only on the crown and its vent | **Works.** Shrubland chunks average **1.2 logs and 20 leaves**, against 85 and 547 in the Sacred Springs that is left on the crown. The treads read as open steps of pools in grass and bushes (oblique). Pools hold their levels: 95–96% water, 100% within one block. |
+| 2 | Crater pond above sea | merge fixup: the crater cut is 22 deep, not 36, so the bowl floor sits at about 75–77, and one pond (r 260, level 74) fills the black-sand eye | **Works.** **No sea-level water anywhere in the area** (0 columns, against half the bowl before). The pond is one lake at 74: 207k columns, 98.8% water, 100% within one block. Unplanned water on land is 0.44%, still only the Oasis outside the crater. |
+| 3 | Great falls land in their pools | `waterfalls.py`: a fall whose pool lies past a dry sill (up to `--reach` 12 columns, sill at most `--max-cut` 12 blocks above the pool) gets that sill cut to the pool's level and flooded | **Works.** The 119 sheet now **runs as one column of water from 119 to the pool bed at 95**. All 61 columns at the lip are water down to the pool bed, none of them on a sill. In the falls area, 348 sill columns were cut, and after population 1,177 of the 1,208 falling columns stand on water. |
+| 4 | Ice to the waterline | new `tools/world/ice_faces.py`, run on the stitched world after `waterfalls.py` | **Works.** Every column that WorldPainter topped with packed ice is now **packed ice from its top down to y 52**. Over the 1.0 M berg and snout columns, 100% of the blocks from the top to y 56 are packed ice, except 167 cave air blocks; before, it was 15% ice and 85% stone. |
+
+### How each fix works
+
+- **Waterfalls.** For each fall column, `plan_falls` now records which way the water spills, how far on its landing water lies, and that water's level.
+  - Within `--land` (6) columns, any landing counts, as before.
+  - Up to `--reach` (12) columns, a landing counts only over dry ground no higher than `--max-cut` (12) blocks above that water.
+  - Every column between the lip and the pool is cleared above the pool's level, along with the plants on it, and filled with two blocks of still water at the pool's surface. The falling column then runs down into that water.
+  - The landing rule against river water spilling over its banks still holds. In the falls area, the fall count went from 8 to 10. One new fall is a 3-column spill beside the great-falls pool (97 → 90). The other is a lake edge at 93 that stands over water at 62, on the area's north-west edge (see below).
+  - Without `--area`, the pass now runs over the whole world in tiles of 8 × 8 regions. Each tile is scanned with a one-region margin and changes only its own regions. One canvas for the full map would need tens of GB.
+- **Ice faces.**
+  - The plan gives packed ice only to the bergs and the glacier snout (`surface: packed_ice`).
+  - WorldPainter lays any terrain only 3–7 blocks deep.
+  - The pass therefore turns the natural ground under a packed-ice top into packed ice: stone, dirt, gravel, sand, clay and ores, down to `--to` (52, 10 below the sea).
+  - The snout is now solid ice too.
+- **Crater.**
+  - The bowl is the crater "canyon" (width 1050) cut into the 99 plain. At depth 22 its floor sits at about 77.
+  - The pond's level comes from the ring round it (10th percentile − 1 = 74). Its edge follows `pond_distance`, so it is a rounded lake with a few coves, not a circle.
+
+### Still wrong or open
+
+- **The 93 → 62 wall north-west of the great falls** (about x 2700–2800, z −5450 to −5200) is a lake at 93 standing directly against a body at 62. The new pass pours it as a 31-block fall. It comes from the plan's water map and was not reviewed.
+- **River banks still step in 16-block squares** (first test, item 6). Not part of this round.
+- **Render palette.** Cobblestone still shows red in `inspect_area.py`'s colours, so the crater looks red-brown in the renders. In the game it is grey.
+
+### Renders
+
+All are in `C:\qf-world\renders\`:
+
+| File | What |
+|---|---|
+| `r13-test3-crater.png`, `-crater-oblique.png` | Crater top-down, and a view from the south: one pond in the black-sand eye |
+| `r13-test3-hot-springs.png`, `-hot-springs-oblique.png` | Hot springs top-down, and a view from the south: open Shrubland treads, the forested crown at the back |
+| `r13-test3-falls.png`, `-falls-oblique.png`, `-falls-oblique2.png` | Great falls top-down, then a close view from the south and one from the east |
+| `r13-test3-calving.png`, `-calving-oblique.png`, `-calving-oblique2.png` | Calving bay top-down, the bay from the south, and one berg close up |
+
+**Files.** The plan, pieces, exports, stitched world and scripts (`all3.sh`, `obl3.sh`, probes) are in the session scratchpad under `r13t3/`. The trial world in `%APPDATA%\.qf-trials\r13t\world` is this re-test.
