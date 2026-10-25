@@ -131,6 +131,13 @@ def run_client(a, d, cmd, t0, busy):
     held = trial.read_lock()
     if held and held.get("pid") == pid and os.path.exists(trial.LOCK):
         os.remove(trial.LOCK)
+    # Our client as the foreground window, from the hider's 10-50 ms focus guard and from the
+    # minute samples: a failure, never a footnote (2026-10-25).
+    FOCUS.extend(trial.focus_incidents(d))
+    for b in busy:
+        fg = b.get("foreground") or {}
+        if fg.get("pid") == pid:
+            FOCUS.append(f"userbusy sample: foreground was our client ({fg.get('title')}, {fg.get('class')})")
     took = time.time() - t0
     print(f"client exited after {took:.0f} s")
     log = os.path.join(d, "logs", "latest.log")
@@ -139,6 +146,7 @@ def run_client(a, d, cmd, t0, busy):
 
 
 HANG_MIN = 5
+FOCUS = []      # every time our client was the foreground window, over all attempts
 
 
 def shader_config_ok(d, pack):
@@ -287,7 +295,21 @@ def main():
     # Frame times taken while the owner games share the GPU: mark them, don't trust them.
     reasons = sorted({r for b in busy for r in b.get("reasons", [])}) if any(b.get("busy") for b in busy) else []
     with open(os.path.join(ROUNDS, "bench", a.tag + ".userbusy.json"), "w", encoding="utf-8") as f:
-        json.dump({"noisy": bool(reasons), "reasons": reasons, "background": not a.foreground, "checks": busy}, f)
+        json.dump({"noisy": bool(reasons), "reasons": reasons, "background": not a.foreground, "checks": busy,
+                   "focus_stolen": FOCUS}, f)
+    # LWJGL's createWindow takes the foreground once per launch when Windows allows it (the owner idle
+    # past the foreground lock timeout); the guard hands it back within one 10 ms poll. Printed every
+    # time. A give-back that failed, or a minute sample that saw our client in front, fails the run.
+    severe = [l for l in FOCUS if not l.endswith(": ok")]
+    if FOCUS and not a.foreground:
+        print("=" * 78)
+        print(f"FOCUS: our client was the foreground window {len(FOCUS)} time(s)"
+              + (f", {len(severe)} NOT handed straight back: the owner's keystrokes could have gone into Minecraft."
+                 " Stop launching and report it." if severe else
+                 "; each time the focus guard handed it straight back (within 10-50 ms)."))
+        for l in FOCUS[:20]:
+            print("  " + l)
+        print("=" * 78)
     if reasons:
         print("NOISY: owner gaming during the round -- frame times are not comparable: " + "; ".join(reasons))
     if os.path.exists(result):
@@ -304,6 +326,8 @@ def main():
         dst = os.path.join(ROUNDS, "patched", a.tag)
         shutil.rmtree(dst, ignore_errors=True)
         shutil.copytree(ps, dst)
+    if severe and not a.foreground:
+        sys.exit(4)
     sys.exit(0 if os.path.exists(result) else 1)
 
 

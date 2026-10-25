@@ -10,7 +10,16 @@ Window helper for tools/trial/trial.py (background client launches).
       flag (all calls async: the splash leaves the window unpumped). Until the move
       lands it is veiled (layered, alpha 0, click-through). Polls every 10 ms for the first FastSeconds (the splash, then the main
       window), then every second for the life of the process, because LWJGL may
-      recreate or reposition the window (F11, a display-mode change).
+      recreate or reposition the window (F11, a display-mode change); every poll re-asserts
+      the styles and keeps the window at the bottom of the z-order.
+      FOCUS GUARD (2026-10-25): every 50 ms for the whole life of the process it checks the
+      foreground window. If it is ours, focus goes straight back to the window the owner had
+      (AttachThreadInput + SetForegroundWindow), and the event is appended to focus.log next
+      to -Log, which trial.py, bench_round.py and renderq read as a failure. LWJGL 2.9.1 calls
+      SetForegroundWindow itself (WindowsDisplay.createWindow, and appActivate on every
+      activation), and Windows grants it once the owner has not typed for the foreground lock
+      timeout: on 2026-10-25 r007's qp, off8p, qpb0 and offpb clients were the foreground window
+      in 1 to 4 of their userbusy samples, twice taking it from the owner's Cursor window.
   window.ps1 -Mode inspect -ProcessId N     JSON: that process's windows (read only)
   window.ps1 -Mode foreground               JSON: the foreground window (read only)
   window.ps1 -Mode userbusy [-OurPids 1,2]  JSON: is the owner gaming? (read only)
@@ -65,6 +74,29 @@ namespace QF {
     [DllImport("user32.dll")] public static extern IntPtr GetShellWindow();
     [DllImport("user32.dll")] public static extern IntPtr GetDesktopWindow();
     [DllImport("shell32.dll")] public static extern int SHQueryUserNotificationState(out int state);
+    [DllImport("user32.dll")] public static extern bool SetForegroundWindow(IntPtr h);
+    [DllImport("user32.dll")] public static extern bool AttachThreadInput(uint a, uint b, bool attach);
+    [DllImport("kernel32.dll")] public static extern uint GetCurrentThreadId();
+    [DllImport("user32.dll")] public static extern bool IsWindow(IntPtr h);
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)] public static extern IntPtr FindWindow(string cls, string title);
+    public static readonly IntPtr HWND_BOTTOM = new IntPtr(1);
+
+    // Our window is the foreground window: hand the foreground back to `prev` (the owner's last
+    // window), or to the taskbar if that is gone. A background process may not call
+    // SetForegroundWindow, but one attached to the foreground thread's input may.
+    public static string GiveBack(IntPtr ours, IntPtr prev) {
+      IntPtr target = (prev != IntPtr.Zero && IsWindow(prev) && IsWindowVisible(prev)) ? prev : FindWindow("Shell_TrayWnd", null);
+      uint pid; uint fgThread = GetWindowThreadProcessId(ours, out pid);
+      uint me = GetCurrentThreadId();
+      bool att = AttachThreadInput(me, fgThread, true);
+      bool ok = SetForegroundWindow(target);
+      if (att) AttachThreadInput(me, fgThread, false);
+      // Push ours to the bottom so Windows never picks it as the next window to activate.
+      SetWindowPos(ours, HWND_BOTTOM, 0, 0, 0, 0, SWP_NOSIZE | 0x2 /*NOMOVE*/ | SWP_NOACTIVATE | SWP_ASYNCWINDOWPOS);
+      bool back = GetForegroundWindow() != ours;
+      return "returned focus to hwnd " + target.ToInt64() + " '" + Title(target) + "' (" + Class(target) + "): "
+             + (back ? "ok" : "STILL OURS") + (ok ? "" : " (SetForegroundWindow refused)");
+    }
 
     public const int GWL_EXSTYLE = -20;
     public const long WS_EX_TOOLWINDOW = 0x80, WS_EX_APPWINDOW = 0x40000, WS_EX_NOACTIVATE = 0x8000000;
@@ -142,8 +174,10 @@ namespace QF {
         asked[h.ToInt64()] = DateTime.Now;
         // For a hidden window, SWP_SHOWWINDOW makes the move and the show one queued
         // message, so it can only become visible already off-screen.
-        SetWindowPos(h, IntPtr.Zero, off ? r.L : x, off ? r.T : vy, 0, 0,
-                     SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_ASYNCWINDOWPOS | frame
+        // Bottom of the z-order (not NOZORDER): the window Windows activates when the owner's
+        // window closes or minimizes is the next one down, never ours.
+        SetWindowPos(h, HWND_BOTTOM, off ? r.L : x, off ? r.T : vy, 0, 0,
+                     SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_ASYNCWINDOWPOS | frame
                      | (hidden ? SWP_SHOWWINDOW : 0));
         if (!off) did.Add("move requested from " + r.L + "," + r.T);
         if (hidden) { ShowWindowAsync(h, SW_SHOWNOACTIVATE); did.Add("show (no activate) requested"); }
@@ -186,18 +220,42 @@ $GamePaths = '\\steamapps\\common\\|\\Epic Games\\|\\Riot Games\\|\\GOG Galaxy\\
 switch ($Mode) {
     "hide" {
         $t0 = Get-Date
+        $focusLog = if ($Log) { Join-Path (Split-Path -Parent $Log) "focus.log" } else { "" }
         Write-Log "hide: watching pid $ProcessId"
+        $prev = [QF.Win]::GetForegroundWindow()
+        if ([QF.Win]::Pid($prev) -eq [uint32]$ProcessId) { $prev = [IntPtr]::Zero }
+        $checks = 0; $stolen = 0; $lastBanish = [DateTime]::MinValue; $lastAlive = [DateTime]::MinValue
         while ($true) {
-            $p = Get-Process -Id $ProcessId -ErrorAction SilentlyContinue
-            if (-not $p) { break }
-            foreach ($h in [QF.Win]::WindowsOf([uint32]$ProcessId)) {
-                $did = [QF.Win]::Banish($h)
-                if ($did) { Write-Log ("hwnd {0} {1} '{2}': {3}" -f $h, [QF.Win]::Class($h), [QF.Win]::Title($h), $did) }
+            $now = Get-Date
+            if (($now - $lastAlive).TotalMilliseconds -ge 1000) {
+                $lastAlive = $now
+                if (-not (Get-Process -Id $ProcessId -ErrorAction SilentlyContinue)) { break }
             }
-            if (((Get-Date) - $t0).TotalSeconds -lt $FastSeconds) { Start-Sleep -Milliseconds 10 }
-            else { Start-Sleep -Seconds 1 }
+            $fast = ($now - $t0).TotalSeconds -lt $FastSeconds
+            if ($fast -or ($now - $lastBanish).TotalMilliseconds -ge 1000) {
+                $lastBanish = $now
+                foreach ($h in [QF.Win]::WindowsOf([uint32]$ProcessId)) {
+                    $did = [QF.Win]::Banish($h)
+                    if ($did) { Write-Log ("hwnd {0} {1} '{2}': {3}" -f $h, [QF.Win]::Class($h), [QF.Win]::Title($h), $did) }
+                }
+            }
+            # Focus guard, every pass (10 ms early, 50 ms after).
+            $checks++
+            $fg = [QF.Win]::GetForegroundWindow()
+            if ($fg -ne [IntPtr]::Zero) {
+                if ([QF.Win]::Pid($fg) -eq [uint32]$ProcessId) {
+                    $stolen++
+                    $what = [QF.Win]::GiveBack($fg, $prev)
+                    $line = "FOCUS: our window hwnd $fg '$([QF.Win]::Title($fg))' was the foreground window; $what"
+                    Write-Log $line
+                    if ($focusLog) { Add-Content -LiteralPath $focusLog -Value ("{0:yyyy-MM-dd HH:mm:ss.fff} pid {1} {2}" -f (Get-Date), $ProcessId, $line) }
+                } else {
+                    $prev = $fg
+                }
+            }
+            if ($fast) { Start-Sleep -Milliseconds 10 } else { Start-Sleep -Milliseconds 50 }
         }
-        Write-Log "hide: pid $ProcessId exited"
+        Write-Log "hide: pid $ProcessId exited; $checks foreground checks, ours $stolen times"
     }
     "inspect" {
         $rows = @([QF.Win]::WindowsOf([uint32]$ProcessId) | ForEach-Object { Describe $_ })

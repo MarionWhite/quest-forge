@@ -34,6 +34,17 @@ trial went fullscreen over the owner's game and console windows took focus.
   during the splash. A visible window not yet off-screen is veiled (layered, alpha 0) until the move
   lands. It never calls `SetForegroundWindow`. The requested `--size` is kept. Its log is
   `logs\window.log`. `launch --foreground` shows the window on the desktop as before.
+- **Focus guard.** LWJGL 2.9.1 calls `SetForegroundWindow` on its own window (at `Display.create`
+  and on every activation), and Windows grants it whenever the owner has not typed for the
+  foreground lock timeout; `WS_EX_NOACTIVATE` does not stop a window's own process. On 2026-10-25
+  four r007 clients and four other sessions' clients were the foreground window for up to minutes.
+  The hider now checks the foreground window every 10 ms (first 40 s) and every 50 ms after, for the
+  JVM's whole life: if it is ours, it hands focus straight back to the owner's last window
+  (`AttachThreadInput` + `SetForegroundWindow`, the taskbar if that window is gone), pushes ours
+  to the bottom of the z-order, and appends a line to `logsocus.log`. Expect one line per launch,
+  at window creation, when the owner is idle; it is returned within one poll (a 1-s sampler never
+  saw it, 4 launches). `trial.py status` prints every line for running clients; `bench_round.py`
+  prints them loudly and fails the run (exit 4) if focus was not handed straight back.
 - **No console windows.** Every process `trial.py` and the shader review scripts start uses
   `CREATE_NO_WINDOW`, or a Hidden PowerShell. Started from an agent's shell, a console program
   otherwise opens a Windows Terminal window that steals focus. Servers start Hidden.

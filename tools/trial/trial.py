@@ -1111,10 +1111,22 @@ def launch_server(a, man, d):
         sys.exit(wait_loaded(d, pid, a.timeout, "server"))
 
 
+def focus_incidents(d):
+    """Lines window.ps1's focus guard wrote for this launch: every time our client was the foreground
+    window (and focus was handed back). Any line is a failure the caller must surface loudly: the
+    owner's keystrokes could have gone into Minecraft (2026-10-25)."""
+    p = os.path.join(d, "logs", "focus.log")
+    try:
+        with open(p, encoding="utf-8", errors="replace") as f:
+            return [l.strip() for l in f if l.strip()]
+    except OSError:
+        return []
+
+
 def clear_logs(d, side):
     logs = os.path.join(d, "logs")
     os.makedirs(logs, exist_ok=True)
-    for stale in (f"fml-{side}-latest.log", "latest.log"):
+    for stale in (f"fml-{side}-latest.log", "latest.log", "focus.log"):
         try:
             os.remove(os.path.join(logs, stale))
         except OSError:
@@ -1648,6 +1660,10 @@ def cmd_status(a):
         alive = pid_alive(held.get("pid"))
         print(f"client lock: trial '{held.get('trial')}' pid {held.get('pid')} owner {held.get('owner') or '?'}"
               f" {'(running)' if alive else '(stale)'}")
+    for p in procs:
+        if p["kind"] == "client" and os.path.isdir(p["gameDir"] or ""):
+            for l in focus_incidents(p["gameDir"]):
+                print(f"FOCUS STOLEN by {p['gameDir']}: {l}")
     if os.path.exists(BISECT):
         print(f"bisect in progress: {BISECT}")
     if os.path.isdir(TRIALS):
