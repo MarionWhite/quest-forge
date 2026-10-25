@@ -1282,10 +1282,15 @@ def load_live_manifest():
         return None
 
 
-def save_live_manifest(hashes):
+def save_live_manifest(hashes, config=None):
+    """jars: rel -> sha1 of every live jar. config: rel -> {sha1, backup, at} for config
+    files `install` put in; left as recorded when not given."""
+    if config is None:
+        config = (load_live_manifest() or {}).get("config", {})
     os.makedirs(TRIALS, exist_ok=True)
     with open(LIVE_MANIFEST, "w", encoding="utf-8") as f:
-        json.dump({"at": datetime.datetime.now().isoformat(timespec="seconds"), "jars": hashes}, f, indent=1)
+        json.dump({"at": datetime.datetime.now().isoformat(timespec="seconds"), "jars": hashes,
+                   "config": config}, f, indent=1)
 
 
 def live_drift():
@@ -1330,6 +1335,13 @@ def guard_check(context, strict=False):
         print("  `trial.py guard --accept`; otherwise restore the previous jar from its _backup-install-* copy.")
         if strict:
             sys.exit(3)
+    stale = config_drift()
+    if stale:
+        # Not an alert: a mod rewriting its own config on load looks exactly like this.
+        print(f"NOTE ({context}): installed config file(s) differ from what `trial.py install` put in:")
+        for rel, what in stale:
+            print(f"    {what:8} {rel}")
+        print("  A mod that rewrites its config on load does this; `trial.py guard --accept` records it.")
 
 
 def cmd_guard(a):
@@ -1356,8 +1368,8 @@ def cmd_guard(a):
                 fixed += 1
         print(f"guard: replaced {fixed} hard link(s) with copies; {skipped} skipped")
     if a.accept:
-        save_live_manifest(live_hashes())
-        print("guard: current live jars recorded as the baseline")
+        save_live_manifest(live_hashes(), config_rehash())
+        print("guard: current live jars (and installed config files) recorded as the baseline")
         return
     links = live_link_report()
     drift = live_drift()
@@ -1379,7 +1391,9 @@ def cmd_install(a):
     if not a.force:
         guard_check("install", strict=True)
     jar = os.path.abspath(a.jar)
-    if not os.path.isfile(jar) or not jar.lower().endswith(".jar"):
+    if not jar.lower().endswith(".jar"):
+        return install_config(a, jar)
+    if not os.path.isfile(jar):
         sys.exit(f"not a jar: {jar}")
     if jar.lower().endswith("-dev.jar"):
         sys.exit("that is the deobfuscated -dev jar; it crashes in the pack with NoSuchMethodError. "
@@ -1468,6 +1482,126 @@ def refuse_if_live_in_use(verb):
         sys.exit(2)
 
 
+# ------------------------------------------------------------ config files
+
+def config_rel(src, as_name):
+    """Where a config file goes, as config/<path>: --as, or its place under the repo's pack/config/."""
+    if as_name:
+        rel = as_name.replace("\\", "/").strip("/")
+        if not rel.lower().startswith("config/") or ".." in rel.split("/"):
+            sys.exit(f"--as {as_name}: a config file installs under config/, "
+                     f"e.g. --as config/Chocolate/ChestConfig/chests.prop")
+        return rel
+    parts = src.replace("\\", "/").split("/")
+    for i in range(len(parts) - 2, 0, -1):
+        if parts[i].lower() == "config" and parts[i - 1].lower() == "pack":
+            return "/".join(["config"] + parts[i + 1:])
+    sys.exit(f"{src} is not a jar and not under pack/config/; pass --as config/<path> to say where it goes")
+
+
+def install_config(a, src):
+    """A config file into the live config/, with the jar safeguards: refuse while the live
+    instance is in use, keep the replaced file in _backup-install-<time>/, log it, and record
+    it in the live manifest so `uninstall config/<path>` can put the previous one back.
+
+    Exists because build_play_server.py copies config/ from the live instance: a fix that
+    lives only in pack/config is undone by every --force rebuild of the play server."""
+    if not os.path.isfile(src):
+        sys.exit(f"no such file: {src}")
+    rel = config_rel(src, a.as_name)
+    dst = os.path.join(LIVE, *rel.split("/"))
+    if not a.force:
+        refuse_if_live_in_use("install")
+    new_sha = sha1(src)
+    stamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+    old_sha = backup = None
+    if os.path.isfile(dst):
+        old_sha = sha1(dst)
+        if old_sha == new_sha:
+            print(f"{rel} is already that file ({old_sha}); nothing to do")
+            return
+        backup = os.path.join(LIVE, f"_backup-install-{stamp}", *rel.split("/"))
+        os.makedirs(os.path.dirname(backup), exist_ok=True)
+        shutil.copy2(dst, backup)
+    os.makedirs(os.path.dirname(dst), exist_ok=True)
+    tmp = dst + ".installing"
+    shutil.copy2(src, tmp)
+    os.replace(tmp, dst)
+    os.makedirs(TRIALS, exist_ok=True)
+    who = a.owner or os.environ.get("CLAUDE_SESSION_NAME", "?")
+    with open(INSTALL_LOG, "a", encoding="utf-8") as f:
+        f.write(f"{stamp}\t{who}\tCONFIG {rel}\t{old_sha or '-'} -> {new_sha}\t{src}\t{a.why or ''}"
+                + (f" (previous kept {backup})" if backup else " (new file)") + "\n")
+    print(f"installed {rel} ({old_sha or 'new'} -> {new_sha})" + (f"; previous kept in {backup}" if backup else ""))
+    print(f"logged in {INSTALL_LOG}")
+    m = load_live_manifest() or {"jars": live_hashes()}
+    cfg = m.get("config", {})
+    cfg[rel] = {"sha1": new_sha, "backup": backup, "at": stamp}
+    save_live_manifest(m["jars"], cfg)
+
+
+def uninstall_config(a, rel):
+    """Put back what `install` replaced (or remove a file that was new), from the manifest's record."""
+    rel = rel.replace("\\", "/").strip("/")
+    m = load_live_manifest() or {"jars": live_hashes()}
+    cfg = m.get("config", {})
+    e = cfg.get(rel)
+    if e is None:
+        sys.exit(f"{rel} is not recorded as installed by trial.py; nothing known to put back")
+    if not a.force:
+        refuse_if_live_in_use("uninstall")
+    dst = os.path.join(LIVE, *rel.split("/"))
+    stamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+    cur_sha = sha1(dst) if os.path.isfile(dst) else None
+    if cur_sha:
+        keep = os.path.join(LIVE, f"_backup-install-{stamp}", *rel.split("/"))
+        os.makedirs(os.path.dirname(keep), exist_ok=True)
+        shutil.copy2(dst, keep)
+    backup = e.get("backup")
+    if backup and os.path.isfile(backup):
+        tmp = dst + ".installing"
+        shutil.copy2(backup, tmp)
+        os.replace(tmp, dst)
+        what = f"restored from {backup}"
+    else:
+        if os.path.isfile(dst):
+            os.remove(dst)
+        what = "removed (it was new at install)" if not backup else f"removed (its backup {backup} is gone)"
+    os.makedirs(TRIALS, exist_ok=True)
+    who = a.owner or os.environ.get("CLAUDE_SESSION_NAME", "?")
+    now_sha = sha1(dst) if os.path.isfile(dst) else "-"
+    with open(INSTALL_LOG, "a", encoding="utf-8") as f:
+        f.write(f"{stamp}\t{who}\tUNINSTALL {rel}\t{cur_sha or '-'} -> {now_sha}\t{what}\t{a.why}\n")
+    print(f"uninstalled {rel}: {what}" + (f"; the file as it was is kept in _backup-install-{stamp}" if cur_sha else ""))
+    print(f"logged in {INSTALL_LOG}")
+    cfg.pop(rel, None)
+    save_live_manifest(m["jars"], cfg)
+
+
+def config_drift():
+    """[(rel, 'changed' | 'missing')] for config files `install` put in that differ now."""
+    out = []
+    for rel, e in sorted((load_live_manifest() or {}).get("config", {}).items()):
+        p = os.path.join(LIVE, *rel.split("/"))
+        if not os.path.isfile(p):
+            out.append((rel, "missing"))
+        elif sha1(p) != e.get("sha1"):
+            out.append((rel, "changed"))
+    return out
+
+
+def config_rehash():
+    """The manifest's config records with today's hashes (guard --accept); gone files drop out."""
+    cfg = (load_live_manifest() or {}).get("config", {})
+    for rel, e in list(cfg.items()):
+        p = os.path.join(LIVE, *rel.split("/"))
+        if os.path.isfile(p):
+            e["sha1"] = sha1(p)
+        else:
+            cfg.pop(rel)
+    return cfg
+
+
 def cmd_uninstall(a):
     """The one way a jar leaves the live instance: the mirror of `install`.
 
@@ -1481,6 +1615,8 @@ def cmd_uninstall(a):
         sys.exit("uninstall needs --why: the install log is how the next person learns why a jar is gone")
     if not a.force:
         guard_check("uninstall", strict=True)
+    if a.jar.replace("\\", "/").lower().startswith("config/"):
+        return uninstall_config(a, a.jar)
     live = instance_jars(LIVE)
     rel = find_live_jar(a.jar)
     if not a.force:
@@ -1900,8 +2036,10 @@ def main():
                    help="client: launch even while the owner is gaming (only when they asked for it)")
     p.set_defaults(fn=cmd_launch)
 
-    p = sp.add_parser("install"); p.add_argument("jar")
-    p.add_argument("--as", dest="as_name", help="filename in mods/ to replace (default: the jar's own)")
+    p = sp.add_parser("install"); p.add_argument("jar", help="a built jar, or a config file from the repo's "
+                                                                "pack/config/ (lands at the same path under the live config/)")
+    p.add_argument("--as", dest="as_name", help="filename in mods/ to replace (default: the jar's own); "
+                                                "for a config file from elsewhere, config/<path>")
     p.add_argument("--replace", help="a live jar under another name that this one supersedes; moved to the "
                                      "backup in the same step (name or path under mods/, globs allowed)")
     p.add_argument("--why", help="one line for the install log")
@@ -1909,8 +2047,10 @@ def main():
     p.add_argument("--force", action="store_true", help="install even though the live instance is in use")
     p.set_defaults(fn=cmd_install)
 
-    p = sp.add_parser("uninstall", help="move a live jar into _backup-install-<time>/ (logged)")
-    p.add_argument("jar", help="file name or path under mods/ (1.7.10/x.jar), globs allowed; must match one jar")
+    p = sp.add_parser("uninstall", help="move a live jar into _backup-install-<time>/ (logged), or put back "
+                                        "the file a config install replaced")
+    p.add_argument("jar", help="file name or path under mods/ (1.7.10/x.jar), globs allowed, must match one jar; "
+                               "or config/<path> as `install` recorded it")
     p.add_argument("--why", help="one line for the install log (required)")
     p.add_argument("--owner", help="who to log (default: $CLAUDE_SESSION_NAME)")
     p.add_argument("--force", action="store_true", help="skip the guard, in-use and required-by checks")

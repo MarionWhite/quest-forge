@@ -149,6 +149,22 @@ A jar that supersedes one with a different file name (a version in the name, or 
 moves into the same backup folder in the same step, so FML never sees both and the pack is never
 left with neither.
 
+### Config files
+
+```
+py -3.10 tools/trial/trial.py install pack/config/Chocolate/ChestConfig/chests.prop --why "loot line never rolled (44a9809)"
+```
+
+A config fix committed to `pack/config/` takes the same path into the live instance, under the same
+rules: it refuses while anything runs from the live instance, keeps the replaced file in
+`_backup-install-<time>/config/...`, logs it, and records it in the live manifest. The file lands at
+the same path under the live `config/` (`--as config/<path>` for a file from elsewhere).
+`uninstall config/<path>` puts the previous file back. The guard notes an installed config file that
+changed since (a mod rewriting its own config on load does that) but does not block on it;
+`guard --accept` records the new hash. This exists because `build_play_server.py` copies `config/`
+from the live instance, so a fix that lives only in the repo is undone by every `--force` rebuild of
+the play server.
+
 ### Taking a jar out
 
 ```
