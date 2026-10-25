@@ -327,6 +327,23 @@ public class FrameBench {
         return "resource packs " + names;
     }
 
+    /**
+     * -Dqf.bench.resetTime=1 (batch.py always sets it): Iris's frameTimeCounter restarts at 0 when a
+     * scene starts measuring, so its shots, taken a fixed number of ticks later, see the same cloud
+     * positions and wave phase in every run. Without it the clouds drift with the time since boot and
+     * two renders of one view differ (r005/r006 option pairs were confounded by it; a batch shoots
+     * later in the session than a single run).
+     */
+    private static void resetShaderClock() {
+        if (!"1".equals(System.getProperty("qf.bench.resetTime"))) return;
+        try {
+            Object timer = Class.forName("net.coderbot.iris.uniforms.SystemTimeUniforms").getField("TIMER").get(null);
+            timer.getClass().getMethod("reset").invoke(timer);
+        } catch (Throwable t) {
+            log("resetTime: " + t);
+        }
+    }
+
     /** A finished step's lines, appended to bench/<tag>.part so a crash keeps them. */
     private void savePart(Minecraft mc, List<String> lines) {
         if (stepJob == null) return;
@@ -419,6 +436,7 @@ public class FrameBench {
                 if ((quiet >= 3 && ticks > Math.max(100, warmTicks)) || ticks > SETTLE_MAX + warmTicks) {
                     log(scene() + ": settled after " + ticks + " ticks; measuring");
                     progress(mc, "measure");
+                    resetShaderClock();
                     if (tally == null || tally.world != mc.theWorld) {
                         tally = new UpdateTally(mc.theWorld);
                         mc.theWorld.addWorldAccess(tally);

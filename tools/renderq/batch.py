@@ -375,7 +375,7 @@ def prepare_boot(boot_id, jobs, log):
         shutil.rmtree(p, ignore_errors=True)
         os.makedirs(p)
     shutil.rmtree(os.path.join(d, "patched_shaders"), ignore_errors=True)
-    props = ["qf.bench=1", f"qf.bench.tag={boot_id}", f"qf.bench.jobs={jf}", f"qf.bench.views={j0['views']}",
+    props = ["qf.bench=1", "qf.bench.resetTime=1", f"qf.bench.tag={boot_id}", f"qf.bench.jobs={jf}", f"qf.bench.views={j0['views']}",
              f"qf.bench.gallery={GALLERY}", "fml.queryResult=confirm"]
     cmd = [sys.executable, "-I", TRIAL_PY, "launch", TRIAL, "--size", j0["size"], "--xmx", j0["xmx"],
            "--owner", "renderq", "--idle-min", "1"]
