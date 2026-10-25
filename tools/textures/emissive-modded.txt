@@ -127,7 +127,6 @@ hardcoreenderexpansion/decor_lily_fire
 hardcoreenderexpansion/decor_flameweed_1
 hardcoreenderexpansion/decor_flameweed_2
 hardcoreenderexpansion/decor_flameweed_3
-hardcoreenderexpansion/obsidian_special_glow
 
 # Transformers: energon
 transformers/energon_ore
