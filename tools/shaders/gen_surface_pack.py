@@ -27,15 +27,32 @@ TWO TARGETS (--target):
       IDs are Sildur's Vibrant's own (its block.properties, pre-1.13 branch);
       vanilla is left to the shader. Angelica ignores these files.
 
-BOTH TARGETS ALSO WRITE, into the resource pack (--out):
+BOTH TARGETS ALSO WRITE, into the resource pack (--out), surface maps for every
+block texture (--format picks the layout; the default follows the target):
 
-  assets/<domain>/textures/blocks/<name>_n.png
-      A normal map for every block texture: RGB = tangent-space normal, A =
-      height. Iris loads these into its normal atlas (texture/pbr); Vibrant's
-      nMap reads the same layout. Height comes from luminance, which on 16x16
-      pixel art is the artist's own shading; the strength is set per material
-      from the texture's name, so cobblestone gets deep relief and polished
-      metal almost none.
+  labpbr (questforge default; LabPBR 1.3, what QF Textures v0 also writes)
+      assets/<domain>/textures/blocks/<name>_n.png  R,G normal (DirectX Y),
+          B ambient occlusion, A height.
+      assets/<domain>/textures/blocks/<name>_s.png  R smoothness, G F0 (230-237
+          the hard-coded metals: Legends' copper, lead, platinum, silver ores
+          get their own codes), B porosity / subsurface, A emission.
+      The conversion is tools/textures/labpbr.py, shared with
+      tools/textures/build_qf_textures.py so vanilla and modded maps match.
+  legacy (vibrant default)
+      <name>_n.png only: RGB = tangent-space normal (OpenGL), A = height, the
+      layout Sildur's Vibrant's nMap reads.
+
+Height comes from luminance, which on 16x16 pixel art is the artist's own
+shading; the strength is set per material from the texture's name, so
+cobblestone gets deep relief and polished metal almost none. A mod that ships
+its own <name>_n.png is never overridden.
+
+--only FILE limits the maps to the textures listed in FILE (one per line:
+assets/<domain>/textures/blocks/<name>.png, or <domain>/<name>, or
+<domain>:<name>), so the texture loop can rebuild maps for a ranked list
+(tools/textures/rank_modded_blocks.py --only) in seconds. --mods DIR adds jar
+folders beyond <instance>/mods (Biomes O' Plenty lives on the world-design
+server, not in the live client).
 
 Classified by registry name: leaves wave, plants sway, lamps glow, metal and
 polished stone reflect, glass and ice refract; with the questforge target ores
@@ -45,6 +62,9 @@ Usage (py -3.10 -I):
     gen_surface_pack.py --target questforge --instance C:\qfb\client-ang --world C:\qfb\world-master \
         --shader-pack C:\qfb\client-ang\shaderpacks\QuestForge-dev --out QuestForge-Surface.zip
     gen_surface_pack.py --target vibrant --instance %APPDATA%\.crazycraft4 --world <save> --out QuestForge-Surface.zip
+    gen_surface_pack.py --target questforge --instance %APPDATA%\.crazycraft4 --mods C:\qfs\v0\mods \
+        --world C:\qfb\world-master --shader-pack C:\qfb\textures\shaderpack-scratch \
+        --only C:\qfb\textures\top-modded.txt --out C:\qfb\textures\QFTextures-modded-v0.zip
 
 --world is any world saved by the pack: its level.dat carries FML's registry of
 every block name, which is the only complete list of what is installed.
@@ -196,43 +216,36 @@ def write_qf_block_properties(pack_dir, names):
         print("  skipped %d names containing whitespace: %s" % (len(skipped), ", ".join(skipped[:8])))
 
 
-# --- normal maps -----------------------------------------------------------------
-def normal_map(img, strength):
-    """RGBA uint8 normal map (RGB normal, A height) for one square frame."""
-    a = img.astype(np.float32) / 255.0
-    alpha = a[..., 3]
-    lum = 0.299 * a[..., 0] + 0.587 * a[..., 1] + 0.114 * a[..., 2]
-    # Height is the artist's shading. Centre it per texture so a uniformly dark
-    # block is not sunk and a light one raised -- only the variation matters.
-    solid = alpha > 0.1
-    if solid.any():
-        lum = lum - lum[solid].mean()
-    lum = np.where(solid, lum, 0.0)
-    # Neighbours wrap, because block textures tile.
-    dx = (np.roll(lum, -1, axis=1) - np.roll(lum, 1, axis=1)) * 0.5
-    dy = (np.roll(lum, 1, axis=0) - np.roll(lum, -1, axis=0)) * 0.5   # image rows run down; +y is up
-    n = np.stack([-dx * strength, -dy * strength, np.ones_like(lum)], axis=-1)
-    n /= np.linalg.norm(n, axis=-1, keepdims=True)
-    n[~solid] = (0.0, 0.0, 1.0)   # cut-out pixels stay flat
-    rgb = np.clip((n * 0.5 + 0.5) * 255.0 + 0.5, 0, 255).astype(np.uint8)
-    # Height for parallax: 1.0 = surface. Only gently below it; deep parallax on
-    # 16x16 art reads as smeared, not as depth.
-    h = np.clip(1.0 + np.where(solid, lum, 0.0) * 0.6, 0.0, 1.0)
-    height = np.clip(h * 255.0 + 0.5, 0, 255).astype(np.uint8)
-    return np.dstack([rgb, height])
+# --- surface maps ------------------------------------------------------------------
+# The relief and the LabPBR conversion live in tools/textures/labpbr.py, shared with
+# build_qf_textures.py (QF Textures) so vanilla and modded blocks carry matching maps.
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "textures"))
+import labpbr  # noqa: E402
+
+normal_map = labpbr.normal_map   # the old name, for callers that import it from here
+
+
+def png(arr):
+    buf = io.BytesIO()
+    Image.fromarray(arr, "RGBA").save(buf, "PNG", optimize=True)
+    return buf.getvalue()
+
+
+def texture_maps(png_bytes, name, strength, fmt, kind=None, stone=None):
+    """{suffix: png bytes} for one texture (animated strips included): {'_n'} in the legacy
+    layout, {'_n', '_s'} for LabPBR. `stone` is the vanilla stone at the texture's size, so an
+    ore's flecks can be told from its host rock."""
+    img = np.array(Image.open(io.BytesIO(png_bytes)).convert("RGBA"))
+    if fmt == "legacy":
+        return {"_n": png(labpbr.legacy_normals(img, strength))}
+    st = stone if (stone is not None and stone.shape[1] == img.shape[1]) else None
+    n, s = labpbr.pbr_maps(name, img, strength, kind, st)
+    return {"_n": png(n), "_s": png(s)}
 
 
 def texture_normals(png_bytes, strength):
-    img = np.array(Image.open(io.BytesIO(png_bytes)).convert("RGBA"))
-    h, w = img.shape[:2]
-    if h > w and h % w == 0:   # animated strip: each frame is its own tile
-        frames = [normal_map(img[i * w:(i + 1) * w], strength) for i in range(h // w)]
-        out = np.vstack(frames)
-    else:
-        out = normal_map(img, strength)
-    buf = io.BytesIO()
-    Image.fromarray(out, "RGBA").save(buf, "PNG", optimize=True)
-    return buf.getvalue()
+    """Legacy entry point: RGB normal + A height for the whole texture."""
+    return texture_maps(png_bytes, "", strength, "legacy")["_n"]
 
 
 BLOCK_TEX = re.compile(r"^assets/([^/]+)/textures/blocks/(.+)\.png$")
@@ -241,17 +254,40 @@ BLOCK_TEX = re.compile(r"^assets/([^/]+)/textures/blocks/(.+)\.png$")
 LIVE = os.path.join(os.environ.get("APPDATA", os.path.expanduser("~")), ".crazycraft4")
 
 
-def texture_sources(instance, mc_jar=None):
-    """(archive path, member) for every block texture: minecraft.jar, then mods."""
-    if not mc_jar:
-        mc_jar = os.path.join(instance, "bin", "minecraft.jar")
-        if not os.path.exists(mc_jar):   # an Angelica game dir launches from the live bin/
-            mc_jar = os.path.join(LIVE, "bin", "minecraft.jar")
-    yield mc_jar
-    for root, _, files in os.walk(os.path.join(instance, "mods")):
-        for f in sorted(files):
-            if f.endswith((".jar", ".zip")) and not re.search(r"\.(pre|broken)", f):
-                yield os.path.join(root, f)
+def vanilla_jar(instance, mc_jar=None):
+    if mc_jar:
+        return mc_jar
+    p = os.path.join(instance, "bin", "minecraft.jar")
+    if not os.path.exists(p):   # an Angelica game dir launches from the live bin/
+        p = os.path.join(LIVE, "bin", "minecraft.jar")
+    return p
+
+
+def texture_sources(instance, mc_jar=None, extra_mods=()):
+    """(archive path, member) for every block texture: minecraft.jar, then mods, then --mods."""
+    yield vanilla_jar(instance, mc_jar)
+    seen = set()
+    for folder in [os.path.join(instance, "mods")] + list(extra_mods):
+        for root, _, files in os.walk(folder):
+            for f in sorted(files):
+                if f.endswith((".jar", ".zip")) and not re.search(r"\.(pre|broken)", f) and f not in seen:
+                    seen.add(f)   # the same jar in two folders is read once
+                    yield os.path.join(root, f)
+
+
+def read_only_list(path):
+    """Texture paths from an --only file: full asset paths, <domain>/<name> or <domain>:<name>."""
+    out = set()
+    for l in open(path, encoding="utf-8"):
+        l = l.split("#", 1)[0].strip()
+        if not l:
+            continue
+        if l.startswith("assets/"):
+            out.add(l if l.endswith(".png") else l + ".png")
+        else:
+            dom, name = re.split(r"[:/]", l, 1)
+            out.add("assets/%s/textures/blocks/%s.png" % (dom.lower(), name))
+    return out
 
 
 def main():
@@ -264,13 +300,19 @@ def main():
     ap.add_argument("--out", required=True, help="resource pack zip to write")
     ap.add_argument("--strength", type=float, default=1.0, help="scale every material's relief")
     ap.add_argument("--no-normals", action="store_true", help="block mappings only (still writes --out)")
+    ap.add_argument("--format", choices=["labpbr", "legacy"], help="map layout (default: labpbr for questforge, legacy for vibrant)")
+    ap.add_argument("--only", help="file listing the textures to build maps for (one per line); default: every block texture")
+    ap.add_argument("--mods", action="append", default=[], help="extra mod jar folder (repeatable), read after <instance>/mods")
     args = ap.parse_args()
     if args.target == "questforge" and not args.shader_pack:
         ap.error("--target questforge needs --shader-pack DIR (Iris reads block.properties only from the pack)")
+    fmt = args.format or ("labpbr" if args.target == "questforge" else "legacy")
+    only = read_only_list(args.only) if args.only else None
 
     out = zipfile.ZipFile(args.out, "w", zipfile.ZIP_DEFLATED)
     out.writestr("pack.mcmeta", json.dumps({"pack": {"pack_format": 1, "description":
-                 "Quest Forge surfaces: generated relief and shader materials for every block"}}, indent=1))
+                 "Quest Forge surfaces: generated %s relief and shader materials for every block" %
+                 ("LabPBR" if fmt == "labpbr" else "")}}, indent=1))
 
     names = registry_names(args.world)
     if args.target == "questforge":
@@ -288,8 +330,14 @@ def main():
         print("block mappings: %d blocks in %d mods  %s" % (lines, len(maps), dict(tally)))
 
     if not args.no_normals:
-        done, seen = collections.Counter(), set()
-        for archive in texture_sources(args.instance, args.mc_jar):
+        done, seen, own = collections.Counter(), set(), 0
+        stone = None   # vanilla 16x stone: the host rock most modded ores are drawn on
+        try:
+            with zipfile.ZipFile(vanilla_jar(args.instance, args.mc_jar)) as mc:
+                stone = np.array(Image.open(io.BytesIO(mc.read("assets/minecraft/textures/blocks/stone.png"))).convert("RGBA"))
+        except (OSError, KeyError) as e:
+            print("  no vanilla stone for ore detection: %s" % e)
+        for archive in texture_sources(args.instance, args.mc_jar, args.mods):
             try:
                 z = zipfile.ZipFile(archive)
             except zipfile.BadZipFile:
@@ -300,19 +348,28 @@ def main():
                 if not g or g.group(2).endswith(("_n", "_s")) or m in seen:
                     continue
                 seen.add(m)
+                if only is not None and m not in only:
+                    continue
                 if m[:-4] + "_n.png" in members:
+                    own += 1
                     continue   # the mod ships its own; never override an artist's map
-                _, _, strength = classify(g.group(2))
+                kind, _, strength = classify(g.group(2))
                 try:
-                    data = texture_normals(z.read(m), strength * args.strength)
+                    maps = texture_maps(z.read(m), g.group(2), strength * args.strength, fmt, kind, stone)
                 except Exception as e:
                     print("  skip %s: %s" % (m, e))
                     continue
-                out.writestr(m[:-4] + "_n.png", data)
-                if m + ".mcmeta" in members:
-                    out.writestr(m[:-4] + "_n.png.mcmeta", z.read(m + ".mcmeta"))
+                for suffix, data in maps.items():
+                    out.writestr(m[:-4] + suffix + ".png", data)
+                    if m + ".mcmeta" in members:
+                        out.writestr(m[:-4] + suffix + ".png.mcmeta", z.read(m + ".mcmeta"))
                 done[g.group(1)] += 1
-        print("normal maps: %d textures across %d domains" % (sum(done.values()), len(done)))
+        print("surface maps (%s): %d textures across %d domains%s" % (
+            fmt, sum(done.values()), len(done), "; %d left to the mod's own _n" % own if own else ""))
+        if only is not None:
+            missing = sorted(only - seen)
+            print("--only: %d of %d listed textures built%s" % (
+                len(only) - len(missing), len(only), "; not found: " + ", ".join(missing[:10]) if missing else ""))
     out.close()
     print("wrote %s (%.1f MB)" % (args.out, os.path.getsize(args.out) / 1e6))
 

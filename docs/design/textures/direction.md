@@ -100,9 +100,10 @@ So any resource pack's `<texture>_n.png` / `_s.png` reach a shader that asks for
 **What we standardise on: LabPBR.**
 - Most current PBR packs use it, so the owner can drop one in for comparison.
 - Our generated maps (QF v0) use it.
-- `tools/shaders/gen_surface_pack.py` still writes the older layout (RGB normal, A height) for
-  every modded texture. It should switch to LabPBR, sharing `build_qf_textures.py`'s conversion,
-  before modded maps matter.
+- `tools/shaders/gen_surface_pack.py` writes LabPBR too since 2026-10-25 (`_n` + `_s` for every
+  modded texture, `--format legacy` for the OptiFine/Vibrant fallback), through the shared
+  `tools/textures/labpbr.py`; `--only` builds the maps for a ranked list. See
+  [modded-blocks.md](modded-blocks.md).
 
 **What the QuestForge shader does today:**
 - It samples **only `gtexture`**. Normals are the vertex normals.
@@ -223,7 +224,8 @@ py -3.10 -I tools/textures/build_qf_textures.py --out C:\qfb\textures\QFTextures
 - **Is shipping recoloured vanilla textures acceptable?** It is common practice for resource
   packs, but the owner should agree before the pack is distributed with the modpack.
 - **Glass panes** need `glassPane=true`.
-- **Modded blocks are untouched** (still 16x).
+- **Modded blocks are untouched** (still 16x). Which ones matter, and in what order, is
+  [modded-blocks.md](modded-blocks.md); their LabPBR maps are built by `gen_surface_pack.py`.
 - **Foliage, logs, planks and dirt are vanilla 16x.** The owner liked vanilla's look in the
   forest, so they stay until he picks a direction.
 

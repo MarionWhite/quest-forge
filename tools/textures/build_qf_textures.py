@@ -34,7 +34,9 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(os.path.dirname(HERE))
 SRC = os.path.join(REPO, "resourcepacks", "QFTextures")
 sys.path.insert(0, os.path.join(REPO, "tools", "shaders"))
-import gen_surface_pack as gsp  # noqa: E402  (normal_map, classify)
+sys.path.insert(0, HERE)
+import gen_surface_pack as gsp  # noqa: E402  (classify: material kind + relief strength)
+import labpbr  # noqa: E402  (the LabPBR conversion, shared with gen_surface_pack's modded maps)
 
 LIVE = os.path.join(os.environ.get("APPDATA", os.path.expanduser("~")), ".crazycraft4")
 FAITHFUL = r"C:\qfb\faithful\dl\Faithful.32x.-.1.7.10.zip"
@@ -94,94 +96,15 @@ def calm_grass(a):
 
 
 # --- PBR --------------------------------------------------------------------------
-def frames(a):
-    h, w = a.shape[:2]
-    if h > w and h % w == 0:
-        return [a[i * w:(i + 1) * w] for i in range(h // w)]
-    return [a]
-
-
-def labpbr_normal(frame, strength):
-    """gen_surface_pack's normal (RGB OpenGL, A height) -> LabPBR (RG DirectX, B AO, A height)."""
-    n = gsp.normal_map(frame, strength).astype(np.float32)
-    nx, ny, hgt = n[..., 0], n[..., 1], n[..., 3]
-    g = 255.0 - ny   # OpenGL +Y up -> DirectX +Y down
-    # AO: pixels sunk below their neighbourhood are shaded a little.
-    hf = hgt / 255.0
-    nb = sum(np.roll(np.roll(hf, dy, 0), dx, 1) for dy in (-1, 0, 1) for dx in (-1, 0, 1)) / 9.0
-    ao = np.clip(1.0 - np.maximum(nb - hf, 0.0) * 6.0, 0.55, 1.0)
-    alpha = frame[..., 3] > 25
-    ao = np.where(alpha, ao, 1.0)
-    out = np.dstack([nx, g, ao * 255.0, np.maximum(hgt, 1.0)])
-    return np.clip(out + 0.5, 0, 255).astype(np.uint8)
-
-
-# Per-material specular: (smoothness, F0 byte, porosity/SSS byte). First match wins.
-SPEC = [
-    (r"^glass|ice$|ice_packed", (0.96, 10, 0)),
-    (r"^water", (1.00, 5, 0)),
-    (r"^gold_block", (0.78, 231, 0)),
-    (r"^iron_block|^iron_bars|^anvil|^door_iron|^hopper|^cauldron|^rail", (0.72, 230, 0)),
-    (r"^diamond_block", (0.90, 44, 0)),
-    (r"^(emerald|lapis|redstone|coal)_block", (0.62, 14, 0)),
-    (r"^quartz_block", (0.60, 12, 0)),
-    (r"^obsidian", (0.85, 12, 0)),
-    (r"^glowstone|redstone_lamp", (0.40, 10, 0)),
-    (r"leaves|tallgrass|fern|flower|sapling|double_plant|vine|reeds|waterlily|wheat|carrots|potatoes|deadbush|mushroom_(red|brown)$",
-     (0.18, 10, 170)),
-    (r"^grass|^dirt|^farmland|^mycelium|^sand|^red_sand|^gravel|^clay|^soul_sand|^snow", (0.10, 10, 55)),
-    (r"^log|^planks|bookshelf|crafting|jukebox|noteblock|^trapdoor|^door_wood|ladder", (0.22, 10, 30)),
-    (r"^wool", (0.05, 10, 64)),
-    (r"stone|cobble|brick|bedrock|netherrack|end_stone|sandstone|hardened_clay|_ore$", (0.24, 10, 18)),
-]
-SPEC = [(re.compile(r), v) for r, v in SPEC]
-# Ore pixels: (smoothness, F0 byte). Pixels that differ from the texture's stone get these.
-ORE = {"gold_ore": (0.72, 231), "iron_ore": (0.45, 18), "diamond_ore": (0.90, 44), "emerald_ore": (0.86, 40),
-       "lapis_ore": (0.60, 14), "redstone_ore": (0.62, 14), "coal_ore": (0.45, 12), "quartz_ore": (0.80, 12)}
-EMISSIVE = re.compile(r"^(glowstone|redstone_lamp_on|torch_on|redstone_torch_on|lava_|fire_|furnace_front_on|"
-                      r"pumpkin_face_on|portal|beacon)")
-
-
-def lum(f):
-    return f[..., :3].astype(np.float32) @ np.array([0.2126, 0.7152, 0.0722], np.float32) / 255.0
-
-
-def labpbr_specular(name, frame, stone=None):
-    h, w = frame.shape[:2]
-    sm, f0, por = 0.25, 10, 0
-    for rx, v in SPEC:
-        if rx.search(name):
-            sm, f0, por = v
-            break
-    L = lum(frame)
-    # Highlights catch light a touch better than crevices: +-0.06 around the base.
-    smooth = np.clip(sm + (L - L.mean()) * 0.25, 0.0, 1.0)
-    F0 = np.full((h, w), float(f0))
-    base = os.path.basename(name)
-    if base in ORE and stone is not None and stone.shape == frame.shape:
-        d = np.abs(frame[..., :3].astype(np.float32) - stone[..., :3].astype(np.float32)).sum(-1)
-        ore = d > 40
-        osm, of0 = ORE[base]
-        smooth = np.where(ore, osm, smooth)
-        F0 = np.where(ore, of0, F0)
-    emis = np.full((h, w), 255.0)
-    if EMISSIVE.search(base):
-        e = np.clip((L - 0.45) / 0.5, 0.0, 1.0)
-        emis = np.where(e > 0.02, np.minimum(e * 254.0, 254.0), 255.0)
-    out = np.dstack([smooth * 255.0, F0, np.full((h, w), float(por)), emis])
-    out = np.clip(out + 0.5, 0, 255).astype(np.uint8)
-    if not re.search(r"glass|ice", name):   # glass stays smooth through its clear pixels
-        out[frame[..., 3] < 25] = (0, 0, 0, 255)
-    return out
+# The LabPBR conversion (relief -> _n with DirectX Y, AO and height; per-material _s with the
+# ore-fleck, metal-code and emission rules) is tools/textures/labpbr.py, shared with
+# tools/shaders/gen_surface_pack.py so the modded maps match these. gen_surface_pack's classify()
+# still decides the material kind and relief strength from the texture's name.
 
 
 def pbr_maps(name, a, stone=None):
-    _, _, strength = gsp.classify(os.path.basename(name))
-    fr = frames(a)
-    st = frames(stone)[0] if stone is not None else None
-    n = np.vstack([labpbr_normal(f, strength) for f in fr])
-    s = np.vstack([labpbr_specular(name, f, st) for f in fr])
-    return n, s
+    kind, _, strength = gsp.classify(os.path.basename(name))
+    return labpbr.pbr_maps(name, a, strength, kind, stone)
 
 
 # --- build ------------------------------------------------------------------------
