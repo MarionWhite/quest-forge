@@ -4,12 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Quest Forge</title>
-<meta name="description" content="Quest Forge, a quest-driven CrazyCraft-style modpack for Minecraft 1.7.10: how to get the pack, the mod list, every item, 27 worlds, 81 enchantments you gamble for, and the pack's own shaders.">
+<meta name="description" content="Quest Forge, a quest-driven CrazyCraft-style modpack for Minecraft 1.7.10: how to get the pack, your first night, the mod list, every item, 27 worlds, 81 enchantments you gamble for, and the pack's own shaders.">
 <meta name="theme-color" content="#0E0B12">
 <link rel="canonical" href="https://marionwhite.github.io/quest-forge/">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Quest Forge">
-<meta property="og:description" content="A quest-driven CrazyCraft-style modpack for Minecraft 1.7.10, built for friends.">
+<meta property="og:description" content="Same shattered sky. Same titans. A quest-driven CrazyCraft-style modpack for Minecraft 1.7.10.">
 <meta property="og:image" content="https://marionwhite.github.io/quest-forge/img/hero-960.jpg">
 <meta property="og:url" content="https://marionwhite.github.io/quest-forge/">
 <meta name="twitter:card" content="summary_large_image">
@@ -18,6 +18,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+<script>(function(){try{var t=localStorage.getItem('qf-theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)}catch(e){}})()</script>
 <style>
 /* Tokens shared with every page under site/. */
 :root{
@@ -26,7 +27,7 @@
   --ember:#A33F17; --ember-ink:#8E3712; --ember-wash:rgba(163,63,23,.10);
   --patina:#2C4A43; --patina-wash:rgba(44,74,67,.12);
   --shadow:rgba(23,27,25,.10);
-  --night:#0E0B12; --night-ink:#ECE6F2; --night-2:#B9AFC6; --glow:#F08A3C;
+  --night:#0E0B12; --night-2b:#14101C; --night-ink:#ECE6F2; --night-2:#B9AFC6; --glow:#F08A3C; --lav:#C9A2FF;
 }
 @media (prefers-color-scheme:dark){
   :root:not([data-theme="light"]){
@@ -45,6 +46,7 @@
   --shadow:rgba(0,0,0,.45);
 }
 *{box-sizing:border-box}
+html{scroll-behavior:smooth}
 body{margin:0;background:var(--paper);color:var(--ink);
   font-family:"Source Serif 4",Georgia,serif;font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
 h1,h2,h3,h4,.ui{font-family:Archivo,"Helvetica Neue",Arial,sans-serif}
@@ -53,10 +55,11 @@ h1,h2,h3,h4,.ui{font-family:Archivo,"Helvetica Neue",Arial,sans-serif}
 a{color:var(--ember-ink)}
 :focus-visible{outline:2px solid var(--ember);outline-offset:2px}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+img{max-width:100%}
 
 /* ---- site nav (over the hero here; a plain strip on the other pages) ---- */
-nav.site{position:absolute;top:0;left:0;right:0;z-index:3;
-  background:linear-gradient(180deg,rgba(14,11,18,.62),rgba(14,11,18,0))}
+nav.site{position:absolute;top:0;left:0;right:0;z-index:4;
+  background:linear-gradient(180deg,rgba(14,11,18,.66),rgba(14,11,18,0))}
 nav.site .wrap{display:flex;align-items:center;gap:2px 18px;flex-wrap:wrap;min-height:54px;padding-top:8px;padding-bottom:8px}
 nav.site .brand{display:flex;align-items:center;gap:9px;font-family:Archivo,sans-serif;font-weight:800;font-size:15px;
   letter-spacing:-.01em;color:var(--night-ink);text-decoration:none;margin-right:auto}
@@ -64,49 +67,90 @@ nav.site .brand img{width:22px;height:22px;border-radius:4px}
 nav.site a:not(.brand){font-family:Archivo,sans-serif;font-size:13.5px;font-weight:500;color:var(--night-2);text-decoration:none;
   padding:4px 1px;border-bottom:2px solid transparent}
 nav.site a:not(.brand):hover{color:var(--night-ink);border-color:rgba(236,230,242,.4)}
+nav.site .theme{margin-left:4px;display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;padding:0;border:1px solid transparent;border-radius:50%;background:none;color:var(--night-2);cursor:pointer}
+nav.site .theme:hover{color:var(--night-ink);border-color:rgba(236,230,242,.4)}
+nav.site .theme:focus-visible{outline:2px solid var(--glow);outline-offset:1px}
+nav.site .theme svg{width:17px;height:17px;display:none}
+nav.site .theme[data-mode="auto"] .i-auto,nav.site .theme[data-mode="light"] .i-light,nav.site .theme[data-mode="dark"] .i-dark{display:block}
 
-/* ---- hero: the main-menu art, wordmark and all ---- */
+/* ---- hero: the main-menu art, with the sky alive ---- */
 .hero{position:relative;background:var(--night);color:var(--night-ink);overflow:hidden;
-  min-height:min(92vh,980px);display:flex;align-items:flex-end}
+  min-height:min(94vh,1000px);display:flex;align-items:flex-end}
 .hero picture,.hero img.bg{position:absolute;inset:0;width:100%;height:100%}
-.hero img.bg{object-fit:cover;object-position:50% 0}
-.hero::after{content:"";position:absolute;inset:0;pointer-events:none;
-  background:linear-gradient(180deg,transparent 0 46%,rgba(14,11,18,.55) 70%,var(--night) 100%)}
-.hero .wrap{position:relative;z-index:1;width:100%;padding-bottom:64px}
-.hero .kicker{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.2em;text-transform:uppercase;
-  color:var(--glow);margin:0 0 14px}
-.hero .lede{max-width:56ch;margin:0;font-size:clamp(17px,1.9vw,20px);line-height:1.5;color:var(--night-2)}
+.hero img.bg{object-fit:cover;object-position:50% 0;transform-origin:50% 20%;animation:kb 48s linear forwards}
+@keyframes kb{from{transform:scale(1)}to{transform:scale(1.05)}}
+.hero canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1}
+.hero::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:2;
+  background:linear-gradient(180deg,transparent 0 52%,rgba(14,11,18,.5) 76%,var(--night) 100%)}
+.hero .wrap{position:relative;z-index:3;width:100%;padding-bottom:58px;display:flex;justify-content:flex-end}
+.hero .copy{max-width:600px}
+.hero .kicker{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--glow);margin:0 0 16px;display:flex;align-items:center;gap:12px}
+.hero .kicker::before{content:"";width:28px;height:1px;background:var(--glow);opacity:.8}
+.hero .tag{font-family:Archivo,sans-serif;font-weight:800;font-size:clamp(30px,4.2vw,52px);line-height:1.02;letter-spacing:-.035em;
+  margin:0 0 18px;color:var(--night-ink);text-wrap:balance}
+.hero .tag em{font-style:normal;color:var(--night-2)}
+.hero .lede{max-width:54ch;margin:0;font-size:clamp(16px,1.6vw,18.5px);line-height:1.55;color:var(--night-2)}
 .hero .lede b{color:var(--night-ink);font-weight:600}
 .cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}
 .btn{font-family:Archivo,sans-serif;font-weight:600;font-size:15px;text-decoration:none;padding:11px 20px;
-  border-radius:2px;border:1px solid rgba(236,230,242,.35);color:var(--night-ink);background:rgba(14,11,18,.35);
-  backdrop-filter:blur(4px);transition:border-color .15s,background .15s}
-.btn:hover{border-color:var(--night-ink);background:rgba(14,11,18,.6)}
+  border-radius:2px;border:1px solid rgba(236,230,242,.32);color:var(--night-ink);background:rgba(14,11,18,.38);
+  backdrop-filter:blur(4px);transition:border-color .15s,background .15s,transform .15s}
+.btn:hover{border-color:var(--night-ink);background:rgba(14,11,18,.62);transform:translateY(-1px)}
 .btn.primary{background:var(--glow);border-color:var(--glow);color:#1A0E06}
 .btn.primary:hover{background:#FF9D52;border-color:#FF9D52}
-.facts{display:flex;flex-wrap:wrap;gap:4px 26px;margin-top:34px;font-family:"JetBrains Mono",monospace;font-size:11.5px;
-  color:var(--night-2);font-variant-numeric:tabular-nums}
-.facts b{color:var(--night-ink);font-weight:500}
+
+/* ---- the numbers band bridging the night into the page ---- */
+.band{background:var(--night);color:var(--night-ink);border-top:1px solid rgba(236,230,242,.08)}
+.band .wrap{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:0}
+.stat{padding:26px 18px 24px 0;border-right:1px solid rgba(236,230,242,.1);margin-right:18px;display:flex;flex-direction:column;gap:4px;text-decoration:none;color:inherit}
+.stat:last-child{border-right:0;margin-right:0}
+.stat b{font-family:Archivo,sans-serif;font-weight:800;font-size:clamp(28px,3.4vw,40px);letter-spacing:-.04em;line-height:1;
+  color:var(--night-ink);font-variant-numeric:tabular-nums}
+.stat span{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--night-2)}
+a.stat:hover b{color:var(--glow)}
 
 /* ---- sections ---- */
-section{padding:72px 0 8px}
+section{padding:76px 0 8px}
 .head{display:flex;align-items:baseline;justify-content:space-between;gap:20px;flex-wrap:wrap;
-  border-bottom:2px solid var(--ink);padding-bottom:10px;margin-bottom:26px}
-h2{font-size:clamp(26px,3.2vw,34px);font-weight:800;letter-spacing:-.025em;margin:0;line-height:1.1}
-.head p{margin:0;color:var(--muted);font-size:15px;max-width:58ch}
+  border-bottom:2px solid var(--ink);padding-bottom:12px;margin-bottom:28px}
+.head .t{display:flex;flex-direction:column;gap:6px}
+.eyebrow{font-family:"JetBrains Mono",monospace;font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--ember-ink);margin:0}
+h2{font-size:clamp(26px,3.2vw,36px);font-weight:800;letter-spacing:-.028em;margin:0;line-height:1.08}
+.head p.sub{margin:0;color:var(--muted);font-size:15px;max-width:58ch}
 .head a.more{font-family:Archivo,sans-serif;font-size:14px;font-weight:600;text-decoration:none;white-space:nowrap}
 .head a.more:hover{text-decoration:underline}
 
 /* ---- what makes it Quest Forge ---- */
 .traits{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;border:1px solid var(--rule);background:var(--surface);border-radius:3px;overflow:hidden}
-.trait{padding:22px 22px 24px;border-right:1px solid var(--rule);display:flex;flex-direction:column;gap:8px;color:inherit;text-decoration:none}
+.trait{padding:24px 22px 24px;border-right:1px solid var(--rule);display:flex;flex-direction:column;gap:8px;color:inherit;text-decoration:none;position:relative}
 .trait:last-child{border-right:0}
 a.trait:hover{background:var(--ember-wash)}
-.trait .big{font-family:Archivo,sans-serif;font-size:clamp(34px,4vw,46px);font-weight:800;letter-spacing:-.04em;line-height:1;color:var(--ember)}
+.trait .big{font-family:Archivo,sans-serif;font-size:clamp(36px,4vw,48px);font-weight:800;letter-spacing:-.045em;line-height:1;color:var(--ember)}
+.trait .big small{font-size:.45em;letter-spacing:0;color:var(--muted);font-weight:600;margin-left:4px}
 .trait h3{font-size:17px;font-weight:700;margin:0;letter-spacing:-.01em}
 .trait p{margin:0;font-size:14.5px;line-height:1.5;color:var(--ink-2)}
 .trait .go{margin-top:auto;padding-top:8px;font-family:Archivo,sans-serif;font-size:13px;font-weight:600;color:var(--ember-ink)}
-.also{margin:14px 0 0;font-size:14.5px;color:var(--muted)}
+
+/* ---- light and air: the pack's own renders, full bleed ---- */
+.cine{position:relative;height:clamp(300px,64vh,720px);background:var(--night);overflow:hidden;margin-top:-28px}
+.frame{position:absolute;inset:0;margin:0;opacity:0;transition:opacity 1.4s ease}
+.frame.on{opacity:1;z-index:1}
+.frame img{width:100%;height:100%;object-fit:cover;display:block;transform-origin:50% 60%}
+.frame.on img{animation:drift 9s linear forwards}
+@keyframes drift{from{transform:scale(1.04)}to{transform:scale(1.1)}}
+.frame figcaption{position:absolute;left:0;right:0;bottom:0;padding:120px 0 26px;
+  background:linear-gradient(180deg,transparent,rgba(14,11,18,.82));color:var(--night-ink)}
+.frame figcaption .wrap{display:flex;flex-direction:column;gap:4px}
+.frame figcaption b{font-family:Archivo,sans-serif;font-size:clamp(18px,2.2vw,24px);font-weight:700;letter-spacing:-.015em}
+.frame figcaption span{font-size:14.5px;color:var(--night-2);max-width:60ch}
+.dots{position:absolute;right:28px;bottom:28px;z-index:2;display:flex;gap:8px}
+.dots button{width:30px;height:4px;border:0;border-radius:2px;background:rgba(236,230,242,.32);cursor:pointer;padding:0}
+.dots button[aria-selected="true"]{background:var(--glow)}
+.tenets{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:28px;margin-top:30px}
+.tenet h3{margin:0 0 6px;font-size:16px;font-weight:700;letter-spacing:-.01em}
+.tenet p{margin:0;font-size:14.5px;line-height:1.5;color:var(--ink-2)}
+.tenet .k{font-family:"JetBrains Mono",monospace;font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:8px}
 
 /* ---- directory ---- */
 .pages{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px}
@@ -127,29 +171,17 @@ a.page:hover h3 .go{translate:4px 0}
 .page .meta b{color:var(--ink);font-weight:500}
 .status{position:absolute;top:12px;left:12px;font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.12em;
   text-transform:uppercase;padding:3px 8px;border-radius:2px;background:rgba(14,11,18,.78);color:#ECE6F2;backdrop-filter:blur(3px)}
-.status.live::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:#5FD08A;margin-right:7px;
-  translate:0 -1px}
 .status.redo{background:var(--glow);color:#1A0E06}
 .page.wide{grid-column:span 2}
 .page.wide .art{aspect-ratio:21/9}
-
-/* ---- light and air ---- */
-.stills{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
-.still{margin:0;position:relative;overflow:hidden;border-radius:3px;background:var(--night)}
-.still.wide{grid-column:span 2}
-.still img{width:100%;aspect-ratio:16/9;object-fit:cover;display:block}
-.still.wide img{aspect-ratio:21/9}
-.still figcaption{position:absolute;left:0;right:0;bottom:0;padding:34px 18px 14px;
-  background:linear-gradient(180deg,transparent,rgba(14,11,18,.78));color:var(--night-ink);
-  font-family:Archivo,sans-serif;font-size:14px;font-weight:600;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
-.still figcaption span{font-family:"Source Serif 4",serif;font-weight:400;font-size:13.5px;color:var(--night-2)}
-.light-note{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:30px;margin-top:22px;align-items:start}
-.light-note p{margin:0 0 10px;font-size:15.5px;color:var(--ink-2)}
-.light-note ul{margin:0;padding-left:18px;font-size:14.5px;color:var(--ink-2)}
-.light-note li{margin:4px 0}
+.page.night{background:var(--night-2b);border-color:#2A2238;color:var(--night-ink)}
+.page.night p{color:var(--night-2)}
+.page.night .meta{color:var(--night-2)}
+.page.night .meta b{color:var(--night-ink)}
+.page.night h3 .go{color:var(--glow)}
 
 /* ---- the climb ---- */
-.climb{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:40px;align-items:start}
+.climb{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:48px;align-items:start}
 ol.rungs{list-style:none;margin:0;padding:0;position:relative}
 ol.rungs::before{content:"";position:absolute;left:19px;top:14px;bottom:14px;width:2px;background:var(--rule)}
 ol.rungs li{position:relative;display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:0 14px;align-items:start;padding:10px 0}
@@ -161,8 +193,16 @@ ol.rungs .gate{margin:0;font-size:14px;color:var(--ink-2);line-height:1.45;max-w
 ol.rungs .gate b{font-weight:600;color:var(--ember-ink)}
 ol.rungs .q{margin-top:11px;font-family:"JetBrains Mono",monospace;font-size:10.5px;color:var(--muted);white-space:nowrap;
   letter-spacing:.08em;text-transform:uppercase}
-.sidetabs h3{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:14px 0 10px;font-family:"JetBrains Mono",monospace;font-weight:500}
-.sidetabs p{margin:0 0 12px;font-size:14.5px;color:var(--ink-2)}
+.aside h3{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin:22px 0 10px;font-family:"JetBrains Mono",monospace;font-weight:500}
+.aside h3:first-child{margin-top:0}
+.aside p{margin:0 0 12px;font-size:14.5px;color:var(--ink-2)}
+.quote{background:var(--night-2b);color:var(--night-ink);border-radius:3px;padding:22px 24px 20px;position:relative;min-height:150px;
+  display:flex;flex-direction:column;justify-content:center}
+.quote::before{content:"\201C";position:absolute;top:2px;left:16px;font-family:"Source Serif 4",serif;font-size:72px;line-height:1;color:var(--glow);opacity:.55}
+.quote blockquote{margin:0;font-size:17.5px;line-height:1.45;font-style:italic;transition:opacity .5s}
+.quote cite{display:block;margin-top:10px;font-style:normal;font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--night-2)}
+.quote.fade blockquote,.quote.fade cite{opacity:0}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
 .chip{font-family:Archivo,sans-serif;font-size:13px;font-weight:500;color:var(--ink-2);background:var(--surface);
   border:1px solid var(--rule);border-radius:2px;padding:4px 9px;white-space:nowrap}
@@ -172,25 +212,38 @@ ol.rungs .q{margin-top:11px;font-family:"JetBrains Mono",monospace;font-size:10.
 .strip{display:grid;grid-auto-flow:column;grid-auto-columns:clamp(220px,26vw,320px);gap:14px;overflow-x:auto;
   padding:4px 28px 22px;margin:0 auto;max-width:1236px;scroll-snap-type:x proximity;scrollbar-width:thin}
 .world{margin:0;scroll-snap-align:start;color:inherit;text-decoration:none;display:block}
-.world img{width:100%;aspect-ratio:16/9;object-fit:cover;display:block;border-radius:2px;background:var(--night)}
+.world img{width:100%;aspect-ratio:16/9;object-fit:cover;display:block;border-radius:2px;background:var(--night);transition:transform .3s}
+a.world:hover img{transform:translateY(-3px)}
 .world figcaption{display:flex;gap:8px;align-items:baseline;margin-top:7px;font-family:Archivo,sans-serif;font-size:14px;
   font-weight:600;color:var(--ink-2)}
 .world figcaption span{font-family:"JetBrains Mono",monospace;font-size:10.5px;font-weight:400;color:var(--muted)}
 a.world:hover figcaption{color:var(--ember-ink)}
 
-footer.site{margin-top:72px;border-top:1px solid var(--rule);padding:26px 0 56px;font-family:"JetBrains Mono",monospace;
+/* ---- footer ---- */
+footer.site{margin-top:80px;border-top:1px solid var(--rule);padding:30px 0 56px;font-family:"JetBrains Mono",monospace;
   font-size:11px;color:var(--muted)}
-footer.site .wrap{display:flex;flex-wrap:wrap;gap:6px 24px}
+footer.site .row{display:flex;flex-wrap:wrap;gap:6px 24px;align-items:baseline}
+footer.site .row+.row{margin-top:18px;padding-top:16px;border-top:1px solid var(--rule)}
 footer.site a{color:var(--ink-2);text-decoration:none;border-bottom:1px solid var(--rule)}
 footer.site a:hover{color:var(--ember-ink);border-color:var(--ember)}
+footer.site .fine{max-width:78ch;line-height:1.6}
+footer.site #packv:empty{display:none}
 
+@media (max-width:1000px){
+  .band .wrap{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .stat:nth-child(3){border-right:0}
+  .stat:nth-child(-n+3){border-bottom:1px solid rgba(236,230,242,.1)}
+  .stat{padding:20px 14px 18px 0;margin-right:14px}
+}
 @media (max-width:960px){
   .pages{grid-template-columns:repeat(2,minmax(0,1fr))}
   .page.wide{grid-column:span 2}
   .traits{grid-template-columns:repeat(2,minmax(0,1fr))}
   .trait:nth-child(2){border-right:0}
   .trait:nth-child(-n+2){border-bottom:1px solid var(--rule)}
-  .climb,.light-note{grid-template-columns:minmax(0,1fr)}
+  .climb{grid-template-columns:minmax(0,1fr)}
+  .tenets{grid-template-columns:minmax(0,1fr);gap:18px}
+  .hero .wrap{justify-content:flex-start}
 }
 @media (max-width:640px){
   .wrap{padding-left:16px;padding-right:16px}
@@ -200,23 +253,34 @@ footer.site a:hover{color:var(--ember-ink);border-color:var(--ember)}
   .traits{grid-template-columns:minmax(0,1fr)}
   .trait{border-right:0;border-bottom:1px solid var(--rule)}
   .trait:last-child{border-bottom:0}
-  .stills{grid-template-columns:minmax(0,1fr)}
-  .still.wide{grid-column:auto}
-  .still.wide img{aspect-ratio:16/9}
+  .band .wrap{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .stat,.stat:nth-child(3){border-right:1px solid rgba(236,230,242,.1);border-bottom:1px solid rgba(236,230,242,.1)}
+  .stat:nth-child(2n){border-right:0}
+  .stat:nth-last-child(-n+1){border-bottom:0}
   nav.site .wrap{gap:2px 12px}
   nav.site a:not(.brand){font-size:12.5px}
-  /* A portrait screen would crop the wordmark: show the art whole, the words under it. */
+  /* A portrait screen would crop the wordmark: the nav sits above the art, the art shows whole,
+     the words come under it, and the particle sky is skipped (it would cover a 220px picture). */
   .hero{min-height:0;display:block}
+  nav.site{position:static;background:var(--night)}
   .hero picture{position:relative;display:block;height:auto}
-  .hero img.bg{position:static;height:auto;aspect-ratio:16/9}
-  .hero::after{inset:0 0 auto 0;height:calc(100vw * 9 / 16)}
-  .hero .wrap{padding-top:8px;padding-bottom:40px}
-  section{padding-top:52px}
+  .hero img.bg{position:static;height:auto;aspect-ratio:16/9;animation:none}
+  .hero canvas,.hero::after{display:none}
+  .hero .wrap{padding-top:16px;padding-bottom:40px}
+  .hero .copy{max-width:none}
+  section{padding-top:54px}
+  .cine{height:clamp(240px,56vw,420px);margin-top:-20px}
+  .frame figcaption{padding-top:60px;padding-bottom:16px}
+  .frame figcaption span{display:none}
+  .dots{right:16px;bottom:16px}
   .strip{padding:4px 16px 18px}
   ol.rungs li{grid-template-columns:40px minmax(0,1fr)}
   ol.rungs .q{grid-column:2;margin-top:4px}
 }
-@media (prefers-reduced-motion:reduce){ *{transition:none !important} }
+@media (prefers-reduced-motion:reduce){
+  *{transition:none !important;animation:none !important}
+  .hero canvas{display:none}
+}
 </style>
 </head>
 <body>
@@ -225,51 +289,58 @@ footer.site a:hover{color:var(--ember-ink);border-color:var(--ember)}
   <nav class="site" aria-label="Site"><div class="wrap">
     <a class="brand" href="./"><img src="favicon.png" alt="">Quest Forge</a>
     <a href="play/">Get the pack</a>
+    <a href="first-night/">First night</a>
     <a href="mods/">Mods</a>
     <a href="items/">Items</a>
     <a href="worlds/">Worlds</a>
     <a href="enchantments/">Enchantments</a>
     <a href="ore-atlas/">Ore atlas</a>
     <a href="online/">Server</a>
+    <button class="theme" type="button" data-theme-toggle aria-label="Theme" title="Theme"><svg class="i-auto" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18V3z" fill="currentColor"/><circle cx="12" cy="12" r="8.25" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><svg class="i-light" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="currentColor"/><g stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/></g></svg><svg class="i-dark" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z" fill="currentColor"/></svg></button>
   </div></nav>
   <picture>
     <source media="(max-width:960px)" srcset="img/hero-960.jpg">
     <img class="bg" src="img/hero.jpg" alt="" fetchpriority="high">
   </picture>
+  <canvas id="sky" aria-hidden="true"></canvas>
   <div class="wrap">
-    <h1 class="sr">Quest Forge</h1>
-    <p class="kicker">Minecraft 1.7.10 &middot; A modpack for friends</p>
-    <p class="lede">A quest-driven, CrazyCraft-style pack: <b>OreSpawn's titans</b>, <b>TragicMC</b>, Witchery,
-      the Twilight Forest, Transformers and a hundred more mods, tied together by a hand-built questline.
-      Big leaps in power, and no easy road to the top.</p>
-    <div class="cta">
-      <a class="btn primary" href="play/">Get the pack</a>
-      <a class="btn" href="items/">Browse every item</a>
-      <a class="btn" href="mods/">See the mods</a>
-    </div>
-    <div class="facts" id="facts">
-      <span><b>111</b> mod files</span>
-      <span><b>312</b> quests</span>
-      <span><b>27</b> worlds to reach</span>
-      <span><b>81</b> custom enchantments</span>
-      <span>Forge <b>10.13.4.1558</b></span>
+    <div class="copy">
+      <h1 class="sr">Quest Forge</h1>
+      <p class="kicker">Minecraft 1.7.10 &middot; CrazyCraft, rebuilt</p>
+      <p class="tag">Same shattered sky. <em>Same titans.</em></p>
+      <p class="lede"><b>OreSpawn's</b> kings, <b>TragicMC</b>, Witchery, the Twilight Forest, Transformers and a hundred more mods,
+        tied together by a hand-built questline that opens one world at a time. Big leaps in power, and no easy road to the top.</p>
+      <div class="cta">
+        <a class="btn primary" href="play/">Get the pack</a>
+        <a class="btn" href="first-night/">Your first night</a>
+        <a class="btn" href="items/">Browse every item</a>
+      </div>
     </div>
   </div>
 </header>
 
+<div class="band" aria-label="The pack in numbers"><div class="wrap">
+  <a class="stat" href="items/"><b data-n="14001" id="nItems">14,001</b><span>items in the index</span></a>
+  <a class="stat" href="#climb"><b data-n="312">312</b><span>quests, 20 chapters</span></a>
+  <a class="stat" href="worlds/"><b data-n="27">27</b><span>worlds to reach</span></a>
+  <a class="stat" href="enchantments/"><b data-n="81">81</b><span>enchantments to roll</span></a>
+  <a class="stat" href="mods/"><b data-n="111">111</b><span>mods, one of them ours</span></a>
+</div></div>
+
 <main>
 <section class="wrap" aria-labelledby="traits-h">
   <div class="head">
-    <h2 id="traits-h">What makes it Quest Forge</h2>
-    <p>Four things no other pack has, all built in the open.</p>
+    <div class="t"><p class="eyebrow">What makes it Quest Forge</p><h2 id="traits-h">Built, not assembled</h2></div>
+    <p class="sub">Four things no other pack has. All of it in the open, on GitHub.</p>
   </div>
   <div class="traits">
-    <div class="trait">
+    <a class="trait" href="#climb">
       <span class="big">312</span>
       <h3>A hand-built questline</h3>
       <p>Twenty chapters. The numbered ones are the climb, and each opens when a boss dies: Witchery at the Naga,
         the End at the Hydra, TragicMC at Mobzilla. The rest are how you stay alive on the way up.</p>
-    </div>
+      <span class="go">The climb &rarr;</span>
+    </a>
     <a class="trait" href="enchantments/">
       <span class="big">81</span>
       <h3>Enchantments you gamble for</h3>
@@ -284,66 +355,100 @@ footer.site a:hover{color:var(--ember-ink);border-color:var(--ember)}
         inside of a Compact Machine. Every one has its own painted loading screen.</p>
       <span class="go">All twenty-seven &rarr;</span>
     </a>
-    <a class="trait" href="shaders/">
-      <span class="big" id="roundsN">6</span>
-      <h3>Rounds into its own shaders</h3>
-      <p>A shader pack written from scratch for the pack's Angelica client: a physically based sky, real clouds,
-        water with a glitter path, and nights you can read. Each round is judged scene by scene in the Shader Lab.</p>
-      <span class="go">Light and air &rarr;</span>
+    <a class="trait" href="first-night/#together">
+      <span class="big">40<small>blocks</small></span>
+      <h3>Voice chat, built in</h3>
+      <p>The pack's own mod carries proximity voice: hold a key and anyone within forty blocks hears you, loudest up
+        close. The same mod runs a jukebox that plays your own music, and lottery tickets that unlock commands.</p>
+      <span class="go">How it works &rarr;</span>
     </a>
   </div>
-  <p class="also">Also from the pack's own mod: proximity voice chat, and a jukebox that plays your own music from
-    wherever it stands.</p>
+</section>
+
+<section aria-labelledby="light-h">
+  <div class="wrap head">
+    <div class="t"><p class="eyebrow">Light and air</p><h2 id="light-h">The pack's own shaders</h2></div>
+    <p class="sub">Written from scratch for the pack's client. Near-photoreal light on unmistakably Minecraft geometry:
+      realism from the sky, the sun, water and weather, never from smoothing away the blocks.</p>
+  </div>
+  <div class="cine" id="cine">
+    <figure class="frame on">
+      <img src="img/shaders/water-sunset.jpg" alt="Open ocean at sunset, a long glitter path running from the sun toward the camera" fetchpriority="low">
+      <figcaption><div class="wrap"><b>Sunset over the ocean</b><span>Spectral waves at eight scales, true Fresnel, and a glitter path that thins as it nears you.</span></div></figcaption>
+    </figure>
+    <figure class="frame">
+      <img src="img/shaders/forest-light.jpg" alt="A birch and oak forest at golden hour with light coming through the canopy" loading="lazy">
+      <figcaption><div class="wrap"><b>Forest at golden hour</b><span>Warm sun through the canopy, and a zenith that stays blue.</span></div></figcaption>
+    </figure>
+    <figure class="frame">
+      <img src="img/shaders/golden.jpg" alt="Rolling plains under cumulus clouds lit from below by a low sun" loading="lazy">
+      <figcaption><div class="wrap"><b>Clouds lit by the hour</b><span>Raymarched clouds that cast shadows and change with the weather.</span></div></figcaption>
+    </figure>
+    <figure class="frame">
+      <img src="img/shaders/lake-sunset.jpg" alt="A lake at dusk with a tall tower on the far shore and cloud bands catching the last light" loading="lazy">
+      <figcaption><div class="wrap"><b>Dusk on the lake</b><span>Water that takes its colour from the biome: clear and glassy here, deep blue on the ocean, turquoise on a reef.</span></div></figcaption>
+    </figure>
+    <div class="dots" role="tablist" aria-label="Scenes" id="dots"></div>
+  </div>
+  <div class="wrap tenets">
+    <div class="tenet"><span class="k">Tier A</span><h3>Readable darkness</h3><p>Nights and caves are dark, never black. The floor scales with the moon, and a held torch works.</p></div>
+    <div class="tenet"><span class="k">Tier A</span><h3>Calm exposure, neutral colour</h3><p>No pumping when you look at the sky or a lamp, and no orange wash at golden hour. Wood, gold and sand are the test surfaces.</p></div>
+    <div class="tenet"><span class="k">Tier C</span><h3>Modded blocks are first class</h3><p>Modded leaves wave, lamps glow, ores glint, and every one of the pack's dimensions gets a sky and fog of its own.</p></div>
+  </div>
 </section>
 
 <section class="wrap" aria-labelledby="pages-h">
   <div class="head">
-    <h2 id="pages-h">The pack, page by page</h2>
-    <p>What's in Quest Forge and how it fits together.</p>
+    <div class="t"><p class="eyebrow">Find your way</p><h2 id="pages-h">The pack, page by page</h2></div>
+    <p class="sub">Everything on this site, and what each page is for.</p>
   </div>
   <div class="pages">
     <a class="page wide" href="play/">
-      <span class="status live">Live</span>
       <div class="art"><img src="img/plates/01-nether.jpg" alt="" loading="lazy"></div>
       <div class="body">
         <h3>Get the pack <span class="go" aria-hidden="true">&rarr;</span></h3>
-        <p>Everything a friend needs to play: the download, Java 8, Prism Launcher, the memory settings for your PC,
-          a lighter profile for an older one, and what each refusal from the server means.</p>
+        <p>Seven steps from nothing to the title screen: the download, Java 8, Prism Launcher, the memory settings for
+          your PC, a lighter profile for an older one, and what each refusal from the server means.</p>
         <div class="meta" id="playMeta"><span>Windows and Mac</span><span>About half an hour</span></div>
       </div>
     </a>
+    <a class="page night" href="first-night/">
+      <div class="art"><img src="img/plates/21-underworld.jpg" alt="" loading="lazy"></div>
+      <div class="body">
+        <h3>Your first night <span class="go" aria-hidden="true">&rarr;</span></h3>
+        <p>Nobody chooses the first night. Walls, torches, the keys that matter, what comes out of the dark, and how
+          to get your things back when it goes wrong.</p>
+        <div class="meta"><span>Read it before sundown</span></div>
+      </div>
+    </a>
     <a class="page" href="items/">
-      <span class="status live">Live</span>
       <div class="art"><img src="img/plates/24-village-mania.jpg" alt="" loading="lazy"></div>
       <div class="body">
         <h3>Item index <span class="go" aria-hidden="true">&rarr;</span></h3>
         <p>Every item in the pack with its real in-game icon. Search it the way you would NEI, follow recipes and
-          uses, and see which quests ask for each one.</p>
+          uses, and see which quests ask for each one. Works offline once it has loaded.</p>
         <div class="meta" id="itemMeta"><span>Search with <b>@mod</b> <b>$ore</b> <b>#tooltip</b></span></div>
       </div>
     </a>
     <a class="page" href="mods/">
-      <span class="status live">Live</span>
       <div class="art"><img src="img/plates/03-twilight-forest.jpg" alt="" loading="lazy"></div>
       <div class="body">
         <h3>Mod list <span class="go" aria-hidden="true">&rarr;</span></h3>
         <p>All 111 mods sorted into what they add: dimensions, bosses, magic, tech and gear, each with a line on
-          what it actually does.</p>
+          what it actually does and a link to its items.</p>
         <div class="meta"><span><b>11</b> categories</span><span><b>141</b> registered mods</span></div>
       </div>
     </a>
     <a class="page" href="worlds/">
-      <span class="status live">Live</span>
       <div class="art"><img src="img/plates/02-end.jpg" alt="" loading="lazy"></div>
       <div class="body">
         <h3>Worlds <span class="go" aria-hidden="true">&rarr;</span></h3>
-        <p>All twenty-seven dimensions with their loading plates: which mod each comes from, and the order the
-          quest book opens them in.</p>
-        <div class="meta"><span><b>27</b> plates</span><span><b>7</b> mods</span></div>
+        <p>All twenty-seven dimensions with their loading plates: which mod each comes from, the order the quest
+          book opens them in, and the plates as wallpapers.</p>
+        <div class="meta"><span><b>27</b> plates</span><span><b>4K</b> downloads</span></div>
       </div>
     </a>
     <a class="page" href="enchantments/">
-      <span class="status live">Live</span>
       <div class="art"><img src="img/plates/26-crystal.jpg" alt="" loading="lazy"></div>
       <div class="body">
         <h3>Enchantments <span class="go" aria-hidden="true">&rarr;</span></h3>
@@ -371,59 +476,13 @@ footer.site a:hover{color:var(--ember-ink);border-color:var(--ember)}
         <div class="meta"><span>Refreshes every minute</span></div>
       </div>
     </a>
-    <a class="page" href="shaders/">
-      <span class="status live">Owner review</span>
-      <div class="art"><img src="img/shader-lab.jpg" alt="" loading="lazy"></div>
-      <div class="body">
-        <h3>Shader Lab <span class="go" aria-hidden="true">&rarr;</span></h3>
-        <p>Where the pack's own shaders get judged. Each round puts two or three versions of one scene side by
-          side; pick one, rate it and say why, and the next round is tuned to your answers.</p>
-        <div class="meta"><span>Phone friendly</span></div>
-      </div>
-    </a>
   </div>
 </section>
 
-<section class="wrap" aria-labelledby="light-h">
+<section class="wrap" aria-labelledby="climb-h" id="climb">
   <div class="head">
-    <h2 id="light-h">Light and air</h2>
-    <p id="lightSub">The pack's own shaders, as they stand after six review rounds.</p>
-    <a class="more" href="shaders/">Judge the next round &rarr;</a>
-  </div>
-  <div class="stills">
-    <figure class="still wide">
-      <img src="img/shaders/water-sunset.jpg" alt="Open ocean at sunset, a long glitter path running from the sun toward the camera" loading="lazy">
-      <figcaption>Sunset over the ocean <span>Spectral waves at eight scales, true Fresnel, and a glitter path that thins as it nears you.</span></figcaption>
-    </figure>
-    <figure class="still">
-      <img src="img/shaders/forest-light.jpg" alt="A birch and oak forest at golden hour with light coming through the canopy" loading="lazy">
-      <figcaption>Forest at golden hour <span>Warm sun, and a zenith that stays blue.</span></figcaption>
-    </figure>
-    <figure class="still">
-      <img src="img/shaders/golden.jpg" alt="Rolling plains under cumulus clouds lit from below by a low sun" loading="lazy">
-      <figcaption>Clouds lit by the hour <span>Raymarched clouds that cast shadows and change with the weather.</span></figcaption>
-    </figure>
-  </div>
-  <div class="light-note">
-    <div>
-      <p>Near-photoreal light and air on unmistakably Minecraft geometry. Realism comes from the sky, the sun,
-        shadows, water and atmosphere, never from smoothing away the blocks.</p>
-      <p>The pack runs on the Angelica client and ships with a Low and a Potato preset, so a GTX 1060-class PC is
-        the floor rather than the exception.</p>
-    </div>
-    <ul>
-      <li>Readable darkness: nights and caves are dark, never black.</li>
-      <li>Calm exposure, neutral colour, no orange wash at golden hour.</li>
-      <li>Motion blur, depth of field and lens flare are off unless you ask.</li>
-      <li>Every frame is our own render; reference photos in the Lab are credited.</li>
-    </ul>
-  </div>
-</section>
-
-<section class="wrap" aria-labelledby="climb-h">
-  <div class="head">
-    <h2 id="climb-h">The climb</h2>
-    <p>The quest book's numbered chapters, and what has to die before each one opens.</p>
+    <div class="t"><p class="eyebrow">The quest book</p><h2 id="climb-h">The climb</h2></div>
+    <p class="sub">The numbered chapters, and what has to die before each one opens.</p>
   </div>
   <div class="climb">
     <ol class="rungs">
@@ -437,7 +496,12 @@ footer.site a:hover{color:var(--ember-ink);border-color:var(--ember)}
       <li><span class="n">8</span><div><h3>TragicMC</h3><p class="gate">Doom is a destination, and it has a road. Opens when <b>Mobzilla is dead</b>.</p></div><span class="q">12 quests</span></li>
       <li><span class="n">9</span><div><h3>ProjectE</h3><p class="gate">The capstone, as a ladder: each rung opens at the boss its recipe needs, the <b>Philosopher's Stone at the Lich</b>.</p></div><span class="q">4 quests</span></li>
     </ol>
-    <div class="sidetabs">
+    <div class="aside">
+      <h3>From the chronicle</h3>
+      <div class="quote" id="quote" aria-live="polite">
+        <blockquote id="qText">Diamond is how the book knows you are serious.</blockquote>
+        <cite id="qWho">Quartermaster</cite>
+      </div>
       <h3>Side chapters</h3>
       <p>Open from the start and pay in utility and flavour, never the next chapter's power.</p>
       <div class="chips">
@@ -464,9 +528,8 @@ footer.site a:hover{color:var(--ember-ink);border-color:var(--ember)}
 <section aria-labelledby="worlds-h">
   <div class="wrap">
     <div class="head">
-      <h2 id="worlds-h">Twenty-seven worlds</h2>
-      <p>The pack's loading screens, one painted for each place it can take you.</p>
-      <a class="more" href="worlds/">Every world, with where it comes from &rarr;</a>
+      <div class="t"><p class="eyebrow">Loading screens</p><h2 id="worlds-h">Twenty-seven worlds</h2></div>
+      <a class="more" href="worlds/">Every world, and the plates as wallpapers &rarr;</a>
     </div>
   </div>
   <div class="strip" id="strip" tabindex="0" aria-label="Loading-screen art, scrolls sideways"></div>
@@ -474,15 +537,151 @@ footer.site a:hover{color:var(--ember-ink);border-color:var(--ember)}
 </main>
 
 <footer class="site"><div class="wrap">
-  <span>Quest Forge &middot; Minecraft 1.7.10</span>
-  <a href="play/">Get the pack</a><a href="mods/">Mod list</a><a href="items/">Item index</a><a href="worlds/">Worlds</a>
-  <a href="enchantments/">Enchantments</a><a href="ore-atlas/">Ore atlas</a><a href="online/">Server</a><a href="shaders/">Shader Lab</a>
-  <a href="https://github.com/MarionWhite/quest-forge">Source on GitHub</a>
-  <span>Not affiliated with Mojang or any mod author</span>
+  <div class="row">
+    <span>Quest Forge &middot; Minecraft 1.7.10 &middot; Forge 10.13.4.1558</span>
+    <a href="play/">Get the pack</a><a href="first-night/">First night</a><a href="mods/">Mod list</a><a href="items/">Item index</a>
+    <a href="worlds/">Worlds</a><a href="enchantments/">Enchantments</a><a href="ore-atlas/">Ore atlas</a><a href="online/">Server</a>
+    <a href="https://github.com/MarionWhite/quest-forge">Source on GitHub</a>
+  </div>
+  <div class="row">
+    <span id="packv"></span>
+    <span class="fine">Quest Forge is an independent, non-commercial project. Minecraft belongs to Mojang and every mod to its
+      author; neither has endorsed any of this.</span>
+  </div>
 </div></footer>
 
 <script>
 "use strict";
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+// The sky over the main-menu art: embers rising from the smeltery at the left, ash drifting across, and
+// now and then a meteor over the planet. Drawn only while the hero is on screen and the tab is visible.
+(function sky() {
+  const c = document.getElementById("sky"), hero = c.parentElement;
+  if (reduce || !c.getContext) return;
+  const ctx = c.getContext("2d");
+  let W = 0, H = 0, dpr = 1, on = false, raf = 0, last = 0, nextMeteor = 4 + Math.random() * 6;
+  const embers = [], ash = [], meteors = [];
+  const rnd = (a, b) => a + Math.random() * (b - a);
+  function size() {
+    dpr = Math.min(devicePixelRatio || 1, 2);
+    W = c.clientWidth; H = c.clientHeight; c.width = W * dpr; c.height = H * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  function ember() {
+    return {x: rnd(0.02, 0.16) * W, y: H + 4, vx: rnd(-6, 10), vy: -rnd(14, 38), r: rnd(0.7, 2), a: rnd(0.5, 1), life: rnd(5, 10), t: 0, w: rnd(0, 6.28)};
+  }
+  function flake() {
+    return {x: rnd(0, W), y: rnd(-H, H), vx: rnd(-4, 2), vy: rnd(6, 16), r: rnd(0.5, 1.4), a: rnd(0.08, 0.26), w: rnd(0, 6.28)};
+  }
+  function step(now) {
+    if (!on) return;
+    const dt = Math.min(0.05, (now - last) / 1000 || 0.016); last = now;
+    ctx.clearRect(0, 0, W, H);
+    const want = Math.round(W / 22);
+    while (embers.length < want) { const e = ember(); e.t = rnd(0, e.life); e.y = H - e.t * 20; embers.push(e); }
+    while (ash.length < Math.round(W / 40)) ash.push(flake());
+    for (let i = embers.length - 1; i >= 0; i--) {
+      const e = embers[i]; e.t += dt; e.w += dt * 1.6;
+      e.x += (e.vx + Math.sin(e.w) * 9) * dt; e.y += e.vy * dt; e.vy *= 0.999;
+      const k = 1 - e.t / e.life;
+      if (k <= 0 || e.y < -5) { embers[i] = ember(); continue; }
+      const g = ctx.createRadialGradient(e.x, e.y, 0, e.x, e.y, e.r * 3);
+      g.addColorStop(0, `rgba(255,214,140,${0.9 * k * e.a})`); g.addColorStop(0.4, `rgba(240,138,60,${0.55 * k * e.a})`); g.addColorStop(1, "rgba(240,138,60,0)");
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(e.x, e.y, e.r * 3, 0, 6.283); ctx.fill();
+    }
+    ctx.fillStyle = "rgba(201,162,255,1)";
+    for (const f of ash) {
+      f.w += dt * 0.7; f.x += (f.vx + Math.sin(f.w) * 5) * dt; f.y += f.vy * dt;
+      if (f.y > H + 4) { f.y = -4; f.x = rnd(0, W); }
+      ctx.globalAlpha = f.a; ctx.beginPath(); ctx.arc(f.x, f.y, f.r, 0, 6.283); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    nextMeteor -= dt;
+    if (nextMeteor <= 0) { meteors.push({x: rnd(0.55, 0.95) * W, y: rnd(0.02, 0.18) * H, vx: -rnd(380, 560), vy: rnd(150, 260), t: 0, life: rnd(0.9, 1.5)}); nextMeteor = rnd(7, 16); }
+    for (let i = meteors.length - 1; i >= 0; i--) {
+      const m = meteors[i]; m.t += dt; if (m.t > m.life) { meteors.splice(i, 1); continue; }
+      const k = Math.sin(Math.PI * m.t / m.life), x = m.x + m.vx * m.t, y = m.y + m.vy * m.t, len = 90;
+      const nx = m.vx / Math.hypot(m.vx, m.vy), ny = m.vy / Math.hypot(m.vx, m.vy);
+      const g = ctx.createLinearGradient(x - nx * len, y - ny * len, x, y);
+      g.addColorStop(0, "rgba(236,230,242,0)"); g.addColorStop(1, `rgba(236,230,242,${0.85 * k})`);
+      ctx.strokeStyle = g; ctx.lineWidth = 1.4; ctx.lineCap = "round";
+      ctx.beginPath(); ctx.moveTo(x - nx * len, y - ny * len); ctx.lineTo(x, y); ctx.stroke();
+    }
+    raf = requestAnimationFrame(step);
+  }
+  function run(v) { v = v && !document.hidden; if (v === on) return; on = v; if (on) { last = performance.now(); raf = requestAnimationFrame(step); } else cancelAnimationFrame(raf); }
+  size(); addEventListener("resize", () => { size(); embers.length = 0; ash.length = 0; });
+  new IntersectionObserver(es => run(es[0].isIntersecting), {threshold: 0.05}).observe(hero);
+  document.addEventListener("visibilitychange", () => run(!document.hidden && hero.getBoundingClientRect().bottom > 0));
+})();
+
+// Theme toggle, shared with every page: auto follows the system; a click flips the page, a second one returns to auto.
+(function(){var b=document.querySelector('[data-theme-toggle]');if(!b)return;var h=document.documentElement,mq=matchMedia('(prefers-color-scheme: dark)');function mode(){try{var t=localStorage.getItem('qf-theme');return t==='light'||t==='dark'?t:'auto'}catch(e){return 'auto'}}function sys(){return mq.matches?'dark':'light'}function show(){var m=mode();b.dataset.mode=m;var s=m==='auto'?'Theme follows your system ('+sys()+')':'Theme: '+m;b.title=s+'. Click to switch.';b.setAttribute('aria-label',s)}b.addEventListener('click',function(){var m=mode(),s=sys(),n=(m==='auto'||m===s)?(s==='dark'?'light':'dark'):'auto';try{if(n==='auto')localStorage.removeItem('qf-theme');else localStorage.setItem('qf-theme',n)}catch(e){}if(n==='auto')h.removeAttribute('data-theme');else h.setAttribute('data-theme',n);show()});if(mq.addEventListener)mq.addEventListener('change',show);show()})();
+
+// The numbers band counts up once it scrolls into view.
+(function count() {
+  const els = [...document.querySelectorAll(".stat b[data-n]")];
+  const fmt = n => Math.round(n).toLocaleString("en-US");
+  if (reduce) return;
+  const io = new IntersectionObserver(es => {
+    if (!es.some(e => e.isIntersecting)) return;
+    io.disconnect();
+    const t0 = performance.now(), dur = 1300;
+    (function tick(now) {
+      const k = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - k, 3);
+      for (const el of els) el.textContent = fmt(+el.dataset.n * e);
+      if (k < 1) requestAnimationFrame(tick);
+    })(t0);
+  }, {threshold: 0.4});
+  io.observe(document.querySelector(".band"));
+})();
+
+// Light and air: the renders crossfade; the dots pick one and pause the cycle for a while.
+(function cine() {
+  const box = document.getElementById("cine"), frames = [...box.querySelectorAll(".frame")], dots = document.getElementById("dots");
+  let i = 0, timer = 0;
+  frames.forEach((f, n) => {
+    const b = document.createElement("button"); b.type = "button"; b.setAttribute("role", "tab");
+    b.setAttribute("aria-label", f.querySelector("b").textContent); b.addEventListener("click", () => { show(n); start(14000); });
+    dots.append(b);
+  });
+  function show(n) {
+    i = n; frames.forEach((f, k) => f.classList.toggle("on", k === i));
+    [...dots.children].forEach((d, k) => d.setAttribute("aria-selected", k === i ? "true" : "false"));
+  }
+  function start(delay) { clearInterval(timer); if (reduce) return; timer = setInterval(() => show((i + 1) % frames.length), delay || 7000); }
+  show(0); start();
+  box.addEventListener("mouseenter", () => clearInterval(timer)); box.addEventListener("mouseleave", () => start());
+})();
+
+// Lines from the quest book, each signed by whoever wrote it down.
+(function chronicle() {
+  const Q = [
+    ["Diamond is how the book knows you are serious.", "Quartermaster"],
+    ["She said she would run past them. We buried the boots.", "Watch"],
+    ["I thought the flash meant it worked. It meant swim.", "Pathfinder"],
+    ["He had sixteen wooden chests. We called it a fire.", "Inspector"],
+    ["Fifty soldiers. Three came back. None wanted to talk about the shadow.", "Archive"],
+    ["I once threw a cow at a Creeper. The cow won.", "Gravity Gun Enthusiast"],
+    ["We asked for a weapon. We got urban renewal.", "Quartermaster"],
+    ["I opened a Common. I got string. I opened another Common. I got hope.", "Auditor"],
+    ["It said '1UP Regenerating Ghastly.' I said no.", "Night Watch"],
+    ["Pretty, until the floor was a suggestion.", "Alpine Log"],
+    ["Two blocks is not much of a superpower until the two blocks are the ones between you and the floor.", "Void Walker"],
+    ["It is a cube of bricks that makes coal angrier. Everything after this is a consequence of that sentence.", "Foreman"]
+  ];
+  const box = document.getElementById("quote"), t = document.getElementById("qText"), w = document.getElementById("qWho");
+  let i = Math.floor(Math.random() * Q.length);
+  function set() { t.textContent = Q[i][0]; w.textContent = Q[i][1]; }
+  set();
+  if (reduce) return;
+  setInterval(() => {
+    box.classList.add("fade");
+    setTimeout(() => { i = (i + 1) % Q.length; set(); box.classList.remove("fade"); }, 520);
+  }, 8000);
+})();
+
 // The worlds strip: one figure per loading plate, named from its file, each linking to its entry on the worlds page.
 const PLATES = ["01-nether","02-end","03-twilight-forest","04-dream-world","05-torment","06-mirror-world","07-lost-world",
   "08-compact-machines","09-outer-space","10-mars","11-ilum","12-hurikane","13-tython","14-korriban","15-tatooine",
@@ -491,30 +690,26 @@ const PLATES = ["01-nether","02-end","03-twilight-forest","04-dream-world","05-t
 const strip = document.getElementById("strip");
 for (const p of PLATES) {
   const [n, ...rest] = p.split("-");
-  const name = rest.map(w => w[0].toUpperCase() + w.slice(1)).join(" ");
+  const name = rest.map(x => x[0].toUpperCase() + x.slice(1)).join(" ");
   const f = document.createElement("a"); f.className = "world"; f.href = `worlds/#${p}`;
   const img = document.createElement("img"); img.src = `img/plates/${p}.jpg`; img.alt = name; img.loading = "lazy";
   const cap = document.createElement("figcaption"); cap.append(name);
   const num = document.createElement("span"); num.textContent = n; cap.append(num);
   f.append(img, cap); strip.append(f);
 }
+
 // Live counts from the item index's own build, when it's there.
 fetch("items/data/stats.json").then(r => r.ok ? r.json() : null).then(s => {
   if (!s) return;
   const f = n => n.toLocaleString("en-US");
+  const big = document.getElementById("nItems"); big.dataset.n = s.items; if (reduce) big.textContent = f(s.items);
   document.getElementById("itemMeta").innerHTML =
     `<span><b>${f(s.items)}</b> items</span><span><b>${f(s.recipes)}</b> recipes</span>` +
-    `<span><b>${f(s.inQuest)}</b> in a quest</span><span>updated <b>${s.built}</b></span>`;
-  document.getElementById("facts").insertAdjacentHTML("afterbegin", `<span><b>${f(s.items)}</b> items</span>`);
+    `<span><b>${f(s.inQuest)}</b> in a quest</span><span>built <b>${s.built}</b></span>`;
 }).catch(() => {});
-// How many shader rounds have been judged, from the Shader Lab's own index.
-fetch("shaders/rounds/index.json").then(r => r.ok ? r.json() : null).then(idx => {
-  const n = (idx?.rounds || []).filter(r => r.feedback).length;
-  if (!n) return;
-  const WORDS = ["zero","one","two","three","four","five","six","seven","eight","nine","ten","eleven","twelve"];
-  document.getElementById("roundsN").textContent = n;
-  document.getElementById("lightSub").textContent =
-    `The pack's own shaders, as they stand after ${WORDS[n] || n} review round${n === 1 ? "" : "s"}.`;
+// The pack version the server expects, written at deploy time next to the play page.
+fetch("play/pack.json", {cache: "no-store"}).then(r => r.ok ? r.json() : null).then(p => {
+  if (p && typeof p.version === "string" && p.version.length < 60) document.getElementById("packv").textContent = "Current pack: " + p.version;
 }).catch(() => {});
 </script>
 </body>
