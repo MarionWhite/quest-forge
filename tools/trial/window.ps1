@@ -220,7 +220,10 @@ switch ($Mode) {
             $mon = ""
             $full = [QF.Win]::CoversMonitor($fg, [ref]$mon)
             $fgInfo = [ordered]@{ pid = $fgPid; exe = $exe; title = [QF.Win]::Title($fg); class = $cls; fullscreen = $full; monitor = $mon }
-            $shell = $fg -eq [QF.Win]::GetShellWindow() -or $cls -in @("Progman", "WorkerW", "Shell_TrayWnd")
+            # The lock and sign-in screens are fullscreen but mean the owner is away (2026-10-25:
+            # LockApp after the 7:00 wake held a shader round for 3 h).
+            $shell = $fg -eq [QF.Win]::GetShellWindow() -or $cls -in @("Progman", "WorkerW", "Shell_TrayWnd") -or
+                     $exe -in @("LockApp", "LogonUI")
             $ours = $OurPids -contains [int]$fgPid
             if ($full -and -not $shell -and -not $ours) { [void]$reasons.Add("foreground '$exe' covers its $mon monitor") }
             if (-not $ours -and $path -match $GamePaths) {
