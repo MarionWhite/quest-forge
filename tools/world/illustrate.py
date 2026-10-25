@@ -10,7 +10,10 @@ valley floor (works on any heightmap; passes read as gaps) and get a multi-direc
 from the north-west, strong in the mountains (warm sunlit faces, cool shadows, ridge highlights,
 snow only on the high crests). --mountain-style both (default) adds painted mountain glyphs over
 that relief, sized by prominence and drawn north to south, with hill glyphs on the foothills;
-glyphs keeps lowland-strength shading under them; relief draws shading and hachures only. Labels: landmarks (icons + serif names), spawns (stars + picker rating),
+glyphs keeps lowland-strength shading under them; relief draws shading and hachures only.
+Escarpments and plateau walls (buttes, the tepui, the hot-spring terraces, the caldera's wall) draw
+as cliff hachures, never peaks; plateau tops and terrace treads count relief from their own top;
+desert and dune country gets no hill glyphs (terrain_character). Labels: landmarks (icons + serif names), spawns (stars + picker rating),
 and the largest biome patches by their real names. --no-labels gives the clean spawn-picker art.
 """
 import argparse
@@ -210,6 +213,9 @@ def render(plan_dir, out, size=4096, labels=True, crop=None, title="Quest Forge"
     floor_t = ndimage.gaussian_filter(ndimage.minimum_filter(Hc, size=max(9, int(61 * 1536 / n) | 1)), 8)
     rel_t = np.clip(Hc - floor_t, 0, None)
     rel = resize(rel_t, sh, Image.BILINEAR)
+    glyph_ok, cliff_t = terrain_character(t_h, Hc, rel_t, t_b, meta, names, n)
+    glyph_ok = resize(glyph_ok, sh, Image.BILINEAR)
+    cliff = resize(cliff_t, sh, Image.BILINEAR)
     alt = np.clip((H - SEA) / 120, 0, 1)
     mw = np.clip((rel - 22) / 75, 0, 1) ** 0.8 * np.clip((H - SEA - 12) / 40, 0, 1)
     mw = ndimage.gaussian_filter(mw * land, 2.5 * s)
@@ -376,7 +382,8 @@ def render(plan_dir, out, size=4096, labels=True, crop=None, title="Quest Forge"
         avoid = [((p["x"] + meta["size"] / 2) / meta["px"] * k, (p["z"] + meta["size"] / 2) / meta["px"] * k,
                   "pass" in p.get("name", "").lower())
                  for p in meta.get("points", []) if p.get("kind") in ("landmark", "spawn")]
-        draw_mountain_glyphs(base, H, rel, mw, snow, cold_o, tone, land & ~lk & ~river, avoid, cell, s, U)
+        draw_cliffs(base, H, cliff, land & ~lk & ~river, cell, s, U)
+        draw_mountain_glyphs(base, H, rel, mw, snow, cold_o, tone, land & ~lk & ~river, avoid, cell, s, U, glyph_ok)
 
     # ---------------------------------------------------------------- frame
     paper = np.array((226, 210, 172), np.float32)
@@ -679,9 +686,94 @@ def glyph_sprite(w, h, lit, shd, ink, sf, rng, U, hill=False):
     return im, ox + w / 2, oy + h
 
 
-def draw_mountain_glyphs(base, H, rel, mw, snow, cold, tone, ok, avoid, cell, s, U):
+def terrain_character(t_h, Hc, rel_t, t_b, meta, names, n):
+    """Where glyphs belong, and where the relief is a cliff instead (plan resolution).
+
+    Returns (glyph_ok, cliff): glyph_ok is 1 for mountains, 0.5 for mountains only (no hill
+    glyphs: dune country) and 0 for none; cliff is 0..1 on escarpments and plateau walls.
+    - Plateau tops (plan.json plateaus: the hot-spring terraces, buttes, the tepui, mesas) count
+      their relief from their own top, so a terrace tread or a butte top is not a hill, while the
+      caldera rims standing on their plateau still are.
+    - Peaks and ridges have lower ground on both sides along some line through them; a step
+      (an escarpment's brow, a plateau's rim) has high ground continuing on one side. Ground
+      whose drop on both sides is small next to its relief is a step: no glyph, cliff strokes.
+    - Desert, dune and badland country gets no hill glyphs: its rolling relief is dunes."""
+    px, half = meta["px"], meta["size"] / 2
+    top = np.zeros((n, n), np.float32)
+    walls = np.zeros((n, n), np.float32)
+    low = ndimage.minimum_filter(Hc, 7)
+    for pl in sorted(meta.get("plateaus", []), key=lambda q: q.get("top", 0)):
+        if pl.get("top", 0) <= SEA + 2:          # surface paint (scorched ground), not a landform
+            continue
+        im = Image.new("L", (n, n), 0)
+        ImageDraw.Draw(im).polygon([((x + half) / px, (z + half) / px) for x, z in pl["polygon"]], fill=255)
+        m = np.asarray(im) > 0
+        top = np.where(m, np.maximum(top, pl["top"]), top)
+        ring = ndimage.binary_dilation(m, iterations=2) & ~ndimage.binary_erosion(m, iterations=2)
+        walls = np.maximum(walls, ring * np.clip(pl["top"] - low, 0, None))     # the wall's height
+    on_plat = top > 0
+    rel_p = np.where(on_plat, np.clip(Hc - top - 6, 0, None), rel_t)
+    # Ridge-ness of the high ground near each pixel (its top within ~450 blocks, so a flank
+    # judges by its own crest): the larger of the two-sided drops from that top along four
+    # lines, at two distances. A ridge or peak falls away on both sides; a brow does not.
+    Hm = ndimage.gaussian_filter(Hc, 1.0)
+    Hloc = ndimage.maximum_filter(Hm, size=2 * int(round(450 / px)) + 1)
+    drop = np.full_like(Hm, -1e3)
+    for dist in (1000, 2000):
+        k = max(1, int(round(dist / px)))
+        Hk = ndimage.maximum_filter(Hm, size=max(3, k // 3) | 1)
+        for di, dj in ((1, 0), (0, 1), (1, 1), (1, -1)):
+            a = np.roll(Hk, (di * k, dj * k), (0, 1))
+            b = np.roll(Hk, (-di * k, -dj * k), (0, 1))
+            drop = np.maximum(drop, Hloc - np.maximum(a, b))
+    step = (drop < 0.3 * rel_p) & (rel_p > 15)
+    step = ndimage.binary_opening(step)            # whole brows, not stray pixels in a massif
+    ok = np.where(step, 0.0, 1.0)
+    ok = np.where(on_plat & (ndimage.maximum_filter(rel_p, 5) < 15), 0.0, ok)     # treads and tops, not rims
+    ok = np.where(ndimage.binary_dilation(walls > 12, iterations=3), 0.0, ok)     # the walls themselves
+    dune = np.zeros(256, bool)
+    for bid, nm in names.items():
+        dune[bid] = bool(re.search(r"desert|dune|outback|xeric|oasis|mesa|badland|canyon", nm, re.I))
+    ok = np.where(dune[t_b] & (ok > 0), 0.5, ok)
+    gy, gx = np.gradient(Hc, px)
+    sl = np.hypot(gx, gy)
+    cliff = np.clip((sl - 0.25) / 0.5, 0, 1) * (step | (walls > 12))
+    cliff = np.where(walls > 12, np.maximum(cliff, 0.8), cliff)
+    return ndimage.gaussian_filter(ok.astype(np.float32), 0.7), ndimage.gaussian_filter(cliff.astype(np.float32), 0.6)
+
+
+def draw_cliffs(base, H, cliff, ok, cell, s, U):
+    """Cliff hachures on escarpments and plateau walls: short ink ticks down the fall line,
+    packed along the brow, longer where the wall is taller."""
+    M = H.shape[0]
+    rng = np.random.default_rng(23)
+    Hs = ndimage.gaussian_filter(H, 1.5 * s)
+    gy, gx = np.gradient(Hs, cell)
+    sl = np.hypot(gx, gy)
+    step = 3.2 * s
+    g = np.mgrid[0:M:step, 0:M:step].reshape(2, -1).T.astype(np.float32)
+    g += rng.uniform(-step / 2, step / 2, g.shape)
+    g = np.clip(g, 0, M - 1)
+    gi = g.astype(int)
+    c = cliff[gi[:, 0], gi[:, 1]]
+    keep = ok[gi[:, 0], gi[:, 1]] & (c > 0.35) & (sl[gi[:, 0], gi[:, 1]] > 0.12) & (rng.random(len(g)) < c)
+    ov = Image.new("RGBA", base.size, (0, 0, 0, 0))
+    od = ImageDraw.Draw(ov)
+    for (py, px) in g[keep]:
+        iy, ix = int(py), int(px)
+        ax, ay = gx[iy, ix], gy[iy, ix]
+        m = math.hypot(ax, ay)
+        L = (4 + 7 * min(1.0, m / 2.5)) * s
+        a = int(215 * min(1.0, 0.25 + cliff[iy, ix]))
+        od.line((px, py, px - ax / m * L, py - ay / m * L), fill=(40, 32, 28, a), width=max(1, round(1.3 * U)))
+    base.alpha_composite(ov)
+    print(f"cliff hachures: {int(keep.sum())}")
+
+
+def draw_mountain_glyphs(base, H, rel, mw, snow, cold, tone, ok, avoid, cell, s, U, glyph_ok=None):
     """Painted mountain glyphs along the high ground and hill glyphs on the foothills, placed
-    greedily from the most prominent ground down, then drawn back to front (north to south)."""
+    greedily from the most prominent ground down, then drawn back to front (north to south).
+    glyph_ok (terrain_character): 0 = none (cliffs, terraces), 0.5 = mountains only (dunes)."""
     M = H.shape[0]
     rng = np.random.default_rng(17)
     step = 5 * s
@@ -691,9 +783,10 @@ def draw_mountain_glyphs(base, H, rel, mw, snow, cold, tone, ok, avoid, cell, s,
     gi = g.astype(int)
     r, m, h = rel[gi[:, 0], gi[:, 1]], mw[gi[:, 0], gi[:, 1]], H[gi[:, 0], gi[:, 1]]
     okp = ok[gi[:, 0], gi[:, 1]]
-    mtn = okp & (m > 0.5) & (r > 52)
+    go = glyph_ok[gi[:, 0], gi[:, 1]] if glyph_ok is not None else np.ones(len(g), np.float32)
+    mtn = okp & (m > 0.5) & (r > 52) & (go > 0.4)
     pk = (rel >= ndimage.maximum_filter(rel, size=int(55 * s)) - 2)[gi[:, 0], gi[:, 1]]   # local summits
-    hill = okp & ~mtn & (r > 15) & (m > 0.06) & (h > SEA + 8)
+    hill = okp & ~mtn & (r > 15) & (m > 0.06) & (h > SEA + 8) & (go > 0.75)
     pr = np.where(mtn, r + 0.35 * (h - SEA) + 60 * pk, -1000 + r) + rng.uniform(0, 6, len(g))
     order = np.argsort(-pr)
     order = order[(mtn | hill)[order]]
