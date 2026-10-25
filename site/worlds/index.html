@@ -14,6 +14,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+<script>(function(){try{var t=localStorage.getItem('qf-theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)}catch(e){}})()</script>
 <style>
 /* Tokens shared with every page under site/. */
 :root{
@@ -60,6 +61,11 @@ nav.site a:not(.brand){font-family:Archivo,sans-serif;font-size:13.5px;font-weig
   padding:4px 1px;border-bottom:2px solid transparent}
 nav.site a:not(.brand):hover{color:var(--ink);border-color:var(--rule)}
 nav.site a[aria-current="page"]{color:var(--ember-ink);border-color:var(--ember)}
+nav.site .theme{margin-left:4px;display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;padding:0;border:1px solid transparent;border-radius:50%;background:none;color:var(--ink-2);cursor:pointer}
+nav.site .theme:hover{color:var(--ink);border-color:var(--rule)}
+nav.site .theme:focus-visible{outline:2px solid var(--ember);outline-offset:1px}
+nav.site .theme svg{width:17px;height:17px;display:none}
+nav.site .theme[data-mode="auto"] .i-auto,nav.site .theme[data-mode="light"] .i-light,nav.site .theme[data-mode="dark"] .i-dark{display:block}
 
 /* ---- masthead: dark, because the plates are ---- */
 header.mast{background:var(--night);color:var(--night-ink);padding:52px 0 36px;position:relative;overflow:hidden}
@@ -71,6 +77,9 @@ header.mast .wrap{position:relative;z-index:1}
 h1{font-size:clamp(38px,7vw,68px);line-height:.94;font-weight:800;letter-spacing:-.03em;margin:0;text-wrap:balance}
 .lede{max-width:60ch;margin:18px 0 0;font-size:17.5px;color:var(--night-2)}
 .lede b{color:var(--night-ink);font-weight:600}
+header.mast .dlnote{margin:14px 0 0;font-family:"JetBrains Mono",monospace;font-size:11.5px;letter-spacing:.02em;color:var(--night-2);max-width:72ch}
+header.mast .dlnote a{color:#EFA274;border-bottom:1px solid rgba(239,162,116,.45);text-decoration:none}
+header.mast .dlnote a:hover{border-color:#EFA274}
 .jump{display:flex;flex-wrap:wrap;gap:6px;margin-top:26px}
 .jump a{font-family:Archivo,sans-serif;font-size:13px;font-weight:600;text-decoration:none;color:var(--night-ink);
   border:1px solid rgba(236,230,242,.35);border-radius:2px;padding:5px 11px;background:rgba(14,11,18,.4)}
@@ -98,6 +107,8 @@ h2{font-size:clamp(24px,3vw,30px);font-weight:800;letter-spacing:-.022em;margin:
 .world h3 .num{font-family:"JetBrains Mono",monospace;font-size:11px;font-weight:400;color:var(--muted);margin-left:auto;white-space:nowrap}
 .world .from{font-family:"JetBrains Mono",monospace;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ember-ink)}
 .world p{margin:2px 0 0;font-size:14.5px;line-height:1.5;color:var(--ink-2)}
+.world .dl{align-self:flex-start;margin-top:auto;padding-top:6px;font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.06em;color:var(--ember-ink);text-decoration:none;border-bottom:1px solid var(--rule)}
+.world .dl:hover{border-color:var(--ember)}
 .plate{position:absolute;top:10px;left:10px;font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.1em;
   padding:3px 7px;border-radius:2px;background:rgba(14,11,18,.75);color:#ECE6F2;backdrop-filter:blur(3px)}
 
@@ -126,12 +137,14 @@ footer.site a:hover{color:var(--ember-ink);border-color:var(--ember)}
 <nav class="site" aria-label="Site"><div class="wrap">
   <a class="brand" href="../"><img src="../favicon.png" alt="">Quest Forge</a>
   <a href="../play/">Get the pack</a>
+  <a href="../first-night/">First night</a>
   <a href="../mods/">Mods</a>
   <a href="../items/">Items</a>
   <a href="./" aria-current="page">Worlds</a>
   <a href="../enchantments/">Enchantments</a>
   <a href="../ore-atlas/">Ore atlas</a>
   <a href="../online/">Server</a>
+  <button class="theme" type="button" data-theme-toggle aria-label="Theme" title="Theme"><svg class="i-auto" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18V3z" fill="currentColor"/><circle cx="12" cy="12" r="8.25" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><svg class="i-light" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="currentColor"/><g stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/></g></svg><svg class="i-dark" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z" fill="currentColor"/></svg></button>
 </div></nav>
 
 <header class="mast"><div class="wrap">
@@ -139,6 +152,8 @@ footer.site a:hover{color:var(--ember-ink);border-color:var(--ember)}
   <h1>Twenty-seven worlds</h1>
   <p class="lede">Every place the pack can take you, with the loading screen painted for it. <b>Seven mods</b> supply
     them, from the vanilla Nether to OreSpawn's Chaos, and the quest book decides the order you earn them in.</p>
+  <p class="dlnote">Every plate below downloads at 1280 &times; 720. The 4K masters are
+    <a href="https://github.com/MarionWhite/quest-forge/releases/download/art-masters-2026-09-08/questforge-loading-plates-4k.zip">27 PNGs at 3840 &times; 2160, 147 MB, in one zip</a>.</p>
   <div class="jump">
     <a href="#vanilla">Vanilla<span class="n">2</span></a>
     <a href="#twilight">Twilight Forest<span class="n">1</span></a>
@@ -163,10 +178,12 @@ footer.site a:hover{color:var(--ember-ink);border-color:var(--ember)}
   <div class="grid">
     <article class="world" id="01-nether"><span class="plate">PLATE 01</span><div class="art"><img src="../img/plates/01-nether.jpg" alt="A dark corridor in the Nether lit by lava and a ghast's glow"></div>
       <div class="body"><span class="from">Minecraft &middot; DIM &minus;1</span><h3>The Nether<span class="num">chapter 1</span></h3>
-      <p>Fortresses, blazes and the Wither. Still burning under everything, and the first world past the overworld that the climb asks for.</p></div></article>
+      <p>Fortresses, blazes and the Wither. Still burning under everything, and the first world past the overworld that the climb asks for.</p>
+      <a class="dl" href="https://raw.githubusercontent.com/MarionWhite/quest-forge/main/tools/branding/loading-plates/finish/1280/01-nether.png" target="_blank" rel="noopener">1280 &times; 720 PNG</a></div></article>
     <article class="world" id="02-end"><span class="plate">PLATE 02</span><div class="art"><img src="../img/plates/02-end.jpg" alt="The End under Hardcore Ender Expansion: purple crystal spires and an island temple"></div>
       <div class="body"><span class="from">Minecraft, rebuilt by Hardcore Ender Expansion &middot; DIM 1</span><h3>The End<span class="num">chapter 6</span></h3>
-      <p>Not the vanilla End. New biomes, new ores, the Endstone Temple, and a dragon that is a real fight. Opens once the Hydra is dead and the Circle Talisman is made.</p></div></article>
+      <p>Not the vanilla End. New biomes, new ores, the Endstone Temple, and a dragon that is a real fight. Opens once the Hydra is dead and the Circle Talisman is made.</p>
+      <a class="dl" href="https://raw.githubusercontent.com/MarionWhite/quest-forge/main/tools/branding/loading-plates/finish/1280/02-end.png" target="_blank" rel="noopener">1280 &times; 720 PNG</a></div></article>
   </div>
 </div></section>
 
@@ -175,7 +192,8 @@ footer.site a:hover{color:var(--ember-ink);border-color:var(--ember)}
   <div class="grid">
     <article class="world" id="03-twilight-forest"><span class="plate">PLATE 03</span><div class="art"><img src="../img/plates/03-twilight-forest.jpg" alt="A colossal glowing tree in the permanent dusk of the Twilight Forest"></div>
       <div class="body"><span class="from">The Twilight Forest &middot; DIM 7</span><h3>Twilight Forest<span class="num">chapter 3</span></h3>
-      <p>Eternal dusk under giant trees, entered through a flower-ringed pool once you have diamond gear. The Naga, the Lich, the Hydra and the Snow Queen each guard the way deeper.</p></div></article>
+      <p>Eternal dusk under giant trees, entered through a flower-ringed pool once you have diamond gear. The Naga, the Lich, the Hydra and the Snow Queen each guard the way deeper.</p>
+      <a class="dl" href="https://raw.githubusercontent.com/MarionWhite/quest-forge/main/tools/branding/loading-plates/finish/1280/03-twilight-forest.png" target="_blank" rel="noopener">1280 &times; 720 PNG</a></div></article>
   </div>
 </div></section>
 
@@ -184,13 +202,16 @@ footer.site a:hover{color:var(--ember-ink);border-color:var(--ember)}
   <div class="grid">
     <article class="world" id="04-dream-world"><span class="plate">PLATE 04</span><div class="art"><img src="../img/plates/04-dream-world.jpg" alt="A four-poster bed floating in a pink and violet dreamscape"></div>
       <div class="body"><span class="from">Witchery &middot; DIM &minus;37</span><h3>Dream World<span class="num">chapter 5</span></h3>
-      <p>Witchery's spirit world, reached in your sleep. What you bring back is the point of going.</p></div></article>
+      <p>Witchery's spirit world, reached in your sleep. What you bring back is the point of going.</p>
+      <a class="dl" href="https://raw.githubusercontent.com/MarionWhite/quest-forge/main/tools/branding/loading-plates/finish/1280/04-dream-world.png" target="_blank" rel="noopener">1280 &times; 720 PNG</a></div></article>
     <article class="world" id="05-torment"><span class="plate">PLATE 05</span><div class="art"><img src="../img/plates/05-torment.jpg" alt="A lone figure in a dark stone corridor lit by candles"></div>
       <div class="body"><span class="from">Witchery &middot; DIM &minus;38</span><h3>Torment<span class="num">chapter 5</span></h3>
-      <p>Witchery's place of punishment. A corridor, a few candles, and no promise of a way out.</p></div></article>
+      <p>Witchery's place of punishment. A corridor, a few candles, and no promise of a way out.</p>
+      <a class="dl" href="https://raw.githubusercontent.com/MarionWhite/quest-forge/main/tools/branding/loading-plates/finish/1280/05-torment.png" target="_blank" rel="noopener">1280 &times; 720 PNG</a></div></article>
     <article class="world" id="06-mirror-world"><span class="plate">PLATE 06</span><div class="art"><img src="../img/plates/06-mirror-world.jpg" alt="A village reflected in still water under a lantern-lit sky"></div>
       <div class="body"><span class="from">Witchery &middot; DIM &minus;39</span><h3>Mirror World<span class="num">chapter 5</span></h3>
-      <p>Behind the glass of a Witchery mirror: the world reflected, and quieter than it should be.</p></div></article>
+      <p>Behind the glass of a Witchery mirror: the world reflected, and quieter than it should be.</p>
+      <a class="dl" href="https://raw.githubusercontent.com/MarionWhite/quest-forge/main/tools/branding/loading-plates/finish/1280/06-mirror-world.png" target="_blank" rel="noopener">1280 &times; 720 PNG</a></div></article>
   </div>
 </div></section>
 
@@ -199,7 +220,8 @@ footer.site a:hover{color:var(--ember-ink);border-color:var(--ember)}
   <div class="grid">
     <article class="world" id="07-lost-world"><span class="plate">PLATE 07</span><div class="art"><img src="../img/plates/07-lost-world.jpg" alt="Dinosaurs at a jungle lake under a stormy sky"></div>
       <div class="body"><span class="from">Welcome to the Jungle &middot; DIM &minus;42</span><h3>The Lost World<span class="num">side road</span></h3>
-      <p>Dense growth, dinosaurs, and jungle-only gear. Reached from the jungle itself.</p></div></article>
+      <p>Dense growth, dinosaurs, and jungle-only gear. Reached from the jungle itself.</p>
+      <a class="dl" href="https://raw.githubusercontent.com/MarionWhite/quest-forge/main/tools/branding/loading-plates/finish/1280/07-lost-world.png" target="_blank" rel="noopener">1280 &times; 720 PNG</a></div></article>
   </div>
 </div></section>
 
@@ -208,7 +230,8 @@ footer.site a:hover{color:var(--ember-ink);border-color:var(--ember)}
   <div class="grid">
     <article class="world" id="08-compact-machines"><span class="plate">PLATE 08</span><div class="art"><img src="../img/plates/08-compact-machines.jpg" alt="A figure standing in a bare white cubic room"></div>
       <div class="body"><span class="from">Compact Machines &middot; DIM 4</span><h3>Compact Machines<span class="num">side road</span></h3>
-      <p>The inside of every Compact Machine: a white room that is one block wide from outside. Walk in through a tunnel and build a whole factory in it.</p></div></article>
+      <p>The inside of every Compact Machine: a white room that is one block wide from outside. Walk in through a tunnel and build a whole factory in it.</p>
+      <a class="dl" href="https://raw.githubusercontent.com/MarionWhite/quest-forge/main/tools/branding/loading-plates/finish/1280/08-compact-machines.png" target="_blank" rel="noopener">1280 &times; 720 PNG</a></div></article>
   </div>
 </div></section>
 
@@ -217,43 +240,56 @@ footer.site a:hover{color:var(--ember-ink);border-color:var(--ember)}
   <div class="grid">
     <article class="world" id="09-outer-space"><span class="plate">PLATE 09</span><div class="art"><img src="../img/plates/09-outer-space.jpg" alt="A cratered station-like moon against a starfield"></div>
       <div class="body"><span class="from">Legends Mod &middot; DIM 30</span><h3>Outer Space<span class="num">side road</span></h3>
-      <p>Open space, a starfield, and a moon that is no moon.</p></div></article>
+      <p>Open space, a starfield, and a moon that is no moon.</p>
+      <a class="dl" href="https://raw.githubusercontent.com/MarionWhite/quest-forge/main/tools/branding/loading-plates/finish/1280/09-outer-space.png" target="_blank" rel="noopener">1280 &times; 720 PNG</a></div></article>
     <article class="world" id="10-mars"><span class="plate">PLATE 10</span><div class="art"><img src="../img/plates/10-mars.jpg" alt="A figure crossing red Martian dunes under a dusty sky"></div>
       <div class="body"><span class="from">Legends Mod &middot; DIM 31</span><h3>Mars<span class="num">side road</span></h3>
-      <p>Red dust and a thin sky, with a long way between anything.</p></div></article>
+      <p>Red dust and a thin sky, with a long way between anything.</p>
+      <a class="dl" href="https://raw.githubusercontent.com/MarionWhite/quest-forge/main/tools/branding/loading-plates/finish/1280/10-mars.png" target="_blank" rel="noopener">1280 &times; 720 PNG</a></div></article>
     <article class="world" id="11-ilum"><span class="plate">PLATE 11</span><div class="art"><img src="../img/plates/11-ilum.jpg" alt="A vast ice cave with a figure silhouetted against the light"></div>
       <div class="body"><span class="from">Legends Mod &middot; DIM 32</span><h3>Ilum<span class="num">side road</span></h3>
-      <p>The crystal caves of the Star Wars pack, under the ice.</p></div></article>
+      <p>The crystal caves of the Star Wars pack, under the ice.</p>
+      <a class="dl" href="https://raw.githubusercontent.com/MarionWhite/quest-forge/main/tools/branding/loading-plates/finish/1280/11-ilum.png" target="_blank" rel="noopener">1280 &times; 720 PNG</a></div></article>
     <article class="world" id="12-hurikane"><span class="plate">PLATE 12</span><div class="art"><img src="../img/plates/12-hurikane.jpg" alt="Hooded figures on a purple-lit ridge in a storm"></div>
       <div class="body"><span class="from">Legends Mod &middot; DIM 33</span><h3>Hurikane<span class="num">side road</span></h3>
-      <p>Storm and lightning over a world that was never calm.</p></div></article>
+      <p>Storm and lightning over a world that was never calm.</p>
+      <a class="dl" href="https://raw.githubusercontent.com/MarionWhite/quest-forge/main/tools/branding/loading-plates/finish/1280/12-hurikane.png" target="_blank" rel="noopener">1280 &times; 720 PNG</a></div></article>
     <article class="world" id="13-tython"><span class="plate">PLATE 13</span><div class="art"><img src="../img/plates/13-tython.jpg" alt="A green valley with old temples under two moons"></div>
       <div class="body"><span class="from">Legends Mod &middot; DIM 34</span><h3>Tython<span class="num">side road</span></h3>
-      <p>Green valleys and old temples under two moons. The quiet one.</p></div></article>
+      <p>Green valleys and old temples under two moons. The quiet one.</p>
+      <a class="dl" href="https://raw.githubusercontent.com/MarionWhite/quest-forge/main/tools/branding/loading-plates/finish/1280/13-tython.png" target="_blank" rel="noopener">1280 &times; 720 PNG</a></div></article>
     <article class="world" id="14-korriban"><span class="plate">PLATE 14</span><div class="art"><img src="../img/plates/14-korriban.jpg" alt="Red canyons and tombs under a dark sun"></div>
       <div class="body"><span class="from">Legends Mod &middot; DIM 35</span><h3>Korriban<span class="num">side road</span></h3>
-      <p>Red canyons and tombs: the Sith world.</p></div></article>
+      <p>Red canyons and tombs: the Sith world.</p>
+      <a class="dl" href="https://raw.githubusercontent.com/MarionWhite/quest-forge/main/tools/branding/loading-plates/finish/1280/14-korriban.png" target="_blank" rel="noopener">1280 &times; 720 PNG</a></div></article>
     <article class="world" id="15-tatooine"><span class="plate">PLATE 15</span><div class="art"><img src="../img/plates/15-tatooine.jpg" alt="Twin suns setting over sand dunes"></div>
       <div class="body"><span class="from">Legends Mod &middot; DIM 36</span><h3>Tatooine<span class="num">side road</span></h3>
-      <p>Twin suns over the dunes.</p></div></article>
+      <p>Twin suns over the dunes.</p>
+      <a class="dl" href="https://raw.githubusercontent.com/MarionWhite/quest-forge/main/tools/branding/loading-plates/finish/1280/15-tatooine.png" target="_blank" rel="noopener">1280 &times; 720 PNG</a></div></article>
     <article class="world" id="16-speed-force"><span class="plate">PLATE 16</span><div class="art"><img src="../img/plates/16-speed-force.jpg" alt="A figure inside a storm of blue lightning"></div>
       <div class="body"><span class="from">Legends Mod &middot; DIM 50</span><h3>Speed Force<span class="num">side road</span></h3>
-      <p>The blue lightning that speedsters run through.</p></div></article>
+      <p>The blue lightning that speedsters run through.</p>
+      <a class="dl" href="https://raw.githubusercontent.com/MarionWhite/quest-forge/main/tools/branding/loading-plates/finish/1280/16-speed-force.png" target="_blank" rel="noopener">1280 &times; 720 PNG</a></div></article>
     <article class="world" id="17-wakanda"><span class="plate">PLATE 17</span><div class="art"><img src="../img/plates/17-wakanda.jpg" alt="Thatched buildings and purple lights under a night sky"></div>
       <div class="body"><span class="from">Legends Mod &middot; DIM 51</span><h3>Wakanda<span class="num">side road</span></h3>
-      <p>The hidden kingdom, at night, lit from within.</p></div></article>
+      <p>The hidden kingdom, at night, lit from within.</p>
+      <a class="dl" href="https://raw.githubusercontent.com/MarionWhite/quest-forge/main/tools/branding/loading-plates/finish/1280/17-wakanda.png" target="_blank" rel="noopener">1280 &times; 720 PNG</a></div></article>
     <article class="world" id="18-kingpin"><span class="plate">PLATE 18</span><div class="art"><img src="../img/plates/18-kingpin.jpg" alt="A rain-slick city street at night with a large figure in a white suit"></div>
       <div class="body"><span class="from">Legends Mod &middot; DIM 53</span><h3>Kingpin Takedown<span class="num">side road</span></h3>
-      <p>A city at night, and the man who owns it.</p></div></article>
+      <p>A city at night, and the man who owns it.</p>
+      <a class="dl" href="https://raw.githubusercontent.com/MarionWhite/quest-forge/main/tools/branding/loading-plates/finish/1280/18-kingpin.png" target="_blank" rel="noopener">1280 &times; 720 PNG</a></div></article>
     <article class="world" id="19-quantum-realm"><span class="plate">PLATE 19</span><div class="art"><img src="../img/plates/19-quantum-realm.jpg" alt="Translucent glowing cubes drifting in a dark void"></div>
       <div class="body"><span class="from">Legends Mod &middot; DIM 55</span><h3>Quantum Realm<span class="num">side road</span></h3>
-      <p>Shrink far enough and the world turns to glowing glass.</p></div></article>
+      <p>Shrink far enough and the world turns to glowing glass.</p>
+      <a class="dl" href="https://raw.githubusercontent.com/MarionWhite/quest-forge/main/tools/branding/loading-plates/finish/1280/19-quantum-realm.png" target="_blank" rel="noopener">1280 &times; 720 PNG</a></div></article>
     <article class="world" id="20-imortus"><span class="plate">PLATE 20</span><div class="art"><img src="../img/plates/20-imortus.jpg" alt="A frozen fortress on a cliff split by a river of lava"></div>
       <div class="body"><span class="from">Legends Mod &middot; DIM 58</span><h3>Imortus<span class="num">side road</span></h3>
-      <p>A frozen fortress split by lava, and nothing in between.</p></div></article>
+      <p>A frozen fortress split by lava, and nothing in between.</p>
+      <a class="dl" href="https://raw.githubusercontent.com/MarionWhite/quest-forge/main/tools/branding/loading-plates/finish/1280/20-imortus.png" target="_blank" rel="noopener">1280 &times; 720 PNG</a></div></article>
     <article class="world" id="21-underworld"><span class="plate">PLATE 21</span><div class="art"><img src="../img/plates/21-underworld.jpg" alt="A road into a dark gorge lined with torches and figures"></div>
       <div class="body"><span class="from">Legends Mod &middot; DIM 66</span><h3>The Underworld<span class="num">side road</span></h3>
-      <p>The road down, lined with the dead. The horror pack's own hell.</p></div></article>
+      <p>The road down, lined with the dead. The horror pack's own hell.</p>
+      <a class="dl" href="https://raw.githubusercontent.com/MarionWhite/quest-forge/main/tools/branding/loading-plates/finish/1280/21-underworld.png" target="_blank" rel="noopener">1280 &times; 720 PNG</a></div></article>
   </div>
 </div></section>
 
@@ -262,22 +298,28 @@ footer.site a:hover{color:var(--ember-ink);border-color:var(--ember)}
   <div class="grid">
     <article class="world" id="22-utopia"><span class="plate">PLATE 22</span><div class="art"><img src="../img/plates/22-utopia.jpg" alt="Dragons over a bright green landscape with lightning"></div>
       <div class="body"><span class="from">OreSpawn &middot; DIM 80</span><h3>Utopia<span class="num">chapter 7</span></h3>
-      <p>OreSpawn's paradise: green, bright, and watched by dragons.</p></div></article>
+      <p>OreSpawn's paradise: green, bright, and watched by dragons.</p>
+      <a class="dl" href="https://raw.githubusercontent.com/MarionWhite/quest-forge/main/tools/branding/loading-plates/finish/1280/22-utopia.png" target="_blank" rel="noopener">1280 &times; 720 PNG</a></div></article>
     <article class="world" id="23-mining"><span class="plate">PLATE 23</span><div class="art"><img src="../img/plates/23-mining.jpg" alt="A lava-lit cavern with ore in the walls and a giant spider"></div>
       <div class="body"><span class="from">OreSpawn &middot; DIM 81</span><h3>Mining<span class="num">chapter 7</span></h3>
-      <p>Ore in every wall, and things that live between the walls.</p></div></article>
+      <p>Ore in every wall, and things that live between the walls.</p>
+      <a class="dl" href="https://raw.githubusercontent.com/MarionWhite/quest-forge/main/tools/branding/loading-plates/finish/1280/23-mining.png" target="_blank" rel="noopener">1280 &times; 720 PNG</a></div></article>
     <article class="world" id="24-village-mania"><span class="plate">PLATE 24</span><div class="art"><img src="../img/plates/24-village-mania.jpg" alt="A burning village at night with a giant rainbow ant and robots"></div>
       <div class="body"><span class="from">OreSpawn &middot; DIM 82</span><h3>Village Mania<span class="num">chapter 7</span></h3>
-      <p>A village, and everything that comes for it after dark.</p></div></article>
+      <p>A village, and everything that comes for it after dark.</p>
+      <a class="dl" href="https://raw.githubusercontent.com/MarionWhite/quest-forge/main/tools/branding/loading-plates/finish/1280/24-village-mania.png" target="_blank" rel="noopener">1280 &times; 720 PNG</a></div></article>
     <article class="world" id="25-danger-islands"><span class="plate">PLATE 25</span><div class="art"><img src="../img/plates/25-danger-islands.jpg" alt="Jagged islands lit by fire under a dark sky"></div>
       <div class="body"><span class="from">OreSpawn &middot; DIM 83</span><h3>Danger Islands<span class="num">chapter 7</span></h3>
-      <p>Islands of everything OreSpawn makes that wants you dead.</p></div></article>
+      <p>Islands of everything OreSpawn makes that wants you dead.</p>
+      <a class="dl" href="https://raw.githubusercontent.com/MarionWhite/quest-forge/main/tools/branding/loading-plates/finish/1280/25-danger-islands.png" target="_blank" rel="noopener">1280 &times; 720 PNG</a></div></article>
     <article class="world" id="26-crystal"><span class="plate">PLATE 26</span><div class="art"><img src="../img/plates/26-crystal.jpg" alt="A giant crab in a crystal cave"></div>
       <div class="body"><span class="from">OreSpawn &middot; DIM 84</span><h3>Crystal<span class="num">chapter 7</span></h3>
-      <p>The Crystal Dimension and its armoury: the far end of the OreSpawn chapter.</p></div></article>
+      <p>The Crystal Dimension and its armoury: the far end of the OreSpawn chapter.</p>
+      <a class="dl" href="https://raw.githubusercontent.com/MarionWhite/quest-forge/main/tools/branding/loading-plates/finish/1280/26-crystal.png" target="_blank" rel="noopener">1280 &times; 720 PNG</a></div></article>
     <article class="world" id="27-chaos"><span class="plate">PLATE 27</span><div class="art"><img src="../img/plates/27-chaos.jpg" alt="Dragons circling a pagoda tower at night"></div>
       <div class="body"><span class="from">OreSpawn &middot; DIM 85</span><h3>Chaos<span class="num">chapter 7</span></h3>
-      <p>OreSpawn's last dimension. Dragons, towers, and nothing calm.</p></div></article>
+      <p>OreSpawn's last dimension. Dragons, towers, and nothing calm.</p>
+      <a class="dl" href="https://raw.githubusercontent.com/MarionWhite/quest-forge/main/tools/branding/loading-plates/finish/1280/27-chaos.png" target="_blank" rel="noopener">1280 &times; 720 PNG</a></div></article>
   </div>
   <div class="unpictured"><b>Not pictured.</b> TragicMC's two dimensions, <b>the Collision</b> (DIM 2) and <b>Synapse</b> (DIM 3), have no plate yet.
     They belong to chapter 8, which opens when Mobzilla is dead.</div>
@@ -289,7 +331,8 @@ footer.site a:hover{color:var(--ember-ink);border-color:var(--ember)}
   <a href="../">Home</a><a href="../play/">Get the pack</a><a href="../mods/">Mod list</a><a href="../items/">Item index</a>
   <a href="../enchantments/">Enchantments</a><a href="../ore-atlas/">Ore atlas</a>
   <a href="https://github.com/MarionWhite/quest-forge">Source on GitHub</a>
-  <span>Plates painted for the pack's loading screens &middot; Not affiliated with Mojang or any mod author</span>
+  <span>Plates painted for the pack's loading screens &middot; An independent project; Minecraft belongs to Mojang and every mod to its author.</span>
 </div></footer>
+<script>(function(){var b=document.querySelector('[data-theme-toggle]');if(!b)return;var h=document.documentElement,mq=matchMedia('(prefers-color-scheme: dark)');function mode(){try{var t=localStorage.getItem('qf-theme');return t==='light'||t==='dark'?t:'auto'}catch(e){return 'auto'}}function sys(){return mq.matches?'dark':'light'}function show(){var m=mode();b.dataset.mode=m;var s=m==='auto'?'Theme follows your system ('+sys()+')':'Theme: '+m;b.title=s+'. Click to switch.';b.setAttribute('aria-label',s)}b.addEventListener('click',function(){var m=mode(),s=sys(),n=(m==='auto'||m===s)?(s==='dark'?'light':'dark'):'auto';try{if(n==='auto')localStorage.removeItem('qf-theme');else localStorage.setItem('qf-theme',n)}catch(e){}if(n==='auto')h.removeAttribute('data-theme');else h.setAttribute('data-theme',n);show()});if(mq.addEventListener)mq.addEventListener('change',show);show()})();</script>
 </body>
 </html>

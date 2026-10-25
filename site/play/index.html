@@ -14,6 +14,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+<script>(function(){try{var t=localStorage.getItem('qf-theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)}catch(e){}})()</script>
 <style>
 /* Tokens shared with every page under site/. */
 :root{
@@ -60,6 +61,11 @@ nav.site a:not(.brand){font-family:Archivo,sans-serif;font-size:13.5px;font-weig
   padding:4px 1px;border-bottom:2px solid transparent}
 nav.site a:not(.brand):hover{color:var(--ink);border-color:var(--rule)}
 nav.site a[aria-current="page"]{color:var(--ember-ink);border-color:var(--ember)}
+nav.site .theme{margin-left:4px;display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;padding:0;border:1px solid transparent;border-radius:50%;background:none;color:var(--ink-2);cursor:pointer}
+nav.site .theme:hover{color:var(--ink);border-color:var(--rule)}
+nav.site .theme:focus-visible{outline:2px solid var(--ember);outline-offset:1px}
+nav.site .theme svg{width:17px;height:17px;display:none}
+nav.site .theme[data-mode="auto"] .i-auto,nav.site .theme[data-mode="light"] .i-light,nav.site .theme[data-mode="dark"] .i-dark{display:block}
 
 /* ---- masthead ---- */
 header.mast{padding:48px 0 32px;border-bottom:2px solid var(--ink);
@@ -80,6 +86,7 @@ h1 .amp{color:var(--ember);font-weight:600}
 .release b{color:var(--ink);font-weight:600}
 .release .asset{font-family:"JetBrains Mono",monospace;font-size:12px}
 .release .asset span{color:var(--muted)}
+.release .pack{font-family:"JetBrains Mono",monospace;font-size:12.5px;color:var(--ink)}
 
 /* ---- layout ---- */
 .layout{display:grid;grid-template-columns:220px minmax(0,1fr);gap:48px;align-items:start;padding-top:40px}
@@ -161,12 +168,14 @@ footer.site a:hover{color:var(--ember-ink);border-color:var(--ember)}
 <nav class="site" aria-label="Site"><div class="wrap">
   <a class="brand" href="../"><img src="../favicon.png" alt="">Quest Forge</a>
   <a href="./" aria-current="page">Get the pack</a>
+  <a href="../first-night/">First night</a>
   <a href="../mods/">Mods</a>
   <a href="../items/">Items</a>
   <a href="../worlds/">Worlds</a>
   <a href="../enchantments/">Enchantments</a>
   <a href="../ore-atlas/">Ore atlas</a>
   <a href="../online/">Server</a>
+  <button class="theme" type="button" data-theme-toggle aria-label="Theme" title="Theme"><svg class="i-auto" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18V3z" fill="currentColor"/><circle cx="12" cy="12" r="8.25" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><svg class="i-light" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="currentColor"/><g stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/></g></svg><svg class="i-dark" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z" fill="currentColor"/></svg></button>
 </div></nav>
 
 <header class="mast"><div class="wrap">
@@ -331,6 +340,7 @@ footer.site a:hover{color:var(--ember-ink);border-color:var(--ember)}
   </div>
   <p>The controls screen is searchable, which matters once a hundred mods have each claimed a key. In singleplayer, a new
     world loads the quest book by itself; there is no command to run.</p>
+  <p>Then read <a href="../first-night/">Your first night</a> for what to do once you are in.</p>
 </section>
 
 <section class="step" id="refused">
@@ -394,7 +404,7 @@ footer.site a:hover{color:var(--ember-ink);border-color:var(--ember)}
   <a href="../">Home</a><a href="../mods/">Mod list</a><a href="../items/">Item index</a><a href="../worlds/">Worlds</a>
   <a href="../enchantments/">Enchantments</a><a href="../online/">Server</a>
   <a href="https://github.com/MarionWhite/quest-forge">Source on GitHub</a>
-  <span>Not affiliated with Mojang or any mod author</span>
+  <span>An independent project. Minecraft belongs to Mojang and every mod to its author.</span>
 </div></footer>
 
 <script>
@@ -422,6 +432,7 @@ if ("IntersectionObserver" in window) {
   document.querySelectorAll(".step").forEach(s => io.observe(s));
 }
 // The latest client release, from GitHub. Falls back to the static line when the API is unreachable.
+let packNodes = null;
 fetch("https://api.github.com/repos/MarionWhite/quest-forge/releases?per_page=15", {headers: {Accept: "application/vnd.github+json"}})
   .then(r => r.ok ? r.json() : null).then(list => {
     if (!Array.isArray(list)) return;
@@ -434,7 +445,24 @@ fetch("https://api.github.com/repos/MarionWhite/quest-forge/releases?per_page=15
       `<a class="asset" href="${a.browser_download_url}">${a.name} <span>${mb(a.size)}</span></a>`).join("");
     box.innerHTML = `<span class="lab">Latest release</span><span><b>${rel.name || rel.tag_name}</b></span>` +
       `<span>published ${date}</span>${assets}<a href="${rel.html_url}">Release notes</a>`;
+    if (packNodes) box.append(...packNodes); // the rewrite above removed the pack row if it was already shown
   }).catch(() => {});
+// The version of the pack this site was built with, from pack.json beside this page (written at deploy time).
+// Renders nothing if the file is missing or malformed.
+fetch("pack.json", {cache: "no-store"}).then(r => r.ok ? r.json() : null).then(p => {
+  const version = (p && typeof p.version === "string") ? p.version.trim() : "";
+  if (!version) return;
+  const lab = document.createElement("span"); lab.className = "lab"; lab.textContent = "Current pack";
+  const ver = document.createElement("span"); ver.className = "pack"; ver.textContent = version;
+  const note = document.createElement("span");
+  note.innerHTML = "The title screen's top-right corner should show the same string. If it does not, " +
+    '<a href="https://github.com/MarionWhite/quest-forge/releases">download the latest release</a>.';
+  packNodes = [lab, ver, note];
+  document.getElementById("release").append(...packNodes);
+}).catch(() => {});
+
+// ---- theme toggle ----
+(function(){var b=document.querySelector('[data-theme-toggle]');if(!b)return;var h=document.documentElement,mq=matchMedia('(prefers-color-scheme: dark)');function mode(){try{var t=localStorage.getItem('qf-theme');return t==='light'||t==='dark'?t:'auto'}catch(e){return 'auto'}}function sys(){return mq.matches?'dark':'light'}function show(){var m=mode();b.dataset.mode=m;var s=m==='auto'?'Theme follows your system ('+sys()+')':'Theme: '+m;b.title=s+'. Click to switch.';b.setAttribute('aria-label',s)}b.addEventListener('click',function(){var m=mode(),s=sys(),n=(m==='auto'||m===s)?(s==='dark'?'light':'dark'):'auto';try{if(n==='auto')localStorage.removeItem('qf-theme');else localStorage.setItem('qf-theme',n)}catch(e){}if(n==='auto')h.removeAttribute('data-theme');else h.setAttribute('data-theme',n);show()});if(mq.addEventListener)mq.addEventListener('change',show);show()})();
 </script>
 </body>
 </html>
