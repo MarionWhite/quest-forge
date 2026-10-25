@@ -462,11 +462,11 @@ star crystals, Witchery and anything already saturated.
 |---|---|---|---|
 | A. keep 16x | the status quo | none | wrong for ores and stone: a 16x stone host inside a 32x Faithful wall is the first thing anyone sees |
 | B. 2x nearest + relief | no new pixels; the generated `_n`/`_s` carry the artist's shading as relief and material | automatic, done (section 4) | the floor for everything; under the deferred shader it reads as detail at a distance, blocky up close |
-| C. re-composite on our host | for ores: Faithful 32x stone (licensed) under the mod's flecks at 2x nearest, using the same fleck mask as `_s` | one script, automatic | the biggest single win: ~70 textures, the top of the ranking, with no drawing |
+| C. re-composite on our host | for ores: Faithful 32x stone (licensed) under the mod's flecks at 2x nearest, using the same fleck mask as `_s` | one script, automatic | **done in v1** (section 4b): 70 textures, the top of the ranking, with no drawing |
 | D. procedural upscale (hqx, xBR, grain) | smears pixel art | low | off-brief: the owner wants Minecraft's designs, not smoothed ones |
 | E. hand-drawn 32x | Faithful's method, per block | high per block | for the families B and C cannot carry: machines, Twilight and TragicMC terrain, Chisel's two stones |
 | F. F32 Modded Edition | the 2014–2024 "Faithful 32 Modded Edition" for 1.7.10 (section 5) | a licence decision | covers Railcraft, Twilight, Witchery, Chisel, drawers, iron chests, ProjectE, OpenBlocks, BoP, Carpenter's, Malisis if the owner accepts its terms |
-| G. Faithful 32x modern Java | Legends' and Chisel's backported 1.8–1.16 blocks | fetch one zip | granite/diorite/andesite, 16 concretes and powders, prismarine, red sandstone, sea lantern, magma, bone block, basalt, blackstone, soul soil, nether gold ore, ancient debris, netherite, quartz bricks, smooth stone, red nether brick: 60+ Legends textures under the licence we already use |
+| G. Faithful 32x modern Java | Legends' and Chisel's backported 1.8–1.16 blocks | fetch one zip | **done in v1**: 90 textures verified by colour; | granite/diorite/andesite, 16 concretes and powders, prismarine, red sandstone, sea lantern, magma, bone block, basalt, blackstone, soul soil, nether gold ore, ancient debris, netherite, quartz bricks, smooth stone, red nether brick: 60+ Legends textures under the licence we already use |
 
 Recommended order: B now (done), then C and G (automatic, licensed), then F if the owner says
 yes, then E for the top of what is left.
@@ -507,6 +507,304 @@ the same 3,464 files; of 2,264 maps, 752 stained-glass CTM `_s` tiles changed (t
 glass smoothness, a v0 miss), and bed (cloth), cocoa and nether wart stages (plant subsurface),
 lava (emission base), sandstone (stone, not soil), iron ore flecks (iron metal code) and the lit
 repeater/comparator (emission) moved on purpose; every other vanilla map is identical.
+
+
+## 4b. QF Textures modded v1: ores on our stone, backports, connected glass, emission (2026-10-25)
+
+`tools/textures/build_modded_textures.py` builds **`C:\qfb\textures\QFTextures-modded-v1.zip`**:
+**3,616,173 bytes (3.6 MB), 2.1 s**, never committed. Pack source: `resourcepacks/QFTextures-modded/`
+(pack.mcmeta, `backports.txt`, `ores-extra.txt`); the emissive list is `tools/textures/emissive-modded.txt`.
+
+```
+py -3.10 -I tools/textures/build_modded_textures.py --out C:\qfb\textures\QFTextures-modded-v1.zip \
+    --sheets C:\qfb\textures --tables C:\qfb\textures\v1-tables.md
+```
+
+What is in it, in the order the owner asked for:
+
+1. **Ores on our stone: 70 textures.** Every 16x ore texture is tested against vanilla's
+   `stone.png`: if fewer than 60 % of its pixels differ, the host is vanilla stone and the
+   difference is the fleck mask (48 textures: Legends 11, VoltzEngine 21, BoP 7, TragicMC 5,
+   Transformers 2, SUM 1, ICBM 1). Eleven more whose host is the mod's own stone drawing or whose
+   flecks cover more than 60 % are listed in `ores-extra.txt` and masked by `labpbr.ore_mask`'s
+   median fallback [guess that stone is their host: Legends red/black iron, sphalerite,
+   lightning; OreSpawn salt, uranium, titanium, amethyst, ruby; the Jungle's sapphire; the
+   surprise ore]. Each is re-composited as **Faithful 32x stone (QF v0's, with its chroma × 1.12)
+   under the mod's flecks at 2x nearest**; no pixel is drawn. Railcraft's eleven ores are
+   **transparent overlays** (alpha 0 on 76–93 % of the tile) that its `RenderBlockOre` draws over
+   the stone block in a second pass [verified in the jar], so they are kept as overlays at 2x and
+   land on whatever stone the pack ships. Ores on dark stone (TragicMC's `Ore*`), netherrack and
+   end stone are left at 16x: QF v0 keeps those hosts at vanilla 16x, so a 32x host would not match
+   its neighbours. Review sheet: `C:\qfb\textures\sheet-ores-v1.png` (before | after).
+2. **Backports: 90 textures.** Legends' and Chisel's 1.8–1.16 vanilla blocks draw **Faithful 32x
+   Java 1.21.1**'s texture for the same block (`backports.txt`, 94 pairs). A pair is taken only
+   when the mod's 16x and Faithful's 32x agree: mean-colour distance ≤ 60 and mean per-pixel
+   distance at 16x ≤ 48 (the 90 taken sit at 0–45 and 0.4–17). Four are **[guess] and left
+   out**: `soul_fire_0/1` (Faithful's soul fire is a different drawing, distance 311/348),
+   `concrete_silver` (Legends' "silver" concrete is not light-gray concrete, 369) and
+   `blast_furnace_bottom` (paired with the top as a guess, 241). Animated ones (`magma`,
+   `sea_lantern`, `prismarine_rough`, the lit furnaces) carry Faithful's `.mcmeta`. Sheet:
+   `sheet-backports-v1.png`.
+3. **Connected textures: 35 rules, 1,594 files**, under `assets/minecraft/mcpatcher/ctm/qf/`, the
+   1.7.10 MCPatcher format Angelica reads. For Witchery's shaded glass (16 colours), SecurityCraft's
+   reinforced stained glass (16) and reinforced glass (1): `method=ctm`, `matchBlocks=<modid:name>`,
+   `metadata=<dye>`, `tiles=0-46`, `connect=tile`, with **47 tiles generated from the mod's own
+   texture**: which edges each tile index keeps was measured from Faithful 32x's glass tiles
+   (`CTM47` in the script), the standard layout every pack uses, so these connect exactly as
+   Faithful's glass does; an open edge takes the interior row beside it. For Chisel's marble and
+   limestone (metadata 0, the worldgen variant): `method=repeat width=2 height=2 tiles=0-3`, the
+   tile's four rotations, so no two neighbours repeat. Keys and methods are the ones in Angelica's
+   `TileOverride` (`ctm`, `repeat`, `matchBlocks`, `metadata`, `tiles`, `connect`, `width`,
+   `height`) and `matchBlocks` resolves `modid:name` through `GameData.getBlockRegistry`
+   [verified by `javap` on `BlockAPI.createMatchers`]. Block names are from the registry, metadata
+   from the item dump, textures from the icon pairing [verified]. **Railcraft's strengthened glass
+   gets no rule**: its `glass.png` is a 16×80 five-icon sheet that `TextureAtlasSheet.unstitchIcons`
+   splits and the mod connects by itself [verified in the jar]. Not yet seen in a client: the first
+   `modded_wall` render says whether the rules take. Sheet: `sheet-ctm-v1.png` (the 47 tiles and
+   a 3×3 join of the blue shaded glass).
+4. **Emission.** `gen_surface_pack.py --emissive FILE` (default `tools/textures/emissive-modded.txt`,
+   `none` to disable) and the v1 builder mark the listed textures' bright pixels (luminance above
+   0.45) as emitting in `_s` alpha: Railcraft fireboxes, engines, coke oven and blast furnace,
+   ProjectE collectors/relays/condensers, Compact Machines, Legends' lanterns, sea lantern, magma
+   and soul fire, TragicMC's 16 star crystals, lights and circuits, HEE's glow blocks and ores,
+   Transformers' energon, Twilight's firefly jar, fire jet, gloom and aurora, and the rest of the
+   list (~200 names, each checked against the jars). 45 of them are in v1's map set; the whole
+   list applies on a full `gen_surface_pack` run. The item dump must be rerun after any texture
+   change so the site's icons follow (`tools/items/README.md`; not run here).
+5. **LabPBR maps** for the 434 top-ranked textures plus every replaced one (509) and every CTM tile
+   (1,559), from what ships (the 32x composites for the ores).
+
+**Checks run.** `labpbr.check_layout` over all 2,067 map pairs: 0 problems. PIL read-back:
+`redironore` albedo 32×32 opaque, `_s` F0 {10, 230} (iron flecks); `ore.poor.gold` 32×32 with
+alpha 0 on 93 % (overlay kept), F0 {0, 10, 231}; `ore.dark.lapis` overlay, F0 14; `stone_granite`
+32×32, `_s` F0 10, smoothness 48–83; `sea_lantern` 160×32 animated strip, emission on 4,940 px
+(minimum 13); `machine_0` 14 emitting px; `BlueStarCrystal` all 256 px emit; ProjectE
+`collectors/front` 87 px. CTM properties read back as written (`matchBlocks=witchery:shadedglass`,
+`metadata=11`, `method=ctm`, `tiles=0-46`, `connect=tile`; `chisel:marble` `method=repeat`
+`width=2 height=2 tiles=0-3`). CREDITS.txt carries 211 lines: both Faithful zips with sha256, then
+one record per generated file (source texture, jar, host, mask).
+
+**Faithful 32x Java 1.21.1** (the backports' source), fetched 2026-10-25 into `C:\qfb\faithful\dl\`
+and never into the repo: `Faithful.32x.-.1.21.1.zip`, **11,030,261 bytes**, sha256
+`15e093da38af37e11531c6cfeb9787f5617c20009c68b789eb62cfafe53c2762`, from the official repository
+`Faithful-Resource-Pack/Faithful-32x-Java`, release `june-2026-release` (2026-06-18),
+https://github.com/Faithful-Resource-Pack/Faithful-32x-Java/releases/download/june-2026-release/Faithful.32x.-.1.21.1.zip,
+pack_format 34, 1,009 block textures, `LICENSE.txt` = Faithful License v4 inside [verified]. Same
+licence and the same credit as the 1.7.10 zip (look-bible, "Faithful 32x: source and licence").
+
+#### Ores re-composited (70)
+
+| texture | mask |
+|---|---|
+| `biomesoplenty/textures/blocks/amberore.png` | diff vs vanilla stone (55% flecks) |
+| `biomesoplenty/textures/blocks/malachiteore.png` | diff vs vanilla stone (50% flecks) |
+| `biomesoplenty/textures/blocks/peridotore.png` | diff vs vanilla stone (46% flecks) |
+| `biomesoplenty/textures/blocks/rubyore.png` | diff vs vanilla stone (47% flecks) |
+| `biomesoplenty/textures/blocks/sapphireore.png` | diff vs vanilla stone (41% flecks) |
+| `biomesoplenty/textures/blocks/tanzaniteore.png` | diff vs vanilla stone (44% flecks) |
+| `biomesoplenty/textures/blocks/topazore.png` | diff vs vanilla stone (56% flecks) |
+| `icbmclassic/textures/blocks/redstone_ore.png` | diff vs vanilla stone (16% flecks) |
+| `legends/textures/blocks/bauxiteore.png` | diff vs vanilla stone (16% flecks) |
+| `legends/textures/blocks/blackironore.png` | ores-extra.txt, median fallback mask |
+| `legends/textures/blocks/cassiteriteore.png` | diff vs vanilla stone (47% flecks) |
+| `legends/textures/blocks/copperore.png` | diff vs vanilla stone (16% flecks) |
+| `legends/textures/blocks/lightningore.png` | ores-extra.txt, median fallback mask |
+| `legends/textures/blocks/limoniteore.png` | diff vs vanilla stone (33% flecks) |
+| `legends/textures/blocks/magnesiteore.png` | diff vs vanilla stone (44% flecks) |
+| `legends/textures/blocks/reddiamondore.png` | diff vs vanilla stone (20% flecks) |
+| `legends/textures/blocks/redironore.png` | ores-extra.txt, median fallback mask |
+| `legends/textures/blocks/rubyore.png` | diff vs vanilla stone (45% flecks) |
+| `legends/textures/blocks/sapphireore.png` | diff vs vanilla stone (58% flecks) |
+| `legends/textures/blocks/siliconore.png` | diff vs vanilla stone (23% flecks) |
+| `legends/textures/blocks/silverore.png` | diff vs vanilla stone (23% flecks) |
+| `legends/textures/blocks/sphaleriteore.png` | ores-extra.txt, median fallback mask |
+| `legends/textures/blocks/tungstenore.png` | diff vs vanilla stone (41% flecks) |
+| `orespawn/textures/blocks/oreamethyst.png` | ores-extra.txt, median fallback mask |
+| `orespawn/textures/blocks/oreruby.png` | ores-extra.txt, median fallback mask |
+| `orespawn/textures/blocks/oresalt.png` | ores-extra.txt, median fallback mask |
+| `orespawn/textures/blocks/oretitanium.png` | ores-extra.txt, median fallback mask |
+| `orespawn/textures/blocks/oreuranium.png` | ores-extra.txt, median fallback mask |
+| `railcraft/textures/blocks/ore.dark.diamond.png` | transparent overlay kept, 2x nearest (the mod draws it over the stone block) |
+| `railcraft/textures/blocks/ore.dark.emerald.png` | transparent overlay kept, 2x nearest (the mod draws it over the stone block) |
+| `railcraft/textures/blocks/ore.dark.lapis.png` | transparent overlay kept, 2x nearest (the mod draws it over the stone block) |
+| `railcraft/textures/blocks/ore.firestone.png` | transparent overlay kept, 2x nearest (the mod draws it over the stone block) |
+| `railcraft/textures/blocks/ore.poor.copper.png` | transparent overlay kept, 2x nearest (the mod draws it over the stone block) |
+| `railcraft/textures/blocks/ore.poor.gold.png` | transparent overlay kept, 2x nearest (the mod draws it over the stone block) |
+| `railcraft/textures/blocks/ore.poor.iron.png` | transparent overlay kept, 2x nearest (the mod draws it over the stone block) |
+| `railcraft/textures/blocks/ore.poor.lead.png` | transparent overlay kept, 2x nearest (the mod draws it over the stone block) |
+| `railcraft/textures/blocks/ore.poor.tin.png` | transparent overlay kept, 2x nearest (the mod draws it over the stone block) |
+| `railcraft/textures/blocks/ore.saltpeter.png` | transparent overlay kept, 2x nearest (the mod draws it over the stone block) |
+| `railcraft/textures/blocks/ore.sulfur.png` | transparent overlay kept, 2x nearest (the mod draws it over the stone block) |
+| `sum/textures/blocks/kryptoniteore.png` | diff vs vanilla stone (34% flecks) |
+| `surpriseeggs/textures/blocks/surprise_ore.png` | ores-extra.txt, median fallback mask |
+| `thejungle/textures/blocks/oreSapphire.png` | ores-extra.txt, median fallback mask |
+| `tragicmc/textures/blocks/MercuryOre.png` | diff vs vanilla stone (24% flecks) |
+| `tragicmc/textures/blocks/RubyOre.png` | diff vs vanilla stone (45% flecks) |
+| `tragicmc/textures/blocks/SapphireOre.png` | diff vs vanilla stone (45% flecks) |
+| `tragicmc/textures/blocks/SapphireOre2.png` | diff vs vanilla stone (24% flecks) |
+| `tragicmc/textures/blocks/TungstenOre.png` | diff vs vanilla stone (24% flecks) |
+| `transformers/textures/blocks/energon_ore.png` | diff vs vanilla stone (16% flecks) |
+| `transformers/textures/blocks/transformium_ore.png` | diff vs vanilla stone (29% flecks) |
+| `voltzengine/textures/blocks/stone/ore_amazonite.png` | diff vs vanilla stone (54% flecks) |
+| `voltzengine/textures/blocks/stone/ore_bauxite.png` | diff vs vanilla stone (44% flecks) |
+| `voltzengine/textures/blocks/stone/ore_copper.png` | diff vs vanilla stone (44% flecks) |
+| `voltzengine/textures/blocks/stone/ore_garnetgreen.png` | diff vs vanilla stone (45% flecks) |
+| `voltzengine/textures/blocks/stone/ore_garnetorange.png` | diff vs vanilla stone (45% flecks) |
+| `voltzengine/textures/blocks/stone/ore_garnetred.png` | diff vs vanilla stone (45% flecks) |
+| `voltzengine/textures/blocks/stone/ore_garnetyellow.png` | diff vs vanilla stone (45% flecks) |
+| `voltzengine/textures/blocks/stone/ore_lead.png` | diff vs vanilla stone (23% flecks) |
+| `voltzengine/textures/blocks/stone/ore_magnesite.png` | diff vs vanilla stone (44% flecks) |
+| `voltzengine/textures/blocks/stone/ore_nickel.png` | diff vs vanilla stone (23% flecks) |
+| `voltzengine/textures/blocks/stone/ore_onyxblack.png` | diff vs vanilla stone (45% flecks) |
+| `voltzengine/textures/blocks/stone/ore_onyxred.png` | diff vs vanilla stone (45% flecks) |
+| `voltzengine/textures/blocks/stone/ore_platinum.png` | diff vs vanilla stone (23% flecks) |
+| `voltzengine/textures/blocks/stone/ore_ruby.png` | diff vs vanilla stone (45% flecks) |
+| `voltzengine/textures/blocks/stone/ore_sapphire.png` | diff vs vanilla stone (45% flecks) |
+| `voltzengine/textures/blocks/stone/ore_silver.png` | diff vs vanilla stone (23% flecks) |
+| `voltzengine/textures/blocks/stone/ore_smokeyquartz.png` | diff vs vanilla stone (54% flecks) |
+| `voltzengine/textures/blocks/stone/ore_tin.png` | diff vs vanilla stone (22% flecks) |
+| `voltzengine/textures/blocks/stone/ore_titanium.png` | diff vs vanilla stone (23% flecks) |
+| `voltzengine/textures/blocks/stone/ore_uranium.png` | diff vs vanilla stone (23% flecks) |
+| `voltzengine/textures/blocks/stone/ore_zinc.png` | diff vs vanilla stone (23% flecks) |
+
+#### Backports (94 listed, 90 verified)
+
+| mod texture | Faithful 32x 1.21.1 `block/` | mean colour d | pixel d (16x) | result |
+|---|---|---|---|---|
+| `legends/stone_granite` | `granite` | 2.8 | 10.2 | verified |
+| `legends/stone_granite_smooth` | `polished_granite` | 2.4 | 9.3 | verified |
+| `legends/stone_diorite` | `diorite` | 0.2 | 22.2 | verified |
+| `legends/stone_diorite_smooth` | `polished_diorite` | 15.9 | 11.9 | verified |
+| `legends/stone_andesite` | `andesite` | 1.0 | 8.6 | verified |
+| `legends/stone_andesite_smooth` | `polished_andesite` | 0.7 | 7.4 | verified |
+| `chisel/granite/granite` | `granite` | 29.6 | 30.9 | verified |
+| `chisel/diorite/diorite` | `diorite` | 24.0 | 37.6 | verified |
+| `chisel/andesite/andesite` | `andesite` | 15.2 | 20.5 | verified |
+| `legends/smooth_stone` | `smooth_stone` | 10.5 | 7.0 | verified |
+| `legends/prismarine_rough` | `prismarine` | 8.8 | 15.1 | verified |
+| `legends/prismarine_bricks` | `prismarine_bricks` | 5.2 | 9.3 | verified |
+| `legends/prismarine_dark` | `dark_prismarine` | 12.5 | 8.9 | verified |
+| `legends/sea_lantern` | `sea_lantern` | 30.0 | 11.4 | verified |
+| `legends/magma` | `magma` | 10.4 | 20.0 | verified |
+| `legends/bone_block_side` | `bone_block_side` | 1.0 | 0.9 | verified |
+| `legends/bone_block_top` | `bone_block_top` | 2.1 | 2.7 | verified |
+| `legends/red_sandstone` | `red_sandstone` | 40.8 | 15.8 | verified |
+| `legends/red_sandstone_top` | `red_sandstone_top` | 30.3 | 10.6 | verified |
+| `legends/red_sandstone_bottom` | `red_sandstone_bottom` | 45.3 | 16.6 | verified |
+| `legends/red_sandstone_carved` | `chiseled_red_sandstone` | 38.8 | 14.5 | verified |
+| `legends/red_sandstone_smooth` | `cut_red_sandstone` | 43.0 | 14.7 | verified |
+| `legends/basalt_side` | `basalt_side` | 2.5 | 6.4 | verified |
+| `legends/basalt_top` | `basalt_top` | 5.1 | 9.3 | verified |
+| `legends/polished_basalt_side` | `polished_basalt_side` | 0.8 | 5.6 | verified |
+| `legends/polished_basalt_top` | `polished_basalt_top` | 4.1 | 10.8 | verified |
+| `legends/blackstone` | `blackstone` | 3.4 | 9.1 | verified |
+| `legends/blackstone_top` | `blackstone_top` | 0.4 | 6.2 | verified |
+| `legends/stone_blackstone` | `blackstone` | 3.4 | 9.1 | verified |
+| `legends/polished_blackstone` | `polished_blackstone` | 3.2 | 6.2 | verified |
+| `legends/polished_blackstone_bricks` | `polished_blackstone_bricks` | 7.2 | 8.7 | verified |
+| `legends/cracked_polished_blackstone_bricks` | `cracked_polished_blackstone_bricks` | 8.9 | 10.5 | verified |
+| `legends/chiseled_polished_blackstone` | `chiseled_polished_blackstone` | 9.3 | 8.7 | verified |
+| `legends/gilded_blackstone` | `gilded_blackstone` | 4.6 | 12.7 | verified |
+| `legends/soul_soil` | `soul_soil` | 1.1 | 3.5 | verified |
+| `legends/nether_gold_ore` | `nether_gold_ore` | 2.1 | 9.6 | verified |
+| `legends/ancient_debris_side` | `ancient_debris_side` | 5.4 | 8.9 | verified |
+| `legends/ancient_debris_top` | `ancient_debris_top` | 20.9 | 18.2 | verified |
+| `legends/netherite_block` | `netherite_block` | 8.5 | 10.1 | verified |
+| `legends/quartz_bricks` | `quartz_bricks` | 2.6 | 4.0 | verified |
+| `legends/chiseled_nether_bricks` | `chiseled_nether_bricks` | 2.1 | 6.7 | verified |
+| `legends/cracked_nether_bricks` | `cracked_nether_bricks` | 5.1 | 10.8 | verified |
+| `legends/red_nether_brick` | `red_nether_bricks` | 7.6 | 12.3 | verified |
+| `legends/nether_wart_block` | `nether_wart_block` | 1.3 | 4.4 | verified |
+| `legends/soul_torch` | `soul_torch` | 0.5 | 1.2 | verified |
+| `legends/soul_fire_0` | `soul_fire_0` | 311.0 | 123.1 | guess: colours differ, left out |
+| `legends/soul_fire_1` | `soul_fire_1` | 347.8 | 127.1 | guess: colours differ, left out |
+| `legends/concrete_white` | `white_concrete` | 0.0 | 0.7 | verified |
+| `legends/concrete_orange` | `orange_concrete` | 0.1 | 0.8 | verified |
+| `legends/concrete_magenta` | `magenta_concrete` | 0.1 | 0.8 | verified |
+| `legends/concrete_light_blue` | `light_blue_concrete` | 0.2 | 0.8 | verified |
+| `legends/concrete_yellow` | `yellow_concrete` | 0.1 | 0.8 | verified |
+| `legends/concrete_lime` | `lime_concrete` | 0.0 | 0.8 | verified |
+| `legends/concrete_pink` | `pink_concrete` | 0.1 | 0.7 | verified |
+| `legends/concrete_gray` | `gray_concrete` | 0.1 | 0.4 | verified |
+| `legends/concrete_silver` | `light_gray_concrete` | 369.2 | 123.1 | guess: colours differ, left out |
+| `legends/concrete_light_gray` | `light_gray_concrete` | 0.0 | 0.7 | verified |
+| `legends/concrete_cyan` | `cyan_concrete` | 0.0 | 0.6 | verified |
+| `legends/concrete_purple` | `purple_concrete` | 0.1 | 0.5 | verified |
+| `legends/concrete_blue` | `blue_concrete` | 0.0 | 0.5 | verified |
+| `legends/concrete_brown` | `brown_concrete` | 0.0 | 0.5 | verified |
+| `legends/concrete_green` | `green_concrete` | 0.1 | 0.5 | verified |
+| `legends/concrete_red` | `red_concrete` | 0.0 | 0.8 | verified |
+| `legends/concrete_black` | `black_concrete` | 0.0 | 0.9 | verified |
+| `legends/concrete_powder_white` | `white_concrete_powder` | 0.9 | 7.9 | verified |
+| `legends/concrete_powder_orange` | `orange_concrete_powder` | 2.7 | 8.6 | verified |
+| `legends/concrete_powder_magenta` | `magenta_concrete_powder` | 3.7 | 9.3 | verified |
+| `legends/concrete_powder_light_blue` | `light_blue_concrete_powder` | 1.2 | 9.2 | verified |
+| `legends/concrete_powder_yellow` | `yellow_concrete_powder` | 2.1 | 8.3 | verified |
+| `legends/concrete_powder_lime` | `lime_concrete_powder` | 1.2 | 6.5 | verified |
+| `legends/concrete_powder_pink` | `pink_concrete_powder` | 4.0 | 10.9 | verified |
+| `legends/concrete_powder_gray` | `gray_concrete_powder` | 2.0 | 5.3 | verified |
+| `legends/concrete_powder_light_gray` | `light_gray_concrete_powder` | 1.5 | 8.9 | verified |
+| `legends/concrete_powder_cyan` | `cyan_concrete_powder` | 0.7 | 6.1 | verified |
+| `legends/concrete_powder_purple` | `purple_concrete_powder` | 1.9 | 6.4 | verified |
+| `legends/concrete_powder_blue` | `blue_concrete_powder` | 1.8 | 6.0 | verified |
+| `legends/concrete_powder_brown` | `brown_concrete_powder` | 0.3 | 7.0 | verified |
+| `legends/concrete_powder_green` | `green_concrete_powder` | 1.1 | 6.2 | verified |
+| `legends/concrete_powder_red` | `red_concrete_powder` | 1.5 | 5.0 | verified |
+| `legends/concrete_powder_black` | `black_concrete_powder` | 1.6 | 6.5 | verified |
+| `legends/smithing_table_top` | `smithing_table_top` | 8.0 | 3.8 | verified |
+| `legends/smithing_table_side` | `smithing_table_side` | 5.3 | 6.8 | verified |
+| `legends/smithing_table_front` | `smithing_table_front` | 4.0 | 7.5 | verified |
+| `legends/smithing_table_bottom` | `smithing_table_bottom` | 1.4 | 3.2 | verified |
+| `legends/blast_furnace_front` | `blast_furnace_front` | 6.9 | 22.2 | verified |
+| `legends/blast_furnace_front_on` | `blast_furnace_front_on` | 7.5 | 18.2 | verified |
+| `legends/blast_furnace_side` | `blast_furnace_side` | 9.0 | 8.2 | verified |
+| `legends/blast_furnace_top` | `blast_furnace_top` | 7.4 | 5.7 | verified |
+| `legends/blast_furnace_bottom` | `blast_furnace_top` | 241.2 | 80.4 | guess: colours differ, left out |
+| `legends/smoker_front` | `smoker_front` | 1.2 | 8.7 | verified |
+| `legends/smoker_front_on` | `smoker_front_on` | 12.2 | 14.5 | verified |
+| `legends/smoker_side` | `smoker_side` | 5.6 | 8.8 | verified |
+| `legends/smoker_top` | `smoker_top` | 11.1 | 8.6 | verified |
+| `legends/smoker_bottom` | `smoker_bottom` | 15.2 | 8.8 | verified |
+
+#### CTM rules (35)
+
+| block | meta | texture | method | sources |
+|---|---|---|---|---|
+| `witchery:shadedglass` | 0 | `shadedglass_white` | ctm, 47 tiles, connect=tile | verified: block name (registry), metadata (item dump), texture (icon pairing) |
+| `witchery:shadedglass` | 1 | `shadedglass_orange` | ctm, 47 tiles, connect=tile | verified: block name (registry), metadata (item dump), texture (icon pairing) |
+| `witchery:shadedglass` | 2 | `shadedglass_magenta` | ctm, 47 tiles, connect=tile | verified: block name (registry), metadata (item dump), texture (icon pairing) |
+| `witchery:shadedglass` | 3 | `shadedglass_light_blue` | ctm, 47 tiles, connect=tile | verified: block name (registry), metadata (item dump), texture (icon pairing) |
+| `witchery:shadedglass` | 4 | `shadedglass_yellow` | ctm, 47 tiles, connect=tile | verified: block name (registry), metadata (item dump), texture (icon pairing) |
+| `witchery:shadedglass` | 5 | `shadedglass_lime` | ctm, 47 tiles, connect=tile | verified: block name (registry), metadata (item dump), texture (icon pairing) |
+| `witchery:shadedglass` | 6 | `shadedglass_pink` | ctm, 47 tiles, connect=tile | verified: block name (registry), metadata (item dump), texture (icon pairing) |
+| `witchery:shadedglass` | 7 | `shadedglass_gray` | ctm, 47 tiles, connect=tile | verified: block name (registry), metadata (item dump), texture (icon pairing) |
+| `witchery:shadedglass` | 8 | `shadedglass_silver` | ctm, 47 tiles, connect=tile | verified: block name (registry), metadata (item dump), texture (icon pairing) |
+| `witchery:shadedglass` | 9 | `shadedglass_cyan` | ctm, 47 tiles, connect=tile | verified: block name (registry), metadata (item dump), texture (icon pairing) |
+| `witchery:shadedglass` | 10 | `shadedglass_purple` | ctm, 47 tiles, connect=tile | verified: block name (registry), metadata (item dump), texture (icon pairing) |
+| `witchery:shadedglass` | 11 | `shadedglass_blue` | ctm, 47 tiles, connect=tile | verified: block name (registry), metadata (item dump), texture (icon pairing) |
+| `witchery:shadedglass` | 12 | `shadedglass_brown` | ctm, 47 tiles, connect=tile | verified: block name (registry), metadata (item dump), texture (icon pairing) |
+| `witchery:shadedglass` | 13 | `shadedglass_green` | ctm, 47 tiles, connect=tile | verified: block name (registry), metadata (item dump), texture (icon pairing) |
+| `witchery:shadedglass` | 14 | `shadedglass_red` | ctm, 47 tiles, connect=tile | verified: block name (registry), metadata (item dump), texture (icon pairing) |
+| `witchery:shadedglass` | 15 | `shadedglass_black` | ctm, 47 tiles, connect=tile | verified: block name (registry), metadata (item dump), texture (icon pairing) |
+| `securitycraft:reinforcedStainedGlass` | 0 | `glass_reinforced_white` | ctm, 47 tiles, connect=tile | verified: block name (registry), metadata (item dump), texture (icon pairing) |
+| `securitycraft:reinforcedStainedGlass` | 1 | `glass_reinforced_orange` | ctm, 47 tiles, connect=tile | verified: block name (registry), metadata (item dump), texture (icon pairing) |
+| `securitycraft:reinforcedStainedGlass` | 2 | `glass_reinforced_magenta` | ctm, 47 tiles, connect=tile | verified: block name (registry), metadata (item dump), texture (icon pairing) |
+| `securitycraft:reinforcedStainedGlass` | 3 | `glass_reinforced_light_blue` | ctm, 47 tiles, connect=tile | verified: block name (registry), metadata (item dump), texture (icon pairing) |
+| `securitycraft:reinforcedStainedGlass` | 4 | `glass_reinforced_yellow` | ctm, 47 tiles, connect=tile | verified: block name (registry), metadata (item dump), texture (icon pairing) |
+| `securitycraft:reinforcedStainedGlass` | 5 | `glass_reinforced_lime` | ctm, 47 tiles, connect=tile | verified: block name (registry), metadata (item dump), texture (icon pairing) |
+| `securitycraft:reinforcedStainedGlass` | 6 | `glass_reinforced_pink` | ctm, 47 tiles, connect=tile | verified: block name (registry), metadata (item dump), texture (icon pairing) |
+| `securitycraft:reinforcedStainedGlass` | 7 | `glass_reinforced_gray` | ctm, 47 tiles, connect=tile | verified: block name (registry), metadata (item dump), texture (icon pairing) |
+| `securitycraft:reinforcedStainedGlass` | 8 | `glass_reinforced_silver` | ctm, 47 tiles, connect=tile | verified: block name (registry), metadata (item dump), texture (icon pairing) |
+| `securitycraft:reinforcedStainedGlass` | 9 | `glass_reinforced_cyan` | ctm, 47 tiles, connect=tile | verified: block name (registry), metadata (item dump), texture (icon pairing) |
+| `securitycraft:reinforcedStainedGlass` | 10 | `glass_reinforced_purple` | ctm, 47 tiles, connect=tile | verified: block name (registry), metadata (item dump), texture (icon pairing) |
+| `securitycraft:reinforcedStainedGlass` | 11 | `glass_reinforced_blue` | ctm, 47 tiles, connect=tile | verified: block name (registry), metadata (item dump), texture (icon pairing) |
+| `securitycraft:reinforcedStainedGlass` | 12 | `glass_reinforced_brown` | ctm, 47 tiles, connect=tile | verified: block name (registry), metadata (item dump), texture (icon pairing) |
+| `securitycraft:reinforcedStainedGlass` | 13 | `glass_reinforced_green` | ctm, 47 tiles, connect=tile | verified: block name (registry), metadata (item dump), texture (icon pairing) |
+| `securitycraft:reinforcedStainedGlass` | 14 | `glass_reinforced_red` | ctm, 47 tiles, connect=tile | verified: block name (registry), metadata (item dump), texture (icon pairing) |
+| `securitycraft:reinforcedStainedGlass` | 15 | `glass_reinforced_black` | ctm, 47 tiles, connect=tile | verified: block name (registry), metadata (item dump), texture (icon pairing) |
+| `securitycraft:reinforcedGlassBlock` | 0 | `glass_reinforced` | ctm, 47 tiles, connect=tile | verified: block name (registry), metadata (item dump), texture (icon pairing) |
+| `chisel:marble` | 0 | `marble` | repeat 2x2, four rotations | verified: block name (registry), metadata 0 = the worldgen variant (scans) |
+| `chisel:limestone` | 0 | `limestone` | repeat 2x2, four rotations | verified: block name (registry), metadata 0 = the worldgen variant (scans) |
 
 ## 5. Sources and licence
 
@@ -550,6 +848,15 @@ world-master) is skipped and reported. Two views are in `views-world-master.txt`
    `texture_wall`. Render three variants: vanilla textures, QF v0 + `QFTextures-modded-v0.zip`
    (maps only, so identical until the shader reads them), and the same with `QF_PBR` once it
    exists. The question for the owner: which families clash most beside Faithful stone.
+   **v1 (2026-10-25):** render `modded_wall` and `modded_close` as **vanilla vs QF v0 + modded-v0
+   vs QF v0 + `QFTextures-modded-v1.zip`** (v1 above v0 in the pack order, both above
+   `QuestForge.zip`). v1 changes the albedo: the top row's ores sit on Faithful stone at 32x, row 2's
+   granite/diorite/andesite and red sandstone and row 3's concrete are Faithful's, and the
+   SecurityCraft/Witchery glass should connect if the rules take (add a 3×3 of
+   `witchery:shadedglass@11` and of `securitycraft:reinforcedStainedGlass@3` to the wall list to
+   see it; they are not in the current 76). Judge: (a) do the ore tiles now read as one stone with
+   the wall, (b) do Railcraft's overlay ores still show over the stone, (c) do the backports match
+   the owner's "vanilla design, Faithful detail" rule.
 2. **modded_close** (267.5, 70.2, 181.8, yaw 180, pitch 4, 7000): the ores and stones from 3.5
    blocks, the 16x-host problem at full size.
 3. **Twilight clearing** and **Collision surface**: a daytime view in dim 7 (a forest edge with
@@ -562,18 +869,20 @@ world-master) is skipped and reported. Two views are in `views-world-master.txt`
 
 ## 7. Follow-ups
 
-1. **Ore re-composite (option C)** in `build_qf_textures.py`: Faithful 32x stone under each
-   modded ore's flecks at 2x, using `labpbr.ore_mask`; ~70 textures, all in the top 50.
-2. **Fetch Faithful 32x modern Java** and map Legends' and Chisel's backported blocks (option G);
-   extend `faithful.txt` to modded domains.
+Status 2026-10-25 (evening): 1, 2, 5 and 6 are done in v1 (section 4b); 3 goes to the owner's
+Decisions sheet as a licence call; 4 waits for the owner's direction.
+
+1. ~~Ore re-composite (option C)~~ done: `build_modded_textures.py`, 70 textures.
+2. ~~Fetch Faithful 32x modern Java and map the backported blocks (option G)~~ done: 90 textures.
 3. **Owner decision on F32 Modded Edition** (section 5); if yes, take Railcraft, Twilight,
    Witchery, Chisel, drawers, iron chests and BoP from it and record each file's source.
 4. **Hand-drawn 32x** for the uncovered top families: Compact Machines, ProjectE, TragicMC dark
    stone and eroded stone, Twilight deadrock/towerwood/mazestone, Chisel marble and limestone.
-5. **CTM rules** for the modded glass and stone families: Witchery shaded glass (17 colours),
-   Railcraft strengthened glass, SecurityCraft reinforced glass, and `repeat`/`random` for Chisel
-   marble and limestone veins so they do not tile.
-6. **Emissive faces list** for `gen_surface_pack.py` (`--emissive FILE`): Railcraft fireboxes and
-   engines, ProjectE collectors, Compact Machines, Legends lanterns and sea lantern, TragicMC
-   star crystals, HEE glow blocks; and re-run the item dump after any texture change so the site's
-   icons follow.
+5. ~~CTM rules for the modded glass and stone families~~ done: 35 rules; Railcraft's glass connects
+   natively. Open: confirm in a render that Angelica applies them to modded blocks, and
+   `glassPane=true` for the pane variants.
+6. ~~Emissive faces list~~ done: `tools/textures/emissive-modded.txt`, `--emissive`. Open: rerun the
+   item dump after texture changes (not run here).
+7. **Next:** the ore re-composite's hosts beyond stone once QF v0 decides netherrack and end stone
+   (then TragicMC's nether ores, HEE's end ores and Legends' nether gold follow the same path), and
+   the four [guess] backports if the owner wants them anyway.
