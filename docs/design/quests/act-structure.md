@@ -1,9 +1,11 @@
 # The four-act spine
 
-Status: **draft for the author's review, 2026-10-19.** Nothing here is in the shipped book.
-The Prologue (WP-5) exists as a draft book, `tools/quests/drafts/DefaultQuests.wp5.json`. The
-acts themselves are WP-6 and have not been built. The decisions this needs are in
-[review-2026-10-19.md](review-2026-10-19.md).
+Status: **draft for the author's review, 2026-10-25.** Nothing here is in the shipped book.
+The Prologue (WP-5) exists as a draft book, `tools/quests/drafts/DefaultQuests.wp5.json`. Act II
+(WP-6) exists as a draft on top of it, `tools/quests/drafts/DefaultQuests.act2.json`, with its
+review in [review-act2-2026-10-25.md](review-act2-2026-10-25.md). Acts I, III and IV are not built.
+The decisions this needs are in [review-2026-10-19.md](review-2026-10-19.md) (the spine) and
+[review-act2-2026-10-25.md](review-act2-2026-10-25.md) (Act II).
 
 This turns section 4.1 of the [questline audit](../questline-audit.md) into a plan that matches
 the book as WP-3 and WP-4 left it. Quest IDs are kept; quests move between tabs and gain
