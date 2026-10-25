@@ -69,11 +69,12 @@ EDITIONS = {
     "angelica": {"instance": "Quest Forge Angelica", "forge": "10.13.4.1614", "forge_tag": "1614",
                  "forge_name": "Forge (Quest Forge Angelica, stock 1614, local)"},
 }
+EDITION_LABEL = {"optifine": "OptiFine", "angelica": "Angelica"}
 FORGE_JAR = re.compile(r"^forge-1\.7\.10-(10\.13\.4\.\d+)-1\.7\.10-universal\.jar$")
 # The 8 GB row of the RAM table (docs/setup/hosting-a-server.md; the installer picks the real row).
 DEFAULT_MIN_MB, DEFAULT_MAX_MB = 1024, 3072
-NOTES = ("Quest Forge ({ed}), built for Prism Launcher. Minecraft 1.7.10 + Forge {forge}. "
-         "Java 8 x64 only. Install with install-questforge (tools/release/install) or import this zip.")
+NOTES = ("Quest Forge ({ed}) for Prism Launcher. Minecraft 1.7.10 + Forge {forge}. Java 8 x64 only. "
+         "Install with the Quest Forge installer, or import this zip in Prism.")
 
 # Top-level entries of the raw folder that are never shipped (same idea as build_client_release.py).
 EXCLUDE = re.compile(
@@ -301,7 +302,7 @@ def stage_instance(raw, edition, release, built, icon, stage, instance_name):
     write_json(os.path.join(inst, "mmc-pack.json"), mmc_pack(edition))
 
     pinfo = pack_info(os.path.join(raw, "config"))
-    notes = NOTES.format(ed=edition.capitalize(), forge=e["forge"])
+    notes = NOTES.format(ed=EDITION_LABEL[edition], forge=e["forge"])
     with open(os.path.join(inst, "instance.cfg"), "w", encoding="utf-8", newline="\n") as f:
         f.write(cfg_text(edition, notes, uuid.uuid5(uuid.NAMESPACE_URL, "questforge-prism:" + edition).hex,
                          icon is not None))
