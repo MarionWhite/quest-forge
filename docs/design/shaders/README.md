@@ -119,6 +119,7 @@ so the same rules apply to it.
 | [`performance-rules.md`](performance-rules.md) | Hard rules, per-tier frame budgets, and the mandatory Low and Potato presets. |
 | [`review-loop.md`](review-loop.md) | How every iteration is rendered on the Angelica client, critiqued, and sent to the owner's phone. |
 | [`research/`](research/) | The three source reports from 2026-10-16: performance, desirability, and techniques and licences. They were written for E7; where they disagree with the platform facts below, this file wins. |
+| [`research/briefs/`](research/briefs/) | Technique briefs (2026-10-25) for water, clouds, sky, light shafts, tone mapping, bloom and AO: the owner's asks per round, what the pack does now, what the public write-ups of the big packs and the primary papers say, and the technique to implement with Low and Potato versions, costs and test scenes. |
 | [`../../../tools/shaders/`](../../../tools/shaders/) | `gen_surface_pack.py` (normal maps and `block.properties`); `review/` (Shader Lab page, `check_frames.py`). |
 
 ## Getting started
