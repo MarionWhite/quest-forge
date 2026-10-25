@@ -2,8 +2,10 @@
 
 Status: **draft for the author's review, 2026-10-19.** Nothing here is in the shipped book.
 The Prologue (WP-5) exists as a draft book, `tools/quests/drafts/DefaultQuests.wp5.json`. The
-acts themselves are WP-6 and have not been built. The decisions this needs are in
-[review-2026-10-19.md](review-2026-10-19.md).
+acts (WP-6) are built as a draft on top of it, `tools/quests/drafts/DefaultQuests.wp6.json`, by
+`tools/quests/patches/wp6_acts.py` (2026-10-25), parameterised by the decisions in
+[review-2026-10-19.md](review-2026-10-19.md); its texts are placeholders for the writers
+([wp6-writing-brief.md](wp6-writing-brief.md)).
 
 This turns section 4.1 of the [questline audit](../questline-audit.md) into a plan that matches
 the book as WP-3 and WP-4 left it. Quest IDs are kept; quests move between tabs and gain
@@ -225,4 +227,6 @@ sight of every T1 spawn".
 - `qb.py tally` should total by act, against the budget in audit 4.5.
 - Tab names stay at 14 characters or fewer (`lint` warns; GuiHome clips them).
 - `entities.json` gains `WitherBoss`, one ChocolateQuest boss and dimension −1, each checked
-  in a server trial with `/qfcensus find` before any quest uses it.
+  in a server trial with `/qfcensus find` before any quest uses it. **Done 2026-10-25**, all of
+  the above: `WitherBoss`, the twelve `chocolateQuest.*` bosses (481 uses `pirateBoss`, the
+  deterministic one) and dimension −1 are in `entities.json`, checked in the WP-6 trial.
