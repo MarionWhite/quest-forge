@@ -158,8 +158,8 @@
   },
   {
    "id": "lake-sunset",
-   "name": "The lake at sunset: no more splotches",
-   "question": "The lake in low light. Round 6's near water broke into torn patches. Some screen reflection rays turned downward off steep waves and mirrored the lake bed, and the sunset chop flipped facets between dark water and bright sky. Now those rays fall back to the sky, and the lake's chop is lower than the ocean's. Close up, the reflectance is averaged as the eye sees it. A is the new water, B round 6.",
+   "name": "The lake at sunset: fewer splotches?",
+   "question": "The lake in low light. Round 6's near water broke into torn patches. Some screen reflection rays turned downward off steep waves and mirrored the lake bed, and the sunset chop flipped facets between dark water and bright sky. Now those rays fall back to the sky, and the lake's chop is lower than the ocean's. Close up, the reflectance is averaged as the eye sees it. A is the new water, B round 6 (with Faithful). The critic still sees torn patches in A's near water.",
    "notePrompt": "Is the splotchiness gone? What does the lake still need?",
    "options": [
     {
