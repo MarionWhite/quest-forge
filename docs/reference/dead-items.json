@@ -7,11 +7,11 @@
 "mods": 89,
 "described": 6422,
 "undescribed": 165,
-"ok": 5221,
+"ok": 5222,
 "quest-only": 4,
 "no-source": 79,
 "disabled": 0,
-"creative": 459,
+"creative": 458,
 "technical": 688,
 "hidden": 136,
 "noUse": 22,
@@ -21,7 +21,7 @@
 "questProblems": 10,
 "creativeRewards": 0,
 "registryNotInDump": 482,
-"configAnomalies": 2
+"configAnomalies": 0
 },
 "statuses": {
 "ok": "has a source",
@@ -81,10 +81,7 @@
 "Mods the dump saw no crafting recipe for at all, although they have items: ChocolateQuest (its weapons and staffs are shop and dungeon loot by design), Recurrent Complex (creative tools), and Transformers, which is the suspicious one: its jar's TFRecipes class calls GameRegistry.addRecipe, addShapelessRecipe and addSmelting, so vanilla recipes exist in the mod, yet the dump holds none (its RecipeClearConfig class suggests a config can clear them, or they were registered after the dump ran). Its 44 'no-source' items are a dump gap to re-check in-game, not dead items.",
 "Mod jars were opened read-only for file listings only (Witchery's recipe class names, MCHeli's aircraft definitions); no class was decompiled."
 ],
-"configAnomalies": [
-"pack/config/Chocolate/ChestConfig/chests.prop: `potion= chocolateQuest:healingPotion 1,0,20` is malformed (a space where a comma should be), so this chest entry never rolls",
-"pack/config/Chocolate/ChestConfig/treasures.prop: `rustedSwordAndShield = chocolateQuest:rustedSword,1,0,1` names an item that does not exist (chocolateQuest:rustedSword), so this chest entry never rolls"
-],
+"configAnomalies": [],
 "scripts": [
 [
 "GraviGun:superGravityGun",
@@ -8490,6 +8487,7 @@
 "variants": 1,
 "status": "ok",
 "flags": [
+"cq-chest",
 "desc:disabled",
 "desc:trade",
 "registered"
@@ -9090,8 +9088,9 @@
 "mod": "chocolateQuest",
 "kind": "weapon",
 "variants": 1,
-"status": "creative",
+"status": "ok",
 "flags": [
+"cq-chest",
 "desc:creative",
 "desc:disabled",
 "desc:technical",
