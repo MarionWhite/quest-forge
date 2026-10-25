@@ -39,6 +39,27 @@ The `ids` check skips the `hbm:` namespace in the server book only.
 | `text` | `a` before a vowel ("a Anvil"), "Beastiary" for the tab (the Lycanites GUI is spelled that way, so "Lycanites' Beastiary" is allowed), placeholder words, `..`. A `[WRITE: ...]` placeholder (what a data patch leaves for the writers) is a warning in a draft and an error in the pack and server books. |
 | `hunt` | a `bq_standard:hunt` target that is not in `entities.json`, or a `bq_standard:location` dimension that is not. BQ never checks a hunt target when the book loads: a misspelt name is a quest nobody can finish, and no log line says so. |
 | `path` | a quest that needs a HIDDEN quest, a prerequisite cycle, or an act (numbered chapter) that can open before (or together with) the one before it. Prints, per tab, the quest that opens it, what that quest needs, and how many quests come first. |
+| `obtain` | a retrieval task whose item the dead-item census ([`../../docs/reference/dead-items.md`](../../docs/reference/dead-items.md), `dead-items.json` beside it) does not call `ok`: creative-only, technical, hidden, no known source, or never listed by the item dump. `ids` proves an id is registered; `obtain` asks whether a player can get it. Warns on a reward whose item is creative, technical or hidden. `OBTAIN_ALLOW` in `qb.py` overrules the census per quest for cases a human has verified in game (empty today). Needs the census file; without it the check only warns. |
+
+**What `obtain` flags today (census of 2026-10-25, dump of 2026-10-17).** The pack book fails
+on nine tasks, the server book on the same minus quest 440 (it lacks the ChocolateQuest
+quests); the WP-5 and WP-6 drafts fail on the same nine and add one warning. None has been
+verified in game yet, so `OBTAIN_ALLOW` is empty and `qb.py check` exits 1 until each is fixed
+or allowlisted:
+
+| Quest | Asks for | Census says |
+|---|---|---|
+| 33 MC Helicopters: Take Flight | `mcheli:bell47g` | never listed by the item dump: MCHeli reads `assets/mcheli/*/*.txt` from the working directory, which the dump client lacked (and the play server lacks; see `docs/setup/hosting-a-server.md`) |
+| 45 Spirit World | `witchery:spiritportal` | technical block, not obtainable; the quest should be a location task for the Spirit World |
+| 53 Trophy Hunter | `statues:statues.statue` | hidden block item with no recipe; quest 208 is its only source |
+| 120 HEE: The Biome Compass | `HardcoreEnderExpansion:biome_core` | hidden, untranslated, unresearched |
+| 134, 135, 144 (TragicMC keys, Doombringer) | `TragicMC:dimensionalKeySynapse`, `dimensionalKeyNether` | research says creative only; the quest text claims a recipe the dump does not have |
+| 432 A Spare You | `Sync:Sync_ItemPlaceholder` | no recipe in the dump; Sync registers its core recipe per world (`Sync.cfg hardcoreMode=2`), which a title-screen dump never sees |
+| 440 The Ridge Has a Landlord | `chocolateQuest:banner` | creative only (no recipe, loot or drop in this pack) |
+| 476 Bring Your Own Music (drafts only) | reward `qfcontent:qf_jukebox` | warning: creative only, so the quest is its only source (fine for a reward) |
+
+Verify each in game before touching the book; a description that says "creative only" is
+research, not a test.
 
 **The order `path` enforces.** A tab is a link in the chain when its name is numbered: `Ch N:`
 (the pre-WP-6 book) or an act tab from `act-structure.md` (`Arrival` is act 0, `I: Broken Sky`

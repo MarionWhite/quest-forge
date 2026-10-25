@@ -1247,8 +1247,81 @@ def check_path(book):
     return r
 
 
+# ---------------------------------------------------------------------------
+# obtain: can a player actually get what a task asks for?
+
+CENSUS = os.path.join(REPO, 'docs', 'reference', 'dead-items.json')
+# Quests a human has verified in game, so the census verdict is overruled for them:
+# {quest id: {item id, ...}} or {quest id: '*'}. Say in a comment who verified what and when.
+# Empty on purpose: the ten quests `obtain` flags today (tools/quests/README.md) have not been.
+OBTAIN_ALLOW = {}
+
+
+def load_census():
+    """docs/reference/dead-items.json, written by tools/items/dead_items.py: every item's
+    status ('ok' means some recipe, loot table, drop, worldgen, trade or mod craft gives it;
+    'creative', 'technical', 'hidden', 'no-source', 'disabled', 'quest-only' mean none does)."""
+    if not os.path.exists(CENSUS):
+        return None
+    return json.load(open(CENSUS, encoding='utf-8'))
+
+
+def check_obtain(book):
+    """A retrieval task must ask for an item the dead-item census calls `ok`: `ids` only proves
+    the id is registered, and a registered item can still be creative-only, a technical block,
+    or without any source in the pack. An item the dump never listed is an error too (the dump
+    client did not register it, or it is not in the pack). Rewards of creative or technical
+    items are warnings. OBTAIN_ALLOW overrules a verdict a human has tested in game."""
+    r = Report('obtain %s' % book.label)
+    census = load_census()
+    if census is None:
+        r.warn('no %s: run `py -3.10 -I tools/items/dead_items.py`; nothing checked' % os.path.relpath(CENSUS, REPO))
+        return r
+    items = census['items']
+    extra = EXTRA_NAMESPACES.get(book.label, set())
+    n = skipped = 0
+
+    def allowed(qid, iid):
+        a = OBTAIN_ALLOW.get(qid)
+        return a == '*' or (a is not None and iid in a)
+
+    for qid, q in sorted(book.quests.items()):
+        for t in tasks(q):
+            if t['taskID:8'] != 'bq_standard:retrieval':
+                continue
+            for s in stacks_of(t):
+                iid = s['id:8']
+                if iid.split(':')[0] in extra:
+                    skipped += 1
+                    continue
+                n += 1
+                if allowed(qid, iid):
+                    continue
+                it = items.get(iid)
+                if it is None:
+                    r.err('quest %d %s: task asks for %s, which the item dump never listed (registered but not '
+                          'loaded on the dump client, or not in the pack); see dead-items.md' % (qid, name(q), iid))
+                elif it['status'] != 'ok':
+                    why = it.get('get') or ', '.join(f for f in it['flags'] if f != 'registered')
+                    r.err('quest %d %s: task asks for %s, which the census calls "%s" (%s)'
+                          % (qid, name(q), iid, it['status'], why[:90]))
+        for rw in rewards(q):
+            kind = 'reward' if rw['rewardID:8'] == 'bq_standard:item' else 'choice'
+            for s in stacks_of(rw):
+                iid = s['id:8']
+                it = items.get(iid)
+                if it and it['status'] in ('creative', 'technical', 'hidden') and not allowed(qid, iid):
+                    r.warn('quest %d %s: %s hands out %s, which the census calls "%s"'
+                           % (qid, name(q), kind, iid, it['status']))
+    r.note('%d task items checked against the census of %s (built %s from the %s item dump)'
+           % (n, os.path.relpath(CENSUS, REPO), census.get('built'), census.get('dump')))
+    if skipped:
+        r.note('%d task items in namespaces %s not checked (not in the pack)' % (skipped, sorted(extra)))
+    return r
+
+
 CHECKS = {'lint': check_lint, 'ids': check_ids, 'cheese': check_cheese, 'stack': check_stack,
-          'text': check_text, 'hunt': check_hunt, 'path': check_path}
+          'text': check_text, 'hunt': check_hunt, 'path': check_path, 'obtain': check_obtain}
 
 
 def run_checks(names, book_arg, verbose):
