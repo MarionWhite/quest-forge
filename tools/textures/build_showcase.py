@@ -14,6 +14,13 @@ view is unchanged), has block groups big enough for CTM and for judging texture 
   y 68 is a stone plinth under all of it; z 178 is the wall, the camera stands south of it
   (views-world-master.txt: texture_wall, glass_close).
 
+--modded [LIST] adds a second wall of modded blocks east of the first (x 263-281, same z, four
+rows y 72 down to 69, 19 per row, the list read left to right then down), for the modded-block
+texture loop (docs/design/textures/modded-blocks.md, "Render requests"; the default list is
+tools/textures/showcase-modded.txt). LIST holds one `modid:name@meta` per line; the numeric IDs
+come from the copied world's own level.dat (FML's registry), so a name the world does not know
+is reported and skipped, never guessed. Views modded_wall and modded_close look at it.
+
 Never writes to --src. The copy is made once; the wall is rebuilt in it on every run.
 """
 import argparse, io, os, shutil, struct, sys, types, zlib
@@ -93,6 +100,45 @@ X0, X1, Z0, Z1, GROUND = 242, 262, 176, 192, 67
 WALL_Z = 178
 CLEAR_TOP = 80
 TRANSPARENT = {0, 20, 95, 102, 160}
+MODDED_X0, MODDED_COLS, MODDED_ROWS = 263, 19, 4
+HERE = os.path.dirname(os.path.abspath(__file__))
+
+
+def registry_ids(world):
+    """{'modid:name': id} from the world's level.dat (FML ItemData; block keys start with \\x01)."""
+    root = nbtlib.load(os.path.join(world, "level.dat"))
+    fml = root["FML"] if "FML" in root else root[""]["FML"]
+    out = {}
+    for e in fml["ItemData"]:
+        k = str(e["K"])
+        if k.startswith("\x01"):
+            out[k[1:]] = int(e["V"])
+    return out
+
+
+def read_modded_list(path):
+    out = []
+    for l in open(path, encoding="utf-8"):
+        l = l.split("#", 1)[0].strip()
+        if l:
+            name, _, meta = l.partition("@")
+            out.append((name, int(meta or 0)))
+    return out
+
+
+def modded_wall(entries, ids):
+    """{(x, y, z): (id, meta)} for the modded wall, and the names the world does not register."""
+    b, missing = {}, []
+    for x in range(MODDED_X0 - 1, MODDED_X0 + MODDED_COLS + 1):
+        b[(x, 68, WALL_Z)] = (1, 0)
+    for i, (name, meta) in enumerate(entries[:MODDED_COLS * MODDED_ROWS]):
+        if name not in ids:
+            missing.append(name)
+            continue
+        x = MODDED_X0 + i % MODDED_COLS
+        y = 68 + MODDED_ROWS - i // MODDED_COLS      # the first line of the list is the top row
+        b[(x, y, WALL_Z)] = (ids[name], meta)
+    return b, missing
 
 
 def wall():
@@ -120,6 +166,8 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--src", default=r"C:\qfb\world-master")
     ap.add_argument("--dst", default=r"C:\qfb\textures\world-showcase")
+    ap.add_argument("--modded", nargs="?", const=os.path.join(HERE, "showcase-modded.txt"),
+                    help="also build the modded-block wall from this list (default: tools/textures/showcase-modded.txt)")
     a = ap.parse_args()
     if os.path.abspath(a.src) == os.path.abspath(a.dst):
         sys.exit("--dst must differ from --src")
@@ -132,10 +180,19 @@ def main():
             os.remove(p)
 
     place = wall()
+    x1 = X1
+    if a.modded:
+        entries = read_modded_list(a.modded)
+        extra, missing = modded_wall(entries, registry_ids(a.dst))
+        place.update(extra)
+        x1 = MODDED_X0 + MODDED_COLS + 2
+        print("modded wall: %d of %d blocks placed" % (sum(1 for k in extra if k[1] > 68), len(entries)))
+        if missing:
+            print("  not in this world's registry, skipped: " + ", ".join(missing))
     path = os.path.join(a.dst, "region", "r.0.0.mca")
     chunks = W.read_region(path)
     touched = 0
-    for cx in range(X0 // 16, X1 // 16 + 1):
+    for cx in range(X0 // 16, x1 // 16 + 1):
         for cz in range(Z0 // 16, Z1 // 16 + 1):
             raw, comp, ts = chunks[(cx, cz)]
             nbt = W.parse(raw, comp)
@@ -159,18 +216,26 @@ def main():
             def setb(x, y, z, ident, meta=0):
                 bl, d, add = get(y >> 4)
                 i = (y & 15) * 256 + z * 16 + x
-                bl[i] = ident
+                # 1.7.10 block IDs are 12 bits: the low byte in Blocks, the high nibble in Add
+                # (modded IDs run past 255; the Add array is made on first need).
+                bl[i] = ident & 0xFF
+                hi = ident >> 8
+                if add is None and hi:
+                    add = np.zeros(2048, np.uint8)
+                    arrays[y >> 4][2] = add
                 if i % 2 == 0:
                     d[i >> 1] = (d[i >> 1] & 0xF0) | meta
+                    if add is not None:
+                        add[i >> 1] = (add[i >> 1] & 0xF0) | hi
                 else:
                     d[i >> 1] = (d[i >> 1] & 0x0F) | (meta << 4)
-                if add is not None:
-                    add[i >> 1] &= 0xF0 if i % 2 == 0 else 0x0F
+                    if add is not None:
+                        add[i >> 1] = (add[i >> 1] & 0x0F) | (hi << 4)
 
             for lx in range(16):
                 for lz in range(16):
                     x, z = cx * 16 + lx, cz * 16 + lz
-                    if not (X0 <= x <= X1 and Z0 <= z <= Z1):
+                    if not (X0 <= x <= x1 and Z0 <= z <= Z1):
                         continue
                     for y in range(GROUND - 3, GROUND):
                         setb(lx, y, lz, 3)

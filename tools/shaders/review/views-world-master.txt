@@ -71,3 +71,9 @@ glass_close      247.0   70.2   181.8    180    4      7000
 # blocks out (found from the region files' Biomes arrays, C:\qfb\shaderdev\r007\boundary).
 ocean_swamp      -567.5  65.5   616.5    220    8      6000
 river_swamp      -43.5   65.5   186.5    260    9      6000
+# Modded-block wall (tools/textures/build_showcase.py --modded, x 263-281 at z 178, four rows of
+# 19: ores, stone families, Twilight/organic, base blocks; docs/design/textures/modded-blocks.md
+# "Render requests"). modded_wall: the whole wall from 8.5 blocks; modded_close: its left half
+# (the ores and stones) from 3.5 blocks. Same light as texture_wall.
+modded_wall      272.0   69.6   186.5    180    6      7000
+modded_close     267.5   70.2   181.8    180    4      7000

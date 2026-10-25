@@ -1,0 +1,88 @@
+# Modded-block wall for build_showcase.py --modded: 19 blocks per row, four rows, top row first
+# (x 263-281, z 178, y 72 down to 69). Picked from docs/design/textures/modded-blocks.md: the
+# top-ranked ores, stones, Twilight/organic blocks and base blocks that render as plain cubes
+# (or with their own tile-entity renderer) in C:\qfb\world-master's registry. Biomes O' Plenty is
+# not in that world, so its blocks wait for the designed world. Metadata from the item dump
+# (site/items/data/items.json): Railcraft:ore 7 poor iron, 8 poor gold, 9 poor copper, 0 sulfur;
+# Railcraft:cube 6 abyssal, 7 quarried; machine.alpha 7 coke oven, 12 blast furnace, 8 rolling
+# machine; machine.beta 0 iron tank wall, 5 solid firebox; TragicMC:quicksand 2 drudge.
+# Row 1 (y 72): ores on stone
+legends:redIronOre@0
+legends:blackIronOre@0
+legends:copperOre@0
+legends:cassiteriteOre@0
+legends:siliconOre@0
+legends:magnesiteOre@0
+legends:sphaleriteOre@0
+legends:titaniumOre@0
+legends:bauxiteOre@0
+legends:platinumOre@0
+legends:tungstenOre@0
+legends:dynamicLegendsBlock14@0
+Railcraft:ore@7
+Railcraft:ore@8
+Railcraft:ore@9
+Railcraft:ore@0
+TragicMC:mercuryOre@0
+transformers:energon_ore@0
+OreSpawn:OreSpawn_OreSaltBlock@0
+# Row 2 (y 71): stone families
+chisel:marble@0
+chisel:limestone@0
+chisel:diorite@0
+chisel:andesite@0
+chisel:granite@0
+legends:granite@0
+legends:diorite@0
+legends:andesite@0
+Railcraft:cube@6
+Railcraft:cube@7
+TwilightForest:tile.TFDeadrock@2
+TragicMC:darkStone@0
+TragicMC:darkCobblestone@0
+TragicMC:erodedStone@0
+HardcoreEnderExpansion:end_stone_terrain@0
+TwilightForest:tile.TFMazestone@0
+TwilightForest:tile.CastleBrick@0
+TwilightForest:tile.TFUnderBrick@0
+legends:dynamicLegendsBlock1@0
+# Row 3 (y 70): wood, leaves, organic, crystal
+TwilightForest:tile.TFLog@0
+TwilightForest:tile.TFLog@1
+TwilightForest:tile.TFLog@2
+TwilightForest:tile.TFLog@3
+TwilightForest:tile.DarkLeaves@0
+TwilightForest:tile.TFLeaves@0
+TwilightForest:tile.TFTowerStone@0
+TwilightForest:tile.TFPlank@0
+witchery:witchwood@0
+witchery:witchlog@0
+TwilightForest:tile.TFRoots@0
+TragicMC:quicksand@2
+legends:magma@0
+TragicMC:circuit@0
+TragicMC:starCrystal@0
+HardcoreEnderExpansion:ravaged_brick@0
+legends:concrete@0
+legends:concrete@14
+transformers:transformium_ore@0
+# Row 4 (y 69): base and machine blocks
+IronChest:BlockIronChest@0
+IronChest:BlockIronChest@2
+StorageDrawers:fullDrawers1@0
+StorageDrawers:fullDrawers2@0
+StorageDrawers:trim@0
+CompactMachines:machine@0
+CompactMachines:innerwall@0
+ProjectE:alchemical_chest@0
+ProjectE:condenser_mk1@0
+ProjectE:collector_mk1@0
+Railcraft:machine.alpha@7
+Railcraft:machine.alpha@12
+Railcraft:machine.beta@0
+Railcraft:machine.beta@5
+Railcraft:brick.abyssal@0
+Railcraft:brick.bleachedbone@0
+Railcraft:brick.quarried@0
+Railcraft:detector@0
+Railcraft:glass@0
