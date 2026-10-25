@@ -1,0 +1,6 @@
+{
+  "address": "",
+  "port": 25565,
+  "name": "the friends' server",
+  "_how": "Put the server's host name or IP in address (and its port if not 25565). The page then shows live status through api.mcstatus.io. Leave address empty while the server is closed."
+}

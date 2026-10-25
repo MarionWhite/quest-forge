@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Enchantments · Quest Forge</title>
+<meta name="description" content="The 81 custom enchantments in the Quest Forge modpack: how sealed tomes, books and the gamble work, the odds on every rarity from Common to Legendary, the dust and scrolls that tilt a roll, and the full roster with what each one does.">
+<meta name="theme-color" content="#E9EAE4">
+<meta property="og:title" content="81 enchantments · Quest Forge">
+<meta property="og:description" content="None of them come from a table. Break the seal, drag the book onto your gear, and roll.">
+<meta property="og:image" content="https://marionwhite.github.io/quest-forge/img/plates/26-crystal.jpg">
+<link rel="icon" href="../favicon.png" type="image/png">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+<style>
+/* Tokens shared with every page under site/, plus the five rarity colours the game uses. */
+:root{
+  --paper:#E9EAE4; --surface:#F7F8F3; --sunk:#DFE1DA;
+  --ink:#171B19; --ink-2:#3E4642; --muted:#6A726C; --rule:#CDD1C8;
+  --ember:#A33F17; --ember-ink:#8E3712; --ember-wash:rgba(163,63,23,.10);
+  --patina:#2C4A43; --patina-wash:rgba(44,74,67,.12);
+  --shadow:rgba(23,27,25,.10);
+  --night:#0E0B12; --night-ink:#ECE6F2; --night-2:#B9AFC6; --glow:#F08A3C;
+  --common:#5F6762; --uncommon:#2F7D3C; --rare:#2456B8; --epic:#6F3BB5; --legendary:#A6700F;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#111412; --surface:#191D1A; --sunk:#0C0F0D;
+    --ink:#E7E9E2; --ink-2:#C2C7BE; --muted:#8B948B; --rule:#282E29;
+    --ember:#E58A55; --ember-ink:#EFA274; --ember-wash:rgba(229,138,85,.13);
+    --patina:#7FB6A6; --patina-wash:rgba(127,182,166,.13);
+    --shadow:rgba(0,0,0,.45);
+    --common:#9AA39C; --uncommon:#6FCB7C; --rare:#7FA7F0; --epic:#B78BEC; --legendary:#E2B04A;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#111412; --surface:#191D1A; --sunk:#0C0F0D;
+  --ink:#E7E9E2; --ink-2:#C2C7BE; --muted:#8B948B; --rule:#282E29;
+  --ember:#E58A55; --ember-ink:#EFA274; --ember-wash:rgba(229,138,85,.13);
+  --patina:#7FB6A6; --patina-wash:rgba(127,182,166,.13);
+  --shadow:rgba(0,0,0,.45);
+  --common:#9AA39C; --uncommon:#6FCB7C; --rare:#7FA7F0; --epic:#B78BEC; --legendary:#E2B04A;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:"Source Serif 4",Georgia,serif;font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4,.ui,button,input{font-family:Archivo,"Helvetica Neue",Arial,sans-serif}
+code,.mono{font-family:"JetBrains Mono",ui-monospace,Menlo,monospace}
+.wrap{max-width:1180px;margin:0 auto;padding-left:28px;padding-right:28px}
+a{color:var(--ember-ink)}
+:focus-visible{outline:2px solid var(--ember);outline-offset:2px}
+button{cursor:pointer}
+
+/* ---- site nav ---- */
+nav.site{border-bottom:1px solid var(--rule);background:var(--surface)}
+nav.site .wrap{display:flex;align-items:center;gap:2px 18px;flex-wrap:wrap;min-height:50px;padding-top:6px;padding-bottom:6px}
+nav.site .brand{display:flex;align-items:center;gap:9px;font-family:Archivo,sans-serif;font-weight:800;font-size:15px;
+  letter-spacing:-.01em;color:var(--ink);text-decoration:none;margin-right:auto}
+nav.site .brand img{width:22px;height:22px;border-radius:4px}
+nav.site a:not(.brand){font-family:Archivo,sans-serif;font-size:13.5px;font-weight:500;color:var(--ink-2);text-decoration:none;
+  padding:4px 1px;border-bottom:2px solid transparent}
+nav.site a:not(.brand):hover{color:var(--ink);border-color:var(--rule)}
+nav.site a[aria-current="page"]{color:var(--ember-ink);border-color:var(--ember)}
+
+/* ---- masthead ---- */
+header.mast{background:var(--night);color:var(--night-ink);padding:52px 0 40px;position:relative;overflow:hidden}
+header.mast::before{content:"";position:absolute;inset:0;background:url(../img/plates/26-crystal.jpg) center 40%/cover;opacity:.3}
+header.mast::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,var(--night) 25%,rgba(14,11,18,.6) 70%,rgba(14,11,18,.3))}
+header.mast .wrap{position:relative;z-index:1}
+.kicker{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--glow);margin:0 0 14px}
+h1{font-size:clamp(38px,7vw,68px);line-height:.94;font-weight:800;letter-spacing:-.03em;margin:0;text-wrap:balance}
+.lede{max-width:60ch;margin:18px 0 0;font-size:17.5px;color:var(--night-2)}
+.lede b{color:var(--night-ink);font-weight:600}
+.tally{display:flex;flex-wrap:wrap;gap:4px 26px;margin-top:28px;font-family:"JetBrains Mono",monospace;font-size:11.5px;color:var(--night-2);font-variant-numeric:tabular-nums}
+.tally b{color:var(--night-ink);font-weight:500}
+
+/* ---- sections ---- */
+section{padding:56px 0 0}
+.head{display:flex;align-items:baseline;justify-content:space-between;gap:20px;flex-wrap:wrap;border-bottom:2px solid var(--ink);padding-bottom:9px;margin-bottom:22px}
+h2{font-size:clamp(24px,3vw,30px);font-weight:800;letter-spacing:-.022em;margin:0;line-height:1.1}
+.head p{margin:0;color:var(--muted);font-size:14.5px;max-width:60ch}
+
+/* how it works */
+.steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;border:1px solid var(--rule);background:var(--surface);border-radius:3px;overflow:hidden}
+.stp{padding:20px 22px 22px;border-right:1px solid var(--rule)}
+.stp:last-child{border-right:0}
+.stp .n{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.14em;color:var(--ember-ink)}
+.stp h3{margin:6px 0 6px;font-size:18px;font-weight:700;letter-spacing:-.01em}
+.stp p{margin:0;font-size:14.5px;color:var(--ink-2);line-height:1.5}
+.rules{margin-top:18px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 28px;font-size:14.5px;color:var(--ink-2);max-width:960px}
+.rules p{margin:0}
+.rules b{color:var(--ink);font-weight:600}
+
+/* rarity table */
+.odds{width:100%;border-collapse:collapse;font-size:14.5px}
+.odds th{text-align:left;font-family:Archivo,sans-serif;font-weight:600;font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);padding:0 14px 8px 0;border-bottom:1px solid var(--rule)}
+.odds td{padding:12px 14px 12px 0;border-bottom:1px solid var(--rule);vertical-align:middle;color:var(--ink-2)}
+.odds td.r{font-family:Archivo,sans-serif;font-weight:800;font-size:16px;white-space:nowrap}
+.odds td.pct{font-family:"JetBrains Mono",monospace;font-size:13px;white-space:nowrap;color:var(--ink);font-variant-numeric:tabular-nums}
+.bar{position:relative;height:10px;background:var(--sunk);border-radius:2px;min-width:160px}
+.bar i{position:absolute;top:0;bottom:0;border-radius:2px}
+.bar i.s{background:var(--patina)}
+.bar i.d{background:var(--ember)}
+.legend{margin:10px 0 0;font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--muted);display:flex;gap:18px;flex-wrap:wrap}
+.legend i{display:inline-block;width:12px;height:8px;border-radius:2px;margin-right:6px;vertical-align:middle}
+.legend i.s{background:var(--patina)} .legend i.d{background:var(--ember)}
+.common{color:var(--common)} .uncommon{color:var(--uncommon)} .rare{color:var(--rare)} .epic{color:var(--epic)} .legendary{color:var(--legendary)}
+
+/* consumables */
+.cons{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.con{border:1px solid var(--rule);background:var(--surface);border-radius:3px;padding:16px 18px}
+.con h3{margin:0 0 4px;font-size:17px;font-weight:700}
+.con .on{font-family:"JetBrains Mono",monospace;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ember-ink)}
+.con p{margin:8px 0 0;font-size:14px;color:var(--ink-2);line-height:1.5}
+.loot{margin:16px 0 0;font-size:14.5px;color:var(--ink-2);max-width:80ch}
+.loot b{color:var(--ink);font-weight:600}
+
+/* roster */
+.bar-ctl{position:sticky;top:0;z-index:10;background:var(--paper);border-bottom:1px solid var(--rule);padding:10px 0;margin-bottom:18px;box-shadow:0 6px 18px -14px var(--shadow)}
+.bar-ctl .in{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px}
+#q{flex:0 1 260px;font-family:"JetBrains Mono",monospace;font-size:12.5px;padding:7px 11px;color:var(--ink);background:var(--surface);border:1px solid var(--rule);border-radius:2px}
+#q::placeholder{color:var(--muted)}
+#q:focus{outline:2px solid var(--ember);outline-offset:1px;border-color:transparent}
+.chips{display:flex;flex-wrap:wrap;gap:4px}
+.chip{font-size:12px;font-weight:500;color:var(--ink-2);background:transparent;border:1px solid var(--rule);border-radius:2px;padding:4px 9px;white-space:nowrap}
+.chip:hover{color:var(--ink);border-color:var(--muted)}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.chip .n{font-family:"JetBrains Mono",monospace;font-size:10px;margin-left:5px;opacity:.75;font-variant-numeric:tabular-nums}
+.chip.rar[aria-pressed="true"]{background:var(--c);border-color:var(--c);color:#fff}
+.chip.rar{--c:var(--muted)}
+.sep{width:1px;height:22px;background:var(--rule)}
+#count{margin-left:auto;font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}
+
+.group{padding:18px 0 6px;scroll-margin-top:70px}
+.group h3{font-size:20px;font-weight:700;letter-spacing:-.015em;margin:0 0 12px;display:flex;align-items:baseline;gap:10px}
+.group h3 .n{font-family:"JetBrains Mono",monospace;font-size:10.5px;font-weight:400;color:var(--muted);letter-spacing:.1em;text-transform:uppercase}
+.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.ench{border:1px solid var(--rule);background:var(--surface);border-radius:3px;padding:14px 16px 14px;display:flex;flex-direction:column;gap:5px;
+  border-left:3px solid var(--c,var(--rule));scroll-margin-top:70px}
+.ench:target{outline:2px solid var(--ember);outline-offset:2px}
+.ench .top{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.ench h4{margin:0;font-size:16.5px;font-weight:700;letter-spacing:-.01em}
+.ench .lvl{font-family:"JetBrains Mono",monospace;font-size:10.5px;color:var(--muted);letter-spacing:.04em}
+.ench .rar{margin-left:auto;font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--c);font-weight:500}
+.ench .on{font-family:"JetBrains Mono",monospace;font-size:10.5px;color:var(--muted)}
+.ench p{margin:2px 0 0;font-size:14px;line-height:1.5;color:var(--ink-2);flex:1}
+.ench a{font-family:Archivo,sans-serif;font-size:12px;font-weight:600;text-decoration:none;margin-top:6px}
+.ench a:hover{text-decoration:underline}
+.ench.hidden,.group.hidden{display:none}
+.empty{display:none;padding:30px 0;color:var(--muted)}
+body.no-hits .empty{display:block}
+
+footer.site{margin-top:64px;border-top:1px solid var(--rule);padding:26px 0 56px;font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--muted)}
+footer.site .wrap{display:flex;flex-wrap:wrap;gap:6px 24px}
+footer.site a{color:var(--ink-2);text-decoration:none;border-bottom:1px solid var(--rule)}
+footer.site a:hover{color:var(--ember-ink);border-color:var(--ember)}
+
+@media (max-width:960px){
+  .cards{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .cons{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .steps{grid-template-columns:minmax(0,1fr)}
+  .stp{border-right:0;border-bottom:1px solid var(--rule)}
+  .stp:last-child{border-bottom:0}
+  .rules{grid-template-columns:minmax(0,1fr)}
+}
+@media (max-width:640px){
+  .wrap{padding-left:16px;padding-right:16px}
+  header.mast{padding:36px 0 28px}
+  .cards,.cons{grid-template-columns:minmax(0,1fr)}
+  #q{flex:1 1 100%}
+  #count{margin-left:0;flex-basis:100%}
+  .odds td:nth-child(5),.odds th:nth-child(5){display:none}
+  nav.site .wrap{gap:2px 12px}
+  nav.site a:not(.brand){font-size:12.5px}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+
+<nav class="site" aria-label="Site"><div class="wrap">
+  <a class="brand" href="../"><img src="../favicon.png" alt="">Quest Forge</a>
+  <a href="../play/">Get the pack</a>
+  <a href="../mods/">Mods</a>
+  <a href="../items/">Items</a>
+  <a href="../worlds/">Worlds</a>
+  <a href="./" aria-current="page">Enchantments</a>
+  <a href="../ore-atlas/">Ore atlas</a>
+  <a href="../online/">Server</a>
+</div></nav>
+
+<header class="mast"><div class="wrap">
+  <p class="kicker">Minecraft 1.7.10 &middot; The pack's own mod</p>
+  <h1>Eighty-one enchantments</h1>
+  <p class="lede">None of them come from an enchanting table. You find a <b>sealed tome</b>, break the seal, and drag
+    the book it becomes onto your gear. Every book rolls its own odds, and a bad roll can shatter the item. Scrolls
+    tilt the odds; nothing removes them.</p>
+  <div class="tally">
+    <span><b>81</b> enchantments</span><span><b>5</b> rarities</span><span><b>4</b> consumables</span>
+    <span>works on <b>modded gear</b> too</span>
+  </div>
+</div></header>
+
+<main>
+<section class="wrap" aria-labelledby="how-h">
+  <div class="head"><h2 id="how-h">How it works</h2><p>Tome to book to item. The roll happens in your hand, not in a chest.</p></div>
+  <div class="steps">
+    <div class="stp"><span class="n">1 &middot; FIND</span><h3>A sealed tome</h3>
+      <p>One stackable item per rarity, in dungeon, mineshaft, pyramid, stronghold and village-blacksmith chests, and as quest rewards. It carries no odds yet.</p></div>
+    <div class="stp"><span class="n">2 &middot; OPEN</span><h3>Break the seal</h3>
+      <p>Right-click it and it becomes a random enchantment book of that rarity, with a freshly rolled success chance and destroy chance written on it. Usually level one; a level three book is a find.</p></div>
+    <div class="stp"><span class="n">3 &middot; ROLL</span><h3>Drag it onto gear</h3>
+      <p>Pick the book up in your inventory and drop it on the item. On a success it applies and the book is used up. On a failure the book is still gone, and the destroy roll decides whether the item goes with it.</p></div>
+  </div>
+  <div class="rules">
+    <p><b>Two books of the same enchantment are not the same book.</b> A 78% / 10% Executioner is a better find than a 55% / 30% one, and the odds show on the tooltip before you commit.</p>
+    <p><b>Modded gear counts.</b> Anything built on a vanilla sword, tool, bow or armour class is accepted, which is most of the pack; the rest is whitelisted by name.</p>
+    <p><b>They never roll at a table and never appear in vanilla loot books.</b> The only way in is through a tome.</p>
+    <p><b>Multi Strike</b> makes every proc enchantment on the same item fire twice. That is why there is one dispatcher behind all 81, and why it is Legendary.</p>
+  </div>
+</section>
+
+<section class="wrap" aria-labelledby="odds-h">
+  <div class="head"><h2 id="odds-h">The odds, by rarity</h2><p>Each book's two chances are rolled from its rarity's range when the tome is opened.</p></div>
+  <table class="odds">
+    <tr><th>Rarity</th><th>Success</th><th>Destroys the item</th><th>Feel</th><th>On the roll</th></tr>
+    <tr><td class="r common">Common</td><td class="pct">75–90%</td><td class="pct">0–5%</td><td>Safe to use on anything.</td><td><div class="bar"><i class="s" style="left:75%;width:15%"></i><i class="d" style="left:0;width:5%"></i></div></td></tr>
+    <tr><td class="r uncommon">Uncommon</td><td class="pct">65–80%</td><td class="pct">5–12%</td><td>Mild risk.</td><td><div class="bar"><i class="s" style="left:65%;width:15%"></i><i class="d" style="left:5%;width:7%"></i></div></td></tr>
+    <tr><td class="r rare">Rare</td><td class="pct">50–70%</td><td class="pct">12–22%</td><td>Think before using.</td><td><div class="bar"><i class="s" style="left:50%;width:20%"></i><i class="d" style="left:12%;width:10%"></i></div></td></tr>
+    <tr><td class="r epic">Epic</td><td class="pct">35–55%</td><td class="pct">22–35%</td><td>Save it for good gear.</td><td><div class="bar"><i class="s" style="left:35%;width:20%"></i><i class="d" style="left:22%;width:13%"></i></div></td></tr>
+    <tr><td class="r legendary">Legendary</td><td class="pct">20–40%</td><td class="pct">35–50%</td><td>Genuinely a gamble. Prepare the book first.</td><td><div class="bar"><i class="s" style="left:20%;width:20%"></i><i class="d" style="left:35%;width:15%"></i></div></td></tr>
+  </table>
+  <p class="legend"><span><i class="s"></i>success range</span><span><i class="d"></i>destroy range, rolled only after a failure</span></p>
+</section>
+
+<section class="wrap" aria-labelledby="cons-h">
+  <div class="head"><h2 id="cons-h">Four ways to tilt a roll</h2><p>All used the way books are: pick one up, drop it on the thing it should affect.</p></div>
+  <div class="cons">
+    <div class="con"><span class="on">Drop on a book</span><h3>Magic Dust</h3><p>Raises the success chance by 5 points, as many times as you have dust, capped at 95%. The last five percent is the Binding Scroll's job.</p></div>
+    <div class="con"><span class="on">Drop on a book</span><h3>Ward Scroll</h3><p>One shattering is absorbed. The ward is spent only on the roll that would have cost the item, so it never burns on a safe one. This is what makes a Legendary worth trying.</p></div>
+    <div class="con"><span class="on">Drop on a book</span><h3>Binding Scroll</h3><p>The book becomes a sure thing: 100% success, 0% destroy. The rarest of the four.</p></div>
+    <div class="con"><span class="on">Drop on an item</span><h3>Solvent</h3><p>Dissolves one of the item's custom enchantments, chosen at random. You don't get to pick, so it can't walk a Legendary from one item to a better one for free.</p></div>
+  </div>
+  <p class="loot">Tomes are weighted <b>12 / 8 / 4 / 2 / 1</b> from Common to Legendary in chest loot. Dust is common in the same chests; the scrolls are scarce,
+    the Binding Scroll most of all. Quests hand out tomes directly, so the roll still happens in your hand.</p>
+</section>
+
+<section class="wrap" aria-labelledby="roster-h" id="roster">
+  <div class="head"><h2 id="roster-h">The roster</h2><p>What each one does, at its highest level. Levels scale the numbers, never the idea.</p></div>
+  <div class="bar-ctl"><div class="in">
+    <input id="q" type="search" placeholder="filter by name or effect…" aria-label="Filter enchantments" autocomplete="off">
+    <div class="chips" id="groups" role="group" aria-label="Gear"></div>
+    <span class="sep" aria-hidden="true"></span>
+    <div class="chips" id="rarities" role="group" aria-label="Rarity"></div>
+    <span id="count"></span>
+  </div></div>
+  <div id="list"></div>
+  <p class="empty">Nothing matches that filter.</p>
+</section>
+</main>
+
+<footer class="site"><div class="wrap">
+  <span>Quest Forge &middot; Minecraft 1.7.10</span>
+  <a href="../">Home</a><a href="../play/">Get the pack</a><a href="../mods/">Mod list</a><a href="../items/">Item index</a>
+  <a href="../worlds/">Worlds</a><a href="../ore-atlas/">Ore atlas</a>
+  <a href="https://github.com/MarionWhite/quest-forge/blob/main/docs/design/enchantments.md">How it was designed</a>
+  <a href="https://github.com/MarionWhite/quest-forge">Source on GitHub</a>
+</div></footer>
+
+<script>
+"use strict";
+// The 81 enchantments as the pack's own mod registers them, with the description each book shows in the item index.
+// Regenerate from the item index data (site/items/data/) when the mod changes; see site/README.md.
+const ENCH = [{"key":"multistrike","name":"Multi Strike","max":1,"rarity":"Legendary","applies":"any gear","desc":"Every proc enchantment on the same item runs twice per trigger, each with its own roll. Never doubles itself, passives, always-on multipliers (Executioner, Berserk, Roulette, Piercing...) or cooldown abilities. Goes on any gear.","k":"qfcontent:enchant_book@0#79451628"},{"key":"executioner","name":"Executioner","max":3,"rarity":"Rare","applies":"swords and axes","desc":"Always on: hits deal more the more health the target is missing, up to +25/50/75% against a target near death. Not doubled by Multi Strike.","k":"qfcontent:enchant_book@0#cac3b150"},{"key":"berserk","name":"Berserk","max":3,"rarity":"Epic","applies":"swords and axes","desc":"Always on: your hits deal more the more health you are missing, up to +30/60/90% when you are nearly dead. Not doubled by Multi Strike.","k":"qfcontent:enchant_book@0#84d5945b"},{"key":"frostbite","name":"Frostbite","max":3,"rarity":"Rare","applies":"swords and axes","desc":"Proc 20/30/40% per hit: Slowness I/II/III on the target for 1.5/2/2.5 s. Kept short on purpose, so it chills rather than locks down.","k":"qfcontent:enchant_book@0#a14576f9"},{"key":"colossus","name":"Colossus","max":3,"rarity":"Epic","applies":"swords and axes","desc":"Proc 6/9/12% per hit: adds 2.5% × level of the target's max health, capped at 4× the hit or 20 damage, whichever is larger. Built for big boss health pools. Multi Strike gives it a second roll.","k":"qfcontent:enchant_book@0#16a9f04"},{"key":"feast","name":"Feast","max":3,"rarity":"Rare","applies":"swords and axes","desc":"On kill: heals you 1/2/3 hearts. Multi Strike doubles the heal.","k":"qfcontent:enchant_book@0#40be8b72"},{"key":"poisonous","name":"Poisonous","max":3,"rarity":"Uncommon","applies":"swords and axes","desc":"Proc 10/20/30% per hit: Poison I for 4/5/6 s that really lands, dealing 4/8/12% of the triggering hit per second (at least 1), ignoring armour and able to kill. Undead are immune.","k":"qfcontent:enchant_book@0#51a50450"},{"key":"venomous","name":"Venomous","max":3,"rarity":"Rare","applies":"swords and axes","desc":"Proc 8/16/24% per hit: Poison II for 7/9/11 s dealing 5.8/11.6/17.4% of the hit per second (at least 1), ignoring armour, and the target deals 10% less damage for 4 s. Undead resist the poison, not the weakening.","k":"qfcontent:enchant_book@0#e8fef2a1"},{"key":"blind","name":"Blind","max":3,"rarity":"Rare","applies":"swords and axes","desc":"Proc 8/16/24% per hit: Blindness for 4/5/6 s. Mob AI barely uses sight, so this is mainly a PvP enchantment.","k":"qfcontent:enchant_book@0#30725f40"},{"key":"suplex","name":"Suplex","max":3,"rarity":"Rare","applies":"swords and axes","desc":"Proc 10/15/20% per hit: hurls the target straight up (launch speed 0.85/1.0/1.15) so the landing hurts.","k":"qfcontent:enchant_book@0#93851160"},{"key":"daze","name":"Daze","max":3,"rarity":"Uncommon","applies":"swords and axes","desc":"Proc 10/20/30% per hit: spins the target 180°. Disorienting for players, mostly cosmetic on mobs.","k":"qfcontent:enchant_book@0#eb096aa9"},{"key":"roulette","name":"Roulette","max":1,"rarity":"Uncommon","applies":"swords and axes","desc":"Every hit is a coin flip: double damage or half damage (average +25%). Not doubled by Multi Strike.","k":"qfcontent:enchant_book@0#c10b559b"},{"key":"cultist","name":"Cultist","max":3,"rarity":"Rare","applies":"swords and axes","desc":"Proc 8/16/24% per hit: doubles the hit, and you pay 10/20/30% of your max health (never more than 75% of the hit) as physical damage your armour reduces. It never takes you below 1 HP. Not doubled by Multi Strike.","k":"qfcontent:enchant_book@0#a0be1e5"},{"key":"killingblow","name":"Killing Blow","max":3,"rarity":"Epic","applies":"swords and axes","desc":"0.1/0.2/0.3% per hit: the target's health is set to zero outright, bypassing boss damage caps. Does nothing on a hit the target has already reduced to 0. Multi Strike gives it a second roll.","k":"qfcontent:enchant_book@0#1e6b477f"},{"key":"momentum","name":"Momentum","max":3,"rarity":"Uncommon","applies":"swords and axes","desc":"Consecutive hits on the same target, each within 2 s of the last, add +0.5 × level per hit after the first, up to 8 hits: at most +3.5/7/10.5 damage. Switching targets resets it.","k":"qfcontent:enchant_book@0#6e666d79"},{"key":"riposte","name":"Riposte","max":3,"rarity":"Uncommon","applies":"swords and axes","desc":"For 3 s after you take damage from any source, your hits deal +1.5/3/4.5 damage.","k":"qfcontent:enchant_book@0#8707ef07"},{"key":"rupture","name":"Rupture","max":3,"rarity":"Rare","applies":"swords and axes","desc":"Proc 25/35/45% per hit: a bleed that stacks to 2/3/4. Each stack deals 4% of the triggering hit per second (at least 0.5), ignoring armour, for 5/6/7 s. Multi Strike can add two stacks.","k":"qfcontent:enchant_book@0#f3b1a814"},{"key":"arc","name":"Arc","max":3,"rarity":"Epic","applies":"swords and axes","desc":"Proc 15/20/25% per hit: 35% of the hit leaps as magic damage to 1/2/3 other creatures within 5 blocks. Skips tamed pets, NPCs and summons, and players unless PvP is on.","k":"qfcontent:enchant_book@0#c6df2923"},{"key":"disarm","name":"Disarm","max":3,"rarity":"Uncommon","applies":"swords and axes","desc":"Proc 4/8/12% per hit: knocks a mob's held weapon to the ground. Against players, half the chance (2/4/6%), only with PvP on, and it drops their selected hotbar item. Pets, NPCs and summons are exempt.","k":"qfcontent:enchant_book@0#17c7a7c3"},{"key":"assassinate","name":"Assassinate","max":3,"rarity":"Rare","applies":"swords and axes","desc":"Always on: x1.25/1.5/1.75 damage against a mob that is not targeting you. It has to genuinely not have noticed you; sneaking alone does nothing. Never against players. Not doubled by Multi Strike.","k":"qfcontent:enchant_book@0#3d1d4728"},{"key":"sunder","name":"Sunder","max":3,"rarity":"Uncommon","applies":"swords and axes","desc":"Proc 10/20/30% per hit: for 4/5/6 s the target deals 5/10/15% less damage and has Mining Fatigue I/II/III. Doesn't stack with Cripple or Venomous; the strongest weakening wins.","k":"qfcontent:enchant_book@0#abb3f1ac"},{"key":"rage","name":"Rage","max":3,"rarity":"Epic","applies":"swords and axes","desc":"Proc 5/10/15% per hit: you get Strength I for 4/6/8 s. The level buys duration, never a higher Strength.","k":"qfcontent:enchant_book@0#33e0f324"},{"key":"cripple","name":"Cripple","max":3,"rarity":"Rare","applies":"swords and axes","desc":"Proc 10/20/30% per hit: the target deals 10/15/20% less damage for 6/8/10 s. Doesn't stack with Sunder or Venomous; the strongest weakening wins.","k":"qfcontent:enchant_book@0#17183a02"},{"key":"accelerant","name":"Accelerant","max":3,"rarity":"Rare","applies":"swords and axes","desc":"Proc 12% at every level: each harmful effect on the target gains +1/2/3 levels (cap IV/VI/VIII, Wither capped at IV) and 2/4/6 s more duration. Poisonous/Venomous damage per second stays the same; their poison just lasts longer.","k":"qfcontent:enchant_book@0#8c56351f"},{"key":"lich","name":"Lich","max":3,"rarity":"Epic","applies":"swords and axes","desc":"On kill: Absorption I/II/III for 20/25/30 s.","k":"qfcontent:enchant_book@0#54fc652f"},{"key":"excalibur","name":"Excalibur","max":1,"rarity":"Legendary","applies":"swords and axes","desc":"+4 damage on every hit, and while held you have Strength I, Resistance I and Speed I. Adds nothing to a hit a boss has already reduced to 0.","k":"qfcontent:enchant_book@0#f08099e2"},{"key":"demonforged","name":"Demon Forged","max":1,"rarity":"Legendary","applies":"any gear","desc":"The item never loses durability (it becomes Unbreakable once worn or held). Taking the enchantment off removes the protection. Goes on any gear.","k":"qfcontent:enchant_book@0#8329ac2b"},{"key":"necromancer","name":"Necromancer","max":3,"rarity":"Rare","applies":"swords and axes","desc":"Proc 3/6/9% per hit: summons a zombie or skeleton that fights your target for 30/40/50 s, then vanishes. Summons can hit other players and disappear on a server restart. Multi Strike can summon two.","k":"qfcontent:enchant_book@0#3b8b9516"},{"key":"alpha","name":"Alpha","max":3,"rarity":"Rare","applies":"swords and axes","desc":"Proc 3/6/9% per hit: summons a wolf, tamed to you, that fights your target for 30/40/50 s, then vanishes. Multi Strike can summon two.","k":"qfcontent:enchant_book@0#dc725c17"},{"key":"bastion","name":"Bastion","max":3,"rarity":"Epic","applies":"swords and axes","desc":"Proc 3/6/9% per hit: summons an iron golem that fights your target for 30/40/50 s, then vanishes. It will attack players it is pointed at. Multi Strike can summon two.","k":"qfcontent:enchant_book@0#24d6da8d"},{"key":"trade","name":"Trade","max":3,"rarity":"Rare","applies":"swords and axes","desc":"PvP only. Proc 2/4/6% per hit on a player: swaps the item in your hand with the item in theirs.","k":"qfcontent:enchant_book@0#7abd9b51"},{"key":"decapitate","name":"Decapitate","max":3,"rarity":"Common","applies":"swords and axes","desc":"On kill, 15/30/40%: drops the victim's head. Only skeletons, wither skeletons, zombies, creepers and players (a plain Steve head) have one. Multi Strike can drop two.","k":"qfcontent:enchant_book@0#40b07e5b"},{"key":"crushingblow","name":"Crushing Blow","max":3,"rarity":"Epic","applies":"swords and axes","desc":"Sneak and hit: x1.6/2.2/2.8 damage and the target is knocked upward. 10 s cooldown, and crouched hits during the cooldown are normal hits. Not doubled by Multi Strike.","k":"qfcontent:enchant_book@0#852c2b78"},{"key":"getoffme","name":"Get The Fuck Off Me","max":3,"rarity":"Epic","applies":"swords and axes","desc":"Right-click, then hit within half a second: the target is launched roughly 40-60 blocks (harder per level). 10-minute cooldown; using it early tells you the seconds left.","k":"qfcontent:enchant_book@0#4072e940"},{"key":"rally","name":"Rally","max":1,"rarity":"Common","applies":"swords and axes","desc":"Opening a fight (a hit when you haven't been hurt in 10 s) plays a chime and a faint Wither sting. Pure sound effect, 10 s cooldown. The planned battle music is not implemented.","k":"qfcontent:enchant_book@0#e85a1f89"},{"key":"reach","name":"Reach","max":3,"rarity":"Epic","applies":"swords and axes","desc":"While held: +1/2/3 blocks of reach for attacking and for breaking and placing blocks.","k":"qfcontent:enchant_book@0#73f67162"},{"key":"tracker","name":"Tracker","max":3,"rarity":"Common","applies":"swords and axes","desc":"While held: every living thing within 16/32/48 blocks is outlined through walls, red for hostiles, blue for players, green for everything else.","k":"qfcontent:enchant_book@0#fa87667d"},{"key":"jammer","name":"Jammer","max":3,"rarity":"Legendary","applies":"swords and axes","desc":"PvP only. Every hit pixelates the victim's screen for 5/7/9 s, starting at 1/3 resolution (lower at higher levels). Each hit within 5 s of the last makes it worse, down to 1/16. Their HUD stays readable.","k":"qfcontent:enchant_book@0#a522400d"},{"key":"piercing","name":"Piercing","max":3,"rarity":"Rare","applies":"bows","desc":"Always on: arrows deal x1.15/1.30/1.45 damage, which stands in for ignoring armour. Not doubled by Multi Strike.","k":"qfcontent:enchant_book@0#1dbb9a6c"},{"key":"penetrating","name":"Penetrating","max":3,"rarity":"Rare","applies":"bows","desc":"Arrows pass through up to 1/2/3 targets, keeping 85% of their speed and 80% of their damage on each pass.","k":"qfcontent:enchant_book@0#86cceff0"},{"key":"ricochet","name":"Ricochet","max":3,"rarity":"Epic","applies":"bows","desc":"On hit, a new arrow leaps at the nearest other valid target within 8 blocks for 75% damage, up to 1/2/3 bounces. Skips pets, NPCs, summons, and players without PvP. Multi Strike fires two ricochets.","k":"qfcontent:enchant_book@0#6c6e16fa"},{"key":"bola","name":"Bola","max":3,"rarity":"Rare","applies":"bows","desc":"Every arrow hit: Slowness I/II/III for 6/8/10 s.","k":"qfcontent:enchant_book@0#72875d4f"},{"key":"instanttransmission","name":"Instant Transmission","max":1,"rarity":"Epic","applies":"bows","desc":"Teleports you to where your arrow lands in a block, with fall damage cleared. 3 s cooldown. Arrows that hit a creature don't move you.","k":"qfcontent:enchant_book@0#6e4b08ce"},{"key":"soulentwine","name":"Soul Entwine","max":1,"rarity":"Rare","applies":"bows","desc":"An arrow hit swaps your position with the target's. 5 s cooldown.","k":"qfcontent:enchant_book@0#b61a6f72"},{"key":"homing","name":"Homing","max":3,"rarity":"Legendary","applies":"bows","desc":"Arrows in flight curve toward the nearest valid target within 9/12/15 blocks, turning 10/20/30% toward it each tick. Ignores pets, NPCs, summons, and players without PvP.","k":"qfcontent:enchant_book@0#774b7b35"},{"key":"magnetize","name":"Magnetize","max":1,"rarity":"Common","applies":"tools","desc":"Block drops go straight into your inventory; whatever doesn't fit falls as normal. Mob drops are unaffected.","k":"qfcontent:enchant_book@0#93619749"},{"key":"haste","name":"Haste","max":3,"rarity":"Epic","applies":"tools","desc":"While held: Haste I/II/III.","k":"qfcontent:enchant_book@0#5d19c54a"},{"key":"excavate","name":"Excavate","max":3,"rarity":"Uncommon","applies":"pickaxes","desc":"Breaking an ore also mines the connected vein of the same ore, up to 8/16/24 more blocks. Each block costs durability. Sneak to mine a single block.","k":"qfcontent:enchant_book@0#eacbc544"},{"key":"timber","name":"Timber","max":1,"rarity":"Uncommon","applies":"axes","desc":"Breaking a log fells the connected logs above it, up to 128. Each log costs durability. Sneak to cut a single block.","k":"qfcontent:enchant_book@0#62ec3eb8"},{"key":"tunneler","name":"Tunneler","max":3,"rarity":"Epic","applies":"pickaxes","desc":"Each block you break takes out a 3x3/5x5/7x7 square facing you, skipping anything unbreakable or that the pickaxe can't harvest. Each block costs durability. Sneak to mine a single block.","k":"qfcontent:enchant_book@0#a4164b5c"},{"key":"sieve","name":"Sieve","max":3,"rarity":"Common","applies":"pickaxes and shovels","desc":"Breaking stone, cobblestone, dirt, gravel or sand has a 2/4/6% chance to also drop flint, coal, a gold nugget or a clay ball.","k":"qfcontent:enchant_book@0#3689edb7"},{"key":"bountiful","name":"Bountiful","max":3,"rarity":"Uncommon","applies":"tools","desc":"11/22/33% to double the drops of blocks that break into something else, like glowstone or crops. Not with Fortune, Fortune V/X or Bold, and not on blocks that drop themselves or hold an inventory. One payout per spot every 5 minutes.","k":"qfcontent:enchant_book@0#1f2ac4f3"},{"key":"transmuter","name":"Transmuter","max":3,"rarity":"Epic","applies":"pickaxes","desc":"Proc 3/6/9% per ore mined: an extra random ore drops alongside, weighted by how common it is and never more than one harvest tier above the ore you broke. Multi Strike gives two rolls.","k":"qfcontent:enchant_book@0#5d6053a0"},{"key":"oldreliable","name":"Old Reliable","max":3,"rarity":"Uncommon","applies":"tools","desc":"Blocks that drop experience give more as the tool wears: + (fraction worn × level), so a nearly broken tool gives about 2×/3×/4× experience.","k":"qfcontent:enchant_book@0#43d91e24"},{"key":"ecofriendly","name":"Eco-Friendly","max":3,"rarity":"Common","applies":"tools","desc":"When the tool breaks, you get back 1/2/3 of its repair material.","k":"qfcontent:enchant_book@0#96c524f9"},{"key":"mending","name":"Mending","max":1,"rarity":"Epic","applies":"any gear","desc":"Experience you pick up repairs your gear at 2 durability per point, worn armour first, then the held item. Experience spent on repairs is used up. Goes on any gear.","k":"qfcontent:enchant_book@0#afb0b85f"},{"key":"fortune_v","name":"Fortune","max":5,"rarity":"Rare","applies":"pickaxes","desc":"Ores drop 0-4 extra copies of their drops (+2 on average). Can't be combined with Fortune, Silk Touch, Fortune X or Bold. Multi Strike compounds it.","k":"qfcontent:enchant_book@0#7fec973b"},{"key":"fortune_x","name":"Fortune","max":10,"rarity":"Epic","applies":"pickaxes","desc":"Ores drop 0-9 extra copies of their drops (+4.5 on average). Can't be combined with Fortune, Silk Touch, Fortune V or Bold. Multi Strike compounds it.","k":"qfcontent:enchant_book@0#904d16f9"},{"key":"bold","name":"Bold","max":1,"rarity":"Epic","applies":"pickaxes","desc":"Needs vanilla Fortune: ores drop 0 to (Fortune level - 1) extra copies of the drops they already produce, so Fortune III averages double. Can't be combined with Fortune V or X.","k":"qfcontent:enchant_book@0#2b782ea"},{"key":"prospector","name":"Prospector","max":3,"rarity":"Rare","applies":"pickaxes","desc":"While held: a small HUD lists the six most common ores within 12/16/20 blocks across and 8 up or down, updated every 2 s. Works with any modded ore in the ore dictionary.","k":"qfcontent:enchant_book@0#e1c8db42"},{"key":"torchlight","name":"Torchlight","max":3,"rarity":"Uncommon","applies":"pickaxes","desc":"While held: you give off light 9/12/15 at head height, wherever daylight isn't already brighter.","k":"qfcontent:enchant_book@0#d336a3b7"},{"key":"nightsight","name":"Nightsight","max":1,"rarity":"Common","applies":"helmets","desc":"Night Vision whenever you stand at light level 8 or darker. It wears off about 10 s after you leave the dark.","k":"qfcontent:enchant_book@0#d18c466a"},{"key":"frog","name":"Frog","max":3,"rarity":"Rare","applies":"boots","desc":"Jump Boost I/II/III, always on.","k":"qfcontent:enchant_book@0#6ff25bed"},{"key":"deft","name":"Deft","max":2,"rarity":"Epic","applies":"boots","desc":"Speed I/II, always on.","k":"qfcontent:enchant_book@0#81513c21"},{"key":"tank","name":"Tank","max":3,"rarity":"Rare","applies":"chestplates","desc":"Cuts all damage you take by 11/22/33%, but you have Slowness I. A Cleansing proc that removes the slowness keeps it off for 20 s.","k":"qfcontent:enchant_book@0#a39a15e7"},{"key":"cockroach","name":"Cockroach","max":3,"rarity":"Epic","applies":"chestplates","desc":"When a hit leaves you alive on 1 heart or less, you get Resistance II/III/IV (40/60/80%) for 5/6/7 s. It doesn't soften the hit that triggers it. 60 s cooldown.","k":"qfcontent:enchant_book@0#b88d39c0"},{"key":"regrowth","name":"Regrowth","max":3,"rarity":"Rare","applies":"leggings","desc":"Regeneration I/II/III whenever nothing has hurt you for 10 s.","k":"qfcontent:enchant_book@0#f6e71c17"},{"key":"bulwark","name":"Bulwark","max":3,"rarity":"Rare","applies":"chestplates","desc":"Damage you take shrinks as your health falls, up to 10/20/30% less when you are nearly dead. No effect at full health.","k":"qfcontent:enchant_book@0#acbb68b9"},{"key":"cleansing","name":"Cleansing","max":3,"rarity":"Rare","applies":"leggings","desc":"Proc 10/20/30% when you take damage: removes one harmful effect. Removing Tank's slowness keeps it off for 20 s.","k":"qfcontent:enchant_book@0#ef1a5cdd"},{"key":"stonehide","name":"Stonehide","max":3,"rarity":"Uncommon","applies":"armor","desc":"Each piece cuts fall and explosion damage by 3/6/9%; pieces multiply, so a full set of III takes 31% less.","k":"qfcontent:enchant_book@0#f969f02e"},{"key":"rebound","name":"Rebound","max":3,"rarity":"Common","applies":"armor","desc":"Each piece: 2/4/6% when hit to shove the attacker away, no damage. A full set procs about 8/15/22% of hits. Also shoves archers who shoot you.","k":"qfcontent:enchant_book@0#dbf46c2a"},{"key":"reflect","name":"Reflect","max":3,"rarity":"Epic","applies":"armor","desc":"Each piece: 8/12/16% when hit to fling the attacker 2 blocks back and 1 up for every piece of Reflect you wear (8 and 4 with a full set). The level raises only the chance.","k":"qfcontent:enchant_book@0#c129b658"},{"key":"turtle","name":"Turtle","max":1,"rarity":"Legendary","applies":"armor","desc":"Each piece cuts damage by 33% while you hold no weapon or bow; a full set takes 80% less. Every hit still deals at least a quarter heart, unless it would have dealt less without Turtle.","k":"qfcontent:enchant_book@0#aacd51d3"},{"key":"affliction","name":"Affliction","max":4,"rarity":"Legendary","applies":"armor","desc":"Each piece: a 0.97/0.73/0.49/0.25% chance when hit (full set 3.8/2.9/1.9/1.0%) to hit the attacker with Poison, Wither, Weakness, Slowness and Mining Fatigue at I-IV, plus Blindness and Nausea, for 7/9/11/13 s.","k":"qfcontent:enchant_book@0#fa1574d9"},{"key":"flippers","name":"Flippers","max":3,"rarity":"Uncommon","applies":"boots","desc":"Swim up to 32/64/96% faster, capped at land sprint speed. Stands in for Depth Strider, which doesn't exist in this version.","k":"qfcontent:enchant_book@0#6bef3fce"},{"key":"camouflage","name":"Camouflage","max":3,"rarity":"Rare","applies":"leggings","desc":"10/20/30% chance that a mob trying to target you loses interest.","k":"qfcontent:enchant_book@0#eef5b76d"},{"key":"sacrifice","name":"Sacrifice","max":1,"rarity":"Rare","applies":"armor","desc":"When you would die, you survive at half health instead: all effects are cleared, and you get Regeneration II and Resistance II for 10 s and Fire Resistance for 20 s. The piece is destroyed; each piece saves you once.","k":"qfcontent:enchant_book@0#4a2a98e2"},{"key":"vigor","name":"Vigor","max":3,"rarity":"Epic","applies":"chestplates","desc":"+2/4/6 hearts of max health while worn.","k":"qfcontent:enchant_book@0#8714395e"},{"key":"polarize","name":"Polarize","max":3,"rarity":"Legendary","applies":"armor","desc":"PvP only. Each piece: 0.01/0.02/0.03% when a player hits you to strip every enchantment, vanilla and custom, from their armour and held item.","k":"qfcontent:enchant_book@0#137edcfb"},{"key":"frostpath","name":"Frostpath","max":3,"rarity":"Rare","applies":"boots","desc":"Still water within 1/2/3 blocks under you freezes as you walk, and thaws 20 s later. Flowing water is left alone.","k":"qfcontent:enchant_book@0#f0b2922c"},{"key":"soulbound","name":"Soulbound","max":1,"rarity":"Legendary","applies":"any gear","desc":"Stays with you through death and comes back on respawn, kept out of your grave. If dropped and it would despawn or be destroyed by fire, lava or the void, it returns to you. Goes on any gear.","k":"qfcontent:enchant_book@0#d78e6568"}];
+const GROUPS = [
+  ["weapons", "Weapons", ["swords and axes", "axes"]],
+  ["bows", "Bows", ["bows"]],
+  ["tools", "Tools", ["pickaxes", "tools", "pickaxes and shovels"]],
+  ["armor", "Armour", ["armor", "boots", "chestplates", "leggings", "helmets"]],
+  ["any", "Any gear", ["any gear"]],
+];
+const RARITIES = ["Common", "Uncommon", "Rare", "Epic", "Legendary"];
+const ROMAN = {1: "I", 2: "II", 3: "III", 4: "IV", 5: "V", 10: "X"};
+const groupOf = e => (GROUPS.find(g => g[2].includes(e.applies)) || GROUPS[4])[0];
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+
+const list = document.getElementById("list");
+for (const [key, label] of GROUPS) {
+  const items = ENCH.filter(e => groupOf(e) === key);
+  const sec = document.createElement("div"); sec.className = "group"; sec.id = "g-" + key; sec.dataset.g = key;
+  sec.innerHTML = `<h3>${label}<span class="n">${items.length}</span></h3><div class="cards"></div>`;
+  const cards = sec.querySelector(".cards");
+  for (const e of items) {
+    const r = e.rarity.toLowerCase();
+    const lvl = e.max > 1 ? `I–${ROMAN[e.max] || e.max}` : "one level";
+    const a = document.createElement("article");
+    a.className = "ench"; a.id = e.key; a.dataset.r = r; a.dataset.g = key;
+    a.dataset.s = (e.name + " " + e.applies + " " + e.desc).toLowerCase();
+    a.style.setProperty("--c", `var(--${r})`);
+    a.innerHTML = `<div class="top"><h4>${esc(e.name)}</h4><span class="lvl">${lvl}</span><span class="rar">${esc(e.rarity)}</span></div>` +
+      `<span class="on">${esc(cap(e.applies))}</span><p>${esc(e.desc)}</p>` +
+      (e.k ? `<a href="../items/#item=${encodeURIComponent(e.k)}">In the item index &rarr;</a>` : "");
+    cards.append(a);
+  }
+  list.append(sec);
+}
+
+// Filters: one gear group at a time, any number of rarities, and a text match.
+const state = {g: "", r: new Set(), q: ""};
+const gchips = document.getElementById("groups"), rchips = document.getElementById("rarities");
+const mk = (label, n, cls) => { const b = document.createElement("button"); b.type = "button"; b.className = "chip " + cls;
+  b.setAttribute("aria-pressed", "false"); b.innerHTML = esc(label) + (n != null ? `<span class="n">${n}</span>` : ""); return b; };
+const allBtn = mk("All", ENCH.length, ""); allBtn.setAttribute("aria-pressed", "true"); gchips.append(allBtn);
+allBtn.addEventListener("click", () => { state.g = ""; syncG(); run(); });
+for (const [key, label] of GROUPS) {
+  const b = mk(label, ENCH.filter(e => groupOf(e) === key).length, ""); b.dataset.g = key;
+  b.addEventListener("click", () => { state.g = state.g === key ? "" : key; syncG(); run(); }); gchips.append(b);
+}
+for (const r of RARITIES) {
+  const b = mk(r, ENCH.filter(e => e.rarity === r).length, "rar"); b.style.setProperty("--c", `var(--${r.toLowerCase()})`);
+  b.addEventListener("click", () => { state.r.has(r) ? state.r.delete(r) : state.r.add(r); b.setAttribute("aria-pressed", String(state.r.has(r))); run(); });
+  rchips.append(b);
+}
+function syncG() {
+  allBtn.setAttribute("aria-pressed", String(!state.g));
+  gchips.querySelectorAll("[data-g]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.g === state.g)));
+}
+const q = document.getElementById("q"), count = document.getElementById("count");
+q.addEventListener("input", () => { state.q = q.value.trim().toLowerCase(); run(); });
+q.addEventListener("keydown", e => { if (e.key === "Escape") { q.value = ""; state.q = ""; run(); } });
+function run() {
+  let n = 0;
+  for (const a of list.querySelectorAll(".ench")) {
+    const hit = (!state.g || a.dataset.g === state.g) && (!state.r.size || state.r.has(cap(a.dataset.r))) && (!state.q || a.dataset.s.includes(state.q));
+    a.classList.toggle("hidden", !hit); if (hit) n++;
+  }
+  for (const g of list.querySelectorAll(".group")) g.classList.toggle("hidden", !g.querySelector(".ench:not(.hidden)"));
+  document.body.classList.toggle("no-hits", n === 0);
+  count.textContent = n === ENCH.length ? `${n} enchantments` : `${n} of ${ENCH.length}`;
+}
+run();
+// A link straight to one enchantment (#executioner) lands on its card.
+if (location.hash && document.getElementById(location.hash.slice(1))) document.getElementById(location.hash.slice(1)).scrollIntoView();
+</script>
+</body>
+</html>

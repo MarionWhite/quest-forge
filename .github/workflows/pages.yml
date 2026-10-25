@@ -1,7 +1,9 @@
 name: Publish site
 
-# The homepage (site/home) is the site root and the directory of everything else.
-# Every other page is served under its own folder name: /mods/, /items/, /ore-atlas/, /shaders/.
+# The homepage (site/home) is the site root and the directory of everything else; its
+# 404.html, favicon and img/ land at the root with it. Every other page is served under
+# its own folder name: /play/, /mods/, /items/, /worlds/, /enchantments/, /ore-atlas/,
+# /online/, /shaders/.
 #
 # All of them are committed as generated output (see site/README.md); this workflow
 # only arranges them, it does not build them. To change what they contain,
@@ -39,11 +41,16 @@ jobs:
           set -euo pipefail
           mkdir -p _site
           cp -R site/home/. _site/
+          cp -R site/play _site/play
           cp -R site/mods _site/mods
-          cp -R site/ore-atlas _site/ore-atlas
           cp -R site/items _site/items
+          cp -R site/worlds _site/worlds
+          cp -R site/enchantments _site/enchantments
+          cp -R site/ore-atlas _site/ore-atlas
+          cp -R site/online _site/online
           cp -R site/shaders _site/shaders
           test -s _site/index.html
+          test -s _site/404.html
           echo "Publishing:"; find _site -type f | sort
 
       - uses: actions/configure-pages@v5

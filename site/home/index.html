@@ -4,19 +4,27 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Quest Forge</title>
-<meta name="description" content="Quest Forge, a quest-driven CrazyCraft-style modpack for Minecraft 1.7.10: the mod list, a searchable index of every item, the ore atlas, and more to come.">
+<meta name="description" content="Quest Forge, a quest-driven CrazyCraft-style modpack for Minecraft 1.7.10: how to get the pack, the mod list, every item, 27 worlds, 81 enchantments you gamble for, and the pack's own shaders.">
+<meta name="theme-color" content="#0E0B12">
+<link rel="canonical" href="https://marionwhite.github.io/quest-forge/">
+<meta property="og:type" content="website">
 <meta property="og:title" content="Quest Forge">
-<meta property="og:description" content="A quest-driven CrazyCraft-style modpack for Minecraft 1.7.10.">
-<meta property="og:image" content="img/hero-960.jpg">
+<meta property="og:description" content="A quest-driven CrazyCraft-style modpack for Minecraft 1.7.10, built for friends.">
+<meta property="og:image" content="https://marionwhite.github.io/quest-forge/img/hero-960.jpg">
+<meta property="og:url" content="https://marionwhite.github.io/quest-forge/">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="favicon.png" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
 <style>
-/* Tokens shared with the mod list and the item index. */
+/* Tokens shared with every page under site/. */
 :root{
   --paper:#E9EAE4; --surface:#F7F8F3; --sunk:#DFE1DA;
   --ink:#171B19; --ink-2:#3E4642; --muted:#6A726C; --rule:#CDD1C8;
-  --ember:#A33F17; --ember-ink:#8E3712; --patina:#2C4A43;
+  --ember:#A33F17; --ember-ink:#8E3712; --ember-wash:rgba(163,63,23,.10);
+  --patina:#2C4A43; --patina-wash:rgba(44,74,67,.12);
   --shadow:rgba(23,27,25,.10);
   --night:#0E0B12; --night-ink:#ECE6F2; --night-2:#B9AFC6; --glow:#F08A3C;
 }
@@ -24,24 +32,38 @@
   :root:not([data-theme="light"]){
     --paper:#111412; --surface:#191D1A; --sunk:#0C0F0D;
     --ink:#E7E9E2; --ink-2:#C2C7BE; --muted:#8B948B; --rule:#282E29;
-    --ember:#E58A55; --ember-ink:#EFA274; --patina:#7FB6A6;
+    --ember:#E58A55; --ember-ink:#EFA274; --ember-wash:rgba(229,138,85,.13);
+    --patina:#7FB6A6; --patina-wash:rgba(127,182,166,.13);
     --shadow:rgba(0,0,0,.45);
   }
 }
 :root[data-theme="dark"]{
   --paper:#111412; --surface:#191D1A; --sunk:#0C0F0D;
   --ink:#E7E9E2; --ink-2:#C2C7BE; --muted:#8B948B; --rule:#282E29;
-  --ember:#E58A55; --ember-ink:#EFA274; --patina:#7FB6A6;
+  --ember:#E58A55; --ember-ink:#EFA274; --ember-wash:rgba(229,138,85,.13);
+  --patina:#7FB6A6; --patina-wash:rgba(127,182,166,.13);
   --shadow:rgba(0,0,0,.45);
 }
 *{box-sizing:border-box}
 body{margin:0;background:var(--paper);color:var(--ink);
   font-family:"Source Serif 4",Georgia,serif;font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
-h1,h2,h3,.ui{font-family:Archivo,"Helvetica Neue",Arial,sans-serif}
+h1,h2,h3,h4,.ui{font-family:Archivo,"Helvetica Neue",Arial,sans-serif}
 .mono{font-family:"JetBrains Mono",ui-monospace,Menlo,monospace}
 .wrap{max-width:1180px;margin:0 auto;padding-left:28px;padding-right:28px}
+a{color:var(--ember-ink)}
 :focus-visible{outline:2px solid var(--ember);outline-offset:2px}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* ---- site nav (over the hero here; a plain strip on the other pages) ---- */
+nav.site{position:absolute;top:0;left:0;right:0;z-index:3;
+  background:linear-gradient(180deg,rgba(14,11,18,.62),rgba(14,11,18,0))}
+nav.site .wrap{display:flex;align-items:center;gap:2px 18px;flex-wrap:wrap;min-height:54px;padding-top:8px;padding-bottom:8px}
+nav.site .brand{display:flex;align-items:center;gap:9px;font-family:Archivo,sans-serif;font-weight:800;font-size:15px;
+  letter-spacing:-.01em;color:var(--night-ink);text-decoration:none;margin-right:auto}
+nav.site .brand img{width:22px;height:22px;border-radius:4px}
+nav.site a:not(.brand){font-family:Archivo,sans-serif;font-size:13.5px;font-weight:500;color:var(--night-2);text-decoration:none;
+  padding:4px 1px;border-bottom:2px solid transparent}
+nav.site a:not(.brand):hover{color:var(--night-ink);border-color:rgba(236,230,242,.4)}
 
 /* ---- hero: the main-menu art, wordmark and all ---- */
 .hero{position:relative;background:var(--night);color:var(--night-ink);overflow:hidden;
@@ -72,6 +94,19 @@ section{padding:72px 0 8px}
   border-bottom:2px solid var(--ink);padding-bottom:10px;margin-bottom:26px}
 h2{font-size:clamp(26px,3.2vw,34px);font-weight:800;letter-spacing:-.025em;margin:0;line-height:1.1}
 .head p{margin:0;color:var(--muted);font-size:15px;max-width:58ch}
+.head a.more{font-family:Archivo,sans-serif;font-size:14px;font-weight:600;text-decoration:none;white-space:nowrap}
+.head a.more:hover{text-decoration:underline}
+
+/* ---- what makes it Quest Forge ---- */
+.traits{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;border:1px solid var(--rule);background:var(--surface);border-radius:3px;overflow:hidden}
+.trait{padding:22px 22px 24px;border-right:1px solid var(--rule);display:flex;flex-direction:column;gap:8px;color:inherit;text-decoration:none}
+.trait:last-child{border-right:0}
+a.trait:hover{background:var(--ember-wash)}
+.trait .big{font-family:Archivo,sans-serif;font-size:clamp(34px,4vw,46px);font-weight:800;letter-spacing:-.04em;line-height:1;color:var(--ember)}
+.trait h3{font-size:17px;font-weight:700;margin:0;letter-spacing:-.01em}
+.trait p{margin:0;font-size:14.5px;line-height:1.5;color:var(--ink-2)}
+.trait .go{margin-top:auto;padding-top:8px;font-family:Archivo,sans-serif;font-size:13px;font-weight:600;color:var(--ember-ink)}
+.also{margin:14px 0 0;font-size:14.5px;color:var(--muted)}
 
 /* ---- directory ---- */
 .pages{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px}
@@ -95,35 +130,81 @@ a.page:hover h3 .go{translate:4px 0}
 .status.live::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:#5FD08A;margin-right:7px;
   translate:0 -1px}
 .status.redo{background:var(--glow);color:#1A0E06}
-.page.soon{border-style:dashed;background:transparent}
-.page.soon .art{filter:grayscale(.85) brightness(.7)}
-.page.soon h3{color:var(--ink-2)}
 .page.wide{grid-column:span 2}
 .page.wide .art{aspect-ratio:21/9}
+
+/* ---- light and air ---- */
+.stills{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.still{margin:0;position:relative;overflow:hidden;border-radius:3px;background:var(--night)}
+.still.wide{grid-column:span 2}
+.still img{width:100%;aspect-ratio:16/9;object-fit:cover;display:block}
+.still.wide img{aspect-ratio:21/9}
+.still figcaption{position:absolute;left:0;right:0;bottom:0;padding:34px 18px 14px;
+  background:linear-gradient(180deg,transparent,rgba(14,11,18,.78));color:var(--night-ink);
+  font-family:Archivo,sans-serif;font-size:14px;font-weight:600;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.still figcaption span{font-family:"Source Serif 4",serif;font-weight:400;font-size:13.5px;color:var(--night-2)}
+.light-note{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:30px;margin-top:22px;align-items:start}
+.light-note p{margin:0 0 10px;font-size:15.5px;color:var(--ink-2)}
+.light-note ul{margin:0;padding-left:18px;font-size:14.5px;color:var(--ink-2)}
+.light-note li{margin:4px 0}
+
+/* ---- the climb ---- */
+.climb{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:40px;align-items:start}
+ol.rungs{list-style:none;margin:0;padding:0;position:relative}
+ol.rungs::before{content:"";position:absolute;left:19px;top:14px;bottom:14px;width:2px;background:var(--rule)}
+ol.rungs li{position:relative;display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:0 14px;align-items:start;padding:10px 0}
+ol.rungs .n{width:40px;height:40px;border-radius:50%;background:var(--surface);border:2px solid var(--ink);
+  display:flex;align-items:center;justify-content:center;font-family:Archivo,sans-serif;font-weight:800;font-size:14px;position:relative;z-index:1}
+ol.rungs li.side .n{border-style:dashed;border-color:var(--patina);color:var(--patina)}
+ol.rungs h3{margin:8px 0 2px;font-size:17px;font-weight:700;letter-spacing:-.01em}
+ol.rungs .gate{margin:0;font-size:14px;color:var(--ink-2);line-height:1.45;max-width:52ch}
+ol.rungs .gate b{font-weight:600;color:var(--ember-ink)}
+ol.rungs .q{margin-top:11px;font-family:"JetBrains Mono",monospace;font-size:10.5px;color:var(--muted);white-space:nowrap;
+  letter-spacing:.08em;text-transform:uppercase}
+.sidetabs h3{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:14px 0 10px;font-family:"JetBrains Mono",monospace;font-weight:500}
+.sidetabs p{margin:0 0 12px;font-size:14.5px;color:var(--ink-2)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:Archivo,sans-serif;font-size:13px;font-weight:500;color:var(--ink-2);background:var(--surface);
+  border:1px solid var(--rule);border-radius:2px;padding:4px 9px;white-space:nowrap}
+.chip .n{font-family:"JetBrains Mono",monospace;font-size:10px;color:var(--muted);margin-left:6px;font-variant-numeric:tabular-nums}
 
 /* ---- worlds filmstrip ---- */
 .strip{display:grid;grid-auto-flow:column;grid-auto-columns:clamp(220px,26vw,320px);gap:14px;overflow-x:auto;
   padding:4px 28px 22px;margin:0 auto;max-width:1236px;scroll-snap-type:x proximity;scrollbar-width:thin}
-.world{margin:0;scroll-snap-align:start}
+.world{margin:0;scroll-snap-align:start;color:inherit;text-decoration:none;display:block}
 .world img{width:100%;aspect-ratio:16/9;object-fit:cover;display:block;border-radius:2px;background:var(--night)}
 .world figcaption{display:flex;gap:8px;align-items:baseline;margin-top:7px;font-family:Archivo,sans-serif;font-size:14px;
   font-weight:600;color:var(--ink-2)}
 .world figcaption span{font-family:"JetBrains Mono",monospace;font-size:10.5px;font-weight:400;color:var(--muted)}
+a.world:hover figcaption{color:var(--ember-ink)}
 
-footer{margin-top:64px;border-top:1px solid var(--rule);padding:26px 0 56px;font-family:"JetBrains Mono",monospace;
+footer.site{margin-top:72px;border-top:1px solid var(--rule);padding:26px 0 56px;font-family:"JetBrains Mono",monospace;
   font-size:11px;color:var(--muted)}
-footer .wrap{display:flex;flex-wrap:wrap;gap:6px 24px}
-footer a{color:var(--ink-2)}
+footer.site .wrap{display:flex;flex-wrap:wrap;gap:6px 24px}
+footer.site a{color:var(--ink-2);text-decoration:none;border-bottom:1px solid var(--rule)}
+footer.site a:hover{color:var(--ember-ink);border-color:var(--ember)}
 
 @media (max-width:960px){
   .pages{grid-template-columns:repeat(2,minmax(0,1fr))}
   .page.wide{grid-column:span 2}
+  .traits{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .trait:nth-child(2){border-right:0}
+  .trait:nth-child(-n+2){border-bottom:1px solid var(--rule)}
+  .climb,.light-note{grid-template-columns:minmax(0,1fr)}
 }
 @media (max-width:640px){
   .wrap{padding-left:16px;padding-right:16px}
   .pages{grid-template-columns:minmax(0,1fr)}
   .page.wide{grid-column:auto}
   .page.wide .art{aspect-ratio:16/9}
+  .traits{grid-template-columns:minmax(0,1fr)}
+  .trait{border-right:0;border-bottom:1px solid var(--rule)}
+  .trait:last-child{border-bottom:0}
+  .stills{grid-template-columns:minmax(0,1fr)}
+  .still.wide{grid-column:auto}
+  .still.wide img{aspect-ratio:16/9}
+  nav.site .wrap{gap:2px 12px}
+  nav.site a:not(.brand){font-size:12.5px}
   /* A portrait screen would crop the wordmark: show the art whole, the words under it. */
   .hero{min-height:0;display:block}
   .hero picture{position:relative;display:block;height:auto}
@@ -132,6 +213,8 @@ footer a{color:var(--ink-2)}
   .hero .wrap{padding-top:8px;padding-bottom:40px}
   section{padding-top:52px}
   .strip{padding:4px 16px 18px}
+  ol.rungs li{grid-template-columns:40px minmax(0,1fr)}
+  ol.rungs .q{grid-column:2;margin-top:4px}
 }
 @media (prefers-reduced-motion:reduce){ *{transition:none !important} }
 </style>
@@ -139,6 +222,16 @@ footer a{color:var(--ink-2)}
 <body>
 
 <header class="hero">
+  <nav class="site" aria-label="Site"><div class="wrap">
+    <a class="brand" href="./"><img src="favicon.png" alt="">Quest Forge</a>
+    <a href="play/">Get the pack</a>
+    <a href="mods/">Mods</a>
+    <a href="items/">Items</a>
+    <a href="worlds/">Worlds</a>
+    <a href="enchantments/">Enchantments</a>
+    <a href="ore-atlas/">Ore atlas</a>
+    <a href="online/">Server</a>
+  </div></nav>
   <picture>
     <source media="(max-width:960px)" srcset="img/hero-960.jpg">
     <img class="bg" src="img/hero.jpg" alt="" fetchpriority="high">
@@ -150,31 +243,82 @@ footer a{color:var(--ink-2)}
       the Twilight Forest, Transformers and a hundred more mods, tied together by a hand-built questline.
       Big leaps in power, and no easy road to the top.</p>
     <div class="cta">
-      <a class="btn primary" href="items/">Browse every item</a>
+      <a class="btn primary" href="play/">Get the pack</a>
+      <a class="btn" href="items/">Browse every item</a>
       <a class="btn" href="mods/">See the mods</a>
     </div>
     <div class="facts" id="facts">
       <span><b>111</b> mod files</span>
+      <span><b>312</b> quests</span>
       <span><b>27</b> worlds to reach</span>
+      <span><b>81</b> custom enchantments</span>
       <span>Forge <b>10.13.4.1558</b></span>
     </div>
   </div>
 </header>
 
 <main>
+<section class="wrap" aria-labelledby="traits-h">
+  <div class="head">
+    <h2 id="traits-h">What makes it Quest Forge</h2>
+    <p>Four things no other pack has, all built in the open.</p>
+  </div>
+  <div class="traits">
+    <div class="trait">
+      <span class="big">312</span>
+      <h3>A hand-built questline</h3>
+      <p>Twenty chapters. The numbered ones are the climb, and each opens when a boss dies: Witchery at the Naga,
+        the End at the Hydra, TragicMC at Mobzilla. The rest are how you stay alive on the way up.</p>
+    </div>
+    <a class="trait" href="enchantments/">
+      <span class="big">81</span>
+      <h3>Enchantments you gamble for</h3>
+      <p>None of them come from a table. Break the seal on a tome, drag the book onto your gear, and it rolls its own
+        odds. A bad roll can shatter the item. Scrolls tilt the odds.</p>
+      <span class="go">The full roster &rarr;</span>
+    </a>
+    <a class="trait" href="worlds/">
+      <span class="big">27</span>
+      <h3>Worlds to reach</h3>
+      <p>The Twilight Forest, Witchery's three realms, OreSpawn's six, a dozen from the Legends packs, and the
+        inside of a Compact Machine. Every one has its own painted loading screen.</p>
+      <span class="go">All twenty-seven &rarr;</span>
+    </a>
+    <a class="trait" href="shaders/">
+      <span class="big" id="roundsN">6</span>
+      <h3>Rounds into its own shaders</h3>
+      <p>A shader pack written from scratch for the pack's Angelica client: a physically based sky, real clouds,
+        water with a glitter path, and nights you can read. Each round is judged scene by scene in the Shader Lab.</p>
+      <span class="go">Light and air &rarr;</span>
+    </a>
+  </div>
+  <p class="also">Also from the pack's own mod: proximity voice chat, and a jukebox that plays your own music from
+    wherever it stands.</p>
+</section>
+
 <section class="wrap" aria-labelledby="pages-h">
   <div class="head">
     <h2 id="pages-h">The pack, page by page</h2>
-    <p>What's in Quest Forge and how it fits together. New pages appear here as they're built.</p>
+    <p>What's in Quest Forge and how it fits together.</p>
   </div>
   <div class="pages">
-    <a class="page wide" href="items/">
+    <a class="page wide" href="play/">
+      <span class="status live">Live</span>
+      <div class="art"><img src="img/plates/01-nether.jpg" alt="" loading="lazy"></div>
+      <div class="body">
+        <h3>Get the pack <span class="go" aria-hidden="true">&rarr;</span></h3>
+        <p>Everything a friend needs to play: the download, Java 8, Prism Launcher, the memory settings for your PC,
+          a lighter profile for an older one, and what each refusal from the server means.</p>
+        <div class="meta" id="playMeta"><span>Windows and Mac</span><span>About half an hour</span></div>
+      </div>
+    </a>
+    <a class="page" href="items/">
       <span class="status live">Live</span>
       <div class="art"><img src="img/plates/24-village-mania.jpg" alt="" loading="lazy"></div>
       <div class="body">
         <h3>Item index <span class="go" aria-hidden="true">&rarr;</span></h3>
-        <p>Every item in the pack with its real in-game icon. Search it the way you would NEI, by name, mod,
-          ore name or tooltip, follow recipes and uses, and see which quests ask for each one.</p>
+        <p>Every item in the pack with its real in-game icon. Search it the way you would NEI, follow recipes and
+          uses, and see which quests ask for each one.</p>
         <div class="meta" id="itemMeta"><span>Search with <b>@mod</b> <b>$ore</b> <b>#tooltip</b></span></div>
       </div>
     </a>
@@ -188,6 +332,26 @@ footer a{color:var(--ink-2)}
         <div class="meta"><span><b>11</b> categories</span><span><b>141</b> registered mods</span></div>
       </div>
     </a>
+    <a class="page" href="worlds/">
+      <span class="status live">Live</span>
+      <div class="art"><img src="img/plates/02-end.jpg" alt="" loading="lazy"></div>
+      <div class="body">
+        <h3>Worlds <span class="go" aria-hidden="true">&rarr;</span></h3>
+        <p>All twenty-seven dimensions with their loading plates: which mod each comes from, and the order the
+          quest book opens them in.</p>
+        <div class="meta"><span><b>27</b> plates</span><span><b>7</b> mods</span></div>
+      </div>
+    </a>
+    <a class="page" href="enchantments/">
+      <span class="status live">Live</span>
+      <div class="art"><img src="img/plates/26-crystal.jpg" alt="" loading="lazy"></div>
+      <div class="body">
+        <h3>Enchantments <span class="go" aria-hidden="true">&rarr;</span></h3>
+        <p>The 81 custom enchantments, the odds on every rarity from Common to Legendary, and the dust and scrolls
+          that tilt a roll.</p>
+        <div class="meta"><span><b>5</b> rarities</span><span><b>4</b> consumables</span></div>
+      </div>
+    </a>
     <a class="page" href="ore-atlas/">
       <span class="status redo">Being redone</span>
       <div class="art"><img src="img/plates/23-mining.jpg" alt="" loading="lazy"></div>
@@ -198,32 +362,101 @@ footer a{color:var(--ink-2)}
         <div class="meta"><span><b>19</b> dimensions</span><span><b>86</b> ores</span></div>
       </div>
     </a>
+    <a class="page" href="online/">
+      <span class="status">Opens with the server</span>
+      <div class="art"><img src="img/plates/18-kingpin.jpg" alt="" loading="lazy"></div>
+      <div class="body">
+        <h3>Who's online <span class="go" aria-hidden="true">&rarr;</span></h3>
+        <p>The server's player list, live: whether it's up, who is on right now, and how to get on the whitelist.</p>
+        <div class="meta"><span>Refreshes every minute</span></div>
+      </div>
+    </a>
     <a class="page" href="shaders/">
-      <span class="status live">Live</span>
+      <span class="status live">Owner review</span>
       <div class="art"><img src="img/shader-lab.jpg" alt="" loading="lazy"></div>
       <div class="body">
         <h3>Shader Lab <span class="go" aria-hidden="true">&rarr;</span></h3>
         <p>Where the pack's own shaders get judged. Each round puts two or three versions of one scene side by
           side; pick one, rate it and say why, and the next round is tuned to your answers.</p>
-        <div class="meta"><span>Owner review</span><span>Phone friendly</span></div>
+        <div class="meta"><span>Phone friendly</span></div>
       </div>
     </a>
-    <div class="page soon" aria-disabled="true">
-      <span class="status">Coming soon</span>
-      <div class="art"><img src="img/plates/01-nether.jpg" alt="" loading="lazy"></div>
-      <div class="body">
-        <h3>Get the pack</h3>
-        <p>Everything a friend needs to play: the download, the launcher setup and the settings for a
-          slower PC.</p>
-      </div>
+  </div>
+</section>
+
+<section class="wrap" aria-labelledby="light-h">
+  <div class="head">
+    <h2 id="light-h">Light and air</h2>
+    <p id="lightSub">The pack's own shaders, as they stand after six review rounds.</p>
+    <a class="more" href="shaders/">Judge the next round &rarr;</a>
+  </div>
+  <div class="stills">
+    <figure class="still wide">
+      <img src="img/shaders/water-sunset.jpg" alt="Open ocean at sunset, a long glitter path running from the sun toward the camera" loading="lazy">
+      <figcaption>Sunset over the ocean <span>Spectral waves at eight scales, true Fresnel, and a glitter path that thins as it nears you.</span></figcaption>
+    </figure>
+    <figure class="still">
+      <img src="img/shaders/forest-light.jpg" alt="A birch and oak forest at golden hour with light coming through the canopy" loading="lazy">
+      <figcaption>Forest at golden hour <span>Warm sun, and a zenith that stays blue.</span></figcaption>
+    </figure>
+    <figure class="still">
+      <img src="img/shaders/golden.jpg" alt="Rolling plains under cumulus clouds lit from below by a low sun" loading="lazy">
+      <figcaption>Clouds lit by the hour <span>Raymarched clouds that cast shadows and change with the weather.</span></figcaption>
+    </figure>
+  </div>
+  <div class="light-note">
+    <div>
+      <p>Near-photoreal light and air on unmistakably Minecraft geometry. Realism comes from the sky, the sun,
+        shadows, water and atmosphere, never from smoothing away the blocks.</p>
+      <p>The pack runs on the Angelica client and ships with a Low and a Potato preset, so a GTX 1060-class PC is
+        the floor rather than the exception.</p>
     </div>
-    <div class="page soon" aria-disabled="true">
-      <span class="status">Coming soon</span>
-      <div class="art"><img src="img/plates/18-kingpin.jpg" alt="" loading="lazy"></div>
-      <div class="body">
-        <h3>Who's online</h3>
-        <p>The server's player list, live: who has joined, and who is on right now.</p>
+    <ul>
+      <li>Readable darkness: nights and caves are dark, never black.</li>
+      <li>Calm exposure, neutral colour, no orange wash at golden hour.</li>
+      <li>Motion blur, depth of field and lens flare are off unless you ask.</li>
+      <li>Every frame is our own render; reference photos in the Lab are credited.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="wrap" aria-labelledby="climb-h">
+  <div class="head">
+    <h2 id="climb-h">The climb</h2>
+    <p>The quest book's numbered chapters, and what has to die before each one opens.</p>
+  </div>
+  <div class="climb">
+    <ol class="rungs">
+      <li><span class="n">1</span><div><h3>Start</h3><p class="gate">Wood, iron, diamonds. The overworld still kills people. Open from your <b>first login</b>.</p></div><span class="q">9 quests</span></li>
+      <li class="side"><span class="n">2</span><div><h3>Base</h3><p class="gate">A side chapter that opens with the first: drawers, iron chests, a handle that picks the whole box up.</p></div><span class="q">7 quests</span></li>
+      <li><span class="n">3</span><div><h3>Twilight</h3><p class="gate">Through a flower-ringed pool once you have <b>diamond gear</b>. The Naga, the Lich, the Hydra.</p></div><span class="q">9 quests</span></li>
+      <li><span class="n">4</span><div><h3>Witchery</h3><p class="gate">Opens once <b>the Naga is dead</b>, on purpose: you have a real kit now. Altars, poppets and circles.</p></div><span class="q">12 quests</span></li>
+      <li><span class="n">5</span><div><h3>Dark Paths</h3><p class="gate">Blood, moon, and the dimensions behind the veil. Opens at the <b>Circle Talisman</b>.</p></div><span class="q">7 quests</span></li>
+      <li><span class="n">6</span><div><h3>The End</h3><p class="gate">Not the vanilla End. Opens once <b>the Hydra is dead</b> and the Circle Talisman is made.</p></div><span class="q">13 quests</span></li>
+      <li><span class="n">7</span><div><h3>OreSpawn</h3><p class="gate">They came from beyond the void. Opens once you have found the <b>Endstone Temple</b>.</p></div><span class="q">12 quests</span></li>
+      <li><span class="n">8</span><div><h3>TragicMC</h3><p class="gate">Doom is a destination, and it has a road. Opens when <b>Mobzilla is dead</b>.</p></div><span class="q">12 quests</span></li>
+      <li><span class="n">9</span><div><h3>ProjectE</h3><p class="gate">The capstone, as a ladder: each rung opens at the boss its recipe needs, the <b>Philosopher's Stone at the Lich</b>.</p></div><span class="q">4 quests</span></li>
+    </ol>
+    <div class="sidetabs">
+      <h3>Side chapters</h3>
+      <p>Open from the start and pay in utility and flavour, never the next chapter's power.</p>
+      <div class="chips">
+        <span class="chip">Heroes<span class="n">101</span></span>
+        <span class="chip">Pets<span class="n">55</span></span>
+        <span class="chip">Gadgets<span class="n">13</span></span>
+        <span class="chip">Exploration<span class="n">13</span></span>
+        <span class="chip">Workshop<span class="n">11</span></span>
+        <span class="chip">Railcraft<span class="n">9</span></span>
+        <span class="chip">Secrets<span class="n">7</span></span>
+        <span class="chip">Bestiary<span class="n">6</span></span>
+        <span class="chip">Danger Zone<span class="n">5</span></span>
+        <span class="chip">Rewards<span class="n">5</span></span>
+        <span class="chip">War Machines<span class="n">2</span></span>
       </div>
+      <h3>In numbers</h3>
+      <p>312 quests in 20 chapters. Boss quests count the kill for the whole party, and retrieval never takes the
+        item from you, so one proof can be handed round. The book is still being rebuilt into acts; what's here is
+        what ships today.</p>
     </div>
   </div>
 </section>
@@ -233,21 +466,24 @@ footer a{color:var(--ink-2)}
     <div class="head">
       <h2 id="worlds-h">Twenty-seven worlds</h2>
       <p>The pack's loading screens, one painted for each place it can take you.</p>
+      <a class="more" href="worlds/">Every world, with where it comes from &rarr;</a>
     </div>
   </div>
   <div class="strip" id="strip" tabindex="0" aria-label="Loading-screen art, scrolls sideways"></div>
 </section>
 </main>
 
-<footer><div class="wrap">
+<footer class="site"><div class="wrap">
   <span>Quest Forge &middot; Minecraft 1.7.10</span>
-  <a href="mods/">Mod list</a><a href="items/">Item index</a><a href="ore-atlas/">Ore atlas</a>
+  <a href="play/">Get the pack</a><a href="mods/">Mod list</a><a href="items/">Item index</a><a href="worlds/">Worlds</a>
+  <a href="enchantments/">Enchantments</a><a href="ore-atlas/">Ore atlas</a><a href="online/">Server</a><a href="shaders/">Shader Lab</a>
+  <a href="https://github.com/MarionWhite/quest-forge">Source on GitHub</a>
   <span>Not affiliated with Mojang or any mod author</span>
 </div></footer>
 
 <script>
 "use strict";
-// The worlds strip: one figure per loading plate, named from its file.
+// The worlds strip: one figure per loading plate, named from its file, each linking to its entry on the worlds page.
 const PLATES = ["01-nether","02-end","03-twilight-forest","04-dream-world","05-torment","06-mirror-world","07-lost-world",
   "08-compact-machines","09-outer-space","10-mars","11-ilum","12-hurikane","13-tython","14-korriban","15-tatooine",
   "16-speed-force","17-wakanda","18-kingpin","19-quantum-realm","20-imortus","21-underworld","22-utopia","23-mining",
@@ -256,7 +492,7 @@ const strip = document.getElementById("strip");
 for (const p of PLATES) {
   const [n, ...rest] = p.split("-");
   const name = rest.map(w => w[0].toUpperCase() + w.slice(1)).join(" ");
-  const f = document.createElement("figure"); f.className = "world";
+  const f = document.createElement("a"); f.className = "world"; f.href = `worlds/#${p}`;
   const img = document.createElement("img"); img.src = `img/plates/${p}.jpg`; img.alt = name; img.loading = "lazy";
   const cap = document.createElement("figcaption"); cap.append(name);
   const num = document.createElement("span"); num.textContent = n; cap.append(num);
@@ -270,6 +506,15 @@ fetch("items/data/stats.json").then(r => r.ok ? r.json() : null).then(s => {
     `<span><b>${f(s.items)}</b> items</span><span><b>${f(s.recipes)}</b> recipes</span>` +
     `<span><b>${f(s.inQuest)}</b> in a quest</span><span>updated <b>${s.built}</b></span>`;
   document.getElementById("facts").insertAdjacentHTML("afterbegin", `<span><b>${f(s.items)}</b> items</span>`);
+}).catch(() => {});
+// How many shader rounds have been judged, from the Shader Lab's own index.
+fetch("shaders/rounds/index.json").then(r => r.ok ? r.json() : null).then(idx => {
+  const n = (idx?.rounds || []).filter(r => r.feedback).length;
+  if (!n) return;
+  const WORDS = ["zero","one","two","three","four","five","six","seven","eight","nine","ten","eleven","twelve"];
+  document.getElementById("roundsN").textContent = n;
+  document.getElementById("lightSub").textContent =
+    `The pack's own shaders, as they stand after ${WORDS[n] || n} review round${n === 1 ? "" : "s"}.`;
 }).catch(() => {});
 </script>
 </body>

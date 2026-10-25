@@ -19,7 +19,7 @@ jars, world saves, or generated renders; see [What is not here](#what-is-not-her
 | [`pack/`](pack/) | The pack definition: config, CraftTweaker scripts, branding resourcepack, and the manifest of every third-party mod the pack loads. |
 | [`tools/`](tools/) | Generators and analysis scripts — branding art, menu music, ore surveys, balance simulation. |
 | [`server/`](server/) | The headless survey server used to measure worldgen, stored as a delta against `pack/config`. |
-| [`site/`](site/) | Static pages: the public mod list and the ore-vein atlas. |
+| [`site/`](site/) | The public site at [marionwhite.github.io/quest-forge](https://marionwhite.github.io/quest-forge/): how to get the pack, the mod list, the item index, the worlds, the enchantments, the ore atlas, the server page and the Shader Lab. |
 | [`docs/`](docs/) | Setup, design, reference and decision records. Start at [`docs/README.md`](docs/README.md). |
 
 ### `mods/` — what we build

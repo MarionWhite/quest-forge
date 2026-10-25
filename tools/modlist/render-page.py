@@ -56,6 +56,19 @@ h1 .amp{color:var(--ember);font-weight:600}
 .also a{color:var(--ember-ink);text-decoration:none;border-bottom:1px solid var(--ember);font-weight:600}
 .also a:hover{color:var(--ink);border-color:var(--ink)}
 
+/* ---- site nav, the same strip every page carries ---- */
+nav.site{border-bottom:1px solid var(--rule);background:var(--surface)}
+nav.site .wrap{display:flex;align-items:center;gap:2px 18px;flex-wrap:wrap;min-height:50px;padding-top:6px;padding-bottom:6px}
+nav.site .brand{display:flex;align-items:center;gap:9px;font-family:Archivo,sans-serif;font-weight:800;font-size:15px;
+  letter-spacing:-.01em;color:var(--ink);text-decoration:none;margin-right:auto}
+nav.site .brand img{width:22px;height:22px;border-radius:4px}
+nav.site a:not(.brand){font-family:Archivo,sans-serif;font-size:13.5px;font-weight:500;color:var(--ink-2);text-decoration:none;
+  padding:4px 1px;border-bottom:2px solid transparent}
+nav.site a:not(.brand):hover{color:var(--ink);border-color:var(--rule)}
+nav.site a[aria-current="page"]{color:var(--ember-ink);border-color:var(--ember)}
+footer a{color:var(--ink-2);text-decoration:none;border-bottom:1px solid var(--rule)}
+footer a:hover{color:var(--ember-ink);border-color:var(--ember)}
+
 /* ---- sticky control bar ---- */
 .bar{position:sticky;top:0;z-index:20;background:var(--paper);
   border-bottom:1px solid var(--rule);padding:12px 0 11px;
@@ -175,11 +188,33 @@ q.addEventListener('keydown',e=>{if(e.key==='Escape'){q.value='';run();}});
 run();
 """
 
-doc = f"""<title>Quest Forge Mod List</title>
+doc = f"""<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mod list · Quest Forge</title>
+<meta name="description" content="Every mod in the Quest Forge modpack for Minecraft 1.7.10, sorted into what it adds, with a line on what each one actually does.">
+<meta name="theme-color" content="#E9EAE4">
+<link rel="icon" href="../favicon.png" type="image/png">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
 <style>{CSS}</style>
+</head>
+<body>
+
+<nav class="site" aria-label="Site"><div class="wrap">
+  <a class="brand" href="../"><img src="../favicon.png" alt="">Quest Forge</a>
+  <a href="../play/">Get the pack</a>
+  <a href="./" aria-current="page">Mods</a>
+  <a href="../items/">Items</a>
+  <a href="../worlds/">Worlds</a>
+  <a href="../enchantments/">Enchantments</a>
+  <a href="../ore-atlas/">Ore atlas</a>
+  <a href="../online/">Server</a>
+</div></nav>
 
 <header class="mast"><div class="wrap">
   <p class="kicker">Minecraft 1.7.10 &middot; Modpack Contents</p>
@@ -194,7 +229,7 @@ doc = f"""<title>Quest Forge Mod List</title>
     <span>Forge <b>10.13.4.1558</b></span>
     <span>Java <b>8</b></span>
   </div>
-  <p class="also"><a href="../">&larr; Quest Forge home</a><a href="../items/">Browse every item, recipe and quest use &rarr;</a><a href="../ore-atlas/">Ore atlas &rarr;</a></p>
+  <p class="also"><a href="../items/">Browse every item, recipe and quest use &rarr;</a><a href="../play/">Get the pack &rarr;</a></p>
 </div></header>
 
 <div class="bar"><div class="wrap bar-in">
@@ -211,9 +246,13 @@ doc = f"""<title>Quest Forge Mod List</title>
   <span>Generated from the live instance</span>
   <span>Load order resolved by Forge</span>
   <span>Performance &amp; background mods listed last</span>
+  <a href="../">Home</a><a href="../items/">Item index</a><a href="../worlds/">Worlds</a><a href="../enchantments/">Enchantments</a>
+  <a href="https://github.com/MarionWhite/quest-forge">Source on GitHub</a>
 </div></footer>
 
 <script>{JS}</script>
+</body>
+</html>
 """
 # Served at /mods/ (the site root is the homepage, site/home/).
 open('../../site/mods/index.html','w',encoding='utf-8',newline='').write(doc)

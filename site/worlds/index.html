@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Worlds · Quest Forge</title>
+<meta name="description" content="All twenty-seven dimensions in the Quest Forge modpack with their painted loading screens: which mod each comes from, its dimension number, and the order the quest book opens them.">
+<meta name="theme-color" content="#E9EAE4">
+<meta property="og:title" content="Twenty-seven worlds · Quest Forge">
+<meta property="og:description" content="Every dimension in the pack, with its loading plate and where it comes from.">
+<meta property="og:image" content="https://marionwhite.github.io/quest-forge/img/plates/02-end.jpg">
+<link rel="icon" href="../favicon.png" type="image/png">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+<style>
+/* Tokens shared with every page under site/. */
+:root{
+  --paper:#E9EAE4; --surface:#F7F8F3; --sunk:#DFE1DA;
+  --ink:#171B19; --ink-2:#3E4642; --muted:#6A726C; --rule:#CDD1C8;
+  --ember:#A33F17; --ember-ink:#8E3712; --ember-wash:rgba(163,63,23,.10);
+  --patina:#2C4A43; --patina-wash:rgba(44,74,67,.12);
+  --shadow:rgba(23,27,25,.10);
+  --night:#0E0B12; --night-ink:#ECE6F2; --night-2:#B9AFC6; --glow:#F08A3C;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#111412; --surface:#191D1A; --sunk:#0C0F0D;
+    --ink:#E7E9E2; --ink-2:#C2C7BE; --muted:#8B948B; --rule:#282E29;
+    --ember:#E58A55; --ember-ink:#EFA274; --ember-wash:rgba(229,138,85,.13);
+    --patina:#7FB6A6; --patina-wash:rgba(127,182,166,.13);
+    --shadow:rgba(0,0,0,.45);
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#111412; --surface:#191D1A; --sunk:#0C0F0D;
+  --ink:#E7E9E2; --ink-2:#C2C7BE; --muted:#8B948B; --rule:#282E29;
+  --ember:#E58A55; --ember-ink:#EFA274; --ember-wash:rgba(229,138,85,.13);
+  --patina:#7FB6A6; --patina-wash:rgba(127,182,166,.13);
+  --shadow:rgba(0,0,0,.45);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:"Source Serif 4",Georgia,serif;font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4,.ui{font-family:Archivo,"Helvetica Neue",Arial,sans-serif}
+.mono{font-family:"JetBrains Mono",ui-monospace,Menlo,monospace}
+.wrap{max-width:1180px;margin:0 auto;padding-left:28px;padding-right:28px}
+a{color:var(--ember-ink)}
+:focus-visible{outline:2px solid var(--ember);outline-offset:2px}
+
+/* ---- site nav ---- */
+nav.site{border-bottom:1px solid var(--rule);background:var(--surface)}
+nav.site .wrap{display:flex;align-items:center;gap:2px 18px;flex-wrap:wrap;min-height:50px;padding-top:6px;padding-bottom:6px}
+nav.site .brand{display:flex;align-items:center;gap:9px;font-family:Archivo,sans-serif;font-weight:800;font-size:15px;
+  letter-spacing:-.01em;color:var(--ink);text-decoration:none;margin-right:auto}
+nav.site .brand img{width:22px;height:22px;border-radius:4px}
+nav.site a:not(.brand){font-family:Archivo,sans-serif;font-size:13.5px;font-weight:500;color:var(--ink-2);text-decoration:none;
+  padding:4px 1px;border-bottom:2px solid transparent}
+nav.site a:not(.brand):hover{color:var(--ink);border-color:var(--rule)}
+nav.site a[aria-current="page"]{color:var(--ember-ink);border-color:var(--ember)}
+
+/* ---- masthead: dark, because the plates are ---- */
+header.mast{background:var(--night);color:var(--night-ink);padding:52px 0 36px;position:relative;overflow:hidden}
+header.mast::before{content:"";position:absolute;inset:0;background:url(../img/plates/02-end.jpg) center/cover;opacity:.28;
+  filter:saturate(.9)}
+header.mast::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,var(--night) 20%,rgba(14,11,18,.55) 70%,rgba(14,11,18,.25))}
+header.mast .wrap{position:relative;z-index:1}
+.kicker{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--glow);margin:0 0 14px}
+h1{font-size:clamp(38px,7vw,68px);line-height:.94;font-weight:800;letter-spacing:-.03em;margin:0;text-wrap:balance}
+.lede{max-width:60ch;margin:18px 0 0;font-size:17.5px;color:var(--night-2)}
+.lede b{color:var(--night-ink);font-weight:600}
+.jump{display:flex;flex-wrap:wrap;gap:6px;margin-top:26px}
+.jump a{font-family:Archivo,sans-serif;font-size:13px;font-weight:600;text-decoration:none;color:var(--night-ink);
+  border:1px solid rgba(236,230,242,.35);border-radius:2px;padding:5px 11px;background:rgba(14,11,18,.4)}
+.jump a:hover{border-color:var(--night-ink)}
+.jump a .n{font-family:"JetBrains Mono",monospace;font-size:10px;color:var(--night-2);margin-left:6px;font-weight:400}
+
+/* ---- the order ---- */
+.order{padding:34px 0 0}
+.order p{margin:0;max-width:78ch;font-size:15.5px;color:var(--ink-2)}
+.order p b{color:var(--ink);font-weight:600}
+
+/* ---- groups ---- */
+section.group{padding:50px 0 0;scroll-margin-top:16px}
+.ghead{display:flex;align-items:baseline;justify-content:space-between;gap:20px;flex-wrap:wrap;border-bottom:2px solid var(--ink);padding-bottom:9px;margin-bottom:22px}
+h2{font-size:clamp(24px,3vw,30px);font-weight:800;letter-spacing:-.022em;margin:0;line-height:1.1}
+.ghead p{margin:0;color:var(--muted);font-size:14.5px;max-width:60ch}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px}
+.world{position:relative;background:var(--surface);border:1px solid var(--rule);border-radius:3px;overflow:hidden;scroll-margin-top:16px;
+  display:flex;flex-direction:column}
+.world:target{outline:2px solid var(--ember);outline-offset:2px}
+.world .art{aspect-ratio:16/9;background:var(--night);overflow:hidden}
+.world img{width:100%;height:100%;object-fit:cover;display:block}
+.world .body{padding:14px 18px 18px;display:flex;flex-direction:column;gap:6px;flex:1}
+.world h3{margin:0;font-size:19px;font-weight:700;letter-spacing:-.012em;display:flex;align-items:baseline;gap:10px}
+.world h3 .num{font-family:"JetBrains Mono",monospace;font-size:11px;font-weight:400;color:var(--muted);margin-left:auto;white-space:nowrap}
+.world .from{font-family:"JetBrains Mono",monospace;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ember-ink)}
+.world p{margin:2px 0 0;font-size:14.5px;line-height:1.5;color:var(--ink-2)}
+.plate{position:absolute;top:10px;left:10px;font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.1em;
+  padding:3px 7px;border-radius:2px;background:rgba(14,11,18,.75);color:#ECE6F2;backdrop-filter:blur(3px)}
+
+.unpictured{margin:40px 0 0;padding:16px 18px;border:1px dashed var(--rule);border-radius:3px;background:var(--surface);
+  font-size:14.5px;color:var(--ink-2);max-width:760px}
+.unpictured b{color:var(--ink)}
+
+footer.site{margin-top:64px;border-top:1px solid var(--rule);padding:26px 0 56px;font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--muted)}
+footer.site .wrap{display:flex;flex-wrap:wrap;gap:6px 24px}
+footer.site a{color:var(--ink-2);text-decoration:none;border-bottom:1px solid var(--rule)}
+footer.site a:hover{color:var(--ember-ink);border-color:var(--ember)}
+
+@media (max-width:960px){ .grid{grid-template-columns:repeat(2,minmax(0,1fr))} }
+@media (max-width:600px){
+  .wrap{padding-left:16px;padding-right:16px}
+  .grid{grid-template-columns:minmax(0,1fr)}
+  header.mast{padding:36px 0 28px}
+  nav.site .wrap{gap:2px 12px}
+  nav.site a:not(.brand){font-size:12.5px}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+
+<nav class="site" aria-label="Site"><div class="wrap">
+  <a class="brand" href="../"><img src="../favicon.png" alt="">Quest Forge</a>
+  <a href="../play/">Get the pack</a>
+  <a href="../mods/">Mods</a>
+  <a href="../items/">Items</a>
+  <a href="./" aria-current="page">Worlds</a>
+  <a href="../enchantments/">Enchantments</a>
+  <a href="../ore-atlas/">Ore atlas</a>
+  <a href="../online/">Server</a>
+</div></nav>
+
+<header class="mast"><div class="wrap">
+  <p class="kicker">Minecraft 1.7.10 &middot; Dimensions</p>
+  <h1>Twenty-seven worlds</h1>
+  <p class="lede">Every place the pack can take you, with the loading screen painted for it. <b>Seven mods</b> supply
+    them, from the vanilla Nether to OreSpawn's Chaos, and the quest book decides the order you earn them in.</p>
+  <div class="jump">
+    <a href="#vanilla">Vanilla<span class="n">2</span></a>
+    <a href="#twilight">Twilight Forest<span class="n">1</span></a>
+    <a href="#witchery">Witchery<span class="n">3</span></a>
+    <a href="#jungle">Welcome to the Jungle<span class="n">1</span></a>
+    <a href="#compact">Compact Machines<span class="n">1</span></a>
+    <a href="#legends">Legends Mod<span class="n">13</span></a>
+    <a href="#orespawn">OreSpawn<span class="n">6</span></a>
+  </div>
+</div></header>
+
+<main>
+<div class="wrap order">
+  <p><b>The order you earn them.</b> The Nether comes first, with the overworld. The Twilight Forest opens at diamond gear,
+    and Witchery's three realms sit behind the Circle Talisman. The End waits for the Hydra. OreSpawn's six open once you have
+    found the Endstone Temple, and TragicMC's two once Mobzilla is dead. The Legends worlds, the Lost World and the inside of a
+    Compact Machine are side roads: open whenever you find the way in.</p>
+</div>
+
+<section class="group" id="vanilla"><div class="wrap">
+  <div class="ghead"><h2>Vanilla, reworked</h2><p>The two dimensions Minecraft ships with. One of them is not what you remember.</p></div>
+  <div class="grid">
+    <article class="world" id="01-nether"><span class="plate">PLATE 01</span><div class="art"><img src="../img/plates/01-nether.jpg" alt="A dark corridor in the Nether lit by lava and a ghast's glow"></div>
+      <div class="body"><span class="from">Minecraft &middot; DIM &minus;1</span><h3>The Nether<span class="num">chapter 1</span></h3>
+      <p>Fortresses, blazes and the Wither. Still burning under everything, and the first world past the overworld that the climb asks for.</p></div></article>
+    <article class="world" id="02-end"><span class="plate">PLATE 02</span><div class="art"><img src="../img/plates/02-end.jpg" alt="The End under Hardcore Ender Expansion: purple crystal spires and an island temple"></div>
+      <div class="body"><span class="from">Minecraft, rebuilt by Hardcore Ender Expansion &middot; DIM 1</span><h3>The End<span class="num">chapter 6</span></h3>
+      <p>Not the vanilla End. New biomes, new ores, the Endstone Temple, and a dragon that is a real fight. Opens once the Hydra is dead and the Circle Talisman is made.</p></div></article>
+  </div>
+</div></section>
+
+<section class="group" id="twilight"><div class="wrap">
+  <div class="ghead"><h2>The Twilight Forest</h2><p>A dimension gated by its own bosses, each unlocking the next region.</p></div>
+  <div class="grid">
+    <article class="world" id="03-twilight-forest"><span class="plate">PLATE 03</span><div class="art"><img src="../img/plates/03-twilight-forest.jpg" alt="A colossal glowing tree in the permanent dusk of the Twilight Forest"></div>
+      <div class="body"><span class="from">The Twilight Forest &middot; DIM 7</span><h3>Twilight Forest<span class="num">chapter 3</span></h3>
+      <p>Eternal dusk under giant trees, entered through a flower-ringed pool once you have diamond gear. The Naga, the Lich, the Hydra and the Snow Queen each guard the way deeper.</p></div></article>
+  </div>
+</div></section>
+
+<section class="group" id="witchery"><div class="wrap">
+  <div class="ghead"><h2>Witchery's three realms</h2><p>Blood, moon, and the dimensions behind the veil. All three belong to the Dark Paths chapter.</p></div>
+  <div class="grid">
+    <article class="world" id="04-dream-world"><span class="plate">PLATE 04</span><div class="art"><img src="../img/plates/04-dream-world.jpg" alt="A four-poster bed floating in a pink and violet dreamscape"></div>
+      <div class="body"><span class="from">Witchery &middot; DIM &minus;37</span><h3>Dream World<span class="num">chapter 5</span></h3>
+      <p>Witchery's spirit world, reached in your sleep. What you bring back is the point of going.</p></div></article>
+    <article class="world" id="05-torment"><span class="plate">PLATE 05</span><div class="art"><img src="../img/plates/05-torment.jpg" alt="A lone figure in a dark stone corridor lit by candles"></div>
+      <div class="body"><span class="from">Witchery &middot; DIM &minus;38</span><h3>Torment<span class="num">chapter 5</span></h3>
+      <p>Witchery's place of punishment. A corridor, a few candles, and no promise of a way out.</p></div></article>
+    <article class="world" id="06-mirror-world"><span class="plate">PLATE 06</span><div class="art"><img src="../img/plates/06-mirror-world.jpg" alt="A village reflected in still water under a lantern-lit sky"></div>
+      <div class="body"><span class="from">Witchery &middot; DIM &minus;39</span><h3>Mirror World<span class="num">chapter 5</span></h3>
+      <p>Behind the glass of a Witchery mirror: the world reflected, and quieter than it should be.</p></div></article>
+  </div>
+</div></section>
+
+<section class="group" id="jungle"><div class="wrap">
+  <div class="ghead"><h2>Welcome to the Jungle</h2><p>The jungle keeps its own gods. The Danger Zone chapter promises this one.</p></div>
+  <div class="grid">
+    <article class="world" id="07-lost-world"><span class="plate">PLATE 07</span><div class="art"><img src="../img/plates/07-lost-world.jpg" alt="Dinosaurs at a jungle lake under a stormy sky"></div>
+      <div class="body"><span class="from">Welcome to the Jungle &middot; DIM &minus;42</span><h3>The Lost World<span class="num">side road</span></h3>
+      <p>Dense growth, dinosaurs, and jungle-only gear. Reached from the jungle itself.</p></div></article>
+  </div>
+</div></section>
+
+<section class="group" id="compact"><div class="wrap">
+  <div class="ghead"><h2>Compact Machines</h2><p>A dimension you build rather than find.</p></div>
+  <div class="grid">
+    <article class="world" id="08-compact-machines"><span class="plate">PLATE 08</span><div class="art"><img src="../img/plates/08-compact-machines.jpg" alt="A figure standing in a bare white cubic room"></div>
+      <div class="body"><span class="from">Compact Machines &middot; DIM 4</span><h3>Compact Machines<span class="num">side road</span></h3>
+      <p>The inside of every Compact Machine: a white room that is one block wide from outside. Walk in through a tunnel and build a whole factory in it.</p></div></article>
+  </div>
+</div></section>
+
+<section class="group" id="legends"><div class="wrap">
+  <div class="ghead"><h2>The Legends worlds</h2><p>Thirteen dimensions across the Legends Mod's Star Wars, superhero and horror packs. Each hangs off the Heroes chapter, not the spine.</p></div>
+  <div class="grid">
+    <article class="world" id="09-outer-space"><span class="plate">PLATE 09</span><div class="art"><img src="../img/plates/09-outer-space.jpg" alt="A cratered station-like moon against a starfield"></div>
+      <div class="body"><span class="from">Legends Mod &middot; DIM 30</span><h3>Outer Space<span class="num">side road</span></h3>
+      <p>Open space, a starfield, and a moon that is no moon.</p></div></article>
+    <article class="world" id="10-mars"><span class="plate">PLATE 10</span><div class="art"><img src="../img/plates/10-mars.jpg" alt="A figure crossing red Martian dunes under a dusty sky"></div>
+      <div class="body"><span class="from">Legends Mod &middot; DIM 31</span><h3>Mars<span class="num">side road</span></h3>
+      <p>Red dust and a thin sky, with a long way between anything.</p></div></article>
+    <article class="world" id="11-ilum"><span class="plate">PLATE 11</span><div class="art"><img src="../img/plates/11-ilum.jpg" alt="A vast ice cave with a figure silhouetted against the light"></div>
+      <div class="body"><span class="from">Legends Mod &middot; DIM 32</span><h3>Ilum<span class="num">side road</span></h3>
+      <p>The crystal caves of the Star Wars pack, under the ice.</p></div></article>
+    <article class="world" id="12-hurikane"><span class="plate">PLATE 12</span><div class="art"><img src="../img/plates/12-hurikane.jpg" alt="Hooded figures on a purple-lit ridge in a storm"></div>
+      <div class="body"><span class="from">Legends Mod &middot; DIM 33</span><h3>Hurikane<span class="num">side road</span></h3>
+      <p>Storm and lightning over a world that was never calm.</p></div></article>
+    <article class="world" id="13-tython"><span class="plate">PLATE 13</span><div class="art"><img src="../img/plates/13-tython.jpg" alt="A green valley with old temples under two moons"></div>
+      <div class="body"><span class="from">Legends Mod &middot; DIM 34</span><h3>Tython<span class="num">side road</span></h3>
+      <p>Green valleys and old temples under two moons. The quiet one.</p></div></article>
+    <article class="world" id="14-korriban"><span class="plate">PLATE 14</span><div class="art"><img src="../img/plates/14-korriban.jpg" alt="Red canyons and tombs under a dark sun"></div>
+      <div class="body"><span class="from">Legends Mod &middot; DIM 35</span><h3>Korriban<span class="num">side road</span></h3>
+      <p>Red canyons and tombs: the Sith world.</p></div></article>
+    <article class="world" id="15-tatooine"><span class="plate">PLATE 15</span><div class="art"><img src="../img/plates/15-tatooine.jpg" alt="Twin suns setting over sand dunes"></div>
+      <div class="body"><span class="from">Legends Mod &middot; DIM 36</span><h3>Tatooine<span class="num">side road</span></h3>
+      <p>Twin suns over the dunes.</p></div></article>
+    <article class="world" id="16-speed-force"><span class="plate">PLATE 16</span><div class="art"><img src="../img/plates/16-speed-force.jpg" alt="A figure inside a storm of blue lightning"></div>
+      <div class="body"><span class="from">Legends Mod &middot; DIM 50</span><h3>Speed Force<span class="num">side road</span></h3>
+      <p>The blue lightning that speedsters run through.</p></div></article>
+    <article class="world" id="17-wakanda"><span class="plate">PLATE 17</span><div class="art"><img src="../img/plates/17-wakanda.jpg" alt="Thatched buildings and purple lights under a night sky"></div>
+      <div class="body"><span class="from">Legends Mod &middot; DIM 51</span><h3>Wakanda<span class="num">side road</span></h3>
+      <p>The hidden kingdom, at night, lit from within.</p></div></article>
+    <article class="world" id="18-kingpin"><span class="plate">PLATE 18</span><div class="art"><img src="../img/plates/18-kingpin.jpg" alt="A rain-slick city street at night with a large figure in a white suit"></div>
+      <div class="body"><span class="from">Legends Mod &middot; DIM 53</span><h3>Kingpin Takedown<span class="num">side road</span></h3>
+      <p>A city at night, and the man who owns it.</p></div></article>
+    <article class="world" id="19-quantum-realm"><span class="plate">PLATE 19</span><div class="art"><img src="../img/plates/19-quantum-realm.jpg" alt="Translucent glowing cubes drifting in a dark void"></div>
+      <div class="body"><span class="from">Legends Mod &middot; DIM 55</span><h3>Quantum Realm<span class="num">side road</span></h3>
+      <p>Shrink far enough and the world turns to glowing glass.</p></div></article>
+    <article class="world" id="20-imortus"><span class="plate">PLATE 20</span><div class="art"><img src="../img/plates/20-imortus.jpg" alt="A frozen fortress on a cliff split by a river of lava"></div>
+      <div class="body"><span class="from">Legends Mod &middot; DIM 58</span><h3>Imortus<span class="num">side road</span></h3>
+      <p>A frozen fortress split by lava, and nothing in between.</p></div></article>
+    <article class="world" id="21-underworld"><span class="plate">PLATE 21</span><div class="art"><img src="../img/plates/21-underworld.jpg" alt="A road into a dark gorge lined with torches and figures"></div>
+      <div class="body"><span class="from">Legends Mod &middot; DIM 66</span><h3>The Underworld<span class="num">side road</span></h3>
+      <p>The road down, lined with the dead. The horror pack's own hell.</p></div></article>
+  </div>
+</div></section>
+
+<section class="group" id="orespawn"><div class="wrap">
+  <div class="ghead"><h2>OreSpawn's six</h2><p>They came from beyond the void. The chapter opens at the Endstone Temple, and ends in Crystal.</p></div>
+  <div class="grid">
+    <article class="world" id="22-utopia"><span class="plate">PLATE 22</span><div class="art"><img src="../img/plates/22-utopia.jpg" alt="Dragons over a bright green landscape with lightning"></div>
+      <div class="body"><span class="from">OreSpawn &middot; DIM 80</span><h3>Utopia<span class="num">chapter 7</span></h3>
+      <p>OreSpawn's paradise: green, bright, and watched by dragons.</p></div></article>
+    <article class="world" id="23-mining"><span class="plate">PLATE 23</span><div class="art"><img src="../img/plates/23-mining.jpg" alt="A lava-lit cavern with ore in the walls and a giant spider"></div>
+      <div class="body"><span class="from">OreSpawn &middot; DIM 81</span><h3>Mining<span class="num">chapter 7</span></h3>
+      <p>Ore in every wall, and things that live between the walls.</p></div></article>
+    <article class="world" id="24-village-mania"><span class="plate">PLATE 24</span><div class="art"><img src="../img/plates/24-village-mania.jpg" alt="A burning village at night with a giant rainbow ant and robots"></div>
+      <div class="body"><span class="from">OreSpawn &middot; DIM 82</span><h3>Village Mania<span class="num">chapter 7</span></h3>
+      <p>A village, and everything that comes for it after dark.</p></div></article>
+    <article class="world" id="25-danger-islands"><span class="plate">PLATE 25</span><div class="art"><img src="../img/plates/25-danger-islands.jpg" alt="Jagged islands lit by fire under a dark sky"></div>
+      <div class="body"><span class="from">OreSpawn &middot; DIM 83</span><h3>Danger Islands<span class="num">chapter 7</span></h3>
+      <p>Islands of everything OreSpawn makes that wants you dead.</p></div></article>
+    <article class="world" id="26-crystal"><span class="plate">PLATE 26</span><div class="art"><img src="../img/plates/26-crystal.jpg" alt="A giant crab in a crystal cave"></div>
+      <div class="body"><span class="from">OreSpawn &middot; DIM 84</span><h3>Crystal<span class="num">chapter 7</span></h3>
+      <p>The Crystal Dimension and its armoury: the far end of the OreSpawn chapter.</p></div></article>
+    <article class="world" id="27-chaos"><span class="plate">PLATE 27</span><div class="art"><img src="../img/plates/27-chaos.jpg" alt="Dragons circling a pagoda tower at night"></div>
+      <div class="body"><span class="from">OreSpawn &middot; DIM 85</span><h3>Chaos<span class="num">chapter 7</span></h3>
+      <p>OreSpawn's last dimension. Dragons, towers, and nothing calm.</p></div></article>
+  </div>
+  <div class="unpictured"><b>Not pictured.</b> TragicMC's two dimensions, <b>the Collision</b> (DIM 2) and <b>Synapse</b> (DIM 3), have no plate yet.
+    They belong to chapter 8, which opens when Mobzilla is dead.</div>
+</div></section>
+</main>
+
+<footer class="site"><div class="wrap">
+  <span>Quest Forge &middot; Minecraft 1.7.10</span>
+  <a href="../">Home</a><a href="../play/">Get the pack</a><a href="../mods/">Mod list</a><a href="../items/">Item index</a>
+  <a href="../enchantments/">Enchantments</a><a href="../ore-atlas/">Ore atlas</a>
+  <a href="https://github.com/MarionWhite/quest-forge">Source on GitHub</a>
+  <span>Plates painted for the pack's loading screens &middot; Not affiliated with Mojang or any mod author</span>
+</div></footer>
+</body>
+</html>

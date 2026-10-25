@@ -1,0 +1,440 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Get the pack · Quest Forge</title>
+<meta name="description" content="How to install and play Quest Forge, a Minecraft 1.7.10 modpack: Java 8, Prism Launcher, the client release, memory settings for your PC, a lighter profile for an older one, and what each refusal from the server means.">
+<meta name="theme-color" content="#E9EAE4">
+<meta property="og:title" content="Get the pack · Quest Forge">
+<meta property="og:description" content="Seven steps from nothing to the title screen, and how to get on the server.">
+<meta property="og:image" content="https://marionwhite.github.io/quest-forge/img/plates/01-nether.jpg">
+<link rel="icon" href="../favicon.png" type="image/png">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+<style>
+/* Tokens shared with every page under site/. */
+:root{
+  --paper:#E9EAE4; --surface:#F7F8F3; --sunk:#DFE1DA;
+  --ink:#171B19; --ink-2:#3E4642; --muted:#6A726C; --rule:#CDD1C8;
+  --ember:#A33F17; --ember-ink:#8E3712; --ember-wash:rgba(163,63,23,.10);
+  --patina:#2C4A43; --patina-wash:rgba(44,74,67,.12);
+  --shadow:rgba(23,27,25,.10);
+  --night:#0E0B12; --night-ink:#ECE6F2; --night-2:#B9AFC6; --glow:#F08A3C;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#111412; --surface:#191D1A; --sunk:#0C0F0D;
+    --ink:#E7E9E2; --ink-2:#C2C7BE; --muted:#8B948B; --rule:#282E29;
+    --ember:#E58A55; --ember-ink:#EFA274; --ember-wash:rgba(229,138,85,.13);
+    --patina:#7FB6A6; --patina-wash:rgba(127,182,166,.13);
+    --shadow:rgba(0,0,0,.45);
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#111412; --surface:#191D1A; --sunk:#0C0F0D;
+  --ink:#E7E9E2; --ink-2:#C2C7BE; --muted:#8B948B; --rule:#282E29;
+  --ember:#E58A55; --ember-ink:#EFA274; --ember-wash:rgba(229,138,85,.13);
+  --patina:#7FB6A6; --patina-wash:rgba(127,182,166,.13);
+  --shadow:rgba(0,0,0,.45);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:"Source Serif 4",Georgia,serif;font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4,.ui,button{font-family:Archivo,"Helvetica Neue",Arial,sans-serif}
+code,kbd,pre,.mono{font-family:"JetBrains Mono",ui-monospace,Menlo,monospace}
+.wrap{max-width:1180px;margin:0 auto;padding-left:28px;padding-right:28px}
+a{color:var(--ember-ink)}
+:focus-visible{outline:2px solid var(--ember);outline-offset:2px}
+
+/* ---- site nav ---- */
+nav.site{border-bottom:1px solid var(--rule);background:var(--surface)}
+nav.site .wrap{display:flex;align-items:center;gap:2px 18px;flex-wrap:wrap;min-height:50px;padding-top:6px;padding-bottom:6px}
+nav.site .brand{display:flex;align-items:center;gap:9px;font-family:Archivo,sans-serif;font-weight:800;font-size:15px;
+  letter-spacing:-.01em;color:var(--ink);text-decoration:none;margin-right:auto}
+nav.site .brand img{width:22px;height:22px;border-radius:4px}
+nav.site a:not(.brand){font-family:Archivo,sans-serif;font-size:13.5px;font-weight:500;color:var(--ink-2);text-decoration:none;
+  padding:4px 1px;border-bottom:2px solid transparent}
+nav.site a:not(.brand):hover{color:var(--ink);border-color:var(--rule)}
+nav.site a[aria-current="page"]{color:var(--ember-ink);border-color:var(--ember)}
+
+/* ---- masthead ---- */
+header.mast{padding:48px 0 32px;border-bottom:2px solid var(--ink);
+  background:linear-gradient(180deg,var(--surface),var(--paper))}
+.kicker{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ember-ink);margin:0 0 14px}
+h1{font-size:clamp(38px,7vw,68px);line-height:.94;font-weight:800;letter-spacing:-.03em;margin:0;text-wrap:balance}
+h1 .amp{color:var(--ember);font-weight:600}
+.lede{max-width:62ch;margin:18px 0 0;font-size:17.5px;color:var(--ink-2)}
+.cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:26px}
+.btn{font-family:Archivo,sans-serif;font-weight:600;font-size:15px;text-decoration:none;padding:11px 20px;border-radius:2px;
+  border:1px solid var(--ink);color:var(--ink);background:transparent;cursor:pointer;line-height:1.2}
+.btn:hover{background:var(--sunk)}
+.btn.primary{background:var(--ember);border-color:var(--ember);color:#fff}
+.btn.primary:hover{background:var(--ember-ink);border-color:var(--ember-ink)}
+.release{margin-top:26px;border:1px solid var(--rule);background:var(--surface);border-radius:3px;padding:14px 18px;
+  display:flex;flex-wrap:wrap;gap:6px 28px;align-items:baseline;font-size:14.5px;color:var(--ink-2);max-width:820px}
+.release .lab{font-family:"JetBrains Mono",monospace;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);flex-basis:100%}
+.release b{color:var(--ink);font-weight:600}
+.release .asset{font-family:"JetBrains Mono",monospace;font-size:12px}
+.release .asset span{color:var(--muted)}
+
+/* ---- layout ---- */
+.layout{display:grid;grid-template-columns:220px minmax(0,1fr);gap:48px;align-items:start;padding-top:40px}
+.toc{position:sticky;top:20px}
+.toc h2{font-family:"JetBrains Mono",monospace;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:500;margin:0 0 10px}
+.toc ol{list-style:none;margin:0;padding:0;border-left:2px solid var(--rule)}
+.toc li a{display:block;padding:5px 0 5px 14px;margin-left:-2px;border-left:2px solid transparent;color:var(--ink-2);text-decoration:none;
+  font-family:Archivo,sans-serif;font-size:13.5px}
+.toc li a:hover{color:var(--ink);border-color:var(--muted)}
+.toc li a.on{color:var(--ember-ink);border-color:var(--ember)}
+.toc li.aux a{color:var(--muted);font-size:12.5px}
+
+/* ---- steps ---- */
+.step{padding:0 0 44px;scroll-margin-top:16px;max-width:760px}
+.step h2{font-size:clamp(24px,3vw,30px);font-weight:800;letter-spacing:-.022em;margin:0 0 6px;line-height:1.12;display:flex;gap:14px;align-items:baseline}
+.step h2 .n{font-family:"JetBrains Mono",monospace;font-size:13px;font-weight:500;color:var(--ember-ink);letter-spacing:.06em}
+.step h3{font-size:17px;font-weight:700;margin:22px 0 6px;letter-spacing:-.01em}
+.step p{margin:10px 0 0;color:var(--ink-2);font-size:15.5px}
+.step p.sum{color:var(--muted);font-size:15px;margin-top:2px}
+.step ol,.step ul{margin:10px 0 0;padding-left:22px;color:var(--ink-2);font-size:15.5px}
+.step li{margin:6px 0}
+.step li::marker{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--ember-ink)}
+.step b{color:var(--ink);font-weight:600}
+code{font-size:.88em;background:var(--sunk);padding:1px 5px;border-radius:2px;color:var(--ink)}
+kbd{font-size:.85em;border:1px solid var(--rule);border-bottom-width:2px;border-radius:3px;padding:0 6px;background:var(--surface);color:var(--ink)}
+table{border-collapse:collapse;width:100%;margin:14px 0 0;font-size:14.5px}
+th,td{text-align:left;vertical-align:top;padding:9px 12px 9px 0;border-bottom:1px solid var(--rule)}
+th{font-family:Archivo,sans-serif;font-weight:600;font-size:12.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+td{color:var(--ink-2)}
+td:first-child{color:var(--ink);font-weight:600;font-family:Archivo,sans-serif;font-size:14px;white-space:nowrap;padding-right:18px}
+tr.pick td{background:var(--ember-wash)}
+.note{margin:14px 0 0;padding:12px 16px;border-left:3px solid var(--ember);background:var(--ember-wash);font-size:14.5px;color:var(--ink-2);border-radius:0 3px 3px 0}
+.note.calm{border-color:var(--patina);background:var(--patina-wash)}
+.note b{color:var(--ink)}
+pre{margin:12px 0 0;background:var(--night);color:var(--night-ink);padding:14px 16px;border-radius:3px;font-size:12.5px;line-height:1.5;
+  white-space:pre-wrap;word-break:break-all;position:relative}
+pre .copy{position:absolute;top:8px;right:8px;font-size:11.5px;font-weight:600;padding:5px 10px;border-radius:2px;border:1px solid rgba(236,230,242,.4);
+  background:rgba(14,11,18,.5);color:var(--night-ink);cursor:pointer}
+pre .copy:hover{border-color:var(--night-ink)}
+details{margin:12px 0 0;border:1px solid var(--rule);border-radius:3px;background:var(--surface)}
+summary{cursor:pointer;padding:12px 16px;font-family:Archivo,sans-serif;font-weight:600;font-size:15px;list-style:none;display:flex;gap:10px;align-items:center}
+summary::before{content:"";width:7px;height:7px;border-right:2px solid var(--ember);border-bottom:2px solid var(--ember);transform:rotate(-45deg);transition:transform .15s}
+details[open] summary::before{transform:rotate(45deg)}
+details > div{padding:0 16px 16px}
+.keys{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin-top:14px}
+.key{border:1px solid var(--rule);background:var(--surface);border-radius:3px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:14px;color:var(--ink-2)}
+.key kbd{font-size:13px;padding:2px 8px}
+.profiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:14px}
+.prof{border:1px solid var(--rule);background:var(--surface);border-radius:3px;padding:16px 18px}
+.prof h3{margin:0 0 4px;font-size:18px}
+.prof .for{font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+.prof p{font-size:14px;margin-top:8px}
+.prof.pick{border-color:var(--ember);box-shadow:inset 0 0 0 1px var(--ember)}
+
+footer.site{margin-top:40px;border-top:1px solid var(--rule);padding:26px 0 56px;font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--muted)}
+footer.site .wrap{display:flex;flex-wrap:wrap;gap:6px 24px}
+footer.site a{color:var(--ink-2);text-decoration:none;border-bottom:1px solid var(--rule)}
+footer.site a:hover{color:var(--ember-ink);border-color:var(--ember)}
+
+@media (max-width:900px){
+  .layout{grid-template-columns:minmax(0,1fr);gap:0}
+  .toc{position:static;margin-bottom:30px}
+  .toc ol{display:flex;flex-wrap:wrap;gap:4px 14px;border:0}
+  .toc li a{padding:4px 0;border:0;margin:0;border-bottom:2px solid var(--rule)}
+  .profiles{grid-template-columns:minmax(0,1fr)}
+}
+@media (max-width:640px){
+  .wrap{padding-left:16px;padding-right:16px}
+  header.mast{padding:34px 0 26px}
+  td:first-child{white-space:normal}
+  nav.site .wrap{gap:2px 12px}
+  nav.site a:not(.brand){font-size:12.5px}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+
+<nav class="site" aria-label="Site"><div class="wrap">
+  <a class="brand" href="../"><img src="../favicon.png" alt="">Quest Forge</a>
+  <a href="./" aria-current="page">Get the pack</a>
+  <a href="../mods/">Mods</a>
+  <a href="../items/">Items</a>
+  <a href="../worlds/">Worlds</a>
+  <a href="../enchantments/">Enchantments</a>
+  <a href="../ore-atlas/">Ore atlas</a>
+  <a href="../online/">Server</a>
+</div></nav>
+
+<header class="mast"><div class="wrap">
+  <p class="kicker">Minecraft 1.7.10 &middot; Get the pack</p>
+  <h1>Play Quest&nbsp;Forge</h1>
+  <p class="lede">Seven steps from nothing to the title screen. Most of the half hour is the download and the
+    first launch. The pack runs on Java 8 through Prism Launcher, and the server lets in only the exact release
+    it was built from, so follow the steps rather than assembling mods yourself.</p>
+  <div class="cta">
+    <a class="btn primary" href="https://github.com/MarionWhite/quest-forge/releases">Download the latest release</a>
+    <a class="btn" href="#join">Join the server</a>
+  </div>
+  <div class="release" id="release">
+    <span class="lab">Latest release</span>
+    <span>Releases are on GitHub. The newest one named <b>client instance</b> is the pack.</span>
+  </div>
+</div></header>
+
+<div class="wrap layout">
+<aside class="toc" aria-label="Steps">
+  <h2>On this page</h2>
+  <ol>
+    <li><a href="#need">What you need</a></li>
+    <li><a href="#java">1 &middot; Java 8</a></li>
+    <li><a href="#prism">2 &middot; Prism Launcher</a></li>
+    <li><a href="#download">3 &middot; Download</a></li>
+    <li><a href="#instance">4 &middot; Put it in Prism</a></li>
+    <li><a href="#memory">5 &middot; Memory and Java</a></li>
+    <li><a href="#profile">6 &middot; Pick a profile</a></li>
+    <li><a href="#join">7 &middot; Launch and join</a></li>
+    <li class="aux"><a href="#refused">If you're refused</a></li>
+    <li class="aux"><a href="#dont">Things not to do</a></li>
+    <li class="aux"><a href="#mac">On a Mac</a></li>
+  </ol>
+</aside>
+
+<main>
+<section class="step" id="need">
+  <h2>What you need</h2>
+  <table>
+    <tr><td>An account</td><td>Minecraft: Java Edition on a Microsoft account. The server runs in <b>online mode</b>: it confirms every login with Mojang, so a real account is the only way in, and nobody can join under your name.</td></tr>
+    <tr><td>A PC</td><td>Windows is the tested path. 8 GB of RAM is the floor and 16 GB is comfortable. Any graphics card from about 2012 on can run shaders; older ones play with shaders off. A Mac works too, with a few extra steps (<a href="#mac">below</a>).</td></tr>
+    <tr><td>Disk</td><td>About 3 GB free. The release is 1.2 GB on its own, and the first launch adds Minecraft's own files next to it.</td></tr>
+    <tr><td>Time</td><td>Half an hour. The first launch takes two to four minutes to reach the title screen; that is the pack loading 140 mods, not your PC being slow.</td></tr>
+  </table>
+</section>
+
+<section class="step" id="java">
+  <h2><span class="n">STEP 1</span>Java 8, 64-bit</h2>
+  <p class="sum">Forge for Minecraft 1.7.10 runs on Java 8 and nothing newer.</p>
+  <ol>
+    <li>Open <a href="https://adoptium.net/temurin/releases/?version=8&os=windows&arch=x64&package=jre">adoptium.net</a> with the filters set to version <b>8</b>, <b>Windows</b>, <b>x64</b>. Either the JRE or the JDK is fine.</li>
+    <li>Download the <code>.msi</code> and run it with the defaults.</li>
+  </ol>
+  <p>Keep any Java 17 or 21 you already have; Prism chooses a Java per instance. What will not work: a 32-bit Java,
+    which cannot give the game more than about 1.5 GB and crashes during loading, and Java 11, 17, 21 or 25, which
+    refuse Forge 1.7.10 outright.</p>
+</section>
+
+<section class="step" id="prism">
+  <h2><span class="n">STEP 2</span>Prism Launcher</h2>
+  <p class="sum">The launcher the pack is tested in, and the one that signs in.</p>
+  <ol>
+    <li>Download Prism from <a href="https://prismlauncher.org/download/">prismlauncher.org</a> and install it.</li>
+    <li>Open it. Under <b>Accounts</b> (top right), add your Microsoft account and sign in.</li>
+  </ol>
+  <div class="note">The release also contains <code>.bat</code> launchers of its own. They start the game <b>offline</b>,
+    which is fine for singleplayer and LAN, but the server refuses them. For the server, launch from Prism.</div>
+</section>
+
+<section class="step" id="download">
+  <h2><span class="n">STEP 3</span>Download the release</h2>
+  <p class="sum">One archive, straight from the pack's own releases page.</p>
+  <ol>
+    <li>Go to <a href="https://github.com/MarionWhite/quest-forge/releases">the releases page</a> and open the newest release named <b>client instance</b>. Ignore the server payloads and the artwork masters.</li>
+    <li>Download the archive under <b>Assets</b>. It is a complete Prism instance: the mods, the config, the branding, and the hand-patched Forge jar that draws the loading screen.</li>
+    <li>If a release offers two editions, <b>OptiFine</b> runs on any PC. <b>Angelica</b> needs a graphics card with OpenGL 3.3 (nearly anything since 2012) and gives a far higher frame rate with shaders on.</li>
+  </ol>
+  <div class="note">Don't build the pack from a mod list. A single mod at a different version gets you refused at login,
+    and a config file with different ID numbers gets you refused by the pack check right after it.</div>
+</section>
+
+<section class="step" id="instance">
+  <h2><span class="n">STEP 4</span>Put it in Prism</h2>
+  <p class="sum">The release is already an instance; it only needs to land in Prism's instances folder.</p>
+  <ol>
+    <li>In Prism, click <b>Folders</b> in the toolbar and choose <b>View Instance Folder</b>. On Windows that folder is usually
+      <code>%APPDATA%\PrismLauncher\instances</code>.</li>
+    <li>Extract the archive so that a folder for the pack sits inside <code>instances</code>. When it is right, that folder holds an
+      <code>instance.cfg</code> and a <code>minecraft</code> (or <code>.minecraft</code>) folder with <code>mods</code> inside it.</li>
+    <li>Restart Prism. <b>Quest Forge</b> appears in the list. Don't launch it yet.</li>
+  </ol>
+  <p>Prism downloads Minecraft's own files and the native libraries for your system on the first launch; the release
+    leaves them out on purpose.</p>
+</section>
+
+<section class="step" id="memory">
+  <h2><span class="n">STEP 5</span>Memory and Java arguments</h2>
+  <p class="sum">Right-click the instance, choose <b>Edit</b>, then <b>Settings</b> and the <b>Java</b> tab.</p>
+  <h3>Java</h3>
+  <p>Tick <b>Java installation</b>, click <b>Auto-detect</b>, and pick the one whose version starts with <b>1.8</b>.</p>
+  <h3>Memory</h3>
+  <p>Tick <b>Memory</b> and set the maximum from your PC's installed RAM (Windows: Settings, System, About).</p>
+  <table>
+    <tr><th>Installed RAM</th><th>Minimum</th><th>Maximum</th></tr>
+    <tr><td>8 GB</td><td>1024 MiB</td><td>3072 MiB</td></tr>
+    <tr><td>12 GB</td><td>1024 MiB</td><td>4096 MiB</td></tr>
+    <tr><td>16 GB</td><td>2048 MiB</td><td>5120 MiB</td></tr>
+    <tr><td>32 GB or more</td><td>2048 MiB</td><td>6144 MiB</td></tr>
+  </table>
+  <p>More is not better. The whole pack lives in about 1.3 GB of heap, measured, and a bigger heap only makes the
+    pauses longer. On an 8 GB PC anything past 3 GB makes Windows swap, which stutters worse than any setting.</p>
+  <h3>Java arguments</h3>
+  <p>Tick <b>Java arguments</b> and paste this as one line:</p>
+  <pre id="args"><button class="copy" type="button" data-copy="#args">Copy</button>-XX:+UseG1GC -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=16M -XX:+ParallelRefProcEnabled -XX:+DisableExplicitGC -XX:+UseCompressedOops -XX:MaxPermSize=256M -XX:+UseSplitVerifier -XX:+FailOverToOldVerifier -XX:-HeapDumpOnOutOfMemoryError -Djava.net.preferIPv4Stack=true -Dfml.ignoreInvalidMinecraftCertificates=true -Dfml.ignorePatchDiscrepancies=true -Dlog4j2.formatMsgNoLookups=true</pre>
+  <p>The two <code>-Dfml.ignore</code> flags are required: the pack's Forge jar is hand-patched (the loading screen and
+    its music live in it) and will not load without them.</p>
+</section>
+
+<section class="step" id="profile">
+  <h2><span class="n">STEP 6</span>Pick a profile for your PC</h2>
+  <p class="sum">Same world, same server, same quests. What changes is how much work your PC does per frame.</p>
+  <div class="profiles">
+    <div class="prof"><span class="for">Gaming PC, last five years, 16 GB+</span><h3>Normal</h3><p>Play as installed. Shaders are optional: Sildur's Vibrant High looks best, Enhanced Default costs half as much.</p></div>
+    <div class="prof pick"><span class="for">GTX 1060 / RX 580 class, 4 to 6 cores, 8 to 16 GB</span><h3>Lite</h3><p>Shaders off, render distance 6 (the server sends no more anyway), and a few cosmetic mods set aside: gore, cave reverb, the branded menu buttons.</p></div>
+    <div class="prof"><span class="for">Laptop or integrated graphics, 8 GB</span><h3>Potato</h3><p>Lite, plus the minimap and the mob health bar set aside and every visual slider at its floor.</p></div>
+  </div>
+  <p>Lite and Potato are applied by a script from the pack's repository,
+    <a href="https://github.com/MarionWhite/quest-forge/tree/main/tools/lite-client">tools/lite-client</a>. With the game closed,
+    open PowerShell in that folder and run it against your instance's <code>minecraft</code> folder:</p>
+  <pre id="lite"><button class="copy" type="button" data-copy="#lite">Copy</button>powershell -ExecutionPolicy Bypass -File apply-lite.ps1 -Instance "C:\Users\YOU\AppData\Roaming\PrismLauncher\instances\Quest Forge\minecraft"</pre>
+  <p>Add <code>-Tier potato</code> for the Potato profile, <code>-WhatIf</code> to see the changes first, and <code>-Undo</code> to put
+    everything back. It only touches mods the server does not have, so nothing it does can get you refused.</p>
+  <h3>Shaders by hand</h3>
+  <p>The shader pack is the single biggest lever, two to three times the frame rate on its own. In game: Options,
+    Video Settings, Shaders. <b>Off</b> for a weak PC, <b>Sildur's Enhanced Default</b> for a mid-range one,
+    <b>Sildur's Vibrant High</b> for a strong card. With any shader on, <b>Fast Render must stay off</b>, or the screen goes
+    black. On the Angelica edition, <kbd>F8</kbd> picks a pack and <kbd>F4</kbd> toggles it.</p>
+</section>
+
+<section class="step" id="join">
+  <h2><span class="n">STEP 7</span>Launch, then join</h2>
+  <p class="sum">Launch from Prism and wait. Two to four minutes to the title screen is normal.</p>
+  <p>The loading screen should show the Quest Forge mural with textured bars, not the plain dirt screen. On the title
+    screen, the top-right corner shows the pack version, like <code>Quest Forge pack 2026-10-17 - 3f7f089e6508</code>: the
+    release date, then a fingerprint of the configs that matter. The server compares both.</p>
+  <h3>Getting on the server</h3>
+  <ol>
+    <li>Ask the host for the address, and to whitelist your <b>exact</b> Minecraft name. The whitelist is by account, so a typo
+      means "You are not white-listed".</li>
+    <li>Multiplayer, Add Server, paste the address. The first join takes a while, as the client receives the world.</li>
+    <li>The <a href="../online/">server page</a> shows who is on once the server has opened.</li>
+  </ol>
+  <h3>Keys worth knowing</h3>
+  <div class="keys">
+    <div class="key">Quest book <kbd>'</kbd></div>
+    <div class="key">Full-screen map <kbd>J</kbd></div>
+    <div class="key">Zoom <kbd>C</kbd></div>
+    <div class="key">Shaders on and off (Angelica) <kbd>F4</kbd></div>
+    <div class="key">Pick a shader pack (Angelica) <kbd>F8</kbd></div>
+    <div class="key">Recipes, uses (NEI) <kbd>R</kbd> <kbd>U</kbd></div>
+  </div>
+  <p>The controls screen is searchable, which matters once a hundred mods have each claimed a key. In singleplayer, a new
+    world loads the quest book by itself; there is no command to run.</p>
+</section>
+
+<section class="step" id="refused">
+  <h2>If the server refuses you</h2>
+  <p class="sum">The server checks every player's pack at login, because mod configs decide which number means which potion,
+    enchantment, biome or dimension, and Minecraft never compares them. If yours differ, you would drink the wrong potions
+    and break the world for everyone, so it disconnects you instead, and the screen says why.</p>
+  <table>
+    <tr><th>The screen says</th><th>What to do</th></tr>
+    <tr><td>Your Quest Forge client is out of date.</td><td>Install the current release from the link on the screen. Replace the whole instance, not single mods.</td></tr>
+    <tr><td>This server runs an older Quest Forge pack than yours.</td><td>You are ahead of the host. Tell them; the server needs updating.</td></tr>
+    <tr><td>Your Quest Forge configs differ from the server's.</td><td>Same release, but the files it names were edited or damaged. Reinstall the release's <code>config</code> folder, or undo your edits.</td></tr>
+    <tr><td>Your mods differ from the server's.</td><td>A mod named on the screen is at a different version. Reinstall the release rather than updating that mod alone.</td></tr>
+    <tr><td>The server could not check your Quest Forge pack.</td><td>Your copy of the pack's own mod is too old to answer. Install the current release.</td></tr>
+    <tr><td>Mod rejections [FMLMod:qfcontent{1.1.0+…}]</td><td>The login handshake refused that mod before the pack check ran. The version shown is the server's. Install the current release.</td></tr>
+    <tr><td>Kicked about five seconds after joining, with no useful message</td><td>An install from before 2026-10-18 still carries the old CodeChickenCore. Reinstall the current release.</td></tr>
+  </table>
+  <p>Changes you are free to make never get you refused: video settings, key bindings, shaders, resource packs, sounds,
+    the minimap, and any setting in a client-side section of a config.</p>
+  <div class="note calm">When you ask the host for help, send <code>logs/latest.log</code> from your instance, not a screenshot.
+    The refusal text is in it; search for <code>packcheck</code>.</div>
+</section>
+
+<section class="step" id="dont">
+  <h2>Things not to do</h2>
+  <ul>
+    <li><b>Don't update a mod on your own</b>, however old it looks. The server refuses a single differing jar.</li>
+    <li><b>Don't let another launcher "repair" the instance.</b> It puts stock jars back, and the loading screen goes black or the game crashes with <code>BufferOverflow</code>.</li>
+    <li><b>Don't install Java 17 or 21 to fix a Java error.</b> This Minecraft needs 8.</li>
+    <li><b>Don't turn on Fast Render with a shader pack on.</b></li>
+    <li><b>Don't give the game more memory than the table says.</b> It is slower, not faster.</li>
+    <li><b>Don't delete <code>assets/mcheli</code> to save space.</b> The helicopters and planes live there, not in the mod file.</li>
+  </ul>
+</section>
+
+<section class="step" id="mac">
+  <h2>On a Mac</h2>
+  <p class="sum">It runs on Apple Silicon, under Rosetta, with lower frame rates than a Windows PC of the same age.</p>
+  <details>
+    <summary>The Mac-specific steps</summary>
+    <div>
+      <ol>
+        <li><b>Rosetta 2.</b> The only Java 8 that boots this pack is the Intel build. In Terminal: <code>softwareupdate --install-rosetta --agree-to-license</code></li>
+        <li><b>Temurin 8 for x64</b>, not aarch64. The <code>.pkg</code> name must contain <code>x64</code>. Check with <code>/usr/libexec/java_home -v 1.8</code>, which should print one path; <code>file</code> on its <code>bin/java</code> should say <code>x86_64</code>.</li>
+        <li><b>Prism</b> universal is fine; only Java has to be Intel. Prism's instances live in <code>~/Library/Application Support/PrismLauncher/instances</code>, and the game folder inside an instance is <code>minecraft</code>.</li>
+        <li><b>Memory:</b> 4096 MiB on an 8 GB Mac, 6144 MiB on 16 GB. Never more.</li>
+        <li><b>Shaders:</b> Sildur's Vibrant High may fail to compile under Rosetta (a pink or black world). Switch to <b>Sildur's Enhanced Default</b>, or off. Fast Render stays off either way.</li>
+      </ol>
+      <p>Two things cap what a Mac can do: the game runs under Rosetta, and its OpenGL 2.1 graphics are translated to Metal
+        frame by frame. Expect smooth and cool rather than fast. Loading takes about three and a half minutes.</p>
+      <p>The long version, written for someone who has never opened Terminal, is
+        <a href="https://github.com/MarionWhite/quest-forge/blob/main/docs/setup/install-on-mac.md">in the repository</a>.</p>
+    </div>
+  </details>
+</section>
+</main>
+</div>
+
+<footer class="site"><div class="wrap">
+  <span>Quest Forge &middot; Minecraft 1.7.10</span>
+  <a href="../">Home</a><a href="../mods/">Mod list</a><a href="../items/">Item index</a><a href="../worlds/">Worlds</a>
+  <a href="../enchantments/">Enchantments</a><a href="../online/">Server</a>
+  <a href="https://github.com/MarionWhite/quest-forge">Source on GitHub</a>
+  <span>Not affiliated with Mojang or any mod author</span>
+</div></footer>
+
+<script>
+"use strict";
+// Copy buttons for the two command blocks.
+for (const b of document.querySelectorAll(".copy")) {
+  b.addEventListener("click", async () => {
+    const pre = document.querySelector(b.dataset.copy);
+    const text = [...pre.childNodes].filter(n => n.nodeType === 3).map(n => n.textContent).join("").trim();
+    try { await navigator.clipboard.writeText(text); b.textContent = "Copied"; }
+    catch { b.textContent = "Select and copy"; }
+    setTimeout(() => { b.textContent = "Copy"; }, 1600);
+  });
+}
+// Highlight the step in view in the table of contents.
+const links = [...document.querySelectorAll(".toc a")];
+const byId = new Map(links.map(a => [a.getAttribute("href").slice(1), a]));
+if ("IntersectionObserver" in window) {
+  const seen = new Map();
+  const io = new IntersectionObserver(es => {
+    for (const e of es) seen.set(e.target.id, e.isIntersecting);
+    const first = [...document.querySelectorAll(".step")].find(s => seen.get(s.id));
+    links.forEach(a => a.classList.toggle("on", !!first && a === byId.get(first.id)));
+  }, {rootMargin: "-10% 0px -70% 0px"});
+  document.querySelectorAll(".step").forEach(s => io.observe(s));
+}
+// The latest client release, from GitHub. Falls back to the static line when the API is unreachable.
+fetch("https://api.github.com/repos/MarionWhite/quest-forge/releases?per_page=15", {headers: {Accept: "application/vnd.github+json"}})
+  .then(r => r.ok ? r.json() : null).then(list => {
+    if (!Array.isArray(list)) return;
+    const rel = list.find(r => !r.draft && !r.prerelease && /client/i.test(r.tag_name + " " + r.name));
+    if (!rel) return;
+    const box = document.getElementById("release");
+    const date = new Date(rel.published_at).toLocaleDateString("en-GB", {day: "numeric", month: "long", year: "numeric"});
+    const mb = n => n >= 1e9 ? (n / 1e9).toFixed(1) + " GB" : Math.round(n / 1e6) + " MB";
+    const assets = (rel.assets || []).map(a =>
+      `<a class="asset" href="${a.browser_download_url}">${a.name} <span>${mb(a.size)}</span></a>`).join("");
+    box.innerHTML = `<span class="lab">Latest release</span><span><b>${rel.name || rel.tag_name}</b></span>` +
+      `<span>published ${date}</span>${assets}<a href="${rel.html_url}">Release notes</a>`;
+  }).catch(() => {});
+</script>
+</body>
+</html>
