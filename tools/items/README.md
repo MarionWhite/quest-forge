@@ -92,3 +92,21 @@ Chest loot is measured, not researched: the dump reads every `ChestGenHooks` tab
 mineshaft, stronghold, temple and blacksmith chests, plus any a mod adds), and the page shows
 each item's chance per chest. Loot that mods roll in their own code (most mod dungeons) and
 mob drops are only as good as the research.
+
+## 4. The dead-item census
+
+```bash
+py -3.10 -I tools/items/dead_items.py      # -> docs/reference/dead-items.{md,json}
+```
+
+Joins the dump, the descriptions, the quest book, the pack's loot configs (Lucky Block,
+ChocolateQuest, Doomlike, Surprise Eggs, Loot Bags), the CraftTweaker scripts and the ore
+survey, and gives every item a status: `ok`, `no-source`, `creative`, `technical`, `hidden`,
+`disabled` or `quest-only`, with the flags that decided it. The Markdown is written for the
+quest writers ([`../../docs/reference/dead-items.md`](../../docs/reference/dead-items.md)); the
+JSON carries every flag per item for the texture ranking. Each "how to get it" line is
+classified sentence by sentence, so a line that says "creative only" or "technical" is a
+verdict and one that names a mob, chest, machine or biome is a source. What it cannot see (mob
+drops and dungeon loot inside jars, machine recipes, recipes registered at world load) is
+listed at the top of both outputs. Re-run after any change to the dump, the descriptions, the
+book or the loot configs, and commit both outputs.
