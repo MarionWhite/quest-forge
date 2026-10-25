@@ -910,14 +910,31 @@ def check_hunt(book):
 # ---------------------------------------------------------------------------
 # path: the chapter order
 
-CHAPTER_RE = re.compile(r'^Ch (\d+):')
+# A numbered tab is `Ch N: name` (today's chapters) or `<roman>: name` (the act tabs, WP-6:
+# `II: Old Powers` is act 2). Keys below are the tab's label ('Ch 2', 'II'), not its number:
+# Ch 2 Base and act II are both number 2.
+CHAPTER_RE = re.compile(r'^(?:Ch (\d+)|(I|II|III|IV|V|VI|VII|VIII|IX|X)):')
+ROMAN = {'I': 1, 'II': 2, 'III': 3, 'IV': 4, 'V': 5, 'VI': 6, 'VII': 7, 'VIII': 8, 'IX': 9, 'X': 10}
+
+
+def chapter_of(name):
+    """(label, number) for a numbered tab, else None: 'Ch 4: Witchery' -> ('Ch 4', 4),
+    'II: Old Powers' -> ('II', 2)."""
+    m = CHAPTER_RE.match(name)
+    if not m:
+        return None
+    if m.group(1):
+        return 'Ch %s' % m.group(1), int(m.group(1))
+    return m.group(2), ROMAN[m.group(2)]
+
+
 # Numbered tabs that are not links in the chain, and why. Every other numbered chapter
 # must open strictly after the one before it.
 SIDE_CHAPTERS = {
-    2: 'Base is storage QoL, a Prologue side tab (audit 4.4); it opens at quest 2 Crafting Station',
+    'Ch 2': 'Base is storage QoL, a Prologue side tab (audit 4.4); it opens at quest 2 Crafting Station',
 }
 LADDER_CHAPTERS = {
-    9: 'ProjectE is a ladder: each rung opens at the boss its recipe needs (crazycraft_gating.zs), '
+    'Ch 9': 'ProjectE is a ladder: each rung opens at the boss its recipe needs (crazycraft_gating.zs), '
        'so its first rung opens at the Lich; its last rung must come after Ch 8 opens',
 }
 
@@ -953,18 +970,19 @@ def required_sets(book):
 
 
 def chapter_table(book, req):
-    """[(number, line, entries, opening entry, open set, quest ids)] for numbered chapters."""
+    """[(number, line, entries, opening entry, open set, quest ids, label)] for numbered tabs."""
     qs = book.quests
     out = []
     for l in book.lines:
-        m = CHAPTER_RE.match(strip(l['properties:10']['betterquesting:10']['name:8']))
-        if not m:
+        c = chapter_of(strip(l['properties:10']['betterquesting:10']['name:8']))
+        if not c:
             continue
+        label, num = c
         ids = {e['id:3'] for e in l['quests:9'].values() if e['id:3'] in qs}
         entries = sorted(qid for qid in ids if not any(p in ids for p in qs[qid]['preRequisites:11']))
         first = min(entries, key=lambda e: (len(req[e]), e))
-        out.append((int(m.group(1)), l, entries, first, req[first] - {first}, ids))
-    return sorted(out, key=lambda c: c[0])
+        out.append((num, l, entries, first, req[first] - {first}, ids, label))
+    return sorted(out, key=lambda c: (c[0], c[6]))
 
 
 def check_path(book):
@@ -988,19 +1006,19 @@ def check_path(book):
         return ', '.join('%s %d' % kv for kv in sorted(c.items(), key=lambda kv: -kv[1]))
     chapters = chapter_table(book, req)
     prev = None
-    for num, l, entries, first, opened, ids in chapters:
+    for num, l, entries, first, opened, ids, label in chapters:
         lname = strip(book.line_name(l['lineID:3']))
         gates = [p for p in qs[first]['preRequisites:11']]
         r.note('%-18s opens at %d %s, after %s; %d quests first (%s)' % (
             lname, first, name(qs[first]),
             ' + '.join('%d %s' % (g, name(qs[g])) for g in gates) or 'nothing',
             len(opened), where(opened) or '-'))
-        if num in SIDE_CHAPTERS:
-            r.note('%-18s side chapter, not in the chain: %s' % ('', SIDE_CHAPTERS[num]))
+        if label in SIDE_CHAPTERS:
+            r.note('%-18s side chapter, not in the chain: %s' % ('', SIDE_CHAPTERS[label]))
             continue
         if prev is not None:
             pnum, pname, popened, pids = prev
-            if num in LADDER_CHAPTERS:
+            if label in LADDER_CHAPTERS:
                 cap = max(ids, key=lambda i: (len(req[i]), i))
                 ok = (req[cap] - {cap}) > popened
                 r.note('%-18s ladder; last rung %d %s needs %d quests' % ('', cap, name(qs[cap]), len(req[cap]) - 1))
@@ -1014,8 +1032,8 @@ def check_path(book):
                     if e != first and not (req[e] - {e}) > popened:
                         r.err('%s: entry %d %s opens no later than %s' % (lname, e, name(qs[e]), pname))
         # no backwards edge: an earlier chapter must not need this chapter's quests
-        for onum, ol, oent, ofirst, oopened, oids in chapters:
-            if onum < num and onum not in SIDE_CHAPTERS and (oopened & ids):
+        for onum, ol, oent, ofirst, oopened, oids, olabel in chapters:
+            if onum < num and olabel not in SIDE_CHAPTERS and (oopened & ids):
                 r.err('%s needs %s from later %s' % (strip(book.line_name(ol['lineID:3'])),
                                                       sorted(oopened & ids), lname))
         prev = (num, lname, opened, ids)
