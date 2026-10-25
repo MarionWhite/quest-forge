@@ -314,6 +314,15 @@ def prepare_boot(boot_id, jobs, log):
                 shader=pack_name or "off", force=True, renderer="angelica", jars=[DEBUG_JAR],
                 shaderpacks=[pack_dir] if pack_dir else [], quiet=True, resourcepacks=rps_all)
     d = trial.trial_dir(TRIAL)
+    # FrameBench loads save 0, so the boot's world must be the only save. FML also leaves a 108 MB
+    # backup zip of the world on every boot that confirms an ID remap (shaderdev's saves/ held
+    # 507 of them, 52 GB, on 2026-10-25): this trial keeps none.
+    sv = os.path.join(d, "saves")
+    keep = os.path.basename(j0["world"].rstrip("\\/"))
+    for n in os.listdir(sv) if os.path.isdir(sv) else []:
+        if n != keep:
+            p = os.path.join(sv, n)
+            shutil.rmtree(p) if os.path.isdir(p) else os.remove(p)
     log(f"  built trial {d} in {time.time() - t0:.0f} s")
     # Each job's resource pack list, as trial.build orders them (ours at the bottom, the source's
     # own packs, QuestForge.zip on top); the boot starts with the first step's.
