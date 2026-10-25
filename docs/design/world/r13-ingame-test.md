@@ -331,3 +331,51 @@ All are in `C:\qf-world\renders\`:
 | `r13-test3-calving.png`, `-calving-oblique.png`, `-calving-oblique2.png` | Calving bay top-down, the bay from the south, and one berg close up |
 
 **Files.** The plan, pieces, exports, stitched world and scripts (`all3.sh`, `obl3.sh`, probes) are in the session scratchpad under `r13t3/`. The trial world in `%APPDATA%\.qf-trials\r13t\world` is this re-test.
+
+## Full map build
+
+**Date:** 2026-10-24/25. The real map, ready for the author to touch up. The plan is the one from Re-test 3, rendered at full resolution from the final `r13/main.yaml` in 33.7 min. The tile grid is 3 × 3 pieces of 16,384 blocks.
+
+| Step | Time | Notes |
+|---|---|---|
+| `plan.py render`, full resolution | 33.7 min | |
+| 9 × `plan.py expand --piece-size 16384` | **10.6–12.9 min each** (95 min in all) | Peak about 7 GB, one at a time. Piece (1,1)'s wall-clock time also includes 3 h while the PC slept. |
+| 9 × `wp_piece.js`, build and **save only**, `-Xmx8g` | **75–81 s each** | No export (see below). |
+| Copy to `C:\qf-world\pieces\r13\` | seconds | It is the Syncthing folder shared with the Mac, and it has a `README.txt`. |
+
+**Pieces** (`r13-piece_I_J.world`; I is the column from west to east, J the row from north to south; origin = −24576 + 16384 × index):
+
+| Piece | Covers | Size |
+|---|---|---|
+| 0_0 | north-west | 238 MB |
+| 1_0 | north | 216 MB |
+| 2_0 | north-east (calving bay) | 214 MB |
+| 0_1 | west | 277 MB |
+| 1_1 | centre (hot-spring terraces, great falls) | 340 MB |
+| 2_1 | east | 283 MB |
+| 0_2 | south-west (meteor crater) | 193 MB |
+| 1_2 | south | 224 MB |
+| 2_2 | south-east (jungle tepui) | 192 MB |
+| **all 9** | | **2.1 GB** |
+
+Each piece carries:
+- the ground-block terrain (12 grounds);
+- the raised water levels, for example 5.7 M raised-water columns in piece 0_0 and 9.1 M in piece 0_1;
+- 111 custom biomes;
+- populate on, with WorldPainter's ores off.
+
+**Exporting a 16k piece needs more than 6 GB of heap.** The first piece was built with `-Xmx6g` and also exported. Its `.world` saved within minutes. The export, though, was still at 845 of 1,024 regions after about 9 h, because the JVM was garbage-collecting most of the time (v0 measured 7–8.3 GB for a piece this size). It was stopped. The other eight pieces were built save-only at `-Xmx8g`. To export a piece later, give WorldPainter 10 GB or more, or export it from the GUI.
+
+**Dry-run size of the stitched world.**
+- WorldPainter writes every region file at a fixed 4,202,496 bytes (all 891 finished regions of piece 0_0, and all 192 regions of the re-test stitch).
+- The full map is 96 × 96 = 9,216 regions, so exporting and stitching it comes to **38.7 GB (36 GiB)**. This is exact, not an extrapolation.
+- `waterfalls.py` and `ice_faces.py` rewrite only the regions they change.
+- Population makes the files bigger. The populated re-test world holds 1.1 GB in 198 regions, about 5.6 MB a region, which would put a fully populated map near 52 GB.
+- The full world was not exported or stitched (the coordinator's change of plan), and nothing was pregenerated.
+
+**Before the real world is built:**
+- export each piece with at least 10 GB of heap (or from the GUI);
+- `stitch.py` all nine;
+- `waterfalls.py` with no `--area`. It now runs in tiles of 8 × 8 regions, tested on two pieces with `--tile 2`;
+- `ice_faces.py`;
+- give the qf-tweaks RWG hook the whole map as its rectangle.
