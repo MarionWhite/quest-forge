@@ -453,7 +453,7 @@ class Runner:
                             "frames": [os.path.join(j["rounds"], "screenshots", n) for n in batch.block_shots(lines)],
                             "cached": name in j["cached"]}
             res["jobs"].append({"tag": j["tag"], "status": j["status"], "preset": j["preset"], "size": j["size"],
-                                "opts": j["opts"], "error": j.get("error"),
+                                "opts": j["opts"], "error": j.get("error"), "incidents": j.get("incidents", []),
                                 "txt": os.path.join(j["rounds"], "bench", j["tag"] + ".txt"),
                                 "missing": j["todo"] if j["status"] != "done" else [], "scenes": sc})
         os.makedirs(os.path.join(RESULTS, s["id"]), exist_ok=True)
@@ -496,6 +496,9 @@ class Runner:
         return group[: self.a.max_jobs]
 
     def slot_free(self):
+        # Clients only: a server (the friends' server, a census node) holds no GPU slot; it only
+        # counts toward trial.py's RAM budget, which `launch` checks itself (2026-10-25: a
+        # `status | grep "no Minecraft clients"` gate stalled r007's queue on the friends' server).
         clients = [p for p in trial.java_processes() if p["kind"] == "client"]
         held = trial.read_lock()
         held_alive = held and ((held.get("pid") and trial.pid_alive(held["pid"]))
@@ -592,6 +595,10 @@ class Runner:
                     j["todo"].remove(sc)
                     n += 1
             missed = [sc for sc in planned.get(j["tag"], []) if sc in j["todo"]]
+            if missed:
+                # every boot that left this job's scenes undone, for results/status
+                j.setdefault("incidents", []).append(f"{boot_id} {outcome}: {len(missed)} scene(s) left"
+                                                     + (f" ({'; '.join(probs)})" if probs else ""))
             if missed and outcome not in ("busy", "paused", "stopped"):
                 j["attempts"] += 1
                 if j["attempts"] >= MAX_ATTEMPTS:
@@ -816,6 +823,8 @@ def cmd_results(a):
         print(f"  {j['tag']:<10} {j['status']:<8} preset {j['preset']:<3} {j['size']:<10} {len(j['scenes'])} scenes"
               f" ({hits} cached)  {j['txt']}" + (f"  MISSING {j['missing']}" if j["missing"] else "")
               + (f"  {j['error']}" if j.get("error") else ""))
+        for inc in j.get("incidents", []):
+            print(f"      retried after {inc}")
 
 
 def cmd_cancel(a):
