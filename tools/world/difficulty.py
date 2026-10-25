@@ -184,17 +184,37 @@ def check_spawns(p, spec):
 
 
 def ratings(p, spec, tier):
+    """Picker rating per spawn. The score is the mean tier of the land around the spawn, from
+    `inner` (past the pocket every spawn shares) out to `radius`, weighted toward the spawn
+    (weight: linear falls from 1 at `inner` to 0 at `radius`; flat weighs it all alike).
+    labels: [[cut, name], ...] by score; or mode: rank with split: [n Gentle, n Hard, ...] and
+    names: labels by rank among the spawns, so the gentlest spawns are Gentle however hard
+    the map is overall (the author's design: most of the map is hard)."""
     rs = spec.get("rating", {})
-    R = rs.get("radius", 3000)
-    labels = rs.get("labels", [[2.75, "Gentle"], [3.2, "Hard"], [3.6, "Brutal"], [99, "Deadly"]])
+    R, R0 = rs.get("radius", 3000), rs.get("inner", 0)
     out = []
     for s in spec.get("spawns", []):
-        m = p.land & ~p.lake & (np.hypot(p.X - s["x"], p.Z - s["z"]) <= R)
-        score = float(tier[m].mean()) if m.any() else 0.0
-        lab = next(nm for t, nm in labels if score < t)
+        d = np.hypot(p.X - s["x"], p.Z - s["z"])
+        m = p.land & ~p.lake & (d <= R) & (d >= R0)
+        w = np.clip((R - d) / max(R - R0, 1), 0, 1) if rs.get("weight", "flat") == "linear" else np.ones_like(d)
+        score = float((tier * w)[m].sum() / max(w[m].sum(), 1e-9)) if m.any() else 0.0
         sp = min(math.hypot(s["x"] - o["x"], s["z"] - o["z"]) for o in spec["spawns"] if o is not s)
-        out.append(dict(where=s.get("where", ""), x=s["x"], z=s["z"], score=round(score, 2), rating=lab,
-                        nearest_spawn=round(sp)))
+        out.append(dict(where=s.get("where", ""), x=s["x"], z=s["z"], score=round(score, 2), nearest_spawn=round(sp)))
+    if rs.get("mode") == "rank":
+        names = rs.get("names", ["Gentle", "Hard", "Brutal", "Deadly"])
+        split = rs.get("split") or [len(out) // len(names)] * len(names)
+        ranked = sorted(range(len(out)), key=lambda i: out[i]["score"])
+        k = 0
+        for nm, cnt in zip(names, split):
+            for i in ranked[k:k + cnt]:
+                out[i]["rating"] = nm
+            k += cnt
+        for i in ranked[k:]:
+            out[i]["rating"] = names[-1]
+    else:
+        labels = rs.get("labels", [[2.75, "Gentle"], [3.2, "Hard"], [3.6, "Brutal"], [99, "Deadly"]])
+        for r in out:
+            r["rating"] = next(nm for t, nm in labels if r["score"] < t)
     return out
 
 

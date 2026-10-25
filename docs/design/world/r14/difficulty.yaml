@@ -54,18 +54,26 @@ pocket: {tier: 2, safe: 500, blend: 1200}
 # that lies more than `open_sea` blocks from any land.
 beyond: {ring: 2500, open_sea: 4000}
 
-# Picker rating: mean tier of the land within `radius` blocks of the spawn.
+# Picker rating (r16): mean tier of the land a new player meets first, from the pocket's edge
+# (650) out to 2,500 blocks, weighted toward the spawn. Labels go by rank among the ten spawns,
+# not by fixed cut-offs: most of the map is hard by design, so "Gentle" means the gentlest
+# spawns available, not easy ground. (Until r16: radius 3000, cut-offs 2.65 / 2.9 / 3.08, which
+# called eight of ten spawns Deadly once the pockets shrank.)
 rating:
-  radius: 3000
-  labels: [[2.65, Gentle], [2.9, Hard], [3.08, Brutal], [99, Deadly]]
+  radius: 2500
+  inner: 650
+  weight: linear
+  mode: rank
+  names: [Gentle, Hard, Brutal, Deadly]
+  split: [2, 3, 3, 2]
 
 # 10 spawns, every one at least 8,000 blocks from the next, each on flat dry land
 # (checked by difficulty.py: no sea, lake or river, low local relief, clear of landmarks).
 spawns:
   - {where: redwood west coast, x: -16500, z: 2500}
   - {where: central lowlands west of the Thousand Islands, x: 1400, z: 5800}
-  - {where: north rainforest belt, x: -3200, z: -2500}
-  - {where: southwest desert tip, x: -7900, z: 13100}
+  - {where: north rainforest belt, x: -3200, z: -2400}
+  - {where: southwest desert tip, x: -8100, z: 13100}
   - {where: south desert lobe, x: 3200, z: 14300}
   - {where: tropical southeast lobe, x: 13700, z: 14700}
   - {where: east steppe peninsula, x: 15900, z: 2700}

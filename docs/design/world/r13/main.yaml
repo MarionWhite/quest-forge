@@ -4838,8 +4838,8 @@ points:
 - {name: East pass, kind: landmark, x: 3080, z: -6450}
 - {kind: spawn, name: 'Spawn: redwood west coast', x: -16500, z: 2500}
 - {kind: spawn, name: 'Spawn: central lowlands west of the Thousand Islands', x: 1400, z: 5800}
-- {kind: spawn, name: 'Spawn: north rainforest belt', x: -3200, z: -2500}
-- {kind: spawn, name: 'Spawn: southwest desert tip', x: -7900, z: 13100}
+- {kind: spawn, name: 'Spawn: north rainforest belt', x: -3200, z: -2400}
+- {kind: spawn, name: 'Spawn: southwest desert tip', x: -8100, z: 13100}
 - {kind: spawn, name: 'Spawn: south desert lobe', x: 3200, z: 14300}
 - {kind: spawn, name: 'Spawn: tropical southeast lobe', x: 13700, z: 14700}
 - {kind: spawn, name: 'Spawn: east steppe peninsula', x: 15900, z: 2700}
