@@ -13,6 +13,35 @@ the pack's spawn and mob configs under `pack/config` (read-only), and the mob ce
 > config file or measured by the census). The proposed numbers are starting points for the
 > measurements in §7. None should go into the pack before those measurements and the author's yes.
 
+## The author's decisions (2026-10-25)
+
+The mechanism (hybrid: biome spawn tables plus a position hook) is **approved**, and these
+decisions override the rest of this document:
+
+1. **No T1.** The tiers are T2 to T6. Spawn pockets use the **T2** numbers. They stay **small** and
+   are only easy enough for the very early game, while players get their bearings and their
+   starter kit online.
+2. **The T2 to T6 numbers are accepted as starting points, but they must be tested**, armour-ignoring
+   damage above all. Hard constraints for that tuning:
+   - In **Royal Guardian** gear, a player should die only to the strongest enemies in the pack.
+   - **Ultimate** gear should feel like a big boost in defence, not invincibility.
+   - **Player damage is part of the equation.** If Ultimate one-shots everything, mob damage stops
+     mattering. Offence and defence are tuned together (with the enchant census and the combat
+     campaign).
+3. **Spawners** use the tier of the place they stand in. **Player-made spawners** (Soul Shards cages
+   and similar) are **always T3**.
+4. **Lycanites world events** are suppressed inside the spawn pockets.
+5. **No ward blocks.** Players cannot lower the tier around their base.
+6. The other defaults are accepted:
+   - today's pack is the T3 baseline;
+   - caves count one tier harder;
+   - only T6 mobs are faster;
+   - part of T6 damage ignores armour (subject to point 2);
+   - the outskirts get harder with distance;
+   - enchant-tome odds follow the enchant census;
+   - the mechanism ships first with every multiplier at 1.0, and the numbers are tuned after the
+     census.
+
 ---
 
 ## 0. Summary
