@@ -14,7 +14,7 @@ script joins it with three things the game does not know:
 It writes items.json, recipes.json and icons-N.png into site/items/data/. The page
 itself, site/items/index.html, is hand-written and reads only those files.
 """
-import argparse, datetime, json, os, re, shutil, sys
+import argparse, datetime, json, os, re, shutil, subprocess, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(os.path.dirname(HERE))
@@ -38,6 +38,18 @@ CHEST_NAMES = {
 # Forge, FML and vanilla register as mods but ship no jar of their own.
 BUILTIN = {'minecraft': ('Minecraft', 'Vanilla'), 'FML': ('Forge Mod Loader', 'Vanilla'),
            'Forge': ('Minecraft Forge', 'Vanilla'), 'mcp': ('Minecraft Coder Pack', 'Vanilla')}
+
+
+def git_source():
+    """The repo's short commit, with -dirty when the tree has changes; None without git."""
+    try:
+        head = subprocess.run(['git', 'rev-parse', '--short', 'HEAD'], cwd=REPO, capture_output=True,
+                              text=True, check=True).stdout.strip()
+        dirty = subprocess.run(['git', 'status', '--porcelain'], cwd=REPO, capture_output=True,
+                               text=True, check=True).stdout.strip()
+    except (OSError, subprocess.CalledProcessError):
+        return None
+    return head + ('-dirty' if dirty else '') if head else None
 
 
 def load(path):
@@ -195,8 +207,10 @@ def main():
         except ImportError:
             pass
 
+    source = git_source()
     out = {
         'built': datetime.date.today().isoformat(),
+        **({'source': source} if source else {}),
         'cell': summary['cell'], 'side': summary['side'], 'sheets': sheets,
         'cats': cats, 'mods': mod_rows, 'tabs': tabs, 'kinds': KINDS, 'lootCats': loot_cats,
         'items': rows,
@@ -219,7 +233,8 @@ def main():
     used = sum(1 for i in range(len(rows)) if i in qrefs)
     # A few numbers for the homepage's card, so it need not fetch the whole index.
     with open(os.path.join(a.out, 'stats.json'), 'w', encoding='utf-8') as f:
-        json.dump({'built': out['built'], 'items': len(rows), 'mods': len(mod_rows), 'inQuest': used,
+        json.dump({'built': out['built'], **({'source': source} if source else {}), 'items': len(rows),
+                   'mods': len(mod_rows), 'inQuest': used,
                    'recipes': len(rec['crafting']) + len(rec['smelting'])}, f)
     print('%d stacks from %d mods, %d tabs; %d in a quest, %d quest refs unresolved'
           % (len(rows), len(mod_rows), len(tabs), used, sum(len(v) for v in unresolved.values())))

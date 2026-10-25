@@ -1,5 +1,11 @@
-import os, zipfile, json, re, sys
-I = "/Users/suaz/Library/Application Support/PrismLauncher/instances/Quest Forge/minecraft/mods"
+import os, zipfile, json, re, sys, argparse
+# --mods DIR, or QF_MODS_DIR; the default is the Mac's Prism instance. On the PC, pass
+# %APPDATA%\.crazycraft4\mods (the live instance).
+DEFAULT_MODS = "/Users/suaz/Library/Application Support/PrismLauncher/instances/Quest Forge/minecraft/mods"
+ap = argparse.ArgumentParser(description=__doc__)
+ap.add_argument('--mods', metavar='DIR', help='the mods folder (default: $QF_MODS_DIR, else the Mac instance)')
+args = ap.parse_args()
+I = args.mods or os.environ.get('QF_MODS_DIR') or DEFAULT_MODS
 rows = []
 for root, dirs, files in os.walk(I):
     for f in sorted(files):

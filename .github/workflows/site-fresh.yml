@@ -1,0 +1,80 @@
+name: Site data is fresh
+
+# Fails a push or pull request when the generated site data already lags the pack:
+# the item index (site/items/data/), the mod list (site/mods/index.html) or the
+# enchantment roster (site/enchantments/index.html). It runs tools/site/check_fresh.py
+# with --strict; see tools/items/README.md ("Staying fresh").
+#
+# CI cannot rebuild the item index itself. The dump (tools/items/README.md, step 1) needs
+# the full 1.2 GB client instance with the debug jar, which lives on the owner's Windows PC
+# and is not in the repository. So this workflow only checks, and the fix is to run
+#     py -3.10 -I tools/items/refresh.py
+# on that PC, then commit site/ and push.
+#
+# The paths are the inputs that can make the data stale. pages.yml builds the same
+# freshness report for the site; this workflow decides whether the commit may land.
+
+# The two path lists below are the same as PACK_PATHS in tools/site/check_fresh.py plus the
+# generated files themselves; keep the three in step. (Written out twice: workflow files
+# cannot rely on YAML anchors.)
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'pack/mods.tsv'
+      - 'pack/scripts/**'
+      - 'pack/config/betterquesting/DefaultQuests.json'
+      - 'mods/qf-content/src/main/java/**/Item*.java'
+      - 'mods/qf-content/src/main/java/**/Block*.java'
+      - 'mods/qf-content/src/main/java/**/Mod*.java'
+      - 'mods/qf-content/src/main/java/**/ench/**'
+      - 'mods/qf-content/src/main/resources/assets/**'
+      - 'mods/qf-commands/src/main/java/**/Item*.java'
+      - 'mods/qf-commands/src/main/java/**/Unlockables.java'
+      - 'mods/qf-commands/src/main/resources/assets/**'
+      - 'tools/site/check_fresh.py'
+      - 'tools/modlist/catalog.json'
+      - 'site/items/data/**'
+      - 'site/mods/index.html'
+      - 'site/enchantments/index.html'
+      - '.github/workflows/site-fresh.yml'
+  pull_request:
+    paths:
+      - 'pack/mods.tsv'
+      - 'pack/scripts/**'
+      - 'pack/config/betterquesting/DefaultQuests.json'
+      - 'mods/qf-content/src/main/java/**/Item*.java'
+      - 'mods/qf-content/src/main/java/**/Block*.java'
+      - 'mods/qf-content/src/main/java/**/Mod*.java'
+      - 'mods/qf-content/src/main/java/**/ench/**'
+      - 'mods/qf-content/src/main/resources/assets/**'
+      - 'mods/qf-commands/src/main/java/**/Item*.java'
+      - 'mods/qf-commands/src/main/java/**/Unlockables.java'
+      - 'mods/qf-commands/src/main/resources/assets/**'
+      - 'tools/site/check_fresh.py'
+      - 'tools/modlist/catalog.json'
+      - 'site/items/data/**'
+      - 'site/mods/index.html'
+      - 'site/enchantments/index.html'
+      - '.github/workflows/site-fresh.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  fresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # check_fresh.py reads the git history
+
+      - name: Check the generated site data is fresh
+        run: |
+          if ! python3 -I tools/site/check_fresh.py --strict; then
+            echo "::error::The generated site data (item index, mod list or enchantment roster) lags the pack."
+            echo "On the Windows PC, from the repo root, run:"
+            echo "    py -3.10 -I tools/items/refresh.py"
+            echo "then commit site/ and push again."
+            exit 1
+          fi

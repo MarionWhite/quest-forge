@@ -3,6 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#171B19">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="QF Items">
+<link rel="manifest" href="manifest.webmanifest">
 <title>Quest Forge Items</title>
 <meta name="description" content="Every item in the Quest Forge modpack: search by name, mod, ore name or tooltip, see recipes and uses, and which quests ask for each one.">
 <link rel="icon" href="../favicon.png" type="image/png">
@@ -10,6 +14,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+<script>(function(){try{var t=localStorage.getItem('qf-theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)}catch(e){}})()</script>
 <style>
 /* Tokens shared with the mod list (site/modlist), so the two read as one site. */
 :root{
@@ -59,10 +64,36 @@ h1 .amp{color:var(--ember);font-weight:600}
 .specs{display:flex;flex-wrap:wrap;gap:2px 20px;font-family:"JetBrains Mono",monospace;
   font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums;padding-bottom:3px}
 .specs b{color:var(--ink);font-weight:500}
-.sitenav{margin-left:auto;display:flex;gap:16px;font-family:Archivo,sans-serif;font-size:13px;
+.sitenav{margin-left:auto;display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center;font-family:Archivo,sans-serif;font-size:13px;
   padding-bottom:3px}
 .sitenav a{color:var(--ink-2);text-decoration:none;border-bottom:1px solid var(--rule)}
 .sitenav a:hover{color:var(--ember-ink);border-color:var(--ember)}
+.sitenav .install{font-family:Archivo,sans-serif;font-size:12px;font-weight:600;line-height:1.4;color:var(--ember-ink);
+  background:var(--ember-wash);border:1px solid var(--ember);border-radius:2px;padding:3px 9px;white-space:nowrap}
+.sitenav .install[hidden]{display:none}
+.sitenav .install:hover{color:var(--ink);border-color:var(--ink)}
+.sitenav .theme{margin-left:4px;display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;padding:0;border:1px solid transparent;border-radius:50%;background:none;color:var(--ink-2);cursor:pointer}
+.sitenav .theme:hover{color:var(--ink);border-color:var(--rule)}
+.sitenav .theme:focus-visible{outline:2px solid var(--ember);outline-offset:1px}
+.sitenav .theme svg{width:17px;height:17px;display:none}
+.sitenav .theme[data-mode="auto"] .i-auto,.sitenav .theme[data-mode="light"] .i-light,.sitenav .theme[data-mode="dark"] .i-dark{display:block}
+
+/* ---- freshness banner, offline chip, update toast ---- */
+.stale{display:flex;align-items:center;gap:12px 16px;flex-wrap:wrap;padding:8px 24px;background:var(--ember-wash);
+  border-bottom:1px solid var(--ember);font-family:Archivo,sans-serif;font-size:13px;color:var(--ink)}
+.stale[hidden]{display:none}
+.stale span{flex:1 1 320px}
+.stale button{font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--ink-2);background:var(--paper);
+  border:1px solid var(--rule);border-radius:2px;padding:2px 8px;white-space:nowrap}
+.stale button:hover{border-color:var(--ember);color:var(--ember-ink)}
+.specs .offline{color:var(--patina)}
+.toast{position:fixed;z-index:60;left:50%;bottom:16px;transform:translateX(-50%);max-width:calc(100% - 32px);
+  display:flex;align-items:center;gap:12px;padding:9px 10px 9px 14px;background:var(--surface);color:var(--ink);
+  border:1px solid var(--rule);border-left:3px solid var(--patina);border-radius:2px;box-shadow:0 10px 30px -12px var(--shadow);
+  font-family:Archivo,sans-serif;font-size:13.5px}
+.toast button{font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--ink);background:var(--paper);
+  border:1px solid var(--patina);border-radius:2px;padding:3px 9px;white-space:nowrap}
+.toast button:hover{color:var(--patina)}
 
 /* ---- control bar ---- */
 .bar{border-bottom:1px solid var(--rule);background:var(--paper);padding:10px 24px;
@@ -263,8 +294,9 @@ button.slot:hover{box-shadow:inset 0 0 0 2px var(--ember)}
     <h1>Quest&nbsp;Forge <span class="amp">Items</span></h1>
   </div>
   <div class="specs" id="specs"></div>
-  <nav class="sitenav ui" aria-label="Site"><a href="../">Home</a><a href="../play/">Get the pack</a><a href="../mods/">Mod list</a><a href="../worlds/">Worlds</a><a href="../enchantments/">Enchantments</a><a href="../ore-atlas/">Ore atlas</a></nav>
+  <nav class="sitenav ui" aria-label="Site"><a href="../">Home</a><a href="../play/">Get the pack</a><a href="../first-night/">First night</a><a href="../mods/">Mod list</a><a href="../worlds/">Worlds</a><a href="../enchantments/">Enchantments</a><a href="../ore-atlas/">Ore atlas</a><button class="install" id="install" type="button" hidden>Install</button><button class="theme" type="button" data-theme-toggle aria-label="Theme" title="Theme"><svg class="i-auto" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18V3z" fill="currentColor"/><circle cx="12" cy="12" r="8.25" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><svg class="i-light" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="currentColor"/><g stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/></g></svg><svg class="i-dark" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z" fill="currentColor"/></svg></button></nav>
 </header>
+<div class="stale" id="stale" role="status" hidden><span id="staleText"></span><button type="button" id="staleClose">Dismiss</button></div>
 
 <div class="bar">
   <button class="chip only-narrow" id="openMods" type="button">Mods</button>
@@ -909,6 +941,7 @@ async function boot() {
   $("#q").value = state.q;
   $("#loading").remove();
   renderMods(); wire(); applyFilter(); renderDetail();
+  setupPwa(); checkFreshness();
   try {
     R = await (await fetch("data/recipes.json")).json();
     buildRecipeIndex();
@@ -916,7 +949,70 @@ async function boot() {
     if (state.item >= 0) renderDetail();
   } catch (e) { /* the browser still works without recipes */ }
 }
+
+// ------------------------------------------------ install, offline copy, update notice
+let deferredInstall = null;
+function setupPwa() {
+  const install = $("#install");
+  addEventListener("beforeinstallprompt", e => { e.preventDefault(); deferredInstall = e; install.hidden = false; });
+  install.addEventListener("click", async () => {
+    const ev = deferredInstall; if (!ev) return;
+    deferredInstall = null; ev.prompt();
+    try { await ev.userChoice; } catch (e) { /* prompt failed: nothing to do */ }
+    install.hidden = true;
+  });
+  addEventListener("appinstalled", () => { deferredInstall = null; install.hidden = true; });
+
+  if (location.protocol === "file:" || !("serviceWorker" in navigator)) return;
+  navigator.serviceWorker.addEventListener("message", e => {
+    const m = e.data || {};
+    if (m.type === "updated") showToast();
+    else if (m.type === "offline-ready") showOffline();
+  });
+  navigator.serviceWorker.register("sw.js").then(() => {
+    document.body.dataset.sw = "registered";
+    return navigator.serviceWorker.ready;
+  }).then(reg => {
+    if (reg && reg.active) reg.active.postMessage({ type: "sheets", n: D.sheets });
+  }).catch(() => { /* no offline copy; the page works online */ });
+}
+function showToast() {
+  if ($("#toast")) return;
+  const t = el("div", null, null); t.id = "toast"; t.className = "toast"; t.setAttribute("role", "status");
+  t.append(el("span", null, "A newer item index is ready."));
+  const b = el("button", null, "Reload"); b.type = "button"; b.onclick = () => location.reload();
+  t.append(b); document.body.append(t);
+}
+function showOffline() {
+  const s = $("#specs");
+  if (s && !s.querySelector(".offline")) s.append(el("span", "offline", "Available offline"));
+}
+
+// ------------------------------------------------ freshness banner (data/freshness.json)
+async function checkFreshness() {
+  let f;
+  try {
+    const r = await fetch("data/freshness.json", {cache: "no-store"});
+    if (!r.ok) return;
+    f = await r.json();
+  } catch (e) { return; }
+  const it = f && f.items;
+  if (!it || it.stale !== true || typeof f.built !== "string") return;
+  const reasons = Array.isArray(it.reasons) ? it.reasons.map(String).filter(Boolean) : [];
+  const key = "qf-items-stale-dismissed", tag = f.checked + "|" + f.built;
+  try { if (sessionStorage.getItem(key) === tag) return; } catch (e) { /* storage blocked: show it */ }
+  const text = "This index was built on " + f.built + ". The pack has changed since"
+    + (reasons.length ? ": " + reasons.join("; ") : "") + ". Items added since then are missing until the index is rebuilt.";
+  $("#staleText").textContent = text;
+  const box = $("#stale"); box.hidden = false;
+  $("#staleClose").onclick = () => {
+    box.hidden = true;
+    try { sessionStorage.setItem(key, tag); } catch (e) { /* not remembered */ }
+  };
+}
+
 boot();
 </script>
+<script>(function(){var b=document.querySelector('[data-theme-toggle]');if(!b)return;var h=document.documentElement,mq=matchMedia('(prefers-color-scheme: dark)');function mode(){try{var t=localStorage.getItem('qf-theme');return t==='light'||t==='dark'?t:'auto'}catch(e){return 'auto'}}function sys(){return mq.matches?'dark':'light'}function show(){var m=mode();b.dataset.mode=m;var s=m==='auto'?'Theme follows your system ('+sys()+')':'Theme: '+m;b.title=s+'. Click to switch.';b.setAttribute('aria-label',s)}b.addEventListener('click',function(){var m=mode(),s=sys(),n=(m==='auto'||m===s)?(s==='dark'?'light':'dark'):'auto';try{if(n==='auto')localStorage.removeItem('qf-theme');else localStorage.setItem('qf-theme',n)}catch(e){}if(n==='auto')h.removeAttribute('data-theme');else h.setAttribute('data-theme',n);show()});if(mq.addEventListener)mq.addEventListener('change',show);show()})();</script>
 </body>
 </html>

@@ -3,11 +3,24 @@ name: Publish site
 # The homepage (site/home) is the site root and the directory of everything else; its
 # 404.html, favicon and img/ land at the root with it. Every other page is served under
 # its own folder name: /play/, /mods/, /items/, /worlds/, /enchantments/, /ore-atlas/,
-# /online/, /shaders/.
+# /online/, /shaders/, /first-night/.
 #
 # All of them are committed as generated output (see site/README.md); this workflow
 # only arranges them, it does not build them. To change what they contain,
 # regenerate with tools/modlist/ or tools/items/ and commit the result.
+#
+# Two files are generated here, not committed, and are soft: a failure to write them
+# never fails the deploy.
+#   _site/play/pack.json              tools/site/pack_json.py: the pack's fingerprint, packDate
+#                                     and commit, for the play page
+#   _site/items/data/freshness.json   tools/site/check_fresh.py: which generated data (item
+#                                     index, mod list, enchantment roster) lags the pack, and
+#                                     why. The item index page shows a banner from it.
+# The checkout is full-history (fetch-depth: 0) because check_fresh.py reads git history.
+#
+# The triggers are the inputs to those checks: a change to any of them can make the
+# generated data stale, or change the pack's fingerprint. The site-fresh.yml workflow
+# fails a push when the committed data is already stale; this one only publishes it.
 
 on:
   push:
@@ -15,6 +28,20 @@ on:
     paths:
       - 'site/**'
       - '.github/workflows/pages.yml'
+      - 'pack/mods.tsv'
+      - 'pack/scripts/**'
+      - 'pack/config/**'
+      - 'mods/qf-content/src/main/java/**/Item*.java'
+      - 'mods/qf-content/src/main/java/**/Block*.java'
+      - 'mods/qf-content/src/main/java/**/Mod*.java'
+      - 'mods/qf-content/src/main/java/**/ench/**'
+      - 'mods/qf-content/src/main/resources/assets/**'
+      - 'mods/qf-commands/src/main/java/**/Item*.java'
+      - 'mods/qf-commands/src/main/java/**/Unlockables.java'
+      - 'mods/qf-commands/src/main/resources/assets/**'
+      - 'tools/site/**'
+      - 'tools/pack_fingerprint.py'
+      - 'tools/modlist/catalog.json'
   workflow_dispatch:
 
 permissions:
@@ -35,6 +62,8 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # check_fresh.py reads the git history
 
       - name: Assemble the publish directory
         run: |
@@ -49,8 +78,23 @@ jobs:
           cp -R site/ore-atlas _site/ore-atlas
           cp -R site/online _site/online
           cp -R site/shaders _site/shaders
+          cp -R site/first-night _site/first-night
           test -s _site/index.html
           test -s _site/404.html
+          test -s _site/first-night/index.html
+
+      - name: Write the pack description (soft)
+        run: |
+          python3 -I tools/site/pack_json.py --out _site/play/pack.json \
+            || echo "::warning::could not write _site/play/pack.json"
+
+      - name: Write the freshness report (soft)
+        run: |
+          python3 -I tools/site/check_fresh.py --json --out _site/items/data/freshness.json \
+            || echo "::warning::could not write _site/items/data/freshness.json"
+
+      - name: List what is published
+        run: |
           echo "Publishing:"; find _site -type f | sort
 
       - uses: actions/configure-pages@v5

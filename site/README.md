@@ -4,28 +4,52 @@ The public site, [marionwhite.github.io/quest-forge](https://marionwhite.github.
 Static pages with no build step and no external dependencies beyond web fonts. Each
 folder is served under its own name, except `home/`, which is the site root
 (`.github/workflows/pages.yml` arranges them). Every page carries the same nav strip,
-the same colour tokens (light and dark), and links back to `../`.
+the same colour tokens (light and dark, with a toggle), and links back to `../`.
 
 | Page | Served at | What it is |
 |---|---|---|
-| [`home/`](home/) | `/` | The homepage: the main-menu art, what makes the pack different, a card for every page, three of the pack's own shader renders, the quest book's chapters and what opens each, and the loading-screen plates. Also the root's `404.html`, `favicon.png` and `apple-touch-icon.png`, and `img/`, which every other page shares. The images are web-sized copies made by [`../tools/site/make_home_images.py`](../tools/site/make_home_images.py). |
-| [`play/`](play/) | `/play/` | **Get the pack.** Written for a friend: Java 8, Prism Launcher, the client release, putting it in Prism, memory and Java arguments by installed RAM, the Normal / Lite / Potato profiles, keys, what each refusal from the server means, things not to do, and the Mac steps. Shows the latest client release from the GitHub API when it can reach it. Its facts come from `docs/setup/` and `tools/lite-client/`; change those first, then this. |
-| [`mods/`](mods/) | `/mods/` | The player-facing mod list: all 111 mods sorted into ten content categories, with performance and background mods last, and a live filter. Generated; see below. |
-| [`items/`](items/) | `/items/` | The item index: every item in the pack with its icon, recipes, uses, ore names and the quests that ask for it, give it or show it. Search like NEI (`@mod`, `$ore`, `%tab`, `#tooltip`). Its data is separate, in `items/data/`, because the icons alone are megabytes. Built by [`../tools/items/`](../tools/items/). |
-| [`worlds/`](worlds/) | `/worlds/` | All twenty-seven dimensions with their loading plates, grouped by the mod that supplies them, with each one's dimension number and where it sits in the climb. Dimension numbers come from `docs/survey/dimension-names.tsv`; the order from the quest book's chapter descriptions. TragicMC's two dimensions have no plate and are listed as such. |
+| [`home/`](home/) | `/` | The homepage: the main-menu art with a living sky (embers, ash and the odd meteor, drawn on a canvas), the pack in numbers, what makes it different, the pack's own shader renders as a crossfading reel, a card for every page, the quest book's chapters with a rotating line from the book, and the loading-screen plates. Also the root's `404.html`, `favicon.png` and `apple-touch-icon.png`, and `img/`, which every other page shares. The images are web-sized copies made by [`../tools/site/make_home_images.py`](../tools/site/make_home_images.py). The footer shows the pack version from `play/pack.json` when the deploy has written it. |
+| [`play/`](play/) | `/play/` | **Get the pack.** Written for a friend: Java 8, Prism Launcher, the client release, putting it in Prism, memory and Java arguments by installed RAM, the Normal / Lite / Potato profiles, keys, what each refusal from the server means, things not to do, and the Mac steps. Shows the latest client release from the GitHub API when it can reach it, and the pack version the server expects from `pack.json` (written at deploy time, see below). Its facts come from `docs/setup/` and `tools/lite-client/`; change those first, then this. |
+| [`first-night/`](first-night/) | `/first-night/` | **Your first night.** The survival primer: what to do before dark, the keys that matter (including the B collision between voice push-to-talk and the Adventure Backpack), what comes out at night (Infernal names, Weeping Angels below Y 40, mutants and giants), what happens when you die, playing together (parties, voice chat ranges, EnderStorage locks), luck and loot, tickets, and what comes next. Every fact is from the shipped configs, the shipped quest book or the pack's own source; the draft Prologue is not described as in the book. |
+| [`mods/`](mods/) | `/mods/` | The player-facing mod list: all 111 mods sorted into ten content categories, with performance and background mods last, a live filter, and for every mod that has items a link into the item index with its item and quest counts. Generated; see below. |
+| [`items/`](items/) | `/items/` | The item index: every item in the pack with its icon, recipes, uses, ore names and the quests that ask for it. Search like NEI (`@mod`, `$ore`, `%tab`, `#tooltip`). Installable and usable offline: `manifest.webmanifest`, `sw.js` and the two icons make it a web app; the worker keeps a copy of the page and its data and tells the page when a newer index has been published ("A newer item index is ready", with a Reload button). It shows a banner when `data/freshness.json` (written at deploy time) says the index lags the pack. Its data is separate, in `items/data/`, because the icons alone are megabytes. Built by [`../tools/items/`](../tools/items/). |
+| [`worlds/`](worlds/) | `/worlds/` | All twenty-seven dimensions with their loading plates, grouped by the mod that supplies them, with each one's dimension number and where it sits in the climb. Every plate downloads at 1280 × 720 from the repo, and the masthead links the 4K masters zip on the `art-masters-2026-09-08` release. Dimension numbers come from `docs/survey/dimension-names.tsv`; the order from the quest book's chapter descriptions. TragicMC's two dimensions have no plate and are listed as such. |
 | [`enchantments/`](enchantments/) | `/enchantments/` | The 81 custom enchantments: how tomes, books and the roll work, the success and destroy range of every rarity (from `Rarity.java`), the four consumables, and the full roster with a filter. The roster is data inlined into the page, taken from the item index's dump of every book; see below. |
 | [`ore-atlas/`](ore-atlas/) | `/ore-atlas/` | The interactive ore atlas: pick any of nineteen dimensions and get a cut through the ground, a depth profile, a rarity scale anchored to ores you already know, and a sortable table of every ore. **Its figures are stale** ([decision 0002](../docs/decisions/0002-discard-the-ore-survey.md)); it is redone after the survey that runs just before the server opens. |
 | [`online/`](online/) | `/online/` | **Who's online.** Reads `online/config.json`; while `address` is empty it says the server hasn't opened. Once the address is set it polls `api.mcstatus.io` every minute and shows up/down, the player count, the names on, and the MOTD. Nothing is stored. |
-| [`shaders/`](shaders/) | `/shaders/` | The Shader Lab: the owner reviews shader rounds here, from a phone or a laptop. Each scene shows two or three options of one setting (our renders, and for taste questions a credited Wikimedia Commons reference photo); the owner picks, rates and notes, and "Send feedback" opens a GitHub issue holding the answers as JSON. Rounds are data in `shaders/rounds/` (`index.json`, `rNNN.json`, `rNNN/*.jpg`), posted by [`../tools/shaders/review/publish_round.py`](../tools/shaders/review/publish_round.py) and read back by [`fetch_feedback.py`](../tools/shaders/review/fetch_feedback.py). Answers autosave as a draft in the browser. |
+| [`shaders/`](shaders/) | `/shaders/` | The Shader Lab: the owner reviews shader rounds here, from a phone or a laptop. **Not linked from the homepage or the nav**: shader progress is the owner's business, so the Lab is reachable only by its URL. Each scene shows two or three options of one setting (our renders, and for taste questions a credited Wikimedia Commons reference photo); the owner picks, rates and notes, and "Send feedback" opens a GitHub issue holding the answers as JSON. Rounds are data in `shaders/rounds/` (`index.json`, `rNNN.json`, `rNNN/*.jpg`), posted by [`../tools/shaders/review/publish_round.py`](../tools/shaders/review/publish_round.py) and read back by [`fetch_feedback.py`](../tools/shaders/review/fetch_feedback.py). Answers autosave as a draft in the browser. |
+
+## Theme
+
+Every page follows the system theme and carries a toggle at the right end of the nav. It
+cycles auto → the opposite of the system theme → auto, so each click flips the page, and the
+choice is one `localStorage` key (`qf-theme`) shared by the whole site. A one-line script in
+each page's head applies it before the stylesheet, so there is no flash. The Shader Lab and the
+ore atlas are dark by design and have no toggle.
 
 ## Adding a page
 
-1. Put it in its own folder here. Copy the `:root` tokens and the `nav.site` strip from
-   any existing page, mark its own entry with `aria-current="page"`, and refer to the
-   icon and images as `../favicon.png` and `../img/...`.
+1. Put it in its own folder here. Copy the `:root` tokens, the head theme script, the
+   `nav.site` strip (with the toggle button and its script) from any existing page, mark its
+   own entry with `aria-current="page"`, and refer to the icon and images as `../favicon.png`
+   and `../img/...`.
 2. Add a `cp -R site/<folder> _site/<folder>` line to `.github/workflows/pages.yml`.
 3. Give it a card in `home/index.html`'s directory, and a link in every page's nav strip
    (the mod list's lives in `tools/modlist/render-page.py`; regenerate it).
+
+## What the deploy generates
+
+`pages.yml` copies the folders and then writes two files that are never committed:
+
+- `play/pack.json`, from [`../tools/site/pack_json.py`](../tools/site/pack_json.py): the pack
+  fingerprint and `packDate` of `pack/config` at that commit, as the title screen shows them
+  (`pack 2026-10-17 - 3f7f089e6508`). The play page and the homepage footer show it.
+- `items/data/freshness.json`, from [`../tools/site/check_fresh.py`](../tools/site/check_fresh.py):
+  whether the item index, the mod list or the enchantment roster lags the pack, and why. The
+  item index shows a banner from it. The deploy never fails on either; `site-fresh.yml` is the
+  workflow that fails a push when the committed data is stale. How the pieces keep each other
+  honest is in [`../tools/items/README.md`](../tools/items/README.md) ("Staying fresh"), and
+  the one command that refreshes all of it on the PC is `tools/items/refresh.py`.
 
 ## Opening the server page
 
@@ -40,7 +64,7 @@ The page is generated, not hand-written. Three steps, in
 
 ```bash
 cd tools/modlist
-python3 read-mod-metadata.py     # read every jar -> mods.json
+python3 read-mod-metadata.py     # read every jar -> mods.json (--mods DIR or QF_MODS_DIR on another machine)
 python3 build-catalog.py         # join with categories + blurbs -> catalog.json
 python3 render-page.py           # -> ../../site/mods/index.html
 ```
@@ -54,6 +78,9 @@ from their package and asset structure instead.
 every mod, and **fails loudly** if a jar in the instance has no catalog entry or a
 catalog entry names a jar that is not there. That check is the point: it is what
 stops the page from drifting away from the pack it claims to describe.
+
+`render-page.py` also reads `site/items/data/items.json` for the per-mod item and quest
+counts, so run it after the item index when both change.
 
 When the pack's mod set changes, re-run all three rather than editing the HTML.
 
