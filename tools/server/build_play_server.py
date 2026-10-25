@@ -37,8 +37,8 @@ CodeChickenCore 1.4.22 (CodeChickenLib merged in, its unloadChunk null-guarded, 
 pregeneration needs no patch) and no --ccl. --ccl remains only for an instance still
 on stock CCC + CodeChickenLib, and is refused otherwise.
 """
-import argparse, fnmatch, glob, hashlib, json, os, shutil, socket, subprocess, sys, urllib.request
-import uuid, zipfile
+import argparse, fnmatch, glob, hashlib, json, os, re, shutil, socket, subprocess, sys
+import urllib.request, uuid, zipfile
 
 # Mods that only run with a screen. Each stays on every client -- FML lets a
 # client carry mods the server lacks, but never the reverse. Matched as a
@@ -183,6 +183,289 @@ JVM_FLAGS_J25 = [
 ]
 
 JAVA8_DEFAULT = r"C:\Program Files\Java\jre1.8.0_241\bin\java.exe"
+
+# --- optional server-only additions ----------------------------------------
+#
+# Each of these declares acceptableRemoteVersions="*" in its @Mod annotation
+# (read from the jars with javap, 2026-10-25). FML 1614's NetworkModHolder picks
+# its IgnoredChecker for "*", which accepts every client, so a client without
+# the mod joins. None adds a block or an item, so each can join a running world.
+# Pinned by sha256 like the Java 25 deps: a file whose hash differs is never used.
+ADDONS = {
+    # The profiler (docs/design/server-readiness.md, 4d). Depends on
+    # MobiusCore@[1.2.5] exactly; the pack ships MobiusCore 1.2.5 (mods/MobiusCore.jar).
+    # Console commands: opis_start, opis_stop, opis_te, opis_ents, opis_chunks,
+    # opis_ticks, opis_help. The bundled MapWriter (client map) also says "*".
+    "opis": ("Opis-1.2.5_1.7.10.jar",
+             "https://mediafilez.forgecdn.net/files/2232/520/Opis-1.2.5_1.7.10.jar",
+             "76905f92f829a960500ebe038924290e2757930102963920a3a347922c3402cf"),
+    # Sleep vote (section 6/8). Sleepy Head 1.0 was the other candidate, but its
+    # @Mod has no acceptableRemoteVersions, so every client would need it too.
+    "morpheus": ("Morpheus-1.7.10-1.6.21.jar",
+                 "https://mediafilez.forgecdn.net/files/2280/761/Morpheus-1.7.10-1.6.21.jar",
+                 "37014340a0400277b1202233f75619d53e84c0cf37d2d3561a993241a45cb412"),
+    # RoyCurtis's Forge port of Brettflan's WorldBorder (section 4a).
+    "worldborder": ("WorldBorder-Forge-1.0.2.jar",
+                    "https://github.com/RoyCurtis/WorldBorder-Forge/releases/download/1.0.2/"
+                    "WorldBorder-Forge-1.0.2.jar",
+                    "1bd5a2de22b02245120bf0cccb73664b0abd7242bde653132c57a8693623d40b"),
+}
+
+# Options that must survive a --force rebuild, because a rebuild recopies
+# config/ and mods/ from the instance and would otherwise silently drop them.
+# Kept next to supervisor.json; the command line updates it.
+PLAY_OPTIONS = "play-options.json"
+
+# The owner's social and load decisions (docs/design/server-readiness.md,
+# sections 4 and 6), keyed by decision id. Each becomes an edit to the server's
+# own copy of a config, a server.properties key, a supervisor.json key or a
+# pinned mod. The client's configs are untouched: none of these is an ID entry,
+# so the pack fingerprint clients must match does not change. --rules FILE
+# applies a JSON file of {id: value}; tools/server/rules.example.json lists
+# every key with its choices.
+RULE_IDS = {
+    "srv-pvp":     '"team" (everyone on one vanilla team, friendly fire off; the Gravity Gun '
+                   'cannot grab players), "off" (pvp=false), or "on" (vanilla)',
+    "srv-quests":  '"personal" (BetterQuesting parties off) or "parties"',
+    "srv-sleep":   'percent of players that must sleep to skip the night (Morpheus); 0 = no sleep vote',
+    "srv-afk":     'minutes before an idle player is kicked (player-idle-timeout); 0 = never',
+    "srv-hub":     'spawn-protection radius in blocks around spawn (non-ops cannot build); 0 = off',
+    "srv-loaders": '{"world_anchors": "off" | "capped" | "on", "sync_shells": true | false}',
+    "srv-graves":  '"shared" or "owner-only": a rule for the rules post only (GraveStones has no '
+                   'owner-only option); nothing is configured',
+    "srv-tools":   '{"chest_transporter_spawners": true | false, "projecte_time_watch_pedestal": '
+                   '<bonus ticks, 0 = none>, "lycanites_first_event_day": <day>}',
+}
+
+
+def set_cfg(path, key, value, section=None):
+    """Set one `T:key=value` line of a Forge .cfg (the B:/I:/S:/D: prefix is kept),
+    inside the top-level `section { ... }` when given. Line endings are kept.
+    Exits if the key is not there: a missing key means the mod's config has
+    changed and the rule needs a look, not a silent no-op."""
+    with open(path, encoding="latin-1", newline="") as fh:
+        text = fh.read()
+    nl = "\r\n" if "\r\n" in text else "\n"
+    lines = text.split(nl)
+    start, end = 0, len(lines)
+    if section:
+        heads = {section + " {", '"%s" {' % section}
+        sec = next((i for i, l in enumerate(lines) if l.strip() in heads), None)
+        if sec is None:
+            sys.exit("%s: no section %s {" % (path, section))
+        depth, start, end = 1, sec + 1, None
+        for j in range(sec + 1, len(lines)):
+            s = lines[j].strip()
+            if s.endswith("{"):
+                depth += 1
+            elif s == "}":
+                depth -= 1
+                if depth == 0:
+                    end = j
+                    break
+        if end is None:
+            sys.exit("%s: section %s never closes" % (path, section))
+    pat = re.compile(r'^(\s*[A-Z]:"?%s"?=)(.*)$' % re.escape(key))
+    for i in range(start, end):
+        m = pat.match(lines[i])
+        if m:
+            if m.group(2) == str(value):
+                return False
+            lines[i] = m.group(1) + str(value)
+            with open(path, "w", encoding="latin-1", newline="") as fh:
+                fh.write(nl.join(lines))
+            return True
+    sys.exit("%s: no key %s%s" % (path, key, " in section %s" % section if section else ""))
+
+
+def append_cfg_block(path, name, body):
+    """Add a top-level `name { body }` block to a Forge .cfg unless one exists."""
+    with open(path, encoding="latin-1", newline="") as fh:
+        text = fh.read()
+    nl = "\r\n" if "\r\n" in text else "\n"
+    if any(l.strip() == name + " {" for l in text.split(nl)):
+        return False
+    block = [name + " {"] + ["    " + b for b in body] + ["}", "", ""]
+    with open(path, "w", encoding="latin-1", newline="") as fh:
+        fh.write(text.rstrip(nl) + nl + nl + nl + nl.join(block))
+    return True
+
+
+def write_world_border(out, radius, level):
+    """config/WorldBorder/borders.cfg with one square border, radius blocks
+    around 0,0 in the overworld. The layout is what WorldBorder-Forge 1.0.2
+    itself wrote after `wb world set 3000 0 0` and `wb wshape world square` on
+    the scratch server (2026-10-25), so the mod reads it back as if the commands
+    had been typed. The overworld's name to the mod is the level name from
+    server.properties ("world"); other dimensions are "DIM<id>". main.cfg is
+    left to the mod's defaults (knockback 3 blocks, check every 20 ticks,
+    ender pearls past the border cancelled, block place and mob spawn outside
+    it prevented)."""
+    d = os.path.join(out, "config", "WorldBorder")
+    os.makedirs(d, exist_ok=True)
+    with open(os.path.join(d, "borders.cfg"), "w", newline="\n") as fh:
+        fh.write(WORLD_BORDER_CFG.format(radius=int(radius), level=level))
+
+
+WORLD_BORDER_CFG = """\
+# Configuration file
+
+{level} {{
+    I:radiusX={radius}
+    I:radiusZ={radius}
+    B:shape-round=false
+    B:wrapping=false
+    D:x=0.0
+    D:z=0.0
+}}
+
+
+"""
+
+
+def load_json(path, default):
+    if not os.path.exists(path):
+        return default
+    with open(path, encoding="utf-8-sig") as fh:
+        return json.load(fh)
+
+
+def update_supervisor_json(out, updates):
+    """Set keys in the server's supervisor.json, creating it from the defaults."""
+    path = os.path.join(out, "supervisor.json")
+    cfg = load_json(path, dict(SUPERVISOR_JSON))
+    changed = {k: v for k, v in updates.items() if cfg.get(k) != v}
+    cfg.update(updates)
+    with open(path, "w") as fh:
+        json.dump(cfg, fh, indent=2)
+    for k, v in changed.items():
+        print("supervisor.json: %s = %r" % (k, v))
+
+
+def apply_rules(out, rules, props, sup):
+    """Apply the owner's decisions to the server's copies. Fills `props`
+    (server.properties keys) and `sup` (supervisor.json keys), returns the
+    list of what was done for BUILT-FROM.txt. `rules` keys are decision ids."""
+    unknown = sorted(set(rules) - set(RULE_IDS) - {k for k in rules if k.startswith("_")})
+    if unknown:
+        sys.exit("--rules: unknown decision id(s) %s. Known:\n  %s" % (
+            ", ".join(unknown), "\n  ".join("%-12s %s" % kv for kv in RULE_IDS.items())))
+    cfg = lambda *p: os.path.join(out, "config", *p)
+    done = []
+
+    def need(path):
+        if not os.path.exists(path):
+            sys.exit("--rules: %s is not in the pack's config; is that mod still installed?" % path)
+        return path
+
+    v = rules.get("srv-pvp")
+    if v is not None:
+        if v not in ("team", "off", "on"):
+            sys.exit('--rules: srv-pvp must be "team", "off" or "on", not %r' % v)
+        sup["team"] = "qf" if v == "team" else ""
+        props["pvp"] = "false" if v == "off" else "true"
+        # iChun's GraviGun checks this on the server when a player is targeted.
+        set_cfg(need(cfg("GraviGun.cfg")), "grabablePlayers", 0 if v != "on" else 1)
+        done.append("srv-pvp=%s: pvp=%s, Gravity Gun grabablePlayers=%d%s" % (
+            v, props["pvp"], 0 if v != "on" else 1,
+            "; the supervisor keeps every player on team qf with friendly fire off" if v == "team" else ""))
+
+    v = rules.get("srv-quests")
+    if v is not None:
+        if v not in ("personal", "parties"):
+            sys.exit('--rules: srv-quests must be "personal" or "parties", not %r' % v)
+        # BetterQuesting copies DefaultQuests.json into the world only when the
+        # world is created; an existing world takes it with `/bq_admin default load`.
+        path = need(cfg("betterquesting", "DefaultQuests.json"))
+        with open(path, encoding="utf-8", newline="") as fh:
+            text = fh.read()
+        new, n = re.subn(r'("party_enable:1":\s*)\d', r"\g<1>%d" % (v == "parties"), text, count=1)
+        if n != 1:
+            sys.exit("--rules: no party_enable in %s" % path)
+        if new != text:
+            with open(path, "w", encoding="utf-8", newline="") as fh:
+                fh.write(new)
+        done.append("srv-quests=%s: BetterQuesting party_enable=%d (DefaultQuests.json; an existing "
+                    "world needs /bq_admin default load)" % (v, v == "parties"))
+
+    v = rules.get("srv-sleep")
+    if v is not None:
+        if not isinstance(v, int) or not 0 <= v <= 100:
+            sys.exit("--rules: srv-sleep is a percentage 0-100, not %r" % v)
+        if v:
+            done.append(("addon", "morpheus"))
+            # Morpheus reads settings{} from config/Morpheus.cfg; Forge adds the
+            # keys we leave out at boot.
+            with open(cfg("Morpheus.cfg"), "w", newline="\n") as fh:
+                fh.write("# Configuration file\n\nsettings {\n    B:AlertEnabled=true\n"
+                         "    I:SleeperPerc=%d\n}\n\n" % v)
+            done.append("srv-sleep=%d: Morpheus installed, SleeperPerc=%d" % (v, v))
+        else:
+            done.append("srv-sleep=0: no sleep vote mod")
+
+    v = rules.get("srv-afk")
+    if v is not None:
+        if not isinstance(v, int) or v < 0:
+            sys.exit("--rules: srv-afk is minutes (0 = never), not %r" % v)
+        props["player-idle-timeout"] = str(v)
+        done.append("srv-afk=%d: player-idle-timeout=%d" % (v, v))
+
+    v = rules.get("srv-hub")
+    if v is not None:
+        if not isinstance(v, int) or v < 0:
+            sys.exit("--rules: srv-hub is a spawn-protection radius in blocks (0 = off), not %r" % v)
+        props["spawn-protection"] = str(v)
+        done.append("srv-hub=%d: spawn-protection=%d" % (v, v))
+
+    v = rules.get("srv-loaders")
+    if v is not None:
+        if not isinstance(v, dict):
+            sys.exit("--rules: srv-loaders is an object %s" % RULE_IDS["srv-loaders"])
+        wa = v.get("world_anchors", "on")
+        if wa not in ("off", "capped", "on"):
+            sys.exit('--rules: srv-loaders.world_anchors must be "off", "capped" or "on"')
+        rc = need(cfg("railcraft", "railcraft.cfg"))
+        set_cfg(rc, "craftable", "false" if wa == "off" else "true", section="anchors")
+        if wa == "capped":
+            # Forge's per-mod ticket cap: 20 anchors per world, each a 3x3.
+            append_cfg_block(need(cfg("forgeChunkLoading.cfg")), "Railcraft",
+                             ["I:maximumChunksPerTicket=9", "I:maximumTicketCount=20"])
+        done.append("srv-loaders.world_anchors=%s: Railcraft anchors.craftable=%s%s" % (
+            wa, "false" if wa == "off" else "true",
+            "; forgeChunkLoading.cfg Railcraft { 20 tickets x 9 chunks }" if wa == "capped" else ""))
+        if "sync_shells" in v:
+            set_cfg(need(cfg("Sync.cfg")), "allowChunkLoading", 1 if v["sync_shells"] else 0)
+            done.append("srv-loaders.sync_shells=%s: Sync allowChunkLoading=%d"
+                        % (v["sync_shells"], 1 if v["sync_shells"] else 0))
+
+    v = rules.get("srv-graves")
+    if v is not None:
+        done.append("srv-graves=%s: rules post only (GraveStones has no owner-only option)" % v)
+
+    v = rules.get("srv-tools")
+    if v is not None:
+        if not isinstance(v, dict):
+            sys.exit("--rules: srv-tools is an object %s" % RULE_IDS["srv-tools"])
+        if "chest_transporter_spawners" in v:
+            on = bool(v["chest_transporter_spawners"])
+            set_cfg(need(cfg("ChestTransporter.cfg")), "pickupSpawners", "true" if on else "false")
+            done.append("srv-tools.chest_transporter_spawners=%s: ChestTransporter pickupSpawners=%s"
+                        % (on, "true" if on else "false"))
+        if "projecte_time_watch_pedestal" in v:
+            b = v["projecte_time_watch_pedestal"]
+            if not isinstance(b, int) or b < 0:
+                sys.exit("--rules: srv-tools.projecte_time_watch_pedestal is a tick bonus (0 = none)")
+            set_cfg(need(cfg("ProjectE", "ProjectE.cfg")), "timePedBonus", b)
+            done.append("srv-tools.projecte_time_watch_pedestal=%d: ProjectE timePedBonus=%d" % (b, b))
+        if "lycanites_first_event_day" in v:
+            d = v["lycanites_first_event_day"]
+            if not isinstance(d, int) or d < 0:
+                sys.exit("--rules: srv-tools.lycanites_first_event_day is a day number")
+            set_cfg(need(cfg("LycanitesMobs", "lycanitesmobs-mobevents.cfg")),
+                    "Random Mob Events Day Minimum Overworld (0)", d)
+            done.append("srv-tools.lycanites_first_event_day=%d: Lycanites 'Random Mob Events Day "
+                        "Minimum Overworld (0)'=%d" % (d, d))
+    return done
 
 
 def default_cache():
@@ -658,7 +941,22 @@ def main():
                          "wrong UUID. With online-mode=true use `whitelist add` instead.")
     ap.add_argument("--force", action="store_true",
                     help="rebuild an existing --out; its world, player lists, server.properties, "
-                         "logs, crash reports, backups and supervisor.json are kept")
+                         "logs, crash reports, backups, supervisor.json and play-options.json are kept")
+    # Server-only additions and the owner's decisions. Each is remembered in
+    # play-options.json, so a rebuild without the option keeps the last choice.
+    ap.add_argument("--opis", dest="opis", action="store_const", const=True, default=None,
+                    help="add Opis 1.2.5, the profiler (pinned download, sha256-checked); "
+                         "clients need nothing. --no-opis removes it")
+    ap.add_argument("--no-opis", dest="opis", action="store_const", const=False)
+    ap.add_argument("--world-border", type=int, metavar="RADIUS",
+                    help="add WorldBorder-Forge 1.0.2 with a square border of this radius (blocks) "
+                         "around 0,0 in the overworld; 0 removes it. Clients need nothing")
+    ap.add_argument("--rules", metavar="FILE",
+                    help="apply the owner's decisions from this JSON file ({decision id: value}; "
+                         "see tools/server/rules.example.json); 'none' forgets them")
+    ap.add_argument("--backup-mirror", metavar="DIR",
+                    help="the supervisor copies every daily backup into this folder as well "
+                         "(a Syncthing or cloud folder gives an off-machine copy); 'none' stops it")
     args = ap.parse_args()
     out = os.path.abspath(args.out)
     old_props = read_properties(os.path.join(out, "server.properties"))
@@ -668,6 +966,29 @@ def main():
              "view-distance": args.view_distance, "online-mode": args.online_mode}
     eff = {k: str(v).lower() if v is not None else old_props.get(k, defaults[k])
            for k, v in given.items()}
+
+    opts = load_json(os.path.join(out, PLAY_OPTIONS), {})
+    if args.opis is not None:
+        opts["opis"] = args.opis
+    if args.world_border is not None:
+        if args.world_border < 0:
+            sys.exit("--world-border is a radius in blocks (0 removes the border)")
+        opts["world_border"] = args.world_border or None
+    if args.rules:
+        if args.rules.lower() == "none":
+            opts["rules"] = None
+            opts.pop("rules_file", None)
+        else:
+            rules = load_json(os.path.abspath(args.rules), None)
+            if not isinstance(rules, dict):
+                sys.exit("--rules %s: not a JSON object" % args.rules)
+            opts["rules"] = rules
+            opts["rules_file"] = os.path.abspath(args.rules)
+    rules = opts.get("rules") or {}
+    rule_props, sup_updates = {}, {}
+    if args.backup_mirror:
+        sup_updates["backup_mirror"] = "" if args.backup_mirror.lower() == "none" \
+            else os.path.abspath(args.backup_mirror)
     # Checked before anything is deleted, so a bad command line costs nothing.
     if args.player and eff["online-mode"] == "true":
         sys.exit("--player writes offline-mode UUIDs; with --online-mode true add players "
@@ -728,7 +1049,7 @@ def main():
     level = old_props.get("level-name") or "world"
     keep = [level, "ops.json", "whitelist.json", "banned-players.json", "banned-ips.json",
             "usercache.json", "server.properties", "logs", "crash-reports", "backups",
-            "supervisor.json"]
+            "supervisor.json", PLAY_OPTIONS]
     stash = out + ".keep"
     if os.path.exists(out):
         if not args.force:
@@ -829,6 +1150,26 @@ def main():
     if args.java25:
         packcheck_ignore_forge(os.path.join(out, "config", "qfcontent.cfg"))
 
+    # --- the owner's decisions and the server-only additions -------------------
+    applied = apply_rules(out, rules, rule_props, sup_updates) if rules else []
+    addons = [a[1] for a in applied if isinstance(a, tuple)]
+    applied = [a for a in applied if not isinstance(a, tuple)]
+    if opts.get("opis"):
+        addons.append("opis")
+    if opts.get("world_border"):
+        addons.append("worldborder")
+        write_world_border(out, opts["world_border"], level)
+        applied.append("world border: square, radius %d around 0,0 in the overworld "
+                       "(config/WorldBorder/borders.cfg; `wb` commands in the console)" % opts["world_border"])
+    for key in addons:
+        name, url, sha = ADDONS[key]
+        shutil.copy2(fetch(args.cache, name, url, sha), os.path.join(out, "mods", name))
+        print("addon:   %s" % name)
+    for line in applied:
+        print("rule:    %s" % line)
+    given.update(rule_props)
+    eff.update(rule_props)
+
     for name in keep:
         if os.path.exists(os.path.join(stash, name)):
             shutil.move(os.path.join(stash, name), os.path.join(out, name))
@@ -864,11 +1205,23 @@ def main():
             if l.split("=", 1)[0] not in have:
                 print("server.properties: added %s" % l)
                 lines.append(l)
+                have.add(l.split("=", 1)[0])
+        for k, v in rule_props.items():
+            if k not in have:
+                print("server.properties: added %s=%s" % (k, v))
+                lines.append("%s=%s" % (k, v))
         with open(props_path, "w", encoding="latin-1") as fh:
             fh.write("\n".join(lines) + "\n")
     else:
+        lines = template.splitlines()
+        for k, v in rule_props.items():
+            idx = next((i for i, l in enumerate(lines) if l.split("=", 1)[0] == k), None)
+            if idx is None:
+                lines.append("%s=%s" % (k, v))
+            else:
+                lines[idx] = "%s=%s" % (k, v)
         with open(props_path, "w") as fh:
-            fh.write(template)
+            fh.write("\n".join(lines) + "\n")
     flags = [f.format(xmx=args.xmx) for f in (JVM_FLAGS_J25 if args.java25 else JVM_FLAGS)]
     with open(os.path.join(out, "start.bat"), "w", newline="\r\n") as fh:
         fh.write(START_BAT.format(java=java, forge=forge,
@@ -899,6 +1252,10 @@ def main():
     if not os.path.exists(os.path.join(out, "supervisor.json")):
         with open(os.path.join(out, "supervisor.json"), "w") as fh:
             json.dump(SUPERVISOR_JSON, fh, indent=2)
+    if sup_updates:
+        update_supervisor_json(out, sup_updates)
+    with open(os.path.join(out, PLAY_OPTIONS), "w") as fh:
+        json.dump(opts, fh, indent=2)
     print("supervisor: installed; start the server with start-supervised.bat")
 
     print("manifest: %d files hashed into MANIFEST.sha256" % write_manifest(out))
@@ -915,8 +1272,16 @@ def main():
                                                   if args.ccl else ""))
         if tweaks:
             fh.write("QuestForgeTweaks: %s, not the instance's\n" % tweaks)
-        fh.write("Mods kept: %d   dropped: %d\n\n" % (kept, dropped))
-        fh.write("Dropped from the server (every client keeps them):\n")
+        fh.write("Mods kept: %d   dropped: %d\n" % (kept, dropped))
+        if addons:
+            fh.write("Server-only additions (clients need nothing): %s\n"
+                     % ", ".join(ADDONS[a][0] for a in addons))
+        if applied:
+            fh.write("Decisions applied (%s%s):\n" % (PLAY_OPTIONS, "; from %s" % opts["rules_file"]
+                                                       if opts.get("rules_file") else ""))
+            for line in applied:
+                fh.write("  %s\n" % line)
+        fh.write("\nDropped from the server (every client keeps them):\n")
         for prefix, why in CLIENT_ONLY:
             fh.write("  %-18s %s\n" % (prefix, why))
         fh.write("\nminecraft_server jar: JndiLookup.class replaced by an inert stub (Log4Shell).\n")

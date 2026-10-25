@@ -80,9 +80,16 @@ DEFAULTS = {
     "quiet_s": 10,                       # region files unchanged this long before copying
     "restart_at": "05:00",               # daily restart, local time; "" turns it off
     "restart_warnings_min": [10, 5, 1],
+    "restart_min_uptime_s": 3600,        # a boot closer than this to restart_at waits a day
     "jstack": "",                        # empty: look for a jstack matching the java
     "discord_webhook": "",               # or env QF_DISCORD_WEBHOOK
     "alert_on_join": False,
+    # A second copy of every daily backup, for a folder that leaves the machine
+    # (a Syncthing or cloud folder). "" = off. keep_daily applies there too.
+    "backup_mirror": "",
+    # Put every player on this vanilla team with friendly fire off (the owner's
+    # srv-pvp decision, applied by the builder's --rules). "" = off.
+    "team": "",
 }
 
 DONE_RE = re.compile(r"\]: Done \(\d")
@@ -213,7 +220,12 @@ def find_jstack(configured, java):
     for c in cands:
         if os.path.exists(c):
             return c
-    return shutil.which("jstack")
+    # jcmd <pid> Thread.print is the same dump; some JDK packagings ship it alone.
+    for c in cands:
+        alt = os.path.join(os.path.dirname(c), "jcmd.exe" if IS_WIN else "jcmd")
+        if os.path.exists(alt):
+            return alt
+    return shutil.which("jstack") or shutil.which("jcmd")
 
 
 # --------------------------------------------------------------------------
@@ -390,6 +402,11 @@ class Supervisor:
             self.active_since_backup = True
             if self.cfg["alert_on_join"]:
                 self.alert("%s joined" % m.group(1))
+            if self.cfg["team"]:
+                # Through the request queue, so only the main loop writes to
+                # Java's stdin. Joining a team you are on prints a harmless
+                # "Could not add" line.
+                self.request("scoreboard teams join %s %s" % (self.cfg["team"], m.group(1)))
         if ENTITY_REMOVED_RE.search(text) and self.server and self.server.done:
             # A real crash prints the same header and then exits; the main loop
             # alerts only if the server is still up a few seconds later.
@@ -459,6 +476,7 @@ class Supervisor:
         self.log("jstack: %s" % (self.jstack or "none found (hang dumps disabled; install a "
                                                  "JDK of the server's Java version)"))
         self.log("discord alerts: %s" % ("on" if self.webhook else "off"))
+        self.log("backup mirror: %s" % (self.cfg["backup_mirror"] or "off"))
         if os.path.exists(self.pidfile):
             try:
                 other = json.load(open(self.pidfile)).get("supervisor_pid")
@@ -572,6 +590,12 @@ class Supervisor:
         self.log("server is up (boot %.0f s)" % (now() - srv.started_at))
         if self.last_outcome in ("crash", "hang"):
             self.alert("server is back up after a %s" % self.last_outcome)
+        if self.cfg["team"]:
+            # The team lives in the world's scoreboard, so this is a no-op after
+            # the first boot ("A team with the name ... already exists").
+            srv.send("scoreboard teams add %s" % self.cfg["team"])
+            srv.send("scoreboard teams option %s friendlyfire false" % self.cfg["team"])
+            self.log("team %s: friendly fire off; every player who joins is put on it" % self.cfg["team"])
 
         next_probe = now() + self.cfg["probe_interval_s"]
         next_backup = now() + self.cfg["backup_interval_min"] * 60
@@ -658,10 +682,11 @@ class Supervisor:
             return None
         if cmd == "!status":
             self.log("pid %s, up %.0f min, %d players (last `list`), crashes in window %d, "
-                     "next daily restart %s" % (
+                     "next daily restart %s, mirror %s, team %s" % (
                          srv.pid, (now() - srv.started_at) / 60, self.players, len(self.crashes),
                          datetime.datetime.fromtimestamp(self.next_restart_time()).strftime(
-                             "%Y-%m-%d %H:%M") if self.next_restart_time() else "off"))
+                             "%Y-%m-%d %H:%M") if self.next_restart_time() else "off",
+                         self.cfg["backup_mirror"] or "off", self.cfg["team"] or "off"))
             return None
         if cmd.startswith("!"):
             self.log("unknown supervisor command %s (try !backup !restart !dump !status !stop)" % line)
@@ -680,7 +705,7 @@ class Supervisor:
             t += datetime.timedelta(days=1)
         # A server started at 04:58 would restart two minutes later; skip to tomorrow
         # if less than an hour of uptime would come before it.
-        if (t - n).total_seconds() < 3600:
+        if (t - n).total_seconds() < self.cfg["restart_min_uptime_s"]:
             t += datetime.timedelta(days=1)
         return t.timestamp()
 
@@ -720,9 +745,12 @@ class Supervisor:
             self.log("no jstack; cannot take a thread dump")
             return None
         path = os.path.join(self.logs, "threaddump-%s.txt" % stamp())
+        # jcmd (also in every JDK) gives the same dump as `jstack -l`.
+        cmd = ([self.jstack, str(srv.pid), "Thread.print", "-l"]
+               if os.path.basename(self.jstack).startswith("jcmd")
+               else [self.jstack, "-l", str(srv.pid)])
         try:
-            res = subprocess.run([self.jstack, "-l", str(srv.pid)], stdout=subprocess.PIPE,
-                                 stderr=subprocess.STDOUT, timeout=60)
+            res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=60)
             with open(path, "wb") as fh:
                 fh.write(("# %s, pid %s\n" % (why, srv.pid)).encode())
                 fh.write(res.stdout)
@@ -886,6 +914,8 @@ class Supervisor:
                 else:
                     shutil.copytree(final, dst)
                 self.log("kept as the daily backup for %s" % day)
+                if self.cfg["backup_mirror"]:
+                    self.mirror(dst)
             self.rotate(hourly, self.cfg["keep_hourly"])
             self.rotate(daily, self.cfg["keep_daily"])
             free = shutil.disk_usage(root).free
@@ -894,6 +924,26 @@ class Supervisor:
         except Exception:
             self.alert("backup archiving failed: %s" % traceback.format_exc().splitlines()[-1])
             self.log(traceback.format_exc())
+
+    def mirror(self, src):
+        """A second copy of a daily backup in backup_mirror (a folder that leaves
+        the machine: Syncthing, a cloud folder, another disk). A real copy, never
+        a link, written as .partial and renamed, so a sync client never ships a
+        half-written zip. Failure is alerted and never touches the server."""
+        d = self.cfg["backup_mirror"]
+        try:
+            os.makedirs(d, exist_ok=True)
+            dst = os.path.join(d, os.path.basename(src))
+            tmp = dst + ".partial"
+            if os.path.isdir(src):
+                shutil.copytree(src, tmp)
+            else:
+                shutil.copy2(src, tmp)
+            os.replace(tmp, dst)
+            self.rotate(d, self.cfg["keep_daily"])
+            self.log("mirrored to %s" % dst)
+        except Exception as e:
+            self.alert("backup mirror to %s FAILED: %s (the local backup is fine)" % (d, e))
 
     def rotate(self, d, keep):
         entries = sorted(n for n in os.listdir(d)
