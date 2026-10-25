@@ -10,6 +10,7 @@ py -3.10 tools/trial/trial.py resolve qfcontent gravestones      # show the jar 
 py -3.10 tools/trial/trial.py build grave gravestones qfcontent --bundle inspect --world "Here We Go"
 py -3.10 tools/trial/trial.py launch grave --wait                 # refuses if any client is up
 py -3.10 tools/trial/trial.py status                              # who is running what
+py -3.10 tools/trial/trial.py heap grave --label title            # live heap after a forced full GC
 py -3.10 tools/trial/trial.py stop grave                        # kills only this trial's own JVM
 py -3.10 tools/trial/trial.py remove grave
 ```
@@ -184,6 +185,26 @@ with whatever needs them. Expect about 7 slim boots for the whole pack.
 
 `trial.py disk` lists every game or server dir on the PC with its size, whether a JVM is using
 it, and any junctions it contains. It never deletes anything.
+
+## Measuring memory: `heap`, a flat world, placed items
+
+`trial.py heap NAME [--label L]` is the heap method of `docs/design/performance-plan.md` as one
+command: `jcmd GC.class_histogram` (which forces a full GC even under `-XX:+DisableExplicitGC`),
+then `GC.heap_info`, so the "used" it prints is the live set. It prints the live heap, metaspace
+and the top classes, and saves the whole histogram as `<trial>\heap-<label>-<time>.txt`. It needs a
+JDK 8 `jcmd.exe` (Adoptium is found on its own; `QF_JCMD` overrides) and works on clients and servers.
+
+A memory or render A/B wants the same scene twice with nothing else in it. `make_flat_world.py DIR`
+writes a superflat, creative, peaceful, noon-forever world (just `level.dat`; the game generates the
+chunks), to pass as `build ... --world DIR`. To fill it, the debug build of qf-content
+(`.\gradlew build -PqfDebugTools=true`, swapped in with `--jar`) has `AutoPlace`: with
+`-D qf.autoplace=<save>` it loads the world, places `-D qf.autoplace.items=modid:name[:meta],...`
+on the ground in rows as a player would (chat `/tp`, the creative inventory packet, a right-click
+through PlayerControllerMP, so the integrated server does its half on its own thread), screenshots
+`screenshots/<qf.autoplace.name>.png` and stays up for `heap`. `qf.autoplace.wait` (ticks on the
+title screen first, 700 leaves time for a title-screen probe), `cols`, `spacing`, `delay`, `quit=1`.
+The first use was win #8, Decocraft's lazy models: twelve props of different tile types, before and
+after, same world, same spots.
 
 ## What every trial gets
 

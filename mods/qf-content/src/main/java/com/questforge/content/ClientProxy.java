@@ -95,6 +95,17 @@ public class ClientProxy extends CommonProxy {
         } catch (Throwable t) {
             System.out.println("[QuestForgeContent] AutoShot present but unusable: " + t);
         }
+        // The same for item placement captures (-Dqf.autoplace=<world>).
+        try {
+            Class<?> autoPlace = Class.forName("com.questforge.content.debug.AutoPlace");
+            if (Boolean.TRUE.equals(autoPlace.getMethod("enabled").invoke(null))) {
+                FMLCommonHandler.instance().bus().register(autoPlace.newInstance());
+            }
+        } catch (ClassNotFoundException expected) {
+            // Release build.
+        } catch (Throwable t) {
+            System.out.println("[QuestForgeContent] AutoPlace present but unusable: " + t);
+        }
         // The same for the icon bake (-Dqf.iconbake=<file>).
         try {
             Class<?> bake = Class.forName("com.questforge.content.debug.IconBake");

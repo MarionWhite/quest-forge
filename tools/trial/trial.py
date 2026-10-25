@@ -1656,6 +1656,84 @@ def cmd_status(a):
             print("trials: " + ", ".join(sorted(names)))
 
 
+
+# --------------------------------------------------------------------- heap
+
+def find_jcmd():
+    """jcmd from a JDK 8 (the JRE the pack runs on has none); QF_JCMD overrides."""
+    env = os.environ.get("QF_JCMD")
+    if env and os.path.isfile(env):
+        return env
+    for base in (r"C:\Program Files\Eclipse Adoptium", r"C:\Program Files\Java",
+                 r"C:\Program Files\Amazon Corretto", r"C:\Program Files\Zulu"):
+        if os.path.isdir(base):
+            for d in sorted(os.listdir(base), reverse=True):
+                p = os.path.join(base, d, "bin", "jcmd.exe")
+                if ("8" in d) and os.path.isfile(p):
+                    return p
+    sys.exit("no JDK 8 jcmd.exe found (set QF_JCMD)")
+
+
+def jcmd(pid, *args):
+    r = subprocess.run([find_jcmd(), str(pid)] + list(args), capture_output=True, text=True,
+                       creationflags=NO_WINDOW, timeout=300)
+    if r.returncode != 0:
+        sys.exit(f"jcmd {' '.join(args)} failed: {r.stderr.strip() or r.stdout.strip()}")
+    return r.stdout
+
+
+def heap_probe(pid, top=12):
+    """Live heap of a running JVM: GC.class_histogram forces a full GC (even with
+    -XX:+DisableExplicitGC), so the GC.heap_info read right after it is the live set.
+    This is the method of docs/design/performance-plan.md."""
+    hist = jcmd(pid, "GC.class_histogram")
+    info = jcmd(pid, "GC.heap_info")
+    classes = []
+    total = None
+    for line in hist.splitlines():
+        m = re.match(r"\s*(\d+):\s+(\d+)\s+(\d+)\s+(\S+)", line)
+        if m:
+            classes.append({"rank": int(m.group(1)), "instances": int(m.group(2)),
+                            "bytes": int(m.group(3)), "class": m.group(4)})
+        m = re.match(r"\s*Total\s+(\d+)\s+(\d+)", line)
+        if m:
+            total = {"instances": int(m.group(1)), "bytes": int(m.group(2))}
+    used_mb = meta_mb = None
+    m = re.search(r"garbage-first heap\s+total\s+(\d+)K,\s+used\s+(\d+)K", info)
+    if m:
+        used_mb = int(m.group(2)) / 1024
+    m = re.search(r"Metaspace\s+used\s+(\d+)K", info)
+    if m:
+        meta_mb = int(m.group(1)) / 1024
+    return {"live_mb": used_mb, "metaspace_mb": meta_mb, "histogram_total": total,
+            "top": classes[:top], "histogram": hist, "heap_info": info}
+
+
+def cmd_heap(a):
+    d = trial_dir(a.name)
+    try:
+        with open(os.path.join(d, "pid")) as f:
+            pid = int(f.read().strip())
+    except (OSError, ValueError):
+        sys.exit(f"trial {a.name} has no pid file; it was never launched")
+    if not pid_alive(pid):
+        sys.exit(f"trial {a.name} (pid {pid}) is not running")
+    r = heap_probe(pid, a.top)
+    stamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+    label = re.sub(r"[^A-Za-z0-9_.-]+", "_", a.label) if a.label else "probe"
+    out = os.path.join(d, f"heap-{label}-{stamp}.txt")
+    with open(out, "w", encoding="utf-8") as f:
+        f.write(f"# trial {a.name} pid {pid} label {a.label or ''} at {stamp}\n\n")
+        f.write(r["heap_info"] + "\n" + r["histogram"])
+    live = "?" if r["live_mb"] is None else f"{r['live_mb']:.0f}"
+    meta = "?" if r["metaspace_mb"] is None else f"{r['metaspace_mb']:.0f}"
+    print(f"live heap {live} MB after full GC, metaspace {meta} MB  ({a.name} pid {pid}"
+          f"{', ' + a.label if a.label else ''})")
+    for c in r["top"]:
+        print(f"  {c['bytes'] / 1048576:8.1f} MB  {c['instances']:>10,}  {c['class']}")
+    print(f"  full histogram: {out}")
+    print("heap-info: " + json.dumps({k: v for k, v in r.items() if k not in ("histogram", "heap_info")}))
+
 def cmd_list(a):
     cat = load_catalog()
     jars = instance_jars(LIVE)
@@ -1835,6 +1913,9 @@ def main():
     p = sp.add_parser("resolve"); mods_args(p); p.set_defaults(fn=cmd_resolve)
     sp.add_parser("list").set_defaults(fn=cmd_list)
     sp.add_parser("status").set_defaults(fn=cmd_status)
+    p = sp.add_parser("heap", help="live heap of a running trial (jcmd full GC + class histogram), saved in the trial dir")
+    p.add_argument("name"); p.add_argument("--label", help="tag for the saved file and the printed line")
+    p.add_argument("--top", type=int, default=12, help="classes to print"); p.set_defaults(fn=cmd_heap)
     sp.add_parser("userbusy", help="JSON: is the owner gaming? exit 1 if so (frame times noisy)").set_defaults(fn=cmd_userbusy)
     p = sp.add_parser("guard", help="hard links into the live pack, and live jars changed without install")
     p.add_argument("--fix-links", action="store_true", help="replace hard links outside the live pack with copies")
