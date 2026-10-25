@@ -58,9 +58,18 @@
    "n": 6,
    "id": "r006",
    "title": "New water, clouds lit by the hour, sharper light, and Faithful 32x",
-   "status": "open",
+   "status": "closed",
    "created": "2026-10-24",
    "scenes": 13,
+   "feedback": true
+  },
+  {
+   "n": 7,
+   "id": "r007",
+   "title": "A real sun, silver linings, meteor nights, and water that blends across biomes",
+   "status": "open",
+   "created": "2026-10-25",
+   "scenes": 27,
    "feedback": false
   }
  ]

@@ -1,0 +1,1026 @@
+{
+ "n": 7,
+ "id": "r007",
+ "title": "A real sun, silver linings, meteor nights, and water that blends across biomes",
+ "intro": "Your round 6 answers are built in. Every render this round uses the plain vanilla textures again: you found Faithful hurt the forest light, so it is back to vanilla unless a question is about textures. What changed since round 6: The sun is new. It is the true size now, a sharp disk that is darker toward its edge and whiter than the gold sky round it, turning orange only right at the horizon. Its glare is drawn over whatever stands in front of it, so trees and clouds cut it and thin cloud edges glow. The glare stays tight round the sun, so the sky is not washed out. Clouds get silver linings: their thin edges light up sharply toward the low sun, and their sunward sides get a warm rim. The forest rays are round 5's again, warm and well formed, with round 6's finer sampling. Dust in the air is bigger and a little denser, catches the light from more angles, and glints now and then. Nights rotate: the photographic Milky Way on almost half of them, deep clear on a third, and a new meteor shower on a quarter, lasting the whole night. Water now blends across biome borders by position, not only by where you stand. The game tints swamp water block by block, and the shader spreads that over about a dozen blocks, so a swamp fades into the ocean or river next to it. Fog and water colour that follow your own biome now fade over about ten seconds. The lake's near water should be less splotchy (the critic still sees patches: tell us what you see). River sparkle near you is tamed further, and swamp water has drifting algae mats and calm slicks. New: a Vibrance slider in the shader settings (0.15 by default), and light on blocks, which adds sunlight bounced off lit ground and a faint sheen at grazing light. The pack can now also read normal and specular maps from a texture pack (one question). Costs are per frame on High at 1440p, against the same view with shaders off. The budget is 3 ms and the dearest frame here is about 2.7 ms. Low and Potato stay in their budgets: Low at 1080p costs at most 0.80 ms (budget 0.9) and Potato at 720p at most 0.37 ms (budget 0.4). Frames marked 'round 5' or 'round 6' are earlier renders, shown for comparison; round 6 used Faithful. Clouds drift, so no two renders have quite the same sky. After the shader questions come the textures: our first own pack, QF Textures v0, against vanilla and Faithful on a new block wall, connected glass, the forest and golden hour; then a list of packs worth a look; then nine questions on Faithless, your inspiration pick. Faithless is all-rights-reserved, so those questions only link to its own pages and images; nothing of it is shown here. New on this page: you can attach your own images (screenshots, photos, other packs) to any answer with Add images.",
+ "status": "open",
+ "created": "2026-10-25",
+ "scenes": [
+  {
+   "id": "sunset-sky",
+   "name": "A real sun",
+   "question": "The ocean sunset, cropped tight round the sun and shown at four times the size. A is the new sun at its true size. At the game's field of view that is only about four pixels across, as a wide camera lens shows it. Its disk is sharp and darker toward the edge, and its glare is drawn over whatever is in front of it. B is the same sun 1.8 times larger, as a longer lens would show it, with a faint lens effect: a few dim ghosts and a soft six-point star. C is round 6's sun and clouds, with the same textures.",
+   "notePrompt": "Which sun? Too small, too bright, the glare too much or too little? Keep the lens effect or not?",
+   "options": [
+    {
+     "key": "A",
+     "label": "True size (default)",
+     "img": "r007/sunset-sky-A.jpg",
+     "critic": "Critic 7: Water is still the best thing in the pack: deep blue chop with a long gold glitter path. The new sun does not read: at about 4 px it is a pale dot barely brighter than the peach glare round it, with a faint darker ring, so the frame has no sun to look at. Silver linings show on the cloud edges near the sun. Round dust flecks float over the water like bokeh spots.",
+     "ms": 2.47
+    },
+    {
+     "key": "B",
+     "label": "1.8x, faint lens",
+     "img": "r007/sunset-sky-B.jpg",
+     "critic": "Critic 6: The 1.8x sun shows as a small soft dot when zoomed in, but it is still dim against the glare. The lens ghosts and the six-point star are not visible at all. The look bible keeps lens effects for a Cinematic profile anyway.",
+     "ms": 2.49
+    },
+    {
+     "key": "C",
+     "label": "Round 6",
+     "img": "r007/sunset-sky-C.jpg",
+     "critic": "Critic 7: Round 6's sun and clouds in vanilla textures: a soft, three-times-too-large white disk in a broad peach glow; the clouds' edges are lit but not sharply.",
+     "ms": 2.38
+    }
+   ]
+  },
+  {
+   "id": "sunset-full",
+   "name": "The whole sunset",
+   "question": "The same sunset as a whole frame, for the sky, clouds and water together. A is the new default, B the larger sun with the faint lens, C round 6's sun and clouds.",
+   "notePrompt": "Clouds, sun and water together: what still falls short?",
+   "options": [
+    {
+     "key": "A",
+     "label": "New default",
+     "img": "r007/sunset-full-A.jpg",
+     "critic": "Critic 7: Water is still the best thing in the pack: deep blue chop with a long gold glitter path. The new sun does not read: at about 4 px it is a pale dot barely brighter than the peach glare round it, with a faint darker ring, so the frame has no sun to look at. Silver linings show on the cloud edges near the sun. Round dust flecks float over the water like bokeh spots.",
+     "ms": 2.47,
+     "ref": {
+      "img": "r007/ref-sunset-full-A.jpg",
+      "credit": "Brocken Inaglory, retouched by User:Flamurai, CC BY-SA 3.0, via Wikimedia Commons",
+      "source": "https://commons.wikimedia.org/wiki/File:Sunset_clouds_and_crepuscular_rays_over_pacific_edit.jpg",
+      "title": "Sunset clouds and crepuscular rays over pacific edit.jpg"
+     }
+    },
+    {
+     "key": "B",
+     "label": "1.8x sun, faint lens",
+     "img": "r007/sunset-full-B.jpg",
+     "critic": "Critic 6: The 1.8x sun shows as a small soft dot when zoomed in, but it is still dim against the glare. The lens ghosts and the six-point star are not visible at all. The look bible keeps lens effects for a Cinematic profile anyway.",
+     "ms": 2.49
+    },
+    {
+     "key": "C",
+     "label": "Round 6 sun and clouds",
+     "img": "r007/sunset-full-C.jpg",
+     "critic": "Critic 7: Round 6's sun and clouds in vanilla textures: a soft, three-times-too-large white disk in a broad peach glow; the clouds' edges are lit but not sharply.",
+     "ms": 2.38
+    }
+   ]
+  },
+  {
+   "id": "golden",
+   "name": "Golden hour: silver linings and rims",
+   "question": "Your golden-hour view. Clouds now get sharp highlights in their thin edges toward the low sun (silver linings) and a warm rim on the sunward side. A is the new default, B the same scene with round 6's clouds.",
+   "notePrompt": "Is the edge light sharp and cinematic enough? Too much?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Silver linings (default)",
+     "img": "r007/golden-A.jpg",
+     "critic": "Critic 7: A warm, good golden hour with the zenith still blue. Cloud tops are peach with a thin bright edge; the silver lining reads only on the smaller clouds. The horizon haze band is beige and flat.",
+     "ms": 1.86
+    },
+    {
+     "key": "B",
+     "label": "Round 6 clouds",
+     "img": "r007/golden-B.jpg",
+     "critic": "Critic 7: Round 6's clouds at golden hour: peach tops and undersides, soft edges with no distinct highlight line.",
+     "ms": 1.86
+    }
+   ]
+  },
+  {
+   "id": "forest-light",
+   "name": "Forest light: round 5's warm rays are back",
+   "question": "You picked round 5's forest frame, which was warmer with better-formed rays. A brings back round 5's shafts, with round 6's finer sampling and a slightly deeper amber. B is stronger, and C is round 5 itself. All three use vanilla textures.",
+   "notePrompt": "Does A have round 5's warmth and ray shape? Which strength?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Round 5 rays, finer (default)",
+     "img": "r007/forest-light-A.jpg",
+     "critic": "Critic 5: The rays in the gap past the trunks are thin and faint; round 5's warmth is not back yet. Dust shows only as two or three glowing dots against the bright gap, and none in the shade.",
+     "ms": 1.61,
+     "ref": {
+      "img": "r007/ref-forest-light-A.jpg",
+      "credit": "Jakub Hałun, CC BY 4.0, via Wikimedia Commons",
+      "source": "https://commons.wikimedia.org/wiki/File:Crepuscular_rays_in_the_forest_near_Przeginia_Duchowna,_Lesser_Poland_Voivodeship,_20240225_0830_6640.jpg",
+      "title": "Crepuscular rays in the forest near Przeginia Duchowna, Lesser Poland Voivodeship, 20240225 0830 6640.jpg"
+     }
+    },
+    {
+     "key": "B",
+     "label": "Stronger",
+     "img": "r007/forest-light-B.jpg",
+     "critic": "Critic 5: Stronger shafts: hardly different from A. The rays in the gap are a touch brighter but still not round 5's warm, well-formed beams.",
+     "ms": 1.64
+    },
+    {
+     "key": "C",
+     "label": "Round 5",
+     "img": "r007/forest-light-C.jpg",
+     "critic": "Critic 7: Warm sunlit air glows through the gap and around the trees on the right; the clearing feels like late afternoon. The beams themselves are soft rather than distinct rays.",
+     "ms": 1.45
+    }
+   ]
+  },
+  {
+   "id": "motes",
+   "name": "Dust in the air",
+   "question": "You could no longer see the dust. These are crops of the forest view at twice the size, on the bright gap toward the sun, where dust shows best. A is the new default: bigger flecks, a little denser, lit from more angles, and now and then one glints as it turns. B is denser and brighter. C has no dust, for comparison.",
+   "notePrompt": "Visible now, and tasteful? More, less?",
+   "options": [
+    {
+     "key": "A",
+     "label": "New dust (default)",
+     "img": "r007/motes-A.jpg",
+     "critic": "Critic 5: The rays in the gap past the trunks are thin and faint; round 5's warmth is not back yet. Dust shows only as two or three glowing dots against the bright gap, and none in the shade.",
+     "ms": 1.61
+    },
+    {
+     "key": "B",
+     "label": "Denser",
+     "img": "r007/motes-B.jpg",
+     "critic": "Critic 5: Denser dust: a few more glowing dots in the bright gap and nothing in the shade. Still too sparse to read as dust in the air.",
+     "ms": 1.65
+    },
+    {
+     "key": "C",
+     "label": "No dust",
+     "img": "r007/motes-C.jpg",
+     "critic": "Critic 5: No dust: next to A, hard to tell apart outside the bright gap.",
+     "ms": 1.49
+    }
+   ]
+  },
+  {
+   "id": "lake-sunset",
+   "name": "The lake at sunset: no more splotches",
+   "question": "The lake in low light. Round 6's near water broke into torn patches. Some screen reflection rays turned downward off steep waves and mirrored the lake bed, and the sunset chop flipped facets between dark water and bright sky. Now those rays fall back to the sky, and the lake's chop is lower than the ocean's. Close up, the reflectance is averaged as the eye sees it. A is the new water, B round 6.",
+   "notePrompt": "Is the splotchiness gone? What does the lake still need?",
+   "options": [
+    {
+     "key": "A",
+     "label": "New (default)",
+     "img": "r007/lake-sunset-A.jpg",
+     "critic": "Critic 5: The near water is still splotchy: torn dark and gold patches cover the lower third, much like round 6. The far lake and the sunset sky are good; the splotch fix does not show in this frame.",
+     "ms": 2.38
+    },
+    {
+     "key": "B",
+     "label": "Round 6",
+     "img": "r007/lake-sunset-B.jpg",
+     "critic": "Critic 6: Cleaner waves and a broken gold path under the sun, with the cliff reflected. The near water is dark and its reflections of the cliff break into torn brown patches; the clouds above the sun are bright and large.",
+     "ms": 2.29
+    }
+   ]
+  },
+  {
+   "id": "water-biomes",
+   "name": "Water by biome",
+   "question": "The four biome waters with this round's changes. The river's noon sparkle near you is tamed further. The swamp has drifting algae mats and calm slicks, so its far water is not flat. Coast and ocean are unchanged apart from vibrance. Rate the set and say which one is off.",
+   "notePrompt": "Which is off, and how?",
+   "options": [
+    {
+     "key": "A",
+     "label": "River at noon",
+     "img": "r007/water-biomes-A.jpg",
+     "critic": "Critic 5: Green river in its gorge: a white sparkle patch still sits right in front of the camera, and the underwater ledges show as bright orange-yellow stripes across the water on the left. Still the weakest water.",
+     "ms": 2.06,
+     "ref": {
+      "img": "r007/ref-water-biomes-A.jpg",
+      "credit": "amanderson2, CC BY 2.0, via Wikimedia Commons",
+      "source": "https://commons.wikimedia.org/wiki/File:Clear_River_water_Bled_Vintgar_Slovenia_(8095482709).jpg",
+      "title": "Clear River water Bled Vintgar Slovenia (8095482709).jpg"
+     }
+    },
+    {
+     "key": "B",
+     "label": "Swamp",
+     "img": "r007/water-biomes-B.jpg",
+     "critic": "Critic 6: Olive, murky water that reads as swamp. The algae mats show as dark green smears, a little streaky, and the far water is hazy and flat. Lily pads look pasted on.",
+     "ms": 2.26,
+     "ref": {
+      "img": "r007/ref-water-biomes-B.jpg",
+      "credit": "JamesDeMers, CC0, via Wikimedia Commons",
+      "source": "https://commons.wikimedia.org/wiki/File:Bayou-439881.jpg",
+      "title": "Bayou-439881.jpg"
+     }
+    },
+    {
+     "key": "C",
+     "label": "Coast",
+     "img": "r007/water-biomes-C.jpg",
+     "critic": "Critic 8: Maldives turquoise over sand with visible depth bands; the best colour in the set.",
+     "ms": 2.37,
+     "ref": {
+      "img": "r007/ref-water-biomes-C.jpg",
+      "credit": "Martin Falbisoner, CC BY-SA 4.0, via Wikimedia Commons",
+      "source": "https://commons.wikimedia.org/wiki/File:Diamonds_Thudufushi_Beach_and_Water_Villas,_May_2017_-08.jpg",
+      "title": "Diamonds Thudufushi Beach and Water Villas, May 2017 -08.jpg"
+     }
+    },
+    {
+     "key": "D",
+     "label": "Ocean",
+     "img": "r007/water-biomes-D.jpg",
+     "critic": "Critic 8: Deep blue open ocean with fine waves and clean reflections. The overhead cloud slab is heavy and smeared toward the horizon.",
+     "ms": 2.29
+    }
+   ]
+  },
+  {
+   "id": "biome-borders",
+   "name": "Where biomes meet on water",
+   "question": "Your new request: gradients where biomes meet, never cutoffs. A: standing in the ocean, looking at a swamp shore. B: the same view with round 6's water, which took the whole screen's water from the biome you stand in, so the swamp showed as ocean. C: in a river, looking into swamp water. D: C with round 6's water. The game tints swamp water block by block, and the shader spreads that over about a dozen blocks.",
+   "notePrompt": "Is the blend pleasant, too wide, too narrow? Other borders to look at?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Ocean into swamp (new)",
+     "img": "r007/biome-borders-A.jpg",
+     "critic": "Critic 7: A clear gradient from ocean blue into swamp olive along the shore, with no cutoff: what the owner asked for. The sandbar under it still reads a little bright.",
+     "ms": 2.23
+    },
+    {
+     "key": "B",
+     "label": "Ocean into swamp, round 6",
+     "img": "r007/biome-borders-B.jpg",
+     "critic": "Critic 5: Round 6 water: the whole screen takes the ocean colour, so the swamp shore is blue with a bright orange sandbar under it. This is the hard look the owner disliked.",
+     "ms": 2.1
+    },
+    {
+     "key": "C",
+     "label": "River into swamp (new)",
+     "img": "r007/biome-borders-C.jpg",
+     "critic": "Critic 6: The blend works: the water goes from green-teal to olive over the shallow bar instead of a hard edge. The near water is greener than a river should be.",
+     "ms": 2.35
+    },
+    {
+     "key": "D",
+     "label": "River into swamp, round 6",
+     "img": "r007/biome-borders-D.jpg",
+     "critic": "Critic 6: Round 6 water: one teal for all of it, with no swamp tint near the shore.",
+     "ms": 2.21
+    }
+   ]
+  },
+  {
+   "id": "light-on-blocks",
+   "name": "Light on blocks",
+   "question": "You asked for light that interacts with the blocks realistically. A adds two things. Sunlight bounces off lit ground onto walls and the undersides of leaves and overhangs. Every block, and the leaves, also get a faint sheen at grazing light. B is the same view without them. C and D are the lit forest, with and without.",
+   "notePrompt": "Do the blocks read as more real in A and C? Anything plasticky?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Golden hour, with",
+     "img": "r007/light-on-blocks-A.jpg",
+     "critic": "Critic 7: A warm, good golden hour with the zenith still blue. Cloud tops are peach with a thin bright edge; the silver lining reads only on the smaller clouds. The horizon haze band is beige and flat.",
+     "ms": 1.86
+    },
+    {
+     "key": "B",
+     "label": "Golden hour, without",
+     "img": "r007/light-on-blocks-B.jpg",
+     "critic": "Critic 7: Bounce and sheen off: next to A the difference is almost nil at this distance.",
+     "ms": 1.88
+    },
+    {
+     "key": "C",
+     "label": "Forest, with",
+     "img": "r007/light-on-blocks-C.jpg",
+     "critic": "Critic 6: Lit forest edge, shadows fine. The bounce light and sheen are hard to see; the leaves are flat dark green in the shade.",
+     "ms": 1.59
+    },
+    {
+     "key": "D",
+     "label": "Forest, without",
+     "img": "r007/light-on-blocks-D.jpg",
+     "critic": "Critic 6: Bounce and sheen off: a hair darker under the leaves than A; most viewers will not see it.",
+     "ms": 1.61
+    }
+   ]
+  },
+  {
+   "id": "vibrance",
+   "name": "Vibrance: a new slider",
+   "question": "A Vibrance slider is now in the shader settings. It lifts muted colours (grass, sky, water) more than vivid ones, so wood, chests and gold do not turn neon. A is the default, 0.15. B is 0.35, and C is 0, which is round 6's colour.",
+   "notePrompt": "Which level should be the default?",
+   "options": [
+    {
+     "key": "A",
+     "label": "0.15 (default)",
+     "img": "r007/vibrance-A.jpg",
+     "critic": "Critic 7: A warm, good golden hour with the zenith still blue. Cloud tops are peach with a thin bright edge; the silver lining reads only on the smaller clouds. The horizon haze band is beige and flat.",
+     "ms": 1.86
+    },
+    {
+     "key": "B",
+     "label": "0.35",
+     "img": "r007/vibrance-B.jpg",
+     "critic": "Critic 6: Vibrance 0.35: the grass turns yellow-green and the lit patches push toward neon, which is too much. The clouds differ from A only because they drift.",
+     "ms": 1.88
+    },
+    {
+     "key": "C",
+     "label": "0 (round 6)",
+     "img": "r007/vibrance-C.jpg",
+     "critic": "Critic 7: Vibrance 0: duller, slightly grey grass. The frame loses some life against A's 0.15.",
+     "ms": 1.88
+    }
+   ]
+  },
+  {
+   "id": "night-sky",
+   "name": "Rotating nights and a meteor shower",
+   "question": "Nights now rotate: the Milky Way on almost half of them, deep clear on a third and a meteor shower on a quarter. A is the new meteor shower. It lasts all night: streaks from one point in the sky every few seconds, and now and then a bright one. At the burst rate used for A it costs about 0.4 ms more than a clear night; at the normal rate it should cost less. A was rendered at a burst rate so a still frame catches a few streaks; in play they come one at a time. B is the Milky Way night (round 6's render; its sky is unchanged). C is a deep clear night, which is what the rotation drew for this night.",
+   "notePrompt": "Does the shower match the Milky Way's quality? Rate, length, brightness? Is the rotation mix right?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Meteor shower (new)",
+     "img": "r007/night-sky-A.jpg",
+     "critic": "Critic 7: Meteor night: two thin gold-white streaks low over the hill, crisp and believable, beside dark night clouds and a fine starfield. Rendered at a burst rate. It costs about 0.35 ms more than the deep clear night of the same view.",
+     "ms": 2.06
+    },
+    {
+     "key": "B",
+     "label": "Milky Way (round 6 render)",
+     "img": "r007/night-sky-B.jpg",
+     "critic": "Critic 7: A real Milky Way: the photographed star clouds and dust lanes sit low in the sky under our stars and read as photographic, not drawn. Partly hidden by tonight's clouds, and faint, as it should be at this exposure.",
+     "ms": 1.65
+    },
+    {
+     "key": "C",
+     "label": "Deep clear",
+     "img": "r007/night-sky-C.jpg",
+     "critic": "Critic 7: Deep clear (the rotation's pick for this night): a dense, fine starfield on navy-black, with dark night clouds whose thin edges take a little moonlight. No Milky Way tonight.",
+     "ms": 1.7
+    }
+   ]
+  },
+  {
+   "id": "night-new",
+   "name": "The new-moon lake on a meteor night",
+   "question": "The new-moon lake on a meteor night (A) and on a deep clear night (B), with the night clouds you liked. No meteor happened to cross the sky in A's frame, so it shows what most of a meteor night looks like.",
+   "notePrompt": "Anything off at the lake?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Meteor night",
+     "img": "r007/night-new-A.jpg",
+     "critic": "Critic 6: Meteor night at the new-moon lake: no streak happened to fall in this frame, so it looks like a deep clear night. It costs 0.44 ms more than qh's clear night of the same view.",
+     "ms": 2.7
+    },
+    {
+     "key": "B",
+     "label": "Deep clear night",
+     "img": "r007/night-new-B.jpg",
+     "critic": "Critic 6: The new-moon lake on a deep clear night: readable shore and water, dark cloud bodies against the stars, unchanged on land from round 6.",
+     "ms": 2.26
+    }
+   ]
+  },
+  {
+   "id": "pbr",
+   "name": "Normal and specular maps from a texture pack",
+   "question": "The pack can now read the normal and specular maps a texture pack provides (the LabPBR format), so a block's surface relief and shine come from the pack. The test pack is QF Textures v0 from the texture work: vanilla, Faithful for a few blocks, and generated maps. A and C read the maps; B and D use the same pack with the maps ignored. A and B are the showcase wall (glass, ores, metal blocks), C and D golden hour in the showcase world, whose field has a dug pit (the dark patch). Known bug: with the maps on, a black smudge spreads over the dirt bank left of the glass in A.",
+   "notePrompt": "Does the relief and shine read as real? Too strong anywhere?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Wall, maps on",
+     "img": "r007/pbr-A.jpg",
+     "critic": "Critic 5: Maps on: the iron and gold blocks read more metallic (darker grey iron, richer gold), and the ores have a little relief. But a soft black blob spreads over the dirt bank left of the glass, which maps-off does not have: a PBR bug, probably bad normals or AO on dirt. The dark smear on the grass to the right is something in the world (it is there with shaders off too).",
+     "ms": 1.67
+    },
+    {
+     "key": "B",
+     "label": "Wall, maps off",
+     "img": "r007/pbr-B.jpg",
+     "critic": "Critic 6: Maps off, same pack: flatter metals and no black blob on the dirt. The showcase wall and the block sample row behind it are in view.",
+     "ms": 1.63
+    },
+    {
+     "key": "C",
+     "label": "Golden hour, maps on",
+     "img": "r007/pbr-C.jpg",
+     "critic": "Critic 5: The showcase world's golden view has a large black pit in the middle field that world-master does not have, so this pair is hard to judge. Maps on: the grass is a little more contrasty, otherwise much like maps off.",
+     "ms": 1.94
+    },
+    {
+     "key": "D",
+     "label": "Golden hour, maps off",
+     "img": "r007/pbr-D.jpg",
+     "critic": "Critic 5: Maps off, showcase world: the same black pit dominates the middle of the frame.",
+     "ms": 1.9
+    }
+   ]
+  },
+  {
+   "id": "tex-wall",
+   "name": "Textures: the block wall",
+   "question": "A new test wall in the plains, in afternoon sun: clear glass, blue stained glass, stone with eight ores in it, then gold, iron and diamond blocks with glowstone on top, on grass. Same shaders in all three. C is our first own pack, QF Textures v0: Minecraft's designs, Faithful's extra detail only on the blocks you liked (stone, ores, gold, iron, diamond, glowstone, glass), vanilla grass made calmer, and a little more colour.",
+   "notePrompt": "Is C the right direction? Which blocks still need more detail, and is the colour lift enough?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Vanilla 16x",
+     "img": "r007/tex-wall-A.jpg",
+     "ms": 1.72,
+     "critic": "Critic 5: Vanilla 16x: flat stone and ores, coarse glowstone. Glass connects (Angelica's default glass) but its diagonal streaks fill the whole panel and read busy.",
+     "desc": "Minecraft's own 16x textures."
+    },
+    {
+     "key": "B",
+     "label": "Faithful 32x",
+     "img": "r007/tex-wall-B.jpg",
+     "ms": 1.73,
+     "critic": "Critic 7: Faithful 32x: much more detail in stone, ores, metals and glowstone; clean connected glass. The grass in front is busier and darker than vanilla's.",
+     "desc": "Faithful 32x everywhere it has a texture (round 6's renders used it)."
+    },
+    {
+     "key": "C",
+     "label": "QF Textures v0",
+     "img": "r007/tex-wall-C.jpg",
+     "ms": 1.73,
+     "critic": "Critic 7: Faithful's detail on stone, ores, metals, glowstone and glass, with vanilla's calmer, brighter grass; colour lift is subtle (gold and diamond slightly richer).",
+     "desc": "Vanilla designs; Faithful 32x only for stone, ores, gold/iron/diamond, glowstone and glass; calmer vanilla grass; a little more colour."
+    }
+   ]
+  },
+  {
+   "id": "tex-glass",
+   "name": "Connected glass",
+   "question": "Close up on the 4x4 clear-glass panel. Our renderer already joins glass blocks into one pane (connected textures, built into Angelica). A uses Angelica's own default glass, B and C Faithful 32x's connected glass. Glass panes can connect too, with one setting we would turn on.",
+   "notePrompt": "Which glass do you like? Frame visible or nearly invisible?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Vanilla 16x",
+     "img": "r007/tex-glass-A.jpg",
+     "ms": 1.76,
+     "critic": "Critic 5: Connected, but Angelica's default glass is covered in white streaks; the panel reads frosted.",
+     "desc": "Minecraft's own 16x textures."
+    },
+    {
+     "key": "B",
+     "label": "Faithful 32x",
+     "img": "r007/tex-glass-B.jpg",
+     "ms": 1.77,
+     "critic": "Critic 8: Thin frame around the whole 4x4 panel, a few glints, nearly clear: the cleanest glass.",
+     "desc": "Faithful 32x everywhere it has a texture (round 6's renders used it)."
+    },
+    {
+     "key": "C",
+     "label": "QF Textures v0",
+     "img": "r007/tex-glass-C.jpg",
+     "ms": 1.76,
+     "critic": "Critic 8: Same Faithful connected glass as B; the stained glass is a touch bluer.",
+     "desc": "Vanilla designs; Faithful 32x only for stone, ores, gold/iron/diamond, glowstone and glass; calmer vanilla grass; a little more colour."
+    }
+   ]
+  },
+  {
+   "id": "tex-forest",
+   "name": "The forest clearing",
+   "question": "Round 6's forest-light view, where you preferred vanilla (warmer, better rays) to Faithful's busy grass. C keeps vanilla's grass, leaves and wood and only makes the grass calmer and the colour a touch richer.",
+   "notePrompt": "Does C keep what you liked about vanilla here? Grass calm enough?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Vanilla 16x",
+     "img": "r007/tex-forest-A.jpg",
+     "ms": 1.76,
+     "critic": "Critic 6: Vanilla: warm, readable leaves and grass; the look you preferred in round 6.",
+     "desc": "Minecraft's own 16x textures."
+    },
+    {
+     "key": "B",
+     "label": "Faithful 32x",
+     "img": "r007/tex-forest-B.jpg",
+     "ms": 1.76,
+     "critic": "Critic 5: Faithful: finer, busier leaf and grass detail; the floor reads as a dark noisy carpet.",
+     "desc": "Faithful 32x everywhere it has a texture (round 6's renders used it)."
+    },
+    {
+     "key": "C",
+     "label": "QF Textures v0",
+     "img": "r007/tex-forest-C.jpg",
+     "ms": 1.76,
+     "critic": "Critic 6: Vanilla leaves and wood kept; grass a little calmer than vanilla. Almost identical to A by design.",
+     "desc": "Vanilla designs; Faithful 32x only for stone, ores, gold/iron/diamond, glowstone and glass; calmer vanilla grass; a little more colour."
+    }
+   ]
+  },
+  {
+   "id": "tex-golden",
+   "name": "Golden hour on the plains",
+   "question": "The golden-hour view with the low sun behind the camera, so the warm light falls on grass and stone. Same three packs.",
+   "notePrompt": "Which reads best in warm light?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Vanilla 16x",
+     "img": "r007/tex-golden-A.jpg",
+     "ms": 2.1,
+     "critic": "Critic 6: Warm light over vanilla grass; the plain is mostly grass, so texture differences are small here.",
+     "desc": "Minecraft's own 16x textures."
+    },
+    {
+     "key": "B",
+     "label": "Faithful 32x",
+     "img": "r007/tex-golden-B.jpg",
+     "ms": 2.11,
+     "critic": "Critic 6: Faithful's grass and plants: slightly more texture across the plain, a bit noisier in the foreground.",
+     "desc": "Faithful 32x everywhere it has a texture (round 6's renders used it)."
+    },
+    {
+     "key": "C",
+     "label": "QF Textures v0",
+     "img": "r007/tex-golden-C.jpg",
+     "ms": 2.1,
+     "critic": "Critic 6: Close to vanilla, calmer foreground grass.",
+     "desc": "Vanilla designs; Faithful 32x only for stone, ores, gold/iron/diamond, glowstone and glass; calmer vanilla grass; a little more colour."
+    }
+   ]
+  },
+  {
+   "id": "tex-packs",
+   "name": "Texture packs to look at",
+   "question": "You offered to look at other packs for direction. These come closest to 'Minecraft's designs plus more detail, connected textures, PBR light and a bit more colour'. We don't show their images (most are all-rights-reserved, and only Faithful's licence lets us build on it), so each links to its own page. Pick the two or three closest to what you want and say what you like about each; we aim our own pack at them.",
+   "notePrompt": "Which 2-3 packs, and what about each?",
+   "links": [
+    {
+     "text": "Faithful 32x",
+     "href": "https://faithfulpack.net/",
+     "note": "our licensed base: vanilla shapes with more detail, and its own 1.7.10 connected glass"
+    },
+    {
+     "text": "Faithful 64x",
+     "href": "https://modrinth.com/resourcepack/faithful-64x",
+     "note": "the same style with twice the detail (heavier on weaker PCs)"
+    },
+    {
+     "text": "Stay True",
+     "href": "https://www.curseforge.com/minecraft/texture-packs/stay-true",
+     "note": "the closest to 'vanilla, just nicer', with connected textures"
+    },
+    {
+     "text": "Patrix 32x",
+     "href": "https://modrinth.com/resourcepack/patrix-32x",
+     "note": "the benchmark for vanilla-matched detail plus connected textures plus PBR"
+    },
+    {
+     "text": "Vanilla Normals Renewed",
+     "href": "https://github.com/Poudingue/Vanilla-Normals-Renewed",
+     "note": "vanilla art untouched, with good PBR light on it"
+    },
+    {
+     "text": "Dandelion X",
+     "href": "https://modrinth.com/resourcepack/dandelion-x",
+     "note": "a cohesive, slightly more vibrant vanilla palette"
+    },
+    {
+     "text": "Unity",
+     "href": "https://modrinth.com/resourcepack/unity",
+     "note": "natural, warmer tones with connected-texture and PBR add-ons"
+    },
+    {
+     "text": "Soartex Invictus (Shader Mapped)",
+     "href": "https://www.curseforge.com/minecraft/texture-packs/soartex-invictus-shader-mapped",
+     "note": "the one 1.7.10 pack with connected textures and PBR together; crisper, less vanilla"
+    },
+    {
+     "text": "Conquest_",
+     "href": "https://modrinth.com/resourcepack/conquest_",
+     "note": "how far 1.7.10 connected textures can go; medieval rather than vanilla"
+    },
+    {
+     "text": "Soartex Grove",
+     "href": "https://modrinth.com/resourcepack/soartex-grove",
+     "note": "high-detail 64x art, if a bigger step away from vanilla appeals"
+    },
+    {
+     "text": "Jicklus",
+     "href": "https://modrinth.com/resourcepack/jicklus",
+     "note": "warm, rustic recolour of vanilla: a vibrance reference"
+    },
+    {
+     "text": "Bare Bones",
+     "href": "https://modrinth.com/resourcepack/bare-bones",
+     "note": "the opposite direction (simpler, flatter), for contrast"
+    }
+   ],
+   "options": []
+  },
+  {
+   "id": "fl-style",
+   "name": "Faithless: the overall art style",
+   "question": "Faithless is all-rights-reserved, so we only link to its official screenshots (they open on Modrinth) and would draw our own take; nothing is copied. 1. Every block redrawn in an early-Minecraft (Programmer Art) style, but each keeps its vanilla colour family. 2. Dark 1-pixel outlines and top-left light on every item icon. 3. Calm, low-noise terrain: grass, dirt, sand and snow in broad soft clusters, not speckle. 4. Neighbouring blocks clearly different in value and pattern, so no two look alike.",
+   "notePrompt": "Which numbers? Is the early-Minecraft feel right for us, or only the outlines and the calm terrain?",
+   "links": [
+    {
+     "text": "1 Spritesheet (everything)",
+     "href": "https://cdn.modrinth.com/data/CwaddKq6/images/ca1e9b1c8eb116eb9e0569912c2b94030451af37.png",
+     "note": "the whole pack at a glance"
+    },
+    {
+     "text": "2, 4 Creative tabs",
+     "href": "https://cdn.modrinth.com/data/CwaddKq6/images/a503b4c45a028329727da2624ab88ee90585ca5e.png",
+     "note": "outlined icons; building blocks side by side"
+    },
+    {
+     "text": "3 Farm animals",
+     "href": "https://cdn.modrinth.com/data/CwaddKq6/images/6d626ce774237216dea96ac0307bbb16aa758316.png",
+     "note": "calm grass"
+    },
+    {
+     "text": "3 Snowy village",
+     "href": "https://cdn.modrinth.com/data/CwaddKq6/images/5a5317b07a7b60af3544bd1de7425069d5220bbd.png",
+     "note": "soft snow and dirt"
+    }
+   ],
+   "options": [
+    {
+     "key": "A",
+     "label": "Love all of these",
+     "desc": "aim our own pack at every element listed"
+    },
+    {
+     "key": "B",
+     "label": "Some of them",
+     "desc": "say which numbers in the note"
+    },
+    {
+     "key": "C",
+     "label": "Not for us",
+     "desc": "leave this group out of the direction"
+    }
+   ]
+  },
+  {
+   "id": "fl-stone-ores",
+   "name": "Faithless: stone, ores and metal blocks",
+   "question": "Faithless is all-rights-reserved, so we only link to its official screenshots (they open on Modrinth) and would draw our own take; nothing is copied. 5. Ores told apart by shape as well as colour: coal chunks, iron nuggets, gold cracks, redstone dots, faceted gems, lapis flakes (we would extend this to every modded ore). 6. Stone, cobble and bricks with bold clean joints; moss as soft patches. 7. Gold, iron and diamond blocks as chunky bevelled tiles. 8. End stone and sponge without clustered holes (trypophobia-safe).",
+   "notePrompt": "Which numbers? Shape-coded ores would also help colourblind friends: worth it even if the style differs?",
+   "links": [
+    {
+     "text": "5 Creative tabs (bottom row of Building Blocks)",
+     "href": "https://cdn.modrinth.com/data/CwaddKq6/images/a503b4c45a028329727da2624ab88ee90585ca5e.png",
+     "note": "the ore set"
+    },
+    {
+     "text": "5 Thumbnail (logo letters)",
+     "href": "https://cdn.modrinth.com/data/CwaddKq6/images/2025b6f66921fe6619d183e60634817c3273b173.png",
+     "note": "ores in the logo"
+    },
+    {
+     "text": "6 Library",
+     "href": "https://cdn.modrinth.com/data/CwaddKq6/images/728176aad286529ca69d77892eb8ea273d8f620d.png",
+     "note": "stone bricks and moss"
+    },
+    {
+     "text": "7 Bastion",
+     "href": "https://cdn.modrinth.com/data/CwaddKq6/images/4db627ccb37d7882858c3da1ff447ba17984ded6.png",
+     "note": "gold blocks"
+    },
+    {
+     "text": "8 The End",
+     "href": "https://cdn.modrinth.com/data/CwaddKq6/images/1de84819fb4f537f51d5efcd72c540493d4b4f99.png",
+     "note": "end stone"
+    }
+   ],
+   "options": [
+    {
+     "key": "A",
+     "label": "Love all of these",
+     "desc": "aim our own pack at every element listed"
+    },
+    {
+     "key": "B",
+     "label": "Some of them",
+     "desc": "say which numbers in the note"
+    },
+    {
+     "key": "C",
+     "label": "Not for us",
+     "desc": "leave this group out of the direction"
+    }
+   ]
+  },
+  {
+   "id": "fl-wood-build",
+   "name": "Faithless: wood, utility and light blocks",
+   "question": "Faithless is all-rights-reserved, so we only link to its official screenshots (they open on Modrinth) and would draw our own take; nothing is copied. 9. Planks as clear boards with dark seams and knots; deep bark on logs; panelled doors. 10. Bookshelves with varied books, randomised so libraries don't tile. 11. Utility blocks that show their job: a cloth and tools on the crafting table, a glowing furnace mouth, a bold banded chest (we would apply this to modded machines too). 12. Glowstone and lamps as bright cells with dark grout that read as lights in daylight.",
+   "notePrompt": "Which numbers? Faithful's glowstone (which you liked) or the cell style?",
+   "links": [
+    {
+     "text": "9, 10 Library",
+     "href": "https://cdn.modrinth.com/data/CwaddKq6/images/728176aad286529ca69d77892eb8ea273d8f620d.png",
+     "note": "planks, bookshelves"
+    },
+    {
+     "text": "11 Mining",
+     "href": "https://cdn.modrinth.com/data/CwaddKq6/images/410adebd1b2dfb3be2670412e0b7889a5030763b.png",
+     "note": "chest, crafting table, furnace"
+    },
+    {
+     "text": "9 Snowy village",
+     "href": "https://cdn.modrinth.com/data/CwaddKq6/images/5a5317b07a7b60af3544bd1de7425069d5220bbd.png",
+     "note": "plank houses, doors"
+    },
+    {
+     "text": "12 Redstone yard",
+     "href": "https://cdn.modrinth.com/data/CwaddKq6/images/25d4efb33f35e2f53b079d2e0a1ac758d290be23.png",
+     "note": "glowstone wall and lamps"
+    }
+   ],
+   "options": [
+    {
+     "key": "A",
+     "label": "Love all of these",
+     "desc": "aim our own pack at every element listed"
+    },
+    {
+     "key": "B",
+     "label": "Some of them",
+     "desc": "say which numbers in the note"
+    },
+    {
+     "key": "C",
+     "label": "Not for us",
+     "desc": "leave this group out of the direction"
+    }
+   ]
+  },
+  {
+   "id": "fl-nature",
+   "name": "Faithless: leaves, nature and the dimensions",
+   "question": "Faithless is all-rights-reserved, so we only link to its official screenshots (they open on Modrinth) and would draw our own take; nothing is copied. 13. Dense, darker leaf clusters with fewer holes (careful: may thin the forest light shafts you like). 14. Leaves that turn brown when cut off from a tree (a user report; on 1.7.10 this needs code). 15. Nether and End: strong strata on dark stone, flat bright lava, obsidian shot with purple, glowing particles in warped forests (for us mostly a reference for our ~30 modded dimensions).",
+   "notePrompt": "Which numbers? Denser leaves even if the rays get thinner?",
+   "links": [
+    {
+     "text": "13 Dark forest",
+     "href": "https://cdn.modrinth.com/data/CwaddKq6/images/c0374783df7ba558f47ffff02d2800ebc7b30216.png",
+     "note": "leaves at dusk"
+    },
+    {
+     "text": "13 Farm animals",
+     "href": "https://cdn.modrinth.com/data/CwaddKq6/images/6d626ce774237216dea96ac0307bbb16aa758316.png",
+     "note": "spruce behind"
+    },
+    {
+     "text": "15 Bastion",
+     "href": "https://cdn.modrinth.com/data/CwaddKq6/images/4db627ccb37d7882858c3da1ff447ba17984ded6.png",
+     "note": "blackstone, lava"
+    },
+    {
+     "text": "15 Warped Deltas",
+     "href": "https://cdn.modrinth.com/data/CwaddKq6/images/ba77957a448c4b9d10e8b59ee5ff93e19cca3600.png",
+     "note": "nether biomes, particles"
+    },
+    {
+     "text": "15 The End",
+     "href": "https://cdn.modrinth.com/data/CwaddKq6/images/1de84819fb4f537f51d5efcd72c540493d4b4f99.png",
+     "note": "obsidian pillars, end stone"
+    }
+   ],
+   "options": [
+    {
+     "key": "A",
+     "label": "Love all of these",
+     "desc": "aim our own pack at every element listed"
+    },
+    {
+     "key": "B",
+     "label": "Some of them",
+     "desc": "say which numbers in the note"
+    },
+    {
+     "key": "C",
+     "label": "Not for us",
+     "desc": "leave this group out of the direction"
+    }
+   ]
+  },
+  {
+   "id": "fl-redstone",
+   "name": "Faithless: redstone that shows its state",
+   "question": "Faithless is all-rights-reserved, so we only link to its official screenshots (they open on Modrinth) and would draw our own take; nothing is copied. 16. Repeaters that show their delay (1-4) on top. 17. Signal-strength numbers along redstone dust (on 1.7.10 this probably needs code or a Waila readout). 18. Clearer on/off faces for dispensers, droppers, pistons and lamps; a bold TNT label.",
+   "notePrompt": "Which numbers? Is redstone readability important for our players?",
+   "links": [
+    {
+     "text": "16-18 Redstone yard",
+     "href": "https://cdn.modrinth.com/data/CwaddKq6/images/25d4efb33f35e2f53b079d2e0a1ac758d290be23.png",
+     "note": "repeaters, dust numbers, dispensers, TNT"
+    }
+   ],
+   "options": [
+    {
+     "key": "A",
+     "label": "Love all of these",
+     "desc": "aim our own pack at every element listed"
+    },
+    {
+     "key": "B",
+     "label": "Some of them",
+     "desc": "say which numbers in the note"
+    },
+    {
+     "key": "C",
+     "label": "Not for us",
+     "desc": "leave this group out of the direction"
+    }
+   ]
+  },
+  {
+   "id": "fl-items",
+   "name": "Faithless: items, potions and books",
+   "question": "Faithless is all-rights-reserved, so we only link to its official screenshots (they open on Modrinth) and would draw our own take; nothing is copied. 19. A distinct bottle shape and label per potion, readable without colour. 20. A cover per enchanted book (we have 81 custom enchantments: covers by category). 21. Tools that visibly chip and crack as durability falls. 22. Characterful food and item icons, a few animated (rotten flesh with flies), mob buckets that show their mob. (19-21 need MCPatcher's item-texture module switched on.)",
+   "notePrompt": "Which numbers? Book covers for our enchantments: worth the drawing?",
+   "links": [
+    {
+     "text": "19, 20 Brewing",
+     "href": "https://cdn.modrinth.com/data/CwaddKq6/images/e3f31a85e20c47ad555dcff9823c2184c6f579fc.png",
+     "note": "potion bottles, enchanted books, mob buckets"
+    },
+    {
+     "text": "22 Creative tabs",
+     "href": "https://cdn.modrinth.com/data/CwaddKq6/images/a503b4c45a028329727da2624ab88ee90585ca5e.png",
+     "note": "Foodstuffs and Miscellaneous"
+    },
+    {
+     "text": "20 Trading",
+     "href": "https://cdn.modrinth.com/data/CwaddKq6/images/9813537f1690194e7888361f015157b6dfa2540e.png",
+     "note": "books and trades"
+    },
+    {
+     "text": "19 CurseForge: CIT + Brewing",
+     "href": "https://media.forgecdn.net/attachments/614/565/brewing.png",
+     "note": "the same, on CurseForge"
+    }
+   ],
+   "options": [
+    {
+     "key": "A",
+     "label": "Love all of these",
+     "desc": "aim our own pack at every element listed"
+    },
+    {
+     "key": "B",
+     "label": "Some of them",
+     "desc": "say which numbers in the note"
+    },
+    {
+     "key": "C",
+     "label": "Not for us",
+     "desc": "leave this group out of the direction"
+    }
+   ]
+  },
+  {
+   "id": "fl-gui",
+   "name": "Faithless: GUI, menu and font",
+   "question": "Faithless is all-rights-reserved, so we only link to its official screenshots (they open on Modrinth) and would draw our own take; nothing is copied. 23. Container screens in dark-wood frames with titled tabs and a small painted scene behind the slots (crafting bench, potion lab). 24. A brewing chart of every recipe beside the brewing stand (for us: a quest-book or NEI page). 25. Food tooltips with hunger and effects; an ornate boss bar; creative tabs as hanging banners. 26. A rounder, wider pixel font meant to be easier for dyslexic readers. 27. A title logo whose letters are made of blocks (waterfall, portal, creeper, ore).",
+   "notePrompt": "Which numbers? Should our own GUIs (quest book, menus) go this far?",
+   "links": [
+    {
+     "text": "23, 25 Crafting",
+     "href": "https://cdn.modrinth.com/data/CwaddKq6/images/8dc1ad0403b988a59bb0ab65a80438920695a0ad.png",
+     "note": "crafting screen, tooltip, recipe book"
+    },
+    {
+     "text": "23, 24 Brewing",
+     "href": "https://cdn.modrinth.com/data/CwaddKq6/images/e3f31a85e20c47ad555dcff9823c2184c6f579fc.png",
+     "note": "brewing screen and chart"
+    },
+    {
+     "text": "23 Trading",
+     "href": "https://cdn.modrinth.com/data/CwaddKq6/images/9813537f1690194e7888361f015157b6dfa2540e.png",
+     "note": "villager trading screen"
+    },
+    {
+     "text": "25 The End",
+     "href": "https://cdn.modrinth.com/data/CwaddKq6/images/1de84819fb4f537f51d5efcd72c540493d4b4f99.png",
+     "note": "boss bar"
+    },
+    {
+     "text": "25 Creative tabs",
+     "href": "https://cdn.modrinth.com/data/CwaddKq6/images/a503b4c45a028329727da2624ab88ee90585ca5e.png",
+     "note": "banner tabs"
+    },
+    {
+     "text": "26, 27 Main Menu",
+     "href": "https://cdn.modrinth.com/data/CwaddKq6/images/128bb3b3aa71d8c357dc6ef1b55fd1b788940088.png",
+     "note": "font and logo"
+    }
+   ],
+   "options": [
+    {
+     "key": "A",
+     "label": "Love all of these",
+     "desc": "aim our own pack at every element listed"
+    },
+    {
+     "key": "B",
+     "label": "Some of them",
+     "desc": "say which numbers in the note"
+    },
+    {
+     "key": "C",
+     "label": "Not for us",
+     "desc": "leave this group out of the direction"
+    }
+   ]
+  },
+  {
+   "id": "fl-mobs-sound",
+   "name": "Faithless: mobs, models and sound",
+   "question": "Faithless is all-rights-reserved, so we only link to its official screenshots (they open on Modrinth) and would draw our own take; nothing is copied. 28. Mobs redrawn in an early-Minecraft style: more human villagers, a more menacing dragon. 29. Breed variants for animals such as chickens (possible for us via random mobs). 30. Less-spidery spiders for arachnophobia (for us an optional add-on). 31. 3D models: braced fences, swinging lanterns, a 3D crafting table (not possible as a resource pack on 1.7.10; only for blocks we make ourselves). 32. Custom footstep and ambient sounds.",
+   "notePrompt": "Which numbers? Mob skins close to vanilla, or this far?",
+   "links": [
+    {
+     "text": "28, 29 Farm animals",
+     "href": "https://cdn.modrinth.com/data/CwaddKq6/images/6d626ce774237216dea96ac0307bbb16aa758316.png",
+     "note": "sheep, cow, chickens, pig; braced fences"
+    },
+    {
+     "text": "28 Thumbnail",
+     "href": "https://cdn.modrinth.com/data/CwaddKq6/images/2025b6f66921fe6619d183e60634817c3273b173.png",
+     "note": "players and mobs"
+    },
+    {
+     "text": "28 The End",
+     "href": "https://cdn.modrinth.com/data/CwaddKq6/images/1de84819fb4f537f51d5efcd72c540493d4b4f99.png",
+     "note": "the dragon"
+    },
+    {
+     "text": "31 Snowy village",
+     "href": "https://cdn.modrinth.com/data/CwaddKq6/images/5a5317b07a7b60af3544bd1de7425069d5220bbd.png",
+     "note": "hanging lantern"
+    }
+   ],
+   "options": [
+    {
+     "key": "A",
+     "label": "Love all of these",
+     "desc": "aim our own pack at every element listed"
+    },
+    {
+     "key": "B",
+     "label": "Some of them",
+     "desc": "say which numbers in the note"
+    },
+    {
+     "key": "C",
+     "label": "Not for us",
+     "desc": "leave this group out of the direction"
+    }
+   ]
+  },
+  {
+   "id": "fl-access",
+   "name": "Faithless: accessibility as a design rule",
+   "question": "Faithless is all-rights-reserved, so we only link to its official screenshots (they open on Modrinth) and would draw our own take; nothing is copied. Its core rule: every block and item can be told apart by shape and pattern alone, so the pack works in full colourblindness (the author tested it with colourblind players). For us: a greyscale check in our texture build that flags blocks or items that look alike, plus the shape-coded ores, potions and books above. Also: no hole clusters (trypophobia), an optional spider skin (arachnophobia), a legible font.",
+   "notePrompt": "Adopt the rule for our pack? Anyone colourblind among your friends?",
+   "links": [
+    {
+     "text": "Faithless on Modrinth",
+     "href": "https://modrinth.com/resourcepack/faithless",
+     "note": "the author's accessibility aims"
+    },
+    {
+     "text": "Faithless on CurseForge",
+     "href": "https://www.curseforge.com/minecraft/texture-packs/faithless",
+     "note": "feature summary"
+    },
+    {
+     "text": "gamepressure, 2021",
+     "href": "https://www.gamepressure.com/newsroom/minecraft-textures-for-colorblind-and-dyslexics-available/zd3550",
+     "note": "how it was made"
+    }
+   ],
+   "options": [
+    {
+     "key": "A",
+     "label": "Love all of these",
+     "desc": "aim our own pack at every element listed"
+    },
+    {
+     "key": "B",
+     "label": "Some of them",
+     "desc": "say which numbers in the note"
+    },
+    {
+     "key": "C",
+     "label": "Not for us",
+     "desc": "leave this group out of the direction"
+    }
+   ]
+  }
+ ]
+}
