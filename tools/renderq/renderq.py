@@ -50,6 +50,7 @@ STATUS = os.path.join(RQ, "status.json")
 PAUSE = os.path.join(RQ, "PAUSE")
 STOP = os.path.join(RQ, "STOP")
 STALLED = os.path.join(RQ, "STALLED")
+FOCUS_ALERT = os.path.join(RQ, "FOCUS-ALERT")
 LOCKF = os.path.join(RQ, "runner.lock")
 LOG = os.path.join(RQ, "runner.log")
 HIST = os.path.join(RQ, "history.jsonl")
@@ -345,6 +346,10 @@ class Runner:
         subs = load_subs()
         self.finish_cancelled(subs)
         subs = [s for s in load_subs() if s["status"] == "pending"]
+        if os.path.exists(FOCUS_ALERT):
+            self.status("paused", "FOCUS-ALERT: our client took the foreground; nothing launches until it is "
+                        "cleared (delete FOCUS-ALERT, then resume)", current=None)
+            return self.nap(15)
         if not subs:
             self.status("idle", "queue empty", current=None)
             if self.a.once:
@@ -667,6 +672,15 @@ class Runner:
                                  "tag": kv.get("tag"), "scene": kv.get("scene"), "stage": kv.get("stage"),
                                  "elapsed_s": round(time.time() - t0)})
             stop = None
+            # window.ps1's focus guard (10-50 ms) logs every time our client was the foreground
+            # window and hands focus back. That must never happen: stop, pause the queue, alert.
+            fl = os.path.join(d, "logs", "focus.log")
+            focus = [l.strip() for l in open(fl, encoding="utf-8", errors="replace")] if os.path.exists(fl) else []
+            if focus:
+                jdump(FOCUS_ALERT, {"at": now_s(), "boot": boot_id, "lines": focus[:20]})
+                jdump(PAUSE, {"at": now_s(), "why": "FOCUS: our client was the foreground window (see FOCUS-ALERT); "
+                              "find out why before resuming", "after_boot": False})
+                log("  FOCUS STOLEN: " + " | ".join(focus[:3]))
             if os.path.exists(PAUSE) and not (jload(PAUSE, {}) or {}).get("after_boot"):
                 stop, outcome = "paused", "paused"
             elif os.path.exists(STOP):
@@ -795,6 +809,10 @@ def cmd_status(a):
         print(f"PAUSED: {st['paused']}")
     if st.get("stalled"):
         print(f"STALLED: {st['stalled']}")
+    fa = jload(FOCUS_ALERT)
+    if fa:
+        print(f"FOCUS STOLEN ({fa['at']}, boot {fa['boot']}): our client was the foreground window. The queue is paused;")
+        print(f"  {FOCUS_ALERT} has the lines. Delete it and `resume` only once the cause is understood.")
 
 
 def cmd_wait(a):
