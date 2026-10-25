@@ -267,6 +267,12 @@ float waveFootprint(vec3 worldPos) {
 vec4 waterNormalRough(vec3 worldPos, vec3 faceNormal) {
     if (faceNormal.y < 0.5) return vec4(faceNormal, 0.0);
     float amp = WAVE_AMP * (1.0 + rainStrength * 0.6) * mix(0.7, 1.15, clamp(RIPPLE_AMP, 0.0, 1.6) / 1.6);
+#if QF_BIOME_WATER == 1 && QF_CAL_WATER == 0
+    // r007 (owner r006, lake: "splotchy ... when not enough light"): lakes are sheltered, so their
+    // sunset chop is lower than the ocean's; at a grazing view steep facets flipped between the dark
+    // water body and the bright sky in block-sized patches.
+    amp *= mix(1.0, 0.72, waterBiomeWeights().w * (1.0 - waterRiverShare()));
+#endif
     vec3 sl = spectralSlope(worldPos.xz, animTime(), waveFootprint(worldPos), amp, 0.8);
     return vec4(normalize(vec3(-sl.x, 1.0, -sl.y)), sl.z);
 }

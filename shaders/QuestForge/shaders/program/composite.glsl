@@ -254,8 +254,10 @@ vec3 lightShafts(vec3 viewDir, float dist, float eyeSky) {
     // round 5's linear lit air, which keeps the warm glow round the sun over open sky and the
     // half-lit rays that give the beams their shape, now with r006's finer sampling. The amber
     // at golden hour is a little deeper than round 5's.
+    // Over open sky the lit air is a veil: round 5's full veil washed out the sun over the ocean (pa),
+    // r006's 0.6 lost the warm glow in the forest gap (qh). 0.8, and clear of the disk itself.
+    if (dist >= far) lit *= 0.8 * (1.0 - 0.6 * pow(max(mu, 0.0), 1500.0));
     lit = clamp(lit, 0.0, 1.0) * maxD;
-    if (dist >= far) lit *= 0.6;        // pa: the full veil over open sky washed out the sun
     float sigma = mix(0.0008, 0.0038, gh) * (SHAFT_GAIN / 1.5) * (1.0 + rainStrength);
     vec3 E = lightIrradiance() * mix(vec3(1.0), vec3(1.30, 0.93, 0.56), gh);
 #else
@@ -355,6 +357,9 @@ vec3 shadeWaterAbove(vec3 color, vec3 n, float var, vec3 scene0, float dist0, ve
     sunOcc = ssr.a;
 #endif
     float F = fresnelWater(NdotV);
+    // r007: near the camera the eye averages the reflectance over many facets, so soften it toward
+    // the calm surface's value (lake splotches at grazing views).
+    F = mix(F, fresnelWater(clamp(-viewDir.y, 0.0, 1.0)), 0.35 * (1.0 - smoothstep(10.0, 60.0, dist0)));
     vec3 col = mix(refracted, refl, F);
 
     // The sun (or moon) on the waves.
@@ -376,7 +381,7 @@ vec3 shadeWaterAbove(vec3 color, vec3 n, float var, vec3 scene0, float dist0, ve
 #if QF_BIOME_WATER == 1 && QF_CAL_WATER == 0
     // r007 (critic r006: river_noon's near sparkle patch is still the brightest thing in the
     // frame): moving water near the camera at a high sun, tamed further.
-    spec *= 1.0 - 0.6 * waterRiverShare() * waterBiomeWeights().w * (1.0 - gh) * (1.0 - smoothstep(6.0, 40.0, dist0));
+    spec *= 1.0 - 0.85 * waterRiverShare() * waterBiomeWeights().w * (1.0 - gh) * (1.0 - smoothstep(6.0, 60.0, dist0));   // qh: 0.6 still the brightest patch
 #endif
     // The long column at low sun (owner r005: lively's reach): a broad lobe, balanced by distance.
     float a2b = mix(0.004, 0.050, gh) + 2.0 * var;
