@@ -221,6 +221,16 @@ def main():
                       renderer="angelica", jars=[a.jar], shaderpacks=packs, quiet=True,
                       resourcepacks=a.resourcepack)
     d = trial.trial_dir(a.name)
+    # FrameBench loads save 0 and the world list is sorted by LastPlayed: a world left in saves/ by an
+    # earlier run with another --world was played later than the fresh copy, so it won. r007's qpb,
+    # qpb0 and offpb rendered world-master instead of the showcase world that way, and qpb0 hung on
+    # that copy's broken ID map (2026-10-25). The run's world is the only save; FML's backup zips go too.
+    keep = os.path.basename(a.world.rstrip("\/"))
+    sv = os.path.join(d, "saves")
+    for n in os.listdir(sv) if os.path.isdir(sv) else []:
+        if n != keep:
+            p = os.path.join(sv, n)
+            shutil.rmtree(p) if os.path.isdir(p) else os.remove(p)
     set_kv(os.path.join(d, "options.txt"), {"maxFps": "260", "fullscreen": "false",
                                              "pauseOnLostFocus": "false", "enableVsync": "false"}, ":")
     opts = {"QF_DEBUG_VIEW": str(a.debug_view)}
