@@ -57,6 +57,7 @@ from PIL import Image, ImageDraw
 from scipy import ndimage
 sys.path.insert(0, os.path.join(HERE, "..", "..", "..", "..", "tools", "world"))
 import plan  # noqa: E402  (noise only)
+SEA_LEVEL = plan.SEA
 
 
 def centre(p):
@@ -172,6 +173,32 @@ for k, p in enumerate(terr[:-1]):
         out["ponds"].append({"at": [int(x), int(z)], "r": int(r), "depth": 5, "aspect": round(asp, 2),
                              "rot": round(rng.uniform(0, math.pi), 3), "biome": TREAD, "level": p["top"] - 1})
     print(f"hot springs tread {p['top']}: {len(placed)} pools, ~{100 * area / tarea:.0f}% of the tread (planned)")
+
+# Mountain ranges read as real ranges (plan.py range_shape / erode): every range gets a crest
+# with clustered peaks, a swelling and pinching width, a steep and a gentle flank and ragged
+# foothills; the long ranges get dendritic spurs; all of them are eroded. The divide's steep
+# flank faces the north coast, the west coastal range's faces the sea; caldera and volcano rims
+# are steep inside and get no spurs (erosion cuts their radial gullies).
+for r in out["ridges"]:
+    p = r.get("points") or []
+    if "arc" in r:
+        if r.get("biome") in (60, 77) and r["arc"][2] > 1500:            # caldera and volcano rims
+            r.update(crest={"asym": 0.4, "steep": 1, "foothills": 1.5, "width_var": 0.25, "wiggle": 0.15}, erode=True)
+        continue
+    if len(p) < 2 or math.hypot(p[0][0] - p[-1][0], p[0][1] - p[-1][1]) < 10 or r["height"] <= SEA_LEVEL:
+        continue                                                          # cones, biome-only strips
+    if r["width"] >= 8000:                                                # the divide's broad base
+        r.update(crest={"asym": 0.2, "steep": -1, "width_var": 0.25, "foothills": 1.35, "peaks": 5000, "wiggle": 0.08},
+                 erode=True)
+    elif r.get("biome") == 60 and r["width"] > 1800:                      # the divide's massifs
+        r.update(crest={"asym": 0.35, "steep": -1}, spurs={"branch": 2}, erode=True)
+    elif p[0] == [-15442, -9590]:                                         # west coastal range
+        r.update(crest={"asym": 0.35, "steep": 1, "peaks": 1800}, spurs={"branch": 2}, erode=True)
+    elif p[0] == [10530, -17072]:                                         # northern ice range
+        r.update(crest={"asym": 0.3, "steep": -1}, spurs={"branch": 2}, erode=True)
+    elif "biome" not in r and r.get("relief") == 190:                     # the divide's side ranges
+        r.update(crest={"asym": 0.15, "foothills": 1.4, "wiggle": 0.4}, spurs={"spacing": 0.5, "branch": 2}, erode=True)
+out["erosion"] = {"iterations": 40}
 
 # Spawns come from the r14 difficulty layer (ten rated spawns, spread over the whole map);
 # tiers live there too (difficulty.py), so the old per-region spawn points are replaced.

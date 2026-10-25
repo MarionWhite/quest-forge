@@ -26,9 +26,10 @@ ponds:
   - {at: [17600, 15200], r: 520, depth: 22, biome: 245}
 
 canyons:
-  # Two passes through the divide: saddles cut across the crest where the massifs meet
-  - {points: [[-5750, -7500], [-5750, -6300], [-5720, -5100]], width: 900, depth: 70, meander: 80}
-  - {points: [[3080, -7650], [3080, -6450], [3110, -5250]], width: 900, depth: 70, meander: 80}
+  # Two passes through the divide where the massifs meet: natural saddles (plan.py saddle_pass),
+  # a notch 60 below the crest with a valley winding up to it from each foot
+  - {points: [[-5900, -8600], [-5750, -6300], [-5650, -4200]], width: 1000, depth: 60, meander: 450, saddle: {shape: v}}
+  - {points: [[3000, -8700], [3080, -6450], [3200, -4300]], width: 1100, depth: 60, meander: 450, saddle: {shape: u}}
 
 rivers:
   - {points: [[15300, 12600], [14700, 12200], [13900, 11900], [12900, 11600]], width: 32, biome: 150, meander: 120}

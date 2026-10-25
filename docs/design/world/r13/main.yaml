@@ -1535,19 +1535,21 @@ canyons:
   wall_biome: 187
   floor_biome: 237
 - points:
-  - [-5750, -7500]
+  - [-5900, -8600]
   - [-5750, -6300]
-  - [-5720, -5100]
-  width: 900
-  depth: 70
-  meander: 80
+  - [-5650, -4200]
+  width: 1000
+  depth: 60
+  meander: 450
+  saddle: {shape: v}
 - points:
-  - [3080, -7650]
+  - [3000, -8700]
   - [3080, -6450]
-  - [3110, -5250]
-  width: 900
-  depth: 70
-  meander: 80
+  - [3200, -4300]
+  width: 1100
+  depth: 60
+  meander: 450
+  saddle: {shape: u}
 basins:
 - circle: [-15700, 18360, 327]
   floor: 6
@@ -3948,24 +3950,32 @@ ridges:
   relief: 200
   biome: 60
   biome_above: 0.5
+  crest: {asym: 0.4, steep: 1, foothills: 1.5, width_var: 0.25, wiggle: 0.15}
+  erode: true
 - arc: [-15270, -15868, 1720, 190, 340]
   height: 210
   width: 860
   relief: 200
   biome: 60
   biome_above: 0.5
+  crest: {asym: 0.4, steep: 1, foothills: 1.5, width_var: 0.25, wiggle: 0.15}
+  erode: true
 - arc: [-8520, -150, 1978, 25, 155]
   height: 195
   width: 1118
   relief: 220
   biome: 77
   biome_above: 0.5
+  crest: {asym: 0.4, steep: 1, foothills: 1.5, width_var: 0.25, wiggle: 0.15}
+  erode: true
 - arc: [-8520, -150, 1978, 205, 335]
   height: 195
   width: 1118
   relief: 220
   biome: 77
   biome_above: 0.5
+  crest: {asym: 0.4, steep: 1, foothills: 1.5, width_var: 0.25, wiggle: 0.15}
+  erode: true
 - points:
   - [-8520, -150]
   - [-8519, -149]
@@ -3983,6 +3993,9 @@ ridges:
   height: 150
   width: 1290
   relief: 170
+  crest: {asym: 0.35, steep: 1, peaks: 1800}
+  spurs: {branch: 2}
+  erode: true
 - points:
   - [10530, -17072]
   - [13798, -16556]
@@ -3992,6 +4005,9 @@ ridges:
   relief: 190
   biome: 60
   biome_above: 0.6
+  crest: {asym: 0.3, steep: -1}
+  spurs: {branch: 2}
+  erode: true
 - points:
   - [-4000, 20300]
   - [-3999, 20301]
@@ -4056,6 +4072,8 @@ ridges:
   height: 116
   width: 9000
   relief: 110
+  crest: {asym: 0.2, steep: -1, width_var: 0.25, foothills: 1.35, peaks: 5000, wiggle: 0.08}
+  erode: true
 - points:
   - *id002
   - *id003
@@ -4066,6 +4084,9 @@ ridges:
   relief: 230
   biome: 60
   biome_above: 0.62
+  crest: {asym: 0.35, steep: -1}
+  spurs: {branch: 2}
+  erode: true
 - points:
   - *id006
   - *id007
@@ -4076,6 +4097,9 @@ ridges:
   relief: 230
   biome: 60
   biome_above: 0.62
+  crest: {asym: 0.35, steep: -1}
+  spurs: {branch: 2}
+  erode: true
 - points:
   - *id010
   - *id011
@@ -4086,6 +4110,9 @@ ridges:
   relief: 230
   biome: 60
   biome_above: 0.62
+  crest: {asym: 0.35, steep: -1}
+  spurs: {branch: 2}
+  erode: true
 - points:
   - *id014
   - *id015
@@ -4096,6 +4123,9 @@ ridges:
   relief: 230
   biome: 60
   biome_above: 0.62
+  crest: {asym: 0.35, steep: -1}
+  spurs: {branch: 2}
+  erode: true
 - points:
   - *id018
   - *id019
@@ -4106,6 +4136,9 @@ ridges:
   relief: 230
   biome: 60
   biome_above: 0.62
+  crest: {asym: 0.35, steep: -1}
+  spurs: {branch: 2}
+  erode: true
 - points:
   - *id022
   - *id023
@@ -4116,6 +4149,9 @@ ridges:
   relief: 230
   biome: 60
   biome_above: 0.62
+  crest: {asym: 0.35, steep: -1}
+  spurs: {branch: 2}
+  erode: true
 - points:
   - *id026
   - *id027
@@ -4126,6 +4162,9 @@ ridges:
   relief: 230
   biome: 60
   biome_above: 0.62
+  crest: {asym: 0.35, steep: -1}
+  spurs: {branch: 2}
+  erode: true
 - points:
   - *id030
   - *id031
@@ -4136,6 +4175,9 @@ ridges:
   relief: 230
   biome: 60
   biome_above: 0.62
+  crest: {asym: 0.35, steep: -1}
+  spurs: {branch: 2}
+  erode: true
 - points:
   - *id034
   - *id035
@@ -4146,6 +4188,9 @@ ridges:
   relief: 230
   biome: 60
   biome_above: 0.62
+  crest: {asym: 0.35, steep: -1}
+  spurs: {branch: 2}
+  erode: true
 - points:
   - *id038
   - *id039
@@ -4156,6 +4201,9 @@ ridges:
   relief: 230
   biome: 60
   biome_above: 0.62
+  crest: {asym: 0.35, steep: -1}
+  spurs: {branch: 2}
+  erode: true
 - points:
   - *id042
   - *id043
@@ -4166,6 +4214,9 @@ ridges:
   relief: 230
   biome: 60
   biome_above: 0.62
+  crest: {asym: 0.35, steep: -1}
+  spurs: {branch: 2}
+  erode: true
 - points:
   - *id046
   - *id047
@@ -4176,6 +4227,9 @@ ridges:
   relief: 230
   biome: 60
   biome_above: 0.62
+  crest: {asym: 0.35, steep: -1}
+  spurs: {branch: 2}
+  erode: true
 - points:
   - *id050
   - *id051
@@ -4186,6 +4240,9 @@ ridges:
   relief: 230
   biome: 60
   biome_above: 0.62
+  crest: {asym: 0.35, steep: -1}
+  spurs: {branch: 2}
+  erode: true
 - points:
   - *id019
   - *id020
@@ -4217,12 +4274,18 @@ ridges:
   height: 144
   width: 1377
   relief: 190
+  crest: {asym: 0.15, foothills: 1.4, wiggle: 0.4}
+  spurs: {spacing: 0.5, branch: 2}
+  erode: true
 - points:
   - [-17171.0, -7609.0]
   - [-17696.0, -7575.0]
   height: 112
   width: 1013
   relief: 190
+  crest: {asym: 0.15, foothills: 1.4, wiggle: 0.4}
+  spurs: {spacing: 0.5, branch: 2}
+  erode: true
 - points:
   - [-14348.0, -10225.0]
   - [-14081.0, -11323.0]
@@ -4230,12 +4293,18 @@ ridges:
   height: 163
   width: 1230
   relief: 190
+  crest: {asym: 0.15, foothills: 1.4, wiggle: 0.4}
+  spurs: {spacing: 0.5, branch: 2}
+  erode: true
 - points:
   - [-13409.0, -12441.0]
   - [-12936.0, -12785.0]
   height: 121
   width: 879
   relief: 190
+  crest: {asym: 0.15, foothills: 1.4, wiggle: 0.4}
+  spurs: {spacing: 0.5, branch: 2}
+  erode: true
 - points:
   - [-12655.0, -7488.0]
   - [-12798.0, -6276.0]
@@ -4243,12 +4312,18 @@ ridges:
   height: 155
   width: 1334
   relief: 190
+  crest: {asym: 0.15, foothills: 1.4, wiggle: 0.4}
+  spurs: {spacing: 0.5, branch: 2}
+  erode: true
 - points:
   - [-13032.0, -4976.0]
   - [-13181.0, -4445.0]
   height: 121
   width: 1040
   relief: 190
+  crest: {asym: 0.15, foothills: 1.4, wiggle: 0.4}
+  spurs: {spacing: 0.5, branch: 2}
+  erode: true
 - points:
   - [-3989.0, -5233.0]
   - [-3786.0, -3956.0]
@@ -4256,12 +4331,18 @@ ridges:
   height: 171
   width: 1170
   relief: 190
+  crest: {asym: 0.15, foothills: 1.4, wiggle: 0.4}
+  spurs: {spacing: 0.5, branch: 2}
+  erode: true
 - points:
   - [-3935.0, -2537.0]
   - [-4371.0, -1519.0]
   height: 152
   width: 1082
   relief: 190
+  crest: {asym: 0.15, foothills: 1.4, wiggle: 0.4}
+  spurs: {spacing: 0.5, branch: 2}
+  erode: true
 - points:
   - [-3852.0, -6526.0]
   - [-4584.0, -7341.0]
@@ -4269,12 +4350,18 @@ ridges:
   height: 171
   width: 1183
   relief: 190
+  crest: {asym: 0.15, foothills: 1.4, wiggle: 0.4}
+  spurs: {spacing: 0.5, branch: 2}
+  erode: true
 - points:
   - [-5161.0, -8457.0]
   - [-5356.0, -9502.0]
   height: 152
   width: 1000
   relief: 190
+  crest: {asym: 0.15, foothills: 1.4, wiggle: 0.4}
+  spurs: {spacing: 0.5, branch: 2}
+  erode: true
 - points:
   - [-884.0, -5726.0]
   - [-1110.0, -4337.0]
@@ -4282,6 +4369,9 @@ ridges:
   height: 153
   width: 1403
   relief: 190
+  crest: {asym: 0.15, foothills: 1.4, wiggle: 0.4}
+  spurs: {spacing: 0.5, branch: 2}
+  erode: true
 - points:
   - [-1699.0, -6979.0]
   - [-1838.0, -7851.0]
@@ -4289,12 +4379,18 @@ ridges:
   height: 145
   width: 1143
   relief: 190
+  crest: {asym: 0.15, foothills: 1.4, wiggle: 0.4}
+  spurs: {spacing: 0.5, branch: 2}
+  erode: true
 - points:
   - [-2359.0, -8823.0]
   - [-3049.0, -9412.0]
   height: 115
   width: 1009
   relief: 190
+  crest: {asym: 0.15, foothills: 1.4, wiggle: 0.4}
+  spurs: {spacing: 0.5, branch: 2}
+  erode: true
 - points:
   - [1272.0, -6051.0]
   - [679.0, -4606.0]
@@ -4302,6 +4398,9 @@ ridges:
   height: 167
   width: 1482
   relief: 190
+  crest: {asym: 0.15, foothills: 1.4, wiggle: 0.4}
+  spurs: {spacing: 0.5, branch: 2}
+  erode: true
 - points:
   - [5399.0, -6879.0]
   - [5221.0, -7530.0]
@@ -4309,12 +4408,18 @@ ridges:
   height: 180
   width: 1230
   relief: 190
+  crest: {asym: 0.15, foothills: 1.4, wiggle: 0.4}
+  spurs: {spacing: 0.5, branch: 2}
+  erode: true
 - points:
   - [4934.0, -8356.0]
   - [4547.0, -9205.0]
   height: 147
   width: 930
   relief: 190
+  crest: {asym: 0.15, foothills: 1.4, wiggle: 0.4}
+  spurs: {spacing: 0.5, branch: 2}
+  erode: true
 - points:
   - [7829.0, -5622.0]
   - [7436.0, -4253.0]
@@ -4322,6 +4427,9 @@ ridges:
   height: 149
   width: 1500
   relief: 190
+  crest: {asym: 0.15, foothills: 1.4, wiggle: 0.4}
+  spurs: {spacing: 0.5, branch: 2}
+  erode: true
 - points:
   - [11255.0, -6489.0]
   - [11613.0, -7364.0]
@@ -4329,12 +4437,18 @@ ridges:
   height: 175
   width: 1201
   relief: 190
+  crest: {asym: 0.15, foothills: 1.4, wiggle: 0.4}
+  spurs: {spacing: 0.5, branch: 2}
+  erode: true
 - points:
   - [12104.0, -8344.0]
   - [12568.0, -9070.0]
   height: 126
   width: 818
   relief: 190
+  crest: {asym: 0.15, foothills: 1.4, wiggle: 0.4}
+  spurs: {spacing: 0.5, branch: 2}
+  erode: true
 - points:
   - [14075.0, -3986.0]
   - [15153.0, -4099.0]
@@ -4342,12 +4456,18 @@ ridges:
   height: 177
   width: 1129
   relief: 190
+  crest: {asym: 0.15, foothills: 1.4, wiggle: 0.4}
+  spurs: {spacing: 0.5, branch: 2}
+  erode: true
 - points:
   - [16303.0, -4690.0]
   - [16687.0, -5193.0]
   height: 140
   width: 862
   relief: 190
+  crest: {asym: 0.15, foothills: 1.4, wiggle: 0.4}
+  spurs: {spacing: 0.5, branch: 2}
+  erode: true
 - points:
   - [-9800, -5300]
   - [-9300, -4400]
@@ -4355,6 +4475,9 @@ ridges:
   height: 170
   width: 1300
   relief: 190
+  crest: {asym: 0.15, foothills: 1.4, wiggle: 0.4}
+  spurs: {spacing: 0.5, branch: 2}
+  erode: true
 - arc: [-9400, 8900, 680, 0, 359]
   height: 100
   width: 520
@@ -4593,3 +4716,4 @@ auto_rivers:
   min_cells: 8
   rain: {temperate rainforest: 1.8, ^bop rainforest|tropical rainforest: 4.5}
 beach_skip: [89]
+erosion: {iterations: 40}

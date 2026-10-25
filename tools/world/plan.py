@@ -105,7 +105,324 @@ def ridged(x, z, cell, octaves, seed):
     return total / norm
 
 
+# ---------------------------------------------------------------- mountain ranges (opt-in)
+# A ridge with `crest:` and/or `spurs:` is shaped as a range instead of a smooth tube; with
+# `erode: true` it also gets the erosion pass. Maps without these keys render exactly as before.
+
+def _densify(points, step):
+    out = []
+    for (x1, z1), (x2, z2) in zip(points, points[1:]):
+        k = max(1, int(math.hypot(x2 - x1, z2 - z1) / step))
+        out += [(x1 + (x2 - x1) * i / k, z1 + (z2 - z1) * i / k) for i in range(k)]
+    out.append(tuple(points[-1]))
+    return np.array(out, np.float64)
+
+
+def _line1(s, cell, seed, octaves=4, kind="fbm"):
+    """1-D noise along a path (s = arclength in blocks)."""
+    s = np.asarray(s, np.float64)
+    z = np.full_like(s, (seed % 9973) * 37.0)
+    return ridged(s, z, cell, octaves, seed) if kind == "ridged" else fbm(s, z, cell, octaves, seed)
+
+
+def _nearest_segment(A, B, cx, cz, x0, z0):
+    """Nearest of the segments A[k] -> B[k] (world blocks) for every pixel of a crop whose pixel
+    centres are cx, cz and whose top-left corner is world x0, z0. The segments are rasterised with
+    their index, a distance transform finds the nearest drawn pixel, and the pixel is projected
+    onto that segment. Returns (k, t along it 0..1, distance in blocks, side +1/-1), or None."""
+    hgt, wid = cx.shape
+    img = Image.new("I", (wid, hgt), 0)
+    dr = ImageDraw.Draw(img)
+    for k in range(len(A)):
+        dr.line([((A[k, 0] - x0) / PX, (A[k, 1] - z0) / PX), ((B[k, 0] - x0) / PX, (B[k, 1] - z0) / PX)], fill=k + 1, width=1)
+    ids = np.asarray(img)
+    if not ids.any():
+        return None
+    ii, jj = ndimage.distance_transform_edt(ids == 0, return_distances=False, return_indices=True)
+    k = ids[ii, jj] - 1
+    ax, az = A[k, 0], A[k, 1]
+    ex, ez = B[k, 0] - ax, B[k, 1] - az
+    t = np.clip(((cx - ax) * ex + (cz - az) * ez) / (ex * ex + ez * ez + 1e-9), 0, 1)
+    d = np.hypot(cx - ax - t * ex, cz - az - t * ez)
+    side = np.where(ex * (cz - az) - ez * (cx - ax) >= 0, 1.0, -1.0)
+    return k, t, d, side
+
+
+def range_shape(ridge, gx, gz, n, half, seed):
+    """A ridge as a mountain range. Returns (slices, f): f is the height as a fraction of
+    (height - sea) on the crop `slices` of the map.
+
+    crest: {peaks: 1400       spacing of peak clusters along the crest (blocks)
+            width_var: 0.3    how much the range swells and pinches along its length
+            asym: 0.3         one flank steeper and shorter than the other (0 = symmetric)
+            steep: 1          which flank is steep (1 = left of the drawn direction, -1 = right)
+            foothills: 1.6    lumpy foothills out to this many half-widths, with a ragged edge
+            wiggle: 0.3}      the crest line wanders sideways by this many half-widths
+    spurs: {spacing: 0.5      side ridges every ~0.5 half-widths along each flank, jittered
+            length: 1.2       their reach, in local half-widths
+            branch: 2         levels of branching (dendritic: each spur forks into smaller ones)
+            angle: 30         jitter of their bearing, degrees
+            width: 0.55}      their width, in half-widths
+    `true` takes all defaults. Each spur falls from just under the crest to the foot, its
+    branches lower and shorter; the valleys between them fall to the foot too."""
+    cr = ridge.get("crest") or {}
+    cr = {} if cr is True else cr
+    sp = ridge.get("spurs")
+    sp = {} if sp is True else sp
+    hw = ridge["width"] / 2.0
+    rs = seed + hash_str(json.dumps([[round(float(v)) for v in p] for p in ridge["points"][:2]])) % 100003
+    rng = np.random.default_rng(rs)
+    raw = [tuple(map(float, p)) for p in ridge["points"]]
+    closed = math.hypot(raw[0][0] - raw[-1][0], raw[0][1] - raw[-1][1]) < 1.0 or \
+        ("arc" in ridge and (ridge["arc"][4] - ridge["arc"][3]) % 360 >= 355)
+    P = _densify(raw, max(PX / 2.0, min(hw / 8.0, 96.0)))
+    if closed and len(P) > 2:
+        P = P[:-1]
+    seg = np.hypot(*np.diff(P, axis=0).T)
+    S = np.concatenate([[0], np.cumsum(seg)])
+    L = S[-1] + (math.hypot(*(P[0] - P[-1])) if closed else 0)
+
+    def frame(P):
+        tan = np.gradient(P, axis=0)
+        tan /= np.maximum(np.hypot(tan[:, 0], tan[:, 1]), 1e-9)[:, None]
+        return np.stack([-tan[:, 1], tan[:, 0]], 1)
+
+    # Wander the crest sideways (ends pinned on open ranges).
+    nrm = frame(P)
+    pin = np.ones_like(S) if closed else np.clip(np.minimum(S, L - S) / (0.8 * hw), 0, 1)
+    wig = cr.get("wiggle", 0.3) * hw * (0.6 * _line1(S, 1.2 * hw, rs + 10, 2) + _line1(S, 3.0 * hw, rs + 1) +
+                                       2.0 * _line1(S, 9.0 * hw, rs + 9, 2))
+    P = P + nrm * (wig * pin)[:, None]
+    nrm = frame(P)
+    # Along the crest: width swells and pinches; peaks cluster with saddles between.
+    wmul = np.clip(1 + cr.get("width_var", 0.3) * 1.7 * _line1(S, 2.2 * hw, rs + 2), 0.45, 1.7)
+    peaks = cr.get("peaks", ridge.get("peak_spacing", 1400))
+    pk = _line1(S, peaks, rs + 3, 4, "ridged")
+    hm = (0.5 + 0.5 * pk) * (0.78 + 0.22 * _line1(S, peaks * 3.5, rs + 4))
+    hm /= hm.max()
+    wmul *= 0.8 + 0.3 * pk                # massifs bulk out under the peaks and pinch at saddles
+    if not closed:            # ranges die out at their ends instead of stopping like a cut log
+        te = np.clip(np.minimum(S, L - S) / (0.9 * hw), 0, 1)
+        te = te * te * (3 - 2 * te)
+        hm *= 0.55 + 0.45 * te
+        wmul *= 0.6 + 0.4 * te
+    asym = cr.get("asym", 0.3) * (0.7 + 0.3 * _line1(S, 4 * hw, rs + 5))
+    steep = cr.get("steep", 1)
+    fh = cr.get("foothills", 1.6)
+    # Far enough for the noise-stretched foothills and the longest spurs, so f is 0 at the crop edge.
+    reach = hw * float(wmul.max()) * (1 + float(asym.max())) * max(fh, 2.3) * 1.5 + 4 * PX
+    sl = _box(P[:, 0].min() - reach, P[:, 1].min() - reach, P[:, 0].max() + reach, P[:, 1].max() + reach, n, half)
+    cx, cz = gx[sl], gz[sl]
+    if cx.size == 0:
+        return sl, np.zeros(cx.shape, np.float32)
+    x0, z0 = sl[1].start * PX - half, sl[0].start * PX - half
+    A, B = (P, np.roll(P, -1, axis=0)) if closed else (P[:-1], P[1:])
+    near = _nearest_segment(A, B, cx, cz, x0, z0)
+    if near is None:
+        return sl, np.zeros(cx.shape, np.float32)
+    k, t, d, side = near
+    # Which flank a pixel is on flips between neighbouring segments' fans; soften it so the
+    # asymmetry can't leave seams radiating from the crest's corners.
+    side = ndimage.gaussian_filter(side, float(np.clip(0.05 * hw / PX, 1.5, 6)))
+    Sk = np.append(S, L)
+    s_px = Sk[k] + t * (Sk[k + 1] - Sk[k])
+    if closed:
+        s_px = np.minimum(s_px, S[-1])
+    # (blurred a little: pixels in neighbouring segments' fans can sit far apart along the crest)
+    sig = float(np.clip(0.12 * hw / PX, 1.5, 12))
+    hm_px, w_px, a_px, pk_px = (ndimage.gaussian_filter(np.interp(s_px, S, v), sig) for v in (hm, wmul, asym, pk))
+    hws = hw * w_px * (1 - a_px * steep * side)          # the steep flank is the short one
+    # Ragged edges: the distance is stretched by noise at two scales, so no border runs straight.
+    en = np.maximum(1 + 0.25 * fbm(cx, cz, 0.9 * hw, 4, rs + 6) + 0.12 * fbm(cx, cz, 0.3 * hw, 3, rs + 7), 0.4)
+    dn = d / (hws * en)
+    if sp is None:
+        f = hm_px * np.clip(1 - dn, 0, 1) ** 1.6          # concave flanks under a sharp crest
+    else:   # a massif body the spurs stand out of (the valleys between them), under a sharp crest
+        f = hm_px * np.maximum(0.5 * np.clip(1 - dn, 0, 1) ** 1.2,
+                               np.clip(1 - dn / (0.3 * (0.5 + 0.7 * pk_px)), 0, 1) ** 1.5)
+    tf = np.clip(1 - dn / fh, 0, 1)
+    lumps = np.clip(0.1 + 1.2 * ridged(cx, cz, 0.45 * hw, 3, rs + 8), 0, 1.2)
+    f = np.maximum(f, 0.32 * tf ** 1.3 * lumps)          # foothills, dying out raggedly
+    if sp is not None:
+        levels = [[] for _ in range(sp.get("branch", 2) + 1)]
+        ang = math.radians(sp.get("angle", 30))
+
+        def grow(root, th, length, h0, w0, lev):
+            nseg = 6
+            pts, hs, ws = [np.array(root, np.float64)], [h0], [w0]
+            for i in range(nseg):
+                th += rng.normal(0, 0.2)
+                pts.append(pts[-1] + length / nseg * np.array([math.cos(th), math.sin(th)]))
+                a = (i + 1) / nseg
+                hs.append(h0 * (1 - a) ** 0.8)
+                ws.append(w0 * (1 - 0.55 * a))
+            for i in range(nseg):
+                levels[lev].append((pts[i], pts[i + 1], hs[i], hs[i + 1], ws[i], ws[i + 1]))
+            if lev + 1 < len(levels):
+                for _ in range(int(rng.integers(1, 3))):
+                    ab = rng.uniform(0.2, 0.6)
+                    i = int(ab * nseg)
+                    d_ = pts[i + 1] - pts[i]
+                    th_b = math.atan2(d_[1], d_[0]) + rng.choice([-1, 1]) * rng.uniform(0.6, 1.05)
+                    grow(pts[i] + (ab * nseg - i) * d_, th_b, length * (1 - ab) * rng.uniform(0.5, 0.8),
+                         (hs[i] + hs[i + 1]) / 2 * 0.9, (ws[i] + ws[i + 1]) / 2 * 0.75, lev + 1)
+
+        spacing = sp.get("spacing", 0.5) * hw
+        for sd in (1, -1):
+            s = rng.uniform(0, spacing)
+            while s < S[-1]:
+                if closed or 0.25 * hw < s < L - 0.25 * hw:
+                    i = min(int(np.searchsorted(S, s)), len(S) - 1)
+                    hwl = hw * wmul[i] * (1 - asym[i] * steep * sd)
+                    nv = nrm[i] * sd
+                    th = math.atan2(nv[1], nv[0]) + rng.uniform(-ang, ang)
+                    grow(P[i], th, sp.get("length", 1.2) * hwl * rng.uniform(0.7, 1.3), hm[i] * rng.uniform(0.82, 0.97),
+                         sp.get("width", 0.55) * hwl, 0)
+                s += spacing * rng.uniform(0.55, 1.45)
+        for lev in levels:
+            if not lev:
+                continue
+            near = _nearest_segment(np.array([g[0] for g in lev]), np.array([g[1] for g in lev]), cx, cz, x0, z0)
+            if near is None:
+                continue
+            k, t, d, _ = near
+            H0, H1, W0, W1 = (np.array([g[c] for g in lev]) for c in (2, 3, 4, 5))
+            hh = H0[k] + t * (H1[k] - H0[k])
+            ww = W0[k] + t * (W1[k] - W0[k])
+            f = np.maximum(f, hh * np.clip(1 - d / (ww * en), 0, 1) ** 1.2)
+    edge = np.ones_like(f)          # belt and braces: fade out over the crop's outer two pixels
+    for ax_ in (0, 1):
+        m_ = f.shape[ax_]
+        r_ = np.clip(np.minimum(np.arange(m_), m_ - 1 - np.arange(m_)) / 2.0, 0, 1)
+        edge *= r_[:, None] if ax_ == 0 else r_[None, :]
+    return sl, (f * edge).astype(np.float32)
+
+
+_D8 = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)]
+
+
+def erode(h, w, cfg, seed):
+    """Plan-resolution erosion of h, weighted by w (0 = untouched .. 1 = fully eroded).
+
+    Stream-power incision (each step a cell sinks by k * (area drained)^m * slope, never below
+    the cell it drains into) carves valleys that branch up into gullies; thermal relaxation then
+    slumps anything steeper than `talus`. Flow is D8 steepest descent; the drained area is one
+    sparse solve per step. spec erosion: {iterations: 40, k: 0.004, m: 0.6, talus: 0.75, seed_noise: 4}"""
+    import scipy.sparse as sps
+    import scipy.sparse.linalg as spl
+    iters, K, talus = cfg.get("iterations", 40), cfg.get("k", 0.004), cfg.get("talus", 0.75)
+    mexp = cfg.get("m", 0.6)
+    n0, n1 = h.shape
+    N = n0 * n1
+    src = np.arange(N)
+    h0 = h.astype(np.float64)
+    gzz, gxx = np.mgrid[0:n0, 0:n1] * float(PX)
+    # A little small-scale roughness so water picks distinct paths from the start.
+    hh = h0 + w * cfg.get("seed_noise", 4.0) * fbm(gxx, gzz, 256, 3, seed + 4100)
+    I = sps.identity(N, format="csc")
+    ii0, jj0 = np.arange(n0)[:, None], np.arange(n1)[None, :]
+    for it in range(iters):
+        Pd = np.pad(hh, 1, constant_values=-1e6)        # the crop's edge drains out
+        best = np.zeros((n0, n1))
+        rec = np.full((n0, n1), -1, np.int64)          # -1: a pit; -2: drains off the crop
+        for di, dj in _D8:
+            s = (hh - Pd[1 + di:1 + di + n0, 1 + dj:1 + dj + n1]) / (math.hypot(di, dj) * PX)
+            better = s > best
+            best = np.where(better, s, best)
+            ii, jj = ii0 + di, jj0 + dj
+            inside = (ii >= 0) & (ii < n0) & (jj >= 0) & (jj < n1)
+            rec = np.where(better, np.where(inside, np.clip(ii, 0, n0 - 1) * n1 + np.clip(jj, 0, n1 - 1), -2), rec)
+        r = rec.ravel()
+        m = r >= 0
+        acc = spl.spsolve(I - sps.csc_matrix((np.ones(m.sum()), (r[m], src[m])), shape=(N, N)), np.ones(N)).reshape(n0, n1)
+        hr = np.where(rec >= 0, hh.ravel()[np.maximum(rec, 0)].reshape(n0, n1), hh - np.minimum(best, 2.0) * PX)
+        best = np.minimum(best, 2.0)
+        cut = np.minimum(K * (acc * PX * PX) ** mexp * best, 0.7 * np.maximum(hh - hr, 0))
+        hh = hh - w * cut
+        # Thermal: neighbours steeper than the talus share the excess (mass-conserving).
+        for di, dj in ((0, 1), (1, 0), (1, 1), (1, -1)):
+            dd = math.hypot(di, dj) * PX
+            a_sl = (slice(0, n0 - di), slice(max(0, -dj), n1 - max(0, dj)))
+            b_sl = (slice(di, n0), slice(max(0, dj), n1 + min(0, dj)))
+            diff = hh[a_sl] - hh[b_sl]
+            ex = np.maximum(np.abs(diff) - talus * dd, 0) * np.sign(diff) * 0.25 * np.minimum(w[a_sl], w[b_sl])
+            hh[a_sl] -= ex
+            hh[b_sl] += ex
+    return (h0 + w * (hh - h0)).astype(h.dtype)
+
+
+def saddle_pass(cn, h, gx, gz, n, half, seed):
+    """A canyon with `saddle:` is a natural mountain pass, not a trench: a notch `depth` blocks
+    below the crest where the path crosses it (the highest ground on the path, or saddle.at),
+    with a valley winding up to it from each foot. The valley deepens as the ground climbs and
+    its walls rise from the floor as a V (shape: v) or a U (shape: u); it widens toward the feet.
+    {points: [foot, ..., foot], width, depth, meander, saddle: {shape: v|u, at: [x, z], walls: 1.5}}
+    Returns (slices, new heights, floor fraction 0..1) for the crop it touches, or None."""
+    sd = cn["saddle"] if isinstance(cn["saddle"], dict) else {}
+    P = _densify([tuple(map(float, p)) for p in cn["pts"]], PX / 2.0)
+    seg = np.hypot(*np.diff(P, axis=0).T)
+    S = np.concatenate([[0], np.cumsum(seg)])
+    L = S[-1]
+    hw = cn["width"] / 2.0
+    ii = np.clip(((P[:, 1] + half) / PX).astype(int), 0, n - 1)
+    jj = np.clip(((P[:, 0] + half) / PX).astype(int), 0, n - 1)
+    hp = ndimage.uniform_filter1d(h[ii, jj].astype(np.float64), max(3, int(hw / PX)), mode="nearest")
+    if "at" in sd:
+        isad = int(np.argmin(np.hypot(P[:, 0] - sd["at"][0], P[:, 1] - sd["at"][1])))
+    else:                       # where the path crosses the crest (middle 70% of the path)
+        lo, hi = int(0.15 * len(P)), max(int(0.15 * len(P)) + 1, int(0.85 * len(P)))
+        isad = lo + int(np.argmax(hp[lo:hi]))
+    sS = S[isad]
+    # The notch sits `depth` below the crest around it (the highest ground within a width of the
+    # crossing); where the path already crosses lower ground (a gap between massifs) that gap is
+    # the saddle.
+    sx, sz = P[isad]
+    ci, cj = int((sz + half) / PX), int((sx + half) / PX)
+    rr = max(1, int(cn["width"] / PX))
+    crest = float(h[max(0, ci - rr):ci + rr + 1, max(0, cj - rr):cj + rr + 1].max())
+    hS = min(hp[isad], crest - cn["depth"])
+    # Valley floors climb from each foot to the notch, steepening toward it (a valley head), cut
+    # at most `depth` (x cut) into the ground, and only ever rise toward the notch, so water runs
+    # out of the pass both ways.
+    up = sd.get("head", 1.6)
+    floor = np.where(S <= sS, hp[0] + (hS - hp[0]) * (S / max(sS, 1)) ** up,
+                     hp[-1] + (hS - hp[-1]) * ((L - S) / max(L - sS, 1)) ** up)
+    floor = np.maximum(floor, hp - cn["depth"] * sd.get("cut", 1.2))
+    floor[isad] = hS
+    floor[:isad + 1] = np.maximum.accumulate(floor[:isad + 1])
+    floor[isad:] = np.maximum.accumulate(floor[isad:][::-1])[::-1]
+    floor = np.minimum(floor, hS)
+    rise = cn["depth"] * sd.get("walls", 1.5)         # wall height gained across one half-width
+    reach = hw * 3.0
+    sl = _box(P[:, 0].min() - reach, P[:, 1].min() - reach, P[:, 0].max() + reach, P[:, 1].max() + reach, n, half)
+    cx, cz = gx[sl], gz[sl]
+    near = _nearest_segment(P[:-1], P[1:], cx, cz, sl[1].start * PX - half, sl[0].start * PX - half)
+    if near is None:
+        return None
+    k, t, d, _ = near
+    s_px = S[k] + t * seg[k]
+    fl = np.interp(s_px, S, floor)
+    # Wider toward the feet, narrower near the notch; the walls wobble.
+    hwp = hw * (0.75 + 0.5 * np.clip(np.abs(s_px - sS) / max(sS, L - sS, 1), 0, 1)) * \
+        (1 + 0.25 * fbm(cx, cz, 900, 3, seed + 6600))
+    u = d / hwp
+    if sd.get("shape", "v") == "u":
+        wall = rise * np.clip((u - 0.3) / 0.7, 0, None) ** 1.8
+    else:
+        wall = rise * u ** 1.15
+    target = fl + wall
+    return sl, target, np.clip(1 - u / 0.35, 0, 1)
+
+
 # ---------------------------------------------------------------- render: spec -> plan
+
+def _box(x0, z0, x1, z1, n, half):
+    """Plan-pixel slices covering the world box x0..x1, z0..z1 (clipped to the map). Noise is
+    pointwise in world coordinates, so work done on a crop equals the same work on the map."""
+    j0, j1 = max(0, int((x0 + half) / PX) - 1), min(n, int((x1 + half) / PX) + 2)
+    i0, i1 = max(0, int((z0 + half) / PX) - 1), min(n, int((z1 + half) / PX) + 2)
+    return (slice(i0, max(i0, i1)), slice(j0, max(j0, j1)))
+
 
 def _poly(draw_size, pts, size):
     """Spec coordinates are blocks with 0,0 at the centre; return plan-pixel tuples."""
@@ -389,8 +706,9 @@ def render(spec_path, plan_dir):
         for i in spec.get("islands", []):
             if isinstance(i, dict) and "circle" in i:
                 cx_, cz_, cr_ = i["circle"]
-                d = np.hypot(gx - cx_, gz - cz_) - cr_
-                land |= d + 0.55 * cr_ * fbm(gx, gz, max(cr_ * 1.2, 96), 5, seed + int(cx_ + cz_) % 997, gain=0.6) * 2.2 < 0
+                sl = _box(cx_ - 2.3 * cr_, cz_ - 2.3 * cr_, cx_ + 2.3 * cr_, cz_ + 2.3 * cr_, n, half)   # |fbm| <= 1
+                d = np.hypot(gx[sl] - cx_, gz[sl] - cz_) - cr_
+                land[sl] |= d + 0.55 * cr_ * fbm(gx[sl], gz[sl], max(cr_ * 1.2, 96), 5, seed + int(cx_ + cz_) % 997, gain=0.6) * 2.2 < 0
             elif not (isinstance(i, dict) and "ring" in i):
                 land |= warped_mask([i if not isinstance(i, dict) else region_polygon(i)], iwx, iwz)
     elif isl:
@@ -479,6 +797,7 @@ def render(spec_path, plan_dir):
     # Rolling hills scaled by relief, so lowlands are not billiard tables.
     hills = fbm(gx, gz, 1600, 4, seed + 5) * (4 + relief * 0.12)
     h = np.where(land, SEA + 2 + (base + hills - SEA - 2) * shore, 0).astype(np.float32)
+    erode_w = None
     for ridge in spec.get("ridges", []):
         if "arc" in ridge:        # {arc: [x, z, radius, deg0, deg1]}
             cx, cz, rad, a0, a1 = ridge["arc"]
@@ -487,6 +806,18 @@ def render(spec_path, plan_dir):
             steps = max(2, int((a1 - a0) / 4))
             ridge["points"] = [(cx + rad * math.cos(math.radians(a0 + (a1 - a0) * i / steps)),
                                 cz + rad * math.sin(math.radians(a0 + (a1 - a0) * i / steps))) for i in range(steps + 1)]
+        if "crest" in ridge or "spurs" in ridge:     # a shaped range (range_shape), not a tube
+            sl, f = range_shape(ridge, gx, gz, n, half, seed)
+            ls = land[sl]
+            h[sl] = np.where(ls, h[sl] + (ridge["height"] - SEA) * f * shore[sl], h[sl])
+            relief[sl] = np.maximum(relief[sl], np.where(f > 0.03, ridge.get("relief", 200) * np.minimum(1, f * 3), 0))
+            if "biome" in ridge:
+                biome[sl][ls & (f > ridge.get("biome_above", 0.35))] = ridge["biome"]
+            if ridge.get("erode"):
+                if erode_w is None:
+                    erode_w = np.zeros((n, n), np.float32)
+                erode_w[sl] = np.maximum(erode_w[sl], np.clip(f * 6, 0, 1) * ls)
+            continue
         pts = _poly(n, ridge["points"], size)
         ri = Image.new("L", (n, n), 0)
         ImageDraw.Draw(ri).line(pts, fill=255, width=1)
@@ -511,16 +842,26 @@ def render(spec_path, plan_dir):
     h = np.where(over, 230 + 22 * np.tanh((h - 230) / 22), h)
     extra_tiers = []
     plateau_surf = []
-    for pl, pm in plateaus:
+    top_noise = fbm(gx, gz, 600, 3, seed + 31) if plateaus else None
+    for pl, pm_full in plateaus:
+        if not pm_full.any():
+            continue
+        # Work on the plateau's bounding box (one pixel of margin keeps the distance field exact).
+        (zi, zj), (xi, xj) = [(int(a.min()), int(a.max())) for a in np.nonzero(pm_full)]
+        sl = (slice(max(0, zi - 1), zj + 2), slice(max(0, xi - 1), xj + 2))
+        pm = pm_full[sl]
         din = ndimage.distance_transform_edt(pm) * PX
         rise = np.clip(din / pl.get("wall", 64), 0, 1) ** 0.35          # sheer wall, then a flat top
-        top = pl["top"] + fbm(gx, gz, 600, 3, seed + 31) * pl.get("top_relief", 10)
-        h = np.where(pm, np.maximum(h, h + (top - h) * rise), h)
-        relief = np.where(pm & (rise >= 0.99), np.minimum(relief, pl.get("relief", 50)), relief)
+        top = pl["top"] + top_noise[sl] * pl.get("top_relief", 10)
+        h[sl] = np.where(pm, np.maximum(h[sl], h[sl] + (top - h[sl]) * rise), h[sl])
+        relief[sl] = np.where(pm & (rise >= 0.99), np.minimum(relief[sl], pl.get("relief", 50)), relief[sl])
         if "biome" in pl:
-            biome[pm & (rise > 0.6)] = pl["biome"]
+            biome[sl][pm & (rise > 0.6)] = pl["biome"]
         if "surface" in pl:          # ground material on the plateau ({surface: packed_ice})
-            plateau_surf.append((pm & (rise > 0.6), SURFACES.index(pl["surface"]) + 1))
+            ps = np.zeros_like(pm_full)
+            ps[sl] = pm & (rise > 0.6)
+            plateau_surf.append((ps, SURFACES.index(pl["surface"]) + 1))
+        pm = pm_full
         if "tier" in pl and pm.any():
             zz, xx = np.nonzero(pm)
             extra_tiers.append({"tier": pl["tier"], "x": float(xx.mean() * PX - half), "z": float(zz.mean() * PX - half)})
@@ -528,6 +869,19 @@ def render(spec_path, plan_dir):
     # and a flat floor, wandering like a river.
     for ck, cn in enumerate(spec.get("canyons", [])):
         pts = meander(cn["points"], cn.get("meander", 500), seed + 600 + ck)
+        if cn.get("saddle"):         # a natural pass (saddle_pass), not a trench
+            got = saddle_pass(dict(cn, pts=pts), h, gx, gz, n, half, seed + 600 + ck)
+            if got is None:
+                continue
+            sl, target, floor = got
+            inside = land[sl] & (target < h[sl])
+            h[sl] = np.where(inside, target, h[sl])
+            relief[sl] = np.where(inside, np.minimum(relief[sl], 30 + 120 * (1 - floor)), relief[sl])
+            if "wall_biome" in cn:
+                biome[sl][inside & (floor < 0.5)] = cn["wall_biome"]
+            if "floor_biome" in cn:
+                biome[sl][inside & (floor >= 0.5)] = cn["floor_biome"]
+            continue
         ci = Image.new("L", (n, n), 0)
         ImageDraw.Draw(ci).line(_poly(n, pts, size), fill=255, width=1)
         d = ndimage.distance_transform_edt(~(np.asarray(ci) > 0)) * PX
@@ -545,6 +899,16 @@ def render(spec_path, plan_dir):
         if "tier" in cn:
             mid = pts[len(pts) // 2]
             extra_tiers.append({"tier": cn["tier"], "x": float(mid[0]), "z": float(mid[1])})
+    # Erosion over the ranges marked `erode: true` (plateaus keep their walls), one crop per
+    # mountain area. Spec erosion: {iterations, k, talus} tunes it (see erode).
+    if erode_w is not None:
+        for pl, pm in plateaus:
+            erode_w[pm] = 0
+        erode_w = ndimage.gaussian_filter(erode_w, 1.0)
+        lab, _ = ndimage.label(ndimage.binary_dilation(erode_w > 0.01, iterations=3))
+        for k, box in enumerate(ndimage.find_objects(lab)):
+            sl = tuple(slice(max(0, b.start - 3), min(n, b.stop + 3)) for b in box)
+            h[sl] = erode(h[sl], erode_w[sl] * (lab[sl] == k + 1), spec.get("erosion", {}), seed + 97 * k)
     # Sea floor: shelf, then deep water.
     depth = np.clip(d_out / spec.get("shelf_width", 1200), 0, 1)
     h = np.where(land, h, SEA - 4 - (SEA - 4 - spec.get("deep_floor", 28)) * depth)
@@ -578,19 +942,29 @@ def render(spec_path, plan_dir):
     for ri_k, river in enumerate(rivers):
         pts = meander(river["points"], river.get("meander", 220), seed + 500 + ri_k)
         lv = np.minimum.accumulate(np.array([flow.level_at(x, z) for x, z in pts]))
-        ri = Image.new("L", (n, n), 0)
-        li = Image.new("L", (n, n), 0)
         w = max(1, round(river.get("width", 32) / PX))
-        pp = _poly(n, pts, size)
+        # Everything a river touches lies within its channel plus its valley: work on that box.
+        reach = river.get("width", 32) / 2.0 + river.get("valley", 160) + (w + 4) * PX
+        xs, zs = [x for x, _ in pts], [z for _, z in pts]
+        sl = _box(min(xs) - reach, min(zs) - reach, max(xs) + reach, max(zs) + reach, n, half)
+        oi, oj = sl[0].start, sl[1].start
+        bh, bw = sl[0].stop - oi, sl[1].stop - oj
+        if bh <= 0 or bw <= 0:
+            continue
+        ri = Image.new("L", (bw, bh), 0)
+        li = Image.new("L", (bw, bh), 0)
+        pp = [(x - oj, z - oi) for x, z in _poly(n, pts, size)]
         ImageDraw.Draw(ri).line(pp, fill=255, width=w, joint="curve")
         for (a, b), l in zip(zip(pp, pp[1:]), lv[1:]):
             ImageDraw.Draw(li).line([a, b], fill=int(np.clip(l, 0, 255)), width=w)
-        m = (np.asarray(ri) > 0) & land
+        m = (np.asarray(ri) > 0) & land[sl]
         if not m.any():
             continue
         lvl = np.asarray(li).astype(np.float32)
         d, idx = ndimage.distance_transform_edt(~m, return_indices=True)
         d = d * PX
+        h_full, water_full, land_full = h, water, land
+        h, water, land = h[sl], water[sl], land[sl]
         bed_l = lvl[idx[0], idx[1]]                      # level of the nearest channel pixel
         bank = np.clip(d / river.get("valley", 160), 0, 1) ** 0.5
         if river.get("dry"):
@@ -609,8 +983,10 @@ def render(spec_path, plan_dir):
             h = np.where(land & near, np.minimum(h, target), h)
             up = land & (d <= hw) & (surf > SEA)
             water = np.where(up, np.maximum(water, surf), water)
-        biome[m] = river.get("biome", RIVER)
-        relief = np.where(m, 0, relief)
+        h_full[sl], water_full[sl] = h, water
+        h, water, land = h_full, water_full, land_full
+        biome[sl][m] = river.get("biome", RIVER)
+        relief[sl] = np.where(m, 0, relief[sl])
 
     # Lakes inside the land, at their own surface level (WorldPainter sets that water level per
     # block). Explicit {ponds: [{at, r, depth, biome}]} plus per-region {lakes: [count, rmin, rmax]}.
