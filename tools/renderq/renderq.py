@@ -716,7 +716,9 @@ class Runner:
                 break
             time.sleep(10)
         else:
-            outcome = "finished" if "stage done" in (last_prog or "") else "crashed"
+            # the client wrote its last progress ("stage done") right before it shut down
+            last = open(prog, encoding="utf-8", errors="replace").read() if os.path.exists(prog) else ""
+            outcome = "finished" if "stage done" in last else "crashed"
         if outcome == "finished" and os.path.exists(STALLED) and stalled_written:
             os.remove(STALLED)
         return outcome, busy_from, first_step_at
