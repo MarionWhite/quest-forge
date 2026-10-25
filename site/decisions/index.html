@@ -1,0 +1,584 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Decisions · Quest Forge</title>
+<meta name="description" content="Quest Forge decisions: one card per open call, with the options and our recommendation; tap an answer and send.">
+<meta name="robots" content="noindex">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#1C1C1C">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+<style>
+/* Same dark, neutral palette as the Shader Lab, so the two owner pages feel like one tool.
+   The one accent (amber) marks "recommended"; selection is shown with brightness, like the Lab. */
+:root{
+  --bg:#1C1C1C; --surface:#242424; --raised:#2D2D2D; --sunk:#141414;
+  --ink:#E8E8E8; --ink-2:#C4C4C4; --muted:#8E8E8E; --rule:#3A3A3A; --rule-2:#4A4A4A;
+  --on:#E8E8E8; --on-ink:#161616; --rec:#E0B35A; --rec-ink:#1A1507; --later:#6E6E6E;
+  --pad-l:max(16px,env(safe-area-inset-left)); --pad-r:max(16px,env(safe-area-inset-right));
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:64px}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Source Serif 4",Georgia,serif;font-size:16px;
+  line-height:1.55;-webkit-font-smoothing:antialiased;padding-bottom:env(safe-area-inset-bottom)}
+h1,h2,h3,button,.ui{font-family:Archivo,"Helvetica Neue",Arial,sans-serif}
+.mono{font-family:"JetBrains Mono",ui-monospace,Menlo,monospace}
+a{color:var(--ink)}
+.wrap{max-width:860px;margin:0 auto;padding-left:var(--pad-l);padding-right:var(--pad-r)}
+:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+button{cursor:pointer;color:inherit;font:inherit}
+
+/* ---- top bar ---- */
+.bar{position:sticky;top:0;z-index:20;background:rgba(28,28,28,.94);backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--rule);padding-top:env(safe-area-inset-top)}
+.bar .wrap{display:flex;align-items:center;gap:14px;height:52px}
+.bar a.home{font-family:Archivo,sans-serif;font-weight:700;text-decoration:none;font-size:15px;letter-spacing:-.01em;white-space:nowrap}
+.bar a.home span{color:var(--muted);font-weight:500}
+.bar .prog{margin-left:auto;font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--muted);white-space:nowrap}
+.bar .send-top{font-family:Archivo,sans-serif;font-weight:600;font-size:13px;padding:7px 12px;border-radius:3px;
+  border:1px solid var(--rule-2);background:var(--raised)}
+
+/* ---- head ---- */
+header.sheet{padding:30px 0 6px}
+.kicker{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin:0 0 10px}
+h1{font-size:clamp(26px,5vw,40px);font-weight:800;letter-spacing:-.025em;line-height:1.08;margin:0 0 14px}
+.intro{max-width:68ch;color:var(--ink-2);margin:0;font-size:16.5px}
+.notice{border:1px solid var(--rule-2);background:var(--surface);padding:12px 14px;border-radius:3px;margin:18px 0 0;max-width:68ch;font-size:15px}
+.jump{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 0}
+.jump a{font-family:Archivo,sans-serif;font-size:13px;font-weight:600;text-decoration:none;color:var(--ink-2);
+  border:1px solid var(--rule-2);border-radius:999px;padding:7px 12px;background:var(--surface)}
+.jump a b{font-family:"JetBrains Mono",monospace;font-weight:500;color:var(--muted);margin-left:6px}
+
+/* ---- group ---- */
+.group{margin:40px 0 0;border-top:2px solid var(--rule-2);padding-top:16px}
+.group-h{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.group h2{font-size:clamp(20px,3.4vw,26px);font-weight:700;letter-spacing:-.015em;margin:0;line-height:1.2}
+.group .count{margin-left:auto;font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--muted);white-space:nowrap}
+.group .blurb{margin:8px 0 0;color:var(--ink-2);max-width:68ch;font-size:15.5px}
+.group .src{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--muted);margin:6px 0 0}
+.group .src a{color:var(--ink-2)}
+.takeall{margin:14px 0 0;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.takeall button{font-family:Archivo,sans-serif;font-weight:600;font-size:14px;padding:10px 14px;min-height:44px;border-radius:3px;
+  border:1px solid var(--rec);background:transparent;color:var(--rec)}
+.takeall button[disabled]{opacity:.45;cursor:default}
+.takeall span{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--muted)}
+
+/* ---- card ---- */
+.card{margin:22px 0 0;background:var(--surface);border:1px solid var(--rule);border-radius:4px;padding:16px 16px 14px}
+.card-h{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.card .num{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--muted)}
+.card h3{font-size:18px;font-weight:700;letter-spacing:-.01em;margin:0;line-height:1.25;flex:1 1 20ch;min-width:0}
+.card .done{font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--muted);white-space:nowrap}
+.card .done.yes{color:var(--ink)}
+.card .done.later{color:var(--later)}
+.card .q{margin:8px 0 0;font-size:16.5px}
+.ctx{margin:8px 0 0;color:var(--ink-2);font-size:15px;line-height:1.5}
+.ctx .more{display:none}
+.ctx.open .more{display:inline}
+.ctx button{background:none;border:0;padding:0 2px;color:var(--ink);font-family:Archivo,sans-serif;font-size:13.5px;font-weight:600;text-decoration:underline;min-height:0}
+.ctx.open button{display:none}
+.links{margin:8px 0 0;padding-left:18px;color:var(--ink-2);font-size:14.5px}
+.links a{color:var(--ink)}
+
+.picks{margin:14px 0 0;display:grid;grid-template-columns:1fr;gap:8px}
+@media (min-width:640px){.picks.two{grid-template-columns:1fr 1fr}}
+.pick{text-align:left;background:var(--raised);border:1px solid var(--rule-2);border-radius:3px;padding:10px 12px;min-height:48px;
+  display:grid;grid-template-columns:24px 1fr;gap:4px 10px;align-items:start;font-size:15px;line-height:1.35}
+.pick .k{font-family:"JetBrains Mono",monospace;font-weight:500;width:24px;height:24px;border-radius:2px;
+  display:inline-flex;align-items:center;justify-content:center;background:var(--sunk);font-size:12px;margin-top:-1px}
+.pick .lab{font-family:Archivo,sans-serif;font-weight:600;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.pick .tag{font-family:"JetBrains Mono",monospace;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--rec);border:1px solid var(--rec);border-radius:2px;padding:1px 6px}
+.pick .d{grid-column:2;color:var(--ink-2);font-size:14px}
+.pick[aria-pressed="true"]{background:var(--on);color:var(--on-ink);border-color:var(--on)}
+.pick[aria-pressed="true"] .k{background:var(--on-ink);color:var(--on)}
+.pick[aria-pressed="true"] .d{color:#3A3A3A}
+.pick[aria-pressed="true"] .tag{color:var(--rec-ink);background:var(--rec);border-color:var(--rec)}
+.pick.later{background:transparent;border-style:dashed;color:var(--ink-2)}
+.pick.later[aria-pressed="true"]{background:var(--later);border-color:var(--later);color:var(--on)}
+.pick.later[aria-pressed="true"] .k{background:#2A2A2A;color:var(--on)}
+.why{margin:10px 0 0;color:var(--muted);font-size:14px}
+.why b{font-family:Archivo,sans-serif;font-weight:600;color:var(--rec);font-size:12px;letter-spacing:.06em;text-transform:uppercase;margin-right:6px}
+.note{margin:10px 0 0}
+.note button{background:none;border:0;padding:6px 0;color:var(--ink-2);font-family:Archivo,sans-serif;font-size:13.5px;font-weight:600;text-decoration:underline;min-height:36px}
+textarea{width:100%;min-height:72px;resize:vertical;background:var(--sunk);color:var(--ink);border:1px solid var(--rule-2);
+  border-radius:3px;padding:10px 12px;font-family:"Source Serif 4",Georgia,serif;font-size:16px;line-height:1.45}
+textarea::placeholder{color:#7A7A7A}
+textarea:focus{outline:none;border-color:var(--ink-2)}
+
+/* ---- send ---- */
+.send{margin:44px 0 0;border-top:2px solid var(--rule-2);padding-top:18px}
+.send h2{font-size:24px;font-weight:800;margin:0 0 8px;letter-spacing:-.02em}
+.send p{color:var(--ink-2);margin:0 0 12px;max-width:66ch}
+.lbl{font-family:Archivo,sans-serif;font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}
+.btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.btn{font-family:Archivo,sans-serif;font-weight:600;font-size:15px;padding:12px 18px;border-radius:3px;border:1px solid var(--rule-2);
+  background:var(--raised);color:var(--ink);text-decoration:none;min-height:46px}
+.btn.primary{background:var(--on);color:var(--on-ink);border-color:var(--on)}
+.btn[disabled]{opacity:.5;cursor:default}
+.status-line{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--muted);margin-top:10px;min-height:1.4em}
+.status-line a{color:var(--ink)}
+.status-line.err{color:var(--ink)}
+.pass{margin-top:14px;padding:12px 14px;border:1px solid var(--rule-2);border-radius:3px;background:var(--sunk);max-width:520px}
+.pass label{display:block;font-family:Archivo,sans-serif;font-size:14px;color:var(--ink-2);margin-bottom:8px}
+.pass .row{display:flex;gap:8px;flex-wrap:wrap}
+.pass input{flex:1;min-width:12ch;min-height:44px;background:var(--surface);color:var(--ink);border:1px solid var(--rule-2);border-radius:3px;
+  padding:8px 10px;font-family:"JetBrains Mono",monospace;font-size:15px}
+.pass input:focus{outline:none;border-color:var(--ink-2)}
+details.preview{margin-top:14px}
+details.preview summary{cursor:pointer;font-family:Archivo,sans-serif;font-size:14px;color:var(--ink-2)}
+details.preview pre{white-space:pre-wrap;word-break:break-word;background:var(--sunk);border:1px solid var(--rule);padding:12px;
+  border-radius:3px;font-size:12px;max-height:340px;overflow:auto}
+.open-list{margin:10px 0 0;padding-left:18px;color:var(--ink-2);font-size:14.5px}
+.open-list a{color:var(--ink)}
+
+/* ---- history ---- */
+.history{margin:52px 0 0;border-top:2px solid var(--rule-2);padding-top:18px}
+.history h2{font-size:20px;font-weight:700;margin:0 0 10px}
+.history ol{list-style:none;padding:0;margin:0}
+.history li{display:flex;gap:12px;align-items:baseline;padding:10px 0;border-bottom:1px solid var(--rule);flex-wrap:wrap}
+.history .n{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--muted);width:3.2em}
+.history a{font-family:Archivo,sans-serif;font-weight:600;text-decoration:none;flex:1;min-width:12ch;overflow-wrap:anywhere}
+.history a:hover{text-decoration:underline}
+.history .st{font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em}
+.history .st.open{color:var(--ink)}
+.history .cur a{text-decoration:underline}
+footer{margin:48px 0 32px;font-size:13px;color:var(--muted);font-family:Archivo,sans-serif}
+
+@media (max-width:620px){
+  header.sheet{padding-top:22px}
+  .bar .send-top{display:none}
+  .card{padding:14px 12px 12px}
+}
+</style>
+</head>
+<body>
+<div class="bar"><div class="wrap">
+  <a class="home" href="../">Quest Forge <span>/ Decisions</span></a>
+  <span class="prog" id="prog"></span>
+  <button class="send-top" id="sendTop" type="button">Send answers</button>
+</div></div>
+
+<main class="wrap" id="main">
+  <header class="sheet" id="head">
+    <p class="kicker">Decisions</p>
+    <h1>Loading the open sheet…</h1>
+  </header>
+  <div id="groups"></div>
+  <section class="send" id="send" hidden>
+    <h2>Send answers</h2>
+    <p id="sendHow">Your answers save on this device as you go. When you're done, send them: this opens a new GitHub issue
+      with your answers filled in; press <b>Create</b> (you need to be signed in to GitHub).</p>
+    <div id="openList"></div>
+    <p class="lbl" style="margin-top:18px">Anything else?</p>
+    <textarea id="overall" placeholder="Anything these cards don't cover, or a decision you want added to the next sheet."></textarea>
+    <div class="btns">
+      <button class="btn primary" id="relayBtn" type="button" hidden>Send answers</button>
+      <button class="btn primary" id="sendBtn" type="button">Send answers on GitHub</button>
+      <button class="btn" id="copyBtn" type="button">Copy answers</button>
+      <button class="btn" id="clearBtn" type="button">Clear my answers</button>
+    </div>
+    <div class="pass" id="passBox" hidden>
+      <label for="passIn">Passphrase (the Shader Lab's; asked once, then remembered on this device)</label>
+      <div class="row"><input id="passIn" type="password" autocomplete="current-password" spellcheck="false">
+        <button class="btn primary" id="passGo" type="button">Save and send</button></div>
+    </div>
+    <div class="status-line" id="sendStatus" role="status" aria-live="polite"></div>
+    <details class="preview"><summary>Preview what will be sent</summary><pre id="previewText"></pre></details>
+  </section>
+  <section class="history" id="history" hidden>
+    <h2>Sheets</h2>
+    <ol id="histList"></ol>
+  </section>
+  <footer>Answers become decision records in docs/decisions and work for the agents. <a href="../">Back to Quest Forge</a></footer>
+</main>
+
+<script>
+(() => {
+"use strict";
+/* Decisions sheets ride the Shader Lab's relay: a sheet N is sent as "round" 9000+N with one
+   "scene" per card ({choice, rating: null, note}). tools/decisions/fetch_answers.py reads the
+   issues back; tools/shaders/review/fetch_feedback.py ignores rounds 9000 and up. */
+const REPO_ISSUES = "https://github.com/MarionWhite/quest-forge/issues/new";
+const SHEET_BASE = 9000;
+const MAX_URL = 7500;
+const LATER = "later";
+const $ = (s, el = document) => el.querySelector(s);
+const h = (tag, attrs = {}, ...kids) => {
+  const el = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (v == null || v === false) continue;
+    if (k === "class") el.className = v; else if (k === "html") el.innerHTML = v;
+    else if (k.startsWith("on")) el.addEventListener(k.slice(2), v); else el.setAttribute(k, v === true ? "" : v);
+  }
+  for (const c of kids.flat()) if (c != null) el.append(c.nodeType ? c : document.createTextNode(c));
+  return el;
+};
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const store = {
+  get(k) { try { return JSON.parse(localStorage.getItem(k) || "null"); } catch { return null; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch { return false; } },
+  del(k) { try { localStorage.removeItem(k); } catch {} }
+};
+const PASS_KEY = "qf-shader-lab-passphrase";   // shared with the Lab on purpose: one passphrase, typed once
+let sheet = null, sheets = [], answers = null, draftKey = "", relayURL = "";
+let items = [];     // flat [{item, group}]
+
+async function getJSON(url) {
+  const r = await fetch(url, {cache: "no-cache"});
+  if (!r.ok) throw new Error(url + ": HTTP " + r.status);
+  return r.json();
+}
+
+async function loadConfig() {
+  try {
+    const c = await getJSON("config.json");
+    relayURL = typeof c.relay_url === "string" ? c.relay_url.trim() : "";
+  } catch { relayURL = ""; }
+  const ov = new URLSearchParams(location.search).get("relay");
+  if (ov && /^http:\/\/(127\.0\.0\.1|localhost)(:\d{1,5})?\/?$/.test(ov)) relayURL = ov;
+  if (!relayURL) return;
+  $("#relayBtn").hidden = false;
+  $("#sendBtn").classList.remove("primary");
+  $("#sendBtn").textContent = "Send through GitHub instead";
+  $("#sendHow").textContent = "Your answers save on this device as you go. When you're done, press Send answers: they go " +
+    "straight to the project, no GitHub account needed. It uses the Shader Lab's passphrase, asked once per device.";
+}
+
+async function boot() {
+  await loadConfig();
+  try {
+    const idx = await getJSON("sheets/index.json");
+    sheets = (idx.sheets || []).slice().sort((a, b) => a.n - b.n);
+    const want = new URLSearchParams(location.search).get("s");
+    let pick = want != null ? sheets.find(r => String(r.n) === want || r.id === want) : null;
+    if (!pick) pick = [...sheets].reverse().find(r => r.status === "open") || sheets[sheets.length - 1];
+    if (!pick) throw new Error("no sheets posted yet");
+    sheet = await getJSON(`sheets/${pick.id}.json`);
+    render();
+  } catch (e) {
+    $("#head").innerHTML = `<p class="kicker">Decisions</p><h1>Couldn't load the sheet</h1>
+      <p class="intro">${esc(e.message)}. Reload in a minute: a sheet that was just posted can take a moment to deploy.</p>`;
+  }
+}
+
+const roundOf = () => SHEET_BASE + sheet.n;
+function emptyAnswers() { return {round: roundOf(), scenes: {}, overall: ""}; }
+
+function render() {
+  draftKey = `qf-decisions-${sheet.id}`;
+  answers = store.get(draftKey);
+  if (!answers || answers.round !== roundOf() || typeof answers.scenes !== "object") answers = emptyAnswers();
+  items = [];
+  for (const g of sheet.groups || []) for (const it of g.items || []) items.push({item: it, group: g});
+  document.title = `Decisions · sheet ${sheet.n} · Quest Forge`;
+  const head = $("#head");
+  head.innerHTML = "";
+  head.append(...[
+    h("p", {class: "kicker"}, `Decisions · sheet ${sheet.n} · ${sheet.status === "open" ? "open" : "closed"}${sheet.created ? " · " + sheet.created : ""}`),
+    h("h1", {}, sheet.title || `Sheet ${sheet.n}`),
+    sheet.intro ? h("p", {class: "intro"}, sheet.intro) : null,
+    sheet.status !== "open" ? h("p", {class: "notice"}, "This sheet is closed. You can still read it and send late changes.") : null,
+    h("nav", {class: "jump", "aria-label": "Groups"}, ...(sheet.groups || []).map(g =>
+      h("a", {href: "#g-" + g.id}, g.name, h("b", {}, String((g.items || []).length)))))
+  ].filter(Boolean));
+  const box = $("#groups");
+  box.innerHTML = "";
+  let n = 0;
+  for (const g of sheet.groups || []) box.append(groupEl(g, n)), n += (g.items || []).length;
+  $("#overall").value = answers.overall || "";
+  $("#send").hidden = false;
+  renderHistory();
+  progress();
+}
+
+const answered = a => !!(a && (a.choice || (a.note || "").trim()));
+const decided = a => !!(a && a.choice && a.choice !== LATER);
+
+function groupEl(g, start) {
+  const sec = h("section", {class: "group", id: "g-" + g.id, "aria-labelledby": "gh-" + g.id});
+  const count = h("span", {class: "count"});
+  sec.append(h("div", {class: "group-h"}, h("h2", {id: "gh-" + g.id}, g.name), count));
+  if (g.blurb) sec.append(h("p", {class: "blurb"}, g.blurb));
+  if (g.source) sec.append(h("p", {class: "src"}, "Source: ", g.source.href
+    ? h("a", {href: g.source.href, target: "_blank", rel: "noopener"}, g.source.text || g.source.href) : (g.source.text || "")));
+  const takeBtn = h("button", {type: "button"});
+  const takeNote = h("span", {});
+  const cards = [];
+  const refresh = () => {
+    const open = (g.items || []).filter(it => !decided(answers.scenes[it.id]) && it.recommend);
+    const done = (g.items || []).filter(it => decided(answers.scenes[it.id])).length;
+    takeBtn.textContent = open.length ? `Take every recommendation (${open.length} left)` : "Every card here is decided";
+    takeBtn.disabled = !open.length;
+    takeNote.textContent = open.length ? "Fills the open cards with the marked option. You can still change any of them." : "";
+    count.textContent = `${done}/${(g.items || []).length} decided`;
+  };
+  takeBtn.addEventListener("click", () => {
+    for (const it of g.items || []) {
+      const a = answers.scenes[it.id] || (answers.scenes[it.id] = {choice: null, rating: null, note: ""});
+      if (!decided(a) && it.recommend) a.choice = it.recommend;
+    }
+    save(); cards.forEach(c => c.redraw()); refresh(); progress();
+  });
+  sec.append(h("div", {class: "takeall"}, takeBtn, takeNote));
+  (g.items || []).forEach((it, i) => { const c = cardEl(it, start + i, () => { refresh(); progress(); }); cards.push(c); sec.append(c.el); });
+  refresh();
+  return sec;
+}
+
+const firstSentence = t => { const m = /^(.*?[.!?])(\s|$)/.exec(t); return m ? m[1] : t; };
+
+function cardEl(it, i, onChange) {
+  const a = answers.scenes[it.id] || (answers.scenes[it.id] = {choice: null, rating: null, note: ""});
+  const opts = it.options || [];
+  const el = h("article", {class: "card", id: "d-" + it.id, "aria-labelledby": "h-" + it.id});
+  const done = h("span", {class: "done"});
+  el.append(h("div", {class: "card-h"}, h("span", {class: "num"}, String(i + 1).padStart(2, "0")), h("h3", {id: "h-" + it.id}, it.name || it.id), done));
+  if (it.question) el.append(h("p", {class: "q"}, it.question));
+  if (it.context) {
+    const ctx = h("p", {class: "ctx"});
+    if (it.context.length > 260) {
+      const head = firstSentence(it.context), rest = it.context.slice(head.length).trim();
+      if (rest) {
+        ctx.append(head + " ", h("button", {type: "button", onclick: () => ctx.classList.add("open")}, "More"), h("span", {class: "more"}, " " + rest));
+      } else ctx.append(it.context);
+    } else ctx.append(it.context);
+    el.append(ctx);
+  }
+  if (it.links && it.links.length) el.append(h("ul", {class: "links"}, ...it.links.map(l =>
+    h("li", {}, l.href ? h("a", {href: l.href, target: "_blank", rel: "noopener"}, l.text) : l.text, l.note ? " · " + l.note : ""))));
+
+  const choices = [...opts.map(o => ({key: o.key, label: o.label, desc: o.desc, rec: o.key === it.recommend})),
+                   {key: LATER, label: "Later", desc: "Not now; it stays open on the next sheet.", later: true}];
+  const picks = h("div", {class: "picks" + (choices.length <= 3 ? " two" : ""), role: "group", "aria-label": "Your answer"});
+  const btns = choices.map(c => h("button", {class: "pick" + (c.later ? " later" : ""), type: "button", "aria-pressed": a.choice === c.key ? "true" : "false",
+    onclick: () => { a.choice = a.choice === c.key ? null : c.key; redraw(); save(); onChange(); }},
+    h("span", {class: "k"}, c.later ? "–" : c.key),
+    h("span", {class: "lab"}, c.label || c.key, c.rec ? h("span", {class: "tag"}, "recommended") : null),
+    c.desc ? h("span", {class: "d"}, c.desc) : null));
+  picks.append(...btns);
+  el.append(picks);
+  if (it.why) el.append(h("p", {class: "why"}, h("b", {}, `Why ${it.recommend}`), it.why));
+
+  const ta = h("textarea", {placeholder: it.notePrompt || "A line on why, or a condition (optional).", "aria-label": "Note"});
+  ta.value = a.note || "";
+  ta.addEventListener("input", () => { a.note = ta.value; save(); redraw(); onChange(); });
+  const noteBox = h("div", {class: "note"});
+  const noteBtn = h("button", {type: "button", onclick: () => { noteBox.replaceChildren(ta); ta.focus(); }}, it.notePrompt ? "Add a note · " + it.notePrompt : "Add a note");
+  noteBox.append((a.note || "").trim() ? ta : noteBtn);
+  el.append(noteBox);
+
+  const redraw = () => {
+    btns.forEach((b, j) => b.setAttribute("aria-pressed", choices[j].key === a.choice ? "true" : "false"));
+    done.textContent = a.choice === LATER ? "later" : decided(a) ? `decided: ${a.choice}` : (a.note || "").trim() ? "note only" : "";
+    done.className = "done" + (a.choice === LATER ? " later" : decided(a) ? " yes" : "");
+  };
+  redraw();
+  return {el, redraw};
+}
+
+/* ---- answers ---- */
+let saveT = 0;
+function save() {
+  answers.overall = $("#overall").value;
+  clearTimeout(saveT);
+  saveT = setTimeout(() => {
+    const ok = store.set(draftKey, answers);
+    if ($(".preview").open) updatePreview();
+    $("#sendStatus").textContent = ok ? "Draft saved on this device." : "This browser won't save drafts (private mode?). Send before you leave.";
+  }, 250);
+}
+$("#overall").addEventListener("input", save);
+
+function progress() {
+  if (!sheet) return;
+  const d = items.filter(x => decided(answers.scenes[x.item.id])).length;
+  const l = items.filter(x => (answers.scenes[x.item.id] || {}).choice === LATER).length;
+  $("#prog").textContent = `${d}/${items.length} decided${l ? ` · ${l} later` : ""}`;
+  const open = items.filter(x => !answered(answers.scenes[x.item.id]));
+  const box = $("#openList");
+  box.innerHTML = "";
+  if (open.length && open.length < items.length) {
+    box.append(h("p", {class: "lbl", style: "margin-top:6px"}, `${open.length} still open`),
+      h("ul", {class: "open-list"}, ...open.slice(0, 12).map(x => h("li", {}, h("a", {href: "#d-" + x.item.id}, x.item.name || x.item.id))),
+        open.length > 12 ? h("li", {}, `and ${open.length - 12} more`) : null));
+  }
+}
+
+function cleanAnswers() {
+  const out = {round: roundOf(), scenes: {}, overall: ($("#overall").value || "").trim()};
+  for (const {item} of items) {
+    const a = answers.scenes[item.id] || {};
+    const note = (a.note || "").trim();
+    if (a.choice || note) out.scenes[item.id] = {choice: a.choice || null, rating: null, note};
+  }
+  return out;
+}
+
+const clip = (t, n) => { t = String(t || "").replace(/\s+/g, " ").trim(); return t.length > n ? t.slice(0, n - 1).trimEnd() + "…" : t; };
+function labelOf(it, key) {
+  if (key === LATER) return "later";
+  const o = (it.options || []).find(o => o.key === key);
+  return o ? `${key} ${o.label}` : key;
+}
+// Readable part of the issue. noteMax 0 drops notes from the summary (they stay in the json block).
+function summary(ans, noteMax = 80) {
+  const lines = [`Decisions page answers for sheet ${sheet.n}: ${sheet.title || ""}`.trim(), ""];
+  for (const g of sheet.groups || []) {
+    const rows = (g.items || []).filter(it => ans.scenes[it.id]);
+    if (!rows.length) continue;
+    lines.push(`**${g.name}**`);
+    for (const it of rows) {
+      const a = ans.scenes[it.id];
+      const pick = a.choice ? labelOf(it, a.choice) : "(note only)";
+      const rec = a.choice && it.recommend && a.choice !== LATER ? (a.choice === it.recommend ? "" : " (not the recommendation)") : "";
+      const note = noteMax && a.note ? ` · “${clip(a.note, noteMax)}”` : "";
+      lines.push(`- ${it.id} ${it.name}: **${pick}**${rec}${note}`);
+    }
+    lines.push("");
+  }
+  if (ans.overall) lines.push("**Overall:** " + (noteMax ? clip(ans.overall, noteMax * 2) : "(in the json block)"), "");
+  return lines.join("\n");
+}
+const LEAVE = "<!-- Machine-readable answers for tools/decisions/fetch_answers.py. Please leave this block as it is. -->";
+function fullText(ans) { return `${summary(ans)}\n${LEAVE}\n\`\`\`json\n${JSON.stringify(ans, null, 1)}\n\`\`\`\n`; }
+function issueURL(title, body) {
+  const p = new URLSearchParams({title, labels: "decisions", body});
+  return `${REPO_ISSUES}?${p.toString()}`;
+}
+// One prefilled-issue URL, shortening what it carries until it fits a URL.
+function buildIssue(ans) {
+  const title = `Decisions: sheet ${sheet.n}`;
+  const compact = JSON.stringify(ans);
+  for (const noteMax of [80, 30, 0]) {
+    const body = `${summary(ans, noteMax)}\n${LEAVE}\n\`\`\`json\n${compact}\n\`\`\`\n`;
+    const url = issueURL(title, body);
+    if (url.length <= MAX_URL) return {title, body, url, trimmed: false};
+  }
+  // Still too long: send choices only; notes travel with "Copy answers".
+  const slim = {round: ans.round, scenes: {}, overall: ""};
+  for (const [id, a] of Object.entries(ans.scenes)) if (a.choice) slim.scenes[id] = {choice: a.choice, rating: null, note: ""};
+  const body = `${summary(slim, 0)}\nNotes were too long for this link; they follow in a comment.\n${LEAVE}\n\`\`\`json\n${JSON.stringify(slim)}\n\`\`\`\n`;
+  const url = issueURL(title, body);
+  if (url.length > MAX_URL) throw new Error("too many answers for one link; use Send answers or Copy answers");
+  return {title, body, url, trimmed: true};
+}
+
+async function copy(text) {
+  try { await navigator.clipboard.writeText(text); return true; } catch {}
+  try {
+    const ta = h("textarea", {readonly: true, style: "position:fixed;top:0;left:0;opacity:0"});
+    ta.value = text; document.body.append(ta); ta.select(); ta.setSelectionRange(0, text.length);
+    const ok = document.execCommand("copy"); ta.remove(); return ok;
+  } catch { return false; }
+}
+
+function updatePreview() {
+  if (!sheet) return;
+  const ans = cleanAnswers();
+  let text;
+  try { const one = buildIssue(ans); text = one.body + (one.trimmed ? "\n(Notes are left out of the GitHub link; Send answers carries them.)" : ""); }
+  catch (e) { text = fullText(ans); }
+  $("#previewText").textContent = text;
+}
+$("#send").addEventListener("toggle", updatePreview, true);
+
+function status(text, link, err) {
+  const el = $("#sendStatus");
+  el.textContent = text;
+  el.classList.toggle("err", !!err);
+  if (link) el.append(" ", h("a", {href: link, target: "_blank", rel: "noopener"}, link.replace(/^https:\/\/github\.com\//, "")));
+}
+
+function send() {
+  clearTimeout(saveT);
+  answers.overall = $("#overall").value; store.set(draftKey, answers);
+  const ans = cleanAnswers();
+  if (!Object.keys(ans.scenes).length && !ans.overall) { status("Nothing to send yet: answer a card first."); return; }
+  const w = window.open("", "_blank");
+  let one;
+  try { one = buildIssue(ans); }
+  catch (e) { if (w) w.close(); status(`Couldn't build the issue (${e.message}).`, null, true); return; }
+  status(one.trimmed ? "Opening GitHub with your choices. The notes were too long for the link: press Copy answers and paste them as a comment."
+                     : "Opening GitHub: check the issue, then press Create.");
+  if (w && !w.closed) { try { w.opener = null; } catch {} w.location.href = one.url; } else location.href = one.url;
+}
+$("#sendBtn").addEventListener("click", send);
+
+/* ---- one-tap send through the relay ---- */
+function readPass() { try { return localStorage.getItem(PASS_KEY) || ""; } catch { return ""; } }
+function writePass(v) { try { if (v) localStorage.setItem(PASS_KEY, v); else localStorage.removeItem(PASS_KEY); } catch {} }
+function askPass(msg) { $("#passBox").hidden = false; status(msg || "Enter the passphrase to send.", null, !!msg); $("#passIn").focus(); }
+
+let sending = false;
+async function relaySend() {
+  if (sending) return;
+  clearTimeout(saveT);
+  answers.overall = $("#overall").value; store.set(draftKey, answers);
+  const ans = cleanAnswers();
+  if (!Object.keys(ans.scenes).length && !ans.overall) { status("Nothing to send yet: answer a card first."); return; }
+  const pass = readPass() || ($("#passBox").hidden ? "" : $("#passIn").value.trim());
+  if (!pass) { askPass(); return; }
+  sending = true; $("#relayBtn").disabled = true; $("#passGo").disabled = true;
+  status("Sending…");
+  try {
+    const r = await fetch(relayURL.replace(/\/+$/, "") + "/feedback", {
+      method: "POST", headers: {"Content-Type": "application/json", "X-QF-Passphrase": pass}, body: JSON.stringify(ans)});
+    let j = {};
+    try { j = await r.json(); } catch {}
+    if (r.ok && j.ok && j.issue_url) {
+      writePass(pass);
+      $("#passBox").hidden = true; $("#passIn").value = "";
+      store.set(draftKey + "-sent", {at: new Date().toISOString(), issue: j.issue_url, n: Object.keys(ans.scenes).length});
+      status(`Sent ✓ (${Object.keys(ans.scenes).length} answers)`, j.issue_url);
+    } else if (r.status === 401) {
+      writePass("");
+      askPass("That passphrase didn't work. Check it and try again.");
+    } else if (r.status === 429) {
+      status("Too many sends in a short time. Wait ten minutes, or use \"Send through GitHub instead\".", null, true);
+    } else {
+      status(`Couldn't send (${j.error || "HTTP " + r.status}). Your answers are still saved here; try again, or use "Send through GitHub instead".`, null, true);
+    }
+  } catch {
+    status("Couldn't reach the relay (offline?). Your answers are still saved here; try again, or use \"Send through GitHub instead\".", null, true);
+  } finally {
+    sending = false; $("#relayBtn").disabled = false; $("#passGo").disabled = false;
+  }
+}
+$("#relayBtn").addEventListener("click", relaySend);
+$("#passGo").addEventListener("click", relaySend);
+$("#passIn").addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); relaySend(); } });
+$("#sendTop").addEventListener("click", () => $("#send").scrollIntoView({behavior: "smooth"}));
+$("#copyBtn").addEventListener("click", async () => {
+  const ok = await copy(fullText(cleanAnswers()));
+  if (ok) $("#sendStatus").textContent = "Answers copied.";
+  else { const d = $(".preview"); d.open = true; updatePreview(); $("#sendStatus").textContent = "Couldn't copy here: select the text under \"Preview\" and copy it by hand."; }
+});
+$("#clearBtn").addEventListener("click", () => {
+  if (!confirm("Clear all your answers for this sheet on this device?")) return;
+  store.del(draftKey); answers = emptyAnswers(); render();
+  $("#sendStatus").textContent = "Cleared.";
+});
+
+function renderHistory() {
+  const list = $("#histList");
+  list.innerHTML = "";
+  for (const r of [...sheets].reverse()) {
+    list.append(h("li", {class: r.id === sheet.id ? "cur" : null},
+      h("span", {class: "n"}, `s${String(r.n).padStart(3, "0")}`),
+      h("a", {href: `?s=${r.n}`}, r.title || `Sheet ${r.n}`),
+      h("span", {class: "st" + (r.status === "open" ? " open" : "")},
+        `${r.status}${r.answered ? " · answered" : ""}${r.created ? " · " + r.created : ""}`)));
+  }
+  $("#history").hidden = !sheets.length;
+}
+
+window.__qfDecisions = {cleanAnswers: () => cleanAnswers(), buildIssue: () => buildIssue(cleanAnswers()), MAX_URL};
+boot();
+})();
+</script>
+</body>
+</html>

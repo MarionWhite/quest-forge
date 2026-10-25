@@ -1,0 +1,401 @@
+{
+ "n": 1,
+ "id": "s001",
+ "title": "Thirty calls that unblock the quests, the balance pass, the textures and the server",
+ "intro": "One card per decision. Each has our recommendation marked; tap it, or tap another option, or Later. A group's \"Take every recommendation\" button fills the whole group in one tap, and you can still change any card. Notes are optional. When you are done, Send: the answers reach the project as a GitHub issue that an agent reads and turns into decision records and work. Balance cards are proposals with old → new values; nothing is applied until you say yes.",
+ "status": "open",
+ "created": "2026-10-25",
+ "groups": [
+  {
+   "id": "act1",
+   "name": "Questline: the Prologue and Act I",
+   "blurb": "From the 2026-10-19 quest book review. The Prologue (Arrival, 17 quests) is built as a draft; the act spine is a plan. These ten settle both so WP-6 (the acts) and WP-10 (the writing pass) can start.",
+   "source": {"text": "Quest book review, 2026-10-19", "href": "https://github.com/MarionWhite/quest-forge/blob/main/docs/design/quests/review-2026-10-19.md"},
+   "items": [
+    {
+     "id": "act1-01",
+     "name": "Act boundaries",
+     "question": "Where do the acts split?",
+     "context": "The plan: Act II is Twilight from the Naga to the Hydra plus all of Witchery; Act III is the far Twilight (Knight Phantom to the Snow Queen), the End, Dark Paths and OreSpawn up to Ultimate Gear; TragicMC stays whole in Act IV. The audit had wanted TragicMC's Nether and End keys in Act III, but in the data that key comes after the Synapse key, so splitting it would reorder five quests to save one. The Act III finale asks for Ultimate Gear instead.",
+     "options": [
+      {"key": "A", "label": "Yes, split as planned", "desc": "Twilight splits at the Hydra; TragicMC whole in Act IV; Act III ends on Ultimate Gear."},
+      {"key": "B", "label": "Follow the audit", "desc": "TragicMC's keys in Act III, reordering its chapter."},
+      {"key": "C", "label": "Something else", "desc": "Say what in the note."}
+     ],
+     "recommend": "A",
+     "why": "It matches the order the book already enforces and changes four prerequisites, not a chapter."
+    },
+    {
+     "id": "act1-02",
+     "name": "One tab per act, or mod tabs with act prefixes",
+     "question": "How are the acts laid out in the book?",
+     "context": "One tab per act (\"II: Old Powers\" holding Twilight and Witchery side by side) gives each act a real ending on one screen. Act-prefixed mod tabs (\"II: Twilight\", \"III: Twilight\", \"III: The End\") keep today's layouts but double the tab count. Tab names are capped at 14 characters.",
+     "options": [
+      {"key": "A", "label": "One tab per act", "desc": "Twilight and Witchery share the Act II screen."},
+      {"key": "B", "label": "Act-prefixed mod tabs", "desc": "Keeps today's layouts; twice the tabs."}
+     ],
+     "recommend": "A",
+     "why": "A player always knows which story they are in, and the finale sits on the same screen as the fights that feed it."
+    },
+    {
+     "id": "act1-03",
+     "name": "The /home ticket that ends the Prologue",
+     "question": "Does 480 Into the Chronicle hand out a permanent /sethome and /home?",
+     "context": "It works across dimensions and is today a rare world-loot find. It is the strongest thing in the Prologue: no combat power, but a way out of any fight and any wrong turn, from any dimension. The friend who joins a server where everyone else has a base is exactly who it helps. Fallback: 1 Common loot bag.",
+     "options": [
+      {"key": "A", "label": "Yes, the /home ticket", "desc": "One per player, at the end of the Prologue."},
+      {"key": "B", "label": "No, a Common loot bag", "desc": "The ticket stays rare world loot."}
+     ],
+     "recommend": "A",
+     "why": "Utility, not power, and it is the late-joining friend's best gift."
+    },
+    {
+     "id": "act1-04",
+     "name": "The jukebox as a quest reward",
+     "question": "Where does the qf-content jukebox come from in survival?",
+     "context": "No recipe registers it, so 476 Bring Your Own Music would be its only source, once per player. Either keep it a quest reward (friends share by visiting) or give it a recipe in qf-content as well.",
+     "options": [
+      {"key": "A", "label": "Quest reward plus a recipe", "desc": "The quest hands out the first; a second base can craft one."},
+      {"key": "B", "label": "Quest reward only", "desc": "One per player."},
+      {"key": "C", "label": "Recipe only", "desc": "Drop it from the quest."}
+     ],
+     "recommend": "A",
+     "why": "A second jukebox for a second base should be possible, and the quest still introduces it."
+    },
+    {
+     "id": "act1-05",
+     "name": "Parties and the Prologue",
+     "question": "What happens when a late friend joins a party at 478 You and Your Party?",
+     "context": "If BetterQuesting copies a party's completed quests to a member who joins it (likely, to be verified in WP-9), a newcomer who joins at 478 skips the Prologue they most need.",
+     "options": [
+      {"key": "A", "label": "478 says: finish Arrival first", "desc": "Newcomers are told to clear the Prologue before joining a party."},
+      {"key": "B", "label": "Accept it", "desc": "The party can explain the basics."},
+      {"key": "C", "label": "Move 478 to the finale", "desc": "Parties are taught at 480 instead."}
+     ],
+     "recommend": "A",
+     "why": "Costs one sentence and keeps the tutorial for the person it is for. Applied once WP-9 confirms the behaviour."
+    },
+    {
+     "id": "act1-06",
+     "name": "Prologue length",
+     "question": "17 quests, or a leaner 12?",
+     "context": "The gate (480) needs only 473 The First Night, 474 graves and 478 party; the other 14 are optional or on the way, about 20 to 30 minutes in all. The lean 12 would move 472 Something Hot, 475 Taller Than Your House, 476 Bring Your Own Music, 477 Break the Seal and 61 Loot Bag Basics into side tabs.",
+     "options": [
+      {"key": "A", "label": "Keep 17", "desc": "A veteran clears the gate in one night; the checkboxes take seconds."},
+      {"key": "B", "label": "Lean 12", "desc": "Five quests move to side tabs."}
+     ],
+     "recommend": "A",
+     "why": "The five teach systems (tomes, Weeping Angels, loot bags) a new friend otherwise never meets."
+    },
+    {
+     "id": "act1-07",
+     "name": "Wood and the crafting table move into Arrival",
+     "question": "Does Act I start at iron?",
+     "context": "1 Punch Some Trees and 2 Crafting Station become Prologue quests, so Ch 1 keeps 3 Better Tools, 4 Armor Up, 5 Diamond Dreams and 6 Diamond Gear and opens at 480.",
+     "options": [
+      {"key": "A", "label": "Yes", "desc": "Act I is iron to diamond."},
+      {"key": "B", "label": "No", "desc": "Wood and the table stay in Act I."}
+     ],
+     "recommend": "A"
+    },
+    {
+     "id": "act1-08",
+     "name": "Reward cuts on the moved quests",
+     "question": "Three small cuts toward the Prologue band?",
+     "context": "430 The Name Was Longer: 2 golden apples + 1 Uncommon bag → 1 golden apple + 1 Common bag. 61 Loot Bag Basics: 3 Common + 1 Uncommon → 2 Common. 0 Welcome: the bed moves to 471 Four Walls and a Door. The tab then hands out 6 Common bags, 1 Common tome, 1 golden apple, no Lucky Blocks and no diamonds.",
+     "options": [
+      {"key": "A", "label": "Yes, cut them", "desc": "All three."},
+      {"key": "B", "label": "No, keep them", "desc": "As they were."}
+     ],
+     "recommend": "A",
+     "why": "Small, and all inside the Prologue band the audit set."
+    },
+    {
+     "id": "act1-09",
+     "name": "The voice",
+     "question": "Approve the writing sample before WP-10 spreads it over the book?",
+     "context": "Nine Ch 1 quests were rewritten in the house voice: a hook of 15 words or fewer, a paragraph that says something true about this pack, the kept quote, and a last line that states exactly what the task checks. Example, 1 Punch Some Trees. Before: \"Wood is the first argument the forest will still lose. Tools come from here. Shelter comes from here. Standing still is how the night writes your name on a grave from OpenBlocks. … Gather 16 wood. Then move.\" After: \"Wood is the last argument the forest still loses. Everything starts as a log: the table, the first tools, the door you will want before dark. Take more than you think you need. The machete in the reward is for leaves and vines, not for fights. 'He said stone was good enough. A Mutant Zombie filed the rebuttal.' - Camp Log. Have 16 logs of any wood.\" The full before/after table is in section 4 of the review.",
+     "links": [{"text": "Section 4: all nine before/after rows", "href": "https://github.com/MarionWhite/quest-forge/blob/main/docs/design/quests/review-2026-10-19.md#4-the-wp-10-sample-ch-1-in-the-new-voice"}],
+     "options": [
+      {"key": "A", "label": "Approve", "desc": "WP-10 applies it to the rest of the book."},
+      {"key": "B", "label": "Approve with changes", "desc": "Say what to change in the note."},
+      {"key": "C", "label": "Not yet", "desc": "Rewrite the sample first."}
+     ],
+     "recommend": "A",
+     "notePrompt": "If anything in the voice grates, name it here before it spreads."
+    },
+    {
+     "id": "act1-10",
+     "name": "Zombie Pigmen count toward the first night",
+     "question": "473 The First Night asks for five Zombies. BetterQuesting's default counts subclasses, so Zombie Pigmen count too.",
+     "context": "Harmless on night one in the overworld.",
+     "options": [
+      {"key": "A", "label": "Leave it", "desc": "Subtypes count."},
+      {"key": "B", "label": "Vanilla Zombies only", "desc": "subtypes=0 on the hunt."}
+     ],
+     "recommend": "A"
+    }
+   ]
+  },
+  {
+   "id": "balance",
+   "name": "Balance: the enchant census proposals",
+   "blurb": "The custom-enchantment combat census is done (23 bosses, every offensive enchantment measured). These are its proposals P1 to P10. Nothing is applied. Each card gives the old and the new value. The rule stays: fix the outlier at its source, never inflate the rest of the ladder.",
+   "source": {"text": "Combat results, section 6", "href": "https://github.com/MarionWhite/quest-forge/blob/main/docs/reference/enchantment-combat-results.md#6-what-it-means-for-balance-proposals-only"},
+   "items": [
+    {
+     "id": "bal-p1",
+     "name": "P1. Damage-over-time is seeded from the pre-armour hit",
+     "question": "Rupture, Venomous and Poisonous are the T4 meta by accident.",
+     "context": "Their bleed per stack reads the hit after the boss's 750 cap but before armour. Mobzilla's armour turns a 750 hit into 120, so the melee lands 16% of its value while the bleed lands its full 4% of 750 per stack per second, through armour. Result: +40 to +50% on Mobzilla, The King and The Queen, where the next best (Colossus) is +29%. Poisonous is an Uncommon. Old: 4% / 5.8% / 4% per level per second of the pre-armour hit. New: the same percentages of the post-armour damage. Expected: about +10 to +15% on the three capped bosses, little change against unarmoured T1 and T2 bosses.",
+     "options": [
+      {"key": "A", "label": "Seed from the post-armour hit", "desc": "Same percentages, of the damage that lands."},
+      {"key": "B", "label": "Keep it, price it", "desc": "Rupture and Venomous Rare → Epic, Poisonous Uncommon → Rare (see P9)."},
+      {"key": "C", "label": "No change", "desc": "DoT stays the T4 answer."}
+     ],
+     "recommend": "A",
+     "why": "It fixes the mechanism at its source; DoT stays a steady +10 to +25% tool at every tier."
+    },
+    {
+     "id": "bal-p2",
+     "name": "P2. DoTs inherit every multiplier that runs before them",
+     "question": "Colossus+Rupture is +41 points beyond independence on the Naga.",
+     "context": "The dispatcher runs flat adds, then multipliers, then procs, so the bleed reads a hit that already includes Colossus, Cultist and Roulette. Old: seeded from the fully boosted hit. New: seeded from the weapon's own hit (the damage before this mod's phases). Expected: the pair synergies collapse to about independence (Colossus+Rupture on the Naga about +44% instead of +62%); single-enchant figures barely move.",
+     "options": [
+      {"key": "A", "label": "Seed from the weapon's own hit", "desc": ""},
+      {"key": "B", "label": "No change", "desc": "Pairs stay multiplicative."}
+     ],
+     "recommend": "A"
+    },
+    {
+     "id": "bal-p3",
+     "name": "P3. Excalibur: strongest enchantment, worth nothing at T4",
+     "question": "Keep the trophy, or make it work everywhere?",
+     "context": "Trusted mean +42.7%, significant on 22 of 23 bosses, 2.5 standard deviations above the Legendary median. It is +58% on every uncapped T3 boss (a permanent Strength I, ×2.3), +0.5% on Mobzilla, The King and The Queen, and it cancels Rage. The tuning doc says it was left deliberately enormous. Option B: replace the permanent Strength I with a ×1.5 multiplier in the multiplier phase, keeping the +4 flat, Resistance I and Speed I. Expected: about +33% on uncapped bosses instead of +58%; it stacks with Rage, and as a LivingHurtEvent multiplier it lands after the cap, so it starts working at T4 (+33%).",
+     "options": [
+      {"key": "A", "label": "No change: the trophy", "desc": "Strongest at T1 to T3, irrelevant at T4; P10 then keeps it out of T4 sources."},
+      {"key": "B", "label": "×1.5 multiplier instead of Strength I", "desc": "About +33% everywhere, T4 included; stacks with Rage."}
+     ],
+     "recommend": "A",
+     "why": "It was built to be enormous and the T4 caps already contain it; placing it right (P10) matters more than shaving it."
+    },
+    {
+     "id": "bal-p4",
+     "name": "P4. Rage: the level I cliff was a census artifact",
+     "question": "Confirm the withdrawal of the proposed proc change.",
+     "context": "The campaign's Rage I cells came from one unlucky run each. Twenty replicates on the Mantis give +25 ± 9 at level I, +37 ± 10 at II, +50 ± 7 at III: no cliff, about +12 points a level. The proposed proc change (5/10/15% → 10/12/15%) would have made Rage I about +37%, today's Rage II. What stands: a tooltip line \"does nothing while Excalibur is held\", which is not a balance change.",
+     "options": [
+      {"key": "A", "label": "Withdraw the proc change; add the tooltip", "desc": "Rage stays 5/10/15%."},
+      {"key": "B", "label": "Flatten it anyway", "desc": "Proc 10/12/15%: Rage I about +37%."}
+     ],
+     "recommend": "A"
+    },
+    {
+     "id": "bal-p5",
+     "name": "P5. The 750-per-hit cap on Mobzilla, The King and The Queen",
+     "question": "Keep the caps?",
+     "context": "The Royal sword's 751 raw is already over the cap, so every T4 weapon upgrade, Strength source and pre-cap flat add is wasted there (Excalibur, Rage, Momentum, Riposte about 0). What works: Executioner +20, Colossus +20 to +34, Cultist +12 to +28, Blind +8 to +12, Berserk when wounded +31/+40, DoT (see P1). Unenchanted the fights take 135 s, 240 s and 295 s. The alternative is a qf-tweaks transformer raising OreSpawn's cap 750 → 1,500: Excalibur about +56% and Rage about +50% on all three.",
+     "options": [
+      {"key": "A", "label": "Keep the caps", "desc": "T4 is a different puzzle, not a bigger number."},
+      {"key": "B", "label": "Raise to 1,500", "desc": "Weapon damage keeps mattering at T4; hands power back to the two outliers."}
+     ],
+     "recommend": "A",
+     "why": "Leaps in power without a fast plateau: the caps are what keep T4 from being T3 with bigger numbers."
+    },
+    {
+     "id": "bal-p6",
+     "name": "P6. Rahovart: 845 seconds with any weapon",
+     "question": "Shorten the fight at its source?",
+     "context": "Lycanites hard-codes 25 damage per hit, so the T3 Ultimate sword and the T4 Royal sword both take 845 s (42,249 HP, 1,690 hits). The length comes from MobProperties' max-health boost in config/MobProperties/demonmobs/rahovart.json. Old: \"3.0~9.0\" (×4 to ×10 health). New: \"0.5~2.0\". Expected: median health about 42,000 → about 13,500; 845 s → about 270 s unenchanted, about 215 s with Executioner. No code change.",
+     "options": [
+      {"key": "A", "label": "\"3.0~9.0\" → \"0.5~2.0\"", "desc": "About 270 s."},
+      {"key": "B", "label": "No change", "desc": "14 minutes a kill."},
+      {"key": "C", "label": "A different range", "desc": "Say which in the note."}
+     ],
+     "recommend": "A"
+    },
+    {
+     "id": "bal-p7",
+     "name": "P7. Cultist's price disappears at T3",
+     "question": "Make the self-damage armour-independent?",
+     "context": "Cultist is +17% at every tier, but its price is ordinary physical damage, so armour removes it: diamond is driven to the 1-HP floor in a Naga fight, Ultimate and Royal armour pay 0. Old: 10% of max health per level as physical damage. New: a fixed 0.6 health per proc that bypasses armour (Protection still applies), never below 1 health. Expected over a 34 s Naga fight: the T1 cost falls from about 19 HP to about 11; T3 and T4 rise from 0 to the same 11. Damage output unchanged.",
+     "options": [
+      {"key": "A", "label": "Fixed 0.6 health per proc, through armour", "desc": ""},
+      {"key": "B", "label": "No change", "desc": "Free at T3 and above; then re-tier Rare → Epic in P9."}
+     ],
+     "recommend": "A"
+    },
+    {
+     "id": "bal-p8",
+     "name": "P8. Bastion costs damage at T2",
+     "question": "What should the golems do during a boss fight?",
+     "context": "Trusted mean −16%, and −37% across T2 (Baba Yaga −120%, DeathReaper −93%). The golems' small hits take the boss's invulnerability frames from the player's larger multiplied hits. Real gameplay, not a census artifact.",
+     "options": [
+      {"key": "A", "label": "Golems fight the adds", "desc": "They ignore the wielder's target for 20 ticks after the wielder hits it; about 0% on bosses, full value against groups."},
+      {"key": "B", "label": "Golems tank", "desc": "They taunt instead of dealing damage."},
+      {"key": "C", "label": "Keep it, document it", "desc": "An add-clearing enchantment that hurts on bosses."}
+     ],
+     "recommend": "A",
+     "why": "The smallest change that removes the penalty without inventing a new role."
+    },
+    {
+     "id": "bal-p9",
+     "name": "P9. Re-tier by measured value",
+     "question": "Move rarities to match what the census measured?",
+     "context": "Suggested: Rage Epic → Legendary (unless P4 changes it); Momentum Uncommon → Epic (+24%, and as an Uncommon it drops from vanilla chests at T0, the strongest early find by far); Roulette Uncommon → Rare (+21%); Tank Rare → Epic (+29% damage reduction at T1 and T2). Conditional: Rupture Rare → Epic, Venomous Rare → Epic and Poisonous Uncommon → Rare only if P1 is declined; Cultist Rare → Epic only if P7 is declined. Unchanged: Excalibur Legendary, Colossus Epic, Berserk Epic, Turtle Legendary, Blind Rare, Riposte Uncommon, Cockroach and Bulwark (about +10%, not Legendary as the progression audit claimed). The ~20 enchantments that measure about 0 against bosses are priced on utility or PvP value, which the census cannot rank.",
+     "options": [
+      {"key": "A", "label": "Accept the table", "desc": "Including the conditional moves as P1 and P7 resolve."},
+      {"key": "B", "label": "Only the unconditional four", "desc": "Rage, Momentum, Roulette, Tank."},
+      {"key": "C", "label": "No re-tiering", "desc": ""}
+     ],
+     "recommend": "A",
+     "notePrompt": "Any single move you want left out?"
+    },
+    {
+     "id": "bal-p10",
+     "name": "P10. Where on the ladder each enchantment should drop",
+     "question": "Adopt the census as the input to the loot plan (progression audit section 5)?",
+     "context": "Armour enchantments only pay at T1 and T2 (from T3 the tier armour is already immune to every boss's melee), so they belong in T1 and T2 sources: Twilight chests, Twilight boss quests, Witchery and TragicMC drops, not behind T4 kills. Excalibur, Rage, Momentum, Riposte and Assassinate peak at T1 to T3 and are dead against the capped T4 bosses: put Excalibur and Rage in T3 sources (OreSpawn mid-boss drops at a low chance), not behind Mobzilla, The King and The Queen. Executioner, Cultist and Colossus are flat across every tier, caps included: the right \"keeps growing\" rewards for T4 kills. The DoTs follow P1 (T4 rewards if declined, mid-tier if accepted). No single step hands out a clashing pair (Excalibur + Rage, Poisonous + Venomous).",
+     "options": [
+      {"key": "A", "label": "Adopt these placement rules", "desc": "Section 5 is rewritten from them."},
+      {"key": "B", "label": "Decline", "desc": "Keep section 5 as it stands."}
+     ],
+     "recommend": "A"
+    }
+   ]
+  },
+  {
+   "id": "textures",
+   "name": "Textures",
+   "blurb": "Two calls from the texture direction work (Shader Lab rounds 6 and 7). QF Textures v0 exists as a prototype: vanilla's designs, Faithful 32x where you liked it, calmer grass, a little more vibrance, connected glass and generated LabPBR maps.",
+   "source": {"text": "Texture direction", "href": "https://github.com/MarionWhite/quest-forge/blob/main/docs/design/textures/direction.md"},
+   "items": [
+    {
+     "id": "tex-glass-panes",
+     "name": "Connected glass panes",
+     "question": "Turn on connected textures for glass panes?",
+     "context": "Angelica's built-in MCPatcher connects glass blocks out of the box, but panes need glassPane=true in config/mcpatcherforge.cfg, which is off by default. A one-line pack config change; the module is marked alpha, so the render loop checks panes in the showcase wall afterwards.",
+     "options": [
+      {"key": "A", "label": "Yes", "desc": "glassPane=true in the pack config."},
+      {"key": "B", "label": "No", "desc": "Panes keep their frame lines."}
+     ],
+     "recommend": "A"
+    },
+    {
+     "id": "tex-ship",
+     "name": "How QF Textures ships",
+     "question": "QF v0 contains vanilla's own pixels, recoloured (vibrance ×1.12, calmer grass), beside Faithful's. Is shipping them acceptable, and how?",
+     "context": "The build script reads the textures from the player's own minecraft.jar, so the repo never holds Mojang's pixels; the built zip does. Shipping modified vanilla textures is what every resource pack does, Faithful included. The cautious route builds the zip on each player's PC from their own jar (the installer runs the script), so nothing of Mojang's is in our downloads. The third route ships only Faithful-licensed textures, our own art, CTM rules and PBR maps, and leaves vanilla's pixels untouched.",
+     "options": [
+      {"key": "A", "label": "Ship the built zip with the pack", "desc": "Common practice; credit and licences inside."},
+      {"key": "B", "label": "Build it on each player's PC", "desc": "The installer runs the script against their own jar."},
+      {"key": "C", "label": "Don't recolour vanilla", "desc": "Only Faithful, our art, CTM and PBR on top of vanilla."}
+     ],
+     "recommend": "A",
+     "why": "Every resource pack ships modified vanilla art; B adds an installer step for friends, and C gives up the calmer grass and vibrance you asked for."
+    }
+   ]
+  },
+  {
+   "id": "server",
+   "name": "The friends' server: rules nobody has written down",
+   "blurb": "From the server-readiness audit. Each is a config value or a sentence in the rules post, and none costs performance. Today every one is a default nobody chose. The server agent is turning each into a one-flag change, so your answers apply in one rebuild.",
+   "source": {"text": "Server readiness, section 6", "href": "https://github.com/MarionWhite/quest-forge/blob/main/docs/design/server-readiness.md#6-social-systems-decisions-nobody-has-written-down"},
+   "items": [
+    {
+     "id": "srv-pvp",
+     "name": "PvP and accidental damage",
+     "question": "pvp=true with no teams today, and Legends powers, MCHeli, ICBM and the Gravity Gun make accidental PvP routine.",
+     "context": "Everyone on one vanilla scoreboard team with friendly fire off blocks player-sourced damage at no cost; Gravity Gun player grabs off; server PvP stays on so two people can leave the team for a duel.",
+     "options": [
+      {"key": "A", "label": "One team, friendly fire off", "desc": "Gravity Gun can't grab players; duels by leaving the team."},
+      {"key": "B", "label": "Leave it", "desc": "PvP on, no teams; accidents happen."},
+      {"key": "C", "label": "PvP off entirely", "desc": "pvp=false; no duels."}
+     ],
+     "recommend": "A"
+    },
+    {
+     "id": "srv-quests",
+     "name": "Quest progression: parties or personal",
+     "question": "305 of 308 tasks are retrieval with nothing consumed, so one item set handed round completes a quest for every friend in turn.",
+     "context": "The act plan already assumes one party per friend group with Single Reward off (a hunt kill counts for the whole party). The alternative is personal progression with no parties, accepting hand-me-down completions. Either way the few quests with the biggest loot rewards can consume their items (consume=1).",
+     "options": [
+      {"key": "A", "label": "Parties are the norm", "desc": "One per friend group, Single Reward off; consume=1 on the biggest loot rewards."},
+      {"key": "B", "label": "Personal progression", "desc": "No parties."},
+      {"key": "C", "label": "Parties, consume nothing", "desc": "As today, with parties."}
+     ],
+     "recommend": "A"
+    },
+    {
+     "id": "srv-sleep",
+     "name": "Sleeping through the night",
+     "question": "Vanilla 1.7.10 needs every player in the dimension in bed, so with five or more people nights never skip.",
+     "context": "Morpheus or Sleepy Head add a sleeping-percentage vote on 1.7.10, server-side and cheap. The server agent is checking which one is accepted server-only.",
+     "options": [
+      {"key": "A", "label": "Add a sleep vote", "desc": "Half the players asleep skips the night."},
+      {"key": "B", "label": "Vanilla", "desc": "Everyone must sleep."}
+     ],
+     "recommend": "A"
+    },
+    {
+     "id": "srv-afk",
+     "name": "AFK players",
+     "question": "No idle timeout today: an AFK player holds 169 chunks and a mob cap all night.",
+     "context": "player-idle-timeout=30 kicks after 30 minutes idle. Set by the builder.",
+     "options": [
+      {"key": "A", "label": "Kick after 30 minutes idle", "desc": ""},
+      {"key": "B", "label": "No idle kick", "desc": ""}
+     ],
+     "recommend": "A"
+    },
+    {
+     "id": "srv-hub",
+     "name": "A hub at spawn",
+     "question": "spawn-protection is 0 and new players land somewhere random within 20 blocks.",
+     "context": "A small hub built before day one: rules on BiblioCraft boards, a community EnderStorage chest, a greeter, the Twilight portal nearby, no machines (spawn chunks tick forever). spawn-protection=16 covers vanilla interactions by non-ops. This is also where the Ark-style spawn picker would hand people over, once it exists.",
+     "options": [
+      {"key": "A", "label": "Build the hub, protect 16", "desc": "Before day one."},
+      {"key": "B", "label": "No hub", "desc": "Spawn stays as it is."}
+     ],
+     "recommend": "A"
+    },
+    {
+     "id": "srv-loaders",
+     "name": "Chunk loaders and the known TPS sinks",
+     "question": "Only ChickenChunks is capped. Railcraft world anchors are free, fuel-less and always on; Sync shells each hold a chunk; Chest Transporter can carry dungeon spawners; ProjectE's Watch of Flowing Time in a pedestal multiplies every nearby machine's ticks.",
+     "context": "The bundle: Railcraft world anchors uncraftable (personal and passive anchors stay); Sync allowChunkLoading off; Chest Transporter can't pick up spawners; the Time Watch pedestal bonus lowered; Lycanites random mob events start on day 2 or 3 instead of day 0; the host's op chunk loaders stop when offline like everyone else's.",
+     "options": [
+      {"key": "A", "label": "Apply the whole bundle", "desc": "Name any exception in the note."},
+      {"key": "B", "label": "Only the loader caps", "desc": "Railcraft and Sync; leave the rest."},
+      {"key": "C", "label": "No caps", "desc": ""}
+     ],
+     "recommend": "A",
+     "notePrompt": "Any of these you want to keep as they are?"
+    },
+    {
+     "id": "srv-graves",
+     "name": "Death and graves",
+     "question": "GraveStones has no owner-only option, so anyone can loot anyone's grave. Death costs 5 Level Up skill points and the walk back; Witchery's recovery rite and Sync shells still work.",
+     "context": "Accept the defaults and write them into the rules post, including \"don't loot other people's graves\" and that EnderStorage frequencies are shared unless diamond-locked.",
+     "options": [
+      {"key": "A", "label": "Accept and write them down", "desc": ""},
+      {"key": "B", "label": "Change the death rules", "desc": "Say how in the note."}
+     ],
+     "recommend": "A"
+    },
+    {
+     "id": "srv-tools",
+     "name": "Three server additions",
+     "question": "A profiler, a world border and a way to reach a friend.",
+     "context": "Opis answers \"why is it lagging\" and costs nothing when not profiling. WorldBorder-Forge turns \"please don't explore past the pregenerated area\" into a wall at that radius. A /tpa unlockable in qf-commands, earned like the other tickets, is how friends join each other in a 49,000-block world. All server-side or in-house.",
+     "options": [
+      {"key": "A", "label": "All three", "desc": "Opis, the border, and /tpa as an unlockable."},
+      {"key": "B", "label": "Opis and the border", "desc": "No /tpa."},
+      {"key": "C", "label": "None", "desc": ""}
+     ],
+     "recommend": "A"
+    }
+   ]
+  }
+ ]
+}

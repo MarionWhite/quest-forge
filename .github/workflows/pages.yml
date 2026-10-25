@@ -1,7 +1,7 @@
 name: Publish site
 
 # The homepage (site/home) is the site root and the directory of everything else.
-# Every other page is served under its own folder name: /mods/, /items/, /ore-atlas/, /shaders/.
+# Every other page is served under its own folder name: /mods/, /items/, /ore-atlas/, /shaders/, /decisions/.
 #
 # All of them are committed as generated output (see site/README.md); this workflow
 # only arranges them, it does not build them. To change what they contain,
@@ -43,6 +43,7 @@ jobs:
           cp -R site/ore-atlas _site/ore-atlas
           cp -R site/items _site/items
           cp -R site/shaders _site/shaders
+          cp -R site/decisions _site/decisions
           test -s _site/index.html
           echo "Publishing:"; find _site -type f | sort
 
