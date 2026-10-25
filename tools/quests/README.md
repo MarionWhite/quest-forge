@@ -39,13 +39,16 @@ The `ids` check skips the `hbm:` namespace in the server book only.
 | `text` | `a` before a vowel ("a Anvil"), "Beastiary" for the tab (the Lycanites GUI is spelled that way, so "Lycanites' Beastiary" is allowed), placeholder words, `..`. A `[WRITE: ...]` placeholder (what a data patch leaves for the writers) is a warning in a draft and an error in the pack and server books. |
 | `hunt` | a `bq_standard:hunt` target that is not in `entities.json`, or a `bq_standard:location` dimension that is not. BQ never checks a hunt target when the book loads: a misspelt name is a quest nobody can finish, and no log line says so. |
 | `path` | a quest that needs a HIDDEN quest, a prerequisite cycle, or an act (numbered chapter) that can open before (or together with) the one before it. Prints, per tab, the quest that opens it, what that quest needs, and how many quests come first. |
-| `obtain` | a retrieval task whose item the dead-item census ([`../../docs/reference/dead-items.md`](../../docs/reference/dead-items.md), `dead-items.json` beside it) does not call `ok`: creative-only, technical, hidden, no known source, or never listed by the item dump. `ids` proves an id is registered; `obtain` asks whether a player can get it. Warns on a reward whose item is creative, technical or hidden. `OBTAIN_ALLOW` in `qb.py` overrules the census per quest for cases a human has verified in game (empty today). Needs the census file; without it the check only warns. |
+| `obtain` | **warns** on a retrieval task whose item the dead-item census ([`../../docs/reference/dead-items.md`](../../docs/reference/dead-items.md), `dead-items.json` beside it) does not call `ok`: creative-only, technical, hidden, no known source, or never listed by the item dump. `ids` proves an id is registered; `obtain` asks whether a player can get it. The census is research, not a test, so a finding is a warning (visible on every run, `check` still passes) and becomes an **error** only with `--strict` (on `check` or `obtain`) or for a quest in `OBTAIN_VERIFIED_BAD` in `qb.py`, where a quest goes once someone has confirmed in game that the ask is impossible (empty today). `OBTAIN_ALLOW` is the opposite table: quests verified obtainable in game, whose census verdict is dropped (empty too). Also warns on a reward whose item is creative, technical or hidden. Needs the census file; without it the check only warns. |
 
-**What `obtain` flags today (census of 2026-10-25, dump of 2026-10-17).** The pack book fails
-on nine tasks, the server book on the same minus quest 440 (it lacks the ChocolateQuest
-quests); the WP-5 and WP-6 drafts fail on the same nine and add one warning. None has been
-verified in game yet, so `OBTAIN_ALLOW` is empty and `qb.py check` exits 1 until each is fixed
-or allowlisted:
+**What `obtain` flags today (census of 2026-10-25, dump of 2026-10-17).** Nine task warnings
+in the pack book, the same minus quest 440 in the server book (it lacks the ChocolateQuest
+quests), the same nine plus one reward warning in the WP-5 and WP-6 drafts. None has been tried
+in game yet, so both tables are empty and `qb.py check` passes; `qb.py obtain --strict --book
+pack` turns the nine into errors. When a hand check confirms one, move it to
+`OBTAIN_VERIFIED_BAD` (it then fails every run until the quest is fixed); when a hand check
+shows the item is obtainable after all, put it in `OBTAIN_ALLOW` and fix the research line in
+`tools/items/descriptions.json`:
 
 | Quest | Asks for | Census says |
 |---|---|---|
