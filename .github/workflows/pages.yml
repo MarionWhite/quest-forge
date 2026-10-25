@@ -3,7 +3,7 @@ name: Publish site
 # The homepage (site/home) is the site root and the directory of everything else; its
 # 404.html, favicon and img/ land at the root with it. Every other page is served under
 # its own folder name: /play/, /mods/, /items/, /worlds/, /enchantments/, /ore-atlas/,
-# /online/, /shaders/, /first-night/.
+# /online/, /shaders/, /first-night/, /lucky/, /graves/, /players/.
 #
 # All of them are committed as generated output (see site/README.md); this workflow
 # only arranges them, it does not build them. To change what they contain,
@@ -79,9 +79,15 @@ jobs:
           cp -R site/online _site/online
           cp -R site/shaders _site/shaders
           cp -R site/first-night _site/first-night
+          cp -R site/lucky _site/lucky
+          cp -R site/graves _site/graves
+          cp -R site/players _site/players
           test -s _site/index.html
           test -s _site/404.html
           test -s _site/first-night/index.html
+          test -s _site/lucky/index.html
+          test -s _site/graves/index.html
+          test -s _site/players/index.html
 
       - name: Write the pack description (soft)
         run: |

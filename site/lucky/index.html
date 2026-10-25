@@ -1,0 +1,1449 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Break a Lucky Block · Quest Forge</title>
+<meta name="description" content="Break a Lucky Block in Quest Forge: choose its luck, watch it open, and see the odds. Every outcome and its weight is read from the pack's own Lucky Block config.">
+<meta name="theme-color" content="#E9EAE4">
+<meta property="og:title" content="Break a Lucky Block · Quest Forge">
+<meta property="og:description" content="About 300 outcomes, weighted the way the mod weights them.">
+<link rel="canonical" href="https://marionwhite.github.io/quest-forge/lucky/">
+<link rel="icon" href="../favicon.png" type="image/png">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+<script>(function(){try{var t=localStorage.getItem('qf-theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)}catch(e){}})()</script>
+<style>
+/* Tokens shared with every page under site/. */
+:root{
+  --paper:#E9EAE4; --surface:#F7F8F3; --sunk:#DFE1DA;
+  --ink:#171B19; --ink-2:#3E4642; --muted:#6A726C; --rule:#CDD1C8;
+  --ember:#A33F17; --ember-ink:#8E3712; --ember-wash:rgba(163,63,23,.10);
+  --patina:#2C4A43; --patina-wash:rgba(44,74,67,.12);
+  --shadow:rgba(23,27,25,.10);
+  --night:#0E0B12; --night-ink:#ECE6F2; --night-2:#B9AFC6; --glow:#F08A3C;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#111412; --surface:#191D1A; --sunk:#0C0F0D;
+    --ink:#E7E9E2; --ink-2:#C2C7BE; --muted:#8B948B; --rule:#282E29;
+    --ember:#E58A55; --ember-ink:#EFA274; --ember-wash:rgba(229,138,85,.13);
+    --patina:#7FB6A6; --patina-wash:rgba(127,182,166,.13);
+    --shadow:rgba(0,0,0,.45);
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#111412; --surface:#191D1A; --sunk:#0C0F0D;
+  --ink:#E7E9E2; --ink-2:#C2C7BE; --muted:#8B948B; --rule:#282E29;
+  --ember:#E58A55; --ember-ink:#EFA274; --ember-wash:rgba(229,138,85,.13);
+  --patina:#7FB6A6; --patina-wash:rgba(127,182,166,.13);
+  --shadow:rgba(0,0,0,.45);
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:"Source Serif 4",Georgia,serif;font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4,.ui,button{font-family:Archivo,"Helvetica Neue",Arial,sans-serif}
+code,kbd,pre,.mono{font-family:"JetBrains Mono",ui-monospace,Menlo,monospace}
+.wrap{max-width:1180px;margin:0 auto;padding-left:28px;padding-right:28px}
+a{color:var(--ember-ink)}
+:focus-visible{outline:2px solid var(--ember);outline-offset:2px}
+
+/* ---- site nav ---- */
+nav.site{border-bottom:1px solid var(--rule);background:var(--surface)}
+nav.site .wrap{display:flex;align-items:center;gap:2px 18px;flex-wrap:wrap;min-height:50px;padding-top:6px;padding-bottom:6px}
+nav.site .brand{display:flex;align-items:center;gap:9px;font-family:Archivo,sans-serif;font-weight:800;font-size:15px;
+  letter-spacing:-.01em;color:var(--ink);text-decoration:none;margin-right:auto}
+nav.site .brand img{width:22px;height:22px;border-radius:4px}
+nav.site a:not(.brand){font-family:Archivo,sans-serif;font-size:13.5px;font-weight:500;color:var(--ink-2);text-decoration:none;
+  padding:4px 1px;border-bottom:2px solid transparent}
+nav.site a:not(.brand):hover{color:var(--ink);border-color:var(--rule)}
+nav.site a[aria-current="page"]{color:var(--ember-ink);border-color:var(--ember)}
+nav.site .theme{margin-left:4px;display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;padding:0;border:1px solid transparent;border-radius:50%;background:none;color:var(--ink-2);cursor:pointer}
+nav.site .theme:hover{color:var(--ink);border-color:var(--rule)}
+nav.site .theme:focus-visible{outline:2px solid var(--ember);outline-offset:1px}
+nav.site .theme svg{width:17px;height:17px;display:none}
+nav.site .theme[data-mode="auto"] .i-auto,nav.site .theme[data-mode="light"] .i-light,nav.site .theme[data-mode="dark"] .i-dark{display:block}
+
+/* ---- masthead ---- */
+header.mast{padding:48px 0 32px;border-bottom:2px solid var(--ink);
+  background:linear-gradient(180deg,var(--surface),var(--paper))}
+.kicker{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ember-ink);margin:0 0 14px}
+h1{font-size:clamp(38px,7vw,68px);line-height:.94;font-weight:800;letter-spacing:-.03em;margin:0;text-wrap:balance}
+.lede{max-width:62ch;margin:18px 0 0;font-size:17.5px;color:var(--ink-2)}
+.cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:26px}
+.btn{font-family:Archivo,sans-serif;font-weight:600;font-size:15px;text-decoration:none;padding:11px 20px;border-radius:2px;
+  border:1px solid var(--ink);color:var(--ink);background:transparent;cursor:pointer;line-height:1.2}
+.btn:hover{background:var(--sunk)}
+.btn:disabled{opacity:.5;cursor:default}
+.btn.primary{background:var(--ember);border-color:var(--ember);color:#fff}
+.btn.primary:hover{background:var(--ember-ink);border-color:var(--ember-ink)}
+.btn.big{font-size:20px;padding:16px 34px;letter-spacing:-.01em}
+
+/* ---- page body ---- */
+main.page{padding:40px 0 20px}
+.panel{border:1px solid var(--rule);background:var(--surface);border-radius:3px;padding:22px 22px 20px;max-width:880px}
+.panel h2{font-size:22px;font-weight:800;letter-spacing:-.02em;margin:0 0 4px}
+.sum{color:var(--muted);font-size:15px;margin:0}
+.presets{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 0}
+.preset{font-family:Archivo,sans-serif;font-weight:600;font-size:14px;padding:8px 13px;border:1px solid var(--rule);border-radius:2px;
+  background:var(--paper);color:var(--ink-2);cursor:pointer}
+.preset:hover{color:var(--ink);border-color:var(--muted)}
+.preset[aria-pressed="true"]{border-color:var(--ember);color:var(--ember-ink);box-shadow:inset 0 0 0 1px var(--ember)}
+.preset span{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--muted);margin-left:6px}
+.luckrow{display:grid;grid-template-columns:minmax(0,1fr) 110px;gap:16px;align-items:center;margin-top:18px}
+.luckrow input[type=range]{width:100%;accent-color:var(--ember)}
+.luckrow input[type=number]{font-family:"JetBrains Mono",monospace;font-size:16px;padding:8px 10px;width:100%;
+  border:1px solid var(--rule);background:var(--paper);color:var(--ink);border-radius:2px}
+.scale{display:flex;justify-content:space-between;font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--muted);margin-top:2px}
+.note{font-size:14.5px;color:var(--ink-2);margin:14px 0 0}
+.note b{color:var(--ink)}
+details.how{margin-top:12px;font-size:14px;color:var(--ink-2)}
+details.how summary{cursor:pointer;color:var(--ember-ink);font-family:Archivo,sans-serif;font-weight:600}
+details.how p{margin:8px 0 0}
+.crafts{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 0;padding:0;list-style:none}
+.crafts li{font-family:"JetBrains Mono",monospace;font-size:12px;border:1px solid var(--rule);background:var(--paper);padding:3px 8px;border-radius:2px;color:var(--ink-2)}
+.crafts li b{color:var(--ink);font-weight:500}
+.crafts li.neg b{color:var(--ember-ink)}
+.breakrow{display:flex;flex-wrap:wrap;align-items:center;gap:14px;margin-top:22px}
+.breakrow .fine{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--muted);margin:0}
+.history{margin-top:24px;max-width:880px}
+.history h3{font-size:17px;margin:0 0 6px;font-weight:700}
+.history ol{margin:0;padding-left:22px;color:var(--ink-2);font-size:15px}
+.history li{margin:4px 0}
+.history .muted{color:var(--muted);font-size:15px}
+.honest{margin:26px 0 0;max-width:880px;padding:12px 16px;border-left:3px solid var(--patina);background:var(--patina-wash);
+  font-size:14.5px;color:var(--ink-2);border-radius:0 3px 3px 0}
+.quote{margin:18px 0 0;padding:4px 0 4px 16px;border-left:3px solid var(--patina);color:var(--ink-2);font-style:italic;font-size:15.5px}
+.quote span{display:block;margin-top:4px;font-family:"JetBrains Mono",monospace;font-style:normal;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+code{font-size:.88em;background:var(--sunk);padding:1px 5px;border-radius:2px;color:var(--ink)}
+
+footer.site{margin-top:40px;border-top:1px solid var(--rule);padding:26px 0 56px;font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--muted)}
+footer.site .wrap{display:flex;flex-wrap:wrap;gap:6px 24px}
+footer.site a{color:var(--ink-2);text-decoration:none;border-bottom:1px solid var(--rule)}
+footer.site a:hover{color:var(--ember-ink);border-color:var(--ember)}
+
+/* ================================================================
+   The opening: always dark, whatever the site theme says.
+   ================================================================ */
+.stage{position:fixed;inset:0;z-index:50;overflow-x:hidden;overflow-y:auto;color:#ECE6F2;color-scheme:dark;
+  background:radial-gradient(ellipse at 50% 30%,#2a2236 0%,#100d17 55%,#070609 100%);
+  display:flex;flex-direction:column;-webkit-overflow-scrolling:touch}
+.sky{position:absolute;inset:0;background:#0E0B12;transition:background-color 1.4s ease;pointer-events:none}
+.stage-top{position:relative;z-index:3;display:flex;align-items:center;gap:10px 16px;flex-wrap:wrap;padding:14px 18px;min-height:56px}
+.stage-count{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#B9AFC6;margin-right:auto}
+.stage-top label{font-family:Archivo,sans-serif;font-size:13px;color:#B9AFC6;display:inline-flex;align-items:center;gap:6px;cursor:pointer}
+.stage-top input{accent-color:#F08A3C}
+.sbtn{font-family:Archivo,sans-serif;font-weight:600;font-size:14px;color:#ECE6F2;background:transparent;border:1px solid rgba(236,230,242,.35);
+  padding:7px 14px;border-radius:2px;cursor:pointer}
+.sbtn:hover{border-color:#ECE6F2;background:rgba(236,230,242,.06)}
+.stage:focus{outline:none}
+.stage .sbtn:focus-visible{outline:2px solid #F08A3C;outline-offset:2px}
+.scene{position:relative;z-index:2;flex:1 0 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:8px 16px 40px;min-height:min(640px,calc(100vh - 60px));width:100%}
+.scene > *{width:100%;flex:0 0 auto}
+.fx{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1}
+.flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:4}
+.wash{position:absolute;inset:0;opacity:0;pointer-events:none;z-index:1}
+
+/* the drop */
+.dropzone{position:relative;height:clamp(200px,34vh,260px);display:flex;align-items:flex-start;justify-content:center;--cube:132px}
+.cube-wrap{position:absolute;top:46px;left:50%;width:var(--cube);height:var(--cube);margin-left:calc(var(--cube) / -2);perspective:620px}
+.cube{position:absolute;inset:0;transform-style:preserve-3d;transform:rotateX(-18deg) rotateY(-28deg)}
+.cube .f{position:absolute;inset:0;border:3px solid #5b3f08;box-sizing:border-box;background:#E9B93B;display:flex;align-items:center;justify-content:center}
+.cube .front{transform:translateZ(calc(var(--cube) / 2))}
+.cube .back{transform:rotateY(180deg) translateZ(calc(var(--cube) / 2));background:#B9891F}
+.cube .right{transform:rotateY(90deg) translateZ(calc(var(--cube) / 2));background:#C99A2A}
+.cube .left{transform:rotateY(-90deg) translateZ(calc(var(--cube) / 2));background:#C99A2A}
+.cube .top{transform:rotateX(90deg) translateZ(calc(var(--cube) / 2));background:#F6D66A}
+.cube .bottom{transform:rotateX(-90deg) translateZ(calc(var(--cube) / 2));background:#8E6515}
+.cube .q{font-family:Archivo,sans-serif;font-weight:800;font-size:calc(var(--cube) * .56);color:#5b3f08;line-height:1;
+  text-shadow:0 2px 0 rgba(255,240,180,.55)}
+.cube .speck{position:absolute;width:12%;height:12%;background:#5b3f08;opacity:.35}
+.cracks{position:absolute;left:0;top:0;width:100%;height:100%;overflow:visible;pointer-events:none;opacity:0}
+.cracks path{fill:none;stroke:#2b1d05;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.dropzone .shadow{position:absolute;left:50%;bottom:6px;width:calc(var(--cube) * .9);height:14px;margin-left:calc(var(--cube) * -.45);
+  border-radius:50%;background:radial-gradient(closest-side,rgba(0,0,0,.6),transparent);opacity:0}
+
+/* the reel */
+.reel-wrap{position:relative;max-width:980px;margin:0 auto;padding:26px 0 8px}
+.reel{position:relative;height:var(--tile-h,132px);overflow:hidden;border-top:1px solid rgba(236,230,242,.14);border-bottom:1px solid rgba(236,230,242,.14);
+  background:linear-gradient(90deg,#0b0910 0%,rgba(11,9,16,0) 18%,rgba(11,9,16,0) 82%,#0b0910 100%)}
+.strip{position:absolute;left:0;top:0;height:100%;display:flex;will-change:transform}
+.tile{flex:0 0 var(--tw,112px);height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:8px 6px;
+  border-right:1px solid rgba(236,230,242,.07);background:linear-gradient(180deg,rgba(236,230,242,.035),rgba(236,230,242,0));
+  color:var(--kc,#F2C14E);text-align:center;overflow:hidden}
+.tile .tl{font-family:Archivo,sans-serif;font-size:11px;line-height:1.2;color:#ECE6F2;max-width:100%;overflow:hidden;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.tile .tk{font-family:"JetBrains Mono",monospace;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:#8E8699}
+.tile .gl{width:44px;height:44px;color:var(--kc,#F2C14E)}
+.tile .gl svg{width:100%;height:100%}
+.marker{position:absolute;left:50%;top:-10px;bottom:-10px;width:2px;margin-left:-1px;background:#F2C14E;box-shadow:0 0 14px rgba(242,193,78,.8);z-index:3}
+.marker::before,.marker::after{content:"";position:absolute;left:-7px;border:8px solid transparent}
+.marker::before{top:-2px;border-top-color:#F2C14E}
+.marker::after{bottom:-2px;border-bottom-color:#F2C14E}
+.reel-note{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#8E8699;text-align:center;margin:12px 0 0}
+
+/* the icon, glyphs and mobs */
+.ic{display:inline-block;flex:0 0 auto;background-repeat:no-repeat;image-rendering:auto}
+.ic.blank{display:flex;align-items:center;justify-content:center;background:rgba(236,230,242,.08);color:#B9AFC6;font-family:Archivo,sans-serif;font-weight:700;border-radius:2px}
+.glyph{display:inline-flex;align-items:center;justify-content:center;color:var(--kc,#F2C14E)}
+.glyph svg{width:100%;height:100%}
+.mobsvg{width:100%;height:100%;overflow:visible}
+
+/* the reveal */
+.reveal{position:relative;z-index:2;min-height:300px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;gap:10px;padding:8px 8px 0}
+.rv-name{font-family:Archivo,sans-serif;font-weight:800;font-size:clamp(26px,4.4vw,40px);letter-spacing:-.02em;line-height:1.08;margin:0;max-width:20ch;text-wrap:balance}
+.rv-kicker{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#B9AFC6;margin:0}
+.rv-sub{font-size:16px;color:#D7CFE3;margin:0;max-width:52ch}
+.rv-quote{font-style:italic;font-size:14px;color:#8E8699;margin-top:8px}
+.rv-stage{position:relative;flex:0 0 auto;width:100%;max-width:340px;height:200px;margin:4px auto 0}
+.rv-stage.wide{max-width:560px;height:260px}
+.rv-big{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:132px;height:132px}
+.glint{position:absolute;inset:0;background:linear-gradient(115deg,transparent 40%,rgba(255,255,255,.75) 50%,transparent 60%);
+  transform:translateX(-120%);pointer-events:none}
+.glow{position:absolute;left:50%;top:50%;width:240px;height:240px;margin:-120px 0 0 -120px;border-radius:50%;
+  background:radial-gradient(closest-side,rgba(242,193,78,.35),transparent);opacity:0}
+.rv-stack{display:flex;flex-direction:column;align-items:center;gap:6px;margin-top:6px}
+.count{font-family:"JetBrains Mono",monospace;font-size:13px;color:#F2C14E;letter-spacing:.06em}
+.mob{position:absolute;width:56px;height:56px;margin:-28px 0 0 -28px}
+.stamp{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) rotate(-8deg);border:6px solid;border-radius:6px;
+  padding:6px 18px;font-family:Archivo,sans-serif;font-weight:800;font-size:clamp(34px,8vw,64px);letter-spacing:.08em;white-space:nowrap}
+.chat{width:100%;max-width:520px;margin:0 auto;background:rgba(14,11,18,.82);border:1px solid rgba(236,230,242,.16);border-radius:4px;
+  padding:12px 14px;text-align:left;font-family:"JetBrains Mono",monospace;font-size:14px;color:#ECE6F2;min-height:96px}
+.chat .hd{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:#8E8699;margin-bottom:8px}
+.chat .who{color:#8FC3E8;font-weight:500}
+.chat .caret{display:inline-block;width:8px;height:14px;background:#ECE6F2;vertical-align:-2px;margin-left:2px;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.term{width:100%;max-width:520px;margin:0 auto;background:#07140a;border:1px solid #2c5a36;border-radius:4px;padding:14px;text-align:left;
+  font-family:"JetBrains Mono",monospace;font-size:13.5px;color:#7BD389;min-height:110px;word-break:break-all}
+.term .p{color:#4f9e61}
+.odds{position:relative;z-index:2;max-width:560px;width:100%;margin:18px auto 0;padding:18px 18px 16px;border:1px solid rgba(236,230,242,.18);
+  background:rgba(236,230,242,.04);text-align:center}
+.odds .big{font-family:Archivo,sans-serif;font-weight:700;font-size:clamp(19px,3vw,23px);line-height:1.3;margin:0;color:#ECE6F2;text-wrap:balance}
+.odds .big b{color:#F2C14E;font-weight:800}
+.odds .sm{font-family:"JetBrains Mono",monospace;font-size:12px;color:#8E8699;margin:10px 0 0;letter-spacing:.02em}
+.odds .quote{color:#D7CFE3;border-left-color:#7FB6A6;text-align:left;margin-top:14px}
+.odds .quote span{color:#8E8699}
+.odds .cta{justify-content:center;margin-top:16px}
+.stage .btn{color:#ECE6F2;border-color:rgba(236,230,242,.45);background:transparent}
+.stage .btn:hover{background:rgba(236,230,242,.08)}
+.stage .btn.primary{background:#E58A55;border-color:#E58A55;color:#15100c}
+.stage .btn.primary:hover{background:#EFA274;border-color:#EFA274}
+.stage .sbtn:disabled{opacity:.4;cursor:default}
+
+@media (max-width:900px){
+  .luckrow{grid-template-columns:minmax(0,1fr)}
+}
+@media (max-width:640px){
+  .wrap{padding-left:16px;padding-right:16px}
+  header.mast{padding:34px 0 26px}
+  nav.site .wrap{gap:2px 12px}
+  nav.site a:not(.brand){font-size:12.5px}
+  .panel{padding:18px 16px}
+  .btn.big{width:100%}
+  .breakrow{flex-direction:column;align-items:stretch}
+  .breakrow .fine{text-align:left}
+  .stage-top{padding:10px 12px}
+  .stage-count{width:100%;margin-right:0}
+  .scene{padding:0 12px 28px;min-height:0}
+  .dropzone{--cube:112px;height:clamp(190px,34vh,230px)}
+  .cube-wrap{top:30px}
+  .reel{--tile-h:112px}
+  .reel-wrap{padding-top:18px}
+  .rv-stage{height:180px}
+  .reveal{min-height:260px}
+  .odds{padding:14px 12px}
+  .presets .preset{flex:1 1 44%}
+}
+:root{--tw:112px;--tile-h:132px}
+@media (max-width:640px){:root{--tw:78px}}
+
+/* Reduced motion: no drop, no reel, no particles. The reveal is shown directly. */
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .cracks,.flash,.wash{display:none}
+  .chat .caret{animation:none}
+}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <!-- glyphs for kinds that are not items (24 by 24, stroke or fill from currentColor) -->
+    <symbol id="g-entity" viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"/><rect x="8" y="9" width="3" height="3" fill="currentColor"/><rect x="13" y="9" width="3" height="3" fill="currentColor"/><rect x="8" y="15" width="8" height="2" fill="currentColor"/></symbol>
+    <symbol id="g-explosion" viewBox="0 0 24 24"><polygon fill="currentColor" points="12,1 14.6,7.6 21.6,5.4 18.4,11.8 23,15.6 16.4,15.8 16.4,22.6 12,18.2 7.6,22.6 7.6,15.8 1,15.6 5.6,11.8 2.4,5.4 9.4,7.6"/></symbol>
+    <symbol id="g-lava" viewBox="0 0 24 24"><path fill="currentColor" d="M2 14q2.5-3 5 0t5 0t5 0t5 0V22H2z"/><rect x="6" y="3" width="3" height="3" fill="currentColor"/><rect x="15" y="2" width="3" height="3" fill="currentColor"/></symbol>
+    <symbol id="g-falling" viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="10" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 15v7M8.5 19l3.5 3.5 3.5-3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="g-blocks" viewBox="0 0 24 24"><rect x="3" y="13" width="8" height="8" fill="none" stroke="currentColor" stroke-width="2"/><rect x="13" y="13" width="8" height="8" fill="none" stroke="currentColor" stroke-width="2"/><rect x="8" y="3" width="8" height="8" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+    <symbol id="g-effect" viewBox="0 0 24 24"><path d="M12 3c5 0 9 4 9 9s-4 9-9 9-7-3.5-7-7 3-5 6-5 4 2 4 5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><circle cx="12" cy="12" r="2" fill="currentColor"/></symbol>
+    <symbol id="g-message" viewBox="0 0 24 24"><path d="M3 4h18v12H9l-5 4v-4H3z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><rect x="7" y="8" width="10" height="2" fill="currentColor"/></symbol>
+    <symbol id="g-time" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 7v5l3.5 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="g-difficulty" viewBox="0 0 24 24"><path d="M12 2.5 22.5 20.5H1.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><rect x="11" y="9" width="2" height="6" fill="currentColor"/><rect x="11" y="16.5" width="2" height="2" fill="currentColor"/></symbol>
+    <symbol id="g-command" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="1" fill="none" stroke="currentColor" stroke-width="2"/><path d="M6 9l3 3-3 3M11 15h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="g-particle" viewBox="0 0 24 24"><circle cx="6" cy="7" r="2.2" fill="currentColor"/><circle cx="16" cy="5" r="1.6" fill="currentColor"/><circle cx="12" cy="13" r="2.8" fill="currentColor"/><circle cx="5" cy="18" r="1.4" fill="currentColor"/><circle cx="18" cy="17" r="2" fill="currentColor"/></symbol>
+    <symbol id="g-lightning" viewBox="0 0 24 24"><path d="M13.5 1.5 4 14h6.5l-1.5 8.5L20 10h-6.5z" fill="currentColor"/></symbol>
+    <symbol id="g-group" viewBox="0 0 24 24"><rect x="2" y="2" width="9" height="9" fill="currentColor"/><rect x="13" y="2" width="9" height="9" fill="none" stroke="currentColor" stroke-width="2"/><rect x="2" y="13" width="9" height="9" fill="none" stroke="currentColor" stroke-width="2"/><rect x="13" y="13" width="9" height="9" fill="currentColor"/></symbol>
+    <symbol id="g-nothing" viewBox="0 0 24 24"><path d="M4 12h16" stroke="currentColor" stroke-width="3" stroke-dasharray="1 4" stroke-linecap="round"/></symbol>
+    <symbol id="g-unknown" viewBox="0 0 24 24"><text x="12" y="18" text-anchor="middle" font-family="Archivo,sans-serif" font-weight="800" font-size="18" fill="currentColor">?</text></symbol>
+    <!-- mobs, blocky, 64 by 64 -->
+    <symbol id="m-zombie" viewBox="0 0 64 64"><rect x="18" y="6" width="28" height="28" fill="#6fae62"/><rect x="24" y="16" width="6" height="6" fill="#1d2a1a"/><rect x="36" y="16" width="6" height="6" fill="#1d2a1a"/><rect x="26" y="26" width="12" height="4" fill="#3d5a36"/><rect x="20" y="36" width="24" height="18" fill="#3b7fb0"/><rect x="10" y="36" width="9" height="20" fill="#6fae62"/><rect x="45" y="36" width="9" height="20" fill="#6fae62"/><rect x="22" y="54" width="9" height="8" fill="#3a3f7a"/><rect x="33" y="54" width="9" height="8" fill="#3a3f7a"/></symbol>
+    <symbol id="m-creeper" viewBox="0 0 64 64"><rect x="16" y="4" width="32" height="32" fill="#5fa54e"/><rect x="22" y="13" width="8" height="8" fill="#111"/><rect x="34" y="13" width="8" height="8" fill="#111"/><rect x="28" y="22" width="8" height="8" fill="#111"/><rect x="24" y="26" width="16" height="6" fill="#111"/><rect x="20" y="36" width="24" height="16" fill="#5fa54e"/><rect x="18" y="50" width="10" height="11" fill="#3f7a36"/><rect x="36" y="50" width="10" height="11" fill="#3f7a36"/></symbol>
+    <symbol id="m-skeleton" viewBox="0 0 64 64"><rect x="20" y="4" width="24" height="24" fill="#e6e6dc"/><rect x="24" y="12" width="7" height="7" fill="#222"/><rect x="34" y="12" width="7" height="7" fill="#222"/><rect x="27" y="22" width="10" height="4" fill="#222"/><rect x="24" y="30" width="16" height="22" fill="#e6e6dc"/><rect x="26" y="35" width="12" height="2" fill="#9a9a90"/><rect x="26" y="41" width="12" height="2" fill="#9a9a90"/><rect x="15" y="30" width="6" height="22" fill="#e6e6dc"/><rect x="43" y="30" width="6" height="22" fill="#e6e6dc"/><rect x="25" y="52" width="6" height="12" fill="#e6e6dc"/><rect x="33" y="52" width="6" height="12" fill="#e6e6dc"/></symbol>
+    <symbol id="m-spider" viewBox="0 0 64 64"><g stroke="#2b2420" stroke-width="4" stroke-linecap="round" fill="none"><path d="M24 30 L6 22M24 34 L4 38M26 38 L10 52M30 40 L22 56M34 40 L42 56M38 38 L54 52M40 34 L60 38M40 30 L58 22"/></g><ellipse cx="32" cy="36" rx="15" ry="11" fill="#2b2420"/><circle cx="32" cy="22" r="10" fill="#2b2420"/><circle cx="28" cy="20" r="2.4" fill="#c33"/><circle cx="36" cy="20" r="2.4" fill="#c33"/></symbol>
+    <symbol id="m-villager" viewBox="0 0 64 64"><rect x="18" y="4" width="28" height="6" fill="#5a3a22"/><rect x="20" y="9" width="24" height="20" fill="#d9a77c"/><rect x="24" y="16" width="5" height="5" fill="#3b2b1f"/><rect x="35" y="16" width="5" height="5" fill="#3b2b1f"/><rect x="30" y="20" width="4" height="7" fill="#b7845c"/><path d="M16 60 L18 34 L46 34 L48 60z" fill="#7a5230"/><rect x="16" y="38" width="32" height="7" fill="#5a3a22"/></symbol>
+    <symbol id="m-beast" viewBox="0 0 64 64"><rect x="10" y="26" width="40" height="22" fill="#8a8f8a"/><rect x="42" y="14" width="18" height="18" fill="#9da29d"/><rect x="46" y="20" width="4" height="4" fill="#1d1d1d"/><rect x="42" y="8" width="5" height="8" fill="#8a8f8a"/><rect x="53" y="8" width="5" height="8" fill="#8a8f8a"/><rect x="12" y="46" width="7" height="13" fill="#6c716c"/><rect x="24" y="46" width="7" height="13" fill="#6c716c"/><rect x="38" y="46" width="7" height="13" fill="#6c716c"/><rect x="48" y="46" width="7" height="13" fill="#6c716c"/></symbol>
+  </defs>
+</svg>
+
+<nav class="site" aria-label="Site"><div class="wrap">
+  <a class="brand" href="../"><img src="../favicon.png" alt="">Quest Forge</a>
+  <a href="../play/">Get the pack</a>
+  <a href="../first-night/">First night</a>
+  <a href="../mods/">Mods</a>
+  <a href="../items/">Items</a>
+  <a href="../worlds/">Worlds</a>
+  <a href="../enchantments/">Enchantments</a>
+  <a href="../ore-atlas/">Ore atlas</a>
+  <a href="../online/">Server</a>
+  <button class="theme" type="button" data-theme-toggle aria-label="Theme" title="Theme"><svg class="i-auto" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18V3z" fill="currentColor"/><circle cx="12" cy="12" r="8.25" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><svg class="i-light" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="currentColor"/><g stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/></g></svg><svg class="i-dark" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z" fill="currentColor"/></svg></button>
+</div></nav>
+
+<div id="page">
+<header class="mast"><div class="wrap">
+  <p class="kicker">Lucky Block 5.1.0 &middot; Luck and odds</p>
+  <h1>Break a Lucky Block</h1>
+  <p class="lede">Break it for one of about 300 outcomes: gear, ores, mobs, traps, explosions, and a few messages. The pack
+    removed the boss-tier jackpots. Crafting ingredients raise its luck, and rotten flesh lowers it.</p>
+  <div class="cta">
+    <button class="btn primary" type="button" data-open disabled>Break it</button>
+    <a class="btn" href="#luck">Set the luck</a>
+  </div>
+</div></header>
+
+<main class="page wrap">
+  <section class="panel" id="luck" aria-labelledby="luckH">
+    <h2 id="luckH">Luck</h2>
+    <p class="sum">The block starts at 0. Each crafting ingredient adds its value, and the total is clamped to &minus;100 to 100.</p>
+    <div class="presets" role="group" aria-label="Luck presets">
+      <button class="preset" type="button" data-luck="0" aria-pressed="true">As found<span>0</span></button>
+      <button class="preset" type="button" data-luck="16" aria-pressed="false">With 4 diamonds<span>+16</span></button>
+      <button class="preset" type="button" data-luck="40" aria-pressed="false">With a nether star<span>+40</span></button>
+      <button class="preset" type="button" data-luck="-40" aria-pressed="false">With 8 rotten flesh<span>&minus;40</span></button>
+    </div>
+    <div class="luckrow">
+      <div>
+        <label for="luckRange" class="sum">Luck</label>
+        <input id="luckRange" type="range" min="-100" max="100" step="1" value="0" aria-describedby="luckNote">
+        <div class="scale" aria-hidden="true"><span>&minus;100</span><span>0</span><span>100</span></div>
+      </div>
+      <div>
+        <label for="luckNum" class="sum">Exact value</label>
+        <input id="luckNum" type="number" min="-100" max="100" step="1" value="0">
+      </div>
+    </div>
+    <p class="note" id="luckNote" aria-live="polite"></p>
+    <details class="how">
+      <summary>How the mod weights an outcome</summary>
+      <p>Every outcome has a chance from its config line (<code>@chance</code>, 1 by default) and a luck value
+        (<code>@luck</code>, 2 by default). At luck L the weight of an outcome is its chance times
+        <code>b</code> to a power, where <code>b = 1 / (1 &minus; 0.0077 &times; |L|)</code>. For L of 0 or more the power is
+        the outcome's luck above the lowest one, and for L below 0 it is the highest luck minus its own. The
+        weights are then divided by their total. This is the formula in <code>ChooseLuckyDrop</code> in the
+        Lucky Blocks 5.1.0 jar.</p>
+    </details>
+    <h3 class="sum" style="margin-top:18px;font-family:Archivo,sans-serif;font-weight:700;color:var(--ink);font-size:15px">Crafting modifiers</h3>
+    <ul class="crafts" id="crafts"></ul>
+    <div class="breakrow">
+      <p class="fine" id="breakNote">Loading the outcome table.</p>
+    </div>
+  </section>
+
+  <section class="history" aria-labelledby="histH">
+    <h3 id="histH">This session</h3>
+    <ol id="hist"><li class="muted" id="histEmpty">No blocks broken yet.</li></ol>
+  </section>
+
+  <p class="honest">Every outcome and its odds are read from the pack's own config,
+    <code>config/lucky/LuckyBlockProperties.txt</code>, weighted the way the mod weights them. The only simulated
+    thing is you. Four group lines in that file are cut off and left out; they are listed in
+    <code>data/lucky.json</code>.</p>
+</main>
+</div>
+
+<!-- The opening. Hidden until a block is broken. -->
+<div class="stage" id="stage" role="dialog" aria-modal="true" aria-labelledby="stageTitle" hidden data-phase="idle">
+  <div class="sky" id="sky" aria-hidden="true"></div>
+  <canvas class="fx" id="fx" aria-hidden="true"></canvas>
+  <div class="flash" id="flash" aria-hidden="true"></div>
+  <div class="wash" id="wash" aria-hidden="true"></div>
+  <div class="stage-top">
+    <span class="stage-count" id="stageTitle">Break a Lucky Block</span>
+    <label><input type="checkbox" id="tickSound"> Tick sound</label>
+    <button class="sbtn" type="button" id="skipBtn">Skip</button>
+    <button class="sbtn" type="button" id="closeBtn">Close</button>
+  </div>
+  <div class="scene" id="scene">
+    <div class="dropzone" id="dropzone">
+      <div class="shadow" id="shadow" aria-hidden="true"></div>
+      <div class="cube-wrap" id="cubeWrap" aria-hidden="true">
+        <div class="cube" id="cube">
+          <div class="f front"><span class="q">?</span></div>
+          <div class="f back"></div>
+          <div class="f right"></div>
+          <div class="f left"></div>
+          <div class="f top"></div>
+          <div class="f bottom"></div>
+        </div>
+        <svg class="cracks" id="cracks" viewBox="0 0 132 132" aria-hidden="true">
+          <path d="M66 40 L60 62 L72 74 L64 92"/>
+          <path d="M60 62 L42 70 L34 60"/>
+          <path d="M72 74 L92 66 L100 80"/>
+          <path d="M40 100 L56 96"/>
+        </svg>
+      </div>
+    </div>
+    <div class="reel-wrap" id="reelWrap" hidden>
+      <div class="reel" id="reel">
+        <div class="strip" id="strip"></div>
+        <div class="marker" aria-hidden="true"></div>
+      </div>
+      <p class="reel-note" id="reelNote">Rolling</p>
+    </div>
+    <div class="reveal" id="reveal" hidden aria-live="polite"></div>
+    <div class="odds" id="odds" hidden>
+      <p class="big" id="oddsBig"></p>
+      <p class="sm" id="oddsSm"></p>
+      <p class="quote">Results may vary... dramatically.<span>Quest: Feeling Lucky?</span></p>
+      <div class="cta">
+        <button class="btn primary" type="button" id="again">Break another</button>
+        <button class="btn" type="button" id="closeBtn2">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="site"><div class="wrap">
+  <span>Quest Forge &middot; Minecraft 1.7.10</span>
+  <a href="../">Home</a><a href="../play/">Get the pack</a><a href="../first-night/">First night</a><a href="../items/">Item index</a>
+  <a href="../worlds/">Worlds</a><a href="../enchantments/">Enchantments</a><a href="../online/">Server</a>
+  <a href="https://github.com/MarionWhite/quest-forge">Source on GitHub</a>
+  <span>An independent project. Minecraft belongs to Mojang and every mod to its author.</span>
+</div></footer>
+
+<script>
+"use strict";
+(function () {
+  // ------------------------------------------------------------ helpers
+  var $ = function (s) { return document.querySelector(s); };
+  var REDUCED = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var HAS_WAAPI = !!(Element.prototype.animate);
+  var params = new URLSearchParams(location.search);
+  var hash = {};
+  location.hash.slice(1).split("&").forEach(function (kv) {
+    var i = kv.indexOf("="); if (i > 0) hash[decodeURIComponent(kv.slice(0, i))] = decodeURIComponent(kv.slice(i + 1));
+  });
+
+  function el(tag, cls, text) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text != null) n.textContent = text;
+    return n;
+  }
+  function svgUse(href, cls, vb) {
+    var s = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    s.setAttribute("class", cls || "");
+    s.setAttribute("viewBox", vb || "0 0 24 24");
+    s.setAttribute("aria-hidden", "true");
+    var u = document.createElementNS("http://www.w3.org/2000/svg", "use");
+    u.setAttribute("href", href);
+    s.appendChild(u);
+    return s;
+  }
+  function clampLuck(v) {
+    v = Math.round(Number(v));
+    if (!isFinite(v)) v = 0;
+    return Math.max(-100, Math.min(100, v));
+  }
+  function countText(c) {
+    if (typeof c === "number") return String(c);
+    var m = /^#random-(\d+)-(\d+)$/.exec(String(c || ""));
+    if (m) return m[1] + " to " + m[2];
+    return String(c == null ? "" : c);
+  }
+  function pct(p) {
+    var v = p * 100;
+    if (v >= 0.1) return v.toFixed(1) + "%";
+    return "1 in " + Math.round(1 / p).toLocaleString("en-US");
+  }
+  function wait(ms, tok) {
+    if (REDUCED || ms <= 0) return Promise.resolve(true);
+    return new Promise(function (res) {
+      var id = setTimeout(function () { timers.delete(id); res(!!tok.alive); }, ms);
+      timers.add(id);
+    });
+  }
+  function anim(node, frames, opts) {
+    if (REDUCED || !HAS_WAAPI || !node) return null;
+    try { return node.animate(frames, opts); } catch (e) { return null; }
+  }
+  // Waits for an animation's length on a timer, not on its finished promise,
+  // so the sequence moves on even where animation events are not delivered.
+  function animDone(a, ms, tok) {
+    return wait(ms, tok);
+  }
+
+  // ------------------------------------------------------------ state
+  var DATA = null, DROPS = [], luck = 0, cache = null, timers = new Set(), history = [];
+  var tok = {alive: false};
+  var fx = $("#fx"), fxCtx = fx.getContext("2d"), FX = {parts: [], raf: 0, last: 0};
+  var stage = $("#stage"), scene = $("#scene"), reel = $("#reel"), strip = $("#strip");
+  var openerBtn = null, pageEl = $("#page");
+
+  // ------------------------------------------------------------ weights (the mod's formula)
+  function weightsFor(L) {
+    if (cache && cache.L === L) return cache;
+    var b = 1 / (1 - 0.0077 * Math.abs(L));
+    var mn = 0, mx = 0, i;
+    for (i = 0; i < DROPS.length; i++) {
+      if (DROPS[i].luck < mn) mn = DROPS[i].luck;
+      if (DROPS[i].luck > mx) mx = DROPS[i].luck;
+    }
+    var w = new Array(DROPS.length), total = 0;
+    for (i = 0; i < DROPS.length; i++) {
+      var d = DROPS[i];
+      var e = L >= 0 ? d.luck - mn + 1 : mx - d.luck + 1;
+      w[i] = d.chance * 100 * Math.pow(b, e);
+      total += w[i];
+    }
+    cache = {L: L, b: b, w: w, total: total};
+    return cache;
+  }
+  function probOf(i, L) {
+    var c = weightsFor(L);
+    return c.w[i] / c.total;
+  }
+  function rollIndex(L) {
+    var c = weightsFor(L), r = Math.random() * c.total;
+    for (var i = 0; i < c.w.length; i++) {
+      r -= c.w[i];
+      if (r < 0) return i;
+    }
+    return c.w.length - 1;
+  }
+
+  // ------------------------------------------------------------ display names and colours
+  var KIND_COLOR = {item: "#F2C14E", entity: "#7FB6A6", explosion: "#F08A3C", lava: "#E8582E", falling: "#B9AFC6",
+    blocks: "#B9AFC6", structure: "#B9AFC6", effect: "#A98BE0", message: "#8FC3E8", time: "#F2D66B",
+    difficulty: "#E06A6A", command: "#7BD389", particle: "#E0A0E0", lightning: "#FFF27A", group: "#F2C14E",
+    nothing: "#8A8594", unknown: "#8A8594"};
+  var GLYPH = {entity: "g-entity", explosion: "g-explosion", lava: "g-lava", falling: "g-falling", blocks: "g-blocks",
+    structure: "g-blocks", effect: "g-effect", message: "g-message", time: "g-time", difficulty: "g-difficulty",
+    command: "g-command", particle: "g-particle", lightning: "g-lightning", group: "g-group", nothing: "g-nothing"};
+  var EFFECT_COLOR = {Speed: "#5fb7ff", Slowness: "#6c7a89", Haste: "#e8c23a", "Mining Fatigue": "#7a6a4a",
+    Strength: "#c0392b", "Instant Health": "#e74c7a", "Instant Damage": "#7a1f1f", "Jump Boost": "#7de07d",
+    Nausea: "#6d8a4d", Regeneration: "#ff6fb1", Resistance: "#4a6fa5", "Fire Resistance": "#f08a3c",
+    "Water Breathing": "#3f8fd2", Invisibility: "#cfd6e0", Blindness: "#2b2b3a", "Night Vision": "#3a3ab5",
+    Hunger: "#8a6a2a", Weakness: "#6b6b6b", Poison: "#5fa02a", Wither: "#2b2b2b", "Health Boost": "#f5b7d0",
+    Absorption: "#f0d25a", Saturation: "#e0b070"};
+  var BLOCK_COLOR = [["sand", "#d8c58c"], ["gravel", "#8c8783"], ["anvil", "#4a4a4e"], ["iron", "#d8d8d8"],
+    ["gold", "#e8c23a"], ["diamond", "#5ee0d6"], ["emerald", "#3fbf6a"], ["lapis", "#2e4fb0"],
+    ["redstone", "#b02020"], ["coal", "#2a2a2a"], ["quartz", "#ece6dc"], ["cake", "#f2c9a4"], ["lava", "#e8582e"],
+    ["stone", "#8a8a8a"], ["dirt", "#7a5a3a"], ["grass", "#5f9a3a"], ["glass", "#a9d8e6"]];
+  var DIFFICULTY = {peaceful: "PEACEFUL", p: "PEACEFUL", easy: "EASY", e: "EASY", normal: "NORMAL", n: "NORMAL",
+    hard: "HARD", h: "HARD"};
+  var DIFF_COLOR = {PEACEFUL: "#7BD389", EASY: "#8FC3E8", NORMAL: "#F2C14E", HARD: "#E06A6A"};
+  var POTION_NAMES = {"Speed": 1};
+  function colorFor(d) {
+    if (d.reveal === "effect" && d.data && EFFECT_COLOR[d.data.name]) return EFFECT_COLOR[d.data.name];
+    if (d.reveal === "blocks" || d.reveal === "falling" || d.reveal === "structure") {
+      var id = String(d.id || "");
+      for (var i = 0; i < BLOCK_COLOR.length; i++) if (id.indexOf(BLOCK_COLOR[i][0]) >= 0) return BLOCK_COLOR[i][1];
+    }
+    return KIND_COLOR[d.reveal] || "#F2C14E";
+  }
+
+  // ------------------------------------------------------------ icons and glyphs
+  function iconEl(d, size) {
+    var s = el("span", "ic");
+    if (!d.icon) {
+      s.classList.add("blank");
+      s.style.width = s.style.height = size + "px";
+      s.textContent = (d.label || "?").replace(/^Set of .*/, "+").charAt(0) || "?";
+      return s;
+    }
+    s.style.width = s.style.height = size + "px";
+    s.style.backgroundImage = "url(../items/data/icons-" + d.icon.s + ".png)";
+    s.style.backgroundSize = (64 * size) + "px " + (64 * size) + "px";
+    s.style.backgroundPosition = "-" + (d.icon.c * size) + "px -" + (d.icon.r * size) + "px";
+    return s;
+  }
+  function glyphFor(d) {
+    var g = el("span", "glyph");
+    g.style.setProperty("--kc", colorFor(d));
+    if (d.reveal === "entity" && d.mob) {
+      var m = svgUse("#m-" + d.mob, "mobsvg", "0 0 64 64");
+      g.appendChild(m);
+    } else {
+      g.appendChild(svgUse("#" + (GLYPH[d.reveal] || "g-unknown"), "", "0 0 24 24"));
+    }
+    return g;
+  }
+  function tileFor(d) {
+    var t = el("div", "tile");
+    t.style.setProperty("--kc", colorFor(d));
+    var art;
+    if (d.kind === "group" && d.members && d.members.length && d.members.every(function (m) { return m.kind === "item" && m.icon; })) {
+      art = iconEl({icon: d.members[0].icon, label: d.label}, 48);
+    } else if ((d.reveal === "item" || d.kind === "item" || d.kind === "block") && d.icon) {
+      art = iconEl(d, 48);
+    } else {
+      art = glyphFor(d);
+      art.classList.add("gl");
+    }
+    t.appendChild(art);
+    t.appendChild(el("div", "tl", d.label));
+    t.appendChild(el("div", "tk", d.kind === "group" ? "set" : (d.reveal === "entity" ? "mob" : d.reveal)));
+    return t;
+  }
+
+  // ------------------------------------------------------------ particles on the canvas
+  function fxSize() {
+    var dpr = Math.min(2, window.devicePixelRatio || 1);
+    var w = stage.clientWidth, h = stage.clientHeight;
+    fx.width = Math.round(w * dpr); fx.height = Math.round(h * dpr);
+    fxCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  function fxEmit(list) {
+    if (REDUCED) return;
+    for (var i = 0; i < list.length; i++) FX.parts.push(list[i]);
+    if (!FX.raf) { FX.last = performance.now(); FX.raf = requestAnimationFrame(fxTick); }
+  }
+  function fxTick(now) {
+    FX.raf = 0;
+    if (!tok.alive && FX.parts.length === 0) return;
+    var dt = Math.min(0.05, (now - FX.last) / 1000); FX.last = now;
+    fxCtx.clearRect(0, 0, stage.clientWidth, stage.clientHeight);
+    var keep = [];
+    for (var i = 0; i < FX.parts.length; i++) {
+      var p = FX.parts[i];
+      p.t += dt;
+      if (p.t >= p.life) continue;
+      if (p.orbit) {
+        p.a += p.w * dt; p.r *= (1 - 0.35 * dt);
+        p.x = p.cx + Math.cos(p.a) * p.r; p.y = p.cy + Math.sin(p.a) * p.r * 0.55;
+      } else {
+        p.vy += (p.g || 0) * dt;
+        p.x += p.vx * dt; p.y += p.vy * dt;
+        p.vx *= (1 - 1.6 * dt);
+      }
+      var a = 1 - p.t / p.life;
+      fxCtx.globalAlpha = Math.max(0, Math.min(1, a));
+      fxCtx.fillStyle = p.c;
+      if (p.sq) fxCtx.fillRect(p.x - p.s / 2, p.y - p.s / 2, p.s, p.s);
+      else { fxCtx.beginPath(); fxCtx.arc(p.x, p.y, p.s / 2, 0, Math.PI * 2); fxCtx.fill(); }
+      keep.push(p);
+    }
+    fxCtx.globalAlpha = 1;
+    FX.parts = keep;
+    if (keep.length && tok.alive) FX.raf = requestAnimationFrame(fxTick);
+  }
+  function fxClear() {
+    FX.parts = [];
+    if (FX.raf) cancelAnimationFrame(FX.raf);
+    FX.raf = 0;
+    if (fxCtx) fxCtx.clearRect(0, 0, fx.width, fx.height);
+  }
+  function center(node) {
+    var r = node.getBoundingClientRect(), s = stage.getBoundingClientRect();
+    return {x: r.left - s.left + r.width / 2, y: r.top - s.top + r.height / 2};
+  }
+  function burst(cx, cy, n, colors, speed, life, g) {
+    var out = [];
+    for (var i = 0; i < n; i++) {
+      var a = Math.random() * Math.PI * 2, v = speed * (0.4 + Math.random() * 0.8);
+      out.push({x: cx, y: cy, vx: Math.cos(a) * v, vy: Math.sin(a) * v - speed * 0.25, t: 0,
+        life: life * (0.6 + Math.random() * 0.6), s: 3 + Math.random() * 6, c: colors[i % colors.length],
+        g: g || 0, sq: Math.random() < 0.5});
+    }
+    fxEmit(out);
+  }
+
+  // ------------------------------------------------------------ sound (off unless ticked)
+  var audio = null;
+  function tick() {
+    if (!$("#tickSound").checked) return;
+    try {
+      audio = audio || new (window.AudioContext || window.webkitAudioContext)();
+      var o = audio.createOscillator(), g = audio.createGain();
+      o.frequency.value = 1700; g.gain.value = 0.04;
+      o.connect(g); g.connect(audio.destination);
+      o.start(); o.stop(audio.currentTime + 0.012);
+    } catch (e) { /* no audio, no tick */ }
+  }
+
+  // ------------------------------------------------------------ the sequence
+  function showOnly(node) {
+    ["#dropzone", "#reelWrap", "#reveal", "#odds"].forEach(function (s) {
+      var n = $(s); n.hidden = n !== node;
+    });
+  }
+  function setPhase(p) { stage.setAttribute("data-phase", p); }
+
+  function clearTimers() {
+    timers.forEach(function (id) { clearTimeout(id); });
+    timers.clear();
+  }
+
+  function openStage() {
+    stage.hidden = false;
+    pageEl.inert = true;
+    document.body.style.overflow = "hidden";
+    fxSize();
+    $("#closeBtn").focus();
+  }
+  function closeStage() {
+    tok.alive = false;
+    clearTimers();
+    fxClear();
+    if (stage.hidden) return;
+    stage.querySelectorAll("*").forEach(function (n) { if (n.getAnimations) n.getAnimations().forEach(function (a) { a.cancel(); }); });
+    stage.hidden = true;
+    setPhase("idle");
+    $("#reveal").innerHTML = "";
+    $("#strip").innerHTML = "";
+    $("#flash").style.opacity = 0;
+    $("#wash").style.opacity = 0;
+    $("#sky").style.backgroundColor = "#0E0B12";
+    pageEl.inert = false;
+    document.body.style.overflow = "";
+    var back = openerBtn || document.querySelector("[data-open]");
+    if (back && !back.disabled) back.focus();
+  }
+
+  function newSession() {
+    tok.alive = false;
+    clearTimers();
+    fxClear();
+    tok = {alive: true};
+    return tok;
+  }
+
+  // Break a block: the drop, the reel, the reveal, the odds.
+  // opts.index: the drop to use (already rolled). opts.mode: "full" | "instant" | "still"
+  function breakBlock(index, opts) {
+    opts = opts || {};
+    var t = newSession();
+    var d = opts.drop || DROPS[index];
+    var L = luck;
+    var p = probOf(index, L);
+    var mode = opts.mode || "full";
+    if (REDUCED) mode = "instant";
+    openStage();
+    $("#stageTitle").textContent = "Break a Lucky Block";
+    $("#odds").hidden = true;
+    $("#skipBtn").hidden = mode === "instant";
+    $("#stageTitle").dataset.rolled = "1";
+    if (mode === "instant") {
+      runReveal(d, t, true).then(function () { finish(d, p, L, t); });
+      return;
+    }
+    if (mode === "still") {
+      setPhase("reel");
+      showOnly($("#reelWrap"));
+      buildReel(d, L, t);
+      moveReel(Number(opts.still) || 0.6, d, t, true);
+      $("#reelNote").textContent = "Paused mid-spin";
+      return;
+    }
+    setPhase("drop");
+    showOnly($("#dropzone"));
+    dropCube(t).then(function (alive) {
+      if (!alive) return;
+      setPhase("reel");
+      showOnly($("#reelWrap"));
+      buildReel(d, L, t);
+      return spinReel(d, t);
+    }).then(function (alive) {
+      if (!alive) return;
+      $("#reelNote").textContent = "Outcome";
+      return wait(380, t);
+    }).then(function (alive) {
+      if (!alive) return;
+      setPhase("reveal");
+      return runReveal(d, t, false);
+    }).then(function (alive) {
+      if (!alive) return;
+      finish(d, p, L, t);
+    });
+  }
+
+  function finish(d, p, L, t) {
+    setPhase("done");
+    $("#odds").hidden = false;
+    $("#skipBtn").hidden = true;
+    var name = d.kind === "group" ? d.label : d.label;
+    var big = $("#oddsBig"), sm = $("#oddsSm");
+    big.innerHTML = "";
+    big.appendChild(document.createTextNode("This had a "));
+    big.appendChild(el("b", null, pct(p)));
+    big.appendChild(document.createTextNode(" chance at luck " + (L > 0 ? "+" : "") + L + "."));
+    sm.textContent = name + (d.count != null && d.count !== 1 ? " · count " + countText(d.count) : "") +
+      (d.kind === "group" ? " · every piece of the set drops" : "");
+    history.unshift({label: name, pct: pct(p), L: L});
+    if (history.length > 20) history.length = 20;
+    renderHistory();
+    $("#again").focus();
+  }
+
+  // The drop: the cube falls, lands, puffs dust, cracks and bursts.
+  function dropCube(t) {
+    var cube = $("#cubeWrap"), c = $("#cube"), cr = $("#cracks"), sh = $("#shadow");
+    cube.style.transform = "";
+    var fall = anim(cube, [{transform: "translateY(-62vh)"}, {transform: "translateY(0)"}],
+      {duration: 900, easing: "cubic-bezier(.55,0,1,.45)", fill: "forwards"});
+    anim(c, [{transform: "rotateX(-18deg) rotateY(-28deg)"}, {transform: "rotateX(-18deg) rotateY(152deg)"}],
+      {duration: 900, easing: "linear", fill: "forwards"});
+    return animDone(fall, 900, t).then(function (alive) {
+      if (!alive) return false;
+      if (!REDUCED) {
+        anim(cube, [{transform: "translateY(0) scale(1.14,.84)"}, {transform: "translateY(-26px) scale(1,1)", offset: .42},
+          {transform: "translateY(0) scale(1.08,.92)", offset: .72}, {transform: "translateY(0) scale(1,1)"}],
+          {duration: 540, easing: "ease-out", fill: "forwards"});
+        anim(sh, [{opacity: 0, transform: "scale(.4)"}, {opacity: .9, transform: "scale(1)"}], {duration: 520, fill: "forwards"});
+        var pos = center(cube);
+        burst(pos.x, pos.y + 40, 18, ["#8a7248", "#c9a86a", "#6b5a3b"], 170, 0.7, 520);
+      }
+      return wait(480, t);
+    }).then(function (alive) {
+      if (!alive) return false;
+      cr.style.opacity = 1;
+      var paths = cr.querySelectorAll("path");
+      paths.forEach(function (p, i) {
+        var len = p.getTotalLength ? p.getTotalLength() : 60;
+        p.style.strokeDasharray = len;
+        anim(p, [{strokeDashoffset: len}, {strokeDashoffset: 0}], {duration: 260, delay: i * 40, fill: "forwards"});
+      });
+      return wait(420, t);
+    }).then(function (alive) {
+      if (!alive) return false;
+      var flash = $("#flash");
+      anim(flash, [{opacity: 0}, {opacity: .85}, {opacity: 0}], {duration: 460, easing: "ease-out"});
+      anim(c, [{opacity: 1, transform: "rotateX(-18deg) rotateY(152deg) scale(1)"}, {opacity: 0, transform: "rotateX(-18deg) rotateY(152deg) scale(1.9)"}],
+        {duration: 380, easing: "ease-in", fill: "forwards"});
+      var pos = center(cube);
+      burst(pos.x, pos.y, 46, ["#F6D66A", "#E9B93B", "#fff3c4", "#F08A3C"], 360, 1.0);
+      return wait(340, t);
+    }).then(function (alive) {
+      if (!alive) return false;
+      cube.style.visibility = "hidden";
+      return true;
+    });
+  }
+
+  // The reel. Tiles are padded with random outcomes weighted like the table;
+  // the rolled one sits at WIN and the strip stops over it.
+  var WIN = 58, TILES = 64;
+  var reelState = {x: 0, target: 0, tw: 112, sw: 0, last: -1};
+  function buildReel(d, L, t) {
+    cube_reset();
+    strip.innerHTML = "";
+    var c = weightsFor(L), i, pick = [];
+    var cum = [], acc = 0;
+    for (i = 0; i < c.w.length; i++) { acc += c.w[i]; cum.push(acc); }
+    function sample() {
+      var r = Math.random() * acc;
+      var lo = 0, hi = cum.length - 1;
+      while (lo < hi) { var mid = (lo + hi) >> 1; if (cum[mid] < r) lo = mid + 1; else hi = mid; }
+      return lo;
+    }
+    for (i = 0; i < TILES; i++) {
+      var idx = i === WIN ? -1 : sample();
+      pick.push(idx);
+      strip.appendChild(tileFor(i === WIN ? d : DROPS[idx]));
+    }
+    var cs = getComputedStyle(document.documentElement);
+    reelState.tw = parseFloat(cs.getPropertyValue("--tw")) || 112;
+    if (!reelState.tw || isNaN(reelState.tw)) reelState.tw = 112;
+    reelState.sw = reel.clientWidth;
+    reelState.win = WIN;
+    reelState.last = -1;
+    reelState.tilesPicked = pick;
+  }
+  function cube_reset() {
+    var cube = $("#cube"), cw = $("#cubeWrap");
+    cube.style.visibility = "";
+    cw.style.transform = "";
+    cube.style.transform = "rotateX(-18deg) rotateY(-28deg)";
+    $("#cracks").style.opacity = 0;
+    $("#shadow").style.opacity = 0;
+  }
+  function reelTarget(progressJitter) {
+    var tw = reelState.tw, W = reelState.sw || reel.clientWidth;
+    var jitter = (progressJitter - 0.5) * tw * 0.5;
+    return -(WIN * tw + tw / 2 - W / 2) + jitter;
+  }
+  function moveReel(frac, d, t, still) {
+    var x = reelTarget(0.5) * Math.max(0, Math.min(1, frac)) ;
+    strip.style.transform = "translate3d(" + x.toFixed(1) + "px,0,0)";
+    if (still) {
+      // mark the tile under the marker
+      var idx = Math.floor((-x + reelState.sw / 2) / reelState.tw);
+      var tiles = strip.children;
+      for (var k = 0; k < tiles.length; k++) tiles[k].style.background = k === idx ? "rgba(242,193,78,.12)" : "";
+    }
+  }
+  function spinReel(d, t) {
+    var DUR = 5200, start = performance.now();
+    var jitter = Math.random();
+    var target = reelTarget(jitter);
+    return new Promise(function (resolve) {
+      function frame(now) {
+        if (!t.alive) return resolve(false);
+        var p = Math.min(1, (now - start) / DUR);
+        var e = 1 - Math.pow(1 - p, 4);
+        var x = target * e;
+        strip.style.transform = "translate3d(" + x.toFixed(1) + "px,0,0)";
+        var idx = Math.floor((-x + reelState.sw / 2) / reelState.tw);
+        if (idx !== reelState.last) { reelState.last = idx; tick(); }
+        if (p < 1) requestAnimationFrame(frame);
+        else {
+          var tiles = strip.children;
+          for (var k = 0; k < tiles.length; k++) tiles[k].style.background = k === WIN ? "rgba(242,193,78,.12)" : "";
+          resolve(true);
+        }
+      }
+      requestAnimationFrame(frame);
+    });
+  }
+
+  // ------------------------------------------------------------ reveals
+  var QUOTES = {
+    item: "Read the tooltip before you brag.",
+    entity: "They came out to say hello. Count them before they count you.",
+    explosion: "The block went off before the player did.",
+    lava: "It was not a lava lamp.",
+    falling: "Gravity is the one thing the pack did not change.",
+    blocks: "Someone left the blueprint inside the block.",
+    structure: "Blueprints fell from the sky, already assembled.",
+    effect: "Drink first. Read the label later.",
+    message: "Somebody in this world is talking to you.",
+    difficulty: "A stamp is a warning with paperwork.",
+    time: "The sun is a setting now, not a fact.",
+    command: "A block with a terminal. That is not in the manual.",
+    particle: "Nothing to fear but the particles.",
+    lightning: "Lightning does not check your luck.",
+    group: "A whole set from one block. Lucky is not the same as fair.",
+    nothing: "It was air. The house is still standing.",
+    unknown: "Some things the pack does not explain."
+  };
+
+  function rvHead(kicker, name, sub) {
+    var wrap = el("div", "rv-stack");
+    wrap.appendChild(el("p", "rv-kicker", kicker));
+    wrap.appendChild(el("h2", "rv-name", name));
+    if (sub) wrap.appendChild(el("p", "rv-sub", sub));
+    return wrap;
+  }
+  function revealTitle(d) {
+    return d.kind === "group" ? d.label : d.label;
+  }
+  function rvContainer() {
+    var r = $("#reveal");
+    r.innerHTML = "";
+    showOnly(r);
+    return r;
+  }
+
+  // Each reveal returns a promise that resolves (true if still open) when its animation is done.
+  function runReveal(d, t, instant) {
+    var r = rvContainer();
+    var kind = d.reveal || "unknown";
+    var fn = REVEALS[kind] || REVEALS.unknown;
+    var done = fn(d, r, t, !!instant);
+    var pending = (done && done.then) ? done : Promise.resolve(true);
+    return pending.then(function (alive) {
+      if (!alive) return false;
+      var q = el("p", "rv-sub rv-quote", QUOTES[kind] || QUOTES.unknown);
+      r.appendChild(q);
+      return true;
+    });
+  }
+
+  var REVEALS = {};
+
+  // Items: the icon grows with a glint, then the name and count.
+  REVEALS.item = function (d, r, t) {
+    var stageBox = el("div", "rv-stage");
+    var glow = el("div", "glow");
+    var big = el("div", "rv-big");
+    var icon = d.icon || d.kind === "item" ? iconEl(d, 128) : glyphFor(d);
+    if (!d.icon) { icon.style.width = icon.style.height = "120px"; icon.style.fontSize = "96px"; }
+    big.appendChild(icon);
+    var glint = el("div", "glint");
+    big.appendChild(glint);
+    stageBox.appendChild(glow); stageBox.appendChild(big);
+    r.appendChild(stageBox);
+    var head = rvHead(d.viaEntity ? "An item, from a custom entity" : "An item", revealTitle(d),
+      d.count != null && d.count !== 1 ? "Count " + countText(d.count) : "");
+    r.appendChild(head);
+    if (d.nbtSummary) r.appendChild(el("p", "rv-sub", d.nbtSummary));
+    anim(big, [{transform: "translate(-50%,-50%) scale(.1)", opacity: 0}, {transform: "translate(-50%,-50%) scale(1.22)", opacity: 1, offset: .7},
+      {transform: "translate(-50%,-50%) scale(1)", opacity: 1}], {duration: 700, easing: "ease-out", fill: "forwards"});
+    anim(glow, [{opacity: 0}, {opacity: 1}, {opacity: .25}], {duration: 1300, fill: "forwards"});
+    anim(glint, [{transform: "translateX(-120%)"}, {transform: "translateX(120%)"}], {duration: 700, delay: 500, easing: "ease-in-out"});
+    return wait(1100, t).then(function () { return true; });
+  };
+
+  // Entities: blocky mobs spawn in a ring with the count.
+  REVEALS.entity = function (d, r, t) {
+    var stageBox = el("div", "rv-stage wide");
+    r.appendChild(stageBox);
+    var n = Math.min(12, typeof d.count === "number" ? Math.max(1, d.count) : 9);
+    var label = d.count != null ? "×" + countText(d.count) + (typeof d.count === "number" && d.count > n ? " (" + n + " shown)" : "") : "";
+    var mobs = [];
+    for (var i = 0; i < n; i++) {
+      var a = (i / n) * Math.PI * 2 - Math.PI / 2;
+      var m = el("div", "mob");
+      m.style.left = (50 + Math.cos(a) * 36) + "%";
+      m.style.top = (50 + Math.sin(a) * 40) + "%";
+      m.appendChild(svgUse("#m-" + (d.mob || "beast"), "mobsvg", "0 0 64 64"));
+      stageBox.appendChild(m);
+      mobs.push(m);
+    }
+    r.insertBefore(rvHead("A mob drop", d.label, label), stageBox);
+    var ringAt = center(stageBox);
+    if (d.nbtSummary) r.appendChild(el("p", "rv-sub", d.nbtSummary));
+    mobs.forEach(function (m, i) {
+      var delay = Math.min(900, i * 90);
+      anim(m, [{opacity: 0, transform: "translateY(-120px) scale(.2)"}, {opacity: 1, transform: "translateY(0) scale(1.08)", offset: .75},
+        {opacity: 1, transform: "translateY(0) scale(1)"}], {duration: 520, delay: delay, easing: "ease-out", fill: "forwards"});
+    });
+    burst(ringAt.x, ringAt.y, 22, ["#7FB6A6", "#6fae62", "#E9B93B"], 200, 0.7);
+    return wait(1500, t).then(function () { return true; });
+  };
+
+  // Explosions: TNT pops, the screen shakes, flash and debris.
+  REVEALS.explosion = function (d, r, t, instant) {
+    var stageBox = el("div", "rv-stage");
+    var tnt = el("div", "stamp", "TNT");
+    tnt.style.borderColor = "#E0443A"; tnt.style.color = "#FF8A7A"; tnt.style.fontSize = "clamp(26px,6vw,40px)";
+    stageBox.appendChild(tnt);
+    r.appendChild(stageBox);
+    r.insertBefore(rvHead("An explosion", d.label, "Lit and gone"), stageBox);
+    anim(tnt, [{opacity: 0, transform: "translate(-50%,-50%) rotate(-8deg) scale(2)"}, {opacity: 1, transform: "translate(-50%,-50%) rotate(-8deg) scale(1)"}], {duration: 300, fill: "forwards"});
+    var c = center(stageBox);
+    return wait(instant ? 0 : 320, t).then(function (alive) {
+      if (!alive) return false;
+      anim(tnt, [{opacity: 1}, {opacity: 0}], {duration: 120, fill: "forwards"});
+      anim($("#scene"), [{transform: "translate(0,0)"}, {transform: "translate(-9px,5px)"}, {transform: "translate(8px,-6px)"},
+        {transform: "translate(-6px,-3px)"}, {transform: "translate(5px,4px)"}, {transform: "translate(0,0)"}], {duration: 620});
+      anim($("#flash"), [{opacity: 0}, {opacity: .95}, {opacity: 0}], {duration: 560, easing: "ease-out"});
+      var p = center(stageBox);
+      burst(p.x, p.y, 58, ["#FFD56A", "#F08A3C", "#E0443A", "#3a3a40", "#c7c2cf"], 430, 1.1, 260);
+      return wait(instant ? 0 : 900, t).then(function () { return true; });
+    });
+  };
+
+  // Lava and fire: an orange wash rises, with drips.
+  REVEALS.lava = function (d, r, t, instant) {
+    var wash = $("#wash");
+    wash.style.background = "linear-gradient(180deg,rgba(232,88,46,.0) 0%,rgba(232,88,46,.55) 55%,#c2401c 100%)";
+    var tl = el("div", "rv-stack");
+    tl.appendChild(el("p", "rv-kicker", "Lava"));
+    tl.appendChild(el("h2", "rv-name", d.label));
+    tl.appendChild(el("p", "rv-sub", "It runs to the lowest place it can find."));
+    r.appendChild(tl);
+    anim(wash, [{opacity: 0, transform: "translateY(40%)"}, {opacity: 1, transform: "translateY(0)"}], {duration: 1200, easing: "ease-out", fill: "forwards"});
+    var s = stage.clientWidth, h = stage.clientHeight;
+    var drips = [];
+    for (var i = 0; i < 20; i++) drips.push({x: Math.random() * s, y: h * 0.3, vx: (Math.random() - 0.5) * 30, vy: 40 + Math.random() * 80, t: -Math.random() * 0.6,
+      life: 1.4, s: 5 + Math.random() * 4, c: "#F08A3C", g: 380, sq: true});
+    if (!instant) fxEmit(drips.map(function (x) { x.t = 0; return x; }));
+    return wait(instant ? 0 : 1500, t).then(function () { return true; });
+  };
+
+  // Falling blocks: blocks drop in from above and bounce on the floor.
+  REVEALS.falling = function (d, r, t) {
+    var stageBox = el("div", "rv-stage wide");
+    r.appendChild(stageBox);
+    r.insertBefore(rvHead("A falling block", d.label, "Unsupported, and now a problem"), stageBox);
+    var n = 10, cols = 5, col = colorFor(d);
+    for (var i = 0; i < n; i++) {
+      var b = el("div", "fblock");
+      var fx = 14 + (i % cols) * 16 + (i >= cols ? (i % 2) * 4 : 0);
+      b.style.cssText = "position:absolute;width:36px;height:36px;border:2px solid rgba(0,0,0,.35);border-radius:2px;background:" + col + ";left:" + fx + "%;top:" + (58 + Math.floor(i / cols) * 8) + "%;margin-top:-36px";
+      stageBox.appendChild(b);
+      (function (node, k) {
+        anim(node, [{opacity: 0, transform: "translateY(-260px)"}, {opacity: 1, transform: "translateY(0)", offset: .6},
+          {opacity: 1, transform: "translateY(-14px)", offset: .8}, {opacity: 1, transform: "translateY(0)"}],
+          {duration: 600, delay: k * 110 + (k % 2) * 40, easing: "cubic-bezier(.5,0,1,.8)", fill: "forwards"});
+      })(b, i < 5 ? i : i);
+    }
+    return wait(1300, t).then(function () { return true; });
+  };
+
+  // Blocks placed and structures: blocks fly in and snap into a shape.
+  var SHAPES = {
+    well: function () { var p = []; for (var x = 0; x < 5; x++) for (var y = 0; y < 5; y++) if ((x === 0 || x === 4 || y === 0 || y === 4)) p.push([x, y, 0]); for (var k = 1; k <= 3; k++) p.push([0, 0, k]); return p; },
+    tower: function () { var p = []; for (var z = 0; z < 7; z++) p.push([1, 1, z], [0, 1, z], [2, 1, z]); return p; },
+    trap: function () { var p = []; for (var x = 0; x < 5; x++) for (var y = 0; y < 5; y++) { if (x === 0 || x === 4 || y === 0 || y === 4) p.push([x, y, 0]); } for (var z = 1; z < 4; z++) { p.push([0, 0, z], [4, 4, z], [0, 4, z], [4, 0, z]); } return p; },
+    pyramid: function () { var p = []; for (var z = 0; z < 3; z++) for (var x = z; x < 3 - z; x++) for (var y = z; y < 3 - z; y++) p.push([x, y, z]); return p; }
+  };
+  REVEALS.blocks = function (d, r, t) {
+    var id = String(d.id || ""), kind = d.reveal === "structure" ? (d.data && d.data.structure) || id : id;
+    var shape = "pyramid";
+    if (/well/.test(kind)) shape = "well"; else if (/tower|pillar/.test(kind)) shape = "tower";
+    else if (/trap|cage|prison/.test(kind)) shape = "trap";
+    var pts = SHAPES[shape]();
+    var stageBox = el("div", "rv-stage wide");
+    r.appendChild(stageBox);
+    r.insertBefore(rvHead(d.reveal === "structure" ? "A structure" : "Blocks placed", d.label, shape === "well" ? "A well, dug on the spot" : shape === "tower" ? "A tower, built in a moment" : shape === "trap" ? "A trap, closed around you" : "Blocks set down in a heap"), stageBox);
+    var col = colorFor(d), cs = 30;
+    var ox = stageBox.clientWidth / 2, oy = stageBox.clientHeight / 2 + 38;
+    pts.forEach(function (p, i) {
+      var b = el("div", "blk");
+      b.style.cssText = "position:absolute;width:" + cs + "px;height:" + cs + "px;background:" + col + ";border:2px solid rgba(0,0,0,.4);border-radius:2px;left:0;top:0";
+      stageBox.appendChild(b);
+      var fx0 = ox + (p[0] - p[1]) * cs * 0.8 - cs / 2, fy0 = oy + (p[0] + p[1]) * cs * 0.4 - p[2] * cs * 0.9 - cs / 2;
+      b.style.transform = "translate(" + fx0 + "px," + fy0 + "px)";
+      var fromX = fx0 + (Math.random() - 0.5) * 260, fromY = fy0 - 220 - Math.random() * 120;
+      anim(b, [{opacity: 0, transform: "translate(" + fromX + "px," + fromY + "px)"}, {opacity: 1, transform: "translate(" + fx0 + "px," + fy0 + "px)"}],
+        {duration: 560, delay: Math.min(i * 42, 1000), easing: "cubic-bezier(.2,.7,.2,1)", fill: "forwards"});
+    });
+    return wait(1450, t).then(function () { return true; });
+  };
+  REVEALS.structure = REVEALS.blocks;
+
+  // Effects: a colour wash, swirling particles, the name.
+  REVEALS.effect = function (d, r, t, instant) {
+    var name = (d.data && d.data.name) || d.label;
+    var c = EFFECT_COLOR[name] || "#7FB6A6";
+    var wash = $("#wash");
+    wash.style.background = "radial-gradient(closest-side," + c + "99,transparent 80%)";
+    anim(wash, [{opacity: 0}, {opacity: .9}, {opacity: .35}], {duration: 1400, easing: "ease-out", fill: "forwards"});
+    r.appendChild(rvHead("An effect", name, d.data && d.data.duration ? "Duration " + d.data.duration : ""));
+    var s = center(scene);
+    var parts = [];
+    for (var i = 0; i < 28; i++) parts.push({orbit: true, cx: s.x, cy: s.y - 40, a: i * 0.45, r: 150 + (i % 4) * 26, w: (i % 2 ? 1 : -1) * (2.6 + (i % 3) * 0.4), t: 0, life: 1.7, s: 4 + (i % 3) * 2, c: c});
+    fxEmit(parts);
+    return wait(1600, t).then(function () { return true; });
+  };
+
+  // Types text into an element over ms, one step per timer tick.
+  function typeInto(target, text, ms, t) {
+    return new Promise(function (res) {
+      var start = Date.now();
+      (function step() {
+        if (!t.alive) return res(false);
+        var q = Math.min(1, (Date.now() - start) / ms);
+        target(text.slice(0, Math.round(q * text.length)));
+        if (q < 1) setTimeout(step, 30); else res(true);
+      })();
+    });
+  }
+
+  // Messages: the text typed into a chat box.
+  REVEALS.message = function (d, r, t) {
+    var text = (d.data && d.data.text) || d.label;
+    var m = /^\[([^\]]+)\]\s*(.*)$/.exec(text);
+    var who = m ? m[1] : "Chat", body = m ? m[2] : text;
+    var box = el("div", "chat");
+    box.appendChild(el("div", "hd", "Chat"));
+    var line = el("div");
+    var w = el("span", "who", "<" + who + ">");
+    var said = el("span", "said", "");
+    var caret = el("span", "caret");
+    line.appendChild(w); line.appendChild(document.createTextNode(" ")); line.appendChild(said); line.appendChild(caret);
+    box.appendChild(line);
+    r.appendChild(rvHead("Someone typed", "A message", ""));
+    r.appendChild(box);
+    var DUR = Math.max(700, Math.min(1800, body.length * 24));
+    if (REDUCED) { said.textContent = body; caret.remove(); return Promise.resolve(true); }
+    return typeInto(function (v) { said.textContent = v; }, body, DUR, t).then(function (alive) {
+      if (!alive) return false;
+      caret.remove();
+      return wait(120, t).then(function () { return true; });
+    });
+  };
+
+  // Time: the sky sweeps to the new time, a sun or moon crosses it.
+  REVEALS.time = function (d, r, t) {
+    var ticks = Number(d.data && d.data.time) || 0;
+    var v = ((ticks % 24000) + 24000) % 24000;
+    var phase = v < 12000 ? "day" : v < 13000 ? "dusk" : v < 23000 ? "night" : "dawn";
+    var sky = $("#sky");
+    var target = phase === "day" ? "#7fc2ef" : phase === "dusk" ? "#c2643a" : phase === "night" ? "#1a1630" : "#e0a06a";
+    sky.style.transition = "background-color 1.4s ease";
+    setTimeout(function () { sky.style.backgroundColor = target; }, 30);
+    var stageBox = el("div", "rv-stage");
+    var clock = el("div", "rv-big");
+    clock.style.width = clock.style.height = "130px";
+    clock.innerHTML = "";
+    clock.appendChild(svgUse("#g-time", "", "0 0 24 24"));
+    clock.firstChild.style.width = clock.firstChild.style.height = "100%";
+    clock.firstChild.style.color = "#F2D66B";
+    stageBox.appendChild(clock);
+    r.appendChild(stageBox);
+    r.insertBefore(rvHead("The time", "Time set to " + ticks.toLocaleString("en-US") + " ticks", "It is " + phase + " now"), stageBox);
+    anim(clock, [{transform: "translate(-50%,-50%) rotate(-40deg)"}, {transform: "translate(-50%,-50%) rotate(300deg)"}], {duration: 1400, easing: "ease-in-out", fill: "forwards"});
+    return wait(1500, t).then(function () { return true; });
+  };
+
+  // Difficulty: a stamp.
+  REVEALS.difficulty = function (d, r, t) {
+    var key = String((d.data && d.data.difficulty) || d.id || "normal").toLowerCase();
+    var word = DIFFICULTY[key] || String(key).toUpperCase();
+    var colr = DIFF_COLOR[word] || "#F2C14E";
+    var stageBox = el("div", "rv-stage");
+    var st = el("div", "stamp", word);
+    st.style.color = colr; st.style.borderColor = colr;
+    stageBox.appendChild(st);
+    r.appendChild(stageBox);
+    r.insertBefore(rvHead("Difficulty", "Difficulty: " + word.toLowerCase(), ""), stageBox);
+    var a = anim(st, [{opacity: 0, transform: "translate(-50%,-50%) rotate(-8deg) scale(2.4)"}, {opacity: 1, transform: "translate(-50%,-50%) rotate(-8deg) scale(1)", offset: .45},
+      {opacity: 1, transform: "translate(-50%,-50%) rotate(-8deg) scale(1.03)", offset: .6}, {opacity: 1, transform: "translate(-50%,-50%) rotate(-8deg) scale(1)"}],
+      {duration: 800, easing: "ease-in", fill: "forwards"});
+    return animDone(a, 800, t).then(function (alive) {
+      if (!alive) return false;
+      anim($("#scene"), [{transform: "translate(0,0)"}, {transform: "translate(0,4px)"}, {transform: "translate(0,-2px)"}, {transform: "translate(0,0)"}], {duration: 240});
+      return wait(900, t).then(function () { return true; });
+    });
+  };
+
+  // Command: a terminal types the command.
+  REVEALS.command = function (d, r, t) {
+    var cmd = (d.data && d.data.command) || d.label;
+    var term = el("div", "term");
+    var p = el("span", "p", "> ");
+    var out = el("span", "cmd", "");
+    var caret = el("span", "caret");
+    term.appendChild(p); term.appendChild(out); term.appendChild(caret);
+    r.appendChild(rvHead("A command", "The block ran something", ""));
+    r.appendChild(term);
+    if (REDUCED) { out.textContent = cmd; caret.remove(); return Promise.resolve(true); }
+    var DUR = Math.max(600, Math.min(1500, cmd.length * 22));
+    return typeInto(function (v) { out.textContent = v; }, cmd, DUR, t).then(function (alive) {
+      if (!alive) return false;
+      caret.remove();
+      return wait(200, t).then(function () { return true; });
+    });
+  };
+
+  // Particles: a ring of coloured dots bursts out.
+  REVEALS.particle = function (d, r, t) {
+    var stageBox = el("div", "rv-stage");
+    r.appendChild(stageBox);
+    r.insertBefore(rvHead("A particle effect", d.label, ""), stageBox);
+    var c = center(stageBox);
+    burst(c.x, c.y, 40, ["#E0A0E0", "#8FC3E8", "#F2C14E", "#7BD389", "#ECE6F2"], 300, 1.1);
+    return wait(1100, t).then(function () { return true; });
+  };
+
+  // Lightning: a bolt is drawn and the screen flashes.
+  REVEALS.lightning = function (d, r, t) {
+    var stageBox = el("div", "rv-stage");
+    stageBox.innerHTML = '<svg viewBox="0 0 120 240" style="position:absolute;left:50%;top:0;height:100%;transform:translateX(-50%)"><path d="M62 4 L44 92 L70 96 L50 178 L86 110 L62 106 L80 40 Z" fill="none" stroke="#FFF27A" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" style="filter:drop-shadow(0 0 8px #FFF27A)"/></svg>';
+    r.appendChild(stageBox);
+    r.insertBefore(rvHead("Lightning", "A bolt from the block", ""), stageBox);
+    var path = stageBox.querySelector("path");
+    var len = path.getTotalLength();
+    path.style.strokeDasharray = len; path.style.strokeDashoffset = len;
+    anim(path, [{strokeDashoffset: len}, {strokeDashoffset: 0}], {duration: 220, fill: "forwards"});
+    return wait(220, t).then(function (alive) {
+      if (!alive) return false;
+      anim($("#flash"), [{opacity: 0}, {opacity: .95}, {opacity: .1}, {opacity: .7}, {opacity: 0}], {duration: 700});
+      anim($("#scene"), [{transform: "translate(0,0)"}, {transform: "translate(-5px,3px)"}, {transform: "translate(4px,-3px)"}, {transform: "translate(0,0)"}], {duration: 300});
+      return wait(900, t).then(function () { return true; });
+    });
+  };
+
+  // Groups: the set's pieces appear one after another.
+  REVEALS.group = function (d, r, t) {
+    r.appendChild(rvHead("A set", d.label, "Everything in the set drops at once"));
+    var row = el("div", "rv-stack");
+    row.style.flexDirection = "row"; row.style.flexWrap = "wrap"; row.style.justifyContent = "center"; row.style.gap = "8px";
+    row.style.maxWidth = "600px";
+    var members = (d.members || []).slice(0, 16);
+    members.forEach(function (m, i) {
+      var tile = el("div", "tile");
+      tile.style.cssText = "flex:0 0 " + (members.length > 8 ? "76px" : "96px") + ";height:110px;border:1px solid rgba(236,230,242,.12);border-radius:3px;background:rgba(236,230,242,.04)";
+      tile.style.setProperty("--kc", colorFor(m));
+      var art = (m.kind === "item" && m.icon) ? iconEl(m, 40) : glyphFor(m);
+      if (art.classList.contains("glyph")) { art.style.width = art.style.height = "40px"; }
+      tile.appendChild(art);
+      tile.appendChild(el("div", "tl", m.label || "item"));
+      row.appendChild(tile);
+      anim(tile, [{opacity: 0, transform: "scale(.4)"}, {opacity: 1, transform: "scale(1)"}],
+        {duration: 260, delay: Math.min(i * 90, 1200), easing: "ease-out", fill: "forwards"});
+    });
+    if (d.members && d.members.length > 16) row.appendChild(el("p", "rv-sub", "and " + (d.members.length - 16) + " more"));
+    r.appendChild(row);
+    return wait(1500, t).then(function () { return true; });
+  };
+
+  REVEALS.nothing = function (d, r, t) {
+    r.appendChild(rvHead("Nothing", "The block was air", "No drop came out of it"));
+    burst(center(scene).x, center(scene).y + 40, 16, ["#8A8594", "#ECE6F2"], 120, 0.8);
+    return wait(900, t).then(function () { return true; });
+  };
+
+  REVEALS.unknown = function (d, r, t) {
+    r.appendChild(rvHead("A drop", d.label || "Something", "The table has no special animation for this one"));
+    burst(center(scene).x, center(scene).y + 40, 16, ["#8A8594", "#ECE6F2"], 120, 0.8);
+    return wait(900, t).then(function () { return true; });
+  };
+
+  // ------------------------------------------------------------ the page
+  function renderLuck() {
+    var L = luck;
+    $("#luckRange").value = L;
+    $("#luckNum").value = L;
+    document.querySelectorAll(".preset").forEach(function (b) {
+      b.setAttribute("aria-pressed", String(Number(b.dataset.luck) === L));
+    });
+    if (!DATA) return;
+    var c = weightsFor(L);
+    var sign = L > 0 ? "+" : "";
+    var lines = "At luck " + sign + L + ", each luck point a drop has above the lowest one multiplies its weight by " +
+      c.b.toFixed(3) + " (this is 1 / (1 − 0.0077 × |luck|)).";
+    if (L < 0) lines = "At luck " + sign + L + ", each luck point a drop has below the highest one multiplies its weight by " +
+      c.b.toFixed(3) + " (1 / (1 − 0.0077 × |luck|)).";
+    if (L === 0) lines = "At luck 0 every outcome is weighted only by its own chance. Nothing is pushed up or down.";
+    $("#luckNote").textContent = lines;
+    $("#breakNote").textContent = "Weights are read from " + DROPS.length + " outcomes. A roll is weighted, not guaranteed.";
+  }
+  function setLuck(v) {
+    luck = clampLuck(v);
+    cache = null;
+    renderLuck();
+  }
+  function renderCrafts() {
+    var ul = $("#crafts");
+    ul.innerHTML = "";
+    (DATA.craftingItems || []).forEach(function (c) {
+      var li = el("li");
+      if (c.level < 0) li.className = "neg";
+      var name = c.label + (c.damage != null ? " (" + c.damage + ")" : "");
+      li.appendChild(el("b", null, (c.level > 0 ? "+" : "") + c.level + " "));
+      li.appendChild(document.createTextNode(name));
+      ul.appendChild(li);
+    });
+  }
+  function renderHistory() {
+    var ol = $("#hist");
+    ol.innerHTML = "";
+    if (!history.length) { ol.appendChild(el("li", "muted", "No blocks broken yet.")); return; }
+    history.forEach(function (h) {
+      var li = el("li");
+      li.textContent = h.label + " · " + h.pct + " chance at luck " + (h.L > 0 ? "+" : "") + h.L;
+      ol.appendChild(li);
+    });
+  }
+
+  function demoIndex(kind) {
+    for (var i = 0; i < DROPS.length; i++) if (DROPS[i].reveal === kind) return i;
+    return -1;
+  }
+
+  function init() {
+    $("#luckRange").addEventListener("input", function (e) { setLuck(e.target.value); });
+    $("#luckNum").addEventListener("change", function (e) { setLuck(e.target.value); });
+    $("#luckNum").addEventListener("input", function (e) { if (e.target.value !== "") setLuck(e.target.value); });
+    document.querySelectorAll(".preset").forEach(function (b) {
+      b.addEventListener("click", function () { setLuck(b.dataset.luck); });
+    });
+    document.querySelectorAll("[data-open]").forEach(function (b) {
+      b.addEventListener("click", function () { openerBtn = b; startRoll(); });
+    });
+    $("#again").addEventListener("click", function () { startRoll(); });
+    $("#closeBtn").addEventListener("click", closeStage);
+    $("#closeBtn2").addEventListener("click", closeStage);
+    $("#skipBtn").addEventListener("click", function () {
+      // Jump to the reveal: the drop and the reel are cut short.
+      var keep = currentIndex;
+      newSession();
+      var t = tok;
+      setPhase("reveal");
+      runReveal(DROPS[keep], t, true).then(function () { finish(DROPS[keep], probOf(keep, luck), luck, t); });
+    });
+    document.addEventListener("keydown", function (e) {
+      if (!stage.hidden && e.key === "Escape") { e.preventDefault(); closeStage(); }
+    });
+    window.addEventListener("resize", function () { if (!stage.hidden) fxSize(); });
+    var mq = matchMedia("(prefers-reduced-motion: reduce)");
+    if (mq.addEventListener) mq.addEventListener("change", function () { REDUCED = mq.matches; });
+  }
+
+  var currentIndex = -1;
+  function startRoll() {
+    var idx = currentIndex = rollIndex(luck);
+    breakBlock(idx, {mode: "full"});
+  }
+
+  // Hidden states for checking the page: ?force=<drop index>, ?luck=<n>, ?reel=<0..1> (paused mid-spin),
+  // #demo=<reveal kind> (skips the drop and the reel, runs the reveal).
+  function applyParams() {
+    if (params.get("luck") != null) setLuck(params.get("luck"));
+    if (params.get("reel") != null) {
+      var f = Number(params.get("reel"));
+      var idx = params.get("force") != null ? Number(params.get("force")) : rollIndex(luck);
+      currentIndex = idx;
+      breakBlock(idx, {mode: "still", still: isNaN(f) ? 0.6 : f});
+      return true;
+    }
+    if (hash.demo) {
+      var di = demoIndex(hash.demo);
+      if (di < 0) {
+        // a member of a set
+        for (var g = 0; g < DROPS.length && di < 0; g++) {
+          var ms = DROPS[g].members || [];
+          for (var k = 0; k < ms.length; k++) if (ms[k].reveal === hash.demo) { di = g; break; }
+        }
+      }
+      if (di >= 0) {
+        var real = DROPS[di];
+        var memberDrop = null;
+        if (real.kind === "group" && real.reveal !== hash.demo) {
+          memberDrop = real.members.filter(function (m) { return m.reveal === hash.demo; })[0];
+        }
+        currentIndex = di;
+        breakBlock(di, {mode: "instant", drop: memberDrop});
+        return true;
+      }
+    }
+    if (params.get("force") != null) {
+      var fi = Number(params.get("force"));
+      if (DROPS[fi]) { currentIndex = fi; breakBlock(fi, {mode: params.get("instant") ? "instant" : "full"}); return true; }
+    }
+    return false;
+  }
+
+  function load() {
+    fetch("data/lucky.json").then(function (r) { return r.json(); }).then(function (j) {
+      DATA = j;
+      DROPS = j.drops;
+      renderCrafts();
+      setLuck(params.get("luck") != null ? params.get("luck") : 0);
+      $("#luckRange").value = luck;
+      document.querySelectorAll("[data-open]").forEach(function (b) { b.disabled = false; });
+      renderHistory();
+      if (!applyParams()) { /* nothing forced */ }
+    }).catch(function () {
+      $("#breakNote").textContent = "The outcome table did not load. Serve the site over http to see it.";
+    });
+  }
+
+  init();
+  load();
+})();
+</script>
+
+<script>(function(){var b=document.querySelector('[data-theme-toggle]');if(!b)return;var h=document.documentElement,mq=matchMedia('(prefers-color-scheme: dark)');function mode(){try{var t=localStorage.getItem('qf-theme');return t==='light'||t==='dark'?t:'auto'}catch(e){return 'auto'}}function sys(){return mq.matches?'dark':'light'}function show(){var m=mode();b.dataset.mode=m;var s=m==='auto'?'Theme follows your system ('+sys()+')':'Theme: '+m;b.title=s+'. Click to switch.';b.setAttribute('aria-label',s)}b.addEventListener('click',function(){var m=mode(),s=sys(),n=(m==='auto'||m===s)?(s==='dark'?'light':'dark'):'auto';try{if(n==='auto')localStorage.removeItem('qf-theme');else localStorage.setItem('qf-theme',n)}catch(e){}if(n==='auto')h.removeAttribute('data-theme');else h.setAttribute('data-theme',n);show()});if(mq.addEventListener)mq.addEventListener('change',show);show()})();</script>
+</body>
+</html>

@@ -17,7 +17,8 @@ Steps, each printed before it runs. Any failure stops the run and says which ste
      overwrite the live pack's jar)
   e  launch the trial; the game writes items, icons and recipes to the dump folder, then quits
   f  build the item index from the dump (tools/items/build_site.py)
-  g  rebuild the enchantment roster (tools/site/build_enchant_roster.py)
+  g  rebuild the enchantment roster (tools/site/build_enchant_roster.py) and the Lucky
+     Block page's table (tools/site/build_lucky.py, from pack/config/lucky)
   h  rebuild the mod list from the live instance: read-mod-metadata, build-catalog, render-page
   i  check_fresh.py: the report that CI (site-fresh.yml) will apply
   j  git status, and a suggested commit message (nothing is committed)
@@ -37,6 +38,7 @@ TRIAL_PY = os.path.join(REPO, 'tools', 'trial', 'trial.py')
 TRIAL_CATALOG = os.path.join(REPO, 'tools', 'trial', 'catalog.json')
 BUILD_SITE = os.path.join(HERE, 'build_site.py')
 ROSTER = os.path.join(REPO, 'tools', 'site', 'build_enchant_roster.py')
+LUCKY = os.path.join(REPO, 'tools', 'site', 'build_lucky.py')      # the Lucky Block page's table
 CHECK = os.path.join(REPO, 'tools', 'site', 'check_fresh.py')
 MODLIST = os.path.join(REPO, 'tools', 'modlist')
 QFC = os.path.join(REPO, 'mods', 'qf-content')
@@ -203,8 +205,10 @@ def main():
         r.step('f', 'build the item index from the dump')
         r.run([sys.executable, '-I', BUILD_SITE, '--dump', dump])
 
-        r.step('g', 'rebuild the enchantment roster')
+        r.step('g', 'rebuild the enchantment roster and the Lucky Block table')
         r.run([sys.executable, '-I', ROSTER])
+        if os.path.isfile(LUCKY):
+            r.run([sys.executable, '-I', LUCKY])
 
         r.step('h', 'rebuild the mod list from the live instance')
         r.run([sys.executable, '-I', 'read-mod-metadata.py', '--mods', LIVE_MODS], cwd=MODLIST)
@@ -218,8 +222,8 @@ def main():
         r.run(['git', '-C', REPO, 'status', '--short'])
         today = datetime.date.today().isoformat()
         print('\n   suggested commit message:')
-        print('   Refresh the item index, mod list and enchantment roster (%s)' % today)
-        print('\nDone. Review the diff, then commit site/items/data, site/mods and site/enchantments.')
+        print('   Refresh the item index, mod list, enchantment roster and Lucky Block table (%s)' % today)
+        print('\nDone. Review the diff, then commit site/items/data, site/mods, site/enchantments and site/lucky/data.')
     except Stop as e:
         print('\nSTOPPED: %s' % e, file=sys.stderr)
         sys.exit(1)

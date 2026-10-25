@@ -1,0 +1,400 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Players · Quest Forge</title>
+<meta name="description" content="Who has played on the Quest Forge server: a card for each player, and the First Kills board, which records who got each boss first.">
+<meta name="theme-color" content="#E9EAE4">
+<meta name="robots" content="noindex">
+<link rel="icon" href="../favicon.png" type="image/png">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+<script>(function(){try{var t=localStorage.getItem('qf-theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)}catch(e){}})()</script>
+<style>
+/* Tokens shared with every page under site/. */
+:root{
+  --paper:#E9EAE4; --surface:#F7F8F3; --sunk:#DFE1DA;
+  --ink:#171B19; --ink-2:#3E4642; --muted:#6A726C; --rule:#CDD1C8;
+  --ember:#A33F17; --ember-ink:#8E3712; --ember-wash:rgba(163,63,23,.10);
+  --patina:#2C4A43; --patina-wash:rgba(44,74,67,.12);
+  --shadow:rgba(23,27,25,.10);
+  --night:#0E0B12; --night-ink:#ECE6F2; --night-2:#B9AFC6; --glow:#F08A3C;
+  --up:#2E8B57; --down:#A33F17;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#111412; --surface:#191D1A; --sunk:#0C0F0D;
+    --ink:#E7E9E2; --ink-2:#C2C7BE; --muted:#8B948B; --rule:#282E29;
+    --ember:#E58A55; --ember-ink:#EFA274; --ember-wash:rgba(229,138,85,.13);
+    --patina:#7FB6A6; --patina-wash:rgba(127,182,166,.13);
+    --shadow:rgba(0,0,0,.45); --up:#5FD08A; --down:#E58A55;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#111412; --surface:#191D1A; --sunk:#0C0F0D;
+  --ink:#E7E9E2; --ink-2:#C2C7BE; --muted:#8B948B; --rule:#282E29;
+  --ember:#E58A55; --ember-ink:#EFA274; --ember-wash:rgba(229,138,85,.13);
+  --patina:#7FB6A6; --patina-wash:rgba(127,182,166,.13);
+  --shadow:rgba(0,0,0,.45); --up:#5FD08A; --down:#E58A55;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:"Source Serif 4",Georgia,serif;font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
+h1,h2,h3,.ui,button,select{font-family:Archivo,"Helvetica Neue",Arial,sans-serif}
+code,.mono{font-family:"JetBrains Mono",ui-monospace,Menlo,monospace}
+.wrap{max-width:1180px;margin:0 auto;padding-left:28px;padding-right:28px}
+a{color:var(--ember-ink)}
+:focus-visible{outline:2px solid var(--ember);outline-offset:2px}
+
+/* ---- site nav ---- */
+nav.site{border-bottom:1px solid var(--rule);background:var(--surface)}
+nav.site .wrap{display:flex;align-items:center;gap:2px 18px;flex-wrap:wrap;min-height:50px;padding-top:6px;padding-bottom:6px}
+nav.site .brand{display:flex;align-items:center;gap:9px;font-family:Archivo,sans-serif;font-weight:800;font-size:15px;
+  letter-spacing:-.01em;color:var(--ink);text-decoration:none;margin-right:auto}
+nav.site .brand img{width:22px;height:22px;border-radius:4px}
+nav.site a:not(.brand){font-family:Archivo,sans-serif;font-size:13.5px;font-weight:500;color:var(--ink-2);text-decoration:none;
+  padding:4px 1px;border-bottom:2px solid transparent}
+nav.site a:not(.brand):hover{color:var(--ink);border-color:var(--rule)}
+nav.site a[aria-current="page"]{color:var(--ember-ink);border-color:var(--ember)}
+nav.site .theme{margin-left:4px;display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;padding:0;border:1px solid transparent;border-radius:50%;background:none;color:var(--ink-2);cursor:pointer}
+nav.site .theme:hover{color:var(--ink);border-color:var(--rule)}
+nav.site .theme:focus-visible{outline:2px solid var(--ember);outline-offset:1px}
+nav.site .theme svg{width:17px;height:17px;display:none}
+nav.site .theme[data-mode="auto"] .i-auto,nav.site .theme[data-mode="light"] .i-light,nav.site .theme[data-mode="dark"] .i-dark{display:block}
+
+/* ---- masthead ---- */
+header.mast{padding:48px 0 30px;border-bottom:2px solid var(--ink)}
+.kicker{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ember-ink);margin:0 0 14px}
+h1{font-size:clamp(38px,7vw,68px);line-height:.94;font-weight:800;letter-spacing:-.03em;margin:0;text-wrap:balance}
+.lede{max-width:60ch;margin:18px 0 0;font-size:17.5px;color:var(--ink-2)}
+
+main{padding:36px 0 0}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* ---- closed state, the same panel as the online page ---- */
+.panel{border:1px solid var(--rule);background:var(--surface);border-radius:3px;padding:26px 28px;max-width:820px}
+.panel .state{display:flex;align-items:center;gap:12px;font-family:Archivo,sans-serif;font-size:clamp(22px,3vw,30px);font-weight:800;letter-spacing:-.02em}
+.dot{width:12px;height:12px;border-radius:50%;background:var(--muted);flex:none}
+.dot.down{background:var(--down)}
+.panel .sub{margin:8px 0 0;color:var(--ink-2);font-size:15.5px}
+.panel .sub a{color:var(--ember-ink)}
+
+/* ---- demo banner ---- */
+.demo{margin:0 0 22px;padding:10px 14px;border:1px dashed var(--ember);border-radius:3px;background:var(--ember-wash);
+  font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--ink-2)}
+
+/* ---- two columns: cards, then the board beside them ---- */
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:36px;align-items:start;padding-bottom:48px}
+.toolbar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 18px;margin:0 0 16px;
+  padding-bottom:12px;border-bottom:1px solid var(--rule)}
+.count{margin:0;font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--muted)}
+.count b{color:var(--ink);font-weight:500}
+.sort{display:flex;align-items:center;gap:8px;font-family:Archivo,sans-serif;font-size:13.5px;color:var(--ink-2)}
+.sort select{font-size:13.5px;padding:5px 8px;border:1px solid var(--rule);border-radius:2px;background:var(--surface);color:var(--ink)}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}
+.card{border:1px solid var(--rule);background:var(--surface);border-radius:3px;display:flex;flex-direction:column;min-width:0}
+.figure{height:178px;display:flex;align-items:flex-end;justify-content:center;background:var(--sunk);border-radius:3px 3px 0 0;overflow:hidden}
+.figure img{height:168px;width:auto;image-rendering:pixelated;display:block;margin-bottom:0}
+.figure img.face{height:112px;width:112px;margin-bottom:33px;border-radius:2px}
+.info{padding:14px 16px 14px;display:flex;flex-direction:column;gap:12px;flex:1}
+.card h3{margin:0;font-size:19px;font-weight:800;letter-spacing:-.02em;line-height:1.15;overflow-wrap:anywhere}
+.role{margin:4px 0 0;font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ember-ink)}
+.role.none{color:var(--muted)}
+dl.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;margin:0;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+dl.stats div{padding:8px 0;min-width:0}
+dl.stats div+div{padding-left:10px;border-left:1px solid var(--rule)}
+dl.stats dt{font-family:Archivo,sans-serif;font-size:10px;letter-spacing:.04em;white-space:nowrap;text-transform:uppercase;color:var(--muted)}
+dl.stats dd{margin:2px 0 0;font-family:Archivo,sans-serif;font-size:15px;font-weight:600;color:var(--ink);overflow-wrap:anywhere}
+.quests{margin:0}
+.quests .row{display:flex;justify-content:space-between;align-items:baseline;font-family:Archivo,sans-serif;font-size:13px;color:var(--ink-2)}
+.quests .row b{color:var(--ink);font-weight:600}
+.bar{height:5px;margin-top:6px;background:var(--sunk);border-radius:1px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--patina)}
+.chips{display:flex;flex-wrap:wrap;gap:5px}
+.chip{font-family:"JetBrains Mono",monospace;font-size:11px;line-height:1.3;padding:2px 7px;border:1px solid var(--rule);border-radius:2px;background:var(--paper);color:var(--ink-2)}
+.chip b{color:var(--ember-ink);font-weight:500}
+.none-yet{margin:0;font-size:13.5px;color:var(--muted)}
+.seen{margin-top:auto;font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--muted)}
+
+/* ---- the First Kills board ---- */
+aside.board{position:sticky;top:20px;border:1px solid var(--rule);background:var(--surface);border-radius:3px;padding:20px 20px 16px}
+aside.board h2{margin:0;font-size:24px;font-weight:800;letter-spacing:-.022em;line-height:1.1}
+aside.board .sum{margin:6px 0 0;font-size:14px;color:var(--ink-2)}
+ol.climb{list-style:none;margin:16px 0 0;padding:0;border-top:2px solid var(--ink)}
+li.kill{display:grid;grid-template-columns:34px minmax(0,1fr);gap:4px 10px;padding:11px 0;border-bottom:1px solid var(--rule)}
+li.kill .n{font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--muted);padding-top:3px}
+li.kill .boss{display:block;font-family:Archivo,sans-serif;font-weight:700;font-size:15px;letter-spacing:-.01em;color:var(--ink);line-height:1.25}
+li.kill .who{display:flex;align-items:center;gap:7px;margin-top:4px;font-size:14px;color:var(--ink-2)}
+li.kill .who b{color:var(--ink);font-weight:600}
+li.kill .who img{width:20px;height:20px;image-rendering:pixelated;border-radius:2px;background:var(--sunk);flex:none}
+li.kill .when{font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--muted);margin-top:2px}
+li.kill.standing .boss{color:var(--muted);font-weight:600}
+li.kill.standing .still{margin-top:4px;font-style:italic;font-size:14px;color:var(--muted)}
+li.kill.standing .n{color:var(--muted)}
+
+footer.site{margin-top:24px;border-top:1px solid var(--rule);padding:26px 0 56px;font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--muted)}
+footer.site .wrap{display:flex;flex-wrap:wrap;gap:6px 24px}
+footer.site a{color:var(--ink-2);text-decoration:none;border-bottom:1px solid var(--rule)}
+footer.site a:hover{color:var(--ember-ink);border-color:var(--ember)}
+
+@media (max-width:980px){
+  .layout{grid-template-columns:minmax(0,1fr);gap:32px}
+  aside.board{position:static}
+}
+@media (max-width:640px){
+  .wrap{padding-left:16px;padding-right:16px}
+  header.mast{padding:34px 0 24px}
+  .panel{padding:20px}
+  main{padding-top:26px}
+  nav.site .wrap{gap:2px 12px}
+  nav.site a:not(.brand){font-size:12.5px}
+  .grid{grid-template-columns:minmax(0,1fr)}
+  .figure{height:164px}
+  .figure img{height:156px}
+  .figure img.face{height:104px;width:104px;margin-bottom:30px}
+}
+</style>
+</head>
+<body>
+
+<nav class="site" aria-label="Site"><div class="wrap">
+  <a class="brand" href="../"><img src="../favicon.png" alt="">Quest Forge</a>
+  <a href="../play/">Get the pack</a>
+  <a href="../first-night/">First night</a>
+  <a href="../mods/">Mods</a>
+  <a href="../items/">Items</a>
+  <a href="../worlds/">Worlds</a>
+  <a href="../enchantments/">Enchantments</a>
+  <a href="../ore-atlas/">Ore atlas</a>
+  <a href="../online/">Server</a>
+  <button class="theme" type="button" data-theme-toggle aria-label="Theme" title="Theme"><svg class="i-auto" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18V3z" fill="currentColor"/><circle cx="12" cy="12" r="8.25" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><svg class="i-light" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="currentColor"/><g stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/></g></svg><svg class="i-dark" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z" fill="currentColor"/></svg></button>
+</div></nav>
+
+<header class="mast"><div class="wrap">
+  <p class="kicker">Minecraft 1.7.10 &middot; The server</p>
+  <h1>Players</h1>
+  <p class="lede">Everyone who has played on the server, what each has built up, and who got each boss first.</p>
+</div></header>
+
+<main class="wrap">
+  <div class="panel" id="closed" hidden aria-live="polite">
+    <div class="state"><span class="dot" id="closedDot"></span><span id="closedText">The server hasn't opened yet</span></div>
+    <p class="sub" id="closedSub"></p>
+  </div>
+
+  <div id="content" hidden>
+    <p class="demo" id="demoNote" hidden>Demo data. The players and kills on this page are invented to show the layout. Remove <code>?demo</code> from the address to see the real page.</p>
+    <div class="layout">
+      <section aria-labelledby="cardsH">
+        <h2 id="cardsH" class="sr">Players</h2>
+        <div class="toolbar">
+          <p class="count" id="count"></p>
+          <label class="sort">Sort by
+            <select id="sort">
+              <option value="last">Last seen</option>
+              <option value="play">Time played</option>
+              <option value="deaths">Deaths</option>
+            </select>
+          </label>
+        </div>
+        <div class="grid" id="grid"></div>
+      </section>
+
+      <aside class="board" aria-labelledby="boardH">
+        <h2 id="boardH">First kills</h2>
+        <p class="sum" id="boardSum"></p>
+        <ol class="climb" id="climb"></ol>
+      </aside>
+    </div>
+  </div>
+</main>
+
+<footer class="site"><div class="wrap">
+  <span>Quest Forge &middot; Minecraft 1.7.10</span>
+  <a href="../">Home</a><a href="../play/">Get the pack</a><a href="../online/">Server</a><a href="../first-night/">First night</a>
+  <a href="https://github.com/MarionWhite/quest-forge">Source on GitHub</a>
+</div></footer>
+
+<script>
+"use strict";
+// The page reads config.json beside it. While feed is empty it reads data/players.json, written by
+// tools/server/player_cards.py. Once feed is set, it fetches that URL instead. ?demo reads data/demo.json.
+const $ = id => document.getElementById(id);
+const demo = /(?:^|[?&])demo(?:=|&|$)/.test(location.search);
+const SKIN = "https://api.mineatar.io";
+let data = null;
+
+function el(tag, cls, text) {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (text != null) e.textContent = text;
+  return e;
+}
+function face(uuid, size) {
+  const img = new Image(size, size);
+  img.alt = ""; img.loading = "lazy";
+  img.src = `${SKIN}/face/${encodeURIComponent(uuid)}?scale=${size >= 40 ? 6 : 3}`;
+  return img;
+}
+// 1234 minutes -> "20 h"; under an hour -> "42 min"; from two days -> "3 days".
+function human(min) {
+  min = Math.max(0, Math.round(min || 0));
+  if (min < 60) return `${min} min`;
+  if (min < 48 * 60) return `${Math.floor(min / 60)} h`;
+  const d = Math.floor(min / 1440);
+  return `${d} day${d === 1 ? "" : "s"}`;
+}
+function ago(ms) {
+  if (ms == null) return "last seen unknown";
+  const s = Math.max(0, (Date.now() - ms) / 1000);
+  if (s < 90) return "last seen just now";
+  const m = Math.round(s / 60);
+  if (m < 60) return `last seen ${m} min ago`;
+  const h = Math.round(m / 60);
+  if (h < 36) return `last seen ${h} h ago`;
+  const d = Math.round(h / 24);
+  return `last seen ${d} day${d === 1 ? "" : "s"} ago`;
+}
+function day(ms) {
+  return new Date(ms).toLocaleDateString([], {day: "numeric", month: "short", year: "numeric"});
+}
+function sortPlayers(list, key) {
+  const a = list.slice();
+  if (key === "play") a.sort((x, y) => (y.playMinutes || 0) - (x.playMinutes || 0));
+  else if (key === "deaths") a.sort((x, y) => (y.deaths || 0) - (x.deaths || 0));
+  else a.sort((x, y) => (y.lastSeen ?? 0) - (x.lastSeen ?? 0));
+  return a;
+}
+
+function card(p) {
+  const c = el("article", "card");
+  const fig = el("div", "figure");
+  const body = new Image(); body.alt = ""; body.loading = "lazy"; body.decoding = "async";
+  body.src = `${SKIN}/body/full/${encodeURIComponent(p.uuid)}?scale=4`;
+  body.onerror = () => { body.onerror = null; body.classList.add("face"); body.width = body.height = 112; body.src = `${SKIN}/face/${encodeURIComponent(p.uuid)}?scale=6`; };
+  fig.append(body);
+
+  const info = el("div", "info");
+  const head = el("div");
+  head.append(el("h3", "", p.name));
+  const role = p.class ? `${p.class} · level ${p.level ?? "unknown"}` : `no class · level ${p.level ?? "unknown"}`;
+  head.append(el("p", "role" + (p.class ? "" : " none"), role));
+
+  const stats = el("dl", "stats");
+  for (const [k, v] of [["Played", human(p.playMinutes)], ["Deaths", p.deaths ?? 0], ["Mob kills", (p.mobKills ?? 0).toLocaleString()]]) {
+    const d = el("div"); d.append(el("dt", "", k), el("dd", "", String(v))); stats.append(d);
+  }
+
+  const q = el("div", "quests");
+  const total = p.questsTotal || 0, done = Math.min(p.questsDone || 0, total || Infinity);
+  const pct = total ? Math.round(100 * done / total) : 0;
+  const row = el("div", "row");
+  row.append(el("span", "", "Quests"), el("b", "", total ? `${done} of ${total}` : `${done}`));
+  const bar = el("div", "bar"); bar.setAttribute("role", "progressbar");
+  bar.setAttribute("aria-valuemin", "0"); bar.setAttribute("aria-valuemax", String(total || 0));
+  bar.setAttribute("aria-valuenow", String(done)); bar.setAttribute("aria-label", `Quests done for ${p.name}`);
+  const fill = el("i"); fill.style.width = pct + "%"; bar.append(fill);
+  q.append(row, bar);
+
+  const kills = Object.entries(p.bossKills || {});
+  let bosses;
+  if (kills.length) {
+    bosses = el("div", "chips");
+    for (const [boss, n] of kills) {
+      const chip = el("span", "chip", boss);
+      if (n > 1) chip.append(" ", el("b", "", `×${n}`));
+      bosses.append(chip);
+    }
+  } else bosses = el("p", "none-yet", "No bosses yet");
+
+  info.append(head, stats, q, bosses, el("p", "seen", ago(p.lastSeen)));
+  c.append(fig, info);
+  return c;
+}
+
+function renderGrid() {
+  const players = data.players || [];
+  const grid = $("grid");
+  grid.replaceChildren(...sortPlayers(players, $("sort").value).map(card));
+  $("count").textContent = "";
+  const b = el("b", "", String(players.length));
+  $("count").append(b, document.createTextNode(players.length === 1 ? " player" : " players"));
+  if (data.updated) $("count").append(document.createTextNode(` · updated ${new Date(data.updated).toLocaleString([], {day: "numeric", month: "short", hour: "2-digit", minute: "2-digit"})}`));
+}
+
+function renderBoard() {
+  const firsts = data.firsts || [];
+  const won = firsts.filter(f => f.uuid).length;
+  $("boardSum").textContent = firsts.length
+    ? `${won} of ${firsts.length} bosses have a first kill. In the order of the climb.`
+    : "No boss has been killed yet.";
+  const list = $("climb");
+  list.replaceChildren(...firsts.map((f, i) => {
+    const li = el("li", f.uuid ? "kill" : "kill standing");
+    li.append(el("span", "n", String(i + 1).padStart(2, "0")));
+    const what = el("div");
+    what.append(el("span", "boss", f.boss));
+    if (f.uuid) {
+      const who = el("div", "who");
+      who.append(face(f.uuid, 20), el("span", "", f.player || "unknown"));
+      what.append(who, el("div", "when", f.time ? day(f.time) : "date unknown"));
+    } else {
+      what.append(el("div", "still", "still standing"));
+    }
+    li.append(what);
+    return li;
+  }));
+}
+
+function closed(dotClass, text, sub) {
+  $("closedDot").className = "dot" + (dotClass ? " " + dotClass : "");
+  $("closedText").textContent = text;
+  $("closedSub").innerHTML = sub;
+  $("closed").hidden = false;
+}
+
+function render() {
+  const players = data.players || [], firsts = data.firsts || [];
+  if (!players.length && !firsts.some(f => f.uuid)) {
+    closed("", "The server hasn't opened yet",
+      `When the server opens, this page fills in: a card for each player and the First Kills board, which records who got each boss first. ` +
+      `Until then, <a href="../play/">get the pack ready</a> so the first evening isn't spent installing. The address is on <a href="../online/">the server page</a>.`);
+    return;
+  }
+  $("content").hidden = false;
+  $("demoNote").hidden = !demo;
+  renderGrid();
+  renderBoard();
+}
+
+async function load() {
+  let url = "data/players.json";
+  if (demo) url = "data/demo.json";
+  else {
+    try {
+      const cfg = await (await fetch("config.json", {cache: "no-store"})).json();
+      if (cfg && cfg.feed) url = cfg.feed;
+    } catch (e) { /* keep the local file */ }
+  }
+  try {
+    const r = await fetch(url, {cache: "no-store"});
+    if (!r.ok) throw new Error(String(r.status));
+    data = await r.json();
+  } catch (e) {
+    closed("down", "Couldn't load the player data",
+      `The file did not load. <a href="">Try again</a>, or come back after the next update.`);
+    return;
+  }
+  render();
+}
+
+$("sort").addEventListener("change", () => { if (data) renderGrid(); });
+load();
+</script>
+<script>(function(){var b=document.querySelector('[data-theme-toggle]');if(!b)return;var h=document.documentElement,mq=matchMedia('(prefers-color-scheme: dark)');function mode(){try{var t=localStorage.getItem('qf-theme');return t==='light'||t==='dark'?t:'auto'}catch(e){return 'auto'}}function sys(){return mq.matches?'dark':'light'}function show(){var m=mode();b.dataset.mode=m;var s=m==='auto'?'Theme follows your system ('+sys()+')':'Theme: '+m;b.title=s+'. Click to switch.';b.setAttribute('aria-label',s)}b.addEventListener('click',function(){var m=mode(),s=sys(),n=(m==='auto'||m===s)?(s==='dark'?'light':'dark'):'auto';try{if(n==='auto')localStorage.removeItem('qf-theme');else localStorage.setItem('qf-theme',n)}catch(e){}if(n==='auto')h.removeAttribute('data-theme');else h.setAttribute('data-theme',n);show()});if(mq.addEventListener)mq.addEventListener('change',show);show()})();</script>
+</body>
+</html>

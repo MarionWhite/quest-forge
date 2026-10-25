@@ -149,6 +149,9 @@ What it compares:
   committed no earlier than `catalog.json` or `render-page.py`.
 - **enchantments:** the keys in the page's `const ENCH` line against the `add(cfg, "key", ...)`
   calls in `QFEnchantments.java`.
+- **lucky:** `site/lucky/data/lucky.json` (the Lucky Block page's table, from
+  `tools/site/build_lucky.py`) changed no earlier than `pack/config/lucky/LuckyBlockProperties.txt`
+  and the builder. `refresh.py` rebuilds it in step g; so does running the builder on its own.
 
 A check that cannot run (no git history, a missing file) reports an `unknown:` reason, and that
 area counts as stale. A check that cannot run is not a pass.

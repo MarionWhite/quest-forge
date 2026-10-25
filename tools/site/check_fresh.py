@@ -23,6 +23,9 @@ Three areas are checked:
                site/mods/index.html against the newest of catalog.json and render-page.py.
   enchantments the keys in the page's `const ENCH` line against the add(cfg, "key", ...) calls
                in QFEnchantments.java.
+  lucky        site/lucky/data/lucky.json (the Lucky Block page's table, built by
+               tools/site/build_lucky.py) committed no earlier than the pack's
+               pack/config/lucky/LuckyBlockProperties.txt and the builder itself.
 
 A check that cannot run (no git history, a file missing) reports an "unknown:" reason, and
 that area counts as stale: the point of this script is that a gap is never silent.
@@ -37,6 +40,9 @@ DATA = os.path.join(REPO, 'site', 'items', 'data')
 ENCH_PAGE = os.path.join(REPO, 'site', 'enchantments', 'index.html')
 ENCH_SRC = os.path.join(REPO, 'mods', 'qf-content', 'src', 'main', 'java', 'com', 'questforge',
                         'content', 'ench', 'QFEnchantments.java')
+LUCKY_SRC = 'pack/config/lucky/LuckyBlockProperties.txt'
+LUCKY_BUILD = 'tools/site/build_lucky.py'
+LUCKY_DATA = 'site/lucky/data/lucky.json'
 CATALOG = 'tools/modlist/catalog.json'
 RENDER = 'tools/modlist/render-page.py'
 MODS_PAGE = 'site/mods/index.html'
@@ -309,6 +315,38 @@ def check_enchantments():
     return reasons
 
 
+def when(git, rel):
+    """When a repo file last changed: its last commit time, or its mtime when it is uncommitted
+    (so a file just regenerated and not yet committed counts as current). None when absent."""
+    p = os.path.join(REPO, rel)
+    if not os.path.exists(p):
+        return None
+    if git.ok:
+        st = git.run('status', '--porcelain', '--', rel)
+        if st is not None and st.strip():
+            return int(os.path.getmtime(p))
+        out = (git.run('log', '-1', '--format=%ct', '--', rel) or '').strip()
+        if out.isdigit():
+            return int(out)
+    return int(os.path.getmtime(p))
+
+
+def check_lucky(git):
+    """The Lucky Block page's table must be rebuilt after the pack's drop table or the builder changes."""
+    data = when(git, LUCKY_DATA)
+    if data is None:
+        return ['unknown: %s is missing; run python3 -I %s' % (LUCKY_DATA, LUCKY_BUILD)]
+    reasons = []
+    for src in (LUCKY_SRC, LUCKY_BUILD):
+        t = when(git, src)
+        if t is None:
+            reasons.append('unknown: %s is missing' % src)
+        elif t > data:
+            reasons.append('%s (%s) is newer than %s (%s); run python3 -I %s'
+                           % (src, _day(t), LUCKY_DATA, _day(data), LUCKY_BUILD))
+    return reasons
+
+
 def guard(name, fn):
     try:
         return fn()
@@ -331,22 +369,26 @@ def build_result():
         'items': guard('item index', lambda: check_items(git)),
         'mods': guard('mod list', lambda: check_mods(git)),
         'enchantments': guard('enchantment roster', check_enchantments),
+        'lucky': guard('Lucky Block table', lambda: check_lucky(git)),
     }
     result = {'checked': datetime.date.today().isoformat(), 'built': built, 'source': source,
               'stale': any(checks[k] for k in checks)}
-    for k in ('items', 'mods', 'enchantments'):
+    for k in AREAS:
         result[k] = {'stale': bool(checks[k]), 'reasons': checks[k]}
     return result
+
+
+AREAS = ('items', 'mods', 'enchantments', 'lucky')
 
 
 def text_report(r):
     lines = ['checked %s; item index built %s, source %s'
              % (r['checked'], r['built'] or 'unknown', r['source'] or 'unknown')]
-    for k in ('items', 'mods', 'enchantments'):
+    for k in AREAS:
         lines.append('%s: %s' % (k, 'STALE' if r[k]['stale'] else 'fresh'))
         lines.extend('  - ' + reason for reason in r[k]['reasons'])
     lines.append('Everything is fresh.' if not r['stale'] else
-                 'Stale: %s. %s.' % (', '.join(k for k in ('items', 'mods', 'enchantments') if r[k]['stale']), HINT))
+                 'Stale: %s. %s.' % (', '.join(k for k in AREAS if r[k]['stale']), HINT))
     return '\n'.join(lines)
 
 

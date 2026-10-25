@@ -1,0 +1,4 @@
+{
+  "feed": "",
+  "_how": "While feed is empty, the page reads data/graves.json next to it (produced by tools/server/graves_from_log.py). Set feed to the URL of a published copy of that JSON (a GitHub Gist raw URL or any CORS-enabled static host) and the page fetches it on every load instead. A static site cannot receive pushes, so the server has to publish the file."
+}

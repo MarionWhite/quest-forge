@@ -1,0 +1,228 @@
+{
+  "updated": 1792872000000,
+  "players": [
+    {
+      "uuid": "3f2a9c1e-7b4d-4e8a-9f10-2c5d6e7f8a91",
+      "name": "Kestrel_",
+      "firstSeen": 1788109200000,
+      "lastSeen": 1792870800000,
+      "playMinutes": 3120,
+      "deaths": 14,
+      "mobKills": 2480,
+      "playerKills": 3,
+      "questsDone": 201,
+      "questsTotal": 308,
+      "class": "Warrior",
+      "level": 41,
+      "dimension": null,
+      "bossKills": {
+        "Naga": 1,
+        "The Lich King": 1,
+        "The Minoshroom": 1,
+        "The Knight Phantom": 6,
+        "The Alpha Yeti": 1,
+        "The Hydra": 1,
+        "The Snow Queen": 1
+      }
+    },
+    {
+      "uuid": "9b1e4d2a-0c3f-4a6b-8d7e-5f4a3b2c1d0e",
+      "name": "mossbeard",
+      "firstSeen": 1788214200000,
+      "lastSeen": 1792789500000,
+      "playMinutes": 2065,
+      "deaths": 9,
+      "mobKills": 1386,
+      "playerKills": 0,
+      "questsDone": 174,
+      "questsTotal": 308,
+      "class": "Miner",
+      "level": 27,
+      "dimension": null,
+      "bossKills": {
+        "Naga": 1,
+        "The Snow Queen": 1,
+        "The Minoshroom": 1
+      }
+    },
+    {
+      "uuid": "c4d1a7e0-2b8f-4f3c-9a61-7e0d5b8c2f14",
+      "name": "Fennec",
+      "firstSeen": 1788719400000,
+      "lastSeen": 1792710720000,
+      "playMinutes": 1490,
+      "deaths": 23,
+      "mobKills": 905,
+      "playerKills": 1,
+      "questsDone": 96,
+      "questsTotal": 308,
+      "class": "Scout",
+      "level": 18,
+      "dimension": null,
+      "bossKills": {
+        "The Hydra": 1,
+        "MOBZILLA!": 1,
+        "The Alpha Yeti": 1
+      }
+    },
+    {
+      "uuid": "6e83f0b5-1d9a-4c27-8e4f-3a2b1c0d9e8f",
+      "name": "hollowpine",
+      "firstSeen": 1789221600000,
+      "lastSeen": 1792428480000,
+      "playMinutes": 880,
+      "deaths": 4,
+      "mobKills": 512,
+      "playerKills": 0,
+      "questsDone": 63,
+      "questsTotal": 308,
+      "class": "Farmer",
+      "level": 33,
+      "dimension": null,
+      "bossKills": {
+        "Ur-Ghast": 1,
+        "Naga": 1
+      }
+    },
+    {
+      "uuid": "a0f5c2d8-6b1e-4d93-b7a4-1c8e9f2d3b65",
+      "name": "saltwick",
+      "firstSeen": 1791624600000,
+      "lastSeen": 1792829700000,
+      "playMinutes": 340,
+      "deaths": 2,
+      "mobKills": 188,
+      "playerKills": 0,
+      "questsDone": 22,
+      "questsTotal": 308,
+      "class": null,
+      "level": 9,
+      "dimension": null,
+      "bossKills": {
+        "THE KING": 1
+      }
+    }
+  ],
+  "firsts": [
+    {
+      "boss": "Naga",
+      "quest": {
+        "id": 15,
+        "name": "Twilight: Defeat the Naga"
+      },
+      "player": "mossbeard",
+      "uuid": "9b1e4d2a-0c3f-4a6b-8d7e-5f4a3b2c1d0e",
+      "time": 1788552780000
+    },
+    {
+      "boss": "The Lich King",
+      "quest": {
+        "id": 16,
+        "name": "Twilight: The Lich King"
+      },
+      "player": "Kestrel_",
+      "uuid": "3f2a9c1e-7b4d-4e8a-9f10-2c5d6e7f8a91",
+      "time": 1788990000000
+    },
+    {
+      "boss": "The Minoshroom",
+      "quest": {
+        "id": 93,
+        "name": "Twilight: The Minoshroom"
+      },
+      "player": "Kestrel_",
+      "uuid": "3f2a9c1e-7b4d-4e8a-9f10-2c5d6e7f8a91",
+      "time": 1789412700000
+    },
+    {
+      "boss": "The Hydra",
+      "quest": {
+        "id": 17,
+        "name": "Twilight: The Hydra"
+      },
+      "player": "Fennec",
+      "uuid": "c4d1a7e0-2b8f-4f3c-9a61-7e0d5b8c2f14",
+      "time": 1789770600000
+    },
+    {
+      "boss": "The Knight Phantom",
+      "quest": {
+        "id": 94,
+        "name": "Twilight: The Knight Phantom"
+      },
+      "player": "Kestrel_",
+      "uuid": "3f2a9c1e-7b4d-4e8a-9f10-2c5d6e7f8a91",
+      "time": 1790452920000
+    },
+    {
+      "boss": "Ur-Ghast",
+      "quest": {
+        "id": 18,
+        "name": "Twilight: Ur-Ghast"
+      },
+      "player": "hollowpine",
+      "uuid": "6e83f0b5-1d9a-4c27-8e4f-3a2b1c0d9e8f",
+      "time": 1790880420000
+    },
+    {
+      "boss": "The Alpha Yeti",
+      "quest": {
+        "id": 95,
+        "name": "Twilight: The Alpha Yeti"
+      },
+      "player": "Kestrel_",
+      "uuid": "3f2a9c1e-7b4d-4e8a-9f10-2c5d6e7f8a91",
+      "time": 1791061860000
+    },
+    {
+      "boss": "The Snow Queen",
+      "quest": {
+        "id": 19,
+        "name": "Twilight: The Snow Queen"
+      },
+      "player": "mossbeard",
+      "uuid": "9b1e4d2a-0c3f-4a6b-8d7e-5f4a3b2c1d0e",
+      "time": 1791406500000
+    },
+    {
+      "boss": "The Dragon Reborn",
+      "quest": {
+        "id": 121,
+        "name": "HEE: The Dragon Reborn"
+      },
+      "player": null,
+      "uuid": null,
+      "time": null
+    },
+    {
+      "boss": "MOBZILLA!",
+      "quest": {
+        "id": 22,
+        "name": "OreSpawn: MOBZILLA!"
+      },
+      "player": "Fennec",
+      "uuid": "c4d1a7e0-2b8f-4f3c-9a61-7e0d5b8c2f14",
+      "time": 1791833880000
+    },
+    {
+      "boss": "THE KING",
+      "quest": {
+        "id": 23,
+        "name": "OreSpawn: THE KING"
+      },
+      "player": "saltwick",
+      "uuid": "a0f5c2d8-6b1e-4d93-b7a4-1c8e9f2d3b65",
+      "time": 1792188240000
+    },
+    {
+      "boss": "The Overlord",
+      "quest": {
+        "id": 450,
+        "name": "TragicMC: The Overlord"
+      },
+      "player": null,
+      "uuid": null,
+      "time": null
+    }
+  ]
+}

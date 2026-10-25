@@ -1,0 +1,4 @@
+{
+  "feed": "",
+  "_how": "Empty until the server opens. While feed is empty the page reads data/players.json, written by tools/server/player_cards.py --out. Set feed to a URL (a published JSON with the same shape) and the page fetches that instead, with cache no-store."
+}

@@ -1,0 +1,19 @@
+{
+  "updated": "2026-10-25T06:00:00Z",
+  "demo": true,
+  "graves": [
+    {"id": "d01", "player": "Mason", "uuid": null, "time": "2026-10-18T19:42:11Z", "message": "Mason was slain by Mobzilla", "killer": "Mobzilla", "cause": "mob", "dimension": "Overworld", "pos": [212, 64, -88], "model": 0},
+    {"id": "d02", "player": "Juno", "uuid": null, "time": "2026-10-19T22:05:37Z", "message": "Juno was slain by Weeping Angel", "killer": "Weeping Angel", "cause": "mob", "dimension": "Overworld", "pos": [-40, 22, 310], "model": 0},
+    {"id": "d03", "player": "Pell", "uuid": null, "time": "2026-10-19T23:18:02Z", "message": "Pell was blown up by Creeper", "killer": "Creeper", "cause": "explosion", "dimension": "Overworld", "pos": [18, 66, 12], "model": 0},
+    {"id": "d04", "player": "Tamsin", "uuid": null, "time": "2026-10-20T13:51:26Z", "message": "Tamsin tried to swim in lava", "killer": null, "cause": "lava", "dimension": "Overworld", "pos": [-130, 31, 77], "model": 0},
+    {"id": "d05", "player": "Idris", "uuid": null, "time": "2026-10-20T21:14:48Z", "message": "Idris was slain by Twilight Lich", "killer": "Twilight Lich", "cause": "mob", "dimension": "Twilight Forest", "pos": [-1204, 74, 603], "model": 0},
+    {"id": "d06", "player": "Wren", "uuid": null, "time": "2026-10-21T10:02:09Z", "message": "Wren hit the ground too hard", "killer": null, "cause": "fall", "dimension": "Overworld", "pos": [96, 118, -210], "model": 0},
+    {"id": "d07", "player": "Mason", "uuid": null, "time": "2026-10-21T16:40:55Z", "message": "Mason drowned", "killer": null, "cause": "drown", "dimension": "Overworld", "pos": [250, 62, -41], "model": 0},
+    {"id": "d08", "player": "Juno", "uuid": null, "time": "2026-10-22T08:27:30Z", "message": "Juno was shot by Skeleton", "killer": "Skeleton", "cause": "mob", "dimension": "Overworld", "pos": null, "model": 0},
+    {"id": "d09", "player": "Tamsin", "uuid": null, "time": "2026-10-22T20:11:04Z", "message": "Tamsin burned to death", "killer": null, "cause": "other", "dimension": "The Nether", "pos": [-22, 49, 140], "model": 0},
+    {"id": "d10", "player": "Wren", "uuid": null, "time": "2026-10-23T18:33:19Z", "message": "Wren was slain by Juno using Iron Sword", "killer": "Juno", "cause": "player", "dimension": "Overworld", "pos": [7, 70, 8], "model": 0},
+    {"id": "d11", "player": "Idris", "uuid": null, "time": "2026-10-23T23:59:40Z", "message": "Idris starved to death", "killer": null, "cause": "other", "dimension": "Overworld", "pos": null, "model": 0},
+    {"id": "d12", "player": "Mason", "uuid": null, "time": "2026-10-24T20:13:05Z", "message": "Mason was squashed by a falling anvil", "killer": null, "cause": "other", "dimension": "Overworld", "pos": [60, 71, -15], "model": 0},
+    {"id": "d13", "player": "Pell", "uuid": null, "time": "2026-10-25T04:46:21Z", "message": "Pell was slain by Lycanite Lycanthrope", "killer": "Lycanite Lycanthrope", "cause": "mob", "dimension": "Overworld", "pos": [-310, 58, -244], "model": 0}
+  ]
+}
