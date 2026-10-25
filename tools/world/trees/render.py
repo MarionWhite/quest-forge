@@ -50,6 +50,15 @@ LEAFY = np.zeros(4096, bool)
 LEAFY[[18, 161, 35, 159, 95]] = True
 
 
+def register_colours(colours, leafy_ids=()):
+    """Add preview colours for modded blocks: {(numeric id, type): rgb}, type = meta & 3."""
+    for (bid, typ), c in colours.items():
+        for m in range(16):
+            if (m & 3) == (typ & 3):
+                LUT[bid, m] = c
+    LEAFY[list(leafy_ids)] = True
+
+
 def _hash(*a):
     h = np.zeros(np.broadcast(*a).shape, np.uint32)
     for k, v in enumerate(a):

@@ -4,7 +4,8 @@
   py -3.10 treegen.py redwood mangrove        # just these species
   py -3.10 treegen.py cherry --sizes medium --count 4 --seed 7
   py -3.10 treegen.py autumn --palette vanilla-wool --out C:/tmp/trees
-  py -3.10 treegen.py redwood --palette bop --idmap C:/qfs/friends/world/level.dat
+  py -3.10 treegen.py --palette bop --out C:/qf-world/trees/generated-bop   # BoP re-skin, pinned IDs
+  py -3.10 treegen.py redwood --palette bop --idmap <world>/level.dat       # IDs of another world
   py -3.10 treegen.py --list
 
 Writes <out>/<species>/<species>_<size>_<n>.schematic and <out>/<species>-preview.png
@@ -22,9 +23,9 @@ import numpy as np
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 
-from palettes import PALETTES, load_idmap          # noqa: E402
+from palettes import PALETTES, VARIANTS, BOP_COLOURS, BOP_LEAFY, load_idmap   # noqa: E402
 from schematic import to_blocks, write_schematic   # noqa: E402
-from render import contact_sheet                   # noqa: E402
+from render import contact_sheet, register_colours  # noqa: E402
 
 SPECIES = ['redwood', 'mangrove', 'baobab', 'ice', 'eucalyptus', 'petrified', 'autumn', 'cherry']
 SIZES = ['small', 'medium', 'large', 'giant']
@@ -32,7 +33,7 @@ DEFAULT_OUT = r'C:\qf-world\trees\generated'
 
 
 def module(name):
-    return importlib.import_module(f'species.{name}')
+    return importlib.import_module(f'species.{VARIANTS.get(name, name)}')
 
 
 def tree_seed(master, species, size, n):
@@ -72,27 +73,34 @@ def generate(species, out, master=1, palette='vanilla', idmap=None, sizes=None, 
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument('species', nargs='*', help=f'any of {", ".join(SPECIES)} (default: all)')
+    ap.add_argument('species', nargs='*', help=f'any of {", ".join(SPECIES)}; with --palette bop also '
+                    f'{", ".join(VARIANTS)} (default: all)')
     ap.add_argument('--out', default=DEFAULT_OUT)
     ap.add_argument('--seed', type=int, default=1, help='master seed (default 1)')
     ap.add_argument('--palette', default='vanilla', choices=sorted(PALETTES))
-    ap.add_argument('--idmap', help='level.dat whose FML registry resolves modded block names')
+    ap.add_argument('--idmap', help='level.dat whose FML registry resolves modded block names '
+                    '(default: the pinned registry docs/survey/block-ids.tsv)')
     ap.add_argument('--sizes', help='comma list of size classes to generate')
     ap.add_argument('--count', type=int, help='trees per size class (overrides the species default)')
     ap.add_argument('--no-preview', action='store_true')
     ap.add_argument('--list', action='store_true', help='list species and default counts')
     a = ap.parse_args()
     if a.list:
-        for s in SPECIES:
+        for s in SPECIES + list(VARIANTS):
             m = module(s)
             print(f'{s:11s} {sum(m.COUNTS.values()):3d}  {m.COUNTS}')
         return
-    idmap = load_idmap(a.idmap) if a.idmap else None
+    bop = a.palette == 'bop'
+    idmap = load_idmap(a.idmap) if (a.idmap or bop) else None
+    if idmap:
+        register_colours({(idmap[n], m): c for (n, m), c in BOP_COLOURS.items() if n in idmap},
+                         [idmap[n] for n in BOP_LEAFY if n in idmap])
+    allowed = SPECIES + (list(VARIANTS) if bop else [])
     sizes = a.sizes.split(',') if a.sizes else None
     total = 0
-    for s in (a.species or SPECIES):
-        if s not in SPECIES:
-            sys.exit(f'unknown species {s!r}; choose from {SPECIES}')
+    for s in (a.species or allowed):
+        if s not in allowed:
+            sys.exit(f'unknown species {s!r}; choose from {allowed}')
         print(s)
         total += generate(s, a.out, a.seed, a.palette, idmap, sizes, a.count, not a.no_preview)
     print(f'{total} trees written under {a.out}')

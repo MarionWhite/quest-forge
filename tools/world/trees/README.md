@@ -12,7 +12,8 @@ py -3.10 treegen.py                       # all species, default counts -> C:\qf
 py -3.10 treegen.py redwood mangrove      # only these species
 py -3.10 treegen.py cherry --sizes medium,large --count 6 --seed 7
 py -3.10 treegen.py autumn --palette vanilla-wool   # dyed-wool canopies (opt-in, see below)
-py -3.10 treegen.py redwood --palette bop --idmap C:\qfs\friends\world\level.dat
+py -3.10 treegen.py --palette bop --out C:\qf-world\trees\generated-bop   # BoP re-skin, pinned IDs
+py -3.10 -I clean_packs.py               # cleaned copies of the downloaded packs
 py -3.10 treegen.py --list                # species and default counts
 ```
 
@@ -33,7 +34,9 @@ The same `--seed` always produces the same trees. Change it to get a fresh fores
 | `treegen.py` | Command-line tool: seeds, export, previews |
 | `voxel.py` | Voxel canvas that stores *roles* (trunk, branch, root, leaf, accent, …) rather than blocks; drawing primitives (tapered capsules, ragged ellipsoids, lobed trunk layers) |
 | `growth.py` | Growth algorithms: space colonisation (Runions et al. 2007), pipe-model radii, recursive limbs, fluted trunks with buttress roots, irregular multi-lobe crown envelopes |
-| `palettes.py` | Role → block palettes per species: `vanilla`, `vanilla-leaves`, `bop` |
+| `palettes.py` | Role → block palettes per species: `vanilla`, `vanilla-wool`, `bop` (+ BoP-only variants dead, dark, jacaranda) |
+| `clean_packs.py` | Cleaned, trunk-centred copies of the downloaded packs (see *Cleaned downloaded packs*) |
+| `../blockids.py` | The pinned FML block registry: extract to `docs/survey/block-ids.tsv`, inject into a world |
 | `schematic.py` | Role grid → blocks (log axis bits, patchy block mixing) → `.schematic` |
 | `render.py` | Preview renderer (depth, sky occlusion, translucent glass) and contact sheets |
 | `species/*.py` | One style module per species. Each module exposes `COUNTS` and `grow(rng, size) -> (Grid, info)` |
@@ -98,7 +101,7 @@ is the opt-in `--palette vanilla-wool` (`vanilla-leaves` is kept as an old name 
 
 Leaves take their colour from the biome. Oak, dark-oak and acacia leaves follow the foliage tint, and
 birch and spruce leaves have fixed colours, so the "yellow" clumps use birch to stay lighter whatever
-the biome. Real autumn and blossom colour needs the BoP re-skin below, or a biome with an autumn
+the biome. Real autumn and blossom colour comes from the BoP re-skin below, or a biome with an autumn
 foliage tint (to check in game before relying on it).
 
 ## Loading into WorldPainter (1.2–1.12 map, Minecraft 1.7.10)
@@ -114,7 +117,8 @@ What follows was measured on WorldPainter 2.27.1: from its exporter (`Bo2LayerEx
    in the middle of the trunk. The one or two root-flare layers below it replace the top ground
    blocks, so the trunk comes out of the ground with no gap and no plinth. Downloaded packs that have
    no `WEOffset` tags (H2CO3, for one) get a guessed offset instead. In the test it was 1–3 blocks off
-   the trunk centre, and some of those objects carry their own bedrock or stone foot.
+   the trunk centre, and some of those objects carry their own bedrock or stone foot. Load the
+   copies in `C:\qf-world\trees\cleaned\` instead: they are trunk-centred and stripped of that foot.
 3. **Rotation and mirroring.** Leave the object's default *random rotation* on. In WorldPainter it
    means a random quarter turn **plus** a 50 % mirror, so each tree appears in 8 orientations. The
    test found all 8, and every rotated log kept a correct axis (east-west and north-south swap on
@@ -181,33 +185,101 @@ Results on 2026-10-25:
   `Skipping BlockEntity with id minecraft:chest`, which is WorldPainter's spawn chest written with a
   1.13-style ID. It is not a tree problem.
 
-## BoP re-skin plan
+## BoP re-skin and the pinned registry
 
-Biomes O' Plenty block IDs are not pinned. Its `ids.cfg` pins only biomes, so the numeric IDs change from
-world to world (`custom-trees.md` → "BoP IDs"). The generator therefore keeps blocks abstract until export:
+In 1.7.10 FML hands out modded block IDs per world and saves the map in `level.dat` (FML → `ItemData`);
+BoP's `ids.cfg` pins only biomes. A schematic with BoP blocks is therefore only right in a world that
+carries the same map. The map is now pinned instead of waiting for the final world:
 
-1. Freeze the final mod list and create the real world once.
-2. Run `treegen.py <species> --palette bop --idmap <world>\level.dat`. The `bop` palette names blocks by
-   registry name (`BiomesOPlenty:logs3`, `BiomesOPlenty:leaves3`, …). `--idmap` resolves each name to that
-   world's numeric ID from the FML `ItemData` in `level.dat`. IDs above 255 go into `AddBlocks`, which
-   WorldPainter reads.
-3. Before trusting the result, check every BoP `meta` in game with F3 or NEI. The meta values in
-   `palettes.py` are BoP 2.1 for 1.7.10 from memory:
-   - redwood: `logs3:0` with `colorizedLeaves1:3`;
-   - mangrove: `logs2:2` with `colorizedLeaves1:1`;
-   - cherry: `logs1:1` with `leaves3:1` (pink) and `leaves3:3` (white);
-   - autumn: `leaves3:2` (maple), `leaves2:3` (orange) and `leaves1:0` (yellow).
+1. **Source.** The full-pack test server `C:\qfs\v0` (the whole pack: BoP 2.1.0.2308, RWG alpha-1.5.2,
+   Forge 10.13.4.1614). Its `world` and `world-rwg` hold identical registries: 2427 blocks (83 of them
+   BoP) and 135 mods. It is only ever read.
+2. **Table.** `py -3.10 tools/world/blockids.py extract` writes `docs/survey/block-ids.tsv` (name, id).
+   `blockids.py check <level.dat>` compares any world with it. BoP's tree blocks are `logs1`–`logs4`
+   1143–1146, `leaves1`–`leaves4` 1147–1150 and `colorizedLeaves1`/`2` 1186/1187.
+3. **Final world.** `tools/world/stitch.py … --registry C:\qfs\v0\world\level.dat` copies the whole
+   FML compound (`ItemData`, `ModList`, alias and substitution lists) and the Forge compound into the
+   stitched world. FML then keeps these IDs on first load instead of handing out fresh ones.
+   (`blockids.py inject SRC DST` does the same for any level.dat.)
+4. **Generate.** `py -3.10 treegen.py --palette bop --out C:\qf-world\trees\generated-bop` resolves the
+   `bop` palette's registry names through the TSV (`--idmap <level.dat>` resolves them against another
+   world instead). IDs above 255 go into `AddBlocks`, which WorldPainter reads. The same seed gives the
+   same shapes, so the BoP set matches the vanilla set in `generated\` tree for tree.
 
-   BoP leaves also store no-decay differently from vanilla.
-4. The same seed gives the same shapes, so a re-skinned set matches the vanilla set tree for tree. Only
-   the blocks change. To re-skin another species, add or override its entry in `BOP` in `palettes.py`.
-   No growth code changes.
+The metas were read from the 2308 jar, not from memory. `BOPBlocks` registers each block as a category
+(CAT1–4). The type is `meta & 3`, and the names come from the static arrays in `BlockBOPLog`, `BlockBOPLeaves`
+and `BlockBOPColorizedLeaves`, in the same order as `en_US.lang`. Leaf decay works as in vanilla: a leaf
+decays only with bit 8 set and bit 4 clear, so the generator writes `type | 4`. The memory note that
+BoP stores no-decay differently was wrong.
+
+| Block (ID) | meta 0 | 1 | 2 | 3 |
+|---|---|---|---|---|
+| `logs1` (1143) | sacred oak | cherry | dark | fir |
+| `logs2` (1144) | ethereal | magic | mangrove | palm |
+| `logs3` (1145) | redwood | willow | dead | giant flower stem |
+| `logs4` (1146) | pine | hellbark | jacaranda | mahogany |
+| `leaves1` (1147) | yellow autumn | bamboo | magic | dark |
+| `leaves2` (1148) | dying | fir | ethereal | orange autumn |
+| `leaves3` (1149) | origin | pink cherry | maple (red) | white cherry |
+| `leaves4` (1150) | hellbark | jacaranda | | |
+| `colorizedLeaves1` (1186) | sacred oak | mangrove | palm | redwood |
+| `colorizedLeaves2` (1187) | willow | pine | mahogany | flowering oak |
+
+Logs take axis bits as vanilla does: +4 for east-west and +8 for north-south.
+
+The `bop` palette uses these blocks per species:
+
+| Species | Wood | Leaves |
+|---|---|---|
+| redwood | redwood `logs3:0` | redwood (5 parts) and pine (1 part); oak-leaf sprouts |
+| mangrove | mangrove `logs2:2` | mangrove (with some vanilla jungle) |
+| autumn | oak (birch for aspen) | maple (red), orange autumn and yellow autumn; dying leaves as the accent; a little oak green |
+| cherry | cherry `logs1:1` | pink cherry and white cherry, a few oak leaves |
+| eucalyptus | birch (BoP 1.7.10 has no eucalyptus) | willow mixed with birch and spruce |
+| **dead** (petrified shapes) | dead `logs3:2` | none |
+| **dark** (autumn shapes) | dark `logs1:2` | dark leaves, some vanilla dark oak, dying-leaf accent |
+| **jacaranda** (cherry shapes) | jacaranda `logs4:2` | jacaranda (purple) |
+| baobab, ice, petrified | as `vanilla` | BoP has no baobab or petrified wood |
+
+`dead`, `dark` and `jacaranda` are BoP-only variants (`VARIANTS` in `palettes.py`): each reuses an existing
+growth model under its own name and seed. The set on 2026-10-25 holds 357 trees in 11 species, with
+previews at `C:\qf-world\trees\generated-bop\<species>-preview.png`. The previews colour BoP blocks with the
+mean colour of their textures in the jar (`BOP_COLOURS`), so autumn reads red, orange and yellow and
+cherry reads pink. Nobody has looked at them in a client yet.
+
+## Cleaned downloaded packs (`clean_packs.py`)
+
+```
+py -3.10 -I clean_packs.py            # -> C:\qf-world\trees\cleaned\<pack>\..., plus cleaned\report.tsv
+```
+
+This writes cleaned copies of the downloaded packs, using the `-1.7.10` copies where a pack has them.
+It only parses their NBT and never writes into the pack folders. For each schematic it:
+- strips bedrock and the raw 1.8+ technical IDs (166 barrier, 217 structure void, 255 structure block);
+- finds the trunk. This is the cluster of log columns, at least half as tall as the tallest column,
+  that reaches lowest. Without logs, huge-mushroom stems stand in, and failing those, the lowest layer
+  that is not ground;
+- sets the base (the layer that goes at terrain + 1). Where the author placed grass, flowers or
+  saplings in the lower 40 % of the object, their lowest layer is the base. This matters for H2CO3,
+  whose logs are all six-sided bark, so roots and trunk look alike. Otherwise the base is the lowest
+  trunk log, raised above any dirt or grass plate round the trunk foot;
+- deletes ground blocks (grass, dirt, stone, cobble, sand, gravel, clay, mycelium, soul sand,
+  farmland, sandstone) below the base. Logs below it stay: they are roots and go into the ground;
+- crops empty borders, then writes `WEOffsetX/Y/Z` so the trunk centre lands on the base.
+
+Results on 2026-10-25: 4915 files were written, and every one has a trunk-centred offset (4808 had
+none; Mythix13's 107 WorldEdit offsets were replaced). Blocks were stripped from 487 files, among them
+1252 bedrock (all in H2CO3). Rock folders were skipped (Jamziboy `Rockrepository`, sijmenvb `rocks`).
+`report.tsv` lists each file's trunk method, the blocks stripped, and the old and new offsets. A
+sample check found the bases right. Some H2CO3 trees stand on a stone outcrop at the trunk foot,
+which was kept.
 
 ## Known weak spots
 
-- Redwood bark in vanilla is spruce, which is dark brown rather than red. BoP `logs3:0` fixes this.
+- Redwood bark in vanilla is spruce, which is dark brown rather than red. The BoP set uses `logs3:0`.
 - Glass in the previews is drawn translucent over a dark background. In game the colours are brighter.
-- With the leaves palette, autumn and cherry trees are green apart from the birch-lightened clumps.
-  They need BoP leaves, or an autumn-tinted biome, for their colour.
+- With the vanilla leaves palette, autumn and cherry trees are green apart from the birch-lightened
+  clumps. The BoP set (`generated-bop`) has their colour, but it needs the pinned registry in the world.
+- BoP dark leaves are almost black, so the `dark` variant reads as a silhouette.
 - Small trees of the other species still use the large-tree growth models. They have not been
   reworked onto `small_frame` or looked at closely at that size.

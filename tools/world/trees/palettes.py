@@ -14,8 +14,9 @@ Palette sets:
                  only: wool is an opaque full cube, so mobs spawn on the canopy tops at night,
                  punching drops free dyed wool, and nothing shows through the crown.
   vanilla-leaves old name for `vanilla`.
-  bop            Biomes O' Plenty woods and leaves (needs --idmap). Meta values are from BoP 2.1
-                 for 1.7.10 and must be checked in game (F3 / NEI) before a real export.
+  bop            Biomes O' Plenty 2.1.0.2308 woods and leaves, metas read from the jar. Names resolve
+                 through the pinned registry (docs/survey/block-ids.tsv) or --idmap. Adds the BoP-only
+                 variants in VARIANTS (dead, dark, jacaranda).
 """
 
 LOG_BLOCKS = {17, 162, 'BiomesOPlenty:logs1', 'BiomesOPlenty:logs2', 'BiomesOPlenty:logs3',
@@ -112,34 +113,107 @@ VANILLA_LEAVES['autumn'].update({
 VANILLA_LEAVES['cherry'].update({
     'leaf': w(L_BIRCH, 1), 'leaf2': w(L_BIRCH, 2, L_OAK, 1), 'leaf3': w(L_OAK, 1), 'leaf4': w(L_OAK, 1)})
 
-# Biomes O' Plenty (1.7.10, BoP 2.1). Names resolve through --idmap; meta = wood/leaf type.
-# Leaves: BoP sets "no decay" differently from vanilla - confirm the meta in game before use.
+# Biomes O' Plenty 2.1.0.2308 for 1.7.10. Metas read from the jar: BOPBlocks registers logs1-4,
+# leaves1-4 and colorizedLeaves1-2 as categories CAT1-4; each block's type is meta & 3 and its
+# texture index is category * 4 + type; the order comes from the static name arrays in BlockBOPLog,
+# BlockBOPLeaves and BlockBOPColorizedLeaves and matches en_US.lang:
+#   logs1  0 sacredoak  1 cherry   2 dark      3 fir           (axis bits +4 / +8 as vanilla)
+#   logs2  0 ethereal   1 magic    2 mangrove  3 palm
+#   logs3  0 redwood    1 willow   2 dead      3 bigflowerstem
+#   logs4  0 pine       1 hellbark 2 jacaranda 3 mahogany
+#   leaves1 0 yellowautumn 1 bamboo     2 magic  3 dark
+#   leaves2 0 dead (dying) 1 fir        2 ethereal 3 orangeautumn
+#   leaves3 0 origin       1 pinkcherry 2 maple  3 whitecherry
+#   leaves4 0 hellbark     1 jacaranda
+#   colorizedLeaves1 0 sacredoak 1 mangrove 2 palm     3 redwood     (biome-tinted)
+#   colorizedLeaves2 0 willow    1 pine     2 mahogany 3 flowering
+# Leaf decay works as in vanilla (updateTick decays only if meta & 8 and not meta & 4), so the
+# no-decay meta is type | 4. Names resolve to numbers through the pinned registry
+# (docs/survey/block-ids.tsv, from C:/qfs/v0) unless --idmap names another world.
 B = 'BiomesOPlenty:'
-BOP = {k: dict(v) for k, v in VANILLA.items()}
-BOP['redwood'].update({'trunk': [(B + 'logs3', 0, 1)], 'branch': [(B + 'logs3', 0, 1)],
-                       'root': [(B + 'logs3', 0, 1)], 'bark': [(B + 'logs3', 0, 1)],
-                       'leaf': [(B + 'colorizedLeaves1', 3, 1)], 'leaf2': [(B + 'colorizedLeaves1', 3, 1)]})
-BOP['mangrove'].update({'trunk': [(B + 'logs2', 2, 1)], 'branch': [(B + 'logs2', 2, 1)],
-                        'root': [(B + 'logs2', 2, 1)], 'bark': [(B + 'logs2', 2, 1)],
-                        'leaf': [(B + 'colorizedLeaves1', 1, 1)]})
-BOP['eucalyptus'].update({'leaf': [(B + 'colorizedLeaves2', 0, 1), (18, 6, 1)]})   # willow-grey, verify
-BOP['autumn'].update({'leaf': [(B + 'leaves3', 2, 1)],         # maple (red)
-                      'leaf2': [(B + 'leaves2', 3, 1)],        # orange autumn
-                      'leaf3': [(B + 'leaves1', 0, 1)],        # yellow autumn
-                      'accent': [(B + 'leaves2', 0, 1)]})      # dead leaves
-BOP['cherry'].update({'trunk': [(B + 'logs1', 1, 1)], 'branch': [(B + 'logs1', 1, 1)],
-                      'root': [(B + 'logs1', 1, 1)], 'bark': [(B + 'logs1', 1, 1)],
-                      'leaf': [(B + 'leaves3', 1, 1)],         # pink cherry
-                      'leaf2': [(B + 'leaves3', 3, 1)],        # white cherry
-                      'leaf3': [(B + 'leaves3', 1, 1)]})
-BOP['petrified'] = dict(VANILLA['petrified'])
-BOP['ice'] = dict(VANILLA['ice'])
+
+BOP_LOG = {n: (B + b, m) for n, (b, m) in {
+    'sacredoak': ('logs1', 0), 'cherry': ('logs1', 1), 'dark': ('logs1', 2), 'fir': ('logs1', 3),
+    'ethereal': ('logs2', 0), 'magic': ('logs2', 1), 'mangrove': ('logs2', 2), 'palm': ('logs2', 3),
+    'redwood': ('logs3', 0), 'willow': ('logs3', 1), 'dead': ('logs3', 2),
+    'pine': ('logs4', 0), 'hellbark': ('logs4', 1), 'jacaranda': ('logs4', 2), 'mahogany': ('logs4', 3)}.items()}
+BOP_LEAF = {n: (B + b, t | 4) for n, (b, t) in {
+    'yellowautumn': ('leaves1', 0), 'bamboo': ('leaves1', 1), 'magic': ('leaves1', 2), 'dark': ('leaves1', 3),
+    'dying': ('leaves2', 0), 'fir': ('leaves2', 1), 'ethereal': ('leaves2', 2), 'orangeautumn': ('leaves2', 3),
+    'origin': ('leaves3', 0), 'pinkcherry': ('leaves3', 1), 'maple': ('leaves3', 2), 'whitecherry': ('leaves3', 3),
+    'hellbark': ('leaves4', 0), 'jacaranda': ('leaves4', 1),
+    'sacredoak': ('colorizedLeaves1', 0), 'mangrove': ('colorizedLeaves1', 1), 'palm': ('colorizedLeaves1', 2),
+    'redwood': ('colorizedLeaves1', 3), 'willow': ('colorizedLeaves2', 0), 'pine': ('colorizedLeaves2', 1),
+    'mahogany': ('colorizedLeaves2', 2), 'flowering': ('colorizedLeaves2', 3)}.items()}
+
+
+def wood(log):
+    return {r: one(BOP_LOG[log]) for r in ('trunk', 'branch', 'root', 'bark')}
+
+
+BOP = {k: dict(v) for k, v in VANILLA_LEAVES.items()}
+BOP['redwood'] = {**wood('redwood'),
+                  'leaf': w(BOP_LEAF['redwood'], 5, BOP_LEAF['pine'], 1), 'leaf2': one(BOP_LEAF['redwood']),
+                  'accent': one(L_OAK)}                                  # epicormic sprouts stay oak-green
+BOP['mangrove'] = {**wood('mangrove'),
+                   'leaf': w(BOP_LEAF['mangrove'], 4, L_JUNGLE, 1), 'leaf2': one(BOP_LEAF['mangrove'])}
+BOP['eucalyptus'].update({                                              # BoP 1.7.10 has no eucalyptus wood
+    'leaf': w(BOP_LEAF['willow'], 3, L_BIRCH, 1), 'leaf2': w(BOP_LEAF['willow'], 1, L_SPRUCE, 1)})
+BOP['autumn'].update({'leaf': one(BOP_LEAF['maple']),                    # red
+                      'leaf2': one(BOP_LEAF['orangeautumn']),
+                      'leaf3': one(BOP_LEAF['yellowautumn']),
+                      'leaf4': w(BOP_LEAF['orangeautumn'], 2, L_OAK, 1),  # last green among the turning
+                      'accent': one(BOP_LEAF['dying'])})
+BOP['cherry'] = {**wood('cherry'),
+                 'leaf': one(BOP_LEAF['pinkcherry']),
+                 'leaf2': w(BOP_LEAF['whitecherry'], 2, BOP_LEAF['pinkcherry'], 1),
+                 'leaf3': one(BOP_LEAF['pinkcherry']),
+                 'leaf4': w(BOP_LEAF['pinkcherry'], 3, L_OAK, 1)}
+# petrified stays stone (BoP has no petrified wood), ice stays ice, baobab stays acacia.
+
+# BoP-only variants: an existing growth model re-skinned with another BoP wood. treegen writes them
+# under their own name; they exist only in the `bop` palette.
+VARIANTS = {'dead': 'petrified', 'dark': 'autumn', 'jacaranda': 'cherry'}
+BOP['dead'] = {**wood('dead'), 'core': one(BOP_LOG['dead'])}            # petrified shapes in BoP dead wood
+BOP['dark'] = {**wood('dark'),
+               'leaf': one(BOP_LEAF['dark']), 'leaf2': w(BOP_LEAF['dark'], 3, L_DARKOAK, 1),
+               'leaf3': one(BOP_LEAF['dark']), 'leaf4': one(L_DARKOAK), 'accent': one(BOP_LEAF['dying'])}
+BOP['jacaranda'] = {**wood('jacaranda'),
+                    'leaf': one(BOP_LEAF['jacaranda']), 'leaf2': one(BOP_LEAF['jacaranda']),
+                    'leaf3': one(BOP_LEAF['jacaranda']), 'leaf4': w(BOP_LEAF['jacaranda'], 3, L_OAK, 1)}
+
+# Preview colours for BoP blocks: the mean of each texture's opaque pixels (log *_side, leaves
+# *_fancy) in the 2308 jar, leaves brightened about 1.35x like the vanilla preview colours; the grey
+# biome-tinted leaves (colorizedLeaves) get a temperate foliage tint instead.
+BOP_COLOURS = {
+    BOP_LOG['sacredoak']: (88, 89, 52), BOP_LOG['cherry']: (100, 56, 43), BOP_LOG['dark']: (65, 52, 63),
+    BOP_LOG['fir']: (97, 85, 69), BOP_LOG['ethereal']: (94, 110, 73), BOP_LOG['magic']: (94, 99, 107),
+    BOP_LOG['mangrove']: (198, 184, 159), BOP_LOG['palm']: (101, 75, 46), BOP_LOG['redwood']: (104, 63, 39),
+    BOP_LOG['willow']: (77, 82, 51), BOP_LOG['dead']: (63, 57, 48), BOP_LOG['pine']: (91, 72, 55),
+    BOP_LOG['hellbark']: (105, 79, 59), BOP_LOG['jacaranda']: (111, 95, 89), BOP_LOG['mahogany']: (106, 80, 64),
+    BOP_LEAF['yellowautumn']: (177, 138, 38), BOP_LEAF['bamboo']: (186, 230, 61), BOP_LEAF['magic']: (104, 150, 198),
+    BOP_LEAF['dark']: (47, 49, 68), BOP_LEAF['dying']: (134, 105, 57), BOP_LEAF['fir']: (76, 123, 86),
+    BOP_LEAF['ethereal']: (69, 127, 88), BOP_LEAF['orangeautumn']: (174, 92, 42), BOP_LEAF['origin']: (80, 230, 54),
+    BOP_LEAF['pinkcherry']: (232, 159, 195), BOP_LEAF['maple']: (150, 50, 50), BOP_LEAF['whitecherry']: (219, 195, 209),
+    BOP_LEAF['hellbark']: (127, 97, 31), BOP_LEAF['jacaranda']: (113, 90, 150),
+    BOP_LEAF['sacredoak']: (72, 132, 44), BOP_LEAF['mangrove']: (70, 128, 46), BOP_LEAF['palm']: (78, 140, 46),
+    BOP_LEAF['redwood']: (62, 112, 50), BOP_LEAF['willow']: (86, 126, 66), BOP_LEAF['pine']: (60, 100, 56),
+    BOP_LEAF['mahogany']: (78, 128, 44), BOP_LEAF['flowering']: (84, 136, 52),
+}
+BOP_LEAFY = {k[0] for k in BOP_LEAF.values()}
 
 PALETTES = {'vanilla': VANILLA_LEAVES, 'vanilla-leaves': VANILLA_LEAVES, 'vanilla-wool': VANILLA, 'bop': BOP}
 
 
-def load_idmap(path):
-    """Registry name -> numeric block ID from a level.dat's FML ItemData (blocks start with \\x01)."""
+def load_idmap(path=None):
+    """Registry name -> numeric block ID: from a level.dat's FML ItemData (blocks start with \\x01),
+    or with no path from the pinned registry docs/survey/block-ids.tsv (tools/world/blockids.py)."""
+    if path is None:
+        import os
+        import sys
+        sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        from blockids import load_tsv
+        return load_tsv()
     import nbtlib
     lvl = nbtlib.load(path)
     out = {}
