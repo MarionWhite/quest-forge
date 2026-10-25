@@ -13,14 +13,14 @@ cost of changing them is lost inventories or a reset.
 
 | # | Gap | Fix before day one? | Effort |
 |---|---|---|---|
-| 1 | ~~Nothing backs up the world, restarts after a crash, or detects a hang~~ **Done 2026-10-17:** `tools/server/supervisor.py` and the builder guards | yes | done; one restore drill left |
+| 1 | ~~Nothing backs up the world, restarts after a crash, or detects a hang~~ **Done 2026-10-17:** `tools/server/supervisor.py` and the builder guards. **Restore drill, off-machine mirror, restart/hang/crash tests done 2026-10-25** | yes | done |
 | 2 | A friend can join with a stale client and play with the wrong IDs. **Versions and the login check done 2026-10-17**; a new release is still needed | yes | a new release |
 | 3 | Identity and mod set are not yet frozen (`online-mode=false` right now) | yes | decisions plus a builder change |
-| 4 | Load at 15 players is unmeasured; chunk loaders are only partly capped; no profiler; no border | partly | config and two small mods |
+| 4 | Load at 15 players is unmeasured; ~~chunk loaders are only partly capped; no profiler; no border~~ **Prepared 2026-10-25:** `--world-border`, `--opis`, loader caps behind `--rules` (the owner's call); load still unmeasured, and Opis's console tables came back empty (4d) | partly | one flag each |
 | 5 | No block logging or rollback; no remote admin; Log4Shell mitigation does not apply to this log4j | yes, for log4j | config; FE is optional |
-| 6 | Social rules nobody has decided: PvP, graves, quests, sleep, AFK, a hub | yes | mostly config and a page of rules |
+| 6 | Social rules nobody has decided: PvP, graves, quests, sleep, AFK, a hub. **Prepared 2026-10-25:** every choice is one line in a `--rules` JSON (`tools/server/rules.example.json`), rules post drafted (`../setup/server-rules.md`); the decisions themselves are the owner's | yes | one rebuild once decided |
 | 7 | Multiplayer paths no test has covered (two-person paths) | before inviting | one session, two people |
-| 8 | Content worth adding: selective, cheap | must land before day one | small |
+| 8 | Content worth adding: selective, cheap. **Opis, WorldBorder-Forge and Morpheus are builder options since 2026-10-25** (server-only, verified); `/tpa` and the hub remain | must land before day one | small |
 
 What the recent commits already fixed is listed in an appendix at the end, so
 nobody redoes it.
@@ -37,16 +37,28 @@ server: `tools/server/supervisor.py`, installed by the builder with
 Where it differs from the plan:
 
 - It takes a plain zip copy into `backups/hourly` and `backups/daily` (24 and 7
-  kept), not restic. There is no weekly tier, and nothing copies backups off
-  the machine; that stays a manual step for the host.
+  kept), not restic. There is no weekly tier. ~~Nothing copies backups off the
+  machine; that stays a manual step for the host.~~ **Done 2026-10-25:**
+  `--backup-mirror DIR` copies every daily into a second folder (a Syncthing
+  folder reaches the owner's Mac); see the hosting guide, "Off-machine copies".
 - The builder checks for a running server through `supervisor.pid`, the port,
   Java command lines, and rename probes on the session lock, the open log and
   the folder. In 1.7.10 `session.lock` is written once and not held, so it
   is not enough on its own.
 - The jar and config manifest is `MANIFEST.sha256`, next to `BUILT-FROM.txt`,
   and every backup carries a copy.
-- Still open: the **restore drill** with a real login, the host-machine
-  settings (Windows Update, sleep) and the census `PAUSE` file.
+- ~~Still open: the **restore drill** with a real login~~ **Done 2026-10-25**
+  on a scratch server (backup, change a gamerule, stop, restore, boot, read it
+  back). The guide's one-line restore also overwrote `server.properties`,
+  `MANIFEST.sha256` and the player lists and checked no jars, so the drill is
+  now `tools/server/restore_backup.py` and a six-step checklist in the hosting
+  guide. The same day: crash restart (Java killed; back in 40 s), hang
+  detection (`tools/server/simulate_hang.py` froze the server thread; dump,
+  kill, back in 2.5 min plus boot), the daily restart cycle, `stop.flag`, and a
+  webhook failing safely were all exercised on the scratch server. Still open:
+  the host-machine settings (Windows Update, sleep), the census `PAUSE` file,
+  and a restore with a real login (the drill read a gamerule back from the
+  console, not a player's chest).
   `removeErroring*` stays on; the supervisor now alerts when Forge removes
   something.
 
@@ -329,7 +341,11 @@ radius 188 chunks (3,000 blocks), about 13 minutes on the 7900X. Two gaps remain
   player positions on a timer, so its runtime cost is negligible. The README
   says it is buggier than the original, so set it up on a scratch copy first. A
   border at the pregenerated radius turns "please don't explore past 3,000" into
-  a wall.
+  a wall. **Done 2026-10-25:** `build_play_server.py --world-border 3000`
+  installs WorldBorder-Forge 1.0.2 (pinned, sha256) and writes its
+  `borders.cfg`; it booted with the full pack on Java 25, `wb list` showed the
+  border and it survived restarts and a restore. Off by default: the radius is
+  the owner's (it should equal the pregenerated radius).
 
 ### 4b. Mob load scales with how spread out players are
 
@@ -380,6 +396,13 @@ loader limit set.
 - Set Sync `allowChunkLoading=0`.
 - Decide whether the host's op loaders should really run while he is offline.
 
+**Prepared 2026-10-25 (`srv-loaders` in `--rules`):** `world_anchors`
+`"off"` / `"capped"` / `"on"` and `sync_shells` apply the two changes above to
+the server's config copies; nothing is applied until the owner's answer is in
+the rules file. Correction to the table: the live `railcraft.cfg` has
+`world.fuel=minecraft:ender_pearl=12`, so World Anchors do burn ender pearls
+(12 hours each); "no fuel key" was wrong.
+
 ### 4d. No profiler
 
 Only `forge tps` (per-dimension mean tick time) is available. When the server
@@ -397,6 +420,23 @@ lags, nobody will be able to say which machine or mob caused it.
 come later), and put the jstack-on-hang step into the supervisor. Profile once in
 the first real session with 5 players spread out. That turns this whole section
 from estimates into numbers.
+
+**Done 2026-10-25, with a catch.** `--opis` installs Opis 1.2.5 (pinned; it
+depends on exactly MobiusCore 1.2.5, which the pack ships, and its `@Mod` says
+`acceptableRemoteVersions="*"`, which FML 1614's `IgnoredChecker` accepts, so
+no client needs it). It boots clean and `opis_nent` counts entities. But
+`opis_ent` and `opis_te` returned empty tables on the Java 25 scratch server
+even with 40 summoned creepers ticking for 600 ticks: the server-side entity
+profiler recorded nothing, and the console commands call themselves deprecated
+in favour of the `/opis` GUI (Opis on the client). The same test on a Java 8
+scratch build recorded 20 entities and 20 tile entities, so Opis works there
+but not under lwjgl3ify, and even there the console prints the rows as
+`DataEntity@...` objects: only the GUI can read them. In its place the
+supervisor gained `!jfr [seconds]`, a JDK Flight Recorder profile of the Java
+25 server (tested), which names the hot mod code rather than the hot entity.
+jstack-on-hang was already in the supervisor; it was exercised today (section
+1), and `jcmd` is a fallback. The "profile the first real session" steps are
+in the hosting guide.
 
 ### 4e. Specific hazards in this mod list
 
@@ -497,6 +537,18 @@ before blaming the codec.
 Each of these is a config value or a sentence in a rules post. None costs
 performance. Today each one is a default that nobody chose.
 
+**Prepared 2026-10-25.** The decisions are the owner's and are being recorded
+on the Decisions page (`srv-pvp`, `srv-quests`, `srv-sleep`, `srv-afk`,
+`srv-hub`, `srv-loaders`, `srv-graves`, `srv-tools`). Each id is a key in a
+JSON file that `build_play_server.py --rules FILE --force` applies in one
+rebuild; `tools/server/rules.example.json` holds the suggested choices below
+and the hosting guide ("The owner's decisions") maps every key to the config
+it changes. The team-with-friendly-fire-off setup is automated by the
+supervisor (`team` key) rather than a first-boot script, so late joiners are
+covered too. The rules post for the friends is drafted in
+[`../setup/server-rules.md`](../setup/server-rules.md) with each open choice
+marked `[pending: srv-xxx]`. Nothing has been applied to `C:\qfs\friends`.
+
 | Topic | Today (evidence) | Problem | Suggested choice |
 |---|---|---|---|
 | **PvP** | `pvp=true`, no teams | Mod AoE (Legends powers, MCHeli, ICBM) and the Gravity Gun (`grabablePlayers=1`) make "accidental" PvP routine | Put everyone on a vanilla team with friendly fire off: `/scoreboard teams add qf`, `/scoreboard teams option qf friendlyfire false`. That blocks player-sourced damage at no cost. Turn off Gravity Gun player grabs. Leave server PvP on for opt-in duels. |
@@ -571,10 +623,10 @@ in the jar list before day one (section 3).
 
 | Addition | Why for this group | Cost | Verdict |
 |---|---|---|---|
-| **Sleep vote** (Morpheus or Sleepy Head) | Nights otherwise never skip with 5+ players | server-side event handler | **add** |
+| **Sleep vote** (Morpheus or Sleepy Head) | Nights otherwise never skip with 5+ players | server-side event handler | **add**. Morpheus 1.6.21 is behind `--rules srv-sleep` (2026-10-25); Sleepy Head would need every client |
 | **`/tpa` unlockable** in qf-commands | Friends can actually play together; fits the lottery design | in-house, negligible | **add** |
-| **Opis** | Answers "why is it lagging" | only while profiling | **add** (it adds no content, so it is safe to add later) |
-| **WorldBorder-Forge** | Keeps play inside the pregenerated area | negligible | **add**, after a scratch trial |
+| **Opis** | Answers "why is it lagging" | only while profiling | **add** (it adds no content, so it is safe to add later). `--opis` since 2026-10-25; console tables empty, see 4d |
+| **WorldBorder-Forge** | Keeps play inside the pregenerated area | negligible | **add**, after a scratch trial. `--world-border RADIUS` since 2026-10-25, trialled |
 | **Hub at spawn** (a build, not a mod) | Shared place, rules and portals; a first-session anchor | spawn chunks are loaded anyway | **do** |
 | A first-session plan | Everyone joins at once: hub, rules, starter quests, a group trip to the Twilight portal; no Lycanites event on day 0 (4b) | none | **do** |
 | ForgeEssentials | Rollback and permissions | see section 5 | only if the group wants grief rollback |
@@ -608,9 +660,17 @@ in the jar list before day one (section 3).
 - RCON commands run on the RCON thread in 1.7.10 (from the decompiled
   `DedicatedServer.handleRConCommand`; check against the jar before scripting
   anything risky over RCON).
-- Opis, Morpheus and WorldBorder-Forge being accepted server-only by FML's
+- ~~Opis, Morpheus and WorldBorder-Forge being accepted server-only by FML's
   handshake (`acceptableRemoteVersions="*"`). If any is not, it must ship in the
-  client release.
+  client release.~~ **Checked 2026-10-25** from the jars' `@Mod` annotations
+  (javap): Opis 1.2.5 (and its bundled MapWriter 2.1.2), Morpheus 1.6.21 and
+  WorldBorder-Forge 1.0.2 all say `"*"`, and FML 1614's `NetworkModHolder`
+  builds an `IgnoredChecker` for `"*"`, whose `check()` returns true for every
+  client. Sleepy Head 1.0 has no `acceptableRemoteVersions`, so a client
+  without it would be refused; it is not used. Still untested with a real
+  client login (no client may be launched on this PC while the owner plays).
+- Railcraft World Anchors having "no fuel key" (4c): wrong, the live config
+  fuels them with ender pearls (`world.fuel=minecraft:ender_pearl=12`).
 - ForgeEssentials 1.4.6's PlayerLogger rollback commands.
 - Every per-mob and per-player cost figure marked unmeasured in section 4.
 

@@ -19,7 +19,8 @@ py -3.10 tools/server/build_play_server.py ^
 
 `--force` rebuilds an existing server. It keeps `world/`, `ops.json`,
 `whitelist.json`, the ban lists, `usercache.json`, `server.properties`, `logs/`,
-`crash-reports/`, `backups/` and `supervisor.json`. Everything else is
+`crash-reports/`, `backups/`, `supervisor.json` and `play-options.json` (the
+additions and decisions below). Everything else is
 regenerated. A kept `server.properties` changes only where an option is given
 on the command line (`--port`, `--max-players`, `--view-distance`,
 `--online-mode`). The build refuses to run while the server is up. It checks
@@ -56,6 +57,9 @@ What it does, and why:
 - **Installs `supervisor.py`, `start-supervised.bat` and a default
   `supervisor.json`**, and hashes every jar and config file into
   `MANIFEST.sha256`.
+- **Optionally adds server-only mods and applies the owner's decisions:**
+  `--opis`, `--world-border RADIUS`, `--rules FILE`, `--backup-mirror DIR`.
+  See "Server-only additions" and "The owner's decisions" below.
 
 ## The Java 25 server (`--java25`)
 
@@ -216,7 +220,12 @@ process and handles the following:
   the tick is stuck: it writes a `jstack` thread dump to
   `logs/threaddump-*.txt`, kills Java and restarts. Thread dumps need a JDK of
   the server's Java version: on Java 8, a JDK 8 (the JRE has no jstack); the
-  Java 25 build runs on a JDK, which has its own.
+  Java 25 build runs on Temurin's JDK, which has `jstack` and `jcmd` (either is
+  used). Tested 2026-10-25 with `tools/server/simulate_hang.py <pid>`, which
+  suspends only the `Server thread` of a scratch server: the probe timed out,
+  the dump was written with the frozen thread in it, Java was killed and the
+  server was back within the backoff plus a boot. Never run that script
+  against the friends' server.
 - **Hourly backups** to `backups/hourly/` (24 kept), and the first of each day
   to `backups/daily/` (7 kept). Each backup is skipped if nobody has been online
   since the last one. A backup runs `save-off` and `save-all`, waits for
@@ -232,7 +241,8 @@ process and handles the following:
   prefer Ctrl+C.
 
 Supervisor commands, typed in the same window: `!backup`, `!restart`, `!dump`
-(a thread dump), `!status` and `!stop`. Without a console (a remote shell, a
+(a thread dump), `!jfr [seconds]` (a Flight Recorder profile into `logs/`, see
+"Opis"), `!status` and `!stop`. Without a console (a remote shell, a
 synced folder), put the same lines into a file named `supervisor.inbox` in the
 server folder, or create `stop.flag`. Write those files from bash or Python,
 not PowerShell, which adds a BOM. The supervisor's own log is
@@ -242,15 +252,222 @@ not PowerShell, which adds a BOM. The supervisor's own log is
 `py -3 supervisor.py --print-defaults` lists every key. For **Discord alerts**
 (crash, hang, restart, a crash loop, failed backups, Forge deleting an
 erroring entity), set `discord_webhook` there, or set the environment variable
-`QF_DISCORD_WEBHOOK`. Never put the URL in the repo.
+`QF_DISCORD_WEBHOOK`. Never put the URL in the repo. Without a webhook every
+alert is only a line in `logs/supervisor.log`; with a wrong one the post fails
+in its own thread and is logged as `webhook post failed: <error type>` with the
+URL never printed (tested 2026-10-25 with an unreachable URL). The builder
+writes two keys for you: `backup_mirror` (`--backup-mirror`) and `team`
+(`--rules`, `srv-pvp`). `restart_min_uptime_s` (3600) is how close to
+`restart_at` a boot may be before the restart waits a day.
 
-**Copy backups off the machine.** `backups/` is on the same disk as the world.
-Copy `backups/daily/` to an external disk or a cloud folder now and then, and
-never sync the live `world/` folder itself. **Restore:** stop the server, move
-`world/` aside, unzip a backup into the server folder (the zip contains
-`world/`) and start again. Try this once before inviting anyone.
+**One team, friendly fire off** (`team` in `supervisor.json`, set by the
+builder's `--rules` when `srv-pvp` is `"team"`): at every boot the supervisor
+runs `scoreboard teams add qf` and `scoreboard teams option qf friendlyfire
+false`, and puts every player who joins on the team. Vanilla then drops any
+damage whose source is a teammate, which covers swords, arrows and the mod
+weapons that name the attacker (Legends powers, MCHeli, ICBM blasts with an
+owner). `pvp=true` stays, so a duel is two players an op takes off the team
+(`scoreboard teams leave <name>`). Without the supervisor, type the two
+commands once and `scoreboard teams join qf <name>` per player.
 
 `start.bat` still works on its own, with no restarts and no backups.
+
+## Backups: the restore drill and off-machine copies
+
+The supervisor's zips hold `world/` plus `server.properties`, the player lists,
+`BUILT-FROM.txt` and `MANIFEST.sha256`. The drill below was run on a scratch
+server on 2026-10-25 (backup, change a gamerule, stop, restore, boot, read the
+gamerule back). Two things it found are built into the steps: unzipping a
+backup over the server folder also overwrites `server.properties`,
+`MANIFEST.sha256` and the player lists with the copies from backup time, and
+nothing checked that the jars still matched the world. `tools/server/restore_backup.py`
+does the checks and extracts only `world/`.
+
+### Restoring a backup
+
+1. Pick the zip: `backups/hourly/` (24 kept) for the last few hours,
+   `backups/daily/` (7 kept) or the mirror folder for older. Names are
+   `world-<yyyymmdd>-<hhmmss>.zip`, local time.
+2. Stop the server: `!stop` or Ctrl+C in the supervisor window, or create
+   `stop.flag`. Wait for `supervisor exited` in `logs/supervisor.log`. The
+   restore refuses to run while anything holds the folder.
+3. Check before touching anything:
+   ```
+   py -3.10 -I tools/server/restore_backup.py --server C:\qfs\friends --backup <zip> --check-only
+   ```
+   It compares the zip's `MANIFEST.sha256` with the server's jars and configs
+   now. Config differences are listed and allowed (the server rewrites about 45
+   config files at boot; none is an ID entry). A **jar** difference stops it:
+   the world is only valid with the jar set it was saved under. Either rebuild
+   to that set first (`BUILT-FROM.txt` inside the zip says how it was built)
+   or, if the change is a server-only addition (Opis, Morpheus, WorldBorder)
+   pass `--accept-jar-changes`.
+4. Restore:
+   ```
+   py -3.10 -I tools/server/restore_backup.py --server C:\qfs\friends --backup <zip>
+   ```
+   The current `world/` is renamed to `world.before-restore-<time>/`, nothing is
+   deleted, and only `world/` comes out of the zip. Add `--with-player-lists` to
+   also take `ops.json`, `whitelist.json` and the ban lists from the zip (after
+   an op or whitelist mistake). `server.properties` is never restored from a
+   backup.
+5. Start `start-supervised.bat`, wait for `server is up`, and have someone log
+   in. Check that what the backup was chosen for is back (a chest, a build, a
+   quest). In the drill: `gamerule doDaylightCycle` printed `true` again on a
+   world where it had been set to `false` after the backup.
+6. Tell the players what was rolled back and to which time, then delete
+   `world.before-restore-*` once nobody misses anything in it.
+
+By hand, if Python is not available: stop the server, rename `world/`, extract
+**only** the `world/` folder from the zip, start. Do not extract the whole zip
+into the server folder.
+
+### Off-machine copies (`--backup-mirror`)
+
+`backups/` is on the same disk as the world, so a dead disk takes both. Build
+with `--backup-mirror DIR` and the supervisor writes a second copy of every
+daily backup into `DIR` (written as `.partial`, then renamed, so a sync client
+never ships a half-written zip), keeps `keep_daily` of them there, and alerts
+if the copy fails without ever touching the server. Tested 2026-10-25: the
+mirror copy was byte-identical to the daily.
+
+- The cheapest off-machine copy is a folder another machine already syncs.
+  `C:\qf-world` is a Syncthing folder shared with the owner's Mac, so
+  `--backup-mirror C:\qf-world\server-backups` puts every daily on the Mac
+  with no new setup. Each daily is 70 MB for a fresh world and grows with it;
+  7 of a played world may be several GB. If that is too much for the Mac,
+  create a second Syncthing folder for the mirror instead of using
+  `C:\qf-world` (Syncthing: Add Folder, pick the mirror directory, share it
+  with the Mac), or point the mirror at an external disk or a OneDrive folder.
+- Never sync the live `world/` folder itself: a sync client copying region
+  files mid-write ships a torn world.
+- The setting is `backup_mirror` in `supervisor.json`, kept across rebuilds;
+  `--backup-mirror none` turns it off.
+
+## Server-only additions
+
+Three mods the builder can add that no client needs. Each declares
+`acceptableRemoteVersions="*"`, which FML 1614 answers with its
+`IgnoredChecker` (read from the jar and from the Forge jar, 2026-10-25), so a
+client without the mod joins. None adds a block or item, so they can be added to
+a running world. They are pinned downloads checked by sha256, like the Java 25
+deps, and remembered in `play-options.json`, so a rebuild keeps them.
+
+### Opis, the profiler (`--opis`)
+
+Opis 1.2.5 for 1.7.10, which needs exactly MobiusCore 1.2.5; the pack ships
+it (`mods/MobiusCore.jar`). Booted on the scratch server with no errors.
+Console commands (`opis_help` lists them): `opis_start`, `opis_stop`,
+`opis_ticks <n>` (data points per run; `config/Opis.cfg` `profiler.maxpts`,
+default 250), `opis_ent` and `opis_te` (the 20 slowest entities and tile
+entities), `opis_chunk` (the 20 slowest chunks), `opis_nent` (entity counts by
+type), `opis_kill`, `opis_killall`.
+
+**What worked and what did not (2026-10-25, scratch servers).** Opis boots on
+both builds and `opis_nent` lists every entity type with counts on both. The
+timing tables differ:
+
+- **Java 25 (`--java25`, the friends' server):** `opis_ent` and `opis_te`
+  print only their header, even with 40 summoned creepers ticking in the spawn
+  chunks for 600 ticks of a 2,000-tick run. Opis's entity profiler recorded
+  nothing (a row needs 40 samples; its data map stayed empty). MobiusCore
+  logs the same "Successful injection in h ()V" lines as on Java 8, so the
+  hooks are injected but never deliver under the lwjgl3ify launcher. Not
+  understood yet; a follow-up.
+- **Java 8 (the stock build):** the same test lists 20 entities and 20 tile
+  entities, so the profiler works there. But the console prints each row as
+  `DataEntity@35d0ac7f`: the rows are objects for the `/opis` GUI, and the
+  console path is deprecated (the command says so). The tables are readable
+  only in the GUI, which needs Opis on the client.
+
+So on the live server Opis is, today, an entity census (`opis_nent`) and
+nothing more. The measurement that does work on Java 25 is the JDK's own
+**Flight Recorder**: `!jfr [seconds]` in the supervisor window (default 120)
+runs `jcmd <pid> JFR.start settings=profile` and writes
+`logs/profile-<time>.jfr`, about 1% overhead while it records. Read it with
+`"C:\Program Files\Eclipse Adoptium\jdk-25*\bin\jfr" print --events jdk.ExecutionSample logs\profile-*.jfr`
+(hot stacks: the mod whose tick methods appear most is the cost) or open it
+in JDK Mission Control. It samples Java methods, not entities, so it answers
+"which mod" rather than "which machine"; for "which chunk" use `forge tps`
+per dimension plus `opis_nent`. Tested 2026-10-25 on the Java 25 scratch
+server: a 20 s recording was written and `jfr summary` read it.
+
+**Profile the first real session** (the audit's section 4b asks for 5 players
+spread out):
+
+1. Before the session, `!status` in the supervisor window, and `forge tps`
+   for a baseline with nobody on (idle was 1.3 ms overall on the scratch
+   server).
+2. Twenty minutes in, with everyone spread out: `forge tps`. Note the
+   `Overall` mean tick time and the slowest `Dim`. Over 40 ms means the
+   evening is in trouble; 20-40 ms means the next steps matter.
+3. `!jfr 120` while it is at its worst. Afterwards, `jfr print --events
+   jdk.ExecutionSample` on the file and count the top frames by mod package
+   (`lycanitesmobs`, `danger.orespawn`, `tragicneko`, `mods.railcraft`,
+   `fi.dy.masa`...). Paste the top ten into the session notes.
+4. `opis_nent` for the entity census. Compare with the JAS caps in
+   `hosting-a-server.md` (46 monsters per player at distance 6). If the host
+   carries Opis on his client (safe: the server has it too), `/opis` in game
+   gives the per-entity and per-tile tables on a Java 8 server only.
+5. Decide from numbers, not guesses, in this order: event mobs piling up
+   (Lycanites `forced no despawning`), a chunk-loaded base with a spawner
+   tower, JAS caps, then view distance.
+
+### World border (`--world-border RADIUS`)
+
+WorldBorder-Forge 1.0.2 (RoyCurtis's port of Brettflan's WorldBorder). The
+builder writes `config/WorldBorder/borders.cfg` with one square border of
+`RADIUS` blocks around 0,0 in the overworld, in the layout the mod itself
+writes, so it is in force from the first boot; `--world-border 0` removes it.
+Tested 2026-10-25: boots with the full pack on Java 25, `wb list` shows the
+border, and the border survived a stop, a restore and three restarts. To the
+mod the overworld is named after `level-name` (`world`), other dimensions
+`DIM<id>`. Console commands: `wb list`, `wb world set <radius> <x> <z>`,
+`wb wshape world square|round`, `wb DIM7 set ...` for the Twilight Forest,
+`wb world fill` to pregenerate up to the border (a slower alternative to
+ChunkPregenerator), `wb world trim` to delete chunks outside it,
+`wb world clear`. Knockback is 3 blocks, checked every 20 ticks; ender pearls
+past the border are cancelled; blocks cannot be placed and mobs do not spawn
+outside it (`main.cfg`). Pick the radius to match the pregenerated area
+(3,000 for the 188-chunk plan).
+
+## The owner's decisions (`--rules`)
+
+Sections 4 and 6 of the audit are choices only the owner makes. Each one is a
+line in a small JSON file keyed by decision id, and
+`build_play_server.py --rules FILE --force` turns the whole file into the
+server's settings in one rebuild. `tools/server/rules.example.json` lists every
+key with its choices; its values are the audit's recommendations, so edit it to
+the owner's answers, then:
+
+```
+py -3.10 tools/server/build_play_server.py --java25 ^
+  --instance %APPDATA%\.crazycraft4 --out C:\qfs\friends ^
+  --rules docs\decisions\server-rules.json --force
+```
+
+The file is remembered in the server's `play-options.json`, so later rebuilds
+keep applying it (`--rules none` forgets it). Every edit is to the **server's
+copy** of a config: none of these keys is an ID entry, so the pack fingerprint
+clients must match is unchanged, and clients need no new release. A client with
+the old value still shows the old recipe or option locally (NEI lists the World
+Anchor recipe, say), but the server decides. `BUILT-FROM.txt` records what was
+applied. Tested 2026-10-25 on the scratch server with the example file: every
+edit landed, the server booted, and the team was created at boot.
+
+| Decision | Values | What the builder changes |
+|---|---|---|
+| `srv-pvp` | `"team"`, `"off"`, `"on"` | `team`: supervisor.json `team=qf` (one team, friendly fire off, see "Running the server"), `GraviGun.cfg grabablePlayers=0`, `pvp=true`. `off`: `pvp=false`, `grabablePlayers=0`. `on`: vanilla. |
+| `srv-quests` | `"personal"`, `"parties"` | `party_enable` in `config/betterquesting/DefaultQuests.json`. BetterQuesting copies that file into the world at creation; an existing world takes it with `/bq_admin default load` (back up first). |
+| `srv-sleep` | percent `0`-`100` | Above 0: Morpheus 1.6.21 installed and `config/Morpheus.cfg` `SleeperPerc` set; that share of the players in the dimension asleep skips the night. `0`: no mod, vanilla rule. |
+| `srv-afk` | minutes, `0` = never | `server.properties player-idle-timeout`. |
+| `srv-hub` | blocks, `0` = off | `server.properties spawn-protection`: non-ops cannot place or break inside that radius of spawn (vanilla interactions only). |
+| `srv-loaders` | `{"world_anchors": "off"\|"capped"\|"on", "sync_shells": bool}` | `off`: Railcraft `anchors.craftable=false` (World Anchors; Personal and Passive stay). `capped`: a `Railcraft { 20 tickets x 9 chunks }` block in `forgeChunkLoading.cfg`. `sync_shells`: Sync `allowChunkLoading`. Note: the audit said World Anchors burn no fuel; the live config has `world.fuel=minecraft:ender_pearl=12`, so they do. |
+| `srv-graves` | `"shared"`, `"owner-only"` | Nothing: GraveStones has no owner-only option. The value is for the rules post. |
+| `srv-tools` | `{"chest_transporter_spawners": bool, "projecte_time_watch_pedestal": ticks, "lycanites_first_event_day": day}` | ChestTransporter `pickupSpawners`; ProjectE `timePedBonus` (mod default 18, `0` = the Watch of Flowing Time gives machines nothing from a pedestal); Lycanites `Random Mob Events Day Minimum Overworld (0)`. |
+
+Sleepy Head 1.0 was the other sleep-vote candidate. Its `@Mod` has no
+`acceptableRemoteVersions`, so every client would need it; it is not used.
 
 ## Run it without the supervisor
 
