@@ -225,7 +225,7 @@ def main():
     # earlier run with another --world was played later than the fresh copy, so it won. r007's qpb,
     # qpb0 and offpb rendered world-master instead of the showcase world that way, and qpb0 hung on
     # that copy's broken ID map (2026-10-25). The run's world is the only save; FML's backup zips go too.
-    keep = os.path.basename(a.world.rstrip("\/"))
+    keep = os.path.basename(a.world.rstrip("\\/"))
     sv = os.path.join(d, "saves")
     for n in os.listdir(sv) if os.path.isdir(sv) else []:
         if n != keep:
