@@ -5,7 +5,7 @@
 Painterly sea with depth shading, coastal halo and shallow-water bands; land as soft biome washes
 (real biome families, muted palette) textured with noise and multiplied by hillshade; mountains
 drawn with hachure strokes and ridge crests; forests as tree stipple; rivers and lakes in clean
-blue; parchment frame and compass rose. Labels: landmarks (icons + serif names), spawns (stars),
+blue; parchment frame and compass rose. Labels: landmarks (icons + serif names), spawns (stars + picker rating),
 and the largest biome patches by their real names. --no-labels gives the clean spawn-picker art.
 """
 import argparse
@@ -36,7 +36,8 @@ FAMILIES = [
     (r"savanna|steppe|brush|scrub|chaparral|prairie", (186, 172, 108), 0.08),
     (r"swamp|bog|fen|marsh|bayou|wetland|mangrove|quagmire|moor|sludge", (112, 116, 72), 0.45),
     (r"jungle|tropic|rainforest|bamboo", (74, 108, 50), 1.0),
-    (r"redwood|taiga|conifer|boreal|spruce|pine|fir", (76, 98, 70), 0.95),
+    (r"redwood", (98, 70, 62), 0.95),        # BoP Redwood Forest, RWG Redwood: burgundy-brown bark tone
+    (r"taiga|conifer|boreal|spruce|pine|fir", (76, 98, 70), 0.95),
     (r"ominous|dead|mystic|spectral|haunt|corrupt|twilight", (96, 92, 86), 0.6),
     (r"cherry|lavender|flower|orchard|garden|blossom", (166, 156, 112), 0.4),
     (r"forest|wood|grove|maple|thicket|roofed|birch|oak|deciduous|seasonal", (96, 118, 62), 0.85),
@@ -478,6 +479,24 @@ def draw_labels(canvas, meta, names, t_b, n, m0, k, s, U, corners, rose_box, tit
         elif p.get("kind") == "landmark":
             landmark_icon(d, x, y, r, p.get("name", ""), ink, cream, U)
             taken.append((x - r * 1.3, y - r * 1.6, x + r * 1.3, y + r * 1.3))
+
+    # Spawn labels carry the picker rating ("Spawn: Hard") when plan.json has one.
+    f_sp = font("palab.ttf", int(28 * s))
+    for p in pts:
+        if p.get("kind") != "spawn" or not p.get("rating"):
+            continue
+        x, y = to_px(p["x"], p["z"])
+        txt = f"Spawn: {p['rating']}"
+        off = 22 * s
+        for anchor, (dx, dy) in (("lm", (off, 0)), ("rm", (-off, 0)), ("mb", (0, -off)), ("mt", (0, off)),
+                                 ("lb", (off * 0.7, -off * 0.7)), ("lt", (off * 0.7, off * 0.7))):
+            bb = d.textbbox((x + dx, y + dy), txt, font=f_sp, anchor=anchor)
+            bb = (bb[0] - 3 * s, bb[1] - 2 * s, bb[2] + 3 * s, bb[3] + 2 * s)
+            if free(bb):
+                d.text((x + dx, y + dy), txt, font=f_sp, anchor=anchor, fill=(120, 26, 20, 255), stroke_width=sw,
+                       stroke_fill=halo)
+                taken.append(bb)
+                break
 
     # Landmark names, at most once per name within a neighbourhood (a cluster of wrecks gets one label).
     f_lm = font("pala.ttf", int(26 * s))

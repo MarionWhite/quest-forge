@@ -1,0 +1,72 @@
+# r14 difficulty layer: spawn points and danger tiers for the r13 continent (r13/main.yaml).
+#
+# Independent of terrain and biomes: nothing here changes the build. tools/world/difficulty.py
+# reads a rendered plan dir plus this file and writes difficulty.png (a tier per plan pixel),
+# a preview overlay, and the spawn ratings for the Ark-style picker.
+#
+# Tiers: 1 safe pocket, 2 apron, 3 quite difficult (most land), 4 hard, 5 very difficult,
+# 6 beyond (the outer sea and ring, leading to the RWG outskirts; decision 0003).
+# Coordinates are world blocks, x east, z south, origin at the map centre.
+
+# Base tier per region: each region of regions.png takes the tier of the zone that covers most
+# of its land (first matching zone per pixel; land outside every zone gets `default`).
+# Region borders then blend over `blend` blocks.
+base:
+  default: 3
+  blend: 500
+  zones:
+  - {what: northern ice landmass, tier: 4, box: [-4500, -24576, 24576, -13000]}
+  - {what: northwest glacial-caldera island, tier: 4, box: [-24576, -24576, -9000, -9300]}
+  - {what: northeast tundra and alpine forest, tier: 4, box: [8000, -13000, 24576, -4800]}
+  - {what: dark woods around the corrupted core, tier: 4, circle: [11000, -1800, 4300]}
+  - {what: Maelstrom isles and the haunted isle, tier: 4, circle: [14500, 6800, 5200]}
+  - {what: crag ring around the crater, tier: 4, circle: [-8520, -150, 3900]}
+  - {what: south desert lobe, tier: 4, circle: [3500, 15800, 4200]}
+  - {what: southwest desert, tier: 4, circle: [-7700, 11000, 3800]}
+  - {what: southern volcanic isle, tier: 4, circle: [-4000, 20300, 1500]}
+
+# T5 "very difficult" hot zones. Each makes a mask; difficulty rises toward 5 with a smooth
+# falloff of `falloff` blocks outside the mask (half way out it reads as T4).
+# Shapes: circle [x, z, r] | box [x0, z0, x1, z1] | min_height (with box) | biomes + depth
+# (biome interior: at least `depth` blocks from any other biome, within box).
+hot:
+  - {what: volcano island and crater rim, circle: [-8520, -150, 2400], falloff: 1300}
+  - {what: corrupted core of the enchanted quarter, circle: [10500, -3200, 1400], falloff: 1100}
+  - {what: Maelstrom sea, circle: [12900, 6500, 2900], falloff: 1400}
+  - {what: Ice castle and spire field, circle: [6900, -16650, 1900], falloff: 1300}
+  - {what: glacial caldera, circle: [-15270, -15868, 2500], falloff: 1200}
+  - {what: high crests of the divide, box: [-14500, -9500, 16300, -1500], min_height: 185, falloff: 550}
+  - {what: deep desert, biomes: [2, 37, 190], depth: 1600, box: [-14000, 7000, 10000, 20000], falloff: 900}
+  - {what: tepui top, circle: [15500, 13000, 1250], falloff: 800}
+  - {what: calving front, circle: [13150, -20900, 2400], falloff: 1300}
+
+# Organic borders: hot-zone edges move by up to 2 x `edge` blocks of smooth noise, and
+# `amp` tiers of low-frequency noise (clamped at 2 sigma) blur the region-tier borders.
+wobble: {amp: 0.22, scale: 1200, edge: 450, edge_scale: 700, seed: 14}
+
+# Around each spawn: T1 within `safe`, a T2 apron `apron` blocks wider, then a ramp of
+# `blend` blocks back into the surrounding tier.
+pocket: {safe: 750, apron: 800, blend: 1200}
+
+# The outskirts beyond the painted sea: the edge ring of the plan, plus open sea joined to it
+# that lies more than `open_sea` blocks from any land.
+beyond: {ring: 2500, open_sea: 4000}
+
+# Picker rating: mean tier of the land within `radius` blocks of the spawn.
+rating:
+  radius: 3000
+  labels: [[2.65, Gentle], [2.9, Hard], [3.08, Brutal], [99, Deadly]]
+
+# 10 spawns, every one at least 8,000 blocks from the next, each on flat dry land
+# (checked by difficulty.py: no sea, lake or river, low local relief, clear of landmarks).
+spawns:
+  - {where: redwood west coast, x: -16500, z: 2500}
+  - {where: central lowlands west of the Thousand Islands, x: 1400, z: 5800}
+  - {where: north rainforest belt, x: -3200, z: -2500}
+  - {where: southwest desert tip, x: -7900, z: 13100}
+  - {where: south desert lobe, x: 3200, z: 14300}
+  - {where: tropical southeast lobe, x: 13700, z: 14700}
+  - {where: east steppe peninsula, x: 15900, z: 2700}
+  - {where: northeast tundra, x: 13200, z: -9000}
+  - {where: northern ice landmass, x: 1500, z: -16400}
+  - {where: northwest glacial-caldera island, x: -15300, z: -11400}
