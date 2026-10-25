@@ -40,6 +40,12 @@ What it does, and why:
 - **Keeps `mods/saintspack/`, and `start.bat` always starts from the server
   folder.** Saintscore reads `mods\saintspack\Packs.txt` relative to the working
   directory and crashes the boot without it.
+- **Copies MCHeli's definitions into `assets/mcheli/`** (helicopters, planes,
+  tanks, vehicles, weapons, throwable, hud, lang: 851 files, 1 MB). MCHeli reads them from
+  the working directory, never from `MCHeli.zip`, and a server without them
+  boots without complaint and simply has no aircraft (see "MCHeli's aircraft
+  live in `assets/mcheli`" below). The build refuses to finish if the folder
+  would be missing, and `MANIFEST.sha256` hashes it.
 - **Takes the instance's CodeChickenCore as it is.** Since 2026-10-18 that is
   GTNH CodeChickenCore 1.4.22, with CodeChickenLib merged in (see
   "CodeChickenCore" below). It needs no patch for pregeneration. The build
@@ -678,6 +684,39 @@ most rented CPUs, and nobody is online to feel it. On a live server, leave
 `timepertick` at its default and run `pregen setPlayerLimit 1`, which pauses
 generation while anyone is online. There is no world border in 1.7.10, so
 anyone who walks past the pregenerated area generates chunks live.
+
+## MCHeli's aircraft live in `assets/mcheli`
+
+MCHeli 1.0.4 does not read its aircraft from `MCHeli.zip`. Its loader sets
+`sourcePath = "."` and walks `./assets/mcheli/helicopters`, `planes`, `tanks`,
+`vehicles`, `weapons`, `throwable`, `hud` and `lang` (`MCH_MOD.PreInit`,
+`MCH_InfoManagerBase.load` with `File.listFiles`; read from the class files, not
+guessed), registering one item per `*.txt` it finds. The client-instance release
+carries that folder beside `mods/`; a server assembled from `mods/` and `config/`
+alone did not, until 2026-10-25.
+
+Measured on a scratch build of this server (Java 25, offline, port 25650), one
+boot each way, reading the world's `level.dat` item registry afterwards (driver:
+`tools/server/boot_once.py`, which runs `start.bat`'s command, waits for "Done" and
+sends `stop`):
+
+| | Without `assets/mcheli` | With the eight definition folders |
+|---|---|---|
+| MCHeli log | `SourcePath: .`, `FileNotFoundException: .\assets\mcheli\sounds.json`, `.\assets\mcheli\lang\en_US.lang`, "Failed sounds.json update! 0 sounds"; no "Read N ..." line | "Read 365 weapons", "Read 54 helicopters", "Read 144 planes", "Read 138 tanks", "Read 121 vehicles", "Read 4 throwable", "Update lang: ...en_US.lang"; "Update sounds.json. 0 sounds" (it writes an empty `sounds.json`, harmless on a server) |
+| `mcheli:` ids in the registry | 18 (wrench, fuel, chain, parachute, launchers, UAV stations, drafting table) | 479: the 18 plus every helicopter, plane, tank and vehicle, `mcheli:bell47g` among them; the same 479 the client registry (`tools/quests/registry.json`) has |
+| Boot | clean, 39 s | clean, 47 s |
+
+One definition is broken in the pack itself: `### Load failed controlroom3.txt : line=26`
+(`vehicles/controlroom3.txt`), on the client too, so `mcheli:controlroom3` is the one
+vehicle that never registers anywhere.
+
+What the missing folder costs on a play server: no aircraft item exists
+server-side, so a client cannot craft one (recipes are server-side), a spawned
+one would desync, and quest 33 (craft a Bell 47G) is impossible. The builder now
+copies the definitions (851 files, 1 MB; models, textures and sounds are client-only and
+stay out of the 357 MB client folder), refuses to finish without them, and
+hashes them into `MANIFEST.sha256`. `C:\qfs\friends` was built before this
+change: rebuild it with `--force` before friends fly anything.
 
 ## What every friend needs
 

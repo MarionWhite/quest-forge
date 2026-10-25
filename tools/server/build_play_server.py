@@ -67,6 +67,18 @@ CLIENT_ONLY = [
 # is the server running" a question with more than one answer.
 JUNK = ["*.broken-*", "*.pre-*", "*.bak*", "*.disabled"]
 
+# MCHeli reads its aircraft, weapon, HUD and language definitions from
+# <working directory>/assets/mcheli/ (MCH_MOD.sourcePath is "."), never from
+# MCHeli.zip. A server without that folder boots without a word of complaint
+# beyond "Failed sounds.json update! 0 sounds", and registers 18 MCHeli items
+# (wrench, fuel, launchers) instead of 479: no helicopter, plane, tank or
+# vehicle exists on it, so a client cannot craft or spawn one and quest 33
+# (Bell 47G) cannot complete. Measured 2026-10-25 on a scratch build, with and
+# without the folder. Models, textures, sounds and shaders are client-only and
+# stay out: these eight folders are 851 files, 1 MB; the client's assets/mcheli is 357 MB.
+MCHELI_SERVER_ASSETS = ["helicopters", "planes", "tanks", "vehicles", "weapons", "throwable", "hud", "lang"]
+MCHELI_DEFINITION_DIRS = ["helicopters", "planes", "tanks", "vehicles"]
+
 SERVER_PROPERTIES = """\
 level-name=world
 level-type=DEFAULT
@@ -850,8 +862,11 @@ def write_manifest(out):
     with exactly these: Transformers assigns material IDs at first load, and a
     missing mod deletes its items. Each backup carries a copy, so a restore can
     rebuild the same set. Check it with `sha256sum -c MANIFEST.sha256`."""
+    check_mcheli_assets(out)
     lines = []
     tops = [f for f in os.listdir(out) if f.endswith(".jar")] + ["mods", "config"]
+    if os.path.isdir(os.path.join(out, "assets")):
+        tops.append("assets")  # MCHeli's definitions decide which aircraft items exist
     for top in sorted(tops):
         p = os.path.join(out, top)
         files = [p] if os.path.isfile(p) else sorted(
@@ -880,6 +895,46 @@ def is_junk(name):
 
 def copy_tree(src, dst):
     shutil.copytree(src, dst, ignore=lambda d, names: [n for n in names if is_junk(n)])
+
+
+def has_mcheli(out):
+    return any(e.lower().startswith("mcheli") for e in os.listdir(os.path.join(out, "mods")))
+
+
+def mcheli_definitions(root):
+    """The aircraft definition files under <root>/assets/mcheli (what MCHeli registers items from)."""
+    base = os.path.join(root, "assets", "mcheli")
+    return sorted(p for sub in MCHELI_DEFINITION_DIRS
+                  for p in glob.glob(os.path.join(base, sub, "*.txt")))
+
+
+def copy_mcheli_assets(inst, out):
+    """Copy MCHeli's definition folders beside mods/. Exits when the instance has MCHeli
+    but no assets/mcheli to copy from: that server would silently have no aircraft."""
+    if not has_mcheli(out):
+        return None
+    src = os.path.join(inst, "assets", "mcheli")
+    if not mcheli_definitions(inst):
+        sys.exit("MCHeli is in mods/ but %s holds no aircraft definitions (*/*.txt): MCHeli reads them "
+                 "from <game dir>/assets/mcheli, not from MCHeli.zip, so this server would register no "
+                 "aircraft. Install the client-instance release's assets/mcheli first." % src)
+    files = size = 0
+    for sub in MCHELI_SERVER_ASSETS:
+        s = os.path.join(src, sub)
+        if not os.path.isdir(s):
+            continue
+        copy_tree(s, os.path.join(out, "assets", "mcheli", sub))
+        for r, _, fs in os.walk(s):
+            files += len(fs)
+            size += sum(os.path.getsize(os.path.join(r, f)) for f in fs)
+    return files, size, len(mcheli_definitions(out))
+
+
+def check_mcheli_assets(out):
+    """Loud failure for the one thing a missing folder does not report itself."""
+    if has_mcheli(out) and not mcheli_definitions(out):
+        sys.exit("%s has MCHeli in mods/ but no aircraft definitions under assets/mcheli: the server "
+                 "would boot and register no aircraft. The build is incomplete." % out)
 
 
 def codechicken_of(inst):
@@ -1150,6 +1205,12 @@ def main():
         if os.path.isdir(src):
             copy_tree(src, os.path.join(out, name))
             print("%-8s copied" % (name + ":"))
+    # assets/mcheli: the aircraft definitions MCHeli reads from the working directory
+    # (see MCHELI_SERVER_ASSETS). Without them the server has no aircraft at all.
+    mcheli = copy_mcheli_assets(inst, out)
+    if mcheli:
+        print("mcheli:  assets/mcheli copied: %d aircraft definitions, %d files, %.1f MB (models, textures "
+              "and sounds are client-only and left out)" % (mcheli[2], mcheli[0], mcheli[1] / 1e6))
     if args.java25:
         packcheck_ignore_forge(os.path.join(out, "config", "qfcontent.cfg"))
 
@@ -1276,6 +1337,10 @@ def main():
         if tweaks:
             fh.write("QuestForgeTweaks: %s, not the instance's\n" % tweaks)
         fh.write("Mods kept: %d   dropped: %d\n" % (kept, dropped))
+        if mcheli:
+            fh.write("MCHeli: %d aircraft definitions in assets/mcheli (%d files, %.1f MB) from the instance's "
+                     "assets/mcheli; models, textures and sounds left out (client-only).\n"
+                     % (mcheli[2], mcheli[0], mcheli[1] / 1e6))
         if addons:
             fh.write("Server-only additions (clients need nothing): %s\n"
                      % ", ".join(ADDONS[a][0] for a in addons))

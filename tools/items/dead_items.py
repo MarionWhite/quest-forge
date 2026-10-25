@@ -779,13 +779,16 @@ def write_md(path, out, items, qname, qline, lucky_note, se_active, bag_black):
         mc = out.get('mcheli')
         if mc:
             w('')
-            w('**MCHeli.** %d aircraft and vehicle definitions ship inside `MCHeli.zip`; the live client %s an '
-              '`assets/mcheli` folder beside `mods/`, and `bell47g.txt` %s there, with `AddRecipe = " G ", "IXI", '
-              '" I "` (glass, iron ingots, one iron block). The quest-book audit found that a dedicated trial '
-              'server did not register `mcheli:bell47g`, and the play server at `C:\\qfs\\friends` has no '
-              '`assets/mcheli` folder and no world yet to read a registry from. So the Bell 47G is craftable on '
-              'the client and *unverified* on the server; quest 33 needs a server-side check (`/qfcensus` or the '
-              'server world\'s `level.dat` registry) before it is called broken or fine.'
+            w('**MCHeli.** %d aircraft and vehicle definitions ship inside `MCHeli.zip`, but MCHeli never reads '
+              'the zip: its loader walks `<working directory>/assets/mcheli/{helicopters,planes,tanks,vehicles,...}` '
+              'and registers one item per `*.txt` it finds. The live client %s that folder beside `mods/`, and '
+              '`bell47g.txt` %s there, with `AddRecipe = " G ", "IXI", " I "` (glass, iron ingots, one iron '
+              'block), so the Bell 47G is craftable on the client. The item dump ran on a trial client without '
+              'the folder, which is why these ids are missing here. A dedicated server needs the folder too: '
+              'measured 2026-10-25 on a scratch server, 18 `mcheli:` ids registered without it and 479 (the '
+              'client\'s set, `mcheli:bell47g` included) with it. `tools/server/build_play_server.py` copies the '
+              'definitions since that day; `C:\\qfs\\friends` was built earlier and needs a `--force` rebuild '
+              '(`docs/setup/hosting-a-server.md`, "MCHeli\'s aircraft live in assets/mcheli").'
               % (mc['inZip'], 'has' if mc['liveAssetsFolder'] else 'lacks', 'is' if mc['bell47gInLiveAssets'] else 'is not'))
     if out['configAnomalies']:
         w('')
@@ -968,7 +971,8 @@ def write_md(path, out, items, qname, qline, lucky_note, se_active, bag_black):
       '`crazycraft_gating.zs` decide when a Twilight, OreSpawn or ProjectE item is reasonable to ask for.')
     w('')
     w('- **Never ask for** anything in (a): `no-source`, `disabled`, `creative`, `technical`, `hidden`, or '
-      '`quest-only`. Never ask for an MCHeli aircraft until the server check in (d) is done.')
+      '`quest-only`. An MCHeli aircraft is fine to ask for once the play server has been rebuilt with '
+      '`assets/mcheli` (see "What the data cannot see").')
     w('- **Candidates for a recipe or a loot entry** (then a quest): the (a) `no-source` rows whose research line '
       'is empty or says "no recipe" rather than "creative" or "technical": finished items the pack simply never '
       'hands out. Fix at the source (a CraftTweaker recipe in `pack/scripts`, a Lucky Block or loot-bag whitelist '
