@@ -6,8 +6,10 @@ had a match; the file list is `tools/shaders/review/reference-frames.json` (the 
 file page, download URL, author, licence, credit line, why it was chosen, an estimated sun
 elevation, pixel size) and the images themselves are in `C:\qfb\shaderdev\refs\<view>-<n>.<ext>`
 (not in the repo: `publish_round.py` resizes a reference to 1600 px and copies it into the round
-when a round uses it). Every photo was checked on its own Commons file page on 2026-10-25: the
-licence recorded here is the one the file page's licence template prints, not the category's.
+when a round uses it). Every photo was checked on its own Commons file page: the licence
+recorded here is the one the file page's licence template prints, not the category's. This
+page is generated from the JSON by `tools/shaders/review/commons_refs.py doc`; edit the JSON
+(or the tool's header text), not this file.
 
 ## How to use them in a round
 
@@ -289,9 +291,29 @@ Thumbnail links open a 330 px rendition on Commons; the file page is the `source
   aerial views, higher than any Shader Lab camera; `shore_dusk` 1 has no water in frame;
   `leafview` 1 and `night_moon` 1 are portrait frames.
 
-## Keeping the set current
+## How to extend the set
 
-Add a candidate to `tools/shaders/review/reference-frames.json` only after opening its file
-page and reading the licence template there; record `licence_on_file_page` as the page prints
-it. Re-check a file before reusing it in a round if its record is older than a few months:
-Commons files get relicensed and deleted.
+Everything goes through `tools/shaders/review/commons_refs.py` (run it with `py -3.10 -I`); it
+carries the project User-Agent, spaces its requests (Commons answers 429 to quick ones), uses
+only the standard thumbnail widths, strips the `?utm` query the API puts on rendition URLs, and
+reads the licence from the file page's own licence template, never from a category or a grep.
+
+1. Find candidates: `commons_refs.py search sun glitter lake` (two or three words; the search
+   ANDs every word, so long queries find nothing) or `commons_refs.py search --cat
+   "Category:Belt of Venus"`. Lines starting `OK` have an acceptable licence in the API
+   metadata; `--` do not. Look at them before choosing: `commons_refs.py sheet out.jpg
+   "File:A.jpg" "File:B.jpg" ...` makes a labelled contact sheet of 500 px thumbnails.
+2. Check one: `commons_refs.py inspect "File:A.jpg"` prints the metadata, the licence the file
+   page prints (`licence_on_file_page`) and whether the two agree. Only `match` goes in.
+3. Add it: `commons_refs.py add <view> "File:A.jpg" --why "<one sentence on the match>"
+   --sun <deg> [--notes ...] [--author "<name>"] [--rank 1]`. This re-checks the page, writes the
+   record to `reference-frames.json`, downloads the 1920 px rendition (or the original when it
+   is smaller) to `C:\qfb\shaderdev\refs\<view>-<n>.<ext>`, opens it with PIL and records the
+   pixel size. `--author` trims an author field that Commons prints as a paragraph or with a
+   Flickr "from <city>" suffix; the printed form is kept in `author_as_printed`.
+4. Regenerate this page: `commons_refs.py doc`. Commit the JSON and the page together.
+
+`commons_refs.py fetch [view ...]` re-downloads anything missing from the refs folder (a new
+machine, a wiped folder) and `commons_refs.py check [view ...]` re-reads every file page and
+updates `licence_on_file_page` and `checked`: do that before reusing a record older than a few
+months, because Commons files get relicensed and deleted.
