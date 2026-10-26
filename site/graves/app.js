@@ -267,7 +267,7 @@ async function startKrypt() {
   const walkSec = Number(QS.get("walk"));
   K.autoWalk = QS.has("walk") && walkSec > 0 ? { dur: walkSec, t0: null } : null;
   K.pos = new THREE.Vector3(); K.look = new THREE.Vector3(); K.focusAmt = 0;
-  K.fYaw = 0; K.fPitch = 0; K.speed = 0; K.activeSeconds = 0; K.held = false;
+  K.fYaw = 0; K.fPitch = 0; K.fOff = new THREE.Vector3(); K.speed = 0; K.activeSeconds = 0; K.held = false;
   // The alcoves and the graves. Built lazily, near the camera.
   K.anchors = state.graves.map((g, i) => {
     const slot = lay.slots[i];
@@ -554,31 +554,37 @@ function frameInner(now) {
     const wp = K.curve.getPointAt(u);
     const wl = u < 0.992 ? K.curve.getPointAt(Math.min(1, u + 6 / L)) : wp.clone().addScaledVector(K.curve.getTangentAt(u), 6);
     wp.y += bob;
-    wl.y = wl.y - 0.1 + W.pitch * 1.2 + K.fPitch * 6;
+    wl.y = wl.y - 0.1 + W.pitch * 1.2 + K.fPitch * 6 + (prof.pitch || 0) * 6;
     // Passing focus: as an alcove comes near the view eases toward its stone, holds while it is the nearest, and
     // eases back to the corridor as you move on. Damped, and weaker when you are flying past.
-    let fyT = 0, fpT = 0;
+    let fyT = 0, fpT = 0, offT = null;
     if (!focusing && K.gateOpen && state.graves.length) {
       let best = -1, bd = Infinity;
       for (let i = 0; i < K.anchors.length; i++) { const d = Math.abs(K.anchors[i].s - u) * L; if (d < bd) { bd = d; best = i; } }
       if (best >= 0 && bd < 8) {
         const an = K.anchors[best];
+        const sd = (an.s - u) * L;                 // positive: the stone is still ahead
         _f.set(wl.x - wp.x, 0, wl.z - wp.z).normalize();
         _d.set(an.p.x - wp.x, 0, an.p.z - wp.z).normalize();
         const th = Math.atan2(_f.z * _d.x - _f.x * _d.z, _f.x * _d.x + _f.z * _d.z);
-        const w = 1 - smooth01((bd - 2.6) / 5.2);
+        // In until it is abeam, held, then a quicker release once it is behind.
+        const w = sd >= 0 ? 1 - smooth01((sd - 2.6) / 5.2) : 1 - smooth01((-sd - 1.2) / 3.4);
         const calm = 1 - 0.55 * smooth01((Math.abs(K.speed) - 5) / 9);
-        fyT = Math.max(-0.9, Math.min(0.9, th)) * w * 0.78 * calm;
+        fyT = Math.max(-1.5, Math.min(1.5, th)) * w * 0.96 * calm;
         fpT = -0.1 * w * calm;
+        // Step a little toward the stone so its name is big enough to read.
+        offT = an.frame.out.clone().multiplyScalar(1.1 * w * calm);
         K.nearI = best;
       } else K.nearI = -1;
     }
-    if (K.snap) { K.fYaw = fyT; K.fPitch = fpT; }
+    if (!offT) offT = new THREE.Vector3();
+    if (K.snap) { K.fYaw = fyT; K.fPitch = fpT; K.fOff.copy(offT); }
     K.fYaw += (fyT - K.fYaw) * (1 - Math.exp(-dt * 2.4));
     K.fPitch += (fpT - K.fPitch) * (1 - Math.exp(-dt * 2.4));
+    K.fOff.lerp(offT, 1 - Math.exp(-dt * 2.4));
     const dir = new THREE.Vector3().subVectors(wl, wp);
     dir.applyAxisAngle(UP, W.yaw + K.fYaw);
-    let tp = wp, tl = wp.clone().add(dir);
+    let tp = wp.clone().add(K.fOff), tl = wp.clone().add(K.fOff).add(dir);
     if (focusing) { const f = focusCamera(K.focusI); tp = f.pos; tl = f.look; }
     K.focusAmt += ((focusing ? 1 : 0) - K.focusAmt) * (1 - Math.exp(-dt * 2.2));
     const k = K.snap ? 1 : 1 - Math.exp(-dt * (focusing ? 2.4 : 3.6));

@@ -149,7 +149,7 @@ export function dress(a, lay, IMG, lightAt) {
     const p = g.attributes.position, arr = new Float32Array(p.count * 3);
     for (let i = 0; i < p.count; i++) { const c = lightAt(p.getX(i), r.y + 0.05, p.getZ(i), 0, 1, 0); arr[i * 3] = c[0]; arr[i * 3 + 1] = c[1]; arr[i * 3 + 2] = c[2]; }
     g.setAttribute("bake", new THREE.BufferAttribute(arr, 3));
-    const m = new THREE.Mesh(g, patchBake(new THREE.MeshLambertMaterial({ map: wa.t, transparent: true, opacity: 0.7, color: 0x93b4c4, depthWrite: false })));
+    const m = new THREE.Mesh(g, patchBake(new THREE.MeshLambertMaterial({ map: wa.t, transparent: true, opacity: 0.62, color: 0x35566e, depthWrite: false })));
     m.renderOrder = 2; group.add(m);
   }
   const lavaMat = new THREE.MeshBasicMaterial({ map: la ? la.t : null, color: new THREE.Color(1.5, 1.05, 0.75) });

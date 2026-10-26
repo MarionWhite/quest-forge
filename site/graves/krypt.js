@@ -22,12 +22,12 @@ const SPEC = [
   { kind: "flood",   h: "E", hw: 4, ht: 5, pre: 2, post: 0, weight: 3, branch: 1, holes: [0.5] },
   { kind: "dungeon", h: "N", hw: 6, ht: 5, pre: 4, post: 4, weight: 2, branch: 0, holes: [] },
   { kind: "library", h: "W", hw: 4, ht: 6, pre: 2, post: 0, weight: 3, branch: 1, holes: [0.8] },
-  { kind: "chasm",   h: "N", hw: 5, ht: 6, pre: 3, post: 0, weight: 2, branch: 0, holes: [0.3, 0.75] },
+  { kind: "chasm",   h: "N", hw: 6, ht: 6, pre: 3, post: 0, weight: 2, branch: 0, holes: [0.3, 0.75] },
   { kind: "stairs",  h: "N", hw: 3, ht: 4, pre: 0, post: 0, weight: 1, branch: 0, holes: [], stairs: true },
   { kind: "deep",    h: "N", hw: 4, ht: 5, pre: 2, post: 4, weight: 4, branch: 1, holes: [] }
 ];
 export const KINDS = SPEC.map(s => s.kind);
-const STAIR_LANDING = 6, STAIR_LEN = 12, STAIR_DROP = 6, CHASM_DEPTH = 9, PASSAGE_LEN = 9;
+const STAIR_LANDING = 6, STAIR_LEN = 12, STAIR_DROP = 6, CHASM_DEPTH = 4, PASSAGE_LEN = 9;
 
 // Lighting by depth: the bake and the page's live lighting read the same table (keyed at each segment's centre).
 // amb: the baked ambient; fog: colour and density; exposure; torch: scale of torch light; hemi: live fill.
@@ -38,7 +38,7 @@ export const PROFILE = {
   flood:   { amb: [0.060, 0.105, 0.120], fog: [0.020, 0.045, 0.052], fogD: 0.040, exposure: 1.2,  torch: 1.0,  bloom: 0.34 },
   dungeon: { amb: [0.095, 0.082, 0.062], fog: [0.044, 0.034, 0.026], fogD: 0.036, exposure: 1.2,  torch: 1.1,  bloom: 0.36 },
   library: { amb: [0.115, 0.082, 0.052], fog: [0.052, 0.035, 0.022], fogD: 0.034, exposure: 1.2,  torch: 1.0,  bloom: 0.36 },
-  chasm:   { amb: [0.105, 0.052, 0.032], fog: [0.070, 0.028, 0.014], fogD: 0.030, exposure: 1.22, torch: 0.8,  bloom: 0.46 },
+  chasm:   { pitch: -0.3, amb: [0.105, 0.052, 0.032], fog: [0.070, 0.028, 0.014], fogD: 0.030, exposure: 1.22, torch: 0.8,  bloom: 0.46 },
   stairs:  { amb: [0.095, 0.048, 0.028], fog: [0.066, 0.026, 0.012], fogD: 0.034, exposure: 1.22, torch: 0.75, bloom: 0.44 },
   deep:    { amb: [0.120, 0.046, 0.022], fog: [0.085, 0.024, 0.010], fogD: 0.034, exposure: 1.25, torch: 1.0, bloom: 0.55 }
 };
@@ -227,7 +227,7 @@ export function profileAt(lay, s) {
   const v3 = (x, y) => [mix(x[0], y[0]), mix(x[1], y[1]), mix(x[2], y[2])];
   return {
     amb: v3(A.p.amb, B.p.amb), fog: v3(A.p.fog, B.p.fog), fogD: mix(A.p.fogD, B.p.fogD), exposure: mix(A.p.exposure, B.p.exposure),
-    torch: mix(A.p.torch, B.p.torch), bloom: mix(A.p.bloom, B.p.bloom), kind: e < 0.5 ? A.kind : B.kind
+    torch: mix(A.p.torch, B.p.torch), bloom: mix(A.p.bloom, B.p.bloom), pitch: mix(A.p.pitch || 0, B.p.pitch || 0), kind: e < 0.5 ? A.kind : B.kind
   };
 }
 // The leg that holds a world point, and its path fraction (for the bake, which has no curve at hand).
@@ -315,6 +315,13 @@ export function buildGrid(lay) {
   // A wall torch on a block face: the wall cell (local), and the side it faces (local a direction +-1).
   function torchAt(leg, lu, lv, j, faceA, opts = {}) {
     const [fx, fz] = dirw(leg, faceA, 0);
+    const [i, k] = legCell(leg, lu, lv);
+    if (!a.solid(i, j, k) || a.solid(i + fx, j, k + fz)) return false;
+    pushTorch(i, j, k, fx, fz, opts);
+    return true;
+  }
+  function torchAtB(leg, lu, lv, j, faceB, opts = {}) {
+    const [fx, fz] = dirw(leg, 0, faceB);
     const [i, k] = legCell(leg, lu, lv);
     if (!a.solid(i, j, k) || a.solid(i + fx, j, k + fz)) return false;
     pushTorch(i, j, k, fx, fz, opts);
@@ -454,6 +461,8 @@ export function buildGrid(lay) {
     const { hw, y0, kind } = leg;
     const every = kind === "crypt" ? 2 : kind === "ossuary" ? 2 : 1;
     if (s.i >= lay.count) continue;
+    // The alcove's own torch, on the side wall of the pocket beside the stone.
+    torchAtB(leg, s.side > 0 ? hw + 1 : -hw - 2, s.lvc + 2, y0 + 2, -1, { I: 2.4 });
     if (s.i % every && !(kind === "crypt" && s.i === 0)) continue;
     const pil = s.side > 0 ? hw - 1 : -hw;
     const I = kind === "crypt" ? 2.6 : 3.4;
@@ -467,7 +476,7 @@ export function buildGrid(lay) {
       const yL = leg.y0 - CHASM_DEPTH + 0.9;
       const xs = [];
       for (const [lu, lv] of a.lavaCells) if (lu % 3 === 0 && lv % 3 === 0) xs.push([lu, lv]);
-      for (const [lu, lv] of xs) { const [x, , z] = W3(leg, lu + 0.5, lv + 0.5, 0); a.sources.push({ x, y: yL + 0.6, z, c: [1.0, 0.36, 0.08], I: 4.2, R: 12, lava: true, dyn: true }); }
+      for (const [lu, lv] of xs) { const [x, , z] = W3(leg, lu + 0.5, lv + 0.5, 0); a.sources.push({ x, y: yL + 0.6, z, c: [1.0, 0.36, 0.08], I: 9, R: 14, lava: true, dyn: true }); }
       const [xa, , za] = W3(leg, -leg.hw, leg.cs, 0), [xb, , zb] = W3(leg, leg.hw, leg.ce, 0);
       a.lavaRects.push({ x0: Math.min(xa, xb), x1: Math.max(xa, xb), z0: Math.min(za, zb), z1: Math.max(za, zb), y: yL - 0.15 });
       a.spots.lava.push([ (xa + xb) / 2, yL, (za + zb) / 2 ]);
@@ -630,11 +639,7 @@ function dressLeg(a, lay, leg, H) {
 
   if (kind === "chasm") {
     // Parapet posts along the bridge with torches, obsidian at either end.
-    for (let lv = leg.b0 + 1; lv < leg.ce - 1; lv += 5) for (const lu of [-2, 1]) {
-      const sd = lu < 0 ? -1 : 1;
-      L(leg, lu, lv, y0, T_OBS); L(leg, lu, lv, y0 + 1, T_OBS);
-      torchAt(leg, lu, lv, y0 + 1, -sd, { I: 3.2 });
-    }
+    // No rails: the bridge is four wide and open on both sides, so the drop and the lava read from the walk.
     a.spots.fire.push(...a.spots.lava);
   }
 
