@@ -19,7 +19,7 @@ function dressMob(id, amb) {
     for (const mt of Array.isArray(o.material) ? o.material : [o.material]) {
       if (!mt.isMeshLambertMaterial) continue;
       if (patchBake) patchBake(mt, { fixed: a });
-      if (mt.emissive) mt.emissive.setRGB(0.028, 0.032, 0.05);   // a faint cold rim of light, no torchlight on it
+      if (mt.emissive) mt.emissive.setRGB(0.05, 0.056, 0.085);   // a faint cold rim of light, no torchlight on it
     }
   });
   const pivot = new THREE.Group(); pivot.rotation.order = "YXZ"; pivot.add(m.root);
@@ -34,9 +34,9 @@ function dispose(ctx, m) { if (m && m.pivot) ctx.scene.remove(m.pivot); }
 
 export function peekEvent(ctx, kind) {
   const fr = ctx.frame(), rng = ctx.rng;
-  const spot = findPeek(ctx.kr, fr, rng, 18, 30, null, kind === "peek_enderman" ? 2.9 : 1.8);
+  const spot = findPeek(ctx.kr, fr, rng, 15, 30, null, kind === "peek_enderman" ? 2.9 : 1.8);
   if (!spot) return null;
-  const m = dressMob(PEEK_MOB[kind], 0.05);
+  const m = dressMob(PEEK_MOB[kind], 0.1);
   if (!m) return null;
   ctx.scene.add(m.pivot);
   const { P, H } = spot;
@@ -47,7 +47,7 @@ export function peekEvent(ctx, kind) {
   let eyes = null;
   if (kind === "peek_enderman") {
     eyes = new THREE.Group();
-    for (const dx of [-0.1, 0.1]) { const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: glow(), color: 0xc040ff, blending: THREE.AdditiveBlending, depthWrite: false, transparent: true, fog: false, opacity: 0 })); sp.scale.set(0.2, 0.12, 1); sp.userData.dx = dx; eyes.add(sp); }
+    for (const dx of [-0.1, 0.1]) { const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: glow(), color: 0xc040ff, blending: THREE.AdditiveBlending, depthWrite: false, transparent: true, fog: false, opacity: 0 })); sp.scale.set(0.3, 0.17, 1); sp.userData.dx = dx; eyes.add(sp); }
     ctx.scene.add(eyes);
   }
   const head = () => cur.clone().setY(cur.y + (kind === "peek_enderman" ? 2.4 : 1.6));
@@ -96,7 +96,7 @@ export function stillEvent(ctx) {
   const fr = ctx.frame(), rng = ctx.rng;
   const spot = ctx.dump ? findSeen(ctx.kr, fr, rng, 9, 26) : findHidden(ctx.kr, fr, rng, 14, 28);
   if (!spot) return null;
-  const m = dressMob("Creeper", 0.045);
+  const m = dressMob("Creeper", 0.085);
   if (!m) return null;
   ctx.scene.add(m.pivot);
   m.pivot.position.copy(spot.P);

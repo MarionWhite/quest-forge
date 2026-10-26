@@ -118,6 +118,12 @@ export function exposure(kr, eye, P, h = 1.8) {
 // Look for a peek: P where the head and one shoulder show (at most ~35% of the body), in the dark, 18 to 30 blocks off;
 // H a step to the side where all of it is hidden behind a block.
 export function findPeek(kr, fr, rng, lo = 18, hi = 30, dbg = null, h = 1.8) {
+  // Prefer the darkest spots; in torch-dense halls fall back to spots nearer a torch (the mob carries its own
+  // fixed dim light, so the torch only matters for the background), rather than never peeking at all.
+  for (const reach of [4, 2.5, 1.2]) { const r = findPeekAt(kr, fr, rng, lo, hi, dbg, h, reach); if (r) return r; }
+  return null;
+}
+function findPeekAt(kr, fr, rng, lo, hi, dbg, h, reach) {
   const D = (k) => { if (dbg) dbg[k] = (dbg[k] || 0) + 1; };
   const found = [], eye = fr.eye;
   let corners = cornersAhead(kr, fr, lo - 3, hi);
@@ -126,7 +132,7 @@ export function findPeek(kr, fr, rng, lo = 18, hi = 30, dbg = null, h = 1.8) {
     for (const B of scatter(kr, c, 6, 0.8)) {
       const dist = Math.hypot(B.x - eye.x, B.z - eye.z);
       if (dist < lo - 1.5 || dist > hi + 1) { D("range"); continue; }
-      if (!dark(kr, B, 4)) { D("lit"); continue; }
+      if (!dark(kr, B, reach)) { D("lit"); continue; }
       if (exposure(kr, eye, B, h).frac > 0) { D("B-visible"); continue; }          // B is the hidden spot
       for (const dv of DIRS) {
         for (const t of [0.3, 0.6, 0.9, 1.2]) {
@@ -134,8 +140,8 @@ export function findPeek(kr, fr, rng, lo = 18, hi = 30, dbg = null, h = 1.8) {
           const P = B.clone().addScaledVector(dv, t);
           if (!standable(kr, P)) break;
           const ex = exposure(kr, eye, P, h);
-          if (ex.frac > 0.36) break;                      // further out only shows more
-          if (ex.head && ex.frac > 0.05) { found.push({ P, H: B.clone(), c, d: dist, dir: dv, frac: ex.frac }); break; }
+          if (ex.frac > 0.5) break;                       // further out only shows more
+          if (ex.head && ex.frac > 0.04) { found.push({ P, H: B.clone(), c, d: dist, dir: dv, frac: ex.frac }); break; }
         }
       }
       if (found.length > 12) break;
@@ -147,6 +153,10 @@ export function findPeek(kr, fr, rng, lo = 18, hi = 30, dbg = null, h = 1.8) {
 
 // A floor point near an opening that the eye does NOT see now (mob wait there, unseen).
 export function findHidden(kr, fr, rng, lo = 10, hi = 26) {
+  for (const reach of [6, 3.5, 1.5]) { const r = findHiddenAt(kr, fr, rng, lo, hi, reach); if (r) return r; }
+  return null;
+}
+function findHiddenAt(kr, fr, rng, lo, hi, reach) {
   const out = [];
   let corners = cornersAhead(kr, fr, lo, hi);
   if (corners.length > 4) corners = corners.sort(() => rng() - 0.5).slice(0, 4);
@@ -154,7 +164,7 @@ export function findHidden(kr, fr, rng, lo = 10, hi = 26) {
     for (const P of scatter(kr, c, 5, 1.0)) {
       const dist = Math.hypot(P.x - fr.eye.x, P.z - fr.eye.z);
       if (dist < lo || dist > hi + 2) continue;
-      if (!dark(kr, P, 6)) continue;
+      if (!dark(kr, P, reach)) continue;
       if (clear(kr, fr.eye, P.clone().setY(P.y + 1.5)) || clear(kr, fr.eye, P.clone().setY(P.y + 0.8)) || clear(kr, fr.eye, P.clone().setY(P.y + 0.2))) continue;
       out.push({ P, c, d, dir: c.dir });
     }
