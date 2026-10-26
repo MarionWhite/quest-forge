@@ -202,26 +202,27 @@ def main():
         tally[source[m]] += 1
 
     # Faithful 64x's connected glass, rules rewritten for 1.7.10
-    def glass_dest(m):
-        # Clear glass goes straight into ctm/glass/, the very path of Angelica's built-in 16x rule
-        # and tiles (see below), so ours replace them whichever way MCPatcher keys its rules.
-        return m.replace(CTM + "glass/glass/", CTM + "glass/")
     for m in sorted(n for n in fnames if n.startswith(CTM + "glass/") and not n.endswith("/")):
         if m.endswith(".png"):
-            d = glass_dest(m)
-            textures[d], source[d] = (vibrance(rgba(fread(m))), None), "ctm"
+            textures[m], source[m] = (vibrance(rgba(fread(m))), None), "ctm"
         elif m.endswith(".properties"):
+            folder = m.split("/")[-2]
+            if folder == "glass":
+                # Clear glass and its pane ship exactly as Faithful 64x has them: matchBlocks=glass /
+                # glass_pane are 1.7.10 names too, and only this form beats Angelica's built-in 16x
+                # glass rule (its jar's ctm/glass/glass.properties). Renamed (clear_glass) it lost
+                # outright; at the jar's own path with matchBlocks=20 the jar's 'compact' rule still
+                # won and drew our tile 0 on every block (the r008 v1 and v1b renders).
+                out.writestr(m, fread(m))
+                tally["ctm"] += 1
+                continue
             # Faithful 64x names every rule glass.properties / glass_pane.properties. MCPatcher also
             # reads a rule's file name as a tile name, so every stained rule then matched CLEAR
             # glass too and the first (black) won: the r008 first render drew the clear panel
-            # black. Name each rule after its own folder, as Faithful 32x does.
-            # The names must also be Angelica's own (glass, glasspane, black_stained_glass,
-            # black_stained_glasspane): its jar ships 16x default rules and a rule replaces another
-            # only under the same file name. Named clear_glass, ours lost to Angelica's and the r008
-            # second render drew 16x streaks over the 64x panel.
-            folder = m.split("/")[-2]
+            # black. Name each stained rule after its folder, as Angelica's own defaults do
+            # (black_stained_glass, black_stained_glasspane).
             pane = os.path.basename(m) == "glass_pane.properties"
-            new = glass_dest(m).rsplit("/", 1)[0] + "/" + folder + ("pane" if pane else "") + ".properties"
+            new = m.rsplit("/", 1)[0] + "/" + folder + ("pane" if pane else "") + ".properties"
             out.writestr(new, glass_rule(fread(m).decode("utf-8")))
         tally["ctm"] += 1
     # bookshelves: four variants mixed at random (replaces Angelica's built-in horizontal rule)
