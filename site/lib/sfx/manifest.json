@@ -1682,6 +1682,44 @@
    ],
    "bus": "sfx"
   },
+  "mob.witch.death": {
+   "files": [
+    "mob/villager/death.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.55,
+    0.7
+   ],
+   "bus": "sfx"
+  },
+  "mob.witch.hurt": {
+   "files": [
+    "mob/villager/hit1.m4a",
+    "mob/villager/hit2.m4a",
+    "mob/villager/hit3.m4a",
+    "mob/villager/hit4.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.55,
+    0.7
+   ],
+   "bus": "sfx"
+  },
+  "mob.witch.idle": {
+   "files": [
+    "mob/villager/idle1.m4a",
+    "mob/villager/idle2.m4a",
+    "mob/villager/idle3.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.55,
+    0.7
+   ],
+   "bus": "sfx"
+  },
   "mob.wither.death": {
    "files": [
     "mob/wither/death.m4a"
@@ -2025,6 +2063,26 @@
     1.1
    ],
    "bus": "sfx"
+  },
+  "music.krypt": {
+   "files": [
+    "qf/music_krypt.m4a"
+   ],
+   "volume": 1,
+   "bus": "music",
+   "loop": true,
+   "loopStart": 1.0,
+   "loopEnd": 136.0
+  },
+  "music.lucky": {
+   "files": [
+    "qf/music_lucky.m4a"
+   ],
+   "volume": 1,
+   "bus": "music",
+   "loop": true,
+   "loopStart": 1.0,
+   "loopEnd": 107.666667
   },
   "note.bass": {
    "files": [
@@ -6123,6 +6181,207 @@
     "portal/trigger.m4a"
    ],
    "volume": 1,
+   "pitch": 1,
+   "bus": "sfx"
+  },
+  "qf.boss.sting": {
+   "files": [
+    "qf/boss_sting.m4a"
+   ],
+   "volume": 1,
+   "pitch": 1,
+   "bus": "sfx"
+  },
+  "qf.case_slam": {
+   "files": [
+    "qf/case_slam.m4a"
+   ],
+   "volume": 1.0,
+   "pitch": 1,
+   "bus": "sfx"
+  },
+  "qf.exclaim": {
+   "files": [
+    "qf/exclaim.m4a"
+   ],
+   "volume": 1.0,
+   "pitch": 1,
+   "bus": "ui"
+  },
+  "qf.krypt.drip": {
+   "files": [
+    "qf/krypt_drip1.m4a",
+    "qf/krypt_drip2.m4a",
+    "qf/krypt_drip3.m4a",
+    "qf/krypt_drip4.m4a",
+    "qf/krypt_drip5.m4a"
+   ],
+   "volume": 1.0,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "ambient"
+  },
+  "qf.krypt.gate": {
+   "files": [
+    "qf/krypt_gate.m4a"
+   ],
+   "volume": 1.0,
+   "pitch": 1,
+   "bus": "sfx"
+  },
+  "qf.krypt.groan": {
+   "files": [
+    "qf/krypt_groan1.m4a",
+    "qf/krypt_groan2.m4a",
+    "qf/krypt_groan3.m4a",
+    "qf/krypt_groan4.m4a"
+   ],
+   "volume": 1.0,
+   "pitch": 1,
+   "bus": "ambient"
+  },
+  "qf.krypt.heartbeat": {
+   "files": [
+    "qf/krypt_heartbeat.m4a"
+   ],
+   "volume": 1.0,
+   "pitch": 1,
+   "bus": "ambient",
+   "loop": true,
+   "loopStart": 1.0,
+   "loopEnd": 5.0
+  },
+  "qf.krypt.wind": {
+   "files": [
+    "qf/krypt_wind.m4a"
+   ],
+   "volume": 1.0,
+   "pitch": 1,
+   "bus": "ambient",
+   "loop": true,
+   "loopStart": 1.0,
+   "loopEnd": 25.0
+  },
+  "qf.reel_land": {
+   "files": [
+    "qf/reel_land.m4a"
+   ],
+   "volume": 1.0,
+   "pitch": 1,
+   "bus": "ui"
+  },
+  "qf.reel_tick": {
+   "files": [
+    "qf/reel_tick.m4a"
+   ],
+   "volume": 1.0,
+   "pitch": [
+    0.96,
+    1.06
+   ],
+   "bus": "ui"
+  },
+  "qf.reveal.bad": {
+   "files": [
+    "qf/reveal_bad.m4a"
+   ],
+   "volume": 1.0,
+   "pitch": 1,
+   "bus": "sfx"
+  },
+  "qf.reveal.deadly": {
+   "files": [
+    "qf/reveal_deadly.m4a"
+   ],
+   "volume": 1.0,
+   "pitch": 1,
+   "bus": "sfx"
+  },
+  "qf.reveal.good": {
+   "files": [
+    "qf/reveal_good.m4a"
+   ],
+   "volume": 1.0,
+   "pitch": 1,
+   "bus": "sfx"
+  },
+  "qf.reveal.jackpot": {
+   "files": [
+    "qf/reveal_jackpot.m4a"
+   ],
+   "volume": 1.0,
+   "pitch": 1,
+   "bus": "sfx"
+  },
+  "qf.reveal.neutral": {
+   "files": [
+    "qf/reveal_neutral.m4a"
+   ],
+   "volume": 1.0,
+   "pitch": 1,
+   "bus": "sfx"
+  },
+  "qf.scare.gore": {
+   "files": [
+    "qf/scare_gore1.m4a",
+    "qf/scare_gore2.m4a",
+    "qf/scare_gore3.m4a",
+    "qf/scare_gore4.m4a"
+   ],
+   "volume": 1.0,
+   "pitch": [
+    0.92,
+    1.08
+   ],
+   "bus": "sfx"
+  },
+  "qf.scare.hit": {
+   "files": [
+    "qf/scare_hit.m4a"
+   ],
+   "volume": 1.0,
+   "pitch": 1,
+   "bus": "sfx"
+  },
+  "qf.scare.ringing": {
+   "files": [
+    "qf/scare_ringing.m4a"
+   ],
+   "volume": 1.0,
+   "pitch": 1,
+   "bus": "sfx"
+  },
+  "qf.scare.riser": {
+   "files": [
+    "qf/scare_riser.m4a"
+   ],
+   "volume": 1.0,
+   "pitch": 1,
+   "bus": "sfx"
+  },
+  "qf.ui.close": {
+   "files": [
+    "qf/ui_close.m4a"
+   ],
+   "volume": 1.0,
+   "pitch": 1,
+   "bus": "ui"
+  },
+  "qf.ui.open": {
+   "files": [
+    "qf/ui_open.m4a"
+   ],
+   "volume": 1.0,
+   "pitch": 1,
+   "bus": "ui"
+  },
+  "qf.whoosh": {
+   "files": [
+    "qf/whoosh.m4a"
+   ],
+   "volume": 1.0,
    "pitch": 1,
    "bus": "sfx"
   },

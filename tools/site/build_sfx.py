@@ -77,6 +77,8 @@ def main():
             events[name] = e
     for alias, src in (("random.fuse", "creeper.primed"), ("random.glass", "dig.glass"), ("liquid.splash", "random.splash")):
         if src in events and alias not in events: events[alias] = dict(events[src])
+    for w, src in (("idle", "idle"), ("hurt", "hit"), ("death", "death")):   # 1.7.10 has no witch sounds: a villager, pitched down
+        if f"mob.villager.{src}" in events: events[f"mob.witch.{w}"] = {**events[f"mob.villager.{src}"], "pitch": [0.55, 0.7]}
     z = zipfile.ZipFile(os.path.join(CC, "mods", "orespawn.zip"))
     ore = json.loads(z.read("assets/orespawn/sounds.json"))
     for name, ev in ore.items():

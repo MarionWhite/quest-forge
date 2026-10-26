@@ -114,3 +114,22 @@ git history if it is ever wanted back:
 git log --oneline --diff-filter=D -- site/vein-atlas
 git checkout <commit>^ -- site/vein-atlas
 ```
+
+## Sounds
+
+`site/lib/qfaudio.js` is the one engine; `site/lib/sfx/manifest.json` maps event names to files
+(`.m4a`, so Safari decodes them). Three sources:
+
+- Minecraft 1.7.10's sound events (`mob.*`, `random.*`, `dig.*`, ...) and OreSpawn's (`orespawn:<name>`),
+  transcoded to mono AAC by `tools/site/build_sfx.py` from the local CrazyCraft4 instance.
+  Minecraft sounds (c) Mojang, OreSpawn's sounds (c) their author, as for the textures; whether they ship
+  publicly is an open owner decision (ops/DECISIONS.md). `build_sfx.py --own-only` removes them and keeps
+  everything below.
+- `qf.*`: the site's own sounds (case slam, reel, reveals, Krypt, scares), synthesized in
+  `tools/music/site_cues.py` (numpy and scipy, no samples).
+- `music.lucky`, `music.krypt`: two seamless music loops from the same script, built on the instruments
+  in `tools/music/synth.py`. The manifest carries `loopStart`/`loopEnd`; the file has one second of the
+  loop's own tail before and head after, so the loop is clean whether or not the decoder strips AAC priming.
+
+Rebuild: `python3 tools/site/build_sfx.py`, then `python3 tools/music/site_cues.py [sfx|music|all]`
+(needs a venv with numpy and scipy, and ffmpeg). Files load lazily; nothing counts toward page weight.
