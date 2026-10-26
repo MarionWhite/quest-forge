@@ -26470,7 +26470,7 @@
           "lockedProgress:1": 0,
           "autoClaim:1": 0,
           "isSilent:1": 0,
-          "desc:8": "[WRITE: zombies come in numbers and walk straight through an open door. Fight from the doorway, never in the open field, and step back inside when health drops below half. Zombie Pigmen count too (the task counts subtypes). The count is your own: kills by pets, golems or the environment do not count.]\n\n\u00a7eKill 5 zombies.\u00a7r"
+          "desc:8": "[WRITE: zombies come in numbers and walk straight through an open door. Fight from the doorway, never in the open field, and step back inside when health drops below half. Zombie Pigmen count too (the task counts subtypes). The count is your own.]\n\n\u00a7eKill 5 zombies.\u00a7r"
         }
       },
       "tasks:9": {

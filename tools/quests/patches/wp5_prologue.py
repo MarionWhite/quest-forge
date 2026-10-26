@@ -64,9 +64,10 @@ Facts the placeholders rely on, and where each was checked:
              Dust are applied by dropping them on the target (docs/design/enchantments.md).
   hunts      stock BetterQuesting credits a hunt kill to the killer (and, with parties off,
              to nobody else); kills by pets, minions or the environment do not count (WP-4,
-             TaskHunt). qf-content is getting damage-based credit for boss hunts (everyone who
-             damaged the boss; the killing blow highlighted in chat); 473's zombies are not
-             a boss fight, so it is the killer's count either way.
+             TaskHunt). qf-content is getting damage-based credit (ops/checkpoints/
+             quests-hunt-credit.md: everyone who damaged the target, pets crediting their
+             owner, the killing blow named in chat), so 473 says only "the count is your
+             own", which is true under both rules.
   /home      qf-commands HomeAccess: /sethome and /home, works across dimensions, not a
              respawn point. Ticket damage value 1 (Unlockables order: vault 0, home 1).
 """
@@ -145,8 +146,7 @@ NEW = [
     (473, 0, 240, 24, 'The First Night',
      P('zombies come in numbers and walk straight through an open door. Fight from the '
        'doorway, never in the open field, and step back inside when health drops below half. '
-       'Zombie Pigmen count too (the task counts subtypes). The count is your own: kills by '
-       'pets, golems or the environment do not count.',
+       'Zombie Pigmen count too (the task counts subtypes). The count is your own.',
        'Kill 5 zombies.'),
      item('minecraft:rotten_flesh'), [hunt('Zombie', 5)],
      [item_reward(item('battlegear2:shield.wood'), item(BAG))], [471], 1),

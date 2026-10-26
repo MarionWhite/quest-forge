@@ -1,11 +1,16 @@
 # The four-act spine
 
-Status: **draft for the author's review, 2026-10-19.** Nothing here is in the shipped book.
-The Prologue (WP-5) exists as a draft book, `tools/quests/drafts/DefaultQuests.wp5.json`. The
-acts (WP-6) are built as a draft on top of it, `tools/quests/drafts/DefaultQuests.wp6.json`, by
-`tools/quests/patches/wp6_acts.py` (2026-10-25), parameterised by the decisions in
-[review-2026-10-19.md](review-2026-10-19.md); its texts are placeholders for the writers
-([wp6-writing-brief.md](wp6-writing-brief.md)).
+Status: **structure accepted by the author, 2026-10-25**
+([decision 0004](../../decisions/0004-prologue-and-act-i.md): all ten cards as recommended,
+except that **there are no parties** and **the house voice is rejected**). Nothing here is in
+the shipped book. The Prologue (WP-5) exists as a draft book,
+`tools/quests/drafts/DefaultQuests.wp5.json`, and the acts (WP-6) as a draft on top of it,
+`tools/quests/drafts/DefaultQuests.wp6.json`, built by `tools/quests/patches/wp6_acts.py
+--decisions docs/decisions/answers/s001.json`. The drafts hold the shipped book's words for
+every quest that only moved and `[WRITE: ...]` placeholders for everything new; they stay
+drafts until the writers' voice samples are chosen and the texts exist
+([wp6-writing-brief.md](wp6-writing-brief.md)). Section 6 was rewritten for a book without
+parties; the 2026-10-19 version assumed them.
 
 This turns section 4.1 of the [questline audit](../questline-audit.md) into a plan that matches
 the book as WP-3 and WP-4 left it. Quest IDs are kept; quests move between tabs and gain
@@ -18,7 +23,7 @@ prerequisites, and a handful of new quests join chapters together. Tags follow t
 
 | Act | Tab (14 chars max) | Tier | Where it happens | Built from | Opens at | Finale (the gate to the next act) | Target time **[guess]** |
 |---|---|---|---|---|---|---|---|
-| Prologue | `Arrival` | T0 | The overworld around your spawn point | New, plus 0, 1, 2, 430, 431, 35, 61 | first login | **480 Into the Chronicle**: 473 First Night + 474 graves + 478 party | 20–30 min |
+| Prologue | `Arrival` | T0 | The overworld around your spawn point | New, plus 0, 1, 2, 430, 431, 35, 61 | first login | **480 Into the Chronicle**: 473 First Night + 474 graves | 20–30 min |
 | I | `I: Broken Sky` | T0→T1 | Overworld, the Nether | Ch 1 (3, 4, 5, 6), new Nether and Wither quests | 480 | **481 First Blood**: 6 Diamond Gear, then one kill from a list (Mutant, ChocolateQuest boss, the Wither) | 2–3 h |
 | II | `II: Old Powers` | T1→T2 | Twilight Forest (dim 7), the witches' overworld | Ch 3 up to the Hydra, all of Ch 4 Witchery | 481 | **484 The Old Powers Answer**: 17 Hydra + 105 Circle Talisman | ≈5 h |
 | III | `III: The Veil` | T2 | The End (HEE, dim 1), Witchery's Spirit World, Dream and Torment (−39, −37, −38), the far Twilight biomes, OreSpawn's first dimensions | Ch 6 The End, Ch 5 Dark Paths, the rest of Ch 3, Ch 7 up to Ultimate Gear | 484 | **485 Beyond the Veil**: 121 HEE Dragon + 19 Snow Queen + 21 Ultimate Gear | ≈8 h |
@@ -41,8 +46,8 @@ AND in the prerequisites and the OR in the tasks:
   `MutantCreatures.MutantZombie` [verified, `entities.json`], `WitherBoss`, or a ChocolateQuest
   boss [both to be checked with `/qfcensus find`, as WP-4 did].
 - **484, 485, 486**: AND prerequisites on the boss quests, one checkbox task ("Turn the page"),
-  and the act's best reward. The kill was already counted by the boss quest's hunt task, which
-  credits the whole party [verified, WP-4].
+  and the act's best reward. The kill was already counted by the boss quest's hunt task; who
+  that task credits is section 6.
 
 Each finale then becomes the only prerequisite that opens the next act:
 14 Pool at Dusk needs 481 (not 6); 56 Enhanced End and the Dark Paths entries need 484 (not
@@ -54,8 +59,8 @@ Each finale then becomes the only prerequisite that opens the next act:
 
 **Prologue: Arrival.** You arrive with nothing, an hour before dark, somewhere on a continent
 where the sky has cracked. One day and one night teach what this world does differently:
-gravestones, parties, Level Up classes, sealed tomes, Infernal names and the Weeping Angels
-under Y 40. It ends when you have walls, food and a party.
+gravestones, Level Up classes, sealed tomes, the jukebox, Infernal names and the Weeping Angels
+under Y 40. It ends when you have walls, food and a way home.
 
 **Act I: Broken Sky.** The overworld is no longer only the overworld. Mutant Creatures walk
 the forests, ChocolateQuest's castles hold the ridges, and the Nether still burns under all
@@ -119,9 +124,9 @@ Act III. In the data, 135 Keys of Nether and End comes *after* 134, the Synapse 
 opened the chapter at Mobzilla on purpose ("after the first titan"). Splitting it would mean
 reordering five quests to save one; the Act III finale uses Ultimate Gear instead.
 
-**New IDs.** 470–478 and 480 are the Prologue (in the draft). 479 is kept free next to them.
-481–486 are reserved for the act gates above; 487–499 for whatever WP-6 needs next. All are
-free in both books.
+**New IDs.** 470–477 and 480 are the Prologue (in the draft); 478 was You and Your Party,
+removed by decision 0004, so 478 and 479 stay free next to them. 481–486 are reserved for the
+act gates above; 487–499 for whatever WP-6 needs next. All are free in both books.
 
 ---
 
@@ -161,7 +166,7 @@ the next act's power** (audit 4.5). "Opens at" is the quest that unlocks the tab
 | `Danger Zone` | Act II | 6 | TARDIS, Weeping Angels, Pandora's Box | — |
 | `ProjectE` | ladder | 16 Lich | as it is, plus the post-gate collectors and condensers | WP-7 |
 | `Discovery` | none (hidden) | roots, `COMPLETED` | arrivals in dimensions and biomes (`docs/survey/biome-ids.tsv`) | WP-D1 |
-| `Server Firsts` | none | roots, `GLOBAL` | "the first party to kill Mobzilla", with a server-wide announcement | WP-9 |
+| `Server Firsts` | none | roots, `GLOBAL` | "the first player to kill Mobzilla", with a server-wide announcement | WP-9 |
 | `Secrets` | none | as it is | stays the last tab (`qb.py lint` enforces it) | — |
 
 Line visibility follows WP-3: side tabs `ALWAYS`, each act's tab `UNLOCKED`, so an act is a
@@ -169,32 +174,40 @@ rumour until its first quest is unlocked.
 
 ---
 
-## 6. Parties and multiplayer
+## 6. Multiplayer without parties
 
-The pack is for a few friends on one online-mode server, and the most common new player is a
-friend who joins mid-campaign. What the book can rely on, and what it still has to check:
+**Decision 0004 (2026-10-25): there are no BetterQuesting parties.** The author: "I don't want
+any quest sharing. Everyone has their own quests and their own rewards." Every quest and every
+reward is personal; `party_enable` is 0 in the drafts; 478 You and Your Party is gone and no
+text says "you and your party". The 2026-10-19 version of this section assumed a party (a hunt
+credits the whole party; finales as a convergence of the party's hunts; a late friend inherits
+a party's progress); those rules are void.
+
+The pack is still for a few friends on one online-mode server, and the most common new player
+is still a friend who joins mid-campaign. What the book can rely on now:
 
 | | Status |
 |---|---|
-| A hunt kill counts for every member of the killer's party | **[verified]** Standard Expansion `TaskHunt`, `ParticipantInfo.ALL_UUIDS` (WP-4) |
+| Stock BetterQuesting credits a hunt kill to the killer only | **[verified]** Standard Expansion `TaskHunt` credits the killer's party (WP-4); with parties off, that is the killer alone |
 | Kills by pets, minions or the environment do not count | **[verified]** WP-4 |
-| Retrieval never consumes (`consume=0` everywhere), so one item proof can be handed round | **[verified]**; why WP-4 moved boss proofs to hunts |
-| Party members share quest completion | **[likely]**; WP-9 two-account test |
-| "Single Reward" off means each member claims their own reward | **[likely]**; WP-9 |
-| A friend who joins a party inherits its completed quests | **[likely]**; WP-9. **This matters for the Prologue** (review doc, decision 5) |
+| **Damage-based credit for boss hunts**: everyone who damaged the boss gets the hunt credit, and the killing blow is highlighted in chat | **[planned]** qf-content, being built by another agent on the author's call of 2026-10-25. This answers the open consequence decision 0004 named (a friend who helped kill the Hydra but did not land the blow would otherwise get no credit and have to kill it again). Until it ships and is seen in a trial, the stock rule above is what the book does |
+| Retrieval never consumes (`consume=0` everywhere), so one item proof can be handed round | **[verified]**; why WP-4 moved boss proofs to hunts, and why every finale is a hunt or a checkbox over hunts |
+| Rewards are personal: each player claims their own, every time | follows from no parties |
+| A friend who joins mid-campaign starts the book at Welcome | follows from no parties; the Prologue is sized for that (an evening) |
 
 Design rules:
 
 1. **The Prologue and Act I are personal and fast.** They teach systems and carry no kill that
    needs a group. A late friend can be caught up in an evening.
-2. **Every act finale is a convergence of hunts**, so a boss the party fought together opens
-   the next act for all of it. No finale asks for an item that exists once per world (the
-   Dragon Egg problem, already fixed in 121 with Dragon Essence as the shared proof).
-3. **Say "you and your party"** in any text about a group-sized fight (audit 4.7).
-4. **One party per friend group, Single Reward off**, taught in 478 You and Your Party.
-5. **Server-wide firsts** are their own `GLOBAL` tab (WP-9), with a command reward announcing
-   the party that did it. These are the stories friends retell.
-6. **Travel is earned.** The `/home` ticket at the end of the Prologue (review doc, decision 3)
+2. **Every act finale is a convergence of hunts each player earned.** With damage-based credit,
+   a boss friends fought together opens the next act for everyone who fought it. No finale asks
+   for an item that exists once per world (the Dragon Egg problem, already fixed in 121 with
+   Dragon Essence as the shared proof).
+3. **Say "friends", never "your party".** A finale may speak to friends who fought together;
+   there is no group mechanic behind the word, so no text promises one.
+4. **Server-wide firsts** are their own `GLOBAL` tab (WP-9), with a command reward announcing
+   the player who did it. These are the stories friends retell.
+5. **Travel is earned.** The `/home` ticket at the end of the Prologue (decision 0004, card 3)
    is the one shortcut handed out; dimension tickets stay inside their dimensions
    (`Unlockables.java`: "the command can never skip the quest").
 
@@ -212,7 +225,7 @@ sight of every T1 spawn".
   if the server showed one, marked each with an honest difficulty, and otherwise you woke where
   everyone wakes. It is true today and after the picker ships.
 - **Acts I and II** live in the tier 1 and tier 2 regions and their dimensions.
-- **Act III and IV** send the party to the tier 3 zones and across the sea.
+- **Act III and IV** send players to the tier 3 zones and across the sea.
 - **Discovery** (WP-D1) is how the painted biomes earn quests, by biome ID, once the continent
   is fixed. No quest names a region: they name the biome and the structure (Knight Stronghold,
   Aurora Palace), never an invented place name.
