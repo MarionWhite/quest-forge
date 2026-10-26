@@ -36,7 +36,8 @@ export function makeAmbience({ a, lay }) {
     loops.set(key, { h: snd("loop", name, { pos, ...o }) });
   }
 
-  const torchSpots = a.torches.map(q => [q.x, q.y, q.z]);
+  let torchSpots = [], torchVer = -1;
+  const torchList = () => { if (torchVer !== a.version) { torchVer = a.version; torchSpots = a.torches.map(q => [q.x, q.y, q.z]); } return torchSpots; };
 
   return {
     start() {
@@ -58,7 +59,7 @@ export function makeAmbience({ a, lay }) {
       // Distant footsteps: someone walks a side passage toward the corridor and the sound thins out.
       if (next.steps < 0) {
         next.steps = rnd(35, 80);
-        const ps = a.spots.passages.filter(p => { const d = Math.hypot(p.mouth[0] - cam.x, p.mouth[2] - cam.z); return d > 9 && d < 46; });
+        const ps = a.passages.filter(p => { const d = Math.hypot(p.mouth[0] - cam.x, p.mouth[2] - cam.z); return d > 9 && d < 46; });
         if (ps.length) {
           const p = ps[Math.floor(Math.random() * ps.length)];
           const n = 9, gap = rnd(0.58, 0.72), nm = kind === "mine" || kind === "crypt" || kind === "spidermine" || kind === "catacomb" ? "step.gravel" : "step.stone";
@@ -77,7 +78,7 @@ export function makeAmbience({ a, lay }) {
         const p = nearest(a.spots.drip, cam, 16);
         if (p) snd("play", "qf.krypt.drip", { pos: { x: p[0], y: p[1], z: p[2] }, volume: 0.5, reverb: 0.6, ref: 1.5, max: 22 });
       }
-      keepLoop("fire", "fire.fire", torchSpots.concat(a.spots.fire), cam, 9, { volume: 0.07, ref: 1.2, max: 12 });
+      keepLoop("fire", "fire.fire", torchList().concat(a.spots.fire), cam, 9, { volume: 0.07, ref: 1.2, max: 12 });
       keepLoop("lava", "liquid.lava", a.spots.lava, cam, 20, { volume: 0.16, ref: 3, max: 26 });
       // Your steps, tied to how fast you walk. A held walk (a scare) is silent.
       if (held) { lastP = null; return; }

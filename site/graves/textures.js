@@ -177,3 +177,18 @@ export function skyCanvas(seed = 9) {
   }
   return c;
 }
+
+// A grey block texture tinted like the 1.7.10 biome colouring (multiply), optionally with an overlay on top (grass sides).
+export function tintImage(img, hex, overlay = null) {
+  const paint = (im) => {
+    const t = canvas(im.width, im.height), tx = t.getContext("2d");
+    tx.imageSmoothingEnabled = false; tx.drawImage(im, 0, 0);
+    tx.globalCompositeOperation = "multiply"; tx.fillStyle = hex; tx.fillRect(0, 0, t.width, t.height);
+    tx.globalCompositeOperation = "destination-in"; tx.drawImage(im, 0, 0);
+    return t;
+  };
+  if (!overlay) return paint(img);
+  const c = canvas(img.width, img.height), x = c.getContext("2d");
+  x.imageSmoothingEnabled = false; x.drawImage(img, 0, 0); x.drawImage(paint(overlay), 0, 0);
+  return c;
+}

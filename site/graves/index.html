@@ -113,6 +113,7 @@ h1{font-size:clamp(38px,6.6vw,64px);line-height:.94;font-weight:800;letter-spaci
 .strip{position:relative;height:30px;border:1px solid #3B3248;border-radius:2px;background:linear-gradient(90deg,rgba(14,11,18,.85),rgba(35,26,44,.6),rgba(14,11,18,.85));cursor:pointer}
 .strip .marker{position:absolute;top:-5px;bottom:-5px;width:2px;margin-left:-1px;background:var(--glow);box-shadow:0 0 8px rgba(240,138,60,.8);pointer-events:none;transition:left .12s linear}
 .ticks{position:absolute;inset:0}
+.ticks .band{position:absolute;top:0;bottom:0;pointer-events:none;border-left:1px solid rgba(255,255,255,.14)}
 .tick{position:absolute;top:6px;bottom:6px;width:9px;margin-left:-4px;padding:0;border:0;background:none;cursor:pointer}
 .tick::before{content:"";position:absolute;left:3px;top:0;bottom:0;width:2px;background:#8E7FA8;transition:background .15s}
 .tick:hover::before,.tick.near::before{background:#D9C6FF}
@@ -262,7 +263,7 @@ footer.site a:hover{color:var(--ember-ink);border-color:var(--ember)}
   </div>
   <div class="hud" id="hud" data-focus="0">
     <div class="hud-l">
-      <p class="hud-k">Nearest stone</p>
+      <p class="hud-k" id="hudK">Nearest stone</p>
       <p class="hud-name" id="hudName">Walking the Krypt</p>
       <p class="hud-sub" id="hudSub"></p>
     </div>

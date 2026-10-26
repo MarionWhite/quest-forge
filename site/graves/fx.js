@@ -85,28 +85,29 @@ class Set_ {
   }
 }
 
-export function makeFx(scene, emitters, { phone = false } = {}) {
+export function makeFx(scene, getEmitters, { phone = false } = {}) {
   const tex = atlas();
   const add = new Set_(phone ? 260 : 600, THREE.AdditiveBlending, tex, scene);
   const nrm = new Set_(phone ? 260 : 600, THREE.NormalBlending, tex, scene);
   const R2 = 20 * 20;
-  const acc = emitters.map(() => Math.random());
   const rr = (s) => (Math.random() - 0.5) * s;
   return {
     update(dt, cam, viewHeightPx, fovRad, gate = null) {
       const sc = viewHeightPx * 0.5 / Math.tan(fovRad / 2);
       add.uni.scale.value = sc; nrm.uni.scale.value = sc;
+      const emitters = getEmitters();
       for (let e = 0; e < emitters.length; e++) {
         const m = emitters[e];
         const dx = m.x - cam.x, dz = m.z - cam.z, dy = m.y - cam.y;
         if (dx * dx + dz * dz + dy * dy > R2) continue;
         const gf = gate ? gate(m.x, m.y, m.z) : 1;
         if (gf <= 0.03) continue;
-        acc[e] += dt * Math.min(1, gf);
+        if (m._acc === undefined) m._acc = Math.random();
+        m._acc += dt * Math.min(1, gf);
         const rate = m.k === "torch" ? 5 : m.k === "fire" ? 9 : m.k === "spawner" ? 12 : m.k === "lava" ? 1.4 : m.k === "drip" ? 0.28 : 0;
         const every = 1 / rate;
-        while (acc[e] > every) {
-          acc[e] -= every * (0.6 + Math.random() * 0.8);
+        while (m._acc > every) {
+          m._acc -= every * (0.6 + Math.random() * 0.8);
           if (m.k === "torch") {
             add.spawn(m.x + rr(0.05), m.y, m.z + rr(0.05), rr(0.05), 0.2 + Math.random() * 0.12, rr(0.05), 0.42, 0.075, 0.02, 1, TILE.flame, [1.4, 1.0, 0.6]);
             if (Math.random() < 0.45) nrm.spawn(m.x + rr(0.04), m.y + 0.04, m.z + rr(0.04), rr(0.05), 0.3 + Math.random() * 0.15, rr(0.05), 1.3, 0.07, 0.2, 0.5, TILE.smoke, [0.8, 0.8, 0.85]);

@@ -10,17 +10,20 @@ import {
   normalize, killerText, epitaph, epitaphParts, familyFor, ornaments, poseFor, seedFor,
   CAUSE_LABEL, CAUSE_NOUN, hash
 } from "./data.js";
-import { layout, buildGrid, meshGrid, pathCurve, finishLayout, profileAt, legAt, legDir, legMap, legYaw, slotFrame, patchBake, makeCarver } from "./krypt.js";
-import { dress } from "./dress.js";
+import { makePlan, makeWorld, slotFrame, patchBake, legDir, legMap, legYaw, KINDS } from "./krypt.js";
+import { makeDresser } from "./dress.js";
+import { BLOCK_TEX_FILES, TINTED } from "./blocks.js";
+import { demoGraves } from "./demo.js";
 import { makeFx } from "./fx.js";
 import { makeLightFx } from "./lightfx.js";
 import { makeAmbience, sfxLog } from "./kaudio.js";
 import { audio } from "../lib/qfaudio.js";
 import { buildStone, buildStatue, buildAngelFigure, makeTexture, imageTexture, statueCanvas, STONE_HEIGHT } from "./model.js";
-import { loadImage, canvas, glowCanvas, dotCanvas, skyCanvas } from "./textures.js";
+import { loadImage, canvas, glowCanvas, dotCanvas, skyCanvas, tintImage } from "./textures.js";
 
 const $ = (s) => document.querySelector(s);
 const DEMO = new URLSearchParams(location.search).has("demo");
+const DEMO_N = Number(new URLSearchParams(location.search).get("demo")) || 0;   // ?demo=1000 and ?demo=10000 make synthetic graves
 const DUMP = new URLSearchParams(location.search).has("dump");   // verification: one rendered frame, dumped into the DOM
 const QS = new URLSearchParams(location.search);
 const FAMILY_FILE = { slab: "grave_stone", tomb: "grave_zerk", pillar: "grave_pillar", wood: "grave_wood", knight: "grave_knight",
@@ -33,6 +36,7 @@ const TEX_FILES = ["stone", "cobblestone", "cobblestone_mossy", "stonebrick", "s
   "furnace_side", "furnace_top", "dispenser_front_horizontal", "lever", "trip_wire", "trip_wire_source", "door_iron_lower",
   "door_iron_upper", "endframe_top", "endframe_side", "endframe_eye", "gold_block", "diamond_block", "lapis_block",
   "emerald_block", "stonebrick_carved", "iron_block", "chest", "end_sky"];
+for (const f of BLOCK_TEX_FILES) if (!TEX_FILES.includes(f)) TEX_FILES.push(f);
 
 const state = {
   graves: [], updated: null, feed: "", loadError: false,
@@ -135,9 +139,10 @@ async function load() {
       catch { state.feed = ""; }
       if (state.feed) url = state.feed;
     }
-    const r = await fetch(url, { cache: "no-store" });
-    if (!r.ok) throw new Error(String(r.status));
-    const n = normalize(await r.json());
+    let json;
+    if (DEMO && DEMO_N > 25) json = demoGraves(DEMO_N);
+    else { const r = await fetch(url, { cache: "no-store" }); if (!r.ok) throw new Error(String(r.status)); json = await r.json(); }
+    const n = normalize(json);
     state.graves = n.graves; state.updated = n.updated;
   } catch { state.loadError = true; state.graves = []; }
   renderPage();
@@ -165,7 +170,7 @@ function renderPage() {
   renderBoards();
   renderFlat();
   // The filter selects and the search list.
-  const names = count(g => g.player).sort((a, b) => a[0].localeCompare(b[0]));
+  const names = count(g => g.player).sort((a, b) => a[0].localeCompare(b[0])).slice(0, 400);
   const dl = $("#names"); dl.textContent = "";
   for (const [n] of names) dl.append(new Option(n, n));
   $("#stage").hidden = !state.webgl || state.reduced;
@@ -192,7 +197,7 @@ function renderBoards() {
 // The 2D fallback: the same graves as a list of engraved cards.
 function renderFlat() {
   const ol = $("#flatList"); ol.textContent = "";
-  const list = state.graves.slice().reverse();
+  const list = state.graves.slice(-300).reverse();
   if (!list.length) { ol.append(el("li", "flat-empty", "The first grave is still unclaimed.")); return; }
   for (const g of list) {
     const li = el("li", "flat-card");
@@ -232,25 +237,26 @@ async function startKrypt() {
   scene.fog = new THREE.FogExp2(0x07060b, 0.04);
   K.scene = scene;
   const camera = new THREE.PerspectiveCamera(58, 1, 0.05, 140);
-  K.camera = camera;
+  K.camera = camera; K.baseFov = 58;
 
-  // Textures: the pack's own files, loaded once.
+  // Textures: the pack's own files, loaded once; the tinted ones (grass, leaves) are made from their grey originals.
   const IMG = {};
   await Promise.all(TEX_FILES.map(async n => { try { IMG[n] = await loadImage(`tex/${n}.png`); } catch { /* optional */ } }));
   try { IMG.skull_tex = await loadImage("../lib/mc/tex/entity/skeleton/skeleton.png"); } catch { /* the graves' own skeleton sheet stands in */ }
+  for (const [name, [src, hex, ov]] of Object.entries(TINTED)) if (IMG[src]) IMG[name] = tintImage(IMG[src], hex, ov ? IMG[ov] : null);
   K.IMG = IMG;
 
-  // The world: legs, path, grid, bake, dressing.
-  const lay = layout(state.graves.length);
-  const curve = pathCurve(lay);
-  finishLayout(lay, curve);
-  const grid = buildGrid(lay);
-  K.lay = lay; K.curve = curve; K.grid = grid; K.length = curve.getLength();
-  const gm = meshGrid(grid, IMG);
-  if (!QS.has('nogrid')) scene.add(gm.group); K.gridMesh = gm; K.lightAt = gm.lightAt; K.carver = makeCarver(grid, gm);
-  const dr = dress(grid, lay, IMG, gm.lightAt);
-  if (!QS.has('nodress')) scene.add(dr.group); K.dress = dr;
-  K.fx = makeFx(scene, grid.emit, { phone });
+  // The world: the plan (every leg, from the seed and the slot count), and the chunks around the walker.
+  const plan = makePlan({ n: state.graves.length });
+  K.plan = plan; K.length = plan.length;
+  K.agg = { torches: [], dyn: [], emit: [], spots: { fire: [], lava: [], drip: [] }, holes: [], version: 0 };
+  const dresser = makeDresser(IMG);
+  K.dresser = dresser;
+  const world = makeWorld({ plan, images: IMG, scene, dresser, radius: phone ? 66 : 84, onChange: (agg) => { K.agg = agg; } });
+  K.world = world;
+  K.lightAt = (x, y, z, nx, ny, nz, o) => world.lightAt(x, y, z, nx, ny, nz, o);
+  K.fx = makeFx(scene, () => K.agg.emit, { phone });
+  K.profTmp = {}; K.prof = plan.profileAtD(0, K.profTmp); K.stratum = K.prof.stratum;
 
   // The violet sky, far above the cracks; it rides with the camera, so it has no parallax, like a real sky.
   const skyTex = makeTexture(skyCanvas(9));
@@ -262,7 +268,6 @@ async function startKrypt() {
   // of the light is baked into the blocks (krypt.js), so it needs no draw calls.
   const hemi = new THREE.HemisphereLight(0x7d78a8, 0x2a1d2c, 0.32);
   scene.add(hemi); K.hemi = hemi;
-  K.dyn = grid.sources.filter(s => s.dyn).map((s, i) => ({ ...s, ph: (i * 1.713) % 10 }));
   K.lights = [];
   const nLive = phone ? 3 : 4;
   for (let n = 0; n < nLive; n++) {
@@ -297,27 +302,29 @@ async function startKrypt() {
   composer.addPass(grade); K.grade = grade;
   composer.addPass(new OutputPass());
 
-  // The camera's walk. s runs from 0 at the entrance to 1 at the deepest end.
+  // The camera's walk. s runs from 0 at the entrance to 1 at the deepest end; d = s * length is the block count.
   K.walk = { s: 0, sT: 0, yaw: 0, yawT: 0, pitch: 0, pitchT: 0, mx: 0, my: 0 };
   const walkSec = Number(QS.get("walk"));
   K.autoWalk = QS.has("walk") && walkSec > 0 ? { dur: walkSec, t0: null } : null;
   K.pos = new THREE.Vector3(); K.look = new THREE.Vector3(); K.focusAmt = 0;
   K.fYaw = 0; K.fPitch = 0; K.fOff = new THREE.Vector3(); K.speed = 0; K.activeSeconds = 0; K.held = false;
-  // The alcoves and the graves. Built lazily, near the camera.
-  K.anchors = state.graves.map((g, i) => {
-    const slot = lay.slots[i];
-    const fr = slotFrame(lay, slot);
-    return { i, side: slot.side, s: slot.s, frame: fr, p: fr.stone, leg: slot.leg };
-  });
+  K.anchorCache = new Map();
   K.built = new Map(); K.queue = [];
-  const at0 = QS.has("at") ? Math.min(1, Math.max(0, Number(QS.get("at")) || 0)) : 0;
-  K.pos.copy(curve.getPointAt(at0));
-  gm.pump(K.pos.x, K.pos.z, 44, 400);       // the blocks around the start; the rest are meshed as the walk nears them
-  for (let i = 0; i < K.anchors.length && i < 80; i++) if (K.anchors[i].p.distanceTo(K.pos) < 30) buildGraveAt(i, false);
-  buildEntrance(lay, IMG);
+  // Where to start: ?at (0..1 of the whole path), ?grave=N, ?stratum=k, ?gap=g with ?jx (blocks into the jump).
+  let d0 = 0;
+  if (QS.has("at")) d0 = Math.min(1, Math.max(0, Number(QS.get("at")) || 0)) * plan.length;
+  if (QS.has("stratum")) { const st = plan.strata[Math.min(plan.strata.length - 1, Math.max(0, Number(QS.get("stratum")) || 0))]; d0 = st.d0 + (Number(QS.get("sd")) || 8); }
+  if (QS.has("gap") && plan.gaps.length) { const g = plan.gaps[Math.min(plan.gaps.length - 1, Math.max(0, Number(QS.get("gap")) || 0))]; d0 = g.d0 - 0.5 + (Number(QS.get("jx")) || 0); }
+  if (QS.has("grave")) { const gi = Number(QS.get("grave")); if (plan.slots[gi]) d0 = plan.slots[gi].d; }
+  K.startD = Math.min(plan.length, Math.max(0, d0));
+  plan.pointAt(K.startD, _pt); K.pos.set(_pt[0], _pt[1], _pt[2]);
+  world.ensure(K.pos.x, K.pos.z, 56);
+  for (const i of nearSlots(K.startD, 30)) if (anchorOf(i).p.distanceTo(K.pos) < 30) buildGraveAt(i, false);
+  buildEntrance(plan, IMG);
 
   // Sound: the gate unlocks it. Under ?dump and ?nogate there is no gate and no sound.
-  K.amb = makeAmbience({ a: grid, lay });
+  const aud = { get torches() { return K.agg.torches; }, get spots() { return K.agg.spots; }, get version() { return K.agg.version; }, passages: plan.spots };
+  K.amb = makeAmbience({ a: aud });
   K.gateOpen = (DUMP && !QS.has("gate")) || QS.has("nogate");
   stage.dataset.gate = K.gateOpen ? "0" : "1";
   resize();
@@ -329,41 +336,62 @@ async function startKrypt() {
   setHUD();
   state.webgl = true;
   K.last = performance.now();
-  K.snap = QS.has("grave") || QS.has("at");
+  K.snap = QS.has("grave") || QS.has("at") || QS.has("stratum") || QS.has("gap");
+  K.walk.s = K.walk.sT = K.startD / plan.length;
   if (QS.has("grave")) { const i = Number(QS.get("grave")); if (state.graves[i]) focusGrave(i, true); }
-  if (QS.has("at")) { K.walk.s = K.walk.sT = at0; }
   publishKrypt();
   requestAnimationFrame(frame);
   if (DUMP) setTimeout(runDump, 2500);   // the verification frame does not wait for animation frames
   document.documentElement.dataset.graves = "ready";
+}
+const _pt = [0, 0, 0], _pt2 = [0, 0, 0];
+
+// The anchor of grave i: its slot's frame (built on demand, a few hundred kept).
+function anchorOf(i) {
+  let a = K.anchorCache.get(i);
+  if (a) return a;
+  const slot = K.plan.slots[i];
+  const fr = slotFrame(K.plan, slot);
+  a = { i, side: slot.side, s: slot.d / K.length, d: slot.d, frame: fr, p: fr.stone, leg: slot.leg };
+  K.anchorCache.set(i, a);
+  if (K.anchorCache.size > 700) K.anchorCache.delete(K.anchorCache.keys().next().value);
+  return a;
+}
+// The indices of the graves within `range` blocks of path distance d.
+function nearSlots(d, range) {
+  const n = Math.min(state.graves.length, K.plan.slots.length), out = [];
+  if (!n) return out;
+  const slots = K.plan.slots;
+  for (let i = Math.max(0, K.plan.slotAtD(d - range)); i < n && slots[i].d <= d + range; i++) if (slots[i].d >= d - range) out.push(i);
+  return out;
 }
 
 // Fill the scares contract (see the top of the file).
 function publishKrypt() {
   const kr = window.__krypt;
   kr.scene = K.scene; kr.camera = K.camera; kr.renderer = K.renderer; kr.composer = K.composer;
-  const toCorner = (c) => ({ s: c.s, pos: new THREE.Vector3(c.x, c.y, c.z), dir: new THREE.Vector3(c.dx, 0, c.dz), side: c.side, kind: c.kind });
-  kr.cornersNear = (s, range = 150) => K.lay.corners.filter(c => Math.abs(c.s - s) * K.length <= range).map(toCorner);
+  const toCorner = (c) => ({ s: c.d / K.length, pos: new THREE.Vector3(c.x, c.y, c.z), dir: new THREE.Vector3(c.dx, 0, c.dz), side: c.side, kind: c.kind });
+  kr.cornersNear = (s, range = 150) => K.plan.corners.filter(c => Math.abs(c.d - s * K.length) <= range).map(toCorner);
   K.refreshNear = (force) => {
-    const s = K.walk.s;
-    if (!force && K.nearAt != null && Math.abs(s - K.nearAt) * K.length < 15) return;
-    K.nearAt = s;
-    kr.corners = kr.cornersNear(s, 150);
-    kr.gaps = (K.lay.gaps || []).filter(g => Math.abs(g.s - s) * K.length <= 150).map(g => ({ s: g.s, pos: new THREE.Vector3(g.x, g.y, g.z), dir: new THREE.Vector3(g.dx, 0, g.dz), width: g.width, kind: g.kind, side: g.side }));
+    const d = K.walk.s * K.length;
+    if (!force && K.nearAt != null && Math.abs(d - K.nearAt) < 15) return;
+    K.nearAt = d;
+    kr.corners = K.plan.corners.filter(c => Math.abs(c.d - d) <= 150).map(toCorner);
+    kr.gaps = K.plan.gaps.filter(g => Math.abs(g.d - d) <= 150).map(g => ({ s: g.d / K.length, pos: new THREE.Vector3(g.x, g.y, g.z), dir: new THREE.Vector3(g.dx, 0, g.dz), width: g.width, kind: g.kind, side: g.side }));
   };
   K.refreshNear(true);
-  K.lightFx = makeLightFx({ torches: () => K.grid.torches, hemi: K.hemi });
+  K.lightFx = makeLightFx({ torches: () => K.agg.torches, hemi: K.hemi });
+  const asV = (v) => (Array.isArray(v) ? v : [v.x, v.y, v.z]);
+  const asPos = (v) => (Array.isArray(v) ? { x: v[0], y: v[1], z: v[2] } : v);
   kr.light = {
     scale: (k, sec) => K.lightFx.scale(k, sec), flicker: (p, sec) => K.lightFx.flicker(asPos(p), sec),
     off: (p, sec) => K.lightFx.off(asPos(p), sec), pulse: (sec) => K.lightFx.pulse(sec)
   };
   kr.getWalk = () => ({ s: K.walk.s, speed: K.speed, activeSeconds: K.activeSeconds, depth: smooth01(K.walk.s), segment: (K.prof && K.prof.kind) || "crypt", stratum: K.stratum ? K.stratum.index : 0, stratumName: K.stratum ? K.stratum.name : "" });
-  const asV = (v) => (Array.isArray(v) ? v : [v.x, v.y, v.z]);
-  const asPos = (v) => (Array.isArray(v) ? { x: v[0], y: v[1], z: v[2] } : v);
-  kr.carve = (mn, mx) => K.carver.carve(asV(mn), asV(mx));
-  kr.restore = () => K.carver.restore();
-  kr.solidAt = (x, y, z) => K.carver.solidAt(x, y, z);
-  kr.blockAt = (x, y, z) => K.carver.blockAt(x, y, z);
+  kr.carve = (mn, mx) => K.world.carve(asV(mn), asV(mx));
+  kr.restore = () => K.world.restore();
+  kr.solidAt = (x, y, z) => K.world.solidAt(x, y, z);
+  kr.blockAt = (x, y, z) => K.world.blockAt(x, y, z);
   kr.takeover = (on) => {
     on = !!on; if (on === K.held) return;
     K.held = on; __kryptHold.on = on;
@@ -391,14 +419,14 @@ function resize() {
 }
 
 // The entrance slab: a stone in the first corridor with its line cut on it, turned to face the visitor.
-function buildEntrance(lay, IMG) {
+function buildEntrance(plan, IMG) {
   const empty = !state.graves.length;
   const label = empty ? { title: "Unclaimed", sub: "The first grave" } : { title: "The Krypt", sub: "Walk on" };
   const seed = hash(empty ? "empty" : "entrance");
   const st = buildStone("slab", IMG.grave_stone, { player: "" }, label, 1024, seed, []);
   const grp = new THREE.Group();
   grp.add(st.root);
-  const leg = lay.legs[0];
+  const leg = plan.legs[0];
   const [x, z] = legMap(leg, -2.1, 6.0);
   grp.position.set(x, leg.y0, z);
   grp.rotation.y = Math.PI + legYaw(leg);
@@ -421,7 +449,7 @@ function bakeObject(root, at, normal) {
 // Builds a grave in its alcove: the stone with its engraving and ornaments, and the statue of the player.
 function yearOf(g) { return (String(g.time).match(/\d{4}/) || [""])[0]; }
 function buildGraveAt(i, hi) {
-  const g = state.graves[i], a = K.anchors[i], fr = a.frame;
+  const g = state.graves[i], a = anchorOf(i), fr = a.frame;
   const family = familyFor(g), seed = seedFor(g);
   const ornas = ornaments(g);
   const label = { title: g.player, sub: yearOf(g) };
@@ -494,16 +522,15 @@ function setSkin(entry, img) {
   } catch { /* the steve fallback stays */ }
 }
 
-// Each frame: build the nearest graves, release the far ones, two builds a frame at most.
-function updateBuilds(cam) {
-  if (K.gridMesh) K.gridMesh.pump(cam.x, cam.z, 56, 1);
-  for (let i = 0; i < K.anchors.length; i++) {
-    const a = K.anchors[i];
-    const d = a.p.distanceTo(cam);
-    const built = K.built.get(i);
-    if (!built && d < 30 && state.graves.length && !K.queue.includes(i)) K.queue.push(i);
-    if (built && d > 52 && K.focusI !== i) disposeGraveAt(i);
+// Each frame: build the nearest graves, release the far ones, two builds a frame at most; stream the world's chunks.
+function updateBuilds(cam, chunks = 1) {
+  if (K.world) K.world.update(cam.x, cam.z, chunks);
+  const d = K.held ? cam.distanceTo(K.pos) * 0 + K.walk.s * K.length : K.walk.s * K.length;
+  for (const i of nearSlots(d, 40)) {
+    const a = anchorOf(i);
+    if (!K.built.has(i) && a.p.distanceTo(cam) < 30 && !K.queue.includes(i)) K.queue.push(i);
   }
+  for (const [i] of K.built) { const a = anchorOf(i); if (a.p.distanceTo(cam) > 52 && K.focusI !== i) disposeGraveAt(i); }
   for (let n = 0; n < 2 && K.queue.length; n++) {
     const i = K.queue.shift();
     if (!K.built.has(i)) buildGraveAt(i, K.focusI === i);
@@ -513,7 +540,7 @@ function updateBuilds(cam) {
 // ---- the walk -------------------------------------------------------------------------------
 function walkStep(ds) {
   if (K.held || !K.gateOpen) return;
-  K.autoWalk = null;   // the visitor takes over from ?walk
+  K.autoWalk = null; K.rush = null;   // the visitor takes over from ?walk and from a rush
   K.walk.sT = Math.min(1, Math.max(0, K.walk.sT + ds)); if (K.focusI != null) unfocus();
 }
 const STEP_BLOCKS = 3;          // one wheel notch or arrow key, in blocks
@@ -521,20 +548,22 @@ function perBlock() { return 1 / K.length; }
 
 // The stone nearest along the path, within about three blocks of the camera's place on it.
 function currentIndex() {
-  if (!state.graves.length) return -1;
+  const n = state.graves.length;
+  if (!n) return -1;
+  const d = K.walk.s * K.length, slots = K.plan.slots;
+  const i = Math.min(n - 1, Math.max(0, K.plan.slotAtD(d)));
   let best = -1, bd = Infinity;
-  for (let i = 0; i < K.anchors.length; i++) {
-    const d = Math.abs(K.anchors[i].s - K.walk.s) * K.length;
-    if (d < bd) { bd = d; best = i; }
-  }
+  for (const j of [i - 1, i, i + 1]) if (j >= 0 && j < n) { const q = Math.abs(slots[j].d - d); if (q < bd) { bd = q; best = j; } }
   return bd < 3.4 ? best : -1;
 }
 
-function focusGrave(i, instant = false) {
+function focusGrave(i, instant = false, rush = false) {
   if (!K || !state.graves[i]) return;
+  const a = anchorOf(i);
+  if (rush && !instant && Math.abs(a.d - K.walk.s * K.length) > 90) { rushTo(a.d, () => focusGrave(i, true)); return; }
   K.focusI = i;
-  const a = K.anchors[i];
   K.walk.sT = a.s; K.walk.s = a.s;
+  if (instant) { K.world.ensure(a.p.x, a.p.z, 50); }
   if (!K.built.has(i) || !K.built.get(i).hi) {
     if (K.built.has(i)) disposeGraveAt(i);
     buildGraveAt(i, true);
@@ -555,18 +584,17 @@ function unfocus() {
 function nextFromWalk(dir) {
   const n = state.graves.length;
   if (!n) return -1;
-  const s = K.walk.s, eps = 0.5 / K.length;
-  if (dir > 0) { for (let i = 0; i < n; i++) if (K.anchors[i].s > s + eps) return i; return -1; }
-  for (let i = n - 1; i >= 0; i--) if (K.anchors[i].s < s - eps) return i;
-  return -1;
+  const d = K.walk.s * K.length, eps = 0.5, slots = K.plan.slots;
+  if (dir > 0) { let i = Math.max(0, K.plan.slotAtD(d + eps)); while (i < n && slots[i].d <= d + eps) i++; return i < n ? i : -1; }
+  let i = Math.min(n - 1, K.plan.slotAtD(d - eps)); while (i >= 0 && slots[i].d >= d - eps) i--; return i >= 0 ? i : -1;
 }
 function focusStep(dir) {
   if (K.focusI == null) return;
   const n = state.graves.length;
-  focusGrave((K.focusI + dir + n) % n);
+  focusGrave((K.focusI + dir + n) % n, false, true);
 }
 function focusCamera(i) {
-  const a = K.anchors[i], fr = a.frame;
+  const a = anchorOf(i), fr = a.frame;
   // Back along the alcove's centre line, far enough that the stone fills about a third of the frame height
   // (about 2.4 blocks of distance per block of stone), so each family is framed by its own height.
   const H = STONE_HEIGHT[familyFor(state.graves[i])] || 1.8;
@@ -577,50 +605,139 @@ function focusCamera(i) {
   return { pos: p, look: l };
 }
 
+// A long way down the path is never a hard cut: the view rushes forward into fog and a blur, the world is built behind
+// it, and the fog clears as the last stretch glides in. `then` runs when the walker is in place.
+function rushTo(dTarget, then, lead = 26) {
+  if (!K.gateOpen && !DUMP) { K.walk.sT = K.walk.s = dTarget / K.length; then && then(); return; }
+  if (K.focusI != null) unfocus();
+  K.autoWalk = null;
+  const from = K.walk.s * K.length, dir = dTarget >= from ? 1 : -1;
+  K.rush = { phase: 0, t: 0, from, to: dTarget, dir, lead, then, fog: 0 };
+}
+function stepRush(dt) {
+  const R = K.rush; if (!R) { if (K.rushFog) { K.rushFog = 0; }; return; }
+  R.t += dt;
+  const L = K.length;
+  if (R.phase === 0) {
+    // Accelerate forward (or back) a few blocks while the fog rises.
+    const T = 0.42, u = Math.min(1, R.t / T);
+    K.walk.sT = K.walk.s = Math.min(1, Math.max(0, (R.from + R.dir * (u * u * 7)) / L));
+    R.fog = smooth01(u);
+    if (u >= 1) {
+      // Fog at its thickest: jump to the lead-in point and build the world there, a chunk a frame while the fog holds.
+      const d = Math.max(0, Math.min(L, R.to - R.dir * R.lead));
+      K.walk.sT = K.walk.s = d / L; R.phase = 1; R.t = 0; K.snap = true;
+      plan_point(d); K.pos.set(_pt[0], _pt[1], _pt[2]);
+    }
+  } else if (R.phase === 1) {
+    R.fog = 1;
+    const left = K.world.update(K.pos.x, K.pos.z, 1);
+    if (left <= 0 || R.t > 3) { R.phase = 2; R.t = 0; }
+  } else {
+    // Glide the lead-in distance, easing out, while the fog clears.
+    const T = 1.15, u = Math.min(1, R.t / T), e = 1 - (1 - u) * (1 - u);
+    const d = Math.max(0, Math.min(L, R.to - R.dir * R.lead * (1 - e)));
+    K.walk.sT = K.walk.s = d / L;
+    R.fog = 1 - smooth01(Math.min(1, u * 1.15));
+    if (u >= 1) { const f = R.then; K.rush = null; K.rushFog = 0; f && f(); return; }
+  }
+  K.rushFog = R.fog;
+}
+function plan_point(d) { K.plan.pointAt(d, _pt); }
+
+// The jump over a gap, a function of where the walker is along it (so it works at any speed and either way): a crouch on
+// the way in, an arc over the gap, a dip on landing. Returns the camera's height offset and pitch.
+const JUMP = { pre: 1.5, crouch: 0.26, apex: 0.95, land: 0.34 };
+function gapOffsets(d) {
+  const gaps = K.plan.gaps;
+  if (!gaps.length) return null;
+  // The gap whose span is nearest d (binary search by its start).
+  let lo = 0, hi = gaps.length - 1;
+  while (lo < hi) { const mid = (lo + hi + 1) >> 1; if (gaps[mid].d0 <= d) lo = mid; else hi = mid - 1; }
+  let g = gaps[lo];
+  if (lo + 1 < gaps.length && Math.abs(gaps[lo + 1].d0 - d) < Math.abs(g.d1 - d)) g = gaps[lo + 1];
+  const take = g.d0 - 0.5, air = (g.d1 - g.d0) + 1.0, x = d - take;
+  if (x < -3.6 || x > air + 1.2) return { gap: g, x, y: 0, pitch: 0, phase: 0 };
+  const sm = (v) => smooth01(v);
+  let y = 0, pitch = 0, phase = 0;
+  if (x < 0) { y = -JUMP.crouch * sm((x + JUMP.pre) / JUMP.pre); pitch = 0.05 * sm((x + JUMP.pre) / JUMP.pre); phase = 1; }          // crouch before the take-off
+  else if (x <= air) {
+    const t = x / air;
+    y = JUMP.apex * 4 * t * (1 - t) - JUMP.crouch * (1 - sm(x / 0.45));                                                       // the arc, released from the crouch
+    pitch = -0.1 * Math.sin(Math.PI * t) + 0.07 * sm((t - 0.6) / 0.4);                                                         // up to the far side, then down to the floor
+    phase = 2;
+  } else { const t = Math.min(1, (x - air) / 0.9); y = -JUMP.land * Math.sin(Math.PI * t) * (1 - 0.3 * t); pitch = 0.08 * Math.sin(Math.PI * t); phase = 3; }
+  return { gap: g, x, air, y, pitch, phase };
+}
+// Gap events: the krypt-gap event (once per approach, before the take-off), and the sounds of the jump.
+function gapEvents(go, dir, speed) {
+  const S = K.gapState || (K.gapState = { idx: -1, announced: false, taken: false, ph: 0 });
+  if (!go || Math.abs(go.x - (go.air || 3) / 2) > 12) { if (S.idx >= 0 && (!go || go.gap.leg !== S.idx || Math.abs(go.x) > 9)) { S.idx = -1; S.announced = false; S.taken = false; S.ph = 0; } return; }
+  if (S.idx !== go.gap.leg) { S.idx = go.gap.leg; S.announced = false; S.taken = false; S.ph = 0; }
+  if (!S.announced && dir > 0 && go.x > -3.4 && go.x < -0.6 && Math.abs(speed) > 0.35) {
+    S.announced = true;
+    const detail = { gap: { s: go.gap.d / K.length, pos: new THREE.Vector3(go.gap.x, go.gap.y, go.gap.z), dir: new THREE.Vector3(go.gap.dx, 0, go.gap.dz), width: go.gap.width, kind: go.gap.kind, side: go.gap.side }, takeover() { S.taken = true; } };
+    window.dispatchEvent(new CustomEvent("krypt-gap", { detail }));
+  }
+  if (S.taken) return;
+  if (go.phase !== S.ph) {
+    const ph = go.phase;
+    if (K.gateOpen && !DUMP && !K.held) {
+      if ((S.ph === 1 && ph === 2) || (S.ph === 3 && ph === 2)) { audio.play("step.stone", { volume: 0.5, pitch: 0.9 }); audio.play("step.stone", { volume: 0.35, pitch: 1.1, delay: 0.07 }); }
+      if ((S.ph === 2 && ph === 3) || (S.ph === 2 && ph === 1)) { audio.play("step.stone", { volume: 0.85, pitch: 0.62 }); audio.play("dig.gravel", { volume: 0.25, pitch: 0.8, delay: 0.04 }); }
+    }
+    S.ph = ph;
+  }
+}
+
 function frame(now) {
   if (!K) return;
   requestAnimationFrame(frame);
   try { frameInner(now); } catch (e) { if (!K.logged) { K.logged = 1; console.error("frame", e && e.stack); window.__errs = (window.__errs || []).concat(String(e && e.stack || e)); document.documentElement.dataset.err = String(e && e.stack || e).slice(0, 900); } }
 }
-const _f = new THREE.Vector3(), _d = new THREE.Vector3();
+const _f = new THREE.Vector3(), _d = new THREE.Vector3(), _wp = new THREE.Vector3(), _wl = new THREE.Vector3();
 function frameInner(now) {
   if (!K.visible || document.hidden) { K.last = now; return; }
   const dt = Math.max(0, Math.min(0.05, (now - K.last) / 1000)); K.last = now;
   const t = now / 1000;
   const W = K.walk;
   const L = K.length;
+  stepRush(dt);
   // Damped walk, yaw and pitch.
   const sPrev = W.s;
-  W.s += (W.sT - W.s) * (1 - Math.exp(-dt * 4.2));
+  if (!K.rush) W.s += (W.sT - W.s) * (1 - Math.exp(-dt * 4.2));
   W.yaw += (W.yawT - W.yaw) * (1 - Math.exp(-dt * 5));
   W.pitch += (W.pitchT - W.pitch) * (1 - Math.exp(-dt * 5));
   if (K.autoWalk && K.focusI == null) {
     if (K.autoWalk.t0 == null) K.autoWalk.t0 = now;
     W.sT = Math.min(1, (now - K.autoWalk.t0) / 1000 / K.autoWalk.dur);
   }
-  const vs = dt > 0 ? (W.s - sPrev) * L / dt : 0;
+  const vs = dt > 0 && !K.rush ? (W.s - sPrev) * L / dt : 0;
   K.speed += (vs - K.speed) * (1 - Math.exp(-dt * 6));
   if (Math.abs(K.speed) > 0.3 && !K.held && K.focusI == null && K.gateOpen) K.activeSeconds += dt;
   const u = Math.min(1, Math.max(0, W.s));
+  const dW = u * L;
   const focusing = K.focusI != null;
-  const prof = profileAt(K.lay, u);
-  K.prof = prof;
+  const prof = K.plan.profileAtD(dW, K.profTmp);
+  K.prof = prof; K.stratum = prof.stratum;
 
+  let jump = null;
   if (!K.held) {
     const bob = (focusing ? 0 : 1) * (Math.sin(t * 2.3) * 0.012 + Math.sin(t * 1.1) * 0.006);
-    const wp = K.curve.getPointAt(u);
-    const wl = u < 0.992 ? K.curve.getPointAt(Math.min(1, u + 6 / L)) : wp.clone().addScaledVector(K.curve.getTangentAt(u), 6);
-    wp.y += bob;
+    K.plan.pointAt(dW, _pt); _wp.set(_pt[0], _pt[1] + bob, _pt[2]);
+    if (dW < L - 6.5) { K.plan.pointAt(dW + 6, _pt2); _wl.set(_pt2[0], _pt2[1], _pt2[2]); }
+    else { K.plan.pointAt(L - 6.5, _pt); K.plan.pointAt(L, _pt2); _wl.copy(_wp).add(_d.set(_pt2[0] - _pt[0], 0, _pt2[2] - _pt[2]).normalize().multiplyScalar(6)); }
+    const wp = _wp, wl = _wl;
     wl.y = wl.y - 0.1 + W.pitch * 1.2 + K.fPitch * 6 + (prof.pitch || 0) * 6;
     // Passing focus: as an alcove comes near the view eases toward its stone, holds while it is the nearest, and
     // eases back to the corridor as you move on. Damped, and weaker when you are flying past.
     let fyT = 0, fpT = 0, offT = null;
     if (!focusing && K.gateOpen && state.graves.length) {
       let best = -1, bd = Infinity;
-      for (let i = 0; i < K.anchors.length; i++) { const d = Math.abs(K.anchors[i].s - u) * L; if (d < bd) { bd = d; best = i; } }
+      for (const i of nearSlots(dW, 9)) { const q = Math.abs(K.plan.slots[i].d - dW); if (q < bd) { bd = q; best = i; } }
       if (best >= 0 && bd < 8) {
-        const an = K.anchors[best];
-        const sd = (an.s - u) * L;                 // positive: the stone is still ahead
+        const an = anchorOf(best);
+        const sd = an.d - dW;                      // positive: the stone is still ahead
         _f.set(wl.x - wp.x, 0, wl.z - wp.z).normalize();
         _d.set(an.p.x - wp.x, 0, an.p.z - wp.z).normalize();
         const th = Math.atan2(_f.z * _d.x - _f.x * _d.z, _f.x * _d.x + _f.z * _d.z);
@@ -647,39 +764,55 @@ function frameInner(now) {
     const k = K.snap ? 1 : 1 - Math.exp(-dt * (focusing ? 2.4 : 3.6));
     K.pos.lerp(tp, k); K.look.lerp(tl, k);
     K.snap = false;
+    // The jump over a gap: crouch, arc, landing. A listener of krypt-gap may take it over (a failed jump).
+    if (!focusing && K.gateOpen) {
+      jump = gapOffsets(dW);
+      gapEvents(jump, Math.sign(K.speed) || 1, K.speed);
+      if (K.gapState && K.gapState.taken && jump && jump.phase) jump = null;
+    }
     // ?cam=x,y,z,lx,ly,lz: a verification camera, for close shots of one thing.
     if (QS.has("cam")) { const c = QS.get("cam").split(",").map(Number); K.pos.set(c[0], c[1], c[2]); K.look.set(c[3], c[4], c[5]); }
     K.camera.position.copy(K.pos);
     K.camera.lookAt(K.look);
+    if (jump && jump.phase) {
+      K.camera.position.y += jump.y;
+      K.camera.rotateX(jump.pitch);
+      K.jumpFov = jump.phase === 2 ? Math.sin(Math.PI * Math.min(1, jump.x / jump.air)) * 3.2 : 0;
+    } else K.jumpFov = 0;
   }
   K.camera.updateMatrixWorld();
+  // The fov follows the rush (a widening) and the jump (a small kick).
+  const fov = K.baseFov + (K.rushFog || 0) * 16 + (K.jumpFov || 0);
+  if (Math.abs(K.camera.fov - fov) > 0.01) { K.camera.fov = fov; K.camera.updateProjectionMatrix(); }
 
   // Lighting by depth: fog, exposure and bloom follow the profile; the baked light was built from the same table.
-  K.scene.fog.color.setRGB(prof.fog[0], prof.fog[1], prof.fog[2]);
+  const rf = K.rushFog || 0;
+  K.scene.fog.color.setRGB(prof.fog[0] * (1 - rf) + 0.05 * rf, prof.fog[1] * (1 - rf) + 0.05 * rf, prof.fog[2] * (1 - rf) + 0.07 * rf);
   K.scene.background.copy(K.scene.fog.color);
-  K.scene.fog.density = prof.fogD;
+  K.scene.fog.density = prof.fogD + rf * 0.22;
   K.renderer.toneMappingExposure = prof.exposure;
   K.bloom.strength = prof.bloom;
-  K.sky.position.x = K.pos.x; K.sky.position.z = K.pos.z;
+  if (rf > 0.02 !== !!K.rushBlur) { K.rushBlur = rf > 0.02; }
+  if (!state.phone) { const px = (rf * 5).toFixed(1); if (px !== K.blurPx) { K.blurPx = px; $("#gl").style.filter = rf > 0.02 ? `blur(${px}px)` : ""; } }
+  K.sky.position.x = K.pos.x; K.sky.position.z = K.pos.z; K.sky.position.y = K.pos.y + 62;
   updateLights(t, dt, prof);
   K.hemi.intensity = 0.32 * (1 - 0.5 * K.focusAmt) * (K.lightFx ? K.lightFx.scaleNow() : 1);
   if (K.focusI != null) {
-    const fr = K.anchors[K.focusI].frame, leg = fr.leg;
+    const fr = anchorOf(K.focusI).frame, leg = fr.leg;
     const fw = legDir(leg);
     K.spot.position.set(fr.centre.x - fw[0] * 2.4, fr.centre.y + 3.4, fr.centre.z - fw[1] * 2.4);
     K.spot.target.position.set(fr.stone.x, fr.stone.y + 0.6, fr.stone.z);
     K.spot.intensity = 14 * K.focusAmt;
   } else K.spot.intensity = 0;
-  K.dress.update(t, dt, K.pos);
+  K.dresser.update(t, dt, K.pos);
   if (K.lightFx) { K.lightFx.update(dt); K.refreshNear(false); }
   K.fx.update(dt, K.pos, K.renderer.domElement.height, K.camera.fov * Math.PI / 180, K.lightFx ? K.lightFx.factor : null);
   K.grade.uniforms.time.value = t;
   // While a scare holds the player the camera is theirs: build the chunks and the stones around it, not around K.pos.
-  updateBuilds(K.held ? K.camera.position : K.pos);
+  updateBuilds(K.held ? K.camera.position : K.pos, K.rush ? 0 : 1);
   // Sound: the walk's own steps, ambience, and the listener.
   if (K.gateOpen && !DUMP) {
-    const leg = legAt(K.lay, K.pos.x, K.pos.z);
-    K.amb.tick(dt, K.pos, { s: W.s, speed: K.speed }, leg ? leg.leg.kind : "crypt", K.held);
+    K.amb.tick(dt, K.pos, { s: W.s, speed: K.speed }, prof.kind, K.held);
     audio.updateListener(K.camera);
   }
   K.composer.render();
@@ -693,9 +826,9 @@ function runDump() {
   K.visible = true;
   const now = performance.now();
   frameInner(now);
-  K.gridMesh.pump(K.pos.x, K.pos.z, 60, 400);
+  K.world.ensure(K.pos.x, K.pos.z, 60);
   if (QS.has("carve")) { const c = QS.get("carve").split(",").map(Number); window.__krypt.carve([c[0], c[1], c[2]], [c[0] + c[3] - 1, c[1] + c[4] - 1, c[2] + c[5] - 1]); }
-  for (let n = 0; n < 80; n++) updateBuilds(K.pos);
+  for (let n = 0; n < 80; n++) updateBuilds(K.pos, 0);
   // A second of particles and a settled flame, so the torches show their small fire.
   for (let q = 0; q < 40; q++) { frameInner(now + 16 + q * 30); }
   dumpShot();
@@ -705,10 +838,14 @@ function dumpShot() {
   K.renderer.info.autoReset = false; K.renderer.info.reset();
   K.composer.render();
   const png = K.renderer.domElement.toDataURL("image/png");
+  const w = K.world.stats();
   const info = {
-    url: location.search, focusI: K.focusI ?? null, nearI: K.nearI ?? null, walkS: K.walk.s, pos: K.pos.toArray(), look: K.look.toArray(),
-    fYaw: K.fYaw, fPitch: K.fPitch, kind: K.prof && K.prof.kind, built: K.built.size, queued: K.queue.length, graves: state.graves.length,
-    torches: K.grid.torches.length, mesh: K.gridMesh.stats(), calls: K.renderer.info.render.calls, tris: K.renderer.info.render.triangles, carved: window.__krypt.blockAt(Math.floor(K.pos.x), Math.floor(K.pos.y), Math.floor(K.pos.z)), lights: K.lights.map(l => +l.pl.intensity.toFixed(2)), errors: window.__errs || [], sfx: sfxLog.slice(0, 40)
+    url: location.search, focusI: K.focusI ?? null, nearI: K.nearI ?? null, walkS: K.walk.s, walkD: K.walk.s * K.length, pos: K.pos.toArray(), look: K.look.toArray(),
+    fYaw: K.fYaw, fPitch: K.fPitch, kind: K.prof && K.prof.kind, stratum: K.stratum && K.stratum.name, built: K.built.size, queued: K.queue.length, graves: state.graves.length,
+    torches: K.agg.torches.length, mesh: w, calls: K.renderer.info.render.calls, tris: K.renderer.info.render.triangles,
+    heap: performance.memory ? Math.round(performance.memory.usedJSHeapSize / 1048576) : null, length: Math.round(K.length), legs: K.plan.legs.length, strata: K.plan.strata.length,
+    carved: window.__krypt.blockAt(Math.floor(K.pos.x), Math.floor(K.pos.y), Math.floor(K.pos.z)), lights: K.lights.map(l => +l.pl.intensity.toFixed(2)), errors: window.__errs || [], sfx: sfxLog.slice(0, 40),
+    jump: (() => { const g = gapOffsets(K.walk.s * K.length); return g ? { x: +g.x.toFixed(2), y: +g.y.toFixed(3), phase: g.phase, kind: g.gap.kind } : null; })()
   };
   const sc = document.createElement("script");
   sc.type = "application/json"; sc.id = "dumpshot";
@@ -720,7 +857,7 @@ function dumpShot() {
 function updateLights(t, dt, prof) {
   const cam = K.pos;
   const near = [];
-  for (const s of K.dyn) { const d2 = (s.x - cam.x) ** 2 + (s.y - cam.y) ** 2 + (s.z - cam.z) ** 2; if (d2 < 16 * 16) near.push([d2, s]); }
+  for (const s of K.agg.dyn) { const d2 = (s.x - cam.x) ** 2 + (s.y - cam.y) ** 2 + (s.z - cam.z) ** 2; if (d2 < 16 * 16) near.push([d2, s]); }
   near.sort((a, b) => a[0] - b[0]);
   const want = near.slice(0, K.lights.length).map(e => e[1]);
   for (const L of K.lights) {
@@ -730,13 +867,13 @@ function updateLights(t, dt, prof) {
   for (const s of want) {
     if (K.lights.some(L => L.src === s)) continue;
     const free = K.lights.find(L => !L.src);
-    if (free) { free.src = s; free.amt = 0; }
+    if (free) { free.src = s; free.amt = 0; if (s.ph === undefined) s.ph = (Math.abs(Math.floor(s.x * 7 + s.z * 13)) % 100) / 10; }
   }
   for (const L of K.lights) {
     const s = L.src;
     if (!s) { L.pl.intensity = 0; continue; }
     const fl = 0.9 + 0.1 * (Math.sin(t * 9.1 + s.ph) * 0.5 + Math.sin(t * 23.7 + s.ph * 2) * 0.5) + (Math.random() - 0.5) * 0.04;
-    const boost = K.focusI != null && s.dyn && K.anchors[K.focusI] && K.anchors[K.focusI].p.distanceTo(new THREE.Vector3(s.x, s.y, s.z)) < 5 ? 1 + 0.4 * K.focusAmt : 1;
+    const boost = K.focusI != null && s.dyn && anchorOf(K.focusI).p.distanceTo(_d.set(s.x, s.y, s.z)) < 5 ? 1 + 0.4 * K.focusAmt : 1;
     L.pl.position.set(s.x, s.y, s.z);
     L.pl.color.setRGB(s.c[0], s.c[1], s.c[2]);
     L.pl.intensity = s.I * 0.5 * (s.sky ? 1 : (s.lava ? 1 : prof.torch)) * fl * boost * L.amt * (K.lightFx ? K.lightFx.factor(s.x, s.y, s.z) : 1);
@@ -759,6 +896,7 @@ function bindInput(cv) {
   let drag = null;
   stage.addEventListener("pointerdown", e => {
     if (!K.gateOpen || K.held || e.target.closest(".sheet, .hud-btn, .strip, .search, .gate")) return;
+    K.rush = null; K.rushFog = 0;
     drag = { x: e.clientX, y: e.clientY, t: performance.now(), moved: 0, id: e.pointerId, sT: K.walk.sT, yaw: K.walk.yawT };
     stage.setPointerCapture?.(e.pointerId);
   });
@@ -799,6 +937,10 @@ function bindInput(cv) {
     }
     if (k === "ArrowDown" || k === "s" || k === "S") { e.preventDefault(); walkStep(STEP_BLOCKS * perBlock()); return; }
     if (k === "ArrowUp" || k === "w" || k === "W") { e.preventDefault(); walkStep(-STEP_BLOCKS * perBlock()); return; }
+    if (k === "PageDown") { e.preventDefault(); goStratum(1); return; }
+    if (k === "PageUp") { e.preventDefault(); goStratum(-1); return; }
+    if (k === "Home") { e.preventDefault(); goTo(6, 12); return; }
+    if (k === "End") { e.preventDefault(); jumpNewest(); return; }
     if (k === "Enter") {
       if (K.focusI == null) { const c = currentIndex(); if (c >= 0) { e.preventDefault(); focusGrave(c); } }
     }
@@ -860,13 +1002,30 @@ function setHUD() {
   $("#hudName").textContent = g ? g.player : "Walking the Krypt";
   $("#hudSub").textContent = g ? `${g.message}` : (state.graves.length ? "Scroll to walk. Click a stone to read it." : "");
   hud.dataset.focus = K.focusI != null ? "1" : "0";
+  gauge();
   // Ticks.
   for (const t of document.querySelectorAll(".tick")) t.classList.toggle("on", Number(t.dataset.i) === i);
+}
+// The depth gauge: the stratum you are in and the number of the nearest stone.
+function nearestIndex() {
+  const n = state.graves.length;
+  if (!n) return -1;
+  const d = K.walk.s * K.length, slots = K.plan.slots;
+  const i = Math.min(n - 1, Math.max(0, K.plan.slotAtD(d)));
+  const j = Math.min(n - 1, i + 1);
+  return Math.abs(slots[j].d - d) < Math.abs(slots[i].d - d) ? j : i;
+}
+function gauge() {
+  const k = $("#hudK"); if (!k || !K) return;
+  const st = K.stratum, i = K.focusI != null ? K.focusI : nearestIndex();
+  const txt = (st ? st.name : "The Krypt") + (i >= 0 ? ` · stone ${i + 1} of ${state.graves.length}` : "");
+  if (k.textContent !== txt) k.textContent = txt;
 }
 let hudAt = 0;
 function updateHUDLive() {
   const now = performance.now();
-  if (now - hudAt < 120) { $("#marker").style.left = (K.walk.s * 100).toFixed(2) + "%"; return; }
+  const pct = (K.walk.s * 100).toFixed(3) + "%";
+  if (now - hudAt < 120) { $("#marker").style.left = pct; return; }
   hudAt = now;
   if (K.focusI == null) {
     const i = currentIndex();
@@ -874,39 +1033,67 @@ function updateHUDLive() {
     const name = cur ? cur.player : "Walking the Krypt";
     if ($("#hudName").textContent !== name) setHUD();
   }
-  $("#marker").style.left = (K.walk.s * 100).toFixed(2) + "%";
-  for (const t of document.querySelectorAll(".tick")) t.classList.toggle("near", Math.abs(Number(t.dataset.s) - K.walk.s) < 0.012);
+  gauge();
+  $("#marker").style.left = pct;
+  if (K.ticks) { const d = K.walk.s * K.length; for (const t of K.ticks) t.el.classList.toggle("near", Math.abs(t.d - d) < 3); }
 }
 function buildMinimap() {
   const strip = $("#ticks"); strip.textContent = "";
-  state.graves.forEach((g, i) => {
-    const a = K.anchors[i];
-    const b = el("button", "tick");
-    b.type = "button"; b.dataset.i = i; b.dataset.s = a.s.toFixed(4);
-    b.style.left = (a.s * 100).toFixed(2) + "%";
-    b.setAttribute("aria-label", `${g.player}, ${absolute(g.time)}`);
-    b.title = `${g.player} · ${absolute(g.time)}`;
-    b.addEventListener("click", () => focusGrave(i));
-    strip.append(b);
-  });
   const track = $("#strip");
+  K.ticks = null;
+  if (state.graves.length <= 300) {
+    K.ticks = [];
+    state.graves.forEach((g, i) => {
+      const a = anchorOf(i);
+      const b = el("button", "tick");
+      b.type = "button"; b.dataset.i = i; b.dataset.s = a.s.toFixed(4);
+      b.style.left = (a.s * 100).toFixed(2) + "%";
+      b.setAttribute("aria-label", `${g.player}, ${absolute(g.time)}`);
+      b.title = `${g.player} · ${absolute(g.time)}`;
+      b.addEventListener("click", () => focusGrave(i, false, true));
+      strip.append(b); K.ticks.push({ el: b, d: a.d });
+    });
+  } else {
+    // Too many stones for a tick each: the strata as bands along the strip.
+    for (const st of K.plan.strata) {
+      const b = el("i", "band");
+      b.style.left = (st.d0 / K.length * 100).toFixed(3) + "%"; b.style.width = Math.max(0.15, (st.d1 - st.d0) / K.length * 100).toFixed(3) + "%";
+      b.style.background = st.def.color || "rgba(150,120,200,.25)"; b.title = st.name;
+      strip.append(b);
+    }
+  }
+  const meta = document.querySelector(".strip-meta");
+  if (meta) { const sp = meta.querySelectorAll("span"); if (sp.length > 1) sp[1].textContent = state.graves.length > 300 ? `Stone ${state.graves.length.toLocaleString()}` : "Newest"; }
   track.addEventListener("pointerdown", e => {
     if (e.target.closest(".tick")) return;
     const r = track.getBoundingClientRect();
     const s = Math.min(1, Math.max(0, (e.clientX - r.left) / r.width));
     if (K.focusI != null) unfocus();
-    K.walk.sT = s;
+    goTo(s * K.length);
   });
+}
+// Walk to a distance on the path: a short way as a walk, a long way as a rush.
+function goTo(d, lead) {
+  if (Math.abs(d - K.walk.s * K.length) > 90) rushTo(d, null, lead != null ? lead : 14);
+  else K.walk.sT = d / K.length;
+}
+function goStratum(dir) {
+  const d = K.walk.s * K.length, S = K.plan.strata;
+  let k = S.findIndex(st => d >= st.d0 && d < st.d1); if (k < 0) k = d >= S[S.length - 1].d0 ? S.length - 1 : 0;
+  let target;
+  if (dir > 0) target = k + 1 < S.length ? S[k + 1].d0 + 8 : K.length - 4;
+  else target = d - S[k].d0 > 30 ? S[k].d0 + 8 : (k > 0 ? S[k - 1].d0 + 8 : 6);
+  goTo(target, 20);
 }
 function jumpNewest() {
   if (!state.graves.length) return;
-  focusGrave(state.graves.length - 1);
+  focusGrave(state.graves.length - 1, false, true);
 }
 function searchPlayer(name) {
   const idx = state.graves.map((g, i) => [g, i]).filter(([g]) => g.player.toLowerCase() === name.toLowerCase());
   if (!idx.length) { $("#searchNote").textContent = `No stone for "${name}".`; return; }
   $("#searchNote").textContent = `${idx.length} ${idx.length === 1 ? "stone" : "stones"} for ${idx[0][0].player}. Newest shown.`;
-  focusGrave(idx[idx.length - 1][1]);
+  focusGrave(idx[idx.length - 1][1], false, true);
 }
 
 // Buttons in the HUD and the sheet.
