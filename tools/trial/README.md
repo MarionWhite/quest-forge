@@ -41,7 +41,7 @@ trial went fullscreen over the owner's game and console windows took focus.
   The hider now checks the foreground window every 10 ms (first 40 s) and every 50 ms after, for the
   JVM's whole life: if it is ours, it hands focus straight back to the owner's last window
   (`AttachThreadInput` + `SetForegroundWindow`, the taskbar if that window is gone), pushes ours
-  to the bottom of the z-order, and appends a line to `logsocus.log`. Expect one line per launch,
+  to the bottom of the z-order, and appends a line to `logs\focus.log`. Expect one line per launch,
   at window creation, when the owner is idle; it is returned within one poll (a 1-s sampler never
   saw it, 4 launches). `trial.py status` prints every line for running clients; `bench_round.py`
   prints them loudly and fails the run (exit 4) if focus was not handed straight back.

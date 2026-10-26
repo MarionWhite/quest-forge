@@ -129,21 +129,18 @@ Measured on 6 views at 1440p: 41 W GPU mean at 30 fps against 233 W uncapped, fa
 
 ## The FrameBench jar
 
-The runner loads `C:\qfbenderq\jars\QuestForgeContent-1.0.0.jar`, qf-content built with
+The runner loads `C:\qfb\renderq\jars\QuestForgeContent-1.0.0.jar`, qf-content built with
 `-PqfDebugTools=true` (in a worktree: `.\gradlew.bat build -PqfDebugTools=true -x test` in
 `mods/qf-content`, then copy `build\libs\QuestForgeContent-1.0.0.jar` there). It never goes into
 the live instance. A new jar changes every cache key, so everything re-renders once.
 
 ## Reference frames from other packs (internal only)
 
-`specs
-eferences.json` renders the r007 views once with Complementary Reimagined and Unbound
-r5.9.3, Photon v1.4 and BSL 10.1.8, unmodified, at their defaults, into `C:\qfb\shaderdev
-efs`
+`specs\references.json` renders the r007 views once with Complementary Reimagined and Unbound
+r5.9.3, Photon v1.4 and BSL 10.1.8, unmodified, at their defaults, into `C:\qfb\shaderdev\refs`
 (`refcr`, `refcu`, `refph`, `refbsl`). They are for the critic's comparison and NEVER go on the
 site: none of those licences allows it. The zips come from each pack's official Modrinth project,
-sha512-checked, in `C:\qfb
-efpacks\<name>\dl\` (Unbound in `C:\qfb\dl\complementary`).
+sha512-checked, in `C:\qfb\refpacks\<name>\dl\` (Unbound in `C:\qfb\dl\complementary`).
 Complementary and BSL render correctly under Angelica on 1.7.10. Photon v1.4 does not (flat
 yellow terrain, plain blue sky), so `refph` is not a reference. Being cached, they re-render only
 when the world, the views or the jars change.
