@@ -39,6 +39,10 @@ Written in direction.md section 6:
 - BAD: v1 clear glass draws Angelica's built-in 16x CTM (key = rule file basename; ours was clear_glass). Fix: name rules glass.properties / glasspane.properties / <col>_stained_glass[pane] like Angelica.
 - Wheat stage 7 too orange: paler WHEAT_GOLD. Grass top/fern left as is (owner question).
 
+## Iteration b (committed)
+- Clear glass now at ctm/glass/glass.properties + tiles (Angelica's path); panes *glasspane. Wheat gold paler.
+- **1025-221933-textures-v1b submitted 22:20** (spec textures-v1b.json): re-renders t8v1 (7 scenes), t8e1/t8e2 leaves, t8p1 glass. Wait on it, review glass + wheat, then step 4.
+
 ## Next
 1. `renderq.py results 1025-211536-textures-v1`. Review crops with C:\qfb\textures\v1work\cmp.py (scene, tags, crop, scale).
 2. If needed:
