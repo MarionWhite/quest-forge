@@ -247,3 +247,36 @@ ounds`):
   every view.
 - In forest_lit, QF v0 is almost identical to vanilla, by design. On the wall it has Faithful's
   detail with vanilla's grass.
+
+### Shipping (decision 0006, 2026-10-25)
+
+The owner decided ([decisions/0006](../../decisions/0006-textures-ship-and-panes.md)) that QF
+Textures ships with the pack as a built zip, and that glass panes connect
+(`connected_textures { B:glassPane=true }` in `config/mcpatcherforge.cfg`: now in
+`pack/config/`, installed into the live client with `trial.py install`, and in every trial and
+release built from it; the showcase wall's top row holds panes for the next render round).
+
+**One zip, one command:**
+
+```
+py -3.10 -I tools/textures/build_ship.py --out C:\qfb\textures\QFTextures.zip
+```
+
+`tools/textures/build_ship.py` runs `build_qf_textures.py` (QF v0) and `build_modded_textures.py`
+(modded v1, [modded-blocks.md](modded-blocks.md) section 4b) and merges them: one `pack.mcmeta`,
+one `CREDITS.txt` (v0's credits, then v1's generated per-file records, both Faithful zips with
+their sha256), `LICENSE-Faithful.txt` once, and every other member of both (they share no path,
+which the merge asserts).
+
+- **`C:\qfb\textures\QFTextures.zip`**, built 2026-10-25: **5,204,668 bytes (5.2 MB)**, sha256
+  `5044df51e593abe9553c651afe9ef9a0893d5e3992417d3bdb18980b7e897ef9`, 9,366 members plus the
+  three shared files, 3.7 s. Rebuild it after any change to either builder or their lists; the
+  hash changes with every build (PNG encoding is deterministic, but the dates in CREDITS are
+  not), so the record above is of that build.
+- Never committed: it carries vanilla's pixels (recoloured) and the mods' pixels (re-arranged).
+- **Release:** `tools/release/build_client_release.py --textures` (the default path above) copies
+  the zip into `resourcepacks\` and selects it in `options.txt` after the packs already selected
+  (`resourcePacks:["QuestForge.zip","QFTextures.zip"]`; the branding pack has no block textures,
+  so the order does not matter today); the Angelica edition inherits both. The client profiles
+  (`tools/lite-client/profiles/*.json`, `resourcepacks` section) select it on apply and leave the
+  selection alone when the zip is missing.
