@@ -258,6 +258,17 @@ public class WeaponEnchants2 {
             return 5 * level;
         }
 
+        /**
+         * "Does nothing while Excalibur is held." Both grant Strength I and
+         * potion effects do not stack, so the pair measured -43 to -57 points
+         * against independence with no sign to the player (decision 0005 P4; the
+         * proc rates stay 5/10/15%, the census found no cliff to fix).
+         */
+        @Override
+        public String tooltipNote() {
+            return "enchantment.qf.rage.note";
+        }
+
         @Override
         public void onAttack(ProcContext ctx) {
             if (ctx.user == null || ctx.world.isRemote) return;
@@ -425,6 +436,12 @@ public class WeaponEnchants2 {
         @Override
         public Phase getPhase() {
             return Phase.FLAT;
+        }
+
+        /** The mirror of Rage's note: its Strength I is already on this. */
+        @Override
+        public String tooltipNote() {
+            return "enchantment.qf.excalibur.note";
         }
 
         @Override

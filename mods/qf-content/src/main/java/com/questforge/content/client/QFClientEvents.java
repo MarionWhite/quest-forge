@@ -1,7 +1,13 @@
 package com.questforge.content.client;
 
+import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.StatCollector;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
+import net.minecraftforge.event.entity.player.ItemTooltipEvent;
+
+import com.questforge.content.ench.EnchantDispatcher;
+import com.questforge.content.ench.ItemEnchantBook;
 
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
@@ -40,6 +46,27 @@ public class QFClientEvents {
         if (level <= 0) return;
 
         com.questforge.content.ench.enchants.ArmorEnchants.Flippers.apply(mc.thePlayer, level);
+    }
+
+    /**
+     * One line per custom enchantment on the item that has something a player
+     * has to know (QFEnchantment.tooltipNote): Rage's "does nothing while
+     * Excalibur is held", and Excalibur's mirror of it (decision 0005 P4). The
+     * book gets the same line from ItemEnchantBook.addInformation; this is for
+     * the gear it was applied to, which vanilla only labels with the name.
+     */
+    @SubscribeEvent
+    @SuppressWarnings("unchecked")
+    public void onItemTooltip(ItemTooltipEvent event) {
+        if (event.itemStack == null || event.toolTip == null) return;
+        if (event.itemStack.getItem() instanceof ItemEnchantBook) return;
+        for (EnchantDispatcher.Found f : EnchantDispatcher.findOn(event.itemStack)) {
+            String note = f.enchant.tooltipNote();
+            if (note == null) continue;
+            event.toolTip.add(EnumChatFormatting.DARK_GRAY
+                    + StatCollector.translateToLocal(f.enchant.getName()) + ": "
+                    + StatCollector.translateToLocal(note));
+        }
     }
 
     /** Outlines drawn after the world, so they sit in world space. */

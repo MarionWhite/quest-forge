@@ -144,6 +144,17 @@ public abstract class QFEnchantment extends Enchantment {
         return true;
     }
 
+    /**
+     * A translation key for one line a player has to know before using this
+     * enchantment, or null for none. The book shows it under "Applies to", and
+     * the gear it was applied to shows it under its enchantment list
+     * (QFClientEvents.onItemTooltip). Written for Rage, which does nothing while
+     * Excalibur is held and gave no sign of it (2026-10-25, decision 0005 P4).
+     */
+    public String tooltipNote() {
+        return null;
+    }
+
     // ---- Effect hooks. Override the ones that apply; all default to nothing. ----
 
     /** The holder hit something with this item. */
