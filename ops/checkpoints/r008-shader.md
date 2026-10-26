@@ -122,3 +122,46 @@ Shader WIP da16ea8: compiles clean (check_glsl), NOT yet reviewed in frames.
 - Dust: needs a real view where a beam crosses near air (find a gap with region files + sun azimuth), or brighter near motes.
 - River ledges still faint; sky_noon streaks; meteor still forced only via QF_METEOR_SHOW (dev).
 - Morning: cost submission, spec_scenes.py, round.json, finish_round (see the earlier Next list).
+
+## Loop 4 (2026-10-26 00:45, bug-fix loop; critic notes in C:\qfb\shaderdev\r008\critic.json)
+- Submitted golden_lit bisect 1026-004523-r008-um (um, um_gh0, um_du0, um_vb15, um_pbr0, um_all), spec specs/um.json.
+- Next: boot fault (no terrain after first scenes in b1026000221), dust view, lake Fresnel/glint, ocean sun path, metals SSR.
+- Boot fault: FrameBench SETTLE accepted "0 chunk updates" with no chunks loaded. Fixed (811df12, ce75ec7, eca88fd):
+  place() loads 5x5 chunks + updatePlayerPertinentChunks; SETTLE waits for client chunks, re-teleports every 10 s,
+  reports "incident no-terrain" which renderq drops (retry). New jar in C:\qfb\renderq\jars (old: .pre-terrain-20261026);
+  built in worktree C:\qfb\wt-fb. Runner restarted to load batch.py.
+- Shader edits (uncommitted until verified): gSsrOcc (r007 linear weight) for the water sun occlusion (ocean/lake path);
+  lake F>=0.34 floor faded in over 10-40 m; metal env from composite SSR (metalReflection, QF_METAL_SSR), bent faces off
+  with SSR; foliage PBR a2>=0.08 and sp cap 3 (the yellow oval = sun image on a smooth leaf top, absent in qh);
+  cloud deep diffusion x0.30 at golden hour (cream wash); warm Mie aureole in skyRadiance.
+- Dust candidate views dust_a..d appended to views-world-master.txt.
+- Submitted 1026-005710-r008-un (un, un_dustdbg, un_met, un_night, un_clipmet, un_pbr), spec specs/un.json.
+- golden_lit bisect um: QF_DUST 0 alone fixes it (78,61,18 -> 36,45,14; others no change). Cause: beam flips/dust counted samples in the last 2 blocks before the ground (shadow noise). Fix: freeAir gate in lightShafts. Verify job 1026-uo (uo: golden_lit, forest_golden, dust_a-d).
+- un (b1026005719) rendered void after its first scene: the server-side updatePlayerPertinentChunks call broke chunk
+  sending. Reverted (f81dc5d); kept the client terrain gate, no-terrain incident, and a bounce retry. Jar swapped again.
+  Cancelled un/uo; resubmitted everything as 1026-010948-r008-up (up, up_dustdbg, up_met, up_night, up_clipmet, up_pbr),
+  shader snapshot includes the freeAir golden_lit fix.
+- up reviewed (sheets C:/qfb/shaderdev/r008/look/l4): terrain in every frame (gate works, no incidents). Night stills
+  and meteor clip clean now. golden_lit still 72,58,17: freeAir was not enough (camera 20 m over the field), so gBeam
+  now also needs >=12-30% shaded free air, and the dust haze phase is mostly forward. Ocean path unchanged by gSsrOcc
+  (15-25% under qh down the column): added a second long lobe at low sun. Mie aureole 0.05 invisible: now 0.24/0.022.
+  Oval is NOT the foliage spec (still there): bisect jobs in uq. Wash unchanged by cloud deep term. Metals: stripe gone.
+  Dust: dust_a/dust_b are good views (beam across near air before trunks); near motes denser (x1.6) and 3.6x in beams.
+- Submitted 1026-r008-uq (spec specs/uq.json): uq main + oval bisect (sun0,pbr0,du0,sh0,bo0) + night + clips + pbr.
+- uq resubmitted as 1026-012403-r008-uq after cloud base tweak (golden base 0.16 exp(-od*0.6), under horizon 0.45).
+- uq reviewed: golden_lit near ground 38,47,15 (FIXED, was 78,61,18). Oval bisect: only QF_DUST 0 removes it;
+  ur_near/ur_far (QF_DUST_DBG 2/3, new dev modes): it is a NEAR-grid mote ~1 m from the eye, TAA-smeared into an oval
+  (dust clip motion map shows such blobs drifting in arcs). Fix: air near motes fade in over 1.5-3.5 m.
+  Far flakes now also need gBeam (specks over the sea/canopy in uq). Clips l4_{dust,met,wat}.webp in r008/clips.
+  Meteor clip: 293 ms mean interval, write 789 ms/frame (night cap + full-res write): fine for a clip, noted.
+- Submitted 1026-r008-us (final verify: us, us_dustdbg, us_met, us_clipdust, us_pbr, us_pbr0).
+- us reviewed: oval gone on forest_golden, golden 37,47,15, terrain everywhere; dust_b still shows a near-mote oval ~4 m out -> fade 3-6.5 m. Verify 1026-r008-ut (ut, ut_clipdust).
+- ut reviewed: dust_b near oval gone (3-6.5 m fade); the dust clip's motion map shows no stray blobs, but still few mote
+  trails inside the beam (the beam haze shows). Committed 205d13c (shader + views). Clips: C:/qfb/shaderdev/r008/clips/l4_{dust,met,wat}.webp.
+## Loop 4 result tags
+- Clean-boot finals: us (golden_lit, lake_glitter, ocean_sunset, forest_golden, dust_a, dust_b), ut (forest_golden, dust_b,
+  ocean_sunset; latest near-mote fade), us_met (night_sky, night_new), uq_clipmet, uq_clipwat, ut_clipdust, us_pbr/us_pbr0.
+  No no-terrain incidents in up/uq/us/ut.
+## Next
+- The publish-cost run 1026-004242-r008-publish-cost uses the pre-loop-4 snapshot: cancel and resubmit with the current pack.
+- Dust: denser/brighter motes inside beams (dust_b is the view); forest_golden cream wash (cloud deck) still there.

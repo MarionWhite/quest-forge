@@ -19,6 +19,7 @@ and the long archive in `C:\qfb\shaderdev\NEXT.md` (PC only).
   - **animated clips** in the Lab (meteors, water, clouds, dust);
   - Conquest-style underwater ambience.
   The owner expects a "massive leap".
+- **r008 loop 4 (2026-10-26):** bug fixes committed (205d13c). The publish-cost run 1026-004242 predates them: resubmit it.
 - **Standing rules:** render with the current QF textures zip; vanilla only as a control. Label options clearly (the owner was confused by C/D labels).
 - **References (internal only, never on the site):** `C:\qfb\shaderdev\refs` holds Complementary Reimagined/Unbound and BSL on our 16 views.
   Photon doesn't render under Angelica.
