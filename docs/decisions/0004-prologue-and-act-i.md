@@ -33,7 +33,9 @@ Two answers overrule the plan:
   jumble of words. This isn't a compelling or interesting story, and I'd rather do something
   that doesn't take itself so seriously." The audit 4.7 house voice (hook, true paragraph,
   kept quote, task line) does not spread. WP-10 is halted. The quest writers produce samples
-  in a lighter register for the author to pick from before any text is written at scale.
+  in different registers for the author to pick from before any text is written at scale.
+  Asked whether he had a tone in mind: "I would like to see what it comes up with for voice. I
+  want to stay open minded." The samples lead; no brief dictates the tone.
 
 ## Why
 
