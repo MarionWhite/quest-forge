@@ -272,8 +272,12 @@ public class CombatEnchants {
             return 8 * level;
         }
 
-        /** Self-damage per level, as a fraction of the wielder's maximum health. */
-        private static final float SELF_PER_LEVEL = 0.10F;
+        /**
+         * The blood price: health taken from the wielder on every proc, before
+         * Protection. Fixed, and independent of the level, the weapon and the
+         * wielder's armour (2026-10-25, decision 0005 P7).
+         */
+        private static final float PRICE = 0.6F;
 
         @Override
         public boolean isMultipliable() {
@@ -286,27 +290,33 @@ public class CombatEnchants {
         }
 
         /**
-         * The blood price. Deliberately NOT magic damage: it goes through armor
-         * like any physical hit, so the wielder's armour decides what Cultist
-         * actually costs them, and wearing it is part of the decision to use this.
-         * Armour durability is spent on every payment, too.
+         * The blood price's damage source. It bypasses armour (2026-10-25,
+         * decision 0005 P7). Until then it was ordinary physical damage, so the
+         * wielder's armour decided what Cultist cost, and the census found that
+         * price falling to nothing: diamond was driven to the 1-health floor
+         * within a Naga fight, fiery lost about 2 health, Ultimate and Royal lost
+         * 0 and the wielder never left 20. An enchantment whose utility scales
+         * with the gear has to keep a cost at every tier, so the price now
+         * ignores armour points and durability. Protection (and Resistance) still
+         * apply, because the source is not absolute: that is the one way armour
+         * can still soften it. No armour durability is spent on it any more.
          */
         public static final DamageSource BLOOD_PRICE = new DamageSource("qf.cultist") {
-        };
+        }.setDamageBypassesArmor();
 
         @Override
         public void onAttack(ProcContext ctx) {
             if (ctx.user == null || CombatState.isReentrant()) return;
 
-            // The price is a slice of the wielder's own health bar, not of the hit:
-            // 75% of the hit killed the wielder in every simulated fight at every
-            // weapon tier, because this pack's weapons swing for more than a player
-            // has health. 10% of maximum health per level is felt on any weapon.
-            //
-            // That figure is the raw damage, before armour: unarmoured it is three
-            // hearts a proc at level 3, in full enchanted diamond it is a scratch.
-            float selfDamage = Math.min(ctx.damage * 0.75F,
-                    ctx.user.getMaxHealth() * SELF_PER_LEVEL * ctx.level);
+            // The price is a fixed slice of the wielder's own health bar: not of
+            // the hit (75% of the hit killed the wielder in every simulated fight,
+            // because this pack's weapons swing for more than a player has health)
+            // and no longer of the maximum health per level either. Old: min(75% of
+            // the hit, 10% of max health x level), reduced by armour. New: 0.6
+            // health a proc, armour-independent (decision 0005 P7). At 24% of
+            // swings a 34-second Naga fight costs about 10 health at every tier;
+            // before, about 19 in diamond and 0 in Ultimate or Royal.
+            float selfDamage = PRICE;
             // A floor, not a scaling rule: the raw price never exceeds what would
             // leave one health, so Cultist alone cannot be the thing that kills you.
             selfDamage = Math.min(selfDamage, Math.max(0.0F, ctx.user.getHealth() - 1.0F));
