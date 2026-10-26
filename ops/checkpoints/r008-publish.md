@@ -1,4 +1,17 @@
-# r008 publish checkpoint (2026-10-26 ~00:45)
+# r008 publish checkpoint (2026-10-26 ~00:45; requeue step 2026-10-26 night)
+
+## Requeue for loop 4 (done 2026-10-26 ~02:00)
+- Cancelled 1026-004242-r008-publish-cost (0/139 had run; it held the pre-loop-4 ef42eec snapshot).
+- **Current cost submission: 1026-015851-r008-publish-cost** (39 jobs, 141 scenes, mode cost: runs after 08:00).
+  Shader snapshot = loop 4, commit 205d13c (+ ops 152785a). Spec `C:/qfb/shaderdev/r008/specs/p8-cost.json`: the dust scene
+  moved to view dust_b (p8, p8off, p8d0, p8d2 gain dust_b; p8clipdust is dust_b with crop 1280,480,1280,720).
+- `C:/qfb/shaderdev/r008/spec_scenes.py` updated for loop 4: MOTEBOX = dust_b crop; text now says golden_lit olive, yellow
+  oval, metal stripe and lake painted mirror are fixed; still weak: few motes inside beams, forest_golden cream wash,
+  ocean sun path dimmer than r007, no lake glint column. Dust option C relabelled "Dust off" (QF_DUST 0).
+- Critic verdict for the loop-4 fix loop: none (critic: null, no critic pass ran). The critic notes on the p8 frames are
+  still step 2 of the publisher below; read every "already fixed" claim in the scene text against the p8 frames.
+- worktree C:qfbwt-fb: pruned (git worktree prune), gone from the list.
+- Wherever this file says 1026-004242 below, read 1026-015851.
 
 Shader state being published: commit ef42eec (r008 loop 3), pack snapshotted by renderq at submit.
 If `shaders/QuestForge` changes before publishing, the cost frames no longer show it: re-submit
