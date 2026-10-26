@@ -15,5 +15,8 @@ Done means: empty dais; block drops with whoosh+slam; Steve idle activities, '!'
 - app.js: sequence drop(0.6s)->slam->Steve alert/run/jump on dais/mine->shatter, then old reel timeline (T_SHATTER=2.3 post clock); camera spring pre-phase, quintic pan to reel; Close = dip to idle; Steve placed at (3.2,0,0.5) before scene.
 - Steve must be at POS.player facing dais when the scene starts (scenes expect it).
 
+## Done (2)
+- Written + node --check ok: site/lucky/particles.js (pixel particle pool, fx.chips/dust/ring/sparks/splash), camp.js (L layout + buildCamp(S)), steve.js (createBrain: activities, nav, call()/afterBreak()/freeze()/resume()/reset()/fastForward). Textures copied to tex/blocks, tex/items, tex/entity/sign.png.
+
 ## Next
-- implement per plan, then dump_frames list + sheet, poster, node --check, commit own paths, journal line.
+- sky.js (3D clouds, pixel stars), stage.js edits (grass uv, flat rect from camp L, tree, sun pos, torch flash, fragment fade, fx, remove shader cloud band/stars, lb hidden idle), then app.js flow + index.html (speaker, remove tick toggle, dip div), then dump list + sheet.
