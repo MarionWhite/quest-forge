@@ -1,4 +1,4 @@
-# r008 textures: QF Textures v1 (checkpoint 2026-10-25 21:20)
+# r008 textures: QF Textures v1 (checkpoint 2026-10-25 22:20)
 
 Details: direction.md sections 5-7.
 
@@ -33,6 +33,11 @@ Written in direction.md section 6:
   - t8e1 / t8e2 (leaf edges all / sides);
   - t8p1 / t8p0 (QF_PBR 1).
 - Night mode from 22:15: only `mode: shot` jobs run.
+
+## Review of 1025-211536 (22:20)
+- Good: walls, Faithful ores/metals, leaves, bookshelves, forest. Leaf-edge variants e1/e2 visible.
+- BAD: v1 clear glass draws Angelica's built-in 16x CTM (key = rule file basename; ours was clear_glass). Fix: name rules glass.properties / glasspane.properties / <col>_stained_glass[pane] like Angelica.
+- Wheat stage 7 too orange: paler WHEAT_GOLD. Grass top/fern left as is (owner question).
 
 ## Next
 1. `renderq.py results 1025-211536-textures-v1`. Review crops with C:\qfb\textures\v1work\cmp.py (scene, tags, crop, scale).
