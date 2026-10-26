@@ -24,4 +24,17 @@ Nothing for v2 started; no renders submitted.
 7. Render via renderq (shot mode at night); write texture_scenes.json in C:\qfb\shaderdev\r009, TEXTURES-READY; `trial.py guard`; no push.
 
 ## Progress log
-(none yet)
+- 2026-10-26 (texture-dev, capped run): step 1 split into 1a/1b/1c. 1a done (read-only diagnosis, no code changed, no renders).
+  - Leaf code: `tools/textures/qf_art.py` `leaves()` (l.115) + `LEAF_KINDS` (l.77); ragged-edge CTM is
+    `build_qf_textures.py` `leaf_ctm()` (l.125), already off by default (`--leaf-edges none`). Keep it off; don't redo it in v2.
+  - Diagnosis: per 32px tile, 8 metaball clumps + 30-60 lens leaves, each its own value step, with a dark seam
+    (-0.16) at every leaf boundary. At 32px that is pixel-level noise over a busy clump pattern, so the canopy reads
+    as speckle, not as foliage masses, and the per-tile clump lighting repeats block to block.
+  - 1b spec (next): fewer, bigger value groups (3 values per clump: lit crown / mid / shadow underside);
+    single leaves drawn only on clump crowns and silhouettes, not everywhere; seam strength 0.16 -> ~0.06;
+    stronger macro contrast between clumps; alpha stays >= 0.61. Verify offline first: a 3x3 tiled preview per kind,
+    biome-tinted, as one contact sheet in the scratchpad, before any render.
+  - 1c: render tex-leaves, tex-leaves-tree, tex-forest via renderq (shot mode, night per item 7).
+
+## Next
+Step 1b (leaf rewrite in qf_art.py + offline tiled preview). Needs a full-budget run; not started.
