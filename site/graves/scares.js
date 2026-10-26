@@ -1,15 +1,35 @@
-// Jump scares for the Krypt. A director counts the seconds a visitor really spends walking and, rarely, plays one
-// Minecraft-style death cutscene (one per vanilla hostile mob) on its own canvas, then returns them to the corridor.
-//   initScares({ enabled: () => bool })    from the marked block in app.js
-//   ?scare=<mob>               play that cutscene right away (testing), ?scare=<mob>&at=<ms> seeks inside it
-//   ?scare=<mob>&at=<ms>&dump=1  renders that moment into #dumpshot for tools/site/dump_frames.py
-// Code against window.__krypt = { scene, camera, getWalk(): { s, speed, activeSeconds, depth }, corners, takeover(on) }.
+// Jump scares for the Krypt. Each one plays inside the real Krypt scene, where the visitor stands: the walk freezes,
+// the music drops out, something happens in the corridor around them, and it ends on the 1.7.10 "You died!" screen.
+// Respawn puts them back exactly where they were.
+//   initScares({ enabled })          from the marked block in app.js
+//   J                                 the picker: every scare, approved or not; a click or its number plays it here
+//   scares/approved.json              { "approved": [ids] }: the random director only ever plays these
+//   ?scare=<id>                       play one as soon as the Krypt is up (testing)
+//   ?scare=<id>&scareat=<ms>&dump=1   render that moment into #dumpshot for tools/site/dump_frames.py
+// Code against window.__krypt (see the contract at the top of app.js).
 import { audio } from "../lib/qfaudio.js";
 import { createDirector, CFG } from "./scares/director.js";
 
-const MOBS = ["Zombie", "Skeleton", "Creeper", "Spider", "CaveSpider", "Enderman", "Witch", "Slime", "Silverfish", "Blaze", "Ghast", "MagmaCube", "PigZombie", "WitherSkeleton"];
+export const SCARES = [
+  { id: "Zombie", label: "Zombie", entry: "look-back", file: "zombie" },
+  { id: "Skeleton", label: "Skeleton", entry: "lights-out", file: "skeleton" },
+  { id: "Creeper", label: "Creeper", entry: "look-back", file: "creeper" },
+  { id: "Spider", label: "Spider", entry: "ceiling drop", file: "spider" },
+  { id: "CaveSpider", label: "Cave Spider", entry: "piston trap", file: "cavespider" },
+  { id: "Enderman", label: "Enderman", entry: "teleport grab", file: "enderman" },
+  { id: "Witch", label: "Witch", entry: "potions", file: "witch" },
+  { id: "Slime", label: "Slime", entry: "piston trap", file: "slime" },
+  { id: "Silverfish", label: "Silverfish", entry: "wall break", file: "silverfish" },
+  { id: "Blaze", label: "Blaze", entry: "heat", file: "blaze" },
+  { id: "Ghast", label: "Ghast", entry: "piston trap", file: "ghast", deep: true },
+  { id: "MagmaCube", label: "Magma Cube", entry: "behind you", file: "magmacube" },
+  { id: "PigZombie", label: "Zombie Pigman", entry: "your fault", file: "pigman" },
+  { id: "WitherSkeleton", label: "Wither Skeleton", entry: "in the fog", file: "witherskeleton", deep: true }
+];
+const MOBS = SCARES.map((s) => s.id);
 const ALIAS = { cavespider: "CaveSpider", cave_spider: "CaveSpider", magmacube: "MagmaCube", magma_cube: "MagmaCube", lavaslime: "MagmaCube", pigman: "PigZombie", zombiepigman: "PigZombie", zombie_pigman: "PigZombie", pigzombie: "PigZombie", witherskeleton: "WitherSkeleton", wither_skeleton: "WitherSkeleton" };
-const SS_KEY = "qf-scares-v1";
+const DEEP_SEGMENTS = new Set(["chasm", "stairs", "deep", "fortress", "nether", "vault", "portal", "stronghold"]);
+const SS_KEY = "qf-scares-v2";
 const QS = new URLSearchParams(location.search);
 const DUMP = QS.has("dump");
 
@@ -18,215 +38,290 @@ function canon(s) {
   const k = String(s).toLowerCase();
   return ALIAS[k] || MOBS.find((m) => m.toLowerCase() === k) || null;
 }
+const hashStr = (s) => { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; };
 function readSession() { try { const j = JSON.parse(sessionStorage.getItem(SS_KEY) || "{}"); return Array.isArray(j.done) ? j.done : []; } catch (e) { return []; } }
 function writeSession(done) { try { sessionStorage.setItem(SS_KEY, JSON.stringify({ done })); } catch (e) { /* storage blocked */ } }
+const kryptOf = () => (window.__krypt && window.__krypt.scene ? window.__krypt : null);
 
-const CSS = `.qfs-host{position:fixed;inset:0;z-index:99999;background:#000;overflow:hidden;cursor:none;touch-action:none;-webkit-user-select:none;user-select:none}
-.qfs-host canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
-.qfs-fx{image-rendering:pixelated;image-rendering:crisp-edges}
-.qfs-host.qfs-dead{cursor:default}
-.qfs-btn{position:absolute;background:transparent;border:0;margin:0;padding:0;opacity:0;cursor:pointer;display:none}
-.qfs-btn:focus-visible{opacity:1;outline:2px solid #fff;outline-offset:2px;background:rgba(255,255,255,.08)}
-.qfs-host.qfs-dead .qfs-btn{display:block}
-.qfs-skip{position:absolute;left:-9999px}`;
-
-let mod = null;
-async function load() {
-  if (!mod) {
-    const [stage, fx, c1, c2] = await Promise.all([import("./scares/stage.js"), import("./scares/fx.js"), import("./scares/cuts1.js"), import("./scares/cuts2.js")]);
-    mod = { stage, fx, cuts: { Zombie: c1.zombie, Skeleton: c1.skeleton, Creeper: c1.creeper, Spider: c1.spider, CaveSpider: c1.caveSpider, Enderman: c1.enderman, Witch: c1.witch, Slime: c2.slime, Silverfish: c2.silverfish, Blaze: c2.blaze, Ghast: c2.ghast, MagmaCube: c2.magmaCube, PigZombie: c2.pigman, WitherSkeleton: c2.witherSkeleton } };
-  }
-  return mod;
+// ---- modules, loaded on demand ---------------------------------------------------------------------------
+let RIG = null, HUD = null;
+const defs = new Map();
+async function loadDef(id) {
+  const s = SCARES.find((x) => x.id === id);
+  if (!RIG) [RIG, HUD] = await Promise.all([import("./scares/rig.js"), import("./scares/hud.js")]);
+  if (!defs.has(id)) defs.set(id, import(`./scares/${s.file}.js`).then((m) => m.default));
+  return defs.get(id);
 }
 
-// Builds a scare (stage, overlay, cutscene) inside a host element. Nothing plays until play() is called.
-async function prepare(id, { phone = false, segment } = {}) {
-  if (!segment) { const kr = window.__krypt; try { segment = (kr && kr.getWalk && kr.getWalk().segment) || "crypt"; } catch (e) { segment = "crypt"; } }
-  if (QS.get("seg")) segment = QS.get("seg");
-  const M = await load();
-  if (!document.getElementById("qfs-css")) { const s = document.createElement("style"); s.id = "qfs-css"; s.textContent = CSS; document.head.appendChild(s); }
-  const host = document.createElement("div");
-  host.className = "qfs-host"; host.setAttribute("role", "alert"); host.setAttribute("aria-label", "A jump scare. Press Enter on the Respawn button to return.");
-  document.body.appendChild(host);
-  const stage = await M.stage.createStage(host, { phone, segment });
-  const ov = M.fx.createOverlay(host);
-  const btn = document.createElement("button"); btn.className = "qfs-btn"; btn.type = "button"; btn.textContent = "Respawn"; host.appendChild(btn);
-  const gore = stage.gore;
-  const c = {
-    stage, phone,
-    hitBurst(times, fn, kind, n, opts) {
-      for (const t of times) {
-        const p = fn(t); let o = [p.x, p.y, p.z];
-        if (p.yaw !== undefined) { const cp = Math.cos(p.pitch || 0); o = [p.x - Math.sin(p.yaw) * cp * 0.5, p.y + Math.sin(p.pitch || 0) * 0.5, p.z - Math.cos(p.yaw) * cp * 0.5]; }
-        gore.burst(t, o, n, kind, opts);
-      }
-    }
+// ---- sound: the music drops to silence for the scare, the ambience to a whisper ------------------------------------
+const BUS_FULL = { music: 0.45, ambient: 0.7 };
+function hush(on) {
+  const ctx = audio.context(); if (!ctx) return;
+  const t = ctx.currentTime;
+  for (const [b, low] of [["music", 0.0], ["ambient", 0.1]]) {
+    const n = audio.busNode(b); if (!n) continue;
+    n.gain.cancelScheduledValues(t); n.gain.setValueAtTime(n.gain.value, t);
+    n.gain.setTargetAtTime(on ? BUS_FULL[b] * low : BUS_FULL[b], t, on ? 0.12 : 0.9);
+  }
+}
+function soundPlayer(R, S) {
+  const live = [], fired = new Set();
+  const pos = (o) => (o && o.at ? R.Lp(o.at[0], o.at[1], o.at[2]) : null);
+  return {
+    tick(prev, t) {
+      (S.sounds || []).forEach((s, i) => {
+        if (fired.has(i) || s[0] > t || s[0] <= prev - 0.25) return;
+        fired.add(i);
+        const [, name, o = {}] = s;
+        try {
+          if (name === "@muffle") audio.muffle(o.hz || 500, o.s || 2);
+          else audio.play(name, { ...o, pos: pos(o) || undefined });
+        } catch (e) { /* audio locked */ }
+      });
+      (S.loops || []).forEach((l, i) => {
+        const [t0, t1, name, o = {}] = l, k = "L" + i;
+        const h = live.find((x) => x.k === k);
+        if (!h && t >= t0 && t < t1 && !fired.has(k)) { fired.add(k); try { live.push({ k, h: audio.loop(name, { ...o, pos: pos(o) || undefined, fadeIn: o.fadeIn ?? 0.3 }), t1, fade: o.fadeOut ?? 0.4 }); } catch (e) { /* ignore */ } }
+      });
+      for (const x of live) if (!x.done && t >= x.t1) { x.done = true; try { x.h.stop(x.fade); } catch (e) { /* ignore */ } }
+    },
+    stop() { for (const x of live) if (!x.done) { x.done = true; try { x.h.stop(0.3); } catch (e) { /* ignore */ } } }
   };
-  const cut = await M.cuts[id](c);
-  const sr = M.stage.rngOf;
-  const size = () => { const w = host.clientWidth || innerWidth, h = host.clientHeight || innerHeight; stage.size(w, h); ov.size(w, h); };
-  size();
-  const hits = cut.hits.slice().sort((a, b) => a - b).filter((h, i, a) => i === 0 || h - a[i - 1] >= 0.34);   // at most 3 flashes a second
-  const n = hits.length, rr = sr(77);
-  const splatPos = hits.map(() => [0.18 + rr() * 0.64, 0.2 + rr() * 0.5, 26 + rr() * 22]);
-
-  // One frame of the scare at time t (seconds). Pure: the same t draws the same picture.
-  function renderAt(t, score = 0) {
-    const tt = Math.min(t, cut.dur), M2 = M.stage;
-    const cam = cut.cam(tt);
-    const amp = cut.shake ? cut.shake(tt) : 0.01;
-    cam.x += (Math.sin(tt * 53) + 0.6 * Math.sin(tt * 97 + 1)) * amp; cam.y += Math.sin(tt * 61 + 2) * amp; cam.yaw = (cam.yaw || 0) + Math.sin(tt * 43) * amp * 0.5; cam.pitch = (cam.pitch || 0) + Math.sin(tt * 37 + 3) * amp * 0.3;
-    let hurt = 0, hp = 20;
-    hits.forEach((h, i) => {
-      if (tt < h) return;
-      hurt = Math.max(hurt, Math.exp(-(tt - h) / 0.14));
-      const x = (tt - h) / 0.5;
-      if (x < 1) { cam.roll = (cam.roll || 0) - Math.sin(Math.pow(1 - x, 4) * Math.PI) * 0.24 * (i % 2 ? -1 : 1); }
-      hp = M2.lerp(20 * (1 - i / n), 20 * (1 - (i + 1) / n), M2.clamp((tt - h) / 0.3));
-    });
-    const f = { hud: true, hp, tints: [], splats: [], cracks: [], slashes: [], hurt, white: 0, black: 0, fire: 0, glitch: 0, bubbles: 0, vig: null, vigR: 0.95, hpMode: "normal", death: M2.clamp((t - cut.dur) / 0.9), deathLine: cut.death, score, btnHover: false };
-    hits.forEach((h, i) => { if (tt >= h) f.splats.push({ t0: h, x: splatPos[i][0], y: splatPos[i][1], r: splatPos[i][2], seed: 100 + i }); });
-    cut.update(tt, f);
-    stage.setCam(cam);
-    stage.light(tt, cut.flick ? cut.flick(tt) : 1);
-    gore.update(tt);
-    stage.render();
-    return f;
-  }
-  function dispose() { host.remove(); stage.dispose(); }
-  return { cut, host, stage, ov, btn, renderAt, size, dispose, hits, segment };
 }
 
-// ---- the live run ---------------------------------------------------------------------------------
+// ---- the live run ------------------------------------------------------------------------------------------
 let running = null;
-function krypt() { return window.__krypt || null; }
-
-async function play(p, { onDone, score = 0 } = {}) {
-  if (running) return;
-  running = p;
-  const { cut, host, ov, btn, renderAt } = p;
-  const kr = krypt();
-  if (kr && kr.takeover) try { kr.takeover(true); } catch (e) { /* ignore */ }
-  const log = (window.__scareSfx = []);
-  const t0 = performance.now(); let prev = -0.001, dead = false, raf = 0, over = false;
-  try { audio.duck("sfx", cut.silence ? 0.05 : 0.2, cut.dur + 0.5); } catch (e) { /* audio may be locked */ }
-  const block = (e) => { if (e.target !== btn && !(e.target && e.target.closest && e.target.closest(".qfs-btn"))) { e.preventDefault(); } e.stopPropagation(); };
-  const onKey = (e) => { if (dead && (e.key === "Enter" || e.key === " ") ) { e.preventDefault(); respawn(); } else if (e.key !== "Tab") { e.preventDefault(); } e.stopPropagation(); };
-  host.addEventListener("wheel", block, { passive: false }); host.addEventListener("touchmove", block, { passive: false });
-  addEventListener("keydown", onKey, true);
-  const onResize = () => p.size(); addEventListener("resize", onResize);
-  let hover = false;
-  host.addEventListener("pointermove", (e) => { const r = host.getBoundingClientRect(), b = ov.btn; const x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height; hover = dead && x > b.x && x < b.x + b.w && y > b.y && y < b.y + b.h; });
-  btn.addEventListener("click", respawn);
-  host.addEventListener("click", (e) => { if (dead && hover) respawn(); });
-  function place() { const b = ov.btn; btn.style.left = b.x * 100 + "%"; btn.style.top = b.y * 100 + "%"; btn.style.width = b.w * 100 + "%"; btn.style.height = b.h * 100 + "%"; }
-  function fire(t) {
-    for (const s of cut.sounds || []) {
-      if (s[0] > prev && s[0] <= t) {
-        log.push([+s[0].toFixed(2), s[1]]);
-        try { if (s[1] === "@muffle") audio.muffle(s[2][0], s[2][1]); else audio.play(s[1], s[2] || {}); } catch (e) { /* ignore */ }
-      }
-    }
-    prev = t;
+function kryptHud(hide) {
+  const st = document.getElementById("stage"); if (!st) return;
+  for (const el of st.querySelectorAll(".hud, .hint, .strip-wrap, .sheet, .minimap, #minimap")) {
+    if (hide) { el.dataset.qfsVis = el.style.visibility; el.style.visibility = "hidden"; } else { el.style.visibility = el.dataset.qfsVis || ""; delete el.dataset.qfsVis; }
   }
-  function frame(now) {
-    if (over) return;
-    raf = requestAnimationFrame(frame);
-    const t = (now - t0) / 1000;
-    fire(t);
-    const f = renderAt(t, score);
-    if (!dead && t >= cut.dur + 0.9) { dead = true; host.classList.add("qfs-dead"); place(); try { btn.focus({ preventScroll: true }); } catch (e) { /* ignore */ } }
-    ov.draw({ ...f, btnHover: hover }, Math.min(t, cut.dur));
-    try { audio.updateListener(p.stage.camera); } catch (e) { /* ignore */ }
-  }
-  function respawn() {
-    if (over || !dead) return;
-    over = true; cancelAnimationFrame(raf);
-    try { audio.play("random.orb", { volume: 0.6 }); audio.muffle(20000, 0.2); } catch (e) { /* ignore */ }
-    host.style.transition = "opacity .45s"; host.style.opacity = "0";
-    setTimeout(() => {
-      removeEventListener("keydown", onKey, true); removeEventListener("resize", onResize);
-      p.dispose(); running = null;
-      if (kr && kr.takeover) try { kr.takeover(false); } catch (e) { /* ignore */ }
-      if (onDone) onDone();
-    }, 480);
-  }
-  raf = requestAnimationFrame(frame);
 }
-
-// ---- verification: one frame of a scare into the dump -------------------------------------------------
-async function dumpMode(id, atMs) {
-  for (let i = 0; i < 40 && window.__krypt && !document.getElementById("dumpshot") && !QS.has("seg"); i++) await new Promise((r) => setTimeout(r, 250));
-  const p = await prepare(id, {});
-  const t = (atMs || 0) / 1000;
-  const log = [];
-  for (const s of p.cut.sounds || []) if (s[0] <= t) log.push([s[0], s[1]]);
-  const f = p.renderAt(t, 37);
-  p.ov.draw(f, Math.min(t, p.cut.dur));
-  const out = document.createElement("canvas"); out.width = p.stage.canvas.width; out.height = p.stage.canvas.height;
-  const x = out.getContext("2d"); x.drawImage(p.stage.canvas, 0, 0); x.imageSmoothingEnabled = false; x.drawImage(p.ov.canvas, 0, 0, out.width, out.height);
-  const png = out.toDataURL("image/png");
-  const info = { scare: id, segment: p.segment, at: atMs, dur: p.cut.dur, hits: p.hits, sfx: log, hp: f.hp };
-  const put = (tries) => {
-    const old = document.getElementById("dumpshot");
-    if (!old && tries < 24) { setTimeout(() => put(tries + 1), 250); return; }
-    let base = {};
-    if (old) { try { base = JSON.parse(old.textContent); } catch (e) { base = {}; } old.remove(); }
-    const sc = document.createElement("script"); sc.type = "application/json"; sc.id = "dumpshot";
-    sc.textContent = JSON.stringify({ ...base, png, ...info });
-    document.body.appendChild(sc);
+export async function playScare(id, { score = 0, onDone } = {}) {
+  id = canon(id);
+  const kr = kryptOf();
+  if (!id || !kr || running) return false;
+  const stage = document.getElementById("stage");
+  running = { id };
+  try { kr.takeover(true); } catch (e) { /* ignore */ }
+  hush(true); kryptHud(true);
+  let R = null, hud = null, snd = null, block = null;
+  const cleanup = () => {
+    removeEventListener("keydown", onKey, true); removeEventListener("resize", onResize);
+    if (snd) snd.stop();
+    if (R) R.dispose();
+    if (hud) hud.dispose();
+    if (block) block.remove();
+    hush(false); kryptHud(false);
+    try { kr.takeover(false); } catch (e) { /* ignore */ }
+    running = null;
   };
-  put(0);
+  let dead = false, over = false, hover = null;
+  function respawn(to) {
+    if (over || !dead) return;
+    over = true;
+    if (block) { block.style.transition = "opacity .25s"; block.style.background = "#000"; block.style.opacity = "1"; }
+    setTimeout(() => {
+      cleanup();
+      if (to === "title") { try { window.scrollTo({ top: 0, behavior: "smooth" }); } catch (e) { /* ignore */ } }
+      if (onDone) onDone();
+    }, 260);
+  }
+  function onKey(e) {
+    if (dead && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); respawn(hover === "title" ? "title" : "respawn"); }
+    else if (e.key !== "Tab") e.preventDefault();
+    e.stopPropagation();
+  }
+  const onResize = () => { if (hud) hud.size(); };
+  try {
+    const def = await loadDef(id);
+    hud = await HUD.createHud(stage);
+    R = await RIG.createRig(kr, { seed: hashStr(id) & 0xffff });
+    const S = await def.build(R);
+    S.death = S.death || def.death;
+    snd = soundPlayer(R, S);
+    // A layer over the stage that takes the pointer while the scare plays (the Respawn button lives on it).
+    block = document.createElement("div");
+    block.style.cssText = "position:absolute;inset:0;z-index:10;cursor:none;background:transparent;opacity:1";
+    block.setAttribute("role", "alert");
+    const btn = document.createElement("button");
+    btn.type = "button"; btn.textContent = "Respawn";
+    btn.style.cssText = "position:absolute;left:-9999px;top:0";
+    btn.addEventListener("click", () => respawn("respawn"));
+    block.appendChild(btn);
+    stage.appendChild(block);
+    const xy = (e) => { const r = stage.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
+    block.addEventListener("pointermove", (e) => { hover = dead ? hud.hit(...xy(e)) : null; block.style.cursor = dead ? (hover ? "pointer" : "default") : "none"; });
+    block.addEventListener("click", (e) => { if (!dead) return; const b = hud.hit(...xy(e)); if (b) respawn(b); });
+    block.addEventListener("wheel", (e) => e.preventDefault(), { passive: false });
+    addEventListener("keydown", onKey, true); addEventListener("resize", onResize);
+    let prev = 0;
+    R.run(S, (f, t) => {
+      snd.tick(prev, t); prev = t;
+      f.score = score; f.deadFor = t - S.dur - 0.5; f.hover = hover;
+      if (t >= S.dur) f.chat = S.death;
+      if (!dead && f.deadFor >= 1) { dead = true; block.style.cursor = "default"; btn.style.cssText = "position:absolute;opacity:0;left:50%;top:50%;width:1px;height:1px"; btn.setAttribute("aria-label", "You died. Respawn"); try { btn.focus({ preventScroll: true }); } catch (e) { /* ignore */ } }
+      hud.draw(f, t);
+      try { audio.updateListener(kr.camera); } catch (e) { /* ignore */ }
+    });
+    return true;
+  } catch (e) {
+    console.error("scare", id, e);
+    cleanup();
+    return false;
+  }
 }
 
-// ---- the director's loop --------------------------------------------------------------------------------
+// ---- verification: one moment of a scare into the dump ------------------------------------------------------------
+async function dumpMode(id, ms) {
+  const wait = async (fn, max = 16000) => { const t0 = performance.now(); while (!fn() && performance.now() - t0 < max) await new Promise((r) => setTimeout(r, 120)); return fn(); };
+  await wait(() => kryptOf());
+  await wait(() => document.getElementById("dumpshot"));   // the Krypt's own verification frame: its blocks are built
+  const kr = kryptOf();
+  const errors = [];
+  // The Krypt's dump frames run with timestamps ahead of the clock, so its next live frame damps backwards and throws
+  // the camera far off (a negative dt). Put the camera back where the Krypt's own frame had it, and restart its clock.
+  try {
+    const b = JSON.parse(document.getElementById("dumpshot").textContent);
+    if (b.pos && b.look) {
+      kr.camera.position.fromArray(b.pos); kr.camera.lookAt(b.look[0], b.look[1], b.look[2]); kr.camera.updateMatrixWorld(true);
+      kr.takeover(true); kr.takeover(false);
+      await new Promise((r) => setTimeout(r, 300));
+      kr.takeover(true);
+      kr.camera.position.fromArray(b.pos); kr.camera.lookAt(b.look[0], b.look[1], b.look[2]); kr.camera.updateMatrixWorld(true);
+    }
+  } catch (e) { errors.push("camera reset: " + e); }
+  let info = { scare: id, at: ms };
+  let png = "";
+  try {
+    const def = await loadDef(id);
+    const stage = document.getElementById("stage");
+    const hud = await HUD.createHud(stage);
+    try { kr.takeover(true); } catch (e) { /* ignore */ }
+    const R = await RIG.createRig(kr, { seed: hashStr(id) & 0xffff });
+    const S = await def.build(R);
+    const t = ms / 1000;
+    const f = R.renderAt(S, t);
+    const gl = kr.renderer.domElement;
+    const out = document.createElement("canvas"); out.width = gl.width; out.height = gl.height;
+    const x = out.getContext("2d"); x.drawImage(gl, 0, 0);
+    f.score = 37; f.deadFor = t - S.dur - 0.5; if (t >= S.dur) f.chat = S.death || def.death;
+    hud.size(); hud.draw(f, t);
+    x.imageSmoothingEnabled = false; x.drawImage(hud.canvas, 0, 0, hud.canvas.width * hud.scale * (out.width / Math.max(1, stage.clientWidth)), hud.canvas.height * hud.scale * (out.height / Math.max(1, stage.clientHeight)));
+    png = out.toDataURL("image/png");
+    await audio.ready();
+    const names = new Set([...(S.sounds || []).map((s) => s[1]), ...(S.loops || []).map((l) => l[2])].filter((n) => n[0] !== "@"));
+    info = { ...info, segment: R.seg, depth: +(R.depth || 0).toFixed(3), dur: S.dur, hits: (S.hits || []).map((h) => h.t), hp: f.hp,
+      floorY: R.O.y, ceil: R.ceil, wallL: +R.wallL.toFixed(2), wallR: +R.wallR.toFixed(2), ahead: +R.ahead.toFixed(1), behind: +R.behind.toFixed(1),
+      openings: R.openings.map((o) => [o.side, o.z0, o.z1, +o.depth.toFixed(1)]), torches: R.torches.length, notes: S.notes || null, debug: R.debug,
+      sfx: (S.sounds || []).filter((s) => s[0] <= t).map((s) => [s[0], s[1]]), missingSounds: [...names].filter((n) => !audio.has(n)) };
+  } catch (e) { errors.push(String(e && e.stack || e)); console.error("scare dump", e); }
+  const old = document.getElementById("dumpshot");
+  let base = {};
+  if (old) { try { base = JSON.parse(old.textContent); } catch (e) { base = {}; } old.remove(); }
+  const sc = document.createElement("script"); sc.type = "application/json"; sc.id = "dumpshot";
+  sc.textContent = JSON.stringify({ ...base, png: png || base.png, ...info, errors: (base.errors || []).concat(errors, window.__errs || []) });
+  document.body.appendChild(sc);
+}
+
+// ---- the picker (J) ---------------------------------------------------------------------------------------------
+let approved = [];
+const PCSS = `.qfs-pick{position:fixed;left:14px;bottom:14px;z-index:100000;min-width:290px;background:rgba(16,16,16,.92);border:2px solid #000;outline:2px solid #555;
+ font:13px/1.25 "JetBrains Mono",ui-monospace,Menlo,monospace;color:#e0e0e0;padding:8px 6px 6px;box-shadow:0 6px 24px rgba(0,0,0,.6)}
+.qfs-pick h3{margin:0 4px 6px;font:inherit;color:#ffff55;letter-spacing:.04em}
+.qfs-pick h3 span{color:#aaa}
+.qfs-pick ol{list-style:none;margin:0;padding:0;max-height:min(60vh,420px);overflow:auto}
+.qfs-pick button{display:grid;grid-template-columns:2.2em 1fr auto;gap:6px;width:100%;text-align:left;font:inherit;color:#e0e0e0;background:transparent;border:0;padding:3px 6px;cursor:pointer}
+.qfs-pick button:hover,.qfs-pick button:focus-visible,.qfs-pick button[aria-current=true]{background:#2f2f50;color:#ffffa0;outline:0}
+.qfs-pick .n{color:#aaa}.qfs-pick .e{color:#888;font-size:11px}.qfs-pick .ok{color:#55ff55}.qfs-pick .no{color:#aaaaaa}
+.qfs-pick p{margin:6px 4px 0;color:#888;font-size:11px}`;
+let picker = null;
+function openPicker() {
+  if (picker) return;
+  if (!document.getElementById("qfs-pcss")) { const s = document.createElement("style"); s.id = "qfs-pcss"; s.textContent = PCSS; document.head.appendChild(s); }
+  const el = document.createElement("div");
+  el.className = "qfs-pick"; el.setAttribute("role", "dialog"); el.setAttribute("aria-label", "Scares");
+  el.innerHTML = `<h3>Scares <span>J or Esc closes</span></h3><ol></ol><p>A number or a click plays it where you stand.</p>`;
+  const ol = el.querySelector("ol");
+  SCARES.forEach((s, i) => {
+    const li = document.createElement("li"), b = document.createElement("button");
+    b.type = "button";
+    const ok = approved.includes(s.id);
+    b.innerHTML = `<span class="n">${i + 1}</span><span>${s.label} <span class="e">${s.entry}</span></span><span class="${ok ? "ok" : "no"}">${ok ? "approved" : "not yet"}</span>`;
+    b.addEventListener("click", () => { closePicker(); playScare(s.id); });
+    li.appendChild(b); ol.appendChild(li);
+  });
+  document.body.appendChild(el);
+  picker = { el, buf: "", timer: 0, sel: -1 };
+}
+function closePicker() { if (!picker) return; clearTimeout(picker.timer); picker.el.remove(); picker = null; }
+function pickerKey(e) {
+  if (e.target && e.target.closest && e.target.closest("input, textarea, select")) return;
+  if (running) return;
+  if (e.key === "j" || e.key === "J") { e.preventDefault(); if (picker) closePicker(); else openPicker(); return; }
+  if (!picker) return;
+  if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); closePicker(); return; }
+  const btns = [...picker.el.querySelectorAll("button")];
+  if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+    e.preventDefault(); e.stopPropagation();
+    picker.sel = (picker.sel + (e.key === "ArrowDown" ? 1 : -1) + btns.length) % btns.length;
+    btns.forEach((b, i) => b.setAttribute("aria-current", i === picker.sel ? "true" : "false")); btns[picker.sel].focus();
+    return;
+  }
+  if (/^[0-9]$/.test(e.key)) {
+    e.preventDefault(); e.stopPropagation();
+    picker.buf += e.key; clearTimeout(picker.timer);
+    const go = () => { const n = Number(picker.buf); picker.buf = ""; if (n >= 1 && n <= SCARES.length) { const id = SCARES[n - 1].id; closePicker(); playScare(id); } };
+    // "1" may start 10 to 14: wait a moment for a second digit.
+    if (picker.buf === "1") picker.timer = setTimeout(go, 650); else go();
+  }
+}
+
+// ---- the director's loop ---------------------------------------------------------------------------------------------
 export function initScares(opts = {}) {
   const enabled = opts.enabled || (() => true);
   const forced = canon(QS.get("scare"));
-  const phone = matchMedia("(max-width: 700px)").matches || matchMedia("(pointer: coarse)").matches;
+  fetch(new URL("./scares/approved.json", import.meta.url), { cache: "no-store" }).then((r) => (r.ok ? r.json() : {})).then((j) => {
+    approved = (Array.isArray(j.approved) ? j.approved : []).map(canon).filter(Boolean);
+  }).catch(() => { approved = []; });
+  if (forced && DUMP) { dumpMode(forced, Number(QS.get("scareat") ?? 0) || 0).catch((e) => console.error("scare dump", e)); return; }
+  addEventListener("keydown", pickerKey, true);
+  window.__scares = { play: (m) => playScare(m), list: SCARES, get approved() { return approved.slice(); } };
   if (forced) {
-    if (DUMP) dumpMode(forced, Number(QS.get("scareat") ?? QS.get("at")) || 0).catch((e) => { console.error("scare dump", e); });
-    else setTimeout(async () => { try { await play(await prepare(forced, { phone }), { score: 0 }); } catch (e) { console.error("scare", e); } }, 1200);
+    const go = () => setTimeout(() => playScare(forced), 1200);
+    if (kryptOf()) go(); else addEventListener("krypt-ready", go, { once: true });
     return;
   }
-  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;   // accessibility: never trigger
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;   // accessibility: the director never fires
   const director = createDirector({ done: readSession() });
-  let acc = 0, lastSec = 0, lastS = null, lastInput = 0, last = performance.now(), pending = null, waited = 0, busy = false;
-  const poke = () => { lastInput = performance.now(); };
-  addEventListener("wheel", poke, { passive: true }); addEventListener("keydown", poke); addEventListener("pointermove", (e) => { if (e.buttons) poke(); }, { passive: true }); addEventListener("touchmove", poke, { passive: true });
-  window.__scares = { director, force: (m) => { const id = canon(m); if (id) prepare(id, { phone }).then((p) => play(p)); }, get active() { return acc; } };
-
-  async function arm() {
-    const id = director.pick(MOBS);
-    if (!id) return;
-    busy = true; waited = 0;
-    try { pending = { id, p: await prepare(id, { phone }) }; pending.p.host.style.display = "none"; }
-    catch (e) { console.error("scare prepare", e); pending = null; busy = false; }
-  }
-  function cornerNear(kr, s) {
-    if (!kr || !kr.corners) return true;
-    return kr.corners.some((k) => k.s > s && k.s - s < 0.015) || false;
-  }
+  window.__scares.director = director;
+  let acc = 0, lastSec = 0, lastS = null, last = performance.now(), pending = null, waited = 0;
   setInterval(() => {
     const now = performance.now(), dt = Math.min(0.5, (now - last) / 1000); last = now;
-    if (running || document.hidden || !enabled()) return;
-    const kr = krypt(); let moving, depth;
-    if (kr && kr.getWalk) {
-      const w = kr.getWalk(); moving = lastS != null && Math.abs(w.s - lastS) > 0.00003; lastS = w.s; depth = w.depth != null ? w.depth : w.s;
-    } else { moving = now - lastInput < 500; depth = Math.min(1, acc / 120); }
+    if (running || picker || document.hidden || !enabled() || !approved.length) return;
+    const kr = kryptOf(); if (!kr || !kr.getWalk) return;
+    const w = kr.getWalk();
+    const moving = lastS != null && Math.abs(w.s - lastS) > 0.00003; lastS = w.s;
     if (moving) acc += dt;
-    if (!pending && !busy) {
+    const deep = DEEP_SEGMENTS.has(w.segment) || (w.depth ?? w.s) > 0.62;
+    if (!pending) {
       const sec = Math.floor(acc);
-      if (sec > lastSec) { lastSec = sec; if (director.second(sec, depth)) arm(); }
-    } else if (pending && moving) {
-      waited += dt;
-      const s = kr && kr.getWalk ? kr.getWalk().s : 0;
-      if (cornerNear(kr, s) || waited > 8) {
-        const { id, p } = pending; pending = null; busy = false;
-        director.fired(acc, id); writeSession(director.done);
-        p.host.style.display = ""; p.size();
-        play(p, { score: Math.floor(acc), onDone: () => { lastS = null; } });
+      if (sec > lastSec) {
+        lastSec = sec;
+        if (director.second(sec, w.depth ?? w.s)) {
+          const pool = approved.filter((id) => !SCARES.find((s) => s.id === id).deep || deep);
+          const id = director.pick(pool);
+          if (id) { pending = id; waited = 0; loadDef(id).catch(() => { pending = null; }); }
+        }
       }
+    } else {
+      // Fire mid-stride, a beat after the walk was moving: the freeze has to interrupt something.
+      waited += dt;
+      if (moving && waited > 0.6) {
+        const id = pending; pending = null;
+        director.fired(acc, id); writeSession(director.done);
+        playScare(id, { score: Math.floor(acc), onDone: () => { lastS = null; } });
+      } else if (waited > 30) pending = null;
     }
   }, 100);
 }

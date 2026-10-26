@@ -32,4 +32,36 @@ last.
   accurate Minecraft?
 
 ## Done
-(nothing yet)
+- 09:30 Read spec and code. Contract landed (132d554: carve/restore/solidAt/blockAt); audio landed
+  all 15 qf.scare.* events (ed420a4). Copied 1.7.10 textures (Mojang, like graves/tex) into
+  site/graves/tex/scare/ (pistons, fire_layer_1, destroy stages, icons, widgets, ascii font, items,
+  explosion, vignette, arrow, particles). approved.json created.
+
+## Plan (architecture)
+- scares.js: entry, J picker, approved.json, director loop, dump hook (?scare=&scareat=&dump=1).
+- scares/rig.js: runs in __krypt.scene via scene.onBeforeRender (krypt keeps rendering while held);
+  local frame at the player's feet (heading = last bend's dir), probe via solidAt/blockAt, head camera
+  (1.62 eye, MC hurt roll sin(x^4 pi)*14deg, death drop+roll), env overrides (bakeUniform, exposure,
+  point lights, fog, nausea projection warp), camera-attached group for fire/hands/web, gore, mobs.
+- scares/hud.js: overlay canvas inside #stage: real icons.png hearts, widgets.png hotbar, ascii.png font,
+  1.7.10 death screen (gradient, You died!, Score, Respawn/Title screen), chat death line.
+- scares/s_*.js: one module per scare. Old stage.js/cuts1/cuts2/fx.js/test.html to be removed.
+
+- 10:40 scares.js rewritten (J picker, approved.json, director only plays approved, dump hook on the real
+  page); scares/rig.js (in-scene runner via scene.onBeforeRender), scares/hud.js (1.7.10 HUD + death
+  screen from icons/widgets/ascii), scares/common.js; old stage/cuts1/cuts2/fx/test.html removed.
+  Zombie built and dumped: frames r5/scares/z3 (dread, back, hit, bite, kill, hands) look right.
+- Dump workaround: the Krypt's runDump leaves K.last in the future, so the next live frame has dt<0 and
+  throws the camera to y=-2000. dumpMode puts the camera back from the dumpshot pos/look first.
+
+## Requests (krypt-more, app.js)
+- frameInner: clamp dt at 0 (`Math.max(0, ...)`): runDump's frameInner(now+16+q*30) leaves K.last ahead
+  of the clock and the next frame's damped lerp diverges (K.pos.y ~ -2000 in every ?dump page).
+- While K.held, pump chunks around K.camera.position (not K.pos): the Enderman teleport needs the
+  chasm's chunks built even if the visitor never walked there.
+
+## Next
+Remaining scares in order: Skeleton, Creeper, Spider, Witch, Blaze, MagmaCube, PigZombie, Silverfish
+(use makeMob('Silverfish'), instanced), WitherSkeleton (equipment stone sword), Enderman; then the piston
+traps CaveSpider, Slime, Ghast (carve is in). Sheet shots in r5/scares/<scare>/shots.txt.
+
