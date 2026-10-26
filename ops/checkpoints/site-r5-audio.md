@@ -38,3 +38,7 @@ Previous state: `ops/checkpoints/site-audio.md`.
 
 ## Done
 (nothing yet)
+
+## Progress (audio agent)
+- Pass 1 committed: `tools/music/scare_sounds.py` (run: `QF_TMP=<dir> /opt/anaconda3/bin/python3 tools/music/scare_sounds.py [name]`) writes all 15 qf.scare.* events + manifest. Old hit/gore/ringing moved from site_cues.py into it. All pure synthesis, nothing derived from Mojang sounds.
+- Next: analysis (spectrograms in scratchpad r5/audio), quality iteration, README note, journal line.

@@ -316,9 +316,7 @@ def do_sfx(only=None):
         ("qf.krypt.drip", [krypt_drip(i) for i in range(5)], {"bus": "ambient", "target": -24, "pitch": [.95, 1.05]}),
         ("qf.krypt.groan", [krypt_groan(i) for i in range(4)], {"bus": "ambient", "target": -22}),
         ("qf.krypt.heartbeat", heartbeat, {"bus": "ambient", "target": -22, "loop": True}),
-        ("qf.scare.riser", scare_riser, {}), ("qf.scare.hit", scare_hit, {"ceil": -9}),
-        ("qf.scare.gore", [gore(i) for i in range(4)], {"pitch": [.92, 1.08]}),
-        ("qf.scare.ringing", ringing, {"target": -26, "ceil": -6}),
+        ("qf.scare.riser", scare_riser, {}),   # the other qf.scare.* events live in scare_sounds.py
     ]
     for name, fn, kw in D:
         if only and name not in only and name[3:] not in only: continue
