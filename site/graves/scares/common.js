@@ -38,7 +38,8 @@ export function floorFall(c, t, t0, { d = 0.55, side = 1, roll = 1.25, y = 0.24,
 export { track, clamp, lerp, sstep };
 
 // Limbs that reach into the lens: copies of a mob's part (an arm, a leg) parented to the head (R.view), drawn over
-// the world. specs: [{ from: [x, y], to: [x, y], z, t0, t1, scale }] in view metres (x right, y up, z forward < 0).
+// the world. specs: [{ from: [x, y], to: [x, y], z, t0, t1, scale, t2? }] in view metres (x right, y up, z forward < 0);
+// from t2 they withdraw again.
 export function lensLimbs(R, mob, part, specs, { color = 0x8a8a8a } = {}) {
   const src = mob.parts[part];
   const out = specs.map((s) => {
@@ -55,7 +56,7 @@ export function lensLimbs(R, mob, part, specs, { color = 0x8a8a8a } = {}) {
   });
   return (t) => {
     for (const { s, holder } of out) {
-      const k = sstep(s.t0, s.t1, t);
+      const k = sstep(s.t0, s.t1, t) * (s.t2 != null ? 1 - sstep(s.t2, s.t2 + (s.t3 ?? 0.3), t) : 1);   // t2: let go
       holder.visible = k > 0;
       if (!holder.visible) continue;
       const x = lerp(s.from[0], s.to[0], k), y = lerp(s.from[1], s.to[1], k);
