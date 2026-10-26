@@ -205,7 +205,21 @@ vec3 ambientMotes(vec3 viewDir, float dist0, float pixelBlock, float eyeSky) {
                         // toward the sun, the "weird white dots all over the screen" over the
                         // ocean (owner r007). In the beam they tumble and flash.
                         float glintB = 0.35 + 2.6 * pow(0.5 + 0.5 * sin(t * (1.3 + h * 9.0) + h * 91.0), 8.0);
-                        lit = E * vis * (phase * 2.2 + 0.06) * glintB * gBeam
+                        // ub (ua, lake_glitter: specks still spread over the open sky above the
+                        // lake, where shadow-map noise counted as beam flips): a flake must sit in a
+                        // beam itself, lit with shade within a couple of blocks across the light.
+                        float inBeam = 0.0;
+#if QF_SHADOWS
+                        if (vis > 0.05 && gBeam > 0.0) {
+                            vec3 p1 = normalize(cross(L, abs(L.y) < 0.95 ? vec3(0.0, 1.0, 0.0) : vec3(1.0, 0.0, 0.0)));
+                            vec3 p2 = cross(L, p1);
+                            float s1 = sampleShadow(v + p1 * 2.2, vec3(0.0, 1.0, 0.0), 1.0, eyeSky * eyeSky, gl_FragCoord.xy);
+                            float s2 = sampleShadow(v - p1 * 2.2, vec3(0.0, 1.0, 0.0), 1.0, eyeSky * eyeSky, gl_FragCoord.xy);
+                            float s3 = sampleShadow(v + p2 * 2.2, vec3(0.0, 1.0, 0.0), 1.0, eyeSky * eyeSky, gl_FragCoord.xy);
+                            inBeam = smoothstep(0.25, 0.75, 1.0 - min(s1, min(s2, s3)));
+                        }
+#endif
+                        lit = E * vis * (phase * 2.2 + 0.06) * glintB * gBeam * inBeam
                             + Eblock * 0.32;
 #else
                         lit = E * vis * (max(phase - 0.04, 0.0) * 2.4 + 0.09) * glint
@@ -479,8 +493,13 @@ vec3 shadeWaterAbove(vec3 color, vec3 n, float var, vec3 scene0, float dist0, ve
         // block down lit by the full noon sun glowed orange through the clear river. Filter the
         // bed's light by that path (most of a sunlit bed's light is the sun's).
         float wdS = max(scene0.y - bedP.y, 0.0);
-        vec3 Tdown = exp(-waterAbsorb() * (wdS / max(L.y, 0.25)) * 1.6);
-        behind *= mix(vec3(1.0), Tdown, 0.85 * sh * smoothstep(0.0, 0.2, L.y));
+        // ub: ua's ledges a block down still glowed yellow (orange dirt through green water). The
+        // sun's light also scatters out of the top layer of water and the bed sits in its own
+        // in-scattered veil: an extra ~1.2 blocks of path, and a stronger artistic coefficient.
+        vec3 Tdown = exp(-waterAbsorb() * ((wdS + 1.2 * smoothstep(0.02, 0.4, wdS)) / max(L.y, 0.25)) * 4.0);
+        behind *= mix(vec3(1.0), Tdown, 0.9 * sh * smoothstep(0.0, 0.2, L.y));
+        float shallowV = smoothstep(0.05, 0.5, wdS) * (1.0 - smoothstep(2.0, 4.0, wdS));
+        behind = mix(behind, vec3(luminance(behind)) * normalize(waterScatter() + 1e-4) * 1.3, 0.30 * shallowV * sh);
     }
     vec3 refracted = waterVolume(behind, d, skyLight);
 

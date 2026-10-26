@@ -128,7 +128,8 @@ vec3 waterScatter() {
 }
 // The share of a pixel's water that is a still lake (glassy, not river).
 float waterLakeShare() {
-    return waterBiomeWeights().w * (1.0 - waterRiverShare());
+    // r008 ub: a slow river at sunset calms too (lake_glitter read as river water and kept its chop).
+    return waterBiomeWeights().w * (1.0 - 0.4 * waterRiverShare());
 }
 // Glassy water is calmer: fewer wind ripples, so it mirrors more cleanly.
 float waterBiomeRipple() {
@@ -281,7 +282,7 @@ vec4 waterNormalRough(vec3 worldPos, vec3 faceNormal) {
     // raised every water's chop 1.7x at golden hour, so the sheltered lake was rougher at sunset
     // than the ocean at noon. A lake at sunset is a near mirror (the reference packs all show the
     // cliff mirrored cleanly): its chop now falls to about a quarter at low sun.
-    amp *= mix(1.0, mix(0.72, 0.26, goldenHour()), waterLakeShare());
+    amp *= mix(1.0, mix(0.72, 0.20, smoothstep(0.0, 0.55, goldenHour())), waterLakeShare());   // ub: 0.26 linear in gh left a 10-degree sun at 0.44
 #else
     amp *= mix(1.0, 0.72, waterLakeShare());
 #endif

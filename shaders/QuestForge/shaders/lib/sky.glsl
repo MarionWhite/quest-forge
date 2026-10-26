@@ -191,7 +191,7 @@ vec3 meteors(vec3 dir) {
         float perp = abs(dot(dir, N));
         vec3 tint = mix(vec3(0.85, 0.92, 1.0), vec3(0.75, 1.0, 0.80), hash12(sd + 7.7) * 0.6);
         if (p < 1.0) {
-            float w = pxA * (bright > 1.0 ? 1.5 : 1.1);
+            float w = pxA * (bright > 1.0 ? 1.9 : 1.4);   // ub: 1.1 px streaks thinned out under TAA in ua
             float line = exp(-perp * perp / (w * w));
             float along = clamp((thd - tail0) / max(head - tail0, 1e-4), 0.0, 1.0);
             float trail = along * along * step(tail0, thd) * smoothstep(head + 0.004, head - 0.002, thd);
@@ -364,11 +364,15 @@ vec3 skyScatter(vec3 dir) {
             vec2 hz = normalize(dir.xz + vec2(1e-5, 0.0));
             vec2 sz = normalize(sd.xz + vec2(1e-5, 0.0));
             float az = 0.5 + 0.5 * dot(hz, sz);                         // 1 under the sun, 0 opposite
-            float depthB = mix(0.075, 0.20, az * az);                   // the band climbs toward the sun
+            float depthB = mix(0.10, 0.24, az * az);                    // the band climbs toward the sun
             float band = exp(-max(dir.y, 0.0) / depthB);
-            vec3 warm = mix(vec3(1.22, 0.92, 0.86), vec3(1.55, 1.02, 0.50), pow(az, 1.6));
-            float lift = 1.0 + 0.55 * pow(az, 6.0) * band;            // brighter round the sun's bearing
+            // ub (ua vs refs: our band was a tint, the refs' a luminous peach-gold glow brighter than
+            // the zenith): the band now lifts the light as well as warming it, and the sky aloft
+            // takes the lavender-blue of a golden-hour zenith instead of noon's cyan.
+            vec3 warm = mix(vec3(1.40, 1.05, 1.00), vec3(1.85, 1.18, 0.58), pow(az, 1.6));
+            float lift = 1.0 + 0.45 * pow(az, 4.0) * band;            // brighter round the sun's bearing
             L *= mix(vec3(1.0), warm * lift, clamp(ghH * band, 0.0, 1.0));
+            L *= mix(vec3(1.0), vec3(1.10, 0.93, 1.02), clamp(ghH * (1.0 - band) * 0.85, 0.0, 1.0));
         }
     }
     // Airglow and starlight: a moonless sky is never black, and is brightest towards the
@@ -383,7 +387,7 @@ vec3 skyScatter(vec3 dir) {
     // The distance haze uses this colour too, so far terrain fades into the same tone.
     float below = smoothstep(0.0, -0.10, belowY);
     // r008: at golden hour the far land's veil is warm, not blue-grey.
-    L = mix(L, L * mix(vec3(0.58, 0.64, 0.74), vec3(0.74, 0.64, 0.56), goldenHour() * min(QF_GOLD_HORIZON, 1.0)), below);
+    L = mix(L, L * mix(vec3(0.58, 0.64, 0.74), vec3(0.92, 0.80, 0.70), goldenHour() * min(QF_GOLD_HORIZON, 1.0)), below);
 #endif
     float g = luminance(L);
     return mix(L, vec3(g) * 0.55, rainStrength * 0.75);
