@@ -10,6 +10,8 @@ import { tex, mulberry } from './stage.js';
 import { L } from './camp.js';
 import { makeMob } from './mobs.js';
 import { nav } from './nav.js';
+import { makeCritters } from './critters.js';
+import { makeActs } from './acts.js';
 
 const TAU = Math.PI * 2;
 const wrapA = (a) => { a = (a + Math.PI) % TAU; if (a < 0) a += TAU; return a - Math.PI; };
@@ -40,7 +42,7 @@ const mul = (...ms) => ms.reduce((a, m) => a.multiply(m), new THREE.Matrix4());
 const D = mS(1, -1, 1);
 const SPRITE_M = mul(mT(0, -0.3, 0), mS(1.5, 1.5, 1.5), mRy(50), mRz(335), mT(-0.9375, -0.0625, 0));
 const HAND_M = mT(-0.0625, 0.4375, 0.0625);
-const FULL3D = new Set(['wood_pickaxe', 'stone_pickaxe', 'iron_pickaxe', 'stick', 'fishing_rod_uncast', 'fishing_rod_cast']);
+const FULL3D = new Set(['wood_pickaxe', 'stone_pickaxe', 'iron_pickaxe', 'diamond_pickaxe', 'stick', 'fishing_rod_uncast', 'fishing_rod_cast', 'wood_axe', 'iron_axe', 'wood_shovel', 'iron_shovel', 'diamond_shovel', 'wood_hoe', 'iron_hoe', 'bone', 'bow_standby', 'bow_pulling_0', 'bow_pulling_1', 'bow_pulling_2']);
 const ROD = new Set(['fishing_rod_uncast', 'fishing_rod_cast']);
 function heldMatrix(spec) {
   if (spec.block) return mul(D, HAND_M, mT(0, 0.1875, -0.3125), mRx(20), mRy(45), mS(-0.375, -0.375, 0.375));
@@ -105,15 +107,17 @@ function flatItemGeo() {
   g.userData.tip = [0.1, 0.9, 0];
   return g;
 }
+// a name with a slash is a texture of its own ('blocks/torch_on'): the game draws plants and torches as flat sprites too
+const itemPath = (name) => (name.includes('/') ? name + '.png' : 'items/' + name + '.png');
 const itemMats = new Map();
 function itemMat(name) {
-  if (!itemMats.has(name)) itemMats.set(name, new THREE.MeshLambertMaterial({ map: tex('items/' + name + '.png'), alphaTest: 0.4, side: THREE.DoubleSide, emissive: 0x202020 }));
+  if (!itemMats.has(name)) itemMats.set(name, new THREE.MeshLambertMaterial({ map: tex(itemPath(name)), alphaTest: 0.4, side: THREE.DoubleSide, emissive: 0x202020 }));
   return itemMats.get(name);
 }
 const pendingItems = new Set();
 function itemMesh(name) {
   let geo = ITEM_GEO.get(name);
-  const t = tex('items/' + name + '.png');
+  const t = tex(itemPath(name));
   if (!geo && t.image && t.image.width) { geo = buildItemGeo(t.image); ITEM_GEO.set(name, geo); }
   const m = new THREE.Mesh(geo || flatItemGeo(), itemMat(name));
   m.userData.item = name;
@@ -122,7 +126,7 @@ function itemMesh(name) {
 }
 function refreshItems() {
   for (const m of pendingItems) {
-    const name = m.userData.item, t = tex('items/' + name + '.png');
+    const name = m.userData.item, t = tex(itemPath(name));
     if (!m.parent && !m.userData.keep) { pendingItems.delete(m); continue; }
     if (t.image && t.image.width) { const g = buildItemGeo(t.image); ITEM_GEO.set(name, g); m.geometry = g; pendingItems.delete(m); }
   }
@@ -151,7 +155,7 @@ function bangTexture() {
 }
 
 export function createBrain(deps) {
-  const { S, camp, fx, play, seed = 11 } = deps;
+  const { S, camp, fx, play, seed = 11, setVoxel = () => {} } = deps;
   const steve = S.steve;
   const root = steve.root, P = steve.parts;
   root.rotation.order = 'YXZ';
@@ -427,7 +431,7 @@ export function createBrain(deps) {
         const brake = last ? clamp(remain / 0.9, 0.18, 1) : 1;
         const pace = 1 + (sprint ? 0 : 0.1 * Math.sin(drift + since * driftRate * TAU * 0.35) + 0.05 * Math.sin(since * 3.1));
         const target = cruise * align * brake * pace;
-        spd += clamp(target - spd, -5.5 * dt, 2.6 * dt);
+        spd += clamp(target - spd, -(sprint ? 14 : 5.5) * dt, (sprint ? 12 : 2.6) * dt);
         const step = Math.min(d, spd * dt);
         b.x += (dx / d) * step; b.z += (dz / d) * step;
         remain = Math.max(0, remain - step);
@@ -1152,10 +1156,24 @@ export function createBrain(deps) {
     relax();
   }
 
+  // a small free-standing thing in the world with its own update (hearts, an arrow, a skipping stone, a torch's flicker)
+  function entity(g, update) {
+    world.add(g);
+    const it = { g, m: new THREE.Object3D(), state: 'custom', update, age: 0 };
+    b.items.push(it);
+    return it;
+  }
+  const crit = makeCritters({ world, play, fx, seed: seed + 3 });
+  const EX = makeActs({
+    b, R, snd, fx, play, hold, setArm, freeArm, relax, walkTo, standAt, faceYaw, faceAt, armSwing, onCleanup, ignoring, spawnItem,
+    placeBlock, breakBlock, crackMesh, palette, nav, L, camp, crit, yawFor, wrapA, smooth, lerp, clamp, entity, jump, showBang, world,
+    setVoxel, TAU, dirOf, R_P, cam, waitItems, tap,
+  });
   const ACTS = [
     { id: 'tree', f: actWood }, { id: 'mine', f: actMine }, { id: 'iron', f: actIron }, { id: 'chest', f: actChest },
     { id: 'place', f: actPlace }, { id: 'fish', f: actFish }, { id: 'sit', f: actSit }, { id: 'sunset', f: actSunset },
     { id: 'chicken', f: actChicken }, { id: 'pillar', f: actPillarFull }, { id: 'dance', f: actDance }, { id: 'sneak', f: actSneak },
+    ...Object.entries(EX).map(([id, f]) => ({ id, f })),
   ];
   const ALIAS = { craft: 'iron', wood: 'tree' };
   const byId = (id) => ACTS.find((a) => a.id === (ALIAS[id] || id));
@@ -1164,8 +1182,15 @@ export function createBrain(deps) {
   // pick of the rest) before the chest. The chains are in order so the item in his hand always makes sense.
   function nextAct() {
     if (!b.plan.length) {
-      const fun = ['place', 'fish', 'sit', 'sunset', 'chicken', 'pillar', 'dance', 'sneak'].sort(() => rng() - 0.5);
-      b.plan = ['tree', 'mine', fun[0], 'iron', fun[1], 'chest', fun[2]];
+      // the working chain keeps its order, so what is in his hand always makes sense; between its steps he does
+      // one or two of the other things, never the same one twice running
+      const chain = ['tree', 'mine', 'iron', 'chest'];
+      const extras = ACTS.map((a) => a.id).filter((id) => !chain.includes(id) && id !== b.lastId);
+      for (let i = extras.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); [extras[i], extras[j]] = [extras[j], extras[i]]; }
+      const plan = [];
+      chain.forEach((id, i) => { plan.push(...extras.splice(0, i === 0 ? 1 : 2), id); });
+      plan.push(...extras.splice(0, 1));
+      b.plan = plan;
       if (b.plan[0] === b.lastId) b.plan.push(b.plan.shift());
     }
     return b.plan.shift();
@@ -1325,7 +1350,7 @@ export function createBrain(deps) {
       if (b.fn) { if (b.fn(dt)) { b.fn = null; dt = 0; } else return; }
       if (b.wait > 0) { b.wait -= dt; dt = 0; if (b.wait > 0) return; }
       let r;
-      try { r = b.gen.next(); } catch (e) { console.error('steve', e); b.gen = idleLoop(); return; }
+      try { r = b.gen.next(); } catch (e) { console.error('steve', e); (b.errs = b.errs || []).push(String(b.act) + ': ' + String(e && e.stack ? e.stack.split('\n').slice(0, 3).join(' | ') : e)); b.gen = idleLoop(); return; }
       if (r.done) { b.gen = idleLoop(); return; }
       const v = r.value;
       if (typeof v === 'function') b.fn = v; else if (typeof v === 'number') b.wait = v;
@@ -1417,18 +1442,21 @@ export function createBrain(deps) {
       for (const q of camp.quarry) { q.mesh.visible = true; q.removed = false; nav.restore(q.box); }
       camp.chest.setOpen(0);
       camp.setFurnace(false);
+      camp.cropsReset && camp.cropsReset();
+      crit.reset(); crit.setVisible(true);
       Object.assign(b, { spd: 0, dist: 0, tWalk: 0, tPause: 0, tWork: 0, tAll: 0, pausing: false, x: 3.2, z: 0.5, y: 0, vy: 0, floor: 0, air: false, yaw: Math.PI / 2, phase: 0, amp: 0, ampT: 0, sit: 0, sitT: 0, crouch: 0, crouchT: 0, lean: 0, leanT: 0, twist: 0, state: 'idle', arrivedAt: -1, swingClock: 0 });
       b.r.on = b.l.on = false; b.r.w = b.l.w = 0;
       b.head.tyaw = b.head.tpitch = b.head.yaw = b.head.pitch = 0; b.head.target = null;
       b.gen = idleLoop();
       for (const k of Object.keys(P)) { P[k].rotation.set(rest[k].rx, rest[k].ry, rest[k].rz); P[k].position.set(rest[k].x, rest[k].y, rest[k].z); }
     },
-    resume() { b.frozen = false; relax(); b.state = 'idle'; startGen(idleLoop()); },
+    resume() { b.frozen = false; relax(); b.state = 'idle'; crit.setVisible(true); startGen(idleLoop()); },
     call() { b.frozen = false; startGen(callGen()); },
     afterBreak() { startGen(afterGen()); },
     // the scene takes over: put Steve at his scene mark
     freeze() {
       b.frozen = true;
+      crit.setVisible(false);
       startGen(null); b.gen = null;
       Object.assign(b, { x: 3.2, z: 0.5, y: 0, floor: 0, yaw: Math.PI / 2, ampT: 0, amp: 0, sitT: 0, sit: 0, crouchT: 0, crouch: 0, leanT: 0, lean: 0, twist: 0, state: 'scene' });
       b.r.on = b.l.on = false; b.r.w = b.l.w = 0;
@@ -1450,7 +1478,9 @@ export function createBrain(deps) {
         applyPose(dt);
         stepBang();
         stepExtras(dt);
+        crit.update(dt, b.x, b.z);
       }
+      camp.near = { x: b.x, z: b.z };
       cam.w += ((cam.want ? 1 : 0) - cam.w) * Math.min(1, dt * 1.5);
       stepItems(dt);
       if (pendingItems.size) refreshItems();
@@ -1476,7 +1506,7 @@ export function createBrain(deps) {
     },
     acts: () => ACTS.map((a) => a.id),
     // the pace over the run so far: distance, time walking / pausing / working, the average speeds
-    stats: () => ({ seconds: +b.tAll.toFixed(1), metres: +b.dist.toFixed(1), walkS: +b.tWalk.toFixed(1), pauseS: +b.tPause.toFixed(1), workS: +b.tWork.toFixed(1), avgWalkSpeed: +(b.dist / Math.max(1, b.tWalk)).toFixed(2), avgSpeed: +(b.dist / Math.max(1, b.tAll)).toFixed(2), pauseShare: +(b.tPause / Math.max(1, b.tAll)).toFixed(3), walkShare: +(b.tWalk / Math.max(1, b.tAll)).toFixed(3) }),
+    stats: () => ({ errs: b.errs || [], seconds: +b.tAll.toFixed(1), metres: +b.dist.toFixed(1), walkS: +b.tWalk.toFixed(1), pauseS: +b.tPause.toFixed(1), workS: +b.tWork.toFixed(1), avgWalkSpeed: +(b.dist / Math.max(1, b.tWalk)).toFixed(2), avgSpeed: +(b.dist / Math.max(1, b.tAll)).toFixed(2), pauseShare: +(b.tPause / Math.max(1, b.tAll)).toFixed(3), walkShare: +(b.tWalk / Math.max(1, b.tAll)).toFixed(3) }),
   };
   b.gen = idleLoop();
   api.reset(seed);

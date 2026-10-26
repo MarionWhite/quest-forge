@@ -27,6 +27,13 @@ export const L = {
   dance: { x: 1.2, z: 4.6 },
   pillar: { x: -0.6, z: 5.6 },
   sneak: { x: 3.2, z: 2.6 },
+  // the workshop: a note block, an enchanting table and a brewing stand, in the table row's line, used from the front
+  note: { cx: 2, cz: -5 }, enchant: { cx: 6, cz: -5 }, brew: { cx: 7, cz: -5 },
+  noteStand: { x: 2.5, z: -3.45 }, enchantStand: { x: 6.5, z: -3.45 }, brewStand: { x: 7.5, z: -3.45 },
+  hut: { cx: 4, cz: -1 },       // a 3x3 patch of ground for the dirt hut
+  target: { x: 6.5, z: 6.5 },   // the hay bale the bow shoots at, and the spot he shoots from
+  shoot: { x: 1.5, z: 6.5 },
+  sapling: { cx: 5, cz: 0 },
   // rectangles [x0, z0, x1, z1] Steve walks around
   obstacles: [
     [-1.25, -1.25, 2.25, 2.25],
@@ -40,6 +47,9 @@ export const L = {
     [-4.3, -7.3, -0.7, -5.9],
     [-8.3, -0.3, -6.9, 1.3],
     [-8.4, -8.4, -4.8, -4.8],
+    [1.9, -5.1, 3.1, -3.9],
+    [5.9, -5.1, 8.1, -3.9],
+    [3.9, -1.1, 7.1, 2.1],
   ],
 };
 
@@ -85,6 +95,42 @@ function chestParts() {
   hinge.add(lid, latch);
   root.add(hinge);
   return { root, hinge };
+}
+
+// The 1.7.10 enchanting-table book (ModelBook, entity/enchanting_table_book.png 64x32): two covers, a spine,
+// two page blocks and two flipping pages, hinged on the spine. spread 0 shut .. 1 open.
+function bookModel() {
+  const t = tex('entity/enchanting_table_book.png');
+  const mat = new THREE.MeshLambertMaterial({ map: t, side: THREE.DoubleSide, emissive: 0x2a2018 });
+  const mk = (box, uv) => { const m = new THREE.Mesh(outward(boxGeometry(box, uv, 64, 32)), mat); m.castShadow = true; return m; };
+  const root = new THREE.Group();                 // placed on the table: translate (0.5, 0.75, 0.5)
+  const lift = new THREE.Group(); root.add(lift); // bobbing, the tilt
+  const body = new THREE.Group(); lift.add(body); // scaled 1/16 by boxGeometry already (units are blocks)
+  const coverR = new THREE.Group(), coverL = new THREE.Group(), pagesR = new THREE.Group(), pagesL = new THREE.Group(), flipR = new THREE.Group(), flipL = new THREE.Group();
+  coverR.add(mk([-6, -5, 0, 6, 10, 1], [0, 0])); coverL.add(mk([0, -5, 0, 6, 10, 1], [16, 0]));
+  pagesR.add(mk([0, -4, -0.99, 5, 8, 1], [0, 10])); pagesL.add(mk([0, -4, -0.01, 5, 8, 1], [12, 10]));
+  const pg = () => { const m = new THREE.Mesh(new THREE.PlaneGeometry(5 / 16, 8 / 16), mat); m.position.set(2.5 / 16, 0, 0); const uv = m.geometry.attributes.uv; const u0 = 24 / 64, u1 = 29 / 64, v0 = 1 - 18 / 32, v1 = 1 - 10 / 32; uv.setXY(0, u0, v1); uv.setXY(1, u1, v1); uv.setXY(2, u0, v0); uv.setXY(3, u1, v0); return m; };
+  flipR.add(pg()); flipL.add(pg());
+  const spine = mk([-1, -5, 0, 2, 10, 4], [12, 0]); spine.rotation.y = Math.PI / 2;
+  coverR.position.z = -1 / 16; coverL.position.z = 1 / 16;
+  body.add(coverR, coverL, pagesR, pagesL, flipR, flipL, spine);
+  const api = {
+    group: root,
+    set(spread, fr, fl, bob, yaw, tilt) {
+      const f6 = (Math.sin(spread * 6.0) * 0.1 + 1.25) * spread;
+      coverR.rotation.y = Math.PI + f6; coverL.rotation.y = -f6;
+      pagesR.rotation.y = f6; pagesL.rotation.y = -f6;
+      flipR.rotation.y = f6 - f6 * 2 * fr; flipL.rotation.y = f6 - f6 * 2 * fl;
+      const sx = Math.sin(f6) / 16;
+      pagesR.position.x = pagesL.position.x = flipR.position.x = flipL.position.x = sx;
+      flipR.visible = flipL.visible = spread > 0.02;
+      lift.position.y = 0.1 + bob;
+      lift.rotation.set(0, 0, -tilt);
+      root.rotation.y = yaw;
+    },
+  };
+  api.set(0, 0, 0, 0, 0, 1.4);
+  return api;
 }
 
 function signTexture() {
@@ -280,22 +326,70 @@ export function buildCamp(S) {
   farm.position.set(W.x0 + W.w / 2, 0.012, W.z0 + W.d / 2);
   farm.receiveShadow = true;
   group.add(farm);
-  const wp = [], wuv = [], wi = [];
-  let k = 0;
-  for (let ix = 0; ix < W.w; ix++) for (let iz = 0; iz < W.d; iz++) {
-    const cx = W.x0 + ix + 0.5, cz = W.z0 + iz + 0.5, h = 0.8 + ((ix * 7 + iz * 3) % 3) * 0.06;
+  // crops: one small mesh per plant so he can harvest, replant and bone-meal them one by one. A plant is two
+  // crossed pairs of quads (the game's hash shape) textured with the wheat stage; stage 0..7, height as the game draws it.
+  const stageMats = [];
+  for (let i = 0; i < 8; i++) stageMats.push(new THREE.MeshLambertMaterial({ map: tex('blocks/wheat_stage_' + i + '.png'), alphaTest: 0.5, side: THREE.DoubleSide }));
+  const cropGeo = (() => {
+    const wp = [], wuv = [], wi = [];
+    let k = 0;
     for (const [ax, az, bx, bz] of [[-0.5, -0.25, 0.5, -0.25], [-0.5, 0.25, 0.5, 0.25], [-0.25, -0.5, -0.25, 0.5], [0.25, -0.5, 0.25, 0.5]]) {
-      wp.push(cx + ax, 0, cz + az, cx + bx, 0, cz + bz, cx + bx, h, cz + bz, cx + ax, h, cz + az);
+      wp.push(ax, 0, az, bx, 0, bz, bx, 1, bz, ax, 1, az);
       wuv.push(0, 0, 1, 0, 1, 1, 0, 1);
-      wi.push(k, k + 1, k + 2, k, k + 2, k + 3, k, k + 2, k + 1, k, k + 3, k + 2); k += 4;
+      wi.push(k, k + 1, k + 2, k, k + 2, k + 3); k += 4;
     }
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.Float32BufferAttribute(wp, 3));
+    g.setAttribute('uv', new THREE.Float32BufferAttribute(wuv, 2));
+    g.setAttribute('normal', new THREE.Float32BufferAttribute(new Array(wp.length).fill(0).map((_, i) => (i % 3 === 1 ? 1 : 0)), 3));
+    g.setIndex(wi);
+    return g;
+  })();
+  out.crops = [];
+  for (let ix = 0; ix < W.w; ix++) for (let iz = 0; iz < W.d; iz++) {
+    const m = new THREE.Mesh(cropGeo, stageMats[7]);
+    const cx = W.x0 + ix + 0.5, cz = W.z0 + iz + 0.5;
+    m.position.set(cx, 0, cz);
+    group.add(m);
+    const c = { mesh: m, x: cx, z: cz, stage: 7, setStage(n) { c.stage = n; m.visible = n >= 0; if (n >= 0) m.material = stageMats[Math.min(7, n)]; } };
+    out.crops.push(c);
   }
-  const wg = new THREE.BufferGeometry();
-  wg.setAttribute('position', new THREE.Float32BufferAttribute(wp, 3));
-  wg.setAttribute('uv', new THREE.Float32BufferAttribute(wuv, 2));
-  wg.setAttribute('normal', new THREE.Float32BufferAttribute(new Array(wp.length).fill(0).map((_, i) => (i % 3 === 1 ? 1 : 0)), 3));
-  wg.setIndex(wi);
-  group.add(new THREE.Mesh(wg, new THREE.MeshLambertMaterial({ map: tex('blocks/wheat_stage_7.png'), alphaTest: 0.5, side: THREE.DoubleSide })));
+  out.cropsReset = () => { for (const c of out.crops) c.setStage(7); };
+
+  // ---- the workshop: note block, enchanting table, brewing stand (1.7.10 models)
+  const noteBlock = cube(M('noteblock.png'), c(L.note.cx), 0.5, c(L.note.cz));
+  group.add(noteBlock);
+  nav.add('note', L.note.cx, L.note.cz, L.note.cx + 1, L.note.cz + 1, 'solid');
+  out.note = noteBlock;
+  // enchanting table: a 16x12x16 block, obsidian-dark sides, and the floating book
+  const et = M('enchanting_table_top.png'), es = M('enchanting_table_side.png'), eb = M('enchanting_table_bottom.png');
+  const enchant = new THREE.Mesh(new THREE.BoxGeometry(1, 0.75, 1), faces6(es, es, et, eb, es, es));
+  enchant.position.set(c(L.enchant.cx), 0.375, c(L.enchant.cz));
+  enchant.castShadow = enchant.receiveShadow = true;
+  group.add(enchant);
+  nav.add('enchant', L.enchant.cx, L.enchant.cz, L.enchant.cx + 1, L.enchant.cz + 1, 'solid');
+  const book = bookModel();
+  book.group.position.set(c(L.enchant.cx), 0.75, c(L.enchant.cz));
+  group.add(book.group);
+  out.enchant = { table: enchant, book, spread: 0, flipA: 0, flipB: 0, rot: 0, tick: 0, flipT: 0, last: null };
+  // brewing stand: the rod and the three base plates, exactly RenderBlocks.renderBlockBrewingStand
+  const brewG = new THREE.Group();
+  brewG.position.set(L.brew.cx, 0, L.brew.cz);
+  const bsT = M('brewing_stand.png', { transparent: true, alphaTest: 0.2 }), bbT = M('brewing_stand_base.png', { transparent: true, alphaTest: 0.2 });
+  const plate = (x0, z0, x1, z1) => { const m = new THREE.Mesh(new THREE.BoxGeometry(x1 - x0, 0.125, z1 - z0), bbT); m.position.set((x0 + x1) / 2, 0.0625, (z0 + z1) / 2); m.castShadow = m.receiveShadow = true; return m; };
+  const rod = new THREE.Mesh(new THREE.BoxGeometry(0.125, 0.875, 0.125), bsT); rod.position.set(0.5, 0.4375, 0.5); rod.castShadow = true;
+  brewG.add(rod, plate(0.5625, 0.3125, 0.9375, 0.6875), plate(0.0625, 0.0625, 0.4375, 0.4375), plate(0.0625, 0.5625, 0.4375, 0.9375));
+  // the blaze rod's top is the stand's burner: three bottles hang off the plates
+  const bottleMat = new THREE.MeshLambertMaterial({ color: 0x3f76e4, transparent: true, opacity: 0.85 });
+  out.brew = { group: brewG, bottles: [], x: L.brew.cx + 0.5, z: L.brew.cz + 0.5 };
+  for (const [bx, bz] of [[0.75, 0.5], [0.25, 0.25], [0.25, 0.75]]) {
+    const bm = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.34, 0.2), bottleMat);
+    bm.position.set(bx, 0.3, bz); bm.visible = false; bm.castShadow = true;
+    brewG.add(bm); out.brew.bottles.push(bm);
+  }
+  group.add(brewG);
+  nav.add('brew', L.brew.cx + 0.05, L.brew.cz + 0.05, L.brew.cx + 0.95, L.brew.cz + 0.95, 'solid');
+  out.brew.setBottles = (n, col) => { out.brew.bottles.forEach((m, i) => { m.visible = i < n; if (col != null) m.material.color.setHex(col); }); };
 
   // the quarry: loose ore and stone, one mesh per block so Steve can mine them
   const kinds = { coal: 'coal_ore.png', stone: 'stone.png', iron: 'iron_ore.png' };
@@ -313,6 +407,28 @@ export function buildCamp(S) {
     lampLight.intensity = 4.0 + 0.2 * Math.sin(t * 3.1);
     furnaceLight.intensity = out.furnaceLit ? 0.8 + 0.25 * Math.sin(t * 7 + 2) : 0;
     for (const q of flames.children) q.scale.y = 1 + 0.08 * Math.sin(t * 14 + q.rotation.y * 3);
+    // the enchanting table's book (TileEntityEnchantmentTable.updateEntity): it opens and turns to a player within
+    // three blocks, flips pages while open, and drifts shut and slowly turning when alone
+    const e = out.enchant, tick = t * 20, dtk = e.last === null ? 0 : Math.min(3, tick - e.last);
+    e.last = tick;
+    if (dtk > 0) {
+      const np = out.near;
+      const dx = np ? np.x - (L.enchant.cx + 0.5) : 99, dz = np ? np.z - (L.enchant.cz + 0.5) : 99;
+      const close = dx * dx + dz * dz < 9;
+      const want = close ? Math.atan2(dz, dx) : null;
+      e.spread += ((close ? 1 : 0) - e.spread) * Math.min(1, 0.1 * dtk) * (close ? 1 : 1.1);
+      if (close) {
+        let d = want - e.rot; while (d >= Math.PI) d -= Math.PI * 2; while (d < -Math.PI) d += Math.PI * 2;
+        e.rot += d * Math.min(1, 0.4 * dtk);
+        e.flipT += dtk;
+        if (e.flipT > 40 + Math.random() * 40) { e.flipT = 0; e.flipB = (Math.random() < 0.5 ? 1 : -1) * 0.12; }
+      } else e.rot += 0.02 * dtk;
+      e.flipA += e.flipB * dtk; e.flipB *= Math.pow(0.9, dtk);
+      e.flipA = Math.max(0, Math.min(1, e.flipA)); if (e.flipA === 0 || e.flipA === 1) e.flipB = 0;
+      e.fr = Math.max(0, Math.min(1, e.flipA + (e.flipB * 0))); 
+    }
+    const fr = Math.max(0, Math.min(1, e.flipA + 0.15)), fl = Math.max(0, Math.min(1, e.flipA - 0.15));
+    e.book.set(Math.max(0, e.spread), fr, fl, Math.sin(t * 2) * 0.01 * 2 + 0.01, -e.rot + Math.PI / 2, 1.4);
   };
   return out;
 }

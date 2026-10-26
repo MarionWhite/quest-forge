@@ -47,3 +47,4 @@
 - 2026-10-25 (Mac, site-krypt-world): Krypt rebuilt as nine segments with bends and side passages, baked light plus 4 live lights, real wall torches, passing-focus camera, entry gate, spatial ambience, window.__krypt contract (site/graves/krypt.js dress.js fx.js kaudio.js app.js). Local only.
 2026-10-25: Lucky stage round 4: block drops and slams, Steve's behaviour system and campsite, new sky, mood torch flash, always-on ticks, speaker toggle (site-lucky-stage).
 2026-10-26 lucky-accuracy: audit (tools/site/audit_lucky.py), 1.7.10 block table + models, real reel tiles, sign/bars/chest/cake fixes; vet 306 ok.
+2026-10-26 lucky r6: ring removed, leisurely pace + fidgets, 17 new activities with wolf/sheep/cow, big mobs path by real footprint (nav bucket bug). See ops/checkpoints/site-r6-lucky.md

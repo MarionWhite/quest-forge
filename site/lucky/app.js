@@ -1203,7 +1203,7 @@ async function boot() {
   const S = st.stage;
   S.steve.root.position.copy(POS.player);
   camp = buildCamp(S);
-  brain = createBrain({ S, camp, fx: S.fx, play, seed: params.has('seed') ? Number(params.get('seed')) : (params.has('dump') ? 11 : Math.floor(Math.random() * 1e6)) });
+  brain = createBrain({ S, camp, fx: S.fx, play, setVoxel, seed: params.has('seed') ? Number(params.get('seed')) : (params.has('dump') ? 11 : Math.floor(Math.random() * 1e6)) });
   if (params.has('noshadow')) S.renderer.shadowMap.enabled = false;
   const resize = () => {
     const w = cvs.clientWidth, h = cvs.clientHeight;
