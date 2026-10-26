@@ -10,6 +10,7 @@ import { floorTop, STAIR_LANDING, STAIR_LEN, STAIR_DROP, CHASM_DEPTH, FORT_DEPTH
 import { KINDS, def, wall, P, makeCtx } from "./kindreg.js";
 export { KINDS, makeCtx };
 import "./kinds_a.js";
+import "./kinds_b.js";
 
 // ---- the dressers of the nine original segments and the six of round 5 (ported unchanged) ----
 const DRESS = {};
