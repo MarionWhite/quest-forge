@@ -149,7 +149,7 @@ export function dress(a, lay, IMG, lightAt) {
     const p = g.attributes.position, arr = new Float32Array(p.count * 3);
     for (let i = 0; i < p.count; i++) { const c = lightAt(p.getX(i), r.y + 0.05, p.getZ(i), 0, 1, 0); arr[i * 3] = c[0]; arr[i * 3 + 1] = c[1]; arr[i * 3 + 2] = c[2]; }
     g.setAttribute("bake", new THREE.BufferAttribute(arr, 3));
-    const m = new THREE.Mesh(g, patchBake(new THREE.MeshLambertMaterial({ map: wa.t, transparent: true, opacity: 0.78, color: 0x6f95b0, depthWrite: false })));
+    const m = new THREE.Mesh(g, patchBake(new THREE.MeshLambertMaterial({ map: wa.t, transparent: true, opacity: 0.7, color: 0x93b4c4, depthWrite: false })));
     m.renderOrder = 2; group.add(m);
   }
   const lavaMat = new THREE.MeshBasicMaterial({ map: la ? la.t : null, color: new THREE.Color(1.5, 1.05, 0.75) });
@@ -187,7 +187,7 @@ export function dress(a, lay, IMG, lightAt) {
     // A dark core so the cage does not read as empty glass.
     const core = new THREE.Mesh(new THREE.BoxGeometry(0.96, 0.96, 0.96), new THREE.MeshBasicMaterial({ color: 0x0b0a10, side: THREE.BackSide }));
     core.position.copy(cage.position);
-    group.add(core, cage);
+    group.add(cage);
     try {
       mob = makeMob("Zombie", { scale: 0.3 });
       mob.root.position.set(spawner.x, spawner.y + 0.12, spawner.z);

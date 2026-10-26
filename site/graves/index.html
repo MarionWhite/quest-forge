@@ -120,6 +120,34 @@ h1{font-size:clamp(38px,6.6vw,64px);line-height:.94;font-weight:800;letter-spaci
 .tick:focus-visible{outline:2px solid var(--glow);outline-offset:1px}
 .strip-meta{display:flex;justify-content:space-between;margin-top:6px;font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#8E83A0}
 
+
+/* The entry gate: a stone door over the stage until it is opened (the click is what lets the browser play sound). */
+.gate{position:absolute;inset:0;z-index:8;display:none;align-items:center;justify-content:center;overflow:hidden}
+.stage[data-gate="1"] .gate,.stage[data-gate="opening"] .gate{display:flex}
+.gate .door{position:absolute;top:0;bottom:0;width:50.2%;background:#14111a url(tex/stonebrick.png) 0 0/64px 64px;image-rendering:pixelated;transition:transform 2.4s cubic-bezier(.55,.05,.35,1)}
+.gate .door::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(7,6,11,.74),rgba(7,6,11,.38) 50%,rgba(7,6,11,.74));pointer-events:none}
+.gate .door.l{left:0;box-shadow:inset -10px 0 0 #07060b,inset -14px 0 0 #2a2330}
+.gate .door.r{right:0;box-shadow:inset 10px 0 0 #07060b,inset 14px 0 0 #2a2330}
+.gate .band{position:absolute;left:0;right:0;height:14px;background:#17141b;border-top:2px solid #3B3248;border-bottom:2px solid #07060b;z-index:1}
+.gate .band.a{top:26%}.gate .band.b{bottom:26%}
+.gate .card{position:relative;z-index:2;text-align:center;padding:30px 34px 28px;max-width:min(470px,calc(100% - 36px));background:rgba(10,8,14,.84);border:1px solid #3B3248;box-shadow:0 16px 50px rgba(0,0,0,.6);transition:opacity .7s ease,transform .7s ease}
+.gate .k{margin:0 0 12px;font-family:"JetBrains Mono",monospace;font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:#A99DB9}
+.gate h2{margin:0;font-family:Archivo,sans-serif;font-weight:800;font-size:clamp(32px,5.4vw,50px);letter-spacing:-.03em;line-height:.98;color:var(--night-ink)}
+.gate .copy{margin:14px 0 22px;font-size:15.5px;line-height:1.5;color:var(--night-2)}
+.gate .go{font-family:Archivo,sans-serif;font-size:15px;font-weight:700;letter-spacing:.01em;padding:12px 26px;border:1px solid var(--glow);border-radius:2px;background:rgba(240,138,60,.14);color:#fff;cursor:pointer}
+.gate .go:hover{background:rgba(240,138,60,.28)}
+.gate .go:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.gate .fine{margin:14px 0 0;font-family:"JetBrains Mono",monospace;font-size:10.5px;letter-spacing:.06em;color:#8E83A0}
+.stage[data-gate="opening"] .gate .door.l{transform:translateX(-101%)}
+.stage[data-gate="opening"] .gate .door.r{transform:translateX(101%)}
+.stage[data-gate="opening"] .gate .band{opacity:0;transition:opacity 1.6s}
+.stage[data-gate="opening"] .gate .card{opacity:0;transform:translateY(-8px);pointer-events:none}
+.stage[data-gate="1"] .hud,.stage[data-gate="1"] .hint,.stage[data-gate="1"] .strip-wrap{visibility:hidden}
+.snd{display:inline-flex;align-items:center;justify-content:center;width:38px;padding:8px 0}
+.snd svg{width:18px;height:18px}
+.snd .off{display:none}.snd[data-muted="1"] .on{display:none}.snd[data-muted="1"] .off{display:block}
+@media (prefers-reduced-motion:reduce){.gate .door{transition-duration:.01s}}
+
 /* The page below the stage. */
 main{padding:34px 0 0}
 .bar-top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px 28px}
@@ -221,6 +249,17 @@ footer.site a:hover{color:var(--ember-ink);border-color:var(--ember)}
 
 <section id="stage" class="stage" aria-label="The Krypt. A gallery of graves. Scroll or drag to walk, click a stone to read it." hidden>
   <canvas id="gl" role="img" aria-label="The Krypt: a stone gallery with torches, lit by the violet sky through the ceiling."></canvas>
+  <div class="gate" id="gate">
+    <div class="door l"></div><div class="door r"></div>
+    <div class="band a"></div><div class="band b"></div>
+    <div class="card">
+      <p class="k">The Wall of Graves</p>
+      <h2>Enter the Krypt</h2>
+      <p class="copy">One stone for every death on the server, set in an alcove in the order it happened. The way down is long and dim, and it has sound.</p>
+      <button id="gateGo" class="go" type="button">Open the door</button>
+      <p class="fine">Scroll or drag to walk once the door is open.</p>
+    </div>
+  </div>
   <div class="hud" id="hud" data-focus="0">
     <div class="hud-l">
       <p class="hud-k">Nearest stone</p>
@@ -229,6 +268,7 @@ footer.site a:hover{color:var(--ember-ink);border-color:var(--ember)}
     </div>
     <div class="hud-r">
       <input id="search" class="search" type="search" list="names" placeholder="Find a name" aria-label="Find a stone by name">
+      <button id="btnSound" class="hud-btn snd" type="button" title="Sound is on" aria-label="Sound is on" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><g class="on" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M16 9a4.5 4.5 0 0 1 0 6"/><path d="M18.6 6.5a8 8 0 0 1 0 11"/></g><g class="off" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M16.5 9.5l5 5M21.5 9.5l-5 5"/></g></svg></button>
       <button id="btnNewest" class="hud-btn" type="button">Newest death</button>
       <button id="btnHere" class="hud-btn" type="button">Open this stone</button>
       <datalist id="names"></datalist>

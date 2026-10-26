@@ -6,12 +6,15 @@ import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
 import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
 import { ShaderPass } from "three/addons/postprocessing/ShaderPass.js";
 import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
-import { BokehPass } from "three/addons/postprocessing/BokehPass.js";
 import {
   normalize, killerText, epitaph, epitaphParts, familyFor, ornaments, poseFor, seedFor,
   CAUSE_LABEL, CAUSE_NOUN, hash
 } from "./data.js";
-import { layout, buildGrid, meshGrid, torchSpots, alcoveFor, pathCurve, skyObjects, dressing, worldZ, sizeOf } from "./krypt.js";
+import { layout, buildGrid, meshGrid, pathCurve, finishLayout, profileAt, legAt, legDir, legMap, legYaw, slotFrame, patchBake } from "./krypt.js";
+import { dress } from "./dress.js";
+import { makeFx } from "./fx.js";
+import { makeAmbience, sfxLog } from "./kaudio.js";
+import { audio } from "../lib/qfaudio.js";
 import { buildStone, buildStatue, buildAngelFigure, makeTexture, imageTexture, statueCanvas, STONE_HEIGHT } from "./model.js";
 import { loadImage, canvas, glowCanvas, dotCanvas, skyCanvas } from "./textures.js";
 
@@ -22,7 +25,8 @@ const QS = new URLSearchParams(location.search);
 const FAMILY_FILE = { slab: "grave_stone", tomb: "grave_zerk", pillar: "grave_pillar", wood: "grave_wood", knight: "grave_knight",
   cross: "grave_stone", angel: "grave_stone", skeleton: "skeleton" };
 const TEX_FILES = ["stone", "cobblestone", "cobblestone_mossy", "stonebrick", "stonebrick_mossy", "stonebrick_cracked",
-  "gravel", "obsidian", "bedrock", "coal_ore", "iron_ore", "web", "vine", "netherrack", "glowstone", "iron_bars",
+  "gravel", "obsidian", "bedrock", "coal_ore", "iron_ore", "web", "vine", "netherrack", "glowstone", "iron_bars", "dirt",
+  "bookshelf", "nether_brick", "soul_sand", "mob_spawner", "fire_layer_0", "bone", "planks_oak", "log_oak", "log_oak_top",
   "lava_still", "water_still", "torch_on", "rail_normal", "waterlily", "particles", "steve",
   "grave_stone", "grave_zerk", "grave_pillar", "grave_wood", "grave_knight", "skeleton"];
 
@@ -54,6 +58,7 @@ window.__krypt = {
 };
 
 // --- scares: begin (owned by scares.js) ---
+import("./scares.js").then((m) => m.initScares({ enabled: () => !!state.webgl && !state.reduced })).catch((e) => console.warn("scares", e));
 // --- scares: end ---
 
 // ---- helpers --------------------------------------------------------------------------------
@@ -173,6 +178,8 @@ function checkWebGL() {
   try { const c = document.createElement("canvas"); return !!(c.getContext("webgl2") || c.getContext("webgl")); }
   catch { return false; }
 }
+const UP = new THREE.Vector3(0, 1, 0);
+const smooth01 = (x) => { x = Math.min(1, Math.max(0, x)); return x * x * (3 - 2 * x); };
 
 async function startKrypt() {
   if (K) return;
@@ -183,119 +190,60 @@ async function startKrypt() {
   renderer.setPixelRatio(phone ? 0.5 : Math.min(devicePixelRatio, 2));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.1;
-  renderer.shadowMap.enabled = !phone;
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.toneMappingExposure = 1.15;
   K.renderer = renderer;
 
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x0e0b12);
-  scene.fog = new THREE.FogExp2(0x0e0b12, 0.035);
+  scene.background = new THREE.Color(0x07060b);
+  scene.fog = new THREE.FogExp2(0x07060b, 0.04);
   K.scene = scene;
-  const camera = new THREE.PerspectiveCamera(58, 1, 0.05, 160);
+  const camera = new THREE.PerspectiveCamera(58, 1, 0.05, 140);
   K.camera = camera;
 
   // Textures: the pack's own files, loaded once.
   const IMG = {};
   await Promise.all(TEX_FILES.map(async n => { try { IMG[n] = await loadImage(`tex/${n}.png`); } catch { /* optional */ } }));
+  try { IMG.skull_tex = await loadImage("../lib/mc/tex/entity/skeleton.png"); } catch { /* the graves' own skeleton sheet stands in */ }
   K.IMG = IMG;
+
+  // The world: legs, path, grid, bake, dressing.
   const lay = layout(state.graves.length);
-  K.lay = lay;
-  const L = sizeOf(lay);
-  K.length = L;
   const curve = pathCurve(lay);
-  K.curve = curve;
-
-  // Lights.
-  const hemi = new THREE.HemisphereLight(0x8a7ab0, 0x2a1d2c, 1.1);
-  scene.add(hemi); K.hemi = hemi;
-  const sun = new THREE.DirectionalLight(0xcbb8ff, 0.9);
-  sun.position.set(-6, 30, -8);
-  sun.castShadow = !phone;
-  if (sun.castShadow) {
-    sun.shadow.mapSize.set(2048, 2048);
-    const sc = sun.shadow.camera; sc.left = -16; sc.right = 16; sc.top = 16; sc.bottom = -16; sc.near = 1; sc.far = 80;
-    sun.shadow.bias = -0.0008;
-  }
-  scene.add(sun, sun.target); K.sun = sun;
-
-  // The block grid, meshed once.
+  finishLayout(lay, curve);
   const grid = buildGrid(lay);
-  const gm = meshGrid(grid, IMG, { shadows: !phone });
-  scene.add(gm.group); K.gridMesh = gm;
+  K.lay = lay; K.curve = curve; K.grid = grid; K.length = curve.getLength();
+  const gm = meshGrid(grid, IMG);
+  scene.add(gm.group); K.gridMesh = gm; K.lightAt = gm.lightAt;
+  const dr = dress(grid, lay, IMG, gm.lightAt);
+  scene.add(dr.group); K.dress = dr;
+  K.fx = makeFx(scene, grid.emit, { phone });
 
-  // Set-piece textures.
-  const lavaTex = imageTexture(IMG.lava_still, { nearest: true, repeat: true });
-  const barsTex = imageTexture(IMG.iron_bars, { nearest: true });
-  const webTex = imageTexture(IMG.web, { nearest: true });
-  const vineTex = imageTexture(IMG.vine, { nearest: true });
-  const railTex = imageTexture(IMG.rail_normal, { nearest: true });
-  const waterTex = imageTexture(IMG.water_still, { nearest: true, repeat: true });
-  const dress = dressing(lay, IMG, { planeTex: { lava: lavaTex, bars: barsTex, web: webTex, vine: vineTex, rail: railTex, water: waterTex } });
-  scene.add(dress); K.dress = dress;
-
-  // The sky: the shattered violet, and the rays that fall through the holes.
+  // The violet sky, far above the cracks; it rides with the camera, so it has no parallax, like a real sky.
   const skyTex = makeTexture(skyCanvas(9));
-  const rc = canvas(64, 256), rx = rc.getContext("2d");
-  const rg = rx.createLinearGradient(0, 0, 0, 256);
-  rg.addColorStop(0, "rgba(220,200,255,0.9)"); rg.addColorStop(1, "rgba(200,180,255,0)");
-  rx.fillStyle = rg; rx.fillRect(0, 0, 64, 256);
-  const sky = skyObjects(lay, skyTex, makeTexture(rc), makeTexture(glowCanvas("205,176,255")));
+  const sky = new THREE.Mesh(new THREE.PlaneGeometry(300, 300), new THREE.MeshBasicMaterial({ map: skyTex, fog: false, depthWrite: false }));
+  sky.rotation.x = Math.PI / 2; sky.position.y = 70; sky.renderOrder = -1;
   scene.add(sky); K.sky = sky;
 
-  // Torches: the flame on a cross plane, a glow sprite, and a live light for the nearest few.
-  const torchImg = IMG.torch_on;
-  const torchTex = imageTexture(torchImg, { nearest: true });
-  const glow = makeTexture(glowCanvas("255,150,60"));
-  // Only the alcoves that hold a grave get a torch. The empty ones stay dark until the feed fills them.
-  const spots = torchSpots(lay).filter(sp => sp.slot < 0 || sp.slot < state.graves.length);
-  K.torches = [];
-  const nLive = phone ? 2 : 3;
+  // Light: a faint fill for the figures, and the nearest few torches, fires and seams as live point lights. The rest
+  // of the light is baked into the blocks (krypt.js), so it needs no draw calls.
+  const hemi = new THREE.HemisphereLight(0x7d78a8, 0x2a1d2c, 0.32);
+  scene.add(hemi); K.hemi = hemi;
+  K.dyn = grid.sources.filter(s => s.dyn).map((s, i) => ({ ...s, ph: (i * 1.713) % 10 }));
   K.lights = [];
+  const nLive = phone ? 3 : 4;
   for (let n = 0; n < nLive; n++) {
-    const pl = new THREE.PointLight(0xffa552, 0, 11, 2);
-    scene.add(pl); K.lights.push(pl);
+    const pl = new THREE.PointLight(0xffa552, 0, 12, 2);
+    scene.add(pl); K.lights.push({ pl, src: null, amt: 0 });
   }
-  const flameMat = new THREE.MeshBasicMaterial({ map: torchTex, alphaTest: 0.4, side: THREE.DoubleSide, color: new THREE.Color(1.2, 1.1, 1.0) });
-  const spriteMat = () => new THREE.SpriteMaterial({ map: glow, color: new THREE.Color(1.25, 0.7, 0.32), blending: THREE.AdditiveBlending, depthWrite: false, transparent: true });
-  for (const s of spots) {
-    const tg = new THREE.Group();
-    const p1 = new THREE.Mesh(new THREE.PlaneGeometry(0.45, 0.9), flameMat);
-    const p2 = p1.clone(); p2.rotation.y = Math.PI / 2;
-    p1.position.y = 0.45; p2.position.y = 0.45;
-    tg.add(p1, p2);
-    tg.position.set(s.x, s.y - 0.4, s.z);
-    const sp = new THREE.Sprite(spriteMat());
-    sp.scale.setScalar(1.7); sp.position.set(0, 0.85, 0); tg.add(sp);
-    scene.add(tg);
-    K.torches.push({ s, group: tg, sprite: sp, phase: Math.random() * 10, live: null });
-  }
-
-  // Ash and embers falling through the gallery.
-  const embers = pickEmber(IMG.particles);
-  const NA = phone ? 220 : 480, NE = phone ? 60 : 130;
-  const ashG = particleSystem(NA, makeTexture(dotCanvas("210,200,225")), 0.045, THREE.NormalBlending, 0.5);
-  const emberG = particleSystem(NE, embers, 0.13, THREE.AdditiveBlending, 1);
-  scene.add(ashG.points, emberG.points);
-  K.ash = ashG; K.ember = emberG;
-
-  // The focus spotlight, for the grave that is open.
   const spot = new THREE.SpotLight(0xffc27a, 0, 14, 0.5, 0.7, 1.4);
   scene.add(spot, spot.target); K.spot = spot;
 
-  // Post: bloom on the torches and lava, a bokeh blur on desktop, vignette and film grain, output.
-  const size = new THREE.Vector2();
+  // Post: a restrained bloom (only what is brighter than the screen can show), vignette and grain, output.
   const composer = new EffectComposer(renderer);
   K.composer = composer;
-  const render = new RenderPass(scene, camera);
-  composer.addPass(render);
-  const bloom = new UnrealBloomPass(new THREE.Vector2(256, 256), 0.6, 0.55, 0.72);
+  composer.addPass(new RenderPass(scene, camera));
+  const bloom = new UnrealBloomPass(new THREE.Vector2(256, 256), 0.35, 0.45, 1.1);
   composer.addPass(bloom); K.bloom = bloom;
-  let bokeh = null;
-  if (!phone) {
-    bokeh = new BokehPass(scene, camera, { focus: 3, aperture: 0.00045, maxblur: 0.0045 });
-    composer.addPass(bokeh); K.bokeh = bokeh;
-  }
   const grade = new ShaderPass({
     uniforms: { tDiffuse: { value: null }, time: { value: 0 }, res: { value: new THREE.Vector2(1, 1) } },
     vertexShader: "varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }",
@@ -303,11 +251,11 @@ async function startKrypt() {
       float rnd(vec2 co){ return fract(sin(dot(co, vec2(12.9898,78.233))) * 43758.5453); }
       void main(){
         vec4 c = texture2D(tDiffuse, vUv);
-        float d = distance(vUv, vec2(0.5, 0.52)) * 1.32;
-        float vig = smoothstep(0.98, 0.28, d);
-        c.rgb *= mix(0.42, 1.0, vig);
+        float d = distance(vUv, vec2(0.5, 0.52)) * 1.3;
+        float vig = smoothstep(1.0, 0.3, d);
+        c.rgb *= mix(0.6, 1.0, vig);
         float g = rnd(vUv * res + fract(time) * 91.7) - 0.5;
-        c.rgb += g * 0.018;
+        c.rgb += g * 0.012 * (0.4 + c.rgb);
         gl_FragColor = c;
       }`
   });
@@ -316,25 +264,26 @@ async function startKrypt() {
 
   // The camera's walk. s runs from 0 at the entrance to 1 at the deepest end.
   K.walk = { s: 0, sT: 0, yaw: 0, yawT: 0, pitch: 0, pitchT: 0, mx: 0, my: 0 };
-  // ?walk=<seconds>: the walk advances by itself, from the entrance to the deepest end over that many seconds.
   const walkSec = Number(QS.get("walk"));
   K.autoWalk = QS.has("walk") && walkSec > 0 ? { dur: walkSec, t0: null } : null;
   K.pos = new THREE.Vector3(); K.look = new THREE.Vector3(); K.focusAmt = 0;
+  K.fYaw = 0; K.fPitch = 0; K.speed = 0; K.activeSeconds = 0; K.held = false;
   // The alcoves and the graves. Built lazily, near the camera.
   K.anchors = state.graves.map((g, i) => {
     const slot = lay.slots[i];
-    const side = slot ? slot.side : (i % 2 ? 1 : -1);
-    const k = slot ? slot.k : lay.kStart - 8;
-    return { side, z: worldZ(k), s: sFromZ(worldZ(k), lay), i };
+    const fr = slotFrame(lay, slot);
+    return { i, side: slot.side, s: slot.s, frame: fr, p: fr.stone, leg: slot.leg };
   });
   K.built = new Map(); K.queue = [];
-  // Prebuild the graves that the walk starts near, so the first frame already has its stones.
-  K.pos.copy(K.curve.getPointAt(QS.has("at") ? Math.min(1, Math.max(0, Number(QS.get("at")) || 0)) : 0));
-  for (let i = 0; i < K.anchors.length && i < 60; i++) if (Math.abs(K.anchors[i].z - K.pos.z) < 26) buildGraveAt(i, false);
-  K.placeEntrance = true;
+  const at0 = QS.has("at") ? Math.min(1, Math.max(0, Number(QS.get("at")) || 0)) : 0;
+  K.pos.copy(curve.getPointAt(at0));
+  for (let i = 0; i < K.anchors.length && i < 80; i++) if (K.anchors[i].p.distanceTo(K.pos) < 30) buildGraveAt(i, false);
   buildEntrance(lay, IMG);
-  K.bounds = { z0: worldZ(lay.kStart), z1: worldZ(lay.kEnd) };
 
+  // Sound: the gate unlocks it. Under ?dump and ?nogate there is no gate and no sound.
+  K.amb = makeAmbience({ a: grid, lay });
+  K.gateOpen = (DUMP && !QS.has("gate")) || QS.has("nogate");
+  stage.dataset.gate = K.gateOpen ? "0" : "1";
   resize();
   new ResizeObserver(resize).observe(stage);
   K.visible = true;
@@ -346,13 +295,32 @@ async function startKrypt() {
   K.last = performance.now();
   K.snap = QS.has("grave") || QS.has("at");
   if (QS.has("grave")) { const i = Number(QS.get("grave")); if (state.graves[i]) focusGrave(i, true); }
-  if (QS.has("at")) { const at = Math.min(1, Math.max(0, Number(QS.get("at")) || 0)); K.walk.s = K.walk.sT = at; }
+  if (QS.has("at")) { K.walk.s = K.walk.sT = at0; }
+  publishKrypt();
   requestAnimationFrame(frame);
-  if (DUMP) setTimeout(runDump, 2000);   // the verification frame does not wait for animation frames
+  if (DUMP) setTimeout(runDump, 2500);   // the verification frame does not wait for animation frames
   document.documentElement.dataset.graves = "ready";
 }
 
-function sFromZ(z, lay) { return Math.min(1, Math.max(0, (worldZ(lay.kStart) - z) / (worldZ(lay.kStart) - worldZ(lay.kEnd)))); }
+// Fill the scares contract (see the top of the file).
+function publishKrypt() {
+  const kr = window.__krypt;
+  kr.scene = K.scene; kr.camera = K.camera; kr.renderer = K.renderer; kr.composer = K.composer;
+  kr.corners = K.lay.corners.map(c => ({ s: c.s, pos: new THREE.Vector3(c.x, c.y, c.z), dir: new THREE.Vector3(c.dx, 0, c.dz), side: c.side, kind: c.kind }));
+  kr.getWalk = () => ({ s: K.walk.s, speed: K.speed, activeSeconds: K.activeSeconds, depth: smooth01(K.walk.s) });
+  kr.takeover = (on) => {
+    on = !!on; if (on === K.held) return;
+    K.held = on; __kryptHold.on = on;
+    if (!on) {
+      // Hand the camera back: start the damped walk from wherever the scare left it.
+      K.pos.copy(K.camera.position);
+      const f = new THREE.Vector3(0, 0, -1).applyQuaternion(K.camera.quaternion);
+      K.look.copy(K.pos).addScaledVector(f, 5);
+      K.last = performance.now();
+    }
+  };
+  window.dispatchEvent(new CustomEvent("krypt-ready"));
+}
 
 function resize() {
   if (!K) return;
@@ -366,29 +334,7 @@ function resize() {
   K.grade.uniforms.res.value.set(w * K.renderer.getPixelRatio(), h * K.renderer.getPixelRatio());
 }
 
-// The embers come from the pack's own particle sheet: the orange spark in column 1, row 3 of particles.png.
-function pickEmber(img) {
-  const e = canvas(32, 32), ex = e.getContext("2d");
-  ex.imageSmoothingEnabled = false;
-  ex.drawImage(img, 8, 24, 8, 8, 0, 0, 32, 32);
-  return makeTexture(e, true);
-}
-
-function particleSystem(n, map, size, blending, opacity) {
-  const geo = new THREE.BufferGeometry();
-  const pos = new Float32Array(n * 3), sp = new Float32Array(n), ph = new Float32Array(n);
-  for (let i = 0; i < n; i++) {
-    pos[i * 3] = (Math.random() - 0.5) * 6; pos[i * 3 + 1] = Math.random() * 4.2; pos[i * 3 + 2] = -Math.random() * 30;
-    sp[i] = 0.12 + Math.random() * 0.35; ph[i] = Math.random() * 10;
-  }
-  geo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
-  const mat = new THREE.PointsMaterial({ map, size, sizeAttenuation: true, transparent: true, opacity, depthWrite: false, blending, color: blending === THREE.AdditiveBlending ? 0xffb070 : 0xd8d0e6, fog: true });
-  const points = new THREE.Points(geo, mat);
-  points.frustumCulled = false;
-  return { points, pos, sp, ph, n };
-}
-
-// The entrance slab: a stone to the left of the first step in, with its line cut on it.
+// The entrance slab: a stone in the first corridor with its line cut on it, turned to face the visitor.
 function buildEntrance(lay, IMG) {
   const empty = !state.graves.length;
   const label = empty ? { title: "Unclaimed", sub: "The first grave" } : { title: "The Krypt", sub: "Walk on" };
@@ -396,16 +342,30 @@ function buildEntrance(lay, IMG) {
   const st = buildStone("slab", IMG.grave_stone, { player: "" }, label, 1024, seed, []);
   const grp = new THREE.Group();
   grp.add(st.root);
-  grp.position.set(-2.1, 0, worldZ(lay.kStart - 5));
-  grp.rotation.y = Math.PI;
+  const leg = lay.legs[0];
+  const [x, z] = legMap(leg, -2.1, 6.0);
+  grp.position.set(x, leg.y0, z);
+  grp.rotation.y = Math.PI + legYaw(leg);
+  bakeObject(grp, new THREE.Vector3(x, leg.y0 + 1.2, z), new THREE.Vector3(0, 0, 1));
   K.scene.add(grp);
   K.entrance = grp;
+}
+
+// Figures take their ambient from the same bake as the walls (as a fixed emissive-times-albedo term).
+function bakeObject(root, at, normal) {
+  const c = K.lightAt(at.x, at.y, at.z, normal.x, normal.y, normal.z, { omni: true });
+  const v = new THREE.Vector3(c[0], c[1], c[2]);
+  root.traverse(o => {
+    if (!o.isMesh || !o.material) return;
+    const ms = Array.isArray(o.material) ? o.material : [o.material];
+    for (const m of ms) if ((m.isMeshLambertMaterial || m.isMeshStandardMaterial) && !m.onBeforeCompile.toString().includes("uBake")) patchBake(m, { fixed: v });
+  });
 }
 
 // Builds a grave in its alcove: the stone with its engraving and ornaments, and the statue of the player.
 function yearOf(g) { return (String(g.time).match(/\d{4}/) || [""])[0]; }
 function buildGraveAt(i, hi) {
-  const g = state.graves[i], a = K.anchors[i];
+  const g = state.graves[i], a = K.anchors[i], fr = a.frame;
   const family = familyFor(g), seed = seedFor(g);
   const ornas = ornaments(g);
   const label = { title: g.player, sub: yearOf(g) };
@@ -413,8 +373,10 @@ function buildGraveAt(i, hi) {
   const st = buildStone(family, K.IMG[FAMILY_FILE[family]], g, label, hi ? 1024 : 512, seed, ornas, extras);
   const grp = new THREE.Group();
   grp.add(st.root);
-  grp.position.set(a.side * 4.2, 0, a.z);
-  grp.rotation.y = a.side * Math.PI / 2;
+  grp.position.copy(fr.stone);
+  grp.rotation.y = fr.yaw;
+  const amb = new THREE.Vector3(fr.stone.x, fr.stone.y + 1.1, fr.stone.z);
+  bakeObject(grp, amb, fr.out.clone().negate());
   K.scene.add(grp);
   // The statue stands in the alcove beside the stone, turned to the corridor. It is a steve skin until the
   // player's skin arrives.
@@ -424,8 +386,9 @@ function buildGraveAt(i, hi) {
   const bundle = buildStatue(QS.get("pose") || (ornas.includes("angel") ? "shield" : poseFor(g)), sk);
   const sg = new THREE.Group();
   sg.add(bundle.root);
-  sg.position.set(a.side * 4.55, 0, a.z - 0.95);
-  sg.rotation.y = a.side * Math.PI / 2;
+  sg.position.copy(fr.statue);
+  sg.rotation.y = fr.yaw;
+  bakeObject(sg, new THREE.Vector3(fr.statue.x, fr.statue.y + 1, fr.statue.z), fr.out.clone().negate());
   K.scene.add(sg);
   const objs = [grp, sg];
   // The Weeping Angel: a pale statue in the alcove on the other side of the stone, facing the corridor so the
@@ -433,8 +396,9 @@ function buildGraveAt(i, hi) {
   if (ornas.includes("angel")) {
     const ag = new THREE.Group();
     ag.add(buildAngelFigure(K.IMG.steve).root);
-    ag.position.set(a.side * 4.55, 0, a.z + 0.95);
-    ag.rotation.y = a.side * Math.PI / 2;
+    ag.position.copy(fr.angel);
+    ag.rotation.y = fr.yaw;
+    bakeObject(ag, new THREE.Vector3(fr.angel.x, fr.angel.y + 1, fr.angel.z), fr.out.clone().negate());
     K.scene.add(ag); objs.push(ag);
   }
   const entry = { objs, grp, sg, st, bundle, sk, hi, seed, player: g.player };
@@ -474,14 +438,14 @@ function setSkin(entry, img) {
   } catch { /* the steve fallback stays */ }
 }
 
-// Each frame: build the nearest graves, release the far ones, one build a frame at most.
-function updateBuilds(camZ) {
+// Each frame: build the nearest graves, release the far ones, two builds a frame at most.
+function updateBuilds(cam) {
   for (let i = 0; i < K.anchors.length; i++) {
     const a = K.anchors[i];
-    const d = Math.abs(a.z - camZ);
+    const d = a.p.distanceTo(cam);
     const built = K.built.get(i);
-    if (!built && d < 26 && state.graves.length && !K.queued?.has(i)) K.queue.push(i);
-    if (built && d > 44 && K.focusI !== i) disposeGraveAt(i);
+    if (!built && d < 30 && state.graves.length && !K.queue.includes(i)) K.queue.push(i);
+    if (built && d > 52 && K.focusI !== i) disposeGraveAt(i);
   }
   for (let n = 0; n < 2 && K.queue.length; n++) {
     const i = K.queue.shift();
@@ -491,18 +455,19 @@ function updateBuilds(camZ) {
 
 // ---- the walk -------------------------------------------------------------------------------
 function walkStep(ds) {
+  if (K.held || !K.gateOpen) return;
   K.autoWalk = null;   // the visitor takes over from ?walk
   K.walk.sT = Math.min(1, Math.max(0, K.walk.sT + ds)); if (K.focusI != null) unfocus();
 }
 const STEP_BLOCKS = 3;          // one wheel notch or arrow key, in blocks
 function perBlock() { return 1 / K.length; }
 
+// The stone nearest along the path, within about three blocks of the camera's place on it.
 function currentIndex() {
   if (!state.graves.length) return -1;
   let best = -1, bd = Infinity;
-  const camZ = K.pos.z;
   for (let i = 0; i < K.anchors.length; i++) {
-    const d = Math.abs(K.anchors[i].z - camZ);
+    const d = Math.abs(K.anchors[i].s - K.walk.s) * K.length;
     if (d < bd) { bd = d; best = i; }
   }
   return bd < 3.4 ? best : -1;
@@ -524,21 +489,18 @@ function focusGrave(i, instant = false) {
 }
 function unfocus() {
   if (K.focusI == null) return;
-  const i = K.focusI;
   K.focusI = null;
   hideSheet();
   setHUD();
   history.replaceState(null, "", location.pathname + location.search);
-  // Let the stone go back to the low detail when it is far.
-  void i;
 }
 // From the walk: the stone just ahead (dir +1, deeper) or just behind (dir -1), in the order of the feed.
 function nextFromWalk(dir) {
   const n = state.graves.length;
   if (!n) return -1;
-  const z = K.pos.z;
-  if (dir > 0) { for (let i = 0; i < n; i++) if (K.anchors[i].z < z - 0.5) return i; return -1; }
-  for (let i = n - 1; i >= 0; i--) if (K.anchors[i].z > z + 0.5) return i;
+  const s = K.walk.s, eps = 0.5 / K.length;
+  if (dir > 0) { for (let i = 0; i < n; i++) if (K.anchors[i].s > s + eps) return i; return -1; }
+  for (let i = n - 1; i >= 0; i--) if (K.anchors[i].s < s - eps) return i;
   return -1;
 }
 function focusStep(dir) {
@@ -547,28 +509,31 @@ function focusStep(dir) {
   focusGrave((K.focusI + dir + n) % n);
 }
 function focusCamera(i) {
-  const a = K.anchors[i];
+  const a = K.anchors[i], fr = a.frame;
   // Back along the alcove's centre line, far enough that the stone fills about a third of the frame height
   // (about 2.4 blocks of distance per block of stone), so each family is framed by its own height.
   const H = STONE_HEIGHT[familyFor(state.graves[i])] || 1.8;
   const d = Math.max(3.4, H * 2.4);
-  return {
-    pos: new THREE.Vector3(a.side * (4.2 - d), 1.25, a.z + 0.45),
-    look: new THREE.Vector3(a.side * 4.2, H * 0.5, a.z)
-  };
+  const y0 = fr.centre.y;
+  const p = fr.camAt(d); p.y = y0 + 1.25;
+  const l = fr.stone.clone(); l.y = y0 + H * 0.5;
+  return { pos: p, look: l };
 }
 
 function frame(now) {
   if (!K) return;
   requestAnimationFrame(frame);
-  try { frameInner(now); } catch (e) { if (!K.logged) { K.logged = 1; console.error("frame", e && e.stack); } }
+  try { frameInner(now); } catch (e) { if (!K.logged) { K.logged = 1; console.error("frame", e && e.stack); window.__errs = (window.__errs || []).concat(String(e && e.stack || e)); } }
 }
+const _f = new THREE.Vector3(), _d = new THREE.Vector3();
 function frameInner(now) {
   if (!K.visible || document.hidden) { K.last = now; return; }
   const dt = Math.min(0.05, (now - K.last) / 1000); K.last = now;
   const t = now / 1000;
   const W = K.walk;
+  const L = K.length;
   // Damped walk, yaw and pitch.
+  const sPrev = W.s;
   W.s += (W.sT - W.s) * (1 - Math.exp(-dt * 4.2));
   W.yaw += (W.yawT - W.yaw) * (1 - Math.exp(-dt * 5));
   W.pitch += (W.pitchT - W.pitch) * (1 - Math.exp(-dt * 5));
@@ -576,52 +541,82 @@ function frameInner(now) {
     if (K.autoWalk.t0 == null) K.autoWalk.t0 = now;
     W.sT = Math.min(1, (now - K.autoWalk.t0) / 1000 / K.autoWalk.dur);
   }
+  const vs = dt > 0 ? (W.s - sPrev) * L / dt : 0;
+  K.speed += (vs - K.speed) * (1 - Math.exp(-dt * 6));
+  if (Math.abs(K.speed) > 0.3 && !K.held && K.focusI == null && K.gateOpen) K.activeSeconds += dt;
   const u = Math.min(1, Math.max(0, W.s));
   const focusing = K.focusI != null;
-  const bob = (focusing ? 0 : 1) * (Math.sin(t * 2.3) * 0.012 + Math.sin(t * 1.1) * 0.006);
-  const wp = K.curve.getPointAt(u);
-  const wl = K.curve.getPointAt(Math.min(1, u + 0.05));
-  wp.y = 1.5 + bob;
-  wl.y = 1.4 + W.pitch * 1.2;
-  // Yaw: turn the look point about the camera.
-  const dir = new THREE.Vector3().subVectors(wl, wp);
-  dir.applyAxisAngle(new THREE.Vector3(0, 1, 0), W.yaw);
-  const walkLook = wp.clone().add(dir);
-  let tp = wp, tl = walkLook;
-  if (focusing) { const f = focusCamera(K.focusI); tp = f.pos; tl = f.look; }
-  K.focusAmt += ((focusing ? 1 : 0) - K.focusAmt) * (1 - Math.exp(-dt * 2.2));
-  const k = K.snap ? 1 : 1 - Math.exp(-dt * (focusing ? 2.4 : 3.6));
-  K.pos.lerp(tp, k); K.look.lerp(tl, k);
-  K.snap = false;
-  K.camera.position.copy(K.pos);
-  K.camera.lookAt(K.look);
+  const prof = profileAt(K.lay, u);
+  K.prof = prof;
+
+  if (!K.held) {
+    const bob = (focusing ? 0 : 1) * (Math.sin(t * 2.3) * 0.012 + Math.sin(t * 1.1) * 0.006);
+    const wp = K.curve.getPointAt(u);
+    const wl = u < 0.992 ? K.curve.getPointAt(Math.min(1, u + 6 / L)) : wp.clone().addScaledVector(K.curve.getTangentAt(u), 6);
+    wp.y += bob;
+    wl.y = wl.y - 0.1 + W.pitch * 1.2 + K.fPitch * 6;
+    // Passing focus: as an alcove comes near the view eases toward its stone, holds while it is the nearest, and
+    // eases back to the corridor as you move on. Damped, and weaker when you are flying past.
+    let fyT = 0, fpT = 0;
+    if (!focusing && K.gateOpen && state.graves.length) {
+      let best = -1, bd = Infinity;
+      for (let i = 0; i < K.anchors.length; i++) { const d = Math.abs(K.anchors[i].s - u) * L; if (d < bd) { bd = d; best = i; } }
+      if (best >= 0 && bd < 8) {
+        const an = K.anchors[best];
+        _f.set(wl.x - wp.x, 0, wl.z - wp.z).normalize();
+        _d.set(an.p.x - wp.x, 0, an.p.z - wp.z).normalize();
+        const th = Math.atan2(_f.z * _d.x - _f.x * _d.z, _f.x * _d.x + _f.z * _d.z);
+        const w = 1 - smooth01((bd - 2.6) / 5.2);
+        const calm = 1 - 0.55 * smooth01((Math.abs(K.speed) - 5) / 9);
+        fyT = Math.max(-0.9, Math.min(0.9, th)) * w * 0.78 * calm;
+        fpT = -0.1 * w * calm;
+        K.nearI = best;
+      } else K.nearI = -1;
+    }
+    if (K.snap) { K.fYaw = fyT; K.fPitch = fpT; }
+    K.fYaw += (fyT - K.fYaw) * (1 - Math.exp(-dt * 2.4));
+    K.fPitch += (fpT - K.fPitch) * (1 - Math.exp(-dt * 2.4));
+    const dir = new THREE.Vector3().subVectors(wl, wp);
+    dir.applyAxisAngle(UP, W.yaw + K.fYaw);
+    let tp = wp, tl = wp.clone().add(dir);
+    if (focusing) { const f = focusCamera(K.focusI); tp = f.pos; tl = f.look; }
+    K.focusAmt += ((focusing ? 1 : 0) - K.focusAmt) * (1 - Math.exp(-dt * 2.2));
+    const k = K.snap ? 1 : 1 - Math.exp(-dt * (focusing ? 2.4 : 3.6));
+    K.pos.lerp(tp, k); K.look.lerp(tl, k);
+    K.snap = false;
+    // ?cam=x,y,z,lx,ly,lz: a verification camera, for close shots of one thing.
+    if (QS.has("cam")) { const c = QS.get("cam").split(",").map(Number); K.pos.set(c[0], c[1], c[2]); K.look.set(c[3], c[4], c[5]); }
+    K.camera.position.copy(K.pos);
+    K.camera.lookAt(K.look);
+  }
   K.camera.updateMatrixWorld();
-  // Lights: the nearest torches get the live lights, the rest keep their glow.
-  updateLights(t);
-  // Hemi and spot for focus.
-  K.hemi.intensity = 1.1 * (1 - 0.5 * K.focusAmt);
-  const focusSpotI = K.focusI != null ? K.focusI : -1;
-  if (focusSpotI >= 0) {
-    const a = K.anchors[focusSpotI];
-    K.spot.position.set(a.side * 0.2, 3.4, a.z + 2.4);
-    K.spot.target.position.set(a.side * 4.2, 0.6, a.z);
+
+  // Lighting by depth: fog, exposure and bloom follow the profile; the baked light was built from the same table.
+  K.scene.fog.color.setRGB(prof.fog[0], prof.fog[1], prof.fog[2]);
+  K.scene.background.copy(K.scene.fog.color);
+  K.scene.fog.density = prof.fogD;
+  K.renderer.toneMappingExposure = prof.exposure;
+  K.bloom.strength = prof.bloom;
+  K.sky.position.x = K.pos.x; K.sky.position.z = K.pos.z;
+  updateLights(t, dt, prof);
+  K.hemi.intensity = 0.32 * (1 - 0.5 * K.focusAmt);
+  if (K.focusI != null) {
+    const fr = K.anchors[K.focusI].frame, leg = fr.leg;
+    const fw = legDir(leg);
+    K.spot.position.set(fr.centre.x - fw[0] * 2.4, fr.centre.y + 3.4, fr.centre.z - fw[1] * 2.4);
+    K.spot.target.position.set(fr.stone.x, fr.stone.y + 0.6, fr.stone.z);
     K.spot.intensity = 14 * K.focusAmt;
   } else K.spot.intensity = 0;
-  // Sun follows the camera, so the sky shadows stay near the walk.
-  K.sun.position.set(K.pos.x - 6, K.pos.y + 28, K.pos.z - 8);
-  K.sun.target.position.set(K.pos.x, 0, K.pos.z);
-  // Animation: lava and water frames, ash and embers.
-  const lf = Math.floor(t * 10) % 20;
-  for (const o of [K.dress.userData.lavaTex, K.dress.userData.waterTex]) {
-    if (!o) continue;
-    if (o === K.dress.userData.lavaTex) o.offset.y = lf / 20; else o.offset.y = (Math.floor(t * 8) % 32) / 32;
-  }
-  updateParticles(K.ash, dt, t, K.pos, 0.55);
-  updateParticles(K.ember, dt, t, K.pos, 1);
-  // Film and bokeh.
+  K.dress.update(t, dt);
+  K.fx.update(dt, K.pos, K.renderer.domElement.height, K.camera.fov * Math.PI / 180);
   K.grade.uniforms.time.value = t;
-  if (K.bokeh) K.bokeh.uniforms.focus.value = Math.max(0.5, K.pos.distanceTo(K.look));
-  updateBuilds(K.pos.z);
+  updateBuilds(K.pos);
+  // Sound: the walk's own steps, ambience, and the listener.
+  if (K.gateOpen && !DUMP) {
+    const leg = legAt(K.lay, K.pos.x, K.pos.z);
+    K.amb.tick(dt, K.pos, { s: W.s, speed: K.speed }, leg ? leg.leg.kind : "crypt", K.held);
+    audio.updateListener(K.camera);
+  }
   K.composer.render();
   updateHUDLive();
 }
@@ -633,8 +628,9 @@ function runDump() {
   K.visible = true;
   const now = performance.now();
   frameInner(now);
-  for (let n = 0; n < 80; n++) updateBuilds(K.pos.z);
-  frameInner(now + 16);
+  for (let n = 0; n < 80; n++) updateBuilds(K.pos);
+  // A second of particles and a settled flame, so the torches show their small fire.
+  for (let q = 0; q < 40; q++) { frameInner(now + 16 + q * 30); }
   dumpShot();
 }
 function dumpShot() {
@@ -642,8 +638,9 @@ function dumpShot() {
   K.composer.render();
   const png = K.renderer.domElement.toDataURL("image/png");
   const info = {
-    url: location.search, focusI: K.focusI ?? null, walkS: K.walk.s, pos: K.pos.toArray(), look: K.look.toArray(),
-    built: K.built.size, queued: K.queue.length, graves: state.graves.length
+    url: location.search, focusI: K.focusI ?? null, nearI: K.nearI ?? null, walkS: K.walk.s, pos: K.pos.toArray(), look: K.look.toArray(),
+    fYaw: K.fYaw, fPitch: K.fPitch, kind: K.prof && K.prof.kind, built: K.built.size, queued: K.queue.length, graves: state.graves.length,
+    torches: K.grid.torches.length, lights: K.lights.map(l => +l.pl.intensity.toFixed(2)), errors: window.__errs || [], sfx: sfxLog.slice(0, 40)
   };
   const sc = document.createElement("script");
   sc.type = "application/json"; sc.id = "dumpshot";
@@ -651,50 +648,40 @@ function dumpShot() {
   document.body.appendChild(sc);
 }
 
-function updateLights(t) {
+// The nearest torches, fires and seams are live lights; each fades in and out as the set changes, so none pops.
+function updateLights(t, dt, prof) {
   const cam = K.pos;
-  const list = K.torches.map(tc => ({ tc, d: tc.group.position.distanceTo(cam) }));
-  list.sort((a, b) => a.d - b.d);
-  const focusI = K.focusI;
-  for (let n = 0; n < K.lights.length; n++) {
-    const pl = K.lights[n];
-    const e = list[n];
-    if (!e || e.d > 22) { pl.intensity = 0; continue; }
-    const tc = e.tc;
-    const flick = 0.88 + 0.12 * (Math.sin(t * 9.1 + tc.phase) * 0.5 + Math.sin(t * 23.7 + tc.phase * 2) * 0.5);
-    const boost = focusI != null && tc.s.slot === focusI ? 1 + 0.4 * K.focusAmt : 1;
-    pl.position.set(tc.s.x * 1.1, tc.s.y + 0.5, tc.group.position.z);
-    pl.intensity = 9 * flick * boost;
-    tc.sprite.material.opacity = 0.9 * flick;
+  const near = [];
+  for (const s of K.dyn) { const d2 = (s.x - cam.x) ** 2 + (s.y - cam.y) ** 2 + (s.z - cam.z) ** 2; if (d2 < 16 * 16) near.push([d2, s]); }
+  near.sort((a, b) => a[0] - b[0]);
+  const want = near.slice(0, K.lights.length).map(e => e[1]);
+  for (const L of K.lights) {
+    if (L.src && !want.includes(L.src)) { L.amt -= dt * 4; if (L.amt <= 0) { L.amt = 0; L.src = null; } }
+    else if (L.src) L.amt = Math.min(1, L.amt + dt * 4);
   }
-  for (const tc of K.torches) {
-    const flick = 0.9 + 0.1 * Math.sin(t * 13 + tc.phase);
-    tc.sprite.scale.setScalar(1.7 * flick);
+  for (const s of want) {
+    if (K.lights.some(L => L.src === s)) continue;
+    const free = K.lights.find(L => !L.src);
+    if (free) { free.src = s; free.amt = 0; }
   }
-}
-
-function updateParticles(sys, dt, t, cam, power) {
-  const { pos, sp, ph, n } = sys;
-  const cz = cam.z;
-  for (let i = 0; i < n; i++) {
-    const j = i * 3;
-    pos[j + 1] -= sp[i] * dt * (power > 0.6 ? 0.7 : 0.9);
-    pos[j] += Math.sin(t * 0.7 + ph[i]) * 0.09 * dt;
-    if (pos[j + 1] < 0.05) pos[j + 1] = 3.8 + Math.random() * 0.4;
-    if (pos[j + 2] > cz + 6 || pos[j + 2] < cz - 26) {
-      pos[j + 2] = cz - Math.random() * 22 + 4;
-      pos[j] = (Math.random() - 0.5) * 6;
-    }
+  for (const L of K.lights) {
+    const s = L.src;
+    if (!s) { L.pl.intensity = 0; continue; }
+    const fl = 0.9 + 0.1 * (Math.sin(t * 9.1 + s.ph) * 0.5 + Math.sin(t * 23.7 + s.ph * 2) * 0.5) + (Math.random() - 0.5) * 0.04;
+    const boost = K.focusI != null && s.dyn && K.anchors[K.focusI] && K.anchors[K.focusI].p.distanceTo(new THREE.Vector3(s.x, s.y, s.z)) < 5 ? 1 + 0.4 * K.focusAmt : 1;
+    L.pl.position.set(s.x, s.y, s.z);
+    L.pl.color.setRGB(s.c[0], s.c[1], s.c[2]);
+    L.pl.intensity = s.I * 0.5 * (s.sky ? 1 : (s.lava ? 1 : prof.torch)) * fl * boost * L.amt;
   }
-  sys.points.geometry.attributes.position.needsUpdate = true;
 }
 
 // ---- input ----------------------------------------------------------------------------------
 function bindInput(cv) {
   const stage = $("#stage");
   stage.addEventListener("wheel", e => {
-    if (!K) return;
+    if (!K || !K.gateOpen) return;            // behind the gate the page scrolls as usual
     e.preventDefault();
+    if (K.held) return;
     K.autoWalk = null;
     const d = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaY;
     if (K.focusI != null) { unfocus(); }
@@ -703,12 +690,12 @@ function bindInput(cv) {
 
   let drag = null;
   stage.addEventListener("pointerdown", e => {
-    if (e.target.closest(".sheet, .hud-btn, .strip, .search")) return;
+    if (!K.gateOpen || K.held || e.target.closest(".sheet, .hud-btn, .strip, .search, .gate")) return;
     drag = { x: e.clientX, y: e.clientY, t: performance.now(), moved: 0, id: e.pointerId, sT: K.walk.sT, yaw: K.walk.yawT };
     stage.setPointerCapture?.(e.pointerId);
   });
   stage.addEventListener("pointermove", e => {
-    if (!K) return;
+    if (!K || !K.gateOpen || K.held) return;
     const r = stage.getBoundingClientRect();
     if (!drag) {
       K.walk.pitchT = -((e.clientY - r.top) / r.height - 0.5) * 0.08;
@@ -731,7 +718,7 @@ function bindInput(cv) {
   stage.addEventListener("pointercancel", () => { drag = null; });
 
   document.addEventListener("keydown", e => {
-    if (!K || e.target.closest?.("input, textarea, select")) return;
+    if (!K || !K.gateOpen || K.held || e.target.closest?.("input, textarea, select")) return;
     const k = e.key;
     K.autoWalk = null;
     if (k === "Escape") { if (K.focusI != null) { unfocus(); e.preventDefault(); } return; }
@@ -855,7 +842,23 @@ function searchPlayer(name) {
 }
 
 // Buttons in the HUD and the sheet.
+function enterKrypt() {
+  if (!K || K.gateOpen) return;
+  const stage = $("#stage");
+  K.gateOpen = true;
+  stage.dataset.gate = "opening";
+  K.amb.gate();
+  setTimeout(() => { K.amb.start(); }, 1400);
+  setTimeout(() => { stage.dataset.gate = "0"; }, state.reduced ? 100 : 2600);
+}
 function bindUI() {
+  $("#gateGo")?.addEventListener("click", enterKrypt);
+  const sp = $("#btnSound");
+  if (sp) {
+    const show = () => { const m = audio.isMuted(); sp.setAttribute("aria-pressed", m ? "true" : "false"); sp.dataset.muted = m ? "1" : "0"; sp.title = m ? "Sound is off" : "Sound is on"; sp.setAttribute("aria-label", sp.title); };
+    sp.addEventListener("click", () => audio.setMuted(!audio.isMuted()));
+    audio.onMute(show); show();
+  }
   $("#btnNewest")?.addEventListener("click", jumpNewest);
   $("#btnPrev")?.addEventListener("click", () => focusStep(-1));
   $("#btnNext")?.addEventListener("click", () => focusStep(1));

@@ -35,12 +35,12 @@ export const PROFILE = {
   crypt:   { amb: [0.060, 0.082, 0.150], fog: [0.030, 0.040, 0.075], fogD: 0.040, exposure: 1.18, torch: 0.78, bloom: 0.30 },
   mine:    { amb: [0.075, 0.075, 0.085], fog: [0.040, 0.036, 0.040], fogD: 0.040, exposure: 1.18, torch: 0.9,  bloom: 0.32 },
   ossuary: { amb: [0.080, 0.068, 0.078], fog: [0.040, 0.030, 0.038], fogD: 0.042, exposure: 1.2,  torch: 0.9,  bloom: 0.32 },
-  flood:   { amb: [0.050, 0.095, 0.110], fog: [0.020, 0.045, 0.052], fogD: 0.040, exposure: 1.2,  torch: 1.0,  bloom: 0.34 },
+  flood:   { amb: [0.060, 0.105, 0.120], fog: [0.020, 0.045, 0.052], fogD: 0.040, exposure: 1.2,  torch: 1.0,  bloom: 0.34 },
   dungeon: { amb: [0.095, 0.082, 0.062], fog: [0.044, 0.034, 0.026], fogD: 0.036, exposure: 1.2,  torch: 1.1,  bloom: 0.36 },
-  library: { amb: [0.115, 0.082, 0.052], fog: [0.052, 0.035, 0.022], fogD: 0.034, exposure: 1.2,  torch: 1.2,  bloom: 0.36 },
-  chasm:   { amb: [0.130, 0.060, 0.034], fog: [0.070, 0.028, 0.014], fogD: 0.030, exposure: 1.22, torch: 1.2,  bloom: 0.46 },
-  stairs:  { amb: [0.130, 0.058, 0.032], fog: [0.066, 0.026, 0.012], fogD: 0.034, exposure: 1.22, torch: 1.2,  bloom: 0.44 },
-  deep:    { amb: [0.165, 0.058, 0.028], fog: [0.085, 0.024, 0.010], fogD: 0.034, exposure: 1.25, torch: 1.25, bloom: 0.55 }
+  library: { amb: [0.115, 0.082, 0.052], fog: [0.052, 0.035, 0.022], fogD: 0.034, exposure: 1.2,  torch: 1.0,  bloom: 0.36 },
+  chasm:   { amb: [0.105, 0.052, 0.032], fog: [0.070, 0.028, 0.014], fogD: 0.030, exposure: 1.22, torch: 0.8,  bloom: 0.46 },
+  stairs:  { amb: [0.095, 0.048, 0.028], fog: [0.066, 0.026, 0.012], fogD: 0.034, exposure: 1.22, torch: 0.75, bloom: 0.44 },
+  deep:    { amb: [0.120, 0.046, 0.022], fog: [0.085, 0.024, 0.010], fogD: 0.034, exposure: 1.25, torch: 1.0, bloom: 0.55 }
 };
 
 // ---- leg geometry ----------------------------------------------------------------------------------
@@ -57,7 +57,7 @@ export function legLocal(leg, x, z) {
 }
 export const legYaw = (leg) => (leg.h === "N" ? 0 : leg.h === "W" ? Math.PI / 2 : -Math.PI / 2);
 const legCell = (leg, lu, lv) => { const [x, z] = legMap(leg, lu + 0.5, lv + 0.5); return [Math.floor(x), Math.floor(z)]; };
-const legDir = (leg) => (leg.h === "N" ? [0, -1] : leg.h === "W" ? [-1, 0] : [1, 0]);
+export const legDir = (leg) => (leg.h === "N" ? [0, -1] : leg.h === "W" ? [-1, 0] : [1, 0]);
 const turnOf = (from, to) => (from === "N" ? (to === "W" ? -1 : 1) : (from === "W" ? 1 : -1));
 
 // Floor top of leg row lv (an integer y); the stairs step down every two rows.
@@ -257,7 +257,7 @@ const ih = (i, j, k, s = 0) => {
 const pickW = (h, table) => { for (const [lim, t] of table) if (h < lim) return t; return table[table.length - 1][1]; };
 const WALLS = {
   1: [[150, T_COBBLE], [230, T_MOSSY], [560, T_BRICK], [700, T_BRICK_MOSSY], [1000, T_BRICK_CRACK]],
-  2: [[300, T_COBBLE], [560, T_STONE], [620, T_MOSSY], [720, T_DIRT], [850, T_COAL], [920, T_IRON], [1000, T_COBBLE]],
+  2: [[320, T_COBBLE], [600, T_STONE], [670, T_MOSSY], [790, T_DIRT], [900, T_COAL], [925, T_IRON], [1000, T_COBBLE]],
   3: [[330, T_BRICK], [700, T_BRICK_CRACK], [850, T_COBBLE], [960, T_BRICK_MOSSY], [1000, T_OBS]],
   4: [[420, T_BRICK_MOSSY], [650, T_MOSSY], [880, T_BRICK], [1000, T_BRICK_CRACK]],
   5: [[700, T_MOSSY], [1000, T_COBBLE]],
@@ -324,7 +324,7 @@ export function buildGrid(lay) {
     const cx = i + 0.5 + fx * 0.5, cz = k + 0.5 + fz * 0.5;
     const tip = [cx + fx * 0.35, j + 0.845, cz + fz * 0.35];
     a.torches.push({ i, j, k, fx, fz, x: tip[0], y: tip[1], z: tip[2], cx, cz, ...opts });
-    const s = opts.I != null ? opts.I : 4.4;
+    const s = opts.I != null ? opts.I : 3.4;
     a.sources.push({ x: tip[0] + fx * 0.2, y: tip[1] + 0.15, z: tip[2] + fz * 0.2, c: [1.0, 0.56, 0.24], I: s, R: 12, dyn: true });
     a.emit.push({ k: "torch", x: tip[0], y: tip[1] + 0.02, z: tip[2] });
   }
@@ -442,7 +442,7 @@ export function buildGrid(lay) {
       for (let lv = hb - 1; lv <= hb + 1; lv++) for (let lu = -1; lu <= 1; lu++) for (let j = yTop; j <= a.j0 + a.NJ - 1; j++) L(leg, lu, lv, j, T_AIR);
       const [x, , z] = W3(leg, 0.5, hb + 0.5, 0);
       a.holes.push({ x: x - 0.0, z, y: yTop, leg: leg.idx, hb });
-      for (let q = 0; q < 3; q++) a.sources.push({ x: x + (q - 1) * 0.9, y: yTop + 0.6, z: z + (q % 2 ? 0.6 : -0.6), c: [0.60, 0.46, 1.0], I: 4.6, R: 13, sky: true });
+      for (let q = 0; q < 3; q++) a.sources.push({ x: x + (q - 1) * 0.9, y: yTop + 0.6, z: z + (q % 2 ? 0.6 : -0.6), c: [0.55, 0.42, 0.95], I: 3.4, R: 12, sky: true });
     }
   }
 
@@ -453,9 +453,10 @@ export function buildGrid(lay) {
   for (const leg of lay.legs) for (const s of leg.slots) {
     const { hw, y0, kind } = leg;
     const every = kind === "crypt" ? 2 : kind === "ossuary" ? 2 : 1;
+    if (s.i >= lay.count) continue;
     if (s.i % every && !(kind === "crypt" && s.i === 0)) continue;
     const pil = s.side > 0 ? hw - 1 : -hw;
-    const I = kind === "crypt" ? 3.2 : 4.4;
+    const I = kind === "crypt" ? 2.6 : 3.4;
     if (torchAt(leg, pil, s.lvc + 2, y0 + 2, -s.side, { I })) s.torch = true;
     else if (torchAt(leg, pil, s.lvc - 2, y0 + 2, -s.side, { I })) s.torch = true;
   }
@@ -494,7 +495,7 @@ function dressLeg(a, lay, leg, H) {
     for (const sd of [-1, 1]) torchAt(leg, edgeCell(sd), 4, y0 + 2, -sd, { I: 3.0 });
     // The two pier torches face the corridor; the lintel and the piers frame the first view.
     const [bx, by, bz] = W3(leg, 0, 4.0, y0);
-    decor({ t: "bars", x: bx - 0.0, y: by + 1.4, z: bz, ry: yaw + Math.PI / 2, w: 4.0, h: 2.8, open: true });
+    decor({ t: "bars", x: bx, y: by + 2.5, z: bz, ry: yaw, w: hw * 2 - 0.3, h: 1.0 });
     for (let q = 0; q < 6; q++) decor({ t: "web", x: W3(leg, (q % 2 ? 1 : -1) * (hw - 0.2), 4 + q * 3.2, 0)[0], y: y0 + 3.4, z: W3(leg, (q % 2 ? 1 : -1) * (hw - 0.2), 4 + q * 3.2, 0)[2], ry: yaw + (q % 2 ? -1 : 1) * Math.PI / 4, w: 1.4 });
     for (let lv = lo; lv < hi; lv += 3) {
       const sd = lv % 2 ? 1 : -1;
@@ -509,7 +510,7 @@ function dressLeg(a, lay, leg, H) {
       if (!rowsFree(sd, lv) || !rowsFree(sd, lv + 1)) continue;
       for (let j = y0; j <= y0 + 2; j++) L(leg, edgeCell(sd), lv, j, T_LOG);
       for (let lu = -hw; lu < hw; lu++) if (LG(leg, lu, lv, y0 + 3) === T_AIR) L(leg, lu, lv, y0 + 3, T_PLANK);
-      torchAt(leg, wallCell(-sd), lv, y0 + 2, sd, { I: 3.6 });
+      torchAt(leg, wallCell(-sd), lv, y0 + 2, sd, { I: 2.9 });
       decor({ t: "web", x: W3(leg, -sd * (hw - 0.3), lv + 0.5, 0)[0], y: y0 + 3.1, z: W3(leg, -sd * (hw - 0.3), lv + 0.5, 0)[2], ry: yaw + Math.PI / 4, w: 1.5 });
     }
     // Rails down the middle, a minecart, a heap of rubble where the roof gave way.
@@ -568,7 +569,7 @@ function dressLeg(a, lay, leg, H) {
       const sd = lu < 0 ? -1 : 1;
       if (!rowsFree(sd, lv) || !rowsFree(sd, lv + 1)) continue;
       for (let j = y0 - 1; j < y0 + ht; j++) L(leg, lu, lv, j, j === y0 - 1 ? T_BRICK_MOSSY : (rnd(lv + j, lu) < 0.3 ? T_BRICK_MOSSY : T_BRICK));
-      torchAt(leg, lu, lv, y0 + 3, lu < 0 ? 1 : -1, { I: 3.8 });
+      torchAt(leg, lu, lv, y0 + 3, lu < 0 ? 1 : -1, { I: 3.0 });
     }
     for (let q = 0; q < 34; q++) {
       const lv = lo + rnd(q, 12) * (hi - lo), lu = (rnd(q, 13) < 0.5 ? -1 : 1) * (1.3 + rnd(q, 14) * (hw - 2.0));
@@ -592,10 +593,11 @@ function dressLeg(a, lay, leg, H) {
     a.sources.push({ x: sx, y: sy + 0.8, z: sz, c: [1.0, 0.52, 0.22], I: 3.4, R: 11, dyn: true });
     a.emit.push({ k: "spawner", x: sx, y: sy + 1.0, z: sz });
     a.spots.fire.push([sx, sy + 0.5, sz]);
-    for (let lv = leg.b0 + leg.pre + 3; lv < leg.contentEnd; lv += 4) for (const lu of [-4, 3]) {
+    for (let lv = leg.b0 + leg.pre + 3, q = 0; lv < leg.contentEnd; lv += 4, q++) for (const lu of [-4, 3]) {
       for (let j = y0; j < y0 + ht; j++) L(leg, lu, lv, j, ih(lu, lv, j, 5) < 300 ? T_MOSSY : T_COBBLE);
+      if (q % 2 === 0) torchAt(leg, lu, lv, y0 + 2, lu < 0 ? 1 : -1, { I: 3.0 });
     }
-    for (const sd of [-1, 1]) for (const lv of [leg.b0 + 1, leg.contentEnd + 2]) torchAt(leg, wallCell(sd), lv, y0 + 2, -sd, { I: 4.4 });
+    for (const sd of [-1, 1]) for (const lv of [leg.b0 + 1, leg.contentEnd + 2]) torchAt(leg, wallCell(sd), lv, y0 + 2, -sd, { I: 3.4 });
     for (let q = 0; q < 10; q++) {
       const lv = lo + 1 + q * ((hi - lo) / 10), sd = q % 2 ? 1 : -1; const [x, , z] = W3(leg, sd * (hw - 0.25), lv, 0);
       decor({ t: "vine", x, y: y0 + 2.2 + (q % 3) * 0.2, z, ry: yaw + sd * Math.PI / 2, w: 1.2, h: 1.6 });
@@ -610,7 +612,7 @@ function dressLeg(a, lay, leg, H) {
       if (leg.passages.some(p => p.ok && p.side === sd && lv >= p.lv - 2 && lv <= p.lv + 3)) continue;
       const lu = edgeCell(sd);
       for (let j = y0; j <= y0 + 2; j++) if (LG(leg, lu, lv, j) === T_AIR) L(leg, lu, lv, j, T_SHELF);
-      if (lv % 5 === 2) torchAt(leg, wallCell(sd), lv, y0 + 3, -sd, { I: 4.4 });
+      if (lv % 5 === 2) torchAt(leg, wallCell(sd), lv, y0 + 3, -sd, { I: 3.4 });
     }
     for (let lv = lo + 1; lv < hi; lv += 4) {
       const [x, y, z] = W3(leg, 0, lv + 0.5, y0 + ht - 0.2);
@@ -618,7 +620,7 @@ function dressLeg(a, lay, leg, H) {
     }
     for (const p of leg.passages) if (p.ok) {
       const [x, y, z] = W3(leg, p.side * (hw + 0.1), p.lv + 1, y0);
-      decor({ t: "bars", x, y: y + 1.0, z, ry: yaw + Math.PI / 2 + Math.PI / 2, w: 2.0, h: 2.0 });
+      decor({ t: "bars", x, y: y + 1.0, z, ry: yaw + Math.PI / 2, w: 2.0, h: 2.0 });
     }
     for (let q = 0; q < 9; q++) {
       const lv = lo + q * ((hi - lo) / 9), sd = q % 2 ? 1 : -1; const [x, , z] = W3(leg, sd * (hw - 0.3), lv, 0);
@@ -631,7 +633,7 @@ function dressLeg(a, lay, leg, H) {
     for (let lv = leg.b0 + 1; lv < leg.ce - 1; lv += 5) for (const lu of [-2, 1]) {
       const sd = lu < 0 ? -1 : 1;
       L(leg, lu, lv, y0, T_OBS); L(leg, lu, lv, y0 + 1, T_OBS);
-      torchAt(leg, lu, lv, y0 + 1, -sd, { I: 4.2 });
+      torchAt(leg, lu, lv, y0 + 1, -sd, { I: 3.2 });
     }
     a.spots.fire.push(...a.spots.lava);
   }
@@ -639,9 +641,9 @@ function dressLeg(a, lay, leg, H) {
   if (kind === "stairs") {
     for (let lv = leg.stairsAt + 1; lv < leg.stairsAt + STAIR_LEN; lv += 4) for (const sd of [-1, 1]) {
       const yf = floorTop(leg, lv);
-      torchAt(leg, wallCell(sd), lv, yf + 2, -sd, { I: 4.4 });
+      torchAt(leg, wallCell(sd), lv, yf + 2, -sd, { I: 3.4 });
     }
-    for (const sd of [-1, 1]) torchAt(leg, wallCell(sd), leg.b0 + 1, y0 + 2, -sd, { I: 3.6 });
+    for (const sd of [-1, 1]) torchAt(leg, wallCell(sd), leg.b0 + 1, y0 + 2, -sd, { I: 2.9 });
   }
 
   if (kind === "deep") {
@@ -670,7 +672,7 @@ function dressLeg(a, lay, leg, H) {
         if (lv % 6 === 0) { a.spots.lava.push([x, y0, z]); a.emit.push({ k: "lava", x, y: y0 - 0.05, z }); }
       }
     }
-    for (const sd of [-1, 1]) for (let lv = lo + 3; lv < hi; lv += 8) if (rowsFree(sd, lv)) torchAt(leg, wallCell(sd), lv, y0 + 2, -sd, { I: 3.8 });
+    for (const sd of [-1, 1]) for (let lv = lo + 3; lv < hi; lv += 8) if (rowsFree(sd, lv)) torchAt(leg, wallCell(sd), lv, y0 + 2, -sd, { I: 3.0 });
   }
 }
 
@@ -731,7 +733,7 @@ export function makeLightAt(a) {
         ndl = Math.max(0, ndl) * 0.85 + 0.15;
         const win = Math.max(0, 1 - (d2 / (sc.R * sc.R)) ** 2);
         let I = sc.I * (sc.sky ? 1 : (sc.lava || sc.c[2] > 0.8 ? 1 : pr.torch));
-        const att = I * win * win / (d2 + 0.7);
+        const att = I * win * win / (d2 + 1.3);
         if (att < 0.004) continue;
         if (!vis(x, y, z, sc.x, sc.y, sc.z)) continue;
         const f = att * ndl * (sc.dyn ? 0.62 : 1);
