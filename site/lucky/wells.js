@@ -87,7 +87,7 @@ function innerBeat(ctx, inner, o) {
   if (blocks.some((b) => /beacon/.test(b.id))) parts.push(beacon(ctx, o.beaconCell, start + 0.2));
   if (items.length) {
     const b = itemsBeat(ctx, items, { origin: o.ring, start: start + 0.5, mode: o.mode || 'pop', fall: o.fall, cap: 12, camExtra: o.camExtra || 0 });
-    parts.push(b); kind = 'items'; cam = b.cam;
+    parts.push(b); kind = 'items'; cam = o.itemsCam || b.cam;
     parts.dur = Math.max(parts.dur || 0, b.dur);
   }
   if (fw) { const f = fireworksBeat(ctx, fw.n, { origin: o.ring, start: start + 0.3 }); parts.push(f); parts.dur = Math.max(parts.dur || 0, f.dur); if (kind === 'dud') kind = 'items'; }
@@ -106,7 +106,7 @@ function innerBeat(ctx, inner, o) {
     parts.push(f); kind = 'rain'; cam = wide;
     parts.dur = Math.max(parts.dur || 0, f.dur);
   }
-  if (kind === 'dud') { const d = dudBeat(ctx, { say: 'The coin is wasted. Nothing happens.' }); parts.push({ update: (t, dt) => d.update(t - start, dt), dur: start + d.dur }); parts.dur = start + d.dur; cam = d.cam; }
+  if (kind === 'dud') { const d = dudBeat(ctx, { say: 'The coin is wasted. Nothing happens.' }); parts.push({ update: (t, dt) => d.update(t - start, dt), dur: start + d.dur }); parts.dur = start + d.dur; cam = wide; }
   return { kind, parts, cam: cam || wide, msg, dur: (parts.dur || start + 3) + 1.4, update(t, dt) { for (const p of parts) p.update(t, dt); } };
 }
 
@@ -166,7 +166,7 @@ WELL_SCENES.wishing_well = (ctx) => {
   coin.visible = false; ctx.S.temp.add(coin);
   const T_THROW = 3.4, T_FLIGHT = 0.9;
   const hidden = breakHidden(ctx, V(0.5, 1.5, 0.5), T_THROW + T_FLIGHT + 0.6);
-  const out = innerBeat(ctx, inner, { start: hidden.breakAt + 0.2, ring: V(0.5, 5.3, 0.5), beaconCell: V(0, 4, 0), from: V(0.5, 3.4, 0.5), mode: 'pop', camExtra: 3.0 });
+  const out = innerBeat(ctx, inner, { start: hidden.breakAt + 0.2, ring: V(0.5, 5.3, 0.5), beaconCell: V(0, 4, 0), from: V(0.5, 3.4, 0.5), mode: 'pop', camExtra: 3.0, itemsCam: () => ({ pos: V(4.2, 4.6, 8.2), look: V(0.9, 4.0, 0.5), fov: 46 }) });
   watch('well', () => V(0.5, 3, 0.5), 5);
   let chat1 = false, chat2 = false, splashed = false, said = false, tossed = false;
   const tEnd = out.dur;

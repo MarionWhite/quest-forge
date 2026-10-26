@@ -115,6 +115,8 @@ def judge(drop, d):
             weak.append("tiny %.2f" % best)
         if best > 1.5:
             weak.append("huge %.2f" % best)
+    if rep.get("unknown"):
+        weak.append("unknown mob id " + ",".join(rep["unknown"]))
     if not rep.get("sfx"):
         weak.append("silent")
     return bad, weak

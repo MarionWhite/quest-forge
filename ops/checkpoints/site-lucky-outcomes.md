@@ -7,3 +7,5 @@ Commits: 1d9bcd6, b4f154a. Vet is slow (~30 s per frame alone): use --jobs 2.
 Open for others
 - MOBS: Mothra renders no body in scene 163; Rotator is flat red slabs; unknown ids (Apple Cow etc.) fall back to Zombie.
 - Sounds: all names used exist in the manifest except none missing after replacing the witch cackle with villager idle.
+
+Critic pass 2 done: wells use one upright camera for every result (251..264 incl. the empty one), eggs fountain and pop, burning rod readable (item sways, thinner burst), vet flags unknown mob ids (report.unknown) as weak. Sheet: /private/tmp/claude-503/-Users-suaz-Desktop-QuestForge/91769071-2ed0-4412-b25d-3c510232d8e5/scratchpad/lk/v7/combined.png (161 from v8). Vet of those 10 drops: 0 broken, 0 weak.

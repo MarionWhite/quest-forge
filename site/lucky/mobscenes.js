@@ -521,34 +521,39 @@ MOB_SCENES.apocalypse = (ctx) => {
   };
 };
 
-// Lucky eggs are thrown projectiles, not mobs: they arc out of the block and crack into colour.
+// Lucky eggs are thrown projectiles, not mobs: they fountain out of the block, land around it
+// and each pops into a small burst of colour.
 function eggsScene(ctx, n) {
-  const P = ctx.pos.clone();
-  const from = V(0.5, 1.8, 0.5);
+  const O = ctx.dais.clone();
+  const G = 18, y0 = O.y + 0.7;
   const eggs = [];
   for (let i = 0; i < n; i++) {
-    const m = new THREE.Mesh(new THREE.SphereGeometry(0.16, 10, 8), new THREE.MeshLambertMaterial({ color: new THREE.Color().setHSL(i / n, 0.8, 0.7), emissive: new THREE.Color().setHSL(i / n, 0.8, 0.25) }));
-    m.scale.set(1, 1.3, 1); m.visible = false; ctx.S.temp.add(m);
+    const hue = i / n;
+    const m = new THREE.Mesh(new THREE.SphereGeometry(0.17, 12, 9), new THREE.MeshLambertMaterial({ color: new THREE.Color().setHSL(hue, 0.85, 0.68), emissive: new THREE.Color().setHSL(hue, 0.9, 0.3) }));
+    m.scale.set(1.4, 1.8, 1.4); m.visible = false; ctx.S.temp.add(m);
+    const spot = new THREE.Mesh(new THREE.SphereGeometry(0.06, 6, 5), new THREE.MeshBasicMaterial({ color: 0xffffff }));
+    spot.position.set(0.1, 0.08, 0.1); m.add(spot);
     if (F.report()) F.report().items++;
-    eggs.push({ m, t0: 0.4 + i * 0.14, to: V(P.x + rnd(-3.2, 0.6), 0.2, P.z + rnd(-2.6, 2.6)), fl: rnd(0.8, 1.1), done: false, hue: i / n });
+    const a = rnd(0, Math.PI * 2), sp = rnd(0.9, 2.3), vy = rnd(6.5, 8.5);
+    eggs.push({ m, t0: 0.4 + i * 0.12, v: V(Math.cos(a) * sp, vy, Math.sin(a) * sp), tl: (vy + Math.sqrt(vy * vy + 2 * G * (y0 - 0.15))) / G, done: false, hue });
   }
-  watch('eggs', () => V(P.x - 1.5, 1, P.z), 3);
+  watch('eggs', () => V(O.x, O.y + 2, O.z), 4);
   let said = false;
   return {
-    dur: 0.4 + n * 0.14 + 2.6,
-    cam: () => ({ pos: V(P.x - 0.8, 3.0, P.z + 8.6), look: V(P.x - 1.4, 1.1, P.z), fov: 46 }),
+    dur: 0.4 + n * 0.12 + 2.4,
+    cam: () => ({ pos: V(O.x + 0.6, 3.0, O.z + 5.4), look: V(O.x, 3.0, O.z), fov: 50 }),
     update(t, dt) {
       eggs.forEach((e, i) => {
         if (t < e.t0 || e.done) return;
-        const k = clamp01((t - e.t0) / e.fl);
+        const s = t - e.t0;
         e.m.visible = true;
-        e.m.position.set(lerp(from.x, e.to.x, k), lerp(from.y, e.to.y, k) + Math.sin(k * Math.PI) * 2.4, lerp(from.z, e.to.z, k));
-        e.m.rotation.z += dt * 10;
-        if (i === 0 && !e.snd) { e.snd = true; sfx('random.bow', { pos: from, volume: 0.5, pitch: 1.5 }); }
-        if (k >= 1) {
+        e.m.position.set(O.x + e.v.x * s, y0 + e.v.y * s - 0.5 * G * s * s, O.z + e.v.z * s);
+        e.m.rotation.z += dt * 9; e.m.rotation.x += dt * 5;
+        if (s === 0 || (i % 3 === 0 && !e.snd)) { e.snd = true; sfx('random.bow', { pos: O, volume: 0.35, pitch: 1.5 + (i % 5) * 0.08 }); }
+        if (s >= e.tl) {
           e.done = true; e.m.visible = false;
-          burst(ctx, V(e.to.x, 0.3, e.to.z), { n: 18, colors: [0xff5a5a, 0xf2c14e, 0x8fd3a0, 0x5ad2ff, 0x9d7bff], size: 0.14, speed: 1.8, up: 2.6, life: 1.0, additive: true });
-          if (i % 2 === 0) sfx('random.pop', { pos: e.to, volume: 0.6, pitch: 1.2 + (i % 4) * 0.1 });
+          burst(ctx, V(e.m.position.x, 0.25, e.m.position.z), { n: 16, colors: [new THREE.Color().setHSL(e.hue, 0.9, 0.6).getHex(), 0xffffff, 0xf2c14e], size: 0.13, speed: 1.6, up: 2.4, life: 0.9, additive: true });
+          if (i % 2 === 0) sfx('random.pop', { pos: e.m.position, volume: 0.6, pitch: 1.2 + (i % 4) * 0.1 });
         }
       });
       if (!said && t > 0.8) { said = true; ctx.say(ctx.drop.title, { at: 'bottom' }); }

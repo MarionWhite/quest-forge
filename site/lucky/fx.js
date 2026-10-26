@@ -25,7 +25,7 @@ export const DUMP = PARAMS.has('dump');
 // (what the shot is about) so the vet can ask whether they are in the frame.
 let REP = null;
 export function newReport(key, drop) {
-  REP = { key, index: drop && drop.index, mobs: 0, items: 0, blocks: 0, particles: 0, sfx: {}, subjects: [], errors: [], notes: [], t: 0, dur: 0 };
+  REP = { key, index: drop && drop.index, mobs: 0, items: 0, blocks: 0, particles: 0, sfx: {}, subjects: [], errors: [], notes: [], unknown: [], t: 0, dur: 0 };
   return REP;
 }
 export function report() { return REP; }
@@ -40,7 +40,7 @@ const _fr = new THREE.Frustum();
 const _m = new THREE.Matrix4();
 const _p = new THREE.Vector3();
 export function finishReport(rep, cam, aspect, t, dur) {
-  const o = { key: rep.key, index: rep.index, t, dur, mobs: rep.mobs, items: rep.items, blocks: rep.blocks, particles: rep.particles, sfx: { ...rep.sfx }, errors: rep.errors.slice(), notes: rep.notes.slice(), subjects: [] };
+  const o = { key: rep.key, index: rep.index, t, dur, mobs: rep.mobs, items: rep.items, blocks: rep.blocks, particles: rep.particles, sfx: { ...rep.sfx }, errors: rep.errors.slice(), notes: rep.notes.slice(), unknown: rep.unknown.slice(), subjects: [] };
   _cam.fov = cam.fov || 40; _cam.aspect = aspect || 1.5; _cam.near = 0.1; _cam.far = 200;
   _cam.position.copy(cam.pos); _cam.up.set(0, 1, 0); _cam.lookAt(cam.look); _cam.updateMatrixWorld(true); _cam.updateProjectionMatrix();
   _m.multiplyMatrices(_cam.projectionMatrix, _cam.matrixWorldInverse); _fr.setFromProjectionMatrix(_m);
@@ -202,7 +202,7 @@ export function spawnMob(ctx, id, pos, o = {}) {
   m.root.scale.setScalar(0.001);
   ctx.S.temp.add(m.root);
   if (!o.quiet) puff(ctx, pos.clone().setY(pos.y + 0.6), { n: 14, size: 0.5 });
-  if (REP) REP.mobs++;
+  if (REP) { REP.mobs++; if (m.unknown && !REP.unknown.includes(id)) REP.unknown.push(id); }
   const mob = { ...m, id, base, born: null, spoke: false, nextSay: 0, fly: o.fly ?? (m.hover ? m.hover * 1.5 + 1.2 : (FLY[id] ?? 0)), bob: rnd(0, 6), wh: (m.height || 1.8) * base.x, baseY: pos.y, flipY: 0 };
   if (o.watch !== false) watch(id, m.root, mob.wh, o.main !== false);
   return mob;

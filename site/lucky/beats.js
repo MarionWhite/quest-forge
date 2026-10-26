@@ -13,7 +13,7 @@ export function ringSlots(n) {
   return slots;
 }
 export function itemsCam(O, R, extra = 0) {
-  const d = 3.5 + R * 1.5 + extra;
+  const d = 3.0 + R * 1.5 + extra;
   return () => ({ pos: V(O.x + 0.15, O.y + 1.25 + R * 0.55 + extra * 0.25, O.z + d), look: V(O.x, O.y + 0.45 - extra * 0.18, O.z), fov: 40 });
 }
 
@@ -65,10 +65,10 @@ export function itemsBeat(ctx, items, o = {}) {
           y = lerp(O.y + 0.6, s.ty, e) + Math.sin(k * Math.PI) * 1.15;
           if (k >= 1 && !s.landed) { s.landed = true; s.lt = t; }
         }
-        if (s.landed && s.lt === t || (s.landed && !s.pop)) { s.pop = true; if (popped++ % 2 === 0 || n < 5) sfx('random.pop', { pos: { x: s.tx, y: s.ty, z: s.tz }, volume: 0.6, pitch: 0.9 + (s.i % 5) * 0.08 }); if (s.i === 0) burst(ctx, V(O.x, O.y + 0.5, O.z), { n: 24, colors: [0xffffff, 0xf2c14e], size: 0.14, speed: 1.6, up: 2.2, life: 0.8, additive: true, gravity: 4, noFloor: true }); }
+        if (s.landed && s.lt === t || (s.landed && !s.pop)) { s.pop = true; if (popped++ % 2 === 0 || n < 5) sfx('random.pop', { pos: { x: s.tx, y: s.ty, z: s.tz }, volume: 0.6, pitch: 0.9 + (s.i % 5) * 0.08 }); if (s.i === 0) burst(ctx, V(O.x, O.y + 0.1, O.z), { n: 12, colors: [0xffffff, 0xf2c14e], size: 0.09, speed: 1.4, up: 1.2, life: 0.5, additive: true, gravity: 3, noFloor: true }); }
         if (s.landed) y += Math.sin(t * 2.2 + s.ph) * 0.06;
         s.g.position.y = y;
-        s.g.userData.spin.rotation.y = t * 2.6 + s.ph;
+        s.g.userData.spin.rotation.y = Math.sin(t * 1.7 + s.ph) * 1.0;  // a sway, never edge-on, so the item stays readable
         if (s.g.userData.glint) s.g.userData.glint.material.opacity = 0.35 + 0.25 * Math.sin(t * 4 + s.ph);
       }
     },
