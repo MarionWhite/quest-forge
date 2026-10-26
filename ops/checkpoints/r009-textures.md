@@ -36,5 +36,16 @@ Nothing for v2 started; no renders submitted.
     biome-tinted, as one contact sheet in the scratchpad, before any render.
   - 1c: render tex-leaves, tex-leaves-tree, tex-forest via renderq (shot mode, night per item 7).
 
+- 2026-10-26 (texture-dev, capped run): 1b done, offline only, no renders.
+  - `leaves()` now has 3 macro value groups per clump (crown +0.16 / mid / shadow -0.16) plus a per-clump
+    offset (±0.08) so the masses separate; single leaves only on crown or silhouette (f < 0.75);
+    seam 0.16 -> 0.06; leafless clump interior -0.12 -> -0.04.
+  - Preview: scratchpad `leaf_preview.py` (3x3 tiled, vanilla biome tints over sky blue, 4x zoom). It ran;
+    I looked at the sheet. Clumps read as masses now, not speckle. Alpha: oak .89, big_oak .93, birch .91,
+    jungle .79, acacia .98 (all >= .61). Scratchpad is per-session, so recreate the preview when needed.
+  - Seen but not fixed: oak's gap pockets still form a visible zigzag column per tile; acacia gaps are
+    thin tick marks; jungle gaps are large Y-shapes. Only 5 grey values survive quantisation. Possible 1b+ touch-ups,
+    otherwise judge them in the 1c render.
+
 ## Next
-Step 1b (leaf rewrite in qf_art.py + offline tiled preview). Needs a full-budget run; not started.
+Step 1c: render tex-leaves, tex-leaves-tree, tex-forest via renderq (shot mode, night). Build with the command above first.

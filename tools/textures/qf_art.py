@@ -124,10 +124,22 @@ def leaves(kind="oak", size=32):
     rad = r.uniform(5.0, 6.8, len(cen)) * (size / 32)
     f, off, best = clump_field(size, cen, rad)
     core = f > 0.60
-    # macro light: offset toward the light = brighter; rim of the clump darker
+    # macro light in three value groups per clump (r009: 1a found per-leaf steps read as speckle):
+    # lit crown toward the light, mid, shadowed underside; each clump gets its own overall value
+    # so neighbouring masses separate instead of repeating one lighting pattern.
     lit = -(off[..., 0] * LIGHT[0] + off[..., 1] * LIGHT[1])
-    macro = 0.52 + 0.20 * np.clip(lit, -1, 1) - 0.10 * np.clip(best - 0.6, 0, 1)
-    # micro: single leaves, each its own small value step, dark seams where leaves meet
+    crown = lit > 0.30
+    shadow = (lit < -0.25) | (best > 0.75)
+    nearest = np.zeros((size, size), np.int32)
+    bd = np.full((size, size), 1e9, np.float32)
+    for i, ((px, py), rd) in enumerate(zip(cen, rad)):
+        dy, dx = wrapped_offsets(size, px, py)
+        d2 = (dx * dx + dy * dy) / (rd * rd)
+        nearest = np.where(d2 < bd, i, nearest)
+        bd = np.minimum(bd, d2)
+    clump_val = r.uniform(-0.08, 0.08, len(cen)).astype(np.float32)
+    macro = 0.50 + clump_val[nearest] + np.where(crown, 0.16, 0.0) - np.where(shadow & ~crown, 0.16, 0.0)
+    # micro: single leaves only on crowns and clump silhouettes, faint seams where leaves meet
     lid = np.full((size, size), -1, np.int32)
     lval = np.zeros((size, size), np.float32)
     pts = poisson(k["n"], size, 2.4, r)
@@ -142,6 +154,7 @@ def leaves(kind="oak", size=32):
         facing = float(nrm @ -LIGHT)
         v = 0.05 * np.sign(sv) * facing + r.uniform(-0.05, 0.05) + 0.05 * (t < -0.5)
         m &= f > 0.30            # leaves fringe a clump; they never float in a gap
+        m &= crown | (f < 0.75)  # ...and sit on the lit crown or the silhouette, not everywhere
         lid = np.where(m, i, lid)
         lval = np.where(m, v, lval)
     inside = core | (lid >= 0)
@@ -150,8 +163,8 @@ def leaves(kind="oak", size=32):
         nb = np.roll(np.roll(lid, -dy_, 0), -dx_, 1)
         seam |= (nb != lid)
     # a seam darkens the pixel on the shadow side (below/right) of a leaf edge
-    val = np.where(inside, macro + lval - 0.16 * seam, 0.0)
-    val = np.where(inside & (lid < 0), macro - 0.12, val)
+    val = np.where(inside, macro + lval - 0.06 * seam, 0.0)
+    val = np.where(inside & (lid < 0), macro - 0.04, val)
     gap = ~inside
     # See-through gaps: only small pockets at the deepest points between clumps. Long gap
     # channels repeat block after block and read as a tiling pattern (r008 first render: a row of
