@@ -380,6 +380,30 @@ def main():
                     for y in range(GROUND + 1, CLEAR_TOP):
                         ident, meta = place.get((x, y, z), (0, 0))
                         setb(lx, y, lz, ident, meta)
+            # Sky light: the clearing removed hills, and their sections keep the old dark sky light
+            # (LightPopulated=0 does not relight them before FrameBench measures: r008's first
+            # renders had black patches in the wheat). Columns we cleared get full sky light
+            # above their top block and none below; the game refines it from there.
+            cleared = [(lx, lz) for lx in range(16) for lz in range(16)
+                       if any(ax0 <= cx * 16 + lx <= ax1 and az0 <= cz * 16 + lz <= az1 for ax0, ax1, az0, az1 in areas)]
+            for lx, lz in cleared:
+                x, z = cx * 16 + lx, cz * 16 + lz
+                top = max([y for (px, y, pz) in place if (px, pz) == (x, z) and place[(px, y, pz)][0] not in TRANSPARENT]
+                          + [GROUND])
+                for sy in range(0, CLEAR_TOP // 16 + 1):
+                    sec = secs.get(sy)
+                    if sec is None or "SkyLight" not in sec:
+                        continue
+                    sl = W.u8(sec["SkyLight"])
+                    for yy in range(16):
+                        y = sy * 16 + yy
+                        i = yy * 256 + lz * 16 + lx
+                        v = 15 if y > top else 0
+                        if i % 2 == 0:
+                            sl[i >> 1] = (sl[i >> 1] & 0xF0) | v
+                        else:
+                            sl[i >> 1] = (sl[i >> 1] & 0x0F) | (v << 4)
+                    sec["SkyLight"] = nbtlib.ByteArray(sl.view(np.int8))
             for sy, (bl, d, add) in arrays.items():
                 s = secs[sy]
                 s["Blocks"], s["Data"] = nbtlib.ByteArray(bl.view(np.int8)), nbtlib.ByteArray(d.view(np.int8))

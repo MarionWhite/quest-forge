@@ -153,8 +153,16 @@ def leaves(kind="oak", size=32):
     val = np.where(inside, macro + lval - 0.16 * seam, 0.0)
     val = np.where(inside & (lid < 0), macro - 0.12, val)
     gap = ~inside
-    deep = f < {"jungle": 0.16, "acacia": 0.30}.get(kind, 0.22)
-    hole = gap & deep
+    # See-through gaps: only small pockets at the deepest points between clumps. Long gap
+    # channels repeat block after block and read as a tiling pattern (r008 first render: a row of
+    # zigzags along every oak canopy), so a pocket is kept only where the field is a local minimum.
+    deep = f < {"jungle": 0.12, "acacia": 0.24}.get(kind, 0.18)
+    nb_min = np.minimum.reduce([np.roll(np.roll(f, dy, 0), dx, 1) for dy in (-2, 0, 2) for dx in (-2, 0, 2)])
+    pocket = f <= nb_min + 0.06
+    grow = pocket.copy()
+    for dy, dx in ((0, 1), (1, 0), (0, -1), (-1, 0)):
+        grow |= np.roll(np.roll(pocket, dy, 0), dx, 1)
+    hole = gap & deep & grow
     val = np.where(gap & ~deep, 0.22 + 0.06 * f, val)
     alpha = ~hole
     if alpha.mean() < 0.55:      # never sparser than vanilla's 61 % opaque
@@ -592,3 +600,46 @@ def bookshelf(size=32, seed=71, planks=None):
     for y in (int(2 * s), int(18 * s)):
         cv.v[y] = cv.v[y] * 0.6
     return cv.out()
+
+
+# --- leaf edges (CTM) -------------------------------------------------------------------------------
+def opaque(a, fill=0.16):
+    """Fast-graphics leaves (*_opaque): the see-through gaps filled with deep shadow."""
+    out = a.copy()
+    hole = out[..., 3] == 0
+    v = int(fill * 255)
+    out[hole] = (v, v, v, 255)
+    return out
+
+
+def ragged_tile(base, edges, seed, depth=3.2):
+    """A leaf texture whose `edges` (any of T, B, L, R: the sides with no leaf block beyond them)
+    are bitten into: leaves end irregularly instead of on the block's straight edge. The cut follows
+    a wandering profile 0..depth px deep (at 32x), with a darker pixel just inside the cut so the
+    new outline reads as leaves overlapping, not as a hole."""
+    a = base.copy()
+    size = a.shape[0]
+    s = size / 32
+    r = rng(seed)
+    t = np.arange(size, dtype=np.float32)
+    yy, xx = np.mgrid[0:size, 0:size]
+    cut = np.zeros((size, size), bool)
+    rim = np.zeros((size, size), bool)
+    for e in edges:
+        prof = np.zeros(size, np.float32)
+        for k, amp in ((1, 0.9), (2, 0.7), (3, 0.5), (5, 0.35)):
+            prof += amp * np.sin(2 * math.pi * k * t / size + r.uniform(0, 6.3))
+        prof = (prof - prof.min()) / max(1e-3, np.ptp(prof)) * depth * s
+        # a few deeper notches between leaf clumps
+        for _ in range(3):
+            c = r.uniform(0, size)
+            prof += 1.6 * s * np.exp(-((t - c) / (1.6 * s)) ** 2)
+        d = {"T": yy, "B": size - 1 - yy, "L": xx, "R": size - 1 - xx}[e].astype(np.float32)
+        along = xx if e in "TB" else yy
+        p = prof[along]
+        cut |= d < p - 0.5
+        rim |= (d >= p - 0.5) & (d < p + 0.6 * s)
+    a[cut, 3] = 0
+    rim &= ~cut & (a[..., 3] > 0)
+    a[rim, :3] = (a[rim, :3].astype(np.float32) * 0.72).astype(np.uint8)
+    return a

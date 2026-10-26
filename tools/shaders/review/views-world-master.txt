@@ -80,12 +80,15 @@ modded_close     267.5   70.2   181.8    180    4      7000
 # QF Textures v1 (round 8; build_showcase.py --v1, only in the showcase copy). texture_wall2: wall 2
 # (stone bricks, cobble, bookshelves, a dirt/grass step, emerald/lapis/redstone/coal) from 5
 # blocks. farm: wheat, carrots, potatoes from above and south, low sun from the west; farm_close:
-# the front row of every wheat stage from 3.5 blocks. leaves_close: a lone leaf block and a 4x2
-# hedge from 4 blocks, the small oak behind; tree_close: the small oak from 8 blocks, looking up a
-# little. items_frames: 8 potions over 8 enchanted books in item frames (custom item textures).
+# the front row of every wheat stage from 1.8 blocks. leaves_close: a lone leaf block and a 4x2
+# hedge from 2.4 blocks, the small oak behind; tree_close: the small oak from 4.5 blocks, looking
+# up. FrameBench's FOV is wide: objects look about twice as far as the numbers say. items_frames: 8 potions over 8 enchanted books in item frames (custom item textures).
 texture_wall2    233.5   70.4   183.0    180    8      7000
-farm             232.5   73.5   213.5    180    26     11500
-farm_close       232.5   69.6   208.0    180    14     11500
-leaves_close     248.0   69.4   195.0    0      6      7000
-tree_close       253.5   70.6   194.5    0      -10    7000
-items_frames     266.0   69.9   196.0    0      0      7000
+farm             232.5   72.0   208.5    180    30     11500
+farm_close       234.5   69.5   205.8    180    22     11500
+leaves_close     248.0   69.3   196.6    0      10     7000
+tree_close       253.5   70.9   198.0    0      -14    7000
+items_frames     266.0   69.9   197.3    0      0      7000
+# r008: under water in the lake, facing the afternoon sun (west, ~40 deg up), looking a little up,
+# for the sunbeams, caustics and bubbles question (owner r007: Conquest's underwater ambience).
+underwater_sun   250.5   59.2    -288.5   95     14     9000
