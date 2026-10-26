@@ -44,3 +44,11 @@ Previous state: `ops/checkpoints/site-krypt-world.md`.
   endframe_*, gold/diamond/lapis/emerald block, stonebrick_carved).
 - Dress batches are per 32x32 cell (culled). Draw calls in dump (incl. ~20 post passes): 62-111, old frames were 40-74.
 - Next: final sheet check, journal line, commit. Sheet: scratchpad r5/krypt-more/final/sheet.png, phone/sheet.png.
+
+## Critic round 2 (done)
+Webs are crossed-plane X sprites (tiled for curtains); portal frames fixed (9 of 12 eyes, end_sky starfield + stars); vault rebuilt
+(gold pillars, chests, ordered rows, iron-door gates at both ends, ht 6 so no ceiling patch); ossuary/flood/spidermine/catacomb ambient
+lifted, niches lit; phone: bloom off. Dress cells 128, grid chunks 48.
+Draw calls (dump, incl. post passes): old baseline 40 (ossuary spot) / 74 (catacomb spot); first r5 62 / 111 (spider) / 101 (fortress);
+now ossuary 69, spider 107 (spawner mob within 15 blocks), vault 83, fortress 58, portal 35; phone spider frame 40.
+Sheet: scratchpad r5/krypt-more/r3/sheet.png; phone: r5/krypt-more/phone/p1 spidermine.png.

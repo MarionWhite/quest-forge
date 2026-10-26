@@ -31,7 +31,7 @@ const TEX_FILES = ["stone", "cobblestone", "cobblestone_mossy", "stonebrick", "s
   "grave_stone", "grave_zerk", "grave_pillar", "grave_wood", "grave_knight", "skeleton",
   "furnace_side", "furnace_top", "dispenser_front_horizontal", "lever", "trip_wire", "trip_wire_source", "door_iron_lower",
   "door_iron_upper", "endframe_top", "endframe_side", "endframe_eye", "gold_block", "diamond_block", "lapis_block",
-  "emerald_block", "stonebrick_carved", "iron_block"];
+  "emerald_block", "stonebrick_carved", "iron_block", "chest", "end_sky"];
 
 const state = {
   graves: [], updated: null, feed: "", loadError: false,
@@ -259,6 +259,7 @@ async function startKrypt() {
   composer.addPass(new RenderPass(scene, camera));
   const bloom = new UnrealBloomPass(new THREE.Vector2(256, 256), 0.35, 0.45, 1.1);
   composer.addPass(bloom); K.bloom = bloom;
+  if (phone) bloom.enabled = false;   // the bloom is about fifteen draws; on a phone the frame budget goes to the world
   const grade = new ShaderPass({
     uniforms: { tDiffuse: { value: null }, time: { value: 0 }, res: { value: new THREE.Vector2(1, 1) } },
     vertexShader: "varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }",

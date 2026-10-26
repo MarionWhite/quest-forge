@@ -58,7 +58,7 @@ export function dress(a, lay, IMG, lightAt) {
     M.compose(P, Q, S1); geo.applyMatrix4(M);
     bakeConst(geo, x, y, z);
     // One batch per material and per 32 by 32 block cell, so the renderer can cull what is out of view.
-    const bk = key + "|" + Math.floor(x / 32) + "," + Math.floor(z / 32);
+    const bk = key + "|" + Math.floor(x / 128) + "," + Math.floor(z / 128);
     if (!batches.has(bk)) batches.set(bk, { list: [], mk, key });
     batches.get(bk).list.push(geo);
   };
@@ -79,11 +79,27 @@ export function dress(a, lay, IMG, lightAt) {
   const fires = [];
   const lamb = (name, o = {}) => () => patchBake(new THREE.MeshLambertMaterial({ map: nearest(IMG[name], { repeat: true }), ...o }));
   const mkWire = cut(IMG.trip_wire, { alphaTest: 0.2 }), mkHook = cut(IMG.trip_wire_source, { alphaTest: 0.2 });
-  const mkLever = lamb("lever"), mkDoorL = lamb("door_iron_lower"), mkDoorU = lamb("door_iron_upper"), mkNBrick = lamb("nether_brick");
+  const mkChest = lamb("chest"), mkLever = lamb("lever"), mkDoorL = lamb("door_iron_lower"), mkDoorU = lamb("door_iron_upper"), mkNBrick = lamb("nether_brick");
   const mkFrameTop = lamb("endframe_top"), mkFrameSide = lamb("endframe_side"), mkEye = () => patchBake(new THREE.MeshLambertMaterial({ map: nearest(IMG.endframe_eye), color: new THREE.Color(1.0, 1.0, 1.0), emissive: new THREE.Color(0.05, 0.22, 0.14) }));
   for (const d of a.decor) {
     switch (d.t) {
-      case "web": put("web", d.h ? (d.rep ? plane(d.w, d.h, d.w, d.h) : plane(d.w, d.h)) : plane(d.w, d.w), d.x, d.y, d.z, d.ry, 0, 0, mkWeb); break;
+      case "web": {
+        // 1.7.10 draws cobweb as two crossed vertical planes (an X) with a cutout; wide webs are a grid of those.
+        const nx = Math.max(1, Math.round(d.w)), ny = d.h ? Math.max(1, Math.round(d.h)) : 1, sz = d.h ? 1 : d.w;
+        const cy = Math.cos(d.ry), sy = Math.sin(d.ry);
+        for (let i = 0; i < nx; i++) for (let k = 0; k < ny; k++) {
+          if (d.h && ((i * 7 + k * 13 + Math.floor(d.x * 3 + d.z * 5)) % 10) < 3) continue;
+          const lx = d.h ? (i - (nx - 1) / 2) : 0, ly = d.h ? (k - (ny - 1) / 2) : 0;
+          const wx = d.x + lx * cy, wz = d.z - lx * sy;
+          for (const da of [Math.PI / 4, -Math.PI / 4]) put("web", plane(sz, sz), wx, d.y + ly, wz, d.ry + da, 0, 0, mkWeb);
+        }
+        break;
+      }
+      case "chest": {
+        const body = boxGeometry([-7, -10, -7, 14, 10, 14], [0, 19], 64, 64), lid = boxGeometry([-7, -15, -7, 14, 5, 14], [0, 0], 64, 64);
+        put("chest", body, d.x, d.y, d.z, d.ry, 0, 0, mkChest); put("chest", lid, d.x, d.y, d.z, d.ry, 0, 0, mkChest);
+        break;
+      }
       case "wire": put("wire", plane(1, 1), d.x, d.y, d.z, d.ry, -Math.PI / 2, 0, mkWire); break;
       case "hook": put("hook", plane(0.7, 0.7), d.x, d.y, d.z, d.ry, 0, 0, mkHook); break;
       case "lever": {
@@ -110,7 +126,7 @@ export function dress(a, lay, IMG, lightAt) {
         put("frameTop", plane(1, 1), d.x, d.y + hgt, d.z, 0, -Math.PI / 2, 0, mkFrameTop);
         for (let q = 0; q < 4; q++) {
           const ry = q * Math.PI / 2, ox = Math.sin(ry) * 0.5, oz = Math.cos(ry) * 0.5;
-          const g = plane(1, hgt); const uv = g.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setY(i, uv.getY(i) * hgt + (1 - hgt));
+          const g = plane(1, hgt); const uv = g.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setY(i, uv.getY(i) * hgt);
           put("frameSide", g, d.x + ox, d.y + hgt / 2, d.z + oz, ry, 0, 0, mkFrameSide);
         }
         if (d.eye) {
@@ -230,12 +246,12 @@ export function dress(a, lay, IMG, lightAt) {
     patchBake(sm, { fixed: new THREE.Vector3(...lightAt(spawner.x, spawner.y + 0.5, spawner.z, 0, 0.3, 0, { omni: true })) });
     const cage = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), sm);
     cage.position.set(spawner.x, spawner.y + 0.5, spawner.z);
-    group.add(cage); far.push([cage, spawner]);
+    group.add(cage); far.push([cage, spawner, 34]);
     try {
       const mob = makeMob(spawner.mob || "Zombie", { scale: spawner.mob === "CaveSpider" ? 0.42 : 0.3 });
       mob.root.position.set(spawner.x, spawner.y + 0.12, spawner.z);
       mob.root.traverse(o => { if (o.isMesh && o.material && o.material.isMeshLambertMaterial) { o.material.emissive = new THREE.Color(0x201008); } });
-      group.add(mob.root); mobs.push(mob); far.push([mob.root, spawner]);
+      group.add(mob.root); mobs.push(mob); far.push([mob.root, spawner, 15]);
       upd.push((t, dt) => { mob.root.rotation.y = t * 2.2; try { mob.anim(t, dt, {}); } catch { /* optional */ } });
     } catch { /* no mob */ }
   }
@@ -254,8 +270,14 @@ export function dress(a, lay, IMG, lightAt) {
       group.add(m); return t;
     };
     const t1 = mk(1.5, false), t2 = mk(2.6, true);
+    if (IMG.end_sky) {
+      const sk = nearest(IMG.end_sky, { repeat: true }); sk.repeat.set(1.2, 1.2);
+      const m = new THREE.Mesh(new THREE.PlaneGeometry(pd.w, pd.d), new THREE.MeshBasicMaterial({ map: sk, color: new THREE.Color(0.55, 0.9, 0.8), transparent: true, opacity: 0.8, depthWrite: false }));
+      m.rotation.x = -Math.PI / 2; m.position.set(pd.x, pd.y + 0.01, pd.z); m.renderOrder = 2; group.add(m);
+      upd.push((t) => { sk.offset.set(t * 0.012, -t * 0.018); });
+    }
     upd.push((t) => { t1.offset.set(t * 0.03, t * 0.021); t2.offset.set(-t * 0.05, t * 0.04); });
   }
 
-  return { group, update: (t, dt, cam) => { for (const f of upd) f(t, dt); if (cam) for (const [o, p] of far) o.visible = (o.position.x - cam.x) ** 2 + (o.position.z - cam.z) ** 2 < 34 * 34; }, spawner: spawners[0] || null, mob: mobs[0] || null };
+  return { group, update: (t, dt, cam) => { for (const f of upd) f(t, dt); if (cam) for (const [o, , r] of far) o.visible = (o.position.x - cam.x) ** 2 + (o.position.z - cam.z) ** 2 < r * r; }, spawner: spawners[0] || null, mob: mobs[0] || null };
 }

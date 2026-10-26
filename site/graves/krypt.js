@@ -29,7 +29,7 @@ const SPEC = [
   { kind: "temple",     sid: 12, h: "W", hw: 3, ht: 5, pre: 3, post: 2, weight: 3, branch: 1, step: 12, holes: [] },
   { kind: "dungeon",    sid: 5,  h: "N", hw: 6, ht: 5, pre: 4, post: 4, weight: 2, branch: 0, holes: [] },
   { kind: "library",    sid: 6,  h: "W", hw: 4, ht: 6, pre: 2, post: 0, weight: 3, branch: 1, holes: [0.8] },
-  { kind: "vault",      sid: 13, h: "N", hw: 4, ht: 5, pre: 6, post: 3, weight: 2, branch: 0, step: 8, holes: [] },
+  { kind: "vault",      sid: 13, h: "N", hw: 4, ht: 6, pre: 6, post: 3, weight: 2, branch: 0, step: 8, holes: [] },
   { kind: "chasm",      sid: 7,  h: "N", hw: 6, ht: 6, pre: 3, post: 0, weight: 2, branch: 0, holes: [0.3, 0.75] },
   { kind: "stairs",     sid: 8,  h: "N", hw: 3, ht: 4, pre: 0, post: 0, weight: 1, branch: 0, holes: [], stairs: true, fixed: 1 },
   { kind: "fortress",   sid: 14, h: "E", hw: 5, ht: 6, pre: 3, post: 2, weight: 3, branch: 1, step: 8, holes: [] },
@@ -44,15 +44,15 @@ const STAIR_LANDING = 6, STAIR_LEN = 12, STAIR_DROP = 6, CHASM_DEPTH = 4, FORT_D
 export const PROFILE = {
   crypt:   { amb: [0.060, 0.082, 0.150], fog: [0.030, 0.040, 0.075], fogD: 0.040, exposure: 1.18, torch: 0.78, bloom: 0.30 },
   mine:    { amb: [0.075, 0.075, 0.085], fog: [0.040, 0.036, 0.040], fogD: 0.040, exposure: 1.18, torch: 0.9,  bloom: 0.32 },
-  ossuary: { amb: [0.080, 0.068, 0.078], fog: [0.040, 0.030, 0.038], fogD: 0.042, exposure: 1.2,  torch: 0.9,  bloom: 0.32 },
-  flood:   { amb: [0.060, 0.105, 0.120], fog: [0.020, 0.045, 0.052], fogD: 0.040, exposure: 1.2,  torch: 1.0,  bloom: 0.34 },
+  ossuary: { amb: [0.150, 0.125, 0.140], fog: [0.050, 0.038, 0.046], fogD: 0.038, exposure: 1.24, torch: 1.1,  bloom: 0.32 },
+  flood:   { amb: [0.100, 0.165, 0.185], fog: [0.026, 0.055, 0.064], fogD: 0.036, exposure: 1.24, torch: 1.15,  bloom: 0.34 },
   dungeon: { amb: [0.095, 0.082, 0.062], fog: [0.044, 0.034, 0.026], fogD: 0.036, exposure: 1.2,  torch: 1.1,  bloom: 0.36 },
   library: { amb: [0.115, 0.082, 0.052], fog: [0.052, 0.035, 0.022], fogD: 0.034, exposure: 1.2,  torch: 1.0,  bloom: 0.36 },
   chasm:   { pitch: -0.3, amb: [0.105, 0.052, 0.032], fog: [0.070, 0.028, 0.014], fogD: 0.030, exposure: 1.22, torch: 0.8,  bloom: 0.46 },
   stairs:  { amb: [0.095, 0.048, 0.028], fog: [0.066, 0.026, 0.012], fogD: 0.034, exposure: 1.22, torch: 0.75, bloom: 0.44 },
   deep:    { amb: [0.120, 0.046, 0.022], fog: [0.085, 0.024, 0.010], fogD: 0.034, exposure: 1.25, torch: 1.0, bloom: 0.55 },
-  catacomb:   { amb: [0.086, 0.098, 0.116], fog: [0.036, 0.042, 0.054], fogD: 0.040, exposure: 1.22, torch: 1.1,  bloom: 0.32 },
-  spidermine: { amb: [0.064, 0.058, 0.066], fog: [0.032, 0.026, 0.034], fogD: 0.046, exposure: 1.2,  torch: 0.9,  bloom: 0.30 },
+  catacomb:   { amb: [0.115, 0.128, 0.150], fog: [0.036, 0.042, 0.054], fogD: 0.040, exposure: 1.22, torch: 1.1,  bloom: 0.32 },
+  spidermine: { amb: [0.115, 0.100, 0.112], fog: [0.040, 0.032, 0.040], fogD: 0.040, exposure: 1.24, torch: 1.15,  bloom: 0.30 },
   temple:     { amb: [0.098, 0.135, 0.088], fog: [0.034, 0.056, 0.032], fogD: 0.038, exposure: 1.22, torch: 1.25, bloom: 0.34 },
   vault:      { amb: [0.088, 0.086, 0.100], fog: [0.042, 0.042, 0.054], fogD: 0.034, exposure: 1.2,  torch: 1.1,  bloom: 0.40 },
   fortress:   { amb: [0.180, 0.078, 0.058], fog: [0.090, 0.030, 0.020], fogD: 0.030, exposure: 1.25, torch: 1.3,  bloom: 0.50 },
@@ -288,7 +288,7 @@ const WALLS = {
   10: [[260, T_BRICK], [520, T_BRICK_CRACK], [700, T_STONE], [820, T_BRICK_MOSSY], [940, T_COBBLE], [1000, T_BRICK_CRACK]],
   11: [[260, T_DIRT], [450, T_COBBLE], [620, T_STONE], [800, T_COAL], [880, T_IRON], [960, T_GRAVEL_FLOOR], [1000, T_COBBLE]],
   12: [[470, T_MOSSY], [940, T_COBBLE], [1000, T_BRICK_MOSSY]],
-  13: [[440, T_BRICK], [700, T_STONE], [840, T_BRICK_CRACK], [880, T_IRONB], [1000, T_BRICK]],
+  13: [[470, T_BRICK], [740, T_STONE], [900, T_BRICK_CRACK], [1000, T_BRICK]],
   14: [[640, T_NBRICK], [920, T_NBRICK], [960, T_NETHER], [1000, T_NBRICK]],
   15: [[300, T_BRICK], [520, T_BRICK_MOSSY], [700, T_BRICK_CRACK], [880, T_STONE], [940, T_CARVED], [1000, T_BRICK]]
 };
@@ -703,7 +703,7 @@ function dressLeg(a, lay, leg, H) {
         const r = rnd(lv * 7 + j, sd + 20);
         if (r < 0.7) decor({ t: "skull", x, y: j, z, ry: yaw + sd * Math.PI / 2 + (r - 0.35) * 0.9 });
         if (r > 0.3) decor({ t: "bone", x: x + (r - 0.6) * 0.3, y: j + 0.02, z: z + 0.15, ry: r * 7 });
-        if (j === y0 + 1 && ih(lv, leg.rid, sd + 3, 61) < 400) a.sources.push({ x: x + sd * -0.3, y: j + 0.6, z, c: [1.0, 0.72, 0.4], I: 1.5, R: 6 });
+        if (j === y0 + 1 && ih(lv, leg.rid, sd + 3, 61) < 600) a.sources.push({ x: x + sd * -0.3, y: j + 0.6, z, c: [1.0, 0.72, 0.4], I: 2.6, R: 7 });
         if (j === y0 + 2 && r > 0.55) { const [wx, , wz] = W3(leg, sd * (hw + 0.1), lv + 0.5, 0); decor({ t: "web", x: wx, y: j + 0.7, z: wz, ry: yaw + sd * Math.PI / 2, w: 0.9 }); }
       }
     }
@@ -797,31 +797,46 @@ function dressLeg(a, lay, leg, H) {
       L(leg, lu, lv, j, gap ? T_AIR : (j === y0 + 2 && (lu === -1 || lu === 0) ? T_IRONB : T_BRICK));
     }
     for (const lu of [-2, 1]) torchAtB(leg, lu, g0, y0 + 2, -1, { I: 3.2 });
+    // The far gate, the same as the first, so the hall ends in a wall and not in the next segment's ceiling.
+    const g1 = leg.ce - 2;
+    for (let lv = g1; lv < g1 + 2; lv++) for (let lu = -hw; lu < hw; lu++) for (let j = y0; j < y0 + ht; j++) {
+      const gap = (lu === -1 || lu === 0) && j < y0 + 2;
+      L(leg, lu, lv, j, gap ? T_AIR : T_BRICK);
+    }
+    for (const lu of [-2, 1]) torchAtB(leg, lu, g1, y0 + 2, -1, { I: 3.2 });
+    for (const sd of [-1, 1]) { const [x, y, z] = W3(leg, sd * 0.9, g1 + 1.0, y0); decor({ t: "idoor", x, y, z, ry: yaw }); }
     for (const sd of [-1, 1]) {
       const [x, y, z] = W3(leg, sd * 0.9, g0 + 1.0, y0);
       decor({ t: "idoor", x, y, z, ry: yaw });
     }
-    // The hoard.
-    const hoard = [T_GOLD, T_GOLD, T_IRONB, T_LAPIS, T_GOLD, T_DIAM, T_EMERALD, T_GOLD];
-    let q = 0;
+    // Ordered storage: gold block pillars three high every sixth row on each wall, a pair of chests between them.
+    let pq = 0;
     for (const sd of [-1, 1]) for (let lv = lo + 1; lv < hi + 1; lv++) {
-      if (!rowsFree(sd, lv)) continue;
-      const r = rnd(lv * 3 + (sd > 0 ? 1 : 0), 50);
-      if (r > 0.55) continue;
-      const t = hoard[(lv + q++) % hoard.length], lu = edgeCell(sd);
+      if (!rowsFree(sd, lv) || !rowsFree(sd, lv + 1) || !rowsFree(sd, lv - 1)) continue;
+      if ((lv + (sd > 0 ? 3 : 0)) % 6 !== 0) continue;
+      const lu = edgeCell(sd);
       if (LG(leg, lu, lv, y0) !== T_AIR) continue;
-      L(leg, lu, lv, y0, t);
-      if (r < 0.2 && LG(leg, lu, lv, y0 + 1) === T_AIR) L(leg, lu, lv, y0 + 1, t === T_GOLD ? T_GOLD : T_IRONB);
-      const [x, , z] = W3(leg, lu + 0.5, lv + 0.5, 0);
-      a.sources.push({ x, y: y0 + 1.6, z, c: t === T_DIAM ? [0.55, 0.95, 1.0] : t === T_EMERALD ? [0.4, 1.0, 0.55] : [1.0, 0.82, 0.38], I: 1.6, R: 7 });
+      for (let j = y0; j <= y0 + 2; j++) L(leg, lu, lv, j, T_GOLD);
+      const [gx, , gz] = W3(leg, lu + 0.5, lv + 0.5, 0);
+      a.sources.push({ x: gx, y: y0 + 3.2, z: gz, c: [1.0, 0.82, 0.38], I: 2.2, R: 8 });
+      pq++;
     }
-    for (let lv = lo + 2; lv < hi; lv += 5) for (const sd of [-1, 1]) if (rowsFree(sd, lv)) torchAt(leg, wallCell(sd), lv, y0 + 3, -sd, { I: 3.0 });
-    // The pedestal at the far end.
-    const pv = leg.ce - leg.post - 1 + 1;
-    for (const lu of [-3, -2]) for (const lv of [pv, pv + 1]) { L(leg, lu, lv, y0, T_IRONB); L(leg, lu, lv, y0 + 1, T_GOLD); }
-    L(leg, -3, pv, y0 + 2, T_DIAM);
-    const [px, , pz] = W3(leg, -2.0, pv + 1.0, 0);
-    a.sources.push({ x: px, y: y0 + 3.2, z: pz, c: [0.7, 0.96, 1.0], I: 3.6, R: 11, dyn: true });
+    for (const sd of [-1, 1]) for (let lv = lo + 1; lv < hi; lv++) {
+      if (!rowsFree(sd, lv) || !rowsFree(sd, lv + 1)) continue;
+      if ((lv + (sd > 0 ? 3 : 0)) % 6 !== 3) continue;
+      const [x, y, z] = W3(leg, sd * (hw - 0.5), lv + 0.5, y0);
+      decor({ t: "chest", x, y, z, ry: yaw + sd * Math.PI / 2 * -1 + Math.PI / 2 * 0 });
+      const [x2, , z2] = W3(leg, sd * (hw - 0.5), lv + 1.5, y0);
+      decor({ t: "chest", x: x2, y, z: z2, ry: yaw + sd * Math.PI / 2 * -1 });
+    }
+    for (let lv = lo + 2; lv < hi; lv += 5) for (const sd of [-1, 1]) if (rowsFree(sd, lv)) torchAt(leg, wallCell(sd), lv, y0 + 3, -sd, { I: 3.2 });
+    // The far end: a diamond block on an iron pedestal between gold pillars, behind bars.
+    const pv = leg.ce - leg.post - 1;
+    for (const lu of [-1, 0]) for (const lv of [pv, pv + 1]) L(leg, lu, lv, y0, T_IRONB);
+    L(leg, 0, pv, y0 + 1, T_DIAM);
+    for (const lu of [-3, 2]) for (const lv of [pv - 1, pv + 2]) for (let j = y0; j <= y0 + 3; j++) L(leg, lu, lv, j, T_GOLD);
+    const [px, , pz] = W3(leg, 0.5, pv + 1.0, 0);
+    a.sources.push({ x: px, y: y0 + 2.6, z: pz, c: [0.7, 0.96, 1.0], I: 3.6, R: 11, dyn: true });
     for (let lv = lo; lv < hi; lv += 4) { const sd = (lv / 4) % 2 ? 1 : -1; const [x, , z] = W3(leg, sd * (hw - 0.3), lv, 0); decor({ t: "web", x, y: y0 + ht - 0.6, z, ry: yaw + sd * Math.PI / 4, w: 1.2 }); }
   }
 
@@ -869,7 +884,7 @@ function dressLeg(a, lay, leg, H) {
       if (!edge || (Math.abs(du) === 2 && Math.abs(dv) === 2)) continue;
       const [x, , z] = W3(leg, du + 0.5, vc + dv + 0.5, 0);
       // The frame faces inward: its yaw follows the side it is on.
-      decor({ t: "frame", x, y: y0, z, eye: true });
+      decor({ t: "frame", x, y: y0, z, eye: ih(du + 5, dv + 5, leg.rid, 71) < 750 });
     }
     const [cx, , cz] = W3(leg, 0.5, vc + 0.5, 0);
     decor({ t: "portal", x: cx, y: y0 + 0.75, z: cz, w: 3, d: 3 });
@@ -1008,7 +1023,7 @@ export function patchBake(mat, { fixed = null } = {}) {
 
 // Chunks of CH x CH blocks (full height) are meshed lazily: the page asks for the ones near the walker (pump) and
 // carve() rebuilds only the chunks a box touches. Textures are shared between chunks.
-export const CH = 32;
+export const CH = 48;
 export const BLOCK_NAME = {
   [T_AIR]: "air", [T_STONE]: "stone", [T_COBBLE]: "cobblestone", [T_MOSSY]: "mossy_cobblestone", [T_BRICK]: "stonebrick",
   [T_BRICK_MOSSY]: "mossy_stonebrick", [T_BRICK_CRACK]: "cracked_stonebrick", [T_GRAVEL_FLOOR]: "gravel", [T_COAL]: "coal_ore",
