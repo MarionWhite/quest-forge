@@ -87,3 +87,38 @@ Shader WIP da16ea8: compiles clean (check_glsl), NOT yet reviewed in frames.
 - Golden band: still ~20 under CR in R and B; try a below-horizon veil lift and less haze yellow.
 - river_noon cloud: faint grey patch left.
 - Then the morning cost submission, spec_scenes.py, round.json, finish_round (see the earlier Next list).
+
+## Loop 3 (uj, 2026-10-25 ~23:57) - fixes in the tree, check_glsl clean (also with METEOR_SHOW/DUST_DBG), rendering
+- Dust: motesGrid() near grid (1.25 m, 0-18 m) + far grid (3 m cells, 14-48 m, 2-3 px flakes, 5 m beam taps);
+  the old fadeD faded everything from 18 m (the real reason DBG lit nothing in the beam). Mote fade over bright bg 0.30->0.55.
+  New views dust_beam/2/3 (forest_golden walked 10/16/22 blocks toward the gap) in tools/shaders/review/views-world-master.txt.
+- Golden ground: shafts' lit air at golden hour in open sun counts only from 28-80 m (litFar; beams keep near air);
+  aerial starts 48 m out at golden hour; haze start 0.35->0.46 far. Band warm B up, lift 1.22->1.32, below veil 1.04/0.96/0.95.
+- Sun: thin bright rim (core smoothstep 0.22-0.50, rim 0.45-0.85), core 1.6->2.4; glare core 0.12 @ 0.0026; glare on land within 2.5 R cut to 0.12.
+- Meteors: QF_METEOR_SHOW 1 (dev) pins two meteors in front of the camera for stills.
+- Metals: bent-face reflection (sky top, crisp horizon, ground bottom per block), diffuse on top 0.55->0.32.
+- Lake: calm golden water F >= 0.34 near, body x0.72. River: constant 2.2-block bed path, shallow tint removed.
+- Clouds: 3D noise finer in height (4.6, 7.5), deep diffusion 0.26.
+- Spec C:/qfb/shaderdev/r008/specs/uj.json, submitted 1025-235656-r008-uj (tags uj, uj_dustdbg, uj_met, uj_pbr, uj_pbr0,
+  uj_clipmet, uj_clipwat, uj_clipcld, uj_clipdust, uj_clipdust2). Next: wait, sheets in C:/qfb/shaderdev/r008/look/uj, commit.
+- uj reviewed (sheets C:/qfb/shaderdev/r008/look/uj): sun now a crisp white disk (good); forced meteor shows in night_sky
+  (QF_METEOR_SHOW 1); metals show a horizon line across each block; golden_lit near ground still olive (77,60,17 vs BSL 43,46,22).
+  BOOT FAULT: in b1026000221 every scene after forest_golden (lake, river, sky_noon, ocean, dust_beam*) rendered with no
+  terrain (chunks stopped loading after the first teleports); not the shader (pbr boot fine, forest_golden fine every time).
+- Post-uj: lighter amber + full sky fill on up-facing non-foliage faces at golden hour (lib/lighting.glsl upF); dust views y=64.0.
+- Re-render 1026-001926-r008-uk (uk, uk_clipwat, uk_clipcld, uk_clipdust2, uk_clipdust), spec C:/qfb/shaderdev/r008/specs/uk.json.
+- uk reviewed (sheets look/uj/k_*.jpg): lake near water now carries the blue sky and cloud reflections (fixed); river grey
+  cloud patch gone; ledge stripes fainter but still there; pale glare disk over leaves gone; sky_noon streaks only a little
+  less; golden_lit near ground unchanged (78,62,19 vs BSL 43,46,22): the upF amber change did nothing measurable, reverted.
+- Dust: the dust_beam views (y 64) stand inside the canopy with the sun hidden: useless, removed from the views file.
+  ul (far grid density 2.6x, gain 1.8x): a handful of drifting flakes in the forest_golden beam (look/uj/l_dust.jpg),
+  more than uk, still sparse. Not the "dust in the beam" the owner wants yet.
+- Clips: C:/qfb/shaderdev/r008/clips/l3_{met,wat,cld,dust}.webp (uj_clipmet, uk_clipwat, uk_clipcld, ul_clipdust).
+- Loop 3 committed ("r008 loop 3"). Renders: 1025-235656-r008-uj, 1026-001926-r008-uk, 1026-002542-r008-ul.
+
+## Next (after loop 3)
+- Golden ground olive: not the shafts, aerial or amber paths (all changed, near pixel moved by <2). Bisect with
+  QF_SHAFTS 0 / QF_CAL_GOLD 0 / QF_AERIAL 0 jobs on golden_lit; suspect the grade or skyIrradiance at golden hour.
+- Dust: needs a real view where a beam crosses near air (find a gap with region files + sun azimuth), or brighter near motes.
+- River ledges still faint; sky_noon streaks; meteor still forced only via QF_METEOR_SHOW (dev).
+- Morning: cost submission, spec_scenes.py, round.json, finish_round (see the earlier Next list).

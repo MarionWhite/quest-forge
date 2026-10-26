@@ -246,7 +246,11 @@ vec3 sunGlare(ivec2 px) {
     // uf (forest_golden): with the 3x disk, leaves in front of the sun showed a bright ring at the
     // limb (no glare inside, the full core just outside). Only open sky skips the glare inside.
     inDisk = mix(1.0, inDisk, step(1.0, texelFetch(depthtex0, px, 0).r));
-    float psf = (0.10 * exp(-thl / 0.0040) + 0.030 * exp(-thl / 0.016) + 0.0045 * exp(-thl / 0.09)) * inDisk;   // pa: 0.22/0.045/0.006 washed out the gold sky
+    // Loop 3 (critic uh: a faint pale glare disk still painted over the leaves where the sun sits
+    // behind them): on land the glare close to the sun is cut and fades back in over 2.5 radii, so
+    // leaves in front of a partly hidden sun stay dark, with no ring and no disk.
+    if (texelFetch(depthtex0, px, 0).r < 1.0) inDisk *= mix(0.12, 1.0, smoothstep(SUN_REAL_R * 0.9, SUN_REAL_R * 2.5, th));
+    float psf = (0.12 * exp(-thl / 0.0026) + 0.030 * exp(-thl / 0.016) + 0.0045 * exp(-thl / 0.09)) * inDisk;   // pa: 0.22/0.045/0.006 washed out the gold sky; loop 3: core 0.10 @ 0.0040 -> 0.12 @ 0.0026, a tighter corona
     vec3 E = sunIrradiance() * exposure() * (1.0 - rainStrength);
     vec3 g = E * psf * vis;
 #if QF_LENS == 1

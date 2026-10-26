@@ -79,13 +79,27 @@ vec3 fresnelSchlick(float c, vec3 f0) {
 // own colour. What it reflects here: the sky dome along the reflected ray (blurred toward the sky's
 // irradiance as it gets rough), the lit ground below the horizon, and the sun as a sharp GGX
 // highlight. So gold and iron read as polished metal, bright where they face the sky or the sun.
-vec3 metalShade(vec3 albedo, vec3 n, vec3 viewDir, vec3 L, vec3 E, float smooth_, float shadow, float sky, float ao, vec3 diffuse) {
+vec3 metalShade(vec3 albedo, vec3 n, vec3 viewDir, vec3 L, vec3 E, float smooth_, float shadow, float sky, float ao, vec3 diffuse, vec3 scenePos) {
     float r = (1.0 - smooth_) * (1.0 - smooth_);
     float a2 = max(r * r, 0.0012);
     vec3 V = -viewDir;
     vec3 f0 = clamp(albedo * 1.15, 0.0, 1.0);
     float NdotV = clamp(dot(n, V), 0.02, 1.0);
     vec3 Rf = reflect(viewDir, n);
+    // Loop 3 (critic ud_pbr: the metals are bright but read as paint, no sky or landscape in them).
+    // A flat face mirrors one direction, so the reflection was one flat colour per face. Polished
+    // blocks are never optically flat: each face is bent a little like a shallow lens, so across a
+    // block the reflection sweeps from sky (top) through a crisp horizon line to the ground (bottom)
+    // and leans sideways, which is what reads as chrome at a glance.
+    {
+        vec3 wp = scenePos + cameraPosition;
+        vec3 an = abs(n);
+        vec2 fc = an.y > 0.5 ? fract(wp.xz) : (an.x > 0.5 ? vec2(fract(wp.z), fract(wp.y)) : vec2(fract(wp.x), fract(wp.y)));
+        fc -= 0.5;
+        vec3 tU = an.y > 0.5 ? vec3(0.0, 0.0, 1.0) : vec3(0.0, 1.0, 0.0);
+        vec3 tS = normalize(cross(tU, n));
+        Rf = normalize(Rf + (tU * fc.y * 1.1 + tS * fc.x * 0.6) * smooth_);
+    }
     vec3 Fe = fresnelSchlick(NdotV, f0);
     // Environment: sky above the horizon, ground (lit grass-and-earth tone) below, blended over a
     // few degrees, and toward the sky's irradiance on rough metal.
@@ -93,7 +107,7 @@ vec3 metalShade(vec3 albedo, vec3 n, vec3 viewDir, vec3 L, vec3 E, float smooth_
     vec3 skyD = skyIrradiance(n) / PI;
     vec3 env = mix(skyR, skyD, r);
     vec3 ground = (E * max(L.y, 0.0) * shadow * 0.6 + skyIrradiance(vec3(0.0, 1.0, 0.0))) * vec3(0.16, 0.15, 0.11) / PI;
-    env = mix(ground, env, smoothstep(-0.08, 0.06, Rf.y));
+    env = mix(ground * 0.7, env * 1.15, smoothstep(-0.02, 0.02, Rf.y));   // loop 3: a crisp horizon line (was -0.08..0.06)
     vec3 col = env * Fe * mix(0.25, 1.0, sky) * ao;
     // The sun: GGX with Smith-ish visibility, energy capped so a mirror does not blow out to a
     // pixel of infinity.
@@ -112,7 +126,7 @@ vec3 metalShade(vec3 albedo, vec3 n, vec3 viewDir, vec3 L, vec3 E, float smooth_
     col *= 1.4 + 0.9 * hb * smoothstep(-0.05, 0.02, Rf.y);   // ud: 1.6 + 1.2 pushed diamond and gold edges toward neon
     float sh2 = ggx(clamp(dot(n, H), 0.0, 1.0), 0.08) * NdotL / (4.0 * NdotV + 0.4);
     col += FH * E * min(sh2, 6.0) * shadow * 0.55;
-    col = max(col + diffuse * 0.55, diffuse * 1.05);
+    col = max(col + diffuse * 0.32, diffuse * 0.95);   // loop 3: 0.55 of the diffuse on top buried the reflection (read as paint)
     return col;
 }
 
@@ -223,7 +237,7 @@ vec3 shadeSurface(Surface s, vec3 viewDir, vec2 pixel) {
         // reflection and lose most of their diffuse light.
         bool metal = s.f0 > 0.895;
         if (metal) {
-            color = metalShade(s.albedo, s.normal, viewDir, L, E, max(s.smoothness, 0.35), shadow, sky, ao, color);
+            color = metalShade(s.albedo, s.normal, viewDir, L, E, max(s.smoothness, 0.35), shadow, sky, ao, color, s.scenePos);
             return color;
         }
         float r = (1.0 - s.smoothness) * (1.0 - s.smoothness);
@@ -264,7 +278,7 @@ vec3 shadeSurface(Surface s, vec3 viewDir, vec2 pixel) {
     // Specular from the light on metal and polished stone (no reflections beyond that yet).
 #if QF_PBR == 1
     // Metal blocks without a map in the pack: the same model, polished.
-    if (s.mat == MAT_METAL && !hasPbr) return metalShade(s.albedo, s.normal, viewDir, L, E, 0.72, shadow, sky, ao, color);
+    if (s.mat == MAT_METAL && !hasPbr) return metalShade(s.albedo, s.normal, viewDir, L, E, 0.72, shadow, sky, ao, color, s.scenePos);
 #endif
     if (s.mat == MAT_METAL || s.mat == MAT_POLISHED || s.mat == MAT_ORE) {
         float rough = s.mat == MAT_METAL ? 0.38 : (s.mat == MAT_ORE ? 0.3 : 0.28);

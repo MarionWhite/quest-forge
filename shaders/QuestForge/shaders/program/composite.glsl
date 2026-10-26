@@ -122,12 +122,19 @@ float shadowRaw(vec3 scenePos) {
 // with the camera. Each draws as a soft dot about two pixels wide, whatever its distance.
 // ue (QF_DUST_DBG 1 still lit nothing in forest_golden's beam): 22 cell steps reach only ~16 m
 // along a diagonal ray, short of the canopy gap's beam. With beam dust the walk goes further.
+// Loop 3 (critic: still no dust in forest_golden's beam, QF_DUST_DBG 1 included): the near grid
+// faded out from 18 m (fadeD) and a 1.25 m mote 25 m out is a 1 px dot TAA erases, while that
+// view's sunlit air lies 20-45 m out in the canopy gap. A second, coarse grid (3 m cells, flakes
+// drawn 2-3 px wide) carries the dust from 14 m to 48 m; the near grid keeps the first 18 m.
 #if QF_PRESET >= 3
-const int MOTE_STEPS = QF_DUST > 0 ? 38 : 22;
+const int MOTE_STEPS = QF_DUST > 0 ? 28 : 22;
+const int MOTE_FAR_STEPS = QF_DUST > 0 ? 22 : 0;
 #elif QF_PRESET == 2
-const int MOTE_STEPS = QF_DUST > 0 ? 26 : 16;
+const int MOTE_STEPS = QF_DUST > 0 ? 20 : 16;
+const int MOTE_FAR_STEPS = QF_DUST > 0 ? 14 : 0;
 #else
 const int MOTE_STEPS = 10;
+const int MOTE_FAR_STEPS = 0;
 #endif
 #if QF_MOTES == 2
 const float MOTE_DENSITY = 0.40, MOTE_GAIN = 4.5;
@@ -139,11 +146,13 @@ const float MOTE_DENSITY = 0.26, MOTE_GAIN = 3.0;
 #endif
 const float MOTE_CELL = 1.25;
 
-vec3 ambientMotes(vec3 viewDir, float dist0, float pixelBlock, float eyeSky) {
+vec3 motesGrid(vec3 viewDir, float dist0, float pixelBlock, float eyeSky,
+               float CELL, float d0, float dEnd, int steps, bool farGrid) {
     vec3 sum = vec3(0.0);
     bool under = isEyeInWater == 1;
-    float maxD = min(dist0 - 0.2, (QF_DUST > 0 && !under) ? 30.0 : 22.0);   // ud: the canopy gap's beam lies 15-30 m out
-    if (maxD <= 0.5) return sum;
+    float maxD = min(dist0 - 0.2, dEnd);
+    if (maxD <= d0 + 0.5) return sum;
+    float dens = farGrid ? MOTE_DENSITY * 2.6 : MOTE_DENSITY;   // uk: 1.5 left a handful of flakes in the beam
     float t = animTime();
     float pxA = 2.0 / (gbufferProjection[1][1] * viewHeight);   // radians per pixel
     vec3 L = lightDirWorld();
@@ -156,35 +165,38 @@ vec3 ambientMotes(vec3 viewDir, float dist0, float pixelBlock, float eyeSky) {
     bool day = sunDirWorld().y > -0.02;
     vec3 tint = under ? vec3(0.85, 0.95, 1.0) : (day ? vec3(1.0, 0.93, 0.78) : vec3(0.9, 0.93, 1.0));
 
-    // DDA through the grid, starting at the camera.
-    vec3 o = cameraPosition / MOTE_CELL;
+    // DDA through the grid, starting d0 out along the ray (0: at the camera).
+    vec3 o = (cameraPosition + viewDir * d0) / CELL;
     vec3 d = viewDir;
     vec3 cell = floor(o);
     vec3 stepv = sign(d);
     vec3 inv = 1.0 / max(abs(d), vec3(1e-4));
     vec3 tMax = (stepv * (cell - o) + stepv * 0.5 + 0.5) * inv;
-    for (int i = 0; i < MOTE_STEPS; i++) {
-        float h = hash13(cell + 0.17);
-        if (h < MOTE_DENSITY) {
+    float span = maxD - d0 + 2.0;
+    for (int i = 0; i < MOTE_STEPS + MOTE_FAR_STEPS; i++) {
+        if (i >= steps) break;
+        float h = hash13(cell + (farGrid ? 5.71 : 0.17));
+        if (h < dens) {
             vec3 r3 = vec3(hash13(cell + 1.3), hash13(cell + 2.9), hash13(cell + 4.1));
             vec3 m = cell + 0.2 + 0.6 * r3;
             float fadeLife = 1.0;
             if (under) {
                 // Bubbles rise through the cell and fade at its top and bottom.
-                float y = fract(r3.y + t * (0.18 + 0.2 * h / MOTE_DENSITY));
+                float y = fract(r3.y + t * (0.18 + 0.2 * h / dens));
                 m.y = cell.y + y;
                 fadeLife = sin(PI * y);
             } else {
                 m += 0.12 * vec3(sin(t * 0.31 + h * 40.0), sin(t * 0.23 + h * 57.0), sin(t * 0.27 + h * 73.0));
             }
-            vec3 v = m * MOTE_CELL - cameraPosition;
+            vec3 v = m * CELL - cameraPosition;
             float along = dot(v, d);
-            if (along > 0.15 && along < maxD) {
+            if (along > max(0.15, d0) && along < maxD) {
                 float perp2 = max(dot(v, v) - along * along, 0.0);
 #if QF_DUST > 0
                 // Depth-aware: a flake a metre away is a soft 2-3 px fleck, one 15 blocks out a
                 // pinpoint (r007's fixed 2 px everywhere read as screen-space speckle).
                 float rw = along * pxA * (under ? mix(4.5, 1.6, smoothstep(1.0, 10.0, along)) : mix(2.6, 1.3, smoothstep(1.0, 12.0, along)));
+                if (farGrid) rw = along * pxA * 2.1;   // loop 3: far flakes 2-3 px, so TAA keeps them
 #else
                 float rw = along * pxA * (under ? 1.4 : 1.85);
 #endif   // r005: ~1.3 px dots vanished under TAA; r006 1.6 too faint; 2.1 read as bokeh blobs
@@ -202,7 +214,7 @@ vec3 ambientMotes(vec3 viewDir, float dist0, float pixelBlock, float eyeSky) {
                     if (under) {
                         lit = waterAmbient(eyeSky) * 2.2;
 #if QF_UNDERWATER == 1
-                        lit += sunIrradiance() * max(lightDirWorld().y, 0.0) * exp(-waterAbsorb() * max(UW_SURF - (m.y * MOTE_CELL), 0.0)) * 0.012 * eyeSky;
+                        lit += sunIrradiance() * max(lightDirWorld().y, 0.0) * exp(-waterAbsorb() * max(UW_SURF - (m.y * CELL), 0.0)) * 0.012 * eyeSky;
 #endif
                     } else {
 #if QF_SHADOWS
@@ -235,8 +247,10 @@ vec3 ambientMotes(vec3 viewDir, float dist0, float pixelBlock, float eyeSky) {
                             vec3 p2 = cross(L, p1);
                             // ud: 2.2 m on three sides missed the shade round a wide canopy gap.
                             // Raw (undithered) taps, 3.5 m on four sides.
-                            float s1 = shadowRaw(v + p1 * 3.5), s2 = shadowRaw(v - p1 * 3.5);
-                            float s3 = shadowRaw(v + p2 * 3.5), s4 = shadowRaw(v - p2 * 3.5);
+                            // Loop 3: far flakes look 5 m across the light (a canopy gap's beam is wide).
+                            float tap = farGrid ? 5.0 : 3.5;
+                            float s1 = shadowRaw(v + p1 * tap), s2 = shadowRaw(v - p1 * tap);
+                            float s3 = shadowRaw(v + p2 * tap), s4 = shadowRaw(v - p2 * tap);
                             inBeam = 1.0 - min(min(s1, s2), min(s3, s4));
 #if QF_DUST_DBG == 1
                             inBeam = 1.0;   // diagnostic: every sunlit mote
@@ -251,17 +265,28 @@ vec3 ambientMotes(vec3 viewDir, float dist0, float pixelBlock, float eyeSky) {
                             + Eblock * 0.32;
 #endif
                     }
-                    float fadeD = smoothstep(maxD, maxD * 0.6, along) * smoothstep(0.15, 0.8, along);
-                    sum += lit * tint * cov * fadeD * fadeLife * 0.08 * MOTE_GAIN;
+                    float fadeD = farGrid ? smoothstep(d0, d0 + 3.0, along) * smoothstep(maxD, maxD - 8.0, along)
+                                          : smoothstep(maxD, maxD * 0.82, along) * smoothstep(0.15, 0.8, along);
+                    sum += lit * tint * cov * fadeD * fadeLife * 0.08 * MOTE_GAIN * (farGrid ? 1.8 : 1.0);
                 }
             }
         }
         // Next cell.
-        if (tMax.x < tMax.y && tMax.x < tMax.z) { cell.x += stepv.x; tMax.x += inv.x; if (tMax.x * MOTE_CELL > maxD + 2.0) break; }
-        else if (tMax.y < tMax.z)               { cell.y += stepv.y; tMax.y += inv.y; if (tMax.y * MOTE_CELL > maxD + 2.0) break; }
-        else                                    { cell.z += stepv.z; tMax.z += inv.z; if (tMax.z * MOTE_CELL > maxD + 2.0) break; }
+        if (tMax.x < tMax.y && tMax.x < tMax.z) { cell.x += stepv.x; tMax.x += inv.x; if (tMax.x * CELL > span) break; }
+        else if (tMax.y < tMax.z)               { cell.y += stepv.y; tMax.y += inv.y; if (tMax.y * CELL > span) break; }
+        else                                    { cell.z += stepv.z; tMax.z += inv.z; if (tMax.z * CELL > span) break; }
     }
     return sum;
+}
+vec3 ambientMotes(vec3 viewDir, float dist0, float pixelBlock, float eyeSky) {
+    bool under = isEyeInWater == 1;
+    vec3 s = motesGrid(viewDir, dist0, pixelBlock, eyeSky, MOTE_CELL, 0.0,
+                       (QF_DUST > 0 && !under) ? 18.0 : 22.0, MOTE_STEPS, false);
+#if QF_DUST > 0
+    if (!under && MOTE_FAR_STEPS > 0)
+        s += motesGrid(viewDir, dist0, pixelBlock, eyeSky, 3.0, 14.0, 48.0, MOTE_FAR_STEPS, true);
+#endif
+    return s;
 }
 #endif
 
@@ -320,7 +345,7 @@ vec3 lightShafts(vec3 viewDir, float dist, float eyeSky) {
     float phase = 0.75 * hgPhaseS(mu, 0.78) + 0.15 * hgPhaseS(mu, 0.35) + 0.10 / (4.0 * PI);   // j1: a flatter lobe lost the rays by the sun
 #endif
     float j = ign(gl_FragCoord.xy + float(frameCounter % 64) * vec2(3.17, 7.91));
-    float lit = 0.0;
+    float lit = 0.0, litFar = 0.0;
     float dust = 0.0, nearLit = 0.0, flips = 0.0, prevS = -1.0;
 #if QF_DUST > 0
     float tD = animTime();
@@ -330,6 +355,7 @@ vec3 lightShafts(vec3 viewDir, float dist, float eyeSky) {
         float dd = f * f * maxD;
         float sv = shadowRaw(viewDir * dd);
         lit += sv * 2.0 * f;
+        litFar += sv * 2.0 * f * smoothstep(28.0, 80.0, dd);
         // Lit/shaded transitions along the ray within ~40 blocks: beams.
         if (dd < 40.0) {
             if (prevS >= 0.0) flips += abs(sv - prevS);
@@ -346,6 +372,10 @@ vec3 lightShafts(vec3 viewDir, float dist, float eyeSky) {
     // A beam: the ray crosses lit and shaded air (flips), or it is partly lit near the camera.
     gBeam = clamp((flips - 0.5) * 0.5, 0.0, 1.0) * outside * smoothstep(0.0, 0.06, L.y);
     float gh = goldenHour();
+    // Loop 3 (critic: golden_lit's whole field olive-brown, "the mild orange wash"; BSL keeps the
+    // near and middle grass green): in open sunlight at golden hour the warm lit air starts ~30-80 m
+    // out instead of at the camera. Rays that cross a beam (a canopy gap) keep the full near air.
+    lit = mix(lit, litFar / float(SHAFT_STEPS), gh * (1.0 - gBeam) * step(dist, far - 0.001));
 #if QF_SHAFT_STYLE == 1
     // r007 (owner r006 picked round 5's frame: "the color is warmer, the rays are better formed"):
     // round 5's linear lit air, which keeps the warm glow round the sun over open sky and the
@@ -517,12 +547,14 @@ vec3 shadeWaterAbove(vec3 color, vec3 n, float var, vec3 scene0, float dist0, ve
         // longer path, the stronger coefficient and the shallow tint are for river beds only; sea
         // and lake shallows keep r007's filter (tan sand under turquoise, the set's best colour).
         float riv = waterRiverShare();
-        vec3 TdownR = exp(-waterAbsorb() * ((wdS + 1.2 * smoothstep(0.02, 0.4, wdS)) / max(L.y, 0.25)) * 4.0);
+        // Loop 3 (critic: river_noon's ledges still show as lighter green stripes): the extra path
+        // stepped with depth at the bank (0 on dry-ish ledges, 1.2 a block down). A constant 2.2
+        // blocks, so every ledge under the river sits in the same dim veil, and no shallow tint.
+        vec3 TdownR = exp(-waterAbsorb() * ((wdS + 2.2) / max(L.y, 0.25)) * 4.0);
         vec3 TdownS = exp(-waterAbsorb() * (wdS / max(L.y, 0.25)) * 1.6);
         vec3 Tdown = mix(TdownS, TdownR, riv);
         behind *= mix(vec3(1.0), Tdown, mix(0.35, 0.9, riv) * sh * smoothstep(0.0, 0.2, L.y));
-        float shallowV = smoothstep(0.05, 0.5, wdS) * (1.0 - smoothstep(2.0, 4.0, wdS));
-        behind = mix(behind, vec3(luminance(behind)) * normalize(waterScatter() + 1e-4) * 1.3, 0.30 * shallowV * sh * riv);
+        // Loop 3: ub's shallow green tint (0.30 over 0.05-4 blocks deep) is gone; it lit the ledges green.
     }
     vec3 refracted = waterVolume(behind, d, skyLight);
 
@@ -567,6 +599,16 @@ vec3 shadeWaterAbove(vec3 color, vec3 n, float var, vec3 scene0, float dist0, ve
     fAvg = mix(fAvg, 0.7, waterCalmShare());   // r008: no dark/bright facet flipping on the lake
 #endif
     F = mix(F, fresnelWater(clamp(-viewDir.y, 0.0, 1.0)), fAvg);
+#if QF_LAKE_CALM == 1
+    // Loop 3 (critic uh lake_glitter 8: the near water reads dark teal-green where CR and BSL carry
+    // the sky into it): on calm water at golden hour the near surface mirrors more sky (a glassy
+    // film, the eye low over it) and the green body shows less.
+    {
+        float cg = waterCalmShare() * smoothstep(0.0, 0.6, goldenHour());
+        F = mix(F, max(F, 0.34), cg);
+        refracted *= mix(1.0, 0.72, cg);
+    }
+#endif
     vec3 col = mix(refracted, refl, F);
 
     // The sun (or moon) on the waves.
@@ -992,7 +1034,7 @@ void main() {
         if (!sky) {
             // Haze: none in the near field, rising towards the render distance so chunk edges
             // fade into the sky; thicker in rain.
-            float start = far * mix(0.35, 0.12, rainStrength);
+            float start = far * mix(mix(0.35, 0.46, goldenHour()), 0.12, rainStrength);   // loop 3: golden haze starts farther out
             float density = mix(2.2, 4.0, rainStrength) / max(far, 32.0);
             // Owner (r001): the everyday baseline sits between r001's haze (1.0) and crisp (0.2).
             density *= QF_HAZE;
@@ -1042,7 +1084,8 @@ void main() {
                 vec3 air = skyScatter(hdir) * mix(1.0, 0.45, nightFog);
                 air = mix(air, vec3(luminance(air)) * vec3(1.04, 1.0, 0.96), 0.6 * goldenHour());   // loop 2: the band's peach tinted the whole field orange
                 float apD = mix(400.0, 900.0, nightFog);
-                vec3 T = exp(-dist0 * hw / apD * vec3(0.55, 0.78, 1.15));
+                // Loop 3: at golden hour the warm air begins ~48 m out, so the near field keeps its green.
+                vec3 T = exp(-max(dist0 - 48.0 * goldenHour(), 0.0) * hw / apD * vec3(0.55, 0.78, 1.15));
                 color = mix(color, color * T + air * (1.0 - T), lit);
             }
 #endif
@@ -1095,7 +1138,8 @@ void main() {
         vec3 mo = ambientMotes(viewDir, dist0, texelFetch(colortex2, px, 0).r, eyeSky);
         // ug: a flake in front of bright sky or sunlit far land read as a white speck; dust shows
         // against shade, as in a real beam, so it fades over bright backgrounds.
-        if (isEyeInWater == 0) mo *= 1.0 - smoothstep(0.30, 0.85, luminance(color * exposure()));
+        // Loop 3: 0.30 also faded the flakes over the beam's own glow; only bright land and sky now.
+        if (isEyeInWater == 0) mo *= 1.0 - smoothstep(0.55, 1.10, luminance(color * exposure()));
         color += mo;
     }
 #endif
