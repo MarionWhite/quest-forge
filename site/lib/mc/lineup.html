@@ -31,6 +31,7 @@ let ids = q.get('ids') ? q.get('ids').split(',') : mobNames();
 const set = q.get('set');
 if (set === 'vanilla') ids = Object.keys(MOB_SPECS);
 if (set === 'orespawn') ids = Object.keys(OS_SPECS);
+const AO = q.has('walk') ? { walk: parseFloat(q.get('walk')), hover: false, mute: true } : {};
 const cols = parseInt(q.get('cols') || '9', 10);
 const tilesArg = q.get('tiles');   // ?tiles=START,COUNT: the lucky reel plaques instead of mobs
 let drops = null;
@@ -85,7 +86,7 @@ ids.forEach((id, i) => {
   const cell = new THREE.Group();
   cell.position.set((col - (cols - 1) / 2) * CELL_W * -1, -row * CELL_H, 0);
   const m = makeMob(id);
-  m.anim(T0, 0, {});
+  m.anim(T0, 0, AO);
   m.root.updateMatrixWorld(true);
   const pivot = new THREE.Group();
   pivot.add(m.root);
@@ -126,7 +127,7 @@ addEventListener('resize', fit);
 fit();
 
 function frame(t) {
-  cells.forEach(({ m }) => m.anim(t, 0, {}));
+  cells.forEach(({ m }) => m.anim(t, 0, AO));
   renderer.render(scene, camera);
 }
 

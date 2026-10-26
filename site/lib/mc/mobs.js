@@ -308,6 +308,10 @@ export const OS_SPECS = {
   GoldenAppleCow: { layers: [{ model: 'cow', tex: 'orespawn/gold_cow.png' }], anim: 'quad', kind: 'quad' },
   RedAppleCow: { layers: [{ model: 'cow', tex: 'orespawn/red_cow.png' }], anim: 'quad', kind: 'quad' },
   CrystalCow: { layers: [{ model: 'cow', tex: 'orespawn/crystal_cow.png' }], anim: 'quad', kind: 'quad' },
+  // vanilla Mooshroom: the cow model, mooshroom.png, red mushrooms on the back and the head (RenderMooshroom)
+  Mooshroom: { layers: [{ model: 'cow', tex: T('cow/mooshroom.png') }], anim: 'quad', kind: 'quad', mushrooms: true },
+  // OreSpawn's hoverboard has no model class in the jar: a small pink board that floats
+  Hoverboard: { board: true, h: 0.45 },
 };
 
 // Loose ids (entity names, the table's titles) to a spec key.
@@ -323,6 +327,7 @@ const ALIAS = {
   robopounder: 'Robot1', robot1: 'Robot1', robogunner: 'Robot2', robot2: 'Robot2', robowarrior: 'Robot3', robot3: 'Robot3', robot4: 'Robot4', robot5: 'Robot5',
   ant: 'Ant', brownant: 'Ant', redant: 'RedAnt', rainbowant: 'RainbowAnt', unstableant: 'UnstableAnt', termite: 'Termite',
   rotator: 'Rotator', largeworm: 'LargeWorm', wormlarge: 'LargeWorm', mobzilla: 'Mobzilla', godzilla: 'Mobzilla', mothra: 'Mothra',
+  applecow: 'RedAppleCow', crystalapplecow: 'CrystalCow', mushroomcow: 'Mooshroom', mooshroom: 'Mooshroom', hoverboard: 'Hoverboard',
   enchantedgoldenapplecow: 'GoldenAppleCow', goldenapplecow: 'GoldenAppleCow', redapplecow: 'RedAppleCow', goldencow: 'GoldenAppleCow', goldcow: 'GoldenAppleCow', redcow: 'RedAppleCow', crystalcow: 'CrystalCow',
 };
 export function mobKey(id) {
@@ -574,7 +579,49 @@ function buildVanilla(key, spec, opts) {
   });
   const primary = layers[0];
   aliasParts(primary.parts, key);
+  if (spec.mushrooms) {
+    // RenderMooshroom: two on the back, one on the head (entity metres, mirrored into this frame)
+    const a = mushroomMesh(0.6), b = mushroomMesh(0.6), c = mushroomMesh(0.5);
+    a.position.set(-0.2, 1.3, 0.45); b.position.set(-0.3, 1.3, -0.15);
+    primary.parts.head.add(c);
+    c.position.set(0, 0.22, -0.1);
+    rig.add(a, b);
+  }
   return { group, rig, layers, primary };
+}
+
+function mushroomMesh(size) {
+  const t = tex('blocks/mushroom_red.png');
+  const m = new THREE.MeshLambertMaterial({ map: t, side: THREE.DoubleSide, alphaTest: 0.5 });
+  const g = new THREE.Group();
+  const geo = new THREE.PlaneGeometry(size, size);
+  const a = new THREE.Mesh(geo, m), b = new THREE.Mesh(geo, m);
+  a.rotation.y = Math.PI / 4; b.rotation.y = -Math.PI / 4;
+  a.position.y = b.position.y = size / 2;
+  g.add(a, b);
+  return g;
+}
+
+function buildBoard() {
+  const group = new THREE.Group(), rig = new THREE.Group();
+  group.add(rig);
+  const pink = new THREE.MeshLambertMaterial({ color: 0xf06fb0, emissive: 0x602040, emissiveIntensity: 0.6 });
+  const dark = new THREE.MeshLambertMaterial({ color: 0x3a2a44 });
+  const glow = new THREE.MeshBasicMaterial({ color: 0x9fe8ff, transparent: true, opacity: 0.55, blending: THREE.AdditiveBlending, depthWrite: false });
+  const board = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.1, 1.0), pink);
+  const stripe = new THREE.Mesh(new THREE.BoxGeometry(0.37, 0.03, 0.12), dark);
+  stripe.position.set(0, 0.0, -0.3);
+  const nose = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.06, 0.1), dark);
+  nose.position.set(0, 0.02, -0.55);
+  const under = new THREE.Mesh(new THREE.PlaneGeometry(0.34, 0.9), glow);
+  under.rotation.x = -Math.PI / 2; under.position.y = -0.07;
+  const hov = new THREE.Group();
+  hov.position.y = 0.3 + 0.05;
+  hov.add(board, stripe, nose, under);
+  rig.add(hov);
+  hov.traverse((o) => { o.castShadow = true; });
+  const parts = { board: hov };
+  return { group, rig, layers: [{ root: hov, parts, mat: pink }], primary: { root: hov, parts, mat: pink }, hov };
 }
 
 function buildOreSpawn(key, spec, opts) {
@@ -585,6 +632,7 @@ function buildOreSpawn(key, spec, opts) {
   const r = buildRig(data, loadTex(spec.tex), { color: opts.color ?? 0xffffff, emissive: spec.glow, emissiveIntensity: 1 });
   // fit: ground the model and scale it to its target height
   rig.add(r.root);
+  if (spec.tilt) r.root.rotation.x = -spec.tilt;   // a resting moth shows its wings to the viewer
   rig.updateMatrixWorld(true);
   const box = new THREE.Box3().setFromObject(r.root);
   const bw = box.max.x - box.min.x, bd = box.max.z - box.min.z;
@@ -632,7 +680,7 @@ export function makeMob(id, opts = {}) {
     key = 'Zombie';
   }
   const sp = spec || MOB_SPECS.Zombie;
-  built = sp.os ? buildOreSpawn(key, sp, opts) : buildVanilla(key, sp, opts);
+  built = sp.board ? buildBoard() : sp.os ? buildOreSpawn(key, sp, opts) : buildVanilla(key, sp, opts);
   kind = sp.kind || (sp.os ? 'os' : 'quad');
   const { group, rig, layers, primary } = built;
   const size = opts.size ?? (sp.sized ? (key === 'Slime' ? 2 : 2) : 1);
@@ -649,6 +697,13 @@ export function makeMob(id, opts = {}) {
   out.baseY = rig.position.y;
   if (opts.scale) group.scale.multiplyScalar(opts.scale);
 
+  if (sp.board) {
+    out.height = sp.h; out.flying = true; out.hover = 0.3;
+    out.anim = (t) => { built.hov.position.y = 0.35 + Math.sin(t * 2.4) * 0.03; built.hov.rotation.z = Math.sin(t * 1.3) * 0.04; };
+    out.mobSounds = mobSounds(id);
+    if (opts.scale) group.scale.multiplyScalar(opts.scale);
+    return out;
+  }
   const animFn = ANIMS[sp.anim] || null;
   const P = primary.parts;
   out.anim = function (t, dt, o = {}) {
@@ -665,7 +720,6 @@ export function makeMob(id, opts = {}) {
       osAnim(sp, P, ctx);
       if (sp.spin) rig.rotation.y = t * 3;
       // a resting moth shows its wings to the viewer: pitch the whole body so the plates face the camera
-      if (sp.tilt) rig.rotation.x = -sp.tilt;
       rig.position.y = Math.sin(t * (sp.flap ? 4 : 1.6)) * (sp.flap ? 0.1 : 0.0);
       return;
     }
@@ -780,6 +834,8 @@ const SND = {
   Mothra: S('orespawn:MothraWings1', 'orespawn:MothraWings2', 'orespawn:MothraWings3', null),
   GoldenAppleCow: S('mob.cow.say', 'mob.cow.hurt', 'mob.cow.hurt', 'mob.cow.step'),
   RedAppleCow: S('mob.cow.say', 'mob.cow.hurt', 'mob.cow.hurt', 'mob.cow.step'),
+  Mooshroom: S('mob.cow.say', 'mob.cow.hurt', 'mob.cow.hurt', 'mob.cow.step', { shear: 'mob.sheep.shear' }),
+  Hoverboard: S('orespawn:hover', null, 'random.pop', null),
   CrystalCow: S('mob.cow.say', 'mob.cow.hurt', 'mob.cow.hurt', 'mob.cow.step'),
 };
 SND.Termite = SND.RedAnt = SND.RainbowAnt = SND.UnstableAnt = SND.Ant;

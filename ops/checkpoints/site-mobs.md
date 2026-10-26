@@ -4,3 +4,4 @@ Frames: /private/tmp/claude-503/-Users-suaz-Desktop-QuestForge/91769071-2ed0-441
 Next: nothing required. Known approximate: EnderDragon (vanilla static), Horse gait, OreSpawn animations (generic), Mothra (Butterfly model), Rotator.
 Critic pass done: generator ignored same-class setRotation calls (all OreSpawn rotations were missing); fixed, regenerated. Robot2-4 and Rotator get a mild emissive lift (their textures really are black); Brutalfly/Mothra wings lifted into a V. Sheet: l13/.
 Moth pass: Brutalfly/Mothra pitched toward the camera (tilt 0.9, lift 0.3); Mothra uses lunamoth.png because mothscale_1 is almost fully transparent. Frame: l15/.
+Vet pass: aliases Apple Cow/Crystal Apple Cow/MushroomCow(Mooshroom spec)/Hoverboard (pink board); sounds added; check_sounds exit 0; drop 163 moths render (l30/, lineup l29/). Moth tilt is now static on the model root. Early TIMEOUTs on 163 were Chrome load from stray headless processes.
