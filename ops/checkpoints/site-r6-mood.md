@@ -21,3 +21,14 @@ sounds.
   walking and report a timeline.
 - [ ] Sheet: each glimpse kind (zombie, skeleton, creeper, enderman, witch, spider eyes,
   still creeper), plus the light effects in two frames each.
+
+## Progress (mood agent)
+- 2026-10-26: read all specs. Plan: `site/graves/mood.js` (init, loop, picker, dump), `mood/director.js` (pure timing, node-testable),
+  `mood/geo.js`, `mood/sound.js`, `mood/light.js` (own fallback via krypt.js bakeUniform), `mood/visual.js` (peeks, eyes, still creeper), `mood/sim.mjs`.
+- Next: write them, then shots under scratchpad r6/mood/.
+- 2026-10-26: built and verified. mood.js + mood/{director,geo,light,events-sound,events-light,events-visual}.js, sim.mjs, harness.html
+  (test page: graves/mood/harness.html loads mood.js; delete once krypt-gen's import block in app.js lands).
+  Sheets: scratchpad r6/mood/s1/sheet.png (all), s2 (light, 2 frames each), crops_glimpses.png. Timeline: r6/mood/timeline.txt.
+- Needs krypt-gen: app.js `import("./mood.js").then(m=>m.initMood({enabled, reduced}))`; `__krypt.light` (own fallback scales bakeUniform until then).
+- Needs audio: qf.mood.* (feature-detected; bank-sound fallback with echoes now). Not live-tested by ear.
+- Status: done except live listen/real-time check.
