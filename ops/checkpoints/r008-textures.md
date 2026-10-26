@@ -43,6 +43,10 @@ Written in direction.md section 6:
 - Clear glass now at ctm/glass/glass.properties + tiles (Angelica's path); panes *glasspane. Wheat gold paler.
 - **1025-221933-textures-v1b submitted 22:20** (spec textures-v1b.json): re-renders t8v1 (7 scenes), t8e1/t8e2 leaves, t8p1 glass. Wait on it, review glass + wheat, then step 4.
 
+## Iteration c
+- v1b: wheat now straw (good). Glass still wrong: border on every block (jar's compact rule won).
+- v1c: clear glass ships Faithful's raw rule (glass/glass/glass.properties, matchBlocks=glass). **1025-222922-textures-v1c submitted 22:29** (t8v1 wall/wall2/glass, t8p1). If still wrong: drop our clear-glass CTM and say so.
+
 ## Next
 1. `renderq.py results 1025-211536-textures-v1`. Review crops with C:\qfb\textures\v1work\cmp.py (scene, tags, crop, scale).
 2. If needed:
