@@ -25,7 +25,7 @@
           "lockedProgress:1": 0,
           "autoClaim:1": 0,
           "isSilent:1": 0,
-          "desc:8": "\u00a76\u2726 QUEST FORGE \u2726\u00a7r\n\n\u00a7oThe sky cracked, and everything on the other side came through.\u00a7r\n\nThis is CrazyCraft, rebuilt for a few friends on one server: titans that flatten forests, heroes' suits, witches, and a Twilight Forest with a lich in it. The book keeps the order you should meet them in. Press ' (apostrophe) to open it.\n\nThe climb opens one step at a time, as you earn it. The tabs beside it pay in comfort and toys, not power. Claim a reward whenever you like; it waits for you.\n\n\u00a77\"We wrote it down in the order it tried to kill us.\" - Chronicler\u00a7r\n\n\u00a7eClaim this to begin.\u00a7r"
+          "desc:8": "\u00a76\u2726 QUEST FORGE \u2726\u00a7r\n\n\u00a7oThe old chronicle called this CrazyCraft. Same shattered sky. Same titans.\u00a7r\n\nWe numbered the disasters in the order you should meet them. Main chapters are the climb. Side pages are hobbies. Secrets stay quiet.\n\n\u00a7eClaim this and start walking.\u00a7r"
         }
       },
       "tasks:9": {
@@ -81,7 +81,7 @@
           "lockedProgress:1": 0,
           "autoClaim:1": 0,
           "isSilent:1": 0,
-          "desc:8": "\u00a7oWood is the last argument the forest still loses.\u00a7r\n\nEverything starts as a log: the table, the first tools, the door you will want before dark. Take more than you think you need. The machete in the reward is for leaves and vines, not for fights.\n\n\u00a77\"He said stone was good enough. A Mutant Zombie filed the rebuttal.\" - Camp Log\u00a7r\n\n\u00a7eHave 16 logs of any wood.\u00a7r"
+          "desc:8": "\u00a7oWood is the first argument the forest will still lose.\u00a7r\n\nTools come from here. Shelter comes from here. Standing still is how the night writes your name on a grave from OpenBlocks.\n\n\u00a77\"He said stone was good enough. A Mutant Zombie filed the rebuttal.\" - Camp Log\u00a7r\n\n\u00a7eGather 16 wood. Then move.\u00a7r"
         }
       },
       "tasks:9": {
@@ -150,7 +150,7 @@
           "lockedProgress:1": 0,
           "autoClaim:1": 0,
           "isSilent:1": 0,
-          "desc:8": "\u00a7oThe first machine anyone builds. The rest are this, with ambitions.\u00a7r\n\nPresses, altars and reactors all start as a recipe at this table, and nobody memorises a hundred mods. Hold any item and press R to see how it is made, or U to see what it makes.\n\n\u00a77\"Fifty years and the same four logs. The table outlived the theories.\" - Workshop\u00a7r\n\n\u00a7eCraft a Crafting Table.\u00a7r"
+          "desc:8": "\u00a7oA table is not furniture. It is the first machine.\u00a7r\n\nEverything later \u2014 presses, altars, reactors \u2014 is this block with more opinions. The old recipes still work. The new ones assume you built this first.\n\n\u00a77\"Fifty years and the same four logs. The table outlived the theories.\" - Workshop\u00a7r\n\n\u00a7eCraft a Crafting Table.\u00a7r"
         }
       },
       "tasks:9": {
@@ -225,7 +225,7 @@
           "lockedProgress:1": 0,
           "autoClaim:1": 0,
           "isSilent:1": 0,
-          "desc:8": "\u00a7oIron is the first metal that bites back.\u00a7r\n\nStone chips and wood splinters. Iron holds an edge long enough to dig for diamonds, and half the early modded recipes quietly ask for it. You will replace these tools. You cannot skip them.\n\n\u00a77\"Survivor steel. Not special. Just required.\" - Smith\u00a7r\n\n\u00a7eHave an iron pickaxe, an iron sword and an iron axe.\u00a7r"
+          "desc:8": "\u00a7oIron is the first metal that bites the things that live here.\u00a7r\n\nStone chips. Wood splinters. Iron is what the book means when it says you have started. You will replace these. You will not skip them.\n\n\u00a77\"Survivor steel. Not special. Just required.\" - Smith\u00a7r\n\n\u00a7eMake iron tools. Wear the time they buy.\u00a7r"
         }
       },
       "tasks:9": {
@@ -308,11 +308,11 @@
           "repeatTime:3": -1,
           "globalShare:1": 0,
           "questLogic:8": "AND",
-          "name:8": "Armor Up",
+          "name:8": "Armor Up!",
           "lockedProgress:1": 0,
           "autoClaim:1": 0,
           "isSilent:1": 0,
-          "desc:8": "\u00a7oLeather is a suggestion. Iron is a policy.\u00a7r\n\nInfernal mobs and mutants hit through cloth as if it were paper. Put iron in all four slots before you go underground, and before your first walk through a forest at night.\n\n\u00a77\"She said she would run past them. We buried the boots.\" - Watch\u00a7r\n\n\u00a7eHave a full set of iron armour: helmet, chestplate, leggings and boots.\u00a7r"
+          "desc:8": "\u00a7oLeather is a suggestion. Iron is a policy.\u00a7r\n\nInfernal nametags and mutant skeletons do not respect cloth. Put iron on all four slots. The Bestiary and the jungle can wait until you have a chestplate.\n\n\u00a77\"She said she would run past them. We buried the boots.\" - Watch\u00a7r\n\n\u00a7eCraft a full set of iron armor. Wear it.\u00a7r"
         }
       },
       "tasks:9": {
@@ -411,7 +411,7 @@
           "lockedProgress:1": 0,
           "autoClaim:1": 0,
           "isSilent:1": 0,
-          "desc:8": "\u00a7oDiamonds are still the key. The basement just got louder.\u00a7r\n\nEnchanting, the Twilight portal and a dozen recipes you have not met yet all ask for the same crystal. Deep caves are where the lava is, so carry a water bucket and pour it before you step: it turns a lake of fire into a floor.\n\n\u00a77\"The glow was new. The teeth were not.\" - Last Survey\u00a7r\n\n\u00a7eHave 16 diamonds.\u00a7r"
+          "desc:8": "\u00a7oDiamonds are still the key. The basement just got louder.\u00a7r\n\nEnchanting, the Twilight portal, and a dozen recipes you do not have yet all ask for the same crystal. Below Y-16 the ores change and so does the wildlife.\n\n\u00a77\"The glow was new. The teeth were not.\" - Last Survey\u00a7r\n\n\u00a7eBring back diamonds. Watch the dark.\u00a7r"
         }
       },
       "tasks:9": {
@@ -474,7 +474,7 @@
           "lockedProgress:1": 0,
           "autoClaim:1": 0,
           "isSilent:1": 0,
-          "desc:8": "\u00a7oThe price of admission. Not the ending.\u00a7r\n\nThe Twilight Forest, the witches and everything with a proper name expect you in diamond. Below it you are loot. Keep one diamond back when you craft the set: the Twilight portal takes one, thrown into a pool ringed with flowers.\n\n\u00a77\"Diamond is how the world knows you are serious.\" - Quartermaster\u00a7r\n\n\u00a7eHave a full set of diamond armour and a diamond sword.\u00a7r"
+          "desc:8": "\u00a7oThis is the admission ticket. Not the ending.\u00a7r\n\nTwilight, Witchery, the End, and everything with a proper name expect diamond. Below this you are loot. Above it you are allowed to start the climb.\n\n\u00a77\"Diamond is how the book knows you are serious.\" - Quartermaster\u00a7r\n\n\u00a7eWear diamond. Then open the next chapter.\u00a7r"
         }
       },
       "tasks:9": {
@@ -2359,11 +2359,11 @@
           "repeatTime:3": -1,
           "globalShare:1": 0,
           "questLogic:8": "AND",
-          "name:8": "A Bag That Remembers",
+          "name:8": "Adventure Awaits!",
           "lockedProgress:1": 0,
           "autoClaim:1": 0,
           "isSilent:1": 0,
-          "desc:8": "\u00a7oA chest you wear, with plumbing.\u00a7r\n\nAn Adventure Backpack holds a chest of items and two tanks of fluid, and you open it on the move with B. Some skins do extra work: a Bat backpack sees in the dark, a Squid backpack breathes underwater.\n\n\u00a77\"He put lava in the left tank. We stopped lending him backpacks.\" - Outfitter\u00a7r\n\n\u00a7eHave an Adventure Backpack.\u00a7r"
+          "desc:8": "\u00a7oA chest you wear, with opinions.\u00a7r\n\nAdventure Backpacks hold items and fluids. Some skins do extra work \u2014 Bat for night, Squid for gills. Craft the first one. Tanks and a hose are the next page.\n\n\u00a77\"He put lava in the left tank. We stopped lending him backpacks.\" - Outfitter\u00a7r\n\n\u00a7eCraft an Adventure Backpack.\u00a7r"
         }
       },
       "tasks:9": {
@@ -4139,7 +4139,7 @@
           "lockedProgress:1": 0,
           "autoClaim:1": 0,
           "isSilent:1": 0,
-          "desc:8": "\u00a7oMobs drop bags. Bags drop excuses to keep fighting.\u00a7r\n\nAbout one kill in five drops a Loot Bag. Common, Uncommon, Rare, Epic, Legendary: the colour tells you which. Right-click to open one. Bosses drop them more often, and the rare colours are worth the detour.\n\n\u00a77\"I opened a Common. I got string. I opened another Common. I got hope.\" - Auditor\u00a7r\n\n\u00a7eHave a Common Loot Bag.\u00a7r"
+          "desc:8": "\u00a7oMobs drop bags. Bags drop excuses to keep fighting.\u00a7r\n\nCommon, Uncommon, Rare, Epic, Legend. The color is the only honest part of the tooltip.\n\n\u00a77\"I opened a Common. I got string. I opened another Common. I got hope.\" - Auditor\u00a7r\n\n\u00a7eOpen a Loot Bag.\u00a7r"
         }
       },
       "tasks:9": {
@@ -4299,7 +4299,7 @@
           "lockedProgress:1": 0,
           "autoClaim:1": 0,
           "isSilent:1": 0,
-          "desc:8": "\u00a76\u2726 THE CLIMB, FILED \u00a7r\n\n\u00a7o[WRITE: hook, 15 words or fewer]\u00a7r\n\n[WRITE: Pack Master is the last page: the Prologue's 480 and the four act finales 481, 484, 485 and 486 are its prerequisites, and there is nothing to bring. The reward is a trophy, not power: a statue and one Legendary loot bag. Keep the Keeper's quote if it still fits: \"The chronicle is a list. You are the last line.\"]\n\n\u00a77\"[WRITE: quote]\" - [WRITE: role]\u00a7r\n\n\u00a7eCheck the box. The four act finales were the proof.\u00a7r"
+          "desc:8": "\u00a76\u2726 THE CLIMB, FILED \u00a7r\n\n[WRITE: Pack Master is the last page: the Prologue's 480 and the four act finales 481, 484, 485 and 486 are its prerequisites, and there is nothing to bring. The reward is a trophy, not power: a statue and one Legendary loot bag. The shipped page's line \"The chronicle is a list. You are the last line.\" may stay if the new voice allows it.]\n\n\u00a7eCheck the box. The four act finales were the proof.\u00a7r"
         }
       },
       "tasks:9": {
@@ -24755,7 +24755,7 @@
           "lockedProgress:1": 0,
           "autoClaim:1": 0,
           "isSilent:1": 0,
-          "desc:8": "\u00a7oThe lord of the underworld is one fight, not a chapter of three.\u00a7r\n\nKill him; the kill is the receipt, and your party shares it. Nothing stops you crafting the cube before Mobzilla. That is the trap: the cube does not check your gear.\n\n\u00a77\"The name was the scary part until the health bar started.\" - Last Volunteer\u00a7r\n\n\u00a7eKill Rahovart.\u00a7r"
+          "desc:8": "\u00a7oThe lord of the underworld is one fight, not a chapter of three.\u00a7r\n\nKill him; the kill is the receipt. Nothing stops you crafting the cube before Mobzilla. That is the trap: the cube does not check your gear.\n\n\u00a77\"The name was the scary part until the health bar started.\" - Last Volunteer\u00a7r\n\n\u00a7eKill Rahovart.\u00a7r"
         }
       },
       "tasks:9": {
@@ -25243,7 +25243,7 @@
           "lockedProgress:1": 0,
           "autoClaim:1": 0,
           "isSilent:1": 0,
-          "desc:8": "\u00a7oSome of them come with extra adjectives.\u00a7r\n\nA mob whose nametag reads like a list is an Infernal: more health, extra powers, and loot worth the swing. The longer the name, the worse the fight. Read it before you swing, and if it is longer than your arm, come back with friends.\n\n\u00a77\"It said '1UP Regenerating Ghastly.' I said no.\" - Night Watch\u00a7r\n\n\u00a7eKill an Infernal mob, then check the box. The book takes your word for it.\u00a7r"
+          "desc:8": "\u00a7oSome of them come with extra adjectives. That is Infernal Mobs.\u00a7r\n\nA nametag that reads like a resume means extra health, extra mods, and loot that is actually worth the swing. Kill one. Check the box when you have.\n\n\u00a77\"It said '1UP Regenerating Ghastly.' I said no.\" - Night Watch\u00a7r\n\n\u00a7eSurvive an Infernal. Then admit it.\u00a7r"
         }
       },
       "tasks:9": {
@@ -25299,7 +25299,7 @@
           "lockedProgress:1": 0,
           "autoClaim:1": 0,
           "isSilent:1": 0,
-          "desc:8": "\u00a7oA second skill tree, and nobody hands you the map.\u00a7r\n\nPress L to open Level Up and choose a class: Miner, Warrior, Scout, Farmer and more. Each one pays back every level you put into it. There is no Book of Unlearning on this server, so choose the one you will still like in a month.\n\n\u00a77\"He picked Freelancer for the points. He still could not punch a Warg.\" - Trainer\u00a7r\n\n\u00a7eChoose a class, then check the box.\u00a7r"
+          "desc:8": "\u00a7oLevel Up! is a second skill tree the HUD does not introduce.\u00a7r\n\nOpen the Level Up GUI (default L) and pick a class. Miner, Warrior, Scout - they all pay rent. This build has no Book of Unlearning, so pick the class you will still like next week.\n\n\u00a77\"He picked Freelancer for the points. He still could not punch a Warg.\" - Trainer\u00a7r\n\n\u00a7eChoose a class. Check the box when the HUD agrees.\u00a7r"
         }
       },
       "tasks:9": {
@@ -25982,7 +25982,7 @@
           "lockedProgress:1": 0,
           "autoClaim:1": 0,
           "isSilent:1": 0,
-          "desc:8": "\u00a7oThe Synapse was built around something, and it is still at home.\u00a7r\n\nPlace a Synapse Core inside the Synapse and the Overlord wakes. It fights three times: a cocoon, a body, and the core that ran both. Only the core counts. Bring your party, a way home, and more poppets than seems reasonable.\n\n\u00a77\"We cracked the shell and cheered. The shell let us.\" - Keysmith\u00a7r\n\n\u00a7eKill the Overlord's core in the Synapse.\u00a7r"
+          "desc:8": "\u00a7oThe Synapse was built around something, and it is still at home.\u00a7r\n\nPlace a Synapse Core inside the Synapse and the Overlord wakes. It fights three times: a cocoon, a body, and the core that ran both. Only the core counts. Bring friends, a way home, and more poppets than seems reasonable.\n\n\u00a77\"We cracked the shell and cheered. The shell let us.\" - Keysmith\u00a7r\n\n\u00a7eKill the Overlord's core in the Synapse.\u00a7r"
         }
       },
       "tasks:9": {
@@ -26242,7 +26242,7 @@
           "lockedProgress:1": 0,
           "autoClaim:1": 0,
           "isSilent:1": 0,
-          "desc:8": "\u00a7oNobody chooses the first night. You can choose where to spend it.\u00a7r\n\nIf the server showed you a map of starting points, each one was marked with how hard it is, and the marks were honest. If it did not, you woke where everyone wakes. Either way, learn the ground around you before you go looking for worse.\n\nPress F3 and write down where you are standing. Beds break and maps get lost; numbers do not. Press J for the map, which remembers everywhere you have walked.\n\n\u00a77\"I picked the hard start to impress them. They found my grave on day two. It was impressive.\" - Pathfinder\u00a7r\n\n\u00a7eCheck the box once you know where you are.\u00a7r"
+          "desc:8": "[WRITE: if the server showed a map of starting points, each was marked with an honest difficulty; if it did not, you woke where everyone wakes (true today and after the spawn picker ships). Learn the ground around you before looking for worse. F3 shows your coordinates: write them down, beds break and maps get lost. J opens the JourneyMap map, which remembers everywhere you have walked.]\n\n\u00a7eCheck the box once you know where you are.\u00a7r"
         }
       },
       "tasks:9": {
@@ -26298,7 +26298,7 @@
           "lockedProgress:1": 0,
           "autoClaim:1": 0,
           "isSilent:1": 0,
-          "desc:8": "\u00a7oThe first night is not a fight. It is a test of walls.\u00a7r\n\nDig into a hill or stack a box of planks. It does not matter what it looks like, only that nothing walks in. Hostile mobs spawn in the dark, so a torch is a wall too: light the inside and the ground around the door.\n\n\u00a77\"I built a beautiful house and forgot the door. It was beautiful for about a minute.\" - Mason\u00a7r\n\n\u00a7eHave a wooden door and 8 torches.\u00a7r"
+          "desc:8": "[WRITE: the first night is about walls, not fighting. Dig into a hill or stack a box of planks; what it looks like does not matter, only that nothing walks in. Hostile mobs spawn in the dark, so torches are walls too: light the inside and the ground around the door.]\n\n\u00a7eHave a wooden door and 8 torches.\u00a7r"
         }
       },
       "tasks:9": {
@@ -26367,7 +26367,7 @@
           "lockedProgress:1": 0,
           "autoClaim:1": 0,
           "isSilent:1": 0,
-          "desc:8": "\u00a7oHunger is slower than zombies, and it never stops.\u00a7r\n\nPlant the seeds the grass gives you and bake bread before the meat runs out. Food Plus and Food Expansion add hundreds of dishes. Hold any food and press U to see everything it goes into, or R to see how it is made.\n\n\u00a77\"We ate the horse on day three. On day four we needed a horse.\" - Cook\u00a7r\n\n\u00a7eHave 10 bread.\u00a7r"
+          "desc:8": "[WRITE: hunger is slower than zombies and never stops. Plant the seeds the grass drops and bake bread before the meat runs out. Food Plus and Food Expansion add hundreds of dishes: hold any food and press U to see what it goes into, R to see how it is made.]\n\n\u00a7eHave 10 bread.\u00a7r"
         }
       },
       "tasks:9": {
@@ -26442,7 +26442,7 @@
           "lockedProgress:1": 0,
           "autoClaim:1": 0,
           "isSilent:1": 0,
-          "desc:8": "\u00a7oThe sun goes down. The ground starts to move.\u00a7r\n\nZombies come in numbers, and they walk straight through a door left open. Fight from the doorway, never in the open field, and step back inside when your health drops below half. You and your party share the count: a kill by any of you counts for all.\n\n\u00a77\"Five is a good night. Six is when you learn to count.\" - Gate Log\u00a7r\n\n\u00a7eKill 5 zombies.\u00a7r"
+          "desc:8": "[WRITE: zombies come in numbers and walk straight through an open door. Fight from the doorway, never in the open field, and step back inside when health drops below half. Zombie Pigmen count too (the task counts subtypes). The count is your own: kills by pets, golems or the environment do not count.]\n\n\u00a7eKill 5 zombies.\u00a7r"
         }
       },
       "tasks:9": {
@@ -26504,7 +26504,7 @@
           "lockedProgress:1": 0,
           "autoClaim:1": 0,
           "isSilent:1": 0,
-          "desc:8": "\u00a7oYou will die. The question is what you lose.\u00a7r\n\nEverything you carry goes into a gravestone where you fall, and only you can open it. Walk back, open it, take it all. You wake at your last bed, not at the grave, so sleep in one before any trip you might not come back from.\n\nJourneyMap marks where you died. Press M to choose the stone they will bury you under; better designs unlock every five levels.\n\n\u00a77\"We found the grave. Then we found the creeper that made it. In that order.\" - Recovery Team\u00a7r\n\n\u00a7eCheck the box when you know where you will wake up.\u00a7r"
+          "desc:8": "[WRITE: everything you carry goes into a gravestone where you fall, and only you can open it. Walk back, open it, take it all. You wake at your last bed, not at the grave, so sleep in one before any trip you might not come back from. JourneyMap marks where you died. M chooses the stone they bury you under; better designs unlock every five levels.]\n\n\u00a7eCheck the box when you know where you will wake up.\u00a7r"
         }
       },
       "tasks:9": {
@@ -26554,7 +26554,7 @@
           "lockedProgress:1": 0,
           "autoClaim:1": 0,
           "isSilent:1": 0,
-          "desc:8": "\u00a7oSome of what came through is not a fight. It is weather.\u00a7r\n\nBelow Y 40, in the dark, Weeping Angels spawn. They move only while nobody is looking, they can throw you somewhere else, and only a pickaxe hurts them. Light your mines and keep a pickaxe in the hotbar.\n\nMutants, Lycanites and the biggest OreSpawn creatures walk the overworld too. None of them is a fair fight on day one. If it is taller than your house, walk away.\n\n\u00a77\"It was not chasing us. It was just going the same way. So, briefly, were we.\" - Survey Crew\u00a7r\n\n\u00a7eCheck the box. Then stay out of the dark below Y 40 until you have iron.\u00a7r"
+          "desc:8": "[WRITE: below Y 40, in the dark, Weeping Angels spawn: they move only while nobody is looking, they can throw you somewhere else, and only a pickaxe hurts them. Light your mines and keep a pickaxe in the hotbar. Mutants, Lycanites and the biggest OreSpawn creatures walk the overworld too, and none of them is a fair fight on day one.]\n\n\u00a7eCheck the box. Then stay out of the dark below Y 40 until you have iron.\u00a7r"
         }
       },
       "tasks:9": {
@@ -26610,7 +26610,7 @@
           "lockedProgress:1": 0,
           "autoClaim:1": 0,
           "isSilent:1": 0,
-          "desc:8": "\u00a7oThe one machine in this world that plays what you like.\u00a7r\n\nCraft a blank Record from coal, string and redstone, and the jukebox is yours. Right-click it to search for music; sneak and right-click to play or stop. Drop your own mp3 or ogg files into the jukebox folder of the game directory and they show up too.\n\nUse a blank Record on the jukebox to cut a song onto it. Hand the record to a friend: it plays for them, and the song goes into their library. Hover a record and press V for its menu.\n\n\u00a77\"We argued about the playlist for an hour. The Hydra waited.\" - Night Watch\u00a7r\n\n\u00a7eHave a blank Record.\u00a7r"
+          "desc:8": "[WRITE: a blank Record is coal, string and redstone (iron, gold or diamond instead of coal only change its look). Right-click the jukebox to search for music; sneak and right-click to play or stop. Your own mp3 or ogg files go in the jukebox folder of the game directory. Use a blank Record on the jukebox to cut a song onto it; hand the record to a friend and it plays for them and goes into their library. Hover a record and press V for its menu. The jukebox is the reward, and it also has a recipe: a vanilla jukebox and a blank Record, shapeless (qf-content ModRecipes), so a second one is a craft, not a quest.]\n\n\u00a7eHave a blank black Record (the coal pressing).\u00a7r"
         }
       },
       "tasks:9": {
@@ -26673,7 +26673,7 @@
           "lockedProgress:1": 0,
           "autoClaim:1": 0,
           "isSilent:1": 0,
-          "desc:8": "\u00a7oA tome holds one enchantment. You learn which when the seal breaks.\u00a7r\n\nRight-click a Sealed Tome and it opens into a book. Pick the book up and drop it onto the item you want it on. The tooltip gives the chance it takes and the chance it breaks the item, so read it first. Magic Dust dropped on a book adds five points to its chance.\n\n\u00a77\"It said twelve percent to destroy. I rounded down.\" - Binder\u00a7r\n\n\u00a7eOpen a Sealed Tome and hold the book it gives you.\u00a7r"
+          "desc:8": "[WRITE: a Sealed Tome holds one enchantment; right-click it and it opens into a book. Pick the book up and drop it onto the item you want it on. The tooltip gives the chance it takes and the chance it destroys the item, so read it first. Magic Dust dropped on a book adds five points to its chance.]\n\n\u00a7eOpen a Sealed Tome and hold the book it gives you.\u00a7r"
         }
       },
       "tasks:9": {
@@ -26710,62 +26710,11 @@
         }
       }
     },
-    "478:10": {
-      "questID:3": 478,
-      "preRequisites:11": [
-        0
-      ],
-      "properties:10": {
-        "betterquesting:10": {
-          "snd_complete:8": "minecraft:entity.player.levelup",
-          "taskLogic:8": "AND",
-          "visibility:8": "ALWAYS",
-          "isMain:1": 0,
-          "simultaneous:1": 0,
-          "icon:10": {
-            "id:8": "minecraft:cake",
-            "Count:3": 1,
-            "Damage:2": 0,
-            "OreDict:8": ""
-          },
-          "snd_update:8": "minecraft:entity.player.levelup",
-          "repeatTime:3": -1,
-          "globalShare:1": 0,
-          "questLogic:8": "AND",
-          "name:8": "You and Your Party",
-          "lockedProgress:1": 0,
-          "autoClaim:1": 0,
-          "isSilent:1": 0,
-          "desc:8": "\u00a7oAlone, the Chronicle is a list. With friends it is a story.\u00a7r\n\nOpen the quest book and choose Party to start one, then invite your friends by name. A kill counts for everyone in the party, so a boss you fought together is done for all of you. One party for the whole group is the easy way to play here. [WRITE: decision act1-05 A: one sentence telling a newcomer to finish Arrival before joining a party. WP-9 confirms whether BetterQuesting copies a party's completed quests to a member who joins.]\n\n\u00a77\"Three of us hit it. All three of us got the page. Nobody argued, which was a first.\" - Hall Steward\u00a7r\n\n\u00a7eCheck the box once you are in a party, or once you have chosen to walk alone.\u00a7r"
-        }
-      },
-      "tasks:9": {
-        "0:10": {
-          "index:3": 0,
-          "taskID:8": "bq_standard:checkbox"
-        }
-      },
-      "rewards:9": {
-        "0:10": {
-          "rewardID:8": "bq_standard:item",
-          "index:3": 0,
-          "rewards:9": {
-            "0:10": {
-              "id:8": "minecraft:cake",
-              "Count:3": 1,
-              "Damage:2": 0,
-              "OreDict:8": ""
-            }
-          }
-        }
-      }
-    },
     "480:10": {
       "questID:3": 480,
       "preRequisites:11": [
         473,
-        474,
-        478
+        474
       ],
       "properties:10": {
         "betterquesting:10": {
@@ -26788,7 +26737,7 @@
           "lockedProgress:1": 0,
           "autoClaim:1": 0,
           "isSilent:1": 0,
-          "desc:8": "\u00a7oThe first night is behind you. The rest of the world is not.\u00a7r\n\nYou have walls, food, a party and a fair idea of what kills people here. Next comes iron, then diamonds, and then the doors that open onto other worlds, the Twilight Forest first.\n\nThe reward is a ticket. Right-click it and /sethome and /home are yours for good: mark one place, and walk back to it from anywhere, even from another dimension. It does not move where you wake after dying.\n\n\u00a77\"Everyone starts on the same page. Not everyone turns it.\" - Keeper\u00a7r\n\n\u00a7eCheck the box. The climb starts with iron.\u00a7r"
+          "desc:8": "[WRITE: the first night is behind you: walls, food, and a fair idea of what kills people here. Next comes iron, then diamonds, then the doors onto other worlds, the Twilight Forest first. The reward is the /home ticket: right-click it and /sethome and /home are yours for good (one place, reachable from anywhere, even another dimension; it does not move where you wake after dying).]\n\n\u00a7eCheck the box. The climb starts with iron.\u00a7r"
         }
       },
       "tasks:9": {
@@ -26838,7 +26787,7 @@
           "lockedProgress:1": 0,
           "autoClaim:1": 0,
           "isSilent:1": 0,
-          "desc:8": "\u00a7o[WRITE: hook, 15 words or fewer]\u00a7r\n\n[WRITE: Act I ends on a kill with a name, not on a craft. Any one of these counts: a Mutant Skeleton or a Mutant Zombie (they roam the overworld), the Wither (three wither skeleton skulls and soul sand from a Nether fortress), or the pirate boss of a ChocolateQuest pirate dungeon. Say \"you and your party\": a kill by any member counts for all. Point forward to the Twilight pool.]\n\n\u00a77\"[WRITE: quote]\" - [WRITE: role]\u00a7r\n\n\u00a7eKill one of these: a Mutant Skeleton, a Mutant Zombie, the Wither, or the pirate boss of a ChocolateQuest dungeon.\u00a7r"
+          "desc:8": "[WRITE: Act I ends on a kill with a name, not on a craft. Any one of these counts: a Mutant Skeleton or a Mutant Zombie (they roam the overworld), the Wither (three wither skeleton skulls and soul sand from a Nether fortress), or the pirate boss of a ChocolateQuest pirate dungeon. It may speak to friends who fight together (no group mechanic exists; the credit rule is in the brief, section 4). Point forward to the Twilight pool.]\n\n\u00a7eKill one of these: a Mutant Skeleton, a Mutant Zombie, the Wither, or the pirate boss of a ChocolateQuest dungeon.\u00a7r"
         }
       },
       "tasks:9": {
@@ -26930,7 +26879,7 @@
           "lockedProgress:1": 0,
           "autoClaim:1": 0,
           "isSilent:1": 0,
-          "desc:8": "\u00a7o[WRITE: hook, 15 words or fewer]\u00a7r\n\n[WRITE: The Nether: build a portal from 10 obsidian (mine it with a diamond pickaxe, or cast it in place with lava and water buckets) and light it with flint and steel. One practical tip that saves a life: bring fire resistance, and do not hit the zombie pigmen. Blaze rods, glowstone and the fortresses are why you go, and the Wither waits there. The task is a location task: standing anywhere in the Nether completes it.]\n\n\u00a77\"[WRITE: quote]\" - [WRITE: role]\u00a7r\n\n\u00a7eEnter the Nether.\u00a7r"
+          "desc:8": "[WRITE: The Nether: build a portal from 10 obsidian (mine it with a diamond pickaxe, or cast it in place with lava and water buckets) and light it with flint and steel. One practical tip that saves a life: bring fire resistance, and do not hit the zombie pigmen. Blaze rods, glowstone and the fortresses are why you go, and the Wither waits there. The task is a location task: standing anywhere in the Nether completes it.]\n\n\u00a7eEnter the Nether.\u00a7r"
         }
       },
       "tasks:9": {
@@ -26998,7 +26947,7 @@
           "lockedProgress:1": 0,
           "autoClaim:1": 0,
           "isSilent:1": 0,
-          "desc:8": "\u00a7o[WRITE: hook, 15 words or fewer]\u00a7r\n\n[WRITE: The Wither: four soul sand in a T, three wither skeleton skulls on top (wither skeletons walk the Nether fortresses). Spawn it underground or far from the base; it explodes when it wakes, and it flies. Its skulls wither you. It drops a Nether Star, which a beacon needs. Say \"you and your party\".]\n\n\u00a77\"[WRITE: quote]\" - [WRITE: role]\u00a7r\n\n\u00a7eKill the Wither.\u00a7r"
+          "desc:8": "[WRITE: The Wither: four soul sand in a T, three wither skeleton skulls on top (wither skeletons walk the Nether fortresses). Spawn it underground or far from the base; it explodes when it wakes, and it flies. Its skulls wither you. It drops a Nether Star, which a beacon needs. Friends who fight together, no group mechanic (brief, section 4).]\n\n\u00a7eKill the Wither.\u00a7r"
         }
       },
       "tasks:9": {
@@ -27061,7 +27010,7 @@
           "lockedProgress:1": 0,
           "autoClaim:1": 0,
           "isSilent:1": 0,
-          "desc:8": "\u00a7o[WRITE: hook, 15 words or fewer]\u00a7r\n\n[WRITE: Act II ends: the Hydra is dead and the Circle Talisman is made, and the oldest powers have answered. No new task; the kill was counted at 17 and the craft at 105 (a hunt credits the whole party). Point forward to what thins next: the End, the Knight Stronghold, the Dark Tower, the Aurora Palace, the Spirit World and Torment.]\n\n\u00a77\"[WRITE: quote]\" - [WRITE: role]\u00a7r\n\n\u00a7eCheck the box. The Hydra and the Circle Talisman were the proof.\u00a7r"
+          "desc:8": "[WRITE: Act II ends: the Hydra is dead and the Circle Talisman is made, and the oldest powers have answered. No new task; the kill was counted at 17 and the craft at 105. Point forward to what thins next: the End, the Knight Stronghold, the Dark Tower, the Aurora Palace, the Spirit World and Torment.]\n\n\u00a7eCheck the box. The Hydra and the Circle Talisman were the proof.\u00a7r"
         }
       },
       "tasks:9": {
@@ -27119,7 +27068,7 @@
           "lockedProgress:1": 0,
           "autoClaim:1": 0,
           "isSilent:1": 0,
-          "desc:8": "\u00a7o[WRITE: hook, 15 words or fewer]\u00a7r\n\n[WRITE: Act III ends: the HEE dragon, the Snow Queen and the Ultimate Sword. No new task; the kills were counted at 121 and 19 and the craft at 21. Point forward to the titans: Mobzilla, The King and The Queen, the Synapse and its Overlord, Rahovart. Say that nothing below Ultimate gear survives what comes next.]\n\n\u00a77\"[WRITE: quote]\" - [WRITE: role]\u00a7r\n\n\u00a7eCheck the box. The dragon, the Snow Queen and the Ultimate Sword were the proof.\u00a7r"
+          "desc:8": "[WRITE: Act III ends: the HEE dragon, the Snow Queen and the Ultimate Sword. No new task; the kills were counted at 121 and 19 and the craft at 21. Point forward to the titans: Mobzilla, The King and The Queen, the Synapse and its Overlord, Rahovart. Say that nothing below Ultimate gear survives what comes next.]\n\n\u00a7eCheck the box. The dragon, the Snow Queen and the Ultimate Sword were the proof.\u00a7r"
         }
       },
       "tasks:9": {
@@ -27177,7 +27126,7 @@
           "lockedProgress:1": 0,
           "autoClaim:1": 0,
           "isSilent:1": 0,
-          "desc:8": "\u00a7o[WRITE: hook, 15 words or fewer]\u00a7r\n\n[WRITE: Act IV ends: The Queen, the Overlord's core and Rahovart are dead. No new task; the kills were counted at 24, 450 and 406. Point to what is left: the Crystal Dimension and its armoury, Red Matter, the far Legends worlds, the outskirts past the sea, and Pack Master.]\n\n\u00a77\"[WRITE: quote]\" - [WRITE: role]\u00a7r\n\n\u00a7eCheck the box. The Queen, the Overlord and Rahovart were the proof.\u00a7r"
+          "desc:8": "[WRITE: Act IV ends: The Queen, the Overlord's core and Rahovart are dead. No new task; the kills were counted at 24, 450 and 406. Point to what is left: the Crystal Dimension and its armoury, Red Matter, the far Legends worlds, the outskirts past the sea, and Pack Master.]\n\n\u00a7eCheck the box. The Queen, the Overlord and Rahovart were the proof.\u00a7r"
         }
       },
       "tasks:9": {
@@ -27274,7 +27223,7 @@
           },
           "bg_image:8": "",
           "bg_size:3": 256,
-          "desc:8": "\u00a7o[WRITE: tab hook, one line, in quotes]\u00a7r\n\nThe overworld is no longer only the overworld. Mutant Creatures walk the forests, ChocolateQuest's castles hold the ridges, and the Nether still burns under all of it. You climb from iron to diamond and prove you can kill something with a name."
+          "desc:8": "[WRITE: the tab text. Story spine (tone open): The overworld is no longer only the overworld. Mutant Creatures walk the forests, ChocolateQuest's castles hold the ridges, and the Nether still burns under all of it. You climb from iron to diamond and prove you can kill something with a name.]"
         }
       },
       "order:3": 1
@@ -27540,7 +27489,7 @@
           },
           "bg_image:8": "",
           "bg_size:3": 256,
-          "desc:8": "\u00a7o[WRITE: tab hook, one line, in quotes]\u00a7r\n\nThe oldest powers answer first. Through a flower-ringed pool lies the Twilight Forest, where the Naga, the Twilight Lich, the Minoshroom and the Hydra guard the way deeper. In the overworld the witches teach altars, poppets and circles, and the act ends when the Hydra is dead and the Circle Talisman is made. The Philosopher's Stone, at the Lich, is the first taste of ProjectE."
+          "desc:8": "[WRITE: the tab text. Story spine (tone open): The oldest powers answer first. Through a flower-ringed pool lies the Twilight Forest, where the Naga, the Twilight Lich, the Minoshroom and the Hydra guard the way deeper. In the overworld the witches teach altars, poppets and circles, and the act ends when the Hydra is dead and the Circle Talisman is made. The Philosopher's Stone, at the Lich, is the first taste of ProjectE.]"
         }
       },
       "order:3": 2
@@ -27687,7 +27636,7 @@
           },
           "bg_image:8": "",
           "bg_size:3": 256,
-          "desc:8": "\u00a7o[WRITE: tab hook, one line, in quotes]\u00a7r\n\nThe things CrazyCraft is remembered for. Mobzilla, The King and The Queen from OreSpawn; TragicMC's Synapse and the Overlord at its core; Rahovart, summoned with Lycanites' Demonic Soulcube. The Transmutation Table and Dark Matter come on the way, each behind the titan its recipe needs."
+          "desc:8": "[WRITE: the tab text. Story spine (tone open): The things CrazyCraft is remembered for. Mobzilla, The King and The Queen from OreSpawn; TragicMC's Synapse and the Overlord at its core; Rahovart, summoned with Lycanites' Demonic Soulcube. The Transmutation Table and Dark Matter come on the way, each behind the titan its recipe needs.]"
         }
       },
       "order:3": 4
@@ -28821,7 +28770,7 @@
           },
           "bg_image:8": "",
           "bg_size:3": 256,
-          "desc:8": "\u00a7o[WRITE: tab hook, one line, in quotes]\u00a7r\n\nThe walls between worlds thin. Hardcore Ender Expansion's End, its Endstone Temple and a dragon far harder than vanilla's. The far Twilight: the Knight Stronghold, the Ur-Ghast's Dark Tower, the Alpha Yeti and the Snow Queen's Aurora Palace. Witchery's Spirit World, Dream and Torment. OreSpawn makes first contact, and the Mantis, Basilisk, Emperor Scorpion and Kraken stand between you and Ultimate gear."
+          "desc:8": "[WRITE: the tab text. Story spine (tone open): The walls between worlds thin. Hardcore Ender Expansion's End, its Endstone Temple and a dragon far harder than vanilla's. The far Twilight: the Knight Stronghold, the Ur-Ghast's Dark Tower, the Alpha Yeti and the Snow Queen's Aurora Palace. Witchery's Spirit World, Dream and Torment. OreSpawn makes first contact, and the Mantis, Basilisk, Emperor Scorpion and Kraken stand between you and Ultimate gear.]"
         }
       },
       "order:3": 3
@@ -29733,44 +29682,44 @@
         },
         "1:10": {
           "sizeX:3": 24,
+          "x:3": 48,
+          "y:3": 0,
+          "id:3": 61,
+          "sizeY:3": 24
+        },
+        "2:10": {
+          "sizeX:3": 24,
           "x:3": 0,
           "y:3": 96,
           "id:3": 1,
           "sizeY:3": 24
         },
-        "2:10": {
+        "3:10": {
           "sizeX:3": 24,
           "x:3": 0,
           "y:3": 144,
           "id:3": 2,
           "sizeY:3": 24
         },
-        "3:10": {
+        "4:10": {
           "sizeX:3": 24,
           "x:3": 48,
           "y:3": 48,
           "id:3": 431,
           "sizeY:3": 24
         },
-        "4:10": {
+        "5:10": {
           "sizeX:3": 24,
           "x:3": 144,
           "y:3": 144,
           "id:3": 35,
           "sizeY:3": 24
         },
-        "5:10": {
+        "6:10": {
           "sizeX:3": 24,
           "x:3": 144,
           "y:3": 240,
           "id:3": 430,
-          "sizeY:3": 24
-        },
-        "6:10": {
-          "sizeX:3": 24,
-          "x:3": 96,
-          "y:3": 0,
-          "id:3": 61,
           "sizeY:3": 24
         },
         "7:10": {
@@ -29830,13 +29779,6 @@
           "sizeY:3": 24
         },
         "15:10": {
-          "sizeX:3": 24,
-          "x:3": 48,
-          "y:3": 0,
-          "id:3": 478,
-          "sizeY:3": 24
-        },
-        "16:10": {
           "sizeX:3": 32,
           "x:3": 0,
           "y:3": 288,
@@ -29857,7 +29799,7 @@
           },
           "bg_image:8": "",
           "bg_size:3": 256,
-          "desc:8": "\u00a7o\"Everyone arrives the same way: with nothing, an hour before dark.\"\u00a7r\n\nThe first day and the first night, and the things this world does differently: graves, parties, classes, sealed tomes, the jukebox, and mobs with long names. The climb starts once you have walls, food and a party."
+          "desc:8": "[WRITE: the Arrival tab text. Story spine (tone open): you arrive with nothing, an hour before dark, on a continent where the sky has cracked. One day and one night teach what this world does differently: graves, Level Up classes, sealed tomes, the jukebox, Infernal names and the Weeping Angels under Y 40. It ends when you have walls, food and a way home.]\n\n\u00a7eStart with Welcome.\u00a7r"
         }
       },
       "order:3": 0
@@ -29899,7 +29841,7 @@
           },
           "bg_image:8": "",
           "bg_size:3": 256,
-          "desc:8": "\u00a7o[WRITE: tab hook, one line, in quotes]\u00a7r\n\nNo new tier, only the edge of the map: the Crystal Dimension and its armoury, Red Matter, the far Legends worlds, and the outskirts past the sea. Pack Master asks for the four act finales."
+          "desc:8": "[WRITE: the tab text. Story spine (tone open): No new tier, only the edge of the map: the Crystal Dimension and its armoury, Red Matter, the far Legends worlds, and the outskirts past the sea. Pack Master asks for the four act finales.]"
         }
       },
       "order:3": 5
@@ -29914,7 +29856,7 @@
       "home_anchor_x:5": 0.5,
       "hardcore:1": 0,
       "home_image:8": "betterquesting:textures/gui/default_title.png",
-      "party_enable:1": 1,
+      "party_enable:1": 0,
       "pack_version:3": 10,
       "editMode:1": 0,
       "home_offset_x:3": -128,

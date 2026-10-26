@@ -59,7 +59,7 @@ shows the item is obtainable after all, put it in `OBTAIN_ALLOW` and fix the res
 | 134, 135, 144 (TragicMC keys, Doombringer) | `TragicMC:dimensionalKeySynapse`, `dimensionalKeyNether` | research says creative only; the quest text claims a recipe the dump does not have |
 | 432 A Spare You | `Sync:Sync_ItemPlaceholder` | no recipe in the dump; Sync registers its core recipe per world (`Sync.cfg hardcoreMode=2`), which a title-screen dump never sees |
 | 440 The Ridge Has a Landlord | `chocolateQuest:banner` | creative only (no recipe, loot or drop in this pack) |
-| 476 Bring Your Own Music (drafts only) | reward `qfcontent:qf_jukebox` | warning: creative only, so the quest is its only source (fine for a reward) |
+| 476 Bring Your Own Music (drafts only) | reward `qfcontent:qf_jukebox` | warning: the census (dump of 2026-10-17) says creative only. Stale since 2026-10-25: qf-content `ModRecipes.jukebox()` makes it from a vanilla jukebox and a blank Record (decision 0004, act1-04 A); the warning goes when the dump is rebuilt |
 
 Verify each in game before touching the book; a description that says "creative only" is
 research, not a test.
@@ -91,7 +91,11 @@ gives `ModId.name`; `registerGlobalEntityID` first gives the plain name, which t
 confirmed in a server trial with `/qfcensus find <text>` (qf-content), which lists the keys of
 `EntityList.stringToClassMapping`, the map BQ looks targets up in. Plain `/summon` cannot take
 the names with spaces (`TwilightForest.Snow Queen`, `The King`). BQ's hunt task (Standard Expansion `TaskHunt`) credits a kill when the killer is a
-player, to every member of that player's party; with `subtypes` on (the default) it also
+player, to every member of that player's party; the drafts turn parties off
+(`party_enable` 0, [decision 0004](../../docs/decisions/0004-prologue-and-act-i.md)), so
+stock BQ credits the killer alone. qf-content is getting damage-based credit for boss hunts
+(everyone who damaged the boss; the killing blow highlighted in chat), which is code, not
+book data. With `subtypes` on (the default) BQ also
 credits subclasses, so never target a base class such as TF's `Tower Ghast` or `Minotaur`.
 Kills by pets, minions or the environment do not count.
 
@@ -152,8 +156,8 @@ patch can be re-run. `patches/` holds the applied work packages:
 | `patches/wp2_tier_leaks.py` | WP-2: rewards that skip tiers, and the Pets/Heroes faucet |
 | `patches/wp3_chapter_order.py` | WP-3: cross-chapter prerequisites, later chapters hidden until they open, chapter-order texts |
 | `patches/wp4_boss_hunts.py` | WP-4: boss proofs become hunt and location tasks; the Overlord and Mutant quests |
-| `patches/wp5_prologue.py` | WP-5 **draft, not applied**: the Prologue tab "Arrival", plus the WP-10 voice sample on the old Ch 1. With no `--book` it writes `drafts/DefaultQuests.wp5.json`; `--book all` applies it once approved ([review](../../docs/design/quests/review-2026-10-19.md)) |
-| `patches/wp6_acts.py` | WP-6 **draft, not applied**: the four-act spine ([act-structure](../../docs/design/quests/act-structure.md)): act tabs, the finales 481-486, the Nether and Wither quests, Pack Master as the convergence. Parameterised by the Decisions page answers (`--decisions docs/decisions/answers/s001.json`, or `--act1-02 B` per card; defaults are the recommendations). Builds `drafts/DefaultQuests.wp6.json` from the WP-5 draft; new text is left as `[WRITE: ...]` placeholders for the writers ([brief](../../docs/design/quests/wp6-writing-brief.md)). `--book all` applies it once approved, after WP-5 |
+| `patches/wp5_prologue.py` | WP-5 **draft, not applied**: the Prologue tab "Arrival", 16 quests, built to the owner's answers of 2026-10-25 ([decision 0004](../../docs/decisions/0004-prologue-and-act-i.md)): no parties (no 478, `party_enable` 0, no "your party" in any text) and no house voice (a moved quest keeps the shipped text; a new quest carries a `[WRITE: ...]` placeholder with its checked facts and the ask line). With no `--book` it writes `drafts/DefaultQuests.wp5.json`; `--book all` applies it once the texts exist ([review](../../docs/design/quests/review-2026-10-19.md)) |
+| `patches/wp6_acts.py` | WP-6 **draft, not applied**: the four-act spine ([act-structure](../../docs/design/quests/act-structure.md)): act tabs, the finales 481-486, the Nether and Wither quests, Pack Master as the convergence. Parameterised by the Decisions page answers (`--decisions docs/decisions/answers/s001.json`, or `--act1-02 B` per card; defaults are the recommendations). Parties are not a card: `--no-parties` is always on (decision 0004; it removes 478 from an older base, sets `party_enable` 0 and cuts the two "your party" clauses), and an answers file with srv-quests = A stops the patch. Builds `drafts/DefaultQuests.wp6.json` from the WP-5 draft; new text is left as `[WRITE: ...]` placeholders for the writers ([brief](../../docs/design/quests/wp6-writing-brief.md)). `--book all` applies it once the texts exist, after WP-5 |
 
 More helpers for those: `set_prereqs`, `set_visibility`, `set_tasks` (checks the task list it
 expects), `set_task_field`, `add_quest` (copies every property key from an existing quest),

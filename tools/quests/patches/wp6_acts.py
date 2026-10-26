@@ -2,14 +2,15 @@
 """WP-6 of docs/design/questline-audit.md: the four-act spine. DRAFT FOR REVIEW.
 
 The plan is docs/design/quests/act-structure.md (sections 1 and 3: what moves where; 4 and
-8: the hunt targets; 5: side tabs; 6: parties). The ten Prologue / Act I decisions it
+8: the hunt targets; 5: side tabs; 6: multiplayer). The ten Prologue / Act I decisions it
 depends on are docs/design/quests/review-2026-10-19.md section 5, asked on the Decisions
-page as cards act1-01 .. act1-10 (site/decisions/sheets/s001.json); this patch takes the
-owner's answers and builds the book they describe. Nothing here is text for the shipped
-books: every new or moved quest whose words are not written carries a "[WRITE: ...]"
-placeholder saying what the text must say, for the writers
-(docs/design/quests/wp6-writing-brief.md). `qb.py text` allows those in a draft and
-refuses them in the pack and server books.
+page as cards act1-01 .. act1-10 (site/decisions/sheets/s001.json) and answered on
+2026-10-25 (docs/decisions/0004-prologue-and-act-i.md, docs/decisions/answers/s001.json);
+this patch takes the owner's answers and builds the book they describe. Nothing here is
+text for the shipped books: a quest that only moved keeps the shipped book's words, and
+every new quest carries a "[WRITE: ...]" placeholder listing the checked facts its text
+must carry, then the ask line, for the writers (docs/design/quests/wp6-writing-brief.md).
+`qb.py text` allows those in a draft and refuses them in the pack and server books.
 
     py -3.10 -I tools/quests/patches/wp6_acts.py                       # the review draft, recommended answers
     py -3.10 -I tools/quests/patches/wp6_acts.py --decisions docs/decisions/answers/s001.json
@@ -38,6 +39,21 @@ What it does, whatever the answers (act-structure section 3):
   - act tabs are UNLOCKED and their quests NORMAL (WP-3's rule), so an act is a rumour
     until its first quest is unlocked; pack_version 10.
 
+Two answers are not cards this patch toggles; they are built in, always:
+  no parties     The owner (act1-05 note; srv-quests B): "I don't want any quest sharing.
+                 Everyone has their own quests and their own rewards." So: 478 You and Your
+                 Party is not in the book (wp5_prologue.py no longer builds it; this patch
+                 removes it from an older base), 480 needs 473 + 474, questSettings
+                 party_enable is 0, and the two shipped texts that said "your party" (406,
+                 450) lose that clause. `--no-parties` names this on the command line and
+                 is accepted for the record; there is no `--parties`. An answers file whose
+                 srv-quests is A (parties) stops the patch. Hunt credit: stock BetterQuesting
+                 credits the killer only; qf-content is getting damage-based credit for boss
+                 hunts (everyone who damaged the boss), which is code, not book data.
+  no house voice act1-09 C: "completely rethink the voice ... something that doesn't take
+                 itself so seriously." The W() placeholder has no hook or quote slot; the
+                 writers sample a new voice first (the brief, section 1).
+
 What depends on an answer (defaults are the review's recommendations):
   act1-01 act boundaries   A as planned. B/C cannot be built from this table (a TragicMC
                            reorder); the patch stops and says so.
@@ -49,22 +65,26 @@ What depends on an answer (defaults are the review's recommendations):
                            IV: OreSpawn (the titans, Rahovart) and Chronicle.
   act1-03 /home ticket     A the ticket stays on 480. B a Common loot bag, and a note for the
                            writers to drop the ticket paragraph.
-  act1-04 jukebox          A, B the jukebox stays 476's reward (the recipe is qf-content code,
-                           not this patch). C the reward becomes a Common loot bag, with a note.
-  act1-05 late friends     A 478 gets a placeholder sentence: finish Arrival before joining.
-                           B nothing. C 478 is removed and 480 carries the party lesson.
-  act1-06 Prologue length  A 17 quests. B lean 12: 472, 476, 477 to Workshop, 475 to Danger
-                           Zone, 61 back to Rewards (Kitchen and Quest Forge are WP-7 tabs).
+  act1-04 jukebox          A the jukebox stays 476's reward and its placeholder says it also
+                           has a recipe (qf-content ModRecipes: a vanilla jukebox and a blank
+                           Record, shapeless, added 2026-10-25). B reward only, no note.
+                           C the reward becomes a Common loot bag, with a note.
+  act1-06 Prologue length  A the 16 quests of the WP-5 draft (17 minus 478). B lean 12 minus
+                           one: 472, 476, 477 to Workshop, 475 to Danger Zone, 61 back to
+                           Rewards (Kitchen and Quest Forge are WP-7 tabs).
   act1-07 Act I at iron    A as drafted. B (wood and table back in Act I) breaks the Prologue
                            quests that need 2; the patch stops and says so.
   act1-08 reward cuts      A the WP-5 cuts stand. B 430 and 61 get their old rewards back and
                            0 its bed (471 keeps the bed it was given).
-  act1-09 the voice        no data: it is WP-5's part B and WP-10.
+  act1-09 the voice        no data (see above): A/B would have meant WP-10 spreads the voice;
+                           C, the answer, means no text is written until the samples are picked.
   act1-10 pigmen           A subtypes stay on. B subtypes:1 = 0 on 473's hunt.
 """
 import argparse, json, os, shutil, sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(1, os.path.dirname(os.path.abspath(__file__)))
 import qb
+from wp5_prologue import TICKET_SENTENCE, JUKEBOX_SENTENCE, PARTY_TEXTS
 from qb import item, hunt, location, checkbox, item_reward, add_quest, add_line, move_to_line, \
     set_prereqs, set_tasks, set_visibility, replace_reward, add_reward_stack, rewrite_text, \
     edit_text, rename_line, remove_line, remove_quest, set_tab_order, set_task_field, line_by_name
@@ -84,13 +104,15 @@ DECISIONS = {
     'act1-02': ('A', {'A': 'one tab per act', 'B': 'act-prefixed mod tabs'}),
     'act1-03': ('A', {'A': 'the /home ticket ends the Prologue', 'B': 'a Common loot bag instead'}),
     'act1-04': ('A', {'A': 'jukebox: quest reward plus a recipe', 'B': 'quest reward only', 'C': 'recipe only'}),
-    'act1-05': ('A', {'A': '478 says: finish Arrival first', 'B': 'accept it', 'C': 'move 478 to the finale'}),
-    'act1-06': ('A', {'A': 'keep 17 Prologue quests', 'B': 'lean 12'}),
+    # act1-05 (parties and late friends) is not here: the owner's note removed parties (docstring).
+    'act1-06': ('A', {'A': 'keep the Prologue whole (16 quests)', 'B': 'lean 11'}),
     'act1-07': ('A', {'A': 'Act I starts at iron', 'B': 'wood and the table stay in Act I'}),
     'act1-08': ('A', {'A': 'cut the moved rewards', 'B': 'keep them as they were'}),
-    'act1-09': ('A', {'A': 'approve the voice', 'B': 'approve with changes', 'C': 'not yet'}),
+    'act1-09': ('C', {'A': 'approve the voice', 'B': 'approve with changes', 'C': 'not yet: rejected 2026-10-25'}),
     'act1-10': ('A', {'A': 'Zombie Pigmen count', 'B': 'vanilla Zombies only (subtypes off)'}),
 }
+# Answered outside the cards: parties are out (decision 0004). Shown with the decisions.
+PARTIES = 'none: personal progression, no 478, party_enable 0 (decision 0004; act1-05 note, srv-quests B)'
 NOT_DATA = {
     ('act1-01', 'B'): 'moving the TragicMC keys into Act III reorders five TragicMC quests (act-structure section 3, '
                       '"Why TragicMC stays whole in Act IV"); redesign the chapter first, then extend LAYOUTS',
@@ -106,12 +128,16 @@ def resolve_decisions(path, flags):
     source = {k: 'recommended' for k in DECISIONS}
     if path:
         doc = json.load(open(path, encoding='utf-8'))
-        for cid, a in (doc.get('resolved') or {}).items():
+        resolved = doc.get('resolved') or {}
+        for cid, a in resolved.items():
             c = (a or {}).get('choice')
             if cid in DECISIONS and c and c != 'later':
                 if c not in DECISIONS[cid][1]:
                     raise SystemExit('%s: answer %r is not one of %s' % (cid, c, sorted(DECISIONS[cid][1])))
                 chosen[cid], source[cid] = c, 'answers file'
+        if (resolved.get('srv-quests') or {}).get('choice') == 'A':
+            raise SystemExit('srv-quests = A (parties): decision 0004 removed BetterQuesting parties from the '
+                             'design and this patch builds personal progression only; reopen the decision first')
     for cid, c in flags.items():
         if c:
             chosen[cid], source[cid] = c, 'flag'
@@ -123,20 +149,19 @@ def resolve_decisions(path, flags):
 
 
 # ---------------------------------------------------------------------------
-# Text placeholders. W() is a whole description in the shape of the house voice (audit 4.7)
-# with the hook, body and quote left to the writers and the ask line written here, because
-# the ask must state exactly what the task checks and the task is this patch's doing.
+# Text placeholders. W() is a whole description left to the writers: what the text must say
+# (the checked facts, no tone: the house voice was rejected, decision 0004), then the ask
+# line, written here because it must state exactly what the task checks and the task is
+# this patch's doing. Same shape as wp5_prologue.P().
 
 def W(must_say, ask, header=''):
-    return (header + '§o[WRITE: hook, 15 words or fewer]§r\n\n'
-            '[WRITE: %s]\n\n'
-            '§7"[WRITE: quote]" - [WRITE: role]§r\n\n'
-            '§e%s§r' % (must_say, ask))
+    return header + '[WRITE: %s]\n\n§e%s§r' % (must_say, ask)
 
 
 def tab_desc(beat):
-    """An act tab's text: the beat from act-structure section 2, under a hook to write."""
-    return '§o[WRITE: tab hook, one line, in quotes]§r\n\n' + beat
+    """An act tab's text, all of it to write; the beat from act-structure section 2 is the
+    story spine, and the tone is open."""
+    return '[WRITE: the tab text. Story spine (tone open): %s]' % beat
 
 
 BEATS = {
@@ -166,8 +191,9 @@ NEW = [
     (481, 'First Blood',
      W('Act I ends on a kill with a name, not on a craft. Any one of these counts: a Mutant Skeleton or a '
        'Mutant Zombie (they roam the overworld), the Wither (three wither skeleton skulls and soul sand from '
-       'a Nether fortress), or the pirate boss of a ChocolateQuest pirate dungeon. Say "you and your party": a '
-       'kill by any member counts for all. Point forward to the Twilight pool.',
+       'a Nether fortress), or the pirate boss of a ChocolateQuest pirate dungeon. It may speak to friends who '
+       'fight together (no group mechanic exists; the credit rule is in the brief, section 4). Point forward to '
+       'the Twilight pool.',
        'Kill one of these: a Mutant Skeleton, a Mutant Zombie, the Wither, or the pirate boss of a ChocolateQuest dungeon.'),
      item('minecraft:skull', 1, 1),
      [hunt('MutantCreatures.MutantSkeleton'), hunt('MutantCreatures.MutantZombie'), hunt('WitherBoss'),
@@ -187,7 +213,8 @@ NEW = [
     (483, 'The Wither',
      W('The Wither: four soul sand in a T, three wither skeleton skulls on top (wither skeletons walk the '
        'Nether fortresses). Spawn it underground or far from the base; it explodes when it wakes, and it '
-       'flies. Its skulls wither you. It drops a Nether Star, which a beacon needs. Say "you and your party".',
+       'flies. Its skulls wither you. It drops a Nether Star, which a beacon needs. Friends who fight together, '
+       'no group mechanic (brief, section 4).',
        'Kill the Wither.'),
      item('minecraft:nether_star'),
      [hunt('WitherBoss')], 'AND',
@@ -195,7 +222,7 @@ NEW = [
 
     (484, 'The Old Powers Answer',
      W('Act II ends: the Hydra is dead and the Circle Talisman is made, and the oldest powers have answered. '
-       'No new task; the kill was counted at 17 and the craft at 105 (a hunt credits the whole party). Point '
+       'No new task; the kill was counted at 17 and the craft at 105. Point '
        'forward to what thins next: the End, the Knight Stronghold, the Dark Tower, the Aurora Palace, the '
        'Spirit World and Torment.',
        'Check the box. The Hydra and the Circle Talisman were the proof.'),
@@ -229,7 +256,8 @@ PACK_MASTER_TASKS_BEFORE = [('bq_standard:retrieval', ('OreSpawn:OreSpawn_BlockM
 PACK_MASTER_DESC = W(
     'Pack Master is the last page: the Prologue\'s 480 and the four act finales 481, 484, 485 and 486 are its '
     'prerequisites, and there is nothing to bring. The reward is a trophy, not power: a statue and one Legendary '
-    'loot bag. Keep the Keeper\'s quote if it still fits: "The chronicle is a list. You are the last line."',
+    'loot bag. The shipped page\'s line "The chronicle is a list. You are the last line." may stay if the new '
+    'voice allows it.',
     'Check the box. The four act finales were the proof.',
     header='§6✦ THE CLIMB, FILED §r\n\n')
 
@@ -327,9 +355,9 @@ LAYOUTS = {
     },
 }
 
-# act1-06 B: the five quests that leave Arrival, and where the remaining twelve sit.
+# act1-06 B: the five quests that leave Arrival, and where the remaining eleven sit.
 LEAN_MOVES = {'Workshop': [472, 476, 477], 'Danger Zone': [475], 'Rewards': [61]}
-LEAN_ARRIVAL = [(0, 0, 0, 32), (478, 48, 0), (470, 0, 48), (431, 48, 48), (1, 0, 96), (2, 0, 144), (35, 48, 144),
+LEAN_ARRIVAL = [(0, 0, 0, 32), (470, 0, 48), (431, 48, 48), (1, 0, 96), (2, 0, 144), (35, 48, 144),
                 (471, 0, 192), (473, 0, 240), (474, 48, 240), (430, 96, 240), (480, 0, 288, 32)]
 
 
@@ -341,7 +369,7 @@ def place(log, book, tab, entries):
         qid, x, y = e[:3]
         size = e[3] if len(e) > 3 else 24
         if not book.has(qid):
-            log('q%d: not in this book, not placed' % qid)   # 478 under act1-05 C
+            log('q%d: not in this book, not placed' % qid)
             continue
         move_to_line(log, book, qid, lid['lineID:3'], x, y, size)
 
@@ -391,35 +419,30 @@ def apply(book, chosen):
     replace_reward(log, pm, BAG, item(BAG, 1, 4), old_damage=3)
     rewrite_text(log, pm, 'desc:8', 'This page only wants the three OreSpawn receipts in bulk.', PACK_MASTER_DESC, 'q63')
 
-    # 5. The decisions that are data.
+    # 5. No parties (decision 0004): nothing is shared. The WP-5 draft no longer builds 478
+    #    You and Your Party; an older base still might, so take it out here too (and the
+    #    rest of WP-5's no-parties step, which is a no-op on the current base).
+    if book.has(478):
+        set_prereqs(log, Q(480), [473, 474, 478], [473, 474])
+    remove_quest(log, book, 478)
+    qb.set_setting(log, book, 'party_enable:1', 0)
+    for qid, old, new in PARTY_TEXTS:
+        edit_text(log, Q(qid), 'desc:8', old, new, 'q%d' % qid)
+
+    # 6. The decisions that are data.
     if chosen['act1-03'] == 'B':
         replace_reward(log, Q(480), 'qfcommands:lottery_ticket', item(BAG))
-        edit_text(log, Q(480), 'desc:8',
-                  'The reward is a ticket. Right-click it and /sethome and /home are yours for good: mark one '
-                  'place, and walk back to it from anywhere, even from another dimension. It does not move '
-                  'where you wake after dying.',
-                  '[WRITE: decision act1-03 B: the reward is a Common loot bag, not the /home ticket. Replace or '
-                  'drop this paragraph.]', 'q480')
-    if chosen['act1-04'] == 'C':
+        edit_text(log, Q(480), 'desc:8', TICKET_SENTENCE,
+                  'The reward is a Common loot bag (decision act1-03 B): there is no ticket.', 'q480')
+    if chosen['act1-04'] == 'A':
+        edit_text(log, Q(476), 'desc:8', JUKEBOX_SENTENCE,
+                  'The jukebox is the reward, and it also has a recipe: a vanilla jukebox and a blank Record, '
+                  'shapeless (qf-content ModRecipes), so a second one is a craft, not a quest.', 'q476')
+    elif chosen['act1-04'] == 'C':
         replace_reward(log, Q(476), 'qfcontent:qf_jukebox', item(BAG))
-        edit_text(log, Q(476), 'desc:8',
-                  'Craft a blank Record from coal, string and redstone, and the jukebox is yours.',
-                  'Craft a blank Record from coal, string and redstone. [WRITE: decision act1-04 C: the jukebox '
-                  'is crafted, not given; say so in one clause, and that the reward is a loot bag.]', 'q476')
-    if chosen['act1-05'] == 'A':
-        edit_text(log, Q(478), 'desc:8',
-                  'One party for the whole group is the easy way to play here.',
-                  'One party for the whole group is the easy way to play here. [WRITE: decision act1-05 A: one '
-                  'sentence telling a newcomer to finish Arrival before joining a party. WP-9 confirms whether '
-                  'BetterQuesting copies a party\'s completed quests to a member who joins.]', 'q478')
-    elif chosen['act1-05'] == 'C':
-        set_prereqs(log, Q(480), [473, 474, 478], [473, 474])
-        remove_quest(log, book, 478)
-        edit_text(log, Q(480), 'desc:8',
-                  'You have walls, food, a party and a fair idea of what kills people here.',
-                  'You have walls, food, a party and a fair idea of what kills people here. [WRITE: decision '
-                  'act1-05 C: 478 is gone; teach parties here: open the book, choose Party, invite by name; a '
-                  'kill counts for everyone in the party; one party per friend group, Single Reward off.]', 'q480')
+        edit_text(log, Q(476), 'desc:8', JUKEBOX_SENTENCE,
+                  'The reward is a Common loot bag (decision act1-04 C): the jukebox is crafted, a vanilla '
+                  'jukebox and a blank Record, shapeless, and never given.', 'q476')
     if chosen['act1-06'] == 'B':
         for tab, qids in LEAN_MOVES.items():
             lid = line_by_name(book, tab)['lineID:3']
@@ -441,7 +464,7 @@ def apply(book, chosen):
     if chosen['act1-10'] == 'B':
         set_task_field(log, Q(473), 0, 'subtypes:1', 0)
 
-    # 6. Visibility: act tabs UNLOCKED, their quests NORMAL (WP-3's rule, act-structure section 5).
+    # 7. Visibility: act tabs UNLOCKED, their quests NORMAL (WP-3's rule, act-structure section 5).
     for tab in lay['acts']:
         l = line_by_name(book, tab)
         set_visibility(log, l, 'UNLOCKED', 'line %d %s' % (l['lineID:3'], tab))
@@ -462,6 +485,9 @@ def main():
     for cid, (rec, opts) in DECISIONS.items():
         ap.add_argument('--' + cid, choices=sorted(opts), metavar='|'.join(sorted(opts)),
                         help='; '.join('%s: %s' % kv for kv in sorted(opts.items())) + ' (recommended %s)' % rec)
+    ap.add_argument('--no-parties', action='store_true', default=True,
+                    help='personal progression: no 478, party_enable 0, no party text. Always on since decision '
+                         '0004 (2026-10-25); the flag is accepted so a command line that names it keeps working')
     ap.add_argument('--dry-run', action='store_true')
     a = ap.parse_args()
     if hasattr(sys.stdout, 'reconfigure'):
@@ -470,6 +496,7 @@ def main():
     print('decisions:')
     for cid in DECISIONS:
         print('  %s = %s  %-45s (%s)' % (cid, chosen[cid], DECISIONS[cid][1][chosen[cid]], source[cid]))
+    print('  parties: %s' % PARTIES)
     if a.book:
         books = qb.books_for(a.book)
     else:

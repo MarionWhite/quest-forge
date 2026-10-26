@@ -585,6 +585,18 @@ def set_pack_version(log, book, version):
         s['pack_version:3'] = version
 
 
+def set_setting(log, book, key, value):
+    """Set one questSettings key (`party_enable:1`, `hardcore:1`, ...), or report it set."""
+    s = book.settings
+    if key not in s:
+        raise SystemExit('questSettings has no %r (keys: %s)' % (key, sorted(s)))
+    if s[key] == value:
+        log('%s: already %r' % (key, value))
+    else:
+        log('%s: %r -> %r' % (key, s[key], value))
+        s[key] = value
+
+
 def line_by_name(book, name_):
     """The line whose (colour-stripped) name is `name_`, or None."""
     for l in book.lines:
