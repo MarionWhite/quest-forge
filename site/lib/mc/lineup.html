@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Mob lineup · Quest Forge</title>
+<style>
+:root{--bg:#0E0B12;--ink:#ECE6F2;--muted:#9A90A8;--ember:#F08A3C}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:Archivo,system-ui,sans-serif}
+canvas{display:block;width:100vw;height:100vh}
+#bar{position:fixed;top:8px;left:12px;font-size:12px;color:var(--muted);pointer-events:none}
+#bar b{color:var(--ink)}
+body.dump #bar{display:none}
+</style>
+</head>
+<body>
+<div id="bar"><b>Mob lineup.</b> Every mob the site can build, idling. Query: <code>?ids=Zombie,Creeper</code> <code>&amp;view=front|34|side</code> <code>&amp;t=2.5</code> <code>&amp;cols=9</code> <code>&amp;set=vanilla|orespawn</code></div>
+<script type="importmap">{"imports":{"three":"../three/three.module.min.js"}}</script>
+<script type="module">
+import * as THREE from 'three';
+import { makeMob, mobNames, MOB_SPECS, OS_SPECS, whenMobTexturesLoaded } from './mobs.js';
+import { plaque } from '../../lucky/reel.js';
+
+const q = new URLSearchParams(location.search);
+const dump = q.has('dump');
+if (dump) document.body.classList.add('dump');
+const view = q.get('view') || '34';
+const T0 = parseFloat(q.get('t') || '0');
+let ids = q.get('ids') ? q.get('ids').split(',') : mobNames();
+const set = q.get('set');
+if (set === 'vanilla') ids = Object.keys(MOB_SPECS);
+if (set === 'orespawn') ids = Object.keys(OS_SPECS);
+const cols = parseInt(q.get('cols') || '9', 10);
+const tilesArg = q.get('tiles');   // ?tiles=START,COUNT: the lucky reel plaques instead of mobs
+let drops = null;
+if (tilesArg) {
+  const [a, n] = tilesArg.split(',').map(Number);
+  const d = await (await fetch('../../lucky/data/lucky.json')).json();
+  drops = d.drops.slice(a, a + (n || 48));
+  ids = drops.map((x) => x.title);
+}
+
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(dump ? 1 : Math.min(2, devicePixelRatio));
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+document.body.appendChild(renderer.domElement);
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x1a1522);
+scene.add(new THREE.HemisphereLight(0xdfe6ff, 0x4a3f55, 1.5));
+const sun = new THREE.DirectionalLight(0xfff1dd, 2.0);
+sun.position.set(-3, 6, -5);
+scene.add(sun);
+
+const camera = new THREE.PerspectiveCamera(30, 1, 0.1, 200);
+const CELL_W = tilesArg ? 1.35 : 2.5, CELL_H = tilesArg ? 1.4 : 2.6, FIT = 2.1;
+const rows = Math.ceil(ids.length / cols);
+const cells = [];
+
+function label(text, sub) {
+  const c = document.createElement('canvas');
+  c.width = 512; c.height = 96;
+  const g = c.getContext('2d');
+  g.fillStyle = '#ECE6F2'; g.font = '700 38px Archivo, system-ui, sans-serif'; g.textAlign = 'center';
+  g.fillText(text, 256, 42);
+  g.fillStyle = '#9A90A8'; g.font = '500 26px system-ui, sans-serif';
+  g.fillText(sub, 256, 80);
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: t, transparent: true, depthTest: false }));
+  s.scale.set(2.3, 0.43, 1);
+  return s;
+}
+
+ids.forEach((id, i) => {
+  if (drops) {
+    const col = i % cols, row = Math.floor(i / cols);
+    const p = plaque(drops[i]);
+    p.position.set((col - (cols - 1) / 2) * -1.35, -row * 1.4, 0);
+    p.rotation.y = Math.PI;
+    scene.add(p);
+    return;
+  }
+  const col = i % cols, row = Math.floor(i / cols);
+  const cell = new THREE.Group();
+  cell.position.set((col - (cols - 1) / 2) * CELL_W * -1, -row * CELL_H, 0);
+  const m = makeMob(id);
+  m.anim(T0, 0, {});
+  m.root.updateMatrixWorld(true);
+  const pivot = new THREE.Group();
+  pivot.add(m.root);
+  pivot.rotation.y = view === 'side' ? Math.PI / 2 : view === 'front' ? 0 : 0.6;
+  pivot.updateMatrixWorld(true);
+  const b = new THREE.Box3().setFromObject(pivot);
+  const sz = b.getSize(new THREE.Vector3());
+  const k = Math.min(FIT / sz.y, (CELL_W * 0.9) / Math.max(sz.x, 0.01));
+  pivot.scale.setScalar(k);
+  pivot.updateMatrixWorld(true);
+  const b2 = new THREE.Box3().setFromObject(pivot);
+  pivot.position.set(-(b2.min.x + b2.max.x) / 2, -b2.min.y, 0);
+  cell.add(pivot);
+  const lb = label(id.replace(/([a-z])([A-Z])/g, '$1 $2'), (m.unknown ? 'unknown id' : (m.height).toFixed(1) + ' blocks') + (k < 1 ? '  (shown at ' + Math.round(k * 100) + '%)' : ''));
+  lb.position.set(0, -0.28, 0.3);
+  cell.add(lb);
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(CELL_W * 0.92, 0.02), new THREE.MeshBasicMaterial({ color: 0x2b2536 }));
+  floor.position.set(0, 0, 0);
+  cell.add(floor);
+  scene.add(cell);
+  cells.push({ m, cell, pivot });
+});
+
+function fit() {
+  const w = innerWidth, h = innerHeight;
+  renderer.setSize(w, h, false);
+  camera.aspect = w / h;
+  const gw = cols * CELL_W, gh = rows * CELL_H + 0.6;
+  const vf = THREE.MathUtils.degToRad(camera.fov);
+  const dH = (gh / 2) / Math.tan(vf / 2);
+  const dW = (gw / 2) / (Math.tan(vf / 2) * camera.aspect);
+  const d = Math.max(dH, dW) * 1.04;
+  camera.position.set(0, -(rows - 1) * CELL_H / 2 + 1.1, -d);
+  camera.lookAt(0, -(rows - 1) * CELL_H / 2 + 1.1, 0);
+  camera.updateProjectionMatrix();
+}
+addEventListener('resize', fit);
+fit();
+
+function frame(t) {
+  cells.forEach(({ m }) => m.anim(t, 0, {}));
+  renderer.render(scene, camera);
+}
+
+await whenMobTexturesLoaded();
+if (dump) {
+  await new Promise((r) => setTimeout(r, 80));
+  await whenMobTexturesLoaded();
+  frame(T0);
+  const el = document.createElement('script');
+  el.type = 'application/json'; el.id = 'dumpshot';
+  el.textContent = JSON.stringify({ view, t: T0, count: ids.length, png: renderer.domElement.toDataURL('image/png') });
+  document.body.appendChild(el);
+} else {
+  const t0 = performance.now();
+  (function loop() { frame(T0 + (performance.now() - t0) / 1000); requestAnimationFrame(loop); })();
+}
+</script>
+</body>
+</html>

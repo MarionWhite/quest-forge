@@ -314,7 +314,7 @@ class Interp:
                 self.o.f[name] = self.combine(self.o.f.get(name), op, val); self.name_r(val, name)
             return
         # array element or attr
-        if toks[1] == ('p', '['):
+        if toks[1] == ('p', '[') and toks[-1] == ('p', ']'):
             end = len(toks) - 1
             arr = self.o.f[toks[0][1]] if toks[0][1] not in env else env[toks[0][1]]
             idx = self.ev(toks[2:end], env, c)
@@ -482,7 +482,7 @@ class Interp:
                     if key in self.o.offsets: v.u, v.v = self.o.offsets[key]
                     args = args[1:]
                 a = [float(x) for x in args] + [0.0] * (7 - len(args))
-                v.boxes.append(a[:7]); return v
+                v.boxes.append(a[:7] + [v.u, v.v, 1 if v.mirror else 0, int(v.tw), int(v.th)]); return v
             if name == 'setRotation': return None
         if v is self.o:
             k = self.cur_cls_chain(name)
@@ -526,10 +526,9 @@ def dump(o):
     for r in o.all:
         for ch in r.children: kids.add(id(ch))
     for r in o.all:
-        p = {'uv': [r.u, r.v], 'tex': [int(r.tw), int(r.th)], 'pivot': [jfloat(r.px), jfloat(r.py), jfloat(r.pz)]}
-        if r.mirror: p['mirror'] = 1
+        p = {'pivot': [jfloat(r.px), jfloat(r.py), jfloat(r.pz)]}
         if r.rx or r.ry or r.rz: p['rot'] = [jfloat(r.rx), jfloat(r.ry), jfloat(r.rz)]
-        p['boxes'] = [[jfloat(x) for x in b] for b in r.boxes]
+        p['boxes'] = [[jfloat(x) for x in b] for b in r.boxes]  # x,y,z,w,h,d,inflate,u,v,mirror,texW,texH
         if r.children: p['children'] = [c.name for c in r.children]
         if r.boxes or r.children: parts[r.name] = p
     return {'tex': [o.tw, o.th], 'parts': parts, 'roots': [r.name for r in o.all if r.name in parts and id(r) not in kids]}
