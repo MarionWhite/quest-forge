@@ -4,6 +4,9 @@ STATUS: done (2026-10-26). 46 kinds, 12 strata, 10,000 graves in 79 ms of plan; 
 Open items for the owner/next round: water gaps look almost black; cycle name reads "Lower The Crypt"; stronghold portal side-room kind not re-implemented; draw-call/heap numbers at grave 9,000 and real phone timing not measured; gap-jump mid-arc and find-rush only checked by dump, not by CDP motion.
 Requests: none.
 
+Critic pass 1 (2026-10-26): kinds_c.js gives every kind its own alcove pillar/lintel tiles and a hall shape (vault, cavern, colonnade, catwalk, collapse, maze; widths 3-7, heights 4-9), adds maze_hall, collapsed_hall, void_bridge and portal_room (the End stratum's entry); the 11 round-5 kinds are all registered and in pools (sheet r5). Water gaps now carry a blue light. Cycle names read "The Crypt, second descent". `?free=1` + `?cam=` frames each kind down its hall (scratchpad gencam.mjs). Sheets (scratchpad r6/krypt-gen): k1, k2 (+ sheet_grey.png), r5, ph (phone).
+Metrics (demo=10000, desktop): grave 10: 52 calls, 5.8k tris, heap 33 MB; grave 1,000: 60 calls, 16.9k tris, 37 MB; grave 9,000: 85 calls, 17.2k tris, 28 MB. Phone 390x844 at graves 300/2,900/5,300/7,700/9,000: 23-93 calls, 4-16k tris, heap 28-33 MB. CDP real time: 60 fps (16.7 ms p95), gap jump lifts the camera 0.95 block and fires krypt-gap, the End rush crosses 99% of the Krypt in about 3 s with one 283 ms hitch while chunks build under fog.
+
 
 Brief: `ops/briefs/site-3d-page.md`. Agent: sonnet.
 Spec: `docs/design/site/krypt-endless.md`. Read it first.
