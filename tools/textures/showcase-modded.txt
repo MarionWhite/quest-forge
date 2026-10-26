@@ -1,11 +1,34 @@
-# Modded-block wall for build_showcase.py --modded: 19 blocks per row, four rows, top row first
-# (x 263-281, z 178, y 72 down to 69). Picked from docs/design/textures/modded-blocks.md: the
+# Modded-block wall for build_showcase.py --modded: 19 blocks per row, five rows, top row first
+# (x 263-281, z 178, y 73 down to 69). Picked from docs/design/textures/modded-blocks.md: the
 # top-ranked ores, stones, Twilight/organic blocks and base blocks that render as plain cubes
 # (or with their own tile-entity renderer) in C:\qfb\world-master's registry. Biomes O' Plenty is
 # not in that world, so its blocks wait for the designed world. Metadata from the item dump
 # (site/items/data/items.json): Railcraft:ore 7 poor iron, 8 poor gold, 9 poor copper, 0 sulfur;
 # Railcraft:cube 6 abyssal, 7 quarried; machine.alpha 7 coke oven, 12 blast furnace, 8 rolling
 # machine; machine.beta 0 iron tank wall, 5 solid firebox; TragicMC:quicksand 2 drudge.
+# Row 0 (y 73, the top): glass panes and modded glass (decision 0006: glassPane=true; the pane
+# rules are Faithful's *_pane.properties in QF v0, the block rules are v1's). Four vanilla panes,
+# four light-blue stained panes, three Witchery blue shaded glass, three SecurityCraft light-blue
+# reinforced stained glass, three reinforced glass panes, two reinforced glass blocks.
+minecraft:glass_pane@0
+minecraft:glass_pane@0
+minecraft:glass_pane@0
+minecraft:glass_pane@0
+minecraft:stained_glass_pane@3
+minecraft:stained_glass_pane@3
+minecraft:stained_glass_pane@3
+minecraft:stained_glass_pane@3
+witchery:shadedglass@11
+witchery:shadedglass@11
+witchery:shadedglass@11
+securitycraft:reinforcedStainedGlass@3
+securitycraft:reinforcedStainedGlass@3
+securitycraft:reinforcedStainedGlass@3
+securitycraft:reinforcedGlass@0
+securitycraft:reinforcedGlass@0
+securitycraft:reinforcedGlass@0
+securitycraft:reinforcedGlassBlock@0
+securitycraft:reinforcedGlassBlock@0
 # Row 1 (y 72): ores on stone
 legends:redIronOre@0
 legends:blackIronOre@0

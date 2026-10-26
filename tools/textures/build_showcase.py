@@ -26,8 +26,9 @@ ground west and south of the first wall:
   x 262-269, z 200  a stone-brick board with 16 item frames facing north: 8 potions over
                     8 enchanted books, for custom item textures      (view items_frames)
 
---modded [LIST] adds a second wall of modded blocks east of the first (x 263-281, same z, four
-rows y 72 down to 69, 19 per row, the list read left to right then down), for the modded-block
+--modded [LIST] adds a second wall of modded blocks east of the first (x 263-281, same z, five
+rows y 73 down to 69, 19 per row, the list read left to right then down; the top row is glass
+panes and modded glass for the connected-pane decision 0006), for the modded-block
 texture loop (docs/design/textures/modded-blocks.md, "Render requests"; the default list is
 tools/textures/showcase-modded.txt). LIST holds one `modid:name@meta` per line; the numeric IDs
 come from the copied world's own level.dat (FML's registry), so a name the world does not know
@@ -113,7 +114,7 @@ V1_AREAS = [(220, 242, 176, 192), (220, 270, 193, 212)]   # x0, x1, z0, z1 clear
 WALL_Z = 178
 CLEAR_TOP = 80
 TRANSPARENT = {0, 20, 95, 102, 160}
-MODDED_X0, MODDED_COLS, MODDED_ROWS = 263, 19, 4
+MODDED_X0, MODDED_COLS, MODDED_ROWS = 263, 19, 5   # row 0 (y 73): glass panes and modded glass, decision 0006
 HERE = os.path.dirname(os.path.abspath(__file__))
 
 

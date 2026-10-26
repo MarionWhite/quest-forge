@@ -857,6 +857,13 @@ world-master) is skipped and reported. Two views are in `views-world-master.txt`
    see it; they are not in the current 76). Judge: (a) do the ore tiles now read as one stone with
    the wall, (b) do Railcraft's overlay ores still show over the stone, (c) do the backports match
    the owner's "vanilla design, Faithful detail" rule.
+   **Panes (decision 0006, `glassPane=true`):** the wall has a fifth row on top (y 73): four
+   vanilla glass panes, four light-blue stained panes, three Witchery blue shaded glass, three
+   SecurityCraft light-blue reinforced stained glass, three reinforced glass panes and two
+   reinforced glass blocks (`tools/textures/showcase-modded.txt`, row 0). With the shipping
+   `QFTextures.zip` (QF v0's Faithful pane rules + v1's modded rules) and the installed
+   mcpatcherforge.cfg, judge: do the panes join into one sheet, do the modded glasses connect,
+   and does `glassPane=true` cost anything (MCPatcher marks the module alpha).
 2. **modded_close** (267.5, 70.2, 181.8, yaw 180, pitch 4, 7000): the ores and stones from 3.5
    blocks, the 16x-host problem at full size.
 3. **Twilight clearing** and **Collision surface**: a daytime view in dim 7 (a forest edge with
