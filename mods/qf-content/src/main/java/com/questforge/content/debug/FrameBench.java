@@ -17,6 +17,8 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.EnumDifficulty;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.WorldSettings;
+import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.chunk.EmptyChunk;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
 import cpw.mods.fml.relauncher.Side;
@@ -454,9 +456,28 @@ public class FrameBench {
                 return;
             case SETTLE:
                 hold(mc);
+                // r008 boot fault (b1026000221): after a few teleports the client got no chunks at
+                // the new place, reported 0 chunk updates, so "quiet" settled it at once and every
+                // later scene was shot as sky over void. A scene is not settled until the client
+                // holds the chunks round the camera; until then it re-teleports every 10 s.
+                boolean haveLand = terrainLoaded(mc);
+                if (!haveLand) {
+                    quiet = 0;
+                    if (ticks > 0 && ticks % 200 == 0 && ticks <= SETTLE_MAX + warmTicks) {
+                        terrainRetries++;
+                        log(scene() + ": no terrain after " + ticks + " ticks; teleport again (" + terrainRetries + ")");
+                        serverTasks.add(new Runnable() {
+                            public void run() { place(Minecraft.getMinecraft(), px, py, pz, yaw, pitch, flying); }
+                        });
+                    }
+                }
                 // Built when the game has reported no chunk updates for three
                 // seconds running, or after SETTLE_MAX regardless.
                 if ((quiet >= 3 && ticks > Math.max(100, warmTicks)) || ticks > SETTLE_MAX + warmTicks) {
+                    if (!haveLand) {
+                        log(scene() + ": NO TERRAIN after " + ticks + " ticks; frames are void");
+                        rep().add("  incident no-terrain " + scene());
+                    }
                     log(scene() + ": settled after " + ticks + " ticks; measuring");
                     progress(mc, "measure");
                     resetShaderClock();
@@ -905,16 +926,43 @@ public class FrameBench {
         }
     }
 
-    private double px, py, pz;
-    private float yaw, pitch;
-    private boolean flying;
+    private volatile double px, py, pz;
+    private volatile float yaw, pitch;
+    private volatile boolean flying;
+    private int terrainRetries;
+
+    /** The client world holds real chunks in a 5x5 square round the camera. */
+    private boolean terrainLoaded(Minecraft mc) {
+        if (mc.theWorld == null) return false;
+        int cx = ((int) Math.floor(px)) >> 4, cz = ((int) Math.floor(pz)) >> 4;
+        for (int dx = -2; dx <= 2; dx++) {
+            for (int dz = -2; dz <= 2; dz++) {
+                Chunk c = mc.theWorld.getChunkProvider().provideChunk(cx + dx, cz + dz);
+                if (c == null || c instanceof EmptyChunk || c.isEmpty()) return false;
+            }
+        }
+        return true;
+    }
 
     private void place(Minecraft mc, double x, double y, double z, float yaw, float pitch,
                        boolean fly) {
         // Server thread (from setUp). The client player is pinned by hold(),
         // which the client tick calls every tick while the scene settles.
         px = x; py = y; pz = z; this.yaw = yaw; this.pitch = pitch; flying = fly;
-        serverPlayer(mc).playerNetServerHandler.setPlayerLocation(x, y, z, yaw, pitch);
+        EntityPlayerMP mp = serverPlayer(mc);
+        mp.playerNetServerHandler.setPlayerLocation(x, y, z, yaw, pitch);
+        // Subscribe the player to the chunks round the new place now. Vanilla does it only when
+        // the client's next movement packet is accepted, and a teleport whose confirmation is
+        // lost (the client pins its own position every tick) leaves the player with no chunks.
+        try {
+            WorldServer w = mp.getServerForPlayer();
+            int cx = ((int) Math.floor(x)) >> 4, cz = ((int) Math.floor(z)) >> 4;
+            for (int dx = -2; dx <= 2; dx++)
+                for (int dz = -2; dz <= 2; dz++) w.theChunkProviderServer.loadChunk(cx + dx, cz + dz);
+            w.getPlayerManager().updateMountedMovingPlayer(mp);
+        } catch (Throwable t) {
+            log("chunk subscribe failed: " + t);
+        }
     }
 
     /** Pins the player where the scene put them, so settling happens in place. */
