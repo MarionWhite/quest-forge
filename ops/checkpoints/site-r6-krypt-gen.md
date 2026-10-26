@@ -39,3 +39,11 @@ Previous state: `site-r5-krypt-more.md`.
 - [ ] Phone performance is acceptable.
 - [ ] Sheet: one frame per stratum, five more segment kinds, the gap jump at mid-arc, the find
   transition, and a phone frame.
+
+## Progress log
+- [x] Stage 0 (commit e2fd0ca): contract additions (gaps/cornersNear/light/krypt-gap plumbing/getWalk.stratum), mood import block,
+  dt clamp, chunk build around camera while held. `light.*` = lightfx.js + dim spheres in patchBake/patchTorch (krypt.js).
+  Gaps and strata are stubs ([] and index 0) until the generator lands.
+- Architecture decision (stage 1): plan.js (deterministic plan: strata, legs, slots, gaps, path polyline, lookups) +
+  chunk-window streaming in krypt.js (each 48x48 chunk generated from the legs that reach it, objects clipped to the chunk,
+  passages decided at plan time) + kinds.js (dressers). Walk length = max(n, 60 slots) + runway; ?demo=1000|10000 synthetic graves.
