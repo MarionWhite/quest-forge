@@ -128,7 +128,23 @@ export class Gore {
   }
 }
 
-export async function createStage(host, { phone = false } = {}) {
+// The corridor is dressed like the Krypt segment the visitor is in (blocks as krypt.js uses them).
+// wallL/wallR/floor/ceil are texture names in graves/tex; amb is the ambient colour, fog the fog and
+// background colour, torch the torch light colour. extra: rails, water or lava strips.
+export const SETS = {
+  crypt:   { wallL: "stonebrick_mossy", wallR: "stonebrick", floor: "gravel", ceil: "cobblestone", amb: 0x4a4468, fog: 0x070a14, torch: 0xff8a30 },
+  mine:    { wallL: "cobblestone", wallR: "cobblestone", floor: "dirt", ceil: "planks_oak", amb: 0x5a5058, fog: 0x0a0910, torch: 0xff9a40, extra: "rails" },
+  ossuary: { wallL: "stonebrick_cracked", wallR: "stonebrick", floor: "gravel", ceil: "stonebrick", amb: 0x5a4a58, fog: 0x0a0710, torch: 0xff8a30 },
+  flood:   { wallL: "stonebrick_mossy", wallR: "stonebrick_mossy", floor: "gravel", ceil: "stonebrick", amb: 0x3a6a78, fog: 0x04100f, torch: 0xffa850, extra: "water" },
+  dungeon: { wallL: "cobblestone_mossy", wallR: "cobblestone", floor: "cobblestone_mossy", ceil: "cobblestone", amb: 0x6a5a40, fog: 0x100b06, torch: 0xff9030 },
+  library: { wallL: "bookshelf", wallR: "bookshelf", floor: "planks_oak", ceil: "planks_oak", amb: 0x6a4a30, fog: 0x140905, torch: 0xffa040 },
+  chasm:   { wallL: "stone", wallR: "stone", floor: "obsidian", ceil: "stone", amb: 0x6a3020, fog: 0x180703, torch: 0xff6a20, extra: "lava" },
+  stairs:  { wallL: "stonebrick", wallR: "stonebrick_cracked", floor: "stonebrick", ceil: "stonebrick", amb: 0x6a3828, fog: 0x180703, torch: 0xff7a28 },
+  deep:    { wallL: "nether_brick", wallR: "nether_brick", floor: "netherrack", ceil: "nether_brick", amb: 0x7a2c18, fog: 0x1c0602, torch: 0xff5a20, extra: "lava" }
+};
+
+export async function createStage(host, { phone = false, segment = "crypt" } = {}) {
+  const set = SETS[segment] || SETS.crypt;
   const canvas = document.createElement("canvas");
   canvas.className = "qfs-gl";
   host.appendChild(canvas);
@@ -137,15 +153,15 @@ export async function createStage(host, { phone = false } = {}) {
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.25;
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x040203);
-  scene.fog = new THREE.FogExp2(0x040203, 0.06);
+  scene.background = new THREE.Color(set.fog);
+  scene.fog = new THREE.FogExp2(set.fog, 0.06);
   const camera = new THREE.PerspectiveCamera(72, 1, 0.04, 60);
   camera.rotation.order = "YXZ";
   scene.add(camera);
-  scene.add(new THREE.AmbientLight(0x5a3a48, 1.1));
+  scene.add(new THREE.AmbientLight(set.amb, 1.1));
   const lantern = new THREE.PointLight(0xffc090, 5, 8, 1.4); lantern.position.set(0, 0.2, 1.1); camera.add(lantern);
 
-  const [brick, mossy, gravel, cobble, torchT] = await Promise.all(["stonebrick", "stonebrick_mossy", "gravel", "cobblestone", "torch_on"].map((n) => loadTex(n)));
+  const [brick, mossy, gravel, cobble, railT] = await Promise.all([set.wallR, set.wallL, set.floor, set.ceil, "rail_normal"].map((n) => loadTex(n)));
   const rep = (t, x, y) => { if (!t) return null; const c = t.clone(); c.needsUpdate = true; c.repeat.set(x, y); return c; };
   const plane = (w, h, tex, rx, ry, color = 0xffffff) => {
     const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshLambertMaterial({ map: rep(tex, w, h), color, side: THREE.DoubleSide }));
@@ -168,11 +184,25 @@ export async function createStage(host, { phone = false } = {}) {
   const back = plane(W, H, brick); back.position.set(0, H / 2, Z0); hall.add(back);
   const end = plane(W, H, brick); end.position.set(0, H / 2, Z1); hall.add(end);
 
+  if (set.extra === "rails") {
+    const r = plane(0.9, len, railT); r.rotation.x = -Math.PI / 2; r.position.set(0, 0.02, zc); r.material.alphaTest = 0.4; hall.add(r);
+  }
+  if (set.extra === "water") {
+    const w = new THREE.Mesh(new THREE.PlaneGeometry(W, len), new THREE.MeshLambertMaterial({ color: 0x2a6a8a, transparent: true, opacity: 0.62, emissive: 0x0a2a3a }));
+    w.rotation.x = -Math.PI / 2; w.position.set(0, 0.5, zc); hall.add(w);
+  }
+  if (set.extra === "lava") {
+    for (const sx2 of [-1.15, 1.15]) {
+      const l = new THREE.Mesh(new THREE.PlaneGeometry(0.5, len), new THREE.MeshBasicMaterial({ color: 0xff5a10 }));
+      l.rotation.x = -Math.PI / 2; l.position.set(sx2, 0.03, zc); hall.add(l);
+    }
+    const g = new THREE.PointLight(0xff5a10, 4, 7, 1.6); g.position.set(0, 0.3, -1.5); scene.add(g);
+  }
   const torches = [];
   for (const [x, z] of [[1.4, -1.5], [-1.4, 0.5], [1.4, -7], [-1.4, -9], [1.4, -13]]) {
     const stick = box(0.1, 0.45, 0.1, 0x6a4a28, false); stick.position.set(x, 1.9, z);
     const flame = box(0.14, 0.14, 0.14, 0xffb030); flame.position.set(x, 2.22, z);
-    const light = new THREE.PointLight(0xff8a30, 7, 11, 1.6); light.position.set(x * 0.8, 2.3, z);
+    const light = new THREE.PointLight(set.torch, 7, 11, 1.6); light.position.set(x * 0.8, 2.3, z);
     scene.add(stick, flame, light); torches.push({ light, flame, base: 7, ph: z * 3.1 });
   }
   scene.add((function () { const g = new THREE.Group(); return g; })());

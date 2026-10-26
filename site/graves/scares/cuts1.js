@@ -27,12 +27,27 @@ export function addSword(m, hex, handle = 0x6a4a28) {
 }
 
 // A swarm of small mobs that pours from a point, runs at the camera and climbs onto the lens.
+// A silverfish built from boxes: seven grey segments, head at -z. Used for the swarm because it reads at a glance.
+function silverfishMesh() {
+  const root = new THREE.Group(), segs = [];
+  const sizes = [[0.11, 0.1, 0.12], [0.15, 0.13, 0.13], [0.2, 0.17, 0.17], [0.16, 0.14, 0.14], [0.12, 0.1, 0.12], [0.09, 0.07, 0.1], [0.06, 0.05, 0.1]];
+  let zc = 0;
+  sizes.forEach((s, i) => {
+    const m = new THREE.Mesh(new THREE.BoxGeometry(s[0], s[1], s[2]), new THREE.MeshBasicMaterial({ color: i % 2 ? 0x7c7c86 : 0xa6a6b0 }));
+    zc += s[2] / 2; m.position.set(0, s[1] / 2 + 0.01, zc); zc += s[2] / 2; segs.push(m); root.add(m);
+    if (i === 0) for (const sx of [-1, 1]) { const e = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.02, 0.02), new THREE.MeshBasicMaterial({ color: 0x000000 })); e.position.set(sx * 0.04, 0.08, -0.06 + s[2] / 2 - 0.06); m.add(e); e.position.set(sx * 0.04, 0.02, -0.06); }
+  });
+  root.position.z = 0;
+  const wrap = new THREE.Group(); root.position.z = -zc / 2; wrap.add(root);
+  return { root: wrap, parts: {}, anim(t) { segs.forEach((m, i) => { m.position.x = Math.sin(t * 9 - i * 0.7) * 0.025 * (i / 3); }); } };
+}
+
 export async function makeSwarm(c, { id, n, from, t0, spread, arrive, scale, camAt, climb = 1.3, seed = 5, floorY = 0 }) {
   const R = rngOf(seed), S = c.stage, items = [];
   for (let i = 0; i < n; i++) {
-    const m = await getMob(id); m.root.scale.multiplyScalar(scale * (0.8 + R() * 0.5));
+    const m = id === "Silverfish" ? silverfishMesh() : await getMob(id); m.root.scale.multiplyScalar(scale * (0.8 + R() * 0.5));
     m.root.visible = false; S.scene.add(m.root);
-    items.push({ m, ts: t0 + i * spread + R() * 0.1, ta: arrive + i * spread * 0.9 + R() * 0.3, ox: (R() - 0.5) * 0.9, oz: (R() - 0.5) * 0.5, curve: (R() - 0.5) * 1.4, ph: R() * 6 });
+    items.push({ m, ts: t0 + i * spread + R() * 0.1, ta: arrive + i * spread * 0.9 + R() * 0.3, ox: (R() - 0.5) * 0.9, oz: (R() - 0.5) * 0.5, sz: (R() - 0.5) * 0.9, curve: (R() - 0.5) * 1.4, ph: R() * 6 });
   }
   return {
     update(t) {
@@ -43,7 +58,7 @@ export async function makeSwarm(c, { id, n, from, t0, spread, arrive, scale, cam
         const cp = camAt(it.ta), ca = camAt(t);
         const tx = cp.x + it.ox, tz = cp.z + it.oz;
         const k = clamp((t - it.ts) / (it.ta - it.ts));
-        let x = lerp(from[0], tx, k) + Math.sin(k * 6.28) * it.curve * (1 - k) * 0.5, z = lerp(from[2], tz, k), y = floorY + (1 - k) * 0.0;
+        let x = lerp(from[0], tx, k) + Math.sin(k * 6.28) * it.curve * (1 - k) * 0.5, z = lerp(from[2] + it.sz, tz, k), y = floorY + (1 - k) * 0.0;
         let rx = 0;
         if (t > it.ta) {
           const u = (t - it.ta) * climb;
@@ -175,7 +190,7 @@ export async function skeleton(c) {
 export async function creeper(c) {
   const S = c.stage, cr = await getMob("Creeper");
   const pos = [0.15, 0, -0.1];
-  tint(cr, 0x8c8c8c); cr.root.position.set(pos[0], 0, pos[2]); cr.root.visible = true; S.scene.add(cr.root);
+  cr.root.position.set(pos[0], 0, pos[2]); cr.root.visible = true; S.scene.add(cr.root);
   cr.root.rotation.y = 0;
   const cam = (t) => {
     const turn = sstep(1.55, 2.25, t);
@@ -188,7 +203,7 @@ export async function creeper(c) {
   c.hitBurst([bt], (t) => ({ x: 0.15, y: 0.6, z: -0.1 }), "fire", 60, { dir: [0, 0.5, 0], speed: 4.5, spread: 1, size: 0.12, life: 0.8 });
   const L = new THREE.PointLight(0xffffff, 0, 8); L.position.set(0.15, 1.2, -0.1); S.scene.add(L);
   return {
-    id: "Creeper", dur: 5.2, flick: () => 0.5, death: "You were blown up by Creeper", hits: [bt], cam, silence: true,
+    id: "Creeper", dur: 5.2, flick: () => 0.3, death: "You were blown up by Creeper", hits: [bt], cam, silence: true,
     shake: (t) => 0.006 + 0.01 * sstep(2.3, 3.9, t) + 0.25 * pulse(t, [bt], 0.45),
     sounds: [[0.1, "qf.scare.riser", { volume: 0.6 }], [1.6, "step.stone", { volume: 0.7 }], [1.95, "mob.creeper.say", { pos: { x: 0.15, y: 1, z: -0.1 } }], [2.25, "random.fuse"], [3.5, "qf.scare.hit"],
       [bt, "random.explode"], [bt + 0.05, "@muffle", [350, 3.5]], [bt + 0.1, "qf.scare.ringing"], [5.2, "game.player.die"]],

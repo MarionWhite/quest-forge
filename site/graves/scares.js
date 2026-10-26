@@ -40,13 +40,15 @@ async function load() {
 }
 
 // Builds a scare (stage, overlay, cutscene) inside a host element. Nothing plays until play() is called.
-async function prepare(id, { phone = false } = {}) {
+async function prepare(id, { phone = false, segment } = {}) {
+  if (!segment) { const kr = window.__krypt; try { segment = (kr && kr.getWalk && kr.getWalk().segment) || "crypt"; } catch (e) { segment = "crypt"; } }
+  if (QS.get("seg")) segment = QS.get("seg");
   const M = await load();
   if (!document.getElementById("qfs-css")) { const s = document.createElement("style"); s.id = "qfs-css"; s.textContent = CSS; document.head.appendChild(s); }
   const host = document.createElement("div");
   host.className = "qfs-host"; host.setAttribute("role", "alert"); host.setAttribute("aria-label", "A jump scare. Press Enter on the Respawn button to return.");
   document.body.appendChild(host);
-  const stage = await M.stage.createStage(host, { phone });
+  const stage = await M.stage.createStage(host, { phone, segment });
   const ov = M.fx.createOverlay(host);
   const btn = document.createElement("button"); btn.className = "qfs-btn"; btn.type = "button"; btn.textContent = "Respawn"; host.appendChild(btn);
   const gore = stage.gore;
@@ -92,7 +94,7 @@ async function prepare(id, { phone = false } = {}) {
     return f;
   }
   function dispose() { host.remove(); stage.dispose(); }
-  return { cut, host, stage, ov, btn, renderAt, size, dispose, hits };
+  return { cut, host, stage, ov, btn, renderAt, size, dispose, hits, segment };
 }
 
 // ---- the live run ---------------------------------------------------------------------------------
@@ -154,6 +156,7 @@ async function play(p, { onDone, score = 0 } = {}) {
 
 // ---- verification: one frame of a scare into the dump -------------------------------------------------
 async function dumpMode(id, atMs) {
+  for (let i = 0; i < 40 && window.__krypt && !document.getElementById("dumpshot") && !QS.has("seg"); i++) await new Promise((r) => setTimeout(r, 250));
   const p = await prepare(id, {});
   const t = (atMs || 0) / 1000;
   const log = [];
@@ -163,7 +166,7 @@ async function dumpMode(id, atMs) {
   const out = document.createElement("canvas"); out.width = p.stage.canvas.width; out.height = p.stage.canvas.height;
   const x = out.getContext("2d"); x.drawImage(p.stage.canvas, 0, 0); x.imageSmoothingEnabled = false; x.drawImage(p.ov.canvas, 0, 0, out.width, out.height);
   const png = out.toDataURL("image/png");
-  const info = { scare: id, at: atMs, dur: p.cut.dur, hits: p.hits, sfx: log, hp: f.hp };
+  const info = { scare: id, segment: p.segment, at: atMs, dur: p.cut.dur, hits: p.hits, sfx: log, hp: f.hp };
   const put = (tries) => {
     const old = document.getElementById("dumpshot");
     if (!old && tries < 24) { setTimeout(() => put(tries + 1), 250); return; }
@@ -182,7 +185,7 @@ export function initScares(opts = {}) {
   const forced = canon(QS.get("scare"));
   const phone = matchMedia("(max-width: 700px)").matches || matchMedia("(pointer: coarse)").matches;
   if (forced) {
-    if (DUMP) dumpMode(forced, Number(QS.get("at")) || 0).catch((e) => { console.error("scare dump", e); });
+    if (DUMP) dumpMode(forced, Number(QS.get("scareat") ?? QS.get("at")) || 0).catch((e) => { console.error("scare dump", e); });
     else setTimeout(async () => { try { await play(await prepare(forced, { phone }), { score: 0 }); } catch (e) { console.error("scare", e); } }, 1200);
     return;
   }

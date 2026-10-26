@@ -12,9 +12,11 @@ const fireball = (S, size, col = 0xff8a10) => {
 // ------------------------------------------------------------------------------------------------ Slime
 export async function slime(c) {
   const S = c.stage, sl = await getMob("Slime");
-  sl.root.scale.setScalar(0.9); sl.root.visible = false; S.scene.add(sl.root);
+  sl.root.scale.setScalar(1.3); sl.root.visible = false; S.scene.add(sl.root);
   tint(sl, 0x7ee03a, 0x1a5a08, 0.5);
   const tl = 2.05;
+  sl.root.position.set(0, 0, 0); sl.anim(0, 0, {});
+  const sbox = new THREE.Box3().setFromObject(sl.root), offY = -sbox.min.y, H0 = sbox.max.y - sbox.min.y;
   const cam = (t) => ({ x: 0, y: 1.62 + bob(t) * (1 - sstep(1.2, 1.5, t)) - 0.15 * sstep(tl, tl + 0.5, t), z: -0.5 * Math.min(t, 1.5), yaw: 0, pitch: 0.12 * sstep(1.0, 1.5, t) - 0.1 * sstep(tl - 0.1, tl + 0.3, t), roll: 0.1 * sstep(tl, tl + 0.6, t), fov: 72 });
   const hits = [2.5, 3.05, 3.6, 4.15];
   c.hitBurst([1.25, 1.45, 1.7], () => ({ x: 0, y: 3.1, z: -1.1 }), "green", 10, { dir: [0, -0.2, 0], speed: 0.8, spread: 0.6, grav: 4, size: 0.06 });
@@ -29,9 +31,9 @@ export async function slime(c) {
       sl.root.visible = t > 1.45; sl.root.rotation.y = Math.PI;
       const cp = cam(t), fall = easeOut((t - 1.55) / (tl - 1.55));
       const wob = t > tl ? 1 + 0.06 * Math.sin(t * 9) : 1;
-      sl.root.position.set(0, lerp(4.6, 0.15, Math.pow(clamp((t - 1.45) / 0.4), 1.6)) - 0.4 * sstep(tl - 0.1, tl + 0.15, t), cp.z - 1.7 + 1.6 * sstep(1.95, 2.15, t));
-      { const b = 0.9 + 1.5 * sstep(tl - 0.05, tl + 0.2, t); sl.root.scale.set(b * wob, b * (t < tl ? 1 : 1 / wob), b * wob); }
-      G.position.set(0, 1.6, cp.z); G.intensity = t > tl ? 3 : 0;
+      { const b = 1.3 + 1.3 * sstep(tl - 0.05, tl + 0.2, t), e = sstep(tl - 0.05, tl + 0.2, t), landed = offY + lerp(4.4, 0, Math.pow(clamp((t - 1.45) / 0.4), 1.6)), engulf = 1.62 - H0 * b / 1.3 / 2 + offY * b / 1.3; sl.root.position.set(0, lerp(landed, engulf, e), cp.z - 2.4 + 2.3 * sstep(1.95, 2.15, t)); }
+      { const b = 1.3 + 1.3 * sstep(tl - 0.05, tl + 0.2, t); sl.root.scale.set(b * wob, b * (t < tl ? 1 : 1 / wob), b * wob); }
+      G.position.set(0, 1.4, t > tl ? cp.z : cp.z - 0.9); G.intensity = t > tl ? 3 : 2.5;
       const e = sstep(tl - 0.1, tl + 0.4, t);
       f.tints.push([60, 190, 30, 0.42 * e]);
       f.vig = [20, 110, 10, 0.6 * e];
@@ -44,17 +46,16 @@ export async function slime(c) {
 export async function silverfish(c) {
   const S = c.stage;
   const tb = 1.55, hole = [1.4, 1.0, -3.2];
-  const cam = (t) => ({ x: 0, y: 1.62 + bob(t) * (1 - sstep(0.5, 0.8, t)), z: -1.8 * Math.min(1, t / 0.9) * 0.5, yaw: -0.85 * sstep(0.9, 1.4, t) + 0.0, pitch: -0.2 * sstep(1.4, 2.0, t), roll: 0.1 * Math.sin(t * 3) * sstep(2.3, 3.4, t), fov: 72 });
+  const cam = (t) => ({ x: 0, y: 1.62 + bob(t) * (1 - sstep(0.5, 0.8, t)), z: -1.8 * Math.min(1, t / 0.9) * 0.5, yaw: -0.55 * sstep(0.9, 1.4, t), pitch: -0.4 * sstep(1.4, 2.0, t), roll: 0.1 * Math.sin(t * 3) * sstep(2.3, 3.4, t), fov: 72 });
   // infested blocks in the right wall
   const R = rngOf(31), blocks = [];
   for (let i = 0; i < 6; i++) {
     const b = box(0.6, 0.6, 0.6, 0x8c8c8c, false);
-    b.position.set(1.22, 0.6 + Math.floor(i / 3) * 0.6 + 0.0, -2.6 - (i % 3) * 0.6 + 0.0);
+    b.position.set(1.22, 0.3 + Math.floor(i / 3) * 0.6 + 0.0, -2.6 - (i % 3) * 0.6 + 0.0);
     b.userData.o = b.position.clone(); b.userData.v = [(R() - 0.5) * 1.4 - 0.9, 1 + R() * 2.2, (R() - 0.5) * 2]; blocks.push(b); S.scene.add(b);
   }
-  const sw = await makeSwarm(c, { id: "Silverfish", n: phoneN(c, 30), from: [1.3, 0, -3.2], t0: tb, spread: 0.06, arrive: tb + 1.0, scale: 2.4, camAt: cam, seed: 17, climb: 1.0 });
+  const sw = await makeSwarm(c, { id: "Silverfish", n: phoneN(c, 18), from: [1.3, 0, -3.2], t0: tb, spread: 0.1, arrive: tb + 0.9, scale: 1.5, camAt: cam, seed: 17, climb: 1.0 });
   c.hitBurst([tb], () => ({ x: 1.2, y: 1.0, z: -3.2 }), "stone", 40, { dir: [-1.2, 0.5, 0], speed: 3, spread: 1.2, size: 0.06 });
-  c.hitBurst([tb], () => ({ x: 1.2, y: 1.0, z: -3.2 }), "dust", 16, { dir: [-0.6, 0.4, 0], speed: 1.8, spread: 1, size: 0.1, life: 2, grav: 0.8 });
   const hits = [2.85, 3.4, 3.95, 4.5];
   c.hitBurst(hits, cam, "blood", 22, { dir: [0, 0.6, 0.3], speed: 2.4, spread: 1 });
   return {

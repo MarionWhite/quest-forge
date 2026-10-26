@@ -12,3 +12,5 @@ Done means: director (eligible ~25 s active walking, first by ~60 s, guaranteed 
 - DONE. Final sheets: scratchpad/scares/f5 (7 mobs), f4 (3), f7/f6 (fixes), f2 (first 5 mobs). Verify via graves/scares/test.html?scare=X&at=ms (app.js was mid-edit by KRYPT-WORLD: krypt.js export alcoveFor missing broke graves/ itself). app.js marker block is uncommitted (shared file with KRYPT-WORLD).
 
 Critic pass (861286a lib) done: spider legs/anim, zombie face framing, ghast placement via bbox, slime/witch/creeper fixes. Final reveal sheet scratchpad/scares/f11/sheet.png (+ f12 creeper, silverfish). Still dump with graves/scares/test.html while graves/app.js is mid-edit.
+
+Final critic pass: creeper green, grey boxed silverfish, whole slime; stage dressed per krypt segment (SETS in stage.js, segment from __krypt.getWalk()), ?scareat=ms overrides ?at on the real page, ?seg= forces a set. Frames: scratchpad/scares/f18 (mine, flood), f19 (deep, library), f20/f24 (reveals).
