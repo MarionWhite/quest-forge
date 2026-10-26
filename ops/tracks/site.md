@@ -1,17 +1,22 @@
 # site: current state (rewrite, don't append; under 2 KB)
 
-Updated 2026-10-25 23:30 (Mac).
+Updated 2026-10-25 (Mac, late).
 
-- Work lives on the Mac's local `main` in `~/Desktop/QuestForge`: 9 commits ahead of
-  origin/main, ~107 behind. Not pushed. Publishing needs a merge (6 conflicts, incl. the PC's
+- Work lives on the Mac's local `main` in `~/Desktop/QuestForge`: 24 commits ahead of
+  origin/main, 150 behind. Not pushed. Publishing needs a merge (conflicts incl. the PC's
   `/online/` page, which wins) and the owner's choice of route (`ops/DECISIONS.md`, Site).
-- Live round: owner's round-4 feedback on Lucky Block, the Krypt and First night. Seven agents
-  run in parallel, one checkpoint each in `ops/checkpoints/site-*.md`; brief template
-  `ops/briefs/site-3d-page.md`. Builders are Sonnet against Opus-written specs; the critic pass
-  (contact sheets, `tools/site/dump_frames.py --sheet`) is Opus. First-night fact review is Haiku.
-- Shared pieces: `site/lib/three` (three.js 0.160), `site/lib/qfaudio.js` (sound engine, done),
-  `site/lib/sfx/` (bank, in progress), `site/lib/mc/` (mob library, in progress).
-- Verification: WebGL pages only via `?dump=1` + `tools/site/dump_frames.py` (headless
-  screenshots return stale frames).
-- Open for the owner: publish route; Mojang/OreSpawn textures and sounds on the public site
-  vs the repo licence rule (both in `ops/DECISIONS.md`).
+- Round 4 (owner's feedback on Lucky Block, the Krypt, First night), one checkpoint per agent
+  in `ops/checkpoints/site-*.md`, brief `ops/briefs/site-3d-page.md`.
+  - Done: first-night (e2bb765), audio bank + music (dbe8973), mob library + reel tiles
+    (861286a), Krypt scares first pass (cb24bb5).
+  - Critic fixes sent: scares (spider face, zombie camera inside mob, ghast framing, wall
+    clipping, re-dump against new mob lib); mobs (OreSpawn ants scattered, robots 2-4 black,
+    robot5, wings edge-on); outcomes (horde framing).
+  - Running: lucky-stage (Steve, sky, drop-in, pan), lucky-outcomes (full vet, then fixes),
+    krypt-world (camera focus, torches, lighting, ambience). Graves page fails to load until
+    krypt-world finishes (`alcoveFor` export); scares hook line in graves/app.js waits on it.
+- After all report: sound-name check vs `site/lib/sfx/manifest.json`, one Opus critic pass
+  on fresh sheets, then report to owner.
+- Verification: WebGL pages only via `?dump=1` + `tools/site/dump_frames.py --sheet`.
+- Open for the owner: publish route; Mojang/OreSpawn assets on the public site vs the repo
+  licence rule (both in `ops/DECISIONS.md`).
