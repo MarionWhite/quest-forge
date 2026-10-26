@@ -16,6 +16,10 @@ Updated 2026-10-26 (Mac).
   Safari, phone.
 - Open for the owner: the creepy-mood ideas (list in the session, not yet picked); publish
   route and game-asset licence (`DECISIONS.md`, Site).
+- Round 6 running (owner review 2026-10-26): lucky (ring as slam effect, Steve's pace and 20+
+  activities, big mobs vs tree), krypt-structures (mod catalogue), krypt-gen (10,000 graves,
+  strata, gaps, find), scares (FNAF v3, gap deaths, opus), mood, audio (recorded CC0 screams).
+  Checkpoints `checkpoints/site-r6-*.md`; specs `docs/design/site/krypt-{endless,mood,scares}.md`.
 - Small follow-ups filed in checkpoints: Krypt `frameInner` dt clamp and chunk build while a
   scare holds the player (scares work around both); Enderman scream jaw in the mob library.
 - Checks: `dump_frames.py --sheet`, `vet_lucky.py`, `audit_lucky.py`, `nav_check.py`,
