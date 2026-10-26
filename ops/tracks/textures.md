@@ -23,3 +23,4 @@ Rewrite this file when the state changes; keep it under 2 KB.
 - **Owner dislikes:** Conquest's textures, Faithful's grass, and Faithless's block textures.
 - **Hand-off:** write `C:\qfb\shaderdev\r008\texture_scenes.json`, then `TEXTURES-READY`. The shader round merges them.
 - **Showcase world:** `C:\qfb\textures\world-showcase`, with the texture wall, glass, and the modded-block wall (`--modded`, 36043c9).
+- **Modded blocks (decision 0006):** ranking and style notes in `docs/design/textures/modded-blocks.md`; `build_modded_textures.py` (ores on Faithful stone, backports, modded CTM, emissive) and `build_ship.py` (one zip, `C:\qfb	extures\QFTextures.zip`, wired into the release builder and the client profiles). Panes connect (`glassPane=true`, installed live). Fold into v1.
