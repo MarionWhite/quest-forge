@@ -1,15 +1,15 @@
 # r008 shader checkpoint (2026-10-25 ~21:50)
 
 Brief: owner's r007 answers (docs/design/shaders/feedback/r007.json, committed dd2c734; look bible e3b7ea2).
-Shader WIP da16ea8: compiles clean (check_glsl, all presets and option variants), NOT yet reviewed in frames.
+Shader WIP da16ea8: compiles clean (check_glsl), NOT yet reviewed in frames.
 
 ## Asks
 - Sun: done, unreviewed. QF_SUN_SIZE 3.0 (opts 1-5); sunPeak 16-22 with a hot white core; glare psf measured from the limb (final.glsl). The dark ring came from the shafts' `pow(mu,1500)` cut-out; removed.
-- Dust: done, unreviewed. QF_DUST 0/1/2: a dustField in lightShafts (first 24 m); gBeam counts lit/shaded flips along the ray; motes are lit only when gBeam > 0, sized by depth. That kills the white specks over open air.
-- Golden horizon: done, unreviewed. QF_GOLD_HORIZON in skyScatter (gold toward the sun, rose opposite), less grey haze, warm below-horizon veil.
-- Lake: done, unreviewed. QF_LAKE_CALM: style 3 raised the lake's chop 1.7x at sunset (the cause). The lake amp now falls to 0.26 at golden hour; flatter SSR normal; Fresnel averaging.
+- Dust: done, unreviewed. QF_DUST 0/1/2: a dustField in lightShafts (first 24 m); gBeam counts lit/shaded flips along the ray; motes are lit only when gBeam > 0, sized by depth.
+- Golden horizon: done, unreviewed. QF_GOLD_HORIZON in skyScatter.
+- Lake: done, unreviewed. QF_LAKE_CALM: style 3 raised the lake's chop 1.7x at sunset (the cause). The lake amp now falls to 0.26 at golden hour; flatter SSR normal.
 - River ledges: done, unreviewed. Bed light is filtered by the sun path through the water (Tdown), and caustics redistribute light instead of only adding it.
-- Meteors: done, unreviewed. QF_METEOR_RATE default 3, 3.4 s cycles, 88% active, glowing trains.
+- Meteors: done, unreviewed. QF_METEOR_RATE default 3, trains.
 - Vibrance: 0.25 (settings + lang).
 - PBR metals: done, unreviewed. metalShade(), QF_PBR default 1, MAT_METAL without maps too.
   - The r007 black blob was a NaN from fresnelSchlick pow(neg). Fixed with a clamp, plus NaN guards in composite out and TAA history.
@@ -25,7 +25,7 @@ Shader WIP da16ea8: compiles clean (check_glsl, all presets and option variants)
 - New FrameBench jar: the cache reset once.
 
 ## Findings
-- refs (C:\qfb\shaderdev\refs, internal only): CU, CR and BSL all show a clear, large disk with a bright halo and a warm horizon band all round. Their lakes are clean mirrors.
+- refs (C:\qfb\shaderdev\refs, internal only): CU, CR and BSL all show a clear, large disk with a bright halo and a warm horizon band all round.
 - The cyan hills grass is the biome colour: all four packs show it. Not a shader bug.
 
 ## Next
