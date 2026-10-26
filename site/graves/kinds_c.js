@@ -5,6 +5,7 @@
 import * as B from "./blocks.js";
 import { KINDS, def, wall, P } from "./kindreg.js";
 import { F, pool, rectOf, clearer } from "./kindlib.js";
+import { rough, opening } from "./kinds_d.js";
 const { T_AIR, T_BRICK, T_COBBLE, T_STONE, T_BRICK_CRACK, T_BRICK_MOSSY, T_MOSSY, T_GRAVEL_FLOOR, T_DIRT, T_CARVED, T_LAVA, T_OBS, T_GLOW, T_PLANK, T_LOG, T_BEDROCK, T_NBRICK, T_NETHER } = B;
 const wl = B.wool, cl = B.clay;
 
@@ -103,21 +104,9 @@ def("collapsed_hall", { style: wall([[420, T_COBBLE], [680, T_STONE], [860, T_BR
     for (let lv = c.lo + 3; lv < c.hi - 2; lv += 9) c.src(0, lv, c.y0 + c.ht - 0.5, [0.7, 0.75, 1.0], 2.6, 10, {});   // daylight through the break
   } });
 
-// A bridge two blocks wide across a bottomless dark, with the broken stubs of the old arches reaching out of the void.
-def("void_bridge", { style: wall([[500, T_STONE], [800, T_COBBLE], [900, T_BEDROCK], [1000, T_OBS]]), hw: [6, 6], ht: [7, 7], pre: [3, 3], m: [6, 9], branch: [0, 0], holes: [0.5], below: 13, step: 8,
-  floor: ({ lu, leg }) => (lu >= -1 && lu <= 0 ? T_BRIDGE_TILE : { from: leg.y0 - 10, cells: [[leg.y0 - 11, T_BEDROCK]] }),
-  alcoveBase: (leg) => leg.y0 - 9, alcovePil: T_STONE, alcoveLin: T_BRICK,
-  prof: P([0.05, 0.05, 0.09], [0.02, 0.02, 0.05], 0.034, 1.24, 1.1, 0.4, { pitch: -0.25 }),
-  dress(c) {
-    for (let lv = c.lo + 2; lv < c.hi; lv += 6) for (const sd of [-1, 1]) { c.col(sd > 0 ? 2 : -3, lv, c.y0 - 2, c.y0 + 2, T_BRICK_CRACK); c.torchAt(c.leg, sd > 0 ? 2 : -3, lv, c.y0 + 3, -sd, { I: 3.0 }); }
-    for (let lv = c.lo + 1; lv < c.hi; lv++) for (const lu of [-2, 1]) c.put("fence", lu + (lu < 0 ? 0.9 : 0.1), lv + 0.5, c.y0, { h: 0.9, tex: "planks_oak" });
-    c.scatter(8, 220, (q, r1, r2) => c.src((r2 - 0.5) * 8, c.lo + r1 * (c.hi - c.lo), c.y0 - 7, [0.4, 0.3, 0.9], 3.2, 12, {}));
-  } });
-const T_BRIDGE_TILE = B.T_BRIDGE;
-
 // The stronghold's end-portal room: a hall of cracked and mossy brick, lava troughs along both sides, the ring of twelve frames
 // with their eyes, the starfield between them. The gateway into the End.
-def("portal_room", { style: wall([[300, T_BRICK], [520, T_BRICK_MOSSY], [700, T_BRICK_CRACK], [880, T_STONE], [940, T_CARVED], [1000, T_BRICK]]), hw: [5, 5], ht: [7, 7], pre: [3, 3], post: [2, 2], m: [5, 6], branch: [0, 0], step: 14, holes: [],
+def("portal_room", { style: wall([[300, T_BRICK], [520, T_BRICK_MOSSY], [700, T_BRICK_CRACK], [880, T_STONE], [940, T_CARVED], [1000, T_BRICK]]), hw: [7, 7], ht: [9, 9], pre: [3, 3], post: [2, 2], m: [5, 6], branch: [0, 0], step: 12, holes: [],
   floor: ({ hv }) => (hv < 560 ? T_BRICK : hv < 760 ? T_BRICK_MOSSY : hv < 900 ? T_BRICK_CRACK : T_STONE), alcovePil: T_BRICK_MOSSY, alcoveLin: T_CARVED, weight: 0.001,
   prof: P([0.066, 0.096, 0.092], [0.028, 0.05, 0.05], 0.036, 1.24, 1.0, 0.46),
   dress(c) {
@@ -136,12 +125,30 @@ def("portal_room", { style: wall([[300, T_BRICK], [520, T_BRICK_MOSSY], [700, T_
       if (!edge || (Math.abs(du) === 2 && Math.abs(dv) === 2)) continue;
       c.put("frame", du + 0.5, vc + dv + 0.5, y0, { eye: c.rnd(du * 11 + dv + 40, 71) < 0.75 });
     }
+    // Tiers of steps rising on both sides toward the ring, a lava pool at its feet, and barred cells in the side walls.
+    for (let dv = -5; dv <= 5; dv++) for (const sd of [-1, 1]) for (let t = 0; t < 3; t++) { const lu = sd > 0 ? 3 + t : -4 - t; if (Math.abs(dv) <= 4 - t) for (let j = 0; j <= t; j++) c.L(leg, lu, vc + dv, y0 + j, j === t ? T_BRICK : T_BRICK_MOSSY); }
+    for (let dv = -3; dv <= 3; dv++) for (const lu of [-3, 2]) if (Math.abs(dv) > 2) { c.L(leg, lu, vc + dv, y0 - 1, T_LAVA); c.L(leg, lu, vc + dv, y0 - 2, T_OBS); }
+    for (const sd of [-1, 1]) for (const lv of [vc - 9, vc + 9]) if (lv > c.lo && lv < leg.ce - 2) { for (let k = 0; k < 2; k++) for (let w = 0; w < 3; w++) for (let j = 0; j < 3; j++) c.L(leg, sd > 0 ? hw + k : -hw - 1 - k, lv + w, y0 + j, T_AIR); c.put("bars", sd * (hw + 0.02), lv + 1.5, y0 + 1.5, { ry: c.acrossRy, w: 3, h: 3 }); c.put("mob", sd * (hw + 1.2), lv + 1.5, y0, { mob: "Skeleton", ry: c.faceRy(sd), scale: 0.92 }); }
     c.put("portal", 0.5, vc + 0.5, y0 + 0.75, { w: 3, d: 3 });
     c.src(0.5, vc + 0.5, y0 + 1.2, [0.25, 0.9, 0.72], 4.4, 13, { dyn: true });
     c.src(0.5, vc + 0.5, y0 + 1.2, [0.25, 0.9, 0.72], 3.0, 8, {});
     c.emit("portal", 0.5, vc + 0.5, y0 + 0.9);
     void ht;
   } });
+
+
+// Breaking the symmetry of an ordinary hall: ceiling dips, broken pillars, glimpsed side rooms, and props on the floor.
+function asym(c) {
+  const { leg, y0, ht, hw, kd } = c, clear = clearer(c), lin = kd.alcoveLin || T_BRICK;
+  if (ht >= 5) for (let q = 0; q < 2; q++) { const lv0 = Math.floor(c.lo + 2 + c.rnd(q, 300) * (c.hi - c.lo - 8)), len = 3 + Math.floor(c.rnd(q, 301) * 3); for (let lv = lv0; lv < lv0 + len; lv++) for (let lu = -hw; lu < hw; lu++) if (c.LG(leg, lu, lv, y0 + ht - 1) === T_AIR) c.L(leg, lu, lv, y0 + ht - 1, lin); }
+  for (const s of leg.slots) if (c.rnd(s.i, 302) < 0.3) { const lu = c.edgeCell(s.side); for (const j of [1, 2]) c.L(leg, lu, s.lvc - 2, y0 + j, j === 1 ? T_BRICK_CRACK : T_AIR); c.put("rubble", lu + 0.5 - s.side * 0.9, s.lvc - 1.6, y0, { s: 0.3, ry: s.i }); }
+  const rows = []; for (let lv = c.lo + 1; lv < c.hi - 2; lv++) for (const sd of [-1, 1]) if (clear(sd, lv, 1) && clear(sd, lv + 2, 1) && !rows.some((r) => r[0] === sd && Math.abs(r[1] - lv) < 9)) rows.push([sd, lv]);
+  const n = Math.min(rows.length, 1 + (c.rnd(1, 303) < 0.5 ? 1 : 0));
+  for (let q = 0; q < n; q++) { const [sd, lv] = rows[Math.floor(c.rnd(q, 304) * rows.length)]; opening(c, sd, lv, { w: 2, h: 3, depth: 4, floor: kd.passFloor || T_COBBLE, I: 1.6, color: [1.0, 0.5, 0.25] }); }
+  const props = ["chest", "cart", "cauldron", "bones", "rubble", "web"];
+  c.scatter(6, 305, (q, r1, r2, r3) => { const lu = (r2 - 0.5) * (hw * 1.5), lv = c.lo + 1 + r1 * (c.hi - c.lo - 2), sd = lu < 0 ? -1 : 1; if (!clear(sd, Math.floor(lv), 1) && Math.abs(lu) > hw - 2) return; const p = props[Math.floor(r3 * props.length)];
+    if (p === "chest") c.put("chest", lu, lv, y0, { ry: r3 * 6 }); else if (p === "cart" && Math.abs(lu) < 1.5) c.put("cart", lu, lv, y0 + 0.1, { ry: 0.3 }); else if (p === "cauldron") c.put("cauldron", lu, lv, y0, { water: r3 < 0.5 }); else if (p === "web") c.put("web", lu, lv, y0 + 0.2, { ry: r3 * 6, w: 1.2 }); else if (p === "bones") c.bones(2, 310 + q, 1.4); else c.put("rubble", lu, lv, y0, { s: 0.3 + r3 * 0.3, ry: q }); });
+}
 
 // ---- per-kind shape, alcove frame ------------------------------------------------------------------------------------
 // [hw, ht, pillar tile, lintel tile, shape]  shape: array of [feature, args...]
@@ -197,10 +204,8 @@ export function applyArch() {
     const kd = KINDS[id]; if (!kd) continue;
     if (hw) kd.hw = hw; if (ht) kd.ht = ht;
     if (pil) kd.alcovePil = pil; if (lin) kd.alcoveLin = lin;
-    if (shape.length) {
-      const old = kd.dress;
-      kd.dress = (c) => { for (const [f, ...a] of shape) SHAPES[f](c, ...a); if (old) old(c); };
-    }
+    const old = kd.dress;
+    kd.dress = (c) => { c.kd = kd; for (const [f, ...a] of shape) SHAPES[f](c, ...a); if (old) old(c); if (id !== "portal_room" && id !== "crypt") asym(c); };
   }
 }
 void T_GLOW; void T_PLANK; void T_DIRT; void pool; void T_NETHER;

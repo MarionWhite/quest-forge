@@ -7,6 +7,7 @@ import { legMap, legLocal, legDir, turnOf, floorSmooth, SLOT_STEP, STAIR_LANDING
 import { ih } from "./blocks.js";
 import { KINDS } from "./kinds.js";
 import { STRATA } from "./strata.js";
+const SET_AT = [4, 22, 46, 70];
 const CYCLE_ORD = ["first", "second", "third", "fourth", "fifth", "sixth", "seventh"];
 
 export const SEED = 1707;
@@ -34,6 +35,7 @@ export function makePlan({ n = 0, seed = SEED, minSlots = 60, runway = 36, force
     if (k === 0) return "crypt";
     const def = stratum.def;
     if (stratum.legs.length === 0 && stratum.index > 0) return def.entry || "stairs";
+    if (def.set && KINDS[def.set] && SET_AT.includes(stratum.legs.length)) return def.set;
     const pool = def.pool.filter((id) => KINDS[id]);
     const here = stratum.legs.map((l) => l.kind).filter((id) => id !== "stairs" || def.entry);
     let wStr = Math.min(12, Math.max(1, pool.length - 2)), wAll = 6;
@@ -115,7 +117,7 @@ export function makePlan({ n = 0, seed = SEED, minSlots = 60, runway = 36, force
       const lvc = cur + 3;
       const slot = { i: gi, side: gi % 2 ? 1 : -1, leg: k, lvc, d: 0 };
       leg.slots.push(slot); slots.push(slot); gi++;
-      cur += step;
+      cur += step + (step >= 5 ? [-1, 0, 0, 1, 2][Math.floor(fr(seed, k, 40 + t, 9) * 5)] : [0, 0, 0, 1][Math.floor(fr(seed, k, 40 + t, 9) * 4)]) + (fr(seed, k, 60 + t, 9) < 0.1 ? 3 : 0);
       if (branchAfter.has(t)) { leg.passages.push({ side: slot.side, lv: lvc + 4, len: PASSAGE_LEN, ok: true }); cur += 6; }
     }
     leg.contentEnd = cur;

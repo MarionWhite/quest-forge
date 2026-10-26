@@ -22,6 +22,8 @@ for (let i = 0; i < p.legs.length; i++) { const l = p.legs[i]; if (l.kind === "s
 const rep = { ok: 0 };
 for (const st of p.strata) { const pool = st.def.pool.filter((id) => KINDS[id]).length; const seq = st.legs.map((l) => l.kind).filter((k) => k !== "stairs"); let run = 0; for (let i = 6; i < seq.length; i++) { if (seq.slice(i - 6, i).includes(seq[i]) && pool >= 8) run++; } rep.ok += run; }
 console.log(`kinds used ${kinds.size} (registered ${Object.keys(KINDS).length}), strata ${usedStrata.size} of ${STRATA.length}, in-window repeats (relaxed) ${relaxed}, 6-window repeats in pools>=8: ${rep.ok}`);
+// Every stratum cycle holds its set piece (plan.js forces it at fixed legs).
+for (const st of p.strata) if (st.def.set && st.legs.length > 8 && !st.legs.some((l) => l.kind === st.def.set)) fail(`stratum ${st.name} has no ${st.def.set}`);
 // Determinism and append-only: a smaller plan is the prefix of a larger one.
 const q = makePlan({ n: Math.floor(N / 4) });
 const pre = q.legs.length - 2;

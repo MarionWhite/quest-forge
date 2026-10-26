@@ -100,7 +100,8 @@ export function buildWindow(plan, ci, ck) {
     const { hw, y0 } = leg, kd = leg.kd;
     const lo = Math.min(y0, leg.yEnd) - kd.below, hi = y0 + leg.ht + 3;
     const [b0, b1] = bRange(leg, 4);
-    for (let lv = b0; lv < b1; lv++) for (let lu = -hw - 4; lu < hw + 4; lu++) {
+    const mg = kd.margin || 4;
+    for (let lv = b0; lv < b1; lv++) for (let lu = -hw - mg; lu < hw + mg; lu++) {
       const [i, k] = legCell(leg, lu, lv);
       for (let j = lo; j <= hi; j++) if (inb(i, j, k) && !a.st[idx(i, j, k)]) a.st[idx(i, j, k)] = leg.style;
     }
