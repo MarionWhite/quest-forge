@@ -33,8 +33,9 @@ export async function pistonTrap(R, { click = 1.2, open = 1.95, D = 7, web = fal
   const a = d0.x > 0 ? -1 : 0, b = d0.z > 0 ? -1 : 0;   // the 2 x 2 patch: columns a, a+1 and rows b, b+1, round you
   const solidB = (i, j, k) => { const c = cen(i, j, k); return R.solidW(c.x, c.y, c.z) && R.blockW(c.x, c.y, c.z) !== "bedrock"; };
   // The room: as big and as deep as the rock under you allows (never into another space).
-  let room = null;
-  for (const [dd, ri, rk] of [[D, RI, RK], [D - 1, RI, RK], [D, 2, Math.min(RK, 2)], [D, 2, 1], [D - 1, 2, 1], [D - 2, 2, 1]]) {
+  // With room: false the depth is the scare's (it builds the space below), so there is nothing to search.
+  let room = carveRoom ? null : { D, ri: RI, rk: RK };
+  if (carveRoom) for (const [dd, ri, rk] of [[D, RI, RK], [D - 1, RI, RK], [D, 2, Math.min(RK, 2)], [D, 2, 1], [D - 1, 2, 1], [D - 2, 2, 1]]) {
     let ok = true;
     for (let i = a - ri - 1; i <= a + 1 + ri + 1 && ok; i++) for (let k = b - rk - 1; k <= b + 1 + rk + 1 && ok; k++) for (let j = -dd - 1; j <= -2; j++) if (!solidB(i, j, k)) { ok = false; break; }
     for (let i = a - ri; i <= a + 1 + ri && ok; i++) for (let k = b - rk; k <= b + 1 + rk && ok; k++) if (!solidB(i, -1, k)) ok = false;
