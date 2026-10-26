@@ -25,9 +25,10 @@ Two answers overrule the plan:
   progression) this removes BetterQuesting parties from the design: `party_enable=0` on the
   server, quest 478 You and Your Party goes, every "you and your party" line goes, and the
   act-structure §6 rules that assumed a party (a hunt credits the whole party; finales as a
-  convergence of the party's hunts) are void. **Open consequence, for the author:** a hunt
-  task credits only the player who lands the kill, so a friend who helped kill the Hydra but
-  did not land the final blow gets no credit and must kill it again. See sheet 2.
+  convergence of the party's hunts) are void. The consequence (a hunt task credits only the
+  player who lands the kill) was put to the author the same evening. **Answer: damage-based
+  credit.** Everyone who damaged the boss gets the hunt credit, "but the person who dealt the
+  killing blow should get highlighted in some way." Built in qf-content, not with parties.
 - **9. The voice is rejected.** "Completely rethink the voice … this just reads as a random
   jumble of words. This isn't a compelling or interesting story, and I'd rather do something
   that doesn't take itself so seriously." The audit 4.7 house voice (hook, true paragraph,
