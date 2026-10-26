@@ -41,8 +41,9 @@ const state = {
 // window.__krypt is the stable hand-off to scares.js. Fields are filled in as the Krypt starts; before that
 // they are null/empty.
 //   scene, camera, renderer, composer       the three.js objects (composer's last pass is the output)
-//   getWalk() -> { s, speed, activeSeconds, depth }
+//   getWalk() -> { s, speed, activeSeconds, depth, segment }
 //       s              0..1 along the path (damped, what the camera shows)
+//       segment        the current segment's kind: crypt, mine, ossuary, flood, dungeon, library, chasm, stairs, deep
 //       speed          blocks per second of walking right now (0 when standing)
 //       activeSeconds  seconds the visitor has spent actually walking, not paused, not focused on a stone
 //       depth          0..1, the same as s but eased: 0 at the entrance crypt, 1 in the nether depths
@@ -53,7 +54,7 @@ const state = {
 const __kryptHold = { on: false };
 window.__krypt = {
   scene: null, camera: null, renderer: null, composer: null, corners: [],
-  getWalk() { return { s: 0, speed: 0, activeSeconds: 0, depth: 0 }; },
+  getWalk() { return { s: 0, speed: 0, activeSeconds: 0, depth: 0, segment: "crypt" }; },
   takeover(on) { __kryptHold.on = !!on; }
 };
 
@@ -307,7 +308,7 @@ function publishKrypt() {
   const kr = window.__krypt;
   kr.scene = K.scene; kr.camera = K.camera; kr.renderer = K.renderer; kr.composer = K.composer;
   kr.corners = K.lay.corners.map(c => ({ s: c.s, pos: new THREE.Vector3(c.x, c.y, c.z), dir: new THREE.Vector3(c.dx, 0, c.dz), side: c.side, kind: c.kind }));
-  kr.getWalk = () => ({ s: K.walk.s, speed: K.speed, activeSeconds: K.activeSeconds, depth: smooth01(K.walk.s) });
+  kr.getWalk = () => ({ s: K.walk.s, speed: K.speed, activeSeconds: K.activeSeconds, depth: smooth01(K.walk.s), segment: (K.prof && K.prof.kind) || "crypt" });
   kr.takeover = (on) => {
     on = !!on; if (on === K.held) return;
     K.held = on; __kryptHold.on = on;
