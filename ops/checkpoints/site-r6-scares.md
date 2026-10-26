@@ -62,6 +62,11 @@ current bank and list the gaps here.
   behind), the turn back to the cocked skull 0.75 m away, lunge; a stone-sword sprite in its fist through your chest
   (bloody past the middle), wither vignette; pull, decap flight (v2), lift to its face, jaw open.
 
+- 017c2f1: gap deaths. `scares/gap.js` (gapSite: the Krypt's gap from R.gap or one dug across the hall, exact
+  edges from the world blocks; runUp; firstArms; camBasis), `lavafall.js`, `drowned.js` (carves a 6-block shaft under
+  the gap; muffle struck every 0.4 s under water, cleared for the lunge). Sheets c13, c14. Dumps near a real gap:
+  `&gap=N&jx=-2` (gap=1 is lava, gap=0 water in the default plan). check_sounds exits 0.
+
 ## Next
-- Lava fall, Drowned grab (scares.js already points at lavafall.js / drowned.js), then Silverfish, Blaze, Ghast,
-  Zombie Pigman; then the 80-frame sheet and the real-time J run.
+- Silverfish, Blaze, Ghast, Zombie Pigman (v2 files still; need lunge + dice + marks); then the 80-frame sheet and
+  the real-time J run (copies of scratchpad/orch/cdp.mjs and scareflow.js).
