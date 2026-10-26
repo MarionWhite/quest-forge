@@ -72,7 +72,7 @@ export default {
     const chasm = await buildChasm(R, Y);
     const E = R.mob("Enderman", { amb: [0.05, 0.05, 0.06], own: true });
     E.anim(0, 0, { walk: 0 }); R.place(E, 0, 0, 4, Math.PI);
-    const anchor = faceAnchor(E, E.parts.head, boxOf("enderman", "bipedHead")); anchor.y += 0.06;   // the head lifts 5 px off the jaw to scream: aim between, eyes and jaw both in
+    const anchor = faceAnchor(E, E.parts.head, boxOf("enderman", "bipedHead")); anchor.y += 0.2;   // the head lifts 5 px off the jaw to scream: aim at the eyes, the jaw hanging below them
     const z0 = clamp(R.ahead - 1.3, 3.5, 14);
     // ---- the dice -------------------------------------------------------------------------------------------
     const vanish = R.chance(0.55);
@@ -89,7 +89,7 @@ export default {
       tFlash = [tGone + search * R.vary(0.45, 0.4)];
       t0 = tGone + search;
     } else { tSil = cuts[nCuts - 1] + 0.15; t0 = tc + R.vary(0.25, 0.5); }
-    const L = lunge(R, E, { t0, rush: R.vary(0.2, 0.15), hold: R.vary(0.7, 0.15), dist: 0.62, anchor, seed: 19, rise: -0.4 });
+    const L = lunge(R, E, { t0, rush: R.vary(0.2, 0.15), hold: R.vary(0.7, 0.15), dist: 0.74, anchor, seed: 19, rise: -0.4 });
     const tK = L.t3, T_GRAB = tK + 0.02, T_TP = tK + 0.4, T_LET = T_TP + 0.4;
     const edge = { x: -2.1, y: Y + 31, z: 1.0 };
     const hang = { x: -0.95, y: Y + 31 + 1.35, z: 1.0 };
