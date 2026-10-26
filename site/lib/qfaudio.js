@@ -18,8 +18,8 @@
 //                             "loopStart": s, "loopEnd": s } } }
 //
 // A name that is not in the manifest plays nothing and warns once, so a page never breaks on a
-// missing sound. Nothing is fetched until a sound is first asked for (or preload() is called),
-// and no AudioContext exists until the first user gesture: browsers refuse sound before one.
+// missing sound. The manifest and a suspended AudioContext are set up in idle time after load;
+// sound starts at the first user gesture (browsers refuse it before one), which resume()s the context.
 
 const BASE = new URL('./sfx/', import.meta.url);
 const MANIFEST_URL = new URL('manifest.json', BASE).href;
@@ -87,6 +87,10 @@ function unlock() {
   while (pending.length) { const [n, o] = pending.shift(); play(n, o); }
 }
 ['pointerdown', 'keydown', 'touchend', 'click'].forEach((ev) => addEventListener(ev, unlock, { capture: true, passive: true }));
+// Build the (suspended) context and the reverb in idle time, so the first click only has to resume() it:
+// creating them inside that click stalled the Lucky Block's Break by ~170 ms. Browsers allow a context
+// before a gesture; it just stays silent until resume().
+(window.requestIdleCallback || ((f) => setTimeout(f, 300)))(() => { try { makeContext(); loadManifest(); } catch (e) { /* no audio */ } });
 
 function decode(file) {
   if (!buffers.has(file)) {
