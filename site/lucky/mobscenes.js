@@ -47,21 +47,49 @@ const isBig = (id) => !!BIG[id];
 // (a one-block rise is a ramp) and are pushed apart so no two share a spot. Flyers are exempt. Big mobs
 // step over soft things (leaves, benches, fences, the pond) and go round the solid ones.
 const SOFT = ['leaf', 'low', 'fence', 'water'];
+// what a mob of this height steps over: fences, benches and the pond from 2.4 m up, the canopy from 4.5 m
+const softFor = (wh) => new Set(wh > 4.5 ? SOFT : wh >= 2.4 ? ['low', 'fence', 'water'] : []);
 const FLYING = new Set(['hover', 'swarm', 'egg', 'coin']);
-function mobRadius(m) { return Math.max(0.25, Math.min(1.0, m.wh * 0.3)); }
+// The real footprint: the model's widest horizontal extent at its scene scale (width times scale), halved.
+function footRadius(m) {
+  if (m.rad) return m.rad;
+  let r = null;
+  if (m.root && m.base) {
+    try {
+      const keep = m.root.scale.clone();
+      m.root.scale.copy(m.base);
+      m.root.updateMatrixWorld(true);
+      const bx = new THREE.Box3().setFromObject(m.root);
+      m.root.scale.copy(keep); m.root.updateMatrixWorld(true);
+      const hx = (bx.max.x - bx.min.x) / 2, hz = (bx.max.z - bx.min.z) / 2;
+      if (isFinite(hx) && isFinite(hz) && hx > 0) r = Math.max(hx, hz) * 0.85;
+    } catch (e) { r = null; }
+  }
+  if (r === null) r = m.wh * 0.3;
+  m.rad = r;
+  return r;
+}
+function mobRadius(m) { return m.footR || Math.max(0.25, Math.min(3.6, footRadius(m))); }
 function routeFor(m, from, to) {
   if (m.fly || FLYING.has(m.style)) return null;
   const big = m.wh > 4.5;
-  const ign = new Set(big ? SOFT : []);
+  const ign = softFor(m.wh);
   if (m.style === 'pour') ign.add('dais');
-  const r = mobRadius(m);
-  // an unlucky spawn point inside a hill or a tree starts at the nearest open ground
-  const sf = nav.nearestFree(from.x, from.z, r, ign, 12);
-  from = { x: sf.x, z: sf.z };
-  const pts = nav.path(from.x, from.z, to.x, to.z, r, { ign, step: 0.5 });
-  const full = [[from.x, from.z], ...pts];
+  // an unlucky spawn point inside a hill or a tree starts at the nearest open ground; a footprint too wide for
+  // the gaps between props is tried at 100%, 85% and 70% before giving up
+  let r = mobRadius(m), pts = null, full = null;
+  for (const k of [1, 0.85, 0.7]) {
+    r = mobRadius(m) * k;
+    const sf = nav.nearestFree(from.x, from.z, r, ign, 12);
+    const f0 = { x: sf.x, z: sf.z };
+    pts = nav.path(f0.x, f0.z, to.x, to.z, r, { ign, step: 0.5 });
+    full = [[f0.x, f0.z], ...pts];
+    if (pts.ok !== false) break;
+  }
   const cum = [0];
   for (let i = 1; i < full.length; i++) cum.push(cum[i - 1] + Math.hypot(full[i][0] - full[i - 1][0], full[i][1] - full[i - 1][1]));
+  if (pts.ok === false) { nav.stats.noroute = (nav.stats.noroute || []); nav.stats.noroute.push([+from.x.toFixed(1), +from.z.toFixed(1), +to.x.toFixed(1), +to.z.toFixed(1), +r.toFixed(2)]); }
+  nav.stats.routes = (nav.stats.routes || []); if (nav.stats.routes.length < 8) nav.stats.routes.push({ r: +r.toFixed(2), pts: full.map((p) => [+p[0].toFixed(1), +p[1].toFixed(1)]) });
   return { pts: full, cum, len: cum[cum.length - 1] || 0.0001, r, ign, ok: pts.ok !== false };
 }
 function posAt(rt, k) {
@@ -75,7 +103,7 @@ function posAt(rt, k) {
 // the nearest free spot for a ground mob's goal
 function freeGoal(m, g) {
   if (m.fly || FLYING.has(m.style)) return g;
-  const ign = new Set(m.wh > 4.5 ? SOFT : []);
+  const ign = softFor(m.wh);
   const f = nav.nearestFree(g.x, g.z, mobRadius(m), ign, 8);
   return V(f.x, g.y, f.z);
 }
@@ -92,9 +120,9 @@ function separate(list) {
     a.root.position.x -= nx * push; a.root.position.z -= nz * push; b2.root.position.x += nx * push; b2.root.position.z += nz * push;
   }
   for (const m of g) {
-    const f = nav.resolve(m.root.position.x, m.root.position.z, m.route.r * 0.7, m.route.ign);
+    const f = nav.resolve(m.root.position.x, m.root.position.z, m.route.r, m.route.ign);
     m.root.position.x = f.x; m.root.position.z = f.z;
-    nav.track('mob', f.x, f.z, m.route.r * 0.7, m.route.ign);
+    nav.track('mob', f.x, f.z, m.route.r * 0.9, m.route.ign, m.id);
   }
 }
 // place a mob on its route at progress k, on the ground
@@ -322,7 +350,7 @@ MOB_SCENES.villager_trader = (ctx) => {
     cam: () => ({ pos: V(P.x - 1.3, 1.9, P.z + 5.6), look: V(P.x - 1.3, 1.2, P.z), fov: 44 }),
     update(t, dt) {
       const k = easeOut(clamp01((t - m.born) / m.T));
-      if (vroute) { const [vx, vz] = posAt(vroute, k); m.root.position.set(vx, nav.groundAt(vx, vz), vz); nav.track('mob', vx, vz, vroute.r * 0.7, vroute.ign); } else m.root.position.lerpVectors(spawn, goal, k);
+      if (vroute) { const [vx, vz] = posAt(vroute, k); m.root.position.set(vx, nav.groundAt(vx, vz), vz); nav.track('mob', vx, vz, vroute.r * 0.9, vroute.ign); } else m.root.position.lerpVectors(spawn, goal, k);
       mobTick(m, t, dt, { walk: k < 1 ? 1 : 0, mute: true });
       if (k >= 1 && !hm) { hm = true; sfx('mob.villager.haggle', { pos: m.root.position, volume: 1 }); }
       if (t > m.born && !m.hi) { m.hi = true; sfx('mob.villager.idle', { pos: spawn, volume: 0.8 }); }
@@ -432,7 +460,7 @@ function grandScene(ctx, list, o = {}) {
     const zi = (si - (stacks.length - 1) / 2);
     const enter = star ? bp.enter : 'walk';
     const goal = V(P.x - (bp.dist || 4.5) - (star ? 0 : 5 + rnd(0, 2)) - Math.abs(zi) * (stacks.length > 3 ? 0.6 : 0.3), 0, P.z + 0.5 + zi * (stacks.length > 6 ? 1.6 : (star ? 3.2 : 1.4)) * (bp.h > 8 ? 1.6 : 1));
-    const gf = enter === 'walk' ? nav.nearestFree(goal.x, goal.z, Math.min(1.0, (bp.h || 2) * 0.3), new Set(SOFT), 10) : { x: goal.x, z: goal.z };
+    const gf = (enter === 'walk' || (enter === 'rise' && !bp.fly)) ? nav.nearestFree(goal.x, goal.z, Math.min(3.6, Math.max(0.5, (bp.h || 2) * 0.16)), new Set(SOFT), 12) : { x: goal.x, z: goal.z };
     goal.x = gf.x; goal.z = gf.z;
     const from = enter === 'fly' ? V(goal.x - 26 - rnd(0, 6), (bp.fly || 4) + 14, goal.z + rnd(-8, 8)) : enter === 'rise' ? goal.clone() : V(goal.x - 24 - rnd(0, 5), 0, goal.z + rnd(-1.5, 1.5));
     const mobs = [];
@@ -446,7 +474,7 @@ function grandScene(ctx, list, o = {}) {
       mobs.push(m);
     });
     totalH = Math.max(totalH, y);
-    const gRoute = enter === 'walk' ? routeFor({ wh: Math.max(y, 0.5), style: 'walk', fly: 0 }, from, goal) : null;
+    const gRoute = enter === 'walk' ? routeFor({ wh: Math.max(y, 0.5), style: 'walk', fly: 0, footR: Math.min(3.6, Math.max(0.25, ...mobs.map((q) => footRadius(q)))) }, from, goal) : null;
     const display = stack.length === 1 ? list[si] : list[si];
     actors.push({ mobs, route: gRoute, stack: ids, from, goal, enter, p: bp, star, t0: 0.9 + si * (star && nStar > 1 ? 0.18 : 0.12), T: enter === 'walk' ? 3.6 : enter === 'rise' ? 1.6 : 3.0, flyH: bp.fly || 0, e: display || {} });
     const top = mobs[mobs.length - 1];
@@ -499,7 +527,7 @@ function grandScene(ctx, list, o = {}) {
         const k = clamp01(age / a.T);
         const kk = a.enter === 'walk' ? (a.star ? k : easeOut(k)) : easeOut(k);
         let x = lerp(a.from.x, a.goal.x, kk), z = lerp(a.from.z, a.goal.z, kk), y = 0;
-        if (a.route) { [x, z] = posAt(a.route, kk); nav.track('mob', x, z, a.route.r * 0.7, a.route.ign); y = nav.groundAt(x, z); }
+        if (a.route) { [x, z] = posAt(a.route, kk); nav.track('mob', x, z, a.route.r * 0.9, a.route.ign, a.stack[0]); y = nav.groundAt(x, z); }
         if (a.enter === 'fly') {
           y = lerp(a.from.y, a.flyH, easeOut(k)) + Math.sin(t * 1.3 + m0.bob) * 0.3;
           if (k >= 1) { const c = (t - a.t0 - a.T) * 0.5; x += Math.cos(c + m0.bob) * 0.8; z += Math.sin(c + m0.bob) * 1.2; }

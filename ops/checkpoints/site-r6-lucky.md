@@ -50,3 +50,5 @@ Previous state: `site-r5-lucky-life.md`, `site-r5-lucky-flow.md`, `site-r5-lucky
 
 ## Progress
 - [x] ring: permanent violet RingGeometry in stage.js removed (stage.ring is now an invisible Object3D); app.js slam() makes two expanding rings fading 0.6 s. Not yet seen in a sheet.
+- [x] big mobs/tree: mobscenes.js footRadius (real model width x scale, cap 3.6), softFor(height), radius fallback 100/85/70%; ROOT CAUSE nav.js maxR=1.6 bucket limit missed boxes for agents wider than 1.6 (now 4.0). nav_check.py --bosses: 15 boss/grand scenes, 0 violations, 0 noroute. Visual sheet still to do.
+- NEXT: Steve pace (walkTo speed/ease/curve/gait, pauses, stats in dump JSON), then 8+ new activities (need wolf/sheep/cow), then final sheet.

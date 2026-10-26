@@ -39,10 +39,10 @@ export const nav = createNav();
 export function createNav() {
   const boxes = [];
   const buckets = new Map();
-  const maxR = 1.6;
+  const maxR = 4.0; // the widest agent: every box is registered this far out
   const ground = new Map(); // "x,z" -> ground height in blocks (terrain only)
   let nextId = 1;
-  const stats = { samples: 0, violations: 0, first: [], by: {} };
+  const stats = { samples: 0, violations: 0, first: [], by: {}, last: {} };
 
   const forBuckets = (b, fn) => {
     const i0 = Math.floor((b.x0 - maxR) / BUCKET), i1 = Math.floor((b.x1 + maxR) / BUCKET);
@@ -202,8 +202,9 @@ export function createNav() {
   }
 
   // ---- the proof: every sampled position is checked against the hard body radius
-  function track(tag, x, z, r, ign) {
+  function track(tag, x, z, r, ign, name) {
     stats.samples++;
+    if (name) stats.last[name] = [+x.toFixed(2), +z.toFixed(2), +r.toFixed(2)];
     stats.by[tag] = (stats.by[tag] || 0) + 1;
     if (stats.samples % 20 === 0) publish();
     const b = blockerAt(x, z, r, ign);
@@ -213,7 +214,7 @@ export function createNav() {
     }
   }
   function publish() {
-    try { document.documentElement.dataset.navStats = JSON.stringify({ samples: stats.samples, violations: stats.violations, pushed: stats.pushed || 0, first: stats.first, by: stats.by }); } catch (e) { /* no document */ }
+    try { document.documentElement.dataset.navStats = JSON.stringify({ samples: stats.samples, violations: stats.violations, pushed: stats.pushed || 0, first: stats.first, by: stats.by, last: stats.last, noroute: stats.noroute, routes: stats.routes }); } catch (e) { /* no document */ }
   }
 
   return { add, remove, restore, blocked, blockerAt, segFree, resolve, nearestFree, path, fromVoxels, groundAt, track, publish, stats, boxes };
