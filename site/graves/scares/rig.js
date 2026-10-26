@@ -256,11 +256,17 @@ export async function createRig(kr, { seed = 1 } = {}) {
     if (!m) m = makeMob("Zombie", opts);
     const amb = new THREE.Vector3(...(opts.amb || [0.32, 0.28, 0.26]));
     m.amb = amb;
+    // opts.own: an ambient of its own that the darkness (the bake gain) does not touch, for the one the scene is about.
     m.root.traverse((o) => {
       if (!o.isMesh || !o.material) return;
       const ms = Array.isArray(o.material) ? o.material : [o.material];
-      for (const mt of ms) if (mt.isMeshLambertMaterial && KR.patchBake) KR.patchBake(mt, { fixed: amb });
+      for (const mt of ms) {
+        if (!mt.isMeshLambertMaterial) continue;
+        if (opts.own) { mt.emissive = new THREE.Color(1, 1, 1); mt.emissiveMap = mt.map; mt.emissiveIntensity = amb.x; m.ownMats = (m.ownMats || []).concat(mt); }
+        else if (KR.patchBake) KR.patchBake(mt, { fixed: amb });
+      }
     });
+    m.setOwn = (v) => { for (const mt of m.ownMats || []) mt.emissiveIntensity = v; };
     const pivot = new THREE.Group(); pivot.rotation.order = "YXZ"; pivot.add(m.root);
     m.pivot = pivot; group.add(pivot); mobs.push(m);
     return m;
@@ -359,7 +365,7 @@ export async function createRig(kr, { seed = 1 } = {}) {
   R.evaluate = (S, t, extra = {}) => {
     const dur = S.dur, tt = Math.min(t, dur + 3);
     const f = { t: tt, hud: true, hp: 20, hpPrev: 20, hpMode: "normal", hurt: 0, blink: false, tints: [], white: 0, black: 0, fire: 0,
-      glitch: 0, vig: null, splats: [], death: clamp((t - dur - 0.5) / 0.35), env: {}, chat: null, hotbar: S.hotbar ?? 0, ...extra };
+      glitch: 0, vig: null, splats: [], death: clamp((t - dur - 0.5) / 0.35), env: {}, chat: null, hotbar: S.hotbar ?? 0 };
     // Hits: hearts, the hurt roll (EntityRenderer.hurtCameraEffect), the heart blink (GuiIngame).
     let roll = 0, hp = 20, prev = 20;
     const hits = S.hits || [];
@@ -371,12 +377,13 @@ export async function createRig(kr, { seed = 1 } = {}) {
       if (ticks < 10) { const x = 1 - ticks / 10; roll = Math.sin(x * x * x * x * Math.PI) * 14 * Math.PI / 180 * (h.side ?? 1); }
       const hr = 20 - Math.floor(ticks);
       f.blink = hr >= 10 && Math.floor(hr / 3) % 2 === 1;
-      f.hurt = Math.max(f.hurt, Math.exp(-(tt - h.t) / 0.12));
+      f.hurt = Math.max(f.hurt, Math.exp(-(tt - h.t) / 0.09));
     }
     if (t >= dur) hp = 0;
     f.hp = hp; f.hpPrev = prev;
-    const c = S.cam(tt, f);
+    let c = S.cam(tt, f);
     c.roll = (c.roll || 0) + roll;
+    if (extra.cam) c = { ...c, ...extra.cam };   // verification: a fixed local camera (?scarecam)
     S.update(tt, f);
     // Death: from the kill, the Minecraft death roll (40 - 8000 / (deathTime + 200) degrees about the view axis).
     if (t >= dur) { const dt = (tt - dur) * 20; c.roll += (40 - 8000 / (dt + 200)) * Math.PI / 180 * (S.deathSide ?? 1); }
@@ -400,8 +407,8 @@ export async function createRig(kr, { seed = 1 } = {}) {
     };
   };
   // Dump: evaluate one moment and render it now; the caller reads the canvas in the same task.
-  R.renderAt = (S, t) => {
-    const f = R.evaluate(S, t);
+  R.renderAt = (S, t, extra = {}) => {
+    const f = R.evaluate(S, t, extra);
     const prev = scene.onBeforeRender;
     scene.onBeforeRender = function () { applyEnv(f.env); };
     try { kr.composer.render(); } finally { scene.onBeforeRender = prev; }
@@ -411,6 +418,19 @@ export async function createRig(kr, { seed = 1 } = {}) {
   // ---- carving (the piston trap): every carve is undone on dispose -------------------------------------------
   let carved = false;
   R.carveW = (mn, mx) => { if (typeof kr.carve !== "function") return 0; carved = true; return kr.carve(mn, mx); };
+  // Boxes in local block offsets (inclusive), turned into world block boxes. Times itself (R.carveMs).
+  R.carveL = (boxes) => {
+    const t0 = performance.now(); let n = 0;
+    for (const [a, b] of boxes) {
+      const p = R.L(a[0] + 0.5, a[1] + 0.5, a[2] + 0.5, new THREE.Vector3()), q = R.L(b[0] + 0.5, b[1] + 0.5, b[2] + 0.5, new THREE.Vector3());
+      R.carved = (R.carved || []).concat([[Math.floor(Math.min(p.x, q.x)), Math.floor(Math.min(p.y, q.y)), Math.floor(Math.min(p.z, q.z))]]);
+      n += R.carveW([Math.floor(Math.min(p.x, q.x)), Math.floor(Math.min(p.y, q.y)), Math.floor(Math.min(p.z, q.z))], [Math.floor(Math.max(p.x, q.x)), Math.floor(Math.max(p.y, q.y)), Math.floor(Math.max(p.z, q.z))]);
+    }
+    R.carveMs = (R.carveMs || 0) + performance.now() - t0;
+    return n;
+  };
+  const onceDone = new Set();
+  R.once = (key, fn) => { if (onceDone.has(key)) return; onceDone.add(key); try { fn(); } catch (e) { console.error("scare once", key, e); } };
 
   R.dispose = () => {
     if (hooked) { scene.onBeforeRender = hooked.prevHook || function () {}; hooked = null; }
@@ -426,6 +446,7 @@ export async function createRig(kr, { seed = 1 } = {}) {
     camera.position.copy(cam0.pos); camera.quaternion.copy(cam0.quat); camera.fov = cam0.fov; camera.near = cam0.near;
     camera.updateProjectionMatrix(); camera.updateMatrixWorld(true);
   };
+  R.ready = async () => { await whenMobTexturesLoaded(); await new Promise((r) => setTimeout(r, 0)); await whenMobTexturesLoaded(); };
   await whenMobTexturesLoaded();
   return R;
 }

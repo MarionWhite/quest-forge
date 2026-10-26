@@ -73,7 +73,7 @@ export async function createHud(host) {
     const { w, h } = H, x0 = w / 2 - 91;
     blit(widgets, 0, 0, 182, 22, x0, h - 22);
     blit(widgets, 0, 22, 24, 24, x0 - 1 + (f.hotbar || 0) * 20, h - 22 - 1);
-    items.forEach((im, i) => { if (im && !(f.burnt && f.burnt[i])) blit(im, 0, 0, 16, 16, w / 2 - 90 + i * 20 + 2, h - 16 - 3); });
+    items.forEach((im, i) => { if (im && !(f.burnt && f.burnt[i]) && !(f.gone && f.gone[i])) blit(im, 0, 0, 16, 16, w / 2 - 90 + i * 20 + 2, h - 16 - 3); });
     // Experience: the bar and the level in green with a black outline.
     blit(icons, 0, 64, 182, 5, x0, h - 32 + 3);
     blit(icons, 0, 69, Math.round(182 * 0.37), 5, x0, h - 32 + 3);
@@ -187,7 +187,7 @@ export async function createHud(host) {
     if (f.splats && f.splats.length) splats(f.splats, t);
     if (f.glitch > 0.01) glitch(f.glitch, t);
     if (f.fire > 0.01) fireOverlay(f.fire, t);
-    if (f.hurt > 0.01) { ctx.fillStyle = `rgba(190,0,0,${(f.hurt * 0.22).toFixed(3)})`; ctx.fillRect(0, 0, w, h); }
+    if (f.hurt > 0.01) { ctx.fillStyle = `rgba(190,0,0,${(f.hurt * 0.16).toFixed(3)})`; ctx.fillRect(0, 0, w, h); }
     if (f.white > 0.003) { ctx.fillStyle = `rgba(255,255,255,${clamp(f.white).toFixed(3)})`; ctx.fillRect(0, 0, w, h); }
     if (f.black > 0.003) { ctx.fillStyle = `rgba(0,0,0,${clamp(f.black).toFixed(3)})`; ctx.fillRect(0, 0, w, h); }
     if (f.hud !== false) { hotbar(f); hearts(f, t); }

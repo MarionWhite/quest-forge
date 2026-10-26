@@ -138,6 +138,7 @@ export async function playScare(id, { score = 0, onDone } = {}) {
     hud = await HUD.createHud(stage);
     R = await RIG.createRig(kr, { seed: hashStr(id) & 0xffff });
     const S = await def.build(R);
+    await R.ready();
     S.death = S.death || def.death;
     snd = soundPlayer(R, S);
     // A layer over the stage that takes the pointer while the scare plays (the Respawn button lives on it).
@@ -200,8 +201,11 @@ async function dumpMode(id, ms) {
     try { kr.takeover(true); } catch (e) { /* ignore */ }
     const R = await RIG.createRig(kr, { seed: hashStr(id) & 0xffff });
     const S = await def.build(R);
+    await R.ready();
     const t = ms / 1000;
-    const f = R.renderAt(S, t);
+    const sc = QS.get("scarecam") ? QS.get("scarecam").split(",").map(Number) : null;   // x,y,z,yaw,pitch[,roll] local
+    const f = R.renderAt(S, t, sc ? { cam: { x: sc[0], y: sc[1], z: sc[2], yaw: sc[3], pitch: sc[4], roll: sc[5] || 0 } } : {});
+    if (sc) { f.white = 0; f.black = 0; f.vig = null; f.tints = []; }
     const gl = kr.renderer.domElement;
     const out = document.createElement("canvas"); out.width = gl.width; out.height = gl.height;
     const x = out.getContext("2d"); x.drawImage(gl, 0, 0);

@@ -54,6 +54,13 @@ last.
 - Dump workaround: the Krypt's runDump leaves K.last in the future, so the next live frame has dt<0 and
   throws the camera to y=-2000. dumpMode puts the camera back from the dumpshot pos/look first.
 
+- 11:40 Skeleton (lights-out; torches snuffed via the merged torch mesh, smoke from particles.png, arrows
+  from entity/arrow.png), Creeper (look-back; real crater via carve, explosion.png puffs, dropped items,
+  ringing, second hiss) and Spider (ceiling eyes, drop, lens legs, hauled up and dangling) built.
+  Frames: r5/scares/sk3, cr2, sp1, sp2. rig: R.ready() awaits mob textures after build (they were black
+  otherwise), mob {own:true} ambient outside the bake gain, ?scarecam=x,y,z,yaw,pitch for checks.
+  Sheets: dump_frames' own --sheet times out on this busy machine; r5/scares/sheet.py (anaconda PIL) instead.
+
 ## Requests (krypt-more, app.js)
 - frameInner: clamp dt at 0 (`Math.max(0, ...)`): runDump's frameInner(now+16+q*30) leaves K.last ahead
   of the clock and the next frame's damped lerp diverges (K.pos.y ~ -2000 in every ?dump page).
