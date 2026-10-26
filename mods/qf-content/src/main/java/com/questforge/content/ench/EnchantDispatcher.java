@@ -71,6 +71,10 @@ public class EnchantDispatcher {
         List<Found> found = findOn(ctx.stack);
         if (found.isEmpty()) return ctx.damage;
 
+        // The weapon's own hit, kept for the effects that must not inherit the
+        // phases below (the damage-over-time seeds; see ProcContext.baseDamage).
+        ctx.baseDamage = ctx.damage;
+
         // Flat adds, then multipliers, then procs. Stable, so within a phase the
         // application order still holds -- it just no longer changes the answer.
         if (found.size() > 1) Collections.sort(found, BY_PHASE);

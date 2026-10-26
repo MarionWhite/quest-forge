@@ -33,6 +33,21 @@ public class ProcContext {
     public int level;
     /** Mutable. Effects add to or scale this; the dispatcher applies it. */
     public float damage;
+    /**
+     * The hit as this mod received it, before any enchantment here touched it:
+     * the weapon's own swing (after the target's pre-event caps and the
+     * attacker's Cripple). The dispatcher sets it before the FLAT phase and
+     * nothing changes it afterwards.
+     *
+     * The damage-over-time enchantments seed from this rather than from
+     * {@link #damage} (2026-10-25, decision 0005 P2). Seeded from the boosted
+     * hit, a bleed or venom inherited every multiplier that ran before it, so
+     * Colossus + Rupture measured +41 points beyond independence on the Naga and
+     * +33 on Mobzilla, Colossus + Venomous +46 on the Naga, Roulette + Rupture
+     * +57 and Cultist + Poisonous +29 on Mobzilla. Flat adds and multipliers now
+     * boost the swing only.
+     */
+    public float baseDamage;
     /** Set true to cancel the triggering event, where the event allows it. */
     public boolean cancelled;
     /** Which pass this is: 0 for the first, 1 for a Multi Strike replay. */

@@ -65,7 +65,14 @@ public class WeaponEnchants2 {
             // bypass armour; only the seed is read after it. Old: ctx.damage x
             // 4%. New: the same 4% of Mitigation.predict(target, hit). Against
             // an unarmoured target the two are the same number.
-            float landed = Mitigation.predict(target, ctx.source, ctx.damage);
+            //
+            // And the hit is the weapon's own, ctx.baseDamage, not ctx.damage
+            // (2026-10-25, decision 0005 P2): the dispatcher runs flat adds and
+            // multipliers first, so a bleed seeded from ctx.damage inherited
+            // Colossus, Cultist and Roulette and Colossus + Rupture read +41
+            // points beyond independence on the Naga. Those boosts now reach the
+            // swing only.
+            float landed = Mitigation.predict(target, ctx.source, ctx.baseDamage);
             float perStack = Math.max(PER_STACK_FLOOR, landed * PER_STACK_OF_HIT);
             TickedEffects.addBleed(target, ctx.user, 80 + (20 * ctx.level), ctx.level + 1, perStack);
         }

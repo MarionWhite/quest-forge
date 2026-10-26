@@ -106,7 +106,7 @@ public class CombatEnchants {
             // Only if it took: undead and anything else immune get nothing, and
             // we inherit whatever immunity rules the rest of the pack has added.
             if (target.isPotionActive(Potion.poison)) {
-                float landed = Mitigation.predict(target, ctx.source, ctx.damage);
+                float landed = Mitigation.predict(target, ctx.source, ctx.baseDamage);
                 TickedEffects.addVenom(target, ctx.user, duration,
                         Math.max(1.0F, landed * PER_LEVEL * ctx.level));
             }
@@ -136,6 +136,13 @@ public class CombatEnchants {
          * still bypass armour; only the seed is read after it. Old: ctx.damage x
          * 5.8% / 4%. New: the same percentages of Mitigation.predict(target,
          * hit). Against an unarmoured target the two are the same number.
+         *
+         * And the hit is the weapon's own, ctx.baseDamage, not ctx.damage
+         * (2026-10-25, decision 0005 P2): the dispatcher runs flat adds and
+         * multipliers before the procs, so a venom seeded from ctx.damage
+         * inherited Colossus, Cultist and Roulette (Colossus + Venomous read +46
+         * points beyond independence on the Naga, Cultist + Poisonous +29 on
+         * Mobzilla). Those boosts now reach the swing only.
          */
         private static final float PER_LEVEL = 0.058F;
 
@@ -149,7 +156,7 @@ public class CombatEnchants {
             // -- ticks twice as often as Poisonous.
             target.addPotionEffect(new PotionEffect(Potion.poison.id, duration, 1));
             if (target.isPotionActive(Potion.poison)) {
-                float landed = Mitigation.predict(target, ctx.source, ctx.damage);
+                float landed = Mitigation.predict(target, ctx.source, ctx.baseDamage);
                 TickedEffects.addVenom(target, ctx.user, duration,
                         Math.max(1.0F, landed * PER_LEVEL * ctx.level));
             }
