@@ -125,6 +125,17 @@ Between `start` and `end` only `mode: shot` jobs run, with the frame rate capped
 `nvidia-smi -pl` around each boot, which needs an elevated prompt (see NEXT.md for what was
 measured on this PC).
 
+## Reference frames from other packs (internal only)
+
+`specseferences.json` renders the r007 views once with Complementary Reimagined and Unbound
+r5.9.3, Photon v1.4 and BSL 10.1.8, unmodified, at their defaults, into `C:\qfb\shaderdevefs`
+(`refcr`, `refcu`, `refph`, `refbsl`). They are for the critic's comparison and NEVER go on the
+site: none of those licences allows it. The zips come from each pack's official Modrinth project,
+sha512-checked, in `C:\qfbefpacks\<name>\dl\` (Unbound in `C:\qfb\dl\complementary`).
+Complementary and BSL render correctly under Angelica on 1.7.10. Photon v1.4 does not (flat
+yellow terrain, plain blue sky), so `refph` is not a reference. Being cached, they re-render only
+when the world, the views or the jars change.
+
 ## Finishing a round
 
 `tools/shaders/review/finish_round.py ROUND_DIR [--publish]` posts a round from finished renders:
