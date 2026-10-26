@@ -720,7 +720,7 @@ function frameInner(now) {
   if (Math.abs(K.speed) > 0.3 && !K.held && K.focusI == null && K.gateOpen) K.activeSeconds += dt;
   const u = Math.min(1, Math.max(0, W.s));
   const dW = u * L;
-  const focusing = K.focusI != null;
+  const focusing = K.focusI != null && !QS.has("free");
   const prof = K.plan.profileAtD(dW, K.profTmp);
   K.prof = prof; K.stratum = prof.stratum;
 

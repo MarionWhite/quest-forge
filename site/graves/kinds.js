@@ -11,6 +11,7 @@ import { KINDS, def, wall, P, makeCtx } from "./kindreg.js";
 export { KINDS, makeCtx };
 import "./kinds_a.js";
 import "./kinds_b.js";
+import { applyArch } from "./kinds_c.js";
 
 // ---- the dressers of the nine original segments and the six of round 5 (ported unchanged) ----
 const DRESS = {};
@@ -461,3 +462,4 @@ def("frontier", { style: W.mine, hw: [3, 3], ht: [4, 4], pre: [3, 3], post: [14,
     for (let q = 0; q < 6; q++) { const lv = hi + 1 + q * 2.2, sd = q % 2 ? 1 : -1; const [x, y, z] = W3(leg, sd * 1.6, lv, y0); decor({ t: "rubble", x, y, z, s: 0.35 + rnd(q, 2) * 0.35, ry: q }); }
     for (let lv = hi + 2; lv < leg.end - 3; lv += 4) { for (const sd of [-1, 1]) for (let j = y0; j <= y0 + 2; j++) L(leg, sd > 0 ? hw - 1 : -hw, lv, j, B.T_LOG); for (let lu = -hw; lu < hw; lu++) L(leg, lu, lv, y0 + 3, B.T_PLANK); }
   } });
+applyArch();

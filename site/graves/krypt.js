@@ -127,13 +127,13 @@ export function buildWindow(plan, ci, ck) {
   // Alcoves: a pocket two cells deep with a solid back, framed by two pillars and a lintel.
   for (const leg of legs) {
     const { hw, y0 } = leg, kd = leg.kd;
-    const pb = kd.alcoveBase ? kd.alcoveBase(leg) : y0, pt = kd.alcoveTile || 0;
+    const pb = kd.alcoveBase ? kd.alcoveBase(leg) : y0, pt = kd.alcoveTile || 0, pp = kd.alcovePil || pt, pl = kd.alcoveLin || pt;
     for (const s of leg.slots) {
       const sd = s.side, inner = sd > 0 ? [hw, hw + 1] : [-hw - 1, -hw - 2];
       const pil = sd > 0 ? hw - 1 : -hw;
       for (let lv = s.lvc - 1; lv <= s.lvc + 1; lv++) for (let j = y0; j <= y0 + 3; j++) { L(leg, inner[0], lv, j, T_AIR); L(leg, inner[1], lv, j, T_AIR); }
-      for (const lv of [s.lvc - 2, s.lvc + 2]) for (let j = pb; j <= y0 + 2; j++) L(leg, pil, lv, j, pt || (j === y0 ? T_BRICK_MOSSY : T_BRICK));
-      for (let lv = s.lvc - 2; lv <= s.lvc + 2; lv++) L(leg, pil, lv, y0 + 3, pt || T_BRICK);
+      for (const lv of [s.lvc - 2, s.lvc + 2]) for (let j = pb; j <= y0 + 2; j++) L(leg, pil, lv, j, pp || (j === y0 ? T_BRICK_MOSSY : T_BRICK));
+      for (let lv = s.lvc - 2; lv <= s.lvc + 2; lv++) L(leg, pil, lv, y0 + 3, pl || T_BRICK);
       for (let lv = s.lvc - 3; lv <= s.lvc + 3; lv++) leg.used[sd].add(lv);
     }
   }
@@ -200,7 +200,7 @@ export function buildWindow(plan, ci, ck) {
         a.lavaRects.push({ ...r, y: leg.y0 - 2.12 });
         for (let lu = -leg.hw + 1; lu < leg.hw; lu += 3) { const [x, , z] = W3(leg, lu + 0.5, g.b + g.w / 2, 0); a.sources.push({ x, y: leg.y0 - 1.4, z, c: [1.0, 0.36, 0.08], I: 7, R: 12, lava: true, dyn: true }); a.emit.push({ k: "lava", x, y: leg.y0 - 2.1, z }); }
         a.spots.lava.push(W3(leg, 0, g.b + g.w / 2, leg.y0 - 2));
-      } else a.waterRects.push({ ...r, y: leg.y0 - 2.25 });
+      } else { a.waterRects.push({ ...r, y: leg.y0 - 2.25 }); for (let lu = -leg.hw + 1; lu < leg.hw; lu += 3) { const [x, , z] = W3(leg, lu + 0.5, g.b + g.w / 2, 0); a.sources.push({ x, y: leg.y0 - 1.6, z, c: [0.3, 0.6, 0.8], I: 3.4, R: 9 }); } }
     }
   }
   // What this chunk owns: everything whose position lies inside its box. The bake uses every source in the window.

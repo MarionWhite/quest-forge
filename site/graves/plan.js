@@ -6,7 +6,8 @@
 import { legMap, legLocal, legDir, turnOf, floorSmooth, SLOT_STEP, STAIR_LANDING, STAIR_LEN, STAIR_DROP, PASSAGE_LEN } from "./geom.js";
 import { ih } from "./blocks.js";
 import { KINDS } from "./kinds.js";
-import { STRATA, CYCLE_PREFIX } from "./strata.js";
+import { STRATA } from "./strata.js";
+const CYCLE_ORD = ["first", "second", "third", "fourth", "fifth", "sixth", "seventh"];
 
 export const SEED = 1707;
 export const CORNER_R = 2.7;
@@ -23,7 +24,7 @@ export function makePlan({ n = 0, seed = SEED, minSlots = 60, runway = 36, force
   const openStratum = (index) => {
     const def = STRATA[index % STRATA.length], cycle = Math.floor(index / STRATA.length);
     const band = Math.max(40, Math.round(def.band * (1 + 0.06 * Math.sin(index * 2.1)) * (cycle ? 1 : 1)));
-    stratum = { index, cycle, def, name: (CYCLE_PREFIX[Math.min(cycle, CYCLE_PREFIX.length - 1)] || "") + def.name, g0: gi, g1: gi + band, legs: [], d0: 0, d1: 0, id: def.id };
+    stratum = { index, cycle, def, name: cycle ? def.name + ", " + (CYCLE_ORD[Math.min(cycle, CYCLE_ORD.length - 1)]) + " descent" : def.name, g0: gi, g1: gi + band, legs: [], d0: 0, d1: 0, id: def.id };
     strata.push(stratum);
   };
 
