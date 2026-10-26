@@ -19,6 +19,20 @@ Shader WIP da16ea8: compiles clean (check_glsl), NOT yet reviewed in frames.
   - Use 66 ms or more; at night (30 fps cap) a shorter interval repeats frames.
 - Untouched: spec_scenes.py and round.json for r008; the texture scenes merge; the Lab footer.
 
+## Loop 1 done (ub, commit a1119da, 2026-10-25 ~22:50)
+- ua reviewed (sheets C:/qfb/shaderdev/r008/look/ua): sun 30 px, brown horizon band + cyan zenith, lake choppy, river ledges
+  yellow, dust specks over the lake sky, no meteors in stills.
+- Fixed in a1119da (renders 1025-222049-r008-ub, QFTextures-v1, sheets look/ub): QF_SUN_SIZE 5; band lift + lavender zenith +
+  lighter veil; lake calm also on river share; river bed sun path +1.2 blocks x4 + shallow tint (yellow gone, now green);
+  motes need shade within 2.2 m across the light (sky specks gone); QF_METEOR_RATE 4, wider streaks.
+- Clips (make_clip): C:/qfb/shaderdev/r008/clips/{met,wat,cld,dust}.webp from ub_clipmet/ub_clipwat/ub_clipcld/ub_clipdust.
+  The met burst ran ~318 ms/frame (night cap?), so that clip is 28.6 s long.
+- Still wrong (loop 2): the horizon band is khaki, not peach (the warm multiplier cuts blue too hard; haze desat in composite ~l.1001);
+  the lake is still choppy next to the refs' mirror; the sun disk is still smaller than the refs' (try 6, brighter core vs the glare);
+  no meteors in stills (TAA may eat them; see look/ub/met_max.jpg); PBR metals barely differ from QF_PBR 0.
+- Grey blob in the clouds over the noon sun (river_noon): pre-dates r008. Not the sun (QF_SUN 0 keeps it), not the rim
+  (QF_CLOUD_RIM 0 keeps it), and it moves between boots: suspect vanilla clouds (gbuffers_clouds). Not fixed.
+
 ## Renders
 - 1025-211519-r008-ua: shot mode, iteration a. Tags ua (15 views), ua_met (NIGHT_SKY 4), ua_pbr, ua_pbr0 (showcase world). Finished; NOT looked at yet.
 - 1025-211531-r008-uc-cost: early cost read (High / Low / Potato and off baselines). Queued.
