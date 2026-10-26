@@ -11,7 +11,7 @@ import { nav, followPath } from './nav.js';
 const TAU = Math.PI * 2;
 const wrapA = (a) => { a = (a + Math.PI) % TAU; if (a < 0) a += TAU; return a - Math.PI; };
 const yawFor = (dx, dz) => Math.atan2(-dx, -dz); // front is -z at yaw 0, the same as Steve
-const PASTURE = { x0: 3.4, x1: 7.2, z0: -2.4, z1: -0.4 }; // behind the dais, away from the camera's line of sight
+const PASTURE = { x0: -8.6, x1: -5.7, z0: 3.4, z1: 6.6 }; // the fenced pen (camp.js L.pen), well off the camera's line to the dais
 
 export function makeCritters({ world, play, fx, seed = 5 }) {
   const rng = mulberry(seed);
@@ -39,6 +39,9 @@ export function makeCritters({ world, play, fx, seed = 5 }) {
     const m = makeMob(kind, o.mob || {});
     m.root.traverse((q) => { if (q.isMesh) q.castShadow = true; });
     if (kind === 'Wolf') tame(m);
+    // pale skins bloom to white under the sunset lights: tone them down
+    if (kind === 'Sheep' && m.mats[1]) m.mats[1].color.multiplyScalar(0.62);
+    if (kind === 'Sheep' || kind === 'Wolf') m.mats[0].color.multiplyScalar(0.7);
     const sp = SPEC[kind];
     const c = {
       kind, m, sp, x, z, yaw: R(0, TAU), y: 0, path: null, i: 0, state: 'stand', wait: R(1, 4), clock: R(0, 9), moving: false, speed: 0,
@@ -98,7 +101,9 @@ export function makeCritters({ world, play, fx, seed = 5 }) {
       const d = Math.hypot(sx - c.x, sz - c.z);
       if (c.state === 'walk') { if (!c.path) { c.state = 'stand'; c.wait = R(1.5, 4); } else if (d < 2.6) { c.path = null; c.moving = false; c.state = 'stand'; c.wait = R(2, 5); } }
       if (c.state !== 'walk' && (d > 4.6 || (c.wait <= 0 && d > 1.6 && rng() < 0.5))) {
-        const a = R(0, TAU), k = d > 4.6 ? 2.4 : R(1.8, 3.2);
+        // the dog waits on the far side of him from the lens, so it never stands between camera and Steve
+        let a = R(0, TAU); const k = d > 4.6 ? 2.4 : R(1.8, 3.2);
+        if (camAt) a = Math.atan2(sz - camAt.z, sx - camAt.x) + R(-0.9, 0.9);
         const g = nav.nearestFree(sx + Math.cos(a) * k, sz + Math.sin(a) * k, c.sp.r, ign, 3);
         c.path = nav.path(c.x, c.z, g.x, g.z, c.sp.r, { ign }); c.i = 0; c.state = 'walk';
         c.speed = d > 7 ? 3.4 : d > 4.6 ? 2.4 : 1.1;
@@ -119,8 +124,9 @@ export function makeCritters({ world, play, fx, seed = 5 }) {
     if (c.state === 'graze' && c.kind === 'Sheep') c.eatT = R(2.5, 5);
   }
 
-  let clock = 0;
-  function update(dt, sx, sz) {
+  let clock = 0, camAt = null;
+  function update(dt, sx, sz, cam) {
+    camAt = cam || null;
     clock += dt;
     for (const c of list) {
       if (!c.hold) {
@@ -160,12 +166,12 @@ export function makeCritters({ world, play, fx, seed = 5 }) {
   function setVisible(v) { for (const c of list) c.m.root.visible = v; }
   function reset() {
     for (const c of list) { shear(c, false); c.hold = false; c.path = null; c.moving = false; c.state = 'stand'; c.wait = R(1, 3); c.pitchT = c.pitch = 0; }
-    const place = [['Sheep', 4.2, -1.4], ['Cow', 6.2, -1.0], ['Wolf', 4.2, 1.6]];
+    const place = [['Sheep', -7.4, 4.6], ['Cow', -6.4, 5.8], ['Wolf', 4.2, 1.6]];
     list.forEach((c, i) => { const p = place.find((q) => q[0] === c.kind) || place[i]; c.x = p[1]; c.z = p[2]; });
   }
   // the herd
-  add('Sheep', 4.2, -1.4, { mob: { dye: 0 } });
-  add('Cow', 6.2, -1.0);
+  add('Sheep', -7.4, 4.6, { mob: { dye: 0 } });
+  add('Cow', -6.4, 5.8);
   add('Wolf', 4.2, 1.6, { home: { x0: 2, x1: 6, z0: 0, z1: 3 } });
   return api;
 }

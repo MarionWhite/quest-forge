@@ -12,6 +12,8 @@ const V = (x, y, z) => new THREE.Vector3(x, y, z);
 export function makeActs(k) {
   const { b, R, snd, fx, hold, setArm, freeArm, relax, walkTo, standAt, faceYaw, faceAt, armSwing, onCleanup, ignoring, spawnItem, placeBlock, breakBlock, crackMesh, palette, nav, L, camp, crit, yawFor, wrapA, smooth, lerp, clamp, entity, jump, showBang, world, setVoxel, TAU, dirOf, R_P, cam, waitItems, tap, play } = k;
   const sheep = crit.list.find((c) => c.kind === 'Sheep'), cow = crit.list.find((c) => c.kind === 'Cow'), wolf = crit.list.find((c) => c.kind === 'Wolf');
+  // a framed shot: Steve and the thing he works on, from a 3/4 angle that is clear of props, animals and the fire's glare
+  const frame = (tx, tz, D = 3.4, H = 1.2, az = 0.5) => { cam.want = true; cam.spec = { target: V(tx, 0.5, tz), D, H, az }; };
   const lookAt = (x, y, z) => { b.head.target = V(x, y, z); };
   const poof = (p, n = 8) => fx.dust(p, n);
   // a short use-item swing with the arm up in front, held for `secs`
@@ -34,10 +36,10 @@ export function makeActs(k) {
   // =============================================================== farming: harvest, replant, bone meal
   function* actHarvest() {
     yield* walkTo(-5.5, -3.5);
+    frame(-6.5, -3.5, 6.5, 2.4, 0.5);
     const col = camp.crops.filter((c) => c.stage === 7 && c.x > -7);
     if (!col.length) return;
     onCleanup(() => camp.cropsReset());
-    cam.want = true;
     for (const c of col) {
       yield* faceAt(c.x, c.z);
       lookAt(c.x, 0.5, c.z);
@@ -103,7 +105,7 @@ export function makeActs(k) {
     const sp = L.sapling, cx = sp.cx, cz = sp.cz, X = cx + 0.5, Z = cz + 0.5;
     yield* walkTo(X - 1.2, Z + 0.3);
     yield* faceAt(X, Z);
-    cam.want = true;
+    frame(L.sapling.cx + 0.5, L.sapling.cz + 0.5, 9, 3, -0.7);
     hold({ item: 'blocks/sapling_oak' });
     yield 0.3;
     // plant it
@@ -174,6 +176,7 @@ export function makeActs(k) {
     const food = R() < 0.5 ? 'bread' : 'apple';
     yield* walkTo(L.dance.x + 1.0, L.dance.z - 0.4);
     yield* faceYaw(yawFor(-0.3, 1));
+    frame(b.x, b.z, 3.2, 1.2, 0.6);
     hold({ item: food });
     onCleanup(() => hold(null));
     yield 0.6;
@@ -205,7 +208,7 @@ export function makeActs(k) {
     crit.hold(wolf, true);
     const d = dirOf(b.yaw);
     yield* standAt(L.dance.x - 2.4, L.dance.z - 1.0, yawFor(1, 1));
-    cam.want = true;
+    frame(b.x, b.z, 3.2, 1.2, 0.6);
     // he holds the meat out and whistles the dog over
     setArm('r', 1.5, -0.1);
     b.head.target = V(wolf.x, 0.6, wolf.z);
@@ -244,7 +247,7 @@ export function makeActs(k) {
     if (!sheep || sheep.sheared) return;
     onCleanup(() => crit.hold(sheep, false));
     yield* approach(sheep);
-    cam.want = true;
+    frame(sheep.x, sheep.z, 3.4, 1.2, 0.5);
     hold({ item: 'shears' });
     onCleanup(() => hold(null));
     lookAt(sheep.x, 0.8, sheep.z);
@@ -268,7 +271,7 @@ export function makeActs(k) {
     hold({ item: 'bucket_empty' });
     onCleanup(() => hold(null));
     yield* approach(cow, 1.15);
-    cam.want = true;
+    frame(cow.x, cow.z, 3.4, 1.2, 0.5);
     lookAt(cow.x, 0.6, cow.z);
     yield 0.4;
     yield* tapOn(1, 0.5);
@@ -327,6 +330,7 @@ export function makeActs(k) {
     }
     // back up and take a look at the lit path
     yield* walkTo(spots[0].x + 1.8, spots[0].z - 1.8);
+    frame(4.2, 5.4, 6.5, 2.2, 0.5);
     b.head.target = null; b.head.tyaw = 0.4;
     yield 2.4;
     // then pick them up again, a swing each
@@ -350,6 +354,7 @@ export function makeActs(k) {
   function* actRead() {
     yield* walkTo(L.seatApproach.x, L.seatApproach.z);
     yield* faceYaw(Math.PI);
+    frame(L.seatPos.x, L.seatPos.z, 5.2, 2.2, 0.9);
     ignoring('low');
     yield* walkTo(L.seatPos.x, L.seatPos.z, { straight: true, speed: 1.1 });
     yield* faceYaw(Math.PI);
@@ -402,6 +407,7 @@ export function makeActs(k) {
     snd('step.cloth', { pos: { x: T.x, y: 0.5, z: T.z }, volume: 0.5 });
     yield* walkTo(S0.x, S0.z);
     yield* faceAt(T.x, T.z);
+    frame(3.5, 5.8, 8.5, 2, 0.3);
     const arrows = [];
     onCleanup(() => { for (const a of arrows) world.remove(a); });
     for (let shot = 0; shot < 3; shot++) {
@@ -461,7 +467,7 @@ export function makeActs(k) {
   function* actNotes() {
     yield* walkTo(L.noteStand.x, L.noteStand.z);
     yield* faceYaw(0);
-    cam.want = true;
+    frame(L.note.cx + 0.5, L.note.cz + 0.5, 3.8, 1.4, -1.5);
     lookAt(L.note.cx + 0.5, 0.6, L.note.cz + 0.5);
     const P = { x: L.note.cx + 0.5, y: 1.1, z: L.note.cz + 0.5 };
     // block under it is grass/dirt: harp. Each right-click raises the pitch one semitone (note 0..24)
@@ -499,6 +505,7 @@ export function makeActs(k) {
     const stand = { x: x0 + 1.5, z: z0 + 3.45 };
     yield* walkTo(stand.x, stand.z);
     yield* faceAt(x0 + 1.5, z0 + 1.5);
+    frame(5.5, 0.5, 8, 3, 0.6);
     hold({ block: 'dirt' });
     onCleanup(() => hold(null));
     const blocks = [];
@@ -533,6 +540,7 @@ export function makeActs(k) {
   function* actStones() {
     const sp = L.pond.stand;
     yield* walkTo(sp.x + 0.6, sp.z + 0.6);
+    frame(-3, 3, 4.8, 1.6, 0.8);
     // pick up a flat stone from the shore
     b.crouchT = 1; b.head.tpitch = 0.4; yield 0.6;
     snd('random.pop', { volume: 0.4, pitch: 1.3 });
@@ -578,7 +586,7 @@ export function makeActs(k) {
   function* actEnchant() {
     yield* walkTo(L.enchantStand.x, L.enchantStand.z);
     yield* faceYaw(0);
-    cam.want = true;
+    frame(L.enchant.cx + 0.5, L.enchant.cz + 0.5, 3.8, 1.4, 1.5);
     lookAt(L.enchant.cx + 0.5, 1.0, L.enchant.cz + 0.5);
     hold({ item: 'iron_pickaxe' });
     onCleanup(() => hold(null));
@@ -605,7 +613,7 @@ export function makeActs(k) {
   function* actBrew() {
     yield* walkTo(L.brewStand.x, L.brewStand.z);
     yield* faceYaw(0);
-    cam.want = true;
+    frame(L.brew.cx + 0.5, L.brew.cz + 0.5, 4.2, 1.5, -1.5);
     const BX = L.brew.cx + 0.5, BZ = L.brew.cz + 0.5;
     lookAt(BX, 0.6, BZ);
     onCleanup(() => { camp.brew.setBottles(0); hold(null); });
@@ -651,6 +659,7 @@ export function makeActs(k) {
     const start = { x: -2.6, z: 8.2 };
     yield* walkTo(start.x, start.z);
     yield* faceAt(bx + 0.5, bz);
+    frame(0, 8.2, 6.5, 1.8, 0.3);
     const blk = placeBlockFree(bx, bz);
     yield 0.8;
     // sprint at it, jump at the last stride, land on top, a fist in the air, hop off again
@@ -686,7 +695,7 @@ export function makeActs(k) {
     const cx = hx + 0.5, cz = hz + 0.5;
     yield* walkTo(cx + 1.9, cz + 0.1);
     yield* faceAt(cx, cz);
-    cam.want = true;
+    frame(1.5, 3.5, 5.2, 2, 0.6);
     hold({ item: 'wood_shovel' });
     onCleanup(() => { hold(null); setVoxel(hx, -1, hz, 'grass'); });
     lookAt(cx, 0, cz);

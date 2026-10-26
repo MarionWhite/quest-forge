@@ -28,8 +28,9 @@ export const L = {
   pillar: { x: -0.6, z: 5.6 },
   sneak: { x: 3.2, z: 2.6 },
   // the workshop: a note block, an enchanting table and a brewing stand, in the table row's line, used from the front
-  note: { cx: 2, cz: -5 }, enchant: { cx: 6, cz: -5 }, brew: { cx: 7, cz: -5 },
-  noteStand: { x: 2.5, z: -3.45 }, enchantStand: { x: 6.5, z: -3.45 }, brewStand: { x: 7.5, z: -3.45 },
+  note: { cx: 0, cz: -5 }, brew: { cx: 1, cz: -5 }, enchant: { cx: 7, cz: -5 },
+  noteStand: { x: 0.5, z: -3.45 }, brewStand: { x: 1.5, z: -3.45 }, enchantStand: { x: 7.5, z: -3.45 },
+  pen: { x0: -10, x1: -5, z0: 2, z1: 7 },   // the animals' fenced pen, west of the pond, by the wheat
   hut: { cx: 4, cz: -1 },       // a 3x3 patch of ground for the dirt hut
   target: { x: 6.5, z: 6.5 },   // the hay bale the bow shoots at, and the spot he shoots from
   shoot: { x: 1.5, z: 6.5 },
@@ -47,8 +48,9 @@ export const L = {
     [-4.3, -7.3, -0.7, -5.9],
     [-8.3, -0.3, -6.9, 1.3],
     [-8.4, -8.4, -4.8, -4.8],
-    [1.9, -5.1, 3.1, -3.9],
-    [5.9, -5.1, 8.1, -3.9],
+    [-0.1, -5.1, 2.1, -3.9],
+    [6.9, -5.1, 8.1, -3.9],
+    [-10.1, 1.9, -4.9, 7.1],
     [3.9, -1.1, 7.1, 2.1],
   ],
 };
@@ -282,6 +284,7 @@ export function buildCamp(S) {
     if (edge && !gap) ring.push([x, 0, z]);
   }
   fenceCells.push(...ring);
+  { const P = L.pen; for (let x = P.x0; x <= P.x1; x++) for (let z = P.z0; z <= P.z1; z++) { const edge = x === P.x0 || x === P.x1 || z === P.z0 || z === P.z1; if (edge && !(x === P.x1 && z === 4)) fenceCells.push([x, 0, z]); } }
   const scx = Math.floor(L.sign.x), scz = Math.floor(L.sign.z);
   const fenceMesh = new THREE.Mesh(fenceGeometry(fenceCells), M('planks_oak.png'));
   fenceMesh.castShadow = true; fenceMesh.receiveShadow = true;

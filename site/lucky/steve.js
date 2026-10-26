@@ -405,7 +405,7 @@ export function createBrain(deps) {
     const ign = o.ign || b.ign;
     let pts = o.straight ? [[x, z]] : nav.path(b.x, b.z, x, z, R_P, { ign });
     if (!o.straight && !sprint) pts = curve(b.x, b.z, pts, ign);
-    cam.want = false;
+    cam.want = !!cam.spec;
     b.state = sprint ? 'run' : 'walk';
     // total length, so he slows for the last metre or so and eases away from a standstill
     let remain = 0, px0 = b.x, pz0 = b.z;
@@ -467,7 +467,7 @@ export function createBrain(deps) {
     }
     freeArm('r'); b.twist = 0;
   }
-  const doCleanup = () => { cam.want = false; const c = b.cleanups.splice(0); for (const f of c.reverse()) { try { f(); } catch (e) { /* ignore */ } } };
+  const doCleanup = () => { cam.want = false; cam.spec = null; const c = b.cleanups.splice(0); for (const f of c.reverse()) { try { f(); } catch (e) { /* ignore */ } } };
   const onCleanup = (f) => b.cleanups.push(f);
   function jump(v = 7.4) { b.vy = v; b.air = true; }
   function* waitLanded() { yield () => !b.air; }
@@ -1385,14 +1385,17 @@ export function createBrain(deps) {
     // the idle camera, shaped: base is the page's follow shot; while he works it orbits to a 3/4 side view
     // (face, hands, held item and the block he faces), and it slides along the orbit if a prop is in the way
     camShape(base) {
-      const focus = new THREE.Vector3(b.x, b.y + 1.0, b.z);
+      const spec = cam.spec;
+      const focus = spec ? new THREE.Vector3((b.x + spec.target.x) / 2, b.y + 0.95, (b.z + spec.target.z) / 2) : new THREE.Vector3(b.x, b.y + 1.0, b.z);
       const marks = [new THREE.Vector3(b.x, b.y + 1.6, b.z), new THREE.Vector3(b.x, b.y + 1.1, b.z)];
       const dx = base.pos.x - focus.x, dz = base.pos.z - focus.z;
       const baseA = Math.atan2(dx, dz), baseD = Math.hypot(dx, dz), baseH = base.pos.y - focus.y;
       const f = dirOf(b.yaw), fa = Math.atan2(f.x, f.z);
-      const SD = cam.close ? 2.7 : 4.8, SH = cam.close ? 0.55 : 1.3;
+      const SD = spec ? spec.D : cam.close ? 2.7 : 4.8, SH = spec ? spec.H : cam.close ? 0.55 : 1.3;
       const ptAt = (a, D, H) => new THREE.Vector3(focus.x + Math.sin(a) * D, focus.y + H, focus.z + Math.cos(a) * D);
-      const targets = [S.world, camp.group].filter(Boolean);
+      const targets = [S.world, camp.group, world].filter(Boolean);
+      // a lens looking into the fire is a white-out: reject angles whose view line passes the fire
+      const glare = (p) => { const fx0 = L.fireCenter.x - p.x, fz0 = L.fireCenter.z - p.z, vx = focus.x - p.x, vz = focus.z - p.z; const fd = Math.hypot(fx0, fz0), vd = Math.hypot(vx, vz); return fd < vd + 3.5 && (fx0 * vx + fz0 * vz) / (fd * vd + 1e-6) > 0.9; };
       const blocked = (p) => {
         // the head, the chest and the two sides of the frame, so a prop beside the lens counts too
         const side = new THREE.Vector3(marks[0].z - p.z, 0, p.x - marks[0].x).normalize().multiplyScalar(cam.close ? 0.9 : 1.6);
@@ -1408,16 +1411,20 @@ export function createBrain(deps) {
       // the side view: a profile-ish 3/4 on whichever side of him the lens is clear and nearest the page's shot
       if (cam.want && (stale || cam.shA === undefined)) {
         const cands = [];
-        for (const d of [1.3, 1.05, 1.6, 0.8]) for (const sg of [1, -1]) cands.push(fa + sg * d);
-        cands.sort((p, q) => Math.abs(wrapA(p - baseA)) - Math.abs(wrapA(q - baseA)) + 0.0);
-        const keep = cam.shA !== undefined && !blocked(ptAt(cam.shA, SD, SH)) && Math.abs(wrapA(cam.shA - fa)) > 0.7;
-        if (!keep) { const ok = cands.find((c) => !blocked(ptAt(c, SD, SH))); cam.shA = ok !== undefined ? ok : cands[0]; }
+        if (spec) { for (const d of [0, 0.4, -0.4, 0.8, -0.8, 1.2, -1.2, 1.7, -1.7, 2.3, -2.3, 3]) cands.push(spec.az + d); }
+        else {
+          for (const d of [1.3, 1.05, 1.6, 0.8]) for (const sg of [1, -1]) cands.push(fa + sg * d);
+          cands.sort((p, q) => Math.abs(wrapA(p - baseA)) - Math.abs(wrapA(q - baseA)) + 0.0);
+        }
+        const good = (c) => { const p = ptAt(c, SD, SH); return !blocked(p) && !glare(p); };
+        const keep = cam.shA !== undefined && good(cam.shA) && (spec ? true : Math.abs(wrapA(cam.shA - fa)) > 0.7);
+        if (!keep) { const ok = cands.find(good); cam.shA = ok !== undefined ? ok : cands[0]; }
       }
       const shA = cam.shA !== undefined ? cam.shA : fa + 1.3;
       const w = smooth(cam.w);
       const A = baseA + wrapA(shA - baseA) * w;
       const D = lerp(baseD, SD, w), H = lerp(baseH, SH, w);
-      const look = base.look.clone().lerp(new THREE.Vector3(b.x + f.x * 0.7, b.y + (cam.close ? 1.3 : 1.15), b.z + f.z * 0.7), w);
+      const look = base.look.clone().lerp(spec ? new THREE.Vector3(focus.x, b.y + 0.95, focus.z) : new THREE.Vector3(b.x + f.x * 0.7, b.y + (cam.close ? 1.3 : 1.15), b.z + f.z * 0.7), w);
       // a prop between the lens and him: slide along the orbit to the nearest clear spot, and back when it clears
       if (stale) {
         const order = [0, 0.2, -0.2, 0.4, -0.4, 0.6, -0.6, 0.9, -0.9, 1.2, -1.2, 1.6, -1.6];
@@ -1451,7 +1458,7 @@ export function createBrain(deps) {
       for (const k of Object.keys(P)) { P[k].rotation.set(rest[k].rx, rest[k].ry, rest[k].rz); P[k].position.set(rest[k].x, rest[k].y, rest[k].z); }
     },
     resume() { b.frozen = false; relax(); b.state = 'idle'; crit.setVisible(true); startGen(idleLoop()); },
-    call() { b.frozen = false; startGen(callGen()); },
+    call() { b.frozen = false; crit.setVisible(false); startGen(callGen()); },
     afterBreak() { startGen(afterGen()); },
     // the scene takes over: put Steve at his scene mark
     freeze() {
@@ -1478,7 +1485,7 @@ export function createBrain(deps) {
         applyPose(dt);
         stepBang();
         stepExtras(dt);
-        crit.update(dt, b.x, b.z);
+        crit.update(dt, b.x, b.z, b.camPos);
       }
       camp.near = { x: b.x, z: b.z };
       cam.w += ((cam.want ? 1 : 0) - cam.w) * Math.min(1, dt * 1.5);
