@@ -6,7 +6,11 @@
 import * as THREE from 'three';
 import * as F from './fx.js';
 import { glowTexture } from './stage.js';
+import { nav } from './nav.js';
 import { dudBeat } from './beats.js';
+import { MOB_FEATURES } from '../lib/mc/mobs.js';
+// the drop's own gear for a mob (King Bob's armour and so on), only where the library draws it
+const gear = (e) => (MOB_FEATURES && MOB_FEATURES.equipment && e && e.equipment && e.equipment.length ? { equipment: e.equipment } : {});
 const { V, clamp01, easeOut, easeIn, easeInOut, lerp, rnd, pick, burst, puff, pointLight, sfx, mobSay, roll, mobsOf, spawnMob, mobTick, nameTag, cleanName, heartSprite, facing, watch, strikeBolt, sky } = F;
 
 export const MOB_SCENES = {};
@@ -36,6 +40,67 @@ const BIG = {
   Dragon: { h: 3.4, night: 0.7, bolts: [1.6, 3.8], fog: [14, 52], roar: ['mob.enderdragon.growl', 'orespawn:roar4'], enter: 'fly', fly: 6, dist: 7, tag: 'Dragons arrive' },
 };
 const isBig = (id) => !!BIG[id];
+
+
+// ------------------------------------------------------------------ walking around the camp
+// Ground mobs follow a route planned around every prop (nav.js), stand on the ground as it really is
+// (a one-block rise is a ramp) and are pushed apart so no two share a spot. Flyers are exempt. Big mobs
+// step over soft things (leaves, benches, fences, the pond) and go round the solid ones.
+const SOFT = ['leaf', 'low', 'fence', 'water'];
+const FLYING = new Set(['hover', 'swarm', 'egg', 'coin']);
+function mobRadius(m) { return Math.max(0.25, Math.min(1.0, m.wh * 0.3)); }
+function routeFor(m, from, to) {
+  if (m.fly || FLYING.has(m.style)) return null;
+  const big = m.wh > 4.5;
+  const ign = new Set(big ? SOFT : []);
+  if (m.style === 'pour') ign.add('dais');
+  const r = mobRadius(m);
+  const pts = nav.path(from.x, from.z, to.x, to.z, r, { ign, step: 0.5 });
+  const full = [[from.x, from.z], ...pts];
+  const cum = [0];
+  for (let i = 1; i < full.length; i++) cum.push(cum[i - 1] + Math.hypot(full[i][0] - full[i - 1][0], full[i][1] - full[i - 1][1]));
+  return { pts: full, cum, len: cum[cum.length - 1] || 0.0001, r, ign, ok: pts.ok !== false };
+}
+function posAt(rt, k) {
+  const d = clamp01(k) * rt.len;
+  let i = 1;
+  while (i < rt.cum.length - 1 && rt.cum[i] < d) i++;
+  const a = rt.pts[i - 1], b = rt.pts[i] || a, seg = (rt.cum[i] - rt.cum[i - 1]) || 1;
+  const u = clamp01((d - rt.cum[i - 1]) / seg);
+  return [a[0] + (b[0] - a[0]) * u, a[1] + (b[1] - a[1]) * u];
+}
+// the nearest free spot for a ground mob's goal
+function freeGoal(m, g) {
+  if (m.fly || FLYING.has(m.style)) return g;
+  const ign = new Set(m.wh > 4.5 ? SOFT : []);
+  const f = nav.nearestFree(g.x, g.z, mobRadius(m), ign, 8);
+  return V(f.x, g.y, f.z);
+}
+// push overlapping ground mobs apart, then back out of any prop the push led into
+function separate(list) {
+  const g = list.filter((m) => m.route && m.root.visible !== false && m.born !== null);
+  for (let i = 0; i < g.length; i++) for (let j = i + 1; j < g.length; j++) {
+    const a = g[i], b2 = g[j];
+    const dx = b2.root.position.x - a.root.position.x, dz = b2.root.position.z - a.root.position.z;
+    const need = (a.route.r + b2.route.r) * 0.85, d = Math.hypot(dx, dz);
+    if (d >= need) continue;
+    const nx = d > 0.001 ? dx / d : 1, nz = d > 0.001 ? dz / d : 0, push = (need - d) / 2;
+    a.off.x -= nx * push; a.off.z -= nz * push; b2.off.x += nx * push; b2.off.z += nz * push;
+    a.root.position.x -= nx * push; a.root.position.z -= nz * push; b2.root.position.x += nx * push; b2.root.position.z += nz * push;
+  }
+  for (const m of g) {
+    const f = nav.resolve(m.root.position.x, m.root.position.z, m.route.r * 0.7, m.route.ign);
+    m.root.position.x = f.x; m.root.position.z = f.z;
+    nav.track('mob', f.x, f.z, m.route.r * 0.7, m.route.ign);
+  }
+}
+// place a mob on its route at progress k, on the ground
+function stepRoute(m, k) {
+  if (!m.route) return false;
+  const [x, z] = posAt(m.route, k);
+  m.root.position.x = x + m.off.x; m.root.position.z = z + m.off.z;
+  return true;
+}
 
 // ------------------------------------------------------------------ small helpers
 function fitSmall(m) {
@@ -103,7 +168,7 @@ function groupScene(ctx, list, o = {}) {
   const O = ctx.dais.clone();
   const n = list.length;
   const mobs = list.map((e) => {
-    const m = spawnMob(ctx, e.id, V(0, 0, 0), { quiet: true, main: false });
+    const m = spawnMob(ctx, e.id, V(0, 0, 0), { quiet: true, main: false, ...gear(e) });
     fitSmall(m);
     m.e = e; m.style = STYLE[e.id] || 'walk';
     return m;
@@ -116,12 +181,13 @@ function groupScene(ctx, list, o = {}) {
   const stagger = Math.min(0.4, 2.4 / Math.max(1, n));
   mobs.forEach((m, i) => {
     const s = slots[i];
-    const goal = V(P.x + s.dir.x * s.r, 0, P.z + s.dir.z * s.r);
+    const goal = freeGoal(m, V(P.x + s.dir.x * s.r, 0, P.z + s.dir.z * s.r));
     let spawn;
     if (o.from) spawn = V(o.from.x + rnd(-0.3, 0.3), o.from.y, o.from.z + rnd(-0.3, 0.3));
     else if (m.style === 'pour' || m.style === 'egg' || m.style === 'coin') spawn = V(O.x + rnd(-0.3, 0.3), 1.0, O.z + rnd(-0.3, 0.3));
     else spawn = V(P.x + s.dir.x * (s.r + rnd(11, 16)), 0, P.z + s.dir.z * (s.r + rnd(11, 16)));
     m.spawn = spawn; m.goal = goal;
+    m.off = { x: 0, z: 0 };
     m.born = (o.start || 0) + 0.4 + i * stagger;
     m.T = m.style === 'pour' || o.from ? (o.from ? 1.8 : 1.1) : 2.8 + spawn.distanceTo(goal) * 0.06;
     m.root.rotation.y = facing(goal.x - spawn.x, goal.z - spawn.z);
@@ -132,6 +198,7 @@ function groupScene(ctx, list, o = {}) {
     m.orbit = { r: rnd(1.2, 3.6), a: rnd(0, 6.28), s: rnd(0.8, 1.6) * (Math.random() < 0.5 ? -1 : 1) };
     m.rb = /rainbow|jeb_/i.test(String(m.e.display || '')) || /rainbow|jeb/i.test(ctx.drop.title || '');
     m.ph = rnd(0, 1);
+    m.route = routeFor(m, spawn, goal);
     applyFlip(m, m.e);
     if (i < (n > 3 ? 1 : 3)) m.tag = tagFor(ctx, m, m.e);
   });
@@ -163,14 +230,14 @@ function groupScene(ctx, list, o = {}) {
           const a = m.orbit.a + t * m.orbit.s;
           m.root.position.x = P.x - 1.5 + Math.cos(a) * (m.orbit.r + 1.5); m.root.position.z = P.z + Math.sin(a) * m.orbit.r;
           m.root.rotation.y = facing(-Math.sin(a) * Math.sign(m.orbit.s), Math.cos(a) * Math.sign(m.orbit.s));
-        } else {
+        } else if (!stepRoute(m, k)) {
           m.root.position.x = lerp(m.spawn.x, m.goal.x, k); m.root.position.z = lerp(m.spawn.z, m.goal.z, k);
         }
         let by = m.spawn.y + (m.flipY && !m.fly ? 0 : 0);
         if (m.style === 'pour' || (o.from && !m.fly)) by = lerp(m.spawn.y, 0, easeIn(clamp01(k * 1.4))) + Math.sin(k * Math.PI) * 0.9;
         if (m.style === 'hop' && !arrived) by = Math.abs(Math.sin((t - m.born) * 5)) * 0.45;
         if (m.style === 'hop' && arrived) by = Math.abs(Math.sin(t * 3 + m.bob)) * 0.2;
-        if (!m.fly) m.root.position.y = by + (m.flipY || 0);
+        if (!m.fly) m.root.position.y = by + (m.flipY || 0) + (m.route && m.style !== 'pour' ? nav.groundAt(m.root.position.x, m.root.position.z) : 0);
         else m.baseY = 0;
         const opts = { walk: arrived ? 0 : 1, creep: m.id === 'Creeper' };
         if (m.id === 'Creeper' && arrived) opts.hiss = clamp01((t - m.born - m.T) / 1.6);
@@ -179,6 +246,7 @@ function groupScene(ctx, list, o = {}) {
         if (m.rb) rainbow(m, t, m.ph);
         if (m.tag && m.tag.material) m.tag.material.opacity = 1;
       }
+      separate(mobs);
       if (fireball && fireT === null && t > fireball.born + fireball.T + 0.6) {
         fireT = t;
         sfx('mob.ghast.scream', { pos: fireball.root.position, volume: 1 });
@@ -243,12 +311,15 @@ MOB_SCENES.villager_trader = (ctx) => {
   const tag = tagFor(ctx, m, { display: e.display || ctx.drop.title }, '#ffe9a8');
   let said = false, hm = false;
   const goal = V(P.x - 2.2, 0, P.z + 0.5), spawn = V(P.x - 7, 0, P.z + 0.5);
+  m.wh = m.wh || 1.9; m.style = 'walk'; m.fly = 0;
+  { const f = nav.nearestFree(goal.x, goal.z, 0.45, undefined, 4); goal.x = f.x; goal.z = f.z; }
+  const vroute = routeFor(m, spawn, goal);
   return {
     dur: 6.0,
     cam: () => ({ pos: V(P.x - 1.3, 1.9, P.z + 5.6), look: V(P.x - 1.3, 1.2, P.z), fov: 44 }),
     update(t, dt) {
       const k = easeOut(clamp01((t - m.born) / m.T));
-      m.root.position.lerpVectors(spawn, goal, k);
+      if (vroute) { const [vx, vz] = posAt(vroute, k); m.root.position.set(vx, nav.groundAt(vx, vz), vz); nav.track('mob', vx, vz, vroute.r * 0.7, vroute.ign); } else m.root.position.lerpVectors(spawn, goal, k);
       mobTick(m, t, dt, { walk: k < 1 ? 1 : 0, mute: true });
       if (k >= 1 && !hm) { hm = true; sfx('mob.villager.haggle', { pos: m.root.position, volume: 1 }); }
       if (t > m.born && !m.hi) { m.hi = true; sfx('mob.villager.idle', { pos: spawn, volume: 0.8 }); }
@@ -297,9 +368,10 @@ function towerScene(ctx, list, o = {}) {
   stacks.forEach((stack, si) => {
     const ang = Math.PI + (si - (ns - 1) / 2) * 0.55;
     let y = 0;
-    const bx = P.x + Math.cos(ang) * 4.2, bz = P.z + Math.sin(ang) * 4.2;
+    const bf = nav.nearestFree(P.x + Math.cos(ang) * 4.2, P.z + Math.sin(ang) * 4.2, 0.7, undefined, 6);
+    const bx = bf.x, bz = bf.z;
     stack.forEach((id, li) => {
-      const m = spawnMob(ctx, id, V(bx, y, bz), { rotY: facing(-Math.cos(ang), -Math.sin(ang)), quiet: li > 0, main: li === stack.length - 1 && si === 0 });
+      const m = spawnMob(ctx, id, V(bx, y, bz), { rotY: facing(-Math.cos(ang), -Math.sin(ang)), quiet: li > 0, main: li === stack.length - 1 && si === 0, ...(li === stack.length - 1 ? gear(heads[si]) : {}) });
       fitSmall(m);
       m.born = 0.5 + si * 0.35 + li * Math.min(0.5, 2.2 / stack.length);
       m.bx = bx; m.bz = bz; m.y0 = y;
@@ -357,20 +429,23 @@ function grandScene(ctx, list, o = {}) {
     const zi = (si - (stacks.length - 1) / 2);
     const enter = star ? bp.enter : 'walk';
     const goal = V(P.x - (bp.dist || 4.5) - (star ? 0 : 5 + rnd(0, 2)) - Math.abs(zi) * (stacks.length > 3 ? 0.6 : 0.3), 0, P.z + 0.5 + zi * (stacks.length > 6 ? 1.6 : (star ? 3.2 : 1.4)) * (bp.h > 8 ? 1.6 : 1));
+    const gf = enter === 'walk' ? nav.nearestFree(goal.x, goal.z, Math.min(1.0, (bp.h || 2) * 0.3), new Set(SOFT), 10) : { x: goal.x, z: goal.z };
+    goal.x = gf.x; goal.z = gf.z;
     const from = enter === 'fly' ? V(goal.x - 26 - rnd(0, 6), (bp.fly || 4) + 14, goal.z + rnd(-8, 8)) : enter === 'rise' ? goal.clone() : V(goal.x - 24 - rnd(0, 5), 0, goal.z + rnd(-1.5, 1.5));
     const mobs = [];
     let y = 0;
     ids.forEach((id, li) => {
       const p = profileOf(id);
-      const m = spawnMob(ctx, id, V(from.x, 0, from.z), { quiet: true, height: p ? p.h : undefined, main: star && li === ids.length - 1 && si === 0, rotY: facing(goal.x - from.x, goal.z - from.z) });
+      const m = spawnMob(ctx, id, V(from.x, 0, from.z), { quiet: true, height: p ? p.h : undefined, ...(li === ids.length - 1 ? gear(list[si]) : {}), main: star && li === ids.length - 1 && si === 0, rotY: facing(goal.x - from.x, goal.z - from.z) });
       fitSmall(m);
       m.stackY = y; m.fly = 0;
       y += m.wh * 0.88;
       mobs.push(m);
     });
     totalH = Math.max(totalH, y);
+    const gRoute = enter === 'walk' ? routeFor({ wh: Math.max(y, 0.5), style: 'walk', fly: 0 }, from, goal) : null;
     const display = stack.length === 1 ? list[si] : list[si];
-    actors.push({ mobs, stack: ids, from, goal, enter, p: bp, star, t0: 0.9 + si * (star && nStar > 1 ? 0.18 : 0.12), T: enter === 'walk' ? 3.6 : enter === 'rise' ? 1.6 : 3.0, flyH: bp.fly || 0, e: display || {} });
+    actors.push({ mobs, route: gRoute, stack: ids, from, goal, enter, p: bp, star, t0: 0.9 + si * (star && nStar > 1 ? 0.18 : 0.12), T: enter === 'walk' ? 3.6 : enter === 'rise' ? 1.6 : 3.0, flyH: bp.fly || 0, e: display || {} });
     const top = mobs[mobs.length - 1];
     if (display && display.display) top.tag = tagFor(ctx, top, display);
   });
@@ -421,6 +496,7 @@ function grandScene(ctx, list, o = {}) {
         const k = clamp01(age / a.T);
         const kk = a.enter === 'walk' ? (a.star ? k : easeOut(k)) : easeOut(k);
         let x = lerp(a.from.x, a.goal.x, kk), z = lerp(a.from.z, a.goal.z, kk), y = 0;
+        if (a.route) { [x, z] = posAt(a.route, kk); nav.track('mob', x, z, a.route.r * 0.7, a.route.ign); y = nav.groundAt(x, z); }
         if (a.enter === 'fly') {
           y = lerp(a.from.y, a.flyH, easeOut(k)) + Math.sin(t * 1.3 + m0.bob) * 0.3;
           if (k >= 1) { const c = (t - a.t0 - a.T) * 0.5; x += Math.cos(c + m0.bob) * 0.8; z += Math.sin(c + m0.bob) * 1.2; }
@@ -487,12 +563,14 @@ MOB_SCENES.apocalypse = (ctx) => {
   const list = mobsOf(rolled, 44);
   if (!list.length) return dudBeat(ctx);
   const mobs = list.map((e, i) => {
-    const m = spawnMob(ctx, e.id, V(0, 0, 0), { quiet: true, main: i === 0 });
+    const m = spawnMob(ctx, e.id, V(0, 0, 0), { quiet: true, main: i === 0, ...gear(e) });
     fitSmall(m);
     const ang = (i / list.length) * Math.PI * 2 + rnd(-0.1, 0.1);
     const r = 3.0 + (i % 3) * 1.4;
-    m.goal = V(P.x + Math.cos(ang) * r, 0, P.z + Math.sin(ang) * r);
+    m.goal = freeGoal(m, V(P.x + Math.cos(ang) * r, 0, P.z + Math.sin(ang) * r));
     m.spawn = V(P.x + Math.cos(ang) * (r + 13), 0, P.z + Math.sin(ang) * (r + 13));
+    m.off = { x: 0, z: 0 }; m.style = m.style || 'walk';
+    m.route = routeFor(m, m.spawn, m.goal);
     m.born = 1.4 + i * 0.07; m.T = 3.2;
     m.root.rotation.y = facing(m.goal.x - m.spawn.x, m.goal.z - m.spawn.z);
     return m;
@@ -511,10 +589,11 @@ MOB_SCENES.apocalypse = (ctx) => {
       for (const m of mobs) {
         if (t < m.born) continue;
         const kk = easeOut(clamp01((t - m.born) / m.T));
-        m.root.position.lerpVectors(m.spawn, m.goal, kk);
+        if (stepRoute(m, kk)) m.root.position.y = nav.groundAt(m.root.position.x, m.root.position.z); else m.root.position.lerpVectors(m.spawn, m.goal, kk);
         mobTick(m, t, dt, { walk: kk < 1 ? 1 : 0, creep: m.id === 'Creeper' });
         if (m.id === 'Creeper' && kk >= 1) m.anim(t, dt, { walk: 0, hiss: clamp01((t - m.born - m.T) / 1.5) });
       }
+      separate(mobs);
       if (!said && t > 1.2) { said = true; ctx.say(ctx.drop.title, { at: 'bottom' }); }
       ctx.steve.anim(t, dt, { walk: 0, armRaise: 0.25 });
     },
