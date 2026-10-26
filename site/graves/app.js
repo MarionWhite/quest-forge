@@ -204,7 +204,7 @@ async function startKrypt() {
   // Textures: the pack's own files, loaded once.
   const IMG = {};
   await Promise.all(TEX_FILES.map(async n => { try { IMG[n] = await loadImage(`tex/${n}.png`); } catch { /* optional */ } }));
-  try { IMG.skull_tex = await loadImage("../lib/mc/tex/entity/skeleton.png"); } catch { /* the graves' own skeleton sheet stands in */ }
+  try { IMG.skull_tex = await loadImage("../lib/mc/tex/entity/skeleton/skeleton.png"); } catch { /* the graves' own skeleton sheet stands in */ }
   K.IMG = IMG;
 
   // The world: legs, path, grid, bake, dressing.
