@@ -87,3 +87,9 @@ T4, and the rest of the 14-enchant pair set. Add jobs to tools/balance/retest-20
 ## Rules
 Renders never; servers headless only; stage only own hunks; report in five lines; detail to
 ops/journal/balance.md.
+
+## Update 2026-10-26 (later): step 3 DONE
+- §9 written at the end of docs/reference/enchantment-combat-results.md (pooled reps, no per-rep sd yet).
+  Findings: DoTs, P8 hits, P6 landed; P7 cost is 3-5 health not ~10; colossus+venomous Mobzilla synergy +24.5 remains.
+- **Next is step 4 remainder:** journal entry in ops/journal/balance.md, then report; owner decides install of the jar.
+  Optional: per-rep sd; remove worktree C:\qfb\wt-enchant after install.
