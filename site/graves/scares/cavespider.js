@@ -175,6 +175,6 @@ export default {
     }
     return { dur: DUR, hits, cam, update, sounds, loops, deathSide: 1,
       marks: { dread: tOut + 1.3, fake: (tF + tClick) / 2, lunge: L.t1 + 0.1, kill: tK + 1.6 },
-      notes: { fits: trap.fits, D: Dp, exits: exits.length, tF: +tF.toFixed(2), t0: +t0.toFixed(2), dur: +DUR.toFixed(2) } };
+      notes: { fits: trap.fits, D: Dp, open: +trap.open.toFixed(2), exits: exits.length, tF: +tF.toFixed(2), t0: +t0.toFixed(2), dur: +DUR.toFixed(2) } };
   }
 };

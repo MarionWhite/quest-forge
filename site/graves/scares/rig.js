@@ -516,16 +516,16 @@ export async function createRig(kr, { seed = 1, rand = seed * 7919 + 13, frame =
 
   // ---- carving (the piston trap): every carve is undone on dispose -------------------------------------------
   let carved = false;
-  R.carveW = (mn, mx) => { if (typeof kr.carve !== "function") return 0; carved = true; return kr.carve(mn, mx); };
-  // Boxes in local block offsets (inclusive), turned into world block boxes. Times itself (R.carveMs).
+  // Each carve remeshes the chunks it touches (50-90 ms): time it so the hitch can be put where it is not seen (R.carveMs).
+  R.carveW = (mn, mx) => { if (typeof kr.carve !== "function") return 0; carved = true; const t0 = performance.now(); const n = kr.carve(mn, mx); R.carveMs = (R.carveMs || 0) + performance.now() - t0; return n; };
+  // Boxes in local block offsets (inclusive), turned into world block boxes.
   R.carveL = (boxes) => {
-    const t0 = performance.now(); let n = 0;
+    let n = 0;
     for (const [a, b] of boxes) {
       const p = R.L(a[0] + 0.5, a[1] + 0.5, a[2] + 0.5, new THREE.Vector3()), q = R.L(b[0] + 0.5, b[1] + 0.5, b[2] + 0.5, new THREE.Vector3());
       R.carved = (R.carved || []).concat([[Math.floor(Math.min(p.x, q.x)), Math.floor(Math.min(p.y, q.y)), Math.floor(Math.min(p.z, q.z))]]);
       n += R.carveW([Math.floor(Math.min(p.x, q.x)), Math.floor(Math.min(p.y, q.y)), Math.floor(Math.min(p.z, q.z))], [Math.floor(Math.max(p.x, q.x)), Math.floor(Math.max(p.y, q.y)), Math.floor(Math.max(p.z, q.z))]);
     }
-    R.carveMs = (R.carveMs || 0) + performance.now() - t0;
     return n;
   };
   const onceDone = new Set();

@@ -160,6 +160,6 @@ export default {
     }
     return { dur: DUR, hits, cam, update, sounds, loops, deathSide: -1,
       marks: { dread: (tDark + tLight) / 2, fake: (tLight + t0) / 2, lunge: L.t1 + 0.12, kill: tK + 1.2 },
-      notes: { fits: trap.fits, D: Dp, fromHole, t0: +t0.toFixed(2), dur: +DUR.toFixed(2) } };
+      notes: { fits: trap.fits, D: Dp, open: +trap.open.toFixed(2), fromHole, t0: +t0.toFixed(2), dur: +DUR.toFixed(2) } };
   }
 };

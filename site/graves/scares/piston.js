@@ -114,8 +114,11 @@ export async function pistonTrap(R, { click = 1.2, open = 1.95, D = 7, web = fal
     return c;
   }
   function update(t, f) {
-    if (t >= open) R.once("piston-carve", carve);
-    group.visible = t >= open;
+    // The carve remeshes the chunk (50-90 ms): it lands a frame before the pistons move, while the screen still holds
+    // the whole floor, so the clack and the yank stay together.
+    const tPre = open - 0.035;
+    if (t >= tPre) R.once("piston-carve", carve);
+    group.visible = t >= tPre;
     const s = clamp((t - open) / 0.1);   // 2 ticks
     for (const u of units) {
       const d = dirOf(u.s).multiplyScalar(-s);
