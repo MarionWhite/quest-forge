@@ -112,6 +112,9 @@ export function createBrain(deps) {
   const world = new THREE.Group();
   S.scene.add(world);
   const nav = makeNav(camp.obstacles);
+  // a warm fill that follows him from the camera's side, so the backlit sunset never turns him into a silhouette
+  const fill = new THREE.PointLight(0xffd8b8, 14, 9, 1.4);
+  S.scene.add(fill);
   let rng = mulberry(seed);
   const R = (a = 0, b = 1) => a + rng() * (b - a);
   const rest = {};
@@ -963,6 +966,10 @@ export function createBrain(deps) {
         stepExtras(dt);
       }
       stepItems(dt);
+      {
+        const cx = b.camPos.x - root.position.x, cz = b.camPos.z - root.position.z, d = Math.hypot(cx, cz) || 1;
+        fill.position.set(root.position.x + (cx / d) * 2.2, root.position.y + 1.9, root.position.z + (cz / d) * 2.2);
+      }
       // ambience tied to the camp
       b.fireT -= dt;
       if (b.fireT <= 0) { b.fireT = R(2.6, 4.2); play('fire.fire', { pos: { x: L.fireCenter.x, y: 1, z: L.fireCenter.z }, volume: 0.5, ref: 5 }); }

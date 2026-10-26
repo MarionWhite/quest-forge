@@ -531,6 +531,7 @@ function followStep(want, omega, dt) {
 }
 function followSet(c) { cf.pos.copy(c.pos); cf.look.copy(c.look); cf.fov = c.fov ?? 38; cf.vel.set(0, 0, 0); cf.lvel.set(0, 0, 0); cf.fvel = 0; }
 
+function syncSize() { const cv = st.stage.renderer.domElement; if (cv.clientWidth && cv.clientHeight) st.stage.setSize(cv.clientWidth, cv.clientHeight); }
 function aspectNow() { const c = st.stage && st.stage.renderer.domElement; return c && c.clientWidth && c.clientHeight ? c.clientWidth / c.clientHeight : 1.7; }
 
 function resetStage() {
@@ -552,7 +553,7 @@ function resetStage() {
   const sr = S.steve.root;
   sr.visible = true; sr.scale.set(1, 1, 1);
   if (S.steve.parts && S.steve.parts.head) S.steve.parts.head.visible = true;
-  S.steve.mat.emissive.setRGB(0.025, 0.025, 0.025);
+  S.steve.mat.emissive.setRGB(0.3, 0.3, 0.3);
   if (brain) brain.freeze();
   clearOverlays();
   st.lastTick = -1;
@@ -639,6 +640,21 @@ function idleCam(t, aspect = 1.7) {
   const R = 11.4 + narrow * 18;
   return { pos: new THREE.Vector3(2.4 + Math.sin(a) * R, 3.4 + narrow * 4.5 + Math.sin(t * 0.21) * 0.2, 0.5 + Math.cos(a) * R), look: new THREE.Vector3(1.6 + narrow * 0.6, 2.0 - narrow * 2.9, 0.5), fov: 38 + narrow * 42 };
 }
+// The idle shot follows Steve: close enough that what he is doing reads, from a little above the
+// dais and the campfire, gliding as he walks (the follow camera smooths every change).
+function idleWant(t, aspect) {
+  const base = idleCam(t, aspect);
+  if (!brain) return base;
+  const p = brain.pos();
+  const narrow = Math.max(0, 1.1 - aspect);
+  const focus = new THREE.Vector3(p.x, p.y + 1.0, p.z);
+  const dir = base.pos.clone().sub(base.look); dir.y = 0; dir.normalize();
+  const dist = 10.2 + narrow * 10;
+  const pos = focus.clone().addScaledVector(dir, dist); pos.y = p.y + 3.6 + narrow * 3;
+  // keep a hint of the dais in the frame: bias the focus a little toward it
+  focus.lerp(new THREE.Vector3(0.5, 1.2, 0.5), 0.22);
+  return { pos, look: focus, fov: 36 + narrow * 30 };
+}
 function reelCam(aspect) {
   const dist = aspect < 0.9 ? 6.4 : 4.9;
   return { pos: new THREE.Vector3(POS.reel.x, POS.reel.y + 0.25, POS.reel.z + dist), look: new THREE.Vector3(POS.reel.x, POS.reel.y - 0.05, POS.reel.z), fov: 38 };
@@ -713,7 +729,7 @@ function stepWorld(dt) {
   if (ph === 'idle' || ph === 'closing' || ph === 'starting' || ph === 'drop' || ph === 'run' || ph === 'mine') {
     const aspect = aspectNow();
     const idle = idleCam(st.clock, aspect);
-    let want = idle, om = ph === 'idle' ? 5 : 4.5;
+    let want = ph === 'idle' || ph === 'closing' || ph === 'starting' ? idleWant(st.clock, aspect) : idle, om = ph === 'idle' ? 2.6 : 3.4;
     if (ph === 'mine') { want = shoulderCam(); om = 3.4; }
     else if (ph === 'drop' || ph === 'run') {
       const sp = brain.pos();
@@ -835,6 +851,9 @@ function stepTimeline(dt) {
       play('qf.reveal.' + mood, { volume: 1 });
       audio.duck('sfx', 0.35, 3.2);
     }
+    // the marker line would cut through the landed item: fade it out
+    const mk = clamp01(1 - (T - T_WIN) / 0.3);
+    for (const c of st.reel.group.children) if (!st.reel.tiles.includes(c)) { c.scale.x = Math.max(0.001, mk); c.visible = mk > 0; }
     const k = ease(clamp01((T - T_WIN) / 0.7));
     const tile = st.reel.tiles[st.reel.win];
     const wp = new THREE.Vector3(POS.reel.x, POS.reel.y, POS.reel.z);
@@ -865,7 +884,7 @@ function stepTimeline(dt) {
       sceneCamFn = sc.cam;
       st.sceneDur = sc.dur;
       st.fx.length = 0;
-      S.steve.mat.emissive.setRGB(0.025, 0.025, 0.025);
+      S.steve.mat.emissive.setRGB(0.3, 0.3, 0.3);
       S.setBlockHere(false);
       rebuildIfDirty();
       st.sceneCtx = ctx;
@@ -932,11 +951,12 @@ function prepIdle(ms) {
 // Seek the whole sequence (the dump hook): o.pre = seconds into the fall/run, o.mine = seconds of mining,
 // otherwise T is the post-shatter timeline (the reel at 3.7 s, the scene at 9.6 s) as before.
 function seekTo(T, hold, o = {}) {
+  syncSize();
   resetStage();
   st.started = true;
   st.clock = 0;
   if (st.idleMs) { prepIdle(st.idleMs); }
-  followSet(idleCam(st.clock, aspectNow()));
+  followSet(idleWant(st.clock, aspectNow()));
   brain.resume();
   beginSequence(st.winnerIndex);
   const step = 1 / 60;
@@ -1004,9 +1024,8 @@ function dumpShot() {
 }
 function dumpNow() {
   try {
-    const cv = st.stage.renderer.domElement;
-    if (cv.clientWidth && cv.clientHeight) st.stage.setSize(cv.clientWidth, cv.clientHeight);
-    if (st.phase === 'idle') followSet(idleCam(st.clock, aspectNow()));
+    syncSize();
+    if (st.phase === 'idle') followSet(idleWant(st.clock, aspectNow()));
     renderFrame(0, true);
     let report = null;
     try { report = st.scene && st.scene.report ? st.scene.report() : null; } catch (e) { report = { error: String(e) }; }
@@ -1100,7 +1119,7 @@ async function boot() {
   if (!seqHook) {
     if (st.idleMs) {
       prepIdle(st.idleMs);
-      followSet(idleCam(st.clock, aspectNow()));
+      followSet(idleWant(st.clock, aspectNow()));
       st.hold = params.has('dump');
       renderFrame(0, true);
       dumpShot();
@@ -1180,7 +1199,7 @@ async function loadSkin(name) {
     }
     const t = new THREE.Texture(src);
     t.colorSpace = THREE.SRGBColorSpace; t.magFilter = THREE.NearestFilter; t.minFilter = THREE.NearestFilter; t.needsUpdate = true;
-    st.stage.steve.mat.map = t; st.stage.steve.mat.needsUpdate = true;
+    st.stage.steve.mat.map = t; st.stage.steve.mat.emissiveMap = t; st.stage.steve.mat.needsUpdate = true;
     $('#skinNote').textContent = 'Showing the skin of ' + name + '.';
   } catch (e) {
     $('#skinNote').textContent = 'No skin for that name. Showing Steve.';

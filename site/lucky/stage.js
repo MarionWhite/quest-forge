@@ -560,7 +560,7 @@ export async function createStage(canvas, opts = {}) {
   steve.root.rotation.y = Math.PI / 2;
   steve.anim = makeAnim({ kind: 'biped', root: steve.root, parts: steve.parts });
   steve.root.traverse((o) => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
-  steve.mat.emissive.setRGB(0.025, 0.025, 0.025); // no face goes fully black
+  steve.mat.emissive.setRGB(0.3, 0.3, 0.3); steve.mat.emissiveMap = steve.mat.map; // self-lit by his own texture: colours stay, shadows lift // no face goes fully black
   scene.add(steve.root);
 
   // the dais edge: a low violet ring on the top
