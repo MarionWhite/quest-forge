@@ -1,6 +1,6 @@
 # site-r6-krypt-gen (checkpoint, started 2026-10-26, Mac)
 
-STATUS: done (2026-10-26). 46 kinds, 12 strata, 10,000 graves in 79 ms of plan; `node tools/site/check_krypt_plan.mjs` passes (no-repeat, determinism, append-only). Sheets: scratchpad r6/krypt-gen/f1, f2, fin, fin2.
+STATUS: done (2026-10-26, final pass: chasm lava sea 8 below the bridge with strong glow, void_bridge open to a dome of stars (end_sky tile + drawn stars, app.js K.endSky), library balcony lamps). 46 kinds, 12 strata, 10,000 graves in 79 ms of plan; `node tools/site/check_krypt_plan.mjs` passes (no-repeat, determinism, append-only). Sheets: scratchpad r6/krypt-gen/f1, f2, fin, fin2.
 Open items for the owner/next round: water gaps look almost black; cycle name reads "Lower The Crypt"; stronghold portal side-room kind not re-implemented; draw-call/heap numbers at grave 9,000 and real phone timing not measured; gap-jump mid-arc and find-rush only checked by dump, not by CDP motion.
 Requests: none.
 
@@ -61,3 +61,5 @@ Previous state: `site-r5-krypt-more.md`.
   offsets, krypt-gap event); rush transition (fog + blur) for far jumps; PageUp/Down strata; depth gauge #hudK; strata bands in the
   minimap above 300 graves. demo=10000 -> 81,303 blocks, 1369 legs, heap ~37 MB, 9-10 chunks, build ~25 ms/chunk (max 69).
   Only the 15 original kinds + frontier so far, one stratum. NEXT: strata + 30 new kinds, no-repeat script, nav checks, perf, sheets.
+
+Final re-measure (demo=10000): grave 10: 50 calls, 5.0k tris, heap 28 MB; grave 1,000: 83 calls, 16.4k tris, 62 MB; grave 9,000: 37 calls, 7.4k tris, 38 MB. Phone set pieces: sheet ph2 (chasm_open, library_balcony, void_bridge). Desktop set pieces: t1 (chasm_open), t2 (void_bridge), t3 (library_balcony). check_krypt_plan.mjs: OK.

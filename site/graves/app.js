@@ -237,6 +237,16 @@ async function startKrypt() {
   scene.background = new THREE.Color(0x07060b);
   scene.fog = new THREE.FogExp2(0x07060b, 0.04);
   K.scene = scene;
+  // The End's sky: a dome of the vanilla end_sky texture around the camera, shown only where the void is open (void_bridge legs).
+  try {
+    const cv = document.createElement("canvas"); cv.width = 1024; cv.height = 512; const g = cv.getContext("2d");
+    g.fillStyle = "#07040f"; g.fillRect(0, 0, 1024, 512);
+    const tex = new THREE.CanvasTexture(cv); tex.magFilter = THREE.NearestFilter; tex.minFilter = THREE.LinearFilter;
+    const star = () => { let r = 12345; const f = () => (r = (r * 1664525 + 1013904223) >>> 0) / 4294967296; for (let i = 0; i < 2200; i++) { const x = f() * 1024, y = f() * 512, b = f(); g.fillStyle = b > 0.9 ? "#ffffff" : b > 0.5 ? "#d6c4ff" : "#9a82e0"; const z = b > 0.97 ? 3 : b > 0.8 ? 2 : 1; g.fillRect(x | 0, y | 0, z, z); } tex.needsUpdate = true; };
+    const im = new Image(); im.onload = () => { g.globalAlpha = 0.09; for (let x = 0; x < 1024; x += im.width * 2) for (let y = 0; y < 512; y += im.height * 2) g.drawImage(im, x, y, im.width * 2, im.height * 2); g.globalAlpha = 1; star(); }; im.onerror = star; im.src = "tex/end_sky.png"; star();
+    K.endSky = new THREE.Mesh(new THREE.SphereGeometry(110, 32, 20), new THREE.MeshBasicMaterial({ map: tex, side: THREE.BackSide, fog: false, depthWrite: false }));
+    K.endSky.renderOrder = -10; K.endSky.visible = false; K.endSky.frustumCulled = false; scene.add(K.endSky);
+  } catch (e) { K.endSky = null; }
   const camera = new THREE.PerspectiveCamera(58, 1, 0.05, 140);
   K.camera = camera; K.baseFov = 58;
 
@@ -792,6 +802,7 @@ function frameInner(now) {
   const rf = K.rushFog || 0;
   K.scene.fog.color.setRGB(prof.fog[0] * (1 - rf) + 0.05 * rf, prof.fog[1] * (1 - rf) + 0.05 * rf, prof.fog[2] * (1 - rf) + 0.07 * rf);
   K.scene.background.copy(K.scene.fog.color);
+  if (K.endSky) { const on = K.prof && K.prof.kind === "void_bridge"; K.endSky.visible = on; if (K.sky) K.sky.visible = !on; if (on) K.endSky.position.copy(K.camera.position); }
   K.scene.fog.density = prof.fogD + rf * 0.22;
   K.renderer.toneMappingExposure = prof.exposure;
   K.bloom.strength = prof.bloom;

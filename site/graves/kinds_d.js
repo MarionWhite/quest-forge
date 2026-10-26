@@ -8,7 +8,7 @@ import { def, wall, P } from "./kindreg.js";
 import { F, rectOf, clearer, pool } from "./kindlib.js";
 const { T_AIR, T_BRICK, T_COBBLE, T_STONE, T_BRICK_CRACK, T_BRICK_MOSSY, T_MOSSY, T_GRAVEL_FLOOR, T_DIRT, T_CARVED, T_LAVA, T_OBS, T_GLOW, T_PLANK, T_LOG, T_BEDROCK, T_NBRICK, T_NETHER, T_WATER } = B;
 const cl = B.clay;
-const D = 9;                                   // depth of the open voids
+const D = 8;                                   // depth of the open voids
 
 // Rough, natural far walls: the hall's side walls are carved back 0..depth cells in drifting waves, never across an alcove or passage.
 export function rough(c, o = {}) {
@@ -104,6 +104,7 @@ def("library_balcony", { style: wall([[300, T_BRICK], [560, B.T_PLANK_SPRUCE], [
       c.put("fence", (sd > 0 ? hw - 2 : -hw + 2) + (sd > 0 ? 0 : 0) , lv + 0.5, y0 + 6, { h: 0.9, tex: "planks_spruce" });
     }
     for (let lv = c.lo + 1; lv < c.hi; lv += 4) for (const sd of [-1, 1]) { const lu = sd > 0 ? hw - 3 : -hw + 2; c.col(lu, lv, y0, yd - 1, B.T_LOG_SPRUCE); c.torchAt(leg, lu, lv, y0 + 3, sd > 0 ? 1 : -1, { I: 2.8 }); }
+    for (let lv = c.lo + 1; lv < c.hi; lv += 3) for (const sd of [-1, 1]) { const lu = sd > 0 ? hw - 2 : -hw + 1; c.lamp(lu, lv, y0 + 6, T_GLOW, [1.0, 0.8, 0.45], 3.8, 13); }
     for (let lv = c.lo + 2; lv < c.hi; lv += 8) { for (const lu of [-3, 2]) { c.L(leg, lu, lv, y0 + ht - 4, T_GLOW); c.col(lu, lv, y0 + ht - 3, y0 + ht - 1, B.T_PLANK_SPRUCE); c.src(lu + 0.5, lv + 0.5, y0 + ht - 4, [1.0, 0.82, 0.5], 3.6, 12, {}); } }
     for (let lv = c.lo + 3; lv < c.hi - 2; lv += 9) { c.put("cube", -2.5, lv + 0.5, y0, { side: "crafting_table_side", top: "crafting_table_top", ry: 0, h: 1 }); c.put("chest", 2.2, lv + 0.5, y0, { ry: c.faceRy(1) }); }
     for (let lv = c.leg.cs + 1; lv < c.leg.ce - 1; lv++) if (lv % 5 === 0) for (let lu = -hw; lu < hw; lu++) if (c.LG(leg, lu, lv, y0 + ht - 1) === T_AIR) c.L(leg, lu, lv, y0 + ht - 1, B.T_LOG_SPRUCE);
@@ -197,7 +198,7 @@ def("arena", { style: wall([[400, T_BRICK], [650, T_STONE], [860, T_BRICK_CRACK]
 // ---- S10: the lava chasm: a bridge with open drops on both sides --------------------------------------------------------------------------------------
 def("chasm_open", { style: wall([[420, T_STONE], [700, T_COBBLE], [880, T_BEDROCK], [1000, T_OBS]]), hw: [10, 10], ht: [12, 12], pre: [3, 3], post: [3, 3], m: [5, 6], branch: [0, 0], step: 8, below: D + 3, holes: [0.4, 0.8],
   floor: ({ lu, leg }) => (lu >= -2 && lu < 2 ? B.T_BRIDGE : { from: leg.y0 - D, cells: [[leg.y0 - D - 1, T_BEDROCK], [leg.y0 - D, T_LAVA]], lava: true }),
-  alcoveBase: (leg) => leg.y0 - D + 1, alcovePil: T_STONE, alcoveLin: T_BRICK, lavaI: 18, lavaDepth: D,
+  alcoveBase: (leg) => leg.y0 - D + 1, alcovePil: T_STONE, alcoveLin: T_BRICK, lavaI: 40, lavaDepth: D,
   prof: P([0.12, 0.05, 0.03], [0.075, 0.028, 0.014], 0.028, 1.24, 0.85, 0.5, { pitch: -0.3 }),
   dress(c) {
     const { leg, y0, hw, ht } = c;
@@ -210,13 +211,13 @@ def("chasm_open", { style: wall([[420, T_STONE], [700, T_COBBLE], [880, T_BEDROC
   } });
 
 // ---- S11: the void bridge: no walls, a starfield, islands of end stone ----------------------------------------------------------------------------------------
-def("void_bridge", { style: wall([[600, B.T_ENDSTONE], [850, T_OBS], [1000, B.T_ENDSTONE]]), hw: [10, 10], ht: [14, 14], pre: [3, 3], post: [3, 3], m: [5, 6], branch: [0, 0], step: 8, below: D + 4, holes: [],
+def("void_bridge", { margin: 3, style: wall([[600, B.T_ENDSTONE], [850, T_OBS], [1000, B.T_ENDSTONE]]), hw: [10, 10], ht: [14, 14], pre: [3, 3], post: [3, 3], m: [5, 6], branch: [0, 0], step: 8, below: D + 4, holes: [],
   floor: ({ lu, leg }) => ((lu === -1 || lu === 0) ? T_OBS : { from: leg.y0 - D - 2, cells: [[leg.y0 - D - 3, T_BEDROCK]] }),
   alcoveBase: (leg) => leg.y0 - 2, alcovePil: T_OBS, alcoveLin: B.T_ENDSTONE,
   prof: P([0.075, 0.05, 0.12], [0.04, 0.03, 0.09], 0.03, 1.32, 1.2, 0.65, { pitch: -0.2 }),
   dress(c) {
     const { leg, y0, hw, ht } = c;
-    rough(c, { depth: 3 });
+    for (let lv = leg.cs; lv < leg.ce; lv++) for (let lu = -hw - 4; lu < hw + 4; lu++) for (let j = 0; j < 12; j++) c.L(leg, lu, lv, y0 + ht - 3 + j, T_AIR);
     c.scatter(22, 270, (q, r1, r2, r3) => {
       const lu = Math.floor(-hw + 1 + r2 * (2 * hw - 2)); if (Math.abs(lu + 0.5) < 3) return;
       const lv = Math.floor(c.lo + r1 * (c.hi - c.lo)), yy = y0 - 3 - Math.floor(r3 * 6), rr = 1 + (q % 3);
