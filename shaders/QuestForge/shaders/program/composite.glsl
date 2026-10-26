@@ -25,6 +25,7 @@ void main() {
 #ifdef FSH
 in vec2 uv;
 
+uniform sampler2D colortex0;
 uniform sampler2D colortex1;
 uniform sampler2D colortex2;
 uniform sampler2D colortex3;
@@ -55,7 +56,12 @@ vec3 waterAmbient(float skyLight) {
 // against the opaque depth, refine the hit by bisection, and fade out towards the screen
 // edges, for rays that turn back towards the camera and for long rays. The sky table is the
 // fallback, so a miss is never black. Returns rgb and the hit weight.
+// Loop 4: how much a hit hides the sun's glint, with r007's weight (falling with the step count).
+// The loop 2 weight (full strength out to the last steps) let every far hit behind the low sun
+// (ocean_sunset's island, lake_glitter's cliff) cut the glitter path to a stub.
+float gSsrOcc = 0.0;
 vec4 waterSSR(vec3 viewPos, vec3 viewRefl, float jitter) {
+    gSsrOcc = 0.0;
     float stepLen = 0.6 + 0.02 * length(viewPos);
     vec3 p = viewPos + viewRefl * stepLen * jitter;
     vec3 prev = viewPos;
@@ -83,6 +89,7 @@ vec4 waterSSR(vec3 viewPos, vec3 viewRefl, float jitter) {
             // Loop 2 (critic: the lake mirrored no cliff or tower): the weight fell linearly with the
             // step count, so a hit 60 blocks out (step 14 of 20) kept under a third; now only the
             // last steps fade.
+            gSsrOcc = clamp(edge.x * edge.y * (1.0 - float(i) / float(QF_SSR_STEPS)) * smoothstep(0.0, 0.25, -viewRefl.z + 0.3), 0.0, 1.0);
             return vec4(texture(colortex3, huv).rgb, clamp(w, 0.0, 1.0));
         }
         prev = p;
@@ -152,7 +159,12 @@ vec3 motesGrid(vec3 viewDir, float dist0, float pixelBlock, float eyeSky,
     bool under = isEyeInWater == 1;
     float maxD = min(dist0 - 0.2, dEnd);
     if (maxD <= d0 + 0.5) return sum;
-    float dens = farGrid ? MOTE_DENSITY * 2.6 : MOTE_DENSITY;   // uk: 1.5 left a handful of flakes in the beam
+    float dens = farGrid ? MOTE_DENSITY * 2.6 : MOTE_DENSITY;
+#if QF_DUST > 0
+    // Loop 4 (dust_a/dust_b: a beam crossing near air in front of the trunks held two or three
+    // flakes): a thicker near grid. Out of the beams a mote is unlit, so only the beams fill up.
+    if (!farGrid && !under) dens = min(MOTE_DENSITY * 1.6, 0.9);
+#endif   // uk: 1.5 left a handful of flakes in the beam
     float t = animTime();
     float pxA = 2.0 / (gbufferProjection[1][1] * viewHeight);   // radians per pixel
     vec3 L = lightDirWorld();
@@ -252,12 +264,16 @@ vec3 motesGrid(vec3 viewDir, float dist0, float pixelBlock, float eyeSky,
                             float s1 = shadowRaw(v + p1 * tap), s2 = shadowRaw(v - p1 * tap);
                             float s3 = shadowRaw(v + p2 * tap), s4 = shadowRaw(v - p2 * tap);
                             inBeam = 1.0 - min(min(s1, s2), min(s3, s4));
+                            // Loop 4 (uq ocean_sunset, dust_b: far flakes still dotted the open air over the
+                            // sea and the sunlit canopy, where a hut's or a tree's shadow sat within 5 m):
+                            // a far flake also needs this pixel's ray to cross a real beam.
+                            if (farGrid) inBeam *= smoothstep(0.15, 0.45, gBeam);
 #if QF_DUST_DBG == 1
                             inBeam = 1.0;   // diagnostic: every sunlit mote
 #endif
                         }
 #endif
-                        lit = E * vis * (phase * 2.2 + 0.10) * glintB * inBeam * 1.6
+                        lit = E * vis * (phase * 2.2 + 0.10) * glintB * inBeam * (farGrid ? 1.6 : 3.6)   // loop 4: near flakes 1.6 -> 3.6
                             + Eblock * 0.32;
 #else
                         lit = E * vis * (max(phase - 0.04, 0.0) * 2.4 + 0.09) * glint
@@ -267,6 +283,13 @@ vec3 motesGrid(vec3 viewDir, float dist0, float pixelBlock, float eyeSky,
                     }
                     float fadeD = farGrid ? smoothstep(d0, d0 + 3.0, along) * smoothstep(maxD, maxD - 8.0, along)
                                           : smoothstep(maxD, maxD * 0.82, along) * smoothstep(0.15, 0.8, along);
+#if QF_DUST > 0
+                    // Loop 4 (critic: a static yellow oval on forest_golden's leaves, in every tag; the
+                    // near/far diagnostic put it in the near grid): a flake a metre from the eye drifts
+                    // tens of pixels a second, TAA smears it into an oval and the beam light makes it
+                    // the brightest thing there. Air dust starts 3-6.5 m out.
+                    if (!under && !farGrid) fadeD *= smoothstep(3.0, 6.5, along);   // us: 1.5-3.5 still left an oval 4 m out in dust_b
+#endif
                     sum += lit * tint * cov * fadeD * fadeLife * 0.08 * MOTE_GAIN * (farGrid ? 1.8 : 1.0);
                 }
             }
@@ -282,7 +305,10 @@ vec3 ambientMotes(vec3 viewDir, float dist0, float pixelBlock, float eyeSky) {
     bool under = isEyeInWater == 1;
     vec3 s = motesGrid(viewDir, dist0, pixelBlock, eyeSky, MOTE_CELL, 0.0,
                        (QF_DUST > 0 && !under) ? 18.0 : 22.0, MOTE_STEPS, false);
-#if QF_DUST > 0
+#if QF_DUST_DBG == 3
+    s = vec3(0.0);   // diagnostic: far grid only
+#endif
+#if QF_DUST > 0 && QF_DUST_DBG != 2
     if (!under && MOTE_FAR_STEPS > 0)
         s += motesGrid(viewDir, dist0, pixelBlock, eyeSky, 3.0, 14.0, 48.0, MOTE_FAR_STEPS, true);
 #endif
@@ -346,7 +372,7 @@ vec3 lightShafts(vec3 viewDir, float dist, float eyeSky) {
 #endif
     float j = ign(gl_FragCoord.xy + float(frameCounter % 64) * vec2(3.17, 7.91));
     float lit = 0.0, litFar = 0.0;
-    float dust = 0.0, nearLit = 0.0, flips = 0.0, prevS = -1.0;
+    float dust = 0.0, nearLit = 0.0, flips = 0.0, prevS = -1.0, nAir = 0.0;
 #if QF_DUST > 0
     float tD = animTime();
 #endif
@@ -357,20 +383,32 @@ vec3 lightShafts(vec3 viewDir, float dist, float eyeSky) {
         lit += sv * 2.0 * f;
         litFar += sv * 2.0 * f * smoothstep(28.0, 80.0, dd);
         // Lit/shaded transitions along the ray within ~40 blocks: beams.
-        if (dd < 40.0) {
+        // Loop 4 (golden_lit bisect: QF_DUST 0 alone took the near field from 78,61,18 back to
+        // 36,45,14): samples in the last two blocks before the surface flip on the ground's own
+        // shadow-map noise (the grass's stripes), so every ray onto open sunlit ground counted as
+        // a beam and the dust haze laid an olive veil over the field. Only free air counts.
+        bool freeAir = dd < dist - 2.0;
+        if (dd < 40.0 && freeAir) {
             if (prevS >= 0.0) flips += abs(sv - prevS);
             prevS = sv;
             nearLit += sv;
+            nAir += 1.0;
         }
 #if QF_DUST > 0
         // The dust lives in the first ~24 blocks, where a beam is wide enough to show it.
-        if (sv > 0.0 && dd < 24.0) dust += sv * dustField(viewDir * dd + cameraPosition, tD) * 2.0 * f * smoothstep(0.3, 1.5, dd);
+        if (sv > 0.0 && dd < 24.0 && freeAir) dust += sv * dustField(viewDir * dd + cameraPosition, tD) * 2.0 * f * smoothstep(0.3, 1.5, dd);
 #endif
     }
     lit /= float(SHAFT_STEPS);          // the lit share of the ray, 0-1
     dust /= float(SHAFT_STEPS);
     // A beam: the ray crosses lit and shaded air (flips), or it is partly lit near the camera.
     gBeam = clamp((flips - 0.5) * 0.5, 0.0, 1.0) * outside * smoothstep(0.0, 0.06, L.y);
+    // Loop 4 (golden_lit, the camera 20 blocks over a sunlit field): the grass's thin shadows near
+    // the ground flipped a few samples, enough to call the whole field a beam (dust haze and the
+    // full warm near air: the olive veil). A beam is air that is really shaded in part: at least a
+    // fifth of the free air on the ray in shadow.
+    float shadedAir = nAir > 0.0 ? 1.0 - nearLit / nAir : 0.0;
+    gBeam *= smoothstep(0.12, 0.30, shadedAir);
     float gh = goldenHour();
     // Loop 3 (critic: golden_lit's whole field olive-brown, "the mild orange wash"; BSL keeps the
     // near and middle grass green): in open sunlight at golden hour the warm lit air starts ~30-80 m
@@ -397,7 +435,7 @@ vec3 lightShafts(vec3 viewDir, float dist, float eyeSky) {
 #else
     const float DUST_S = 0.013;
 #endif
-    float dPhase = 0.6 * hgPhaseS(mu, 0.62) + 0.4 / (4.0 * PI);
+    float dPhase = 0.85 * hgPhaseS(mu, 0.62) + 0.15 / (4.0 * PI);   // loop 4: mostly forward (0.4 isotropic veiled sunlit fields seen away from the sun)
     vec3 dustL = E * dPhase * DUST_S * dust * min(maxD, 24.0) * gBeam;
 #else
     vec3 dustL = vec3(0.0);
@@ -589,7 +627,7 @@ vec3 shadeWaterAbove(vec3 color, vec3 n, float var, vec3 scene0, float dist0, ve
     // it as torn brown patches; it can only see the water itself, so it falls back to the sky.
     if (reflect(viewDir, nS).y > 0.01) ssr = waterSSR(viewPos0, viewR, ign(gl_FragCoord.xy + float(frameCounter % 64) * 7.0));
     refl = mix(refl, ssr.rgb, ssr.a);
-    sunOcc = ssr.a;
+    sunOcc = gSsrOcc;
 #endif
     float F = fresnelWater(NdotV);
     // r007: near the camera the eye averages the reflectance over many facets, so soften it toward
@@ -605,6 +643,10 @@ vec3 shadeWaterAbove(vec3 color, vec3 n, float var, vec3 scene0, float dist0, ve
     // film, the eye low over it) and the green body shows less.
     {
         float cg = waterCalmShare() * smoothstep(0.0, 0.6, goldenHour());
+        // Loop 4 (critic uk lake_glitter: the steep near water mirrored the clouds at full strength,
+        // a painted cloud mirror): the floor is for the far, grazing surface only; near the camera
+        // the true Fresnel lets you see into the water.
+        cg *= smoothstep(10.0, 40.0, dist0);
         F = mix(F, max(F, 0.34), cg);
         refracted *= mix(1.0, 0.72, cg);
     }
@@ -636,6 +678,10 @@ vec3 shadeWaterAbove(vec3 color, vec3 n, float var, vec3 scene0, float dist0, ve
     float a2b = mix(0.004, 0.050, gh) + 2.0 * var;
     float broad = ggx(NdotH, a2b) * G;
     spec += broad * mix(0.05, 0.42, gh) * balance;   // j0: 0.30 stopped short of the camera
+    // Loop 4 (critic uj ocean_sunset: the path under the sun is short and dim next to r007's qh;
+    // measured 15-25% under qh down the column while the sun disk's exposure rose): a second, longer
+    // lobe at low sun, so the path reaches the camera as a column (BSL), on calm water too.
+    spec += ggx(NdotH, a2b * 2.2) * G * 0.30 * gh * gh * balance;
 #if QF_SUN_SPARKLE == 1
     {
         // The tight core under the sun (r005, kept): world-anchored glints that hold for a second
@@ -751,6 +797,37 @@ float swampBlend(vec3 scene0, float sw0) {
         wsum += 1.0;
     }
     return sum / wsum;
+}
+#endif
+
+#if QF_METAL_SSR == 1
+// Loop 4 (critic uj_pbr: the bent-face horizon repeated at the same height on every block, a
+// painted stripe on glossy plastic): metal reflects the real scene. The reflected ray is marched
+// in screen space (the water's SSR); where it leaves the screen or finds nothing, the sky and
+// clouds along it, and below the horizon the lit ground. Tinted by the metal's Fresnel; the
+// deferred pass drew only the sun's highlight and a little diffuse.
+vec3 metalReflection(vec3 n, vec3 viewDir, vec3 albedo, float smooth_, float skyLight, float ao, float depth0) {
+    float r = (1.0 - smooth_) * (1.0 - smooth_);
+    vec3 f0 = clamp(albedo * 1.15, 0.0, 1.0);
+    float NdotV = clamp(dot(n, -viewDir), 0.02, 1.0);
+    vec3 Fe = fresnelSchlick(NdotV, f0);
+    vec3 R = reflect(viewDir, n);
+    vec3 Ru = normalize(vec3(R.x, max(R.y, 0.02), R.z));
+    vec3 envS = skyScatter(Ru);
+#if QF_CLOUDS == 1
+    envS = applyClouds(envS, Ru);
+#elif QF_CLOUDS == 2
+    envS = applyCloudsCheap(envS, Ru);
+#endif
+    vec3 L = lightDirWorld();
+    vec3 ground = (lightIrradiance() * max(L.y, 0.0) * 0.6 + skyIrradiance(vec3(0.0, 1.0, 0.0))) * vec3(0.16, 0.15, 0.11) / PI;
+    vec3 env = mix(ground, envS, smoothstep(-0.12, 0.10, R.y));
+    env = mix(env, skyIrradiance(n) / PI, r);
+    env *= mix(0.25, 1.0, smoothstep(0.3, 0.9, skyLight));
+    vec3 vp = viewFromScreen(uv, depth0) + mat3(gbufferModelView) * n * 0.04;
+    vec4 ssr = waterSSR(vp, mat3(gbufferModelView) * R, ign(gl_FragCoord.xy + float(frameCounter % 64) * 7.0));
+    env = mix(env, ssr.rgb, ssr.a * (1.0 - smoothstep(0.15, 0.6, r)));
+    return env * Fe * ao * 1.3;
 }
 #endif
 
@@ -1004,6 +1081,17 @@ void main() {
         }
     }
 
+#if QF_METAL_SSR == 1
+    if (!water && depth0 < 1.0 && isEyeInWater == 0) {
+        vec4 c0 = texelFetch(colortex0, px, 0);
+        vec4 g2m = texelFetch(colortex2, px, 0);
+        float smM = 1.0 - c0.a, f0M = 1.0 - g2m.a;
+        bool mapped = smM > 0.02 || f0M > 0.02;
+        bool metalPx = mapped ? f0M > 0.895 : unpackMaterial(g1) == MAT_METAL;
+        if (metalPx) color += metalReflection(decodeNormal(g1.rg), viewDir, toLinear(c0.rgb),
+                                              mapped ? max(smM, 0.35) : 0.72, g2m.g, g2m.b, depth0);
+    }
+#endif
     if (isEyeInWater == 1) {
 #if QF_UNDERWATER == 1 && QF_PRESET > 0
         if (!water && depth0 < 1.0) color *= underwaterCaustics(scene0, decodeNormal(g1.rg));

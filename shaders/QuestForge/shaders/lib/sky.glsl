@@ -593,7 +593,7 @@ CloudLight cloudLight() {
     vec2 lh = normalize(c.L.xz + vec2(1e-4, 0.0));
     vec3 hz = normalize(vec3(lh.x * 0.5 - lh.y * 0.866, 0.05, lh.x * 0.866 + lh.y * 0.5));
     vec3 horizon = day ? SUN_I * lookupSkyView(hz, sunDirWorld(), LUT_SV_SUN) : vec3(0.0);
-    c.under = amb * mix(0.35, 0.12, c.night) + horizon * gh * 0.8;
+    c.under = amb * mix(0.35, 0.12, c.night) + horizon * gh * 0.45;   // loop 4: 0.8 (the flat cream underside of an overhead deck)
     c.ph = vec3(1.0);
     c.rim = 0.0;
     return c;
@@ -615,12 +615,13 @@ vec3 cloudLum(CloudLight c, float od, float h, float mu, float dens) {
                     // ud (critic: a grey lens in river_noon's and biome_ocean's big clouds, still there with
                     // soft light samples): the thick core's flat base, lit only through the full dome, fell
                     // to the octaves' floor. A deep, isotropic diffusion term lifts thick bases evenly.
-                    + 0.26 * exp(-od * 0.05));   // loop 3: 0.16 left a grey patch under river_noon's big cloud
+                    // Loop 4: at golden hour that term lit whole decks a flat cream (forest_golden's wash).
+                    + 0.26 * mix(1.0, 0.30, goldenHour()) * exp(-od * 0.05));   // loop 3: 0.16 left a grey patch under river_noon's big cloud
     // Powder: the sunward side of a thick body is darker than its thin edges.
     float powder = 1.0 - 0.7 * exp(-od * 0.9 - dens * 2.0);
     s *= mix(1.0, powder, 0.75) / (4.0 * PI) * 2.2;
     // Golden hour: the near-level sun slips under the deck and lights the bases and lower sides.
-    s += c.E * (goldenHour() * 0.22 * exp(-od * 0.25) * (1.0 - h));
+    s += c.E * (goldenHour() * 0.16 * exp(-od * 0.6) * (1.0 - h));   // loop 4: 0.22, exp(-od*0.25) lit whole bases cream (forest_golden wash); only the thin sunward bases now
 #if QF_CLOUD_RIM == 1
     // Silver linings and rim light (r007; owner r006, golden: "a sharper highlight effect on the
     // edges of the clouds for more of a cinematic effect"). Where a cloud is thin both along the
@@ -726,6 +727,13 @@ vec3 skyRadiance(vec3 dir) {
 #if QF_SUN == 1
         // The real sun (lib/sun.glsl); its glare is drawn in final.glsl, over what is in front.
         L += sunDiskReal(dir, sunDir, T) * (1.0 - 0.9 * rainStrength) + T * moonDisk(dir, moonDirWorld());
+        {
+            // Loop 4 (critic uj ocean_sunset: the disk reads as a flat white sticker; BSL's sun burns
+            // into the sky round it): a warm Mie aureole a few degrees wide, deeper gold at low sun.
+            float a = acos(clamp(dot(dir, sunDir), -1.0, 1.0));
+            vec3 mt = mix(vec3(1.0, 0.88, 0.70), vec3(1.0, 0.78, 0.42), goldenHour());
+            L += T * SUN_I * mt * (0.24 * exp(-a / 0.022) + 0.040 * exp(-a / 0.11)) * (1.0 - rainStrength);   // l4 first try 0.05/0.01 did not show against the bright sunset sky
+        }
 #else
         L += T * (sunDisk(dir, sunDir) + moonDisk(dir, moonDirWorld()));
 #if QF_SUN_GLOW == 1

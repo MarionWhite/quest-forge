@@ -79,6 +79,13 @@ vec3 fresnelSchlick(float c, vec3 f0) {
 // own colour. What it reflects here: the sky dome along the reflected ray (blurred toward the sky's
 // irradiance as it gets rough), the lit ground below the horizon, and the sun as a sharp GGX
 // highlight. So gold and iron read as polished metal, bright where they face the sky or the sun.
+// Loop 4: with screen-space reflections (Medium and up) the metal's environment comes from the
+// composite pass (metalReflection), which sees the real scene; this pass draws only the sun.
+#if QF_SSR_STEPS > 0 && QF_WATER_STYLE > 0 && QF_PBR == 1
+#define QF_METAL_SSR 1
+#else
+#define QF_METAL_SSR 0
+#endif
 vec3 metalShade(vec3 albedo, vec3 n, vec3 viewDir, vec3 L, vec3 E, float smooth_, float shadow, float sky, float ao, vec3 diffuse, vec3 scenePos) {
     float r = (1.0 - smooth_) * (1.0 - smooth_);
     float a2 = max(r * r, 0.0012);
@@ -91,6 +98,7 @@ vec3 metalShade(vec3 albedo, vec3 n, vec3 viewDir, vec3 L, vec3 E, float smooth_
     // blocks are never optically flat: each face is bent a little like a shallow lens, so across a
     // block the reflection sweeps from sky (top) through a crisp horizon line to the ground (bottom)
     // and leans sideways, which is what reads as chrome at a glance.
+#if QF_METAL_SSR == 0
     {
         vec3 wp = scenePos + cameraPosition;
         vec3 an = abs(n);
@@ -100,6 +108,7 @@ vec3 metalShade(vec3 albedo, vec3 n, vec3 viewDir, vec3 L, vec3 E, float smooth_
         vec3 tS = normalize(cross(tU, n));
         Rf = normalize(Rf + (tU * fc.y * 1.1 + tS * fc.x * 0.6) * smooth_);
     }
+#endif
     vec3 Fe = fresnelSchlick(NdotV, f0);
     // Environment: sky above the horizon, ground (lit grass-and-earth tone) below, blended over a
     // few degrees, and toward the sky's irradiance on rough metal.
@@ -108,7 +117,11 @@ vec3 metalShade(vec3 albedo, vec3 n, vec3 viewDir, vec3 L, vec3 E, float smooth_
     vec3 env = mix(skyR, skyD, r);
     vec3 ground = (E * max(L.y, 0.0) * shadow * 0.6 + skyIrradiance(vec3(0.0, 1.0, 0.0))) * vec3(0.16, 0.15, 0.11) / PI;
     env = mix(ground * 0.7, env * 1.15, smoothstep(-0.02, 0.02, Rf.y));   // loop 3: a crisp horizon line (was -0.08..0.06)
+#if QF_METAL_SSR == 1
+    vec3 col = vec3(0.0);   // the reflection is added in composite
+#else
     vec3 col = env * Fe * mix(0.25, 1.0, sky) * ao;
+#endif
     // The sun: GGX with Smith-ish visibility, energy capped so a mirror does not blow out to a
     // pixel of infinity.
     vec3 H = normalize(L + V);
@@ -126,7 +139,11 @@ vec3 metalShade(vec3 albedo, vec3 n, vec3 viewDir, vec3 L, vec3 E, float smooth_
     col *= 1.4 + 0.9 * hb * smoothstep(-0.05, 0.02, Rf.y);   // ud: 1.6 + 1.2 pushed diamond and gold edges toward neon
     float sh2 = ggx(clamp(dot(n, H), 0.0, 1.0), 0.08) * NdotL / (4.0 * NdotV + 0.4);
     col += FH * E * min(sh2, 6.0) * shadow * 0.55;
-    col = max(col + diffuse * 0.32, diffuse * 0.95);   // loop 3: 0.55 of the diffuse on top buried the reflection (read as paint)
+#if QF_METAL_SSR == 1
+    col += diffuse * 0.30;
+#else
+    col = max(col + diffuse * 0.32, diffuse * 0.95);
+#endif   // loop 3: 0.55 of the diffuse on top buried the reflection (read as paint)
     return col;
 }
 
@@ -242,6 +259,10 @@ vec3 shadeSurface(Surface s, vec3 viewDir, vec2 pixel) {
         }
         float r = (1.0 - s.smoothness) * (1.0 - s.smoothness);
         float a2 = max(r * r, 0.0015);
+        // Loop 4: a smooth leaf map can give a leaf's flat top face a mirror-tight sun highlight (first
+        // suspect for forest_golden's yellow oval, which turned out to be a near dust mote). Leaves
+        // are waxy, never mirrors.
+        if (foliage) a2 = max(a2, 0.08);
         vec3 f0v = metal ? s.albedo : vec3(s.f0);
         vec3 V = -viewDir;
         vec3 H = normalize(L + V);
@@ -249,7 +270,7 @@ vec3 shadeSurface(Surface s, vec3 viewDir, vec2 pixel) {
         vec3 F = fresnelSchlick(max(dot(H, V), 0.0), f0v);
         float sp = ggx(max(dot(s.normal, H), 0.0), a2) * clamp(NdotL, 0.0, 1.0) / (4.0 * NdotV + 0.5);
         if (metal) color *= 0.15;
-        color += F * E * min(sp, 60.0) * shadow;
+        color += F * E * min(sp, foliage ? 3.0 : 60.0) * shadow;
         vec3 R = reflect(viewDir, s.normal);
         vec3 Fe = fresnelSchlick(NdotV, f0v);
         color += skyScatter(R) * Fe * sky * s.smoothness * s.smoothness * ao;
