@@ -84,7 +84,7 @@ export function tntBeat(ctx, N, o = {}) {
   const tn = [];
   for (let i = 0; i < count; i++) {
     const m = blockCube('minecraft:tnt', 0.5);
-    m.material = m.material.clone(); m.material.userData.keep = false;
+    m.material = [].concat(m.material).map((x) => { const c = x.clone(); c.userData.keep = false; return c; });
     m.visible = false; ctx.S.temp.add(m);
     const to = V(P.x + rnd(-2.6, 0.8), 0.25, P.z + rnd(-2.2, 2.2));
     tn.push({ m, to, t0: start + i * gap, fl: rnd(0.8, 1.1), fuse: rnd(0.8, 1.5), blew: false, ph: rnd(0, 1), fused: false });
@@ -104,7 +104,7 @@ export function tntBeat(ctx, N, o = {}) {
         it.m.rotation.x = a * 5; it.m.rotation.z = a * 3;
         if (k >= 1) { it.m.rotation.set(0, 0, 0); it.m.position.y = 0.25 + Math.abs(Math.sin((a - it.fl) * 8)) * 0.18 * Math.max(0, 1 - (a - it.fl) * 3); }
         const on = Math.floor((a * 6 + it.ph) % 2) ? 0.4 : 0;
-        it.m.material.emissive.setRGB(on, on * 0.9, on * 0.8);
+        for (const mm of [].concat(it.m.material)) mm.emissive.setRGB(on, on * 0.9, on * 0.8);
         if (a > it.fl + it.fuse) {
           it.blew = true; it.m.visible = false;
           ctx.explode(it.m.position.clone().setY(0.6), 0.5);

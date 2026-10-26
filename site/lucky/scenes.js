@@ -137,7 +137,7 @@ SCENES.falling_column = (ctx) => {
         chain.forEach((it, i) => {
           const tb = last + 1.4 + i * 0.16;
           const blink = t < tb && Math.floor(t * 8) % 2 === 0 ? 0.5 : 0;
-          it.h.traverse((o) => { if (o.material && o.material.emissive) o.material.emissive.setRGB(blink, blink, blink); });
+          it.h.traverse((o) => { if (o.material) for (const mm of [].concat(o.material)) if (mm.emissive) mm.emissive.setRGB(blink, blink, blink); });
           if (t >= tb && !it.blew) { it.blew = true; it.h.visible = false; ctx.explode(V(it.tx, it.ty + 0.5, it.tz), 0.7); sfx('random.explode', { pos: { x: it.tx, y: it.ty, z: it.tz }, volume: 0.8 }); ctx.shake(0.2); }
         });
       }

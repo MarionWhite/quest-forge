@@ -301,7 +301,7 @@ STRUCT.trapped_chest = (ctx) => {
         const k = easeOut((t - q.t0) / 0.8);
         q.h.position.y = (1 - 2.2) + 2.2 * k;
         const blink = Math.floor((t - 2) * 6) % 2 === 0 && t > 2.2;
-        q.h.children[0].traverse((o) => { if (o.material && o.material.emissive) o.material.emissive.setRGB(blink ? 0.35 : 0, blink ? 0.35 : 0, blink ? 0.35 : 0); });
+        q.h.children[0].traverse((o) => { if (o.material) for (const mm of [].concat(o.material)) if (mm.emissive) mm.emissive.setRGB(blink ? 0.35 : 0, blink ? 0.35 : 0, blink ? 0.35 : 0); });
       }
       if (t > 4.6 && blown === null) {
         blown = t;

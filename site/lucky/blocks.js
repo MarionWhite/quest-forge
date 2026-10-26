@@ -267,7 +267,7 @@ export function makeBlock(id, meta = 0, opts = {}) {
         const m = memo('lava', () => { const t = animTex('blocks/lava_still.png'); return new THREE.MeshLambertMaterial({ map: t, emissive: 0xff6a1a, emissiveMap: t, emissiveIntensity: 1.1 }); });
         const q = new THREE.Mesh(new THREE.BoxGeometry(1, 0.89, 1), m); q.position.set(0.5, 0.445, 0.5); g.add(q);
       } else {
-        const m = memo('water', () => new THREE.MeshLambertMaterial({ map: animTex('blocks/water_still.png'), color: 0x3f76e4, transparent: true, opacity: 0.72 }));
+        const m = memo('water', () => new THREE.MeshLambertMaterial({ map: animTex('blocks/water_still.png'), transparent: true, depthWrite: false }));   // 1.7.10 water is a blue texture with its own alpha
         const q = new THREE.Mesh(new THREE.BoxGeometry(1, 0.89, 1), m); q.position.set(0.5, 0.445, 0.5); g.add(q);
       }
       break;
