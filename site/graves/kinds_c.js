@@ -36,7 +36,7 @@ function cavern(c, o = {}) {
 // Freestanding columns down the hall.
 function colonnade(c, o = {}) {
   const { leg, y0, hw } = c, { every = 4, off = 1, tile = T_BRICK, cap = null, base = null, torch = 0, I = 2.8, color = null } = o;
-  const lus = o.lus || (hw >= 5 ? [-3, 2] : [-2, 1]);
+  const lus = o.lus || (hw >= 4 ? [-3, 2] : [-2, 1]);
   for (let lv = c.lo + off; lv < c.hi; lv += every) for (const lu of lus) {
     const h = o.h || c.ht - 1;
     c.col(lu, lv, y0, y0 + h - 1, tile);
@@ -148,20 +148,20 @@ def("portal_room", { style: wall([[300, T_BRICK], [520, T_BRICK_MOSSY], [700, T_
 const S = (f, ...a) => [f, ...a];
 const TABLE = {
   classic: [[4, 4], [5, 5], T_CARVED, T_BRICK, [S("vault", 1, T_BRICK)]],
-  worn: [[3, 3], [4, 4], T_BRICK_CRACK, T_COBBLE, [S("collapse", 9)]],
+  worn: [[3, 4], [5, 5], T_BRICK_CRACK, T_COBBLE, [S("cavern", { tile: T_COBBLE, hang: 0.9 }), S("collapse", 9)]],
   tomb_gallery: [[3, 3], [6, 6], B.T_QUARTZ_P, B.T_QUARTZ_C, [S("vault", 2, B.T_QUARTZ_C)]],
   arch_run: [[3, 3], [5, 5], T_STONE, T_CARVED, []],
   carpet_crypt: [[4, 4], [5, 5], T_BRICK, cl("red"), [S("vault", 1)]],
   raw_tunnel: [[3, 3], [4, 4], T_STONE, T_COBBLE, [S("cavern", { tile: T_STONE, hang: 0.8 })]],
   vaulted_hall: [[4, 5], [6, 6], B.T_LOG_SPRUCE, B.T_PLANK_SPRUCE, [S("vault", 2, B.T_LOG_SPRUCE)]],
   cell_chain: [[3, 3], [4, 4], T_BRICK, T_BRICK_CRACK, []],
-  barred_cells: [[4, 4], [5, 5], T_BRICK_MOSSY, T_CARVED, [S("colonnade", { every: 6, off: 3, tile: T_BRICK_MOSSY, lus: [-2, 1] })]],
-  cell_block: [[3, 3], [4, 4], T_BRICK_CRACK, T_BRICK, []],
+  barred_cells: [[5, 5], [5, 5], T_BRICK_MOSSY, T_CARVED, [S("colonnade", { every: 6, off: 3, tile: T_BRICK_MOSSY, lus: [-3, 2] })]],
+  cell_block: [[4, 4], [5, 5], T_BRICK_CRACK, T_BRICK, [S("vault", 1)]],
   sewer_walk: [[3, 4], [4, 5], T_MOSSY, T_BRICK_MOSSY, [S("vault", 1)]],
   drain_gallery: [[3, 3], [4, 4], T_MOSSY, T_BRICK_MOSSY, []],
   plank_causeway: [[5, 6], [6, 7], B.T_LOG, T_PLANK, [S("cavern", { tile: T_MOSSY, hang: 1 })]],
   drowned_hall: [[5, 6], [5, 5], T_BRICK_MOSSY, B.T_SPONGE, [S("colonnade", { every: 5, off: 2, tile: T_BRICK_MOSSY, torch: 2, I: 3.0, color: [0.6, 0.95, 1.0] })]],
-  pressure_flood: [[3, 3], [4, 4], T_BRICK, T_CARVED, []],
+  pressure_flood: [[3, 3], [7, 7], T_BRICK, T_CARVED, [S("vault", 2, T_STONE)]],
   scriptorium: [[5, 5], [8, 8], B.T_LOG_SPRUCE, B.T_SHELF, [S("catwalk", { tile: B.T_PLANK_SPRUCE, post: B.T_LOG_SPRUCE, fence: "planks_spruce" })]],
   treasury: [[5, 5], [6, 6], B.T_LAPIS, B.T_GOLD, [S("colonnade", { every: 5, off: 2, tile: B.T_LAPIS, cap: B.T_GOLD, torch: 3, I: 3.2, color: [1, 0.8, 0.4] }), S("vault", 1)]],
   alchemy_lab: [[3, 3], [4, 4], T_BRICK_MOSSY, B.T_COAL_BLOCK, []],
