@@ -241,8 +241,14 @@ public class CombatEnchants {
 
     /** Half damage or double damage, nothing in between. */
     public static class Roulette extends QFEnchantment {
+        /**
+         * Rare since 2026-10-25 (decision 0005 P9; was Uncommon). The census
+         * measured +21% trusted mean, level with Colossus (an Epic) and above
+         * every Rare but Rupture; +16% even on the 750-capped T4 bosses, since
+         * it multiplies after the cap.
+         */
         public Roulette(int id) {
-            super(id, "qf.roulette", Rarity.UNCOMMON, EnchantCategory.WEAPON, 1);
+            super(id, "qf.roulette", Rarity.RARE, EnchantCategory.WEAPON, 1);
         }
 
         @Override
@@ -364,8 +370,14 @@ public class CombatEnchants {
         private static final int WINDOW_TICKS = 40;
         private static final int MAX_STACKS = 8;
 
+        /**
+         * Epic since 2026-10-25 (decision 0005 P9; was Uncommon). The census
+         * measured +24% trusted mean, above every Epic except Rage, and as an
+         * Uncommon it dropped from vanilla chests at T0-T1, the strongest early
+         * find by a wide margin. Worth 0 on the 750-capped T4 bosses.
+         */
         public Momentum(int id) {
-            super(id, "qf.momentum", Rarity.UNCOMMON, EnchantCategory.WEAPON, 3);
+            super(id, "qf.momentum", Rarity.EPIC, EnchantCategory.WEAPON, 3);
         }
 
         @Override

@@ -79,8 +79,14 @@ public class PotionEnchants {
         /** Cooldown key. Shared by the suppressor and the check below. */
         private static final String RELIEF = "tank_slowness";
 
+        /**
+         * Epic since 2026-10-25 (decision 0005 P9; was Rare). The census
+         * measured +29% damage reduction against every T1 and T2 boss's own
+         * melee, significant on 17 of 17, second only to Turtle (a Legendary)
+         * and far above the other Rares (Bulwark +10%).
+         */
         public Tank(int id) {
-            super(id, "qf.tank", Rarity.RARE, EnchantCategory.CHESTPLATE, 3);
+            super(id, "qf.tank", Rarity.EPIC, EnchantCategory.CHESTPLATE, 3);
         }
 
         /** Called by Cleansing when it strips this enchantment's own slowness. */

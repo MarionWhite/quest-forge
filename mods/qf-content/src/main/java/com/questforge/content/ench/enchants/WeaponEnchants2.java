@@ -249,8 +249,14 @@ public class WeaponEnchants2 {
      * same "you are suddenly dangerous" feel with a mechanic that exists.
      */
     public static class Rage extends QFEnchantment {
+        /**
+         * Legendary since 2026-10-25 (decision 0005 P9; was Epic). The census
+         * measured +33% trusted mean, about +25 / +37 / +50 by level on uncapped
+         * bosses, second only to Excalibur and above every other Epic. Rarity
+         * follows measured strength; where it drops is decided separately.
+         */
         public Rage(int id) {
-            super(id, "qf.rage", Rarity.EPIC, EnchantCategory.WEAPON, 3);
+            super(id, "qf.rage", Rarity.LEGENDARY, EnchantCategory.WEAPON, 3);
         }
 
         @Override
