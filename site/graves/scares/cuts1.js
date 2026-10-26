@@ -66,16 +66,16 @@ export async function zombie(c) {
   const pivot = new THREE.Group(); pivot.rotation.order = "YXZ"; pivot.add(z.root); S.scene.add(pivot); pivot.visible = false;
   const hits = [2.35, 3.0, 3.55, 4.1, 4.65, 5.2];
   const z0 = (t) => -1.25 * Math.min(t, 2.3);
-  const feet = [-0.95, 0, -3.55], fdir = [0.97, -0.24];
-  const leanAt = (t) => t < 2.3 ? 0 : (0.55 + 0.4 * pulse(t, hits.slice(1), 0.2)) * sstep(2.3, 2.9, t);
+  const feet = [-1.7, 0, -4.2], fdir = [1, 0];
+  const leanAt = (t) => t < 2.3 ? 0 : (0.72 + 0.12 * pulse(t, hits.slice(1), 0.2)) * sstep(2.3, 2.9, t);
   const cam = (t) => {
     const k2 = sstep(2.5, 3.3, t), z0t = z0(t);
     const c = {
-      x: lerp(0, -0.35, k2), y: lerp(1.62 + bob(t) * (1 - k2), 0.38, k2), z: z0t + lerp(0, -0.4, k2),
-      yaw: 0.4 * sstep(1.7, 2.3, t) + 0.78 * sstep(2.35, 3.3, t), pitch: lerp(0, 0.85, k2) - 0.05 * sstep(2.3, 2.45, t),
+      x: lerp(0, -0.1, k2), y: lerp(1.62 + bob(t) * (1 - k2), 0.38, k2), z: z0t + lerp(0, -1.0, k2),
+      yaw: 0.55 * sstep(1.7, 2.3, t) + 0.6 * sstep(2.35, 3.3, t), pitch: lerp(0, 0.85, k2) - 0.05 * sstep(2.3, 2.45, t),
       roll: 0.3 * k2, fov: lerp(72, 66, k2)
     };
-    const w = sstep(2.6, 3.3, t), ln = leanAt(t), hx = feet[0] + fdir[0] * 1.7 * Math.sin(ln), hz = feet[2] + fdir[1] * 1.7 * Math.sin(ln), hy = 1.7 * Math.cos(ln);
+    const w = sstep(2.6, 3.3, t), ln = leanAt(t), hx = feet[0] + fdir[0] * 1.65 * Math.sin(ln), hz = feet[2] + fdir[1] * 1.65 * Math.sin(ln), hy = 1.65 * Math.cos(ln);
     const ty = Math.atan2(-(hx - c.x), -(hz - c.z)), tpch = Math.atan2(hy - c.y, Math.hypot(hx - c.x, hz - c.z));
     c.yaw = lerp(c.yaw, ty, w); c.pitch = lerp(c.pitch, tpch, w);
     return c;
@@ -92,17 +92,17 @@ export async function zombie(c) {
     update(t, f) {
       pivot.visible = t > 1.3;
       const ka = clamp((t - 1.4) / 0.95);
-      const px = t < 2.35 ? lerp(-3.4, feet[0], easeOut(ka)) : feet[0], pz = t < 2.35 ? lerp(-3.9, feet[2], easeOut(ka)) : feet[2];
+      const px = t < 2.35 ? lerp(-3.6, feet[0], easeOut(ka)) : feet[0], pz = t < 2.35 ? lerp(-4.6, feet[2], easeOut(ka)) : feet[2];
       pivot.position.set(px, 0, pz);
       const cp = cam(Math.min(t, 2.34));
-      faceTo(pivot, px, pz, t < 2.35 ? cp.x : -0.35, t < 2.35 ? cp.z : -3.7);
+      faceTo(pivot, px, pz, t < 2.35 ? cp.x : px + 1, t < 2.35 ? cp.z : pz);
       const bite = pulse(t, hits.slice(1), 0.2);
-      pivot.rotation.x = t < 2.3 ? 0 : -(0.55 + 0.4 * bite) * sstep(2.3, 2.9, t);
+      pivot.rotation.x = -leanAt(t);
       if (t < 2.35) limbs(z, t, 0.7, 1.45, 12); else {
         limbs(z, 0, 0, 1.9 + Math.sin(t * 26) * 0.12, 1);
-        pt(z, "head").rotation.x = -0.35 - bite * 0.5;
+        pt(z, "head").rotation.x = 0.25 - bite * 0.3;
       }
-      L.intensity = 3 * bite * sstep(2.3, 2.6, t); L.position.set(-0.35, 0.8, -3.3);
+      L.intensity = 3 * bite * sstep(2.3, 2.6, t); L.position.set(-0.1, 0.9, -3.4);
       f.vig = [90, 0, 0, 0.25 * sstep(2.3, 3.4, t)];
     }
   };
@@ -175,7 +175,7 @@ export async function skeleton(c) {
 export async function creeper(c) {
   const S = c.stage, cr = await getMob("Creeper");
   const pos = [0.15, 0, -0.1];
-  cr.root.position.set(pos[0], 0, pos[2]); cr.root.visible = true; S.scene.add(cr.root);
+  tint(cr, 0x8c8c8c); cr.root.position.set(pos[0], 0, pos[2]); cr.root.visible = true; S.scene.add(cr.root);
   cr.root.rotation.y = 0;
   const cam = (t) => {
     const turn = sstep(1.55, 2.25, t);
@@ -188,7 +188,7 @@ export async function creeper(c) {
   c.hitBurst([bt], (t) => ({ x: 0.15, y: 0.6, z: -0.1 }), "fire", 60, { dir: [0, 0.5, 0], speed: 4.5, spread: 1, size: 0.12, life: 0.8 });
   const L = new THREE.PointLight(0xffffff, 0, 8); L.position.set(0.15, 1.2, -0.1); S.scene.add(L);
   return {
-    id: "Creeper", dur: 5.2, death: "You were blown up by Creeper", hits: [bt], cam, silence: true,
+    id: "Creeper", dur: 5.2, flick: () => 0.5, death: "You were blown up by Creeper", hits: [bt], cam, silence: true,
     shake: (t) => 0.006 + 0.01 * sstep(2.3, 3.9, t) + 0.25 * pulse(t, [bt], 0.45),
     sounds: [[0.1, "qf.scare.riser", { volume: 0.6 }], [1.6, "step.stone", { volume: 0.7 }], [1.95, "mob.creeper.say", { pos: { x: 0.15, y: 1, z: -0.1 } }], [2.25, "random.fuse"], [3.5, "qf.scare.hit"],
       [bt, "random.explode"], [bt + 0.05, "@muffle", [350, 3.5]], [bt + 0.1, "qf.scare.ringing"], [5.2, "game.player.die"]],
@@ -197,8 +197,8 @@ export async function creeper(c) {
       cr.root.visible = !gone;
       const sw = sstep(2.3, 3.9, t), fz = t > 2.3 ? 3 + 3 * sw : 0;
       cr.root.scale.set(1 + 0.45 * sw + (t > 2.3 ? 0.05 * Math.sin(t * 22) : 0), 1 + 0.3 * sw + (t > 2.3 ? 0.04 * Math.sin(t * 22) : 0), 1 + 0.45 * sw);
-      cr.root.rotation.y = Math.PI + Math.sin(t * 3) * 0.05;
-      const flash = t > 2.3 ? (Math.floor(t * fz) % 2 ? 0.9 : 0) : 0;
+      cr.root.rotation.y = Math.sin(t * 3) * 0.05;
+      const flash = t > 2.3 ? (Math.floor(t * fz) % 2 ? 0.12 : 0) : 0;
       glow(cr, flash, 0xffffff);
       limbs(cr, 0, 0, null);
       L.intensity = gone ? 0 : flash * 5;
@@ -213,13 +213,13 @@ export async function creeper(c) {
 // ------------------------------------------------------------------------------------------------ Spider
 export async function spider(c) {
   const S = c.stage, sp = await getMob("Spider");
-  sp.root.visible = false; sp.root.scale.setScalar(1.0); S.scene.add(sp.root);
+  sp.root.visible = false; sp.root.scale.setScalar(1.15); S.scene.add(sp.root);
   const thread = box(0.012, 1, 0.012, 0xdddddd); S.scene.add(thread);
   const hits = [2.35, 2.95, 3.55, 4.15];
   const camz = -0.7;
   const cam = (t) => ({ x: 0, y: 1.62 + bob(t) * (1 - sstep(1.5, 1.8, t)), z: camz * Math.min(t, 1.5), yaw: 0, pitch: 0.28 * sstep(1.0, 1.7, t) - 0.12 * sstep(2.3, 2.5, t), roll: 0, fov: 72 });
   const cz = camz * 1.5;
-  const L = new THREE.PointLight(0xff1a10, 0, 4); S.scene.add(L);
+  const L = new THREE.PointLight(0xff3a20, 0, 4); S.scene.add(L);
   c.hitBurst(hits, cam, "blood", 22, { dir: [0, 0.5, 0.2], speed: 2.6, spread: 1 });
   return {
     id: "Spider", dur: 4.9, death: "You were slain by Spider", hits, cam,
@@ -234,13 +234,13 @@ export async function spider(c) {
       const bite = pulse(t, hits, 0.2);
       let y, z;
       if (hang) { y = hangY; z = -2.2; }
-      else { y = lerp(2.5, 1.05, dropK); z = lerp(-2.2, cz - 1.0, dropK) - 0.12 * bite; }
+      else { y = lerp(2.5, 1.2, dropK); z = lerp(-2.2, cz - 1.7, dropK) + 0.35 * bite; }
       sp.root.position.set(x, y, z);
       sp.root.rotation.set(hang ? 0.2 : 0.05 + 0.15 * bite, Math.PI, 0);
       thread.visible = hang && t > 0.95; thread.scale.y = Math.max(0.01, 3.2 - y); thread.position.set(0, (3.2 + y) / 2 + 0.2, z);
-      for (let i = 1; i <= 8; i++) { const lg = sp.parts["leg" + i]; if (lg) { const sc = t < 1.7 ? 0.1 : 0.3; lg.rotation.z = (lg.userData.rest ? lg.userData.rest.z : 0) + Math.sin(t * 26 + i * 1.7) * sc; } }
+      sp.anim(t * (t < 1.7 ? 1 : 3), 0, { walk: t < 1.7 ? 0.3 : 1.6 });
       pt(sp, "head").rotation.x = -0.4 * bite;
-      L.position.set(0, y + 0.2, z + 1.2); L.intensity = t > 1.7 ? 2 + 2 * bite : 0;
+      L.position.set(0, y + 0.2, z + 1.2); L.intensity = t > 1.7 ? 0.6 + 0.8 * bite : 0;
       f.vig = [70, 0, 0, 0.3 * sstep(1.8, 3, t)];
     }
   };
@@ -320,8 +320,9 @@ export async function witch(c) {
   const glass = box(0.14, 0.18, 0.14, 0xff4fb0); const cork = box(0.07, 0.06, 0.07, 0x8a6a3a, false); cork.position.y = 0.12;
   bottle.add(glass, cork); S.scene.add(bottle); bottle.visible = false;
   const tH = 1.5, tHit = 2.95;
-  const throwFrom = [-0.2, 1.6, -6.2];
+  const throwFrom = [-0.2, 1.6, -4.4];
   const L = new THREE.PointLight(0xd040ff, 0, 6); S.scene.add(L);
+  const WL = new THREE.PointLight(0xffa060, 2.5, 6); S.scene.add(WL);
   const hits = [tHit, 3.5, 4.05];
   c.hitBurst([tHit], cam, "purple", 60, { dir: [0, 0.6, 0.8], speed: 3.2, spread: 1.2 });
   c.hitBurst([tHit], cam, "white", 30, { dir: [0, 0.4, 0.8], speed: 3.5, spread: 1.2, size: 0.03 });
@@ -334,8 +335,8 @@ export async function witch(c) {
     update(t, f) {
       w.root.visible = t > 0.55;
       const approach = sstep(3.0, 4.8, t);
-      const wz = lerp(-6.5, -2.4, approach);
-      w.root.position.set(-0.2, 0, wz); w.root.rotation.set(0, Math.PI, 0);
+      const wz = lerp(-4.6, -2.2, approach);
+      w.root.position.set(-0.2, 0, wz); WL.position.set(-0.2, 2.4, wz + 1.2); w.root.rotation.set(0, Math.PI, 0);
       const wind = sstep(1.1, tH, t), thr = sstep(tH, tH + 0.12, t);
       pt(w, "rArm").rotation.x = t < tH ? -2.6 * wind : lerp(-2.6, -0.5, thr);
       pt(w, "lArm").rotation.x = Math.sin(t * 9) * 0.3;

@@ -12,10 +12,10 @@ const fireball = (S, size, col = 0xff8a10) => {
 // ------------------------------------------------------------------------------------------------ Slime
 export async function slime(c) {
   const S = c.stage, sl = await getMob("Slime");
-  sl.root.scale.setScalar(4.2); sl.root.visible = false; S.scene.add(sl.root);
+  sl.root.scale.setScalar(0.9); sl.root.visible = false; S.scene.add(sl.root);
   tint(sl, 0x7ee03a, 0x1a5a08, 0.5);
   const tl = 2.05;
-  const cam = (t) => ({ x: 0, y: 1.62 + bob(t) * (1 - sstep(1.2, 1.5, t)) - 0.15 * sstep(tl, tl + 0.5, t), z: -0.5 * Math.min(t, 1.5), yaw: 0, pitch: 0.35 * sstep(1.0, 1.5, t) - 0.35 * sstep(tl - 0.1, tl + 0.3, t), roll: 0.1 * sstep(tl, tl + 0.6, t), fov: 72 });
+  const cam = (t) => ({ x: 0, y: 1.62 + bob(t) * (1 - sstep(1.2, 1.5, t)) - 0.15 * sstep(tl, tl + 0.5, t), z: -0.5 * Math.min(t, 1.5), yaw: 0, pitch: 0.12 * sstep(1.0, 1.5, t) - 0.1 * sstep(tl - 0.1, tl + 0.3, t), roll: 0.1 * sstep(tl, tl + 0.6, t), fov: 72 });
   const hits = [2.5, 3.05, 3.6, 4.15];
   c.hitBurst([1.25, 1.45, 1.7], () => ({ x: 0, y: 3.1, z: -1.1 }), "green", 10, { dir: [0, -0.2, 0], speed: 0.8, spread: 0.6, grav: 4, size: 0.06 });
   c.hitBurst([tl], cam, "green", 80, { dir: [0, 0.3, 0.5], speed: 3.6, spread: 1.3, size: 0.09 });
@@ -26,11 +26,11 @@ export async function slime(c) {
     shake: (t) => 0.008 + 0.05 * pulse(t, [tl], 0.25),
     sounds: [[0.1, "qf.scare.riser"], [1.2, "mob.slime.small"], [1.5, "mob.slime.small"], [1.8, "mob.slime.big"], [tl - 0.02, "qf.scare.hit"], [tl, "mob.slime.big"], [2.5, "mob.slime.attack"], [3.05, "mob.slime.attack"], [3.6, "mob.slime.attack"], [4.15, "mob.slime.attack"], [2.6, "qf.krypt.heartbeat"], [4.7, "game.player.die"]],
     update(t, f) {
-      sl.root.visible = t > 1.55;
+      sl.root.visible = t > 1.45; sl.root.rotation.y = Math.PI;
       const cp = cam(t), fall = easeOut((t - 1.55) / (tl - 1.55));
       const wob = t > tl ? 1 + 0.06 * Math.sin(t * 9) : 1;
-      sl.root.position.set(0, lerp(4.6, 0.2, Math.pow(clamp((t - 1.55) / (tl - 1.55)), 1.6)), cp.z - 0.1);
-      sl.root.scale.set(4.2 * wob, 4.2 * (t < tl ? 1 + 0.1 * sstep(1.55, tl, t) : 1 / wob), 4.2 * wob);
+      sl.root.position.set(0, lerp(4.6, 0.15, Math.pow(clamp((t - 1.45) / 0.4), 1.6)) - 0.4 * sstep(tl - 0.1, tl + 0.15, t), cp.z - 1.7 + 1.6 * sstep(1.95, 2.15, t));
+      { const b = 0.9 + 1.5 * sstep(tl - 0.05, tl + 0.2, t); sl.root.scale.set(b * wob, b * (t < tl ? 1 : 1 / wob), b * wob); }
       G.position.set(0, 1.6, cp.z); G.intensity = t > tl ? 3 : 0;
       const e = sstep(tl - 0.1, tl + 0.4, t);
       f.tints.push([60, 190, 30, 0.42 * e]);
@@ -52,9 +52,9 @@ export async function silverfish(c) {
     b.position.set(1.22, 0.6 + Math.floor(i / 3) * 0.6 + 0.0, -2.6 - (i % 3) * 0.6 + 0.0);
     b.userData.o = b.position.clone(); b.userData.v = [(R() - 0.5) * 1.4 - 0.9, 1 + R() * 2.2, (R() - 0.5) * 2]; blocks.push(b); S.scene.add(b);
   }
-  const sw = await makeSwarm(c, { id: "Silverfish", n: phoneN(c, 30), from: [1.3, 0, -3.2], t0: tb, spread: 0.06, arrive: tb + 1.0, scale: 2.2, camAt: cam, seed: 17, climb: 1.0 });
-  c.hitBurst([tb], () => ({ x: 1.2, y: 1.0, z: -3.2 }), "stone", 80, { dir: [-1.2, 0.5, 0], speed: 3.5, spread: 1.2, size: 0.09 });
-  c.hitBurst([tb], () => ({ x: 1.2, y: 1.0, z: -3.2 }), "dust", 40, { dir: [-0.6, 0.4, 0], speed: 1.8, spread: 1, size: 0.18, life: 2, grav: 0.8 });
+  const sw = await makeSwarm(c, { id: "Silverfish", n: phoneN(c, 30), from: [1.3, 0, -3.2], t0: tb, spread: 0.06, arrive: tb + 1.0, scale: 2.4, camAt: cam, seed: 17, climb: 1.0 });
+  c.hitBurst([tb], () => ({ x: 1.2, y: 1.0, z: -3.2 }), "stone", 40, { dir: [-1.2, 0.5, 0], speed: 3, spread: 1.2, size: 0.06 });
+  c.hitBurst([tb], () => ({ x: 1.2, y: 1.0, z: -3.2 }), "dust", 16, { dir: [-0.6, 0.4, 0], speed: 1.8, spread: 1, size: 0.1, life: 2, grav: 0.8 });
   const hits = [2.85, 3.4, 3.95, 4.5];
   c.hitBurst(hits, cam, "blood", 22, { dir: [0, 0.6, 0.3], speed: 2.4, spread: 1 });
   return {
@@ -85,7 +85,7 @@ export async function blaze(c) {
     { t0: 1.4, t1: 2.15, to: [-1.45, 1.0, -3.0], m: fireball(S, 0.28) },
     { t0: 1.9, t1: 2.7, to: null, m: fireball(S, 0.28) }
   ];
-  const blazeAt = (t) => [Math.sin(t * 1.2) * 0.3, 1.6 + Math.sin(t * 2.4) * 0.12, lerp(-7, -3.6, sstep(2.7, 4.6, t))];
+  const blazeAt = (t) => [Math.sin(t * 1.2) * 0.3, 1.6 + Math.sin(t * 2.4) * 0.12, lerp(-5.2, -3.2, sstep(2.7, 4.6, t))];
   for (const sh of shots) if (!sh.to) { const k = cam(sh.t1); sh.to = [k.x, k.y, k.z - 0.05]; }
   for (const sh of shots.slice(0, 2)) c.hitBurst([sh.t1], () => ({ x: sh.to[0], y: sh.to[1], z: sh.to[2] }), "fire", 40, { dir: [0, 0.3, 0.2], speed: 3, spread: 1.2, size: 0.09, life: 0.9 });
   const hits = [2.7, 3.3, 3.9, 4.5];
@@ -97,7 +97,7 @@ export async function blaze(c) {
     sounds: [[0.1, "qf.scare.riser"], [0.5, "mob.blaze.breathe", { pos: { x: 0, y: 1.6, z: -7 } }], [1.1, "mob.ghast.fireball"], [1.4, "mob.ghast.fireball"], [1.9, "mob.ghast.fireball"], [1.8, "fire.ignite"], [2.15, "fire.ignite"], [2.45, "qf.scare.hit"], [2.7, "fire.ignite"], [2.75, "fire.fire"], [3.4, "mob.blaze.breathe"], [3.8, "fire.fire"], [4.4, "mob.blaze.hit"], [5.2, "game.player.die"]],
     update(t, f) {
       bl.root.visible = t > 0.45;
-      const p = blazeAt(t); bl.root.position.set(p[0], 0.2, p[2]); bl.anim(t, 0, {}); bl.root.rotation.y = Math.PI;
+      const p = blazeAt(t); bl.root.position.set(p[0], (bl.hover || 0.9) + 0.5, p[2]); bl.anim(t, 0, {}); bl.root.rotation.y = Math.PI;
       if (bl.kind === "blaze") {
         bl.parts.head.position.y = p[1];
         rods.forEach((r, i) => { const a = t * (2.2 + 4 * sstep(1.0, 2.7, t)) + i * (6.283 / 4); const ring = i % 3, rr = 0.55 + ring * 0.05; r.position.set(Math.cos(a) * rr, 0.9 + ring * 0.38 + Math.sin(t * 3 + i) * 0.05, Math.sin(a) * rr); });
@@ -121,12 +121,14 @@ export async function blaze(c) {
 // ------------------------------------------------------------------------------------------------ Ghast
 export async function ghast(c) {
   const S = c.stage, gh = await getMob("Ghast");
-  gh.root.scale.setScalar(0.9); S.scene.add(gh.root); gh.root.visible = false;
+  gh.root.scale.setScalar(0.45); S.scene.add(gh.root); gh.root.visible = false;
   const cam = (t) => ({ x: 0, y: 1.62 + bob(t) * 0.6, z: -0.2 * Math.min(t, 2), yaw: 0.02 * Math.sin(t), pitch: 0.12 + 0.08 * sstep(0.5, 2, t) - 0.1 * sstep(3.3, 3.6, t), roll: 0, fov: 72 - 10 * sstep(1.0, 2.8, t) });
   const tl = 2.35, th = 3.55;
-  const fb = fireball(S, 1.0, 0xff7a10);
+  gh.root.position.set(0, 0, 0); gh.anim(0, 0, {});
+  const gbox = new THREE.Box3().setFromObject(gh.root), offY = 0.15 - gbox.min.y;
+  const fb = fireball(S, 0.7, 0xff7a10);
   const L = new THREE.PointLight(0xc8d8ff, 5, 12); S.scene.add(L);
-  const ghAt = (t) => [0, 3.0, lerp(-18, -9, sstep(0.4, 2.3, t))];
+  const ghAt = (t) => [0, 2.1, lerp(-16, -8.5, sstep(0.4, 2.3, t))];
   c.hitBurst([th], cam, "fire", 120, { dir: [0, 0.3, 0.9], speed: 4.5, spread: 1.5, size: 0.14, life: 1.3 });
   const hits = [th, 4.1, 4.65];
   c.hitBurst(hits.slice(1), cam, "fire", 30, { dir: [0, 0.5, 0.3], speed: 2.4, spread: 1, life: 1 });
@@ -136,7 +138,7 @@ export async function ghast(c) {
     sounds: [[0.1, "qf.scare.riser"], [0.45, "mob.ghast.moan", { pos: { x: 0, y: 3, z: -16 } }], [1.1, "mob.ghast.scream"], [1.9, "mob.ghast.charge"], [tl, "mob.ghast.fireball"], [3.3, "qf.scare.hit"], [th, "random.explode"], [3.7, "fire.fire"], [4.1, "mob.ghast.scream"], [5.4, "game.player.die"]],
     update(t, f) {
       gh.root.visible = t > 0.4;
-      const p = ghAt(t); gh.root.position.set(p[0] + Math.sin(t * 1.1) * 0.3, p[1] - 2.5, p[2]); gh.root.rotation.y = Math.PI;
+      const p = ghAt(t); gh.root.position.set(p[0] + Math.sin(t * 1.1) * 0.3, offY + Math.sin(t * 1.5) * 0.1, p[2]); gh.root.rotation.y = Math.PI;
       gh.anim(t, 0, {});
       L.position.set(0, 3.5, p[2] + 2.5);
       fb.visible = t >= tl && t < th;
@@ -146,7 +148,7 @@ export async function ghast(c) {
         fb.rotation.set(t * 9, t * 6, 0); fb.scale.setScalar(1 + 0.4 * k);
       }
       const e = t >= th ? 1 : 0;
-      f.white = e ? clamp(1 - (t - th) / 0.9) : 0;
+      f.white = e ? 0.5 * clamp(1 - (t - th) / 0.6) : 0;
       const fi = sstep(th, th + 1.0, t);
       f.fire = 0.85 * fi;
       f.tints.push([255, 100, 10, 0.2 * fi]);
