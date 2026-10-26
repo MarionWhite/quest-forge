@@ -65,6 +65,27 @@ Job fields, with their defaults:
 | `warm` | `160` | ticks a scene settles after a pipeline rebuild, before it is measured |
 | `measure` | `0` | measured ticks (0: the view's own, normally 200) |
 | `views`, `rounds`, `mods`, `xmx`, `debug_view` | as `bench_round.py` | |
+| `burst` | none | a motion clip after the shots: `{"frames": 48, "interval_ms": 66, "crop": [x, y, w, h]}` (below) |
+
+### Motion clips (`burst`)
+
+A job with `burst` captures `frames` more frames of each view scene after its two shots, one per
+`interval_ms` of real time, cropped to `crop` (top-left image coordinates at the window size;
+leave it out for the whole frame). They land next to the shots as `bench-TAG-SCENE-f000.png`,
+`-f001.png`, ... and the bench txt gets a line with the real capture times:
+
+```
+  burst 48 frames (48 written) every 66 ms: interval mean 66.7 sd 2.1 max 75.0 ms; write 41.0 ms/frame; box 480,270,960,540; times 0 66 133 ...
+```
+
+FrameBench reads the box with `glReadPixels` at the end of each render tick (no texture bind)
+and writes PNGs on two background threads, with at most 24 frames waiting in memory. The scene
+ends when every frame is written. Measured frame times are unaffected because the burst comes
+after the measured window. Only burst jobs carry `burst` in their cache key, so every other
+job's key is unchanged. `results --json` lists each scene's `burst.frames` and `burst.times_ms`
+apart from its shots. Under the night cap (30 fps) an interval below 34 ms only repeats frames,
+so use 66 ms or more. `tools/shaders/review/make_clip.py` turns a burst into an animated WebP,
+and roundlib's `ov()` puts one on the Lab.
 
 `prebuild` is a list of commands (argument lists, run in the repo root) that run once before
 the submission's first boot: `specs\textures.json` builds the texture pack this way and renders

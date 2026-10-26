@@ -188,6 +188,8 @@ def cache_key(job, scene, memo):
     on = job["preset"] != "off"
     d = {"env": env_sig(job, memo), "scene": scene_sig(job, scene), "measure": job.get("measure", 0),
          "state": {"pack": job.get("pack_sig"), "opts": options_text(job)} if on else "off"}
+    if job.get("burst"):
+        d["burst"] = job["burst"]   # only burst jobs carry it: every other key is unchanged
     return hashlib.sha1(json.dumps(d, sort_keys=True).encode()).hexdigest()
 
 
@@ -217,6 +219,20 @@ def block_wall(lines):
 
 def block_shots(lines):
     return [l.split("screenshots/", 1)[1].strip() for l in lines if "screenshot screenshots/" in l]
+
+
+BURST_FRAME = re.compile(r"-f\d{3}\.png$")
+
+
+def block_burst(lines):
+    """A block's burst: (frame names, capture times in ms) or ([], [])."""
+    frames = [s for s in block_shots(lines) if BURST_FRAME.search(s)]
+    times = []
+    for l in lines:
+        m = re.match(r"\s+burst .*; times ([\d ]+)$", l)
+        if m:
+            times = [int(t) for t in m.group(1).split()]
+    return frames, times
 
 
 def cache_get(key):
@@ -384,6 +400,11 @@ def prepare_boot(boot_id, jobs, log):
                      f"{int(j.get('measure') or 0)} {op}")
     if rps_all:
         lines += [f"rps {j['tag']} " + "|".join(rps_of[j["tag"]]) for j in jobs]
+    for j in jobs:
+        b = j.get("burst")
+        if b:
+            lines.append(f"burst {j['tag']} {int(b['frames'])} {int(b['interval_ms'])}"
+                         + ("".join(f" {int(v)}" for v in b["crop"]) if b.get("crop") else ""))
     steps = plan_steps(jobs)
     lines += [f"step {t} {s}" for t, s in steps]
     if rps_all and steps:
@@ -469,7 +490,7 @@ def write_job_result(j, blocks, rounds, size):
     with open(os.path.join(rounds, "bench", j["tag"] + ".txt"), "w", encoding="utf-8", newline="\n") as f:
         f.write("\n".join(lines) + "\n")
     meta = {k: j.get(k) for k in ("tag", "preset", "size", "world", "resourcepacks", "reference", "mods", "opts",
-                                  "debug_view", "mode", "pack_sig", "scenes", "submission")}
+                                  "debug_view", "mode", "pack_sig", "scenes", "submission", "burst")}
     meta["night"] = bool(j.get("night"))
     meta["noisy"] = False
     with open(os.path.join(rounds, "bench", j["tag"] + ".meta.json"), "w", encoding="utf-8") as f:

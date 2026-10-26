@@ -136,6 +136,25 @@ def normalize(spec):
             sys.exit(f"{j['tag']}: mode cost (frame times count) or shot (pictures only)")
         if j["mode"] == "shot" and not j.get("measure"):
             j["measure"] = 20
+        if j.get("burst"):
+            b = j["burst"]
+            if not isinstance(b, dict) or set(b) - {"frames", "interval_ms", "crop"}:
+                sys.exit(f"{j['tag']}: burst is {{\"frames\": N, \"interval_ms\": MS, \"crop\": [x, y, w, h]}}")
+            try:
+                b = {"frames": int(b.get("frames", 60)), "interval_ms": int(b.get("interval_ms", 50)),
+                     **({"crop": [int(v) for v in b["crop"]]} if b.get("crop") else {})}
+            except (TypeError, ValueError):
+                sys.exit(f"{j['tag']}: burst frames, interval_ms and crop are integers")
+            if not 1 <= b["frames"] <= 600 or not 10 <= b["interval_ms"] <= 2000:
+                sys.exit(f"{j['tag']}: burst frames 1-600, interval_ms 10-2000")
+            if "crop" in b:
+                W, H = (int(v) for v in j["size"].split("x"))
+                x, y, w, h = b["crop"] if len(b["crop"]) == 4 else (-1, 0, 0, 0)
+                if x < 0 or y < 0 or w < 1 or h < 1 or x + w > W or y + h > H:
+                    sys.exit(f"{j['tag']}: burst crop [x, y, w, h] must lie inside {j['size']}")
+            if any(s in ("static", "fly", "torch", "torch_wall", "gallery") for s in j["scenes"]):
+                sys.exit(f"{j['tag']}: a burst only runs on view scenes")
+            j["burst"] = b
         for k in ("world", "views", "rounds"):
             j[k] = os.path.abspath(j[k])
         j["resourcepacks"] = [os.path.abspath(r) for r in j["resourcepacks"]]
@@ -454,9 +473,14 @@ class Runner:
             sc = {}
             for name, lines in j["done"].items():
                 m = re.match(r"\S+\s+frames\s+(\d+)\s+mean\s+([\d.]+) fps\s+p50\s+([\d.]+) ms\s+p99\s+([\d.]+)", lines[0])
+                bf, bt = batch.block_burst(lines)
                 sc[name] = {"p50_ms": float(m.group(3)) if m else None, "p99_ms": float(m.group(4)) if m else None,
-                            "frames": [os.path.join(j["rounds"], "screenshots", n) for n in batch.block_shots(lines)],
+                            "frames": [os.path.join(j["rounds"], "screenshots", n) for n in batch.block_shots(lines)
+                                       if n not in bf],
                             "cached": name in j["cached"]}
+                if bf:
+                    sc[name]["burst"] = {"frames": [os.path.join(j["rounds"], "screenshots", n) for n in bf],
+                                         "times_ms": bt}
             res["jobs"].append({"tag": j["tag"], "status": j["status"], "preset": j["preset"], "size": j["size"],
                                 "opts": j["opts"], "error": j.get("error"), "incidents": j.get("incidents", []),
                                 "txt": os.path.join(j["rounds"], "bench", j["tag"] + ".txt"),
@@ -851,6 +875,9 @@ def cmd_results(a):
         print(f"  {j['tag']:<10} {j['status']:<8} preset {j['preset']:<3} {j['size']:<10} {len(j['scenes'])} scenes"
               f" ({hits} cached)  {j['txt']}" + (f"  MISSING {j['missing']}" if j["missing"] else "")
               + (f"  {j['error']}" if j.get("error") else ""))
+        for name, sc in j["scenes"].items():
+            if sc.get("burst"):
+                print(f"      {name}: burst of {len(sc['burst']['frames'])} frames, {sc['burst']['frames'][0]} ...")
         for inc in j.get("incidents", []):
             print(f"      retried after {inc}")
 
