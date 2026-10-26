@@ -1,24 +1,29 @@
-# server: rules applied; docs, explainer, hub proposal (checkpoint 22:35)
+# server: rules applied, verified, three documents written; /tpa jar built (checkpoint 2026-10-25 22:50, project paused)
 
-Decision: docs/decisions/0007-server-rules.md.
+Decision: docs/decisions/0007-server-rules.md. Detail: ops/journal/server.md (2026-10-25 entries).
 
-## Done (main)
-- tools/server/rules.json + the friends' server rebuilt with `--opis --rules` (ba3ec94). The
-  agent's last words: "The rebuild applied all 12 rule lines."
-- /tpa + /tpaccept as a lottery-ticket unlockable in qf-commands (df53b43); jar not built/booted?
+## Done (all on main)
+1. Rules verified on disk in C:\qfs\friends, file:line per rule in the journal (ba3ec94 rebuild;
+   backup `C:\qfs\_backup-friends-2026-10-25-rules\`).
+2. Byte-identical copy booted twice on port 25690 (Done 48 s / 54 s; Morpheus and Opis answer;
+   `world\betterquesting\QuestDatabase.json party_enable = 0`; exit 0); both copies deleted, no
+   scratch server running, `trial.py guard` OK.
+3. docs/setup/server-rules.md rewritten to the decisions (6f899de).
+4. docs/design/server-loaders-explainer.md (1ff0b3a).
+5. docs/design/hub-proposal.md (e938888).
+6a. /tpa jar built from a clean detached worktree at df53b43: version `1.1.0+20261025.df53b436`,
+   SHA-1 `b459091080a22670c392c3686a66dfec258e94bc`, copy at
+   `C:\qfb\builds\QuestForgeCommands-1.0.0-tpa-df53b43.jar`. NOT installed. Worktree removed.
 
-## Next
-1. Verify each rule's effect on disk in C:\qfs\friends (file:line per rule), Opis in mods,
-   play-options.json, ops/whitelist/server.properties unchanged, manifest regenerated. Write the
-   list to ops/journal/server.md.
-2. Boot a byte-identical copy (C:\qfs\scratch-*, other port) to Done; confirm Morpheus, Opis and
-   BQ party_enable=0; stop; delete. Never boot C:\qfs\friends itself. One server at a time; check RAM.
-3. docs/setup/server-rules.md: drop every [pending], PvP "friendly fire is part of the game", no
-   grave-looting line, personal quests, sleep (half rounded down), AFK note.
-4. docs/design/server-loaders-explainer.md (per item: what it is, gameplay effect, benefit with
-   [measured]/[estimate]/[guess], one-line revert). Owner asked for it.
-5. docs/design/hub-proposal.md (lobby = spawn picker home, info boards, protection options, trade
-   station survey + recommendation). Proposal only.
-6. /tpa: build from a clean worktree, boot on a slim headless trial to see the command register and
-   refuse before unlock; record version + SHA-1; do not install.
-7. Update ops/BOARD.md server row, ops/tracks/server.md (create, under 2 KB), one journal line.
+## Remaining (project paused by the owner 2026-10-25)
+6b. Slim headless boot of that jar: `py -3.10 -I tools/trial/trial.py build tpa --server qfcommands
+   --jar C:\qfb\builds\QuestForgeCommands-1.0.0-tpa-df53b43.jar`, then `launch tpa --wait
+   --commands <file with: tpa Dev / stop>`. Expect `[QuestForgeCommands] registered 35 of 35
+   commands across 33 tickets` (the live jar says 33 of 33 across 32) and the console refused as
+   not a player ("You do not have permission" from CommandHandler; the before-unlock refusal is the
+   shared UnlockedCommand path, needs a client to see). Record in the journal. Do not install.
+7. ops/BOARD.md server row (rules verified; docs done; /tpa jar built, slim boot pending),
+   ops/tracks/server.md (create, under 2 KB), one journal line. Commit.
+8. Sheet 2 cards from the hub proposal §5 and the explainer (one revert card per item):
+   `ops/DECISIONS.md` already lists the loaders bundle; add hub-where, hub-access, hub-respawn,
+   hub-boards, hub-trade.
