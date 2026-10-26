@@ -10,7 +10,7 @@
   ocean sun path dimmer than r007, no lake glint column. Dust option C relabelled "Dust off" (QF_DUST 0).
 - Critic verdict for the loop-4 fix loop: none (critic: null, no critic pass ran). The critic notes on the p8 frames are
   still step 2 of the publisher below; read every "already fixed" claim in the scene text against the p8 frames.
-- worktree C:qfbwt-fb: pruned (git worktree prune), gone from the list.
+- worktree C:/qfb/wt-fb: pruned (git worktree prune), gone from the list.
 - Wherever this file says 1026-004242 below, read 1026-015851.
 
 Shader state being published: commit ef42eec (r008 loop 3), pack snapshotted by renderq at submit.
