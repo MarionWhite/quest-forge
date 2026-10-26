@@ -1,8 +1,11 @@
-// Zombie Pigman: your fault. A pigman wanders out of a side passage, grunting, minding its own business, close by.
-// Your hand twitches: the sword swings and catches it. Silence. It turns its head. Every eye in the dark goes red,
-// the angry squeal comes from everywhere at once, and they rush you from every passage.
+// Zombie Pigman (v3): your fault. A pigman wanders out of a side passage, grunting, minding its own business, close
+// by. Your hand twitches: the sword swings and catches it. Silence: it just stands there, for too long. It turns its
+// head. Every eye in the dark goes red, the angry squeal comes from everywhere at once, and the head flicks from one
+// pair of eyes to the next. When it comes back to the one you hit, it is not where it was: it is at your face, jaw
+// open, and it lunges with the screech. After the static they are all round you, and they cut you down.
 import { THREE, clamp, lerp, sstep, pulse, tex, easeOut } from "./rig.js";
 import { settle, shake, hitsOf, floorFall, heldItem, swingAt, zombieArms, mulberry, glowEyes } from "./common.js";
+import { lunge, lungeFx, screech, splitJaw, faceAnchor, boxOf, silence, deathScream, jit } from "./fnaf.js";
 
 const SWORD = [{ id: "minecraft:golden_sword", ench: false }];
 const TAU = Math.PI * 2;
@@ -36,20 +39,28 @@ export default {
     if (dAB > 2.6) { const k = 1 - 2.6 / dAB; A.x = lerp(A.x, B.x, k); A.z = lerp(A.z, B.z, k); }
     const away = Math.hypot(B.x, B.z), K = { x: inX(B.x + (B.x / away) * 0.6), z: B.z + (B.z / away) * 0.6 };
     const L0 = { x: K.x * 0.8 / Math.hypot(K.x, K.z), z: K.z * 0.8 / Math.hypot(K.x, K.z) };
+    const F = { x: K.x * 0.95 / Math.hypot(K.x, K.z), z: K.z * 0.95 / Math.hypot(K.x, K.z) };   // where it is when you look back
 
-    const T_W0 = 0.4, T_W1 = T_W0 + clamp(Math.hypot(B.x - A.x, B.z - A.z) / 1.3, 0.8, 2.0);
-    const T_SW = 2.95, T_TURN0 = 3.25, T_TURN1 = 3.85, T_ANGRY = 4.0, T_RUSH = 4.6, T_FALL = 5.9, DUR = 6.4;
+    // ---- the dice -------------------------------------------------------------------------------------------
+    const T_W0 = R.vary(0.4, 0.3), T_W1 = T_W0 + clamp(Math.hypot(B.x - A.x, B.z - A.z) / 1.3, 0.8, 2.0);
+    const T_SW = Math.max(T_W1 + 0.5, R.vary(2.95, 0.2)), T_TURN0 = T_SW + R.vary(1.1, 0.35), T_TURN1 = T_TURN0 + R.vary(0.75, 0.3), T_ANGRY = T_TURN1 + 0.15;
+    const T_RUSH = T_ANGRY + 0.35;   // the others set off while you look from eyes to eyes
     const walkYaw = R.yawTo(A.x, A.z, B.x, B.z);
     const idleYaw = A.kind === "ahead" ? -sideB * Math.PI / 2 : walkYaw;
-    const p0 = R.mob("PigZombie", { amb: [0.24, 0.22, 0.22], equipment: SWORD });
+    const p0 = R.mob("PigZombie", { amb: [0.24, 0.22, 0.22], equipment: SWORD, own: true });
+    p0.setOwn(0.12);
     const eyes0 = redEyes(R, p0);
+    const held0 = p0.parts.rightArm && p0.parts.rightArm.children.find((o) => o.isGroup && o.matrixAutoUpdate === false);
+    const jaw0 = splitJaw(p0, [{ part: p0.parts.head, box: boxOf("zombie", "bipedHead"), rows: 2 }, { part: p0.parts.headwear, box: boxOf("zombie", "bipedHeadwear"), rows: 2 }], { nTeeth: 3 });
     const pos0 = (t) => {
       if (t < T_W0) return { x: A.x, y: 0, z: A.z };
       if (t < T_W1) { const k = (t - T_W0) / (T_W1 - T_W0); return { x: lerp(A.x, B.x, k), y: 0, z: lerp(A.z, B.z, k) }; }
       if (t < T_SW) return { x: B.x, y: 0, z: B.z };
       if (t < T_SW + 0.35) { const k = (t - T_SW) / 0.35, e = easeOut(k); return { x: lerp(B.x, K.x, e), y: Math.sin(k * Math.PI) * 0.22, z: lerp(B.z, K.z, e) }; }
-      const k = sstep(T_RUSH, T_RUSH + 0.26, t), out = 1 + 1.05 * sstep(T_FALL, T_FALL + 0.5, t);   // it steps back into the ring
-      return { x: lerp(K.x, L0.x * out, k), y: 0, z: lerp(K.z, L0.z * out, k) };
+      if (t < tJump) return { x: K.x, y: 0, z: K.z };
+      if (t < tK) return { x: F.x, y: 0, z: F.z };   // at your face (moved while you looked at the eyes)
+      const out = 1 + 1.05 * sstep(T_FALL, T_FALL + 0.5, t);   // after the cut: in the ring; it steps back to look at you
+      return { x: L0.x * out, y: 0, z: L0.z * out };
     };
 
     // The others: eyes open in every dark place around you, then they come.
@@ -66,14 +77,24 @@ export default {
       if (s.kind === "opening" || s.kind === "passage") path.push([inX(Math.sign(s.x) * 9), s.z]);
       path.push([tx, tz]);
       let len = 0; for (let q = 1; q < path.length; q++) len += Math.hypot(path[q][0] - path[q - 1][0], path[q][1] - path[q - 1][1]);
-      const ts = T_RUSH + 0.04 * i;
+      const ts = T_RUSH + 0.08 * i;
       return { ...s, m: R.mob("PigZombie", { amb: [0.17, 0.15, 0.15], equipment: SWORD }), path, len, ts, te: ts + clamp(len / 6.5, 0.45, 1.3), ta: T_ANGRY + 0.1 + 0.075 * i, tx, tz, seed: rnd() * 10 };
     });
     for (const q of rushers) q.eyes = redEyes(R, q.m);
+    // The head flicks from eyes to eyes (one each side); while it does, the one you hit comes to your face.
+    const yq = (q) => R.yawTo(0, 0, q.x, q.z), near = (a, b) => Math.hypot(a.x, a.z) - Math.hypot(b.x, b.z);
+    const darts = [rushers.filter((q) => yq(q) > 0.45 && yq(q) < 1.5).sort(near)[0], rushers.filter((q) => yq(q) < -0.45 && yq(q) > -1.5).sort(near)[0]]
+      .filter(Boolean).map((q) => ({ yaw: yq(q), q }));
+    darts.forEach((d, i) => { d.t = T_ANGRY + 0.12 + i * 0.3; d.q.ta = Math.min(d.q.ta, d.t - 0.12); });
+    const tJump = darts.length ? darts[0].t - 0.05 : T_ANGRY + 0.15;
+    const tBack = (darts.length ? darts[darts.length - 1].t + 0.06 : T_ANGRY + 0.2) + R.vary(0.45, 0.45), t0 = tBack + 0.11;
+    p0.anim(0, 0, {}); R.place(p0, 0, 0, 4, Math.PI);
+    const anchor = faceAnchor(p0, p0.parts.head, boxOf("zombie", "bipedHead")); anchor.y -= 0.07;
+    const L = lunge(R, p0, { t0, rush: R.vary(0.17, 0.2), hold: R.vary(0.6, 0.15), dist: 0.36, anchor, seed: 41 });
+    const tK = L.t3, T_FALL = tK + 1.05, DUR = tK + 1.6;
     const byArrival = rushers.slice().sort((a, b) => a.te - b.te);
-    if (byArrival[0]) byArrival[0].te = Math.min(byArrival[0].te, 5.2);
-    if (byArrival[1]) byArrival[1].te = Math.min(byArrival[1].te, 5.7);
-    const hitList = [[4.9, 4, p0], [5.4, 4, byArrival[0] || p0], [T_FALL, 5, byArrival[1] || byArrival[0] || p0], [DUR, 7, byArrival[2] || p0]];
+    for (const q of rushers) q.te = Math.min(q.te, tK - 0.05);   // all of them there by the end of the static
+    const hitList = [[tK + 0.04, 4, p0], [tK + 0.55, 4, byArrival[0] || p0], [T_FALL, 5, byArrival[1] || byArrival[0] || p0], [DUR, 7, byArrival[2] || p0]];
     const hits = hitsOf(hitList.map(([t, d]) => [t, d, 1]));
     const posR = (q, t) => {
       const k = clamp((t - q.ts) / (q.te - q.ts));
@@ -87,7 +108,7 @@ export default {
     };
     for (const q of rushers) q.path = q.path.map(([x, z], i) => i === 1 ? [clamp(x, -(R.wallL - 0.4), R.wallR - 0.4), z] : [x, z]);
     // Swings: the attackers' land on the hits; the rest flail when they get there (the i-frames eat them).
-    const swings = new Map([[p0, [4.9]]]);
+    const swings = new Map([[p0, [tK + 0.04]]]);
     for (const q of rushers) {
       const s = []; for (let tt = q.te + 0.15 + rnd() * 0.25; tt < DUR + 2; tt += 0.55 + rnd() * 0.2) s.push(tt);
       swings.set(q, s);
@@ -97,22 +118,18 @@ export default {
     hits.forEach((h) => { const a = attackerAt(h); h.side = a.x >= 0 ? -1 : 1; });
 
     // The head: follows the pigman as it wanders past; frozen after the hit; flicks to the eyes; knocked down.
-    const yq = (q) => R.yawTo(0, 0, q.x, q.z), near = (a, b) => Math.hypot(a.x, a.z) - Math.hypot(b.x, b.z);
-    const darts = [rushers.filter((q) => yq(q) > 0.45 && yq(q) < 1.5).sort(near)[0], rushers.filter((q) => yq(q) < -0.45 && yq(q) > -1.5).sort(near)[0]]
-      .filter(Boolean).map((q) => ({ yaw: yq(q), q }));
-    darts.forEach((d, i) => { d.t = 4.12 + i * 0.26; d.q.ta = Math.min(d.q.ta, d.t - 0.12); });
-    const follow = (t) => { const p = pos0(Math.max(0, t - 0.22)); return clamp(R.yawTo(0, 0, p.x, p.z), -1.45, 1.45); };
+    const follow = (t) => { const p = pos0(Math.max(0, t < tJump ? t - 0.22 : t)); return clamp(R.yawTo(0, 0, p.x, p.z), -1.45, 1.45); };
     const yawAt = (t) => {
       let y = follow(t);
-      if (t > 4.0 && t < 4.75 && darts.length) {
-        const keys = [[4.0, follow(4.0)], ...darts.flatMap((d) => [[d.t - 0.1, null], [d.t + 0.06, d.yaw]]), [4.62, follow(4.62)]];
-        let prevT = 4.0, prevY = follow(4.0);
+      if (t > T_ANGRY && t < tBack + 0.13 && darts.length) {
+        const keys = [[T_ANGRY, follow(T_ANGRY)], ...darts.flatMap((d) => [[d.t - 0.1, null], [d.t + 0.06, d.yaw]]), [tBack, null]];
+        let prevT = T_ANGRY, prevY = follow(T_ANGRY);
         for (const [kt, ky] of keys.slice(1)) {
           const target = ky ?? prevY;
           if (t <= kt) { y = lerp(prevY, target, sstep(prevT, kt, t)); break; }
           prevT = kt; prevY = target; y = target;
         }
-        if (t > 4.62) y = lerp(y, follow(t), sstep(4.62, 4.75, t));
+        if (t > tBack) y = lerp(y, follow(t), 1 - Math.pow(1 - clamp((t - tBack) / 0.13), 4));   // back to it: snap
       }
       return y;
     };
@@ -126,7 +143,7 @@ export default {
       const k = sstep(0.75, 1.3, t);
       const kb = knock(t);
       const c = { x: s.x * (1 - k) + kb.x, y: s.y, z: s.z * (1 - k) + kb.z, yaw: lerp(s.yaw, yawAt(t), k), pitch: lerp(s.pitch, -0.04, k), roll: 0,
-        fov: s.fov - 7 * sstep(T_TURN0, T_ANGRY, t) * (1 - sstep(T_ANGRY, T_ANGRY + 0.15, t)) + 5 * sstep(T_ANGRY, T_ANGRY + 0.1, t) };
+        fov: s.fov - 7 * sstep(T_TURN0, T_ANGRY, t) * (1 - sstep(T_ANGRY, T_ANGRY + 0.15, t)) + 5 * sstep(T_ANGRY, T_ANGRY + 0.1, t) + 10 * pulse(t, [L.t1], 0.12), near: t >= tJump ? 0.02 : undefined };
       return c;
     };
     const fallSide = hits[2] ? -hits[2].side : 1;
@@ -137,7 +154,7 @@ export default {
       // On the floor: looking up into the ring of them.
       const up = sstep(T_FALL + 0.35, T_FALL + 0.75, t);
       c.pitch = lerp(c.pitch, 1.0, up); c.fov += 8 * up; c.yaw += 0.25 * fallSide * up;
-      return shake(c, t, 0.002 + 0.004 * sstep(T_TURN0, T_ANGRY, t) + 0.02 * pulse(t, hits.map((h) => h.t), 0.18) + 0.01 * sstep(T_RUSH, T_RUSH + 0.3, t), 7);
+      return shake(c, t, 0.002 + 0.004 * sstep(T_TURN0, T_ANGRY, t) + L.shake(t) + 0.02 * pulse(t, hits.map((h) => h.t), 0.18) + 0.01 * sstep(tK, tK + 0.3, t), 7);
     };
 
     // Gore: from your chest and neck, toward the camera, at each hit.
@@ -148,10 +165,11 @@ export default {
       R.burst(h.t + 0.02, at, 7, "flesh", { dir: [fx * 0.4, 0.8, fz * 0.4], speed: 1.6, spread: 0.7, size: 0.07, life: 1.2, stick: 3 });
     });
     const sword = heldItem(R, swordTex);
-    const mySwings = [T_SW, 5.12];
+    const mySwings = [T_SW, tK + 0.25];
     const glow = R.ownLight(R.light(0xffb070, 0, 6, 1.4));
     const redLight = R.ownLight(R.light(0xff2010, 0, 9, 1.2));
 
+    const S2 = screech(L, [["mob.zombiepig.zpigangry", { pitch: 0.7 }], ["mob.zombiepig.zpighurt", { pitch: 0.6, volume: 1.2 }]]);
     const steps = [];
     for (let s = T_W0 + 0.2; s < T_W1; s += 0.42) { const p = pos0(s); steps.push([s, "mob.zombie.step", { at: [p.x, 0.1, p.z], volume: 0.32 }]); }
     for (const q of rushers) for (let s = q.ts + 0.12; s < q.te; s += 0.3) { const p = posR(q, s); steps.push([s, "mob.zombie.step", { at: [p.x, 0.1, p.z], volume: 0.45, pitch: 1.1 }]); }
@@ -160,20 +178,22 @@ export default {
       [T_W1 + 0.25, "mob.zombiepig.zpig", { at: [B.x, 1.6, B.z], volume: 0.75, pitch: 0.95 }],
       ...steps.slice(0, 40),
       [T_SW + 0.01, "mob.zombiepig.zpighurt", { at: [B.x, 1.6, B.z], volume: 1 }],
+      silence(T_SW + 0.4, { fade: 0.3 }),
       [T_ANGRY, "mob.zombiepig.zpigangry", { at: [K.x, 1.6, K.z], volume: 1, pitch: 0.95 }],
       [T_ANGRY + 0.02, "qf.scare.stinger", { volume: 0.85 }],
       ...rushers.map((q, i) => [q.ta + 0.02, "mob.zombiepig.zpigangry", { at: [q.x, 1.6, q.z], volume: 0.9, pitch: 0.82 + 0.09 * (i % 5), reverb: 0.5 }]),
-      [T_RUSH - 0.35, "qf.scare.riser", { volume: 0.55 }],
-      [T_RUSH + 0.2, "mob.zombiepig.zpigangry", { at: [L0.x, 1.6, L0.z], volume: 1, pitch: 1.1 }],
+      ...S2.sounds,
       ...hits.flatMap((h, i) => [[h.t, "game.player.hurt"], [h.t + 0.01, "qf.scare.hit", { volume: 0.9 }], [h.t + 0.03, i % 2 ? "qf.scare.gore" : "qf.scare.crunch", { volume: 0.9 }]]),
-      ...[5.05, 5.6, 6.1].map((tt, i) => { const q = rushers[i % Math.max(1, rushers.length)]; return [tt, "mob.zombiepig.zpigangry", { at: q ? [q.tx, 1.6, q.tz] : [0, 1.6, 1], volume: 0.9, pitch: 0.9 + 0.12 * i }]; }),
-      [T_FALL + 0.45, "game.player.hurt.fall.small"], [T_FALL + 0.1, "qf.scare.scream", { volume: 0.9 }],
+      ...[tK + 0.2, tK + 0.75, tK + 1.25].map((tt, i) => { const q = rushers[i % Math.max(1, rushers.length)]; return [tt, "mob.zombiepig.zpigangry", { at: q ? [q.tx, 1.6, q.tz] : [0, 1.6, 1], volume: 0.9, pitch: 0.9 + 0.12 * i }]; }),
+      [T_FALL + 0.45, "game.player.hurt.fall.small"], ...deathScream(tK + 0.3), ...deathScream(T_FALL + 0.1, { volume: 1.1, under: false }),
       [DUR, "game.player.die"], [DUR, "@muffle", { hz: 380, s: 3 }]
     ];
     const loops = [
       [0.5, T_SW + 0.02, "qf.scare.heartbeat", { volume: 0.5, fadeOut: 0.02 }],
-      [T_ANGRY, DUR + 0.2, "qf.scare.heartbeat", { volume: 0.6, pitch: 1.3, fadeIn: 0.05 }],
-      [T_TURN0, DUR, "qf.scare.drone", { volume: 0.45, fadeIn: 1.2 }]
+      [T_ANGRY, t0 - 0.02, "qf.scare.heartbeat", { volume: 0.6, pitch: 1.3, fadeIn: 0.05, fadeOut: 0.02 }],
+      [T_TURN0, t0 - 0.02, "qf.scare.drone", { volume: 0.45, fadeIn: 1.2, fadeOut: 0.02, bus: "sfx" }],
+      ...S2.loops,
+      [tK, DUR + 0.2, "qf.scare.heartbeat", { volume: 0.8, pitch: 1.5 }]
     ];
 
     function posePig(m, t, x, y, z, yaw, { walk = 0, run = false, look = 0, swing = 0, lean = 0, seed = 0 } = {}) {
@@ -194,7 +214,14 @@ export default {
         look = -clamp(want * (1 - bk), -1.3, 1.3) * hk;
       }
       const lean0 = -0.22 * sstep(T_FALL + 0.2, T_FALL + 0.8, t);
-      posePig(p0, t, p.x, p.y, p.z, yaw, { walk: t > T_W0 && t < T_W1 ? 0.7 : (t > T_RUSH && t < T_RUSH + 0.26 ? 1.2 : 0), look, swing: swingAt(t, swings.get(p0)), lean: lean0 });
+      if (t >= tJump && t < tK) { yaw = toCam; look = 0; }
+      posePig(p0, t, p.x, p.y, p.z, yaw, { walk: t > T_W0 && t < T_W1 ? 0.7 : 0, look, swing: swingAt(t, swings.get(p0)), lean: lean0 });
+      if (t >= tJump && t < tK) { if (p0.parts.head) p0.parts.head.rotation.z += 0.25 * (1 - sstep(t0, L.t1, t)) + 0.04 * jit(t, 3, 12); }
+      jaw0.set(t >= tJump && t < tK ? Math.max(0.15 + 0.1 * Math.max(0, jit(t, 5, 14)), sstep(t0, L.t1, t) * (0.85 + 0.15 * jit(t, 9))) : t >= tK ? 0.3 * Math.max(0, Math.sin(t * 8)) : 0);
+      if (t >= t0 && t < tK) L.apply(t);
+      p0.setOwn(t >= tJump && t < tK ? 0.3 : 0.12);
+      p0.pivot.visible = !(t >= tJump && t < tBack - 0.04);   // gone from where it was; there when you look back
+      if (held0) held0.visible = !(t >= tJump && t < tK);
       R.flash(p0, t > T_SW && t < T_SW + 0.5 ? 1 : 0);
       eyes0(sstep(T_ANGRY - 0.06, T_ANGRY + 0.04, t));
       // Everyone else.
@@ -209,16 +236,18 @@ export default {
       }
       sword(t, mySwings, t > T_FALL + 0.05, camNow.fov);
       // Light: the corridor dims as the eyes come up; a warm glow on them as they reach you.
-      R.L(0, 2.3, 0.4, glow.position); glow.intensity = 1.6 * sstep(T_RUSH, T_RUSH + 0.6, t);
+      R.L(0, 2.3, 0.4, glow.position); glow.intensity = 1.6 * sstep(tK, tK + 0.4, t) + 0.9 * (t >= tJump && t < tK ? 1 : 0);
       R.L(0, 1.2, 0, redLight.position); redLight.intensity = 0.3 * sstep(T_ANGRY, T_ANGRY + 0.3, t);
-      const dim = sstep(T_ANGRY - 0.1, T_ANGRY + 0.3, t), back = sstep(T_RUSH, T_RUSH + 0.5, t);
+      const dim = sstep(T_ANGRY - 0.1, T_ANGRY + 0.3, t), back = sstep(tK, tK + 0.4, t);
       f.env = { bake: 1 - 0.2 * sstep(0.2, 1.2, t) - 0.4 * dim + 0.15 * back, lights: 1 - 0.6 * dim + 0.3 * back, fogMul: 1 + 0.5 * sstep(1, 3, t) + 0.6 * dim };
       f.tints = [[120, 0, 0, 0.05 * dim]];
       f.vig = [30, 0, 0, 0.25 * sstep(1, 2.5, t) + 0.3 * dim + 0.25 * sstep(T_FALL, DUR, t)]; f.vigR = 0.9;
       f.splats = hits.filter((h) => t >= h.t).map((h, i) => ({ t0: h.t, x: [0.35, 0.66, 0.5, 0.42][i], y: [0.42, 0.33, 0.6, 0.5][i], r: 13 + i * 3, seed: 21 + i }));
       f.black = 0.45 * sstep(DUR - 0.1, DUR + 0.6, t);
+      lungeFx(L, t, f);
     }
     return { dur: DUR, hits, cam, update, sounds, loops, deathSide: fallSide,
-      notes: { A, B, K, spots: spots.map((s) => s.kind + "@" + s.x.toFixed(1) + "," + s.z.toFixed(1)), rushers: rushers.map((q) => [+q.tx.toFixed(2), +q.tz.toFixed(2), +q.ta.toFixed(2), +q.te.toFixed(2)]), darts: darts.map((d) => +d.yaw.toFixed(2)) } };
+      marks: { dread: (T_SW + T_TURN0) / 2 + 0.3, fake: darts.length ? darts[0].t + 0.1 : T_ANGRY + 0.15, lunge: L.t1 + 0.1, kill: tK + 0.6 },
+      notes: { t0: +t0.toFixed(2), dur: +DUR.toFixed(2), A, B, K, spots: spots.map((s) => s.kind + "@" + s.x.toFixed(1) + "," + s.z.toFixed(1)), rushers: rushers.map((q) => [+q.tx.toFixed(2), +q.tz.toFixed(2), +q.ta.toFixed(2), +q.te.toFixed(2)]), darts: darts.map((d) => +d.yaw.toFixed(2)) } };
   }
 };
