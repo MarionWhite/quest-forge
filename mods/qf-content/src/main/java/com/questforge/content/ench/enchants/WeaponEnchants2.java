@@ -19,6 +19,7 @@ import net.minecraft.util.DamageSource;
 import com.questforge.content.ench.CombatState;
 import com.questforge.content.ench.EnchantCategory;
 import com.questforge.content.ench.Hostility;
+import com.questforge.content.ench.Mitigation;
 import com.questforge.content.ench.ProcContext;
 import com.questforge.content.ench.QFEnchantment;
 import com.questforge.content.ench.Rarity;
@@ -38,7 +39,10 @@ public class WeaponEnchants2 {
             return 15 + (10 * level);
         }
 
-        /** Each stack bleeds for this fraction of the hit that applied it, per second. */
+        /**
+         * Each stack bleeds for this fraction of the hit that applied it, per
+         * second -- of the hit as it LANDED, after the target's armour.
+         */
         private static final float PER_STACK_OF_HIT = 0.04F;
         /** ...and never less than this, so a fist still draws blood. */
         private static final float PER_STACK_FLOOR = 0.5F;
@@ -51,7 +55,18 @@ public class WeaponEnchants2 {
             // stay short or a single application out-damages everything else here.
             // The per-stack damage scales with the hit: a flat half-heart was
             // invisible against this pack's health pools.
-            float perStack = Math.max(PER_STACK_FLOOR, ctx.damage * PER_STACK_OF_HIT);
+            //
+            // It scales with the hit that LANDS, read after the target's armour
+            // (2026-10-25, decision 0005 P1). LivingHurtEvent runs before armour,
+            // and seeding from the raw figure made the bleed 4% of a 750 swing on
+            // bosses whose armour let 120 of that swing through: Rupture read
+            // +40..48% on Mobzilla, The King and The Queen, more than any other
+            // enchantment, from a Rare (combat results, P1). The ticks still
+            // bypass armour; only the seed is read after it. Old: ctx.damage x
+            // 4%. New: the same 4% of Mitigation.predict(target, hit). Against
+            // an unarmoured target the two are the same number.
+            float landed = Mitigation.predict(target, ctx.source, ctx.damage);
+            float perStack = Math.max(PER_STACK_FLOOR, landed * PER_STACK_OF_HIT);
             TickedEffects.addBleed(target, ctx.user, 80 + (20 * ctx.level), ctx.level + 1, perStack);
         }
     }

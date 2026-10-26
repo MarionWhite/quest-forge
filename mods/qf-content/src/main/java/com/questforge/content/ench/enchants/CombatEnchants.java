@@ -7,6 +7,7 @@ import net.minecraft.util.DamageSource;
 
 import com.questforge.content.ench.CombatState;
 import com.questforge.content.ench.EnchantCategory;
+import com.questforge.content.ench.Mitigation;
 import com.questforge.content.ench.ProcContext;
 import com.questforge.content.ench.QFEnchantment;
 import com.questforge.content.ench.Rarity;
@@ -78,7 +79,11 @@ public class CombatEnchants {
      * for as long as you keep swinging.
      */
     public static class Poisonous extends QFEnchantment {
-        /** Damage per second, as a fraction of the hit that applied it, per level. */
+        /**
+         * Damage per second, as a fraction of the hit that applied it, per level
+         * -- of the hit as it LANDED, after the target's armour. See Venomous for
+         * why.
+         */
         private static final float PER_LEVEL = 0.04F;
 
         public Poisonous(int id) {
@@ -101,8 +106,9 @@ public class CombatEnchants {
             // Only if it took: undead and anything else immune get nothing, and
             // we inherit whatever immunity rules the rest of the pack has added.
             if (target.isPotionActive(Potion.poison)) {
+                float landed = Mitigation.predict(target, ctx.source, ctx.damage);
                 TickedEffects.addVenom(target, ctx.user, duration,
-                        Math.max(1.0F, ctx.damage * PER_LEVEL * ctx.level));
+                        Math.max(1.0F, landed * PER_LEVEL * ctx.level));
             }
         }
     }
@@ -118,7 +124,19 @@ public class CombatEnchants {
             return 8 * level;
         }
 
-        /** Damage per second, as a fraction of the hit that applied it, per level. */
+        /**
+         * Damage per second, as a fraction of the hit that applied it, per level.
+         *
+         * The fraction is of the hit as it LANDS, read after the target's armour
+         * (2026-10-25, decision 0005 P1). LivingHurtEvent fires before armour,
+         * and seeding the venom from the raw hit made it 5.8% of a 750 swing on
+         * bosses whose armour let 120 of that swing through: Venomous read
+         * +40..50% and Poisonous (an Uncommon) +40..42% on Mobzilla, The King
+         * and The Queen, more than any other enchantment there. The venom ticks
+         * still bypass armour; only the seed is read after it. Old: ctx.damage x
+         * 5.8% / 4%. New: the same percentages of Mitigation.predict(target,
+         * hit). Against an unarmoured target the two are the same number.
+         */
         private static final float PER_LEVEL = 0.058F;
 
         @Override
@@ -131,8 +149,9 @@ public class CombatEnchants {
             // -- ticks twice as often as Poisonous.
             target.addPotionEffect(new PotionEffect(Potion.poison.id, duration, 1));
             if (target.isPotionActive(Potion.poison)) {
+                float landed = Mitigation.predict(target, ctx.source, ctx.damage);
                 TickedEffects.addVenom(target, ctx.user, duration,
-                        Math.max(1.0F, ctx.damage * PER_LEVEL * ctx.level));
+                        Math.max(1.0F, landed * PER_LEVEL * ctx.level));
             }
             // Was vanilla Weakness, which is a flat -0.5 damage and therefore
             // invisible against modded weapons. This is a real 10% for 4 seconds.
