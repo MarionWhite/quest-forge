@@ -32,3 +32,16 @@ Previous state: `ops/checkpoints/site-lucky-stage.md`.
   Fixed in stage.js (clearTemp handles arrays) and app.js (`dip` try/catch + always lifts, with a 400 ms fallback timer).
 - Debug hooks in app.js: `?flowdbg=1` exposes window.__qf; `?flowclose=ms` / `?flowbreak=ms` dump hooks with a probe trace.
 - Next: re-run the sweep, then find the particle freeze (real-time trace of emberY/ashY/solidN through break).
+
+- Particle freeze ROOT CAUSE (proved with real-time probe, br/fxold.json vs br/fxnew.json in the scratchpad): `buildScene` was followed by
+  `st.fx.length = 0`, wiping the live updaters (the 80-point reveal burst at T_WIN+0.7, 1.1 s life, plus scene-start puffs/lights) while
+  their Points stayed in S.temp, so they hung frozen in mid-air for the whole scene. Removed. Old: burst y-sum stuck at 158.244, opacity 0.8 for 2.7 s;
+  new: animates and is gone in 1.2 s.
+- Break stalls (all motion pausing 100-300 ms): first draws compiled shaders/uploaded textures mid-break. Added `warmStage()` at boot and `prebuildReel()` while mining.
+  Headless result: reel/mine/shatter gaps gone. Remaining ~170 ms gap right at the Break click is the page's first-gesture handler (audio unlock?), not mine: see Requests.
+- Commits: 0599b29 (close), next commit (particles + warm-up).
+- Still to do: final sheet (before close / dip / +0.5 s / +2 s for 3 results), phone width, Break-another, journal line, mark done.
+
+## Requests
+- audio agent / qfaudio.js: the first user gesture (Break click) stalls the main thread ~170 ms (measured as the synchronous cost of
+  `breakBtn.click()` with all of breakWith ~0 ms). Likely AudioContext creation/unlock; create/resume it earlier (on pointerdown or page load) so it is not inside the click.
