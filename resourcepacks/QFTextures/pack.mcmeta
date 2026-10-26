@@ -1,6 +1,6 @@
 {
  "pack": {
   "pack_format": 1,
-  "description": "Quest Forge Textures v0. Uses Faithful 32x (faithfulpack.net) for stone, ores, gold/iron/diamond, glowstone and glass."
+  "description": "Quest Forge Textures v1. Faithful 64x (faithfulpack.net) stone, ores, metals, glass, dirt; our own foliage, crops and books; normal maps from Vanilla Normals Renewed (github.com/Poudingue)."
  }
 }

@@ -1,31 +1,38 @@
 #!/usr/bin/env python3
-"""Build "QF Textures" (v0): vanilla's design, Faithful 32x where the owner liked it, a calmer
-grass, a little more colour, and generated LabPBR normal + specular maps for every block.
+"""Build "QF Textures" v1: vanilla's designs, Faithful 64x where the owner liked its detail, our own
+drawn foliage, crops and books, and LabPBR maps from Vanilla Normals Renewed where they fit.
+(v0's builder is in git history: e4dd9f6, tools/textures/build_qf_textures.py.)
 
-    py -3.10 -I tools/textures/build_qf_textures.py --out C:\\qfb\\textures\\QFTextures-v0.zip
-        [--mc-jar <minecraft.jar>] [--faithful <Faithful.32x.-.1.7.10.zip>] [--no-pbr]
+    py -3.10 -I tools/textures/build_qf_textures.py --out C:\\qfb\\textures\\QFTextures-v1.zip
+        [--leaf-edges none|all|sides] [--no-pbr] [--no-cit]
+        [--mc-jar <minecraft.jar>] [--faithful64 <zip>] [--vnr <zip>]
 
-Why each piece (docs/design/textures/direction.md, Shader Lab round 6 answers):
-  * Base = vanilla 1.7.10 block textures from the player's own minecraft.jar ("I enjoy a lot of
-    Minecraft's block designs"). They are read at build time and never stored in the repo.
-  * Faithful 32x (resourcepacks/QFTextures/faithful.txt) only for the blocks the owner named:
-    stone, the ores, gold/iron/diamond blocks, glowstone and glass (with Faithful's connected-glass
-    CTM, which Angelica's built-in MCPatcher reads). Faithful License v4: credit + link in
-    pack.mcmeta and CREDITS.txt, the licence text alongside, only what we need.
-  * Grass: NOT Faithful's ("noisy green carpet"). Vanilla's own grass, doubled to 32x with its
-    pattern kept, with the pixel-to-pixel contrast lowered so it reads calmer at a distance.
-  * Vibrance: chroma x VIBRANCE around each pixel's own luminance (grey biome-tinted textures are
-    unaffected; their colour comes from the shader's tint).
-  * PBR (LabPBR 1.3, https://shaderlabs.org/wiki/LabPBR_Material_Standard), written as
-    <name>_n.png / <name>_s.png next to each texture, also for the CTM tiles:
-      _n: R,G normal X,Y (DirectX, +Y down the image), B ambient occlusion, A height (255 = flat).
-      _s: R perceptual smoothness, G F0 (0-229 linear F0; 230 iron, 231 gold), B porosity (0-64)
-          or subsurface (65-255), A emission (0-254; 255 = none).
-    Normals reuse tools/shaders/gen_surface_pack.py's luminance-relief normal_map and its
-    per-material strengths. The QuestForge shader does not sample these yet (direction.md says
-    what it would take); they are here so a PBR-capable pass can be judged on our own art.
+What goes in, and why (docs/design/textures/direction.md, "QF Textures v1"; owner's round 7):
+  * Base: vanilla 1.7.10 block textures from the player's own minecraft.jar, read at build time
+    and never stored in the repo.
+  * Faithful 64x (1.7.10 branch, Faithful License v4) for the list in
+    resourcepacks/QFTextures/faithful64.txt: stone, stone bricks, cobble, ores, metal and gem
+    blocks, glowstone, glass, and dirt with the grass side ("Faithful's dirt has the better side
+    profile"; "Faithful 64 is just a better version of 32"). Its connected glass comes along, with
+    its 1.13-style rules (matchBlocks=black_stained_glass) rewritten to 1.7.10 ids + metadata.
+  * Our own art (tools/textures/qf_art.py; Stay True's plant art as the direction, nothing
+    copied): leaves for all six woods (+ the Fast-graphics _opaque ones), bark and log ends, tall
+    grass, fern, wheat 0-7, a calm grass top, and bookshelves (four variants, mixed by CTM random,
+    replacing Angelica's built-in horizontal bookshelf CTM).
+  * --leaf-edges: the leaf "frill" options as connected textures (direction.md, "Leaf frills"):
+    none (default), all (every leaf face bitten where no leaf block continues it), sides (only the
+    top and bottom edges of side faces: where no leaf block is above or below).
+  * Vibrance: chroma x VIBRANCE on vanilla and Faithful pixels (our drawn art is coloured by design).
+  * LabPBR 1.3 (_n, _s next to each texture):
+      - a texture that stays vanilla and that VNR covers: VNR's maps, converted (vnr.py);
+      - a Faithful 64x texture that keeps vanilla's layout and VNR covers: VNR's shapes upscaled +
+        our own fine relief from the 64x art (vnr.hybrid_*);
+      - everything else (our drawn art, CTM tiles, the rest): tools/textures/labpbr.py.
+  * Custom item textures (MCPatcher CIT, tools/textures/qf_items.py): potion bottles per effect and
+    enchanted-book covers per enchantment. CIT is OFF in the live config; only renderq jobs with
+    "cit": true turn it on. --no-cit leaves them out.
 """
-import argparse, colorsys, io, json, os, re, sys, zipfile
+import argparse, io, json, os, re, sys, zipfile
 
 import numpy as np
 from PIL import Image
@@ -36,18 +43,22 @@ SRC = os.path.join(REPO, "resourcepacks", "QFTextures")
 sys.path.insert(0, os.path.join(REPO, "tools", "shaders"))
 sys.path.insert(0, HERE)
 import gen_surface_pack as gsp  # noqa: E402  (classify: material kind + relief strength)
-import labpbr  # noqa: E402  (the LabPBR conversion, shared with gen_surface_pack's modded maps)
+import labpbr  # noqa: E402
+import qf_art  # noqa: E402
+import vnr as vnrmod  # noqa: E402
 
 LIVE = os.path.join(os.environ.get("APPDATA", os.path.expanduser("~")), ".crazycraft4")
-FAITHFUL = r"C:\qfb\faithful\dl\Faithful.32x.-.1.7.10.zip"
-FAITHFUL_LICENSE = r"C:\qfb\faithful\LICENSE-faithful.txt"
-VERSION = "v0"
-VIBRANCE = 1.12            # chroma gain; 1.0 = unchanged
-GRASS_CALM = 0.68          # grass contrast kept (1.0 = vanilla's)
+FAITHFUL64 = r"C:\qfb\faithful64\dl\Faithful-64x-Java-1.7.10.zip"
+FAITHFUL_LICENSE = r"C:\qfb\faithful64\LICENSE-faithful.txt"
+VERSION = "v1"
+VIBRANCE = 1.10            # chroma gain; 1.0 = unchanged ("keep vibrance modest")
 BLOCKS = "assets/minecraft/textures/blocks/"
 CTM = "assets/minecraft/mcpatcher/ctm/"
-GRASS = {"grass_top", "grass_side_overlay"}
 SKIP_PBR = re.compile(r"^destroy_stage_|_overlay$|^(fire_layer|portal)")
+COLOURS = ["white", "orange", "magenta", "light_blue", "yellow", "lime", "pink", "gray", "light_gray",
+           "cyan", "purple", "blue", "brown", "green", "red", "black"]
+WOODS = ["oak", "spruce", "birch", "jungle", "acacia", "big_oak"]
+LEAF_SIZE = 32
 
 
 def load_list(name):
@@ -69,7 +80,6 @@ def rgba(data):
     return np.array(Image.open(io.BytesIO(data)).convert("RGBA"))
 
 
-# --- colour -----------------------------------------------------------------------
 def vibrance(a, gain=VIBRANCE):
     """Scale each pixel's chroma around its own luminance, so greys and brightness stay put."""
     f = a[..., :3].astype(np.float32) / 255.0
@@ -80,111 +90,178 @@ def vibrance(a, gain=VIBRANCE):
     return a
 
 
-def calm_grass(a):
-    """Vanilla grass at 32x: each pixel doubled (the design kept), then the variation around a
-    lightly blurred copy pulled in, so the carpet reads calmer without new detail."""
-    big = a.repeat(2, axis=0).repeat(2, axis=1).astype(np.float32)
-    h, w = big.shape[:2]
-    if h > w:   # animated strips do not occur for grass; keep the code honest anyway
-        return big.astype(np.uint8)
-    rgb = big[..., :3]
-    # 3x3 wrap blur (block textures tile)
-    blur = sum(np.roll(np.roll(rgb, dy, 0), dx, 1) for dy in (-1, 0, 1) for dx in (-1, 0, 1)) / 9.0
-    rgb = blur + (rgb - blur) * GRASS_CALM
-    big[..., :3] = rgb
-    return np.clip(big + 0.5, 0, 255).astype(np.uint8)
+def drawn_art(planks):
+    """{texture name: rgba} for everything qf_art draws."""
+    out = {}
+    for w in WOODS:
+        leaf = qf_art.needles() if w == "spruce" else qf_art.leaves(w, LEAF_SIZE)
+        out["leaves_" + w] = leaf
+        out["leaves_%s_opaque" % w] = qf_art.opaque(leaf)
+        out["log_" + w] = qf_art.bark(w)
+        out["log_%s_top" % w] = qf_art.log_top(w)
+    out["tallgrass"] = qf_art.tall_grass()
+    out["fern"] = qf_art.fern()
+    for i in range(8):
+        out["wheat_stage_%d" % i] = qf_art.wheat(i)
+    out["grass_top"] = qf_art.grass_top()
+    out["bookshelf"] = qf_art.bookshelf(planks=planks)
+    return out
 
 
-# --- PBR --------------------------------------------------------------------------
-# The LabPBR conversion (relief -> _n with DirectX Y, AO and height; per-material _s with the
-# ore-fleck, metal-code and emission rules) is tools/textures/labpbr.py, shared with
-# tools/shaders/gen_surface_pack.py so the modded maps match these. gen_surface_pack's classify()
-# still decides the material kind and relief strength from the texture's name.
+def glass_rule(text):
+    """Faithful 64x's 1.13-style glass rule -> 1.7.10 ids + metadata."""
+    m = re.search(r"^matchBlocks=(\S+)", text, re.M)
+    name = m.group(1)
+    pane = name.endswith("_pane")
+    base = name[:-5] if pane else name
+    if base == "glass":
+        repl = "matchBlocks=%d" % (102 if pane else 20)
+    else:
+        col = base[:-len("_stained_glass")]
+        repl = "matchBlocks=%d\nmetadata=%d" % (160 if pane else 95, COLOURS.index(col))
+    return text[:m.start()] + repl + text[m.end():]
 
 
-def pbr_maps(name, a, stone=None):
-    kind, _, strength = gsp.classify(os.path.basename(name))
-    return labpbr.pbr_maps(name, a, strength, kind, stone)
+def leaf_ctm(textures, source, mode, out):
+    """--leaf-edges all|sides: CTM rules + 47 tiles per broadleaf wood (module docstring)."""
+    spec = json.load(open(os.path.join(SRC, "ctm47.json"), encoding="utf-8"))
+    n = 0
+    for w in WOODS:
+        if w == "spruce":
+            continue
+        base = textures[BLOCKS + "leaves_%s.png" % w][0]
+        d = CTM + "leaves/" + w + "/"
+        faces = "sides" if mode == "sides" else "all"
+        out.writestr(d + "leaves_%s.properties" % w,
+                     "matchTiles=leaves_%s\nmethod=ctm\nconnect=tile\nfaces=%s\ntiles=0-46\n" % (w, faces))
+        for i in range(47):
+            edges = spec[str(i)]["edges"]
+            if mode == "sides":
+                edges = "".join(e for e in edges if e in "TB")
+            p = d + "%d.png" % i
+            textures[p] = (qf_art.ragged_tile(base, edges, seed=1000 + i * 7 + WOODS.index(w)), None)
+            source[p] = "ctm"
+            n += 1
+    return n
 
 
-# --- build ------------------------------------------------------------------------
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--out", required=True)
     ap.add_argument("--mc-jar", default=os.path.join(LIVE, "bin", "minecraft.jar"), help="read only")
-    ap.add_argument("--faithful", default=FAITHFUL)
+    ap.add_argument("--faithful64", default=FAITHFUL64)
     ap.add_argument("--faithful-license", default=FAITHFUL_LICENSE)
+    ap.add_argument("--vnr", default=vnrmod.VNR_ZIP)
+    ap.add_argument("--leaf-edges", choices=("none", "all", "sides"), default="none")
     ap.add_argument("--no-pbr", action="store_true")
+    ap.add_argument("--no-cit", action="store_true")
     a = ap.parse_args()
 
     mc = zipfile.ZipFile(a.mc_jar)
-    fa = zipfile.ZipFile(a.faithful)
-    fnames = set(fa.namelist())
-    picks = load_list("faithful.txt")
+    mcn = set(mc.namelist())
+    fa = zipfile.ZipFile(a.faithful64)
+    froot = fa.namelist()[0].split("/")[0] + "/"
+    fnames = {n[len(froot):] for n in fa.namelist() if n.startswith(froot)}
+
+    def fread(n):
+        return fa.read(froot + n)
+    vn = vnrmod.VNR(a.vnr)
+
     take = set()
-    for p in picks:
+    for p in load_list("faithful64.txt"):
         rx = re.compile("^" + p.replace(".", r"\.").replace("*", "[^/]*") + "$")
         hit = [m for m in fnames if m.startswith(BLOCKS) and m.endswith(".png") and rx.match(m[len(BLOCKS):-4])]
         if not hit:
-            sys.exit(f"faithful.txt: {p} matches nothing in the Faithful zip")
-        take.update(hit)
+            sys.exit(f"faithful64.txt: {p} matches nothing in the Faithful 64x zip")
+        take.update(m for m in hit if m in mcn)        # 1.7.10 textures only (the zip carries newer ones)
 
     out = zipfile.ZipFile(a.out, "w", zipfile.ZIP_DEFLATED)
     meta = json.load(open(os.path.join(SRC, "pack.mcmeta"), encoding="utf-8"))
+    if a.leaf_edges != "none":
+        meta["pack"]["description"] += " Leaf edges: %s." % a.leaf_edges
     out.writestr("pack.mcmeta", json.dumps(meta, indent=1, ensure_ascii=False))
-    for f in ("CREDITS.txt",):
-        out.write(os.path.join(SRC, f), f)
+    out.write(os.path.join(SRC, "CREDITS.txt"), "CREDITS.txt")
     out.write(a.faithful_license, "LICENSE-Faithful.txt")
-    if os.path.exists(os.path.join(SRC, "pack.png")):
-        out.write(os.path.join(SRC, "pack.png"), "pack.png")
 
-    tally = {"vanilla": 0, "faithful": 0, "grass": 0, "ctm": 0, "pbr": 0}
-    textures = {}   # path -> (rgba, mcmeta bytes or None)
-    for m in sorted(x for x in mc.namelist() if x.startswith(BLOCKS) and x.endswith(".png")):
+    planks = rgba(mc.read(BLOCKS + "planks_oak.png"))
+    art = drawn_art(planks)
+    tally = dict(vanilla=0, faithful64=0, drawn=0, ctm=0, pbr_vnr=0, pbr_hybrid=0, pbr_ours=0, cit=0)
+    textures = {}     # path -> (rgba, mcmeta bytes or None)
+    source = {}       # path -> "vanilla" | "faithful64" | "drawn" | "ctm"
+    for m in sorted(x for x in mcn if x.startswith(BLOCKS) and x.endswith(".png")):
         name = m[len(BLOCKS):-4]
-        mcmeta = mc.read(m + ".mcmeta") if m + ".mcmeta" in mc.namelist() else None
-        if m in take:
-            img = rgba(fa.read(m))
-            mcmeta = fa.read(m + ".mcmeta") if m + ".mcmeta" in fnames else mcmeta
-            tally["faithful"] += 1
-        elif name in GRASS:
-            img = calm_grass(rgba(mc.read(m)))
-            tally["grass"] += 1
+        mcmeta = mc.read(m + ".mcmeta") if m + ".mcmeta" in mcn else None
+        if name in art:
+            textures[m], source[m] = (art[name], None), "drawn"
+        elif m in take:
+            img = rgba(fread(m))
+            mcmeta = fread(m + ".mcmeta") if m + ".mcmeta" in fnames else mcmeta
+            textures[m], source[m] = (vibrance(img), mcmeta), "faithful64"
         else:
-            img = rgba(mc.read(m))
-            tally["vanilla"] += 1
-        textures[m] = (vibrance(img), mcmeta)
-    # grass_side (dirt with an untinted fringe) stays vanilla 16x: only the tinted top and the
-    # side overlay make the "carpet".
+            textures[m], source[m] = (vibrance(rgba(mc.read(m))), mcmeta), "vanilla"
+        tally[source[m]] += 1
 
-    # Faithful's connected glass (only the glass group: we take Faithful's glass, not its
-    # bookshelf or sandstone, which stay vanilla here).
-    ctm = sorted(m for m in fnames if m.startswith(CTM + "glass/") and not m.endswith("/"))
-    for m in ctm:
+    # Faithful 64x's connected glass, rules rewritten for 1.7.10
+    for m in sorted(n for n in fnames if n.startswith(CTM + "glass/") and not n.endswith("/")):
         if m.endswith(".png"):
-            textures[m] = (vibrance(rgba(fa.read(m))), None)
-        else:
-            out.writestr(m, fa.read(m))
+            textures[m], source[m] = (vibrance(rgba(fread(m))), None), "ctm"
+        elif m.endswith(".properties"):
+            out.writestr(m, glass_rule(fread(m).decode("utf-8")))
         tally["ctm"] += 1
+    # bookshelves: four variants mixed at random (replaces Angelica's built-in horizontal rule)
+    d = CTM + "bookshelf/"
+    out.writestr(d + "bookshelf.properties", "matchTiles=bookshelf\nmethod=random\nfaces=sides\ntiles=0-3\n")
+    for i in range(4):
+        p = d + "%d.png" % i
+        textures[p], source[p] = (qf_art.bookshelf(seed=71 + i, planks=planks), None), "ctm"
+        tally["ctm"] += 1
+    if a.leaf_edges != "none":
+        tally["ctm"] += leaf_ctm(textures, source, a.leaf_edges, out)
 
-    stone = {"v": textures[BLOCKS + "stone.png"][0]}
+    stone = textures[BLOCKS + "stone.png"][0]
     for m, (img, mcmeta) in sorted(textures.items()):
         out.writestr(m, png(img))
         if mcmeta:
             out.writestr(m + ".mcmeta", mcmeta)
-        name = m[:-4].split("/textures/blocks/")[-1] if BLOCKS in m else m[len(CTM):-4]
-        base = os.path.basename(name)
-        if a.no_pbr or SKIP_PBR.search(base):
+        if a.no_pbr:
             continue
-        # CTM tiles are named 0..46 inside a folder named after the block.
-        mat = name if BLOCKS in m else os.path.basename(os.path.dirname(m))
-        n, s = pbr_maps(mat, img, stone["v"] if base.endswith("_ore") else None)
+        name = m[len(BLOCKS):-4] if m.startswith(BLOCKS) else m[len(CTM):-4]
+        base = os.path.basename(name)
+        if SKIP_PBR.search(base):
+            continue
+        n = s = None
+        src = source[m]
+        mat = name if m.startswith(BLOCKS) else os.path.basename(os.path.dirname(m))
+        kind, _, strength = gsp.classify(os.path.basename(mat))
+        por = 170 if kind in ("leaves", "plant") else (55 if kind == "soil" else (30 if kind == "wood" else 0))
+        square = img.shape[0] == img.shape[1]
+        if m.startswith(BLOCKS) and vn.has(name) and square and src in ("vanilla", "faithful64"):
+            vn_n, vn_s = vn.read(name, "n"), vn.read(name, "s")
+            van = rgba(mc.read(m))
+            if vn_n is not None and vn_n.shape[0] == vn_n.shape[1] == van.shape[0]:
+                if src == "vanilla" and img.shape == van.shape:
+                    n = vnrmod.to_labpbr_n(vn_n, img)
+                    s = vnrmod.to_labpbr_s(vn_s, name, img, por) if vn_s is not None else None
+                    tally["pbr_vnr"] += 1
+                elif src == "faithful64" and vnrmod.layout_match(img, van) > 0.45:
+                    n = vnrmod.hybrid_normal(vn_n, img, strength)
+                    st = stone if base.endswith("_ore") else None
+                    s = vnrmod.hybrid_specular(vn_s, img, name, st, por) if vn_s is not None else None
+                    tally["pbr_hybrid"] += 1
+        if n is None or s is None:
+            n2, s2 = labpbr.pbr_maps(mat, img, strength, kind, stone if base.endswith("_ore") else None)
+            n = n2 if n is None else n
+            s = s2 if s is None else s
+            tally["pbr_ours"] += 1
         out.writestr(m[:-4] + "_n.png", png(n))
         out.writestr(m[:-4] + "_s.png", png(s))
         if mcmeta:
             out.writestr(m[:-4] + "_n.png.mcmeta", mcmeta)
             out.writestr(m[:-4] + "_s.png.mcmeta", mcmeta)
-        tally["pbr"] += 1
+
+    if not a.no_cit:
+        import qf_items
+        tally["cit"] = qf_items.write_cit(out)
     out.close()
     print("QF Textures %s: %s -> %s (%.1f MB)" % (VERSION, tally, a.out, os.path.getsize(a.out) / 1e6))
 

@@ -1,0 +1,22 @@
+{
+ "name": "textures-v1",
+ "owner": "texture-agent",
+ "comment": "QF Textures v1 against v0, Faithful 64x and vanilla on the r008 texture views (shot mode: pictures only, allowed at night). The prebuild makes v1 and its two leaf-edge variants; resource packs switch in the world, so all of it is one boot.",
+ "prebuild": [
+  ["py", "-3.10", "-I", "tools/textures/build_qf_textures.py", "--no-cit", "--out", "C:/qfb/textures/QFTextures-v1.zip"],
+  ["py", "-3.10", "-I", "tools/textures/build_qf_textures.py", "--no-cit", "--leaf-edges", "all", "--out", "C:/qfb/textures/QFTextures-v1-edges-all.zip"],
+  ["py", "-3.10", "-I", "tools/textures/build_qf_textures.py", "--no-cit", "--leaf-edges", "sides", "--out", "C:/qfb/textures/QFTextures-v1-edges-sides.zip"]
+ ],
+ "defaults": {"world": "C:/qfb/textures/world-showcase", "preset": "3", "size": "2560x1440", "mode": "shot"},
+ "jobs": [
+  {"tag": "t8v1", "resourcepacks": ["C:/qfb/textures/QFTextures-v1.zip"],
+   "scenes": "texture_wall,texture_wall2,glass_close,forest_lit,golden_lit,farm,farm_close,leaves_close,tree_close,modded_wall"},
+  {"tag": "t8v0", "resourcepacks": ["C:/qfb/textures/QFTextures-v0.zip"],
+   "scenes": "texture_wall,texture_wall2,glass_close,forest_lit,golden_lit,farm,farm_close,leaves_close,tree_close,modded_wall"},
+  {"tag": "t8f64", "resourcepacks": ["C:/qfb/faithful64/Faithful-64x-1.7.10.zip"],
+   "scenes": "texture_wall,texture_wall2,glass_close,forest_lit,golden_lit,farm,farm_close,leaves_close,tree_close,modded_wall"},
+  {"tag": "t8van", "scenes": "texture_wall,texture_wall2,forest_lit,farm,leaves_close"},
+  {"tag": "t8e1", "resourcepacks": ["C:/qfb/textures/QFTextures-v1-edges-all.zip"], "scenes": "leaves_close,tree_close,forest_lit"},
+  {"tag": "t8e2", "resourcepacks": ["C:/qfb/textures/QFTextures-v1-edges-sides.zip"], "scenes": "leaves_close,tree_close,forest_lit"}
+ ]
+}

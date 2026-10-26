@@ -1,0 +1,396 @@
+#!/usr/bin/env python3
+"""QF item sprites for MCPatcher custom item textures (CIT): a bottle shape per potion effect and a
+cover per enchantment on enchanted books. Prototype for Shader Lab round 8.
+
+Faithless (ARR) is the inspiration the owner named: "all of the potions having unique shapes, and
+enchantments having unique books". Nothing is taken from it: every sprite below is a pixel grid
+typed here by hand (a template system: one legend, one grid per shape, one emblem per
+enchantment), so a human artist can later replace any grid without touching the code.
+
+How the game draws them (Angelica's MCPatcherForge, com/prupe/mcpatcher/cit; CIT is OFF in the live
+config, renderq turns it on per job with "cit": true):
+  * A 1.7.10 potion draws two layers: `potion_overlay` (the liquid, tinted with the effect's
+    colour) and `potion_bottle_drinkable` / `potion_bottle_splash` (the glass, untinted). A CIT
+    rule replaces both by name (texture.potion_overlay=..., texture.potion_bottle_drinkable=...),
+    so our bottle gets the game's own liquid colour: the shape tells the effect apart, the colour
+    stays what players know.
+  * Rules match the damage value's effect bits and the splash bit (damageMask 0x400F), so every
+    level and duration of an effect shares its bottle.
+  * Enchanted books match `enchantmentIDs` (CIT reads StoredEnchantments on books).
+
+Legend (both kinds): . clear   o outline   O dark outline   w glass light   g glass   G glass dark
+    h highlight   l liquid light  m liquid  d liquid dark   c cork  C cork dark   s label
+    (books) b cover  B cover dark  k cover light  p page  P page dark  e emblem  E emblem dark
+    y gilt  Y gilt dark
+"""
+import io
+
+import numpy as np
+from PIL import Image
+
+# --- potion bottles: 16x16, one per effect ---------------------------------------------------------
+BOTTLES = {
+    # round flask, long neck (regeneration)
+    "round": """
+................
+......oCCo......
+......occo......
+.......og.......
+.......og.......
+......ogwgo.....
+....oogwhwgoo...
+...ogwlmmmmmgo..
+..ogwlmmmmmmdgo.
+..ogllmmmmmmdgo.
+..ogmmmmmmmddgo.
+..ogmmmmmmdddgo.
+...ogmmmmdddgo..
+....oogdddgoo...
+......ooooo.....
+................""",
+    # tall slim vial (swiftness)
+    "vial": """
+.......oCo......
+......oCcCo.....
+.......oCo......
+......ogwgo.....
+.....ogwhwgo....
+.....ohllmmo....
+.....ohlmmdo....
+.....olmmmdo....
+.....olmmmdo....
+.....olmmmdo....
+.....olmmddo....
+.....olmmddo....
+.....ommmddo....
+.....ogmdddo....
+......ooooo.....
+................""",
+    # squat wide jar, big cork (fire resistance)
+    "jar": """
+................
+................
+....oCCCCCCo....
+....occcccco....
+....oCCCCCCo....
+...ogwwwwwwgo...
+..ogwhggggggGo..
+..ogllmmmmmmdo..
+..oglmmmmmmmdo..
+..ogmmmssmmmdo..
+..ogmmmssmmddo..
+..ogmmmmmmmddo..
+..ogmmmmmmdddo..
+...ogddddddgo...
+....oooooooo....
+................""",
+    # heart bottle (healing)
+    "heart": """
+.......oCo......
+.......oco......
+.......ogo......
+..ooo..ogo..ooo.
+.oglmo.ogo.omdgo
+oglmmmogwgommmdo
+oglmmmmmmmmmmmdo
+oghmmmmmmmmmmmdo
+oglmmmmmmmmmmddo
+.oglmmmmmmmmddo.
+..oglmmmmmmddo..
+...oglmmmmddo...
+....oglmmddo....
+.....oglddo.....
+......oddo......
+.......oo.......""",
+    # conical flask (night vision)
+    "cone": """
+......oCCo......
+......occo......
+......ogwo......
+......ogwo......
+......ogwo......
+.....ogwwgo.....
+.....oglmgo.....
+....ohlmmmgo....
+....olmmmmdo....
+...olmmmmmmdo...
+...olmmmmmmdo...
+..olmmmmmmmddo..
+..olmmmmmmdddo..
+.olmmmmmmddddgo.
+.ooooooooooooooo
+................""",
+    # square bottle, broad shoulders (strength)
+    "square": """
+................
+.......oCo......
+.......oco......
+......ogwgo.....
+....oogwhwgoo...
+...owwwwwwwwGo..
+...ohlmmmmmmdo..
+...ohlmmmmmmdo..
+...olmmsssmmdo..
+...olmmsssmmdo..
+...olmmmmmmmdo..
+...olmmmmmmddo..
+...olmmmmmmddo..
+...ogddddddddo..
+...ooooooooooo..
+................""",
+    # teardrop with a wave (water breathing)
+    "drop": """
+.......oo.......
+......oCCo......
+......occo......
+.......ogo......
+......ogwgo.....
+.....ogwhwgo....
+....ogwlmmmgo...
+....oglmmmmdo...
+...oglmmmmmmdo..
+...ohmmmlmmmdo..
+...olmmlmlmmdo..
+...olmlmmmlmdo..
+...ogmmmmmmddo..
+....ogmmmmddo...
+.....ooddooo....
+.......oo.......""",
+    # splash: round grenade with a ring and a fuse cork (any splash potion)
+    "splash": """
+........oCo.....
+.......oCco.....
+...oo..oCo......
+..o..o.ogo......
+..o..ooggwo.....
+...oogwwhwgo....
+....ogwlmmmgo...
+...oglmmmmmmgo..
+...ohlmmmmmmdo..
+...olmmmmmmmdo..
+...olmmmmmmddo..
+...ogmmmmmdddo..
+....ogmmmdddo...
+.....ogddddo....
+......ooooo.....
+................""",
+}
+EFFECTS = {   # effect bits -> (bottle, name for the files)
+    1: ("round", "regeneration"), 2: ("vial", "swiftness"), 3: ("jar", "fire_resistance"),
+    4: ("drop", "poison"), 5: ("heart", "healing"), 6: ("cone", "night_vision"),
+    8: ("vial", "weakness"), 9: ("square", "strength"), 10: ("jar", "slowness"),
+    12: ("square", "harming"), 13: ("drop", "water_breathing"), 14: ("cone", "invisibility"),
+}
+GLASS = {"o": (34, 30, 44, 255), "O": (20, 16, 26, 255), "w": (232, 240, 250, 200), "g": (178, 198, 222, 170),
+         "G": (120, 136, 160, 190), "h": (255, 255, 255, 235), "c": (176, 128, 74, 255), "C": (118, 80, 42, 255),
+         "s": (234, 222, 190, 255)}
+LIQUID = {"l": 255, "m": 205, "d": 150}
+
+
+def grid(text):
+    rows = [r for r in text.strip("\n").split("\n")]
+    assert len(rows) == 16 and all(len(r) == 16 for r in rows), [len(r) for r in rows]
+    return rows
+
+
+def bottle_layers(shape):
+    """(bottle rgba, liquid rgba) 16x16: the liquid is grey so the game's potion colour tints it."""
+    rows = grid(BOTTLES[shape])
+    glass = np.zeros((16, 16, 4), np.uint8)
+    liquid = np.zeros((16, 16, 4), np.uint8)
+    for y, r in enumerate(rows):
+        for x, ch in enumerate(r):
+            if ch in GLASS:
+                glass[y, x] = GLASS[ch]
+            elif ch in LIQUID:
+                v = LIQUID[ch]
+                liquid[y, x] = (v, v, v, 255)
+            elif ch != ".":
+                raise ValueError(f"{shape}: unknown pixel {ch!r}")
+    # a glint on the liquid: one bright glass pixel over the upper-left liquid edge
+    return glass, liquid
+
+
+# --- enchanted books: 16x16 base + emblem per enchantment ------------------------------------------
+BOOK = """
+................
+...oooooooooo...
+..oYkkkkkkkkbo..
+..oYbbbbbbbbbo..
+..oYbbbbbbbbbPo.
+..oYbbbbbbbbbpo.
+..oYbbbbbbbbbpo.
+..oYbbbbbbbbbpo.
+..oYbbbbbbbbbpo.
+..oYbbbbbbbbbpo.
+..oYbbbbbbbbbpo.
+..oYbbbbbbbbbpo.
+..oYBBBBBBBBBpo.
+..oYyyyyyyyyyPo.
+...oooooooooooo.
+................"""
+EMBLEMS = {   # 7x7, drawn on the cover centred at (8, 7); e emblem, E emblem dark, y gilt
+    "shield": """
+.yyyyy.
+yeeeeey
+yeeEeey
+yeEEEey
+.yeEey.
+..yey..
+...y...""",
+    "sword": """
+.....ye
+....yey
+...yey.
+y.yey..
+.yEy...
+.Ey.y..
+E....y.""",
+    "flame": """
+...e...
+..ee...
+..eEe.e
+.eEyEee
+.eyyyEe
+.eEyEe.
+..eee..""",
+    "pickaxe": """
+..yyy..
+.y...y.
+y..E..y
+...E...
+...E...
+...E...
+...E...""",
+    "thread": """
+.yyyyy.
+.eeeee.
+.EEEEE.
+.eeeee.
+.EEEEE.
+.yyyyy.
+.....ee""",
+    "anvil": """
+.......
+eeeeeey
+.eEEEe.
+..eEe..
+..eEe..
+.eeeee.
+.EEEEE.""",
+    "clover": """
+...y...
+..yey..
+.yeeey.
+yeeEeey
+.yeeey.
+..yey..
+...y...""",
+    "arrow": """
+....yyy
+.....yy
+....y.y
+...E...
+..E....
+eE.....
+ee.....""",
+}
+ENCHANTS = {   # id -> (emblem, cover family, name)
+    0: ("shield", "armor", "protection"), 1: ("flame", "armor", "fire_protection"),
+    16: ("sword", "weapon", "sharpness"), 20: ("flame", "weapon", "fire_aspect"),
+    32: ("pickaxe", "tool", "efficiency"), 33: ("thread", "tool", "silk_touch"),
+    34: ("anvil", "tool", "unbreaking"), 35: ("clover", "tool", "fortune"),
+    48: ("arrow", "bow", "power"),
+}
+COVERS = {    # family -> (cover dark, cover, cover light, emblem, emblem dark)
+    "armor":  ((38, 58, 102), (58, 88, 150), (96, 132, 196), (214, 226, 240), (130, 150, 180)),
+    "weapon": ((92, 22, 26), (140, 36, 40), (186, 70, 66), (236, 222, 206), (170, 150, 140)),
+    "tool":   ((26, 76, 64), (40, 112, 92), (78, 156, 126), (232, 226, 200), (150, 150, 130)),
+    "bow":    ((76, 50, 26), (116, 78, 40), (156, 112, 64), (236, 222, 196), (160, 140, 110)),
+}
+FLAME_EMBLEM = ((255, 160, 40), (196, 70, 20))
+BOOK_FIXED = {"o": (30, 22, 20, 255), "y": (222, 186, 82, 255), "Y": (150, 112, 44, 255),
+              "p": (236, 226, 200, 255), "P": (190, 176, 146, 255)}
+
+
+def book(eid):
+    emblem, fam, _ = ENCHANTS[eid]
+    cd, c, cl, em, emd = COVERS[fam]
+    if emblem == "flame":
+        em, emd = FLAME_EMBLEM
+    pal = dict(BOOK_FIXED)
+    pal.update({"b": c + (255,), "B": cd + (255,), "k": cl + (255,)})
+    out = np.zeros((16, 16, 4), np.uint8)
+    for y, r in enumerate(grid(BOOK)):
+        for x, ch in enumerate(r):
+            if ch != ".":
+                out[y, x] = pal[ch]
+    rows = [r for r in EMBLEMS[emblem].strip("\n").split("\n")]
+    epal = {"e": em + (255,), "E": emd + (255,), "y": BOOK_FIXED["y"]}
+    for dy, r in enumerate(rows):
+        for dx, ch in enumerate(r):
+            if ch != ".":
+                out[4 + dy, 5 + dx] = epal[ch]
+    return out
+
+
+def png(a):
+    b = io.BytesIO()
+    Image.fromarray(a, "RGBA").save(b, "PNG")
+    return b.getvalue()
+
+
+CIT = "assets/minecraft/mcpatcher/cit/"
+
+
+def write_cit(z):
+    """Write the potion and book rules + sprites into an open zip; returns the number of rules."""
+    n = 0
+    for bits, (shape, name) in EFFECTS.items():
+        glass, liquid = bottle_layers(shape)
+        sglass, sliquid = bottle_layers("splash")
+        d = CIT + "potions/"
+        z.writestr(d + "bottle_%s.png" % shape, png(glass))
+        z.writestr(d + "liquid_%s.png" % shape, png(liquid))
+        z.writestr(d + "bottle_splash.png", png(sglass))
+        z.writestr(d + "liquid_splash.png", png(sliquid))
+        z.writestr(d + "%s.properties" % name,
+                   "type=item\nitems=minecraft:potion\ndamage=%d\ndamageMask=16399\n"
+                   "texture.potion_bottle_drinkable=bottle_%s\ntexture.potion_overlay=liquid_%s\n" % (bits, shape, shape))
+        z.writestr(d + "%s_splash.properties" % name,
+                   "type=item\nitems=minecraft:potion\ndamage=%d\ndamageMask=16399\n"
+                   "texture.potion_bottle_splash=bottle_splash\ntexture.potion_overlay=liquid_splash\n" % (16384 | bits))
+        n += 2
+    for eid, (_, _, name) in ENCHANTS.items():
+        d = CIT + "books/"
+        z.writestr(d + "%s.png" % name, png(book(eid)))
+        z.writestr(d + "%s.properties" % name,
+                   "type=item\nitems=minecraft:enchanted_book\nenchantmentIDs=%d\ntexture=%s\n" % (eid, name))
+        n += 1
+    return n
+
+
+def sheet(path, scale=8):
+    """All prototypes on one sheet: each bottle tinted with a sample colour, then the books."""
+    tints = {"round": (205, 92, 171), "vial": (124, 175, 198), "jar": (228, 154, 58), "heart": (248, 36, 35),
+             "cone": (31, 31, 161), "square": (147, 36, 35), "drop": (46, 82, 153), "splash": (78, 147, 49)}
+    tiles = []
+    for shape, t in tints.items():
+        glass, liquid = bottle_layers(shape)
+        lq = liquid.astype(np.float32)
+        lq[..., :3] *= np.array(t) / 255.0
+        im = Image.fromarray(lq.astype(np.uint8), "RGBA")
+        im.alpha_composite(Image.fromarray(glass, "RGBA"))
+        tiles.append(im)
+    for eid in ENCHANTS:
+        tiles.append(Image.fromarray(book(eid), "RGBA"))
+    W = len(tiles) * (16 * scale + 8) + 8
+    out = Image.new("RGBA", (W, 16 * scale + 16), (139, 139, 139, 255))
+    for i, im in enumerate(tiles):
+        out.alpha_composite(im.resize((16 * scale, 16 * scale), Image.NEAREST), (8 + i * (16 * scale + 8), 8))
+    out.save(path)
+
+
+if __name__ == "__main__":
+    import sys
+    sheet(sys.argv[1] if len(sys.argv) > 1 else "items-sheet.png")

@@ -1,0 +1,29 @@
+# Block textures taken from Faithful 64x (1.7.10 branch of
+# https://github.com/Faithful-Resource-Pack/Faithful-64x-Java), by name under
+# assets/minecraft/textures/blocks/ ("*" = any characters). The owner, Shader Lab round 7:
+# "Faithful 64 is just a better version of 32. I really like the texture and dimension of blocks
+# like the stone bricks from it, and some of the metallic surfaces", and Faithful's dirt has the
+# better side profile. Faithful License v4: only what we need.
+stone
+stonebrick
+stonebrick_*
+cobblestone
+cobblestone_mossy
+*_ore
+gold_block
+iron_block
+diamond_block
+emerald_block
+lapis_block
+redstone_block
+coal_block
+glowstone
+glass
+glass_*
+glass_pane_top
+glass_pane_top_*
+dirt
+grass_side
+grass_side_overlay
+farmland_dry
+farmland_wet

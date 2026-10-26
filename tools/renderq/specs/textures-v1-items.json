@@ -1,0 +1,13 @@
+{
+ "name": "textures-v1-items",
+ "owner": "texture-agent",
+ "comment": "Item prototypes (tools/textures/qf_items.py): potion bottles per effect and enchanted-book covers per enchantment, on the item-frame board of build_showcase.py --v1. cit: true turns MCPatcher CIT on in this trial's config only (never the live one).",
+ "prebuild": [
+  ["py", "-3.10", "-I", "tools/textures/build_qf_textures.py", "--out", "C:/qfb/textures/QFTextures-v1-items.zip"]
+ ],
+ "defaults": {"world": "C:/qfb/textures/world-showcase", "preset": "3", "size": "2560x1440", "mode": "shot", "cit": true},
+ "jobs": [
+  {"tag": "t8i1", "resourcepacks": ["C:/qfb/textures/QFTextures-v1-items.zip"], "scenes": "items_frames"},
+  {"tag": "t8i0", "scenes": "items_frames"}
+ ]
+}
