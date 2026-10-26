@@ -212,6 +212,27 @@ export async function createRig(kr, { seed = 1 } = {}) {
   R.passages = (kr.corners || []).filter((c) => c.kind === "passage").map((c) => {
     const m = R.toLocal(c.pos); return { ...m, dist: Math.hypot(m.x, m.z), side: Math.sign(m.x) || 1 };
   }).filter((p) => p.dist < 18).sort((a, b) => a.dist - b.dist);
+  // The Krypt's baked light on a block face (its chunk's per-vertex 'bake'), so a block of ours matches the wall.
+  // p: the face centre (world), n: its normal (world). Returns a Vector3 or null.
+  const _bb = new THREE.Box3(), _bv = new THREE.Vector3(), _bn = new THREE.Vector3();
+  R.bakeAt = (p, n) => {
+    const sum = new THREE.Vector3(); let cnt = 0;
+    scene.traverse((o) => {
+      const g = o.isMesh && o.geometry, bk = g && g.attributes.bake;
+      if (!bk) return;
+      if (!g.boundingBox) g.computeBoundingBox();
+      o.updateMatrixWorld();
+      if (_bb.copy(g.boundingBox).applyMatrix4(o.matrixWorld).distanceToPoint(p) > 1) return;
+      const pos = g.attributes.position, nrm = g.attributes.normal;
+      for (let i = 0; i < pos.count; i++) {
+        _bv.fromBufferAttribute(pos, i).applyMatrix4(o.matrixWorld);
+        if (Math.abs(_bv.x - p.x) > 0.51 || Math.abs(_bv.y - p.y) > 0.51 || Math.abs(_bv.z - p.z) > 0.51) continue;
+        if (n && nrm && _bn.fromBufferAttribute(nrm, i).dot(n) < 0.9) continue;
+        sum.x += bk.getX(i); sum.y += bk.getY(i); sum.z += bk.getZ(i); cnt++;
+      }
+    });
+    return cnt ? sum.multiplyScalar(1 / cnt) : null;
+  };
   // The floor block under the feet (for dressing a pit like the segment) and the wall block beside.
   R.floorBlock = blockW(cx, floorY - 0.5, cz);
   R.wallBlockL = R.block(-(R.wallL + 0.5), 1.5, 0); R.wallBlockR = R.block(R.wallR + 0.5, 1.5, 0);
