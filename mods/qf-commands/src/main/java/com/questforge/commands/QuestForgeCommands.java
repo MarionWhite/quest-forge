@@ -70,6 +70,9 @@ public class QuestForgeCommands {
     public void serverStarting(FMLServerStartingEvent event) {
         Map<?, ?> taken = event.getServer().getCommandManager().getCommands();
 
+        // A request from the last world this JVM ran is nobody's business here.
+        TpaAccess.reset();
+
         if (!taken.containsKey("commands")) {
             event.registerServerCommand(new CommandList());
         }

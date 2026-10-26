@@ -257,6 +257,17 @@ public final class Unlockables {
             "a Synapse Dimensional Key, used on open ground");
         dim("collision", 2, "The Collision", Source.IN_DIMENSION,
             "a Collision Dimensional Key, used on open ground");
+
+        // ==================================================================
+        // Getting together
+        // ==================================================================
+        //
+        // Appended 2026-10-25 (docs/decisions/0007-server-rules.md, srv-tools):
+        // after every dimension, because the order above is the damage value
+        // of every ticket already in a chest. Utility, like the two at the
+        // top, and in world loot like them: the questbook gates nothing on
+        // reaching a friend.
+        add(new TpaAccess(), Source.WORLD_LOOT);
     }
 
     /**

@@ -81,4 +81,27 @@ public abstract class Unlockable {
     public String refuse(EntityPlayerMP player, String name, String[] args) {
         return null;
     }
+
+    /**
+     * Whether typing this particular word needs the unlock.
+     *
+     * Almost always yes: that is the whole mod. The exception is a word that is
+     * an answer rather than a privilege (/tpaccept), which has to work for a
+     * player who holds no ticket at all, or the ticket that grants the question
+     * is worthless until a second one turns up in the right hands.
+     */
+    public boolean needsUnlock(String name) {
+        return true;
+    }
+
+    /**
+     * Tab-completion for this command, or null for none.
+     *
+     * @param name the command being typed, as in {@link #run}
+     * @param args what has been typed so far; the last entry is the partial word
+     */
+    @SuppressWarnings("rawtypes")
+    public java.util.List tabComplete(EntityPlayerMP player, String name, String[] args) {
+        return null;
+    }
 }
