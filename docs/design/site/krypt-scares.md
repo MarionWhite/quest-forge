@@ -107,3 +107,53 @@ Reuse the existing bank wherever a real Minecraft sound fits.
   and the "everyone gets hit once" guarantee applies once one scare is approved.
 - Verify on the real page with `graves/?demo&at=<0..1>&scare=<mob>&scareat=<ms>&dump=1`, in at
   least three different segments. No test page ships under `site/`.
+
+## v3 (2026-10-26): FNAF-level terror, failed jumps, real screams
+The owner played v2: high-quality animation, but "they aren't scary enough". The Silverfish and
+Cave Spider scares are "almost there, but that is a specific type of fear". The Magma Cube is
+"kind of boring". The Wither Skeleton "starts off cool, and is a cool idea with the sparks, but
+it ends kind of boring". His brief: "take some inspiration from FNAF for the jumpscares, and be
+creative. Make me piss my pants even though I know it's coming." The scream audio is "terrible".
+He wants "a man dying, screaming for his life, like the MK9 audio. Grotesque and harrowing."
+
+What FNAF does, translated to Minecraft:
+- **The lunge.** The jump is a face rushing the lens in about 0.25 s: the mob's face fills the
+  frame, the head jitters and shakes on a fast random wobble, the jaw opens, and the eyes are
+  lit. It comes with the loudest sound on the page, a screech layered from the mob's own scream,
+  `qf.scare.jumpscreech` and static. Then screen tear, a short static cut, and the kill. Every
+  scare ends its build-up with a lunge, adapted to the mob.
+- **Silence is the weapon.** Before the lunge, everything drops away: music, ambience, even your
+  footsteps. One small sound, such as a breath, a click or a single note, makes you lean in.
+- **Unpredictable timing.** Randomise the dread length (±40%) and use fake-outs. A stinger hits
+  with nothing there, you relax, and the real lunge comes 1 to 3 s later from a different
+  direction. Knowing it is coming must not help.
+- **"It moved when you weren't looking".** The view is turned away, then back, and the threat is
+  closer, or gone, which is worse.
+- **Power out.** Lights die one by one. In the dark, only eyes, and a tune; a note-block melody
+  plays the role of FNAF's music box. When the tune stops, the lunge comes.
+- **Static and hallucination.** Single-frame flashes of a face, a "you can't escape"-style
+  sign, or the mob somewhere it can't be.
+
+Required changes:
+- **Every scare gets a FNAF lunge**, built per mob, and a randomised, fake-out-capable build-up.
+  Keep what the owner liked: the creepy-crawly swarms of the Silverfish and Cave Spider, the
+  Wither Skeleton's sparks, the in-place staging and the accuracy.
+- **Magma Cube, redone.** For example: total darkness, then a single orange core pulsing in the
+  black ahead. Thump, thump, the glow vanishes, silence. Small cubes leap at the face from every
+  side. The big one opens its layers like a jaw, the core blazing, and lunges into the lens.
+- **Wither Skeleton, new ending.** For example: the scrape stops, then silence. The view drifts
+  to the side, where nothing is. Turning back, the skull is inches away, jaw jittering, and it
+  lunges with a screech. The stone sword runs through: look down at the blade through your chest
+  as the wither black creeps in. The head falls and rolls, and from the floor you see your own
+  body. It picks the head up to its face, MK-fatality style.
+- **Screams.** Use the new recorded-voice set from the audio task (`qf.scare.death_scream`,
+  `qf.scare.jumpscreech`, `qf.scare.underwater`). Every kill ends on a man screaming for his life.
+- **New: failed jumps at gaps.** Listen for `krypt-gap` (see `krypt-endless.md`). Each approved
+  gap death takes over 15% of jumps; until approval, only the J picker plays them.
+  - **Lava:** the jump falls short and your toes clip the edge. Your first-person hands grab the
+    rim, then the fingers slip. You plunge with the fire overlay and the death scream, and the
+    view sinks into orange.
+  - **Water:** the jump lands short with a splash. Underwater it is blue and muffled, and you
+    struggle toward the light. A zombie's hand grabs your ankle: look down at its face in the
+    murk, and it pulls you down. Bubbles, the underwater scream, the bite, blood in the water.
+  - Add both to the J picker as "Lava fall" and "Drowned grab".
