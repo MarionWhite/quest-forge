@@ -56,7 +56,13 @@ def main():
             if d != "qf" and os.path.isdir(os.path.join(SFX, d)): shutil.rmtree(os.path.join(SFX, d))
         mp = os.path.join(SFX, "manifest.json")
         old = json.load(open(mp))["events"] if os.path.exists(mp) else {}
-        json.dump({"events": {k: v for k, v in old.items() if k.startswith(("qf.", "music."))}}, open(mp, "w"), indent=1)
+        keep = {k: v for k, v in old.items() if k.startswith(("qf.", "music.")) and not v.get("mojang")}   # "mojang": derived from the game's sounds
+        for k, v in old.items():
+            if v.get("mojang"):
+                for f in v["files"]:
+                    try: os.remove(os.path.join(SFX, f))
+                    except OSError: pass
+        json.dump({"events": keep}, open(mp, "w"), indent=1)
         print("own sounds only"); return
     idx = json.load(open(os.path.join(ASSETS, "indexes", "1.7.10.json")))["objects"]
     def obj(key):

@@ -6264,6 +6264,106 @@
    "loopStart": 1.0,
    "loopEnd": 25.0
   },
+  "qf.mood.breath_near": {
+   "files": [
+    "qf/mood_breath_near1.m4a",
+    "qf/mood_breath_near2.m4a"
+   ],
+   "volume": 0.7,
+   "pitch": 1,
+   "bus": "sfx"
+  },
+  "qf.mood.far_cry": {
+   "files": [
+    "qf/mood_far_cry1.m4a",
+    "qf/mood_far_cry2.m4a"
+   ],
+   "volume": 0.5,
+   "pitch": [
+    0.97,
+    1.03
+   ],
+   "bus": "ambient",
+   "mojang": true
+  },
+  "qf.mood.far_groan": {
+   "files": [
+    "qf/mood_far_groan1.m4a",
+    "qf/mood_far_groan2.m4a"
+   ],
+   "volume": 0.5,
+   "pitch": [
+    0.97,
+    1.03
+   ],
+   "bus": "ambient",
+   "mojang": true
+  },
+  "qf.mood.far_hiss": {
+   "files": [
+    "qf/mood_far_hiss1.m4a",
+    "qf/mood_far_hiss2.m4a"
+   ],
+   "volume": 0.5,
+   "pitch": [
+    0.97,
+    1.03
+   ],
+   "bus": "ambient",
+   "mojang": true
+  },
+  "qf.mood.far_rattle": {
+   "files": [
+    "qf/mood_far_rattle1.m4a",
+    "qf/mood_far_rattle2.m4a"
+   ],
+   "volume": 0.5,
+   "pitch": [
+    0.97,
+    1.03
+   ],
+   "bus": "ambient",
+   "mojang": true
+  },
+  "qf.mood.far_vwoop": {
+   "files": [
+    "qf/mood_far_vwoop1.m4a",
+    "qf/mood_far_vwoop2.m4a"
+   ],
+   "volume": 0.5,
+   "pitch": [
+    0.97,
+    1.03
+   ],
+   "bus": "ambient",
+   "mojang": true
+  },
+  "qf.mood.scamper": {
+   "files": [
+    "qf/mood_scamper1.m4a",
+    "qf/mood_scamper2.m4a",
+    "qf/mood_scamper3.m4a",
+    "qf/mood_scamper4.m4a"
+   ],
+   "volume": 0.7,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "qf.mood.scrape": {
+   "files": [
+    "qf/mood_scrape1.m4a",
+    "qf/mood_scrape2.m4a"
+   ],
+   "volume": 0.8,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
   "qf.reel_land": {
    "files": [
     "qf/reel_land.m4a"
@@ -6370,6 +6470,22 @@
    ],
    "bus": "sfx"
   },
+  "qf.scare.death_scream": {
+   "files": [
+    "qf/scare_death_scream1.m4a",
+    "qf/scare_death_scream2.m4a",
+    "qf/scare_death_scream3.m4a",
+    "qf/scare_death_scream4.m4a",
+    "qf/scare_death_scream5.m4a",
+    "qf/scare_death_scream6.m4a"
+   ],
+   "volume": 1.0,
+   "pitch": [
+    0.96,
+    1.04
+   ],
+   "bus": "sfx"
+  },
   "qf.scare.drone": {
    "files": [
     "qf/scare_drone.m4a"
@@ -6421,6 +6537,20 @@
    ],
    "volume": 1.0,
    "pitch": 1,
+   "bus": "sfx"
+  },
+  "qf.scare.jumpscreech": {
+   "files": [
+    "qf/scare_jumpscreech1.m4a",
+    "qf/scare_jumpscreech2.m4a",
+    "qf/scare_jumpscreech3.m4a",
+    "qf/scare_jumpscreech4.m4a"
+   ],
+   "volume": 1.0,
+   "pitch": [
+    0.97,
+    1.03
+   ],
    "bus": "sfx"
   },
   "qf.scare.ringing": {
@@ -6480,6 +6610,17 @@
    ],
    "bus": "sfx"
   },
+  "qf.scare.static": {
+   "files": [
+    "qf/scare_static.m4a"
+   ],
+   "volume": 0.35,
+   "pitch": 1,
+   "bus": "sfx",
+   "loop": true,
+   "loopStart": 1.0,
+   "loopEnd": 5.0
+  },
   "qf.scare.stinger": {
    "files": [
     "qf/scare_stinger1.m4a",
@@ -6487,6 +6628,16 @@
     "qf/scare_stinger3.m4a"
    ],
    "volume": 1.0,
+   "pitch": 1,
+   "bus": "sfx"
+  },
+  "qf.scare.underwater": {
+   "files": [
+    "qf/scare_underwater1.m4a",
+    "qf/scare_underwater2.m4a",
+    "qf/scare_underwater3.m4a"
+   ],
+   "volume": 0.9,
    "pitch": 1,
    "bus": "sfx"
   },

@@ -1,0 +1,371 @@
+{
+ "note": "Every voice and foley recording in the scream pack is CC0 1.0 (public domain dedication) from OpenGameArt.org; the licence line on each page was checked when it was downloaded. Nothing is NC, nothing is from a game. Synthesised layers (booms, static, ticks, crunch/gore in tools/music/scare_sounds.py) are our own. qf.mood.far_* are the bank's Mojang mob sounds reprocessed: flagged \"mojang\": true in manifest.json and dropped by build_sfx.py --own-only.",
+ "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+ "sources": [
+  {
+   "id": "deathpain",
+   "title": "grunts male death and pain",
+   "url": "https://opengameart.org/content/grunts-male-death-and-pain",
+   "author": "thebardofblasphemy",
+   "licence": "CC0 1.0",
+   "files": [
+    "death%20pain%20grunts.wav"
+   ],
+   "used_for": "main male death/pain screams"
+  },
+  {
+   "id": "male15",
+   "title": "15 vocal male strainhurtpainjump sounds",
+   "url": "https://opengameart.org/content/15-vocal-male-strainhurtpainjump-sounds",
+   "author": "qubodup",
+   "licence": "CC0 1.0",
+   "files": [
+    "sls.mp3"
+   ],
+   "used_for": "male strain/pain bursts"
+  },
+  {
+   "id": "maledead",
+   "title": "male dead voice",
+   "url": "https://opengameart.org/content/male-dead-voice",
+   "author": "mieki256",
+   "licence": "CC0 1.0",
+   "files": [
+    "enemy_dead_20150802.zip"
+   ],
+   "used_for": "short male death cries"
+  },
+  {
+   "id": "manhurt",
+   "title": "man hurt sounds",
+   "url": "https://opengameart.org/content/man-hurt-sounds",
+   "author": "Aharabada",
+   "licence": "CC0 1.0",
+   "files": [
+    "ManHurt.ogg"
+   ],
+   "used_for": "deep male roar of pain"
+  },
+  {
+   "id": "hurtdeath",
+   "title": "hurt death sound effect for character",
+   "url": "https://opengameart.org/content/hurt-death-sound-effect-for-character",
+   "author": "Badre-Eddine",
+   "licence": "CC0 1.0",
+   "files": [
+    "1_8.mp3",
+    "2_3.mp3",
+    "3_2.mp3",
+    "4_1.mp3",
+    "5_1.mp3",
+    "6_1.mp3",
+    "10.mp3",
+    "11.mp3"
+   ],
+   "used_for": "hurt/death cries"
+  },
+  {
+   "id": "painemo",
+   "title": "pain sounds by emopreben",
+   "url": "https://opengameart.org/content/pain-sounds-by-emopreben",
+   "author": "EmoPreben",
+   "licence": "CC0 1.0",
+   "files": [
+    "painsounds.zip"
+   ],
+   "used_for": "grunts of pain"
+  },
+  {
+   "id": "screech",
+   "title": "evil screech 1",
+   "url": "https://opengameart.org/content/evil-screech-1",
+   "author": "Nocturnal_Vanguard",
+   "licence": "CC0 1.0",
+   "files": [
+    "evil_screech_1.ogg"
+   ],
+   "used_for": "screeches (jumpscreech, shriek)"
+  },
+  {
+   "id": "horror1",
+   "title": "horror scream1",
+   "url": "https://opengameart.org/content/horror-scream1",
+   "author": "Vinrax",
+   "licence": "CC0 1.0",
+   "files": [
+    "scream_horror1_0.mp3"
+   ],
+   "used_for": "high horror scream (jumpscreech)"
+  },
+  {
+   "id": "femscream",
+   "title": "female high pitched scream sfx",
+   "url": "https://opengameart.org/content/female-high-pitched-scream-sfx",
+   "author": "WuxiaScrub",
+   "licence": "CC0 1.0",
+   "files": [
+    "screams.ogg"
+   ],
+   "used_for": "high screams (scream, jumpscreech)"
+  },
+  {
+   "id": "hipitch",
+   "title": "high pitch scream sounds2",
+   "url": "https://opengameart.org/content/high-pitch-scream-sounds2",
+   "author": "pauliuw",
+   "licence": "CC0 1.0",
+   "files": [
+    "high_pitch_scream.mp3"
+   ],
+   "used_for": "high scream (jumpscreech)"
+  },
+  {
+   "id": "creature",
+   "title": "80 cc0 creature sfx",
+   "url": "https://opengameart.org/content/80-cc0-creature-sfx",
+   "author": "rubberduck",
+   "licence": "CC0 1.0",
+   "files": [
+    "80-CC0-creature-SFX_0.zip"
+   ],
+   "used_for": "creature screams/roars (jumpscreech, shriek)"
+  },
+  {
+   "id": "insect",
+   "title": "insect or alien scream",
+   "url": "https://opengameart.org/content/insect-or-alien-scream",
+   "author": "qubodup",
+   "licence": "CC0 1.0",
+   "files": [
+    "insectoralien.flac"
+   ],
+   "used_for": "alien scream (shriek)"
+  },
+  {
+   "id": "sick",
+   "title": "sick noises",
+   "url": "https://opengameart.org/content/sick-noises",
+   "author": "frosty ham",
+   "licence": "CC0 1.0",
+   "files": [
+    "sickness.wav"
+   ],
+   "used_for": "retching / gagging (gurgle)"
+  },
+  {
+   "id": "cough",
+   "title": "old man cough",
+   "url": "https://opengameart.org/content/old-man-cough",
+   "author": "AntumDeluge",
+   "licence": "CC0 1.0",
+   "files": [
+    "old-man-cough.flac"
+   ],
+   "used_for": "wet cough (gurgle)"
+  },
+  {
+   "id": "meat",
+   "title": "ripping into meat",
+   "url": "https://opengameart.org/content/ripping-into-meat",
+   "author": "Eldritch Grim",
+   "licence": "CC0 1.0",
+   "files": [
+    "rippingintomeat.mp3"
+   ],
+   "used_for": "gore foley: flesh tears"
+  },
+  {
+   "id": "slimy",
+   "title": "slimy monster or murder sounds9",
+   "url": "https://opengameart.org/content/slimy-monster-or-murder-sounds9",
+   "author": "pauliuw",
+   "licence": "CC0 1.0",
+   "files": [
+    "slimy_monster_or_murderd_sound_1.mp3",
+    "slimy_monster_or_murderd_sound_2.mp3",
+    "slimy_monster_or_murderd_sound_3.mp3",
+    "slimy_monster_or_murderd_sound_4.mp3",
+    "slimy_monster_or_murderd_sound_5.mp3",
+    "slimy_monster_or_murderd_sound_6.mp3",
+    "slimy_monster_or_murderd_sound_7.mp3"
+   ],
+   "used_for": "gore foley: wet impacts"
+  },
+  {
+   "id": "squish",
+   "title": "8 wet squish slurp impacts",
+   "url": "https://opengameart.org/content/8-wet-squish-slurp-impacts",
+   "author": "qubodup",
+   "licence": "CC0 1.0",
+   "files": [
+    "im.mp3"
+   ],
+   "used_for": "gore foley: squish"
+  },
+  {
+   "id": "splat",
+   "title": "2 wooden squish splatter sequences",
+   "url": "https://opengameart.org/content/2-wooden-squish-splatter-sequences",
+   "author": "qubodup",
+   "licence": "CC0 1.0",
+   "files": [
+    "crack.mp3"
+   ],
+   "used_for": "gore foley: splatter, cracks"
+  },
+  {
+   "id": "towel",
+   "title": "40 wet towel clubpoundhitattack sounds",
+   "url": "https://opengameart.org/content/40-wet-towel-clubpoundhitattack-sounds",
+   "author": "qubodup",
+   "licence": "CC0 1.0",
+   "files": [
+    "a_8.mp3"
+   ],
+   "used_for": "gore foley: meaty hits"
+  },
+  {
+   "id": "hit5",
+   "title": "5 hit sounds dying",
+   "url": "https://opengameart.org/content/5-hit-sounds-dying",
+   "author": "TinyWorlds",
+   "licence": "CC0 1.0",
+   "files": [
+    "5Hit_Sounds.zip"
+   ],
+   "used_for": "short male impact grunts"
+  },
+  {
+   "id": "bubbles",
+   "title": "bubble sound effects",
+   "url": "https://opengameart.org/content/bubble-sound-effects",
+   "author": "BMacZero",
+   "licence": "CC0 1.0",
+   "files": [
+    "bubbles-single1.wav",
+    "bubbles-single2.wav",
+    "bubbles-loop1-amp.wav"
+   ],
+   "used_for": "bubbles (underwater, gurgle)"
+  },
+  {
+   "id": "horrorbreath",
+   "title": "horror breathing",
+   "url": "https://opengameart.org/content/horror-breathing",
+   "author": "primbal",
+   "licence": "CC0 1.0",
+   "files": [
+    "horrorbreathing.ogg"
+   ],
+   "used_for": "breath_near"
+  },
+  {
+   "id": "tiredbreath",
+   "title": "breathing tired",
+   "url": "https://opengameart.org/content/breathing-tired",
+   "author": "mikeask",
+   "licence": "CC0 1.0",
+   "files": [
+    "breathing%20tired.wav"
+   ],
+   "used_for": "breath_near"
+  },
+  {
+   "id": "ghostbreath",
+   "title": "ghost breath",
+   "url": "https://opengameart.org/content/ghost-breath",
+   "author": "qubodup",
+   "licence": "CC0 1.0",
+   "files": [
+    "ghostbreath.flac"
+   ],
+   "used_for": "breath_near"
+  },
+  {
+   "id": "scrape",
+   "title": "scrapes",
+   "url": "https://opengameart.org/content/scrapes",
+   "author": "AntumDeluge",
+   "licence": "CC0 1.0",
+   "files": [
+    "scrape-1.ogg",
+    "scrape-2.ogg",
+    "scrape-3.ogg",
+    "scrape-4.ogg",
+    "scrape-5.ogg",
+    "scrape-6.ogg",
+    "scrape-7.ogg",
+    "scrape-8.ogg"
+   ],
+   "used_for": "mood.scrape, scamper"
+  }
+ ],
+ "events": {
+  "qf.scare.death_scream": [
+   "bubbles",
+   "deathpain",
+   "hurtdeath",
+   "maledead",
+   "manhurt",
+   "meat",
+   "sick",
+   "slimy"
+  ],
+  "qf.scare.jumpscreech": [
+   "creature",
+   "deathpain",
+   "femscream",
+   "hipitch",
+   "horror1",
+   "hurtdeath",
+   "meat",
+   "screech"
+  ],
+  "qf.scare.underwater": [
+   "bubbles",
+   "deathpain",
+   "manhurt",
+   "sick",
+   "slimy"
+  ],
+  "qf.scare.static": [],
+  "qf.scare.scream": [
+   "deathpain",
+   "femscream",
+   "hurtdeath",
+   "maledead",
+   "slimy"
+  ],
+  "qf.scare.scream_far": [
+   "deathpain",
+   "femscream",
+   "hurtdeath",
+   "maledead",
+   "slimy"
+  ],
+  "qf.scare.shriek": [
+   "creature",
+   "hipitch",
+   "insect",
+   "screech"
+  ],
+  "qf.mood.scamper": [
+   "scrape"
+  ],
+  "qf.mood.scrape": [
+   "scrape"
+  ],
+  "qf.mood.breath_near": [
+   "horrorbreath",
+   "slimy",
+   "tiredbreath"
+  ]
+ },
+ "mojang_derived": [
+  "qf.mood.far_groan",
+  "qf.mood.far_rattle",
+  "qf.mood.far_vwoop",
+  "qf.mood.far_cry",
+  "qf.mood.far_hiss"
+ ]
+}
