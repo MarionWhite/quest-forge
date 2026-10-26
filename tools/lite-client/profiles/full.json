@@ -1,5 +1,5 @@
 {
-  "_about": "Quest Forge client profile. Read by tools/lite-client/apply-profile.ps1 on Windows and by the Mac's Prism tooling. Keys that start with _ are comments. Every setting is client-side video, HUD or audio: the server never sees any of it, so the world, mobs, items, recipes and quests are identical by construction. 'why' gives one line per setting: what it buys, and what it costs in looks. Section keys: options_txt (vanilla options.txt, key:value), angelica_options (merged into config/angelica-options.json), angelica_modules (config/angelica-modules.cfg, Forge B:/I:/S:/D: keys), shaders (config/shaders.properties + shaderpacks/<pack>.txt), optifine (the OptiFine E7 fallback client only), mods_aside (jar-name prefixes moved out of mods/), jvm (Prism memory by installed RAM).",
+  "_about": "Quest Forge client profile. Read by tools/lite-client/apply-profile.ps1 on Windows and by the Mac's Prism tooling. Keys that start with _ are comments. Every setting is client-side video, HUD or audio: the server never sees any of it, so the world, mobs, items, recipes and quests are identical by construction. 'why' gives one line per setting: what it buys, and what it costs in looks. Section keys: options_txt (vanilla options.txt, key:value), angelica_options (merged into config/angelica-options.json), angelica_modules (config/angelica-modules.cfg, Forge B:/I:/S:/D: keys), shaders (config/shaders.properties + shaderpacks/<pack>.txt), optifine (the OptiFine E7 fallback client only), mods_aside (jar-name prefixes moved out of mods/), resourcepacks (packs selected in options.txt's resourcePacks list), jvm (Prism memory by installed RAM).",
   "schema": 1,
   "profile": "full",
   "title": "Full: the normal pack",
@@ -60,6 +60,10 @@
     }
   },
   "mods_aside": [],
+  "resourcepacks": {
+    "packs": ["QFTextures.zip"],
+    "if_missing": "keep"
+  },
   "jvm": {
     "java": "Java 8 (1.8.0_2xx), 64-bit. Not 11, 17, 21 or 25.",
     "xmx_mb_by_ram_gb": { "8": 3072, "12": 4096, "16": 5120, "32": 6144 },
@@ -92,6 +96,7 @@
     "shaders": "The pack's own shader pack, QuestForge, at QF_PRESET 2 (Medium): sun shadows to 80 blocks with entities, TAA, SSR, GTAO, 4-tap soft shadows. Medium is the pack default and the RTX 3060 at 1080p target. High (3) is for an RTX 3060-class card at 1440p; Ultra (4) is the dev PC. Pick those on the shader screen (F8). if_missing 'keep': when the QuestForge pack is not installed, the current shader choice is left alone.",
     "optifine": "OptiFine E7 fallback client only (GPUs without OpenGL 3.3). Smooth FPS off: it called glFinish every frame. Fast Render off: it breaks every shader pack on E7.",
     "mods_aside": "Nothing moved aside: every client-only mod stays.",
+    "resourcepacks": "QF Textures (resourcepacks/QFTextures.zip, decision 0006): vanilla designs with Faithful 32x detail, connected glass and panes, the modded ores on Faithful stone, LabPBR maps the QuestForge shader can read. Selected after the packs already chosen (the branding pack QuestForge.zip stays). The same in every profile: it costs texture memory, not frame time (measured within 0.02 ms of vanilla). if_missing 'keep': when the zip is not in the resourcepacks folder, the selection is left alone.",
     "jvm": "The whole pack lives in about 1.3 GB of live heap (measured). Past 5-6 GB a bigger heap only adds RAM pressure; on 8 GB never above 3 GB or Windows swaps and the game stutters. Angelica adds about 95 MB. The two -Dfml.ignore* flags are required by the E7 client's patched Forge jar and harmless on Angelica's stock Forge 1614."
   }
 }

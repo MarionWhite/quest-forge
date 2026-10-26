@@ -1,5 +1,5 @@
 {
-  "_about": "Quest Forge client profile. Read by tools/lite-client/apply-profile.ps1 on Windows and by the Mac's Prism tooling. Keys that start with _ are comments. Every setting is client-side video, HUD or audio: the server never sees any of it, so the world, mobs, items, recipes and quests are identical by construction. 'why' gives one line per setting: what it buys, and what it costs in looks. Section keys: options_txt (vanilla options.txt, key:value), angelica_options (merged into config/angelica-options.json), angelica_modules (config/angelica-modules.cfg, Forge B:/I:/S:/D: keys), shaders (config/shaders.properties + shaderpacks/<pack>.txt), optifine (the OptiFine E7 fallback client only), mods_aside (jar-name prefixes moved out of mods/), jvm (Prism memory by installed RAM).",
+  "_about": "Quest Forge client profile. Read by tools/lite-client/apply-profile.ps1 on Windows and by the Mac's Prism tooling. Keys that start with _ are comments. Every setting is client-side video, HUD or audio: the server never sees any of it, so the world, mobs, items, recipes and quests are identical by construction. 'why' gives one line per setting: what it buys, and what it costs in looks. Section keys: options_txt (vanilla options.txt, key:value), angelica_options (merged into config/angelica-options.json), angelica_modules (config/angelica-modules.cfg, Forge B:/I:/S:/D: keys), shaders (config/shaders.properties + shaderpacks/<pack>.txt), optifine (the OptiFine E7 fallback client only), mods_aside (jar-name prefixes moved out of mods/), resourcepacks (packs selected in options.txt's resourcePacks list), jvm (Prism memory by installed RAM).",
   "schema": 1,
   "profile": "potato",
   "title": "Potato: integrated graphics",
@@ -99,6 +99,10 @@
     }
   },
   "mods_aside": ["SoundFilters", "MobDismemberment", "MobAmputation", "CustomMenu", "journeymap", "DamageIndicators"],
+  "resourcepacks": {
+    "packs": ["QFTextures.zip"],
+    "if_missing": "keep"
+  },
   "jvm": {
     "java": "Java 8 (1.8.0_2xx), 64-bit. Not 11, 17, 21 or 25.",
     "xmx_mb_by_ram_gb": { "8": 3072, "12": 3584, "16": 4096, "32": 4096 },
@@ -136,6 +140,7 @@
     "mods_aside.CustomMenu": "Branded title-screen buttons; splash and music stay. Content: none.",
     "mods_aside.journeymap": "The minimap and the full-screen map (M). Its mapping threads re-render map tiles as chunks change and compete with the game for 4 cores. Content: none; you navigate by landmarks and coordinates (F3).",
     "mods_aside.DamageIndicators": "The targeted mob's health bar and portrait (it draws the mob a second time every frame) and the damage numbers. Content: none.",
+    "resourcepacks": "QF Textures (resourcepacks/QFTextures.zip, decision 0006): vanilla designs with Faithful 32x detail, connected glass and panes, the modded ores on Faithful stone, LabPBR maps the QuestForge shader can read. Selected after the packs already chosen (the branding pack QuestForge.zip stays). The same in every profile: it costs texture memory, not frame time (measured within 0.02 ms of vanilla). if_missing 'keep': when the zip is not in the resourcepacks folder, the selection is left alone.",
     "jvm": "3 GB on 8 GB: with integrated graphics the GPU's memory comes out of the same 8 GB, so the heap stays small. 3.5 GB with 12 GB, 4 GB with 16 GB or more."
   }
 }

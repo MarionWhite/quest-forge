@@ -179,7 +179,7 @@ if ($Status) {
     else { Write-Host "profile: none applied by this script (the player's own settings)" }
     $opt = @{}
     foreach ($l in Read-Lines (Join-Path $Instance 'options.txt')) { $i = $l.IndexOf(':'); if ($i -gt 0) { $opt[$l.Substring(0, $i)] = $l.Substring($i + 1) } }
-    Write-Host ("options.txt: renderDistance {0}, fancyGraphics {1}, ao {2}, particles {3}, mipmapLevels {4}, maxFps {5}" -f $opt['renderDistance'], $opt['fancyGraphics'], $opt['ao'], $opt['particles'], $opt['mipmapLevels'], $opt['maxFps'])
+    Write-Host ("options.txt: renderDistance {0}, fancyGraphics {1}, ao {2}, particles {3}, mipmapLevels {4}, maxFps {5}, resourcePacks {6}" -f $opt['renderDistance'], $opt['fancyGraphics'], $opt['ao'], $opt['particles'], $opt['mipmapLevels'], $opt['maxFps'], $opt['resourcePacks'])
     if ($renderer -eq 'angelica') {
         $sp = @{}
         foreach ($l in Read-Lines (Join-Path $Instance 'config\shaders.properties')) { $i = $l.IndexOf('='); if ($i -gt 0 -and -not $l.StartsWith('#')) { $sp[$l.Substring(0, $i)] = $l.Substring($i + 1) } }
@@ -254,8 +254,28 @@ function Add-Plan([string]$rel, $result) {
     $plan.Add([pscustomobject]@{ rel = $rel; lines = $result.lines; text = $result.text; changes = $result.changes })
 }
 
-# 1. options.txt
-Add-Plan 'options.txt' (Set-KeyLines (Read-Lines (Join-Path $Instance 'options.txt')) $prof.options_txt ':')
+# 1. options.txt: the profile's video keys, plus the resource packs it selects (decision 0006:
+#    QF Textures ships with the pack). The profile's packs go after the ones already selected,
+#    so they win where two packs overlap; a pack missing from resourcepacks\ is left out when
+#    the profile's if_missing is 'keep'.
+$optKeys = Pairs $prof.options_txt
+if ($prof.resourcepacks) {
+    $want = @()
+    foreach ($p in @($prof.resourcepacks.packs)) {
+        if (Test-Path -LiteralPath (Join-Path $Instance "resourcepacks\$p")) { $want += $p }
+        elseif ("$($prof.resourcepacks.if_missing)" -eq 'keep') { $notes += "resource pack '$p' is not in resourcepacks\: the selection is left alone for it (the profile's if_missing rule)." }
+        else { $want += $p }
+    }
+    if ($want.Count) {
+        $cur = @()
+        foreach ($l in Read-Lines (Join-Path $Instance 'options.txt')) {
+            if ($l.StartsWith('resourcePacks:')) { try { $cur = @(ConvertFrom-Json $l.Substring(14)) } catch { $cur = @() } }
+        }
+        $sel = @($cur | Where-Object { $want -notcontains $_ }) + $want
+        $optKeys['resourcePacks'] = '[' + (($sel | ForEach-Object { '"' + $_ + '"' }) -join ',') + ']'
+    }
+}
+Add-Plan 'options.txt' (Set-KeyLines (Read-Lines (Join-Path $Instance 'options.txt')) $optKeys ':')
 
 $shaderState = 'off'
 if ($renderer -eq 'angelica') {
