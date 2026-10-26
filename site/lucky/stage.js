@@ -563,11 +563,8 @@ export async function createStage(canvas, opts = {}) {
   steve.mat.emissive.setRGB(0.3, 0.3, 0.3); steve.mat.emissiveMap = steve.mat.map; // self-lit by his own texture: colours stay, shadows lift // no face goes fully black
   scene.add(steve.root);
 
-  // the dais edge: a low violet ring on the top
-  const ringMat = new THREE.MeshBasicMaterial({ color: 0x9d7bff, transparent: true, opacity: 0.12, blending: THREE.AdditiveBlending, depthWrite: false });
-  const ringMesh = new THREE.Mesh(new THREE.RingGeometry(2.6, 2.7, 64), ringMat);
-  ringMesh.rotation.x = -Math.PI / 2; ringMesh.position.set(0.5, 1.02, 0.5);
-  scene.add(ringMesh);
+  // (no permanent ring over the dais: the slam's shock ring is an effect, see app.js slam())
+  const ringMesh = new THREE.Object3D(); ringMesh.visible = false;
 
   // post: bloom only on the hot things (threshold 0.9), a barely visible grain, a vignette, output last
   const composer = new EffectComposer(renderer);

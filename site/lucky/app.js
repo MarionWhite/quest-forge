@@ -779,12 +779,14 @@ function slam() {
   st.shake = Math.max(st.shake, 0.4);
   st.kick = 1;
   S.flashTorches(0xffb060, { amp: 1.1, dur: 0.9, freq: 0, tint: 0.4, now: st.clock });
-  // a shock ring over the dais top
-  const ring = new THREE.Mesh(new THREE.RingGeometry(0.9, 1.1, 40), new THREE.MeshBasicMaterial({ color: 0xffe2c0, transparent: true, opacity: 0.4, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide }));
-  ring.rotation.x = -Math.PI / 2; ring.position.set(0.5, 1.04, 0.5);
-  S.temp.add(ring);
-  let t = 0;
-  st.fx.push({ update(dt) { t += dt; const k = t / 0.55; ring.scale.setScalar(1 + k * 3.4); ring.material.opacity = 0.4 * (1 - k); if (k >= 1) { S.temp.remove(ring); ring.geometry.dispose(); ring.material.dispose(); return true; } return false; } });
+  // a shock ring that expands on the dais surface and fades in ~0.6 s (the only ring: nothing stays)
+  for (const [delay, col, op] of [[0, 0xffe2c0, 0.45], [0.09, 0xc8b0ff, 0.25]]) {
+    const ring = new THREE.Mesh(new THREE.RingGeometry(0.9, 1.1, 40), new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide }));
+    ring.rotation.x = -Math.PI / 2; ring.position.set(0.5, 1.03, 0.5); ring.visible = false;
+    S.temp.add(ring);
+    let t = -delay;
+    st.fx.push({ update(dt) { t += dt; if (t < 0) return false; ring.visible = true; const k = t / 0.6; ring.scale.setScalar(0.4 + k * 2.6); ring.material.opacity = op * (1 - k) * (1 - k); if (k >= 1) { S.temp.remove(ring); ring.geometry.dispose(); ring.material.dispose(); return true; } return false; } });
+  }
 }
 
 function shatterNow() {

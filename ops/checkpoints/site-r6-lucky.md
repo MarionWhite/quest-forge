@@ -47,3 +47,6 @@ Previous state: `site-r5-lucky-life.md`, `site-r5-lucky-flow.md`, `site-r5-lucky
   `tools/site/nav_check.py` to cover them, and get 0 samples inside blocked cells.
 - [ ] Sheet: the slam ring in 3 frames, 20 activities, a 4-frame walk showing the pace, and the
   boss scenes with big mobs clear of the tree.
+
+## Progress
+- [x] ring: permanent violet RingGeometry in stage.js removed (stage.ring is now an invisible Object3D); app.js slam() makes two expanding rings fading 0.6 s. Not yet seen in a sheet.
