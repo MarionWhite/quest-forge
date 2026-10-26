@@ -8,6 +8,8 @@ import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { BokehPass } from 'three/addons/postprocessing/BokehPass.js';
 import { buildBiped, makeAnim } from './mobs.js';
+import { buildClouds, buildStars } from './sky.js';
+import { makeFx } from './particles.js';
 
 const TEX = (p) => new URL('./tex/' + p, import.meta.url).href;
 const ICONS = (s) => new URL('../items/data/icons-' + s + '.png', import.meta.url).href;
@@ -235,6 +237,7 @@ const N = 16; // the voxel field runs from -N to N-1; beyond it a flat ring of g
 function heightAt(x, z) {
   if (x < -N + 3 || x > N - 4 || z < -N + 3 || z > N - 4) return 0;
   if (x >= -8 && x <= -6 && z >= -8 && z <= -6) return 0; // the outcrop sits on flat ground
+  if (x >= FLAT.x0 && x < FLAT.x1 && z >= FLAT.z0 && z < FLAT.z1) return 0; // the campsite and its quarry
   const d = Math.hypot(x - 0.5, z - 0.5);
   if (d < 7.5) return 0;
   const v = Math.sin(x * 0.45 + 0.8) * 0.9 + Math.cos(z * 0.38 - 0.5) * 0.9 + Math.sin((x + z) * 0.23) * 0.6;
@@ -242,6 +245,7 @@ function heightAt(x, z) {
   if (x < -5 && v > 0.9) return 1;
   return 0;
 }
+const FLAT = { x0: -10, x1: 8, z0: -8, z1: 1 };
 const PATH = { ax: 5.6, az: 11.5, bx: 3.2, bz: -1.2 };
 function onPath(x, z) {
   const px = x + 0.5, pz = z + 0.5;
@@ -254,7 +258,7 @@ const inPond = (x, z) => x >= POND.x0 && x <= POND.x1 && z >= POND.z0 && z <= PO
 const inDais = (x, z) => x >= -1 && x <= 1 && z >= -1 && z <= 1;
 const inOutcrop = (x, z) => x >= -8 && x <= -6 && z >= -8 && z <= -6;
 
-function buildPlateau(vox, rnd) {
+function buildPlateau(vox, rnd, reserve = []) {
   const occupied = new Set();
   const key2 = (x, z) => x + ',' + z;
   for (let x = -N; x < N; x++) for (let z = -N; z < N; z++) {
@@ -297,7 +301,8 @@ function buildPlateau(vox, rnd) {
     }
     for (let dx = -2; dx <= 2; dx++) for (let dz = -2; dz <= 2; dz++) occupied.add(key2(tx + dx, tz + dz));
   };
-  oak(-13, -9); oak(11, -13); oak(-2, -15);
+  oak(-13, -9); oak(11, -13); oak(-8, 0);
+  for (const r of reserve) for (let x = Math.floor(r[0]); x <= Math.floor(r[2]); x++) for (let z = Math.floor(r[1]); z <= Math.floor(r[3]); z++) occupied.add(key2(x, z));
   // flora: red and yellow flowers, tall grass, on the open grass only
   const free = (x, z) => {
     if (x < -11 || x > 11 || z < -11 || z > 11) return false;
@@ -326,7 +331,7 @@ function crossMesh(list, texName, color, sizeOf) {
     for (const ang of [a, a + Math.PI / 2]) {
       const dx = Math.cos(ang) * 0.5, dz = Math.sin(ang) * 0.5;
       pos.push(x - dx, y, z - dz, x + dx, y, z + dz, x + dx, y + s, z + dz, x - dx, y + s, z - dz);
-      uv.push(0, 1, 1, 1, 1, 0, 0, 0);
+      uv.push(0, 0, 1, 0, 1, 1, 0, 1); // bottom edge v=0, top edge v=1: upright
       // both windings, so the front-facing material never flips the upward normal on a back face
       idx.push(k, k + 1, k + 2, k, k + 2, k + 3, k, k + 2, k + 1, k, k + 3, k + 2); k += 4;
     }
@@ -357,26 +362,14 @@ void main(){
   float h = d.y;
   vec3 col;
   if (h >= 0.0) {
-    col = mix(uHorizon, uDusk, smoothstep(0.0, 0.07, h));
-    col = mix(col, uTop, smoothstep(0.07, 0.3, h));
+    col = mix(uHorizon, uDusk, smoothstep(0.0, 0.11, h));
+    col = mix(col, uTop, smoothstep(0.1, 0.55, h));
   } else {
     col = mix(uHorizon, uLow, smoothstep(0.0, -0.12, h));
   }
   // the sun's glow, toward its disc
   float sd = max(dot(d, normalize(uSunDir)), 0.0);
-  col += uSunCol * (pow(sd, 8.0)*0.35 + pow(sd, 90.0)*1.2) * (1.0 - uNight*0.7);
-  // a thin band of cloud silhouettes lit from the ember side
-  float ang = atan(d.z, d.x);
-  vec2 cp = vec2(ang*15.0, h*60.0);
-  float n = vn(cp)*0.6 + vn(cp*2.13+3.7)*0.4;
-  float band = smoothstep(0.02, 0.07, h) * (1.0 - smoothstep(0.14, 0.26, h));
-  float cl = smoothstep(0.5, 0.7, n) * band;
-  vec3 clCol = mix(vec3(0.22,0.11,0.28), uHorizon*1.05, 0.45);
-  col = mix(col, clCol, cl*0.9);
-  // stars, overhead first
-  float s = h3(floor(d*210.0));
-  float star = step(0.9968, s) * smoothstep(0.04, 0.2, h) * uStars;
-  col += vec3(0.92,0.88,1.0) * star;
+  col += uSunCol * (pow(sd, 6.0)*0.2 + pow(sd, 120.0)*0.45) * (1.0 - uNight*0.7);
   gl_FragColor = vec4(col, 1.0);
 }`;
 
@@ -394,15 +387,15 @@ export async function createStage(canvas, opts = {}) {
 
   const HORIZON = 0xd9703a;
   const scene = new THREE.Scene();
-  scene.fog = new THREE.Fog(HORIZON, 26, 74);
+  scene.fog = new THREE.Fog(HORIZON, 30, 96);
   const camera = new THREE.PerspectiveCamera(38, 1, 0.05, 400);
-  camera.position.set(7, 4.6, 12.5);
+  camera.position.set(7, 3.4, 12.5);
 
   // the sun: low, warm, from the camera's right and a little behind it, so the faces that
   // show are modelled rather than flat-lit
   const SUN = new THREE.Vector3(0.8, 0.55, 0.45).normalize();
   // the visible sun disc: low, left of the view, behind the trees (the key light is SUN)
-  const DISC = new THREE.Vector3(-0.635, 0.09, -0.769).normalize();
+  const DISC = new THREE.Vector3(-0.30, 0.05, -0.95).normalize();
   const skyMat = new THREE.ShaderMaterial({
     vertexShader: SKY_VERT, fragmentShader: SKY_FRAG, side: THREE.BackSide, depthWrite: false, fog: false,
     uniforms: {
@@ -416,8 +409,8 @@ export async function createStage(canvas, opts = {}) {
   scene.add(sky);
 
   // sun disc, low (environment/sun.png), drawn hot so it blooms
-  const sunSprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex('environment/sun.png'), color: new THREE.Color(2.4, 1.9, 1.2), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, fog: false }));
-  sunSprite.scale.set(46, 46, 1);
+  const sunSprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex('environment/sun.png'), color: new THREE.Color(1.5, 1.15, 0.7), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, fog: false }));
+  sunSprite.scale.set(22, 22, 1);
   sunSprite.position.copy(DISC).multiplyScalar(190);
   scene.add(sunSprite);
 
@@ -450,12 +443,17 @@ export async function createStage(canvas, opts = {}) {
   rainbow.position.set(0.5, 2.5, -0.9);
   scene.add(rainbow);
 
+  // the flash light: the whole dais takes the mood colour when the reel lands
+  const flashLight = new THREE.PointLight(0xffffff, 0, 11, 2);
+  flashLight.position.set(0.5, 2.6, 0.9);
+  scene.add(flashLight);
+
   // world
   const world = new THREE.Group();
   scene.add(world);
   const vox = new Voxels();
   const rnd = mulberry(7);
-  const plateau = buildPlateau(vox, rnd);
+  const plateau = buildPlateau(vox, rnd, opts.reserve || []);
   let terrain = meshVoxels(vox);
   world.add(terrain);
 
@@ -488,8 +486,9 @@ export async function createStage(canvas, opts = {}) {
   const dand = plateau.flowers.filter((f) => f.kind !== 'rose').map((f) => ({ x: f.x + 0.5, z: f.z + 0.5, y: heightAt(f.x, f.z), rot: f.z * 0.7, s: 0.55 }));
   world.add(crossMesh(roses, 'blocks/flower_rose.png', 0xffffff, (it) => it.s));
   world.add(crossMesh(dand, 'blocks/flower_dandelion.png', 0xffffff, (it) => it.s));
-  const tallGrass = plateau.grass.map((g) => ({ x: g.x, z: g.z, y: heightAt(Math.floor(g.x), Math.floor(g.z)), rot: g.x * 2.1, s: g.s }));
-  world.add(crossMesh(tallGrass, 'blocks/tallgrass.png', TINT.grass, (it) => it.s * 0.9));
+  const tallAll = plateau.grass.map((g, i) => ({ x: g.x, z: g.z, y: heightAt(Math.floor(g.x), Math.floor(g.z)), rot: g.x * 2.1, s: g.s, fern: i % 4 === 3 }));
+  world.add(crossMesh(tallAll.filter((g) => !g.fern), 'blocks/tallgrass.png', TINT.grass, (it) => it.s * 0.9));
+  world.add(crossMesh(tallAll.filter((g) => g.fern), 'blocks/fern.png', TINT.grass, (it) => it.s * 0.9));
 
   // torches on two corners of the dais, warm point lights that flicker
   const torches = [];
@@ -530,22 +529,17 @@ export async function createStage(canvas, opts = {}) {
   ashGeo.setAttribute('position', new THREE.BufferAttribute(ashPos, 3));
   const ash = new THREE.Points(ashGeo, new THREE.PointsMaterial({ map: glowTexture('rgba(220,210,230,0.9)'), color: 0xc9c2d4, size: 0.1, transparent: true, opacity: 0.4, depthWrite: false, sizeAttenuation: true }));
   scene.add(ash);
-  // the first stars, overhead only; the sky shader keeps the dark between them
-  const starPos = new Float32Array(320 * 3);
-  for (let i = 0; i < 320; i++) {
-    const th = rnd() * Math.PI * 2, el = 0.06 + rnd() * 0.9;
-    starPos.set([Math.cos(el) * Math.cos(th) * 150, Math.sin(el) * 150, Math.cos(el) * Math.sin(th) * 150], i * 3);
-  }
-  const starGeo = new THREE.BufferGeometry();
-  starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
-  const stars = new THREE.Points(starGeo, new THREE.PointsMaterial({ color: 0xffffff, size: 1.3, transparent: true, opacity: 0.55, depthWrite: false, fog: false }));
-  scene.add(stars);
+  // square pixel stars, overhead first (sky.js)
+  const stars = buildStars({ scene }, rnd);
+  stars.setPx(2.4 * Math.min(window.devicePixelRatio || 1, quality === 'high' ? 2 : 1));
+  const clouds = buildClouds({ scene });
 
   // the Lucky Block: real texture on all six faces, centred at (0.5, 1.5, 0.5)
   const lbMat = new THREE.MeshLambertMaterial({ map: tex('blocks/lucky_block.png'), emissive: 0x2a1640, emissiveIntensity: 0.5 });
   const lb = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), lbMat);
   lb.position.set(0.5, 1.5, 0.5);
   lb.castShadow = true; lb.receiveShadow = true;
+  lb.visible = false;
   scene.add(lb);
   // crack overlay (destroy_stage_0..9)
   const crackMat = new THREE.MeshBasicMaterial({ map: tex('blocks/destroy_stage_0.png'), transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -4, opacity: 0.95 });
@@ -557,6 +551,7 @@ export async function createStage(canvas, opts = {}) {
   const halo = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTexture('rgba(255,255,255,1)'), color: 0xb89cff, transparent: true, opacity: 0.22, depthWrite: false, blending: THREE.AdditiveBlending }));
   halo.position.set(0.5, 1.5, 0.5);
   halo.scale.set(4.4, 4.4, 1);
+  halo.visible = false;
   scene.add(halo);
 
   // the player: vanilla Steve, 64x32, feet at (3.2, 0, 0.5), facing the block
@@ -565,7 +560,7 @@ export async function createStage(canvas, opts = {}) {
   steve.root.rotation.y = Math.PI / 2;
   steve.anim = makeAnim({ kind: 'biped', root: steve.root, parts: steve.parts });
   steve.root.traverse((o) => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
-  steve.mat.emissive.setRGB(0.05, 0.05, 0.05); // no face goes fully black
+  steve.mat.emissive.setRGB(0.025, 0.025, 0.025); // no face goes fully black
   scene.add(steve.root);
 
   // the dais edge: a low violet ring on the top
@@ -608,8 +603,9 @@ export async function createStage(canvas, opts = {}) {
 
   const S = {
     quality, renderer, scene, camera, composer, bloom, grade, sun, hemi, lb, lbMat, crack, crackMat, halo, steve, world, water, waterTex,
-    embers, emberMat, ash, stars, sky, skyMat, ring: ringMesh, torches, reelLayer, reelScene, rainbow, emberFill, temp: new THREE.Group(), vox, rnd, plateau,
+    embers, emberMat, ash, stars: stars.points, starsApi: stars, clouds, sky, skyMat, ring: ringMesh, torches, reelLayer, reelScene, rainbow, emberFill, temp: new THREE.Group(), vox, rnd, plateau,
     target: new THREE.Vector3(0.5, 1.1, 0.5), dofOn: false, night: 0, rig: null, fragments: [], sunSprite,
+    rbMix: 0, blockHere: false, torchFx: null,
     time: 0, lbBase: new THREE.Vector3(0.5, 1.5, 0.5), _bokeh: null, sunDir: SUN,
   };
   scene.add(S.temp);
@@ -643,7 +639,6 @@ export async function createStage(canvas, opts = {}) {
     const u = S.skyMat.uniforms;
     const mix = (a, b) => new THREE.Color(a).lerp(new THREE.Color(b), f);
     u.uNight.value = f;
-    u.uStars.value = f;
     u.uTop.value.copy(mix(0x1a1030, NIGHT.top));
     u.uDusk.value.copy(mix(0x4a2a5a, NIGHT.dusk));
     u.uHorizon.value.copy(mix(HORIZON, NIGHT.horizon));
@@ -662,7 +657,8 @@ export async function createStage(canvas, opts = {}) {
     S.sun.intensity = THREE.MathUtils.lerp(3.4, 1.1, k) + 0.02;
     S.hemi.intensity = THREE.MathUtils.lerp(0.95, 0.25, f);
     S.hemi.color.copy(new THREE.Color(0x6a58a6).lerp(new THREE.Color(0x222845), f));
-    S.stars.material.opacity = 0.2 + 0.7 * f;
+    stars.mat.uniforms.uOpacity.value = 0.45 + 0.55 * f;
+    clouds.setNight(f, S.scene.fog.color);
   };
 
   // the sun as the scene pivots: 'sunset' moves the sun down toward the horizon
@@ -684,13 +680,14 @@ export async function createStage(canvas, opts = {}) {
     const out = [];
     for (let i = 0; i < count; i++) {
       const s = 0.12 + rnd() * 0.2;
-      const m = new THREE.Mesh(fragGeo, fragMat);
+      const m = new THREE.Mesh(fragGeo, fragMat.clone());
+      m.material.transparent = true;
       m.scale.setScalar(s);
       m.castShadow = true;
       const p = lb.position.clone().add(new THREE.Vector3((rnd() - 0.5) * 0.9, (rnd() - 0.5) * 0.9, (rnd() - 0.5) * 0.9));
       m.position.copy(p);
       const a = rnd() * Math.PI * 2, sp = (2.2 + rnd() * 3.2) * strength;
-      out.push({ m, v: new THREE.Vector3(Math.cos(a) * sp * 0.6, 3.2 + rnd() * 3.2 * strength, Math.sin(a) * sp * 0.6), w: new THREE.Vector3(rnd() * 12 - 6, rnd() * 12 - 6, rnd() * 12 - 6), life: 0 });
+      out.push({ m, v: new THREE.Vector3(Math.cos(a) * sp * 0.6, 3.2 + rnd() * 3.2 * strength, Math.sin(a) * sp * 0.6), w: new THREE.Vector3(rnd() * 12 - 6, rnd() * 12 - 6, rnd() * 12 - 6), life: 0, s });
       S.temp.add(m);
     }
     S.fragments.push(...out);
@@ -699,35 +696,51 @@ export async function createStage(canvas, opts = {}) {
     halo.visible = false;
     return out;
   };
+  // Like Minecraft's block particles: they tumble and settle, then shrink and fade from about 1.5 s
   S.stepFragments = (dt) => {
-    for (const f of S.fragments) {
+    for (let i = S.fragments.length - 1; i >= 0; i--) {
+      const f = S.fragments[i];
       f.life += dt;
       f.v.y -= 16 * dt;
       f.m.position.addScaledVector(f.v, dt);
       f.m.rotation.x += f.w.x * dt; f.m.rotation.y += f.w.y * dt; f.m.rotation.z += f.w.z * dt;
-      if (f.m.position.y < f.m.scale.x * 0.5) {
-        f.m.position.y = f.m.scale.x * 0.5;
+      const floor = (f.m.position.x >= -1 && f.m.position.x < 2 && f.m.position.z >= -1 && f.m.position.z < 2 ? 1 : 0) + f.s * 0.5;
+      if (f.m.position.y < floor) {
+        f.m.position.y = floor;
         if (f.v.y < 0) f.v.y *= -0.38;
         f.v.x *= 0.7; f.v.z *= 0.7; f.w.multiplyScalar(0.7);
+      }
+      if (f.life > 1.5) {
+        const k = Math.min(1, (f.life - 1.5) / 0.9);
+        f.m.scale.setScalar(f.s * (1 - k * k));
+        f.m.material.opacity = 1 - k;
+        if (k >= 1) { S.temp.remove(f.m); f.m.material.dispose(); S.fragments.splice(i, 1); }
       }
     }
   };
   S.clearFragments = () => {
-    for (const f of S.fragments) { S.temp.remove(f.m); }
+    for (const f of S.fragments) { S.temp.remove(f.m); f.m.material.dispose(); }
     S.fragments.length = 0;
-    lb.visible = true;
-    halo.visible = true;
+    lb.visible = S.blockHere;
+    halo.visible = S.blockHere;
   };
 
+  S.fx = makeFx(scene);
+  // the torch flash: colour is a hex or Color; pulses at `freq` Hz, falls off over `dur` seconds
+  S.flashTorches = (color, o = {}) => {
+    S.torchFx = { color: new THREE.Color(color), t0: (o.now ?? S.time) + (o.delay || 0), dur: o.dur ?? 2.4, amp: o.amp ?? 1, freq: o.freq ?? 3, tint: o.tint ?? 1 };
+  };
+  S.setBlockHere = (on) => { S.blockHere = !!on; lb.visible = !!on; halo.visible = !!on; };
   // hooks for scenes
   S.clearTemp = () => {
+    for (const f of S.fragments) f.m.material.dispose();
     for (const ch of [...S.temp.children]) {
       S.temp.remove(ch);
       ch.traverse((o) => { if (o.geometry && o.geometry !== fragGeo) o.geometry.dispose(); if (o.material && o.material !== fragMat && !o.material.userData?.keep) { if (o.material.map?.userData?.clone) o.material.map.dispose(); o.material.dispose(); } });
     }
     S.fragments.length = 0;
-    lb.visible = true;
-    halo.visible = true;
+    lb.visible = S.blockHere;
+    halo.visible = S.blockHere;
     crack.visible = false;
   };
   S.dispose = () => { renderer.dispose(); };
@@ -749,10 +762,35 @@ export async function createStage(canvas, opts = {}) {
     rainbow.color.setHSL(hue, 0.9, 0.6);
     rainbow.intensity = 2.0 + 0.4 * Math.sin(t * 0.9);
     halo.material.color.setHSL(hue, 0.85, 0.7);
-    for (const tc of torches) {
-      tc.light.intensity = tc.base * 3.6 + 0.6 * Math.sin(t * 13.1 + tc.ph) + 0.35 * Math.sin(t * 23.7 + tc.ph * 2);
-      tc.glow.material.opacity = 0.7 + 0.3 * Math.sin(t * 11 + tc.ph);
+    // torch flash: the mood colour with a pulse, then it settles back to flame (S.flashTorches)
+    let boost = 0, cw = 0;
+    const tf = S.torchFx;
+    if (tf) {
+      const a = t - tf.t0;
+      if (a >= tf.dur) S.torchFx = null;
+      else if (a >= 0) {
+        const k = 1 - a / tf.dur;
+        boost = tf.amp * k * (tf.freq ? 0.55 + 0.45 * Math.cos(a * tf.freq * Math.PI * 2) : 1);
+        cw = Math.min(1, k * 1.8) * (tf.tint ?? 1);
+      }
     }
+    flameMat.color.setRGB(2.2, 1.2, 0.5);
+    if (cw > 0) flameMat.color.lerp(tf.color.clone().multiplyScalar(2.2), cw);
+    for (const tc of torches) {
+      tc.light.intensity = (tc.base * 3.6 + 0.6 * Math.sin(t * 13.1 + tc.ph) + 0.35 * Math.sin(t * 23.7 + tc.ph * 2)) * (S.blockHere ? 1 : 0.8) + boost * 16;
+      tc.light.color.setHex(0xffa552);
+      tc.glow.material.color.setHex(0xffa050);
+      if (cw > 0) { tc.light.color.lerp(tf.color, cw); tc.glow.material.color.lerp(tf.color, cw); }
+      tc.glow.material.opacity = Math.min(1, 0.7 + 0.3 * Math.sin(t * 11 + tc.ph) + boost * 0.5);
+      tc.glow.scale.setScalar(0.7 * (1 + boost * 3.2));
+    }
+    flashLight.intensity = boost * 26;
+    if (tf && cw > 0) flashLight.color.copy(tf.color);
+    // the rainbow rim and the halo belong to the block: off while the dais is empty
+    const rb = S.blockHere ? 1 : 0;
+    S.rbMix += (rb - S.rbMix) * Math.min(1, dt * 6);
+    rainbow.intensity *= S.rbMix;
+    halo.material.opacity = 0.22 * S.rbMix;
     const ep = emberGeo.attributes.position.array;
     for (let i = 0; i < EMBERS; i++) {
       const sd = emberSeed[i * 3];
@@ -769,6 +807,8 @@ export async function createStage(canvas, opts = {}) {
     }
     ashGeo.attributes.position.needsUpdate = true;
     grade.uniforms.uTime.value = t;
+    stars.mat.uniforms.uTime.value = t;
+    clouds.update(t);
     if (opts2.cam) {
       camera.position.copy(opts2.cam.pos);
       camera.lookAt(opts2.cam.look);

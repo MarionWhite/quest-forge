@@ -971,6 +971,15 @@ export function createBrain(deps) {
     fastForward(ms, camPos) { for (let t = 0; t < ms; t += 33) api.update(0.033, camPos); },
     setSkin(mat) { void mat; },
     startIdle() { b.gen = idleLoop(); },
+    // debug hook (?act=): run one named activity first, then the normal loop
+    start(id) {
+      const a = ACTS.find((x) => x.id === id);
+      if (!a) return false;
+      b.act = id;
+      startGen((function* () { try { yield* a.f(); } finally { doCleanup(); relax(); } b.act = null; yield* idleLoop(); })());
+      return true;
+    },
+    acts: () => ACTS.map((a) => a.id),
   };
   b.gen = idleLoop();
   api.reset(seed);

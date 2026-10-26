@@ -132,7 +132,7 @@ export function makeFx(scene) {
         solid.emit({
           pos: { x: pos.x + Math.cos(a) * 0.6, y: pos.y + 0.06, z: pos.z + Math.sin(a) * 0.6 },
           vel: { x: Math.cos(a) * s, y: rnd(0.3, 1.1), z: Math.sin(a) * s },
-          color: o.color ?? 0xd8cfc2, size: rnd(0.14, 0.26), life: rnd(0.6, 1.0), grav: 0.5, bounce: 0,
+          color: o.color ?? 0xa89c8a, size: rnd(0.09, 0.17), life: rnd(0.5, 0.9), grav: 0.5, bounce: 0,
         });
       }
     },
