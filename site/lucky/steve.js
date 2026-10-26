@@ -181,6 +181,8 @@ export function createBrain(deps) {
     held: null, heldSpec: null, bang: null, items: [], extras: [], fireT: 2, ambT: 5, turnRate: 9,
     ign: new Set(), smelt: 0, smeltT: 0,
   };
+  // the idle camera's view of him: a 3/4 side view while he works at a station or mines, eased in and out
+  const cam = { want: false, w: 0, off: 0, offS: 0, lastT: -9, lastApply: 0, ray: Object.assign(new THREE.Raycaster(), { camera: S.camera }), close: /[?&]camclose/.test(location.search) };
 
   // ------------------------------------------------------------ sound and fx helpers
   const at = () => ({ x: b.x, y: b.y + 0.9, z: b.z });
@@ -363,6 +365,7 @@ export function createBrain(deps) {
     const speed = o.speed ?? 2.1;
     const ign = o.ign || b.ign;
     const pts = o.straight ? [[x, z]] : nav.path(b.x, b.z, x, z, R_P, { ign });
+    cam.want = false;
     b.state = o.sprint ? 'run' : 'walk';
     for (let i = 0; i < pts.length; i++) {
       const [px, pz] = pts[i];
@@ -409,7 +412,7 @@ export function createBrain(deps) {
     }
     freeArm('r'); b.twist = 0;
   }
-  const doCleanup = () => { const c = b.cleanups.splice(0); for (const f of c.reverse()) { try { f(); } catch (e) { /* ignore */ } } };
+  const doCleanup = () => { cam.want = false; const c = b.cleanups.splice(0); for (const f of c.reverse()) { try { f(); } catch (e) { /* ignore */ } } };
   const onCleanup = (f) => b.cleanups.push(f);
   function jump(v = 7.4) { b.vy = v; b.air = true; }
   function* waitLanded() { yield () => !b.air; }
@@ -467,6 +470,7 @@ export function createBrain(deps) {
   function* useFront(stand, cell) {
     yield* walkTo(stand.x, stand.z);
     yield* faceYaw(0);
+    cam.want = true;
     b.head.target = new THREE.Vector3(cell.cx + 0.5, 0.8, cell.cz + 0.5);
   }
   // a short right-click: the arm comes up to the block face and taps
@@ -483,6 +487,7 @@ export function createBrain(deps) {
   // mining a quarry block: returns the block's record and leaves its drop on the ground
   function* mineBlock(q, toolItem, swings = 6) {
     yield* standAt(q.x, L.quarryStandZ, 0);
+    cam.want = true;
     hold({ item: toolItem });
     onCleanup(() => hold(null));
     b.head.tpitch = q.y > 1 ? 0.1 : -0.15;
@@ -637,6 +642,7 @@ export function createBrain(deps) {
     const st = treeStand();
     if (!st) return;
     yield* standAt(st.x, st.z, st.yaw);
+    cam.want = true;
     const tp = { x: L.tree.cx + 0.5, y: 1.5, z: L.tree.cz + 0.5 };
     b.head.tpitch = 0.1;
     yield 0.3;
@@ -1246,6 +1252,52 @@ export function createBrain(deps) {
     activity: () => b.act || null,
     x: () => b.x, z: () => b.z,
     pos: () => ({ x: b.x, y: b.y, z: b.z }),
+    // the idle camera, shaped: base is the page's follow shot; while he works it orbits to a 3/4 side view
+    // (face, hands, held item and the block he faces), and it slides along the orbit if a prop is in the way
+    camShape(base) {
+      const focus = new THREE.Vector3(b.x, b.y + 1.0, b.z);
+      const marks = [new THREE.Vector3(b.x, b.y + 1.6, b.z), new THREE.Vector3(b.x, b.y + 1.1, b.z)];
+      const dx = base.pos.x - focus.x, dz = base.pos.z - focus.z;
+      const baseA = Math.atan2(dx, dz), baseD = Math.hypot(dx, dz), baseH = base.pos.y - focus.y;
+      const f = dirOf(b.yaw), fa = Math.atan2(f.x, f.z);
+      const SD = cam.close ? 2.7 : 4.8, SH = cam.close ? 0.55 : 1.3;
+      const ptAt = (a, D, H) => new THREE.Vector3(focus.x + Math.sin(a) * D, focus.y + H, focus.z + Math.cos(a) * D);
+      const targets = [S.world, camp.group].filter(Boolean);
+      const blocked = (p) => {
+        // the head, the chest and the two sides of the frame, so a prop beside the lens counts too
+        const side = new THREE.Vector3(marks[0].z - p.z, 0, p.x - marks[0].x).normalize().multiplyScalar(cam.close ? 0.9 : 1.6);
+        for (const m of [...marks, marks[0].clone().add(side), marks[0].clone().sub(side)]) {
+          const dir = m.clone().sub(p), dist = dir.length();
+          cam.ray.set(p, dir.normalize()); cam.ray.far = Math.max(0.1, dist - 0.45);
+          if (cam.ray.intersectObjects(targets, true).some((h) => !(h.object.isPoints || h.object.isSprite || h.object.isLine) && h.object.visible)) return true;
+        }
+        return false;
+      };
+      const stale = b.t - cam.lastT > 0.35;
+      if (stale) cam.lastT = b.t;
+      // the side view: a profile-ish 3/4 on whichever side of him the lens is clear and nearest the page's shot
+      if (cam.want && (stale || cam.shA === undefined)) {
+        const cands = [];
+        for (const d of [1.3, 1.05, 1.6, 0.8]) for (const sg of [1, -1]) cands.push(fa + sg * d);
+        cands.sort((p, q) => Math.abs(wrapA(p - baseA)) - Math.abs(wrapA(q - baseA)) + 0.0);
+        const keep = cam.shA !== undefined && !blocked(ptAt(cam.shA, SD, SH)) && Math.abs(wrapA(cam.shA - fa)) > 0.7;
+        if (!keep) { const ok = cands.find((c) => !blocked(ptAt(c, SD, SH))); cam.shA = ok !== undefined ? ok : cands[0]; }
+      }
+      const shA = cam.shA !== undefined ? cam.shA : fa + 1.3;
+      const w = smooth(cam.w);
+      const A = baseA + wrapA(shA - baseA) * w;
+      const D = lerp(baseD, SD, w), H = lerp(baseH, SH, w);
+      const look = base.look.clone().lerp(new THREE.Vector3(b.x + f.x * 0.7, b.y + (cam.close ? 1.3 : 1.15), b.z + f.z * 0.7), w);
+      // a prop between the lens and him: slide along the orbit to the nearest clear spot, and back when it clears
+      if (stale) {
+        const order = [0, 0.2, -0.2, 0.4, -0.4, 0.6, -0.6, 0.9, -0.9, 1.2, -1.2, 1.6, -1.6];
+        let pick = order.find((o) => !blocked(ptAt(A + o, D, H)));
+        cam.off = pick === undefined ? 0 : pick;
+      }
+      cam.offS += (cam.off - cam.offS) * Math.min(1, Math.max(0.05, (b.t - cam.lastApply) * 3));
+      cam.lastApply = b.t;
+      return { pos: ptAt(A + cam.offS, D, H), look, fov: lerp(base.fov ?? 36, cam.close ? 34 : 36, w) };
+    },
     hand: () => (b.heldSpec ? (b.heldSpec.item || b.heldSpec.block) : null),
     reset(newSeed) {
       rng = mulberry(newSeed ?? seed);
@@ -1292,6 +1344,7 @@ export function createBrain(deps) {
         stepBang();
         stepExtras(dt);
       }
+      cam.w += ((cam.want ? 1 : 0) - cam.w) * Math.min(1, dt * 1.5);
       stepItems(dt);
       if (pendingItems.size) refreshItems();
       {

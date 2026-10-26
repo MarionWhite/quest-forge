@@ -660,7 +660,8 @@ function idleWant(t, aspect) {
   const pos = focus.clone().addScaledVector(dir, dist); pos.y = p.y + 3.6 + narrow * 3;
   // keep a hint of the dais in the frame: bias the focus a little toward it
   focus.lerp(new THREE.Vector3(0.5, 1.2, 0.5), 0.22);
-  return { pos, look: focus, fov: 36 + narrow * 30 };
+  const shot = { pos, look: focus, fov: 36 + narrow * 30 };
+  return brain.camShape ? brain.camShape(shot) : shot; // steve.js: 3/4 view at his stations, clear of props
 }
 function reelCam(aspect) {
   const dist = aspect < 0.9 ? 6.4 : 4.9;

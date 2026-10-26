@@ -24,3 +24,8 @@ Previous state of these files: `ops/checkpoints/site-lucky-stage.md`.
 ## Requests
 - none
 ## Status: done (held-pickaxe close-up not framed: idle camera sees Steve from behind during mining; rod and chest views verified)
+
+## Critic pass 2 (done)
+- steve.js camShape(base) + one-line hook in app.js idleWant: idle camera orbits to a 3/4 side view while he works a station or mines (eased, w 1.5/s), raycasts head/chest/frame edges against terrain and camp, slides along the orbit past occluders. ?camclose=1 is the close-up debug hook.
+- Sheet: scratchpad/r5/lucky-life/sheet_cam34.png (a_ to e_, wooden and iron pickaxe close-ups, mining with iron pickaxe, apocalypse with zombies at at=13500).
+- h_mobs_apoc earlier showed no mobs because at=14000 was past the scene's end (phase 'result'); at 11.5 to 13.5 s the zombies are there.
