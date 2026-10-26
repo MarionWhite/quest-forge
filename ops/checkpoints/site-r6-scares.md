@@ -28,3 +28,30 @@ current bank and list the gaps here.
   Review it as a horror director.
 - [ ] A live real-time run of all 16 through the J flow with no exceptions. The CDP driver is
   `scratchpad/orch/cdp.mjs` with `scareflow.js`.
+
+## Plan (2026-10-26, opus)
+- New shared kit `site/graves/scares/fnaf.js`: the lunge (the mob's face driven into the lens from where it stood,
+  ~0.22 s, overshoot, jittering hold), the split jaw (head box cut at the mouth row with mcBoxGeometry, a dark
+  mouth, pixel teeth), lit eyes, jitter noise, silence/fake-out/music-box helpers, the layered screech.
+- rig.js: per-play random seed (R.rand, R.vary), camera pose set before S.update (the lunge reads R.camera), a
+  post pass in the composer (tear, RGB split, static), warm-up (compile + texture upload) so the lunge never hitches,
+  a frame override for gaps.
+- hud.js: the static cut (GUI-res noise over everything). scares.js: @silence, preload of every sound before the
+  freeze, S.marks for the sheet (scareat=dread|fake|lunge|kill|death), 16 entries, krypt-gap hook (15%, approved
+  only, feature-detected), mood busy check, `__scares.busy`.
+- Then every scare rebuilt in turn; checkpoint after each.
+
+## Done (r6)
+- cd90a97: kit `scares/fnaf.js`; rig (R.rand/vary/chance/pick per play, camera pose before update, post pass
+  tear/split/static, warm-up compile + texture upload + post-pass program, R.unsnuff, dump restores fog/exposure/lights
+  after each render); hud static cut; scares.js (@silence, preload before the freeze, marks, scareat=a,b,c multi-moment
+  dumps into `pngs`, scareseed, nofx, scarepull debug camera, 16 entries, krypt-gap hook at 15% approved-only, mood
+  busy check, `__scares.busy`). Rebuilt: Zombie, Skeleton (music box), Creeper, Spider, Cave Spider (swarm freeze),
+  Enderman (vanish + flash), Witch (hallucinations).
+- Iteration tools (scratchpad r6/scares): `mk.py` (shot list), `multi.py` (dump_frames + split pngs + sheet).
+- Note: krypt-gen landed the streaming world (d826e67): kr.gaps, krypt-gap, kr.light exist now. Torch meshes still
+  detected (torch_on). Dumps take ~4 s a page with dump_frames.
+
+## Next
+- Slime, Silverfish, Blaze, Ghast, Magma Cube (redo), Zombie Pigman, Wither Skeleton (new ending), Lava fall,
+  Drowned grab; then the 80-frame sheet and the real-time J run.
