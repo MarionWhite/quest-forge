@@ -4,7 +4,7 @@
 // pair of eyes to the next. When it comes back to the one you hit, it is not where it was: it is at your face, jaw
 // open, and it lunges with the screech. After the static they are all round you, and they cut you down.
 import { THREE, clamp, lerp, sstep, pulse, tex, easeOut } from "./rig.js";
-import { settle, shake, hitsOf, floorFall, heldItem, swingAt, zombieArms, mulberry, glowEyes } from "./common.js";
+import { settle, shake, hitsOf, floorFall, heldItem, swingAt, zombieArms, mulberry, glowEyes, mcRot } from "./common.js";
 import { lunge, lungeFx, screech, splitJaw, faceAnchor, boxOf, silence, deathScream, jit } from "./fnaf.js";
 
 const SWORD = [{ id: "minecraft:golden_sword", ench: false }];
@@ -13,6 +13,8 @@ const wrap = (a) => { while (a > Math.PI) a -= TAU; while (a < -Math.PI) a += TA
 
 // The pigman's two eyes, lit red: the skull's socket (base layer) and the pink eye on the hat layer (inflated 0.5).
 const redEyes = (R, m) => glowEyes(R, m, [[-3, -4.5, -4.06, 2, 1], [3.375, -4.56, -4.58, 2.25, 1.125]], [1, 0.1, 0.05], { halo: 0.4, glow: 0.3 });
+// Up close: a red point in each eye, not two lit bars across the face.
+const redEyesNear = (R, m) => glowEyes(R, m, [[-3, -4.5, -4.07, 0.9, 0.5], [3.375, -4.56, -4.59, 1, 0.55]], [0.85, 0.06, 0.03], { halo: 0.12, glow: 0.08 });
 
 export default {
   death: "Steve was slain by Zombie Pigman",
@@ -49,7 +51,7 @@ export default {
     const idleYaw = A.kind === "ahead" ? -sideB * Math.PI / 2 : walkYaw;
     const p0 = R.mob("PigZombie", { amb: [0.24, 0.22, 0.22], equipment: SWORD, own: true });
     p0.setOwn(0.12);
-    const eyes0 = redEyes(R, p0);
+    const eyes0 = redEyes(R, p0), eyes0n = redEyesNear(R, p0);
     const held0 = p0.parts.rightArm && p0.parts.rightArm.children.find((o) => o.isGroup && o.matrixAutoUpdate === false);
     const jaw0 = splitJaw(p0, [{ part: p0.parts.head, box: boxOf("zombie", "bipedHead"), rows: 2 }, { part: p0.parts.headwear, box: boxOf("zombie", "bipedHeadwear"), rows: 2 }], { nTeeth: 3 });
     const pos0 = (t) => {
@@ -90,7 +92,7 @@ export default {
     const tBack = (darts.length ? darts[darts.length - 1].t + 0.06 : T_ANGRY + 0.2) + R.vary(0.45, 0.45), t0 = tBack + 0.11;
     p0.anim(0, 0, {}); R.place(p0, 0, 0, 4, Math.PI);
     const anchor = faceAnchor(p0, p0.parts.head, boxOf("zombie", "bipedHead")); anchor.y -= 0.07;
-    const L = lunge(R, p0, { t0, rush: R.vary(0.17, 0.2), hold: R.vary(0.6, 0.15), dist: 0.36, anchor, seed: 41 });
+    const L = lunge(R, p0, { t0, rush: R.vary(0.17, 0.2), hold: R.vary(0.6, 0.15), dist: 0.68, anchor, seed: 41 });
     const tK = L.t3, T_FALL = tK + 1.05, DUR = tK + 1.6;
     const byArrival = rushers.slice().sort((a, b) => a.te - b.te);
     for (const q of rushers) q.te = Math.min(q.te, tK - 0.05);   // all of them there by the end of the static
@@ -165,6 +167,10 @@ export default {
       R.burst(h.t + 0.02, at, 7, "flesh", { dir: [fx * 0.4, 0.8, fz * 0.4], speed: 1.6, spread: 0.7, size: 0.07, life: 1.2, stick: 3 });
     });
     const sword = heldItem(R, swordTex);
+    // The gold sword raised over you as it comes: a blade across the top of the view, between you and its face.
+    const goldTex = await tex("mc:items/gold_sword");
+    const raised = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ map: goldTex, transparent: true, alphaTest: 0.1, side: THREE.DoubleSide, depthTest: false, depthWrite: false, fog: false, color: 0x9a8a70 }));
+    raised.renderOrder = 2150; raised.visible = false; R.view.add(raised);
     const mySwings = [T_SW, tK + 0.25];
     const glow = R.ownLight(R.light(0xffb070, 0, 6, 1.4));
     const redLight = R.ownLight(R.light(0xff2010, 0, 9, 1.2));
@@ -218,36 +224,48 @@ export default {
       posePig(p0, t, p.x, p.y, p.z, yaw, { walk: t > T_W0 && t < T_W1 ? 0.7 : 0, look, swing: swingAt(t, swings.get(p0)), lean: lean0 });
       if (t >= tJump && t < tK) { if (p0.parts.head) p0.parts.head.rotation.z += 0.25 * (1 - sstep(t0, L.t1, t)) + 0.04 * jit(t, 3, 12); }
       jaw0.set(t >= tJump && t < tK ? Math.max(0.15 + 0.1 * Math.max(0, jit(t, 5, 14)), sstep(t0, L.t1, t) * (0.85 + 0.15 * jit(t, 9))) : t >= tK ? 0.3 * Math.max(0, Math.sin(t * 8)) : 0);
+      // In the lunge its sword arm goes up, the gold blade raised past the lens over its head.
+      const inLunge = t >= t0 && t < tK;
+      if (inLunge && p0.parts.rightArm) p0.parts.rightArm.visible = false;   // raised out of the view: only its blade shows
+      if (inLunge && p0.parts.leftArm) mcRot(p0.parts.leftArm, -0.25, 0, 0.1);   // the other hangs: nothing between you and the face
       if (t >= t0 && t < tK) L.apply(t);
-      p0.setOwn(t >= tJump && t < tK ? 0.3 : 0.12);
+      p0.setOwn(inLunge ? 0.16 : t >= tJump && t < tK ? 0.3 : 0.12);
       p0.pivot.visible = !(t >= tJump && t < tBack - 0.04);   // gone from where it was; there when you look back
-      if (held0) held0.visible = !(t >= tJump && t < tK);
+      if (held0) held0.visible = !(t >= tJump && t < tK);   // in the lunge its blade is drawn raised past the lens (below)
       R.flash(p0, t > T_SW && t < T_SW + 0.5 ? 1 : 0);
-      eyes0(sstep(T_ANGRY - 0.06, T_ANGRY + 0.04, t));
+      eyes0(inLunge ? 0 : sstep(T_ANGRY - 0.06, T_ANGRY + 0.04, t)); eyes0n(inLunge ? 0.8 : 0);
       // Everyone else.
       for (const q of rushers) {
-        q.m.pivot.visible = t >= q.ta;
-        q.eyes(t >= q.ta ? sstep(q.ta, q.ta + 0.1, t) : 0);
+        q.m.pivot.visible = t >= q.ta && !inLunge;   // in the lunge only its face, in the dark
+        q.eyes(t >= q.ta && !inLunge ? sstep(q.ta, q.ta + 0.1, t) : 0);   // in the lunge only its face: the rest are dark
         if (t < q.ta) continue;
         const r = posR(q, t), there = r.k >= 1, wide = 1 + 0.22 * sstep(T_FALL, T_FALL + 0.5, t);   // a step back to look at you
         r.x *= there ? wide : 1; r.z *= there ? wide : 1;
         const fy = there ? R.yawTo(q.tx, q.tz, camNow.x, camNow.z) : (t < q.ts ? R.yawTo(q.x, q.z, 0, 0) : r.dir);
         posePig(q.m, t, r.x, 0, r.z, fy, { walk: t > q.ts && !there ? 1.35 : 0, run: true, swing: swingAt(t, swings.get(q)), lean: -0.22 * sstep(T_FALL + 0.2, T_FALL + 0.9, t), seed: q.seed });
       }
-      sword(t, mySwings, t > T_FALL + 0.05, camNow.fov);
+      sword(t, mySwings, t > T_FALL + 0.05 || inLunge, camNow.fov);
+      raised.visible = inLunge;
+      if (inLunge) {
+        const h = Math.tan(R.camera.fov * Math.PI / 360) * 0.4, u = sstep(t0, L.t1, t);
+        raised.scale.setScalar(h * 1.25);
+        raised.position.set(-h * R.camera.aspect * 0.62 + jit(t, 51) * 0.006, h * (0.62 + 0.5 * (1 - u)) + jit(t, 53) * 0.006, -0.4);
+        raised.rotation.set(0, 0, 0.35 + 0.05 * jit(t, 55, 12));
+      }
       // Light: the corridor dims as the eyes come up; a warm glow on them as they reach you.
-      R.L(0, 2.3, 0.4, glow.position); glow.intensity = 1.6 * sstep(tK, tK + 0.4, t) + 0.9 * (t >= tJump && t < tK ? 1 : 0);
+      if (inLunge) { const cl = R.toLocal(R.camera.position); R.L(cl.x, cl.y + 0.3, cl.z, glow.position); glow.intensity = 1.1; }   // its face lit, the rest falls off
+      else { R.L(0, 2.3, 0.4, glow.position); glow.intensity = 1.6 * sstep(tK, tK + 0.4, t) + 0.9 * (t >= tJump && t < tK ? 1 : 0); }
       R.L(0, 1.2, 0, redLight.position); redLight.intensity = 0.3 * sstep(T_ANGRY, T_ANGRY + 0.3, t);
-      const dim = sstep(T_ANGRY - 0.1, T_ANGRY + 0.3, t), back = sstep(tK, tK + 0.4, t);
-      f.env = { bake: 1 - 0.2 * sstep(0.2, 1.2, t) - 0.4 * dim + 0.15 * back, lights: 1 - 0.6 * dim + 0.3 * back, fogMul: 1 + 0.5 * sstep(1, 3, t) + 0.6 * dim };
+      const dim = sstep(T_ANGRY - 0.1, T_ANGRY + 0.3, t), back = sstep(tK, tK + 0.4, t), dark = inLunge ? sstep(t0, t0 + 0.08, t) : 0;
+      f.env = { bake: (1 - 0.2 * sstep(0.2, 1.2, t) - 0.4 * dim + 0.15 * back) * (1 - 0.8 * dark), lights: (1 - 0.6 * dim + 0.3 * back) * (1 - 0.85 * dark), fogMul: 1 + 0.5 * sstep(1, 3, t) + 0.6 * dim + 2 * dark, fog: [0, 0, 0, dark] };
       f.tints = [[120, 0, 0, 0.05 * dim]];
       f.vig = [30, 0, 0, 0.25 * sstep(1, 2.5, t) + 0.3 * dim + 0.25 * sstep(T_FALL, DUR, t)]; f.vigR = 0.9;
       f.splats = hits.filter((h) => t >= h.t).map((h, i) => ({ t0: h.t, x: [0.35, 0.66, 0.5, 0.42][i], y: [0.42, 0.33, 0.6, 0.5][i], r: 13 + i * 3, seed: 21 + i }));
       f.black = 0.45 * sstep(DUR - 0.1, DUR + 0.6, t);
-      lungeFx(L, t, f);
+      lungeFx(L, t, f, { tear: 0.3 });
     }
     return { dur: DUR, hits, cam, update, sounds, loops, deathSide: fallSide,
-      marks: { dread: (T_SW + T_TURN0) / 2 + 0.3, fake: darts.length ? darts[0].t + 0.1 : T_ANGRY + 0.15, lunge: L.t1 + 0.1, kill: tK + 0.6 },
+      marks: { dread: (T_SW + T_TURN0) / 2 + 0.3, fake: darts.length ? darts[0].t + 0.1 : T_ANGRY + 0.15, lunge: L.t1 + 0.14, kill: tK + 0.6 },
       notes: { t0: +t0.toFixed(2), dur: +DUR.toFixed(2), A, B, K, spots: spots.map((s) => s.kind + "@" + s.x.toFixed(1) + "," + s.z.toFixed(1)), rushers: rushers.map((q) => [+q.tx.toFixed(2), +q.tz.toFixed(2), +q.ta.toFixed(2), +q.te.toFixed(2)]), darts: darts.map((d) => +d.yaw.toFixed(2)) } };
   }
 };

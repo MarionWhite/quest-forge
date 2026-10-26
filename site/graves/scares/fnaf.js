@@ -82,10 +82,11 @@ export function faceAnchor(m, part, box, { front = true } = {}) {
 // The scare places the mob where it stands (R.place) every frame; from t0 on, apply(t) takes it over: it rushes
 // from that pose to the lens in `rush` seconds (accelerating, so it is fastest as it hits), overshoots to 0.75 of
 // `dist`, and holds there shaking until t2 = t0 + rush + hold. dist: lens to face, metres (0.3 fills a 58 deg view
-// with an 8 px head). anchor: the face in the pivot's frame (faceAnchor). After t2 the scare owns the mob again.
+// with an 8 px head). anchor: the face in the pivot's frame (faceAnchor). tilt, turn: the face's pitch and yaw off
+// square (the body trailing below, above or to one side of it). After t2 the scare owns the mob again.
 const _qy = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI);
 const _q = new THREE.Quaternion(), _qj = new THREE.Quaternion(), _e = new THREE.Euler(), _v = new THREE.Vector3(), _a = new THREE.Vector3(), _p0 = new THREE.Vector3(), _q0 = new THREE.Quaternion();
-export function lunge(R, m, { t0, rush = 0.22, hold = 0.7, cut = 0.14, dist = 0.3, anchor, jitter = 1, seed = 3, roll = 0, side = 0, rise = 0 } = {}) {
+export function lunge(R, m, { t0, rush = 0.22, hold = 0.7, cut = 0.14, dist = 0.3, anchor, jitter = 1, seed = 3, roll = 0, side = 0, rise = 0, tilt = 0, turn = 0 } = {}) {
   const t1 = t0 + rush, t2 = t1 + hold, t3 = t2 + cut;
   const L = { t0, t1, t2, t3, rush, hold, cut, dist };
   // The pose it rushes from: wherever the scare had it when the lunge began (read once per frame before override).
@@ -96,7 +97,7 @@ export function lunge(R, m, { t0, rush = 0.22, hold = 0.7, cut = 0.14, dist = 0.
     if (from) { piv.updateMatrixWorld(true); _p0.copy(piv.position); _q0.copy(piv.quaternion); }
     // Face square to the lens, plus the shake.
     const a = jitter * (0.35 + 0.65 * sstep(0, 1, u));
-    _e.set(jit(t, seed) * 0.1 * a, jit(t, seed + 3) * 0.12 * a, (jit(t, seed + 7) * 0.09 + roll) * a, "YXZ");
+    _e.set(jit(t, seed) * 0.1 * a + tilt, jit(t, seed + 3) * 0.12 * a + turn, (jit(t, seed + 7) * 0.09 + roll) * a, "YXZ");
     _q.copy(cam.quaternion).multiply(_qy).multiply(_qj.setFromEuler(_e));
     const imp = t >= t1 ? Math.exp(-(t - t1) / 0.06) : 0;
     const d = dist * (1 - 0.25 * imp) + jit(t, seed + 11) * 0.025 * a;

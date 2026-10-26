@@ -29,8 +29,10 @@ export default {
     const cFar = R.mob("Creeper", { amb: [0.03, 0.03, 0.03], own: true });
     const c2 = R.mob("Creeper", { amb: [0.03, 0.03, 0.03], own: true });
     c1.anim(0, 0, { walk: 0 }); R.place(c1, 0, 0, 2, Math.PI);
-    const anchor = faceAnchor(c1, c1.parts.head, boxOf("creeper", "head"));
-    const L = lunge(R, c1, { t0, rush: R.vary(0.22, 0.15), hold: R.vary(0.55, 0.2), cut: 0.04, dist: 0.34, anchor, seed: 11 });
+    const headBox = boxOf("creeper", "head");
+    const anchor = faceAnchor(c1, c1.parts.head, headBox);
+    // The whole face in the frame (eyes and mouth), a hand's breadth from the lens; it swells toward you as it holds.
+    const L = lunge(R, c1, { t0, rush: R.vary(0.22, 0.15), hold: R.vary(0.55, 0.2), cut: 0.04, dist: 0.56, anchor, seed: 11 });
     const T_BOOM = L.t2;
     const T_HISS2 = T_BOOM + R.vary(2.6, 0.15), DUR = T_HISS2 + 1.0;
     // Where it blows: right at your face, along the look at that moment.
@@ -128,12 +130,17 @@ export default {
       c1.pivot.visible = vis;
       if (vis) {
         const fuse = t < t0 ? 0.15 : clamp((t - t0) / (T_BOOM - t0));
-        // FNAF: past the rush the flashes come every frame-pair, not every tenth.
-        creeperAt(c1, t, start.x, start.z, Math.pow(fuse, 1.3), t >= L.t1 ? (Math.floor(t * 24) % 2 ? 0.95 : 0.15) : fuse);
+        creeperAt(c1, t, start.x, start.z, t >= t0 ? Math.sqrt(fuse) : Math.pow(fuse, 1.3), fuse);
         if (t >= t0) {
-          if (c1.parts.head) c1.parts.head.rotation.set(jit(t, 21) * 0.12, jit(t, 23) * 0.14, jit(t, 25) * 0.12);
+          // The fuse's rhythm, quickening to the blast: lit green with its black eyes and mouth, then white (the
+          // texture pushed past white in red and blue, so the eyes and mouth stay black through the flash).
+          const ph = Math.floor(9 * Math.pow(fuse, 1.4)), on = ph % 2 === 1;
+          for (const mt of c1.ownMats || []) mt.emissive.setRGB(on ? 4 : 1, on ? 1.7 : 1, on ? 4 : 1);
+          c1.setOwn(on ? 0.9 : 0.75);
+          anchor.copy(faceAnchor(c1, c1.parts.head, headBox));   // the swell moves the face: keep it on the lens
+          if (c1.parts.head) c1.parts.head.rotation.set(jit(t, 21) * 0.07, jit(t, 23) * 0.09, jit(t, 25) * 0.08);
           L.apply(t);
-        }
+        } else for (const mt of c1.ownMats || []) mt.emissive.setRGB(1, 1, 1);
       }
       cFar.pivot.visible = farGlimpse && t > T_TURN && t < tB0 + 0.6;
       if (cFar.pivot.visible) creeperAt(cFar, t, far.x, far.z, 0, 0);
@@ -149,11 +156,11 @@ export default {
       f.env = { bake: 1 - 0.2 * sstep(0.2, 1, t) - 0.15 * sil - 0.15 * sstep(T_BOOM, T_BOOM + 1, t), lights: 1 - 0.2 * sil, fogMul: 1 + 0.5 * sstep(1, 3, t) + 1.2 * sstep(T_BOOM, T_BOOM + 0.5, t) * (1 - 0.6 * sstep(T_BOOM + 0.5, T_BOOM + 3, t)) };
       f.vig = [0, 0, 0, 0.3 * sstep(T_TURN, T_FACE, t) + 0.15 * sil + 0.35 * sstep(T_BOOM + 1, T_BOOM + 2, t)];
       f.tints = [[200, 210, 255, 0.06 * sstep(T_TURN, T_FACE, t) * (t < T_BOOM ? 1 : 0)]];
-      lungeFx(L, t, f, { stat: 0.6 });
+      lungeFx(L, t, f, { tear: 0.2, stat: 0.4 });   // the face must read: the static, not the tear
       if (t >= L.t2) f.cut = 0;
     }
     return { dur: DUR, hits, cam, update, sounds, loops, deathSide: side,
-      marks: { dread: T_FACE + (behindHit ? -0.5 : 0.35), fake: behindHit ? T_TURN + 0.7 : (tB0 + tB1) / 2, lunge: L.t1 + 0.1, kill: T_BOOM + 1.8 },
+      marks: { dread: T_FACE + (behindHit ? -0.5 : 0.35), fake: behindHit ? T_TURN + 0.7 : (tB0 + tB1) / 2, lunge: L.t1 + 0.14, kill: T_BOOM + 1.8 },
       notes: { side, behindHit, farGlimpse, t0: +t0.toFixed(2), boom: +T_BOOM.toFixed(2), dur: +DUR.toFixed(2) } };
   }
 };

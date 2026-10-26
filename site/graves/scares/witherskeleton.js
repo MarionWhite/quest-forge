@@ -41,11 +41,13 @@ export default {
     const W = R.mob("WitherSkeleton", { amb: [0.025, 0.025, 0.03], own: true, equipment: [{ id: "minecraft:stone_sword", ench: false }] });
     W.anim(0, 0, {}); R.place(W, 0, 0, 4, Math.PI);
     const heldG = (W.parts.rightArm || {}).children ? W.parts.rightArm.children.find((o) => o.isGroup && o.matrixAutoUpdate === false) : null;
-    const jaw = splitJaw(W, [{ part: W.parts.head, box: boxOf("skeleton", "bipedHead"), rows: 2 }], { nTeeth: 0, max: 0.75, mouth: 0x030303, tongue: 0x100202 });
+    const jaw = splitJaw(W, [{ part: W.parts.head, box: boxOf("skeleton", "bipedHead"), rows: 2 }], { nTeeth: 4, max: 0.6, mouth: 0x030303, tongue: 0x100202, teeth: 0x6e6a62 });
     // Its eye sockets (the 1.7.10 texture's black holes), lit cold: all you see of it in the black.
     const eyes = glowEyes(R, W, [[-2, -3.5, -4.06, 2, 1], [2, -3.5, -4.06, 2, 1]], [0.62, 0.66, 0.78], { halo: 0.2, glow: 0.12 });
-    const anchor = faceAnchor(W, W.parts.head, boxOf("skeleton", "bipedHead"));
-    const L = lunge(R, W, { t0, rush: R.vary(0.17, 0.2), hold: R.vary(0.62, 0.15), dist: 0.42, anchor, seed: 23 });
+    // Up close: a small cold point in each socket, the black of the socket round it (the far pair would clip white).
+    const eyesNear = glowEyes(R, W, [[-2, -3.5, -4.07, 1, 0.5], [2, -3.5, -4.07, 1, 0.5]], [0.55, 0.68, 0.95], { halo: 0.1, glow: 0.06 });
+    const anchor = faceAnchor(W, W.parts.head, boxOf("skeleton", "bipedHead")); anchor.y -= 0.03;   // the open jaw in frame
+    const L = lunge(R, W, { t0, rush: R.vary(0.17, 0.2), hold: R.vary(0.62, 0.15), dist: 0.5, anchor, seed: 23 });
     const tK = L.t3, tPull = tK + R.vary(1.65, 0.12), tDecap = tPull + 0.55, tLand = tDecap + 0.45, tRest = tDecap + 1.1;
     const tPick = tRest + R.vary(1.0, 0.2), tLift = tPick + 0.75, tFat = tLift + 0.8, DUR = tFat + 1.6;
     const hits = hitsOf([[tK, 8, -side], [tPull, 3, side], [tDecap, 12, side]]);
@@ -233,8 +235,12 @@ export default {
       if (heldG) heldG.visible = heldOn;
       jaw.set(open);
       if (t >= t0 && t < tK) L.apply(t);
-      W.setOwn(own);
-      eyes(vis ? eyeOn : 0);
+      // Inches away the skull is lit cold, faint, from above the lens: its dark shape, the sockets and the jaw read.
+      const near = t >= tBack && t < tK;
+      for (const mt of W.ownMats || []) mt.emissive.setRGB(near ? 0.78 : 1, near ? 0.9 : 1, near ? 1.15 : 1);
+      W.setOwn(near ? 0.55 + 0.4 * sstep(t0, L.t1, t) : own);
+      eyes(vis && !near ? eyeOn : 0);
+      eyesNear(vis && near ? 0.42 * eyeOn : 0);
       // The blade: in its fist, through your chest; drawn back out with the arm after the pull.
       sword.visible = t >= tK - 0.12 && t < tPull + 0.22;
       // The body: headless once the head is off, going over (while the head is on, the view does not show it).
@@ -250,7 +256,8 @@ export default {
       const sp = Math.max(0, ...scrapes.map((ts) => (t >= ts && t < Math.min(ts + 0.42, tStop) ? (0.6 + 0.4 * Math.sin((t - ts) * 60)) * (1 - (t - ts) / 0.42) : 0)));
       R.L(onWall ? side * (wall - 0.3) : sx + side * 0.6, 0.8, wz(t) + 0.2, flash.position); flash.intensity = 5 * sp;
       if (t < tBack) { R.L(lerp(sx, 0, 0.5), 2.5, wz(t) - 0.9, cold.position); cold.intensity = 0; }
-      else if (t < tDecap) { R.L(lerp(cl.x, face.x, 0.4), R.eye + 0.5, lerp(cl.z, face.z, 0.4), cold.position); cold.intensity = t < tK ? 1.3 : 1.0; }
+      else if (t < tK) { R.L(cl.x, cl.y + 0.4, cl.z, cold.position); cold.intensity = 1.3; }
+      else if (t < tDecap) { R.L(lerp(cl.x, face.x, 0.4), R.eye + 0.5, lerp(cl.z, face.z, 0.4), cold.position); cold.intensity = 1.0; }
       else { R.L(lerp(H.x, feet.x, 0.3), 2.6, lerp(H.z, feet.z, 0.3), cold.position); cold.intensity = 1.2 * sstep(tLand, tRest, t) + 0.6 * sstep(tLift, tFat, t); }
       // The black: fog and the torches sink; the Wither takes the edges of the view, creeping in while you look down.
       const blk = sstep(0.4, 2.0, t) * (1 - 0.45 * sstep(tDecap + 0.3, tRest, t)), wither = sstep(tK, tPull + 0.3, t);
@@ -260,10 +267,10 @@ export default {
       f.tints = [[150, 0, 0, 0.35 * pulse(t, [tK, tDecap], 0.35)], [0, 0, 0, 0.12 * wither * (1 - sstep(tDecap, tRest, t))]];
       f.splats = [tK, tDecap].filter((h) => t >= h).map((h, i) => ({ t0: h, x: [0.35, 0.6][i], y: [0.45, 0.4][i], r: [14, 22][i], seed: 41 + i }));
       f.black = 0.4 * sstep(DUR - 0.3, DUR + 0.6, t);
-      lungeFx(L, t, f);
+      lungeFx(L, t, f, { tear: 0.35 });
     }
     return { dur: DUR, hits, cam, update, sounds, loops, deathSide: fs,
-      marks: { dread: scrapes[Math.min(1, nScr - 1)] + 0.12, fake: tDrift + dDrift + 0.3, lunge: L.t1 + 0.1, kill: tK + 0.9 },
+      marks: { dread: scrapes[Math.min(1, nScr - 1)] + 0.12, fake: tDrift + dDrift + 0.3, lunge: L.t1 + 0.14, kill: tK + 0.9 },
       notes: { held: !!heldG, side, onWall, nScr, behind, t0: +t0.toFixed(2), tFat: +tFat.toFixed(2), dur: +DUR.toFixed(2) } };
   }
 };
