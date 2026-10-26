@@ -47,3 +47,8 @@ Previous state: `site-r5-krypt-more.md`.
 - Architecture decision (stage 1): plan.js (deterministic plan: strata, legs, slots, gaps, path polyline, lookups) +
   chunk-window streaming in krypt.js (each 48x48 chunk generated from the legs that reach it, objects clipped to the chunk,
   passages decided at plan time) + kinds.js (dressers). Walk length = max(n, 60 slots) + runway; ?demo=1000|10000 synthetic graves.
+- [x] Stage 1 (commit d826e67): streaming engine works. plan.js/geom.js/blocks.js/kinds.js/strata.js/demo.js new; krypt.js rewritten
+  (makeWorld, chunk windows CH=48 MARGIN=16); dress.js = makeDresser; app.js on plan + world; gap pit + jump (position-based, camera
+  offsets, krypt-gap event); rush transition (fog + blur) for far jumps; PageUp/Down strata; depth gauge #hudK; strata bands in the
+  minimap above 300 graves. demo=10000 -> 81,303 blocks, 1369 legs, heap ~37 MB, 9-10 chunks, build ~25 ms/chunk (max 69).
+  Only the 15 original kinds + frontier so far, one stratum. NEXT: strata + 30 new kinds, no-repeat script, nav checks, perf, sheets.
