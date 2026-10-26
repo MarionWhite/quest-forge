@@ -7,7 +7,8 @@ with the baseline found from the render itself: renderq writes rounds/bench/<tag
 shaders-off render with the same size, world, packs and mods that has the scene. A tag rendered
 by the old bench_round.py has no meta file; name its baseline in round.json "base".
 
-Names a spec_scenes.py may use: o, oc, og, cost, crit, worst, ref, ref3, ref4, S, ROUNDS, D.
+Names a spec_scenes.py may use: o, oc, og, ov, cost, crit, worst, ref, ref3, ref4, S, ROUNDS, D.
+ov() is an option with a motion clip (a renderq burst made into an animated WebP).
 """
 import glob, json, os, re
 
@@ -97,7 +98,7 @@ class Round:
         return f"{c['score']}: {c['note']}"
 
     # ---------------------------------------------------------------- options
-    def o(self, k, label, tag, scene, r=None, desc=None):
+    def o(self, k, label, tag, scene, r=None, desc=None, clip=None):
         img = self.S % f"{tag}-{scene}"
         self.used.append(img)
         d = {"key": k, "label": label, "img": img, "critic": "Critic " + self.crit(tag, scene),
@@ -106,6 +107,31 @@ class Round:
             d["desc"] = desc
         if r:
             d["ref"] = r
+        if clip:
+            d["clip"] = clip
+        return d
+
+    def ov(self, k, label, tag, scene, box=None, still=True, r=None, desc=None, clip_note=None, **clip_kw):
+        """An option with a motion clip: tag's burst frames (bench-TAG-SCENE-f000.png ..., a renderq
+        job with "burst") made into an animated WebP in <round>/clips/ by make_clip.py, shown first on
+        the Lab, with the still (the full frame, or with box a crop the size of the burst's) one tap
+        away. clip_kw goes to make_clip.make_clip (scale, max_mb, fps...)."""
+        import make_clip
+        out = os.path.join(self.d, "clips", f"{tag}-{scene}.webp")
+        frames = make_clip.find_frames(self.rounds, tag, scene)
+        if frames:
+            self.used.extend(frames[:1])
+            make_clip.make_clip(frames, out, times=make_clip.bench_times(self.rounds, tag, scene), quiet=True, **clip_kw)
+        else:
+            self.used.append(os.path.join(self.rounds, "screenshots", f"bench-{tag}-{scene}-f000.png"))
+        d = self.oc(k, label, tag, scene, box, desc=desc) if box else self.o(k, label, tag, scene, r=r, desc=desc)
+        if box and r:
+            d["ref"] = r
+        if not still:
+            d["img"] = make_clip.poster_path(out)
+        d["clip"] = out
+        if clip_note:
+            d["clipNote"] = clip_note
         return d
 
     def og(self, k, label, tag):
@@ -153,6 +179,6 @@ class Round:
                 "title": c["title"]}
 
     def namespace(self):
-        return {"o": self.o, "oc": self.oc, "og": self.og, "cost": self.cost, "crit": self.crit, "worst": self.worst,
+        return {"o": self.o, "oc": self.oc, "og": self.og, "ov": self.ov, "cost": self.cost, "crit": self.crit, "worst": self.worst,
                 "ref": self.ref, "ref3": self.ref3, "ref4": self.ref4, "S": self.S, "ROUNDS": self.rounds,
                 "D": self.d, "p50": self.p50, "os": os, "json": json}

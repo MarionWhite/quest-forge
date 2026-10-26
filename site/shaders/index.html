@@ -77,7 +77,8 @@ h1{font-size:clamp(26px,5vw,40px);font-weight:800;letter-spacing:-.025em;line-he
 
 .stage{position:relative;background:var(--stage);aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;
   cursor:pointer;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
-.stage img{max-width:100%;max-height:100%;width:100%;height:100%;object-fit:contain;display:block}
+.stage img,.stage video{max-width:100%;max-height:100%;width:100%;height:100%;object-fit:contain;display:block}
+.stage .badge.clip{left:auto;right:10px;color:#111;background:rgba(240,200,90,.92);font-weight:600}
 .stage .badge{position:absolute;top:10px;left:10px;font-family:"JetBrains Mono",monospace;font-size:12px;
   background:rgba(16,16,16,.82);color:var(--ink);padding:4px 8px;border-radius:2px;pointer-events:none}
 .stage .hint{position:absolute;bottom:10px;right:10px;font-family:"JetBrains Mono",monospace;font-size:11px;
@@ -183,7 +184,7 @@ footer{margin:48px 0 32px;font-size:13px;color:var(--muted);font-family:Archivo,
 .fs .top button{background:#1E1E1E;border:1px solid #333;border-radius:3px;min-width:44px;height:40px;padding:0 10px;font-family:"JetBrains Mono",monospace;font-size:13px}
 .fs .top button[aria-pressed="true"]{background:var(--on);color:var(--on-ink)}
 .fs .pic{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;touch-action:manipulation;cursor:pointer}
-.fs .pic img{max-width:100%;max-height:100%;object-fit:contain;display:block}
+.fs .pic img,.fs .pic video{max-width:100%;max-height:100%;object-fit:contain;display:block}
 .fs .bot{padding:6px var(--pad-r) calc(8px + env(safe-area-inset-bottom)) var(--pad-l);background:#0B0B0B;font-size:13px;color:var(--ink-2);min-height:30px}
 body.locked{overflow:hidden}
 
@@ -355,9 +356,27 @@ function render() {
 function frames(o) {
   const f = [];
   // Image paths in a round are relative to rounds/ ("r000/ocean-A.jpg").
+  // A clip (round 8: animated WebP, or MP4/WebM) comes first; the still stays one tap away.
+  if (o.clip) f.push({mode: "clip", src: "rounds/" + o.clip, poster: o.img ? "rounds/" + o.img : null});
   if (o.img) f.push({mode: "ours", src: "rounds/" + o.img});
   if (o.ref && o.ref.img) f.push({mode: "ref", src: "rounds/" + o.ref.img});
   return f;
+}
+const MODE_NAME = {clip: "Clip", ours: "Still", ref: "Reference"};
+function modeName(fr, m) { return m === "ours" && !fr.some(f => f.mode === "clip") ? "Our render" : MODE_NAME[m]; }
+
+// The picture for one frame: a looping muted video for MP4/WebM, else an <img> (animated WebP
+// plays in one). A clip that fails to load falls back to its still.
+function mediaEl(cur, alt) {
+  if (cur.mode === "clip" && /\.(mp4|webm)$/i.test(cur.src)) {
+    const vid = h("video", {src: cur.src, autoplay: "", muted: "", loop: "", playsinline: "", "aria-label": alt,
+      ...(cur.poster ? {poster: cur.poster} : {})});
+    vid.muted = true;
+    return vid;
+  }
+  const img = h("img", {src: cur.src, alt, decoding: "async"});
+  if (cur.mode === "clip" && cur.poster) img.addEventListener("error", () => { img.src = cur.poster; }, {once: true});
+  return img;
 }
 
 function sceneEl(s, i) {
@@ -401,19 +420,21 @@ function sceneEl(s, i) {
       tabBtns.forEach((b, j) => b.setAttribute("aria-selected", j === v.i ? "true" : "false"));
       mode.innerHTML = "";
       if (fr.length > 1) for (const f of fr) mode.append(h("button", {type: "button", "aria-pressed": f.mode === v.mode ? "true" : "false",
-        onclick: ev => { ev.stopPropagation(); v.mode = f.mode; draw(); }}, f.mode === "ours" ? "Our render" : "Reference"));
+        onclick: ev => { ev.stopPropagation(); v.mode = f.mode; draw(); }}, modeName(fr, f.mode)));
       mode.hidden = fr.length < 2;
       const cur = fr.find(f => f.mode === v.mode);
       stage.innerHTML = "";
-      stage.append(h("img", {src: cur.src, alt: `${o.key}: ${o.label || ""}${cur.mode === "ref" ? " (real-world reference)" : ""}`, decoding: "async"}),
+      stage.append(mediaEl(cur, `${o.key}: ${o.label || ""}${cur.mode === "ref" ? " (real-world reference)" : cur.mode === "clip" ? " (animated clip)" : ""}`),
         h("span", {class: "badge"}, `${o.key}${cur.mode === "ref" ? " · reference photo" : (o.ref ? " · our render" : "")}`),
+        ...(cur.mode === "clip" ? [h("span", {class: "badge clip"}, "clip")] : []),
         ...(visual.length > 1 ? [h("span", {class: "hint"}, `${v.i + 1}/${visual.length} · tap to flip`)] : []));
       cap.innerHTML = "";
       cap.append(h("div", {class: "lab"}, `${o.key} · ${o.label || ""}`));
       if (o.desc) cap.append(h("div", {class: "desc"}, o.desc));
-      if (cur.mode === "ours" && o.critic) cap.append(h("div", {class: "critic"}, h("b", {}, "Critic"), o.critic));
+      if (cur.mode !== "ref" && o.critic) cap.append(h("div", {class: "critic"}, h("b", {}, "Critic"), o.critic));
       const meta = [];
-      if (cur.mode === "ours" && o.ms != null) meta.push(h("span", {}, "Shader cost ", h("b", {}, `${o.ms} ms`), " per frame"));
+      if (cur.mode !== "ref" && o.ms != null) meta.push(h("span", {}, "Shader cost ", h("b", {}, `${o.ms} ms`), " per frame"));
+      if (cur.mode === "clip") meta.push(h("span", {}, o.clipNote || "A few seconds in motion, looping."));
       if (cur.mode === "ref") meta.push(h("span", {}, "A real photo or painting, to show the mood. Not our shader."));
       if (meta.length) cap.append(h("div", {class: "meta"}, meta));
       if (cur.mode === "ref") cap.append(creditEl(o.ref));
@@ -491,14 +512,14 @@ function drawFS() {
   tabs.innerHTML = "";
   visual.forEach((oo, j) => tabs.append(h("button", {type: "button", "aria-pressed": j === v.i ? "true" : "false",
     onclick: () => { v.i = j; drawFS(); }}, oo.key)));
-  if (fr.length > 1) tabs.append(h("button", {type: "button", "aria-pressed": v.mode === "ref" ? "true" : "false",
-    onclick: () => { v.mode = v.mode === "ref" ? "ours" : "ref"; drawFS(); }}, "Ref"));
+  if (fr.length > 1) for (const f of fr) tabs.append(h("button", {type: "button", "aria-pressed": v.mode === f.mode ? "true" : "false",
+    onclick: ev => { ev.stopPropagation(); v.mode = f.mode; drawFS(); }}, {clip: "Clip", ours: "Still", ref: "Ref"}[f.mode]));
   const pic = $("#fsPic");
   pic.innerHTML = "";
-  pic.append(h("img", {src: cur.src, alt: `${o.key}: ${o.label || ""}`}));
+  pic.append(mediaEl(cur, `${o.key}: ${o.label || ""}`));
   const bot = $("#fsBot");
   bot.innerHTML = "";
-  bot.append(h("div", {}, `${o.key} · ${o.label || ""}${cur.mode === "ours" && o.ms != null ? ` · ${o.ms} ms` : ""}`));
+  bot.append(h("div", {}, `${o.key} · ${o.label || ""}${cur.mode !== "ref" && o.ms != null ? ` · ${o.ms} ms` : ""}${cur.mode === "clip" ? " · clip" : ""}`));
   if (cur.mode === "ref") bot.append(creditEl(o.ref));
 }
 function closeFS() {

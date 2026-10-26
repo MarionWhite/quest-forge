@@ -49,6 +49,9 @@ RENDER_W, REF_W = 1920, 1600
 TRAILER = "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 
 
+CLIP_MAX_MB = 4.0   # one clip on the Lab (the owner reads it on a phone); make_clip aims under 3
+
+
 def die(msg):
     sys.exit("publish_round: " + msg)
 
@@ -157,6 +160,22 @@ def main():
                 dst = out_dir / f"{s['id']}-{o['key']}.jpg"
                 print(f"  {s['id']}/{o['key']}: {put_image(resolve(o['img'], base), dst, RENDER_W, 90, a.dry_run)}")
                 o["img"] = f"{rid}/{dst.name}"
+            if o.get("clip"):
+                src = resolve(o["clip"], base)
+                if not src.is_file():
+                    die(f"clip not found: {src}")
+                ext = src.suffix.lower()
+                if ext not in (".webp", ".mp4", ".webm", ".gif"):
+                    die(f"{s['id']}/{o['key']}: a clip is .webp, .mp4, .webm or .gif, not {ext}")
+                mb = src.stat().st_size / 1e6
+                if mb > CLIP_MAX_MB:
+                    die(f"{s['id']}/{o['key']}: clip {src.name} is {mb:.1f} MB (limit {CLIP_MAX_MB} MB); make_clip.py --max-mb")
+                dst = out_dir / f"{s['id']}-{o['key']}{ext}"
+                print(f"  {s['id']}/{o['key']} clip: {mb:.2f} MB -> {dst.name}")
+                if not a.dry_run and src.resolve() != dst.resolve():
+                    dst.parent.mkdir(parents=True, exist_ok=True)
+                    dst.write_bytes(src.read_bytes())     # byte for byte: never re-encoded
+                o["clip"] = f"{rid}/{dst.name}"
             if o.get("ref"):
                 ref = dict(o["ref"])
                 if not ref.get("credit") or not ref.get("source"):
