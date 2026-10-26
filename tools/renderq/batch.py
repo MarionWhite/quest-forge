@@ -44,7 +44,7 @@ SHADER_ERR = re.compile(r"(error|Error|ERROR|Failed to|failed to|Exception).*(sh
 
 JOB_DEFAULTS = {"preset": "3", "size": "2560x1440", "world": WORLD, "resourcepacks": [], "reference": None,
                 "mods": MODS, "opts": {}, "debug_view": 0, "mode": "cost", "fresh": False, "xmx": "3G",
-                "warm": 160, "measure": 0, "views": VIEWS, "rounds": ROUNDS}
+                "warm": 160, "measure": 0, "views": VIEWS, "rounds": ROUNDS, "cit": False}
 
 
 # ------------------------------------------------------------------ hashing / keys
@@ -155,6 +155,7 @@ def boot_key(job):
     return json.dumps({"size": job["size"], "world": os.path.normcase(os.path.abspath(job["world"])),
                        "rps": rps,
                        "mods": job["mods"], "xmx": job["xmx"], "night": bool(job.get("night")),
+                       "cit": bool(job.get("cit")),
                        "views": os.path.normcase(os.path.abspath(job["views"])),
                        "pack": (job.get("pack_sig") if on else None)}, sort_keys=True)
 
@@ -178,6 +179,8 @@ def env_sig(job, memo):
         memo[k] = {"size": job["size"], "world": tree_sig(job["world"], content=False),
                    "rps": [path_sig(r) for r in job["resourcepacks"]], "mods": mods_sig(job["mods"]),
                    "night": bool(job.get("night"))}
+        if job.get("cit"):
+            memo[k]["cit"] = True
     return memo[k]
 
 
@@ -281,6 +284,24 @@ def set_kv(path, kv, sep):
         f.write("\n".join(lines) + "\n")
 
 
+def enable_cit(path):
+    """Turn on the custom_item_textures module (enabled, items, enchantments) in a trial's
+    mcpatcherforge.cfg. Written fresh (rm first): config files may be links."""
+    lines = open(path, encoding="utf-8").read().splitlines()
+    sect = None
+    for i, l in enumerate(lines):
+        t = l.strip()
+        if t.endswith("{"):
+            sect = t[:-1].strip()
+        elif t == "}":
+            sect = None
+        elif sect == "custom_item_textures" and t in ("B:enabled=false", "B:items=false", "B:enchantments=false"):
+            lines[i] = l.replace("=false", "=true")
+    os.remove(path)
+    with open(path, "w", encoding="utf-8", newline="\n") as f:
+        f.write("\n".join(lines) + "\n")
+
+
 def plan_steps(jobs):
     """Scene-major order: each scene is placed and its chunks built once, then every job that
     wants it is measured there in turn (a reload rebuilds chunk meshes in seconds; a teleport
@@ -323,6 +344,10 @@ def prepare_boot(boot_id, jobs, log):
         if n != keep:
             p = os.path.join(sv, n)
             shutil.rmtree(p) if os.path.isdir(p) else os.remove(p)
+    if j0.get("cit"):
+        # MCPatcher custom item textures (potion bottles, enchanted-book covers): switched on in
+        # THIS trial's config only, never the live instance's (boot_key keeps cit boots apart).
+        enable_cit(os.path.join(d, "config", "mcpatcherforge.cfg"))
     log(f"  built trial {d} in {time.time() - t0:.0f} s")
     # Each job's resource pack list, as trial.build orders them (ours at the bottom, the source's
     # own packs, QuestForge.zip on top); the boot starts with the first step's.

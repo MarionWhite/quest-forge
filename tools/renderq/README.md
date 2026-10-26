@@ -60,6 +60,7 @@ Job fields, with their defaults:
 | `reference` | none | render this shader pack zip instead of ours (internal reference frames) |
 | `pack` | `shaders/QuestForge` | the pack folder to snapshot at submit |
 | `mode` | `cost` | `cost`: frame times count. `shot`: pictures only (20 measured ticks, allowed at night) |
+| `cit` | `false` | turn on MCPatcher custom item textures (CIT) in this trial's `mcpatcherforge.cfg` only; cit jobs boot apart |
 | `fresh` | `false` | render even if the cache has these frames |
 | `warm` | `160` | ticks a scene settles after a pipeline rebuild, before it is measured |
 | `measure` | `0` | measured ticks (0: the view's own, normally 200) |
