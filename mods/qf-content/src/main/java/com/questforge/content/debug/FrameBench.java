@@ -75,6 +75,12 @@ import com.questforge.content.ench.QFEnchantments;
  *   rps <tag> <name>|<name>|...            the job's resource packs (options.txt order: the
  *                                          last wins); changed in game with shaders off
  *   step <tag> <scene>                     one measured scene of one job, in the order given
+ *   burst <tag> <frames> <intervalMs> [x y w h]
+ *                                          after a view scene's two shots, capture <frames> more,
+ *                                          one per <intervalMs> of real time (a clip of the shader's
+ *                                          animation: clouds, waves, meteors, dust), cropped to the
+ *                                          box (top-left image coordinates; default the whole frame),
+ *                                          as bench-TAG-SCENE-f000.png ... (2026-10-25, round 8)
  * Before a step whose job differs from the live state, the option file is rewritten and
  * Iris.reload() (or Iris.toggleShaders) runs; that step then settles for at least warmTicks
  * more, so no measured frame belongs to the rebuilt pipeline's first seconds. Each finished
@@ -100,7 +106,7 @@ public class FrameBench {
     private static final int SETTLE_MAX = 900;          // 45 s to finish building chunks
     private static final int BATCH_QUIET_UPDATES = 25;  // chunk updates/s that count as settled (batch)
 
-    private enum Stage { TITLE, SELECTING, LOADING, SETUP, SETTLE, MEASURE, SHOOT, DONE }
+    private enum Stage { TITLE, SELECTING, LOADING, SETUP, SETTLE, MEASURE, SHOOT, BURST, DONE }
 
     /** A still-camera scene from the qf.bench.views file. */
     private static final class View {
@@ -157,6 +163,8 @@ public class FrameBench {
         int warm, measure;
         String opts;          // null: leave the option file as it is
         List<String> rps;     // null: leave the resource packs as they are
+        int burstFrames, burstMs;   // burst: frames captured after the shots, ms of real time apart
+        int[] burstBox;             // x y w h in image coordinates, or null for the whole frame
         final List<String> report = new ArrayList<String>();
     }
 
@@ -205,6 +213,17 @@ public class FrameBench {
                         String rest = line.substring(3).trim();
                         rest = rest.substring(f[1].length()).trim();   // names may hold spaces
                         j.rps = rest.isEmpty() ? new ArrayList<String>() : Arrays.asList(rest.split("\\|"));
+                    }
+                } else if (f[0].equals("burst")) {
+                    String[] b = line.split("\\s+");
+                    Job j = jobs.get(b[1]);
+                    if (j != null) {
+                        j.burstFrames = Math.max(1, Math.min(600, Integer.parseInt(b[2])));
+                        j.burstMs = Math.max(10, Integer.parseInt(b[3]));
+                        if (b.length >= 8) {
+                            j.burstBox = new int[] {Integer.parseInt(b[4]), Integer.parseInt(b[5]),
+                                    Integer.parseInt(b[6]), Integer.parseInt(b[7])};
+                        }
                     }
                 } else if (f[0].equals("step")) {
                     Job j = jobs.get(f[1]);
@@ -365,6 +384,10 @@ public class FrameBench {
     /** Frame boundaries. START of one render tick to START of the next is one frame. */
     @SubscribeEvent
     public void onRender(TickEvent.RenderTickEvent event) {
+        if (event.phase == TickEvent.Phase.END) {
+            if (stage == Stage.BURST) burstFrame(Minecraft.getMinecraft());
+            return;
+        }
         if (event.phase != TickEvent.Phase.START) return;
         long now = System.nanoTime();
         if (stage == Stage.MEASURE && lastFrame != 0) frames.add(now - lastFrame);
@@ -471,7 +494,24 @@ public class FrameBench {
                 hold(mc);
                 if (ticks == 2) shot(mc, scene());
                 if (ticks == 3) shot(mc, scene() + "-b");
-                if (ticks >= 4) nextScene(mc);
+                if (ticks >= 4) {
+                    Job bj = stepJob != null ? stepJob[sceneIdx] : null;
+                    if (bj != null && bj.burstFrames > 0 && views.containsKey(scene())) {
+                        startBurst(mc, bj);
+                    } else {
+                        nextScene(mc);
+                    }
+                }
+                return;
+            case BURST:
+                hold(mc);
+                // Done when every frame is captured and written; 60 s past the clip's own length
+                // gives up (the report says how many were written).
+                if ((burstIdx >= burstJob.burstFrames && burstPending.get() == 0)
+                        || ticks > 1200 + burstJob.burstFrames * burstJob.burstMs / 50) {
+                    endBurst(mc);
+                    nextScene(mc);
+                }
                 return;
             default:
         }
@@ -721,6 +761,137 @@ public class FrameBench {
             pitch = 0F;
         }
         if (ticks == 160) shot(mc, "close");
+    }
+
+    // ------------------------------------------------------------------ burst (motion clips)
+
+    private Job burstJob;
+    private int burstIdx;
+    private long burstStart, burstNext;
+    private long[] burstTimes;
+    private java.nio.IntBuffer burstBuf;
+    private final java.util.concurrent.atomic.AtomicInteger burstPending = new java.util.concurrent.atomic.AtomicInteger();
+    private final java.util.concurrent.atomic.AtomicLong burstWriteNs = new java.util.concurrent.atomic.AtomicLong();
+    private final java.util.concurrent.atomic.AtomicInteger burstWritten = new java.util.concurrent.atomic.AtomicInteger();
+    private java.util.concurrent.ExecutorService burstPool;
+    private static final int BURST_MAX_PENDING = 24;   // frames in memory waiting for the writers
+
+    private void startBurst(Minecraft mc, Job j) {
+        burstJob = j;
+        burstIdx = 0;
+        burstStart = 0;
+        burstTimes = new long[j.burstFrames];
+        burstWriteNs.set(0);
+        burstWritten.set(0);
+        if (burstPool == null) {
+            burstPool = java.util.concurrent.Executors.newFixedThreadPool(2, new java.util.concurrent.ThreadFactory() {
+                public Thread newThread(Runnable r) {
+                    Thread t = new Thread(r, "FrameBench-burst");
+                    t.setDaemon(true);
+                    t.setPriority(Thread.MIN_PRIORITY);
+                    return t;
+                }
+            });
+        }
+        log(scene() + ": burst of " + j.burstFrames + " frames every " + j.burstMs + " ms");
+        progress(mc, "burst");
+        stage = Stage.BURST;
+        ticks = 0;
+    }
+
+    /** RenderTickEvent END: the frame is drawn into the main framebuffer. */
+    private void burstFrame(Minecraft mc) {
+        if (burstJob == null || burstIdx >= burstJob.burstFrames) return;
+        long now = System.nanoTime();
+        if (burstStart == 0) {
+            burstStart = now;
+            burstNext = now;
+        }
+        if (now < burstNext || burstPending.get() >= BURST_MAX_PENDING) return;
+        net.minecraft.client.shader.Framebuffer fb = mc.getFramebuffer();
+        boolean fbo = net.minecraft.client.renderer.OpenGlHelper.isFramebufferEnabled();
+        int iw = fbo ? fb.framebufferWidth : mc.displayWidth;
+        int ih = fbo ? fb.framebufferHeight : mc.displayHeight;
+        int th = fbo ? fb.framebufferTextureHeight : mc.displayHeight;
+        int[] b = burstJob.burstBox;
+        int x = 0, y = 0, w = iw, h = ih;
+        if (b != null) {
+            x = Math.max(0, Math.min(iw - 1, b[0]));
+            y = Math.max(0, Math.min(ih - 1, b[1]));
+            w = Math.max(1, Math.min(iw - x, b[2]));
+            h = Math.max(1, Math.min(ih - y, b[3]));
+        }
+        if (burstBuf == null || burstBuf.capacity() < w * h) burstBuf = org.lwjgl.BufferUtils.createIntBuffer(w * h);
+        burstBuf.clear();
+        try {
+            // glReadPixels on the box only: no texture bind, so Angelica's cached texture state is untouched.
+            if (fbo) fb.bindFramebuffer(false);
+            org.lwjgl.opengl.GL11.glPixelStorei(org.lwjgl.opengl.GL11.GL_PACK_ALIGNMENT, 1);
+            org.lwjgl.opengl.GL11.glReadPixels(x, th - y - h, w, h, org.lwjgl.opengl.GL12.GL_BGRA,
+                    org.lwjgl.opengl.GL12.GL_UNSIGNED_INT_8_8_8_8_REV, burstBuf);
+        } catch (Throwable t) {
+            log("burst: read failed: " + t);
+            burstIdx = burstJob.burstFrames;
+            return;
+        }
+        final int[] px = new int[w * h];
+        burstBuf.get(px, 0, w * h);
+        final int fw = w, fh = h;
+        final String name = String.format("bench-%s-%s-f%03d.png", tag(), scene(), burstIdx);
+        final File out = new File(new File(mc.mcDataDir, "screenshots"), name);
+        burstTimes[burstIdx] = now - burstStart;
+        burstIdx++;
+        // The next boundary; a late frame does not pull the rest earlier.
+        burstNext = burstStart + (long) burstIdx * burstJob.burstMs * 1000000L;
+        if (burstNext < now) burstNext = now;
+        rep().add("  screenshot screenshots/" + name);
+        burstPending.incrementAndGet();
+        burstPool.execute(new Runnable() {
+            public void run() {
+                long t0 = System.nanoTime();
+                try {
+                    java.awt.image.BufferedImage img = new java.awt.image.BufferedImage(fw, fh,
+                            java.awt.image.BufferedImage.TYPE_INT_RGB);
+                    for (int r = 0; r < fh; r++) {     // GL rows run bottom up
+                        img.setRGB(0, r, fw, 1, px, (fh - 1 - r) * fw, fw);
+                    }
+                    out.getParentFile().mkdirs();
+                    javax.imageio.ImageIO.write(img, "png", out);
+                    burstWritten.incrementAndGet();
+                } catch (Throwable t) {
+                    log("burst: write failed " + out + ": " + t);
+                } finally {
+                    burstWriteNs.addAndGet(System.nanoTime() - t0);
+                    burstPending.decrementAndGet();
+                }
+            }
+        });
+    }
+
+    private void endBurst(Minecraft mc) {
+        int n = burstIdx;
+        StringBuilder ts = new StringBuilder();
+        double sum = 0, sq = 0, max = 0;
+        for (int i = 0; i < n; i++) {
+            ts.append(i == 0 ? "" : " ").append(burstTimes[i] / 1000000L);
+            if (i > 0) {
+                double d = (burstTimes[i] - burstTimes[i - 1]) / 1e6;
+                sum += d;
+                sq += d * d;
+                max = Math.max(max, d);
+            }
+        }
+        double mean = n > 1 ? sum / (n - 1) : 0;
+        double sd = n > 2 ? Math.sqrt(Math.max(0, sq / (n - 1) - mean * mean)) : 0;
+        int wr = burstWritten.get();
+        int[] bb = burstJob.burstBox;
+        String line = String.format("  burst %d frames (%d written) every %d ms: interval mean %.1f sd %.1f max %.1f ms;"
+                        + " write %.1f ms/frame; box %s; times %s",
+                n, wr, burstJob.burstMs, mean, sd, max, wr > 0 ? burstWriteNs.get() / 1e6 / wr : 0.0,
+                bb == null ? "full" : bb[0] + "," + bb[1] + "," + bb[2] + "," + bb[3], ts);
+        log(tag() + " " + scene() + line);
+        rep().add(line);
+        burstJob = null;
     }
 
     private void shot(Minecraft mc, String what) {
