@@ -67,6 +67,9 @@ current bank and list the gaps here.
   the gap; muffle struck every 0.4 s under water, cleared for the lunge). Sheets c13, c14. Dumps near a real gap:
   `&gap=N&jx=-2` (gap=1 is lava, gap=0 water in the default plan). check_sounds exits 0.
 
+- Silverfish 6995df5, Blaze 3ea8cfc, Ghast 628689c, Zombie Pigman (this commit): all 14 have a lunge, dice and marks
+  (sheets c15-c22).
+
 ## Next
-- Silverfish, Blaze, Ghast, Zombie Pigman (v2 files still; need lunge + dice + marks); then the 80-frame sheet and
-  the real-time J run (copies of scratchpad/orch/cdp.mjs and scareflow.js).
+- The 80-frame sheet (dump_frames --list --sheet, beats dread,fake,lunge,kill,death x 16), review; the real-time J
+  run of all 16 (copies of scratchpad/orch/cdp.mjs and scareflow.js); journal line; final report.
