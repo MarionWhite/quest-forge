@@ -12,7 +12,7 @@ Voices are a glottal source (harmonics from an f0 curve, with jitter, tremor and
 through formant resonators, then soft clipping: that is what makes a scream read as a throat and not a
 synth lead.
 """
-import os, sys, json
+import os, sys, json, subprocess
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 os.environ.setdefault("QF_TMP", "/tmp/qf_scare")
@@ -69,7 +69,7 @@ def envelope(sec, a=.025, hold=None, rel=.25, k=0):
     x = t(sec); n = len(x)
     e = np.minimum(1, x / a)
     hold = sec - rel if hold is None else hold
-    e = e * np.where(x < hold, 1, np.exp(-(x - hold) * (5 if rel < 0.3 else 3.5)))
+    e = e * np.where(x < hold, 1, np.exp(-(x - hold) * 3.5 / max(rel, .05)))
     e = e * (1 - np.clip((x - (sec - .02)) / .02, 0, 1))
     return e * np.exp(-x * k)
 
@@ -83,11 +83,11 @@ def breath_in(sec, lo=900, hi=4200):
 
 # ---------------------------------------------------------------- screams
 def scream(i, far=False):
-    P = [dict(sec=1.6, pts=[(0, 330), (.05, 520), (.13, 940), (.45, 1000), (.6, 1180), (.7, 1010), (1.1, 900), (1.45, 640), (1.6, 450)],
+    P = [dict(sec=1.6, pts=[(0, 330), (.05, 520), (.13, 940), (.45, 1000), (.6, 1180), (.64, 1780), (.78, 1700), (.86, 1060), (1.1, 900), (1.45, 640), (1.6, 450)],
               va="a", vb="e", wm=(.0, .5, 1.0), rough=.5, sub=.35, trem=.025),
          dict(sec=1.6, pts=[(0, 190), (.06, 330), (.16, 560), (.5, 600), (.68, 720), (.82, 560), (1.15, 520), (1.55, 330)],
               va="a", vb="o", wm=(.0, .4, 1.0), rough=.7, sub=.5, trem=.03),
-         dict(sec=1.3, pts=[(0, 420), (.04, 700), (.1, 1150), (.4, 1250), (.5, 1480), (.58, 1200), (.95, 1050), (1.3, 720)],
+         dict(sec=1.3, pts=[(0, 420), (.04, 700), (.1, 1150), (.4, 1250), (.5, 1480), (.54, 2100), (.66, 2000), (.74, 1250), (.95, 1050), (1.3, 720)],
               va="e", vb="a", wm=(.0, .6, .2), rough=.35, sub=.2, trem=.02)][i]
     sec = P["sec"]; x = t(sec)
     f0 = curve(sec, P["pts"], jit=.035, trem=P["trem"], trem_hz=6.5 + i)
@@ -227,7 +227,7 @@ def drone():
         for h in range(1, 14):
             am = .5 + .5 * np.cos(2 * np.pi * (m + h % 3) * x / Pn + h)
             y += np.sin(2 * np.pi * q(f * h) * x + h * 1.7) * g / h ** 1.05 * (am if h > 1 else 1)
-    y = lowpass(y, 900, 2)
+    y = middle(lowpass(np.tile(y, 3), 900, 2), P)
     # a dissonant, slightly sick upper layer: two near partials beating, and a bowed whine
     hi = (np.sin(2 * np.pi * q(1480) * x) + np.sin(2 * np.pi * q(1480) * x * 1.0 + 2 * np.pi * 1.25 * x)) * .02
     hi *= .5 + .5 * np.cos(2 * np.pi * 2 * x / Pn)
@@ -237,7 +237,7 @@ def drone():
     v = np.zeros(P)
     for f0, ph in ((q(55), 0), (q(77.6), 1.3)):
         v += np.sin(2 * np.pi * f0 * x + ph) * 1
-    y += lowpass(v, 400) * .5 * (.5 + .5 * np.cos(2 * np.pi * x / Pn - 2))
+    y += middle(lowpass(np.tile(v, 3), 400), P) * .5 * (.5 + .5 * np.cos(2 * np.pi * x / Pn - 2))
     return y
 
 def ringing():
@@ -306,12 +306,13 @@ def crunch(i):
     at(y, highpass(noise(.01), 2500) * ex(.01, 400) * 1.5, 0)
     tt = 0.0
     for _ in range(r.integers(3, 6)):
-        f = r.uniform(500, 2200); ln = .09
+        f = r.uniform(900, 3600); ln = .09
         c = bandpass(r.standard_normal(int(ln * SR)), f * .6, f * 1.8, 2) * ex(ln, 70) * r.uniform(.6, 1)
         c += sine(f * .9, ln) * ex(ln, 150) * .5
         at(y, c, tt); tt += r.uniform(.025, .09)
-    at(y, glide(150, 55, .18, 25) * ex(.18, 18) * 1.1, .0)
-    at(y, lowpass(noise(.3), 700) * ex(.3, 14) * .5, .02)
+    for _ in range(9): at(y, highpass(noise(.004), 3000) * ex(.004, 600) * r.uniform(.4, 1), r.uniform(0, .25))   # splinters
+    at(y, glide(150, 55, .18, 25) * ex(.18, 18) * .8, .0)
+    at(y, lowpass(noise(.3), 700) * ex(.3, 14) * .3, .02)
     y = highpass(y, 40)
     return fade(drive(y, 1.3), .0003, .08)
 
@@ -367,12 +368,20 @@ def save(name, ys, volume=1.0, bus="sfx", pitch=1, loop_P=None, br="96k", ar=320
         if loop_P:
             assert len(y) == loop_P, (name, len(y), loop_P)
             y = pad_loop(y)
-        encode(y, rel, br, 44100 if loop_P else ar)
+        for _ in range(6):
+            encode(y, rel, br, 44100 if loop_P else ar)
+            pk = decoded_peak(os.path.join(SFX, rel))
+            if -1.5 < pk < -0.6: break
+            y = y * 10 ** ((-1.0 - pk) / 20) * (.97 if pk > -0.3 else 1)
         files.append(rel)
     kw = dict(volume=volume, pitch=pitch, bus=bus)
     if loop_P: kw.update(loop=True, loopStart=PAD, loopEnd=round(PAD + loop_P / SR, 6))
     register(name, files, **kw)
     REP.append((name, len(files), round((loop_P or len(ys[0])) / SR, 2)))
+
+def decoded_peak(path):
+    raw = subprocess.run(["ffmpeg", "-loglevel", "error", "-i", path, "-f", "f32le", "-ac", "1", "-"], capture_output=True).stdout
+    return 20 * np.log10(np.max(np.abs(np.frombuffer(raw, np.float32))) + 1e-9)
 
 def seam(y):
     return float(abs(y[0] - y[-1])), float(np.sqrt(np.mean(np.diff(y) ** 2)))

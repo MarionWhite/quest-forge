@@ -126,7 +126,10 @@ git checkout <commit>^ -- site/vein-atlas
   publicly is an open owner decision (ops/DECISIONS.md). `build_sfx.py --own-only` removes them and keeps
   everything below.
 - `qf.*`: the site's own sounds (case slam, reel, reveals, Krypt, scares), synthesized in
-  `tools/music/site_cues.py` (numpy and scipy, no samples).
+  `tools/music/site_cues.py` (numpy and scipy, no samples). The 15 `qf.scare.*` horror events (screams, shriek,
+  stinger, hit, heartbeat/breath/drone/ringing/chitter loops, whisper, fall, crunch, gore, cackle) come from
+  `tools/music/scare_sounds.py`: glottal-source voices through formant filters, soft clipping, no recordings,
+  nothing derived from Mojang's sounds, so `--own-only` builds keep them all and no outside licence applies.
 - `music.lucky`, `music.krypt`: two seamless music loops from the same script, built on the instruments
   in `tools/music/synth.py`. The manifest carries `loopStart`/`loopEnd`; the file has one second of the
   loop's own tail before and head after, so the loop is clean whether or not the decoder strips AAC priming.

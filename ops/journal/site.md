@@ -1,5 +1,7 @@
 # Site journal (newest first)
 
+- 2026-10-26 (Mac) site-r5-audio: 15 qf.scare.* events (scream x3, scream_far x2, shriek x3, stinger x3, hit, heartbeat x3, breath, drone, ringing, chitter, whisper x3, fall, crunch x3, gore x3, cackle x2) synthesized in tools/music/scare_sounds.py, peaks about -1 dBFS, loops exactly periodic; checked by spectrogram and peak only, not by ear.
+
 - 2026-10-26 (Mac) orchestrator: round 4 done, all seven tasks critic-passed on contact sheets.
   Critic rounds caught: OreSpawn rotations missing (ants scattered), OreSpawn fit offset (mobs
   below their roots, Mothras on the ground), unknown ids silently drawn as Zombies (vet now flags
