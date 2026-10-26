@@ -74,41 +74,58 @@ function blockList(ctx, rolled, key) {
   return ((a && a.blocks) || []).filter((b) => b.id !== 'minecraft:air' && b.id !== 'minecraft:fire').slice(0, 110);
 }
 
-// Blocks fall out of the sky onto the dais in order and stack.
+// Blocks fall out of the sky onto the dais. In the config `dy` is where each falling block is
+// spawned (up to 90 above), all in the same tick, so they rain down and stack in their column:
+// the lowest lands first. Their landing cells are what stays.
 SCENES.falling_column = (ctx) => {
   const rolled = roll(ctx.drop.actions);
-  const blocks = blockList(ctx, rolled, 'falling');
+  let blocks = blockList(ctx, rolled, 'falling');
+  if (blocks.length > 110) { const st = blocks.length / 110; blocks = Array.from({ length: 110 }, (_, i) => blocks[Math.floor(i * st)]); }
   const O = V(Math.floor(ctx.dais.x), 1, Math.floor(ctx.dais.z));
-  const cells = blocks.map(cellOf);
-  carve(ctx, cells, O);
-  const n = blocks.length;
-  const gap = Math.min(0.1, 3.4 / Math.max(1, n));
-  const H = 15;
-  const items = blocks.map((b, i) => {
+  const G = 22;
+  const order = blocks.map((b, i) => ({ b, i })).sort((p, q) => ((p.b.dy || 0) - (q.b.dy || 0)) || (p.i - q.i));
+  const cols = new Map();
+  const items = order.map(({ b }, n) => {
+    const key = (b.dx || 0) + ',' + (b.dz || 0);
+    const k = cols.get(key) || 0; cols.set(key, k + 1);
     const o = blockObj(b);
-    const c = cells[i];
-    const tx = O.x + c.x + 0.5, ty = O.y + c.y, tz = O.z + c.z + 0.5;
-    o.h.position.set(tx, ty + H, tz);
+    const cell = { x: b.dx || 0, y: k, z: b.dz || 0 };
+    const tx = O.x + cell.x + 0.5, ty = O.y + k, tz = O.z + cell.z + 0.5;
+    const start = Math.max(ty + 6, O.y + (b.dy || 0));
+    o.h.position.set(tx, start, tz);
     ctx.S.temp.add(o.h);
-    return { h: o.h, tx, ty, tz, t0: 0.5 + i * gap, landed: false, id: b.id, c };
+    const t0 = 0.4 + n * 0.004;
+    return { h: o.h, tx, ty, tz, start, t0, tl: t0 + Math.sqrt((2 * (start - ty)) / G), landed: false, id: b.id, cell };
   });
+  const cells = items.map((i) => i.cell);
+  carve(ctx, cells, O);
+  const n = items.length;
   const hasTnt = blocks.some((b) => /tnt/.test(b.id)) && blocks.some((b) => /redstone_block/.test(b.id));
-  const last = n ? items[n - 1].t0 + Math.sqrt((2 * H) / 26) : 0;
+  const last = n ? Math.max(...items.map((i) => i.tl)) : 1;
   const chain = items.filter((i) => /tnt/.test(i.id)).sort((a, b) => a.ty - b.ty);
+  const top = n ? Math.max(...items.map((i) => i.cell.y)) + 1 : 1;
+  const maxStart = n ? Math.max(...items.map((i) => i.start - O.y)) : 6;
   const cam = shapeCam(O, cells.length ? cells : [{ x: 0, y: 0, z: 0 }], true);
-  if (n) watch('blocks', () => V(O.x + 0.5, O.y + (Math.max(...cells.map((c) => c.y)) + 1) / 2, O.z + 0.5), Math.max(2, Math.max(...cells.map((c) => c.y)) + 1));
+  if (n) watch('blocks', () => V(O.x + 0.5, O.y + top / 2, O.z + 0.5), Math.max(2, top));
   let landSnd = 0, rumble = false;
   return {
-    dur: Math.max(5.0, last + 1.6 + (hasTnt ? 3 : 0)),
-    cam: (t) => { const c = cam(); if (t < 0.5) c.pos.y += (0.5 - t) * 2; return c; },
+    dur: Math.max(5.0, last + 1.8 + (hasTnt ? 3 : 0)),
+    cam: (t) => {
+      const c = cam();
+      const k = easeInOut(clamp01((t - 0.3) / Math.max(1, last - 0.3)));
+      c.look.y = lerp(Math.min(24, 8 + maxStart * 0.25), c.look.y, k);
+      c.pos.y = lerp(c.pos.y + 1.5, c.pos.y, k);
+      return c;
+    },
     update(t, dt) {
       for (const it of items) {
         if (t < it.t0) continue;
         const s = t - it.t0;
-        const y = it.ty + Math.max(0, H - 0.5 * 26 * s * s);
-        it.h.position.y = y;
-        if (y <= it.ty && !it.landed) {
-          it.landed = true; it.h.position.y = it.ty;
+        const y = it.start - 0.5 * G * s * s;
+        if (y > it.ty) { it.h.position.y = y; continue; }
+        it.h.position.y = it.ty;
+        if (!it.landed) {
+          it.landed = true;
           ctx.shake(0.07);
           puff(ctx, V(it.tx, it.ty + 0.1, it.tz), { n: 6, size: 0.25 });
           if (landSnd++ % 2 === 0 || n < 6) sfx(SOUND_OF(it.id), { pos: { x: it.tx, y: it.ty, z: it.tz }, volume: 0.8 });
@@ -119,7 +136,7 @@ SCENES.falling_column = (ctx) => {
         if (!rumble) { rumble = true; sfx('random.fuse', { pos: ctx.dais, volume: 0.9 }); }
         chain.forEach((it, i) => {
           const tb = last + 1.4 + i * 0.16;
-          const blink = t < tb && Math.floor(t * 8) % 2 === 0 ? 0.8 : 0;
+          const blink = t < tb && Math.floor(t * 8) % 2 === 0 ? 0.5 : 0;
           it.h.traverse((o) => { if (o.material && o.material.emissive) o.material.emissive.setRGB(blink, blink, blink); });
           if (t >= tb && !it.blew) { it.blew = true; it.h.visible = false; ctx.explode(V(it.tx, it.ty + 0.5, it.tz), 0.7); sfx('random.explode', { pos: { x: it.tx, y: it.ty, z: it.tz }, volume: 0.8 }); ctx.shake(0.2); }
         });
@@ -285,6 +302,7 @@ SCENES.xp_burst = (ctx) => {
     const a = rnd(0, Math.PI * 2), s = rnd(0.6, 3.0);
     orbs.push({ p: V(P.x + rnd(-1, 1), 8 + rnd(0, 4), P.z + rnd(-1, 1)), v: V(Math.cos(a) * s * 0.4, 0, Math.sin(a) * s * 0.4), t0: rnd(0, 1.6), ph: rnd(0, 6), take: 2.2 + rnd(0, 1.8), gone: false });
   }
+  F.report().particles += N;
   let absorbed = 0, lvl = false;
   const chest = V(P.x, 1.1, P.z);
   watch('steve', () => V(P.x, 1.0, P.z), 1.8);
@@ -451,7 +469,7 @@ SCENES.jens_hole = (ctx) => {
       witch.root.position.y = -2.9 + easeOut(clamp01((t - 1.6) / 1.6)) * 2.2;
       tag.position.y = witch.root.position.y + 2.5;
       if (!chat && t > 0.4) { chat = true; if (msg) ctx.chat(msg.text); }
-      if (!laugh && t > 1.8) { laugh = true; sfx('mob.witch.laugh', { pos: D, volume: 1 }); sfx('mob.witch.idle', { pos: D, volume: 0.6 }); }
+      if (!laugh && t > 1.8) { laugh = true; sfx('mob.villager.idle', { pos: D, volume: 1, pitch: 0.55 }); sfx('random.fizz', { pos: D, volume: 0.4 }); }
       ctx.steve.anim(t, dt, { walk: 0 });
     },
   };

@@ -1,16 +1,15 @@
 # site-lucky-outcomes checkpoint
 
 ## Done
-- fx.js, beats.js (items ring, TNT, fireworks, dud), scenes.js rewritten, mobscenes.js (groups, towers, pets, grand boss engine, apocalypse), wells.js (wells + temples), structscenes.js sfx + watch, blocks.js generic block table (+ textures in site/lucky/tex/blocks), structures.js counts blocks.
-- build_lucky.py: dud scene + 4 dud drops (3 skipped lines + line 384), text fixes, validate checks; lucky.json rebuilt (306 drops).
-- tools/site/vet_lucky.py written and smoke-tested (10 drops, all load).
-- Baseline frames before my changes: /private/tmp/claude-503/-Users-suaz-Desktop-QuestForge/91769071-2ed0-4412-b25d-3c510232d8e5/scratchpad/lk/t0/sheet.png (153, 162, 208).
+- All modules written and committed once (1d9bcd6): fx, beats, scenes, mobscenes, wells, structscenes, blocks, structures, vet_lucky.py, build_lucky.py (dud drops, text fixes).
+- Vet v1 (306 drops): broken 14, weak 4. Fix pass applied (report counting, towers, grand camera and fog, wells ring, falling columns now use dy as spawn height, lucky eggs, mobSay fallbacks, m.hover for flyers, blurbs for stacks).
+- Vet v2 (70 sampled drops): broken 4 (towers 180/207 timing, anvil, pit), all since fixed in code.
+- Full vet v3 running: /private/tmp/claude-503/-Users-suaz-Desktop-QuestForge/91769071-2ed0-4412-b25d-3c510232d8e5/scratchpad/lk/v3 (log /private/tmp/claude-503/-Users-suaz-Desktop-QuestForge/91769071-2ed0-4412-b25d-3c510232d8e5/scratchpad/lk/v3.log, table /private/tmp/claude-503/-Users-suaz-Desktop-QuestForge/91769071-2ed0-4412-b25d-3c510232d8e5/scratchpad/lk/v3/vet.txt, sheets /private/tmp/claude-503/-Users-suaz-Desktop-QuestForge/91769071-2ed0-4412-b25d-3c510232d8e5/scratchpad/lk/v3/sheets/<key>.png).
 
 ## Next
-1. Full vet run: python3 -I tools/site/vet_lucky.py /private/tmp/claude-503/-Users-suaz-Desktop-QuestForge/91769071-2ed0-4412-b25d-3c510232d8e5/scratchpad/lk/v1 ; read vet.txt, then ~35 sheets in /private/tmp/claude-503/-Users-suaz-Desktop-QuestForge/91769071-2ed0-4412-b25d-3c510232d8e5/scratchpad/lk/v1/sheets/<key>.png.
-2. Fix every BAD/weak scene (camera, scale, timing), rerun vet on the failing indexes only.
-3. README-lucky.md (dud, skipped now drops, vet tool), node --check .mjs copies, build_lucky --check, check_fresh, manifest sound check (site/lib/sfx/manifest.json), journal line ops/journal/site.md, commit paths.
+1. Read v3 vet.txt, fix any BAD left, rerun those with --only.
+2. node --check on .mjs copies, build_lucky --check, check_fresh, manifest sound check, journal line in ops/journal/site.md, commit paths (git add my new files by explicit path first).
 
-## Paths
-frames: /private/tmp/claude-503/-Users-suaz-Desktop-QuestForge/91769071-2ed0-4412-b25d-3c510232d8e5/scratchpad/lk/ ; vet table: /private/tmp/claude-503/-Users-suaz-Desktop-QuestForge/91769071-2ed0-4412-b25d-3c510232d8e5/scratchpad/lk/v1/vet.txt (after step 1)
-Notes: wells/temples are one drop per inner outcome in the data, the drop rolled is the well roll. Needs from MOBS: mobSounds names, models for Blaze, Brown Ant etc., part names rightArm.
+## Open for other agents
+- MOBS: Mothra model renders invisible in scene 163 (tags show, no body); Rotator renders as flat red slabs; unknown ids fall back to Zombie (Apple Cow etc.).
+- STAGE: nothing required; I write <script id=qf-scene-report> in ?dump mode myself. Fog near/far are reset by buildScene; a resetFog in resetStage would be cleaner.

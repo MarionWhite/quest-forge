@@ -71,7 +71,8 @@ export function mobSay(id, pos, kind = 'say', o = {}) {
   lastSay = now;
   let s = null;
   try { s = mobSounds(id); } catch (e) { s = null; }
-  const name = s && s[kind];
+  const FB = { Slime: 'mob.slime.big', LavaSlime: 'mob.slime.big', luckyegg: 'random.pop', Hoverboard: 'orespawn:hover', Coin: 'random.orb', Item: 'random.pop' };
+  const name = (s && s[kind]) || (kind === 'say' ? FB[id] : null);
   if (name) sfx(name, { pos: pos && { x: pos.x, y: pos.y, z: pos.z }, volume: o.volume ?? 0.9, pitch: o.pitch });
 }
 
@@ -202,7 +203,7 @@ export function spawnMob(ctx, id, pos, o = {}) {
   ctx.S.temp.add(m.root);
   if (!o.quiet) puff(ctx, pos.clone().setY(pos.y + 0.6), { n: 14, size: 0.5 });
   if (REP) REP.mobs++;
-  const mob = { ...m, id, base, born: null, spoke: false, nextSay: 0, fly: o.fly ?? FLY[id] ?? 0, bob: rnd(0, 6), wh: (m.height || 1.8) * base.x, baseY: pos.y, flipY: 0 };
+  const mob = { ...m, id, base, born: null, spoke: false, nextSay: 0, fly: o.fly ?? (m.hover ? m.hover * 1.5 + 1.2 : (FLY[id] ?? 0)), bob: rnd(0, 6), wh: (m.height || 1.8) * base.x, baseY: pos.y, flipY: 0 };
   if (o.watch !== false) watch(id, m.root, mob.wh, o.main !== false);
   return mob;
 }
@@ -254,13 +255,15 @@ export function heartSprite() {
   return new THREE.Sprite(new THREE.SpriteMaterial({ map: t, transparent: true, depthWrite: false }));
 }
 export function labelSprite(text, o = {}) {
-  const c = document.createElement('canvas'); c.width = 256; c.height = 64;
-  const g = c.getContext('2d'); g.font = '800 40px Archivo, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
-  g.lineWidth = 7; g.strokeStyle = 'rgba(8,6,12,0.85)'; g.strokeText(text, 128, 34);
-  g.fillStyle = o.color || '#ffffff'; g.fillText(text, 128, 34);
+  const c = document.createElement('canvas'); c.width = o.cw ?? 256; c.height = 64;
+  const g = c.getContext('2d'); g.textAlign = 'center'; g.textBaseline = 'middle';
+  let sz = 40; g.font = `800 ${sz}px Archivo, sans-serif`;
+  while (g.measureText(text).width > c.width - 16 && sz > 14) { sz -= 2; g.font = `800 ${sz}px Archivo, sans-serif`; }
+  g.lineWidth = 7; g.lineJoin = 'round'; g.strokeStyle = 'rgba(8,6,12,0.85)'; g.strokeText(text, c.width / 2, 34);
+  g.fillStyle = o.color || '#ffffff'; g.fillText(text, c.width / 2, 34);
   const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
   const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: t, transparent: true, depthWrite: false, depthTest: false }));
-  const w = o.w ?? 0.62; sp.scale.set(w, w / 4, 1); sp.renderOrder = 31;
+  const w = o.w ?? 0.62; sp.scale.set(w, w * 64 / c.width, 1); sp.renderOrder = 31;
   return sp;
 }
 

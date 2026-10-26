@@ -22,11 +22,11 @@ const STYLE = {
 // fog [near, far], roar the sounds played when it arrives, how it enters, what it steps with.
 const BIG = {
   Mobzilla: { h: 12, night: 1, bolts: [0.9, 2.3, 4.4, 5.6, 6.8], fog: [18, 56], roar: ['orespawn:godzilla_living', 'orespawn:roar3'], enter: 'walk', step: ['dig.stone', 0.45], dist: 9, tag: 'Mobzilla arrives' },
-  WitherBoss: { h: 4.8, night: 1, bolts: [1.0, 2.6, 4.8], fog: [10, 44], roar: ['mob.wither.spawn'], idle: 'mob.wither.idle', enter: 'rise', fly: 4.2, dist: 7, skulls: true, tag: 'The Wither spawns' },
+  WitherBoss: { h: 4.8, night: 1, bolts: [1.0, 2.6, 4.8], fog: [10, 44], roar: ['mob.wither.spawn'], idle: 'mob.wither.idle', enter: 'rise', fly: 3.0, dist: 7, skulls: true, tag: 'The Wither spawns' },
   Giant: { h: 10.8, night: 0.85, bolts: [1.3, 4.3], fog: [16, 52], roar: ['mob.zombie.say', 'mob.zombie.hurt'], roarPitch: 0.45, enter: 'walk', step: ['mob.zombie.step', 0.4], dist: 8, tag: 'A giant approaches' },
   Hammerhead: { h: 4.6, night: 0.7, bolts: [1.4, 4.2], fog: [12, 46], roar: ['orespawn:roar1'], enter: 'walk', step: ['dig.gravel', 0.7], dist: 6, tag: 'A Hammerhead arrives' },
   Cephadrome: { h: 9, night: 0.9, bolts: [1.0, 3.0, 5.0], fog: [14, 54], roar: ['orespawn:roar4'], enter: 'fly', fly: 8.5, dist: 10, tag: 'A Cephadrome swoops in' },
-  'Large Worm': { h: 3.6, night: 0.7, bolts: [1.2, 3.6], fog: [12, 46], roar: ['orespawn:roar5'], enter: 'rise', dist: 5.5, dirt: true, tag: 'A Large Worm bursts out of the ground' },
+  'Large Worm': { h: 6, night: 0.7, bolts: [1.2, 3.6], fog: [12, 46], roar: ['orespawn:roar5'], enter: 'rise', dist: 5.5, dirt: true, tag: 'A Large Worm bursts out of the ground' },
   CaterKiller: { h: 4.0, night: 0.7, bolts: [1.2, 3.8], fog: [12, 46], roar: ['orespawn:roar6'], enter: 'rise', dist: 5.5, dirt: true, tag: 'A CaterKiller bursts out of the ground' },
   Mothra: { h: 4.2, night: 0.8, bolts: [1.4, 3.8], fog: [14, 50], roar: ['orespawn:MothraWings1', 'orespawn:roar2'], enter: 'fly', fly: 5.5, dist: 7, tag: 'Mothra arrives' },
   Brutalfly: { h: 3.6, night: 0.8, bolts: [1.4, 3.8], fog: [14, 50], roar: ['orespawn:roar2'], enter: 'fly', fly: 4.5, dist: 7, tag: 'A Brutalfly arrives' },
@@ -50,9 +50,9 @@ function tagFor(ctx, m, e, color = '#ffffff') {
   const name = cleanName(e.display);
   if (!name || /^\s*$/.test(name)) return null;
   const tag = nameTag(name, color);
-  tag.position.set(0, m.wh + 0.45, 0);
+  tag.scale.set(1.5, 0.255, 1);
   m.root.add(tag);
-  tag.scale.multiplyScalar(1 / Math.max(0.0001, m.base.x));
+  tag.scale.multiplyScalar(Math.max(1, m.wh / 2.2) / Math.max(0.0001, m.base.x));
   tag.position.y = (m.wh + 0.45) / Math.max(0.0001, m.base.x);
   return tag;
 }
@@ -133,13 +133,13 @@ function groupScene(ctx, list, o = {}) {
     m.rb = /rainbow|jeb_/i.test(String(m.e.display || '')) || /rainbow|jeb/i.test(ctx.drop.title || '');
     m.ph = rnd(0, 1);
     applyFlip(m, m.e);
-    if (i < 3) m.tag = tagFor(ctx, m, m.e);
+    if (i < (n > 3 ? 1 : 3)) m.tag = tagFor(ctx, m, m.e);
   });
   if (mobs[0]) watch('mobs', () => V(P.x - rmax * 0.5, Math.min(2, size * 0.6) + (fly ? 1.5 : 0), P.z), size + (fly ? 3 : 0));
   const total = list[0] ? list[0].total : n;
   const camD = Math.max(6.2, rmax * 1.9 + size * 1.3);
   const cam = () => ({
-    pos: V(P.x - rmax * 0.35, (small ? 1.5 : 1.9) + size * 0.35 + (fly ? 1.2 : 0), P.z + camD),
+    pos: V(P.x - rmax * 0.35, (small ? 2.3 : 1.9) + size * 0.35 + (fly ? 1.2 : 0), P.z + camD),
     look: V(P.x - rmax * 0.45, size * 0.5 + (fly ? 1.8 : 0.35), P.z),
     fov: small ? 50 : 46,
   });
@@ -201,6 +201,7 @@ MOB_SCENES.mob_horde = (ctx) => planGroup(ctx, 40);
 function planGroup(ctx, cap) {
   const rolled = roll(ctx.drop.actions);
   let list = mobsOf(rolled, cap);
+  if (list.length && list.every((e) => e.id === 'luckyegg')) return eggsScene(ctx, list.length);
   // stacks inside a "group" scene play as towers
   if (list.some((e) => e.riding && e.riding.length)) return towerScene(ctx, list);
   if (!list.length) list = [{ id: 'Zombie' }];
@@ -300,7 +301,7 @@ function towerScene(ctx, list, o = {}) {
     stack.forEach((id, li) => {
       const m = spawnMob(ctx, id, V(bx, y, bz), { rotY: facing(-Math.cos(ang), -Math.sin(ang)), quiet: li > 0, main: li === stack.length - 1 && si === 0 });
       fitSmall(m);
-      m.born = 0.5 + si * 0.35 + li * 0.55;
+      m.born = 0.5 + si * 0.35 + li * Math.min(0.5, 2.2 / stack.length);
       m.bx = bx; m.bz = bz; m.y0 = y;
       if (li === stack.length - 1) m.tag = tagFor(ctx, m, heads[si]);
       if (m.fly) { m.baseY = y; }
@@ -309,11 +310,12 @@ function towerScene(ctx, list, o = {}) {
     });
     stackH = Math.max(stackH, y);
   });
-  const camD = 7.5 + stackH * 0.9;
+  const camD = 7.5 + stackH * 1.15;
+  const camY = 1.8 + Math.min(stackH * 0.3, 6);
   return {
     dur: 6.0,
     mobs: pieces,
-    cam: (t) => ({ pos: V(P.x - 2.2, 1.8 + stackH * 0.35, P.z + camD), look: V(P.x - 3.4, Math.min(stackH * 0.5, 3.5), P.z), fov: 46 }),
+    cam: (t) => ({ pos: V(P.x - 2.2, camY, P.z + camD), look: V(P.x - 3.4, stackH * 0.45, P.z), fov: 48 }),
     update(t, dt) {
       for (const m of pieces) {
         if (t < m.born) continue;
@@ -374,12 +376,13 @@ function grandScene(ctx, list, o = {}) {
   });
   const H = Math.max(totalH, prof ? prof.h : 3);
   const night = prof ? prof.night : 0.7;
-  const fog = prof ? prof.fog : [14, 50];
+  const fog0 = prof ? prof.fog : [14, 50];
   const bolts = prof ? prof.bolts : [1.4, 4];
   const arrive = Math.max(...actors.map((a) => a.t0 + a.T));
   const roarAt = arrive + 0.2;
   const dur = Math.max(7.4, roarAt + 3.4);
-  const camD = 8.5 + H * 1.25 + (nStar > 3 ? 4 : 0);
+  const camD = (H < 6 ? 6.5 + H * 1.0 : 8.5 + H * (H > 12 ? 1.5 : 1.25)) + (nStar > 3 ? 4 : 0);
+  const fog = [Math.max(fog0[0], camD * 0.9), Math.max(fog0[1], camD * 2.4 + 12)];
   const camX = P.x - (prof ? prof.dist : 5) * 0.8;
   watch('boss', () => V(actors[0].goal.x, H * 0.5 + (actors[0].flyH || 0) * 0.5, actors[0].goal.z), H);
   // the lights that keep a night scene readable: cold rim light on the creature, warm on Steve
@@ -394,8 +397,8 @@ function grandScene(ctx, list, o = {}) {
       const push = 1.18 - 0.2 * easeInOut(clamp01(t / (roarAt + 1)));
       const tilt = easeInOut(clamp01((t - roarAt + 0.3) / 1.0));
       return {
-        pos: V(camX + 1.5, 1.2 + H * 0.1 + (actors[0].flyH ? 1.2 : 0), P.z + camD * push),
-        look: V(P.x - (prof ? prof.dist : 5) * 0.9, H * 0.45 + (actors[0].flyH ? actors[0].flyH * 0.45 : 0) + tilt * H * 0.1, P.z),
+        pos: V(camX + 1.5, (H < 6 ? 2.2 : 1.2) + Math.min(H * 0.28, 7) + (actors[0].flyH ? 1.2 : 0), P.z + camD * push),
+        look: V(P.x - (prof ? prof.dist : 5) * 0.9, H * 0.4 + (actors[0].flyH ? actors[0].flyH * 0.7 : 0) + tilt * H * 0.05, P.z),
         fov: 52 + (H > 8 ? 6 : 0),
       };
     },
@@ -517,3 +520,39 @@ MOB_SCENES.apocalypse = (ctx) => {
     },
   };
 };
+
+// Lucky eggs are thrown projectiles, not mobs: they arc out of the block and crack into colour.
+function eggsScene(ctx, n) {
+  const P = ctx.pos.clone();
+  const from = V(0.5, 1.8, 0.5);
+  const eggs = [];
+  for (let i = 0; i < n; i++) {
+    const m = new THREE.Mesh(new THREE.SphereGeometry(0.16, 10, 8), new THREE.MeshLambertMaterial({ color: new THREE.Color().setHSL(i / n, 0.8, 0.7), emissive: new THREE.Color().setHSL(i / n, 0.8, 0.25) }));
+    m.scale.set(1, 1.3, 1); m.visible = false; ctx.S.temp.add(m);
+    if (F.report()) F.report().items++;
+    eggs.push({ m, t0: 0.4 + i * 0.14, to: V(P.x + rnd(-3.2, 0.6), 0.2, P.z + rnd(-2.6, 2.6)), fl: rnd(0.8, 1.1), done: false, hue: i / n });
+  }
+  watch('eggs', () => V(P.x - 1.5, 1, P.z), 3);
+  let said = false;
+  return {
+    dur: 0.4 + n * 0.14 + 2.6,
+    cam: () => ({ pos: V(P.x - 0.8, 3.0, P.z + 8.6), look: V(P.x - 1.4, 1.1, P.z), fov: 46 }),
+    update(t, dt) {
+      eggs.forEach((e, i) => {
+        if (t < e.t0 || e.done) return;
+        const k = clamp01((t - e.t0) / e.fl);
+        e.m.visible = true;
+        e.m.position.set(lerp(from.x, e.to.x, k), lerp(from.y, e.to.y, k) + Math.sin(k * Math.PI) * 2.4, lerp(from.z, e.to.z, k));
+        e.m.rotation.z += dt * 10;
+        if (i === 0 && !e.snd) { e.snd = true; sfx('random.bow', { pos: from, volume: 0.5, pitch: 1.5 }); }
+        if (k >= 1) {
+          e.done = true; e.m.visible = false;
+          burst(ctx, V(e.to.x, 0.3, e.to.z), { n: 18, colors: [0xff5a5a, 0xf2c14e, 0x8fd3a0, 0x5ad2ff, 0x9d7bff], size: 0.14, speed: 1.8, up: 2.6, life: 1.0, additive: true });
+          if (i % 2 === 0) sfx('random.pop', { pos: e.to, volume: 0.6, pitch: 1.2 + (i % 4) * 0.1 });
+        }
+      });
+      if (!said && t > 0.8) { said = true; ctx.say(ctx.drop.title, { at: 'bottom' }); }
+      ctx.steve.anim(t, dt, { walk: 0 });
+    },
+  };
+}

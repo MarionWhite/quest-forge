@@ -191,7 +191,7 @@ STRUCT.pit_trap = (ctx) => {
   const sp = structureScene(ctx, 'pit_trap', FEET, { start: 0.1, span: 1.2 });
   if (!sp) return null;
   const P = ctx.pos;
-  watch('steve', () => new THREE.Vector3(P.x, steve0().root.position.y + 1, P.z), 1.8);
+  watch('shaft', () => new THREE.Vector3(P.x + 0.1, steve0().root.position.y - 1.2, P.z + 0.1), 2);
   const steve = ctx.steve; _steve = steve;
   const fallT0 = 2.0, fallT = 3.8, D = 60;
   let y = 0;

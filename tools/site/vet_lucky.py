@@ -38,7 +38,7 @@ AT = {
     "falling_column": 3.4, "placed_blocks": 3.4, "explosion": 2.0, "tnt_rain": 4.0, "expbottle_rain": 3.6,
     "xp_burst": 3.6, "bedrock_problem": 2.4, "dud": 2.4, "lightning": 5.0, "jens_hole": 3.6,
     "mob_spawn": 3.8, "mob_horde": 4.6, "mob_tower": 3.8, "pet": 4.2, "villager_trader": 3.6,
-    "boss": 6.2, "apocalypse": 6.5, "anvil_trap": 4.2, "lava_trap": 4.4, "water_trap": 4.4,
+    "boss": 6.2, "apocalypse": 6.5, "anvil_trap": 6.0, "lava_trap": 4.4, "water_trap": 4.4,
     "pit_trap": 3.6, "fort": 4.0, "temple": 4.6, "lucky_choice": 3.2, "trapped_chest": 3.6,
     "troll_ore": 3.4, "wishing_well": 8.4, "sky_temple": 9.0, "ground_temple": 8.4,
 }
@@ -151,14 +151,14 @@ def make_sheets(df, exe, outdir, doc, results, per_key=12):
             d["index"], d["index"], html.escape(d["title"][:34]), " [BAD]" if results[d["index"]]["bad"] else "") for d in have)
         page = os.path.join(outdir, "sheets", key + ".html")
         with open(page, "w", encoding="utf-8") as f:
-            f.write("<!doctype html><style>body{margin:0;background:#111;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;width:1920px}"
-                    "figure{margin:0;position:relative}img{width:100%%;display:block}figcaption{position:absolute;top:4px;left:6px;"
+            f.write("<!doctype html><style>body{margin:0;background:#111;display:grid;grid-template-columns:repeat(3,636px);gap:4px;width:1920px}"
+                    "figure{margin:0;position:relative}img{width:636px;height:355px;display:block}figcaption{position:absolute;top:4px;left:6px;"
                     "color:#fff;font:bold 20px sans-serif;text-shadow:0 1px 3px #000}</style>" + cells)
         rows = (len(have) + 2) // 3
         png = os.path.join(outdir, "sheets", key + ".png")
         prof = tempfile.mkdtemp(prefix="vetsheet-")
         subprocess.run([exe, "--headless=new", "--no-first-run", "--hide-scrollbars", f"--user-data-dir={prof}",
-                        f"--window-size=1920,{rows * 360 + 20}", f"--screenshot={png}", "file://" + os.path.abspath(page)],
+                        f"--window-size=1920,{rows * 359 + 10}", f"--screenshot={png}", "file://" + os.path.abspath(page)],
                        capture_output=True, timeout=120)
         shutil.rmtree(prof, ignore_errors=True)
         paths.append(png)

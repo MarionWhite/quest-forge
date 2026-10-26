@@ -36,10 +36,13 @@ The parser copies the mod's own steps (LuckyBlocks 5.1.0, `mod.lucky.util.MakeLu
   action.
 - A line with no `group` prefix is one drop. `type=quartz_block` is a type the mod does not know,
   so that member spawns nothing.
-- Lines the mod cannot read become `skipped` entries. The mod throws
+- Lines the mod cannot read are still picked by the mod at their weight: it throws
   `StringIndexOutOfBoundsException` at harvest when a `group(` has no `)`; the block then reports
-  an error and drops nothing. Three such lines exist (config lines 529, 539, 541). Their weight
-  still counts in the odds, as it does in the game.
+  an error and drops nothing. Three such lines exist (config lines 529, 539, 541). They are
+  drops of scene `dud` ("A dud", broken: true) so the page can roll them, and they are also listed
+  in `skipped[]` with the `index` of their drop. Line 384 (the Mothra line the mod reads as a
+  difficulty change with no effect) is the same outcome type. The dud scene is a sad grey puff,
+  one `random.fizz` and Steve shrugging.
 - Line 531 has one `)`, which closes its nested group, so the outer `group:1(...)` is read. The
   nested group is unclosed, so that option is broken: it errors when chosen. It is kept as a drop
   with `"broken": true` and an empty option.
@@ -97,3 +100,22 @@ Fields added to the version 1 vocabulary (all optional, the engine falls back wh
 `structures.json` is written from `build_structures()` in this file, which holds the voxel data
 recovered from `mod.lucky.util.CustomStructures` and `StructureUtil` (javap of
 `LuckyBlocks.jar`). See the notes on each structure for what the bytecode did not show.
+
+## Vetting the outcomes
+
+    python3 -I tools/site/vet_lucky.py OUTDIR                 every drop, one frame each, sheets per scene key
+    python3 -I tools/site/vet_lucky.py OUTDIR --only 153,162  some drops
+    python3 -I tools/site/vet_lucky.py OUTDIR --keys boss
+
+Each frame comes from `lucky/?force=<i>&at=<ms>&sfxlog&dump=1` (the dump_frames server and
+browser). Every scene returns `report()` (site/lucky/fx.js): counts of mobs, items, blocks and
+particles, the sound names played, and for each subject of the shot whether it is inside the
+camera frustum and its on-screen height. `vet.txt` marks a drop BAD when the page did not dump,
+the scene threw (the generic scene is only a crash guard), nothing was made, or the subject is
+off-screen, and weak when the subject is tiny or huge or the scene was silent. It also fails when
+a scene key in the table has no implementation. Sheets: `OUTDIR/sheets/<scene key>.png`.
+
+Scenes roll their own outcome from the drop's actions (`fx.roll`): a `choice` picks the way the
+mod does, amounts are drawn from their range. The wells and temples need no extra roll: the
+config lists every inner outcome as its own top-level line, so the drop that was rolled is the
+hidden block's result.

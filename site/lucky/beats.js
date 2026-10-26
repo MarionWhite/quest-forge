@@ -1,7 +1,7 @@
 // Beats: the reusable pieces a scene is made of (items landing on the dais, launched TNT,
 // fireworks, a dud). Each returns { dur, update(t, dt) }; t is scene time, a beat may start late.
 import * as THREE from 'three';
-import { V, clamp01, easeOut, easeInOut, lerp, rnd, burst, puff, sfx, itemSprite, nameTag, cleanName, watch, blockCube, facing, pointLight } from './fx.js';
+import { V, clamp01, easeOut, easeInOut, lerp, rnd, burst, puff, sfx, itemSprite, labelSprite, cleanName, watch, blockCube, facing, pointLight } from './fx.js';
 
 // Slots for n items: one at the centre, a ring up to seven, two rings beyond.
 export function ringSlots(n) {
@@ -14,7 +14,7 @@ export function ringSlots(n) {
 }
 export function itemsCam(O, R, extra = 0) {
   const d = 3.5 + R * 1.5 + extra;
-  return () => ({ pos: V(O.x + 0.15, O.y + 1.25 + R * 0.55, O.z + d), look: V(O.x, O.y + 0.45, O.z), fov: 40 });
+  return () => ({ pos: V(O.x + 0.15, O.y + 1.25 + R * 0.55 + extra * 0.25, O.z + d), look: V(O.x, O.y + 0.45 - extra * 0.18, O.z), fov: 40 });
 }
 
 // Items pop out of the dais (or rain onto it) and settle in a ring at one world size, bobbing and
@@ -33,8 +33,8 @@ export function itemsBeat(ctx, items, o = {}) {
     g.scale.setScalar(0.001);
     ctx.S.temp.add(g);
     if (n <= 3 && it.name && !/^random/i.test(it.name)) {
-      const tag = nameTag(cleanName(it.name), it.ench ? '#d6b4ff' : '#ffffff');
-      tag.scale.set(1.5, 0.255, 1); tag.position.set(0, 0.62, 0); g.add(tag);
+      const tag = labelSprite(cleanName(it.name), { color: it.ench ? '#d6b4ff' : '#ffffff', w: Math.min(1.5, 0.5 + cleanName(it.name).length * 0.06), cw: 512 });
+      tag.position.set(0, 0.52, 0); g.add(tag);
     }
     const s = slots[i];
     return { g, it, i, s, t0: start + i * step, ph: rnd(0, 6.28), landed: false, tx: O.x + s.x, tz: O.z + s.z, ty: rest + s.y };
@@ -43,7 +43,7 @@ export function itemsBeat(ctx, items, o = {}) {
   const mood = ctx.drop && ctx.drop.mood;
   let popped = 0, jp = false;
   return {
-    dur: start + n * step + 2.4, R, O, cam: itemsCam(O, R),
+    dur: start + n * step + 2.4, R, O, cam: itemsCam(O, R, o.camExtra || 0),
     update(t, dt) {
       if (mood === 'jackpot' && !jp && t >= start) { jp = true; sfx('random.levelup', { volume: 0.7 }); }
       for (const s of sprites) {
@@ -90,6 +90,7 @@ export function tntBeat(ctx, N, o = {}) {
     tn.push({ m, to, t0: start + i * gap, fl: rnd(0.8, 1.1), fuse: rnd(0.8, 1.5), blew: false, ph: rnd(0, 1), fused: false });
   }
   let booms = 0;
+  watch('tnt', () => V(P.x - 1.2, 1.2, P.z), 3);
   return {
     dur: start + count * gap + 1.1 + 1.5 + 0.8,
     update(t, dt) {
@@ -102,8 +103,8 @@ export function tntBeat(ctx, N, o = {}) {
         it.m.position.set(lerp(from.x, it.to.x, k), lerp(from.y, it.to.y, k) + Math.sin(k * Math.PI) * 2.4, lerp(from.z, it.to.z, k));
         it.m.rotation.x = a * 5; it.m.rotation.z = a * 3;
         if (k >= 1) { it.m.rotation.set(0, 0, 0); it.m.position.y = 0.25 + Math.abs(Math.sin((a - it.fl) * 8)) * 0.18 * Math.max(0, 1 - (a - it.fl) * 3); }
-        const on = Math.floor((a * 6 + it.ph) % 2) ? 0.9 : 0;
-        it.m.material.emissive.setRGB(on, on, on);
+        const on = Math.floor((a * 6 + it.ph) % 2) ? 0.4 : 0;
+        it.m.material.emissive.setRGB(on, on * 0.9, on * 0.8);
         if (a > it.fl + it.fuse) {
           it.blew = true; it.m.visible = false;
           ctx.explode(it.m.position.clone().setY(0.6), 0.5);

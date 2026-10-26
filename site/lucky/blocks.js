@@ -3,6 +3,7 @@
 import * as THREE from 'three';
 import { tex, animTex } from './stage.js';
 import { boxGeometry } from './mobs.js';
+import { report } from './fx.js';
 
 const cache = new Map();
 function memo(key, make) { if (!cache.has(key)) cache.set(key, make()); return cache.get(key); }
@@ -44,6 +45,7 @@ const ID = (id) => String(id || '').replace(/^[a-z]+:/, '');
 // A block at the origin corner. opts: {facing, has(dx,dy,dz)->bool} for connections.
 // Returns {obj, light?}
 export function makeBlock(id, meta = 0, opts = {}) {
+  const rep = report(); if (rep) rep.blocks++;
   const n = ID(id);
   const g = new THREE.Group();
   const box = (w, h, d, x, y, z, m, shadow = true) => {

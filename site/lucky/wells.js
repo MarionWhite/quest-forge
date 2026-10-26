@@ -86,7 +86,7 @@ function innerBeat(ctx, inner, o) {
   const wide = () => ({ pos: V(P.x - 0.8, 3.2, P.z + 9.8), look: V(P.x - 1.4, 2.0, P.z - 0.2), fov: 48 });
   if (blocks.some((b) => /beacon/.test(b.id))) parts.push(beacon(ctx, o.beaconCell, start + 0.2));
   if (items.length) {
-    const b = itemsBeat(ctx, items, { origin: o.ring, start: start + 0.5, mode: o.mode || 'pop', fall: o.fall, cap: 12 });
+    const b = itemsBeat(ctx, items, { origin: o.ring, start: start + 0.5, mode: o.mode || 'pop', fall: o.fall, cap: 12, camExtra: o.camExtra || 0 });
     parts.push(b); kind = 'items'; cam = b.cam;
     parts.dur = Math.max(parts.dur || 0, b.dur);
   }
@@ -142,6 +142,7 @@ function breakHidden(ctx, center, t0) {
         glow.intensity = 14;
       }
       if (shattered) {
+        if (t - t0 > 1.4 + 2.4) for (const f of frags) f.m.visible = false;
         glow.intensity = Math.max(0, glow.intensity - dt * 20);
         for (const f of frags) { f.v.y -= 16 * dt; f.m.position.addScaledVector(f.v, dt); if (f.m.position.y < 0.1) { f.m.position.y = 0.1; f.v.y *= -0.3; f.v.x *= 0.6; f.v.z *= 0.6; } }
       }
@@ -165,7 +166,7 @@ WELL_SCENES.wishing_well = (ctx) => {
   coin.visible = false; ctx.S.temp.add(coin);
   const T_THROW = 3.4, T_FLIGHT = 0.9;
   const hidden = breakHidden(ctx, V(0.5, 1.5, 0.5), T_THROW + T_FLIGHT + 0.6);
-  const out = innerBeat(ctx, inner, { start: hidden.breakAt + 0.2, ring: V(0.5, 4.5, 0.5), beaconCell: V(0, 4, 0), from: V(0.5, 3.4, 0.5), mode: 'pop' });
+  const out = innerBeat(ctx, inner, { start: hidden.breakAt + 0.2, ring: V(0.5, 5.3, 0.5), beaconCell: V(0, 4, 0), from: V(0.5, 3.4, 0.5), mode: 'pop', camExtra: 3.0 });
   watch('well', () => V(0.5, 3, 0.5), 5);
   let chat1 = false, chat2 = false, splashed = false, said = false, tossed = false;
   const tEnd = out.dur;
@@ -238,12 +239,13 @@ function templeScene(ctx) {
   const T_BUILD = sky_ ? 4.0 : 3.0;
   const hidden = breakHidden(ctx, center, T_BUILD + 0.8);
   const P = ctx.pos;
-  const ringO = sky_ ? V(0.5, 1.0, 0.5) : V(0.5, 1.0, 0.5);
+  const ringO = V(0.5, 2.3, 0.5);
   const out = innerBeat(ctx, inner, { start: hidden.breakAt + 0.2, ring: ringO, beaconCell: V(0, 1, 0), from: sky_ ? V(center.x, center.y, center.z) : V(0.5, 1.5, 0.5), mode: sky_ ? 'rain' : 'pop', fall: sky_ ? 14 : 9 });
   const tBreak = hidden.breakAt + 0.2;
   let chat = false, chat2 = false, glowL = null, said = false, snd = 0;
   if (hell) glowL = pointLight(ctx, 0xff5a1a, 4, 12, V(0.5, -1, 0.5));
-  watch('temple', () => (sky_ ? V(0.5, 52, 0.5) : V(0.5, 0.5, 0.5)), 6);
+  watch('temple', () => (sky_ ? V(0.5, 52, 0.5) : V(0.5, 0.5, 0.5)), 6, false);
+  watch('dais', () => V(0.5, 1.5, 0.5), 2, false);
   const down = (t) => {
     // the ground temple: look into the cutaway from above, then back to the dais
     const k = easeInOut(clamp01((t - tBreak + 0.6) / 1.4));

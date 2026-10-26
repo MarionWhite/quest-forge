@@ -98,7 +98,7 @@ export function placeStructure(ctx, pl, origin, opts = {}) {
   }
   // the terrain changed under the structure
   const n = anims.length;
-  const rep = report(); if (rep) rep.blocks += n;
+  const rep = report(); if (rep) rep.blocks += pl.cells.length;
   const step = n ? Math.min(0.1, span / n) : 0;
   anims.forEach((a, i) => { a.t0 = start + i * step; });
   return {
