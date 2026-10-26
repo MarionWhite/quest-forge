@@ -1,5 +1,6 @@
 # Site journal (newest first)
 
+- 2026-10-26 (Mac) site-r5-scares: all 14 Krypt scares rebuilt in the real scene (scares/rig.js runner, 1.7.10 HUD and death screen, J picker, approved.json empty so the director plays nothing until the owner approves); piston traps carve real rooms (Cave Spider, Slime) or drop you into a scare-built cavern seen through the rock (Ghast); 56-frame sheet over 5 segments, check_sounds 0 missing.
 - 2026-10-26 lucky-life r5: nav.js occupancy map + A* (Steve and ground mobs never inside a prop, nav_check.py 0 violations), front-side table/furnace/chest, iron/wood chains, 1.7.10 held items, fence model, opaque chest, chicken chase, sign moved off the dais view.
 
 - 2026-10-26 (Mac) site-r5-krypt-more: Krypt now 15 segments (+catacomb, cave-spider mineshaft, temple trap hall, iron-door vault, nether fortress bridge, stronghold end-portal finale), 14 bends, 9 side passages, walk 460 blocks (was ~235). Meshing is chunked and lazy (32 blocks); __krypt.carve/restore/solidAt/blockAt for the scares; ?carve=x,y,z,w,h,d demo. Dress batches culled per 32-block cell; draw calls in dumps 62-111 incl. post passes (old 40-74). Not verified: phone speed, Safari, walk feel.
