@@ -138,7 +138,7 @@ if (dump) {
   frame(T0);
   const el = document.createElement('script');
   el.type = 'application/json'; el.id = 'dumpshot';
-  el.textContent = JSON.stringify({ view, t: T0, count: ids.length, png: renderer.domElement.toDataURL('image/png') });
+  el.textContent = JSON.stringify({ view, t: T0, count: ids.length, boxes: cells.map(({ m }) => { const b = new THREE.Box3().setFromObject(m.root); return [m.key, +m.height.toFixed(2), b.min.toArray().map((x) => +x.toFixed(2)), b.max.toArray().map((x) => +x.toFixed(2))]; }), png: renderer.domElement.toDataURL('image/png') });
   document.body.appendChild(el);
 } else {
   const t0 = performance.now();

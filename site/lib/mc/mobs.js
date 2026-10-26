@@ -632,6 +632,7 @@ function buildOreSpawn(key, spec, opts) {
   const r = buildRig(data, loadTex(spec.tex), { color: opts.color ?? 0xffffff, emissive: spec.glow, emissiveIntensity: 1 });
   // fit: ground the model and scale it to its target height
   rig.add(r.root);
+  r.root.position.set(0, 0, 0);   // measure about the origin; the fit below places the feet on y = 0
   if (spec.tilt) r.root.rotation.x = -spec.tilt;   // a resting moth shows its wings to the viewer
   rig.updateMatrixWorld(true);
   const box = new THREE.Box3().setFromObject(r.root);
