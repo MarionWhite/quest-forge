@@ -14,7 +14,7 @@ const REACH_PAD = 6;                       // beyond hw + passage length: stone 
 const fr = (seed, a, b = 0, c = 0) => (ih(a, b, c, seed) * 1000 + ih(a, b, c, seed + 977)) / 1e6;   // 0..1, finer than ih
 const pickInt = (r, [lo, hi]) => lo + Math.min(hi - lo, Math.floor(r * (hi - lo + 1)));
 
-export function makePlan({ n = 0, seed = SEED, minSlots = 60, runway = 36 } = {}) {
+export function makePlan({ n = 0, seed = SEED, minSlots = 60, runway = 36, force = null } = {}) {
   const want = Math.max(n + runway, minSlots);
   const legs = [], slots = [], corners = [], gaps = [], strata = [];
   const hist = [];                          // kind ids in order
@@ -54,7 +54,7 @@ export function makePlan({ n = 0, seed = SEED, minSlots = 60, runway = 36 } = {}
   for (let k = 0, fin = false; !fin; k++) {
     if (!stratum || gi >= stratum.g1) openStratum(strata.length);
     fin = gi >= want && k >= 2;
-    const kind = fin ? "frontier" : chooseKind(k);
+    const kind = fin ? "frontier" : (force && force.length && k > 0 ? force[(k - 1) % force.length] : chooseKind(k));
     const KD = KINDS[kind];
     const rr = (s) => fr(seed, k, s, 9);
     const hw = pickInt(rr(1), KD.hw), ht = pickInt(rr(2), KD.ht), pre = pickInt(rr(3), KD.pre), post = pickInt(rr(4), KD.post);

@@ -12,7 +12,8 @@ import {
 } from "./data.js";
 import { makePlan, makeWorld, slotFrame, patchBake, legDir, legMap, legYaw, KINDS } from "./krypt.js";
 import { makeDresser } from "./dress.js";
-import { BLOCK_TEX_FILES, TINTED } from "./blocks.js";
+import { BLOCK_TEX_FILES, DECOR_TEX, TINTED } from "./blocks.js";
+import { addDecor } from "./dressx.js";
 import { demoGraves } from "./demo.js";
 import { makeFx } from "./fx.js";
 import { makeLightFx } from "./lightfx.js";
@@ -36,7 +37,7 @@ const TEX_FILES = ["stone", "cobblestone", "cobblestone_mossy", "stonebrick", "s
   "furnace_side", "furnace_top", "dispenser_front_horizontal", "lever", "trip_wire", "trip_wire_source", "door_iron_lower",
   "door_iron_upper", "endframe_top", "endframe_side", "endframe_eye", "gold_block", "diamond_block", "lapis_block",
   "emerald_block", "stonebrick_carved", "iron_block", "chest", "end_sky"];
-for (const f of BLOCK_TEX_FILES) if (!TEX_FILES.includes(f)) TEX_FILES.push(f);
+for (const f of BLOCK_TEX_FILES.concat(DECOR_TEX)) if (!TEX_FILES.includes(f)) TEX_FILES.push(f);
 
 const state = {
   graves: [], updated: null, feed: "", loadError: false,
@@ -247,10 +248,11 @@ async function startKrypt() {
   K.IMG = IMG;
 
   // The world: the plan (every leg, from the seed and the slot count), and the chunks around the walker.
-  const plan = makePlan({ n: state.graves.length });
+  const plan = makePlan({ n: state.graves.length, force: QS.has("kinds") ? QS.get("kinds").split(",") : null });
   K.plan = plan; K.length = plan.length;
   K.agg = { torches: [], dyn: [], emit: [], spots: { fire: [], lava: [], drip: [] }, holes: [], version: 0 };
   const dresser = makeDresser(IMG);
+  addDecor(dresser, IMG);
   K.dresser = dresser;
   const world = makeWorld({ plan, images: IMG, scene, dresser, radius: phone ? 66 : 84, onChange: (agg) => { K.agg = agg; } });
   K.world = world;
@@ -315,6 +317,7 @@ async function startKrypt() {
   if (QS.has("at")) d0 = Math.min(1, Math.max(0, Number(QS.get("at")) || 0)) * plan.length;
   if (QS.has("stratum")) { const st = plan.strata[Math.min(plan.strata.length - 1, Math.max(0, Number(QS.get("stratum")) || 0))]; d0 = st.d0 + (Number(QS.get("sd")) || 8); }
   if (QS.has("gap") && plan.gaps.length) { const g = plan.gaps[Math.min(plan.gaps.length - 1, Math.max(0, Number(QS.get("gap")) || 0))]; d0 = g.d0 - 0.5 + (Number(QS.get("jx")) || 0); }
+  if (QS.has("leg")) { const lg = plan.legs[Math.min(plan.legs.length - 1, Math.max(0, Number(QS.get("leg")) || 0))]; d0 = lg.dStart + (lg.dEnd - lg.dStart) * (QS.has("lf") ? Number(QS.get("lf")) : 0.45); }
   if (QS.has("grave")) { const gi = Number(QS.get("grave")); if (plan.slots[gi]) d0 = plan.slots[gi].d; }
   K.startD = Math.min(plan.length, Math.max(0, d0));
   plan.pointAt(K.startD, _pt); K.pos.set(_pt[0], _pt[1], _pt[2]);
@@ -336,7 +339,7 @@ async function startKrypt() {
   setHUD();
   state.webgl = true;
   K.last = performance.now();
-  K.snap = QS.has("grave") || QS.has("at") || QS.has("stratum") || QS.has("gap");
+  K.snap = QS.has("grave") || QS.has("at") || QS.has("stratum") || QS.has("gap") || QS.has("leg");
   K.walk.s = K.walk.sT = K.startD / plan.length;
   if (QS.has("grave")) { const i = Number(QS.get("grave")); if (state.graves[i]) focusGrave(i, true); }
   publishKrypt();

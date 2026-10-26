@@ -1,42 +1,15 @@
-// The Krypt's segment kinds. Each kind has its geometry ranges (the plan picks within them), its wall style, its floor, its
-// lighting profile and its dresser: a function that places torches, decor and blocks along one leg. Dressers run once per
-// chunk window (the same leg is dressed again for every chunk that reaches it), so they depend only on the leg and on
-// leg-local coordinates, never on what else has been built.
+// The original fifteen kinds (ported unchanged from rounds 1 to 5) and the registry's first entries; the strata's own
+// kinds live in kinds_*.js and register themselves on import.
 import {
   T_AIR, T_STONE, T_COBBLE, T_MOSSY, T_BRICK, T_BRICK_MOSSY, T_BRICK_CRACK, T_GRAVEL_FLOOR, T_COAL, T_IRON, T_OBS, T_BEDROCK,
   T_NETHER, T_GLOW, T_BRIDGE, T_WATER, T_NBRICK, T_SOUL, T_SHELF, T_PLANK, T_LOG, T_LAVA, T_DIRT, T_DISP_PX, T_DISP_NX,
-  T_DISP_PZ, T_DISP_NZ, T_GOLD, T_DIAM, T_LAPIS, T_EMERALD, T_IRONB, T_CARVED, T_WALL, ih, defWalls
+  T_DISP_PZ, T_DISP_NZ, T_GOLD, T_DIAM, T_LAPIS, T_EMERALD, T_IRONB, T_CARVED, T_WALL, ih
 } from "./blocks.js";
 import * as B from "./blocks.js";
-import { legYaw, floorTop, STAIR_LANDING, STAIR_LEN, STAIR_DROP, CHASM_DEPTH, FORT_DEPTH } from "./geom.js";
-
-export const KINDS = {};
-// Defaults for every kind; a kind lists only what differs. hw, ht, pre, post, m, branch are [min, max] ranges.
-function def(id, meta) {
-  const k = { id, turn: 0.6, weight: 1, hw: [3, 3], ht: [4, 4], pre: [2, 2], post: [0, 0], m: [6, 10], branch: [0, 1], below: 4, torchEvery: 1, torchI: 3.4, step: 4, holes: null, ...meta };
-  KINDS[id] = k; return k;
-}
-const wall = defWalls;
-const P = (amb, fog, fogD, exposure, torch, bloom, extra = {}) => ({ amb, fog, fogD, exposure, torch, bloom, ...extra });
-
-// The dressing context of one leg: leg-local setters, torches, decor, and the small helpers every dresser uses.
-export function makeCtx(a, plan, leg, H) {
-  const { L, LG, W3, dirw, torchAt, torchAtB, pushTorch, decor, legCell, set, get } = H;
-  const { hw, y0, kind, ht } = leg;
-  const rowsFree = (side, lv) => !leg.used[side].has(lv) && !leg.passages.some(p => p.ok && p.side === side && lv >= p.lv - 1 && lv <= p.lv + 2);
-  const lo = leg.b0 + leg.pre, hi = leg.contentEnd;
-  const yaw = legYaw(leg);
-  const rnd = (i, s) => ih(i, leg.rid, s, 11) / 1000;
-  const wallCell = (side) => (side > 0 ? hw : -hw - 1);
-  const edgeCell = (side) => (side > 0 ? hw - 1 : -hw);
-  const dispType = (dx, dz) => (dx > 0 ? T_DISP_PX : dx < 0 ? T_DISP_NX : dz > 0 ? T_DISP_PZ : T_DISP_NZ);
-  const webAt = (aa, bb, y, ry, w, h, rep) => { const [x, , z] = W3(leg, aa, bb, 0); decor({ t: "web", x, y, z, ry, w, h, rep: !!rep }); };
-  const freeRow = (lv) => rowsFree(-1, lv) && rowsFree(1, lv) && rowsFree(-1, lv + 1) && rowsFree(1, lv + 1);
-  return { a, plan, leg, L, LG, W3, dirw, torchAt, torchAtB, pushTorch, decor, legCell, set, get, hw, y0, kind, ht, rowsFree, lo, hi, yaw, rnd, wallCell, edgeCell, dispType, webAt, freeRow };
-}
-const CTX = "const { a, plan, leg, L, LG, W3, dirw, torchAt, torchAtB, pushTorch, decor, legCell, set, get, hw, y0, kind, ht, rowsFree, lo, hi, yaw, rnd, wallCell, edgeCell, dispType, webAt, freeRow } = c;";
-void CTX;
-
+import { floorTop, STAIR_LANDING, STAIR_LEN, STAIR_DROP, CHASM_DEPTH, FORT_DEPTH } from "./geom.js";
+import { KINDS, def, wall, P, makeCtx } from "./kindreg.js";
+export { KINDS, makeCtx };
+import "./kinds_a.js";
 
 // ---- the dressers of the nine original segments and the six of round 5 (ported unchanged) ----
 const DRESS = {};

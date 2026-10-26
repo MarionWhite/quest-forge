@@ -126,6 +126,8 @@ export function makeDresser(IMG) {
       batches.get(key).list.push(geo);
     };
     const spawners = [], portals = [], fires = [];
+    const mobs = [], far = [], ups = [];
+    const xctx = { group, disposers, lightAt, far, ups, mobs };
     for (const d of own.decor) {
       switch (d.t) {
         case "web": {
@@ -202,7 +204,7 @@ export function makeDresser(IMG) {
         }
         case "fire": fires.push(d); break;
         case "spawner": spawners.push(d); break;
-        default: if (EXTRA[d.t]) EXTRA[d.t](d, put); break;
+        default: if (EXTRA[d.t]) EXTRA[d.t](d, put, xctx); break;
       }
     }
     for (const [, b] of batches) {
@@ -256,7 +258,6 @@ export function makeDresser(IMG) {
       group.add(new THREE.Mesh(geo, fireMat()));
     }
     // Spawners: the cage cube, a small mob turning inside.
-    const mobs = [], far = [], ups = [];
     for (const spawner of spawners) {
       const sm = new THREE.MeshLambertMaterial({ map: tex(IMG.mob_spawner), transparent: true, alphaTest: 0.4, side: THREE.DoubleSide });
       patchBake(sm, { fixed: new THREE.Vector3(...lightAt(spawner.x, spawner.y + 0.5, spawner.z, 0, 0.3, 0, { omni: true })) });
