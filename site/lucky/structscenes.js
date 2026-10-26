@@ -253,10 +253,12 @@ STRUCT.lucky_choice = (ctx) => {
   watch('blocks', () => new THREE.Vector3(P.x, 1.2, P.z + 2.2), 2);
   return {
     dur: sp.dur + 2.6,
-    // the sign faces Steve (north), so the camera stands on his side of it, off to the right
-    cam: (t) => ({ pos: V(P.x + 1.7, 3.3, P.z - 3.0), look: V(P.x - 0.1, 0.95, P.z + 2.2), fov: 38 }),
+    // the sign faces north, so the camera stands in front of it at eye height with both blocks and the
+    // sign in frame; Steve steps to the left, out of the shot
+    cam: (t) => ({ pos: V(P.x + 0.1, 1.65, P.z - 2.4), look: V(P.x, 1.1, P.z + 2.1), fov: 42 }),
     update(t, dt) {
       sp.update(t);
+      ctx.steve.root.position.x = P.x - 2.6 * easeOut(t / 0.8);
       ctx.steve.anim(t, dt, { walk: 0 });
       if (t > 0.4 && !ctx._c1) { ctx._c1 = true; sfx('dig.stone', { volume: 0.8 }); sfx('random.click', { volume: 0.6 }); }
       if (t > sp.dur && !ctx._choice) { ctx._choice = true; sfx('random.orb', { volume: 0.6 }); ctx.say('One is lucky. One is not.', { at: 'bottom' }); }
