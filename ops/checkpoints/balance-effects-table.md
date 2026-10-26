@@ -20,3 +20,7 @@ Decision: docs/decisions/0005-enchant-census-proposals.md (the owner's P10 note 
 ## Rules
 No game launches; web via WebSearch/WebFetch; stage only own files; five-line report; journal
 ops/journal/balance.md.
+
+## Progress (update)
+- Doc 1 DONE and committed: effects_table.py + docs/reference/enchant-effects.md/.json. Rerun: `py -3.10 -I tools/balance/effects_table.py [roots...]`. Verdicts: 12 proportionate, 5 too strong (piercing, poisonous, roulette, rupture, venomous), 2 too weak (blind, cockroach), 10 no effect, 2 harmful (bastion, homing), 50 untestable.
+- Next: doc 2 (rarity plan), doc 3 (fight duration study), then DECISIONS/journal lines, delete this checkpoint.

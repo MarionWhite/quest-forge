@@ -1,0 +1,19 @@
+[
+  {"_": "Re-test after decision 0005 (P1, P2, P7, P8, P6). run_campaign.py --jobs. Every cell is measured reps times; refs.json must hold the v2 campaign's references except demonmobs.rahovart, whose config changed and is re-sampled (pin=false)."},
+  {"name": "R-T1-TwilightForest.Naga-dots", "tier": "T1", "boss": "TwilightForest.Naga", "reps": 5,
+   "args": ["pairs", "modes=melee", "only=rupture+venomous+poisonous+colossus+roulette+cultist", "controls=3"]},
+  {"name": "R-T4-Mobzilla-dots", "tier": "T4", "boss": "Mobzilla", "reps": 3,
+   "args": ["pairs", "modes=melee", "only=rupture+venomous+poisonous+colossus+roulette+cultist", "controls=3"]},
+  {"name": "R-T4-The_King-dots", "tier": "T4", "boss": "The_King", "reps": 3,
+   "args": ["pairs", "modes=melee", "only=rupture+venomous+poisonous", "controls=3"]},
+  {"name": "R-T4-The_Queen-dots", "tier": "T4", "boss": "The_Queen", "reps": 3,
+   "args": ["pairs", "modes=melee", "only=rupture+venomous+poisonous", "controls=3"]},
+  {"name": "R-T3-Mantis-cultist", "tier": "T3", "boss": "Mantis", "reps": 5,
+   "args": ["pairs", "modes=melee", "only=cultist+rupture+venomous+poisonous", "controls=3"]},
+  {"name": "R-T2-witchery.babayaga-bastion", "tier": "T2", "boss": "witchery.babayaga", "reps": 5,
+   "args": ["pairs", "modes=melee", "only=bastion", "controls=3"]},
+  {"name": "R-T2-TragicMC.DeathReaper-bastion", "tier": "T2", "boss": "TragicMC.DeathReaper", "reps": 5,
+   "args": ["pairs", "modes=melee", "only=bastion", "controls=3"]},
+  {"name": "R-T3-demonmobs.rahovart-p6", "tier": "T3", "boss": "demonmobs.rahovart", "reps": 1, "pin": false,
+   "args": ["pairs", "modes=melee", "only=executioner+cultist+momentum+excalibur+rupture+roulette", "controls=5"]}
+]

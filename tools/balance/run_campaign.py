@@ -25,6 +25,17 @@ Usage:
         --jar ..\\..\\mods\\qf-content\\build\\libs\\QuestForgeContent-1.0.0.jar \\
         --out C:\\qfs\\campaign [--only-phase singles] [--dry-run] [--tickwarp]
 
+--jobs FILE replaces the built-in queue with the jobs listed in a JSON file, for
+a targeted re-test after a balance change (the first was retest-2026-10-25.json,
+after decision 0005). Each entry is {"name", "tier", "boss", "args": [...],
+"reps": 1, "pin": true}: the tier supplies the weapon and armour, args are the
+extra census options, reps lists the boss that many times so every cell is
+measured reps times in one run (replicates for the error bar), and pin=false
+runs the boss WITHOUT its recorded reference so it is re-sampled -- for a boss
+whose config changed. Pinned jobs still wait for a reference. Use a fresh --out
+with a refs.json copied from the campaign so the opponents match, minus the
+bosses to re-sample.
+
 --tickwarp starts each server with -Dqf.census.tickwarp=true: ticks run back to
 back instead of one per 50 ms (see docs/survey/combat.md). Every census window
 is counted in ticks, so the numbers are unchanged; a job takes about two
@@ -92,6 +103,22 @@ BOSS_ARGS = {
     # player aims for (other parts take dmg/6+1).
     "TragicMC.Enyvil": ["part=enyvilEye"],
 }
+
+
+def custom_jobs(path):
+    """The queue from a --jobs file; see the module doc."""
+    tiers = {tier: (weapon, armour) for tier, weapon, armour, _ in TIERS}
+    out = []
+    for j in load(path, None) or []:
+        if "name" not in j:
+            continue   # a comment entry
+        weapon, armour = tiers[j["tier"]]
+        out.append(dict(name=j["name"], phase=j.get("phase", "custom"), tier=j["tier"],
+                        boss=j["boss"], reps=max(1, int(j.get("reps", 1))),
+                        pin=bool(j.get("pin", True)),
+                        args=[weapon, f"armour={armour}"] + list(j.get("args", []))
+                        + BOSS_ARGS.get(j["boss"], [])))
+    return out
 
 
 def jobs(pairs_only=None):
@@ -202,7 +229,7 @@ def save(path, data):
     os.replace(tmp, path)
 
 
-def launch(node, job, refs, jar, tickwarp=False):
+def launch(node, job, refs, jar, tickwarp=False, heap=HEAP):
     shutil.copy2(jar, os.path.join(node.path, "mods", os.path.basename(jar)))
     cfg = os.path.join(node.path, "config")
     for f in os.listdir(cfg):
@@ -216,14 +243,17 @@ def launch(node, job, refs, jar, tickwarp=False):
     shutil.rmtree(os.path.join(node.path, "combat"), ignore_errors=True)
 
     target = job["boss"]
-    if target in refs:
+    if target in refs and job.get("pin", True):
         hp, atk = refs[target]
         target = f"{target}@{hp}/{atk}"
-    request = ",".join([target] + job["args"])
+    # Listed reps times: the census measures every cell once per listing, so
+    # the run holds that many replicates of each (the census's own replicate
+    # mechanism, used for the 20-cell Rage I check on 2026-10-19).
+    request = ",".join([target] * job.get("reps", 1) + job["args"])
     log = open(os.path.join(node.path, "census-run.log"), "wb")
     err = open(os.path.join(node.path, "census-err.log"), "wb")
     node.proc = subprocess.Popen(
-        [JAVA, "-Xms2G", HEAP, "-Dfml.queryResult=confirm"]
+        [JAVA, "-Xms2G", heap, "-Dfml.queryResult=confirm"]
         + (["-Dqf.census.tickwarp=true"] if tickwarp else [])
         + [f"-Dqf.census.combat={request}", "-jar", FORGE_JAR, "nogui"],
         cwd=node.path, stdout=log, stderr=err, stdin=subprocess.DEVNULL,
@@ -286,12 +316,14 @@ def main():
     ap.add_argument("--tickwarp", action="store_true",
                     help="run census ticks back to back (-Dqf.census.tickwarp=true)")
     ap.add_argument("--adopt", nargs="*", help="NODE=JOB=PID of servers already running")
+    ap.add_argument("--jobs", help="JSON file of jobs to run instead of the built-in queue (see the module doc)")
+    ap.add_argument("--heap", default=HEAP, help=f"the server's -Xmx (default {HEAP})")
     args = ap.parse_args()
 
     os.makedirs(args.out, exist_ok=True)
     refs_path = os.path.join(args.out, "refs.json")
     refs = load(refs_path, {})
-    queue = [j for j in jobs(args.pairs_only)
+    queue = [j for j in (custom_jobs(args.jobs) if args.jobs else jobs(args.pairs_only))
              if not args.only_phase or j["phase"] == args.only_phase]
     if args.bosses:
         wanted = {x.strip() for x in args.bosses.split(",") if x.strip()}
@@ -348,7 +380,7 @@ def main():
             for j in queue:
                 if j["boss"] in running_bosses:
                     continue
-                if j["phase"] != "singles" and j["boss"] not in refs:
+                if j["phase"] != "singles" and j["boss"] not in refs and j.get("pin", True):
                     continue
                 pick = j
                 break
@@ -357,7 +389,7 @@ def main():
             queue.remove(pick)
             attempts[pick["name"]] = attempts.get(pick["name"], 0) + 1
             running_bosses.add(pick["boss"])
-            launch(node, pick, refs, args.jar, args.tickwarp)
+            launch(node, pick, refs, args.jar, args.tickwarp, args.heap)
             time.sleep(20)   # stagger boots; three at once thrash the disk
         time.sleep(15)
     print(time.strftime("%H:%M:%S"), "campaign complete", flush=True)
