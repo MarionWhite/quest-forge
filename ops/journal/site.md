@@ -1,5 +1,12 @@
 # Site journal (newest first)
 
+- 2026-10-26 (Mac) orchestrator: round 5 done. Critic rounds caught Steve hidden behind his own
+  back at the stations (3/4 activity camera), the lamp post occluding, Giants dressed although
+  1.7.10 never draws their armour (reverted), the lucky-choice camera, webs as cubes, a filled
+  end-portal frame, a cluttered vault and muddy-dark segments. Live check: all 14 scares played
+  in real time via CDP (picker, death screen, Enter respawns to the same spot, no exceptions).
+  Audio context now warms in idle time (first Break click stalled ~170 ms).
+
 - 2026-10-26 (Mac) site-r5-scares: all 14 Krypt scares rebuilt in the real scene (scares/rig.js runner, 1.7.10 HUD and death screen, J picker, approved.json empty so the director plays nothing until the owner approves); piston traps carve real rooms (Cave Spider, Slime) or drop you into a scare-built cavern seen through the rock (Ghast); 56-frame sheet over 5 segments, check_sounds 0 missing.
 - 2026-10-26 lucky-life r5: nav.js occupancy map + A* (Steve and ground mobs never inside a prop, nav_check.py 0 violations), front-side table/furnace/chest, iron/wood chains, 1.7.10 held items, fence model, opaque chest, chicken chase, sign moved off the dais view.
 
