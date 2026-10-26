@@ -35,4 +35,12 @@ Previous state: `ops/checkpoints/site-krypt-world.md`.
   carve demo (`?carve=x,y,z,w,h,d`, a debug hook).
 
 ## Done
-Contract shipped: krypt.js meshGrid is now chunked (16x16, lazy via pump) + makeCarver; app.js exposes __krypt.carve/restore/solidAt/blockAt, documented at top. ?carve=x,y,z,w,h,d hook in runDump. Next: new segments.
+- Contract shipped and committed (132d554): chunked lazy meshing (krypt.js meshGrid, CH=32, pump), makeCarver; app.js exposes
+  __krypt.carve/restore/solidAt/blockAt, documented at the top; ?carve=x,y,z,w,h,d hook in runDump.
+- Six new segments in krypt.js (SPEC, step per leg, PROFILE, WALLS 10-15) + dress.js decor: catacomb, spidermine (cave spider
+  spawner, web tunnel), temple (dispensers, tripwire, levers), vault (iron doors, hoard), fortress (nether brick arches, fences,
+  lava pits), stronghold (end portal room finale, vc/pathEnd). 15 legs, 14 bends, 9 side passages. Walk length 460 blocks (was ~235).
+- Textures copied from 1.7.10 into site/graves/tex (furnace_side/top, dispenser front, lever, trip_wire(_source), door_iron_*,
+  endframe_*, gold/diamond/lapis/emerald block, stonebrick_carved).
+- Dress batches are per 32x32 cell (culled). Draw calls in dump (incl. ~20 post passes): 62-111, old frames were 40-74.
+- Next: final sheet check, journal line, commit. Sheet: scratchpad r5/krypt-more/final/sheet.png, phone/sheet.png.

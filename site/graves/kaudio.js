@@ -61,7 +61,7 @@ export function makeAmbience({ a, lay }) {
         const ps = a.spots.passages.filter(p => { const d = Math.hypot(p.mouth[0] - cam.x, p.mouth[2] - cam.z); return d > 9 && d < 46; });
         if (ps.length) {
           const p = ps[Math.floor(Math.random() * ps.length)];
-          const n = 9, gap = rnd(0.58, 0.72), nm = kind === "mine" || kind === "crypt" ? "step.gravel" : "step.stone";
+          const n = 9, gap = rnd(0.58, 0.72), nm = kind === "mine" || kind === "crypt" || kind === "spidermine" || kind === "catacomb" ? "step.gravel" : "step.stone";
           for (let i = 0; i < n; i++) {
             const f = i / (n - 1);
             const pos = { x: p.end[0] + (p.mouth[0] - p.end[0]) * f + p.dir[0] * f * 1.5, y: p.end[1] + 1.2, z: p.end[2] + (p.mouth[2] - p.end[2]) * f + p.dir[1] * f * 1.5 };
@@ -87,7 +87,7 @@ export function makeAmbience({ a, lay }) {
       if (dist > stride) {
         dist = 0;
         if (Math.abs(walk.speed) > 0.25) {
-          const nm = (kind === "mine" || kind === "crypt") && Math.random() < 0.6 ? "step.gravel" : "step.stone";
+          const nm = (kind === "mine" || kind === "crypt" || kind === "spidermine" || kind === "catacomb") && Math.random() < 0.6 ? "step.gravel" : "step.stone";
           snd("play", nm, { volume: Math.min(0.5, 0.18 + Math.abs(walk.speed) * 0.03), pitch: rnd(0.85, 1.05), reverb: 0.25 });
           own++;
         }

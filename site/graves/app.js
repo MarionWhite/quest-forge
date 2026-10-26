@@ -28,7 +28,10 @@ const TEX_FILES = ["stone", "cobblestone", "cobblestone_mossy", "stonebrick", "s
   "gravel", "obsidian", "bedrock", "coal_ore", "iron_ore", "web", "vine", "netherrack", "glowstone", "iron_bars", "dirt",
   "bookshelf", "nether_brick", "soul_sand", "mob_spawner", "fire_layer_0", "bone", "planks_oak", "log_oak", "log_oak_top",
   "lava_still", "water_still", "torch_on", "rail_normal", "waterlily", "particles", "steve",
-  "grave_stone", "grave_zerk", "grave_pillar", "grave_wood", "grave_knight", "skeleton"];
+  "grave_stone", "grave_zerk", "grave_pillar", "grave_wood", "grave_knight", "skeleton",
+  "furnace_side", "furnace_top", "dispenser_front_horizontal", "lever", "trip_wire", "trip_wire_source", "door_iron_lower",
+  "door_iron_upper", "endframe_top", "endframe_side", "endframe_eye", "gold_block", "diamond_block", "lapis_block",
+  "emerald_block", "stonebrick_carved", "iron_block"];
 
 const state = {
   graves: [], updated: null, feed: "", loadError: false,
@@ -43,7 +46,8 @@ const state = {
 //   scene, camera, renderer, composer       the three.js objects (composer's last pass is the output)
 //   getWalk() -> { s, speed, activeSeconds, depth, segment }
 //       s              0..1 along the path (damped, what the camera shows)
-//       segment        the current segment's kind: crypt, mine, ossuary, flood, dungeon, library, chasm, stairs, deep
+//       segment        the current segment's kind, in walk order: crypt, mine, catacomb, ossuary, flood, spidermine,
+//                      temple, dungeon, library, vault, chasm, stairs, fortress, deep, stronghold (the finale)
 //       speed          blocks per second of walking right now (0 when standing)
 //       activeSeconds  seconds the visitor has spent actually walking, not paused, not focused on a stone
 //       depth          0..1, the same as s but eased: 0 at the entrance crypt, 1 in the nether depths
@@ -224,9 +228,9 @@ async function startKrypt() {
   const grid = buildGrid(lay);
   K.lay = lay; K.curve = curve; K.grid = grid; K.length = curve.getLength();
   const gm = meshGrid(grid, IMG);
-  scene.add(gm.group); K.gridMesh = gm; K.lightAt = gm.lightAt; K.carver = makeCarver(grid, gm);
+  if (!QS.has('nogrid')) scene.add(gm.group); K.gridMesh = gm; K.lightAt = gm.lightAt; K.carver = makeCarver(grid, gm);
   const dr = dress(grid, lay, IMG, gm.lightAt);
-  scene.add(dr.group); K.dress = dr;
+  if (!QS.has('nodress')) scene.add(dr.group); K.dress = dr;
   K.fx = makeFx(scene, grid.emit, { phone });
 
   // The violet sky, far above the cracks; it rides with the camera, so it has no parallax, like a real sky.
@@ -541,7 +545,7 @@ function focusCamera(i) {
 function frame(now) {
   if (!K) return;
   requestAnimationFrame(frame);
-  try { frameInner(now); } catch (e) { if (!K.logged) { K.logged = 1; console.error("frame", e && e.stack); window.__errs = (window.__errs || []).concat(String(e && e.stack || e)); } }
+  try { frameInner(now); } catch (e) { if (!K.logged) { K.logged = 1; console.error("frame", e && e.stack); window.__errs = (window.__errs || []).concat(String(e && e.stack || e)); document.documentElement.dataset.err = String(e && e.stack || e).slice(0, 900); } }
 }
 const _f = new THREE.Vector3(), _d = new THREE.Vector3();
 function frameInner(now) {
@@ -631,7 +635,7 @@ function frameInner(now) {
     K.spot.target.position.set(fr.stone.x, fr.stone.y + 0.6, fr.stone.z);
     K.spot.intensity = 14 * K.focusAmt;
   } else K.spot.intensity = 0;
-  K.dress.update(t, dt);
+  K.dress.update(t, dt, K.pos);
   K.fx.update(dt, K.pos, K.renderer.domElement.height, K.camera.fov * Math.PI / 180);
   K.grade.uniforms.time.value = t;
   updateBuilds(K.pos);
@@ -661,12 +665,13 @@ function runDump() {
 }
 function dumpShot() {
   K.dumped = true;
+  K.renderer.info.autoReset = false; K.renderer.info.reset();
   K.composer.render();
   const png = K.renderer.domElement.toDataURL("image/png");
   const info = {
     url: location.search, focusI: K.focusI ?? null, nearI: K.nearI ?? null, walkS: K.walk.s, pos: K.pos.toArray(), look: K.look.toArray(),
     fYaw: K.fYaw, fPitch: K.fPitch, kind: K.prof && K.prof.kind, built: K.built.size, queued: K.queue.length, graves: state.graves.length,
-    torches: K.grid.torches.length, mesh: K.gridMesh.stats(), carved: window.__krypt.blockAt(Math.floor(K.pos.x), Math.floor(K.pos.y), Math.floor(K.pos.z)), lights: K.lights.map(l => +l.pl.intensity.toFixed(2)), errors: window.__errs || [], sfx: sfxLog.slice(0, 40)
+    torches: K.grid.torches.length, mesh: K.gridMesh.stats(), calls: K.renderer.info.render.calls, tris: K.renderer.info.render.triangles, carved: window.__krypt.blockAt(Math.floor(K.pos.x), Math.floor(K.pos.y), Math.floor(K.pos.z)), lights: K.lights.map(l => +l.pl.intensity.toFixed(2)), errors: window.__errs || [], sfx: sfxLog.slice(0, 40)
   };
   const sc = document.createElement("script");
   sc.type = "application/json"; sc.id = "dumpshot";
