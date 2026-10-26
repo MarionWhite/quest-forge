@@ -64,12 +64,12 @@ Each stratum is a band of a few hundred graves. Order and the kinds each stratum
 | 4 | Mosswild: jungle, roots and fungus | moss, vines, mushrooms, webs | 22-28 |
 | 5 | Sand temples and pyramids | sandstone, traps, gold light | 29-35 |
 | 6 | The Hedge and the Labyrinth (Twilight Forest) | mazestone, hedges, hollow hills | 36-42 |
-| 7 | The Knight stronghold and the towers (Twilight Forest) | carved stone, tower wood, forcefields | 43-49 |
+| 7 | The Knight stronghold and the towers (Twilight Forest) | carved stone, tower wood, auroras | 43-49 |
 | 8 | Halls of Chocolate Quest | castles, strongholds, ships, cathedrals | 50-56 |
-| 9 | Arcane halls and witch lairs | libraries, labs, smithies, covens, secret doors | 57-64 |
+| 9 | Arcane halls and witch lairs | libraries, smithies, covens, secret doors | 57-64 |
 | 10 | The Nether | nether brick, lava, fire, soul sand | 65-71 |
-| 11 | The End (Hardcore Ender Expansion) | obsidian, ravaged brick, energy | 72-77 |
-| 12 | The Hollow Beyond (OreSpawn vaults, altars, Lucky) | crystal, gems, cages, altars | 78-84 |
+| 11 | The End (Hardcore Ender Expansion) | obsidian, ravaged brick, lab glass | 72-77 |
+| 12 | The Hollow Beyond (OreSpawn vaults, altars, Lucky traps) | crystal, gems, cages, altars | 78-84 |
 
 Mood sequence for the owner's brightening rule: inside each stratum the torch count rises and the
 light warms from cold white (`#cfe3ff`) toward amber (`#ffb347`); the first segment of a stratum is
@@ -184,7 +184,6 @@ always the stratum's darkest, coolest one.
 - **Mood:** solemn labyrinth in raw stone; unlike the brick pieces this uses plain stone 1 for a cut-rock feeling.
 - **Segment:** "raw-rock tunnel": a 3x4 smooth stone corridor (no bricks), with a lava moat (2 wide) in the floor crossing every 14 blocks and a bridge of stone slabs; the "shooting range" version has a skeleton spawner behind the lava. This is also the natural source of the **gap-with-lava** the endless spec wants at bends.
 
-(Entries 13 and 14 continue below.)
 
 ### 13. Vanilla stronghold corridors, prison cells and library
 - **Source:** vanilla 1.7.10, `StructureStrongholdPieces` (Straight, Prison cell, Library, Stairs, Chest corridor, Fountain, Portal room).
@@ -397,7 +396,7 @@ All TF art below lives in `TwilightForest-2.4.3.jar` (`assets/twilightforest/tex
 
 ### 37. Labyrinth rooms: Vault, Fountain, Spawner Chests, Collapse
 - **Source:** Twilight Forest, `ComponentTFMazeRoomVault` (15x15), `...RoomFountain`, `...RoomSpawnerChests` (11x11 with a Minotaur spawner), `...RoomCollapse` (14x14, ceiling fallen in: dirt, gravel, plants), `...MazeRoom`, `...MazeMushRoom`.
-- **Layout:** the Vault is a 15x15 chamber with sand, TNT 46, pressure plate 52, chests 54: a treasure room with a TNT trap and the lure of a chest on a platform; the Fountain room has a water or lava basin; Spawner Chests has a spawner flanked by chests with iron bars and planks frames; Collapse is a rubble-filled square with gravel 13, dirt 3, grass 2 and ferns.
+- **Layout:** the Vault is a 15x15 chamber with sand, TNT 46, pressure plate 70, chests 54: a treasure room with a TNT trap and the lure of a chest on a platform; the Fountain room has a water or lava basin; Spawner Chests has a spawner flanked by chests with iron bars and planks frames; Collapse is a rubble-filled square with gravel 13, dirt 3, grass 2 and ferns.
 - **Blocks:** mazestone, sand 12, TNT 46, spawner 52, chests 54, iron bars 101, planks 5, gravel 13. **Tex:** TF (`mazestone_*`); VAN fallback as above.
 - **Mobs:** Minotaur, Maze Slime.
 - **Mood:** the "treasure room" and "collapsed ceiling" are great surprises.
@@ -405,7 +404,7 @@ All TF art below lives in `TwilightForest-2.4.3.jar` (`assets/twilightforest/tex
 
 ### 38. Labyrinth dead ends: torches, painting, trapped chest, lava fountain, roots
 - **Source:** Twilight Forest, `ComponentTFMazeDeadEnd*` (Chest, TrappedChest, Fountain, FountainLava, Painting, Roots, Shrooms, Torches), `ComponentTFMazeEntranceShaft`, `ComponentTFMazeUpperEntrance`.
-- **Layout:** each dead end is a cell terminating in a small dressing: a chest, a trapped chest 146 (explodes?), a water or lava fountain 8/10, a painting 321 item frame, a ring of torches.
+- **Layout:** each dead end is a cell terminating in a small dressing: a chest, a trapped chest 146, a water or lava fountain 8/10, a painting 321 item frame, a ring of torches.
 - **Blocks:** chest 54 / trapped chest 146, lava 10/11, water 8/9, torch 50, painting (entity). **Tex:** VAN only for the dressing.
 - **Mood:** a quiet "cul-de-sac" gift; the lava fountain is the dangerous one.
 - **Segment:** "dead-end niche": every alcove is a grave alcove but one in six gets a dressing from this list. A "lava fountain" alcove is a 1x2 recess with lava 11 spilling down; a "painting" alcove has a framed painting above the grave (a memorial). Strong for variation without new geometry.
@@ -557,3 +556,274 @@ All CQ rooms/castles use vanilla blocks; the files are in `chocolateQuest-1.7.10
 - **Blocks:** sandstone 24, glowstone 89, stained glass 95, planks 5, cobble 4, wool 35, anvil 145, fence 85. **Tex:** VAN only.
 - **Mood:** festival at the bottom of a grave: ironic, crowded, warm.
 - **Segment:** "market gallery": a wide (7-9) hall with stall alcoves (wool awnings 35 over each grave nook), glowstone lamps hung on fences, anvils and barrels as dressing. The warmest, busiest kind in the catalogue; use to break up long dark runs.
+
+---
+
+## Stratum 9: Arcane halls and witch lairs
+
+### 57. Roguelike Library and Lab
+- **Source:** Roguelike Dungeons, `rooms/DungeonLibrary`, `rooms/DungeonLab`, `segment/part/SegmentBooks`, `SegmentShelf`.
+- **Layout:** the library: shelves 47 up the walls, carpet 171 (green) aisle, oak stairs 53 as reading benches, redstone lamps 124 lit by hidden redstone blocks 152, podzol/ferns as potted decor, oak doors 64 and trapdoors 96; the lab: farmland 60 with carrots, melons, pumpkins and nether wart 115 beds, water, soul sand 88, cyan-stained clay, redstone lamps, an alchemist's study.
+- **Blocks:** bookshelf 47, carpet 171[13], oak stairs 53, redstone lamp 123/124 (lit by a block of redstone 152 buried under the floor), trapdoor 96, farmland 60, nether wart 115, soul sand 88, stained clay 159[9]. **Tex:** VAN only.
+- **Mood:** cosy scholarly (library), mad-scientist (lab).
+- **Segment:** "reading room": 5 wide, a green carpet runner, shelf-lined walls with graves between shelves, lamps at each bay (the hidden-redstone trick makes lamps glow without visible wiring). A warm yellow-white interior; 12-20 long.
+
+### 58. Roguelike Smithy and Mess hall
+- **Source:** Roguelike Dungeons, `rooms/DungeonsSmithy`, `rooms/DungeonMess`.
+- **Layout:** smithy: brick 45 forge walls with fire 51 over netherrack 87 behind iron bars 101, an anvil 145 (new and damaged), lava 11 and water 8 quenching pools, redstone lamps; mess: crafting table, fires, a glowstone chandelier, iron bars, a food chest.
+- **Blocks:** brick 45, brick stairs 108, slab 44, anvil 145, fire 51, netherrack 87, lava 11, water 8, iron bars 101, redstone lamp 124, glowstone 89. **Tex:** VAN only.
+- **Mood:** hearth, workman's heat, orange-lit.
+- **Segment:** "forge nook": a hall with brick-and-iron-bar forge alcoves (fire inside: a flickering orange glow), an anvil on a fence pedestal, a quench trough (water with a stone lip), warm light. Contrasts with every cold stratum.
+
+### 59. Roguelike Enchant, Music, Reward and Firework rooms
+- **Source:** Roguelike Dungeons, `rooms/DungeonsEnchant` (enchantment tables 116 ringed with purple stained clay 159[10] and glowstone), `DungeonsMusic` (jukebox 84 on carpet with a record chest), `DungeonReward` (glowstone-ringed chest), `DungeonFirework`, `DungeonBTeam`, `DungeonAvidya`, `DungeonEniko`, `DungeonEtho`, `DungeonTreetho` (author-gift rooms).
+- **Layout:** small themed chambers with a single centrepiece (tables, jukebox, chest, firework launchers).
+- **Blocks:** enchantment table 116, glowstone 89, jukebox 84, carpet 171, note block 25, redstone lamp, stained clay. **Tex:** VAN only.
+- **Mood:** reward, a pause.
+- **Segment:** "shrine alcove": a single 5x5 room beside the path with a centrepiece on a 3x3 dais ringed in glowstone; a jukebox variant can play the stratum's ambience from a block. Used rarely (1 per ~40 graves).
+
+### 60. Witchery coven, shack and goblin hut
+- **Source:** Witchery, `worldgen/ComponentCoven`, `ComponentShack`, `ComponentGoblinHut`, `ComponentVillageWitchHut`, `WitcheryComponent`, `WorldHandlerCoven`.
+- **Layout:** a swamp shack on stilts of logs 17 with planks 5 and spruce stairs 134, a cauldron 118 inside, a chest, bed 26, crafting table 58; the coven: a ring of sand and cobble, web 30 and water, with witches; the goblin hut: log-and-plank cottage with a cauldron and stone slab roof.
+- **Blocks:** log 17, planks 5, cobble 4, sand 12, dirt 3, grass 2, cauldron 118, web 30, wooden door 64, fence 85, torch 50, bed 26. **Tex:** VAN only for the structure; Witchery props (altar, circle glyphs, wicker block) are WIT-only.
+- **Mobs:** Witch, Goblin, Familiar.
+- **Mood:** swamp witch folk-horror.
+- **Segment:** "witch's stilt-hall": a plank walkway on log stilts over a swamp (water beneath), a lantern (torch 50) on a fence post every 5, a cauldron in the largest alcove; webs in corners.
+
+### 61. Witchery Wicker Man and Altar circles
+- **Source:** Witchery, `worldgen/ComponentWickerMan`, `WorldHandlerWickerMan`, `blocks/BlockCircle`, textures `wicker_block_plain_side.png`, `wicker_block_bloodied_side.png`, `circleglyph1.1..3.12.png`, `altar.png`, `coffin.png`.
+- **Layout:** a giant wicker figure on a dirt-and-sand plot (zombies near it); circles are floor glyph rings (chalk/gold/infernal) used in rituals; the altar is a 3-block structure.
+- **Blocks:** WIT wicker block, glyph circle (WIT), hay 170 (fallback for wicker), netherrack 87, fire 51 (burn the man). **Tex:** WIT (all glyph/wicker textures); VAN fallback: hay bale 170 + nether brick.
+- **Mobs:** Zombie, Witch, Imp, Demon (the circles summon).
+- **Mood:** pagan, ritual horror.
+- **Segment:** "ritual circle": a 7x7 floor glyph ring (flat, drawn with 1px glyph textures; the VAN fallback is a ring of redstone-dust-like red marks) in the centre of a round chamber; a bone-white altar and 4 candle torches. The player walks the rim; a scare on the circle. WIT-only variant needs the owner's yes.
+
+### 62. Witchery village keep, watchtower, apothecary
+- **Source:** Witchery, `worldgen/ComponentVillageKeep`, `ComponentVillageWatchTower`, `ComponentVillageApothecary`, `ComponentVillageBookShop`, `WorldHandlerVillageDistrict`.
+- **Layout:** a village walled district: a keep with stone and wood, guards and chest; watchtower; an apothecary shop with brewing stands 117 and cauldron 118; bookshop shelves 47.
+- **Blocks:** planks 5, cobble 4, iron bars 101, ladder 65, torch 50, brewing stand 117, bookshelf 47, cauldron 118. **Tex:** VAN only.
+- **Mobs:** Village Guard, villagers.
+- **Mood:** civic order, lived-in.
+- **Segment:** "apothecary row": a wooden-beamed corridor with shelves, bottles (brewing stands) and herb bundles (flowers hung from fences) in the grave alcoves, hanging lanterns; reads as "a shop beneath the graves".
+
+### 63. Witchery Torment, Mirror and Dream worlds (maze dimension)
+- **Source:** Witchery, `dimension/WorldProviderTorment`, `WorldProviderMirror`, `WorldProviderDreamWorld`, `GenerateMaze`.
+- **Layout:** the Torment dimension is a dark maze of stone-like hostile corridors with a ceiling and heavy mist; the Mirror dimension duplicates a pocket; the Dream world floats islands in a void. All three are generated by code with a maze generator (`GenerateMaze`).
+- **Blocks:** stone/grass in the Dream world; Torment uses a custom dark stone and "spirit" fog; flowspirit (a fluid) texture `flowspirit_still.png`. **Tex:** WIT (`flowspirit_*`, `dreamCatcher.png`, `mirror.png`); VAN fallback: obsidian 49 and soul sand 88.
+- **Mobs:** spirit mobs; Dream mobs (nightmare, spectre).
+- **Mood:** nightmare and spirit-world surreal.
+- **Segment:** "spirit passage": a dark corridor of obsidian-black walls with a thin white mist at knee height, glowing spirit-water channels along the floor; alcoves look like dream-catchers (a hoop of fence blocks). Use for a one-off eerie interlude (a "dream" segment).
+
+### 64. SecretRooms hidden doors and one-way glass
+- **Source:** SecretRooms mod, `blocks/BlockCamoDoor`, `BlockCamoGate`, `BlockCamoStair`, `BlockCamoPlate`, `BlockCamoLever`, `BlockOneWay`, `BlockCamoGhost`, `BlockSolidAir`, `BlockTorchLever`, `BlockCamoChest`; textures `CamoBase.png`, `CamoGate.png`, `CamoPlateIron.png`, `clear.png`, `SolidAir.png`, `TorchLever.png`.
+- **Layout:** blocks that copy the block they are embedded in: a hidden door set into a wall looks like stone brick until a (camouflaged) lever or plate opens it; ghost blocks let you walk through; one-way glass; torch levers that switch when clicked.
+- **Blocks:** camo blocks mimic neighbours; for the Krypt, use stone brick 98 or the local wall for a "sealed alcove".
+- **Tex:** SR (the camo base textures) but the visual result is the neighbour's texture, so none is needed in the Krypt: VAN only.
+- **Mood:** a hidden room, secret grave.
+- **Segment:** "false wall alcove": 1 in 8 alcoves is hidden behind a wall that looks continuous; clicking a torch-lever lights up the stone; revealed: a larger family vault with a grave of someone special (e.g. the 100th death). Good for milestone graves.
+
+---
+
+## Stratum 10: The Nether
+
+### 65. Vanilla Nether fortress
+- **Source:** vanilla 1.7.10, `StructureNetherBridgePieces` (Straight, Crossing, Corridor with nether wart room, Stairs, Throne room with blaze spawner, Entrance).
+- **Layout:** a raised network of nether brick bridges 5 wide, 5 high with open sides and nether brick fence 113 railings, corridors enclosed 5x4, a wart staircase room (soul sand 88 + nether wart 115 in a lava-fronted well), a blaze throne room with a spawner on a dais, openings over lava seas.
+- **Blocks:** nether brick 112, nether brick fence 113, nether brick stairs 114, soul sand 88, nether wart 115, spawner 52, chest 54, lava 10/11. **Tex:** VAN only (`nether_brick`, `soul_sand`, `netherrack`, `lava_still`).
+- **Mobs:** Blaze, Wither Skeleton, Zombie Pigman, Magma Cube.
+- **Mood:** hot, red, towering. The iconic one.
+- **Segment:** "fortress bridge": the path is a 5-wide nether-brick bridge with fence rails, open to a lava sea below on both sides (no side walls, only the ceiling-less cavern dark red), pillars supporting; alcoves are impossible without walls, so put graves as niches in short wall stubs (every 8 blocks a gatehouse wall with alcoves). A crossing with a wart-room well is the climax. Provides the **lava gap** naturally (a missing bridge slab).
+
+### 66. Doomlike nether halls
+- **Source:** Doomlike Dungeons, `res/themes/nether.cfg`.
+- **Layout:** Y 32-64; `buildFoundation true`, `outside` big (15-25% of the dungeon is open air), Blaze/Magma Cube/Zombie commons; boss mob WitherBoss in the largest room; no degeneracy.
+- **Blocks:** nether brick 112 everywhere (walls, floor, ceiling), nether brick fence 113, pillars of nether brick, obsidian 49 and quartz 155; lava as liquid. **Tex:** VAN only.
+- **Mobs:** Blaze, Magma Cube, Zombie Pigman, Skeleton (Wither), Wither (boss).
+- **Mood:** a nether bunker.
+- **Segment:** "brimstone hall": enclosed nether-brick hall 5-7 wide with pillars of obsidian every 5 blocks, a lava stream (1 wide) down the middle crossed by slab bridges, ember glow (fire 51 on netherrack 87 in brazier alcoves).
+
+### 67. Roguelike Nether theme and fire/obsidian rooms
+- **Source:** Roguelike Dungeons, `theme/ThemeNether`, `rooms/DungeonsNetherBrick`, `DungeonsNetherBrickFortress`, `DungeonObsidian`, `DungeonsFire`, `segment/part/SegmentNetherArch`, `SegmentNetherLava`, `SegmentNetherStripes`, `SegmentNetherWart`, `SegmentFireArch`, `SegmentFirePlace`.
+- **Layout:** segments: an arch of nether-brick fence 113 over a lava channel; a stripe pattern of lava between slabs in the floor; a nether-wart bed in soul sand; a fireplace (fire 51 on netherrack 87 behind iron bars 101) in the wall; rooms: obsidian vault with lava moat and a spawner; fire room: a grid of netherrack brasiers.
+- **Blocks:** nether brick 112, netherrack 87, soul sand 88, obsidian 49, quartz ore 153, redstone block 152, coal block (substitute coal ore 16 at 1.7.10), fire 51, lava 11, iron bars 101. **Tex:** VAN only.
+- **Mobs:** Blaze, Magma Cube, Wither Skeleton.
+- **Mood:** furnace-like.
+- **Segment:** "brazier gallery": alcoves with iron-barred fireplaces (fire inside, glow outward), the floor striped with lava between slab bars so you step along a 1-wide path. High atmosphere for cheap blocks.
+
+### 68. Chocolate Quest pigcity dungeon and lava temple
+- **Source:** Chocolate Quest, `DungeonConfig/netherCity.prop` (`builder = lavaCity`, dimension -1, `floorBlock = nether_brick`, `lavaBlock = lava`, `posY = 31`, `rows = 4`), `pigcity/{dungeon,Temple,Temple1,Temple2,big_colisseum,fat_tower,Prison,mage_tower,portal_temple,ghast_nest,houses*,mansion1..5,Hotel,Pub,shop,plaza,track,gym,farm,Pig_farm,art_gallery,blacksmith,tree_plaza,colisseum}.schematic` (15x?x15 plots).
+- **Layout:** a city of 15x15 plots on a nether-brick floor over a lava sea: dungeon (15x20x15: 2166 nether brick, 123 lava, redstone and repeaters 25, pistons 8 for a trap, 15 glowstone), Temple (15x13x15: 91 lava, 29 glowstone, 2 gold blocks), Prison (1227 nether brick, 84 fence, 28 glowstone, 8 web, 2 chests), fat tower, colosseum.
+- **Blocks:** nether brick 112, nether brick stairs 114, fence 113, lava 11, glowstone 89, gold block 41, redstone 55, repeater 93, sticky piston 29, web 30. **Tex:** VAN only.
+- **Mobs:** Zombie Pigman (`mob = pigzombie`).
+- **Mood:** decadent infernal city; grand and absurd.
+- **Segment:** "pigcity avenue": a 7-wide nether-brick street between façades of towered houses (stairs and fence trim), glowstone lampposts, lava canals either side; the prison variant has cells with fences and webs. 15 long (one plot).
+
+### 69. Chocolate Quest portal temple, mage tower, ghast nest, water temple
+- **Source:** Chocolate Quest, `pigcity/portal_temple.schematic` (15x11x15: 310 nether brick, 30 log 17, 24 glowstone, 12 obsidian, 2 gold, 2 lapis), `mage_tower.schematic` (15x15x15: 76 bookshelf, 39 glowstone, farmland 10 with wheat, 7 water, enchantment table), `ghast_nest.schematic` (15x19x15: 169 hay 170, 60 nether fence, 1 spawner), `temple_water.schematic` (15x13x15: 56 water, 4 lava, 4 glowstone, enchantment table).
+- **Layout:** four small shrine-like buildings: a log-framed portal frame with obsidian, a tower of books and a farm, a hay-bale nest (ghast spawner), a watery temple in the middle of fire.
+- **Blocks:** nether brick 112, log 17, obsidian 49, glowstone 89, bookshelf 47, hay bale 170, nether brick fence 113, water 9. **Tex:** VAN only.
+- **Mood:** the weird shrine at the end of a hot street.
+- **Segment:** "portal chapel": a 15-wide short chapel with an unlit obsidian frame (4x5, with a purple-black interior) on the end wall (graves flank it), a pair of lava braziers. Ties to the gap/jump (a portal at the end can be the lore link to the End).
+
+### 70. Recurrent Complex blaze crystal, Unholy Monolith and Joker Tower
+- **Source:** Recurrent Complex, `BlazeSpawnerCrystal.rcst` (7x8x7, Y 8-40: obsidian 49, nether brick, a Blaze spawner), `MonolythUnholy.rcst` (15x26x15: slabs, nether brick, obsidian, netherrack 87, fire 51, glowstone, stained glass, a spawner and droppers), `MonolythHoly.rcst` (quartz 155, glowstone), `JokerTower.rcst` (9x32x9 buried 18 deep: stone brick, nether brick, TNT 46, pressure plate, obsidian, a chest and bats).
+- **Layout:** pillar-shrines: the unholy monolith is a 26-tall nether-brick spire topped with fire and a spawner, the holy one the quartz counterpart; the joker tower is a buried vertical shaft with a TNT trap.
+- **Blocks:** obsidian 49, nether brick 112, netherrack 87, fire 51, glowstone 89, quartz 155, TNT 46, stained glass 95. **Tex:** VAN only.
+- **Mobs:** Blaze, Zombie, Bat.
+- **Mood:** monolith: sacred/profane duality.
+- **Segment:** "dual spire": a hall crossing between a holy (white quartz, glowing) and an unholy (black nether brick, fiery) half; the left wall quartz, the right nether brick, with a seam down the middle. A direct fit for the Krypt's themes of death and judgment.
+
+### 71. Doomlike volcanic halls
+- **Source:** Doomlike Dungeons, `res/themes/volcanic.cfg` (type FIERY, MOUNTAIN, Y 10-25).
+- **Layout:** the liquid ladder is 85% lava at the top end; floors include obsidian 49; walls stone, cobble, cracked brick.
+- **Blocks:** cobble 4, stone 1, stone brick 98[2], obsidian 49, dirt, lava 10/11. **Tex:** VAN only.
+- **Mobs:** Zombie, Skeleton, Spider (the default list).
+- **Mood:** magma chambers: a cave on fire.
+- **Segment:** "lava causeway": the path is an obsidian walkway, 3 wide, over a lava river whose banks have stone brick; the lava ceiling-glow lights everything orange; gaps occur at lava pools (the spec's lava gap). 14-24 long.
+
+---
+
+## Stratum 11: The End (Hardcore Ender Expansion)
+
+All art here is in `HardcoreEnderExpansionMCv.jar` (`assets/hardcoreenderexpansion/textures/blocks/`), licence unverified; each entry has a VAN fallback (obsidian, end stone, quartz, purple stained clay).
+
+### 72. HEE Obsidian tower
+- **Source:** HEE, `world/structure/tower/ComponentTower`, `StructureTower`, `MapGenTower` (`obsidian_special`, `obsidian_special_glow`, `obsidian_stairs`, enderman heads, enhanced TNT, essence altar, enhanced brewing stand, custom spawner, death flower pots).
+- **Layout:** a tall (~25) obsidian tower with chambers on several levels; Enderman spawners (`TowerEndermanSpawnerLogic`), a death-flower pot room, dispensers and furnaces, an altar.
+- **Blocks:** HEE `obsidian_special`, `obsidian_special_glow`, `obsidian_smooth`, `obsidian_chiseled`, `obsidian_pillar`; end stone 121; skull 144. **Tex:** HEE (`obsidian_*.png`); VAN fallback: obsidian 49 + quartz 155 pillars.
+- **Mobs:** Enderman, Endermite-like Louse.
+- **Mood:** tall dark; the End's gothic.
+- **Segment:** "obsidian stair": a 5-wide spiral up/down in a smooth obsidian shaft; glowing purple seams in the glow block; altars at landings.
+
+### 73. HEE End temple and portal chamber
+- **Source:** HEE, `world/feature/TempleGenerator`, `block/BlockTempleEndPortal`, `entity/block/EntityBlockTempleDragonEgg`, `item/ItemTempleCaller`, `mechanics/misc/TempleEvents`.
+- **Layout:** a temple built around a special end portal with a dragon egg; temple events (waves).
+- **Blocks:** HEE `temple_end_portal` (a portal with its own render), obsidian, end stone. **Tex:** HEE `obsidian_*`; VAN fallback: end portal frames 120 and black fog.
+- **Mobs:** Enderman, Angry Enderman.
+- **Mood:** sacred void.
+- **Segment:** "portal sanctum": a round 15x15 chamber with a sunken portal ring (dark glow), egg on a pedestal, ring of obsidian pillars. The last chamber of the End stratum or a milestone grave room.
+
+### 74. HEE Ravaged dungeon
+- **Source:** HEE, `world/structure/island/biome/feature/forest/ravageddungeon/` (`DungeonLayer`, `DungeonElement`, `DungeonElementType`, `DungeonDir`, `RavagedDungeonGenerator`, `RavagedDungeonPlacer`, `RavagedDungeonLoot`), `StructureRavagedDungeon`.
+- **Layout:** a multi-layer grid dungeon (a layer is a grid of elements: hallways, dead ends, embedded chests, encased cubicle chest, end room, louse spawners, ruin chests); walls of ravaged brick in five damage levels with glowing variants; ender goo pools, stardust ore.
+- **Blocks:** HEE `ravaged_brick`, `_smooth`, `_cracked`, `_damaged_1..4`, `_glow`, ravaged brick fence/slab/stairs, `ender_goo`, `end_powder_ore`, death-flower pots. **Tex:** HEE (`ravaged_brick_*.png`); VAN fallback: stone brick 98[2] cracked + 98[1] mossy tinted purple, glowstone.
+- **Mobs:** Louse (ravaged), Silverfish.
+- **Mood:** ruined and sticky with purple goo.
+- **Segment:** "ravaged corridor": 3-wide with damage progression (the first blocks smooth, later heavily cracked), glow seams, goo puddles (slime 165 or purple-tinted water), embedded chest alcoves = grave alcoves. Damage is a natural parameter: 0-4.
+
+### 75. HEE Laboratory
+- **Source:** HEE, `island/biome/feature/island/laboratory/` (`LaboratoryGenerator`, `LaboratoryPlan`, `LaboratoryElementType` NONE, HALL_X, HALL_Z, SMALL_ROOM, LARGE_ROOM; `LaboratoryContent` with `SmallRoom` and `LargeRoom`; `StructureLaboratory`).
+- **Layout:** a plan-grid of halls (X and Z) and rooms of two sizes; laboratory floor, glass walls with outline, obsidian frames.
+- **Blocks:** HEE `laboratory_floor`, `laboratory_glass`, `laboratory_glass_outline`, `laboratory_obsidian`, `laboratory_stairs`. **Tex:** HEE; VAN fallback: quartz 155 floor, glass 20, obsidian 49.
+- **Mobs:** Infested Bat/Louse etc., scientists (Vampire bats).
+- **Mood:** clinical sci-fi, sterile and wrong.
+- **Segment:** "lab corridor": a white-quartz floor, glass-panelled walls with obsidian frame bars, cold white light strips (glowstone behind glass), alcoves as glass pods holding the graves. A strong stylistic break; 14-24 long.
+
+### 76. HEE Silverfish dungeon, hidden cellar and burning-mountain puzzle
+- **Source:** HEE, `island/biome/feature/forest/StructureSilverfishDungeon`, `island/biome/feature/island/StructureHiddenCellar` (persegrit blocks, normal/rare chests), `island/biome/feature/mountains/StructureDungeonPuzzle` (`BlockDungeonPuzzle`: chained, distributor spread/square, trigger, wall).
+- **Layout:** the silverfish dungeon: spawner-cells in infested ground; the cellar: a small hidden vault under a hatch; the puzzle: a floor of coloured tiles you must light in the correct pattern (trigger, chained and distributor tiles) to open the way.
+- **Blocks:** HEE `dungeon_puzzle_trigger_lit`, `_chained_lit`, `_distributor_spread_lit`, `_distributor_square_lit`, `_wall`, `_wall_rock`, `_disabled`, `persegrit`. **Tex:** HEE; VAN fallback: redstone lamps 123/124 as lit/unlit tiles.
+- **Mood:** puzzle floor, a game.
+- **Segment:** "light-tile floor": a 7x7 floor of redstone-lamp-like tiles (unlit/lit) that light as you walk (a function of the walker's step); the path is the lit tiles. Visually distinctive; a puzzle without a puzzle (scare hook: the tile you step on goes dark).
+
+### 77. Vanilla stronghold portal room, Roguelike Ender room, RC corrupted Ender tree
+- **Source:** vanilla 1.7.10 `StructureStrongholdPieces$PortalRoom` (11x8x16: end portal frames 120 in a ring of 12, lava pool 11, a silverfish spawner 52, stairs); Roguelike `rooms/DungeonsEnder`, `ThemeEnder`; RC `CorruptedEnderTree.rcst` (14x16x12: end stone, leaves, obsidian, log, an Enderman spawner).
+- **Layout:** the portal room: a raised dais of 12 frames (eyes inserted randomly) over a lava pool, a spawner behind; the RL Ender room: obsidian + quartz + an Enderman spawner; the corrupted tree: a withered end-stone tree.
+- **Blocks:** end portal frame 120, end stone 121, obsidian 49, lava 11, quartz 155, sandstone 24. **Tex:** VAN only.
+- **Mobs:** Silverfish, Enderman.
+- **Mood:** endgame threshold. The 12 frames and the portal glow are the iconic final image.
+- **Segment:** "portal dais": a 11x16 room with a 12-frame ring (4x? dais) with lava on either side, steps up; the portal's black void at the centre (a flat quad). Use as the last segment before the End band, or as the ending of any milestone (every 1000th grave).
+
+---
+
+## Stratum 12: The Hollow Beyond (OreSpawn vaults, altars, Lucky traps)
+
+OreSpawn's dungeons are single code-built rooms ("vaults") with a spawner and cage-style loot. Their gem and crystal textures are in `orespawn.zip` (`assets/orespawn/textures/blocks/`), already used on the site.
+
+### 78. OreSpawn generic dungeon
+- **Source:** OreSpawn, `danger/orespawn/GenericDungeon.class` (`makeDungeon`), `DungeonSpawnerBlock`, `ItemRandomDungeon`; mob table in the class (Alien, Alosaurus, Basilisk, Bee, Blaze, Boyfriend/Girlfriend, Brutalfly, Cloud, Crystal, Dungeon beast, Emperor, Ender, Frog, Ghost, Hercules, Kyuubi, Leonopteryx, Molenoid, Mantis and more).
+- **Layout:** a closed chamber built from many mass-fill calls (the class uses room sizes around 15 wide, 6-10 high, with 35 and 25 as the larger spans), one monster spawner 52 behind bars with a "cage" of loot.
+- **Blocks:** a vanilla block, picked per dungeon (class draws ~1400 setBlock calls); spawner 52; OreSpawn `dungeonspawner.png`. **Tex:** OS (`dungeonspawner.png`); VAN for the rest.
+- **Mobs:** a random OreSpawn mob per room; this is the "boss-of-the-room" model.
+- **Mood:** boss closet.
+- **Segment:** "beast vault": a 15x7 chamber with a cage (iron bars) around a pedestal holding a creature silhouette (a model standing in a pen); the spawner glows. Parameter: creature silhouette picked from the pack's mob list.
+
+### 79. OreSpawn Nightmare dungeon
+- **Source:** OreSpawn, `danger/orespawn/NightmareDungeon.class` (`makeDungeon`, 25x? footprint); loot: amethyst armour/tools, experience gear, `CageEmpty` caged mobs; mob "Emperor Scorpion" and "Nightmare".
+- **Layout:** a 25-block-wide room with a raised dais and a chest of amethyst (blocks `blockamethyst.png`, ore `oreamethyst.png`) and ultimate gear.
+- **Blocks:** amethyst block, vanilla stone brick. **Tex:** OS (`blockamethyst.png`, `oreamethyst.png`).
+- **Mobs:** Nightmare, Emperor Scorpion.
+- **Mood:** the dreaded amethyst vault.
+- **Segment:** "amethyst vault": a purple-lit chamber with violet crystal clusters in alcoves, a pedestal with a glowing amethyst block; 12-18 long.
+
+### 80. OreSpawn Ruby bird dungeon
+- **Source:** OreSpawn, `danger/orespawn/RubyBirdDungeon.class`; ruby blocks `blockruby.png`, ore `oreruby.png`.
+- **Layout:** a 15x15 chamber with ruby block walls/loot; caged "Ruby Bird" in `CageEmpty`.
+- **Blocks:** ruby block (OS), cobble, torches. **Tex:** OS (`blockruby.png`, `oreruby.png`).
+- **Mood:** red jewel box.
+- **Segment:** "ruby vault": a short 15-long room, red glints from ruby ore in the walls, a cage with a red bird silhouette. Pairs well with the Nether stratum as a gem break.
+
+### 81. OreSpawn Basilisk maze
+- **Source:** OreSpawn, `danger/orespawn/BasiliskMaze.class` (`buildBasiliskMaze`, `makeMaze`, `drawSide`, uses a random-walk maze on a 30-wide grid, 15 and 20 block spans), loot with ultimate gear, titanium and uranium ingots, caged girlfriend (`CagedGirlfriend`), Basilisk boss.
+- **Layout:** a stone maze (30x30) built by depth-first search with a Basilisk in the centre.
+- **Blocks:** stone, `extremetorch.png` (OS torch), `blocktitanium.png`, `blockuranium.png`. **Tex:** OS.
+- **Mobs:** Basilisk.
+- **Mood:** deadly serpent maze.
+- **Segment:** "serpent maze": 3-wide stone passages with sharp turns (4 turns per 24 blocks), green torches, a stone "eyes" carving at each branch. 20-30 long.
+
+### 82. OreSpawn Crystal maze
+- **Source:** OreSpawn, `danger/orespawn/CrystalMaze.class` (`buildCrystalMaze`, `makeMaze`, `openCrystalMaze`; spans of 16/32/64/128), blocks `crystalstone.png`, `crystalplanks.png`, `crystalgrass_*`, `crystaltorch.png`, trees `crystaltreelog.png`.
+- **Layout:** a maze carved in crystal stone (a luminous translucent stone), opening to a crystal garden with crystal trees.
+- **Blocks:** OS `crystalstone`, `crystalplanks`, `crystaltorch`, `crystalgrass`, `crystaltreeleaves`. **Tex:** OS (all in `orespawn.zip`); VAN fallback: ice 79 + glowstone.
+- **Mobs:** Crystal Cow, Crystal Rat, Crystal Termite.
+- **Mood:** bright pastel crystal: a surprising oasis at the bottom of the dark.
+- **Segment:** "crystal maze": translucent cyan-white walls, crystal torches (cool light), the floor of crystal grass. The only cold, bright segment at the deepest end; a palette surprise.
+
+### 83. Lycanites altars (summoning chambers)
+- **Source:** Lycanites Mobs, `api/info/AltarInfo`, `demonmobs/info/AltarInfoRahovart`, `AltarInfoEbonCacodemon`, `infernomobs/info/AltarInfoUmberLobber`, `mountainmobs/info/AltarInfoCelestialGeonach`, `shadowmobs/info/AltarInfoLunarGrue`.
+- **Layout:** an altar is a small block arrangement (a few blocks, e.g. obsidian 49 and a metal block) on which a Soulkey is used to summon a mini-boss; the mod ships no schematic rooms, so the "spawner room" is the altar placed in a built chamber.
+- **Blocks:** obsidian 49, diamond/gold/iron blocks 57/41/42, glowstone 89, lava 11, depending on the altar (the Rahovart altar uses obsidian and a diamond-block topping). **Tex:** VAN only.
+- **Mobs:** Rahovart, Ebon Cacodemon, Umber Lobber, Celestial Geonach, Lunar Grue.
+- **Mood:** summoning.
+- **Segment:** "altar niche": a 3x3x3 niche off the corridor, 4 corner torches, an obsidian dais with a coloured block on top; the grave alcoves around it. Use altar block recipes as alcove "totems".
+
+### 84. Lucky traps: anvil, lava, pit and cage
+- **Source:** Lucky Blocks, `mod/lucky/util/CustomStructures` (`makePitTrap`, `makeCage`, `makeWaterCage`), `LuckyBlockProperties.txt` (IDs `anvil_trap`, `lava_trap`, `water_trap`, `pit_trap`, `bedrock_problem`, `explosion`).
+- **Layout:** pit trap: a 3-wide shaft of cobweb 30 at the top and lava 11 at the bottom (the class fills a narrow shaft with web near the top and lava at the bottom); the cage: a box of iron bars 101 and cobble wall 139; the anvil trap: an anvil 145 falling from above; the lava trap: lava 10 pour; the bedrock problem: a chamber of bedrock 7.
+- **Blocks:** web 30, lava 11, iron bars 101, cobble wall 139, anvil 145, bedrock 7. **Tex:** VAN only.
+- **Mood:** gleeful cruelty: designed to kill you.
+- **Segment:** "trap hall": a deliberate hazard: a pit in the floor (with web across, lava below, 2-3 wide: the **lava gap**), an anvil hanging on a chain over the path, a cage descending. Tie each to a scare in the scares module.
+
+---
+
+## Section A: Corners and gaps catalogue
+
+Quick picks for the spec's bend gaps (2-3 blocks of lava or water):
+
+| Gap | From | Look |
+|---|---|---|
+| Lava moat with a slab bridge | 12, 50, 71 | stone corridor cut by a 2-wide lava channel, bridge of stone slabs 44 (missing slab = gap) |
+| Water gap | 17, 18, 55 | plank causeway with a 2-3 block missing span over water |
+| Pit with web | 84 | cobweb across a 2-3 wide shaft, lava below |
+| Vanishing tile | 48, 76 | floor tiles that blink out for a second |
+| Portal gap | 69, 77 | a bend where the path crosses a black void |
+
+## Section B: Variety parameters (for krypt-gen)
+
+Every entry above accepts these without new geometry:
+- **Length** 6-40 (multiples of the entry's rhythm: 4 for alcoves, 6 for pillars, 15 for CQ rooms).
+- **Width/height** (3x3 up to 9x9; vaults up to 15x15, towers up to 5x60).
+- **Dressing seed**: picks wall-set variants (98 plain/mossy/cracked/carved at ratios 60/20/15/5), 4 floor variants, torch pattern, cobweb density, vine density, loot-less chest props.
+- **Damage**: 0-4 (cracked and gravel ratio; HEE ravaged levels 0-4; TF collapse; mossy for dank).
+- **Light colour**: per stratum, brightening within it (cold white to amber).
+- **Alcove style**: plain recess, barred cell, bone niche, quartz-capped tomb, cauldron basin, glass pod, curtain (carpet), wishing well.
+
+## Section C: Licence summary for the owner
+
+- **Ship with the VAN decision only:** entries 1-35, 50-60, 62, 64-71, 77, 83, 84 (CQ, Roguelike, Doomlike and Recurrent Complex contribute layout ideas, not art).
+- **Need a TF art decision, with a VAN fallback ready:** 36-49.
+- **Need a HEE art decision, with a VAN fallback:** 72-76 (73 and 75 are mostly VAN already).
+- **Need a WIT art decision:** 61, 63 (wicker, glyph, spirit water).
+- **Already in use:** OreSpawn textures (78-82 beyond the vanilla part).
+- **Camo (SR) textures:** not needed visually (64).
+- **No art at all:** Roguelike and Doomlike entries; their value is layout and block palettes.
