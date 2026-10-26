@@ -959,7 +959,7 @@ public class FrameBench {
             int cx = ((int) Math.floor(x)) >> 4, cz = ((int) Math.floor(z)) >> 4;
             for (int dx = -2; dx <= 2; dx++)
                 for (int dz = -2; dz <= 2; dz++) w.theChunkProviderServer.loadChunk(cx + dx, cz + dz);
-            w.getPlayerManager().updateMountedMovingPlayer(mp);
+            w.getPlayerManager().updatePlayerPertinentChunks(mp);
         } catch (Throwable t) {
             log("chunk subscribe failed: " + t);
         }
