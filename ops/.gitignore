@@ -1,0 +1,4 @@
+inbox.log
+checkpoints/*.tmp
+.watch-state.json
+watch.vbs
