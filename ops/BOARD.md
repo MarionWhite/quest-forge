@@ -19,7 +19,7 @@ Start here when the project resumes. Each item names its checkpoint or document;
 
 | Track | Status | Next step | Blocker | Detail |
 |---|---|---|---|---|
-| **shaders** | r008 posted, waiting on the owner (commit 006fe9b, not yet pushed; critic 6.3, "not yet: motes in the beams") | after push: check rounds/r008.json serves 200 + Edge screenshot (`checkpoints/r008-publish.md`); then the owner's r008 feedback | owner feedback | `tracks/shaders.md` |
+| **shaders** | r008 live 2026-10-26 (006fe9b pushed, rounds/r008.json 200; critic 6.3, "not yet: motes in the beams") | the owner's r008 feedback (Edge screenshot not taken) | owner feedback | `tracks/shaders.md` |
 | **textures** | QF Textures v1 in progress (cc3230e); r008 texture scenes not handed over yet | finish v1 renders, write `r008/texture_scenes.json` + TEXTURES-READY | none | `tracks/textures.md` |
 | **render loop** | done: renderq live; scheduled task "QuestForge renderq"; night mode 22:15–08:00 (shot jobs only, 30 fps) | report night power/fans from `C:\qfb\renderq\power.csv` on 10-26 | none | `tools/renderq/README.md` |
 | **quests** | WP-5/WP-6 drafts to decision 0004 (no parties, no house voice; 6acae6e, 8b29c67); jukebox recipe + jar built (1e836c4), not installed; dead-item census and `qb.py obtain` | Mac writers: voice samples, then the `[WRITE:]` texts; PC: damage-based hunt credit (`ops/checkpoints/quests-hunt-credit.md`) | voice samples: Mac | `ops/tracks/quests.md` |
