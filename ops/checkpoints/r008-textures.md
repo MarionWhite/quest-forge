@@ -1,11 +1,11 @@
 # r008 textures: QF Textures v1 (checkpoint 2026-10-25 21:20)
 
-Details: docs/design/textures/direction.md sections 5-7. Commits: 691b16d, a4d41fe, b1538a0, a6b2d68, cc3230e.
+Details: direction.md sections 5-7.
 
 ## v1 so far
 - Build: `py -3.10 -I tools/textures/build_qf_textures.py --out C:/qfb/textures/QFTextures-v1.zip [--leaf-edges none|all|sides] [--no-cit]`.
 - Faithful 64x: stone, bricks, cobble, ores, metal blocks, glowstone, glass, dirt, grass side, farmland (resourcepacks/QFTextures/faithful64.txt).
-- Glass CTM rules rewritten to 1.7.10 ids, each named after its folder (fixed the black clear glass).
+- Glass CTM rules rewritten to 1.7.10 ids, each named after its folder.
 - Our art (tools/textures/qf_art.py): leaves, bark, log ends, tall grass, fern, wheat 0-7, grass top, 4 bookshelf variants (CTM random, replaces Angelica's).
 - PBR from VNR (vnr.py): converted on vanilla textures, hybrid on Faithful ones.
 - Vibrance 1.10.
