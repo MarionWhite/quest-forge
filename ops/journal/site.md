@@ -1,5 +1,7 @@
 # Site journal (newest first)
 
+- 2026-10-26 (Mac) site-r6-scares: FNAF pass on all 14 Krypt scares (fnaf.js kit: lunge into the lens, split jaws, lit eyes, silence, fake-outs, a new roll of the dice every play), Magma Cube redone, Wither Skeleton's new ending (sword through the chest, decap, lifted to its face), gap deaths Lava fall and Drowned grab on `krypt-gap` (15%, approved only), recorded death screams. 80-frame sheet reviewed; all 16 run in real time through the J picker with no exceptions and no hitch in any lunge (two carve stalls found and moved). approved.json still empty.
+
 - 2026-10-26 (Mac) site-r6-krypt-gen final: 61 kinds, 12 open set pieces forced one per stratum cycle (chasm with a lava sea, void bridge under a star dome, two-level library, cistern, mushroom and ice caverns, fortress bridge, arena, hollow hill, mine crossing, labyrinth junction, sand chamber), per-kind alcove palettes and hall shapes, asymmetry pass; metrics flat (37 to 83 draw calls, heap 28 to 62 MB at graves 10 / 1,000 / 9,000); `node tools/site/check_krypt_plan.mjs` passes.
 
 - 2026-10-26 (Mac) site-r6-krypt-gen: the Krypt is endless. plan.js lays 10,000 graves as a deterministic append-only chain of legs (79 ms), krypt.js streams 48-block chunk windows (flat memory), 46 kinds in 12 strata (kinds.js, kinds_a.js, kinds_b.js on kindlib.js/kindreg.js), gaps with a jump arc and `krypt-gen` contract (`window.__krypt`), depth gauge, find rush, `?grave/at/stratum/kinds/leg`. Check: `tools/site/check_krypt_plan.mjs`. Not measured: phone timing, draw calls at grave 9,000.

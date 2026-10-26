@@ -19,14 +19,14 @@ current bank and list the gaps here.
   pants even though I know it's coming."
 
 ## Done means
-- [ ] All 14 scares have a FNAF lunge and a randomised build-up with fake-outs, per the v3 spec.
-- [ ] The Magma Cube is redone, and the Wither Skeleton has a new ending.
-- [ ] **Gap deaths:** Lava fall and Drowned grab are built, in the J picker, and hooked to
+- [x] All 14 scares have a FNAF lunge and a randomised build-up with fake-outs, per the v3 spec.
+- [x] The Magma Cube is redone, and the Wither Skeleton has a new ending.
+- [x] **Gap deaths:** Lava fall and Drowned grab are built, in the J picker, and hooked to
   `krypt-gap` at 15%, gated by `approved.json` like the rest.
-- [ ] The kills use the recorded death screams once audio lands.
-- [ ] Sheet: 5 frames per scare (dread, fake-out or tell, lunge, kill, death), 80 frames in all.
+- [x] The kills use the recorded death screams once audio lands.
+- [x] Sheet: 5 frames per scare (dread, fake-out or tell, lunge, kill, death), 80 frames in all.
   Review it as a horror director.
-- [ ] A live real-time run of all 16 through the J flow with no exceptions. The CDP driver is
+- [x] A live real-time run of all 16 through the J flow with no exceptions. The CDP driver is
   `scratchpad/orch/cdp.mjs` with `scareflow.js`.
 
 ## Plan (2026-10-26, opus)
@@ -70,6 +70,22 @@ current bank and list the gaps here.
 - Silverfish 6995df5, Blaze 3ea8cfc, Ghast 628689c, Zombie Pigman (this commit): all 14 have a lunge, dice and marks
   (sheets c15-c22).
 
+- 5a938ce..fac5ef6: Zombie Pigman; all 14 have a lunge, dice and marks.
+- Sheet: 80 frames (16 x dread, fake, lunge, kill, death), `scratchpad/r6/scares/final/sheet.png` (shot list
+  `final_all.txt`; seeds in it). Reviewed: every lunge lands a face in the lens with the eyes in frame. Weakest
+  frames: the Creeper lunge is mostly tear, the Pigman lunge is noisy, the Wither Skeleton's eyes clip white, and
+  Lava fall's lunge beat (at that seed) is a dark rock view before the hands slip.
+- Real time (2c54d2f, 31e91a2): `__scares.state` (clock, frames, marks, notes, carve ms). `rt/scareflow16.js` drives
+  the J picker for all 16 (click, run, death screen, Enter): no exceptions, all respawn, 60 fps, the worst gap inside
+  any lunge window 30 ms (25 ms polling). Found and fixed: the Creeper's crater carve stalled the boom frame
+  50-90 ms (the flash landed late on the explosion), now a frame after the flash under the white; the piston trap's
+  carve (Cave Spider, Slime) stalled the open frame 30-80 ms, now a frame before the pistons move. `rt/hitch.js`
+  logs every frame gap over 45 ms with the carve time. Left: sporadic 40-130 ms gaps in build-ups (shared machine, GC).
+- check_sounds exits 0. No requests to other agents.
+
+## Owner
+- Approve scares in `site/graves/scares/approved.json` (empty, so the director plays nothing). The gap deaths
+  (LavaFall, DrownedGrab) take 15% of failed jumps once approved.
+
 ## Next
-- The 80-frame sheet (dump_frames --list --sheet, beats dread,fake,lunge,kill,death x 16), review; the real-time J
-  run of all 16 (copies of scratchpad/orch/cdp.mjs and scareflow.js); journal line; final report.
+- Nothing. Round 6 scares done.
