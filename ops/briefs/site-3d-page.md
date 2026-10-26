@@ -22,5 +22,6 @@ Fill in: task name, owned files, the owner's words for this task, "done" checkli
 ## Done means (script-checkable where possible)
 - `node --check` passes on .mjs copies of every module touched.
 - Every frame in the task's shot list dumps (no "NO DUMP", no `errors` in its JSON).
-- Every sound name used exists in `site/lib/sfx/manifest.json`.
+- Every sound name used exists in `site/lib/sfx/manifest.json`:
+  `python3 -I tools/site/check_sounds.py` exits 0.
 - The task's own checklist below is ticked in the checkpoint.
