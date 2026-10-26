@@ -4,6 +4,7 @@
 import * as THREE from 'three';
 import { makeBlock } from './blocks.js';
 import { glowTexture } from './stage.js';
+import { report } from './fx.js';
 
 const DATA_URL = new URL('./data/structures.json', import.meta.url).href;
 let DATA = null;
@@ -97,6 +98,7 @@ export function placeStructure(ctx, pl, origin, opts = {}) {
   }
   // the terrain changed under the structure
   const n = anims.length;
+  const rep = report(); if (rep) rep.blocks += n;
   const step = n ? Math.min(0.1, span / n) : 0;
   anims.forEach((a, i) => { a.t0 = start + i * step; });
   return {

@@ -121,7 +121,7 @@ export function makeBlock(id, meta = 0, opts = {}) {
       box(1, 0.9, 1, 0, 0, 0, memo('water', () => new THREE.MeshLambertMaterial({ map: animTex('blocks/water_still.png'), color: 0x3f7fd6, transparent: true, opacity: 0.72 })), false);
       break;
     }
-    case 'chest': {
+    case 'chest': case 'trapped_chest': {
       const ch = chestModel();
       ch.position.set(0.5, 0, 0.5); g.add(ch);
       g.userData.lid = ch.userData.lid;
@@ -136,9 +136,47 @@ export function makeBlock(id, meta = 0, opts = {}) {
       box(0.625, 0.375, 1.0, 0.1875, 0.625, 0, top);
       break;
     }
-    default: cube('stone.png');
+    default: generic(n, meta, box, cube);
   }
   return { obj: g, light: g.userData.light || null, lid: g.userData.lid || null };
+}
+
+// Every other block of the table: a textured cube (one texture, or side/top/bottom), tinted for
+// wool, stained glass and clay, plus the few that are not a full cube.
+const DYE = [0xf0f0f0, 0xeb8844, 0xc354cd, 0x6689d3, 0xdecf2a, 0x41cd34, 0xd88198, 0x434343, 0x9b9b9b, 0x287697, 0x7b2fbe, 0x253192, 0x51301a, 0x3b511a, 0xb3312c, 0x1e1b1b];
+const CUBES = {
+  emerald_block: 'emerald_block.png', lapis_block: 'lapis_block.png', redstone_block: 'redstone_block.png', coal_block: 'coal_block.png',
+  nether_brick: 'nether_brick.png', netherrack: 'netherrack.png', sponge: 'sponge.png', brick_block: 'brick.png', dirt: 'dirt.png', stone: 'stone.png',
+  diamond_block: 'diamond_block.png', iron_block: 'iron_block.png', gold_block: 'gold_block.png',
+  diamond_ore: 'diamond_ore.png', emerald_ore: 'emerald_ore.png', coal_ore: 'coal_ore.png', iron_ore: 'iron_ore.png', gold_ore: 'gold_ore.png',
+  lapis_ore: 'lapis_ore.png', redstone_ore: 'redstone_ore.png', quartz_ore: 'quartz_ore.png',
+  beacon: 'beacon.png', mob_spawner: 'mob_spawner.png',
+  OreSpawn_BlockTitaniumBlock: 'orespawn/blocktitanium.png', OreSpawn_BlockUraniumBlock: 'orespawn/blockuranium.png',
+  OreSpawn_BlockRubyBlock: 'orespawn/blockruby.png', OreSpawn_BlockAmethystBlock: 'orespawn/blockamethyst.png',
+  OreSpawn_OreTitaniumBlock: 'orespawn/oretitanium.png', OreSpawn_OreUraniumBlock: 'orespawn/oreuranium.png',
+  OreSpawn_OreRedAntTrollBlock: 'orespawn/redanttroll.png', OreSpawn_OreTermiteTrollBlock: 'orespawn/termitetroll.png',
+  OreSpawn_DungeonSpawner: 'orespawn/dungeonspawner.png', OreSpawn_KingSpawner: 'orespawn/kingspawner.png', OreSpawn_QueenSpawner: 'orespawn/queenspawner.png',
+};
+const SIDED = {
+  quartz_block: ['quartz_block_side.png', 'quartz_block_top.png', 'quartz_block_top.png'],
+  bookshelf: ['bookshelf.png', 'planks_oak.png', 'planks_oak.png'],
+  hay_block: ['hay_block_side.png', 'hay_block_top.png', 'hay_block_top.png'],
+  crafting_table: ['crafting_table_side.png', 'crafting_table_top.png', 'planks_oak.png'],
+  furnace: ['furnace_side.png', 'furnace_top.png', 'furnace_top.png'],
+};
+function generic(n, meta, box, cube) {
+  if (CUBES[n]) return cube(CUBES[n]);
+  if (SIDED[n]) { const [s, t, b] = SIDED[n]; return box(1, 1, 1, 0, 0, 0, [L(s), L(s), L(t), L(b), L(n === 'furnace' ? 'furnace_front_off.png' : n === 'crafting_table' ? 'crafting_table_front.png' : s), L(s)]); }
+  if (n === 'wool') return cube('wool_colored_white.png', { color: DYE[meta & 15] });
+  if (n === 'stained_hardened_clay') return cube('hardened_clay_stained_white.png', { color: DYE[meta & 15] });
+  if (n === 'stained_glass') return box(1, 1, 1, 0, 0, 0, L('glass_white.png', { color: DYE[meta & 15], transparent: true, opacity: 0.6, depthWrite: false }), false);
+  if (n === 'enchanting_table') return box(1, 0.75, 1, 0, 0, 0, [L('enchanting_table_side.png'), L('enchanting_table_side.png'), L('enchanting_table_top.png'), L('enchanting_table_bottom.png'), L('enchanting_table_side.png'), L('enchanting_table_side.png')]);
+  if (n === 'cake') return box(0.875, 0.5, 0.875, 0.0625, 0, 0.0625, [L('cake_side.png'), L('cake_side.png'), L('cake_top.png'), L('cake_side.png'), L('cake_side.png'), L('cake_side.png')]);
+  if (n === 'light_weighted_pressure_plate') return box(0.875, 0.0625, 0.875, 0.0625, 0, 0.0625, L('gold_block.png'));
+  if (n === 'dragon_egg') return box(0.6, 0.95, 0.6, 0.2, 0, 0.2, L('dragon_egg.png'));
+  if (n === 'brewing_stand') { box(0.12, 0.8, 0.12, 0.44, 0, 0.44, L('brewing_stand.png')); return box(0.9, 0.12, 0.9, 0.05, 0, 0.05, L('cobblestone.png')); }
+  if (n === 'fire' || n === 'air') return null;
+  return cube('stone.png');
 }
 
 export function chestModel() {

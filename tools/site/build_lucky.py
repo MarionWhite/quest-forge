@@ -40,7 +40,7 @@ SCENES = ["item_drop", "item_set", "mob_spawn", "mob_horde", "mob_tower", "boss"
           "water_trap", "pit_trap", "fort", "temple", "bedrock_problem", "explosion", "chest",
           "trapped_chest", "lucky_choice", "wishing_well", "sky_temple", "ground_temple", "effect",
           "apocalypse", "message", "pet", "villager_trader", "lightning", "fireworks_loot",
-          "jens_hole", "troll_ore", "generic"]
+          "jens_hole", "troll_ore", "dud", "generic"]
 MOODS = ["jackpot", "good", "neutral", "bad", "deadly"]
 ACTION_TYPES = ["item", "entity", "xp", "tnt", "expbottle", "lightning", "fireworks", "structure",
                 "falling", "block", "effect", "message", "command", "explosion", "choice", "then",
@@ -104,6 +104,8 @@ SPECIAL_ENTITY_IDS = {"XPOrb", "lightning", "fireworks", "launched_tnt", "launch
 # Keyed by the drop's line number in LuckyBlockProperties.txt:
 #   line: (title, blurb, mood, scene)
 # Titles are at most 40 characters. Blurbs are one plain sentence of what happens in game.
+DUD_BLURB = "The block's entry is broken in the pack's config, so it breaks and drops nothing."
+
 TEXT = {
     # ---- tools and armour
     54: ("Ultimate Spider Smasher", "An OreSpawn Big Hammer named Ultimate Spider Smasher, with Bane of Arthropods at level 1000.", "jackpot", "item_drop"),
@@ -187,8 +189,8 @@ TEXT = {
     146: ("Gold ingots", "Eight to sixteen gold ingots.", "good", "item_set"),
     147: ("A stick", "A single stick.", "neutral", "item_drop"),
     148: ("Bones", "Sixteen to forty-eight bones.", "neutral", "item_set"),
-    149: ("Apples", "Sixty-four to 128 apples.", "good", "item_set"),
-    150: ("Random item stack", "Between one and 48 of a random item from the whole item list.", "neutral", "item_drop"),
+    149: ("Apples", "Between 64 and 128 apples.", "good", "item_set"),
+    150: ("Random item stack", "Between 1 and 48 of a random item from the whole item list.", "neutral", "item_drop"),
     151: ("Four paintings", "Four paintings.", "neutral", "item_set"),
     152: ("Two saddles", "Two saddles.", "neutral", "item_set"),
     153: ("Cake", "A cake.", "neutral", "item_drop"),
@@ -213,7 +215,7 @@ TEXT = {
     180: ("Prince and princess eggs", "The Prince egg and perhaps the Princess egg.", "good", "item_set"),
     182: ("Popcorn", "Sixteen to thirty-two of one popcorn.", "neutral", "item_set"),
     184: ("Instant garden or shelter", "An instant garden and an instant shelter, both OreSpawn blocks.", "good", "item_set"),
-    186: ("Ten random items", "Ten stacks of random items from the whole item list, one to 48 each.", "neutral", "item_set"),
+    186: ("Ten random items", "Ten stacks of random items from the whole item list, 1 to 48 each.", "neutral", "item_set"),
     188: ("Ten random spawn eggs", "Ten random spawn eggs, one to three each.", "neutral", "item_set"),
     190: ("Robot kit", "A spider robot kit, an ant robot kit and a wrench.", "good", "item_set"),
     192: ("Shooting stuff", "One of a ray gun, a squid zooka or a thunder staff.", "good", "item_drop"),
@@ -251,26 +253,26 @@ TEXT = {
     258: ("Stalking TNT", "Between 20 and 30 TNT launched at you.", "deadly", "tnt_rain"),
     260: ("Bob family", "A giant named Bob's mom, two zombies named Bob and King Bob, and a ghast named Bob's dad riding a giant.", "deadly", "mob_horde"),
     262: ("Bob's dad", "A ghast named Bob's dad in diamond armour and a diamond sword, riding a giant.", "bad", "mob_tower"),
-    264: ("Ten Dinnerbone ghasts", "Ten ghasts named Dinnerbone, upside down.", "bad", "mob_horde"),
+    264: ("Ten Dinnerbone ghasts", "Ten ghasts named Dinnerbone, which turns them upside down.", "bad", "mob_horde"),
     266: ("MetaCow", "An enchanted golden apple cow called MetaCow.", "good", "mob_spawn"),
     268: ("Ten rotators", "Ten OreSpawn Rotators.", "bad", "mob_horde"),
     270: ("Creeper launcher", "Five creepers stacked three high, a lightning strike, and a Creeper Launcher given to you.", "bad", "mob_tower"),
     272: ("TNT jockey", "Between 20 and 30 TNT launched at you.", "deadly", "tnt_rain"),
-    274: ("Acrobatic giants", "Two giants stacked, one on the other, named Dinnerbone.", "deadly", "boss"),
+    274: ("Acrobatic giants", "Two giants, one standing on the other, both named Dinnerbone.", "deadly", "boss"),
     276: ("Mothra sandwich", "A Mothra on top of a Brutalfly on top of a Mothra on top of a Brutalfly.", "deadly", "mob_tower"),
     278: ("Hammerhead", "A Hammerhead shark, an OreSpawn boss.", "deadly", "boss"),
     280: ("Herobrine's minions", "Ten silverfish pour out around you.", "bad", "mob_horde"),
-    282: ("Enderman, endersult", "Thirteen endermen named Never endersult me with my length.", "bad", "mob_horde"),
+    282: ("Enderman, endersult", "Thirteen endermen, each wearing the nametag 'Never endersult me with my length'.", "bad", "mob_horde"),
     284: ("Witch and bats", "A witch with seven to ten bats.", "bad", "mob_spawn"),
     286: ("Slime and enderman", "Two to four slimes with an enderman on top of each.", "bad", "mob_tower"),
     288: ("Death jump", "Jump Boost at level 51 for 30 seconds, and a message from aceaight that you will die an unexpected death.", "bad", "effect"),
     290: ("Random potion effect", "A random potion effect for 30 to 600 ticks, with a random strength.", "neutral", "effect"),
     292: ("Passive mob", "One of five named passive mobs: a pig, a cow, a chicken, a sheep or Mr. Derpy the squid.", "neutral", "mob_spawn"),
-    294: ("Colourful sheep", "Sixteen sheep named Mr. Rainbow fall around you.", "neutral", "mob_horde"),
+    294: ("Colourful sheep", "Sixteen sheep named Mr. Rainbow appear around you.", "neutral", "mob_horde"),
     296: ("Lucky eggs", "Twenty lucky eggs.", "good", "mob_horde"),
-    298: ("A wild Groudon", "A Mobzilla named A Wild Groudon.", "deadly", "boss"),
-    300: ("A wild Butterfree", "Ten Mothras named A Wild Butterfree.", "deadly", "boss"),
-    302: ("A wild Caterpie", "A CaterKiller named A Wild Caterpie.", "deadly", "boss"),
+    298: ("Mobzilla, 'A Wild Groudon'", "Mobzilla, the OreSpawn boss, wearing the nametag 'A Wild Groudon'.", "deadly", "boss"),
+    300: ("Ten Mothras, 'A Wild Butterfree'", "Ten Mothras, each wearing the nametag 'A Wild Butterfree'.", "deadly", "boss"),
+    302: ("CaterKiller, 'A Wild Caterpie'", "A CaterKiller, the OreSpawn boss, wearing the nametag 'A Wild Caterpie'.", "deadly", "boss"),
     304: ("Launched experience bottles", "Sixteen to thirty-two experience bottles thrown at you.", "good", "expbottle_rain"),
     306: ("Launched TNT", "One to sixty-four TNT launched at you.", "bad", "tnt_rain"),
     308: ("Lightning creeper", "A creeper and a lightning strike.", "bad", "lightning"),
@@ -296,7 +298,7 @@ TEXT = {
     348: ("Lucky Villager", "A villager named Lucky Villager.", "neutral", "villager_trader"),
     349: ("Lucky Villager", "A villager named Lucky Villager.", "neutral", "villager_trader"),
     350: ("Lucky Villager", "A villager named Lucky Villager.", "neutral", "villager_trader"),
-    351: ("I Have Nothing Interesting", "A villager that says I have nothing interesting.", "neutral", "villager_trader"),
+    351: ("I Have Nothing Interesting", "A villager wearing the nametag 'I Have Nothing Interesting To Trade'.", "neutral", "villager_trader"),
     352: ("Strange Item Collector", "A villager named Strange Item Collector.", "neutral", "villager_trader"),
     353: ("Shooping with coins", "A villager named Shooping with Coins.", "neutral", "villager_trader"),
     354: ("Kinda Lucky Villager", "A villager named Kinda Lucky Villager.", "neutral", "villager_trader"),
@@ -307,15 +309,15 @@ TEXT = {
     364: ("Mr. Porkchop", "Sixteen pigs, one named Mr. Porkchop.", "neutral", "mob_horde"),
     366: ("Chicken coop", "Forty-five chickens, one named I'm A Chick.", "neutral", "mob_horde"),
     368: ("Milk for days", "Twenty cows named MilkMe.", "neutral", "mob_horde"),
-    370: ("Jeb's sheep", "Sixteen to 100 sheep, named jeb_.", "neutral", "mob_horde"),
-    372: ("Hoverboard", "A hoverboard from the OreSpawn mod, with a back to the future line.", "good", "mob_spawn"),
+    370: ("Jeb's sheep", "Sixteen to 100 sheep named jeb_, which cycles their wool through every colour.", "neutral", "mob_horde"),
+    372: ("Hoverboard", "An OreSpawn hoverboard, with a line from Back to the Future.", "good", "mob_spawn"),
     374: ("Ant army", "Thirty each of five kinds of ant.", "bad", "mob_horde"),
     376: ("Robot army", "Three robots: Pounder, Gunner and Warrior.", "deadly", "boss"),
     378: ("Easter bunnies", "Ten Easter Bunnies.", "neutral", "mob_horde"),
     380: ("Coins", "Fifteen coins from the OreSpawn mod.", "neutral", "mob_horde"),
     382: ("Cow tower", "A tower of mushroom, apple, golden apple, enchanted golden apple and crystal apple cows, with a bat on top, three to ten towers.", "neutral", "mob_tower"),
     386: ("Large Worm", "A Large Worm, an OreSpawn boss.", "deadly", "boss"),
-    384: ("Mothra sandwich (broken line)", "Nothing spawns: the config line is malformed, so the mod reads it as a difficulty change with no effect.", "neutral", "generic"),
+    384: ("A dud", DUD_BLURB, "neutral", "dud"),
     390: ("Anvil trap", "Iron bars rise around you and anvils fall on your head.", "deadly", "anvil_trap"),
     391: ("Lava trap", "Iron bars close around you, and lava pours in from above.", "deadly", "lava_trap"),
     392: ("Water trap", "You are sealed in an obsidian and glass room with water flowing in the middle.", "bad", "water_trap"),
@@ -330,7 +332,7 @@ TEXT = {
     405: ("Redstone block falls", "A redstone block falls from the sky.", "neutral", "falling_column"),
     406: ("Coal block falls", "A coal block falls from the sky.", "neutral", "falling_column"),
     407: ("Cake falls", "A cake falls from the sky.", "neutral", "falling_column"),
-    411: ("Bedrock problem", "Bedrock appears where the block was, with a sign that says Well, there's your problem.", "bad", "bedrock_problem"),
+    411: ("Bedrock problem", "Bedrock appears where the block was, with a sign that reads 'Well, there\'s your problem.'", "bad", "bedrock_problem"),
     414: ("Explosion", "An explosion of power 6 goes off where you stand.", "deadly", "explosion"),
     417: ("Death pole", "A redstone block and a tower of TNT fall from the sky, stacked up.", "deadly", "falling_column"),
     420: ("Ore pole", "A tower of ores, falling from the sky.", "good", "falling_column"),
@@ -345,7 +347,7 @@ TEXT = {
     447: ("Dungeon pole", "A pole of ore blocks falls, with a dungeon spawner at the top.", "jackpot", "falling_column"),
     450: ("Random pole", "A pole of random blocks falls from the sky.", "neutral", "falling_column"),
     453: ("Colourful pole", "A pole of stained clay falls from the sky.", "neutral", "falling_column"),
-    456: ("Jen's hole", "A Jen message, a hole of air and a witch named Jen.", "neutral", "jens_hole"),
+    456: ("Jen's hole", "A chat line from Jen, a three-block hole under you and a witch named Jen at the bottom.", "neutral", "jens_hole"),
     459: ("Tower of useful blocks", "A pile of crafting table, furnace, enchanting table, anvil, chest and brewing stand.", "good", "falling_column"),
     462: ("King's pole", "A pole of quartz blocks falls, with a King spawner at the top.", "deadly", "falling_column"),
     465: ("Queen's pole", "A pole of titanium and uranium ore falls from the sky.", "deadly", "falling_column"),
@@ -1168,8 +1170,11 @@ def build_drop(ctx, no, group, raw, index_no):
         title, blurb, mood, scene = (pretty(group or "Lucky drop")[:40], "Something happens when this block breaks.",
                                       "neutral", "generic")
     drop.update({"title": title[:40], "blurb": blurb, "mood": mood, "scene": scene})
+    if scene == "dud":
+        broken = True
+        drop["tile"] = {"kind": "text", "text": "Dud"}
     drop["icon"] = first_icon(acts)
-    drop["tile"] = tile_for(acts, ctx)
+    drop["tile"] = {"kind": "text", "text": "Dud"} if scene == "dud" else tile_for(acts, ctx)
     drop["actions"] = acts
     if broken:
         drop["broken"] = True
@@ -1224,23 +1229,25 @@ def main(argv):
         body, luck, chance = strip_suffixes(raw)
         d, err = build_drop(ctx, no, group, raw, len(drops))
         if d is None:
+            # the mod picks this line like any other and then errors: it breaks and drops nothing
             skipped.append({"line": no, "group": group, "luck": luck, "chance": round(chance, 4),
-                            "reason": err, "raw": raw})
-            lucky_pairs.append((luck, chance))
-            continue
+                            "reason": err, "raw": raw, "index": len(drops)})
+            d = {"index": len(drops), "line": no, "luck": luck, "chance": round(chance, 4), "raw": raw,
+                 "group": group, "title": "A dud", "blurb": DUD_BLURB, "mood": "neutral", "scene": "dud",
+                 "icon": None, "tile": {"kind": "text", "text": "Dud"}, "actions": [], "broken": True}
         drops.append(d)
         lucky_pairs.append((luck, chance))
     for i, d in enumerate(drops):
         d["index"] = i
 
-    all_pairs = [(d["luck"], d["chance"]) for d in drops] + [(s["luck"], s["chance"]) for s in skipped]
+    all_pairs = [(d["luck"], d["chance"]) for d in drops]
     odds_map = {}
     for k in ("0", "100", "-100"):
         odds_map[k] = odds(all_pairs, int(k))
     for i, d in enumerate(drops):
         d["odds"] = {k: round(odds_map[k][i], 6) for k in odds_map}
-    for j, s in enumerate(skipped):
-        s["odds"] = {k: round(odds_map[k][len(drops) + j], 6) for k in odds_map}
+    for s in skipped:
+        s["odds"] = drops[s["index"]]["odds"]
 
     doc = {
         "version": VERSION,
@@ -1350,6 +1357,11 @@ def validate(doc, json_size=None):
                 problems.append("%s: missing %s" % (where, k))
         if len(d.get("title", "")) > 40:
             problems.append("%s: title longer than 40" % where)
+        for fld in ("title", "blurb"):
+            if re.search(r"[§#]|\(broken|Set of |named A ", d.get(fld, "")):
+                problems.append("%s: raw code or odd phrasing in %s" % (where, fld))
+        if d.get("scene") == "generic":
+            problems.append("%s: generic scene" % where)
         if "Set of " in d.get("title", ""):
             problems.append("%s: title looks like a set label" % where)
         if d.get("scene") not in SCENES:
@@ -1373,7 +1385,7 @@ def validate(doc, json_size=None):
         seen_titles.add(d["title"])
     # probabilities
     for k in ("0", "100", "-100"):
-        ps = [x for d in doc["drops"] for x in [d["odds"][k]]] + [s["odds"][k] for s in doc["skipped"]]
+        ps = [d["odds"][k] for d in doc["drops"]]
         total = sum(ps)
         if abs(total - 1.0) > 1e-4:
             problems.append("odds at luck %s sum to %.6f" % (k, total))

@@ -1,876 +1,511 @@
 // The scenes: what the drop does in the world. Each builder returns
-//   { dur, update(t, dt), cam(t) -> {pos, look, fov} }
-// and gets a ctx from app.js: S (stage), drop, fx (per-frame effects), say(), chat(),
-// hurt(a), tint(hex, a), shake(a), setVoxel(x,y,z,id), steve, pos (player feet), dais, name.
+//   { dur, update(t, dt), cam(t) -> {pos, look, fov}, report() }
+// and gets a ctx from app.js: S (stage), drop, fx (per-frame effects), say(), chat(), hurt(a),
+// tint(hex, a), shake(a), setVoxel(x,y,z,id), explode(pos, power), flashScreen(), steve, pos
+// (Steve's feet), dais (the broken block). Every scene rolls its own outcome from drop.actions
+// (fx.roll) the way the mod does, so what plays is what the block would have done.
+//
+// Scene files: this one (items, blocks, explosions, effects, the dud), mobscenes.js (hordes,
+// towers, pets, bosses and the grand entrances), wells.js (wells and temples), structscenes.js
+// (structures from structures.json).
 import * as THREE from 'three';
-import { tex, glowTexture, BLOCK_TEX, iconTexture } from './stage.js';
-import { makeMob } from './mobs.js';
-import { BLOCK_FILE, plaque, textTexture, MOOD_COLOR } from './reel.js';
+import { animTex, glowTexture, tex } from './stage.js';
+import { makeBlock } from './blocks.js';
+import { boxGeometry as boxGeo0 } from '../lib/mc/mobs.js';
+import { plaque, MOOD_COLOR } from './reel.js';
 import { STRUCT_SCENES } from './structscenes.js';
+import { structureScene } from './structures.js';
+import { MOB_SCENES } from './mobscenes.js';
+import { WELL_SCENES } from './wells.js';
+import { itemsBeat, tntBeat, fireworksBeat, dudBeat, itemsCam } from './beats.js';
+import * as F from './fx.js';
+const { V, clamp01, easeOut, easeIn, easeInOut, lerp, rnd, burst, puff, pointLight, sfx, roll, itemsOf, watch, blockCube, spawnMob, mobTick, nameTag, cleanName, labelSprite, facing } = F;
 
-const V = (x, y, z) => new THREE.Vector3(x, y, z);
-const clamp01 = (x) => Math.max(0, Math.min(1, x));
-const easeOut = (x) => 1 - Math.pow(1 - clamp01(x), 3);
-const easeIn = (x) => clamp01(x) * clamp01(x);
-const easeInOut = (x) => { x = clamp01(x); return x * x * (3 - 2 * x); };
-const lerp = (a, b, k) => a + (b - a) * k;
-const rnd = (a = 0, b = 1) => a + Math.random() * (b - a);
+const SCENES = { ...STRUCT_SCENES, ...MOB_SCENES, ...WELL_SCENES };
 
-const matCache = new Map();
-function blockMat(file, o = {}) {
-  const key = file + JSON.stringify(o);
-  if (!matCache.has(key)) matCache.set(key, new THREE.MeshLambertMaterial({ map: tex('blocks/' + file), ...o }));
-  return matCache.get(key);
-}
-// A textured cube for a block id ("minecraft:stone"). Unknown ids use stone.
-export function blockCube(id, size = 1, extra = {}) {
-  const key = BLOCK_TEX[id];
-  const file = (key && BLOCK_FILE[key]) || 'stone.png';
-  const mat = blockMat(file, extra);
-  const m = new THREE.Mesh(new THREE.BoxGeometry(size, size, size), mat);
-  m.castShadow = true;
-  return m;
-}
-const TNT_FILE = 'tnt_side.png';
-
-// Particle burst: points that fly, fall and fade. Returns nothing; registers with ctx.fx.
-function burst(ctx, pos, o = {}) {
-  const n = o.n ?? 30, life = o.life ?? 0.9, gravity = o.gravity ?? 7;
-  const speed = o.speed ?? 2.4, up = o.up ?? 1.6;
-  const pts = new Float32Array(n * 3), vel = new Float32Array(n * 3), cols = new Float32Array(n * 3);
-  const palette = (o.colors || [0xffffff]).map((c) => new THREE.Color(c));
-  for (let i = 0; i < n; i++) {
-    pts.set([pos.x + rnd(-0.1, 0.1), pos.y + rnd(0, 0.3), pos.z + rnd(-0.1, 0.1)], i * 3);
-    const a = rnd(0, Math.PI * 2), s = speed * rnd(0.35, 1);
-    vel.set([Math.cos(a) * s * (o.spread ?? 1), up * rnd(0.4, 1.2) * (o.lift ?? 1), Math.sin(a) * s * (o.spread ?? 1)], i * 3);
-    const c = palette[i % palette.length];
-    cols.set([c.r, c.g, c.b], i * 3);
-  }
-  const geo = new THREE.BufferGeometry();
-  geo.setAttribute('position', new THREE.BufferAttribute(pts, 3));
-  geo.setAttribute('color', new THREE.BufferAttribute(cols, 3));
-  const mat = new THREE.PointsMaterial({ size: o.size ?? 0.12, vertexColors: true, map: glowTexture(), transparent: true, depthWrite: false, blending: o.additive ? THREE.AdditiveBlending : THREE.NormalBlending, sizeAttenuation: true });
-  const obj = new THREE.Points(geo, mat);
-  ctx.S.temp.add(obj);
-  let t = 0;
-  ctx.fx.push({
-    update(dt) {
-      t += dt;
-      for (let i = 0; i < n; i++) {
-        vel[i * 3 + 1] -= gravity * dt;
-        pts[i * 3] += vel[i * 3] * dt; pts[i * 3 + 1] += vel[i * 3 + 1] * dt; pts[i * 3 + 2] += vel[i * 3 + 2] * dt;
-        if (pts[i * 3 + 1] < 0.02) { pts[i * 3 + 1] = 0.02; vel[i * 3 + 1] *= -0.3; vel[i * 3] *= 0.6; vel[i * 3 + 2] *= 0.6; }
-      }
-      geo.attributes.position.needsUpdate = true;
-      mat.opacity = clamp01(1 - t / life);
-      if (t >= life) { ctx.S.temp.remove(obj); geo.dispose(); mat.dispose(); return true; }
-      return false;
-    },
-  });
-}
-// Smoke puff: the grey poof of a mob spawning, or a blast cloud.
-function puff(ctx, pos, o = {}) {
-  burst(ctx, pos, { n: o.n ?? 18, colors: o.colors ?? [0xd9d6df, 0x9d98a8, 0xbfbac8], size: o.size ?? 0.45, speed: o.speed ?? 1.2, up: 0.8, gravity: 0.5, life: o.life ?? 1.1, spread: 1.4 });
-}
-
-// A mob that appears with the poof, then idles.
-function spawnMob(ctx, id, pos, o = {}) {
-  const m = makeMob(id, o);
-  m.root.position.copy(pos);
-  if (o.rotY != null) m.root.rotation.y = o.rotY;
-  m.root.traverse((x) => { if (x.isMesh) x.castShadow = true; });
-  const base = m.root.scale.clone();
-  m.root.scale.setScalar(0.001);
-  ctx.S.temp.add(m.root);
-  puff(ctx, pos.clone().setY(pos.y + 0.6), { n: 14, size: 0.5 });
-  return { ...m, base, born: null };
-}
-// Each frame: grow in, keep the anim running.
-function mobTick(m, t, dt, o = {}) {
-  if (m.born === null) return;
-  const k = clamp01((t - m.born) / 0.4);
-  const s = easeOut(k) * (m.base ? 1 : 1);
-  m.root.scale.copy(m.base).multiplyScalar(Math.max(0.001, s));
-  m.anim(t, dt, o);
-}
-
-// Lights that a scene adds get removed with the temp group.
-function pointLight(ctx, color, intensity, dist, pos) {
-  const l = new THREE.PointLight(color, intensity, dist, 1.6);
-  l.position.copy(pos);
-  ctx.S.temp.add(l);
-  return l;
-}
-
-// Plain solid overlay boxes/planes
-function plane(w, h, color, opacity, additive = false) {
-  return new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ color, transparent: true, opacity, depthWrite: false, blending: additive ? THREE.AdditiveBlending : THREE.NormalBlending, side: THREE.DoubleSide }));
-}
-
-// Sprite of an item icon, spinning like a 1.7.10 dropped item.
-function itemSprite(ctx, icon, size = 0.7) {
-  const g = new THREE.Group();
-  const m = new THREE.Mesh(new THREE.PlaneGeometry(size, size), new THREE.MeshBasicMaterial({ map: iconTexture(icon), transparent: true, alphaTest: 0.5, side: THREE.DoubleSide }));
-  g.add(m);
-  // a thin edge so the flat sprite holds its shape when it turns edge-on
-  g.userData.spinner = m;
-  return g;
-}
-function textSprite(text, color = '#ECE6F2') {
-  const m = new THREE.Mesh(new THREE.PlaneGeometry(1.4, 0.7), new THREE.MeshBasicMaterial({ map: textTexture(text, { color, size: 52, w: 512, h: 256 }), transparent: true, alphaTest: 0.1, side: THREE.DoubleSide }));
-  return m;
-}
-export function nameTag(text, color = '#ffffff') {
-  const c = document.createElement('canvas'); c.width = 256; c.height = 64;
-  const g = c.getContext('2d'); g.font = '700 34px Archivo, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
-  g.fillStyle = 'rgba(14,11,18,0.6)'; g.fillRect(0, 0, 256, 64);
-  g.fillStyle = color; g.fillText(text, 128, 34);
-  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
-  const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: t, transparent: true, depthWrite: false }));
-  s.scale.set(1.6, 0.4, 1);
-  return s;
-}
-function heartSprite() {
-  const c = document.createElement('canvas'); c.width = c.height = 32;
-  const g = c.getContext('2d'); g.fillStyle = '#e8485a';
-  g.beginPath(); g.moveTo(16, 28); g.bezierCurveTo(-4, 16, 2, -2, 16, 8); g.bezierCurveTo(30, -2, 36, 16, 16, 28); g.fill();
-  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
-  return new THREE.Sprite(new THREE.SpriteMaterial({ map: t, transparent: true, depthWrite: false }));
-}
-
-// Chest model with a hinged lid (chest.png 64x64)
-export function buildChest(ctx) {
+// ------------------------------------------------------------------ chest
+function boxGeo(box, uv) { return boxGeo0(box, uv, 64, 64); }
+export function buildChest() {
   const g = new THREE.Group();
   const body = new THREE.Mesh(boxGeo([-7, -10, -7, 14, 10, 14], [0, 19]), new THREE.MeshLambertMaterial({ map: tex('entity/chest.png') }));
   const lidPivot = new THREE.Group();
   lidPivot.position.set(0, 0.625, -0.4375);
   const lid = new THREE.Mesh(boxGeo([-7, -5, 0, 14, 5, 14], [0, 0]), body.material);
-  lid.position.set(0, 0, 0);
   lidPivot.add(lid);
   g.add(body, lidPivot);
   g.userData.lid = lidPivot;
   return g;
 }
-// Box geometry from a 1.7.10 box, cached per call.
-import { boxGeometry as boxGeo0 } from './mobs.js';
-function boxGeo(box, uv) { return boxGeo0(box, uv, 64, 64); }
 
-// --------------------------------------------------------------------- scenes
-const SCENES = {};
-
-// Lava trap / water trap: a shell of blocks forms around the player and fills.
-function fluidTrap(ctx, fluid) {
-  const P = ctx.pos.clone();
-  const cx = Math.round(P.x - 0.2), cz = Math.round(P.z - 0.2);
-  const cells = [];
-  for (let x = -1; x <= 1; x++) for (let z = -1; z <= 1; z++) {
-    for (let y = 0; y <= 2; y++) {
-      const ring = Math.abs(x) === 1 || Math.abs(z) === 1;
-      if (!ring && y === 0) continue;
-      if (!ring) continue;
-      cells.push([cx + x, y, cz + z]);
-    }
-  }
-  const shell = [];
-  cells.forEach(([x, y, z], i) => {
-    const b = blockCube(fluid === 'lava' ? 'minecraft:stonebrick' : 'minecraft:cobblestone', 1);
-    b.position.set(x + 0.5, y + 0.5 + 4, z + 0.5);
-    ctx.S.temp.add(b);
-    shell.push({ m: b, to: y + 0.5, t0: 0.4 + i * 0.07, x, y, z });
-  });
-  const inside = { x: cx + 0.5, z: cz + 0.5 };
-  const liquid = new THREE.Mesh(new THREE.BoxGeometry(0.96, 1, 0.96),
-    fluid === 'lava'
-      ? new THREE.MeshLambertMaterial({ map: animTexLocal('blocks/lava_still.png'), emissive: 0xff6a1a, emissiveIntensity: 1.4, transparent: true, opacity: 0.92 })
-      : new THREE.MeshLambertMaterial({ map: animTexLocal('blocks/water_still.png'), color: 0x3f7fd6, transparent: true, opacity: 0.72 }));
-  liquid.position.set(inside.x, 0.5, inside.z);
-  liquid.scale.y = 0.001;
-  ctx.S.temp.add(liquid);
-  let light = null;
-  if (fluid === 'lava') light = pointLight(ctx, 0xff7a2a, 4, 7, V(inside.x, 1.5, inside.z));
-  return { shell, liquid, light, inside, cx, cz };
+// ------------------------------------------------------------------ blocks that fall or are placed
+const SOUND_OF = (id) => (/glass/.test(id) ? 'dig.glass' : /wool/.test(id) ? 'dig.cloth' : /planks|bookshelf|crafting/.test(id) ? 'dig.wood' : /dirt|hay|sand/.test(id) ? 'dig.gravel' : 'dig.stone');
+function cellOf(b) { return { x: b.dx || 0, y: b.dy || 0, z: b.dz || 0 }; }
+function blockObj(b) {
+  const r = makeBlock(b.id || 'minecraft:stone', b.meta || 0, {});
+  const h = new THREE.Group();
+  r.obj.position.set(-0.5, 0, -0.5);
+  h.add(r.obj);
+  return { h, light: r.light };
 }
-import { animTex as animTexLocal } from './stage.js';
-
-// Pit: the ground opens under the player and seals over.
-function pitScene(ctx, label) {
-  const P = ctx.pos.clone();
-  const cx = Math.round(P.x - 0.2), cz = Math.round(P.z - 0.2);
-  const removed = [];
-  for (let x = -1; x <= 1; x++) for (let z = -1; z <= 1; z++) for (let y = -1; y >= -3; y--) {
-    const id = ctx.S.vox.get(cx + x, y, cz + z);
-    if (id) { removed.push([cx + x, y, cz + z, id]); ctx.setVoxel(cx + x, y, cz + z, null); }
-  }
-  const caps = [];
-  for (let x = -1; x <= 1; x++) for (let z = -1; z <= 1; z++) {
-    const b = blockCube('minecraft:grass', 1);
-    b.position.set(cx + x + 0.5, 0.5 - 1, cz + z + 0.5 + 0);
-    b.visible = false;
-    ctx.S.temp.add(b);
-    caps.push(b);
-  }
-  return {
-    dur: 6.0,
-    cam: (t) => ({ pos: V(ctx.pos.x + 5.5, 6.2, ctx.pos.z + 6.6), look: V(ctx.pos.x, -0.6, ctx.pos.z), fov: 40 }),
-    update(t, dt) {
-      const fall = clamp01((t - 1.0) / 1.0);
-      const y = lerp(0, -3.0, easeIn(fall));
-      ctx.steve.root.position.y = y;
-      ctx.steve.anim(t, dt, { walk: 0, armRaise: 0.9 * fall });
-      ctx.steve.root.rotation.z = Math.sin(t * 9) * 0.2 * fall;
-      if (t > 2.0 && !ctx._hit) { ctx._hit = true; ctx.shake(0.18); puff(ctx, V(P.x, -2.9, P.z), { n: 16, size: 0.35, colors: [0x6d6878, 0x8c8698] }); }
-      // the seal: grass blocks drop back over the hole
-      for (let i = 0; i < caps.length; i++) {
-        const b = caps[i];
-        const t0 = 3.3 + i * 0.04;
-        if (t < t0) continue;
-        b.visible = true;
-        const k = easeIn(clamp01((t - t0) / 0.35));
-        b.position.y = lerp(4.5, -0.5, k * k);
-        if (k >= 1 && !b.userData.landed) { b.userData.landed = true; puff(ctx, V(b.position.x, 1, b.position.z), { n: 4, size: 0.2 }); }
-      }
-      if (t > 3.4 && !ctx._sealed) { ctx._sealed = true; for (const [x, y, z, id] of removed) ctx.setVoxel(x, y, z, id); for (const b of caps) b.visible = false; }
-      if (t > 3.1 && !ctx._say && label) { ctx._say = true; ctx.say(label, { at: 'bottom' }); }
-    },
+// Which way the camera should look at a set of cells: head-on for a flat picture (a heart, a portal).
+function shapeCam(O, cells, tall) {
+  const xs = cells.map((c) => c.x), zs = cells.map((c) => c.z), ys = cells.map((c) => c.y);
+  const sx = Math.max(...xs) - Math.min(...xs), sz = Math.max(...zs) - Math.min(...zs);
+  const top = Math.max(...ys), bot = Math.min(...ys);
+  const cx = O.x + (Math.max(...xs) + Math.min(...xs)) / 2, cz = O.z + (Math.max(...zs) + Math.min(...zs)) / 2;
+  const mid = O.y + (top + bot) / 2 + 0.5;
+  const size = Math.max(sx, sz, top - bot + 1, 3);
+  const d = 4.5 + size * 1.15;
+  const down = bot < 0;
+  return () => {
+    if (sz === 0 && sx > 0) return { pos: V(cx + 0.5, mid + (down ? d * 0.6 : 0.4), cz + d), look: V(cx + 0.5, mid, cz + 0.5), fov: 42 };
+    if (sx === 0 && sz > 0) return { pos: V(cx + d, mid + (down ? d * 0.6 : 0.4), cz + 0.5), look: V(cx + 0.5, mid, cz + 0.5), fov: 42 };
+    return { pos: V(cx + d * 0.62, Math.max(2.2, mid + (down ? d * 0.75 : d * 0.18)), cz + d * 0.85), look: V(cx + 0.5, mid - (down ? 0.5 : 0), cz + 0.5), fov: 42 };
   };
 }
-SCENES.jens_hole = (ctx) => {
-  const base = pitScene(ctx, '');
-  const witch = spawnMob(ctx, 'Witch', V(ctx.pos.x - 0.6, -2.9, ctx.pos.z + 0.2), { rotY: 0.4 });
-  witch.born = 0.6;
-  const tag = nameTag('Jen', '#ffe9a8');
-  tag.position.set(ctx.pos.x - 0.6, -1.9, ctx.pos.z + 0.2);
-  ctx.S.temp.add(tag);
-  const update = base.update;
-  base.update = (t, dt) => {
-    update(t, dt);
-    mobTick(witch, t, dt, { walk: 0, lookAt: 0.2 });
-    tag.position.y = -1.9 + (t > 1 ? 0 : 0);
-  };
-  base.dur = 6.4;
-  return base;
-};
+function carve(ctx, cells, O) {
+  for (const c of cells) {
+    const wy = Math.floor(O.y) + c.y;
+    if (wy >= -8 && wy < Math.floor(O.y)) ctx.setVoxel(Math.floor(O.x) + c.x, wy, Math.floor(O.z) + c.z, null);
+  }
+}
+function blockList(ctx, rolled, key) {
+  const a = rolled.find((x) => x.t === key) || rolled.find((x) => x.t === 'falling' || x.t === 'block');
+  return ((a && a.blocks) || []).filter((b) => b.id !== 'minecraft:air' && b.id !== 'minecraft:fire').slice(0, 110);
+}
 
-// Falling column (ore poles, death pole): the blocks fall in order to their offsets.
+// Blocks fall out of the sky onto the dais in order and stack.
 SCENES.falling_column = (ctx) => {
-  const blocks = ctx.blocks();
-  const O = ctx.dais.clone(); // the broken block's cell is at (0,1,0)
-  const items = blocks.slice(0, 90).map((b, i) => {
-    const m = blockCube(b.id || 'minecraft:stone', 1);
-    const tx = O.x - 0.5 + (b.dx || 0) + 0.5, ty = O.y - 0.5 + (b.dy || 0) + 0.5, tz = O.z - 0.5 + (b.dz || 0) + 0.5;
-    m.position.set(tx, ty + 14, tz);
-    ctx.S.temp.add(m);
-    return { m, tx, ty, tz, t0: 0.4 + i * 0.09, landed: false, tnt: /tnt/.test(b.id || ''), id: b.id };
+  const rolled = roll(ctx.drop.actions);
+  const blocks = blockList(ctx, rolled, 'falling');
+  const O = V(Math.floor(ctx.dais.x), 1, Math.floor(ctx.dais.z));
+  const cells = blocks.map(cellOf);
+  carve(ctx, cells, O);
+  const n = blocks.length;
+  const gap = Math.min(0.1, 3.4 / Math.max(1, n));
+  const H = 15;
+  const items = blocks.map((b, i) => {
+    const o = blockObj(b);
+    const c = cells[i];
+    const tx = O.x + c.x + 0.5, ty = O.y + c.y, tz = O.z + c.z + 0.5;
+    o.h.position.set(tx, ty + H, tz);
+    ctx.S.temp.add(o.h);
+    return { h: o.h, tx, ty, tz, t0: 0.5 + i * gap, landed: false, id: b.id, c };
   });
-  const top = Math.max(4, ...blocks.map((b) => (b.dy || 0) + 2));
-  const last = items.length ? items[items.length - 1].t0 : 0;
+  const hasTnt = blocks.some((b) => /tnt/.test(b.id)) && blocks.some((b) => /redstone_block/.test(b.id));
+  const last = n ? items[n - 1].t0 + Math.sqrt((2 * H) / 26) : 0;
+  const chain = items.filter((i) => /tnt/.test(i.id)).sort((a, b) => a.ty - b.ty);
+  const cam = shapeCam(O, cells.length ? cells : [{ x: 0, y: 0, z: 0 }], true);
+  if (n) watch('blocks', () => V(O.x + 0.5, O.y + (Math.max(...cells.map((c) => c.y)) + 1) / 2, O.z + 0.5), Math.max(2, Math.max(...cells.map((c) => c.y)) + 1));
+  let landSnd = 0, rumble = false;
   return {
-    dur: Math.max(5.2, last + 1.8),
-    cam: (t) => ({ pos: V(O.x + 6.4, 2.2 + top * 0.25, O.z + 7.6), look: V(O.x, 1 + top * 0.5, O.z), fov: 40 }),
+    dur: Math.max(5.0, last + 1.6 + (hasTnt ? 3 : 0)),
+    cam: (t) => { const c = cam(); if (t < 0.5) c.pos.y += (0.5 - t) * 2; return c; },
     update(t, dt) {
       for (const it of items) {
         if (t < it.t0) continue;
         const s = t - it.t0;
-        const y = it.ty + Math.max(0, 14 - 0.5 * 26 * s * s);
-        it.m.position.y = y;
+        const y = it.ty + Math.max(0, H - 0.5 * 26 * s * s);
+        it.h.position.y = y;
         if (y <= it.ty && !it.landed) {
-          it.landed = true; it.m.position.y = it.ty;
+          it.landed = true; it.h.position.y = it.ty;
           ctx.shake(0.07);
-          puff(ctx, V(it.tx, it.ty - 0.4, it.tz), { n: 6, size: 0.25 });
-          if (it.tnt) { ctx.explode(V(it.tx, it.ty, it.tz), 0.6); }
+          puff(ctx, V(it.tx, it.ty + 0.1, it.tz), { n: 6, size: 0.25 });
+          if (landSnd++ % 2 === 0 || n < 6) sfx(SOUND_OF(it.id), { pos: { x: it.tx, y: it.ty, z: it.tz }, volume: 0.8 });
         }
+      }
+      if (hasTnt && t > last + 0.5) {
+        // the redstone block powers the TNT: it blinks, then goes off from the bottom up
+        if (!rumble) { rumble = true; sfx('random.fuse', { pos: ctx.dais, volume: 0.9 }); }
+        chain.forEach((it, i) => {
+          const tb = last + 1.4 + i * 0.16;
+          const blink = t < tb && Math.floor(t * 8) % 2 === 0 ? 0.8 : 0;
+          it.h.traverse((o) => { if (o.material && o.material.emissive) o.material.emissive.setRGB(blink, blink, blink); });
+          if (t >= tb && !it.blew) { it.blew = true; it.h.visible = false; ctx.explode(V(it.tx, it.ty + 0.5, it.tz), 0.7); sfx('random.explode', { pos: { x: it.tx, y: it.ty, z: it.tz }, volume: 0.8 }); ctx.shake(0.2); }
+        });
       }
     },
   };
 };
 
-// Placed blocks: the rainbow, poles and patterns pop in around the origin.
+// Blocks pop into place around the dais (towers, rainbows, the diamond trap).
 SCENES.placed_blocks = (ctx) => {
-  const blocks = (ctx.blocks()).slice(0, 160);
-  const O = ctx.dais.clone();
+  const rolled = roll(ctx.drop.actions);
+  const blocks = blockList(ctx, rolled, 'block');
+  const O = V(Math.floor(ctx.dais.x), 1, Math.floor(ctx.dais.z));
+  const cells = blocks.map(cellOf);
+  carve(ctx, cells, O);
   const items = blocks.map((b, i) => {
-    const m = blockCube(b.id || 'minecraft:stone', 1);
-    m.position.set(O.x - 0.5 + (b.dx || 0) + 0.5, O.y - 0.5 + (b.dy || 0) + 0.5, O.z - 0.5 + (b.dz || 0) + 0.5);
-    m.scale.setScalar(0.001);
-    ctx.S.temp.add(m);
-    return { m, t0: 0.2 + (i / Math.max(1, blocks.length)) * 2.4, done: false };
+    const o = blockObj(b);
+    const c = cells[i];
+    o.h.position.set(O.x + c.x + 0.5, O.y + c.y, O.z + c.z + 0.5);
+    o.h.scale.setScalar(0.001);
+    ctx.S.temp.add(o.h);
+    return { h: o.h, t0: 0.3 + (i / Math.max(1, blocks.length)) * 2.6, done: false, id: b.id };
   });
+  const cam = shapeCam(O, cells.length ? cells : [{ x: 0, y: 0, z: 0 }]);
+  watch('blocks', () => V(O.x + 0.5, O.y + 1, O.z + 0.5), 3);
+  let sn = 0;
   return {
-    dur: 5.0,
-    cam: (t) => { const a = 0.8 + t * 0.12; return { pos: V(O.x + Math.sin(a) * 8.5, 5.2, O.z + Math.cos(a) * 8.5), look: V(O.x, 1.5, O.z), fov: 42 }; },
+    dur: 5.2,
+    cam: (t) => { const c = cam(); const a = Math.sin(t * 0.35) * 0.9; c.pos.x += a; return c; },
     update(t) {
       for (const it of items) {
         if (t < it.t0) continue;
         const k = clamp01((t - it.t0) / 0.28);
-        it.m.scale.setScalar(0.001 + easeOut(k) * (1 + 0.1 * Math.sin(k * Math.PI)) * 0.999);
-        if (k >= 1 && !it.done) { it.done = true; puff(ctx, it.m.position, { n: 3, size: 0.2 }); }
+        it.h.scale.setScalar(0.001 + easeOut(k) * (1 + 0.1 * Math.sin(k * Math.PI)) * 0.999);
+        if (k >= 1 && !it.done) { it.done = true; if (sn++ % 3 === 0) sfx(SOUND_OF(it.id), { pos: it.h.position, volume: 0.6 }); }
       }
     },
   };
 };
 
-// Mob groups: horde (streams in from the fog), spawn (a few in front), tower (riding stacks).
-function groupScene(ctx, list, mode) {
+// ------------------------------------------------------------------ explosions
+SCENES.explosion = (ctx) => {
   const P = ctx.pos.clone();
-  const mobs = [];
-  list.forEach((e, i) => {
-    // hordes come from the far side of Steve (the block side) out of the fog, 10 to 14 blocks away
-    const ang = mode === 'horde' ? Math.PI + rnd(-0.9, 0.9) : rnd(-0.9, 0.9) - Math.PI / 2 + (i / list.length) * 0.5;
-    const rad = mode === 'horde' ? rnd(10, 14) : rnd(4, 6);
-    const spawn = V(P.x + Math.cos(ang) * rad + 1.2, 0, P.z + Math.sin(ang) * rad);
-    const goal = V(P.x + Math.cos(ang) * 3.0 + 1.1, 0, P.z + Math.sin(ang) * 3.0);
-    const m = spawnMob(ctx, e.id, spawn, { color: e.color, scale: 1, rotY: Math.atan2(-(goal.x - spawn.x), -(goal.z - spawn.z)) });
-    m.born = (mode === 'horde' ? 0.3 : 0.4) + i * (mode === 'horde' ? 0.08 : 0.35);
-    m.spawn = spawn; m.goal = goal;
-    mobs.push(m);
-  });
-  // the tallest thing in the group (a Giant is a zombie at 6x) decides how far back the camera sits
-  const tallest = Math.max(1.8, ...mobs.map((m) => (m.height || 1.8) * (m.base ? m.base.x : 1)));
-  const back = Math.max(0, tallest - 2.2) * 0.9;
-  return {
-    dur: mode === 'horde' ? 5.8 : 4.8,
-    mobs,
-    cam: (t) => (mode === 'horde'
-      ? { pos: V(P.x + 4.6 + back, 2.5 + back * 0.45, P.z + 0.6 + back * 0.3), look: V(P.x - 6, 1.6 + back * 0.4, P.z), fov: 52 }
-      : { pos: V(P.x + 5.2 + back, 3.6 + back * 0.5, P.z + 7.2 + back), look: V(P.x + 0.4, 1.4 + back * 0.4, P.z - 0.2), fov: 40 }),
-    update(t, dt) {
-      for (const m of mobs) {
-        if (m.born === null) continue;
-        const k = easeOut(clamp01((t - m.born) / (mode === 'horde' ? 3.4 : 1.2)));
-        m.root.position.lerpVectors(m.spawn, m.goal, k);
-        mobTick(m, t, dt, { walk: t > m.born ? 1 : 0, creep: m.id === 'Creeper' });
-        if (m.id === 'Creeper' && t > m.born + 1.0) {
-          const h = clamp01((t - m.born - 1) / 1.5);
-          m.anim(t, dt, { walk: 0, hiss: h });
-        }
-      }
-    },
-  };
-}
-SCENES.mob_horde = (ctx) => groupScene(ctx, ctx.entities(12), 'horde');
-SCENES.mob_spawn = (ctx) => groupScene(ctx, ctx.entities(4), 'spawn');
-SCENES.pet = (ctx) => {
-  const base = groupScene(ctx, ctx.entities(1).length ? ctx.entities(1) : [{ id: 'Wolf' }], 'spawn');
-  const hearts = [];
-  for (let i = 0; i < 5; i++) { const h = heartSprite(); h.scale.setScalar(0.4); ctx.S.temp.add(h); hearts.push(h); }
-  const up = base.update;
-  base.update = (t, dt) => {
-    up(t, dt);
-    hearts.forEach((h, i) => {
-      const k = ((t - 1.6 - i * 0.25) % 2.4 + 2.4) % 2.4;
-      h.position.set(ctx.pos.x + 2.7 + i * 0.18, 1.5 + k * 0.7, ctx.pos.z + 0.4);
-      h.material.opacity = clamp01(1 - k / 2.4) * (t > 1.6 ? 1 : 0);
-    });
-  };
-  return base;
-};
-SCENES.mob_tower = (ctx) => {
-  const P = ctx.pos.clone();
-  const stacks = ctx.stacks();
-  const all = [];
-  const pieces = [];
-  let stackH = 3;
-  stacks.forEach((stack, si) => {
-    const ang = -Math.PI / 2 + (si - (stacks.length - 1) / 2) * 0.9;
-    const bx = P.x + Math.cos(ang) * 4.2, bz = P.z + Math.sin(ang) * 4.2;
-    let y = 0;
-    stack.forEach((id, li) => {
-      const m = spawnMob(ctx, id, V(bx, y, bz), { rotY: -ang + Math.PI / 2 });
-      m.born = 0.6 + si * 0.25 + li * 0.45;
-      m.base0 = V(bx, y, bz);
-      // a rider sits on the mob below it: height times the model's scale (a Giant is a zombie at 6x)
-      y += (m.height || 1.8) * (m.base ? m.base.x : 1) * 0.85;
-      pieces.push(m); all.push(m);
-    });
-    stackH = Math.max(stackH, y);
-  });
-  // the tallest stack sets the camera distance and the look height
-  const tb = Math.max(0, stackH - 4) * 1.1;
-  return {
-    dur: 5.4,
-    cam: (t) => ({ pos: V(P.x + 7.4 + tb, 3.2 + t * 0.2 + tb * 0.55, P.z + 8.2 + tb), look: V(P.x + 0.4, Math.min(stackH * 0.5, 3.4 + tb * 0.5), P.z - 1.2), fov: 44 }),
-    update(t, dt) {
-      for (const m of all) {
-        if (m.born === null || t < m.born) continue;
-        mobTick(m, t, dt, { walk: 0 });
-        m.root.rotation.z = Math.sin(t * 3 + m.born) * 0.06;
-      }
-    },
-  };
-};
-SCENES.boss = (ctx) => {
-  const P = ctx.pos.clone();
-  const e = ctx.entities(1)[0] || { id: 'Zombie' };
-  // the boss walks in from 20 blocks out, through the fog, toward Steve (+x)
-  const spawn = V(P.x - 20, 0, P.z + 0.5);
-  const goal = V(P.x - 4.5, 0, P.z + 0.5);
-  const m = spawnMob(ctx, e.id, spawn, { rotY: -Math.PI / 2, color: e.color });
-  m.born = 0.6;
-  let fogOut = true;
-  const roar = pointLight(ctx, 0xff5a2a, 0, 10, V(goal.x, 3, goal.z));
-  const walkT = 3.4;
-  const kAt = (t) => easeOut(clamp01((t - m.born) / walkT));
-  return {
-    dur: 6.0,
-    // the camera is low, six blocks from Steve, and tilts up as the boss nears
-    cam: (t) => {
-      const k = kAt(t);
-      const bx = lerp(spawn.x, goal.x, k);
-      return { pos: V(P.x + 17.0, 1.4, P.z + 0.3), look: V(bx, lerp(3.0, 9.0, k), 0.5), fov: 50 };
-    },
-    update(t, dt) {
-      if (t >= m.born) {
-        const k = kAt(t);
-        m.root.position.lerpVectors(spawn, goal, k);
-        mobTick(m, t, dt, { walk: 1 - k * 0.5 });
-      }
-      roar.intensity = 6 * clamp01((t - 3.9) / 0.6) * (1 - clamp01((t - 5.2) / 1.2));
-      if (fogOut && t > 4.0) { fogOut = false; ctx.shake(0.4); ctx.flashScreen('#ffffff', 0.25, 0.4); puff(ctx, goal, { n: 30, size: 0.9 }); }
-      if (t > 4.2 && !ctx._say) { ctx._say = true; ctx.say(ctx.bossTitle || (e.name || e.id) + ' is here', { at: 'bottom' }); }
-    },
-  };
-};
-
-// Items: pop out of the place where the block was, spin, glint if enchanted.
-function itemsScene(ctx, list, o = {}) {
-  const O = ctx.dais.clone();
-  const items = list.slice(0, 12);
-  const sprites = items.map((it, i) => {
-    const g = new THREE.Group();
-    const n = items.length;
-    const ang = (n === 1 ? 0 : (i / (n - 1) - 0.5) * (o.fan || 2.4)) + Math.PI / 2;
-    const target = V(O.x + Math.cos(ang) * (o.radius || 2.5) * 0.9, 1.6 + (i % 2) * 0.3, O.z + Math.sin(ang) * (o.radius || 2.5) * 0.9 + 1.1);
-    const s = it.icon ? itemSprite(ctx, it.icon, 0.72) : textSprite(it.name || it.id || '?');
-    g.add(s);
-    if (it.ench) {
-      const glint = new THREE.Mesh(new THREE.PlaneGeometry(0.8, 0.8), new THREE.MeshBasicMaterial({ map: glowTexture('rgba(190,120,255,0.9)'), transparent: true, opacity: 0.6, blending: THREE.AdditiveBlending, depthWrite: false }));
-      glint.position.z = 0.02;
-      g.add(glint);
-      g.userData.glint = glint;
-    }
-    g.position.set(O.x, O.y + 0.4, O.z);
-    g.scale.setScalar(0.001);
-    ctx.S.temp.add(g);
-    return { g, target, t0: 0.5 + i * 0.22, it, spin: rnd(0, 6) };
-  });
-  return {
-    dur: Math.max(4.8, 0.5 + items.length * 0.22 + 2.2),
-    cam: (t) => ({ pos: V(O.x + 0.3, 1.9, O.z + 4.9 + (o.zoom || 0)), look: V(O.x, 1.7, O.z + 0.8), fov: 40 }),
-    update(t, dt) {
-      for (const s of sprites) {
-        if (t < s.t0) continue;
-        const k = clamp01((t - s.t0) / 0.7);
-        const e = easeOut(k);
-        s.g.position.lerpVectors(V(O.x, O.y + 0.4, O.z), s.target, e);
-        s.g.position.y += Math.sin(k * Math.PI) * 1.2;
-        s.g.scale.setScalar(0.001 + e);
-        const sp = s.g.children[0];
-        sp.rotation.y = (t * 2.6) + s.spin;
-        sp.position.y = Math.sin(t * 2.2 + s.spin) * 0.04;
-        if (s.g.userData.glint) s.g.userData.glint.material.opacity = 0.35 + 0.3 * Math.sin(t * 4 + s.spin);
-      }
-    },
-  };
-}
-SCENES.item_drop = (ctx) => itemsScene(ctx, ctx.items(1), { radius: 1.6, fan: 0.6 });
-SCENES.item_set = (ctx) => itemsScene(ctx, ctx.items(9), { radius: 3.2, fan: 2.8 });
-SCENES.fireworks_loot = (ctx) => {
-  const base = itemsScene(ctx, ctx.items(6), { radius: 3.0, fan: 2.4 });
-  const O = ctx.dais.clone();
-  const cols = [0xff5a5a, 0xf2c14e, 0x8fd3a0, 0x9d7bff, 0x5ad2ff];
-  const bursts = [0.6, 1.6, 2.6];
-  const oldUpd = base.update;
-  base.update = (t, dt) => {
-    oldUpd(t, dt);
-    bursts.forEach((bt, i) => { if (!base['b' + i] && t >= bt) { base['b' + i] = 1; burst(ctx, V(O.x + (i - 1) * 2.2, 6.5 + i * 0.4, O.z), { n: 70, colors: cols, size: 0.14, speed: 3.2, up: 1.2, life: 1.6, additive: true, gravity: 2.2 }); ctx.shake(0.06); } });
-  };
-  return base;
-};
-SCENES.chest = (ctx) => chestScene(ctx, ctx.items(6), false);
-SCENES.trapped_chest = (ctx) => chestScene(ctx, ctx.items(3), true);
-function chestScene(ctx, list, trapped) {
-  const O = ctx.dais.clone();
-  const chest = buildChest(ctx);
-  chest.position.set(O.x - 0.5, O.y - 1, O.z - 0.5);
-  chest.scale.setScalar(1.2);
-  chest.position.set(0.5, 1, 0.5);
-  chest.scale.setScalar(1.25);
-  ctx.S.temp.add(chest);
-  const base = itemsScene(ctx, list, { radius: 3.4, fan: 2.6 });
-  const up = base.update;
-  base.update = (t, dt) => {
-    const k = easeOut(clamp01((t - 0.2) / 0.9));
-    chest.userData.lid.rotation.x = -k * 1.9;
-    up(t, dt);
-  };
-  if (trapped) base.dur = Math.max(base.dur, 5.6);
-  return base;
-}
-// Sky temple: a platform high above, a beam from the block into the sky.
-SCENES.sky_temple = (ctx) => {
-  const O = ctx.dais.clone();
-  const plat = [];
-  for (let x = -3; x <= 3; x++) for (let z = -3; z <= 3; z++) {
-    const edge = Math.abs(x) === 3 || Math.abs(z) === 3;
-    if (!edge && !(x === 0 && z === 0)) continue;
-    const m = blockCube('minecraft:stonebrick', 1);
-    m.position.set(O.x + x, 26 + 6, O.z + z);
+  const steve = ctx.steve;
+  const cx = Math.round(P.x - 0.2), cz = Math.round(P.z - 0.2);
+  const debris = [];
+  for (let i = 0; i < 40; i++) {
+    const m = blockCube(i % 3 ? 'minecraft:dirt' : 'minecraft:grass', rnd(0.2, 0.4));
+    m.position.set(P.x, 0.3, P.z);
+    m.visible = false;
     ctx.S.temp.add(m);
-    plat.push({ m, to: 26, t0: 0.4 + (Math.abs(x) + Math.abs(z)) * 0.12 });
+    const a = rnd(0, Math.PI * 2), s = rnd(3, 7);
+    debris.push({ m, v: V(Math.cos(a) * s, rnd(5, 10), Math.sin(a) * s), w: V(rnd(-8, 8), rnd(-8, 8), rnd(-8, 8)) });
   }
-  const beamMat = new THREE.MeshBasicMaterial({ map: glowTexture('rgba(255,230,200,1)'), color: 0xffe2b8, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide });
-  const beam = new THREE.Mesh(new THREE.PlaneGeometry(1.4, 26), beamMat);
-  beam.position.set(O.x, 13, O.z);
-  ctx.S.temp.add(beam);
-  const beam2 = beam.clone(); beam2.rotation.y = Math.PI / 2; ctx.S.temp.add(beam2);
+  const ball = new THREE.Mesh(new THREE.SphereGeometry(1, 20, 14), new THREE.MeshBasicMaterial({ color: 0xffb04a, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, fog: false }));
+  ctx.S.temp.add(ball);
+  const ring = new THREE.Mesh(new THREE.RingGeometry(0.9, 1.0, 40), new THREE.MeshBasicMaterial({ color: 0xffe9c0, transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false, blending: THREE.AdditiveBlending }));
+  ring.rotation.x = -Math.PI / 2; ring.position.set(P.x, 0.1, P.z);
+  ctx.S.temp.add(ring);
+  const T0 = 0.9;
+  let blast = false;
+  watch('steve', () => V(P.x, 1.0, P.z), 1.8);
   return {
     dur: 5.6,
-    cam: (t) => ({ pos: V(O.x + 7.5, 4 + clamp01(t / 4) * 3, O.z + 8.2), look: V(O.x, 12 + clamp01(t / 4) * 6, O.z), fov: 46 }),
-    update(t) {
-      for (const p of plat) {
-        if (t < p.t0) continue;
-        const k = easeIn(clamp01((t - p.t0) / 0.7));
-        p.m.position.y = lerp(p.to + 6, p.to, k * k);
-      }
-      beamMat.opacity = 0.7 * clamp01((t - 1.2) / 1.0) * (0.85 + 0.15 * Math.sin(t * 3));
-    },
-  };
-};
-
-// TNT, lightning, rains and explosions
-SCENES.explosion = (ctx) => {
-  const O = ctx.dais.clone();
-  const debris = [];
-  for (let i = 0; i < 30; i++) {
-    const m = blockCube(i % 3 ? 'minecraft:dirt' : 'minecraft:tnt', rnd(0.15, 0.3));
-    m.position.set(O.x, O.y + 0.2, O.z);
-    ctx.S.temp.add(m);
-    const a = rnd(0, Math.PI * 2), s = rnd(2.5, 5);
-    debris.push({ m, v: V(Math.cos(a) * s, rnd(3, 7), Math.sin(a) * s), w: V(rnd(-8, 8), rnd(-8, 8), rnd(-8, 8)) });
-  }
-  let blast = false;
-  return {
-    dur: 5.0,
-    cam: (t) => ({ pos: V(O.x + 4.3, 2.4 + t * 0.05, O.z + 5.6), look: V(O.x, 1.2, O.z), fov: 46 }),
+    cam: (t) => ({ pos: V(P.x - 0.5 + (t > T0 ? Math.min(1.5, (t - T0) * 0.6) : 0), 2.2, P.z + 7.6), look: V(P.x - 0.6, 1.5, P.z), fov: 48 }),
     update(t, dt) {
-      if (!blast && t > 0.25) {
+      if (t < T0) { steve.anim(t, dt, { walk: 0 }); return; }
+      const a = t - T0;
+      if (!blast) {
         blast = true;
-        ctx.shake(0.7); ctx.flashScreen('#ffe7b0', 0.9, 0.45);
-        puff(ctx, V(O.x, 1.4, O.z), { n: 60, size: 0.9, speed: 3.2, colors: [0x2c2a31, 0x5a5560, 0x8c8698, 0xf08a3c] });
-        burst(ctx, V(O.x, 1.4, O.z), { n: 80, colors: [0xffd27a, 0xf08a3c, 0xffffff], size: 0.2, speed: 6, up: 2.2, life: 0.9, additive: true, gravity: 4 });
-        for (let x = -1; x <= 1; x++) for (let z = -1; z <= 1; z++) ctx.setVoxel(x, 0, z, null);
-        ctx.explode(V(O.x, 1, O.z), 1.0);
+        ctx.shake(0.9); ctx.flashScreen('#fff1c8', 1.0, 0.5);
+        sfx('random.explode', { pos: P, volume: 1 });
+        puff(ctx, V(P.x, 1.0, P.z), { n: 70, size: 1.0, speed: 3.6, colors: [0x2c2a31, 0x5a5560, 0x8c8698, 0xf08a3c] });
+        burst(ctx, V(P.x, 1.0, P.z), { n: 90, colors: [0xffd27a, 0xf08a3c, 0xffffff], size: 0.22, speed: 7, up: 3, life: 1.0, additive: true, gravity: 4 });
+        for (let x = -2; x <= 2; x++) for (let z = -2; z <= 2; z++) if (x * x + z * z <= 5) ctx.setVoxel(cx + x, -1, cz + z, null);
+        ctx.explode(V(P.x, 1, P.z), 1.0);
+        debris.forEach((d) => { d.m.visible = true; });
+        sfx('game.player.hurt', { volume: 0.8 });
       }
+      ball.material.opacity = 0.9 * clamp01(1 - a / 0.5); ball.scale.setScalar(0.5 + a * 9);
+      ball.position.set(P.x, 1.0, P.z);
+      ring.material.opacity = 0.8 * clamp01(1 - a / 0.8); ring.scale.setScalar(0.5 + a * 14);
       for (const d of debris) {
-        if (!blast) continue;
-        d.v.y -= 14 * dt;
+        d.v.y -= 16 * dt;
         d.m.position.addScaledVector(d.v, dt);
         d.m.rotation.x += d.w.x * dt; d.m.rotation.y += d.w.y * dt;
         if (d.m.position.y < 0.1) { d.m.position.y = 0.1; d.v.y *= -0.3; d.v.x *= 0.6; d.v.z *= 0.6; }
       }
-      if (t > 0.1 && t < 1.2 && Math.random() < dt * 9) burst(ctx, V(O.x + rnd(-1, 1), 0.5, O.z + rnd(-1, 1)), { n: 5, colors: [0x6e6a78, 0x9c97a8], size: 0.45, speed: 0.6, up: 1.6, gravity: -0.4, life: 1.8 });
-    },
-  };
-};
-SCENES.tnt_rain = (ctx) => {
-  const P = ctx.pos.clone();
-  const N = 36;
-  const tnts = [];
-  for (let i = 0; i < N; i++) {
-    const m = blockCube('minecraft:tnt', 0.5);
-    m.material = m.material.clone();
-    m.position.set(P.x + rnd(-2.5, 2.5), 0.4, P.z + rnd(-2.5, 2.5));
-    m.visible = false;
-    ctx.S.temp.add(m);
-    tnts.push({ m, t0: 0.4 + i * 0.07, v: V(rnd(-0.6, 0.6), rnd(5, 7.5), rnd(-0.6, 0.6)), landed: false, y: 0.4, blink: rnd(0, 1) });
-  }
-  return {
-    dur: 5.4,
-    cam: (t) => ({ pos: V(P.x + 6.4, 5.4, P.z + 9.2), look: V(P.x, 2.6, P.z), fov: 46 }),
-    update(t, dt) {
-      for (const it of tnts) {
-        if (t < it.t0) continue;
-        it.m.visible = true;
-        if (!it.landed) {
-          const s = t - it.t0;
-          it.v.y -= 16 * dt;
-          it.y = Math.max(0.25, it.y + it.v.y * dt);
-          it.m.position.x += it.v.x * dt; it.m.position.z += it.v.z * dt;
-          it.m.position.y = it.y;
-          it.m.rotation.x += dt * 4;
-          if (it.y <= 0.25 && s > 0.2) { it.landed = true; it.landTime = t; }
-        }
-        if (it.landTime && t - it.landTime > 0.6 && !it.blew) {
-          it.blew = true; it.m.visible = false;
-          ctx.explode(it.m.position.clone(), 0.5);
-          ctx.shake(0.12);
-          puff(ctx, it.m.position.clone().setY(0.6), { n: 14, size: 0.5 });
-        }
-        if (!it.landed) { const on = Math.floor((t * 5 + it.blink) % 2) ? 1 : 0; it.m.material.emissive.setRGB(on, on, on); }
-      }
-    },
-  };
-};
-SCENES.expbottle_rain = (ctx) => {
-  const P = ctx.pos.clone();
-  const bottles = [];
-  const glass = new THREE.MeshLambertMaterial({ color: 0x5fe38b, transparent: true, opacity: 0.8 });
-  for (let i = 0; i < 26; i++) {
-    const m = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.32, 0.2), glass);
-    m.position.set(P.x + rnd(-2.2, 2.2), 7, P.z + rnd(-2.2, 2.2));
-    ctx.S.temp.add(m);
-    bottles.push({ m, t0: 0.3 + i * 0.08, landed: false, v: rnd(-1, 1) });
-  }
-  return {
-    dur: 4.8,
-    cam: (t) => ({ pos: V(P.x + 5.6, 4.2, P.z + 8.2), look: V(P.x, 2.4, P.z), fov: 44 }),
-    update(t, dt) {
-      for (const b of bottles) {
-        if (t < b.t0 || b.landed) continue;
-        const s = t - b.t0;
-        const y = 7 - 0.5 * 18 * s * s;
-        b.m.position.y = Math.max(0.2, y);
-        b.m.rotation.z += b.v * dt * 6;
-        if (y <= 0.2) { b.landed = true; b.m.visible = false; burst(ctx, V(b.m.position.x, 0.4, b.m.position.z), { n: 14, colors: [0x7bff9f, 0xb8ff3a, 0xffe36a], size: 0.12, speed: 1.6, up: 2, life: 1.2, additive: true }); }
-      }
-    },
-  };
-};
-SCENES.xp_burst = (ctx) => {
-  const P = ctx.pos.clone();
-  const N = 180;
-  const geo = new THREE.SphereGeometry(0.07, 6, 4);
-  const mat = new THREE.MeshBasicMaterial({ color: 0x9dff4a });
-  const inst = new THREE.InstancedMesh(geo, mat, N);
-  ctx.S.temp.add(inst);
-  const orbs = [];
-  const dummy = new THREE.Object3D();
-  for (let i = 0; i < N; i++) {
-    const a = rnd(0, Math.PI * 2), s = rnd(0.6, 3.2);
-    orbs.push({ p: V(P.x + rnd(-0.2, 0.2), 1.2, P.z + rnd(-0.2, 0.2)), v: V(Math.cos(a) * s, rnd(3, 6), Math.sin(a) * s), t0: rnd(0, 0.6), ph: rnd(0, 6) });
-  }
-  return {
-    dur: 5.4,
-    cam: (t) => ({ pos: V(P.x + 4.6, 3.6, P.z + 6.8), look: V(P.x, 1.1, P.z), fov: 44 }),
-    update(t, dt) {
-      orbs.forEach((o, i) => {
-        if (t >= o.t0) {
-          o.v.y -= 14 * dt;
-          o.p.addScaledVector(o.v, dt);
-          if (o.p.y < 0.07) { o.p.y = 0.07; o.v.y *= -0.55; o.v.x *= 0.8; o.v.z *= 0.8; }
-        }
-        const pulse = 1 + 0.35 * Math.sin(t * 9 + o.ph);
-        dummy.position.copy(o.p); dummy.scale.setScalar(pulse); dummy.updateMatrix();
-        inst.setMatrixAt(i, dummy.matrix);
-      });
-      inst.instanceMatrix.needsUpdate = true;
-    },
-  };
-};
-SCENES.lightning = (ctx) => {
-  const O = ctx.dais.clone();
-  const bolt = new THREE.Group();
-  const boltMat = new THREE.MeshBasicMaterial({ color: 0xf4f8ff, transparent: true, opacity: 1, blending: THREE.AdditiveBlending, depthWrite: false });
-  let y = 26, x = O.x, z = O.z;
-  while (y > 2) {
-    const ny = Math.max(2, y - rnd(2, 4)), nx = O.x + rnd(-0.6, 0.6), nz = O.z + rnd(-0.6, 0.6);
-    const seg = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, Math.hypot(ny - y, nx - x, nz - z), 4), boltMat);
-    seg.position.set((x + nx) / 2, (y + ny) / 2, (z + nz) / 2);
-    seg.lookAt(nx, ny, nz); seg.rotateX(Math.PI / 2);
-    bolt.add(seg);
-    x = nx; y = ny; z = nz;
-  }
-  bolt.visible = false;
-  ctx.S.temp.add(bolt);
-  const glow = pointLight(ctx, 0xbfd6ff, 0, 14, V(O.x, 3, O.z));
-  return {
-    dur: 4.6,
-    cam: (t) => ({ pos: V(O.x + 4.6, 2.6 + clamp01(t / 4) * 0.3, O.z + 6.2), look: V(O.x, 2.6, O.z), fov: 44 }),
-    update(t) {
-      const strike = t > 0.5 && t < 0.75;
-      bolt.visible = strike || (t > 0.85 && t < 0.95);
-      boltMat.opacity = strike ? 1 : 0.6;
-      glow.intensity = (strike ? 60 : 0) + (t > 0.85 && t < 1.2 ? 8 : 0);
-      if (Math.abs(t - 0.5) < 0.02 && !ctx._bolt) { ctx._bolt = 1; ctx.flashScreen('#f2f6ff', 0.95, 0.5); ctx.shake(0.5); burst(ctx, V(O.x, 1, O.z), { n: 40, colors: [0xffa040, 0xffe08a], size: 0.3, speed: 2.4, up: 2, life: 1.2, additive: true }); }
-      if (t > 1.0 && Math.random() < 0.3 * 0.5) burst(ctx, V(O.x + rnd(-0.9, 0.9), 0.4, O.z + rnd(-0.9, 0.9)), { n: 3, colors: [0xff7a2a, 0xffc060], size: 0.4, speed: 0.3, up: 2.2, gravity: -1.2, life: 0.9, additive: true });
-    },
-  };
-};
-SCENES.bedrock_problem = (ctx) => {
-  const O = ctx.dais.clone();
-  const cells = [];
-  for (let i = 0; i < 14; i++) {
-    const a = (i / 14) * Math.PI * 2;
-    const m = blockCube('minecraft:bedrock', 1.05);
-    cells.push({ m, a, t0: 0.3 + i * 0.05 });
-    ctx.S.temp.add(m);
-  }
-  return {
-    dur: 5.0,
-    cam: (t) => ({ pos: V(O.x + 4.6, 3.2, O.z + 7.2), look: V(O.x, 1.4, O.z), fov: 42 }),
-    update(t) {
-      for (const c of cells) {
-        const k = easeOut(clamp01((t - c.t0) / 1.4));
-        const r = lerp(6.5, 2.1, k);
-        c.m.position.set(O.x + Math.cos(c.a) * r, lerp(0.5, 1.8 + 0.2 * Math.sin(c.a * 3), k), O.z + Math.sin(c.a) * r);
-        c.m.rotation.y = c.a + k * 0.6;
-      }
-      if (t > 1.8 && !ctx._bed) { ctx._bed = 1; ctx.shake(0.1); }
+      // Steve is thrown back, tumbles, lands flat
+      const k = clamp01(a / 1.1);
+      steve.root.position.set(P.x + 1.0 * easeOut(k), Math.sin(k * Math.PI) * 3.2, P.z);
+      steve.root.rotation.z = -easeOut(k) * Math.PI * 0.5;
+      steve.mat.emissive.setRGB(0.5 * clamp01(1 - a / 1.5), 0.05, 0.02);
+      ctx.hurt(0.6 * clamp01(1 - a / 2));
     },
   };
 };
 
-// Lucky block family and the sprite-only scenes that stay simple
-// Message: a Minecraft chat line over the scene.
-SCENES.message = (ctx) => {
+SCENES.tnt_rain = (ctx) => {
+  const rolled = roll(ctx.drop.actions);
+  const a = rolled.find((x) => x.t === 'tnt') || { n: 24 };
   const P = ctx.pos.clone();
-  ctx.chat(ctx.chatText || '');
+  const beat = tntBeat(ctx, a.n);
+  watch('tnt', () => V(P.x - 1, 1.2, P.z), 3);
+  let said = false;
   return {
-    dur: 4.2,
-    cam: (t) => ({ pos: V(P.x + 4.8, 2.8, P.z + 7.6), look: V(P.x, 1.6, P.z), fov: 42 }),
-    update(t, dt) { ctx.steve.anim(t, dt, { walk: 0 }); ctx.steve.root.rotation.y = Math.PI / 2 + Math.sin(t * 1.2) * 0.25; },
+    dur: beat.dur + 0.4,
+    cam: () => ({ pos: V(P.x - 0.8, 3.0, P.z + 9.6), look: V(P.x - 1.2, 1.3, P.z - 0.2), fov: 48 }),
+    update(t, dt) {
+      beat.update(t, dt);
+      ctx.steve.anim(t, dt, { walk: 0, armRaise: 0.4 });
+      if (!said && t > 0.5) { said = true; ctx.say(a.n + ' TNT launched at you', { at: 'bottom' }); }
+    },
   };
 };
+
+SCENES.expbottle_rain = (ctx) => {
+  const rolled = roll(ctx.drop.actions);
+  const a = rolled.find((x) => x.t === 'expbottle') || { n: 20 };
+  const P = ctx.pos.clone();
+  const from = V(0.5, 1.8, 0.5);
+  const N = Math.min(a.n, 34);
+  const glass = new THREE.MeshLambertMaterial({ color: 0x5fe38b, emissive: 0x1d6a33, transparent: true, opacity: 0.85 });
+  const bottles = [];
+  for (let i = 0; i < N; i++) {
+    const m = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.3, 0.22), glass);
+    m.visible = false; ctx.S.temp.add(m);
+    bottles.push({ m, t0: 0.4 + i * 0.1, to: V(P.x + rnd(-2.2, 0.8), 0.2, P.z + rnd(-2, 2)), fl: rnd(0.7, 1.0), landed: false });
+  }
+  watch('bottles', () => V(P.x - 1, 1.2, P.z), 3);
+  let sn = 0;
+  return {
+    dur: 0.4 + N * 0.1 + 2.4,
+    cam: () => ({ pos: V(P.x - 0.8, 3.0, P.z + 9.0), look: V(P.x - 1.2, 1.3, P.z), fov: 46 }),
+    update(t, dt) {
+      for (const b of bottles) {
+        if (t < b.t0 || b.landed) continue;
+        const s = t - b.t0, k = clamp01(s / b.fl);
+        b.m.visible = true;
+        b.m.position.set(lerp(from.x, b.to.x, k), lerp(from.y, b.to.y, k) + Math.sin(k * Math.PI) * 2.2, lerp(from.z, b.to.z, k));
+        b.m.rotation.z += dt * 9;
+        if (k >= 1) {
+          b.landed = true; b.m.visible = false;
+          burst(ctx, V(b.to.x, 0.3, b.to.z), { n: 16, colors: [0x7bff9f, 0xb8ff3a, 0xffe36a], size: 0.14, speed: 1.8, up: 2.4, life: 1.2, additive: true });
+          if (sn++ % 2 === 0) sfx('random.glass', { pos: b.to, volume: 0.6, pitch: 1.2 });
+          if (sn % 3 === 0) sfx('random.orb', { pos: b.to, volume: 0.6 });
+        }
+      }
+      ctx.steve.anim(t, dt, { walk: 0 });
+    },
+  };
+};
+
+SCENES.xp_burst = (ctx) => {
+  const P = ctx.pos.clone();
+  const N = 150;
+  const inst = new THREE.InstancedMesh(new THREE.SphereGeometry(0.08, 6, 4), new THREE.MeshBasicMaterial({ color: 0x9dff4a }), N);
+  inst.frustumCulled = false;
+  ctx.S.temp.add(inst);
+  const dummy = new THREE.Object3D();
+  const orbs = [];
+  for (let i = 0; i < N; i++) {
+    const a = rnd(0, Math.PI * 2), s = rnd(0.6, 3.0);
+    orbs.push({ p: V(P.x + rnd(-1, 1), 8 + rnd(0, 4), P.z + rnd(-1, 1)), v: V(Math.cos(a) * s * 0.4, 0, Math.sin(a) * s * 0.4), t0: rnd(0, 1.6), ph: rnd(0, 6), take: 2.2 + rnd(0, 1.8), gone: false });
+  }
+  let absorbed = 0, lvl = false;
+  const chest = V(P.x, 1.1, P.z);
+  watch('steve', () => V(P.x, 1.0, P.z), 1.8);
+  return {
+    dur: 6.4,
+    cam: () => ({ pos: V(P.x - 0.6, 2.8, P.z + 6.4), look: V(P.x - 0.3, 2.0, P.z), fov: 46 }),
+    update(t, dt) {
+      orbs.forEach((o, i) => {
+        if (t >= o.t0 && !o.gone) {
+          if (t < o.take) {
+            o.v.y -= 9 * dt; o.p.addScaledVector(o.v, dt);
+            if (o.p.y < 0.1) { o.p.y = 0.1; o.v.y *= -0.5; o.v.x *= 0.8; o.v.z *= 0.8; }
+          } else {
+            const d = chest.clone().sub(o.p); const L = d.length();
+            o.v.addScaledVector(d.normalize(), 30 * dt); o.v.multiplyScalar(0.94); o.p.addScaledVector(o.v, dt);
+            if (L < 0.3) { o.gone = true; absorbed++; if (absorbed % 8 === 1) sfx('random.orb', { pos: P, volume: 0.7, pitch: 0.8 + absorbed / N }); }
+          }
+        }
+        const pulse = o.gone || t < o.t0 ? 0.0001 : 1 + 0.35 * Math.sin(t * 9 + o.ph);
+        dummy.position.copy(o.p); dummy.scale.setScalar(pulse); dummy.updateMatrix();
+        inst.setMatrixAt(i, dummy.matrix);
+      });
+      inst.instanceMatrix.needsUpdate = true;
+      const g = clamp01((absorbed / N));
+      ctx.steve.mat.emissive.setRGB(0.05, 0.05 + 0.4 * g, 0.05);
+      if (!lvl && absorbed >= N * 0.9) { lvl = true; sfx('random.levelup', { volume: 0.9 }); ctx.say('Experience level up', { at: 'bottom' }); burst(ctx, V(P.x, 1.0, P.z), { n: 40, colors: [0x9dff4a, 0xffffff], size: 0.16, speed: 1.4, up: 3, life: 1.2, additive: true, gravity: 1 }); }
+      ctx.steve.anim(t, dt, { walk: 0 });
+    },
+  };
+};
+
+// ------------------------------------------------------------------ items
+function itemScene(ctx, mode) {
+  const rolled = roll(ctx.drop.actions);
+  let items = itemsOf(rolled);
+  if (!items.length) items = [{ id: 'random', name: 'Item', n: 1 }];
+  const beat = itemsBeat(ctx, items, { mode });
+  return { dur: beat.dur, cam: beat.cam, update: beat.update };
+}
+SCENES.item_drop = (ctx) => itemScene(ctx, 'pop');
+SCENES.item_set = (ctx) => itemScene(ctx, 'pop');
+SCENES.fireworks_loot = (ctx) => {
+  const rolled = roll(ctx.drop.actions);
+  const items = itemsOf(rolled);
+  const fw = rolled.find((a) => a.t === 'fireworks') || { n: 10 };
+  const beat = itemsBeat(ctx, items, { start: 1.0 });
+  const f = fireworksBeat(ctx, fw.n, { start: 0.3 });
+  return { dur: Math.max(beat.dur, f.dur), cam: () => { const c = beat.cam(); c.look.y += 0.9; c.fov = 44; return c; }, update(t, dt) { beat.update(t, dt); f.update(t, dt); } };
+};
+SCENES.chest = (ctx) => {
+  const rolled = roll(ctx.drop.actions);
+  let items = itemsOf(rolled);
+  const chest = buildChest();
+  const O = ctx.dais.clone();
+  chest.position.set(O.x, O.y, O.z);
+  chest.scale.setScalar(1.25);
+  ctx.S.temp.add(chest);
+  watch('chest', chest, 1.2);
+  if (!items.length) items = [{ id: 'random', name: 'Loot', n: 1 }, { id: 'random', n: 1 }, { id: 'random', n: 1 }, { id: 'random', n: 1 }];
+  const beat = itemsBeat(ctx, items, { start: 1.2, mode: 'pop', origin: V(O.x, O.y + 0.4, O.z) });
+  let opened = false;
+  return {
+    dur: beat.dur,
+    cam: () => { const c = beat.cam(); c.pos.y += 0.5; return c; },
+    update(t, dt) {
+      const k = easeOut(clamp01((t - 0.3) / 0.8));
+      chest.userData.lid.rotation.x = -k * 1.9;
+      if (!opened && t > 0.3) { opened = true; sfx('random.chestopen', { pos: O, volume: 0.9 }); }
+      beat.update(t, dt);
+    },
+  };
+};
+
+// ------------------------------------------------------------------ bedrock
+SCENES.bedrock_problem = (ctx) => {
+  const sp = structureScene(ctx, 'bedrock_problem', { x: 0, y: 1, z: 0 }, { start: 0.5, span: 0.6 });
+  const O = ctx.dais.clone();
+  let said = false, snd = false;
+  watch('bedrock', () => V(0.5, 1.5, 0.5), 1.5);
+  return {
+    dur: 5.0,
+    cam: () => ({ pos: V(1.6, 2.1, 4.4), look: V(0.5, 1.5, 0.5), fov: 40 }),
+    update(t, dt) {
+      if (sp) sp.update(t);
+      if (!snd && t > 0.5) { snd = true; sfx('dig.stone', { pos: O, volume: 1 }); sfx('random.anvil_land', { pos: O, volume: 0.5, pitch: 0.7 }); ctx.shake(0.2); puff(ctx, V(0.5, 1.2, 0.5), { n: 14, size: 0.4 }); }
+      if (!said && t > 1.4) { said = true; ctx.say("Well, there's your problem.", { at: 'bottom' }); }
+      ctx.steve.anim(t, dt, { walk: 0 });
+    },
+  };
+};
+
+// ------------------------------------------------------------------ effects and messages
 SCENES.effect = (ctx) => {
   const P = ctx.pos.clone();
   const col = new THREE.Color(ctx.effectColor || 0x9d7bff);
   const swirl = [];
-  for (let i = 0; i < 90; i++) swirl.push({ a: rnd(0, 6.28), r: rnd(0.6, 2.6), y: rnd(0, 2.2), s: rnd(0.4, 1) });
+  for (let i = 0; i < 90; i++) swirl.push({ a: rnd(0, 6.28), r: rnd(0.6, 2.2), y: rnd(0, 2.2), s: rnd(0.4, 1) });
   const geo = new THREE.BufferGeometry();
   const pos = new Float32Array(swirl.length * 3);
   geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-  const mat = new THREE.PointsMaterial({ size: 0.16, color: col, map: glowTexture(), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending });
-  const pts = new THREE.Points(geo, mat);
+  const pts = new THREE.Points(geo, new THREE.PointsMaterial({ size: 0.16, color: col, map: glowTexture(), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }));
+  pts.frustumCulled = false;
   ctx.S.temp.add(pts);
-  let said = false;
+  const msg = roll(ctx.drop.actions).find((a) => a.t === 'message');
+  let said = false, drank = false, chatted = false;
+  watch('steve', () => V(P.x, 1.0, P.z), 1.8);
   return {
-    dur: 5.0,
-    cam: (t) => ({ pos: V(P.x + 4.6, 2.4, P.z + 6.0), look: V(P.x, 1.1, P.z), fov: 42 }),
+    dur: 5.4,
+    cam: () => ({ pos: V(P.x - 1.2, 2.0, P.z + 5.2), look: V(P.x - 0.6, 1.1, P.z), fov: 42 }),
     update(t, dt) {
       swirl.forEach((s, i) => {
         const a = s.a + t * (1.2 + s.s);
         pos[i * 3] = P.x + Math.cos(a) * s.r; pos[i * 3 + 1] = (s.y + t * 0.5) % 2.4; pos[i * 3 + 2] = P.z + Math.sin(a) * s.r;
       });
       geo.attributes.position.needsUpdate = true;
-      ctx.tint(ctx.effectColor || 0x9d7bff, 0.22 * clamp01(t / 1.5) * (1 - clamp01((t - 4) / 1)));
-      if (!said) { said = true; ctx.say(ctx.effectName || 'Effect', { at: 'top' }); }
-      ctx.steve.anim(t, dt, { walk: 0 });
+      ctx.tint(ctx.effectColor || 0x9d7bff, 0.22 * clamp01((t - 0.8) / 1.5) * (1 - clamp01((t - 4.4) / 1)));
+      if (!drank && t > 0.4) { drank = true; sfx('random.drink', { pos: P, volume: 0.9 }); sfx('random.burp', { pos: P, volume: 0.5 }); }
+      if (!said && t > 1.0) { said = true; ctx.say(ctx.effectName || 'Effect', { at: 'top' }); }
+      if (!chatted && msg && t > 1.6) { chatted = true; ctx.chat(msg.text); }
+      ctx.steve.anim(t, dt, { walk: 0, armRaise: 0.8 * clamp01(1 - Math.abs(t - 0.8)) });
     },
   };
 };
-SCENES.time = (ctx) => {
+SCENES.message = (ctx) => {
+  const rolled = roll(ctx.drop.actions);
+  const items = itemsOf(rolled);
+  const chat = STRUCT_SCENES.message(ctx);
   const O = ctx.dais.clone();
+  const beat = items.length ? itemsBeat(ctx, items, { start: 1.6, cap: 1, mode: 'pop' }) : null;
+  const P = ctx.pos;
   return {
-    dur: 5.0,
-    cam: (t) => ({ pos: V(O.x + 6.4, 3.4 + t * 0.12, O.z + 8.4), look: V(O.x, 2.6 + t * 0.2, O.z), fov: 44 }),
-    update(t, dt) {
-      const k = easeInOut(clamp01(t / 2.0));
-      ctx.S.setNight(k);
-      ctx.S.sunDrop(k);
-      ctx.S.stars.material.size = 1.2 + k * 0.6;
-      if (!ctx._t) { ctx._t = 1; ctx.say('The time is set to night', { at: 'bottom' }); }
-    },
+    dur: Math.max(chat.dur, beat ? beat.dur : 0),
+    cam: () => ({ pos: V(P.x - 0.4, 2.3, P.z + 6.2), look: V(P.x - 1.5, 1.2, P.z), fov: 46 }),
+    update(t, dt) { chat.update(t, dt); if (beat) beat.update(t, dt); },
   };
 };
-SCENES.apocalypse = (ctx) => {
-  const O = ctx.dais.clone();
+
+// ------------------------------------------------------------------ Jen's hole
+function animLiquid(name, extra) { return new THREE.MeshLambertMaterial({ map: animTex(name), ...extra }); }
+SCENES.jens_hole = (ctx) => {
   const P = ctx.pos.clone();
-  const sword = itemsScene(ctx, ctx.items(1), { radius: 1.2, fan: 0 });
-  const hordeList = ctx.entities(14);
-  const hordeMobs = [];
-  hordeList.forEach((e, i) => {
-    const ang = (i / Math.max(1, hordeList.length)) * Math.PI * 2 + 0.2;
-    const spawn = V(P.x + Math.cos(ang) * 14, 0, P.z + Math.sin(ang) * 14);
-    const goal = V(P.x + Math.cos(ang) * 3.2, 0, P.z + Math.sin(ang) * 3.2);
-    const m = spawnMob(ctx, e.id, spawn, { color: e.color });
-    m.born = 6.2 + i * 0.12; m.spawn = spawn; m.goal = goal; hordeMobs.push(m);
-  });
-  let hit = false;
+  const D = V(0.5, 0, 0.5);
+  const cx = 0, cz = 0;
+  const removed = [];
+  for (let y = 0; y >= -3; y--) {
+    const id = ctx.S.vox.get(cx, y, cz);
+    if (id) { removed.push([cx, y, cz, id]); ctx.setVoxel(cx, y, cz, null); }
+  }
+  const rolled = roll(ctx.drop.actions);
+  const msg = rolled.find((a) => a.t === 'message');
+  const ent = rolled.find((a) => a.t === 'entity') || { id: 'Witch', display: 'Jen' };
+  const witch = spawnMob(ctx, 'Witch', V(D.x, -2.9, D.z), { rotY: facing(1, 0.2), scale: 1.0 });
+  witch.born = 1.2; witch.baseY = -2.9;
+  const tag = nameTag(cleanName(ent.display || 'Jen'), '#ffe9a8');
+  tag.position.set(D.x, -0.55, D.z);
+  ctx.S.temp.add(tag);
+  const peek = pointLight(ctx, 0xffe0b0, 3, 7, V(D.x, 0.2, D.z));
+  let chat = false, laugh = false;
   return {
-    dur: 12.0,
-    mobs: hordeMobs,
-    cam: (t) => {
-      if (t < 2.0) return { pos: V(O.x + 4.5, 3.8, O.z + 6.6), look: V(O.x, 1.2, O.z), fov: 42 };
-      if (t < 6.0) return { pos: V(P.x + 6.8, 3.2, P.z + 8.2), look: V(P.x, 1.4, P.z), fov: 44 };
-      return { pos: V(P.x + 7.6, 5.2 - (t - 6) * 0.2, P.z + 11.4), look: V(P.x + 0.4, 1.2, P.z), fov: 48 };
-    },
+    dur: 6.4,
+    cam: () => ({ pos: V(D.x + 2.8, 3.4, D.z + 4.4), look: V(D.x, -1.2, D.z), fov: 46 }),
     update(t, dt) {
-      const k = easeInOut(clamp01(t / 2.0));
-      ctx.S.setNight(k); ctx.S.sunDrop(k);
-      if (t > 2.6 && !ctx._sword) { ctx._sword = 1; }
-      if (t > 2.1) sword.update(t - 2.1, dt);
-      if (t > 3.6) ctx.tint(0x000000, 0.34 * clamp01((t - 3.6) / 1.4));
-      if (t > 5.2) ctx.tint(0x8b5cf6, 0.16 * clamp01((t - 5.2) / 1.0));
+      mobTick(witch, t, dt, { walk: 0, mute: true });
+      witch.root.position.y = -2.9 + easeOut(clamp01((t - 1.6) / 1.6)) * 2.2;
+      tag.position.y = witch.root.position.y + 2.5;
+      if (!chat && t > 0.4) { chat = true; if (msg) ctx.chat(msg.text); }
+      if (!laugh && t > 1.8) { laugh = true; sfx('mob.witch.laugh', { pos: D, volume: 1 }); sfx('mob.witch.idle', { pos: D, volume: 0.6 }); }
       ctx.steve.anim(t, dt, { walk: 0 });
-      ctx.steve.root.rotation.y = Math.PI / 2 + Math.sin(t * 1.4) * 0.3;
-      hordeMobs.forEach((m) => {
-        if (t < m.born) return;
-        const kk = easeOut(clamp01((t - m.born) / 3.0));
-        m.root.position.lerpVectors(m.spawn, m.goal, kk);
-        mobTick(m, t, dt, { walk: 1 });
-      });
-      if (t > 2.2 && !ctx._apoc1) { ctx._apoc1 = 1; ctx.say('Night, and the sword drops', { at: 'bottom' }); }
-      if (t > 5.4 && !ctx._apoc2) { ctx._apoc2 = 1; ctx.say('Blindness and slowness', { at: 'bottom' }); }
-      if (t > 6.4 && !ctx._apoc3) { ctx._apoc3 = 1; ctx.say('The hordes close in from the fog', { at: 'bottom' }); ctx.shake(0.2); }
     },
   };
 };
 
-// Villager trader, troll ore, and the generic fallback
-SCENES.villager_trader = (ctx) => {
-  const P = ctx.pos.clone();
-  const v = spawnMob(ctx, 'Villager', V(P.x + 2.4, 0, P.z - 0.8), { rotY: Math.PI });
-  v.born = 0.5;
-  return {
-    dur: 4.4,
-    cam: (t) => ({ pos: V(P.x + 5.6, 2.8, P.z + 6.8), look: V(P.x + 1.2, 1.5, P.z), fov: 40 }),
-    update(t, dt) { mobTick(v, t, dt, { walk: 0 }); },
-  };
-};
-SCENES.troll_ore = (ctx) => {
-  const O = ctx.dais.clone();
-  const lava = fluidTrap(ctx, 'lava');
-  const ore = blockCube('minecraft:diamond_ore', 1);
-  ore.position.set(O.x, 6, O.z);
-  ctx.S.temp.add(ore);
-  return {
-    dur: 4.8,
-    cam: (t) => ({ pos: V(O.x + 4.2, 3.6, O.z + 6.4), look: V(O.x, 2.0, O.z), fov: 42 }),
-    update(t, dt) {
-      const k = easeIn(clamp01((t - 0.8) / 1.0));
-      ore.position.y = lerp(6, 3.2, k * k);
-      ore.rotation.y = t * 0.3;
-      const fill = clamp01((t - 0.4) / 1.6);
-      lava.liquid.scale.y = Math.max(0.001, easeOut(fill) * 1.7);
-      lava.liquid.position.y = 0.5 * lava.liquid.scale.y;
-      if (lava.shell) for (const s of lava.shell) { s.m.visible = false; }
-      if (t > 2.0 && !ctx._troll) { ctx._troll = 1; ctx.say('Diamond ore over lava', { at: 'bottom' }); }
-    },
-  };
-};
+// ------------------------------------------------------------------ the dud
+SCENES.dud = (ctx) => dudBeat(ctx);
+
+// The crash guard: only reached when a scene throws, so the page still ends.
 SCENES.generic = (ctx) => {
   const O = ctx.dais.clone();
   const plq = plaque(ctx.drop);
-  plq.position.set(O.x, 2.8, O.z + 1.0);
-  plq.scale.setScalar(1.6);
+  plq.position.set(O.x, 2.0, O.z + 1.0);
+  plq.scale.setScalar(0.6);
   ctx.S.temp.add(plq);
-  return {
-    dur: 4.0,
-    cam: (t) => ({ pos: V(O.x + 0.6, 2.5, O.z + 5.4), look: V(O.x, 2.2, O.z), fov: 40 }),
-    update(t) { plq.rotation.y = Math.sin(t * 1.4) * 0.3; plq.position.y = 2.8 + Math.sin(t * 2) * 0.08; },
-  };
+  F.fail('generic fallback');
+  return { dur: 3.0, cam: () => ({ pos: V(O.x + 0.4, 2.2, O.z + 4.4), look: V(O.x, 2.0, O.z), fov: 40 }), update(t) { plq.rotation.y = Math.sin(t * 1.4) * 0.3; } };
 };
 
-// Keys the engine implements explicitly; anything else falls back to generic.
-Object.assign(SCENES, STRUCT_SCENES);
+// ------------------------------------------------------------------ registry
 export const SCENE_KEYS = Object.keys(SCENES);
-export function buildScene(key, ctx) {
-  const f = SCENES[key] || SCENES.generic;
+
+// Scene reports for tools/site/vet_lucky.py: ?dump writes the latest one into the page.
+function writeReport(rep) {
   try {
-    return f(ctx) || SCENES.generic(ctx);
+    let el = document.getElementById('qf-scene-report');
+    if (!el) { el = document.createElement('script'); el.type = 'application/json'; el.id = 'qf-scene-report'; document.body.appendChild(el); }
+    el.textContent = JSON.stringify(rep);
+  } catch (e) { /* the report is optional */ }
+}
+function wrap(sc, key, ctx) {
+  const rep = F.report();
+  const update = sc.update;
+  let lastT = 0;
+  sc.update = (t, dt) => { lastT = t; if (update) update.call(sc, t, dt); if (F.DUMP) writeReport(sc.report()); };
+  sc.report = () => F.finishReport(rep, sc.cam(lastT), ctx.S.camera.aspect, lastT, sc.dur);
+  return sc;
+}
+export function buildScene(key, ctx) {
+  F.resetFog(ctx);
+  F.newReport(key, ctx.drop);
+  let sc;
+  try {
+    const f = SCENES[key];
+    if (!f) throw new Error('no scene ' + key);
+    sc = f(ctx);
+    if (!sc) throw new Error('scene returned nothing');
   } catch (e) {
     console.warn('scene', key, e);
-    return SCENES.generic(ctx);
+    F.newReport(key, ctx.drop);
+    F.fail(String(e && e.message || e));
+    sc = SCENES.generic(ctx);
   }
+  if (ctx.drop && ctx.drop.mood === 'deadly' && sc.dur && !sc._grand) { /* deadly scenes carry their own treatment */ }
+  return wrap(sc, key, ctx);
 }
-export { MOOD_COLOR, puff, burst, blockCube as cube, pointLight };
+export { MOOD_COLOR, puff, burst, blockCube as cube, pointLight, nameTag };

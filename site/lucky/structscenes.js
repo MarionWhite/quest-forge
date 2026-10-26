@@ -5,6 +5,7 @@ import { structureScene, plan } from './structures.js';
 import { anvilModel } from './blocks.js';
 import { makeMob } from './mobs.js';
 import { glowTexture } from './stage.js';
+import { sfx, watch } from './fx.js';
 
 const V = (x, y, z) => new THREE.Vector3(x, y, z);
 const clamp01 = (x) => Math.max(0, Math.min(1, x));
@@ -55,6 +56,7 @@ function landingBurst(ctx, pos, colors = [0xb8b0c4, 0x8c8698], n = 14, size = 0.
 }
 
 const STRUCT = {};
+let _steve = null; const steve0 = () => _steve;
 let luckyMat = null;
 const LUCKY_MAT = () => { if (!luckyMat) luckyMat = makeBlock('lucky:lucky_block', 0, {}).obj.children[0].material; return luckyMat; };
 
@@ -72,6 +74,8 @@ STRUCT.anvil_trap = (ctx) => {
     ctx.S.temp.add(g);
     return { g, t0: 3.1 + i * 0.35, landed: false, landT: null, i };
   });
+  watch('anvil', () => anvils[0].g.position.clone().setY(Math.min(anvils[0].g.position.y, 60)), 1);
+  watch('steve', () => new THREE.Vector3(P.x, 1.0, P.z), 1.8, false);
   light(ctx, 0xffb070, 140, 60, V(P.x + 0.4, 10, P.z + 0.5));
   light(ctx, 0xffe0b0, 40, 30, V(P.x + 0.4, 3.5, P.z + 0.5));
   light(ctx, 0xffd9a0, 2.4, 9, V(P.x + 1.5, 1.6, P.z + 3.4));
@@ -99,6 +103,7 @@ STRUCT.anvil_trap = (ctx) => {
         if (y <= floor) {
           a.landed = true; a.landT = t; a.g.position.y = floor;
           ctx.shake(0.5 + 0.1 * a.i);
+          sfx('random.anvil_land', { pos: { x: P.x, y: 1, z: P.z }, volume: 1, pitch: 0.9 + 0.1 * a.i }); sfx('game.player.hurt', { volume: 0.8 });
           ctx.hurt(0.55);
           ctx.flashScreen('#ff2a2a', 0.45, 0.4);
           landingBurst(ctx, V(P.x + 0.5, floor, P.z + 0.5), [0xb8b0c4, 0x8f8a9c, 0xf08a3c], 26, 0.4);
@@ -115,6 +120,8 @@ STRUCT.anvil_trap = (ctx) => {
         steve.anim(t, dt, { walk: 0 });
         steve.mat.emissive.setRGB(0, 0, 0);
       }
+      if (t > 0.3 && !ctx._bars) { ctx._bars = true; sfx('dig.stone', { pos: { x: P.x, y: 1, z: P.z }, volume: 0.8 }); sfx('random.click', { volume: 0.6 }); }
+      if (t > 3.0 && !ctx._whistle) { ctx._whistle = true; sfx('random.bow', { pos: { x: P.x, y: 20, z: P.z }, volume: 0.4, pitch: 0.5 }); }
       if (fellT && t > fellT + 0.6 && !ctx._say) { ctx._say = true; ctx.say('Steve was squashed by a falling anvil', { at: 'bottom' }); }
     },
   };
@@ -125,6 +132,7 @@ function cageScene(ctx, key, fluid) {
   const sp = structureScene(ctx, key, FEET, { start: 0.2, span: 2.4 });
   if (!sp) return null;
   const P = ctx.pos;
+  watch('steve', () => new THREE.Vector3(P.x, 1.0, P.z), 1.8);
   const steve = ctx.steve;
   const fire = new THREE.Group();
   const fireMat = new THREE.MeshBasicMaterial({ map: fireTexture(), transparent: true, depthWrite: false, depthTest: false, opacity: 0, side: THREE.DoubleSide, blending: THREE.NormalBlending });
@@ -145,6 +153,10 @@ function cageScene(ctx, key, fluid) {
     cam: (t) => ({ pos: V(P.x + 4.3, 2.3, P.z + 4.8 + clamp01(t / 6) * 0.6), look: V(P.x - 0.1, 1.25, P.z), fov: 40 }),
     update(t, dt) {
       sp.update(t);
+      if (t > 0.3 && !ctx._bars) { ctx._bars = true; sfx('dig.stone', { pos: { x: P.x, y: 1, z: P.z }, volume: 0.8 }); }
+      if (t > 2.2 && !ctx._liq) { ctx._liq = true; sfx(fluid === 'lava' ? 'liquid.lava' : 'liquid.water', { pos: { x: P.x, y: 3, z: P.z }, volume: 1 }); sfx(fluid === 'lava' ? 'liquid.lavapop' : 'liquid.splash', { volume: 0.8 }); }
+      if (t > burnAt && !ctx._hurt) { ctx._hurt = true; sfx('game.player.hurt', { volume: 0.9 }); sfx(fluid === 'lava' ? 'fire.fire' : 'liquid.splash', { pos: { x: P.x, y: 1, z: P.z }, volume: 0.8 }); }
+      if (t > burnAt + 1.4 && !ctx._hurt2) { ctx._hurt2 = true; sfx('game.player.hurt', { volume: 0.9 }); if (fluid === 'lava') sfx('random.fizz', { volume: 0.5 }); }
       const burning = clamp01((t - burnAt) / 0.8);
       fireMat.opacity = fluid === 'lava' ? 0.7 * burning * (0.85 + 0.15 * Math.sin(t * 25)) : 0;
       fire.children.forEach((f, i) => { f.scale.y = 1 + 0.15 * Math.sin(t * 18 + i); });
@@ -179,7 +191,8 @@ STRUCT.pit_trap = (ctx) => {
   const sp = structureScene(ctx, 'pit_trap', FEET, { start: 0.1, span: 1.2 });
   if (!sp) return null;
   const P = ctx.pos;
-  const steve = ctx.steve;
+  watch('steve', () => new THREE.Vector3(P.x, steve0().root.position.y + 1, P.z), 1.8);
+  const steve = ctx.steve; _steve = steve;
   const fallT0 = 2.0, fallT = 3.8, D = 60;
   let y = 0;
   // walls for the shaft below the plateau's bedrock, so the fall has something to frame
@@ -197,6 +210,9 @@ STRUCT.pit_trap = (ctx) => {
     },
     update(t, dt) {
       sp.update(t);
+      if (t > 0.2 && !ctx._o) { ctx._o = true; sfx('dig.stone', { pos: { x: P.x, y: 0, z: P.z }, volume: 0.9 }); }
+      if (t > fallT0 + 0.2 && !ctx._yell) { ctx._yell = true; sfx('game.player.hurt', { volume: 0.7, pitch: 0.7 }); }
+      if (t > fallT0 + fallT && !ctx._web) { ctx._web = true; sfx('dig.cloth', { volume: 0.9 }); sfx('liquid.lava', { volume: 0.7 }); }
       const s = clamp01((t - fallT0) / fallT);
       y = -D * s * s;
       steve.anim(t, dt, { walk: 0, armRaise: 0.9 * (s > 0 ? 1 : 0) });
@@ -213,12 +229,14 @@ function assemble(ctx, key, span, extra) {
   const sp = structureScene(ctx, key, FEET, { start: 0.3, span });
   if (!sp) return null;
   const P = ctx.pos;
+  watch('structure', () => new THREE.Vector3(P.x, 2, P.z), 5);
   return {
     dur: sp.dur + 1.6,
     cam: (t) => ({ pos: V(P.x + 7.2, 4.0 + clamp01(t / sp.dur) * 2.4, P.z + 10.2), look: V(P.x - 0.4, 2.2, P.z), fov: 42 }),
     update(t, dt) {
       sp.update(t);
       ctx.steve.anim(t, dt, { walk: 0 });
+      if (Math.floor(t * 2) !== ctx._sq && t < sp.dur) { ctx._sq = Math.floor(t * 2); sfx('dig.stone', { pos: { x: P.x, y: 2, z: P.z }, volume: 0.5, pitch: 0.9 + (ctx._sq % 3) * 0.1 }); }
       if (extra) extra(t);
     },
   };
@@ -232,66 +250,21 @@ STRUCT.lucky_choice = (ctx) => {
   const sp = structureScene(ctx, 'lucky_choice', FEET, { start: 0.3, span: 1.4 });
   if (!sp) return null;
   const P = ctx.pos;
+  watch('blocks', () => new THREE.Vector3(P.x, 1.2, P.z + 2.2), 2);
   return {
     dur: sp.dur + 2.6,
     cam: (t) => ({ pos: V(P.x + 0.6, 1.5, P.z + 5.6), look: V(P.x + 0.1, 1.05, P.z + 2.2), fov: 36 }),
     update(t, dt) {
       sp.update(t);
       ctx.steve.anim(t, dt, { walk: 0 });
-      if (t > sp.dur && !ctx._choice) { ctx._choice = true; ctx.say('One is lucky. One is not.', { at: 'bottom' }); }
+      if (t > 0.4 && !ctx._c1) { ctx._c1 = true; sfx('dig.stone', { volume: 0.8 }); sfx('random.click', { volume: 0.6 }); }
+      if (t > sp.dur && !ctx._choice) { ctx._choice = true; sfx('random.orb', { volume: 0.6 }); ctx.say('One is lucky. One is not.', { at: 'bottom' }); }
     },
   };
 };
 
-// ---- sky temple: blocks drop from far above into place; the beam rises from the dais.
-function dropList(ctx, blocks, origin, o = {}) {
-  const items = (blocks || []).slice(0, 40).map((b, i) => {
-    const holder = new THREE.Group();
-    const r = makeBlock(b.id, b.meta || 0, {});
-    r.obj.position.set(-0.5, 0, -0.5);
-    holder.add(r.obj);
-    const wx = origin.x + (b.dx || 0) + 0.5, wy = origin.y + (b.dy || 0), wz = origin.z + (b.dz || 0) + 0.5;
-    holder.position.set(wx, wy + (o.fall ?? 14), wz);
-    ctx.S.temp.add(holder);
-    return { holder, wy, t0: (o.start ?? 0.4) + i * (o.step ?? 0.12), landed: false, wx, wz };
-  });
-  return {
-    items,
-    update(t) {
-      for (const it of items) {
-        if (t < it.t0) continue;
-        const s = (t - it.t0);
-        const y = it.wy + Math.max(0, (o.fall ?? 14) - 0.5 * 26 * s * s);
-        it.holder.position.y = y;
-        if (y <= it.wy && !it.landed) { it.landed = true; it.holder.position.y = it.wy; ctx.shake(0.05); landingBurst(ctx, V(it.wx, it.wy + 0.1, it.wz), [0xb8b0c4, 0xdcd6e6], 8, 0.25); }
-      }
-    },
-  };
-}
 import { makeBlock } from './blocks.js';
 import { iconTexture } from './stage.js';
-
-STRUCT.sky_temple = (ctx) => {
-  const O = { x: 0, y: 1, z: 0 };
-  const blocks = [];
-  const d = ctx.drop.actions.find((a) => a.t === 'block');
-  if (d && d.blocks) for (const b of d.blocks) blocks.push(b);
-  if (!blocks.length) return null;
-  const drops = dropList(ctx, blocks, O, { fall: 16, start: 0.4, step: 0.04 });
-  const beamMat = new THREE.MeshBasicMaterial({ map: glowTexture('rgba(255,236,200,1)'), color: 0xffe2b8, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide });
-  const beam = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 52), beamMat);
-  beam.position.set(0.5, 27, 0.5); ctx.S.temp.add(beam);
-  const beam2 = beam.clone(); beam2.rotation.y = Math.PI / 2; ctx.S.temp.add(beam2);
-  return {
-    dur: 6.0,
-    cam: (t) => { const k = clamp01((t - 0.5) / 3.6); const e = easeIn(k); return { pos: V(lerpN(4.2, 8.0, k), lerpN(2.4, 38.0, e), lerpN(7.6, 15.0, k)), look: V(0.5, lerpN(1.5, 49.0, e), 0.5), fov: 44 }; },
-    update(t, dt) {
-      drops.update(t);
-      beamMat.opacity = 0.7 * clamp01((t - 1.5) / 1.2);
-      ctx.steve.anim(t, dt, { walk: 0 });
-    },
-  };
-};
 function lerpN(a, b, k) { return a + (b - a) * k; }
 
 // ---- trapped chest: the chest opens and the TNT beneath it rises, primes, then blows.
@@ -313,12 +286,15 @@ STRUCT.trapped_chest = (ctx) => {
     tnts.push({ h, t0: 0.5 + tnts.length * 0.12, boom: false });
   }
   let blown = null;
+  watch('chest', chestG.obj, 1);
   return {
     dur: 6.2,
     cam: (t) => ({ pos: V(4.0, 3.2, 6.2), look: V(0.5, 1.4, 0.5), fov: 42 }),
     update(t, dt) {
       const lid = chestG.lid;
       if (lid) lid.rotation.x = -easeOut((t - 1.0) / 0.9) * 1.9;
+      if (t > 1.0 && !ctx._co) { ctx._co = true; sfx('random.chestopen', { volume: 1 }); }
+      if (t > 2.2 && !ctx._fz) { ctx._fz = true; sfx('random.fuse', { volume: 1 }); }
       for (const q of tnts) {
         if (t < q.t0) continue;
         const k = easeOut((t - q.t0) / 0.8);
@@ -328,7 +304,7 @@ STRUCT.trapped_chest = (ctx) => {
       }
       if (t > 4.6 && blown === null) {
         blown = t;
-        ctx.explode(V(0.5, 1.5, 0.5), 1.2);
+        ctx.explode(V(0.5, 1.5, 0.5), 1.2); sfx('random.explode', { volume: 1 });
         ctx.shake(0.6); ctx.flashScreen('#ffe7b0', 0.8, 0.5);
         for (const q of tnts) q.h.visible = false;
       }
@@ -359,6 +335,7 @@ STRUCT.troll_ore = (ctx) => {
     return { h, x, z, t0: 0.6 + i * 0.25, landed: false };
   });
   const glint = light(ctx, 0xff7a2a, 2.5, 6, V(0.5, 1.6, 0.5));
+  watch('ore', () => new THREE.Vector3(0.5, 3, 0.5), 3);
   return {
     dur: 5.4,
     cam: (t) => ({ pos: V(4.4, 5.6, 8.0), look: V(0.5, 3.0, 0.5), fov: 44 }),
@@ -368,7 +345,7 @@ STRUCT.troll_ore = (ctx) => {
         const s = t - o.t0;
         const y = Math.max(1.5, 17 - 0.5 * 30 * s * s);
         o.h.position.y = y;
-        if (y <= 1.6 && !o.landed) { o.landed = true; landingBurst(ctx, V(o.x, 1.6, o.z), [0xff9a3a, 0xffd27a, 0xb8b0c4], 16, 0.3); ctx.shake(0.06); }
+        if (y <= 1.6 && !o.landed) { o.landed = true; sfx('dig.stone', { volume: 0.7 }); sfx('liquid.lavapop', { volume: 0.7 }); landingBurst(ctx, V(o.x, 1.6, o.z), [0xff9a3a, 0xffd27a, 0xb8b0c4], 16, 0.3); ctx.shake(0.06); }
       }
       glint.intensity = 2.5 + 0.8 * Math.sin(t * 7);
       ctx.steve.anim(t, dt, { walk: 0 });
@@ -376,78 +353,6 @@ STRUCT.troll_ore = (ctx) => {
     },
   };
 };
-
-// ---- the wishing well's then beat: the coin goes in, the hidden lucky block breaks, the reward appears.
-STRUCT.wishing_well = (ctx) => {
-  const origin = { x: 0, y: 1, z: 0 };
-  const sp = structureScene(ctx, 'wishing_well', origin, { start: 0.3, span: 3.0 });
-  if (!sp) return null;
-  const C = V(0.5, 1.6, 0.5);
-  const coin = makeMob('Coin', { scale: 1.6 });
-  coin.root.visible = false;
-  ctx.S.temp.add(coin.root);
-  const from = V(0.5, 7.0, -2.6), to = V(0.5, 2.1, 0.5);
-  const hidden = (ctx.drop.actions.find((a) => a.t === 'then') || {}).actions || [];
-  const hasThen = hidden.length > 0;
-  const rewards = [];
-  const rewardItems = hidden.filter((a) => a.t === 'item' || a.t === 'block' || a.t === 'fireworks').filter((a) => a.t === 'item').slice(0, 3);
-  let splashed = false, broke = null, lb = null, frags = [];
-  return {
-    dur: hasThen ? 9.2 : 5.6,
-    cam: (t) => {
-      if (!hasThen || t < 4.6) return { pos: V(3.6, 3.0, 5.4), look: V(0.5, 2.3, 0.5), fov: 40 };
-      return { pos: V(3.2, 2.6, 4.6), look: V(0.5, 1.8, 0.5), fov: 40 };
-    },
-    update(t, dt) {
-      sp.update(t);
-      if (t >= 3.6) {
-        coin.root.visible = true;
-        const k = clamp01((t - 3.6) / 0.9);
-        coin.root.position.lerpVectors(from, to, k);
-        coin.root.position.y += Math.sin(k * Math.PI) * 1.8;
-        coin.root.rotation.y = t * 8;
-        if (k >= 1 && !splashed) {
-          splashed = true;
-          emit(ctx, V(0.5, 2.0, 0.5), { n: 40, colors: [0x9ad7ff, 0xffffff, 0x6fb8ff], size: 0.14, up: 2.4, gravity: 7, life: 1.0, additive: true, spread: 0.4 });
-          ctx.shake(0.12);
-          coin.root.visible = false;
-        }
-      }
-      if (hasThen) {
-        if (t >= 5.0 && broke === null) {
-          broke = t;
-          lb = makeBlock('lucky:lucky_block', 0, {}).obj;
-          lb.position.set(-0.5, 0, -0.5);
-          const h = new THREE.Group(); h.add(lb); h.position.set(0.5, 1.5, 0.5); ctx.S.temp.add(h); lb = h;
-          for (let i = 0; i < 24; i++) {
-            const m = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.2, 0.2), LUCKY_MAT());
-            m.position.set(0.5, 1.5, 0.5); ctx.S.temp.add(m);
-            frags.push({ m, v: V(rnd(-2, 2), rnd(2, 5), rnd(-2, 2)) });
-          }
-          lb.visible = false;
-          ctx.shake(0.3); ctx.flashScreen('#ffe2b8', 0.5, 0.4);
-          if (ctx.chat) ctx.chat('§bYour wish came true!');
-        }
-        if (broke !== null) {
-          const s = t - broke;
-          for (const f of frags) { f.v.y -= 16 * dt; f.m.position.addScaledVector(f.v, dt); if (f.m.position.y < 0.1) { f.m.position.y = 0.1; f.v.y *= -0.35; } }
-          if (rewards.length === 0 && s > 0.4) {
-            rewardItems.forEach((it, i) => {
-              const g = new THREE.Group();
-              const m = new THREE.Mesh(new THREE.PlaneGeometry(0.7, 0.7), new THREE.MeshBasicMaterial({ map: it.icon ? iconTexture(it.icon) : null, color: it.icon ? 0xffffff : 0xf2c14e, transparent: true, alphaTest: 0.5, side: THREE.DoubleSide }));
-              g.add(m); g.position.set(0.5 + (i - 1) * 0.9, 2.2, 0.5); ctx.S.temp.add(g); rewards.push({ g, m, i });
-            });
-            emit(ctx, V(0.5, 2.6, 0.5), { n: 60, colors: [0xffffff, 0xf2c14e, 0x5ad2ff], size: 0.2, up: 3, gravity: 2.2, life: 1.4, additive: true, spread: 0.6 });
-          }
-          rewards.forEach((r) => { r.m.rotation.y = s * 2.4 + r.i; });
-        }
-      }
-      ctx.steve.anim(t, dt, { walk: 0 });
-      if (t > 3.6 && !ctx._well) { ctx._well = true; ctx.say('The coin goes in the well', { at: 'bottom' }); }
-    },
-  };
-};
-
 
 // ---- message: the chat line typed in letter by letter in the Minecraft font, bottom-left of the stage.
 const MC_COL = { 0: '#000000', 1: '#0000AA', 2: '#00AA00', 3: '#00AAAA', 4: '#AA0000', 5: '#AA00AA', 6: '#FFAA00', 7: '#AAAAAA', 8: '#555555', 9: '#5555FF', a: '#55FF55', b: '#55FFFF', c: '#FF5555', d: '#FF55FF', e: '#FFFF55', f: '#FFFFFF' };

@@ -1,20 +1,16 @@
 # site-lucky-outcomes checkpoint
 
 ## Done
-- Read briefs, scenes.js, structscenes.js, structures.js, app.js ctx and timeline, build_lucky.py layout.
-- Baseline seen (frames in /private/tmp/claude-503/-Users-suaz-Desktop-QuestForge/91769071-2ed0-4412-b25d-3c510232d8e5/scratchpad/lk/t0/sheet.png): 153 silverfish shows Steve's back, 162 Mobzilla shows empty sky, 208 shows the giant "?" plaque.
-- Wrote site/lucky/fx.js: math, burst/puff, strikeBolt, sky/fog, spawnMob/mobTick with mob voice, item sprites at 0.5 block, roll() for choices, newReport/finishReport/sfx/watch for the scene report.
-- Findings: each of the 14 wells and 20 temples is already one drop per inner outcome, so the drop rolled is the well's roll; play its "then" actions after the coin. skipped[] lines (529, 539, 541) and drop 208 (line 384) become scene "dud" drops.
+- fx.js, beats.js (items ring, TNT, fireworks, dud), scenes.js rewritten, mobscenes.js (groups, towers, pets, grand boss engine, apocalypse), wells.js (wells + temples), structscenes.js sfx + watch, blocks.js generic block table (+ textures in site/lucky/tex/blocks), structures.js counts blocks.
+- build_lucky.py: dud scene + 4 dud drops (3 skipped lines + line 384), text fixes, validate checks; lucky.json rebuilt (306 drops).
+- tools/site/vet_lucky.py written and smoke-tested (10 drops, all load).
+- Baseline frames before my changes: /private/tmp/claude-503/-Users-suaz-Desktop-QuestForge/91769071-2ed0-4412-b25d-3c510232d8e5/scratchpad/lk/t0/sheet.png (153, 162, 208).
 
-## Next (in order)
-1. site/lucky/scenes.js rewrite: itemsBeat (ring on dais, low camera), dud, simple scenes with sfx, buildScene wrapper that adds scene.report() and writes <script id="qf-scene-report"> in ?dump mode.
-2. site/lucky/mobscenes.js: horde/spawn/tower/pet/villager (side camera, mobs between camera and Steve) plus grand boss treatments (night, bolts, fog, shake, roar).
-3. site/lucky/wells.js: wishing_well, sky_temple, ground_temple (coin, hidden block breaks, inner outcome).
-4. structscenes.js: sfx, bedrock sign, message plus items.
-5. tools/site/build_lucky.py: text fixes, dud drops, "dud" in SCENES; README-lucky.md.
-6. tools/site/vet_lucky.py, run before and after; sheets per scene key.
-7. node --check, build_lucky --check, check_fresh, manifest sound-name check, journal line.
+## Next
+1. Full vet run: python3 -I tools/site/vet_lucky.py /private/tmp/claude-503/-Users-suaz-Desktop-QuestForge/91769071-2ed0-4412-b25d-3c510232d8e5/scratchpad/lk/v1 ; read vet.txt, then ~35 sheets in /private/tmp/claude-503/-Users-suaz-Desktop-QuestForge/91769071-2ed0-4412-b25d-3c510232d8e5/scratchpad/lk/v1/sheets/<key>.png.
+2. Fix every BAD/weak scene (camera, scale, timing), rerun vet on the failing indexes only.
+3. README-lucky.md (dud, skipped now drops, vet tool), node --check .mjs copies, build_lucky --check, check_fresh, manifest sound check (site/lib/sfx/manifest.json), journal line ops/journal/site.md, commit paths.
 
 ## Paths
-frames: /private/tmp/claude-503/-Users-suaz-Desktop-QuestForge/91769071-2ed0-4412-b25d-3c510232d8e5/scratchpad/lk/ ; vet table: not written yet (will be /private/tmp/claude-503/-Users-suaz-Desktop-QuestForge/91769071-2ed0-4412-b25d-3c510232d8e5/scratchpad/lk/vet.txt)
-Blocked on: nothing. Needs from STAGE: sceneReport in dump JSON (I also write qf-scene-report in the DOM myself).
+frames: /private/tmp/claude-503/-Users-suaz-Desktop-QuestForge/91769071-2ed0-4412-b25d-3c510232d8e5/scratchpad/lk/ ; vet table: /private/tmp/claude-503/-Users-suaz-Desktop-QuestForge/91769071-2ed0-4412-b25d-3c510232d8e5/scratchpad/lk/v1/vet.txt (after step 1)
+Notes: wells/temples are one drop per inner outcome in the data, the drop rolled is the well roll. Needs from MOBS: mobSounds names, models for Blaze, Brown Ant etc., part names rightArm.

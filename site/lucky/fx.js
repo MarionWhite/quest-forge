@@ -194,15 +194,15 @@ export function spawnMob(ctx, id, pos, o = {}) {
   m.root.traverse((x) => { if (x.isMesh) x.castShadow = true; });
   if (o.height) {
     // fit the model to a target world height (the big mobs)
-    const h = (m.height || 1.8);
-    m.root.scale.multiplyScalar(o.height / h);
+    const cur = (m.height || 1.8) * m.root.scale.x;
+    m.root.scale.multiplyScalar(o.height / cur);
   }
   const base = m.root.scale.clone();
   m.root.scale.setScalar(0.001);
   ctx.S.temp.add(m.root);
   if (!o.quiet) puff(ctx, pos.clone().setY(pos.y + 0.6), { n: 14, size: 0.5 });
   if (REP) REP.mobs++;
-  const mob = { ...m, id, base, born: null, spoke: false, nextSay: 0, fly: o.fly ?? FLY[id] ?? 0, bob: rnd(0, 6), wh: (m.height || 1.8) * base.x };
+  const mob = { ...m, id, base, born: null, spoke: false, nextSay: 0, fly: o.fly ?? FLY[id] ?? 0, bob: rnd(0, 6), wh: (m.height || 1.8) * base.x, baseY: pos.y, flipY: 0 };
   if (o.watch !== false) watch(id, m.root, mob.wh, o.main !== false);
   return mob;
 }
@@ -211,7 +211,7 @@ export function mobTick(m, t, dt, o = {}) {
   if (m.born === null || t < m.born) return false;
   const k = clamp01((t - m.born) / (o.grow ?? 0.4));
   m.root.scale.copy(m.base).multiplyScalar(Math.max(0.001, easeOut(k)));
-  if (m.fly && o.hover !== false) m.root.position.y = (m.baseY ?? 0) + m.fly + Math.sin(t * 1.6 + m.bob) * 0.18;
+  if (m.fly && o.hover !== false) m.root.position.y = (m.baseY ?? 0) + m.fly + Math.sin(t * 1.6 + m.bob) * 0.18 + m.flipY;
   m.anim(t, dt, o);
   if (!m.spoke) { m.spoke = true; m.nextSay = t + rnd(1.6, 3.2); if (!o.mute) mobSay(m.id, m.root.position, o.sayKind || 'say'); }
   else if (!o.mute && t > m.nextSay) { m.nextSay = t + rnd(1.8, 3.6); mobSay(m.id, m.root.position, 'say', { volume: 0.7 }); }
@@ -324,12 +324,16 @@ export function itemsOf(rolled) {
   return out;
 }
 export function mobsOf(rolled, cap = 40) {
+  const acts = rolled.filter((a) => a.t === 'entity' && a.id !== 'Item');
+  const share = Math.max(2, Math.ceil(cap / Math.max(1, acts.length)));
   const out = [];
-  for (const a of rolled) {
-    if (a.t !== 'entity' || a.id === 'Item' || a.id === 'luckyegg' && false) continue;
-    for (let i = 0; i < a.n && out.length < cap; i++) out.push({ id: a.id, display: a.display, name: a.name, riding: a.riding || [], upsideDown: a.upsideDown, size: a.size, equipment: a.equipment || [] });
+  for (const a of acts) {
+    for (let i = 0; i < Math.min(a.n, share) && out.length < cap; i++) out.push({ id: a.id, display: a.display, name: a.name, riding: a.riding || [], upsideDown: a.upsideDown, size: a.size, equipment: a.equipment || [], total: a.n });
   }
   return out;
 }
 
 export function cleanName(s) { return String(s || '').replace(/§./g, ''); }
+
+// Models in this library face -z: the yaw that makes a mob face the direction (dx, dz).
+export const facing = (dx, dz) => Math.atan2(-dx, -dz);
