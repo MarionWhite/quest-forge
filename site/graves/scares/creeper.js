@@ -139,7 +139,7 @@ export default {
       if (cFar.pivot.visible) creeperAt(cFar, t, far.x, far.z, 0, 0);
       c2.pivot.visible = t > T_HISS2 - 0.4 && t < DUR;
       if (c2.pivot.visible) { const f2 = clamp((t - T_HISS2) / (DUR - T_HISS2)); creeperAt(c2, t, c2at[0], c2at[1], Math.pow(f2, 1.5), f2); c2.pivot.rotation.y = R.yaw0 + R.yawTo(c2at[0], c2at[1], land[0], land[2]); }
-      if (t >= T_BOOM) R.once("crater", crater);
+      if (t >= T_BOOM + 0.05) R.once("crater", crater);   // a frame after the flash: the carve costs ~50 ms, unseen under the white
       boom(t); items(t); puffs(t);
       R.L(bx, 1.4, bz, glow.position); glow.intensity = 9 * pulse(t, [T_BOOM], 0.18);
       f.white = t >= T_BOOM ? 1 - sstep(T_BOOM + 0.15, T_BOOM + 1.6, t) : 0;

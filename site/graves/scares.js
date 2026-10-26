@@ -169,6 +169,7 @@ export async function playScare(id, { score = 0, onDone, gap = null } = {}) {
     const S = await def.build(R);
     await R.ready();
     S.death = S.death || def.death;
+    running.dur = S.dur; running.marks = S.marks || null; running.notes = S.notes || null; running.rig = R;
     // Every sound decoded before the freeze: a screech that starts late is no screech.
     try { await Promise.race([audio.preload(soundNames(S)), new Promise((r) => setTimeout(r, 2500))]); } catch (e) { /* play what we have */ }
     snd = soundPlayer(R, S);
@@ -190,6 +191,7 @@ export async function playScare(id, { score = 0, onDone, gap = null } = {}) {
     let prev = 0;
     R.run(S, (f, t) => {
       snd.tick(prev, t); prev = t;
+      running.t = t; running.frames = (running.frames || 0) + 1;
       f.score = score; f.deadFor = t - S.dur - 0.5; f.hover = hover;
       if (t >= S.dur) f.chat = S.death;
       if (!dead && f.deadFor >= 1) { dead = true; block.style.cursor = "default"; btn.style.cssText = "position:absolute;opacity:0;left:50%;top:50%;width:1px;height:1px"; btn.setAttribute("aria-label", "You died. Respawn"); try { btn.focus({ preventScroll: true }); } catch (e) { /* ignore */ } }
@@ -341,7 +343,9 @@ export function initScares(opts = {}) {
   }).catch(() => { approved = []; });
   if (forced && DUMP) { dumpMode(forced).catch((e) => console.error("scare dump", e)); return; }
   addEventListener("keydown", pickerKey, true);
-  window.__scares = { play: (m) => playScare(m), list: SCARES, get approved() { return approved.slice(); }, get busy() { return !!running; } };
+  window.__scares = { play: (m) => playScare(m), list: SCARES, get approved() { return approved.slice(); }, get busy() { return !!running; },
+    // (for the real-time check: where the playing scare's clock is)
+    get state() { return running ? { id: running.id, t: running.t ?? -1, frames: running.frames || 0, dur: running.dur ?? null, marks: running.marks || null, notes: running.notes || null, carveMs: running.rig ? Math.round(running.rig.carveMs || 0) : 0 } : null; } };
   // Failed jumps: before each jump the Krypt asks (krypt-gap, { gap, takeover }); an approved gap death of that kind
   // takes 15% of them. Feature-detected: without the event nothing happens.
   addEventListener("krypt-gap", (e) => {
