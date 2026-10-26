@@ -1,11 +1,14 @@
-# site-krypt-world (checkpoint, started 2026-10-25 23:00, Mac)
+# site-krypt-world (checkpoint)
 
-Brief: ops/briefs/site-3d-page.md + the task prompt (design notes: /private/tmp/claude-503/-Users-suaz-Desktop-QuestForge/91769071-2ed0-4412-b25d-3c510232d8e5/scratchpad/shared/round4.md).
-Owns: site/graves/* except scares.js, scares/, tex/scare/ and the marked scares block in app.js
-Done means: camera eases toward stones while passing; wall torches on block faces, glow sprites gone; lighting progression with depth; distinct segments with bends/corners; entry gate unlocks audio; ambience (wind, cave sounds, spatial footsteps, drips, groans, own steps), music.krypt, speaker toggle; window.__krypt contract for scares
+Owns: site/graves/* except scares.js, scares/, tex/scare/ and the marked block in app.js.
 
 ## Done
-- (nothing checkpointed yet)
+- window.__krypt stub + empty scares markers committed in app.js (fields filled in as the rewrite lands).
+- Design settled (not yet built): legs with 90-degree bends in krypt.js (cell mapping by heading N/W/E), 9 segments
+  (crypt, mineshaft, ossuary, flooded hall, dungeon spawner, library, chasm bridge, stair descent, nether depths),
+  baked vertex light + AO, 4 live point lights, wall torches from torch_on.png on real faces, drop sun/shadows/halos/bokeh.
 
 ## Next
-- (the running agent rewrites this after every step)
+1. krypt.js rewrite (layout legs, grid, bake, torches, dressing); 2. app.js (anchors in 3D, passing focus, lights by depth,
+audio gate + ambience, speaker toggle, __krypt fill); 3. textures to site/graves/tex (bookshelf, nether_brick, soul_sand,
+mob_spawner, fire_layer_0, planks, log, skeleton) ; 4. verify with dump_frames (--list, --sheet) ; 5. journal line.

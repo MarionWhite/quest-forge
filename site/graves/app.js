@@ -33,6 +33,29 @@ const state = {
   walk: null, sheetOpen: false, focus: null
 };
 
+// ---- the scares contract ---------------------------------------------------------------------
+// window.__krypt is the stable hand-off to scares.js. Fields are filled in as the Krypt starts; before that
+// they are null/empty.
+//   scene, camera, renderer, composer       the three.js objects (composer's last pass is the output)
+//   getWalk() -> { s, speed, activeSeconds, depth }
+//       s              0..1 along the path (damped, what the camera shows)
+//       speed          blocks per second of walking right now (0 when standing)
+//       activeSeconds  seconds the visitor has spent actually walking, not paused, not focused on a stone
+//       depth          0..1, the same as s but eased: 0 at the entrance crypt, 1 in the nether depths
+//   corners         [{ s, pos: Vector3, dir: Vector3, side }] where the path turns or a side passage opens:
+//                   pos is the floor-level centre of the turn, dir the unit heading after it, side -1 left / +1 right
+//   takeover(on)    true pauses the camera control and walk input (and own footsteps) while a scare plays;
+//                   false restores them. The scare may move window.__krypt.camera while taken over.
+const __kryptHold = { on: false };
+window.__krypt = {
+  scene: null, camera: null, renderer: null, composer: null, corners: [],
+  getWalk() { return { s: 0, speed: 0, activeSeconds: 0, depth: 0 }; },
+  takeover(on) { __kryptHold.on = !!on; }
+};
+
+// --- scares: begin (owned by scares.js) ---
+// --- scares: end ---
+
 // ---- helpers --------------------------------------------------------------------------------
 function ago(iso) {
   const s = (Date.now() - Date.parse(iso)) / 1000;
