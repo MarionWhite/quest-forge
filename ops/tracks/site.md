@@ -15,4 +15,7 @@ Updated 2026-10-26 (Mac).
   (every Lucky outcome; `--jobs 2`, rerun timeouts alone), `tools/site/check_sounds.py`.
 - Open for the owner (`DECISIONS.md`, Site): publish route; Mojang/OreSpawn textures and
   sounds on the public site vs the repo licence rule (`build_sfx.py --own-only` drops them).
-- Next: owner review, then merge origin/main and publish on their word.
+- Round 5 (owner review 2026-10-26: "really good"): seven tasks, checkpoints
+  `checkpoints/site-r5-*.md`: lucky-life, lucky-accuracy (deep audit), lucky-flow, mobs-gear,
+  scares (v2 spec `docs/design/site/krypt-scares.md`, opus), krypt-more, audio (scare sounds).
+- Next: critic pass on r5 sheets, then owner review; publish only on their word.
