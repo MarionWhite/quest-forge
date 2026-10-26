@@ -2,9 +2,9 @@
 // voice, lightning, fog, item sprites, the rolled-outcome helper and the scene report that
 // tools/site/vet_lucky.py reads. Nothing here knows about a particular drop.
 import * as THREE from 'three';
-import { tex, glowTexture, iconTexture, BLOCK_TEX } from './stage.js';
+import { tex, glowTexture, iconTexture } from './stage.js';
 import { makeMob, mobSounds } from '../lib/mc/mobs.js';
-import { BLOCK_FILE } from './reel.js';
+import { blockSpec } from './blockdefs.js';
 import { audio } from '../lib/qfaudio.js';
 
 export const V = (x, y, z) => new THREE.Vector3(x, y, z);
@@ -189,7 +189,10 @@ export function isFlyer(id) { return FLY[id] != null; }
 
 // A mob that grows in with a poof. Returns the library's mob plus the scene bookkeeping.
 export function spawnMob(ctx, id, pos, o = {}) {
-  const m = makeMob(id, o);
+  // the drop's own gear: callers can pass it, otherwise it is read from the drop's entity action
+  // for this mob (makeMob ignores `equipment` until the library draws armour)
+  const equipment = o.equipment || equipmentFor(ctx, id);
+  const m = makeMob(id, equipment && equipment.length ? { ...o, equipment } : o);
   m.root.position.copy(pos);
   if (o.rotY != null) m.root.rotation.y = o.rotY;
   m.root.traverse((x) => { if (x.isMesh) x.castShadow = true; });
@@ -206,6 +209,18 @@ export function spawnMob(ctx, id, pos, o = {}) {
   const mob = { ...m, id, base, born: null, spoke: false, nextSay: 0, fly: o.fly ?? (m.hover ? m.hover * 1.5 + 1.2 : (FLY[id] ?? 0)), bob: rnd(0, 6), wh: (m.height || 1.8) * base.x, baseY: pos.y, flipY: 0 };
   if (o.watch !== false) watch(id, m.root, mob.wh, o.main !== false);
   return mob;
+}
+// The equipment list of the first entity action for `id` in the current drop (choices and `then`
+// included); [] when it wears nothing.
+export function equipmentFor(ctx, id) {
+  const walk = (acts) => {
+    for (const a of acts || []) {
+      if (a.t === 'entity' && a.id === id && a.equipment && a.equipment.length) return a.equipment;
+      for (const sub of [a.actions, ...(a.options || [])]) { const r = Array.isArray(sub) ? walk(sub) : null; if (r) return r; }
+    }
+    return null;
+  };
+  return (ctx && ctx.drop && walk(ctx.drop.actions)) || [];
 }
 // Every frame: grow in once born, keep the animation going, speak on arrival and now and then.
 export function mobTick(m, t, dt, o = {}) {
@@ -224,12 +239,20 @@ export function plane(w, h, color, opacity, additive = false) {
   return new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ color, transparent: true, opacity, depthWrite: false, blending: additive ? THREE.AdditiveBlending : THREE.NormalBlending, side: THREE.DoubleSide }));
 }
 const matCache = new Map();
+// A small cube of any block, with the faces the game would show (tnt, grass, logs, ...). Blocks that
+// are not cubes get the texture of their main face.
 export function blockCube(id, size = 1, extra = {}) {
-  const key = BLOCK_TEX[id];
-  const file = (key && BLOCK_FILE[key]) || 'stone.png';
-  const ck = file + JSON.stringify(extra);
-  if (!matCache.has(ck)) { const mm = new THREE.MeshLambertMaterial({ map: tex('blocks/' + file), ...extra }); mm.userData.keep = true; matCache.set(ck, mm); }
-  const m = new THREE.Mesh(new THREE.BoxGeometry(size, size, size), matCache.get(ck));
+  const spec = blockSpec(id, 0, { item: true });
+  const f = (spec && (spec.f || (spec.file ? { px: spec.file } : null))) || { px: 'stone.png' };
+  const order = ['px', 'nx', 'py', 'ny', 'pz', 'nz'];
+  const mats = order.map((k) => {
+    const file = f[k] || f.px || 'stone.png';
+    const tint = spec && spec.tint && (spec.tint[k] ?? spec.tint.all);
+    const ck = file + '|' + tint + JSON.stringify(extra);
+    if (!matCache.has(ck)) { const mm = new THREE.MeshLambertMaterial({ map: tex('blocks/' + file), ...(tint != null ? { color: tint } : {}), ...extra }); mm.userData.keep = true; matCache.set(ck, mm); }
+    return matCache.get(ck);
+  });
+  const m = new THREE.Mesh(new THREE.BoxGeometry(size, size, size), mats);
   m.castShadow = true;
   if (REP) REP.blocks++;
   return m;

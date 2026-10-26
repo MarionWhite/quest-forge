@@ -13,7 +13,7 @@ export function structuresLoaded() { return DATA !== null; }
 
 const ID = (id) => String(id || '').replace(/^[a-z]+:/, '');
 // block id -> the stage's voxel key (for the terrain layer); null leaves the cell empty
-const VOXEL = {
+export const VOXEL = {
   stonebrick: 'brick', obsidian: 'obsidian', gold_block: 'gold', iron_block: 'iron', planks: 'planks',
   bedrock: 'bedrock', cobblestone: 'cobble', mossy_cobblestone: 'mossy', sandstone: 'stone', stone_stairs: 'stone',
   sandstone_stairs: 'stone', iron_bars: 'bars', glass: 'glass', flowing_lava: 'lava', lava: 'lava', stone: 'stone',
@@ -78,16 +78,16 @@ export function placeStructure(ctx, pl, origin, opts = {}) {
       if (wy >= -8) ctx.setVoxel(ox + x, wy, oz + z, null);
     }
   }
-  const occ = new Set(pl.cells.map((c) => c.x + ',' + c.y + ',' + c.z));
-  const has = (dx, dy, dz) => occ.has(dx + ',' + dy + ',' + dz);
+  const byPos = new Map(pl.cells.map((c) => [c.x + ',' + c.y + ',' + c.z, c]));
+  const at = (dx, dy, dz) => byPos.get(dx + ',' + dy + ',' + dz) || null;   // a neighbour: {id, meta} or null
   // assembly order: by tick, then bottom up, then out from the centre
   const order = pl.cells.slice().sort((a, b) => (a.tick - b.tick) || (a.y - b.y) || ((a.x * a.x + a.z * a.z) - (b.x * b.x + b.z * b.z)));
   const anims = [];
   for (const c of order) {
     const wx = ox + c.x, wy = oy + c.y, wz = oz + c.z;
     const vk = VOXEL[ID(c.id)];
-    if (wy < 0) { ctx.setVoxel(wx, wy, wz, vk || null); continue; }
-    const r = makeBlock(c.id, c.meta, { has, lines: c.lines });
+    if (wy < 0) { ctx.setVoxel(wx, wy, wz, vk || null); if (vk) continue; }   // blocks with no terrain voxel (webs, plates) stay models
+    const r = makeBlock(c.id, c.meta, { at: (dx, dy, dz) => at(c.x + dx, c.y + dy, c.z + dz), lines: c.lines });
     const holder = new THREE.Group();
     r.obj.position.set(-0.5, 0, -0.5);
     holder.add(r.obj);

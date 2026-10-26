@@ -1173,8 +1173,8 @@ def build_drop(ctx, no, group, raw, index_no):
     if scene == "dud":
         broken = True
         drop["tile"] = {"kind": "text", "text": "Dud"}
-    drop["icon"] = first_icon(acts)
     drop["tile"] = {"kind": "text", "text": "Dud"} if scene == "dud" else tile_for(acts, ctx)
+    drop["icon"] = first_icon(acts) or tile_icon(drop["tile"], ctx)
     drop["actions"] = acts
     if broken:
         drop["broken"] = True
@@ -1193,25 +1193,64 @@ def first_icon(acts):
     return None
 
 
+AIR_LIKE = ("minecraft:air", "minecraft:fire")
+# actions with no mob, item or block of their own show the item that stands for them
+TILE_ITEM = {"effect": "minecraft:potion", "xp": "minecraft:experience_bottle",
+             "expbottle": "minecraft:experience_bottle", "fireworks": "minecraft:fireworks"}
+
+
+def real_blocks(act):
+    return [b for b in act.get("blocks", []) if b["id"] not in AIR_LIKE]
+
+
 def tile_for(acts, ctx):
-    """What the reel tile shows when there is no icon: a mob, a block, an item or text."""
+    """What the reel tile shows when there is no icon: the drop's main action as a mob, an item, a
+    block, a mini build of its blocks or a structure; text only when nothing stands for it.
+
+    An item tile carries the item's id (the icon is drop["icon"]). A block action that places a
+    building (10+ blocks: the temples, the challenge tower) outranks the small block trick before it."""
     for a in acts:
-        if a["t"] == "entity" and not a.get("vanilla") and a["id"] != "random":
+        if a["t"] == "block" and len(real_blocks(a)) >= 10:
+            return {"kind": "build", "from": "top"}
+    for a in acts:
+        if a["t"] == "then":
+            for b in a["actions"]:
+                if b["t"] == "block" and len(real_blocks(b)) >= 10:
+                    return {"kind": "build", "from": "then"}
+    for a in acts:
+        t = a["t"]
+        if t == "entity" and a["id"] == "luckyegg":
+            return {"kind": "item", "id": "minecraft:egg"}
+        if t == "entity" and a["id"] != "random":
             return {"kind": "mob", "id": a["id"]}
-        if a["t"] == "entity" and a.get("vanilla"):
-            return {"kind": "mob", "id": a["id"]}
-        if a["t"] == "item" and a["id"] != "random":
-            return {"kind": "item"}
-        if a["t"] in ("block", "falling") and a["blocks"]:
-            return {"kind": "block", "id": a["blocks"][0]["id"]}
-        if a["t"] == "tnt":
+        if t == "item" and a["id"] != "random":
+            return {"kind": "item", "id": a["id"]}
+        if t in ("block", "falling"):
+            real = real_blocks(a)
+            if real:
+                return {"kind": "block", "id": real[0]["id"], "meta": real[0].get("meta", 0)}
+        if t == "tnt":
             return {"kind": "block", "id": "minecraft:tnt"}
-        if a["t"] == "choice":
+        if t == "explosion":
+            return {"kind": "block", "id": "minecraft:tnt"}
+        if t == "structure":
+            return {"kind": "structure", "id": a["id"]}
+        if t in TILE_ITEM:
+            return {"kind": "item", "id": TILE_ITEM[t]}
+        if t == "choice":
             for opt in a["options"]:
-                t = tile_for(opt, ctx)
-                if t:
-                    return t
+                tl = tile_for(opt, ctx)
+                if tl and tl.get("text") != "?":
+                    return tl
     return {"kind": "text", "text": "?"}
+
+
+def tile_icon(tile, ctx):
+    """The sprite-sheet cell for an item tile whose item is not one of the drop's own item actions."""
+    if tile.get("kind") == "item" and tile.get("id"):
+        icon, _ = ctx.index.icon_for(tile["id"], None)
+        return icon
+    return None
 
 
 def main(argv):

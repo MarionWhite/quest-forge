@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Lucky Block gallery</title>
+<style>body{margin:0;background:#0e0b12;color:#ece6f2;font:13px ui-monospace,Menlo,monospace}canvas{display:block}</style>
+</head>
+<body>
+<!-- Contact sheets for the accuracy audit, read through ?dump=1 like the other pages:
+       gallery.html?tiles=0-59            the reel tiles of drops 0..59 (the painted plaque fronts)
+       gallery.html?blocks=all            every block id the drops and structures use, as inventory icons
+       gallery.html?blocks=all&world=1    the same, in the world (furnace fronts by meta, falling cake)
+       gallery.html?blocks=minecraft:cake@0,minecraft:tnt   a chosen list
+     &yaw=DEG turns the blocks (default -45 = the inventory view), &cols=N sets the grid width. -->
+<script type="importmap">{"imports":{"three":"../lib/three/three.module.min.js","three/addons/":"../lib/three/addons/"}}</script>
+<script type="module" src="gallery.js"></script>
+</body>
+</html>

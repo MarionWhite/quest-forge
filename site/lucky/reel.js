@@ -8,6 +8,10 @@
 // The art is painted again when its images arrive, so a tile is never left as a dark plaque.
 import * as THREE from 'three';
 import { makeMob, whenMobTexturesLoaded } from '../lib/mc/mobs.js';
+import { makeBlock } from './blocks.js';
+import { blockSpec } from './blockdefs.js';
+import { whenTexturesLoaded } from './stage.js';
+import { plan, STRUCTS_READY } from './structures.js';
 
 export const MOOD_COLOR = { jackpot: 0xf2c14e, good: 0x8fd3a0, neutral: 0x9aa3b5, bad: 0xe0884a, deadly: 0xe0583a };
 const hex = (n) => '#' + n.toString(16).padStart(6, '0');
@@ -125,77 +129,105 @@ function mobCanvas(id, mood) {
   return rec;
 }
 
-// An iso block: top, left and right faces with the real texture, MC-style face shading.
-const BLOCKS = {
-  'minecraft:iron_block': { all: 'iron_block.png' }, 'lucky:lucky_block': { all: 'lucky_block.png' },
-  'minecraft:tnt': { top: 'tnt_top.png', side: 'tnt_side.png' }, 'minecraft:redstone_block': { all: 'redstone_block.png' },
-  'minecraft:coal_block': { all: 'coal_block.png' }, 'minecraft:diamond_block': { all: 'diamond_block.png' },
-  'minecraft:diamond_ore': { all: 'diamond_ore.png' }, 'minecraft:gold_block': { all: 'gold_block.png' },
-  'minecraft:emerald_block': { all: 'emerald_block.png' }, 'minecraft:lapis_block': { all: 'lapis_block.png' },
-  'minecraft:coal_ore': { all: 'coal_ore.png' }, 'minecraft:iron_ore': { all: 'iron_ore.png' }, 'minecraft:gold_ore': { all: 'gold_ore.png' },
-  'minecraft:obsidian': { all: 'obsidian.png' }, 'minecraft:sponge': { all: 'sponge.png' }, 'minecraft:stone': { all: 'stone.png' },
-  'minecraft:cobblestone': { all: 'cobblestone.png' }, 'minecraft:dirt': { all: 'dirt.png' }, 'minecraft:bedrock': { all: 'bedrock.png' },
-  'minecraft:glowstone': { all: 'glowstone.png' }, 'minecraft:netherrack': { all: 'netherrack.png' }, 'minecraft:bookshelf': { top: 'planks_oak.png', side: 'bookshelf.png' },
-  'minecraft:crafting_table': { top: 'crafting_table_top.png', side: 'crafting_table_side.png', right: 'crafting_table_front.png' },
-  'minecraft:enchanting_table': { top: 'enchanting_table_top.png', side: 'enchanting_table_side.png' },
-  'minecraft:quartz_block': { top: 'quartz_block_top.png', side: 'quartz_block_side.png' },
-  'minecraft:cake': { top: 'cake_top.png', side: 'cake_side.png' }, 'minecraft:furnace': { top: 'furnace_top.png', side: 'furnace_side.png', right: 'furnace_front_off.png' },
-  'minecraft:stained_hardened_clay': { all: 'hardened_clay_stained_white.png' }, 'minecraft:hay_block': { top: 'hay_block_top.png', side: 'hay_block_side.png' },
-  'minecraft:planks': { all: 'planks_oak.png' }, 'minecraft:log': { top: 'log_oak_top.png', side: 'log_oak.png' },
-  'minecraft:stonebrick': { all: 'stonebrick.png' }, 'minecraft:glass': { all: 'glass.png' }, 'minecraft:gravel': { all: 'gravel.png' },
-  'minecraft:grass': { top: 'grass_top.png', side: 'grass_side.png', tintTop: 0x91bd59 }, 'minecraft:leaves': { all: 'leaves_oak.png', tint: 0x8ab84a },
-  'minecraft:mob_spawner': { all: 'mob_spawner.png' }, 'minecraft:web': { all: 'web.png' },
-  'OreSpawn:OreSpawn_BlockTitaniumBlock': { all: 'orespawn/blocktitanium.png' }, 'OreSpawn:OreSpawn_BlockUraniumBlock': { all: 'orespawn/blockuranium.png' },
-};
-export const BLOCK_FILE = BLOCKS;
+// Blocks, structures and builds as the inventory draws them: the real models (blocks.js, so shapes and
+// per-face textures are the ones the scenes use), turned 45 degrees so the south face is on the left
+// and the east face on the right, lit so the top is brightest and the sides are 80% and 60% (MC's
+// face shading), and zoomed to fill the frame.
 const blockArt = new Map();
-function blockCanvas(id) {
-  if (blockArt.has(id)) return blockArt.get(id);
-  const spec = BLOCKS[id];
+function iconFrom(key, makeObj, yaw = -Math.PI / 4, when = null) {
+  if (blockArt.has(key)) return blockArt.get(key);
   const o = offscreen();
-  if (!spec || !o.renderer) { blockArt.set(id, null); return null; }
-  const faces = { top: spec.top || spec.all, left: spec.side || spec.all, right: spec.right || spec.side || spec.all };
+  if (!o.renderer) { blockArt.set(key, null); return null; }
   const rec = { canvas: null };
-  const draw = () => {
-    const mk = (file, k, tint) => {
-      const r = blockImg(file);
-      const t = new THREE.Texture(r.img);
-      t.colorSpace = THREE.SRGBColorSpace;
-      t.magFilter = THREE.NearestFilter; t.minFilter = THREE.NearestFilter; t.generateMipmaps = false;
-      t.needsUpdate = true;
-      // only the first square frame of an animated strip
-      if (r.img.height > r.img.width) t.repeat.set(1, r.img.width / r.img.height), t.offset.set(0, 1 - r.img.width / r.img.height);
-      const c = new THREE.Color(tint ?? 0xffffff).multiplyScalar(k);
-      return new THREE.MeshBasicMaterial({ map: t, color: c, transparent: true, alphaTest: 0.4, side: THREE.DoubleSide });
-    };
-    const tint = spec.tint;
-    const top = mk(faces.top, 1.0, spec.tintTop ?? tint), left = mk(faces.left, 0.78, tint), right = mk(faces.right, 0.6, tint);
-    // BoxGeometry face order: +x, -x, +y, -y, +z, -z
-    const geo = new THREE.BoxGeometry(1, 1, 1);
-    const mesh = new THREE.Mesh(geo, [right, left, top, left, left, right]);
-    const scene = new THREE.Scene();
-    scene.add(mesh);
-    mesh.rotation.y = Math.PI / 4;
-    const cam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 20);
-    const asp = Math.SQRT2;
-    cam.left = -asp * 0.62; cam.right = asp * 0.62; cam.top = asp * 0.62; cam.bottom = -asp * 0.62;
-    cam.updateProjectionMatrix();
-    cam.position.set(0, Math.tan(THREE.MathUtils.degToRad(30)) * 4, 4);
-    cam.lookAt(0, 0, 0);
-    o.renderer.render(scene, cam);
-    const c = document.createElement('canvas');
-    c.width = c.height = OFF;
-    c.getContext('2d').drawImage(o.renderer.domElement, 0, 0);
-    [top, left, right].forEach((m2) => { m2.map.dispose(); m2.dispose(); });
-    geo.dispose();
-    return c;
+  blockArt.set(key, rec);
+  const scene = new THREE.Scene();
+  scene.add(new THREE.AmbientLight(0xffffff, 1.55));
+  const sun = new THREE.DirectionalLight(0xffffff, 1.5);
+  sun.position.set(0.15, 0.55, 0.35).multiplyScalar(10);
+  scene.add(sun);
+  const pivot = new THREE.Group();
+  const build = () => {
+    const obj = makeObj();
+    if (!obj) return false;
+    const box = new THREE.Box3().setFromObject(obj);
+    obj.position.sub(box.getCenter(new THREE.Vector3()));
+    pivot.add(obj);
+    pivot.rotation.y = yaw;
+    scene.add(pivot);
+    // flames and lights belong to the world, not the icon
+    pivot.traverse((x) => { if (x.userData && x.userData.billboard) x.visible = false; if (x.isLight) x.visible = false; });
+    return true;
   };
-  const files = [faces.top, faces.left, faces.right].map(blockImg);
-  const tryDraw = () => { if (files.every((f) => f.ok)) { rec.canvas = draw(); repaint.delete(tryDraw); [...repaint].forEach((f) => f()); } };
-  repaint.add(tryDraw);
-  tryDraw();
-  blockArt.set(id, rec);
+  const draw = () => {
+    pivot.updateMatrixWorld(true);
+    // fit: project every vertex on the camera's right and up axes, centre, scale to the frame
+    const el = THREE.MathUtils.degToRad(30);
+    const right = new THREE.Vector3(1, 0, 0), up = new THREE.Vector3(0, Math.cos(el), -Math.sin(el));
+    let x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9;
+    const v = new THREE.Vector3();
+    pivot.traverse((m) => {
+      if (!m.isMesh || !m.visible || !m.geometry.attributes.position) return;
+      const p = m.geometry.attributes.position;
+      for (let i = 0; i < p.count; i++) {
+        v.fromBufferAttribute(p, i).applyMatrix4(m.matrixWorld);
+        const px = v.dot(right), py = v.dot(up);
+        if (px < x0) x0 = px; if (px > x1) x1 = px; if (py < y0) y0 = py; if (py > y1) y1 = py;
+      }
+    });
+    const half = Math.max(x1 - x0, y1 - y0) / 2 * 1.08, cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
+    const cam = new THREE.OrthographicCamera(-half, half, half, -half, 0.1, 80);
+    cam.position.set(0, Math.sin(el) * 30, Math.cos(el) * 30);
+    cam.lookAt(0, 0, 0);
+    cam.translateX(cx); cam.translateY(cy);
+    cam.updateProjectionMatrix();
+    o.renderer.render(scene, cam);
+    const cv = document.createElement('canvas');
+    cv.width = cv.height = OFF;
+    cv.getContext('2d').drawImage(o.renderer.domElement, 0, 0);
+    return cv;
+  };
+  const go = () => { if (!build()) { blockArt.set(key, null); return; } whenTexturesLoaded().then(() => { rec.canvas = draw(); [...repaint].forEach((f) => f()); }); };
+  if (when) when.then(go); else go();
   return rec;
+}
+export function blockIcon(id, meta = 0, o = {}) {
+  const yaw = o.yaw ?? -Math.PI / 4;
+  const spec = blockSpec(id, meta, { item: true });
+  if (!spec || spec.k === 'none') return null;
+  return iconFrom('b|' + id + '#' + meta + '@' + yaw + (o.falling ? 'f' : '') + (o.world ? 'w' : ''),
+    () => makeBlock(id, meta, { item: !o.world, quiet: true, falling: !!o.falling, lines: o.lines }).obj, yaw);
+}
+const blockCanvas = (id, meta) => blockIcon(id, meta);
+
+// A set of cells {x, y, z, id, meta, lines?} as one model (structures and temples).
+function cellsObject(cells) {
+  const real = cells.filter((c) => c.id !== 'minecraft:air' && c.id !== 'minecraft:fire').slice(0, 260);
+  if (!real.length) return null;
+  const byPos = new Map(real.map((c) => [c.x + ',' + c.y + ',' + c.z, c]));
+  const g = new THREE.Group();
+  for (const c of real) {
+    const r = makeBlock(c.id, c.meta || 0, { quiet: true, lines: c.lines, at: (dx, dy, dz) => byPos.get((c.x + dx) + ',' + (c.y + dy) + ',' + (c.z + dz)) || null });
+    r.obj.position.set(c.x, c.y, c.z);
+    g.add(r.obj);
+  }
+  return g;
+}
+// the blocks a 'build' tile draws: the first block action with a real building in it
+export function buildCells(drop) {
+  const from = (drop.tile && drop.tile.from) || 'top';
+  const pools = from === 'then' ? (drop.actions || []).filter((a) => a.t === 'then').map((a) => a.actions) : [drop.actions || []];
+  for (const acts of pools) for (const a of acts) {
+    if (a.t === 'block' && (a.blocks || []).filter((b) => b.id !== 'minecraft:air' && b.id !== 'minecraft:fire').length >= 10) return a.blocks.map((b) => ({ x: b.dx || 0, y: b.dy || 0, z: b.dz || 0, id: b.id, meta: b.meta || 0 }));
+  }
+  return null;
+}
+function buildIcon(drop) {
+  const cells = buildCells(drop);
+  if (!cells) return null;
+  return iconFrom('build|' + drop.index, () => cellsObject(cells), -Math.PI / 4 + 0.25);
+}
+function structureIcon(key) {
+  return iconFrom('struct|' + key, () => { const pl = plan(key); return pl ? cellsObject(pl.cells) : null; }, -Math.PI / 4 + 0.25, STRUCTS_READY);
 }
 
 // ------------------------------------------------------------------ the painted front
@@ -261,12 +293,39 @@ function paintArt(g, drop, area, mood) {
     return true;
   }
   if (t.kind === 'block' && t.id) {
-    const a = blockCanvas(t.id);
+    const a = blockCanvas(t.id, t.meta || 0);
+    if (a && a.canvas) { g.imageSmoothingEnabled = true; g.drawImage(a.canvas, cx - ph * 0.5, py, ph, ph); return true; }
+    if (a === null) return false;
+    return true;
+  }
+  if (t.kind === 'build' || t.kind === 'structure') {
+    const a = t.kind === 'build' ? buildIcon(drop) : structureIcon(t.id);
     if (a && a.canvas) { g.imageSmoothingEnabled = true; g.drawImage(a.canvas, cx - ph * 0.5, py, ph, ph); return true; }
     if (a === null) return false;
     return true;
   }
   return false;
+}
+
+// What the reel draws for a drop, decided with the same checks paintArt uses; the audit page reads it.
+//   {kind, id, ok, art}: art is 'icon' | 'mob' | 'block' | 'text'; ok=false means the tile falls back to
+//   the words (no picture exists for it).
+export function tileInfo(drop) {
+  const t = drop.tile || {};
+  if (drop.icon) return { kind: t.kind || 'item', id: t.id || null, ok: true, art: 'icon' };
+  if (t.kind === 'mob' && t.id) {
+    const m = makeMob(t.id, {});
+    return { kind: 'mob', id: t.id, ok: !m.unknown, art: m.unknown ? 'text' : 'mob' };
+  }
+  if (t.kind === 'block' && t.id) {
+    const s = blockSpec(t.id, t.meta || 0, { item: true });
+    const ok = !!s && s.k !== 'none';
+    return { kind: 'block', id: t.id, ok, art: ok ? 'block' : 'text' };
+  }
+  if (t.kind === 'build') { const c = buildCells(drop); return { kind: 'build', id: t.from || 'top', ok: !!c, art: c ? 'build' : 'text', cells: c ? c.length : 0 }; }
+  if (t.kind === 'structure') { const pl = plan(t.id); const ok = !!pl && pl.cells.length > 0; return { kind: 'structure', id: t.id, ok, art: ok ? 'structure' : 'text' }; }
+  if (t.kind === 'item') return { kind: 'item', id: t.id || null, ok: false, art: 'text' };
+  return { kind: t.kind || 'text', id: t.text || null, ok: true, art: t.text === '?' ? 'block' : 'text' };
 }
 
 function paintText(g, area, text, big) {
@@ -320,10 +379,13 @@ function frontTexture(drop) {
   };
   paint();
   repaint.add(paint);
-  const rec = { tex, paint };
+  const rec = { tex, paint, canvas: c };
   frontCache.set(key, rec);
   return rec;
 }
+
+// the painted front of a drop's plaque as a plain canvas (the tile contact sheets draw these)
+export function frontCanvas(drop) { return frontTexture(drop).canvas; }
 
 // ------------------------------------------------------------------ the plaque
 const W = 1.1, H = 1.2, D = 0.12;

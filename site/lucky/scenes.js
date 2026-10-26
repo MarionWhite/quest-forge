@@ -10,7 +10,7 @@
 // (structures from structures.json).
 import * as THREE from 'three';
 import { animTex, glowTexture, tex } from './stage.js';
-import { makeBlock } from './blocks.js';
+import { makeBlock, chestModel } from './blocks.js';
 import { boxGeometry as boxGeo0 } from '../lib/mc/mobs.js';
 import { plaque, MOOD_COLOR } from './reel.js';
 import { STRUCT_SCENES } from './structscenes.js';
@@ -25,27 +25,26 @@ const SCENES = { ...STRUCT_SCENES, ...MOB_SCENES, ...WELL_SCENES };
 
 // ------------------------------------------------------------------ chest
 function boxGeo(box, uv) { return boxGeo0(box, uv, 64, 64); }
-export function buildChest() {
-  const g = new THREE.Group();
-  const body = new THREE.Mesh(boxGeo([-7, -10, -7, 14, 10, 14], [0, 19]), new THREE.MeshLambertMaterial({ map: tex('entity/chest.png') }));
-  const lidPivot = new THREE.Group();
-  lidPivot.position.set(0, 0.625, -0.4375);
-  const lid = new THREE.Mesh(boxGeo([-7, -5, 0, 14, 5, 14], [0, 0]), body.material);
-  lidPivot.add(lid);
-  g.add(body, lidPivot);
-  g.userData.lid = lidPivot;
-  return g;
-}
+export function buildChest() { return chestModel(); }
 
 // ------------------------------------------------------------------ blocks that fall or are placed
 const SOUND_OF = (id) => (/glass/.test(id) ? 'dig.glass' : /wool/.test(id) ? 'dig.cloth' : /planks|bookshelf|crafting/.test(id) ? 'dig.wood' : /dirt|hay|sand/.test(id) ? 'dig.gravel' : 'dig.stone');
 function cellOf(b) { return { x: b.dx || 0, y: b.dy || 0, z: b.dz || 0 }; }
-function blockObj(b) {
-  const r = makeBlock(b.id || 'minecraft:stone', b.meta || 0, {});
+function blockObj(b, falling = false) {
+  const r = makeBlock(b.id || 'minecraft:stone', b.meta || 0, { falling });
   const h = new THREE.Group();
   r.obj.position.set(-0.5, 0, -0.5);
   h.add(r.obj);
   return { h, light: r.light };
+}
+// A falling block that turns into a different model when it lands (the game's falling cake is a cube
+// with the cake's side texture; the cake it places is the 14 x 8 x 14 model).
+function landAs(it, b) {
+  if (!/cake$/.test(b.id || '')) return;
+  const r = makeBlock(b.id, b.meta || 0, {});
+  r.obj.position.set(-0.5, 0, -0.5);
+  while (it.h.children.length) it.h.remove(it.h.children[0]);
+  it.h.add(r.obj);
 }
 // Which way the camera should look at a set of cells: head-on for a flat picture (a heart, a portal).
 function shapeCam(O, cells, tall) {
@@ -88,14 +87,14 @@ SCENES.falling_column = (ctx) => {
   const items = order.map(({ b }, n) => {
     const key = (b.dx || 0) + ',' + (b.dz || 0);
     const k = cols.get(key) || 0; cols.set(key, k + 1);
-    const o = blockObj(b);
+    const o = blockObj(b, true);
     const cell = { x: b.dx || 0, y: k, z: b.dz || 0 };
     const tx = O.x + cell.x + 0.5, ty = O.y + k, tz = O.z + cell.z + 0.5;
     const start = Math.max(ty + 6, O.y + (b.dy || 0));
     o.h.position.set(tx, start, tz);
     ctx.S.temp.add(o.h);
     const t0 = 0.4 + n * 0.004;
-    return { h: o.h, tx, ty, tz, start, t0, tl: t0 + Math.sqrt((2 * (start - ty)) / G), landed: false, id: b.id, cell };
+    return { h: o.h, tx, ty, tz, start, t0, tl: t0 + Math.sqrt((2 * (start - ty)) / G), landed: false, id: b.id, cell, b };
   });
   const cells = items.map((i) => i.cell);
   carve(ctx, cells, O);
@@ -126,6 +125,7 @@ SCENES.falling_column = (ctx) => {
         it.h.position.y = it.ty;
         if (!it.landed) {
           it.landed = true;
+          landAs(it, it.b);
           ctx.shake(0.07);
           puff(ctx, V(it.tx, it.ty + 0.1, it.tz), { n: 6, size: 0.25 });
           if (landSnd++ % 2 === 0 || n < 6) sfx(SOUND_OF(it.id), { pos: { x: it.tx, y: it.ty, z: it.tz }, volume: 0.8 });
