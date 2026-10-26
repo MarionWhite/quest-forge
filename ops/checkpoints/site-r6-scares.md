@@ -52,6 +52,12 @@ current bank and list the gaps here.
 - Note: krypt-gen landed the streaming world (d826e67): kr.gaps, krypt-gap, kr.light exist now. Torch meshes still
   detected (torch_on). Dumps take ~4 s a page with dump_frames.
 
+- aadaffd: Slime (blocked hole, light back, nothing; lunge from the hole or out of the pit's dark; the core's maw
+  opens inside the thinned jelly, lit pupils). Magma Cube redone (all torches out, a pulsing core far off, 2-3 hops,
+  glow gone, silence, a pop to one side; 3-5 small cubes from every side as the fake-out (60%) or leading straight
+  in; the upper plates lift off the blazing core, the lower hinge down; lunge from ahead or above; swallowed, chewed).
+  Enderman anchor raised (eyes in frame). Verified in sheets c1-c4 (scratchpad r6/scares).
+
 ## Next
-- Slime, Silverfish, Blaze, Ghast, Magma Cube (redo), Zombie Pigman, Wither Skeleton (new ending), Lava fall,
-  Drowned grab; then the 80-frame sheet and the real-time J run.
+- Silverfish, Blaze, Ghast, Zombie Pigman, Wither Skeleton (new ending), Lava fall, Drowned grab; then the 80-frame
+  sheet and the real-time J run.
