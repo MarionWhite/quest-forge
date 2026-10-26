@@ -32,4 +32,12 @@ Owner overall: no drastic improvement; over budget on performance; wants optimis
 - Write spec_scenes.py and round.json for r009 in C:\qfb\shaderdev\r009.
 
 ## Progress log
-(none yet)
+- 2026-10-26 17:48: meteor note not written yet (step 1 still open, researcher's job). Step 2 started: submitted
+  renderq job **1026-174757-r009-cost-breakdown** (spec C:/qfb/shaderdev/r009/specs/r9-costbreak.json; 15 jobs, 80 scenes,
+  ETA ~37 min). High tags: r8b base plus one tag per option off (r8xshaft, r8xdust (DUST+MOTES), r8xpbr, r8xbounce,
+  r8xwaves (WAVES+FOAM+CAUSTICS), r8xrim, r8xaer (AERIAL+HAZE_HEIGHT), r8xgh, r8xflk (FLECKS+SUN_SPARKLE)) on
+  ocean_sunset, golden_lit, forest_golden, dust_b, lake_glitter, river_noon. Low (preset 1, 1080p): r8lb, r8lxshaft,
+  r8lxpbr, r8lxwaves, r8lxbounce on golden_lit, lake_glitter, biome_hills, ocean_sunset. Off baselines: r008 p8off/p8looff.
+- **Next:** `renderq.py results 1026-174757-r009-cost-breakdown`; per scene, delta = base p50 minus each x-tag p50; rank
+  the top terms for High and Low and write the table to ops/journal/shader.md. Then gate or cut the top terms and draft
+  the auto-tier helper (step 2). Metal-path cost (QF_METAL_SSR, lighting.glsl:85) is not in this run; it goes in step 3's run.
