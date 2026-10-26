@@ -90,7 +90,7 @@ export default {
     function poseZombie(m, t, lean, armsUp = 1.55, bite = 0) {
       m.anim(t, 0, { walk: 0 });
       const P = m.parts;
-      if (P.rightArm) { P.rightArm.rotation.x = -armsUp + Math.sin(t * 9) * 0.06; P.leftArm.rotation.x = -armsUp + Math.sin(t * 9 + 1) * 0.06; }
+      if (P.rightArm) { P.rightArm.rotation.x = armsUp + Math.sin(t * 9) * 0.06; P.leftArm.rotation.x = armsUp + Math.sin(t * 9 + 1) * 0.06; }   // three's +x = MC's -x: arms out
       if (P.head) P.head.rotation.x = 0.15 - bite * 0.45;
       m.pivot.rotation.x = lean;
     }
@@ -106,7 +106,7 @@ export default {
       poseZombie(z1, t, lean, 1.45 + 0.25 * sstep(T_HIT, T_HIT + 0.1, t), bite);
       // Arms come in to the sides of the face: the grab.
       const grab = sstep(T_HIT, T_HIT + 0.18, t);
-      if (z1.parts.rightArm) { z1.parts.rightArm.rotation.y = -0.38 * grab; z1.parts.leftArm.rotation.y = 0.38 * grab; z1.parts.rightArm.rotation.z = 0.12 * grab; z1.parts.leftArm.rotation.z = -0.12 * grab; }
+      if (z1.parts.rightArm) { z1.parts.rightArm.rotation.y = 0.1 + 0.38 * grab; z1.parts.leftArm.rotation.y = -0.1 - 0.38 * grab; z1.parts.rightArm.rotation.z = 0.05; z1.parts.leftArm.rotation.z = -0.05; }
       hands(t);
       // The others shamble in and lean over.
       for (const q of others) {
@@ -114,7 +114,7 @@ export default {
         q.m.pivot.visible = t > q.t0 - 0.1;
         const x = lerp(q.from[0], q.to[0], k), z = lerp(q.from[1], q.to[1], k);
         R.place(q.m, x, 0, z, R.yawTo(x, z, 0, 0.1));
-        poseZombie(q.m, t + q.t0, q.lean * sstep(q.t0 + 0.8, q.t0 + 1.6, t), 1.5 + 0.5 * sstep(q.t0 + 0.8, q.t0 + 1.6, t), 0);
+        poseZombie(q.m, t + q.t0, q.lean * sstep(q.t0 + 0.8, q.t0 + 1.6, t), 1.5 - 0.45 * sstep(q.t0 + 0.8, q.t0 + 1.6, t), 0);
         if (k < 1) { const P = q.m.parts; if (P.rightLeg) { P.rightLeg.rotation.x = Math.sin(t * 6) * 0.5; P.leftLeg.rotation.x = -Math.sin(t * 6) * 0.5; } }
       }
       R.L(-0.7 * side, 1.05, dz - 0.55, face.position); face.intensity = 0.9 * sstep(T_BACK - 0.3, T_HIT, t) * (1 - 0.6 * sstep(T_DRAG, 6.5, t));

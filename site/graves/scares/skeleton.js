@@ -2,7 +2,7 @@
 // In the dark a bowstring creaks. Arrows thud into the walls beside your head; one finds you. Then it steps into the
 // last torch's light at point blank, draws, and fires.
 import { THREE, track, clamp, lerp, sstep, pulse, tex } from "./rig.js";
-import { settle, shake, hitsOf, floorFall, arrowMesh, arrowAim, particles, smoke } from "./common.js";
+import { settle, shake, hitsOf, floorFall, arrowMesh, arrowAim, particles, smoke, mcRot } from "./common.js";
 
 export default {
   death: "Steve was shot by Skeleton",
@@ -95,13 +95,12 @@ export default {
     const loops = [[0.5, DUR + 0.2, "qf.scare.heartbeat", { volume: 0.5 }], [T_DARK - 0.4, T_STEP + 0.1, "qf.scare.breath", { volume: 0.4, fadeIn: 1.2, fadeOut: 0.2 }]];
 
     const pose = (t) => {
-      sk.anim(t, 0, { walk: t < T_STEP ? 1 : 0 });
       const P = sk.parts;
       // ModelBiped.aimedBow: both arms out level, the left one turned in to hold the string.
       const draw = sstep(T_STEP + 0.2, T_STEP + 0.55, t) * (1 - sstep(T_FIRE - 0.02, T_FIRE + 0.05, t)) + sstep(T_FIRE + 0.4, T_FIRE + 0.8, t) * (1 - sstep(T_LAST - 0.02, T_LAST + 0.05, t));
-      if (P.rightArm) {
-        P.rightArm.rotation.x = -Math.PI / 2 + (P.head ? P.head.rotation.x : 0); P.leftArm.rotation.x = -Math.PI / 2;
-        P.rightArm.rotation.y = -0.1; P.leftArm.rotation.y = 0.1 + 0.4 * draw; P.rightArm.rotation.z = 0; P.leftArm.rotation.z = 0;
+      if (P.rightArm) {   // in MC angles (mcRot): rotateAngleX = -pi/2 + the head's pitch
+        const hx = P.head ? -P.head.rotation.x : 0;
+        mcRot(P.rightArm, -Math.PI / 2 + hx, -0.1, 0); mcRot(P.leftArm, -Math.PI / 2 + hx, 0.1 + 0.4 * draw, 0);
       }
     };
     function update(t, f) {
@@ -121,8 +120,9 @@ export default {
       const camNow = cam(t);
       R.place(sk, lx, 0, z, R.yawTo(lx, z, camNow.x, camNow.z));
       sk.setOwn(0.03 + 0.07 * sstep(T_STEP - 0.4, T_STEP, t));
-      pose(t);
+      sk.anim(t, 0, { walk: t < T_STEP ? 1 : 0 });
       if (sk.parts.head) sk.parts.head.rotation.x = clamp(Math.atan2(camNow.y - 1.62, Math.hypot(camNow.x - lx, camNow.z - z)) * 0.8, -0.8, 0.4);
+      pose(t);
       // Arrows: fly for a tenth of a second, then stay where they struck (the ones that strike you vanish into you).
       for (const a of arrows) {
         const from = a.close ? [lx - 0.3, 1.45, z - 0.3] : shotFrom;

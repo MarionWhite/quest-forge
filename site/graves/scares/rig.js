@@ -279,8 +279,17 @@ export async function createRig(kr, { seed = 1 } = {}) {
   R.pitchTo = (x, y, z, tx, ty, tz) => Math.atan2(ty - y, Math.hypot(tx - x, tz - z));
   // A mob at (x, z) facing (tx, tz): its front is -z of its model, the same as the camera's, so it looks back along yaw + PI.
   R.faceYaw = (x, z, tx, tz) => R.yawTo(x, z, tx, tz);
-  R.flash = (m, amt) => {   // the 1.7.10 hurt tint on a mob: red over the texture
-    m.root.traverse((o) => { if (!o.isMesh || !o.material) return; const ms = Array.isArray(o.material) ? o.material : [o.material]; for (const mt of ms) if (mt.color && !mt.blending) mt.color.setRGB(1, 1 - 0.6 * amt, 1 - 0.6 * amt); });
+  R.flash = (m, amt) => {   // the 1.7.10 hurt tint on a mob: red over the texture (and over its own light)
+    const g = 1 - 0.6 * amt;
+    m.root.traverse((o) => {
+      if (!o.isMesh || !o.material) return;
+      const ms = Array.isArray(o.material) ? o.material : [o.material];
+      for (const mt of ms) {
+        if (mt.userData.noFlash || mt.blending !== THREE.NormalBlending || !mt.color) continue;
+        mt.color.setRGB(1, g, g);
+        if (mt.emissiveMap && mt.emissive) mt.emissive.setRGB(1, g, g);
+      }
+    });
   };
 
   // ---- the Krypt's lights, particles and torches while the scare runs -------------------------------------

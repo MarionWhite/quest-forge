@@ -223,3 +223,72 @@ export async function fireBlocks(R, spots) {
     }
   };
 }
+
+// The held item in first person (ItemRenderer.renderItemInFirstPerson for a full-3D item like a sword), with the swing:
+// progress 0..1 over 6 ticks. Returns update(t, swingStarts[]) that places it in the head's frame.
+export function heldItem(R, tx, { color = 0x8c8c8c } = {}) {
+  const geo = new THREE.PlaneGeometry(1, 1); geo.translate(0.5, 0.5, 0);
+  const uv = geo.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setX(i, 1 - uv.getX(i));
+  const mesh = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ map: tx, transparent: true, alphaTest: 0.1, side: THREE.DoubleSide, depthTest: false, depthWrite: false, fog: false, color }));
+  mesh.renderOrder = 2200; mesh.matrixAutoUpdate = false;
+  R.view.add(mesh);
+  const D = Math.PI / 180, M = new THREE.Matrix4(), T = new THREE.Matrix4();
+  const mul = (m) => M.multiply(m);
+  // The hand is drawn with its own 70 degree projection in Minecraft: keep it there whatever the camera's FOV.
+  return (t, swings = [], hide = false, fov = R.camera.fov) => {
+    mesh.visible = !hide; if (hide) return;
+    const kf = Math.tan(fov * D / 2) / Math.tan(35 * D);
+    let p = 0;
+    for (const s of swings) if (t >= s && t < s + 0.3) p = (t - s) / 0.3;
+    const f6a = Math.sin(p * Math.PI), f7 = Math.sin(Math.sqrt(p) * Math.PI), f6 = Math.sin(p * p * Math.PI);
+    M.makeScale(kf, kf, 1);
+    mul(T.makeTranslation(-f7 * 0.4, Math.sin(Math.sqrt(p) * Math.PI * 2) * 0.2, -f6a * 0.2));
+    mul(T.makeTranslation(0.7 * 0.8, -0.65 * 0.8, -0.9 * 0.8));
+    mul(T.makeRotationY(45 * D));
+    mul(T.makeRotationY(-f6 * 20 * D)); mul(T.makeRotationZ(-f7 * 20 * D)); mul(T.makeRotationX(-f7 * 80 * D));
+    mul(T.makeScale(0.4, 0.4, 0.4));
+    mul(T.makeTranslation(0, -0.3, 0)); mul(T.makeScale(1.5, 1.5, 1.5));
+    mul(T.makeRotationY(50 * D)); mul(T.makeRotationZ(335 * D)); mul(T.makeTranslation(-0.9375, -0.0625, 0));
+    mesh.matrix.copy(M); mesh.matrixWorldNeedsUpdate = true;
+  };
+}
+
+// A soft round glow (additive halos: eyes in the dark, embers).
+let _glow = null;
+export function glowTex() {
+  if (_glow) return _glow;
+  const c = document.createElement("canvas"); c.width = c.height = 64;
+  const g = c.getContext("2d"), gr = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+  gr.addColorStop(0, "rgba(255,255,255,1)"); gr.addColorStop(0.2, "rgba(255,255,255,0.45)"); gr.addColorStop(0.55, "rgba(255,255,255,0.08)"); gr.addColorStop(1, "rgba(255,255,255,0)");
+  g.fillStyle = gr; g.fillRect(0, 0, 64, 64);
+  _glow = new THREE.CanvasTexture(c);
+  return _glow;
+}
+// A camera-facing additive halo in the scene (world space), placed each frame by the caller.
+export function halo(R, color, size = 0.5) {
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(size, size), new THREE.MeshBasicMaterial({ map: glowTex(), color, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, fog: false, opacity: 0 }));
+  m.onBeforeRender = function (r, s, cam) { this.quaternion.copy(cam.quaternion); this.updateMatrixWorld(); };
+  m.renderOrder = 5;
+  return R.add(m);
+}
+// Swing progress 0..1 of an arm swing (6 ticks) started at any of the given times, else 0.
+export function swingAt(t, starts, len = 0.3) {
+  for (const s of starts) if (t >= s && t < s + len) return (t - s) / len;
+  return 0;
+}
+// Set a model part's rotation from Minecraft angles (the library's parts are a half turn about z from MC's).
+export const mcRot = (g, x, y, z) => { if (g) g.rotation.set(-x, -y, z, "ZYX"); };
+// ModelZombie.setRotationAngles (zombies and pigmen): arms out, the swing pulls both down and in; ModelBiped's swing
+// twists the body and moves the shoulders. p is the swing progress (onGround), t the age clock.
+export function zombieArms(m, t, p = 0) {
+  const P = m.parts; if (!P.rightArm) return;
+  const age = t * 20, body = Math.sin(Math.sqrt(p) * Math.PI * 2) * 0.2;
+  if (P.body) mcRot(P.body, 0, body, 0);
+  P.rightArm.position.set(Math.cos(body) * 5 / 16, -2 / 16, Math.sin(body) * 5 / 16);
+  P.leftArm.position.set(-Math.cos(body) * 5 / 16, -2 / 16, -Math.sin(body) * 5 / 16);
+  const f6 = Math.sin(p * Math.PI), f7 = Math.sin((1 - (1 - p) * (1 - p)) * Math.PI);
+  const bx = Math.sin(age * 0.067) * 0.05, bz = Math.cos(age * 0.09) * 0.05 + 0.05;
+  const ax = -Math.PI / 2 - (f6 * 1.2 - f7 * 0.4);
+  mcRot(P.rightArm, ax + bx, -(0.1 - f6 * 0.6), bz);
+  mcRot(P.leftArm, ax - bx, 0.1 - f6 * 0.6, -bz);
+}
