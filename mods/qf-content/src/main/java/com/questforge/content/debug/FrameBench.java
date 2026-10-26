@@ -466,8 +466,23 @@ public class FrameBench {
                     if (ticks > 0 && ticks % 200 == 0 && ticks <= SETTLE_MAX + warmTicks) {
                         terrainRetries++;
                         log(scene() + ": no terrain after " + ticks + " ticks; teleport again (" + terrainRetries + ")");
+                        // Odd retries bounce 600 blocks away first (a fresh chunk set), even ones come back.
+                        final boolean bounce = terrainRetries % 2 == 1;
+                        final double bx = px, by = py, bz = pz;
+                        final float byaw = yaw, bpitch = pitch;
+                        final boolean bfly = flying;
                         serverTasks.add(new Runnable() {
-                            public void run() { place(Minecraft.getMinecraft(), px, py, pz, yaw, pitch, flying); }
+                            public void run() {
+                                Minecraft m = Minecraft.getMinecraft();
+                                if (bounce) {
+                                    serverPlayer(m).playerNetServerHandler.setPlayerLocation(bx + 600.0, by + 40.0, bz, byaw, bpitch);
+                                    serverTasks.add(new Runnable() {
+                                        public void run() { place(Minecraft.getMinecraft(), bx, by, bz, byaw, bpitch, bfly); }
+                                    });
+                                } else {
+                                    place(m, bx, by, bz, byaw, bpitch, bfly);
+                                }
+                            }
                         });
                     }
                 }
@@ -952,20 +967,7 @@ public class FrameBench {
         // Server thread (from setUp). The client player is pinned by hold(),
         // which the client tick calls every tick while the scene settles.
         px = x; py = y; pz = z; this.yaw = yaw; this.pitch = pitch; flying = fly;
-        EntityPlayerMP mp = serverPlayer(mc);
-        mp.playerNetServerHandler.setPlayerLocation(x, y, z, yaw, pitch);
-        // Subscribe the player to the chunks round the new place now. Vanilla does it only when
-        // the client's next movement packet is accepted, and a teleport whose confirmation is
-        // lost (the client pins its own position every tick) leaves the player with no chunks.
-        try {
-            WorldServer w = mp.getServerForPlayer();
-            int cx = ((int) Math.floor(x)) >> 4, cz = ((int) Math.floor(z)) >> 4;
-            for (int dx = -2; dx <= 2; dx++)
-                for (int dz = -2; dz <= 2; dz++) w.theChunkProviderServer.loadChunk(cx + dx, cz + dz);
-            w.getPlayerManager().updatePlayerPertinentChunks(mp);
-        } catch (Throwable t) {
-            log("chunk subscribe failed: " + t);
-        }
+        serverPlayer(mc).playerNetServerHandler.setPlayerLocation(x, y, z, yaw, pitch);
     }
 
     /** Pins the player where the scene put them, so settling happens in place. */
