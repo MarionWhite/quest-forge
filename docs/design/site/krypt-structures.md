@@ -379,3 +379,181 @@ always the stratum's darkest, coolest one.
 - **Blocks:** sandstone 24, gold block 41, sandstone stairs 128, torch 50. **Tex:** VAN only (the lucky block itself is in LuckyBlocks.jar).
 - **Mood:** a golden treat in a trap-heavy mine.
 - **Segment:** "gold cell": a 7x7x7 sandstone chamber off the corridor with a lucky-block pedestal (gold block cap) — the grave of the most lucky death; keeps the site's Lucky motif consistent.
+
+---
+
+## Stratum 6: The Hedge and the Labyrinth (Twilight Forest)
+
+All TF art below lives in `TwilightForest-2.4.3.jar` (`assets/twilightforest/textures/blocks/`) and is of unverified licence. Each entry gives a VAN fallback.
+
+### 36. Minotaur labyrinth corridors
+- **Source:** Twilight Forest, `twilightforest/structures/minotaurmaze/` (`ComponentTFMazeCorridor`, `...CorridorIronFence`, `...CorridorRoots`, `...CorridorShrooms`, `ComponentTFMinotaurMaze`, `StructureTFMazeStones`).
+- **Layout:** an underground maze on a grid of narrow cells (about 5 blocks a side, 3-4 high). Corridors are plain, some with an iron-bar fence 101 across, some overgrown with roots or mushrooms.
+- **Blocks:** TF `mazestone` (meta variants: plain `mazestone_plain`, brick `mazestone_brick`, chiseled/decorative `mazestone_decorative`, cracked `mazestone_cracked`, mossy `mazestone_mossy`, mosaic, border, pillar), iron bars 101, TF roots (`rootblock`, `oreroots`). **Tex:** TF (`mazestone_*.png`, `rootblock.png`, `oreroots.png`). **VAN fallback:** stone brick 98 (plain, mossy, cracked, carved), cobble, and vine 106.
+- **Features:** the pale grey mazestone brick with a faint green cast, roots through the ceiling, iron fences blocking branches.
+- **Mobs:** Minotaur, Maze Slime.
+- **Mood:** oppressive pale stone, a "something is hunting".
+- **Segment:** "mazestone run": 3 wide x 3 high, tight, pale 98/98[2] with an iron-bar fence across a side passage every ~10 blocks (decoys), roots hanging from the ceiling. Alcoves in the dead-end niches. Light: very sparse (wall torches only at junctions).
+
+### 37. Labyrinth rooms: Vault, Fountain, Spawner Chests, Collapse
+- **Source:** Twilight Forest, `ComponentTFMazeRoomVault` (15x15), `...RoomFountain`, `...RoomSpawnerChests` (11x11 with a Minotaur spawner), `...RoomCollapse` (14x14, ceiling fallen in: dirt, gravel, plants), `...MazeRoom`, `...MazeMushRoom`.
+- **Layout:** the Vault is a 15x15 chamber with sand, TNT 46, pressure plate 52, chests 54: a treasure room with a TNT trap and the lure of a chest on a platform; the Fountain room has a water or lava basin; Spawner Chests has a spawner flanked by chests with iron bars and planks frames; Collapse is a rubble-filled square with gravel 13, dirt 3, grass 2 and ferns.
+- **Blocks:** mazestone, sand 12, TNT 46, spawner 52, chests 54, iron bars 101, planks 5, gravel 13. **Tex:** TF (`mazestone_*`); VAN fallback as above.
+- **Mobs:** Minotaur, Maze Slime.
+- **Mood:** the "treasure room" and "collapsed ceiling" are great surprises.
+- **Segment:** "vault crossing": a 15x15 room the path crosses diagonally, a chest dais in the middle (sand beneath and a visible TNT block under glass-like bars) and a collapsed corner of rubble. 15 long.
+
+### 38. Labyrinth dead ends: torches, painting, trapped chest, lava fountain, roots
+- **Source:** Twilight Forest, `ComponentTFMazeDeadEnd*` (Chest, TrappedChest, Fountain, FountainLava, Painting, Roots, Shrooms, Torches), `ComponentTFMazeEntranceShaft`, `ComponentTFMazeUpperEntrance`.
+- **Layout:** each dead end is a cell terminating in a small dressing: a chest, a trapped chest 146 (explodes?), a water or lava fountain 8/10, a painting 321 item frame, a ring of torches.
+- **Blocks:** chest 54 / trapped chest 146, lava 10/11, water 8/9, torch 50, painting (entity). **Tex:** VAN only for the dressing.
+- **Mood:** a quiet "cul-de-sac" gift; the lava fountain is the dangerous one.
+- **Segment:** "dead-end niche": every alcove is a grave alcove but one in six gets a dressing from this list. A "lava fountain" alcove is a 1x2 recess with lava 11 spilling down; a "painting" alcove has a framed painting above the grave (a memorial). Strong for variation without new geometry.
+
+### 39. Twilight Forest hollow hill
+- **Source:** Twilight Forest, `ComponentTFHollowHill` (three sizes; the class constants 64/128/256/512 give sizes), `ComponentTFHillMaze` (mazestone maze inside the hill).
+- **Layout:** a grassy mound over a cavern with cobble 4 / stone 1 walls and spawners 52 (Redcap, Cave Spider, Creeper, Silverfish, Fire-beetle-ish "Pinch beetle"); the biggest hills hide a mazestone maze (`ComponentTFHillMaze`, 19 high by 27 wide).
+- **Blocks:** stone 1, cobble 4, grass 2, dirt 3, spawner 52, mazestone, firefly lamps `fireflyjar_*`. **Tex:** TF only for jars; VAN fallback: glowstone 89.
+- **Mood:** lush above, bleak and many-mobbed below.
+- **Segment:** "hill burrow": a cave-like corridor (irregular; ceiling dips, stone/cobble mix, ladders of gravel) with 2-3 spawner stubs and a lantern-jar light (glowstone 89 in a glass 20 cage as a firefly jar fallback).
+
+### 40. Twilight Forest hedge maze
+- **Source:** Twilight Forest, `ComponentTFHedgeMaze` (50x50ish footprint, 3 high, Hedge Spider, Swarm spider, Hostile Wolf).
+- **Layout:** a labyrinth of dense hedge walls (leaves) 3 tall, on grass; a central chamber with chest; fireflies in jars hang in lamps.
+- **Blocks:** TF `hedge` (looks like thick leaves), leaves 18 (fallback), grass 2, firefly jars. **Tex:** TF `hedge.png`, `fireflyjar_*`; VAN fallback leaves 18 (opaque) and glowstone.
+- **Mobs:** Hedge Spider, Swarm Spider, Hostile Wolf.
+- **Mood:** fairy-tale menace, summery.
+- **Segment:** "hedgerow": surface-feeling segment: leafy walls 3 high with sky above (a dim twilight ceiling, a few stars), grass floor, firefly jars glow along the hedge. Marks a gentle tonal break; alcoves are leafy bowers.
+
+### 41. Twilight Forest Naga courtyard
+- **Source:** Twilight Forest, `ComponentTFNagaCourtyard` (about 23 wide, 7 high walls with a boss spawner), `StructureTFNagaStones`, TF `nagastone` blocks (a family of 20+ rotating segments).
+- **Layout:** a square courtyard enclosed by cobble walls 139 and stone slab 44 columns, an inner ring of stone slab and pillars, a serpent-themed floor (nagastone) arranged in a looping serpent pattern, the boss spawner at the centre.
+- **Blocks:** TF `nagastone_*` (face, long side, tip, turns), cobble wall 139, stone slabs 44, stone brick, grass 2, firefly. **Tex:** TF (`nagastone_*.png` set of 20); VAN fallback: stone brick 98[3] carved with a snaking line of mossy 98[1].
+- **Mobs:** Naga.
+- **Mood:** ritual, serpent worship.
+- **Segment:** "serpent court": a 23x23 courtyard crossed by a path that follows the serpent's coils (the floor is stone with a 1-wide snake of mossy brick), pillars (slab pillars) in a ring, a basin or brazier at the centre.
+
+### 42. Twilight Forest troll cave and hydra lair
+- **Source:** Twilight Forest, `trollcave/` (`ComponentTFTrollCaveMain`, `TrollCaveConnect`, `TrollCaveGarden`, `TrollVault` with 11x11 giant obsidian chest, `CloudCastle`), `ComponentTFHydraLair` (64x27x27 with a boss spawner).
+- **Layout:** the troll cave: a large cave of stone and obsidian 49 (about 30 x 20 wide), troll root 'trollRoot', luminous `trollsteinn` stone and `uberousSoil`; the vault: a sealed room with a giant-obsidian block and chests; hydra: an open arena in stone.
+- **Blocks:** stone 1, obsidian 49, TF `trollsteinn` / `trollsteinn_light`, `uberous_soil`, troll root. **Tex:** TF; VAN fallback: obsidian + glowstone 89 for the 'light' stone.
+- **Mobs:** Troll, Hydra (boss).
+- **Mood:** huge, primal, cave-troll cosy.
+- **Segment:** "troll hollow": an irregular 8-wide cave with lumpy stone walls and glowing light-stone clusters (glowstone fallback) on the ceiling; the path wanders; a vault door (obsidian) in the side.
+
+---
+
+## Stratum 7: The Knight stronghold and the towers (Twilight Forest)
+
+### 43. Knight stronghold hallways and turns
+- **Source:** Twilight Forest, `structures/stronghold/` (`StrongholdSmallHallway`, `LeftTurn`, `RightTurn`, `Crossing`, `DeadEnd`, `UpperCorridor`, `UpperTIntersection`, `SmallStairs`, `UpperAscender`, `Entrance`, `AccessChamber`).
+- **Layout:** a deep underground fortress of rooms about 18x?x18 each, joined by small hallways about 5 wide, 3-4 high; turns and crossings; the upper level has a lower ceiling.
+- **Blocks:** TF `knightbrick` (and `knightbrick_cracked`, `_mossy`, `_floor`), `knightmetal_block`, iron bars 101, doors; `shield_inside` / `shield_outside` motifs on the walls. **Tex:** TF; VAN fallback: stone brick 98[3] and 98[2], iron block 42.
+- **Mobs:** Skeleton knights ('Knight Phantom' in the boss room), Zombie, Skeleton.
+- **Mood:** military, grim, cold iron.
+- **Segment:** "knight hall": 5 wide, 4 high, regular stone-brick bays with an iron-block (42) shield plaque on each pilaster; alcoves between plaques; torches in iron brackets (torch 50 on 42). Colder blue-white light than the other strata; the light warms with depth.
+
+### 44. Stronghold Atrium, Balcony, Training Room
+- **Source:** Twilight Forest, `StrongholdAtrium` (17x?x17 with a central grass plot), `BalconyRoom`, `TrainingRoom` (planks 5, cobble 4, sand 12, water, a hay target?), `UpperAscender`.
+- **Layout:** the atrium: a central courtyard open over several storeys with grass 2 in the middle, balcony walkways around; the training room: a 15x15 hall with sand pits and wooden dummies.
+- **Blocks:** stone brick, grass 2, planks 5, cobble 4, sand 12, iron bars 101, cauldron 118 / anvil 145 (fallback fittings), water. **Tex:** VAN only (TF's own carved stone is optional).
+- **Mood:** vertical grandeur in an underground fortress.
+- **Segment:** "atrium drop": the path runs on a balcony ledge around a 9x9 open well (view of storeys below with grass and a lantern at the bottom); iron-rail fences; optional ladder down. A **vertical-feeling** relief; 14-20 blocks.
+
+### 45. Stronghold Foundry and Treasure rooms
+- **Source:** Twilight Forest, `StrongholdFoundry` (25 high: stone, gold block 41, iron ore 15, lava 10, redstone lamp, netherrack), `StrongholdTreasureRoom` (iron-bar cages), `StrongholdTreasureCorridor`.
+- **Layout:** the foundry is a tall industrial room with lava forge channels, gold and iron blocks, and a netherrack-fed fire; the treasure room is a cage of iron bars around chests, with a hidden approach.
+- **Blocks:** stone 1, lava 10/11, gold ore 14, iron ore 15, netherrack 87, fire 51, redstone lamp 123, iron bars 101, chests 54. **Tex:** VAN only.
+- **Mobs:** Skeleton, Blaze (rare).
+- **Mood:** forge-hall, orange underglow, in contrast with the cold stone.
+- **Segment:** "forge gallery": a 20-long hall with a lava channel (2 wide) along one wall, walkway with iron railing, ore blocks piled in niches, orange light rising from below. Warms the palette suddenly: use as a stratum high point.
+
+### 46. Stronghold boss room and knight shield room
+- **Source:** Twilight Forest, `StrongholdBossRoom` (about 27x27, bossSpawner, stone slab 44, obsidian 49, iron bars, torches), `StructureTFStrongholdShield`, `StructureTFKnightStones`.
+- **Layout:** an arena with a ring of slab seating, a central obsidian dais with the boss spawner, and iron bars closing the doors behind you.
+- **Blocks:** obsidian 49, stone slab 44, iron bars 101, torch 50, spawner 52. **Tex:** VAN only.
+- **Mobs:** Knight Phantoms.
+- **Mood:** climax, the final test before a new band.
+- **Segment:** "arena": the path enters a 27x27 round-ish room with a ring of slab benches, a dais with a spawner cage, torches at 8 compass points; doors close behind you (the corridor bars slam). Use as the last segment of a stratum (band boundary marker).
+
+### 47. Twilight Lich tower
+- **Source:** Twilight Forest, `structures/lichtower/` (`ComponentTFTowerMain`, `TowerWing`, `TowerBridge`, `TowerBeard`, `TowerRoof*`, `TowerOutbuilding`), `TFLichTowerPieces`.
+- **Layout:** a tall cobble-and-planks tower (main shaft roughly 15 wide, up to ~55 tall) with spiral stairs, glass windows 20, iron bars, wings, bridges to outbuildings and pointy or slab roofs; the top room holds the Lich boss spawner; floors have zombie/skeleton/swarm spawners.
+- **Blocks:** cobble 4, planks 5, glass 20, iron bars 101, stairs 53, torch 50, spawner 52. **Tex:** VAN only (mod art optional).
+- **Mobs:** Skeleton, Zombie, Swarm spider, Lich (boss).
+- **Mood:** wizard tower, drafty, high.
+- **Segment:** "stair tower": a spiralling segment: the path turns 90 degrees every 5 blocks as a stairway round a 5x5 core, with glass windows showing an artificial dim sky; the shaft rises 10+ blocks. 25-40 long in path length. Provides **vertical travel**.
+
+### 48. Twilight Dark Tower
+- **Source:** Twilight Forest, `structures/darktower/` (`ComponentTFDarkTowerMain`, `Wing`, `Bridge`, `Balcony`, `Beard`, `Entrance`, `BossTrap`, `Roof*`), TF `towerDevice`, `towerWood`, `towerTranslucent` blocks.
+- **Layout:** a black-and-wood skyscraper (main about 19 x 56 floors) full of trap devices: ghast traps, fire jets, vanishing and reappearing blocks, locked doors needing a tower key, builder blocks; rooms of cactus, ring and antenna roofs; blaze spawners (mini blazes) and boss trap.
+- **Blocks:** TF `towerwood_*` (planks, cracked, mossy, infested, alt, encased), `towerdev_*` (antibuilder, builder, firejet, ghasttrap, lock, reactor, reappearing, smoker, vanish), `towerdev_lock_*`. **Tex:** TF; VAN fallback: dark oak-ish planks 5[5]/log 17[1] and red stone-lamps (123).
+- **Mobs:** Tower Golem, Tower Ghast, Tower Termite, Tower Broodling, mini Ghast.
+- **Mood:** menacing technological: the tower of traps.
+- **Segment:** "trap corridor": a gantry corridor with periodic fire-jet vents in the walls (lava-orange glow as fire 51), a vanishing-floor tile (a section of floor that blinks out for 1 second then returns: a **gap**), lock doors. Heavy on scare-hook potential.
+
+### 49. Twilight Ice tower and Yeti cave
+- **Source:** Twilight Forest, `structures/icetower/` (`ComponentTFIceTowerMain` about 11x31+ footprint, `Wing`, `Entrance`, `Stairs`, `Bridge`, `BossWing`, `StructureTFAuroraBricks`), `ComponentTFYetiCave` (ice 79, packed ice 174, snow).
+- **Layout:** a spiralling tower of aurora brick (a block that cycles through colours) and ice with crystalline rooms; the Yeti cave is a stone and snow cavern 20 wide with ice pillars.
+- **Blocks:** TF `aurorabrick0..7` (animated, hue shift), `aurora_pillar_*`, `aurora_slab_side`; ice 79, packed ice 174, snow 80, snow layer 78. **Tex:** TF (aurora set, with `.mcmeta` animations); VAN fallback: packed ice + ice + quartz 155.
+- **Mobs:** Ice Crystal, Ice Exploder, Ice Shooter, Yeti, Snow Queen (boss).
+- **Mood:** cold beauty, aurora colours, the one colourful tower.
+- **Segment:** "aurora gallery": ice floor (slippery look), aurora-brick walls slowly pulsing between blue, green, violet (animated tint in the Krypt's palette), crystal clusters in alcoves. The strongest "colour moment" outside the End.
+
+---
+
+## Stratum 8: Halls of Chocolate Quest
+
+All CQ rooms/castles use vanilla blocks; the files are in `chocolateQuest-1.7.10-1.1d.jar` (licence unverified, but no CQ texture is needed). The 15x10x15 stronghold rooms are the workable unit, since a 15-block-long room is a segment.
+
+### 50. CQ stronghold trap rooms (lava, redstone, pressure plates, silverfish)
+- **Source:** Chocolate Quest, `stronghold/rooms/room{0,2,3,4,5,8,9,10,12,13,14,15,16}.schematic` (15x10x15). Examples: room0 (1152 stone brick, 13 lava, 3 silverfish blocks, 1 TNT), room3 (813 brick, iron bars, 6 lava, a spawner), room12 (145 lava, spawner, web), room13 (1747 stone brick, 29 redstone dust, 6 levers: a redstone door puzzle), room14 (plates 70, buttons, spawner), room16 (pistons 33, redstone, spawner, silverfish), room15 (9 end portal frames 120 + lava: an end-portal shrine).
+- **Layout:** each room is a 15x15 floor, 10 high, with a doorway in each wall; contents differ: a lava moat room (room12), a lever-door puzzle (13), a pressure-plate trap with a spawner (14), a piston door (16), a portal-frame shrine (15).
+- **Blocks:** stone brick 98, lava 10/11, iron bars 101, redstone 55, lever 69, plate 70, piston 33, TNT 46, endframe 120. **Tex:** VAN only.
+- **Mobs:** Skeleton (CQ default: the theme `mob = default`), Silverfish.
+- **Mood:** puzzle-box strongholds.
+- **Segment:** "puzzle chamber": a 15-long room whose floor is a 3-wide stone bridge across a lava moat (room12), or with a visible piston wall and lever alcove that "opens" the next hall (room13/16). 
+
+### 51. CQ stronghold stairs and entrance towers
+- **Source:** Chocolate Quest, `stronghold/stairs/stairs0..3.schematic` (15x20x15: stone brick with iron bars and slabs), `stronghold/entrance/{tower,tower2,tower3,tower4,towerXiraxis,skull,suspicious_trees}.schematic` (15x20x15; towerXiraxis 15x27x15 with vines, torches and sandstone), `stronghold/entrance_stairs/entranceStairs.schematic`.
+- **Layout:** the stairs are 15x20x15 spirals/switchbacks (20 high); the towers are stone-brick lookouts with planks, ladders 65, torches; "skull" is a giant skull mound (stone); "suspicious trees" is a grove with silverfish nests.
+- **Blocks:** stone brick 98, stairs 109, slab 44, iron bars 101, planks 5, ladder 65, torch 50, vine 106. **Tex:** VAN only.
+- **Mood:** a descent: "the way down".
+- **Segment:** "switchback stair": a 15-wide, 20-step stair with iron-bar railings; each landing a short alcove row. The best transition piece between rooms at different depths.
+
+### 52. CQ Cathedral and Redstone castle (snow castles)
+- **Source:** Chocolate Quest, `snowCastles/Cathedral.schematic` (70x50x70: 16969 stone brick, 1702 stained clay, 1458 stairs, 91 torches), `Redstone_castle.schematic` (70x60x69: redstone 733, wool 449, cauldrons 13, enchantment table), `CubeCastle.schematic` (69x60x70: iron bars 3757, stained clay 5240, redstone lamps 158), `MountainCastle.schematic` (70x85x70, 148 torches, 21 chests, quartz).
+- **Layout:** huge multi-storey castle interiors: the Cathedral has a nave of stone-brick vaults with coloured stained clay windows and rows of torches; the Redstone castle is a lit-circuit fortress (redstone wiring in walls); CubeCastle a cubic fortress with iron-bar grilles and lamp-lit halls.
+- **Blocks:** stone brick 98, stained clay 159 (window colours), stairs 109, torches 50, redstone lamp 123, wool 35. **Tex:** VAN only.
+- **Mobs:** Skeleton, Zombie, Witch (cauldron/brewing stand details).
+- **Mood:** cathedral: ceremonial and bright; the best "grand hall" candidate.
+- **Segment:** "nave": 9 wide, 9 high vaulted hall of stone brick with two rows of pillars, stained-clay "windows" (159 coloured panes) on both sides, ~91 torches' worth of candlelight: dozens of small lights, the brightest segment of the shallow bands. Grave alcoves in the side aisles behind pillars. 24-40 long.
+
+### 53. CQ wizard, alchemist and lake castles
+- **Source:** Chocolate Quest, `castles/wizCastle.kanokarob.schematic` (50x46x50: cobble 7416, mossy cobble 2871, 8 spawners, vines 399, 18 torches), `AlchemistCastle.schematic` (50x45x50: 12 cauldrons 118, 9 brewing stands 117, 45 glowstone, 863 water), `LakeCastle.schematic` (49x40x50: water 1812, 4 spawners, 12 torches), `Ravine_castle.schematic`, `castles/BigTree.schematic` (50x55x50: leaves, vines, water, enchantment tables).
+- **Layout:** castles set on cliffs, in lakes or in giant trees; interiors with brewing rooms and mage studies.
+- **Blocks:** cobble 4, mossy cobble 48, stone brick 98, cauldron 118, brewing stand 117, enchantment table 116, vine 106, water 8, glowstone 89, wool 35. **Tex:** VAN only.
+- **Mood:** wizard-alchemist storybook.
+- **Segment:** "alchemist hall": a stone-brick hall with cauldrons (118) in the alcoves (some filled with water meta 3: the grave "basin"), brewing stands on shelves, green glowstone lamps, drips. A shift from sepulchral to arcane.
+
+### 54. CQ Castle End and Netherlike castle
+- **Source:** Chocolate Quest, `castles/CastleEnd.schematic` (49x48x50: stone 20250, stone brick 13729, web 223, lava 30, 5 chests, skulls), `neaEkkleasia.xiraxis.schematic` (50x50x50: sandstone 6211, double slab 3157, end stone 1642, wool 1062, 75 torches, 24 glowstone).
+- **Layout:** Castle End: a stone fortress with webbed ruins and lava; Ekklesia: a sandstone and end-stone cathedral complex.
+- **Blocks:** stone 1, stone brick 98, web 30, lava 11, sandstone 24, end stone 121, double slab 43, wool 35, torch 50, glowstone 89. **Tex:** VAN only.
+- **Mood:** apocalyptic keep; webs on everything.
+- **Segment:** "ruined keep": a stone and web hall with partial collapsed ceiling (sky-dark), lava seams in the floor cracks, columns snapped half-way. 20-30 long.
+
+### 55. CQ ships (skeleton ship, galleon, creeper ship, corrupted ship)
+- **Source:** Chocolate Quest, `ships/{SkeleShip,Galleon,GalleonCannons,smallGalleon,smallPirateShip,RedFlagShip,creeperShip,corruptedShip,OceanWievShip,PirateIsland}.schematic` (small ones 15x20x15; Galleon 32x42x50, GalleonCannons 50x40x31 with 191 TNT; PirateIsland 54x55x60).
+- **Layout:** wooden hulls: planks 5 and log 17 hulls, wool 35 sails, fence 85 rigging, stairs 53 decks, cauldron 118 galley; cannons are TNT behind obsidian 49 and glass panes 102; ghost/corrupted ship uses nether brick 112 and soul sand 88.
+- **Blocks:** planks 5, log 17, wool 35 (sails), fence 85, ladder 65, ironbars, cauldron, TNT, obsidian. **Tex:** VAN only.
+- **Mobs:** Pirates (CQ mob), Skeleton (SkeleShip).
+- **Mood:** shipwreck and mutiny; a break from stone.
+- **Segment:** "wreck hold": a below-decks corridor of planks and log ribs, wool-sail scraps hung, cannon ports (obsidian/TNT) along one side, lantern glows (torch 50 + fence posts). Floor of wet planks with a water seep (gap of water). 15-30 long.
+
+### 56. CQ village, arena, market and inn
+- **Source:** Chocolate Quest, `village/{Arena,Inn,Market,InquisitionVilla,OrcVillage,WitchVilla}.schematic` (32x20x32 plots), `snowCastles/WolfVillage.schematic`.
+- **Layout:** 32x32 footprints: the arena is a sandstone ring with 468 glowstone lights 89 and fences; the market has wool 35 awnings, anvils 145, stone and cobble; the inn has planks and 56 torches.
+- **Blocks:** sandstone 24, glowstone 89, stained glass 95, planks 5, cobble 4, wool 35, anvil 145, fence 85. **Tex:** VAN only.
+- **Mood:** festival at the bottom of a grave: ironic, crowded, warm.
+- **Segment:** "market gallery": a wide (7-9) hall with stall alcoves (wool awnings 35 over each grave nook), glowstone lamps hung on fences, anvils and barrels as dressing. The warmest, busiest kind in the catalogue; use to break up long dark runs.
