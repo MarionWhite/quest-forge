@@ -16,7 +16,7 @@ ZIP = sys.argv[1] if len(sys.argv) > 1 else os.path.expanduser('~/Library/Applic
 JAVAP = '/opt/homebrew/opt/openjdk@17/bin/javap'
 MODELS = ['Mantis', 'Bee', 'Brutalfly', 'CaterKiller', 'Cephadrome', 'CloudShark', 'Coin', 'Dragon', 'EasterBunny',
           'Hammerhead', 'Robot1', 'Robot2', 'Robot3', 'Robot4', 'Robot5', 'Ant', 'Rotator', 'WormLarge', 'Godzilla',
-          'Butterfly']
+          'Butterfly', 'QueenBattleAxe']
 
 RFIELDS = {'field_78809_i': 'mirror', 'mirror': 'mirror', 'field_78795_f': 'rx', 'field_78796_g': 'ry', 'field_78808_h': 'rz', 'rotateAngleX': 'rx', 'rotateAngleY': 'ry', 'rotateAngleZ': 'rz', 'field_78800_c': 'px', 'field_78797_d': 'py', 'field_78798_e': 'pz'}
 

@@ -7,7 +7,14 @@ import * as THREE from 'three';
 import { tex, whenMobTexturesLoaded } from './textures.js';
 import { VANILLA_MODELS } from './vanilla-models.js';
 import { OS_MODELS } from './orespawn-models.js';
+import { attachEquipment } from './equipment.js';
 export { whenMobTexturesLoaded };
+export { parseEquipment, classify as classifyItem, EQUIP_PRESETS } from './equipment.js';
+// Feature detection for callers that may load an older copy of this file: `MOB_FEATURES.equipment`.
+// makeMob(id, { equipment: [...], enchanted }) dresses the biped mobs (Zombie, Giant, PigZombie, ZombieVillager,
+// Skeleton, WitherSkeleton, Steve); `equipment` is the Lucky drop's `actions[].equipment` array.
+export const MOB_FEATURES = { equipment: true };
+const EQUIP_KEYS = new Set(['Zombie', 'Giant', 'PigZombie', 'ZombieVillager', 'Skeleton', 'WitherSkeleton', 'Steve']);
 
 const TEXP = (p) => new URL('./tex/' + p, import.meta.url).href;
 const FEET = 24;
@@ -358,6 +365,8 @@ function bipedBase(P, c) {
     rot(rightArm, cos(c.ls * 0.6662 + PI) * c.lsa, 0, 0);
     rot(leftArm, cos(c.ls * 0.6662) * c.lsa, 0, 0);
   }
+  // ModelBiped.heldItemRight = 1: the right arm tips up by pi / 10 and swings at half range
+  if (c.held && rightArm) rot(rightArm, mcx(rightArm) * 0.5 - 0.31415927, 0, 0);
   if (rightArm) { rightArm.userData.raise = c.o.armRaise || 0; if (c.o.armRaise) { addRot(rightArm, -c.o.armRaise); addRot(leftArm, -c.o.armRaise); } }
   rot(rightLeg, cos(c.ls * 0.6662) * 1.4 * c.lsa, 0, 0);
   rot(leftLeg, cos(c.ls * 0.6662 + PI) * 1.4 * c.lsa, 0, 0);
@@ -425,7 +434,7 @@ const ANIMS = {
     const B = [0, 1, 2, 3, 4, 5, 6].map((i) => P['silverfishBodyParts' + i]);
     const Wg = [0, 1, 2].map((i) => P['silverfishWings' + i]);
     B.forEach((g, i) => {
-      const a = c.age * 0.9 * 0.3 + i * 0.15 * PI;
+      const a = c.age * 0.9 + i * 0.15 * PI;
       rot(g, null, cos(a) * PI * 0.05 * (1 + Math.abs(i - 2)));
       setPivot(g, sin(a) * PI * 0.2 * Math.abs(i - 2), null, null);
     });
@@ -707,6 +716,13 @@ export function makeMob(id, opts = {}) {
   }
   const animFn = ANIMS[sp.anim] || null;
   const P = primary.parts;
+  let eq = null;
+  out.equipment = { applied: false, slots: [], held: null };
+  if (opts.equipment && opts.equipment.length && EQUIP_KEYS.has(key) && P.bipedHead) {
+    eq = attachEquipment(P, opts.equipment, { enchanted: opts.enchanted }, { buildRig });
+    eq.mount(rig, P);
+    out.equipment = { applied: true, slots: eq.slots, held: eq.held };
+  }
   out.anim = function (t, dt, o = {}) {
     const age = t * 20;
     const walk = o.walk ?? 1;
@@ -715,6 +731,7 @@ export function makeMob(id, opts = {}) {
       ls: t * 7 * (walk > 0 ? 1 : 0), lsa: 0.45 * walk,
       hy: o.lookAt ?? 0, hp: o.lookPitch ?? 0,
       squish: 0,
+      held: !!(eq && eq.hasHand),
     };
     if (sp.os) {
       resetRig(P);
@@ -733,6 +750,7 @@ export function makeMob(id, opts = {}) {
       rig.scale.set(f3 * size * baseScale, (1 / f3) * size * baseScale, f3 * size * baseScale);
     }
     if (animFn) animFn(P, ctx);
+    if (eq) eq.update(P, t);
     // copy the primary's pose onto the other layers
     for (let i = 1; i < layers.length; i++) {
       const Q = layers[i].parts;

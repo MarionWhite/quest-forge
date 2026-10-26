@@ -15,11 +15,11 @@ body.dump #bar{display:none}
 </style>
 </head>
 <body>
-<div id="bar"><b>Mob lineup.</b> Every mob the site can build, idling. Query: <code>?ids=Zombie,Creeper</code> <code>&amp;view=front|34|side</code> <code>&amp;t=2.5</code> <code>&amp;cols=9</code> <code>&amp;set=vanilla|orespawn</code></div>
+<div id="bar"><b>Mob lineup.</b> Every mob the site can build, idling. Query: <code>?ids=Zombie,Creeper</code> <code>&amp;view=front|34|side</code> <code>&amp;t=2.5</code> <code>&amp;cols=9</code> <code>&amp;set=vanilla|orespawn</code> <code>?ids=Zombie@diamond,Zombie@queen</code> (equipment presets)</div>
 <script type="importmap">{"imports":{"three":"../three/three.module.min.js"}}</script>
 <script type="module">
 import * as THREE from 'three';
-import { makeMob, mobNames, MOB_SPECS, OS_SPECS, whenMobTexturesLoaded } from './mobs.js';
+import { makeMob, mobNames, MOB_SPECS, OS_SPECS, whenMobTexturesLoaded, EQUIP_PRESETS } from './mobs.js';
 import { plaque } from '../../lucky/reel.js';
 
 const q = new URLSearchParams(location.search);
@@ -85,7 +85,8 @@ ids.forEach((id, i) => {
   const col = i % cols, row = Math.floor(i / cols);
   const cell = new THREE.Group();
   cell.position.set((col - (cols - 1) / 2) * CELL_W * -1, -row * CELL_H, 0);
-  const m = makeMob(id);
+  const [mobId, preset] = id.split('@');
+  const m = makeMob(mobId, preset ? { equipment: EQUIP_PRESETS[preset] || [] } : {});
   m.anim(T0, 0, AO);
   m.root.updateMatrixWorld(true);
   const pivot = new THREE.Group();

@@ -29,4 +29,19 @@ Previous state: `ops/checkpoints/site-mobs.md`.
 - [ ] `python3 -I tools/site/check_sounds.py` exits 0.
 
 ## Done
-(nothing yet)
+- Equipment API committed (milestone 1): `makeMob(id, { equipment, enchanted })`, `MOB_FEATURES.equipment`,
+  `EQUIP_PRESETS`, `parseEquipment`. New `site/lib/mc/equipment.js`; textures in `tex/armor`, `tex/items`, `tex/misc`.
+  `equipment` = the drop's `actions[].equipment` array. Plain strings: glint on for `minecraft:` ids (every vanilla
+  piece in the drops is enchanted), off for OreSpawn; pass `{id, ench:false}` to override or `enchanted: false`.
+  Applies to Zombie, Giant, PigZombie, ZombieVillager, Skeleton, WitherSkeleton, Steve (others ignore it).
+  `m.equipment = {applied, slots, held}`.
+- Lineup: `?ids=Zombie@diamond,Zombie@queen,Zombie@queenarmor`.
+- Facts: vanilla 1.7.10 RenderGiantZombie draws NO armour or held item (done anyway, per the owner's list).
+  Queen Battle Axe model renders at scale 1.0 (blocks), x0.35: about 7 blocks long in hand, per the bytecode.
+- Silverfish: model and texture are exact (wing dots are sparse by design); anim speed fixed (was 0.3x).
+  Krypt swarm uses its own box mesh in `site/graves/scares/cuts1.js` (see Requests).
+
+## Requests
+- scares / krypt-more: `site/graves/scares/cuts1.js` `silverfishMesh()` builds grey boxes; use the library
+  model instead (`makeMob('Silverfish')`) for real texture and segment wiggle.
+- lucky-accuracy: pass `equipment: action.equipment` to `makeMob` (fx.js spawnMob, reel.js) and guard with `MOB_FEATURES.equipment`.
