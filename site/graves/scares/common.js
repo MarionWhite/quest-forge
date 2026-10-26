@@ -292,3 +292,40 @@ export function zombieArms(m, t, p = 0) {
   mcRot(P.rightArm, ax + bx, -(0.1 - f6 * 0.6), bz);
   mcRot(P.leftArm, ax - bx, 0.1 - f6 * 0.6, -bz);
 }
+
+// Eyes that glow in the dark: pixel quads on a mob's head part (Minecraft model units: x, y, z, w, h on the face,
+// y down, front -z) plus a halo in the scene. Returns set(on 0..1). rgb is the lit colour.
+export function glowEyes(R, m, px, rgb = [1, 0.1, 0.05], { halo: hs = 0.4, glow = 0.3, scale = 1 } = {}) {
+  const head = m.parts.head;
+  const mat = new THREE.MeshBasicMaterial({ color: 0x000000, fog: false, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 });
+  mat.userData.noFlash = true;
+  const eyes = px.map(([x, y, z, w, h]) => { const q = new THREE.Mesh(new THREE.PlaneGeometry(w / 16, h / 16), mat); q.position.set(-x / 16, -y / 16, z / 16); q.visible = false; if (head) head.add(q); return q; });
+  const hl = halo(R, new THREE.Color(rgb[0], rgb[1], rgb[2]), hs);
+  const cy = -px.reduce((a, e) => a + e[1], 0) / px.length / 16, cz = Math.min(...px.map((e) => e[2])) / 16 - 0.05;
+  const hp = new THREE.Vector3();
+  return (on) => {
+    const vis = on > 0.01 && !!head && m.pivot.visible;
+    for (const e of eyes) e.visible = vis;
+    hl.visible = vis;
+    if (!vis) return;
+    mat.color.setRGB(rgb[0] * on, rgb[1] * on, rgb[2] * on);
+    hl.material.opacity = glow * on;
+    m.pivot.updateMatrixWorld(true);
+    head.localToWorld(hp.set(0, cy, cz));
+    hl.position.copy(hp); hl.scale.setScalar(scale);
+  };
+}
+// ModelBiped's arm swing (onGround p 0..1) on top of the pose the library's anim left: the body twists, the right arm
+// chops down and across.
+export function bipedSwing(m, p) {
+  const P = m.parts; if (!P.rightArm || p <= 0) return;
+  const body = Math.sin(Math.sqrt(p) * Math.PI * 2) * 0.2;
+  if (P.body) mcRot(P.body, 0, body, 0);
+  P.rightArm.position.set(Math.cos(body) * 5 / 16, -2 / 16, Math.sin(body) * 5 / 16);
+  P.leftArm.position.set(-Math.cos(body) * 5 / 16, -2 / 16, -Math.sin(body) * 5 / 16);
+  const mx = (g) => -g.rotation.x, my = (g) => -g.rotation.y;
+  let f6 = 1 - p; f6 *= f6; f6 *= f6; f6 = 1 - f6;
+  const f7 = Math.sin(f6 * Math.PI), hx = P.head ? -P.head.rotation.x : 0, f8 = Math.sin(p * Math.PI) * -(hx - 0.7) * 0.75;
+  mcRot(P.rightArm, mx(P.rightArm) - (f7 * 1.2 + f8), my(P.rightArm) + body * 3, Math.sin(p * Math.PI) * -0.4);
+  mcRot(P.leftArm, mx(P.leftArm) + body, my(P.leftArm) + body, P.leftArm.rotation.z);
+}

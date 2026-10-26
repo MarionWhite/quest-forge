@@ -2,34 +2,14 @@
 // Your hand twitches: the sword swings and catches it. Silence. It turns its head. Every eye in the dark goes red,
 // the angry squeal comes from everywhere at once, and they rush you from every passage.
 import { THREE, clamp, lerp, sstep, pulse, tex, easeOut } from "./rig.js";
-import { settle, shake, hitsOf, floorFall, heldItem, halo, swingAt, zombieArms, mulberry } from "./common.js";
+import { settle, shake, hitsOf, floorFall, heldItem, swingAt, zombieArms, mulberry, glowEyes } from "./common.js";
 
 const SWORD = [{ id: "minecraft:golden_sword", ench: false }];
 const TAU = Math.PI * 2;
 const wrap = (a) => { while (a > Math.PI) a -= TAU; while (a < -Math.PI) a += TAU; return a; };
 
 // The pigman's two eyes, lit red: the skull's socket (base layer) and the pink eye on the hat layer (inflated 0.5).
-// In the head part's frame (metres; x and y a half turn from Minecraft's), plus a halo in the scene.
-function redEyes(R, m) {
-  const head = m.parts.head;
-  const mat = new THREE.MeshBasicMaterial({ color: 0x000000, fog: false, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 });
-  mat.userData.noFlash = true;
-  const mk = (x, y, z, w, h) => { const q = new THREE.Mesh(new THREE.PlaneGeometry(w / 16, h / 16), mat); q.position.set(-x / 16, -y / 16, z / 16); q.visible = false; if (head) head.add(q); return q; };
-  const eyes = [mk(-3, -4.5, -4.06, 2, 1), mk(3.375, -4.56, -4.58, 2.25, 1.125)];
-  const glow = halo(R, 0xff1808, 0.4);
-  const hp = new THREE.Vector3();
-  return (on) => {
-    const vis = on > 0.01 && !!head;
-    for (const e of eyes) e.visible = vis;
-    glow.visible = vis;
-    if (!vis) return;
-    mat.color.setRGB(on, 0.1 * on, 0.05 * on);
-    glow.material.opacity = 0.3 * on;
-    m.pivot.updateMatrixWorld(true);
-    head.localToWorld(hp.set(0, 4.5 / 16, -0.3));
-    glow.position.copy(hp);
-  };
-}
+const redEyes = (R, m) => glowEyes(R, m, [[-3, -4.5, -4.06, 2, 1], [3.375, -4.56, -4.58, 2.25, 1.125]], [1, 0.1, 0.05], { halo: 0.4, glow: 0.3 });
 
 export default {
   death: "Steve was slain by Zombie Pigman",
