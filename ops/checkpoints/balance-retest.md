@@ -1,4 +1,4 @@
-# balance: re-test after the 2026-10-25 enchant changes (checkpoint 22:45)
+# balance: re-test after the 2026-10-25 enchant changes (checkpoint 22:55, project paused)
 
 Decision: docs/decisions/0005-enchant-census-proposals.md. The owner: everything is retested
 before anything ships; no further fight-length changes without a check-in.
@@ -31,7 +31,24 @@ before anything ships; no further fight-length changes without a check-in.
 - Node c4 carries the P6 config overlay: `C:\qfs\c4\config\MobProperties\demonmobs\rahovart.json` is
   the repo file; the original is saved as `C:\qfs\campaign-v3\c4-rahovart.json.orig`.
 
-## Next (a fresh agent)
+## The census is running detached (owner paused the project at 22:50; it was left running)
+- **Progress:** `type C:\qfs\campaign-v3\driver-v3.log` (one line per job start/done; ends with
+  "campaign complete"); `dir C:\qfs\campaign-v3\R-*inished.json`; cells measured so far on the
+  node: `findstr /c:"first swing" C:\qfs\c4\census-run.log | find /c /v ""`. At 22:55 the Naga job
+  (120 cells) had finished in 125 s and Mobzilla was running; the queue should end about 23:10-23:30.
+- **Results:** `C:\qfs\campaign-v3\R-<job>\` holds `qfcontent-census-combat.tsv` (the balance
+  sheet), `-procs.tsv`, `-failed.tsv`, `census.log` and `finished.json` (or `failed.json`). The
+  driver copies them there when each job's server exits; nothing is lost if it is left alone.
+- **Pause:** create `C:\qfs\campaign-v3\PAUSE` (the running job finishes, no new one starts);
+  delete it to carry on. **Stop:** `taskkill /PID 19888 /F` (the driver), then the server:
+  PowerShell `Get-CimInstance Win32_Process -Filter "Name like '%java%'" | Where-Object { $_.CommandLine -like '*qf.census.combat*' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force }`.
+  **Resume:** the launch command above, unchanged (jobs with finished.json are skipped).
+- `C:\qfs\c4\census-err.log` carries NPE spam (152 by 22:52; first frame: cpw.mods.fml.common.network.FMLOutboundHandler$OutboundTarget$4.selectNetworks(FMLOutboundHandler.java:109)); the census
+  log shows cells landing normally, so treat it as the known harmless kind unless a job fails.
+- The build worktree C:\qfb\wt-enchant (detached at ad7f9f4) holds the jar; remove it with
+  `git worktree remove C:\qfb\wt-enchant` once the jar has been installed or rebuilt.
+
+## Next (a fresh agent, when the owner resumes)
 1. Triage: `type C:\qfs\campaign-v3\driver-v3.log` ends with "campaign complete"? Every R-* has
    finished.json? A failed.json: read the node's `C:\qfs\c4\logs\fml-server-latest.log` and
    crash-reports; re-run with the same command (finished jobs are skipped).
