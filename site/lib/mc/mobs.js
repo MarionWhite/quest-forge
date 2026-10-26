@@ -283,7 +283,7 @@ const OS = (model, file, h, o = {}) => ({ os: model, tex: 'orespawn/' + file, h,
 export const OS_SPECS = {
   Mantis: OS('Mantis', 'Mantistexture.png', 2.0),
   Bee: OS('Bee', 'Beetexture.png', 0.9, { hover: 0.8, flap: true }),
-  Brutalfly: OS('Brutalfly', 'Brutalflytexture.png', 1.6, { hover: 0.8, flap: true, lift: 0.9 }),
+  Brutalfly: OS('Brutalfly', 'Brutalflytexture.png', 1.6, { hover: 0.8, flap: true, lift: 0.3, tilt: 0.9 }),
   CaterKiller: OS('CaterKiller', 'CaterKillertexture.png', 1.4),
   Cephadrome: OS('Cephadrome', 'Cephadrome.png', 1.5, { hover: 0.8, flap: true }),
   CloudShark: OS('CloudShark', 'CloudShark.png', 2.0, { hover: 0.8, flap: true }),
@@ -304,7 +304,7 @@ export const OS_SPECS = {
   Rotator: OS('Rotator', 'Rotatortexture.png', 1.6, { hover: 0.8, spin: true, glow: 0x30343f }),
   LargeWorm: OS('WormLarge', 'WormLargetexture.png', 1.2),
   Mobzilla: OS('Godzilla', 'Godzillatexture.png', 4),
-  Mothra: OS('Butterfly', 'mothscale_1.png', 2.4, { hover: 0.8, flap: true, lift: 1.1, mothra: true }),
+  Mothra: OS('Butterfly', 'lunamoth.png', 2.4, { hover: 0.8, flap: true, lift: 0.3, tilt: 0.9, mothra: true }),
   GoldenAppleCow: { layers: [{ model: 'cow', tex: 'orespawn/gold_cow.png' }], anim: 'quad', kind: 'quad' },
   RedAppleCow: { layers: [{ model: 'cow', tex: 'orespawn/red_cow.png' }], anim: 'quad', kind: 'quad' },
   CrystalCow: { layers: [{ model: 'cow', tex: 'orespawn/crystal_cow.png' }], anim: 'quad', kind: 'quad' },
@@ -664,6 +664,8 @@ export function makeMob(id, opts = {}) {
       resetRig(P);
       osAnim(sp, P, ctx);
       if (sp.spin) rig.rotation.y = t * 3;
+      // a resting moth shows its wings to the viewer: pitch the whole body so the plates face the camera
+      if (sp.tilt) rig.rotation.x = -sp.tilt;
       rig.position.y = Math.sin(t * (sp.flap ? 4 : 1.6)) * (sp.flap ? 0.1 : 0.0);
       return;
     }
