@@ -33,5 +33,6 @@ tokens and friends' personal details never go in it.
   track journal (`ops/journal/<track>.md`, dated entries, newest first), not in the report.
 - **Review images as contact sheets and crops** (`tools/shaders/review/check_frames.py`), not as
   full frames. Only review frames whose image changed; the render cache knows which.
+- **Bulk independent items go through the batch lane** (`tools/ops/batch.py`, 50% off, API credits): critic first passes, quest voice variants, item descriptions. Check `tools/ops/ledger.py status` first; see ops/README.md "API credits".
 - **Deterministic steps belong to scripts, not to agents:** rendering, costs, publishing
   (`finish_round.py`), feedback fetch (`fetch_feedback.py`).
