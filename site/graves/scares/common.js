@@ -314,7 +314,8 @@ export function glowEyes(R, m, px, rgb = [1, 0.1, 0.05], { halo: hs = 0.4, glow 
     hl.material.opacity = glow * on;
     m.pivot.updateMatrixWorld(true);
     head.localToWorld(hp.set(0, cy, cz));
-    hl.position.copy(hp); hl.scale.setScalar(scale);
+    // Close to the lens a halo would cover the frame: keep its size on screen about what it is at 1.6 m.
+    hl.position.copy(hp); hl.scale.setScalar(scale * Math.min(1, hp.distanceTo(R.camera.position) / 1.6));
   };
 }
 // ModelBiped's arm swing (onGround p 0..1) on top of the pose the library's anim left: the body twists, the right arm

@@ -188,6 +188,25 @@ export async function createHud(host) {
     }
   }
 
+  // The static cut (the lunge's end, after FNAF): an opaque frame of TV noise at the GUI's pixel size, four frames
+  // cycling at 30 a second with a bright band rolling through, over everything but the death screen.
+  let noise = null;
+  function staticCut(amt, t) {
+    const { w, h } = H;
+    if (!noise || noise.w !== w || noise.h !== h) {
+      noise = { w, h, frames: [0, 1, 2, 3].map((k) => {
+        const c = document.createElement("canvas"); c.width = w; c.height = h;
+        const x = c.getContext("2d"), id = x.createImageData(w, h), rng = rngOf(k * 977 + 3);
+        for (let y = 0; y < h; y++) { const row = 0.55 + 0.45 * rng(); for (let i = 0; i < w; i++) { const v = Math.floor(255 * Math.pow(rng(), 1.7) * row), p = (y * w + i) * 4; id.data[p] = id.data[p + 1] = id.data[p + 2] = v; id.data[p + 3] = 255; } }
+        x.putImageData(id, 0, 0); return c;
+      }) };
+    }
+    ctx.globalAlpha = clamp(amt);
+    ctx.drawImage(noise.frames[Math.floor(t * 30) % 4], 0, 0);
+    ctx.fillStyle = "rgba(255,255,255,0.14)"; ctx.fillRect(0, Math.floor(((t * 2.3) % 1) * h), w, Math.ceil(h * 0.07));
+    ctx.globalAlpha = 1;
+  }
+
   H.draw = (f, t) => {
     const { w, h } = H;
     ctx.imageSmoothingEnabled = false;
@@ -206,6 +225,7 @@ export async function createHud(host) {
     if (f.white > 0.003) { ctx.fillStyle = `rgba(255,255,255,${clamp(f.white).toFixed(3)})`; ctx.fillRect(0, 0, w, h); }
     if (f.black > 0.003) { ctx.fillStyle = `rgba(0,0,0,${clamp(f.black).toFixed(3)})`; ctx.fillRect(0, 0, w, h); }
     if (f.hud !== false) { hotbar(f); hearts(f, t); }
+    if (f.cut > 0.01) staticCut(f.cut, t);
     if (f.chat) chat(f.chat);
     if (f.death > 0.003) deathScreen(f, t);
   };

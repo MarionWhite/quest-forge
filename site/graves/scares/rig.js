@@ -11,6 +11,7 @@
 import * as THREE from "three";
 import * as KR from "../krypt.js";
 import { makeMob, whenMobTexturesLoaded } from "../../lib/mc/mobs.js";
+import { ShaderPass } from "three/addons/postprocessing/ShaderPass.js";
 
 export { THREE };
 export const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
@@ -132,9 +133,17 @@ class Gore {
 // ---- the rig ----------------------------------------------------------------------------------------
 const _v = new THREE.Vector3(), _q = new THREE.Quaternion(), _e = new THREE.Euler(0, 0, 0, "YXZ"), _m = new THREE.Matrix4(), _m2 = new THREE.Matrix4();
 
-export async function createRig(kr, { seed = 1 } = {}) {
+// opts: seed (the scare's look), rand (this play's dice: a different build-up every time; fixed in dumps),
+// frame { dir } (a heading to use instead of the last bend's: a gap's jump direction), gap (the Krypt's gap).
+export async function createRig(kr, { seed = 1, rand = seed * 7919 + 13, frame = null, gap = null } = {}) {
   const scene = kr.scene, camera = kr.camera;
-  const R = { kr, scene, camera, THREE, eye: 1.62, seed, patchBake: KR.patchBake };
+  const R = { kr, scene, camera, THREE, eye: 1.62, seed, patchBake: KR.patchBake, gap };
+  // The dice: R.rand() 0..1, R.vary(x, f) = x +- f (40% by default), R.chance(p), R.pick(list).
+  let mix = Math.imul((rand >>> 0) ^ 0x9e3779b9, 0x85ebca6b); mix = Math.imul(mix ^ (mix >>> 13), 0xc2b2ae35); mix ^= mix >>> 16;
+  R.rand = rngOf(mix >>> 0);
+  R.vary = (x, f = 0.4) => x * (1 + (R.rand() * 2 - 1) * f);
+  R.chance = (p) => R.rand() < p;
+  R.pick = (list) => list[Math.floor(R.rand() * list.length) % list.length];
   const solidW = typeof kr.solidAt === "function" ? (x, y, z) => !!kr.solidAt(x, y, z) : () => false;
   const blockW = typeof kr.blockAt === "function" ? (x, y, z) => kr.blockAt(x, y, z) : () => "stone";
   R.solidW = solidW; R.blockW = blockW;
@@ -153,6 +162,7 @@ export async function createRig(kr, { seed = 1 } = {}) {
   const next = (kr.corners || []).filter((c) => c.kind !== "passage" && c.s != null && c.s > walk.s).sort((a, b) => a.s - b.s)[0];
   const look = new THREE.Vector3(0, 0, -1).applyQuaternion(cam0.quat).setY(0).normalize();
   if (next && next.pos.distanceTo(cam0.pos) < 4.5 && look.dot(next.dir) > look.dot(head) + 0.3) head.copy(next.dir).setY(0).normalize();
+  if (frame && frame.dir) head.set(frame.dir.x, 0, frame.dir.z).normalize();
   // Snap to the block axes.
   if (Math.abs(head.x) > Math.abs(head.z)) head.set(Math.sign(head.x), 0, 0); else head.set(0, 0, Math.sign(head.z) || -1);
   const f = head, r = new THREE.Vector3(-f.z, 0, f.x);
@@ -323,17 +333,61 @@ export async function createRig(kr, { seed = 1 } = {}) {
     for (let q = 0; q < 20; q++) pos.setXYZ(tc.i + q, 0, -9999, 0);
     pos.needsUpdate = true;
   };
+  R.unsnuff = (tc) => {   // that one torch lights again
+    if (!tc.out) return; tc.out = false;
+    const arr = snuffed.get(tc.mesh); if (!arr) return;
+    const pos = tc.mesh.geometry.attributes.position;
+    for (let q = 0; q < 20; q++) { const j = (tc.i + q) * 3; pos.setXYZ(tc.i + q, arr[j], arr[j + 1], arr[j + 2]); }
+    pos.needsUpdate = true;
+  };
   R.unsnuffAll = () => {
     for (const [mesh, arr] of snuffed) { const pos = mesh.geometry.attributes.position; pos.array.set(arr); pos.needsUpdate = true; }
     snuffed.clear(); for (const tc of R.torches) tc.out = false;
   };
   const myLights = new Set();
   const kryptLights = [], kryptPoints = [];
-  scene.traverse((o) => { if (o.isPointLight || o.isSpotLight) kryptLights.push(o); if (o.isPoints && o.geometry.attributes.alpha) kryptPoints.push(o); });
+  scene.traverse((o) => { if (o.isPointLight || o.isSpotLight || o.isHemisphereLight) kryptLights.push(o); if (o.isPoints && o.geometry.attributes.alpha) kryptPoints.push(o); });
   const base = { bake: KR.bakeUniform ? KR.bakeUniform.value : 1 };
 
+  // The scare's own post pass, before the Krypt's output pass: screen tear (bands of the frame thrown sideways),
+  // an RGB split, and TV static. Off (skipped by the composer) unless a frame asks for it (f.fx).
+  const fxPass = new ShaderPass({
+    uniforms: { tDiffuse: { value: null }, tear: { value: 0 }, split: { value: 0 }, stat: { value: 0 }, seed: { value: 0 }, res: { value: new THREE.Vector2(1, 1) } },
+    vertexShader: "varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }",
+    fragmentShader: `uniform sampler2D tDiffuse; uniform float tear, split, stat, seed; uniform vec2 res; varying vec2 vUv;
+      float h(vec2 p){ return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453); }
+      void main(){
+        vec2 uv = vUv;
+        float band = floor(uv.y * 18.0 + h(vec2(seed, 3.1)) * 18.0);
+        float r = h(vec2(band, seed));
+        float sh = (r > 0.62 ? (r - 0.62) * 2.6 : 0.0) * tear * 0.22 * (h(vec2(band, seed + 7.0)) > 0.5 ? 1.0 : -1.0);
+        sh += tear * 0.012 * (h(vec2(floor(uv.y * res.y / 3.0), seed)) - 0.5);
+        float roll = step(0.985, fract(uv.y * 0.7 + seed * 0.37)) * tear;
+        uv.x = fract(uv.x + sh + roll * 0.05);
+        float s = split * 0.014;
+        vec3 c = vec3(texture2D(tDiffuse, uv + vec2(s, 0.0)).r, texture2D(tDiffuse, uv).g, texture2D(tDiffuse, uv - vec2(s, s * 0.3)).b);
+        vec2 g = floor(vUv * res / 3.0);
+        float n = h(g + vec2(seed * 13.7, seed * 7.3));
+        n = mix(n, h(vec2(g.y, seed)), 0.35);
+        c = mix(c, vec3(n * n * 0.9), clamp(stat, 0.0, 1.0));
+        c *= 1.0 - 0.25 * roll;
+        gl_FragColor = vec4(c, 1.0);
+      }`
+  });
+  fxPass.enabled = false;
+  const comp = kr.composer;
+  if (comp && comp.passes && comp.insertPass) { try { comp.insertPass(fxPass, Math.max(0, comp.passes.length - 1)); } catch (e) { /* no composer */ } }
+  R.fxPass = fxPass;
+
   // Apply the frame's environment just before the Krypt's scene renders (the Krypt has just set its own values).
-  function applyEnv(env) {
+  function applyEnv(env, fx, t) {
+    const on = !R.noFx && !!fx && (fx.tear > 0.003 || fx.split > 0.003 || fx.stat > 0.003);
+    fxPass.enabled = on;
+    if (on) {
+      const u = fxPass.uniforms;
+      u.tear.value = fx.tear || 0; u.split.value = fx.split || 0; u.stat.value = fx.stat || 0; u.seed.value = Math.floor((t || 0) * 30) % 997 + 0.5;
+      const rr = kr.renderer; if (rr) { rr.getDrawingBufferSize(u.res.value); }
+    }
     const rr = kr.renderer;
     if (KR.bakeUniform) KR.bakeUniform.value = base.bake * (env.bake ?? 1);
     if (rr) rr.toneMappingExposure *= env.expo ?? 1;
@@ -366,7 +420,8 @@ export async function createRig(kr, { seed = 1 } = {}) {
 
   // ---- the head camera ------------------------------------------------------------------------------------
   // c: { x, y, z, yaw, pitch, roll, fov } local; plus effects: nausea 0..1 (the 1.7.10 warp), squash 0..1.
-  function setCamera(c, t, fx) {
+  // The pose is set before the scare's update (so a lunge can aim at the lens); the warp after it.
+  function setPose(c) {
     R.L(c.x, c.y, c.z, camera.position);
     _e.set(c.pitch || 0, R.yaw0 + (c.yaw || 0), c.roll || 0, "YXZ");
     camera.quaternion.setFromEuler(_e);
@@ -375,6 +430,9 @@ export async function createRig(kr, { seed = 1 } = {}) {
     camera.near = c.near || cam0.near;
     camera.updateProjectionMatrix();
     camera.updateMatrixWorld(true);
+    view.position.copy(camera.position); view.quaternion.copy(camera.quaternion); view.updateMatrixWorld(true);
+  }
+  function setCamera(c, t, fx) {
     // Nausea: EntityRenderer rotates the view about (0,1,1) by 7 degrees a tick, squeezes x by 1/f3, and rotates back.
     const nz = fx.nausea || 0, sq = fx.squash || 0;
     if (nz > 0.001 || sq > 0.001) {
@@ -414,9 +472,10 @@ export async function createRig(kr, { seed = 1 } = {}) {
     let c = S.cam(tt, f);
     c.roll = (c.roll || 0) + roll;
     if (extra.cam) c = { ...c, ...extra.cam };   // verification: a fixed local camera (?scarecam)
-    S.update(tt, f);
     // Death: from the kill, the Minecraft death roll (40 - 8000 / (deathTime + 200) degrees about the view axis).
-    if (t >= dur) { const dt = (tt - dur) * 20; c.roll += (40 - 8000 / (dt + 200)) * Math.PI / 180 * (S.deathSide ?? 1); }
+    if (t >= dur && !S.noDeathRoll) { const dt = (tt - dur) * 20; c.roll += (40 - 8000 / (dt + 200)) * Math.PI / 180 * (S.deathSide ?? 1); }
+    setPose(c);
+    S.update(tt, f);
     R.gore.update(tt);
     setCamera(c, tt, f.env);
     R.env = f.env;
@@ -432,16 +491,26 @@ export async function createRig(kr, { seed = 1 } = {}) {
       if (prevHook) prevHook.call(this, renderer, sc, cm, rt);
       const t = (performance.now() - t0) / 1000;
       let f;
-      try { f = R.evaluate(S, t); applyEnv(f.env); } catch (e) { console.error("scare frame", e); return; }
+      try { f = R.evaluate(S, t); applyEnv(f.env, f.fx, t); } catch (e) { console.error("scare frame", e); return; }
       if (onFrame) onFrame(f, t);
     };
   };
   // Dump: evaluate one moment and render it now; the caller reads the canvas in the same task.
   R.renderAt = (S, t, extra = {}) => {
     const f = R.evaluate(S, t, extra);
-    const prev = scene.onBeforeRender;
-    scene.onBeforeRender = function () { applyEnv(f.env); };
-    try { kr.composer.render(); } finally { scene.onBeforeRender = prev; }
+    if (extra.pull) { camera.translateZ(extra.pull); camera.translateX(extra.pull * 0.6); camera.lookAt(view.position); camera.near = 0.05; camera.updateProjectionMatrix(); camera.updateMatrixWorld(true); }   // debug: step back to see the lens from outside
+    // applyEnv works on the values the Krypt sets every frame (fog, exposure, lights); here nothing resets them, so
+    // they are put back after the render (several moments are rendered in one page).
+    const prev = scene.onBeforeRender, rr = kr.renderer;
+    const keep = { d: scene.fog ? scene.fog.density : 0, c: scene.fog ? scene.fog.color.clone() : null, bg: scene.background && scene.background.isColor ? scene.background.clone() : null, e: rr ? rr.toneMappingExposure : 1, li: kryptLights.map((l) => l.intensity) };
+    scene.onBeforeRender = function () { applyEnv(f.env, f.fx, t); };
+    try { kr.composer.render(); } finally {
+      scene.onBeforeRender = prev;
+      if (scene.fog) { scene.fog.density = keep.d; scene.fog.color.copy(keep.c); }
+      if (keep.bg) scene.background.copy(keep.bg);
+      if (rr) rr.toneMappingExposure = keep.e;
+      kryptLights.forEach((l, i) => { l.intensity = keep.li[i]; });
+    }
     return f;
   };
 
@@ -464,6 +533,8 @@ export async function createRig(kr, { seed = 1 } = {}) {
 
   R.dispose = () => {
     if (hooked) { scene.onBeforeRender = hooked.prevHook || function () {}; hooked = null; }
+    if (comp && comp.removePass) { try { comp.removePass(fxPass); } catch (e) { /* ignore */ } }
+    try { fxPass.dispose(); } catch (e) { /* ignore */ }
     R.unsnuffAll();
     for (const p of kryptPoints) p.visible = true;
     if (KR.bakeUniform) KR.bakeUniform.value = base.bake;
@@ -476,7 +547,27 @@ export async function createRig(kr, { seed = 1 } = {}) {
     camera.position.copy(cam0.pos); camera.quaternion.copy(cam0.quat); camera.fov = cam0.fov; camera.near = cam0.near;
     camera.updateProjectionMatrix(); camera.updateMatrixWorld(true);
   };
-  R.ready = async () => { await whenMobTexturesLoaded(); await new Promise((r) => setTimeout(r, 0)); await whenMobTexturesLoaded(); };
+  R.ready = async () => {
+    await whenMobTexturesLoaded(); await new Promise((r) => setTimeout(r, 0)); await whenMobTexturesLoaded();
+    // Warm-up: compile every shader and upload every texture the scare will show, now, with all of it briefly
+    // visible: a mob's first appearance must not cost a frame (the lunge is a quarter of a second long).
+    const rr = kr.renderer; if (!rr) return;
+    const vis = [];
+    group.traverse((o) => { vis.push([o, o.visible]); o.visible = true; });
+    try {
+      rr.compile(scene, camera);
+      group.traverse((o) => {
+        if (!o.material) return;
+        for (const mt of Array.isArray(o.material) ? o.material : [o.material]) for (const k of ["map", "emissiveMap", "alphaMap"]) if (mt[k] && mt[k].isTexture && mt[k].image) { try { rr.initTexture(mt[k]); } catch (e) { /* ignore */ } }
+      });
+    } catch (e) { /* warm-up is best effort */ }
+    for (const [o, v] of vis) o.visible = v;
+    // The post pass's program too: one ordinary frame through it at zero strength.
+    if (comp && comp.render) {
+      const prev = scene.onBeforeRender;
+      try { fxPass.enabled = true; comp.render(); } catch (e) { /* ignore */ } finally { fxPass.enabled = false; scene.onBeforeRender = prev; }
+    }
+  };
   await whenMobTexturesLoaded();
   return R;
 }

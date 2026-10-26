@@ -1,11 +1,14 @@
 // Jump scares for the Krypt. Each one plays inside the real Krypt scene, where the visitor stands: the walk freezes,
-// the music drops out, something happens in the corridor around them, and it ends on the 1.7.10 "You died!" screen.
+// the music drops out, the build-up (different every play: lengths, fake-outs, directions) goes silent, the mob's
+// face lunges into the lens with the loudest sound on the page, static, the kill, and the 1.7.10 "You died!" screen.
 // Respawn puts them back exactly where they were.
 //   initScares({ enabled })          from the marked block in app.js
 //   J                                 the picker: every scare, approved or not; a click or its number plays it here
-//   scares/approved.json              { "approved": [ids] }: the random director only ever plays these
+//   scares/approved.json              { "approved": [ids] }: the random director only ever plays these; the gap deaths
+//                                     (LavaFall, DrownedGrab) take 15% of the Krypt's jumps (krypt-gap) once approved
 //   ?scare=<id>                       play one as soon as the Krypt is up (testing)
-//   ?scare=<id>&scareat=<ms>&dump=1   render that moment into #dumpshot for tools/site/dump_frames.py
+//   ?scare=<id>&scareat=<ms|beat>&dump=1   render that moment into #dumpshot for tools/site/dump_frames.py;
+//                                     beat: dread, fake, lunge, kill, death (+/-ms); &scareseed=N picks the dice
 // Code against window.__krypt (see the contract at the top of app.js).
 import { audio } from "../lib/qfaudio.js";
 import { createDirector, CFG } from "./scares/director.js";
@@ -24,10 +27,17 @@ export const SCARES = [
   { id: "Ghast", label: "Ghast", entry: "piston trap", file: "ghast", deep: true },
   { id: "MagmaCube", label: "Magma Cube", entry: "behind you", file: "magmacube" },
   { id: "PigZombie", label: "Zombie Pigman", entry: "your fault", file: "pigman" },
-  { id: "WitherSkeleton", label: "Wither Skeleton", entry: "in the fog", file: "witherskeleton", deep: true }
+  { id: "WitherSkeleton", label: "Wither Skeleton", entry: "in the fog", file: "witherskeleton", deep: true },
+  // Failed jumps: only at the Krypt's gaps (krypt-gap), never from the random director; the picker plays them here.
+  { id: "LavaFall", label: "Lava fall", entry: "failed jump", file: "lavafall", gap: "lava" },
+  { id: "DrownedGrab", label: "Drowned grab", entry: "failed jump", file: "drowned", gap: "water" }
 ];
 const MOBS = SCARES.map((s) => s.id);
-const ALIAS = { cavespider: "CaveSpider", cave_spider: "CaveSpider", magmacube: "MagmaCube", magma_cube: "MagmaCube", lavaslime: "MagmaCube", pigman: "PigZombie", zombiepigman: "PigZombie", zombie_pigman: "PigZombie", pigzombie: "PigZombie", witherskeleton: "WitherSkeleton", wither_skeleton: "WitherSkeleton" };
+const ALIAS = { cavespider: "CaveSpider", cave_spider: "CaveSpider", magmacube: "MagmaCube", magma_cube: "MagmaCube", lavaslime: "MagmaCube", pigman: "PigZombie", zombiepigman: "PigZombie", zombie_pigman: "PigZombie", pigzombie: "PigZombie", witherskeleton: "WitherSkeleton", wither_skeleton: "WitherSkeleton",
+  lava: "LavaFall", lavafall: "LavaFall", lava_fall: "LavaFall", drowned: "DrownedGrab", drownedgrab: "DrownedGrab", drowned_grab: "DrownedGrab", water: "DrownedGrab" };
+const GAP_CHANCE = 0.15;
+// The mood layer (site/graves/mood*) and the scares never overlap: feature-detect its busy flag.
+const moodBusy = () => { const m = window.__mood; if (!m) return false; try { return !!(typeof m.busy === "function" ? m.busy() : (m.busy ?? m.running ?? m.active)); } catch (e) { return false; } };
 const DEEP_SEGMENTS = new Set(["chasm", "stairs", "deep", "fortress", "nether", "vault", "portal", "stronghold"]);
 const SS_KEY = "qf-scares-v2";
 const QS = new URLSearchParams(location.search);
@@ -75,7 +85,12 @@ function soundPlayer(R, S) {
         const [, name, o = {}] = s;
         try {
           if (name === "@muffle") audio.muffle(o.hz || 500, o.s || 2);
-          else audio.play(name, { ...o, pos: pos(o) || undefined });
+          else if (name === "@silence") {
+            // Silence before the lunge: every loop out, the ambience to nothing (hush(false) brings it back).
+            for (const x of live) if (!x.done) { x.done = true; try { x.h.stop(o.s ?? 0.12); } catch (e) { /* ignore */ } }
+            const ctx = audio.context(), n = audio.busNode("ambient");
+            if (ctx && n) { const t0 = ctx.currentTime; n.gain.cancelScheduledValues(t0); n.gain.setValueAtTime(n.gain.value, t0); n.gain.linearRampToValueAtTime(0, t0 + (o.s ?? 0.12)); }
+          } else audio.play(name, { ...o, pos: pos(o) || undefined });
         } catch (e) { /* audio locked */ }
       });
       (S.loops || []).forEach((l, i) => {
@@ -97,10 +112,23 @@ function kryptHud(hide) {
     if (hide) { el.dataset.qfsVis = el.style.visibility; el.style.visibility = "hidden"; } else { el.style.visibility = el.dataset.qfsVis || ""; delete el.dataset.qfsVis; }
   }
 }
-export async function playScare(id, { score = 0, onDone } = {}) {
+// The Krypt's gap nearest ahead of the camera of this kind (for the picker: a failed jump where you stand uses a
+// real gap only if one is right there; otherwise the scare digs its own).
+function gapNear(kr, kind) {
+  const gs = Array.isArray(kr.gaps) ? kr.gaps : [];
+  const cam = kr.camera.position;
+  let best = null, bd = 4.5;
+  for (const g of gs) { if (!g || !g.pos || (kind && g.kind !== kind)) continue; const d = Math.hypot(g.pos.x - cam.x, g.pos.z - cam.z); if (d < bd) { bd = d; best = g; } }
+  return best;
+}
+const soundNames = (S) => [...new Set([...(S.sounds || []).map((s) => s[1]), ...(S.loops || []).map((l) => l[2])].filter((n) => n && n[0] !== "@"))];
+
+export async function playScare(id, { score = 0, onDone, gap = null } = {}) {
   id = canon(id);
   const kr = kryptOf();
   if (!id || !kr || running) return false;
+  const entry = SCARES.find((s) => s.id === id);
+  if (entry.gap && !gap) gap = gapNear(kr, entry.gap);
   const stage = document.getElementById("stage");
   running = { id };
   try { kr.takeover(true); } catch (e) { /* ignore */ }
@@ -136,10 +164,13 @@ export async function playScare(id, { score = 0, onDone } = {}) {
   try {
     const def = await loadDef(id);
     hud = await HUD.createHud(stage);
-    R = await RIG.createRig(kr, { seed: hashStr(id) & 0xffff });
+    // A new roll of the dice every play: the build-up's lengths, fake-outs and directions change each time.
+    R = await RIG.createRig(kr, { seed: hashStr(id) & 0xffff, rand: (Math.random() * 4294967296) >>> 0, gap, frame: gap && gap.dir ? { dir: gap.dir } : null });
     const S = await def.build(R);
     await R.ready();
     S.death = S.death || def.death;
+    // Every sound decoded before the freeze: a screech that starts late is no screech.
+    try { await Promise.race([audio.preload(soundNames(S)), new Promise((r) => setTimeout(r, 2500))]); } catch (e) { /* play what we have */ }
     snd = soundPlayer(R, S);
     // A layer over the stage that takes the pointer while the scare plays (the Respawn button lives on it).
     block = document.createElement("div");
@@ -174,8 +205,9 @@ export async function playScare(id, { score = 0, onDone } = {}) {
 }
 
 // ---- verification: one moment of a scare into the dump ------------------------------------------------------------
-async function dumpMode(id, ms) {
-  const wait = async (fn, max = 16000) => { const t0 = performance.now(); while (!fn() && performance.now() - t0 < max) await new Promise((r) => setTimeout(r, 120)); return fn(); };
+async function dumpMode(id) {
+  let ms = 0;
+  const wait = async (fn, max = 120000) => { const t0 = performance.now(); while (!fn() && performance.now() - t0 < max) await new Promise((r) => setTimeout(r, 120)); return fn(); };
   await wait(() => kryptOf());
   await wait(() => document.getElementById("dumpshot"));   // the Krypt's own verification frame: its blocks are built
   const kr = kryptOf();
@@ -192,33 +224,52 @@ async function dumpMode(id, ms) {
       kr.camera.position.fromArray(b.pos); kr.camera.lookAt(b.look[0], b.look[1], b.look[2]); kr.camera.updateMatrixWorld(true);
     }
   } catch (e) { errors.push("camera reset: " + e); }
-  let info = { scare: id, at: ms };
+  let info = { scare: id };
   let png = "";
   try {
     const def = await loadDef(id);
     const stage = document.getElementById("stage");
     const hud = await HUD.createHud(stage);
     try { kr.takeover(true); } catch (e) { /* ignore */ }
-    const R = await RIG.createRig(kr, { seed: hashStr(id) & 0xffff });
+    const entry = SCARES.find((s) => s.id === id), gap = entry.gap ? gapNear(kr, entry.gap) : null;
+    // ?scareseed=N picks the play's dice (the same N gives the same build-up); the default is fixed per scare.
+    const rand = QS.get("scareseed") != null ? Number(QS.get("scareseed")) >>> 0 : (hashStr(id) & 0xffff) * 7919 + 13;
+    const R = await RIG.createRig(kr, { seed: hashStr(id) & 0xffff, rand, gap, frame: gap && gap.dir ? { dir: gap.dir } : null });
     const S = await def.build(R);
     await R.ready();
-    const t = ms / 1000;
+    R.noFx = QS.has("nofx");   // checking a pose without the tear and static
+    // ?scareat=<ms> or a beat by name (dread, fake, lunge, kill, death; +ms/-ms after it): the scare's own marks.
+    // A comma list renders each in turn (in time order) into `pngs` as well; `png` is the first.
+    const M = { ...(S.marks || {}), death: S.dur + 1.25 };
+    // (a "+" in a query string arrives as a space)
+    const toMs = (a) => { const mm = a.replace(/ (\d)/, "+$1").match(/^([a-z]+)([+-]\d+)?$/i); return mm ? ((M[mm[1]] ?? 0) * 1000) + Number(mm[2] || 0) : Number(a) || 0; };
+    const ats = String(QS.get("scareat") ?? "0").split(",").map((a) => a.trim()).filter(Boolean);
+    const pngs = [];
     const sc = QS.get("scarecam") ? QS.get("scarecam").split(",").map(Number) : null;   // x,y,z,yaw,pitch[,roll] local
-    const f = R.renderAt(S, t, sc ? { cam: { x: sc[0], y: sc[1], z: sc[2], yaw: sc[3], pitch: sc[4], roll: sc[5] || 0 } } : {});
-    if (sc) { f.white = 0; f.black = 0; f.vig = null; f.tints = []; }
-    const gl = kr.renderer.domElement;
-    const out = document.createElement("canvas"); out.width = gl.width; out.height = gl.height;
-    const x = out.getContext("2d"); x.drawImage(gl, 0, 0);
-    f.score = 37; f.deadFor = t - S.dur - 0.5; if (t >= S.dur) f.chat = S.death || def.death;
-    hud.size(); hud.draw(f, t);
-    x.imageSmoothingEnabled = false; x.drawImage(hud.canvas, 0, 0, hud.canvas.width * hud.scale * (out.width / Math.max(1, stage.clientWidth)), hud.canvas.height * hud.scale * (out.height / Math.max(1, stage.clientHeight)));
-    png = out.toDataURL("image/png");
+    let f = null, t = 0;
+    for (const a of ats) {
+      ms = toMs(a); t = ms / 1000;
+      f = R.renderAt(S, t, { ...(sc ? { cam: { x: sc[0], y: sc[1], z: sc[2], yaw: sc[3], pitch: sc[4], roll: sc[5] || 0 } } : {}), pull: Number(QS.get("scarepull")) || 0 });
+      if (sc) { f.white = 0; f.black = 0; f.vig = null; f.tints = []; }
+      if (R.noFx) f.cut = 0;
+      const gl = kr.renderer.domElement;
+      const out = document.createElement("canvas"); out.width = gl.width; out.height = gl.height;
+      const x = out.getContext("2d"); x.drawImage(gl, 0, 0);
+      f.score = 37; f.deadFor = t - S.dur - 0.5; if (t >= S.dur) f.chat = S.death || def.death;
+      hud.size(); hud.draw(f, t);
+      x.imageSmoothingEnabled = false; x.drawImage(hud.canvas, 0, 0, hud.canvas.width * hud.scale * (out.width / Math.max(1, stage.clientWidth)), hud.canvas.height * hud.scale * (out.height / Math.max(1, stage.clientHeight)));
+      const p = out.toDataURL("image/png");
+      if (!png) png = p;
+      if (ats.length > 1) pngs.push({ at: a, t: +t.toFixed(3), png: p, fx: f.fx || null, cut: f.cut || 0 });
+    }
+    if (pngs.length) info.pngs = pngs;
     await audio.ready();
     const names = new Set([...(S.sounds || []).map((s) => s[1]), ...(S.loops || []).map((l) => l[2])].filter((n) => n[0] !== "@"));
     info = { ...info, segment: R.seg, depth: +(R.depth || 0).toFixed(3), dur: S.dur, hits: (S.hits || []).map((h) => h.t), hp: f.hp,
       floorY: R.O.y, ceil: R.ceil, wallL: +R.wallL.toFixed(2), wallR: +R.wallR.toFixed(2), ahead: +R.ahead.toFixed(1), behind: +R.behind.toFixed(1),
       openings: R.openings.map((o) => [o.side, o.z0, o.z1, +o.depth.toFixed(1)]), torches: R.torches.length, notes: S.notes || null, debug: R.debug,
-      sfx: (S.sounds || []).filter((s) => s[0] <= t).map((s) => [s[0], s[1]]), missingSounds: [...names].filter((n) => !audio.has(n)) };
+      at: +t.toFixed(3), marks: S.marks || null, fx: f.fx || null, cut: f.cut || 0, gap: gap ? { kind: gap.kind, width: gap.width } : null,
+      sfx: (S.sounds || []).filter((s) => s[0] <= t && s[0] > t - 1.5).map((s) => [+s[0].toFixed(2), s[1]]), missingSounds: [...names].filter((n) => !audio.has(n)) };
   } catch (e) { errors.push(String(e && e.stack || e)); console.error("scare dump", e); }
   const old = document.getElementById("dumpshot");
   let base = {};
@@ -288,9 +339,20 @@ export function initScares(opts = {}) {
   fetch(new URL("./scares/approved.json", import.meta.url), { cache: "no-store" }).then((r) => (r.ok ? r.json() : {})).then((j) => {
     approved = (Array.isArray(j.approved) ? j.approved : []).map(canon).filter(Boolean);
   }).catch(() => { approved = []; });
-  if (forced && DUMP) { dumpMode(forced, Number(QS.get("scareat") ?? 0) || 0).catch((e) => console.error("scare dump", e)); return; }
+  if (forced && DUMP) { dumpMode(forced).catch((e) => console.error("scare dump", e)); return; }
   addEventListener("keydown", pickerKey, true);
-  window.__scares = { play: (m) => playScare(m), list: SCARES, get approved() { return approved.slice(); } };
+  window.__scares = { play: (m) => playScare(m), list: SCARES, get approved() { return approved.slice(); }, get busy() { return !!running; } };
+  // Failed jumps: before each jump the Krypt asks (krypt-gap, { gap, takeover }); an approved gap death of that kind
+  // takes 15% of them. Feature-detected: without the event nothing happens.
+  addEventListener("krypt-gap", (e) => {
+    const d = (e && e.detail) || {}, g = d.gap;
+    if (!g || running || picker || document.hidden || !enabled() || moodBusy()) return;
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const ids = SCARES.filter((s) => s.gap && s.gap === g.kind && approved.includes(s.id)).map((s) => s.id);
+    if (!ids.length || Math.random() >= GAP_CHANCE) return;
+    try { if (typeof d.takeover === "function") d.takeover(); } catch (err) { return; }
+    playScare(ids[Math.floor(Math.random() * ids.length)], { gap: g });
+  });
   if (forced) {
     const go = () => setTimeout(() => playScare(forced), 1200);
     if (kryptOf()) go(); else addEventListener("krypt-ready", go, { once: true });
@@ -302,7 +364,7 @@ export function initScares(opts = {}) {
   let acc = 0, lastSec = 0, lastS = null, last = performance.now(), pending = null, waited = 0;
   setInterval(() => {
     const now = performance.now(), dt = Math.min(0.5, (now - last) / 1000); last = now;
-    if (running || picker || document.hidden || !enabled() || !approved.length) return;
+    if (running || picker || document.hidden || !enabled() || !approved.length || moodBusy()) return;
     const kr = kryptOf(); if (!kr || !kr.getWalk) return;
     const w = kr.getWalk();
     const moving = lastS != null && Math.abs(w.s - lastS) > 0.00003; lastS = w.s;
@@ -313,7 +375,7 @@ export function initScares(opts = {}) {
       if (sec > lastSec) {
         lastSec = sec;
         if (director.second(sec, w.depth ?? w.s)) {
-          const pool = approved.filter((id) => !SCARES.find((s) => s.id === id).deep || deep);
+          const pool = approved.filter((id) => { const s = SCARES.find((q) => q.id === id); return s && !s.gap && (!s.deep || deep); });
           const id = director.pick(pool);
           if (id) { pending = id; waited = 0; loadDef(id).catch(() => { pending = null; }); }
         }
