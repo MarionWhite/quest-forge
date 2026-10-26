@@ -9,4 +9,4 @@ Done means: director (eligible ~25 s active walking, first by ~60 s, guaranteed 
 - First sheet: scratchpad/scares/f1/sheet.png (mobs were invisible: textures not loaded at render; fixed by awaiting whenMobTexturesLoaded after makeMob). Second run: scratchpad/scares/f2 (shots.txt there).
 
 ## Next
-- review f2 sheet, fix once; check sfx names vs site/lib/sfx/manifest.json (mob.villager.idle for the witch cackle is NOT in the bank, pick another); node --check .mjs copies; test live run (?scare=Zombie without dump); journal line; commit.
+- DONE. Final sheets: scratchpad/scares/f5 (7 mobs), f4 (3), f7/f6 (fixes), f2 (first 5 mobs). Verify via graves/scares/test.html?scare=X&at=ms (app.js was mid-edit by KRYPT-WORLD: krypt.js export alcoveFor missing broke graves/ itself). app.js marker block is uncommitted (shared file with KRYPT-WORLD).

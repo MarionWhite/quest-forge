@@ -44,7 +44,7 @@ export async function slime(c) {
 export async function silverfish(c) {
   const S = c.stage;
   const tb = 1.55, hole = [1.4, 1.0, -3.2];
-  const cam = (t) => ({ x: 0, y: 1.62 + bob(t) * (1 - sstep(0.5, 0.8, t)), z: -1.8 * Math.min(1, t / 0.9) * 0.5, yaw: -0.85 * sstep(0.9, 1.4, t) + 0.0, pitch: -0.1 * sstep(1.4, 2.0, t) + 0.35 * sstep(2.2, 3.4, t), roll: 0.1 * Math.sin(t * 3) * sstep(2.3, 3.4, t), fov: 72 });
+  const cam = (t) => ({ x: 0, y: 1.62 + bob(t) * (1 - sstep(0.5, 0.8, t)), z: -1.8 * Math.min(1, t / 0.9) * 0.5, yaw: -0.85 * sstep(0.9, 1.4, t) + 0.0, pitch: -0.2 * sstep(1.4, 2.0, t), roll: 0.1 * Math.sin(t * 3) * sstep(2.3, 3.4, t), fov: 72 });
   // infested blocks in the right wall
   const R = rngOf(31), blocks = [];
   for (let i = 0; i < 6; i++) {
@@ -136,7 +136,7 @@ export async function ghast(c) {
     sounds: [[0.1, "qf.scare.riser"], [0.45, "mob.ghast.moan", { pos: { x: 0, y: 3, z: -16 } }], [1.1, "mob.ghast.scream"], [1.9, "mob.ghast.charge"], [tl, "mob.ghast.fireball"], [3.3, "qf.scare.hit"], [th, "random.explode"], [3.7, "fire.fire"], [4.1, "mob.ghast.scream"], [5.4, "game.player.die"]],
     update(t, f) {
       gh.root.visible = t > 0.4;
-      const p = ghAt(t); gh.root.position.set(p[0] + Math.sin(t * 1.1) * 0.3, p[1] - 3.2, p[2]); gh.root.rotation.y = Math.PI;
+      const p = ghAt(t); gh.root.position.set(p[0] + Math.sin(t * 1.1) * 0.3, p[1] - 2.5, p[2]); gh.root.rotation.y = Math.PI;
       gh.anim(t, 0, {});
       L.position.set(0, 3.5, p[2] + 2.5);
       fb.visible = t >= tl && t < th;

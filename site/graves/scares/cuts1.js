@@ -66,15 +66,20 @@ export async function zombie(c) {
   const pivot = new THREE.Group(); pivot.rotation.order = "YXZ"; pivot.add(z.root); S.scene.add(pivot); pivot.visible = false;
   const hits = [2.35, 3.0, 3.55, 4.1, 4.65, 5.2];
   const z0 = (t) => -1.25 * Math.min(t, 2.3);
+  const feet = [-0.95, 0, -3.55], fdir = [0.97, -0.24];
+  const leanAt = (t) => t < 2.3 ? 0 : (0.55 + 0.4 * pulse(t, hits.slice(1), 0.2)) * sstep(2.3, 2.9, t);
   const cam = (t) => {
     const k2 = sstep(2.5, 3.3, t), z0t = z0(t);
-    return {
+    const c = {
       x: lerp(0, -0.35, k2), y: lerp(1.62 + bob(t) * (1 - k2), 0.38, k2), z: z0t + lerp(0, -0.4, k2),
-      yaw: 0.4 * sstep(1.7, 2.3, t) + 0.78 * sstep(2.35, 3.3, t), pitch: lerp(0, 1.0, k2) - 0.05 * sstep(2.3, 2.45, t),
+      yaw: 0.4 * sstep(1.7, 2.3, t) + 0.78 * sstep(2.35, 3.3, t), pitch: lerp(0, 0.85, k2) - 0.05 * sstep(2.3, 2.45, t),
       roll: 0.3 * k2, fov: lerp(72, 66, k2)
     };
+    const w = sstep(2.6, 3.3, t), ln = leanAt(t), hx = feet[0] + fdir[0] * 1.7 * Math.sin(ln), hz = feet[2] + fdir[1] * 1.7 * Math.sin(ln), hy = 1.7 * Math.cos(ln);
+    const ty = Math.atan2(-(hx - c.x), -(hz - c.z)), tpch = Math.atan2(hy - c.y, Math.hypot(hx - c.x, hz - c.z));
+    c.yaw = lerp(c.yaw, ty, w); c.pitch = lerp(c.pitch, tpch, w);
+    return c;
   };
-  const feet = [-0.95, 0, -3.55];
   c.hitBurst(hits.slice(1), cam, "blood", 26, { dir: [0, 1.2, 0.2], speed: 2.6, spread: 0.9 });
   c.hitBurst([2.35], cam, "blood", 14, { dir: [0, 0.6, 0], speed: 2 });
   const L = new THREE.PointLight(0xff3010, 0, 4); S.scene.add(L);
@@ -92,7 +97,7 @@ export async function zombie(c) {
       const cp = cam(Math.min(t, 2.34));
       faceTo(pivot, px, pz, t < 2.35 ? cp.x : -0.35, t < 2.35 ? cp.z : -3.7);
       const bite = pulse(t, hits.slice(1), 0.2);
-      pivot.rotation.x = t < 2.3 ? 0 : -(0.4 + 0.45 * bite) * sstep(2.3, 2.9, t);
+      pivot.rotation.x = t < 2.3 ? 0 : -(0.55 + 0.4 * bite) * sstep(2.3, 2.9, t);
       if (t < 2.35) limbs(z, t, 0.7, 1.45, 12); else {
         limbs(z, 0, 0, 1.9 + Math.sin(t * 26) * 0.12, 1);
         pt(z, "head").rotation.x = -0.35 - bite * 0.5;
@@ -106,13 +111,13 @@ export async function zombie(c) {
 // ------------------------------------------------------------------------------------------------ Skeleton
 export async function skeleton(c) {
   const S = c.stage, sk = await getMob("Skeleton");
-  sk.root.position.set(0, 0, -9.5); sk.root.rotation.y = 0 + Math.PI; sk.root.visible = false; S.scene.add(sk.root);
+  sk.root.position.set(0, 0, -7); sk.root.rotation.y = 0 + Math.PI; sk.root.visible = false; S.scene.add(sk.root);
   const bow = new THREE.Group();
   const wood = 0x6a4a28; const b1 = box(0.05, 0.5, 0.05, wood, false), b2 = box(0.05, 0.3, 0.05, wood, false), b3 = box(0.05, 0.3, 0.05, wood, false);
   b1.position.set(0, 0, 0); b2.position.set(0, 0.35, -0.1); b2.rotation.x = -0.5; b3.position.set(0, -0.35, -0.1); b3.rotation.x = 0.5;
   const str = box(0.01, 1.1, 0.01, 0xdddddd); str.position.z = 0.05;
   bow.add(b1, b2, b3, str); bow.position.set(0, -0.6, -0.5); pt(sk, "lArm").add(bow);
-  const light = new THREE.PointLight(0xa0b8ff, 4, 6); light.position.set(0, 2.4, -8.4); S.scene.add(light);
+  const light = new THREE.PointLight(0xa0b8ff, 4, 6); light.position.set(0, 2.4, -6); S.scene.add(light);
   const hits = [2.35, 3.95];
   const cam = (t) => ({ x: 0, y: 1.62 + bob(t) * 0.6, z: -0.45 * Math.min(t, 4), yaw: 0, pitch: 0.02 * sstep(2.5, 3.9, t), roll: 0, fov: 72 - 14 * sstep(2.6, 3.95, t) });
   const arrows = [];
@@ -122,7 +127,7 @@ export async function skeleton(c) {
     const fl = box(0.1, 0.01, 0.12, 0xffffff, false); fl.position.z = -0.33; const fl2 = box(0.01, 0.1, 0.12, 0xdddddd, false); fl2.position.z = -0.33;
     g.add(shaft, tip, fl, fl2); S.scene.add(g); g.visible = false; return g;
   };
-  const bowPos = [0, 1.45, -9.1];
+  const bowPos = [0, 1.45, -6.6];
   const shots = [
     { t0: 0.95, t1: 1.4, to: [1.45, 1.9, -3.3], m: mkArrow() },
     { t0: 1.3, t1: 1.8, to: [-1.45, 1.1, -2.4], m: mkArrow() },
@@ -139,7 +144,7 @@ export async function skeleton(c) {
   return {
     id: "Skeleton", dur: 4.8, death: "You were shot by Skeleton", hits, cam,
     shake: (t) => 0.01 + 0.03 * pulse(t, [1.4, 1.8, 2.15], 0.12),
-    sounds: [[0.1, "qf.scare.riser"], [0.8, "mob.skeleton.say", { pos: { x: 0, y: 1.5, z: -9 } }], [0.95, "random.bow"], [1.4, "random.bowhit"], [1.3, "random.bow"], [1.8, "random.bowhit"],
+    sounds: [[0.1, "qf.scare.riser"], [0.8, "mob.skeleton.say", { pos: { x: 0, y: 1.5, z: -7 } }], [0.95, "random.bow"], [1.4, "random.bowhit"], [1.3, "random.bow"], [1.8, "random.bowhit"],
       [1.65, "random.bow"], [2.15, "random.bowhit"], [1.9, "random.bow"], [3.0, "qf.scare.hit"], [3.05, "random.bow"], [3.1, "qf.krypt.heartbeat"], [3.95, "random.bowhit"], [4.8, "game.player.die"]],
     update(t, f) {
       sk.root.visible = t > 0.7;
@@ -208,7 +213,7 @@ export async function creeper(c) {
 // ------------------------------------------------------------------------------------------------ Spider
 export async function spider(c) {
   const S = c.stage, sp = await getMob("Spider");
-  sp.root.visible = false; sp.root.scale.setScalar(1.3); S.scene.add(sp.root);
+  sp.root.visible = false; sp.root.scale.setScalar(1.0); S.scene.add(sp.root);
   const thread = box(0.012, 1, 0.012, 0xdddddd); S.scene.add(thread);
   const hits = [2.35, 2.95, 3.55, 4.15];
   const camz = -0.7;
@@ -229,13 +234,13 @@ export async function spider(c) {
       const bite = pulse(t, hits, 0.2);
       let y, z;
       if (hang) { y = hangY; z = -2.2; }
-      else { y = lerp(2.5, 1.05, dropK); z = lerp(-2.2, cz - 0.55, dropK) - 0.12 * bite; }
+      else { y = lerp(2.5, 1.05, dropK); z = lerp(-2.2, cz - 1.0, dropK) - 0.12 * bite; }
       sp.root.position.set(x, y, z);
       sp.root.rotation.set(hang ? 0.2 : 0.05 + 0.15 * bite, Math.PI, 0);
       thread.visible = hang && t > 0.95; thread.scale.y = Math.max(0.01, 3.2 - y); thread.position.set(0, (3.2 + y) / 2 + 0.2, z);
       for (let i = 1; i <= 8; i++) { const lg = sp.parts["leg" + i]; if (lg) { const sc = t < 1.7 ? 0.1 : 0.3; lg.rotation.z = (lg.userData.rest ? lg.userData.rest.z : 0) + Math.sin(t * 26 + i * 1.7) * sc; } }
       pt(sp, "head").rotation.x = -0.4 * bite;
-      L.position.set(0, y, z + 0.4); L.intensity = t > 1.7 ? 3 + 2 * bite : 0;
+      L.position.set(0, y + 0.2, z + 1.2); L.intensity = t > 1.7 ? 2 + 2 * bite : 0;
       f.vig = [70, 0, 0, 0.3 * sstep(1.8, 3, t)];
     }
   };
@@ -276,12 +281,12 @@ export async function enderman(c) {
   S.scene.add(en.root); en.root.visible = false;
   const cam = (t) => ({
     x: 0, y: 1.62 + bob(t) * (1 - sstep(1.2, 1.6, t)), z: -0.5 * Math.min(t, 1.6), yaw: 0.0,
-    pitch: 0.2 * sstep(0.6, 1.4, t) + 0.45 * sstep(tp, tp + 0.5, t), roll: 0, fov: 72 - 12 * sstep(0.6, 2.1, t) + 8 * sstep(tp, tp + 0.3, t)
+    pitch: 0.2 * sstep(0.6, 1.4, t) + 0.3 * sstep(tp, tp + 0.5, t), roll: 0, fov: 72 - 12 * sstep(0.6, 2.1, t) + 8 * sstep(tp, tp + 0.3, t)
   });
   const L = new THREE.PointLight(0xb040ff, 4, 9); S.scene.add(L);
   for (let k = 0; k < 14; k++) c.hitBurst([0.5 + k * 0.12], () => ({ x: (k % 3 - 1) * 0.3, y: 0.3 + (k % 5) * 0.5, z: -14 }), "purple", 8, { dir: [0, 0.4, 0], speed: 0.6, spread: 1, size: 0.07, life: 1.6, grav: -0.5 });
   c.hitBurst([tp], () => ({ x: 0, y: 1.2, z: -14 }), "purple", 40, { speed: 1.4, spread: 1.2, life: 1.3, grav: -1 });
-  c.hitBurst([tp], () => ({ x: 0, y: 1.2, z: -1.6 }), "purple", 60, { speed: 2.4, spread: 1.4, life: 1.3, grav: -0.5 });
+  c.hitBurst([tp], () => ({ x: 0, y: 1.2, z: -2.4 }), "purple", 60, { speed: 2.4, spread: 1.4, life: 1.3, grav: -0.5 });
   const hits = [3.0, 3.6, 4.2, 4.8];
   c.hitBurst(hits, cam, "blood", 22, { dir: [0, 0.6, 0.3], speed: 2.4, spread: 1 });
   return {
@@ -293,12 +298,12 @@ export async function enderman(c) {
       const near = t >= tp;
       const k = sstep(tp, tp + 0.9, t);
       const jx = Math.sin(t * 90) * 0.015 * sstep(0.8, 2.2, t), jz = near ? 0.012 * Math.sin(t * 70) : 0;
-      en.root.position.set(jx, 0, near ? lerp(-2.3, -1.15, k) : -14 + jz);
+      en.root.position.set(jx, 0, near ? lerp(-3.0, -1.95, k) : -14 + jz);
       en.root.rotation.set(near ? -0.25 * k : 0, Math.PI, 0, "YXZ");
       limbs(en, t, near ? 0 : 0.0, near ? 2.1 + Math.sin(t * 40) * 0.2 : 0.1, 1);
       pt(en, "head").rotation.x = near ? -0.55 * k : 0;
       pt(en, "headwear").rotation.x = near ? 0.75 * sstep(tp, tp + 0.4, t) + 0.12 * Math.sin(t * 30) : 0;
-      L.position.set(0, 2.2, near ? -1.5 : -13); L.intensity = near ? 8 : 3;
+      L.position.set(0, 2.2, near ? -1.5 : -13); L.intensity = near ? 2 : 3;
       f.glitch = near ? 0.12 + 0.3 * pulse(t, hits, 0.25) : sstep(1.3, tp, t) * 0.6;
       f.tints.push([160, 60, 255, 0.5 * pulse(t, [tp], 0.12)]);
       f.vig = [60, 0, 100, 0.3 * sstep(1.0, 3.0, t)];

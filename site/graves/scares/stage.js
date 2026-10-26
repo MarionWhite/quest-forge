@@ -143,7 +143,7 @@ export async function createStage(host, { phone = false } = {}) {
   camera.rotation.order = "YXZ";
   scene.add(camera);
   scene.add(new THREE.AmbientLight(0x5a3a48, 1.1));
-  const lantern = new THREE.PointLight(0xffc090, 5, 8, 1.4); camera.add(lantern);
+  const lantern = new THREE.PointLight(0xffc090, 5, 8, 1.4); lantern.position.set(0, 0.2, 1.1); camera.add(lantern);
 
   const [brick, mossy, gravel, cobble, torchT] = await Promise.all(["stonebrick", "stonebrick_mossy", "gravel", "cobblestone", "torch_on"].map((n) => loadTex(n)));
   const rep = (t, x, y) => { if (!t) return null; const c = t.clone(); c.needsUpdate = true; c.repeat.set(x, y); return c; };

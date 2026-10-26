@@ -166,7 +166,7 @@ async function dumpMode(id, atMs) {
   const info = { scare: id, at: atMs, dur: p.cut.dur, hits: p.hits, sfx: log, hp: f.hp };
   const put = (tries) => {
     const old = document.getElementById("dumpshot");
-    if (!old && tries < 60) { setTimeout(() => put(tries + 1), 250); return; }
+    if (!old && tries < 24) { setTimeout(() => put(tries + 1), 250); return; }
     let base = {};
     if (old) { try { base = JSON.parse(old.textContent); } catch (e) { base = {}; } old.remove(); }
     const sc = document.createElement("script"); sc.type = "application/json"; sc.id = "dumpshot";
