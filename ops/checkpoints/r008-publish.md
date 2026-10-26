@@ -33,6 +33,18 @@ If `shaders/QuestForge` changes before publishing, the cost frames no longer sho
   on golden_lit are extra: free bisect data for the golden_lit olive regression (critic fix 1).
 - Lab footer (site/shaders/index.html) now credits Faithful 32x/64x (License v4) and Vanilla Normals Renewed.
 
+## Publisher run 2026-10-26 (after 09:03)
+- Step 1 done: 1026-015851 finished 09:02:58, all 39 jobs done, no failures.
+- Step 2 done: critic notes for every p8* todo frame were already in critic.json (09:14, incl. `_r008_publish_summary`,
+  6.3, "not yet: motes in the beams"); dry run exits 0. round.json "renders" now 1026-015851 (it still named 004242).
+- Step 3: critic recorded terrain in every frame; clips p8clip*.webp 1.1-2.8 MB; intro WORST 4.6 ms, Low 0.32, Potato 0.30,
+  no "?"; dust/metal texts edited by the critic (spec_scenes.py.pre-critic). OVER BUDGET: 10 p8 frames 3.5-4.6 ms > 3.0.
+  Sheets 1/4/5/6 re-checked by eye: ground in night_sky, night_new, lake, river, biome_ocean, clips.
+- Step 4 done: `finish_round.py ... --publish --no-push` committed **006fe9b** (r008.json, index.json, r007 closed).
+  BOARD shaders row + journal updated. Footer was already in 1c916d5.
+- **Left for after the push (orchestrator):** rounds/r008.json returns 200, then the Edge screenshot into r008\look\.
+  `git log origin/main..main` holds 12 commits, incl. other sessions' balance commits 94a5e12, f4bbd0d.
+
 ## Next: the publisher (after 1026-004242-r008-publish-cost is done)
 1. `py -3.10 -I tools/renderq/renderq.py results 1026-004242-r008-publish-cost` : every job done? A failed job = a missing frame/cost.
 2. `cd C:\dev\quest-forge` then dry run: `py -3.10 -I -X utf8 tools/shaders/review/finish_round.py C:/qfb/shaderdev/r008`
