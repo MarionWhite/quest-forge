@@ -438,7 +438,7 @@ def fern(size=32, seed=42):
 
 
 WHEAT_GREEN = hexes("26400f", "3a5c16", "4f7a1e", "679a28", "82b334")
-WHEAT_GOLD = hexes("6b4a14", "9c721f", "c99a30", "e2b94a", "f3d675")
+WHEAT_GOLD = hexes("6a5222", "947632", "b99a48", "d4b868", "e9d590")   # straw, not orange (r008 render)
 WHEAT_TURN = hexes("4f5214", "70721e", "939329", "b2ad3a", "cdc65a")
 
 
