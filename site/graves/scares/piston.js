@@ -19,7 +19,8 @@ function pistonMats(T, amb, KRbake) {
 // web: the bottom two blocks under the hole are cobweb (the fall stops in it, no fall damage, then a slow sink).
 // ri, rk: the room's reach beyond the patch, across and along (it shrinks to fit the rock; if nothing fits, it is
 // carved at this size anyway).
-export async function pistonTrap(R, { click = 1.2, open = 1.95, D = 7, web = false, ri: RI = 3, rk: RK = 2 } = {}) {
+// room: false carves only the floor (the patch and the pistons' slots); the scare supplies what is under it.
+export async function pistonTrap(R, { click = 1.2, open = 1.95, D = 7, web = false, ri: RI = 3, rk: RK = 2, room: carveRoom = true } = {}) {
   const [side, bottom, inner, sticky] = await Promise.all(["piston_side", "piston_bottom", "piston_inner", "piston_top_sticky"].map((n) => tex(n)));
   const T = { side, bottom, inner, sticky };
   const r = R.r, f = R.f;
@@ -40,7 +41,7 @@ export async function pistonTrap(R, { click = 1.2, open = 1.95, D = 7, web = fal
     if (ok) { room = { D: dd, ri, rk }; break; }
   }
   const fits = !!room;
-  if (!room) room = { D: D - 1, ri: RI, rk: RK };
+  if (!room) room = { D: carveRoom ? D - 1 : D, ri: RI, rk: RK };
   const Dp = room.D;
   // The real floor's look where our pieces go, read before anything is carved.
   const KRbake = R.patchBake;
@@ -79,7 +80,7 @@ export async function pistonTrap(R, { click = 1.2, open = 1.95, D = 7, web = fal
 
   const carve = () => {
     const box = (p, q2) => R.carveW([Math.min(p[0], q2[0]), Math.min(p[1], q2[1]), Math.min(p[2], q2[2])], [Math.max(p[0], q2[0]), Math.max(p[1], q2[1]), Math.max(p[2], q2[2])]);
-    box(blk(a - room.ri, -Dp, b - room.rk), blk(a + 1 + room.ri, -2, b + 1 + room.rk));   // the room
+    if (carveRoom) box(blk(a - room.ri, -Dp, b - room.rk), blk(a + 1 + room.ri, -2, b + 1 + room.rk));   // the room
     box(blk(a - 2, -1, b), blk(a + 3, -1, b + 1));   // the patch and the pistons' slots
   };
   const tFall = open + 0.06, stopEye = web ? -Dp + 2 + R.eye - 0.3 : -Dp + R.eye;
