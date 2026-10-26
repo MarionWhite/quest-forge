@@ -19,7 +19,10 @@ const float SUN_REAL_R = 0.0047 * QF_SUN_SIZE;
 float sunPeak() {
     float y = sunDirWorld().y;
     // pa: 1.6-5 drew a low sun the colour and brightness of the gold sky round it: invisible.
-    return mix(6.0, 9.0, smoothstep(0.0, 0.25, y));
+    // r008 (owner r007: the soft dots have no form, "the light doesn't seem to have much of a
+    // source"): 6-9 still sat barely above the glare at sunset. The centre now burns white-hot
+    // and the limb keeps the gold, so the disk is the brightest thing on screen with a crisp edge.
+    return mix(16.0, 22.0, smoothstep(0.0, 0.25, y));
 }
 
 // Disk radiance (scene units) seen through transmittance T, at dir.
@@ -38,5 +41,8 @@ vec3 sunDiskReal(vec3 dir, vec3 sunDir, vec3 T) {
     // yellow-white a few degrees up, orange to red only right at the horizon.
     vec3 Tn = T / max(max(T.r, max(T.g, T.b)), 1e-5);
     vec3 col = pow(Tn, vec3(0.6)) * limb;
+    // r008: a hot core that tone-maps to near white, so the hue lives in the limb, as photographs
+    // of a low sun show it (white centre, gold to orange rim).
+    col = mix(col, vec3(1.0, 0.97, 0.92) * max(col.r, max(col.g, col.b)), 0.55 * mu * mu);
     return col * cov * sunPeak() / max(exposure(), 1e-4);
 }

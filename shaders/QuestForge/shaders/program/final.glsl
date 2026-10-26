@@ -237,7 +237,13 @@ vec3 sunGlare(ivec2 px) {
     if (vis <= 0.0) return vec3(0.0);
     vec3 dir = normalize(viewFromScreen(uv, 1.0));
     float th = acos(clamp(dot(dir, normalize(sv)), -1.0, 1.0));
-    float psf = 0.16 * exp(-th / 0.0045) + 0.025 * exp(-th / 0.018) + 0.004 * exp(-th / 0.09);   // pa: 0.22/0.045/0.006 washed out the gold sky
+    // r008: the falloffs start at the limb, not the centre, so a larger disk keeps a tight bright
+    // corona hugging its edge (the "source" the owner missed in r007) instead of a glow that only
+    // reaches past a big disk's rim at a fraction of its strength. Inside the disk: none (the disk
+    // is the sky pass's, crisp).
+    float thl = max(th - SUN_REAL_R, 0.0);
+    float inDisk = smoothstep(SUN_REAL_R * 0.85, SUN_REAL_R * 1.05, th);
+    float psf = (0.20 * exp(-thl / 0.0040) + 0.030 * exp(-thl / 0.016) + 0.0045 * exp(-thl / 0.09)) * inDisk;   // pa: 0.22/0.045/0.006 washed out the gold sky
     vec3 E = sunIrradiance() * exposure() * (1.0 - rainStrength);
     vec3 g = E * psf * vis;
 #if QF_LENS == 1

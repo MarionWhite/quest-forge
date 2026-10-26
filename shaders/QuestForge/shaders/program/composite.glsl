@@ -96,6 +96,9 @@ vec3 waterVolume(vec3 color, float dist, float skyLight) {
     return color * T + waterAmbient(skyLight) * scatterAlbedo * (1.0 - T);
 }
 
+float gBeam = 0.0;   // r008: set by lightShafts (QF_DUST), read by ambientMotes
+const float UW_SURF = 62.9;   // r008: about where the water surface is (sea level), for under-water light
+
 #if QF_MOTES > 0 && QF_PRESET > 0
 // Ambient particles (owner r002: "I want to see more things like that"; r000: unobtrusive
 // cave dust). Dust and pollen drifting in the air, which only shows where light catches it:
@@ -163,12 +166,29 @@ vec3 ambientMotes(vec3 viewDir, float dist0, float pixelBlock, float eyeSky) {
             float along = dot(v, d);
             if (along > 0.15 && along < maxD) {
                 float perp2 = max(dot(v, v) - along * along, 0.0);
-                float rw = along * pxA * (under ? 1.4 : 1.85);   // r005: ~1.3 px dots vanished under TAA; r006 1.6 too faint; 2.1 read as bokeh blobs
+#if QF_DUST > 0
+                // Depth-aware: a flake a metre away is a soft 2-3 px fleck, one 15 blocks out a
+                // pinpoint (r007's fixed 2 px everywhere read as screen-space speckle).
+                float rw = along * pxA * (under ? mix(4.5, 1.6, smoothstep(1.0, 10.0, along)) : mix(2.6, 1.3, smoothstep(1.0, 12.0, along)));
+#else
+                float rw = along * pxA * (under ? 1.4 : 1.85);
+#endif   // r005: ~1.3 px dots vanished under TAA; r006 1.6 too faint; 2.1 read as bokeh blobs
                 float cov = smoothstep(rw * rw * 1.6, 0.0, perp2);
+#if QF_UNDERWATER == 1
+                if (under) {
+                    // r008: a bubble is a bright rim round a clearer middle with a highlight on
+                    // top, not a dot (owner r007: Conquest's bubbles).
+                    float rr = sqrt(perp2) / (rw * 1.26);
+                    cov = smoothstep(1.0, 0.8, rr) * (0.30 + 0.70 * smoothstep(0.45, 0.85, rr)) * 1.4;
+                }
+#endif
                 if (cov > 0.0) {
                     vec3 lit;
                     if (under) {
                         lit = waterAmbient(eyeSky) * 2.2;
+#if QF_UNDERWATER == 1
+                        lit += sunIrradiance() * max(lightDirWorld().y, 0.0) * exp(-waterAbsorb() * max(UW_SURF - (m.y * MOTE_CELL), 0.0)) * 0.012 * eyeSky;
+#endif
                     } else {
 #if QF_SHADOWS
                         float vis = sampleShadow(v, vec3(0.0, 1.0, 0.0), 1.0, eyeSky * eyeSky, gl_FragCoord.xy);
@@ -179,9 +199,19 @@ vec3 ambientMotes(vec3 viewDir, float dist0, float pixelBlock, float eyeSky) {
                         // and against the bright sky it read as daytime stars (r003 smoke).
                         // A flake turning to the light flashes now and then.
                         float glint = 0.55 + 1.6 * pow(0.5 + 0.5 * sin(t * (0.9 + h * 7.0) + h * 91.0), 6.0);
+#if QF_DUST > 0
+                        // r008: a flake shows only where it sits in sunlight AND the ray crosses a
+                        // beam (gBeam, from lightShafts): r007's motes lit every open-air cell
+                        // toward the sun, the "weird white dots all over the screen" over the
+                        // ocean (owner r007). In the beam they tumble and flash.
+                        float glintB = 0.35 + 2.6 * pow(0.5 + 0.5 * sin(t * (1.3 + h * 9.0) + h * 91.0), 8.0);
+                        lit = E * vis * (phase * 2.2 + 0.06) * glintB * gBeam
+                            + Eblock * 0.32;
+#else
                         lit = E * vis * (max(phase - 0.04, 0.0) * 2.4 + 0.09) * glint
                             + skyIrradiance(vec3(0.0, 1.0, 0.0)) * eyeSky * eyeSky * 0.005
                             + Eblock * 0.32;
+#endif
                     }
                     float fadeD = smoothstep(maxD, maxD * 0.6, along) * smoothstep(0.15, 0.8, along);
                     sum += lit * tint * cov * fadeD * fadeLife * 0.08 * MOTE_GAIN;
@@ -223,6 +253,23 @@ const float SHAFT_GAIN = 1.5;
 float hgPhaseS(float mu, float g) {
     return (1.0 - g * g) / (4.0 * PI * pow(1.0 + g * g - 2.0 * g * mu, 1.5));
 }
+// r008 beam dust (QF_DUST; owner r007: "dust should be visible only inside light shafts and sunbeams
+// ... volumetric, depth-aware, shimmering in the beam"). gBeam is how much of this pixel's ray
+// crosses a beam: 0 in open sunlight or full shade, high where lit and shaded air alternate (a gap
+// in the canopy, a window). The motes and the dust haze both scale with it, so nothing speckles
+// open air over the ocean or a sunny plain. (Declared before ambientMotes, which reads it.)
+#if QF_DUST > 0
+// Dust density, mean about 1: two sheared value-noise layers (a cheap 3D field from 2D lookups)
+// multiplied into slow drifting clumps a metre or two across, and a finer churning layer that makes
+// the beam shimmer as you watch.
+float dustField(vec3 wp, float t) {
+    vec2 a = (wp.xz + wp.y * vec2(0.61, -0.43)) * 0.38 + vec2(t * 0.021, t * 0.013);
+    vec2 b = (wp.zy + wp.x * vec2(0.37, 0.55)) * 0.47 - vec2(t * 0.017, -t * 0.024);
+    float n = texture(qfNoise, a).b * texture(qfNoise, b).b;           // 0-1, mean ~0.25
+    float fine = texture(qfNoise, (wp.xy + wp.z * vec2(-0.5, 0.7)) * 1.9 + vec2(-t * 0.09, t * 0.06)).b;
+    return clamp(n * 4.4 * (0.55 + 0.9 * fine), 0.0, 4.0);
+}
+#endif
 float shadowRaw(vec3 scenePos) {
     vec3 clip = (shadowProjection * (shadowModelView * vec4(scenePos, 1.0))).xyz;
     if (max(abs(clip.x), abs(clip.y)) > 0.98) return 1.0;
@@ -243,11 +290,30 @@ vec3 lightShafts(vec3 viewDir, float dist, float eyeSky) {
 #endif
     float j = ign(gl_FragCoord.xy + float(frameCounter % 64) * vec2(3.17, 7.91));
     float lit = 0.0;
+    float dust = 0.0, nearLit = 0.0, flips = 0.0, prevS = -1.0;
+#if QF_DUST > 0
+    float tD = animTime();
+#endif
     for (int i = 0; i < SHAFT_STEPS; i++) {
         float f = (float(i) + j) / float(SHAFT_STEPS);
-        lit += shadowRaw(viewDir * (f * f * maxD)) * 2.0 * f;
+        float dd = f * f * maxD;
+        float sv = shadowRaw(viewDir * dd);
+        lit += sv * 2.0 * f;
+        // Lit/shaded transitions along the ray within ~40 blocks: beams.
+        if (dd < 40.0) {
+            if (prevS >= 0.0) flips += abs(sv - prevS);
+            prevS = sv;
+            nearLit += sv;
+        }
+#if QF_DUST > 0
+        // The dust lives in the first ~24 blocks, where a beam is wide enough to show it.
+        if (sv > 0.0 && dd < 24.0) dust += sv * dustField(viewDir * dd + cameraPosition, tD) * 2.0 * f * smoothstep(0.3, 1.5, dd);
+#endif
     }
     lit /= float(SHAFT_STEPS);          // the lit share of the ray, 0-1
+    dust /= float(SHAFT_STEPS);
+    // A beam: the ray crosses lit and shaded air (flips), or it is partly lit near the camera.
+    gBeam = clamp((flips - 0.5) * 0.5, 0.0, 1.0) * outside * smoothstep(0.0, 0.06, L.y);
     float gh = goldenHour();
 #if QF_SHAFT_STYLE == 1
     // r007 (owner r006 picked round 5's frame: "the color is warmer, the rays are better formed"):
@@ -256,18 +322,95 @@ vec3 lightShafts(vec3 viewDir, float dist, float eyeSky) {
     // at golden hour is a little deeper than round 5's.
     // Over open sky the lit air is a veil: round 5's full veil washed out the sun over the ocean (pa),
     // r006's 0.6 lost the warm glow in the forest gap (qh). 0.8, and clear of the disk itself.
-    if (dist >= far) lit *= 0.8 * (1.0 - 0.6 * pow(max(mu, 0.0), 1500.0));
+    // r008: the cut-out round the disk (1 - 0.6 mu^1500) drew the "faint dark ring" round the sun
+    // (critic r007): it dimmed the veil 1.5 degrees out, where the glare should rise. Gone.
+    if (dist >= far) lit *= 0.8;
     lit = clamp(lit, 0.0, 1.0) * maxD;
     float sigma = mix(0.0008, 0.0038, gh) * (SHAFT_GAIN / 1.5) * (1.0 + rainStrength);
     vec3 E = lightIrradiance() * mix(vec3(1.0), vec3(1.30, 0.93, 0.56), gh);
+#if QF_DUST > 0
+    // The dust haze in the beams: extra scattering where the dust clumps drift, only on rays that
+    // cross a beam, strongest toward the sun (the forward lobe) but visible from the side too.
+#if QF_DUST == 2
+    const float DUST_S = 0.022;
+#else
+    const float DUST_S = 0.013;
+#endif
+    float dPhase = 0.6 * hgPhaseS(mu, 0.62) + 0.4 / (4.0 * PI);
+    vec3 dustL = E * dPhase * DUST_S * dust * min(maxD, 24.0) * gBeam;
+#else
+    vec3 dustL = vec3(0.0);
+#endif
 #else
     lit = pow(clamp(lit, 0.0, 1.0), 1.8) * maxD * 1.25;   // metres of sunlit air, with contrast
     if (dist >= far) lit *= 0.6;        // open sky: the beams, not a veil over the sky
     float sigma = mix(0.0008, 0.0036, gh) * SHAFT_GAIN * (1.0 + rainStrength);   // i0: 0.0013 barely showed
     vec3 E = lightIrradiance() * mix(vec3(1.0), vec3(1.25, 0.95, 0.62), gh);
+    vec3 dustL = vec3(0.0);
 #endif
-    return E * phase * sigma * lit * outside * smoothstep(0.0, 0.06, L.y);
+    return (E * phase * sigma * lit + dustL) * outside * smoothstep(0.0, 0.06, L.y);
 }
+#endif
+
+#if QF_UNDERWATER == 1 && QF_PRESET > 0
+// r008 under water (owner r007: Conquest's "environmental lighting and effects like the bubbles in
+// the water, or the visual effects of being in the water"). The surface is about at sea level in
+// this world (UW_SURF); the patterns only need a plane to hang from.
+float uwSun(vec3 scenePos) {
+#if QF_SHAFTS > 0 && QF_SHADOWS
+    return shadowRaw(scenePos);
+#else
+    return 1.0;
+#endif
+}
+// Caustics on everything in view from under water: the waves focus sunlight into a net of bright
+// lines that drifts across the bed and walls; dark between them, so they redistribute the light.
+vec3 underwaterCaustics(vec3 scenePos, vec3 n) {
+    vec3 L = lightDirWorld();
+    if (L.y < 0.08 || sunDirWorld().y < 0.0) return vec3(1.0);
+    vec3 wp = scenePos + cameraPosition;
+    float wd = max(UW_SURF - wp.y, 0.0);
+    vec2 cp = wp.xz + L.xz / L.y * wd;
+    float t = animTime();
+    float c1 = texture(qfNoise, cp * 0.23 + vec2(t * 0.031, t * 0.017)).a;
+    float c2 = texture(qfNoise, mat2(0.8, 0.6, -0.6, 0.8) * cp * 0.19 + vec2(-t * 0.022, t * 0.027) + 0.37).a;
+    float caust = pow(1.0 - min(c1, c2), 6.0);
+    float w = exp(-wd * 0.10) * smoothstep(0.08, 0.3, L.y) * clamp(dot(n, L) * 1.5 + 0.2, 0.0, 1.0);
+    w *= uwSun(scenePos + n * 0.08) * (1.0 - smoothstep(16.0, 40.0, length(scenePos)));
+    w *= exp(-dot(waterAbsorb(), vec3(2.0)));
+    return vec3(mix(1.0, 0.55 + caust * 5.0, w));
+}
+#if QF_SHADOWS
+// Sunbeams in the water: lit water along the view ray (from the shadow map: the land, boats and
+// overhangs cut them), in-scattered toward the eye with a forward lobe, and broken into the long
+// streaks the moving surface focuses, constant along the light so they slant down like the sun.
+vec3 underwaterShafts(vec3 viewDir, float dist) {
+    vec3 L = lightDirWorld();
+    if (L.y < 0.05 || sunDirWorld().y < 0.0) return vec3(0.0);
+    float maxD = min(dist, 40.0);
+    const int N = QF_PRESET >= 3 ? 14 : 8;
+    float j = ign(gl_FragCoord.xy + float(frameCounter % 64) * vec2(5.3, 2.9));
+    float t = animTime();
+    vec3 acc = vec3(0.0);
+    vec3 A = waterAbsorb();
+    for (int i = 0; i < N; i++) {
+        float d = (float(i) + j) / float(N) * maxD;
+        vec3 p = viewDir * d;
+        vec3 wp = p + cameraPosition;
+        float depthS = max(UW_SURF - wp.y, 0.0);
+        vec2 q = wp.xz + L.xz / L.y * depthS;                     // where its light entered
+        float r1 = texture(qfNoise, q * 0.11 + vec2(t * 0.012, t * 0.007)).b;
+        float r2 = texture(qfNoise, q * 0.27 - vec2(t * 0.010, -t * 0.014)).b;
+        float rays = 0.25 + 3.2 * pow(r1 * r2 * 2.2, 2.0);
+        acc += uwSun(p) * rays * exp(-A * (depthS / L.y + d));
+    }
+    acc *= maxD / float(N);
+    float mu = dot(viewDir, L);
+    float g = 0.75;
+    float phase = 0.8 * (1.0 - g * g) / (4.0 * PI * pow(1.0 + g * g - 2.0 * g * mu, 1.5)) + 0.2 / (4.0 * PI);
+    return sunIrradiance() * acc * waterScatter() * phase * 9.0 * smoothstep(0.05, 0.25, L.y);
+}
+#endif
 #endif
 
 #if QF_WAVES == 1
@@ -324,9 +467,21 @@ vec3 shadeWaterAbove(vec3 color, vec3 n, float var, vec3 scene0, float dist0, ve
         float caust = pow(1.0 - min(c1, c2), 6.0);
         float w = smoothstep(0.1, 0.7, wd) * exp(-wd * 0.22) * (1.0 - smoothstep(24.0, 64.0, dist0));
         w *= exp(-dot(waterAbsorb(), vec3(3.0)));   // murky water (swamp) hides them
-        behind *= 1.0 + caust * 2.2 * w * sh * smoothstep(0.05, 0.25, L.y);
+        // r008 (owner r007, river: the ledges a block under the surface look "orangey and flat"):
+        // the caustics now redistribute the light instead of only adding to it (dark between the
+        // bright lines), so a shallow sunlit bed reads as moving light, not a flat bright stripe.
+        behind *= mix(1.0, 0.62 + caust * 4.2, w * sh * smoothstep(0.05, 0.25, L.y));
     }
 #endif
+    if (dR < 1.0) {
+        // r008: sunlight reaching the bed crossed the water above it first (wd / L.y blocks), which
+        // the bed's lighting (deferred, before the water existed) never took out: a dirt ledge a
+        // block down lit by the full noon sun glowed orange through the clear river. Filter the
+        // bed's light by that path (most of a sunlit bed's light is the sun's).
+        float wdS = max(scene0.y - bedP.y, 0.0);
+        vec3 Tdown = exp(-waterAbsorb() * (wdS / max(L.y, 0.25)) * 1.6);
+        behind *= mix(vec3(1.0), Tdown, 0.85 * sh * smoothstep(0.0, 0.2, L.y));
+    }
     vec3 refracted = waterVolume(behind, d, skyLight);
 
     // Reflection: the sky and clouds, then the screen where it has the reflected land.
@@ -347,7 +502,12 @@ vec3 shadeWaterAbove(vec3 color, vec3 n, float var, vec3 scene0, float dist0, ve
     // dark near water broke into torn patches of mirrored land. The screen rays now follow a
     // calmer normal (the waves' slope halved near the camera), so mirrored land is a smeared band,
     // as on real water; the sky reflection keeps the full waves.
-    vec3 nS = normalize(mix(n, vec3(0.0, 1.0, 0.0), 0.5 * (1.0 - smoothstep(8.0, 48.0, dist0))));
+    float flatS = 0.5 * (1.0 - smoothstep(8.0, 48.0, dist0));
+#if QF_LAKE_CALM == 1
+    // r008: on a lake the mirrored land is a clean, slightly wavering reflection, not a smear.
+    flatS = mix(flatS, 0.78, waterLakeShare());
+#endif
+    vec3 nS = normalize(mix(n, vec3(0.0, 1.0, 0.0), flatS));
     vec3 viewR = reflect(normalize(viewPos0), mat3(gbufferModelView) * nS);
     vec4 ssr = vec4(0.0);
     // pa: a ray reflected downward (a steep wave facet) found the lake bed in depthtex1 and mirrored
@@ -359,7 +519,11 @@ vec3 shadeWaterAbove(vec3 color, vec3 n, float var, vec3 scene0, float dist0, ve
     float F = fresnelWater(NdotV);
     // r007: near the camera the eye averages the reflectance over many facets, so soften it toward
     // the calm surface's value (lake splotches at grazing views).
-    F = mix(F, fresnelWater(clamp(-viewDir.y, 0.0, 1.0)), 0.35 * (1.0 - smoothstep(10.0, 60.0, dist0)));
+    float fAvg = 0.35 * (1.0 - smoothstep(10.0, 60.0, dist0));
+#if QF_LAKE_CALM == 1
+    fAvg = mix(fAvg, 0.7, waterLakeShare());   // r008: no dark/bright facet flipping on the lake
+#endif
+    F = mix(F, fresnelWater(clamp(-viewDir.y, 0.0, 1.0)), fAvg);
     vec3 col = mix(refracted, refl, F);
 
     // The sun (or moon) on the waves.
@@ -756,7 +920,13 @@ void main() {
     }
 
     if (isEyeInWater == 1) {
+#if QF_UNDERWATER == 1 && QF_PRESET > 0
+        if (!water && depth0 < 1.0) color *= underwaterCaustics(scene0, decodeNormal(g1.rg));
+#endif
         color = waterVolume(color, min(dist0, 96.0), eyeSky);
+#if QF_UNDERWATER == 1 && QF_PRESET > 0 && QF_SHADOWS
+        color += underwaterShafts(viewDir, depth0 >= 1.0 ? 40.0 : dist0);
+#endif
     } else if (isEyeInWater == 2) {
         vec3 T = exp(-vec3(0.9, 1.6, 3.0) * dist0);
         color = color * T + vec3(1.0, 0.35, 0.08) * BLOCK_I * 0.5 * (1.0 - T);
@@ -806,7 +976,10 @@ void main() {
             float amount = 1.0 - exp(-max(dist0 - start, 0.0) * density);
             amount = max(amount, smoothstep(far * 0.82, far * 1.0, dist0));
             vec3 haze = skyScatter(viewDir);
-            haze = mix(haze, vec3(luminance(haze)), 0.3);   // round 2: a beige band at the horizon
+            // round 2: a beige band at the horizon. r008 (owner r007: golden hour "the horizon is
+            // still pretty weak"): at golden hour the haze keeps the sky's warmth instead of
+            // greying it, and the far land glows amber toward the sun.
+            haze = mix(haze, vec3(luminance(haze)), 0.3 * (1.0 - 0.8 * goldenHour() * min(QF_GOLD_HORIZON, 1.0)));
             // At night the fade goes towards a darker sky, so distant land becomes a silhouette
             // instead of a moonlit wall of fog (r12 critic: the full moon hid the mountain that
             // the new moon kept).
@@ -868,8 +1041,11 @@ void main() {
 #if QF_MOTES > 0 && QF_PRESET > 0
     // Only in front of land (or under water): against open sky the dust read as daytime stars
     // (r003 critic). It shows in the air between you and the trees, the walls, the lake bed.
-    if (isEyeInWater == 1 || (isEyeInWater == 0 && depth0 < 1.0)) color += ambientMotes(viewDir, dist0, texelFetch(colortex2, px, 0).r, eyeSky);
+    // r008: with beam dust, flakes in a beam show against the sky through a canopy gap too.
+    if (isEyeInWater == 1 || (isEyeInWater == 0 && (depth0 < 1.0 || (QF_DUST > 0 && gBeam > 0.0)))) color += ambientMotes(viewDir, dist0, texelFetch(colortex2, px, 0).r, eyeSky);
 #endif
+    // r008: never hand TAA a NaN or Inf (r007's PBR blob spread from one through the history).
+    if (any(isnan(color)) || any(isinf(color))) color = vec3(0.0);
     outColor = vec4(max(color, vec3(0.0)), 1.0);
 }
 #endif

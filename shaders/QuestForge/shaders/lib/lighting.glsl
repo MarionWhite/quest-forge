@@ -69,7 +69,41 @@ float ggx(float NdotH, float a2) {
 }
 
 vec3 fresnelSchlick(float c, vec3 f0) {
-    return f0 + (1.0 - f0) * pow(1.0 - c, 5.0);
+    // r008: clamped. A dot product a hair over 1 made pow() of a negative base, a NaN that TAA
+    // then smeared into the soft black blob on the dirt bank in r007's PBR frame.
+    return f0 + (1.0 - f0) * pow(clamp(1.0 - c, 0.0, 1.0), 5.0);
+}
+
+// r008 metals (owner r007, PBR: with maps on "the metallic blocks just look like they are in the
+// shade"): a metal has no diffuse light at all; everything it shows is reflection, tinted by its
+// own colour. What it reflects here: the sky dome along the reflected ray (blurred toward the sky's
+// irradiance as it gets rough), the lit ground below the horizon, and the sun as a sharp GGX
+// highlight. So gold and iron read as polished metal, bright where they face the sky or the sun.
+vec3 metalShade(vec3 albedo, vec3 n, vec3 viewDir, vec3 L, vec3 E, float smooth_, float shadow, float sky, float ao) {
+    float r = (1.0 - smooth_) * (1.0 - smooth_);
+    float a2 = max(r * r, 0.0012);
+    vec3 V = -viewDir;
+    vec3 f0 = clamp(albedo * 1.15, 0.0, 1.0);
+    float NdotV = clamp(dot(n, V), 0.02, 1.0);
+    vec3 Rf = reflect(viewDir, n);
+    vec3 Fe = fresnelSchlick(NdotV, f0);
+    // Environment: sky above the horizon, ground (lit grass-and-earth tone) below, blended over a
+    // few degrees, and toward the sky's irradiance on rough metal.
+    vec3 skyR = skyScatter(normalize(vec3(Rf.x, max(Rf.y, 0.02), Rf.z)));
+    vec3 skyD = skyIrradiance(n) / PI;
+    vec3 env = mix(skyR, skyD, r);
+    vec3 ground = (E * max(L.y, 0.0) * shadow * 0.6 + skyIrradiance(vec3(0.0, 1.0, 0.0))) * vec3(0.16, 0.15, 0.11) / PI;
+    env = mix(ground, env, smoothstep(-0.08, 0.06, Rf.y));
+    vec3 col = env * Fe * mix(0.25, 1.0, sky) * ao;
+    // The sun: GGX with Smith-ish visibility, energy capped so a mirror does not blow out to a
+    // pixel of infinity.
+    vec3 H = normalize(L + V);
+    float NdotL = clamp(dot(n, L), 0.0, 1.0);
+    float sp = ggx(clamp(dot(n, H), 0.0, 1.0), a2) * NdotL / (4.0 * NdotV + 0.4);
+    col += fresnelSchlick(clamp(dot(H, V), 0.0, 1.0), f0) * E * min(sp, 80.0) * shadow;
+    // A little diffuse-looking fill from the micro-roughness, so a metal in deep shade is not black.
+    col += albedo * skyD * sky * ao * 0.06;
+    return col;
 }
 
 // The active light: the sun by day, the moon by night (whichever casts shadowLightPosition).
@@ -178,6 +212,10 @@ vec3 shadeSurface(Surface s, vec3 viewDir, vec2 pixel) {
         // the sun or moon and a sky reflection on smooth blocks; metals take their colour into the
         // reflection and lose most of their diffuse light.
         bool metal = s.f0 > 0.895;
+        if (metal) {
+            color = metalShade(s.albedo, s.normal, viewDir, L, E, max(s.smoothness, 0.35), shadow, sky, ao);
+            return color;
+        }
         float r = (1.0 - s.smoothness) * (1.0 - s.smoothness);
         float a2 = max(r * r, 0.0015);
         vec3 f0v = metal ? s.albedo : vec3(s.f0);
@@ -214,6 +252,10 @@ vec3 shadeSurface(Surface s, vec3 viewDir, vec2 pixel) {
     }
 
     // Specular from the light on metal and polished stone (no reflections beyond that yet).
+#if QF_PBR == 1
+    // Metal blocks without a map in the pack: the same model, polished.
+    if (s.mat == MAT_METAL && !hasPbr) return metalShade(s.albedo, s.normal, viewDir, L, E, 0.72, shadow, sky, ao);
+#endif
     if (s.mat == MAT_METAL || s.mat == MAT_POLISHED || s.mat == MAT_ORE) {
         float rough = s.mat == MAT_METAL ? 0.38 : (s.mat == MAT_ORE ? 0.3 : 0.28);
         vec3 f0 = s.mat == MAT_METAL ? s.albedo : vec3(0.04);

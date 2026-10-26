@@ -83,6 +83,7 @@ void main() {
     if (flag == FLAG_MOVING) current = 0.2;
     if (flag == FLAG_HAND) current = 0.3;
     vec4 hist = texture(colortex4, prevUv);
+    if (any(isnan(hist)) || any(isinf(hist))) hist = vec4(0.0);   // r008: a NaN in history never heals
     bool offscreen = any(lessThan(prevUv, vec2(0.0))) || any(greaterThan(prevUv, vec2(1.0)));
     bool disoccluded = depth < 1.0 && abs(hist.a - expectedPrevDepth) > 0.06 * expectedPrevDepth + 0.15;
     if (offscreen || disoccluded || !(hist.a > 0.0)) current = 1.0;

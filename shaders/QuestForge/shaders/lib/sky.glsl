@@ -159,40 +159,59 @@ float meteorTime() {
 vec3 meteors(vec3 dir) {
     vec3 R = normalize(vec3(0.35 + 0.3 * hash12(vec2(float(worldDay), 3.3)), 0.80, -0.45 + 0.4 * hash12(vec2(float(worldDay), 5.1))));
     float pxA = 2.0 / (gbufferProjection[1][1] * viewHeight);
+    vec3 a1 = normalize(cross(R, vec3(0.0, 0.0, 1.0)));
+    vec3 a2 = cross(R, a1);
     vec3 sum = vec3(0.0);
+    // r008 (owner r007: "I would expect more than 2"): shorter slot cycles, almost every cycle has
+    // a meteor, and each leaves a glowing train that fades over a second or so, as bright meteors
+    // do, so a moment of sky holds two or three streaks and a still frame catches some.
     for (int k = 0; k < QF_METEOR_RATE * 3; k++) {
-        float P = 5.5 + 1.3 * float(k % 3);                  // seconds per slot cycle
+        float P = 3.4 + 0.9 * float(k % 3);                  // seconds per slot cycle
         float tk = meteorTime() + float(k) * 1.917;
         float ci = floor(tk / P);
         vec2 sd = vec2(ci * 0.713 + float(k) * 3.17, float(k) * 1.31 + float(worldDay) * 0.17);
-        if (hash12(sd) > 0.72) continue;                       // some cycles have none
-        float life = 0.45 + 0.5 * hash12(sd + 1.1);
-        float start = hash12(sd + 2.2) * (P - life);
+        if (hash12(sd) > 0.88) continue;                       // a few cycles have none
+        float life = 0.40 + 0.55 * hash12(sd + 1.1);
+        float bright = hash12(sd + 6.6) > 0.80 ? 3.5 : 1.0;   // now and then a bright one
+        float trainT = bright > 1.0 ? 1.6 : 0.7;              // seconds a train glows after
+        float start = hash12(sd + 2.2) * max(P - life - trainT, 0.1);
         float p = (tk - ci * P - start) / life;                // 0..1 while it burns
-        if (p <= 0.0 || p >= 1.0) continue;
+        if (p <= 0.0 || p >= 1.0 + trainT / life) continue;
         // Its path: a great circle away from the radiant, starting 10-55 degrees out.
         float az = hash12(sd + 3.3) * 6.2832;
-        vec3 a1 = normalize(cross(R, vec3(0.0, 0.0, 1.0)));
-        vec3 a2 = cross(R, a1);
         vec3 U = a1 * cos(az) + a2 * sin(az);
         float th0 = 0.18 + 0.78 * hash12(sd + 4.4);
-        float len = 0.10 + 0.22 * hash12(sd + 5.5);
-        float head = th0 + len * p;
-        float tail = head - len * mix(0.25, 0.55, p);
+        float len = (0.12 + 0.26 * hash12(sd + 5.5)) * (bright > 1.0 ? 1.3 : 1.0);
+        float pb = min(p, 1.0);
+        float head = th0 + len * pb;
         float thd = atan(dot(dir, U), dot(dir, R));
-        if (thd < tail - 0.01 || thd > head + 0.01) continue;
+        float tail0 = head - len * mix(0.25, 0.60, pb);
+        if (thd < th0 - 0.01 || thd > head + 0.01) continue;
         vec3 N = cross(R, U);
         float perp = abs(dot(dir, N));
-        float w = pxA * 1.1;
-        float line = exp(-perp * perp / (w * w));
-        float along = clamp((thd - tail) / max(head - tail, 1e-4), 0.0, 1.0);
-        float trail = along * along * smoothstep(head + 0.004, head - 0.002, thd);
-        float flare = pow(sin(PI * p), 0.6) * mix(1.0, 1.8, p);
-        float bright = hash12(sd + 6.6) > 0.85 ? 3.5 : 1.0;   // now and then a bright one
         vec3 tint = mix(vec3(0.85, 0.92, 1.0), vec3(0.75, 1.0, 0.80), hash12(sd + 7.7) * 0.6);
-        sum += tint * line * trail * flare * bright;
+        if (p < 1.0) {
+            float w = pxA * (bright > 1.0 ? 1.5 : 1.1);
+            float line = exp(-perp * perp / (w * w));
+            float along = clamp((thd - tail0) / max(head - tail0, 1e-4), 0.0, 1.0);
+            float trail = along * along * step(tail0, thd) * smoothstep(head + 0.004, head - 0.002, thd);
+            float flare = pow(sin(PI * p), 0.6) * mix(1.0, 1.8, p);
+            // The head: a brighter, slightly wider point.
+            float hd = (thd - head) / 0.004;
+            float headDot = exp(-hd * hd - perp * perp / (w * w * 2.2)) * 1.6;
+            sum += tint * (line * trail + headDot) * flare * bright;
+        }
+        // The train: ionised air along the whole path, greenish, wider, fading and spreading.
+        float age = max(tk - ci * P - start - life * 0.6, 0.0) / trainT;   // 0 when it forms, 1 gone
+        if (age < 1.0) {
+            float wt = pxA * mix(1.3, 2.6, age);
+            float lineT = exp(-perp * perp / (wt * wt));
+            float span = smoothstep(th0 - 0.005, th0 + len * 0.3, thd) * smoothstep(head + 0.003, head - len * 0.15, thd);
+            float fadeT = (1.0 - age) * (1.0 - age) * smoothstep(0.0, 0.08, age + p * 0.1);
+            sum += vec3(0.70, 1.0, 0.82) * lineT * span * fadeT * 0.22 * bright;
+        }
     }
-    return sum * SUN_I * 0.05;
+    return sum * SUN_I * 0.06;
 }
 
 // Faint background stars: many, dim, slightly coloured; denser where `boost` is high.
@@ -333,6 +352,25 @@ vec3 skyScatter(vec3 dir) {
     L *= mix(vec3(1.0), vec3(1.30, 1.0, 0.58), clamp(gh * nearSun, 0.0, 1.5));
     L *= mix(vec3(1.0), vec3(1.06, 1.0, 0.90), clamp(gh * (1.0 - nearSun) * aboveBand, 0.0, 1.5));
 #endif
+    {
+        // r008 golden horizon (owner r007 and critic: the horizon band at golden hour is "beige and
+        // flat"): the low sun lights a long path of air near the horizon, so a warm band rings the
+        // whole sky a few degrees deep. Gold to orange toward the sun, a rose-peach on the far
+        // side (the anti-twilight arch), and a brighter glow round the sun's azimuth that climbs
+        // higher. Reference packs all show it; ours read grey-teal away from the sun.
+        float ghH = goldenHour() * QF_GOLD_HORIZON;
+        if (ghH > 0.0) {
+            vec3 sd = sunDirWorld();
+            vec2 hz = normalize(dir.xz + vec2(1e-5, 0.0));
+            vec2 sz = normalize(sd.xz + vec2(1e-5, 0.0));
+            float az = 0.5 + 0.5 * dot(hz, sz);                         // 1 under the sun, 0 opposite
+            float depthB = mix(0.075, 0.20, az * az);                   // the band climbs toward the sun
+            float band = exp(-max(dir.y, 0.0) / depthB);
+            vec3 warm = mix(vec3(1.22, 0.92, 0.86), vec3(1.55, 1.02, 0.50), pow(az, 1.6));
+            float lift = 1.0 + 0.55 * pow(az, 6.0) * band;            // brighter round the sun's bearing
+            L *= mix(vec3(1.0), warm * lift, clamp(ghH * band, 0.0, 1.0));
+        }
+    }
     // Airglow and starlight: a moonless sky is never black, and is brightest towards the
     // horizon (van Rhijn). With exposure now letting a new moon read darker (EXPO_DEEP_SLOPE),
     // the bare sky fell to luma 1-2 of 255 (a4h: 22% of the new-moon frame crushed).
@@ -344,7 +382,8 @@ vec3 skyScatter(vec3 dir) {
     // (r001 critic and owner). Fade it to a darker, cooler veil over the first few degrees.
     // The distance haze uses this colour too, so far terrain fades into the same tone.
     float below = smoothstep(0.0, -0.10, belowY);
-    L = mix(L, L * vec3(0.58, 0.64, 0.74), below);
+    // r008: at golden hour the far land's veil is warm, not blue-grey.
+    L = mix(L, L * mix(vec3(0.58, 0.64, 0.74), vec3(0.74, 0.64, 0.56), goldenHour() * min(QF_GOLD_HORIZON, 1.0)), below);
 #endif
     float g = luminance(L);
     return mix(L, vec3(g) * 0.55, rainStrength * 0.75);
