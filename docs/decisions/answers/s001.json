@@ -1,0 +1,509 @@
+{
+ "sheet": 1,
+ "id": "s001",
+ "title": "Thirty calls that unblock the quests, the balance pass, the textures and the server",
+ "note": "Built by tools/decisions/fetch_answers.py from GitHub issues; the latest response is last and wins card by card.",
+ "responses": [
+  {
+   "issue": 10,
+   "url": "https://github.com/MarionWhite/quest-forge/issues/10",
+   "user": "MarionWhite",
+   "state": "open",
+   "created_at": "2026-10-25T22:58:32Z",
+   "updated_at": "2026-10-25T22:58:32Z",
+   "from": "body",
+   "answers": {
+    "round": 9001,
+    "scenes": {
+     "act1-01": {
+      "choice": "A",
+      "rating": null,
+      "note": ""
+     },
+     "act1-02": {
+      "choice": "A",
+      "rating": null,
+      "note": ""
+     },
+     "act1-03": {
+      "choice": "A",
+      "rating": null,
+      "note": ""
+     },
+     "act1-04": {
+      "choice": "A",
+      "rating": null,
+      "note": ""
+     },
+     "act1-05": {
+      "choice": "later",
+      "rating": null,
+      "note": "I don't know what the fuck this is talking about. What party system is this referring to? I don't want any quest sharing. Everyone has their own quests and their own rewards."
+     },
+     "act1-06": {
+      "choice": "A",
+      "rating": null,
+      "note": ""
+     },
+     "act1-07": {
+      "choice": "A",
+      "rating": null,
+      "note": ""
+     },
+     "act1-08": {
+      "choice": "A",
+      "rating": null,
+      "note": ""
+     },
+     "act1-09": {
+      "choice": "C",
+      "rating": null,
+      "note": "I think we need to completely rethink the voice because this just reads as a random jumble of fucking words. This isn't a compelling or interesting story, and I'd rather do something that doesn't take itself so seriously."
+     },
+     "act1-10": {
+      "choice": "A",
+      "rating": null,
+      "note": ""
+     },
+     "bal-p1": {
+      "choice": "A",
+      "rating": null,
+      "note": "Even if we make this change, everything still needs to be retested after to assure balance."
+     },
+     "bal-p2": {
+      "choice": "A",
+      "rating": null,
+      "note": ""
+     },
+     "bal-p3": {
+      "choice": "A",
+      "rating": null,
+      "note": ""
+     },
+     "bal-p4": {
+      "choice": "A",
+      "rating": null,
+      "note": ""
+     },
+     "bal-p5": {
+      "choice": "A",
+      "rating": null,
+      "note": ""
+     },
+     "bal-p6": {
+      "choice": "A",
+      "rating": null,
+      "note": "Let's also take into consideration how long other fights are averaging. This could benefit from some research of modern modpacks that do a good job of balancing fight duration so that we can try to hit the mark. Check back in before making any other changes in this capacity."
+     },
+     "bal-p7": {
+      "choice": "A",
+      "rating": null,
+      "note": "It should always have a cost because it's utility scales with the gear, but we need to make sure we get this right."
+     },
+     "bal-p8": {
+      "choice": "A",
+      "rating": null,
+      "note": "I am just going with the recommendation because I don't have a better answer, but please take a look at how others do this enchant because this is a thing that exists on like factions servers."
+     },
+     "bal-p9": {
+      "choice": "A",
+      "rating": null,
+      "note": "It's fine to reorder the rarity based on the actual enchant strength, but we are still going to change how the enchants and related items are sourced depending on how they are balanced. If something ends up very strong, the rarity will be driven up and most players won't encounter it as well as the opposite relationship. So don't concern yourself with drop rates just yet when considering rarity because current drop rates and sources will definitely change a lot."
+     },
+     "bal-p10": {
+      "choice": "later",
+      "rating": null,
+      "note": "This isn't enough information to make a decision like this. I would need a full comprehensive table showing what sort of effect each enchantment/combination is having in tests (how much it increases survivability, how much damage it adds, which fights they show up in, tangible amounts of time that they shorten the fight by, etc) to be able to make decisions on drop rates. I want to first get all of the enchantments to the point where they have an observable effect proportionate to the rarity that we end up giving them, a good looking distribution across rarities (it's fine if we have to come up with some more ideas for enchants to achieve this), and for none of them to break the game, make hard bosses much easier than they should be, or otherwise fuck up the flow of things. I want this pack to be fun, and I want it to have a good lifespan."
+     },
+     "tex-glass-panes": {
+      "choice": "A",
+      "rating": null,
+      "note": ""
+     },
+     "tex-ship": {
+      "choice": "A",
+      "rating": null,
+      "note": ""
+     },
+     "srv-pvp": {
+      "choice": "B",
+      "rating": null,
+      "note": "Even if we add team functionality, I think friendly fire is a part of the game too."
+     },
+     "srv-quests": {
+      "choice": "B",
+      "rating": null,
+      "note": ""
+     },
+     "srv-sleep": {
+      "choice": "A",
+      "rating": null,
+      "note": "half rounded down"
+     },
+     "srv-afk": {
+      "choice": "A",
+      "rating": null,
+      "note": "this can be basic for now, and players can set up afk setups like a water loop in order to intentionally afk, but yeah, we should definitely kick unintentional AFKers"
+     },
+     "srv-hub": {
+      "choice": "A",
+      "rating": null,
+      "note": "I like the idea of the hub. I'm assuming that this would work like most custom Minecraft maps where you can move around the \"Pre game area\" before loading into the actual world. I think it would be good to have a well designed hub with a bunch of information, but there shouldn't be any actual portals or anything that can be used for utility. If you can think of any other things that fit the idea then I am open to recommendations because I quite like the idea of a really well designed hub area. It would kinda be cool to have a protected trading station if people want to exchange gear somewhere where PvP is not enabled, and where they can preview what is going into a trade before confirming."
+     },
+     "srv-loaders": {
+      "choice": "A",
+      "rating": null,
+      "note": "I'm not sure which of these proposed fixes will affect gameplay, so I recommend that in the next round you draft something more comprehensive to inform me of the effects and the benefits."
+     },
+     "srv-graves": {
+      "choice": "A",
+      "rating": null,
+      "note": "accept the defaults, but we don't need to tell people not to loot graves. It's an honor based world with an honor based system. If someone steals it will be sorted out in game. I am not afraid of drama"
+     },
+     "srv-tools": {
+      "choice": "A",
+      "rating": null,
+      "note": "I don't like the idea of a world border unless it will really help with server-wide performance. The intent is to pre-generate a map, and to have the world outside of that (the ourskirts) as difficult end-game territory which is procedurally generated. My understanding is that it may lag someone while they are rendering the area outside of what is pregen, but won't cause lasting instability. If I am wrong we can come to some sort of compromise."
+     }
+    },
+    "overall": ""
+   }
+  }
+ ],
+ "resolved": {
+  "act1-01": {
+   "name": "Act boundaries",
+   "group": "act1",
+   "choice": "A",
+   "label": "Yes, split as planned",
+   "recommend": "A",
+   "followed": true,
+   "note": "",
+   "issue": 10,
+   "at": "2026-10-25T22:58:32Z"
+  },
+  "act1-02": {
+   "name": "One tab per act, or mod tabs with act prefixes",
+   "group": "act1",
+   "choice": "A",
+   "label": "One tab per act",
+   "recommend": "A",
+   "followed": true,
+   "note": "",
+   "issue": 10,
+   "at": "2026-10-25T22:58:32Z"
+  },
+  "act1-03": {
+   "name": "The /home ticket that ends the Prologue",
+   "group": "act1",
+   "choice": "A",
+   "label": "Yes, the /home ticket",
+   "recommend": "A",
+   "followed": true,
+   "note": "",
+   "issue": 10,
+   "at": "2026-10-25T22:58:32Z"
+  },
+  "act1-04": {
+   "name": "The jukebox as a quest reward",
+   "group": "act1",
+   "choice": "A",
+   "label": "Quest reward plus a recipe",
+   "recommend": "A",
+   "followed": true,
+   "note": "",
+   "issue": 10,
+   "at": "2026-10-25T22:58:32Z"
+  },
+  "act1-05": {
+   "name": "Parties and the Prologue",
+   "group": "act1",
+   "choice": "later",
+   "label": "later",
+   "recommend": "A",
+   "followed": null,
+   "note": "I don't know what the fuck this is talking about. What party system is this referring to? I don't want any quest sharing. Everyone has their own quests and their own rewards.",
+   "issue": 10,
+   "at": "2026-10-25T22:58:32Z"
+  },
+  "act1-06": {
+   "name": "Prologue length",
+   "group": "act1",
+   "choice": "A",
+   "label": "Keep 17",
+   "recommend": "A",
+   "followed": true,
+   "note": "",
+   "issue": 10,
+   "at": "2026-10-25T22:58:32Z"
+  },
+  "act1-07": {
+   "name": "Wood and the crafting table move into Arrival",
+   "group": "act1",
+   "choice": "A",
+   "label": "Yes",
+   "recommend": "A",
+   "followed": true,
+   "note": "",
+   "issue": 10,
+   "at": "2026-10-25T22:58:32Z"
+  },
+  "act1-08": {
+   "name": "Reward cuts on the moved quests",
+   "group": "act1",
+   "choice": "A",
+   "label": "Yes, cut them",
+   "recommend": "A",
+   "followed": true,
+   "note": "",
+   "issue": 10,
+   "at": "2026-10-25T22:58:32Z"
+  },
+  "act1-09": {
+   "name": "The voice",
+   "group": "act1",
+   "choice": "C",
+   "label": "Not yet",
+   "recommend": "A",
+   "followed": false,
+   "note": "I think we need to completely rethink the voice because this just reads as a random jumble of fucking words. This isn't a compelling or interesting story, and I'd rather do something that doesn't take itself so seriously.",
+   "issue": 10,
+   "at": "2026-10-25T22:58:32Z"
+  },
+  "act1-10": {
+   "name": "Zombie Pigmen count toward the first night",
+   "group": "act1",
+   "choice": "A",
+   "label": "Leave it",
+   "recommend": "A",
+   "followed": true,
+   "note": "",
+   "issue": 10,
+   "at": "2026-10-25T22:58:32Z"
+  },
+  "bal-p1": {
+   "name": "P1. Damage-over-time is seeded from the pre-armour hit",
+   "group": "balance",
+   "choice": "A",
+   "label": "Seed from the post-armour hit",
+   "recommend": "A",
+   "followed": true,
+   "note": "Even if we make this change, everything still needs to be retested after to assure balance.",
+   "issue": 10,
+   "at": "2026-10-25T22:58:32Z"
+  },
+  "bal-p2": {
+   "name": "P2. DoTs inherit every multiplier that runs before them",
+   "group": "balance",
+   "choice": "A",
+   "label": "Seed from the weapon's own hit",
+   "recommend": "A",
+   "followed": true,
+   "note": "",
+   "issue": 10,
+   "at": "2026-10-25T22:58:32Z"
+  },
+  "bal-p3": {
+   "name": "P3. Excalibur: strongest enchantment, worth nothing at T4",
+   "group": "balance",
+   "choice": "A",
+   "label": "No change: the trophy",
+   "recommend": "A",
+   "followed": true,
+   "note": "",
+   "issue": 10,
+   "at": "2026-10-25T22:58:32Z"
+  },
+  "bal-p4": {
+   "name": "P4. Rage: the level I cliff was a census artifact",
+   "group": "balance",
+   "choice": "A",
+   "label": "Withdraw the proc change; add the tooltip",
+   "recommend": "A",
+   "followed": true,
+   "note": "",
+   "issue": 10,
+   "at": "2026-10-25T22:58:32Z"
+  },
+  "bal-p5": {
+   "name": "P5. The 750-per-hit cap on Mobzilla, The King and The Queen",
+   "group": "balance",
+   "choice": "A",
+   "label": "Keep the caps",
+   "recommend": "A",
+   "followed": true,
+   "note": "",
+   "issue": 10,
+   "at": "2026-10-25T22:58:32Z"
+  },
+  "bal-p6": {
+   "name": "P6. Rahovart: 845 seconds with any weapon",
+   "group": "balance",
+   "choice": "A",
+   "label": "\"3.0~9.0\" → \"0.5~2.0\"",
+   "recommend": "A",
+   "followed": true,
+   "note": "Let's also take into consideration how long other fights are averaging. This could benefit from some research of modern modpacks that do a good job of balancing fight duration so that we can try to hit the mark. Check back in before making any other changes in this capacity.",
+   "issue": 10,
+   "at": "2026-10-25T22:58:32Z"
+  },
+  "bal-p7": {
+   "name": "P7. Cultist's price disappears at T3",
+   "group": "balance",
+   "choice": "A",
+   "label": "Fixed 0.6 health per proc, through armour",
+   "recommend": "A",
+   "followed": true,
+   "note": "It should always have a cost because it's utility scales with the gear, but we need to make sure we get this right.",
+   "issue": 10,
+   "at": "2026-10-25T22:58:32Z"
+  },
+  "bal-p8": {
+   "name": "P8. Bastion costs damage at T2",
+   "group": "balance",
+   "choice": "A",
+   "label": "Golems fight the adds",
+   "recommend": "A",
+   "followed": true,
+   "note": "I am just going with the recommendation because I don't have a better answer, but please take a look at how others do this enchant because this is a thing that exists on like factions servers.",
+   "issue": 10,
+   "at": "2026-10-25T22:58:32Z"
+  },
+  "bal-p9": {
+   "name": "P9. Re-tier by measured value",
+   "group": "balance",
+   "choice": "A",
+   "label": "Accept the table",
+   "recommend": "A",
+   "followed": true,
+   "note": "It's fine to reorder the rarity based on the actual enchant strength, but we are still going to change how the enchants and related items are sourced depending on how they are balanced. If something ends up very strong, the rarity will be driven up and most players won't encounter it as well as the opposite relationship. So don't concern yourself with drop rates just yet when considering rarity because current drop rates and sources will definitely change a lot.",
+   "issue": 10,
+   "at": "2026-10-25T22:58:32Z"
+  },
+  "bal-p10": {
+   "name": "P10. Where on the ladder each enchantment should drop",
+   "group": "balance",
+   "choice": "later",
+   "label": "later",
+   "recommend": "A",
+   "followed": null,
+   "note": "This isn't enough information to make a decision like this. I would need a full comprehensive table showing what sort of effect each enchantment/combination is having in tests (how much it increases survivability, how much damage it adds, which fights they show up in, tangible amounts of time that they shorten the fight by, etc) to be able to make decisions on drop rates. I want to first get all of the enchantments to the point where they have an observable effect proportionate to the rarity that we end up giving them, a good looking distribution across rarities (it's fine if we have to come up with some more ideas for enchants to achieve this), and for none of them to break the game, make hard bosses much easier than they should be, or otherwise fuck up the flow of things. I want this pack to be fun, and I want it to have a good lifespan.",
+   "issue": 10,
+   "at": "2026-10-25T22:58:32Z"
+  },
+  "tex-glass-panes": {
+   "name": "Connected glass panes",
+   "group": "textures",
+   "choice": "A",
+   "label": "Yes",
+   "recommend": "A",
+   "followed": true,
+   "note": "",
+   "issue": 10,
+   "at": "2026-10-25T22:58:32Z"
+  },
+  "tex-ship": {
+   "name": "How QF Textures ships",
+   "group": "textures",
+   "choice": "A",
+   "label": "Ship the built zip with the pack",
+   "recommend": "A",
+   "followed": true,
+   "note": "",
+   "issue": 10,
+   "at": "2026-10-25T22:58:32Z"
+  },
+  "srv-pvp": {
+   "name": "PvP and accidental damage",
+   "group": "server",
+   "choice": "B",
+   "label": "Leave it",
+   "recommend": "A",
+   "followed": false,
+   "note": "Even if we add team functionality, I think friendly fire is a part of the game too.",
+   "issue": 10,
+   "at": "2026-10-25T22:58:32Z"
+  },
+  "srv-quests": {
+   "name": "Quest progression: parties or personal",
+   "group": "server",
+   "choice": "B",
+   "label": "Personal progression",
+   "recommend": "A",
+   "followed": false,
+   "note": "",
+   "issue": 10,
+   "at": "2026-10-25T22:58:32Z"
+  },
+  "srv-sleep": {
+   "name": "Sleeping through the night",
+   "group": "server",
+   "choice": "A",
+   "label": "Add a sleep vote",
+   "recommend": "A",
+   "followed": true,
+   "note": "half rounded down",
+   "issue": 10,
+   "at": "2026-10-25T22:58:32Z"
+  },
+  "srv-afk": {
+   "name": "AFK players",
+   "group": "server",
+   "choice": "A",
+   "label": "Kick after 30 minutes idle",
+   "recommend": "A",
+   "followed": true,
+   "note": "this can be basic for now, and players can set up afk setups like a water loop in order to intentionally afk, but yeah, we should definitely kick unintentional AFKers",
+   "issue": 10,
+   "at": "2026-10-25T22:58:32Z"
+  },
+  "srv-hub": {
+   "name": "A hub at spawn",
+   "group": "server",
+   "choice": "A",
+   "label": "Build the hub, protect 16",
+   "recommend": "A",
+   "followed": true,
+   "note": "I like the idea of the hub. I'm assuming that this would work like most custom Minecraft maps where you can move around the \"Pre game area\" before loading into the actual world. I think it would be good to have a well designed hub with a bunch of information, but there shouldn't be any actual portals or anything that can be used for utility. If you can think of any other things that fit the idea then I am open to recommendations because I quite like the idea of a really well designed hub area. It would kinda be cool to have a protected trading station if people want to exchange gear somewhere where PvP is not enabled, and where they can preview what is going into a trade before confirming.",
+   "issue": 10,
+   "at": "2026-10-25T22:58:32Z"
+  },
+  "srv-loaders": {
+   "name": "Chunk loaders and the known TPS sinks",
+   "group": "server",
+   "choice": "A",
+   "label": "Apply the whole bundle",
+   "recommend": "A",
+   "followed": true,
+   "note": "I'm not sure which of these proposed fixes will affect gameplay, so I recommend that in the next round you draft something more comprehensive to inform me of the effects and the benefits.",
+   "issue": 10,
+   "at": "2026-10-25T22:58:32Z"
+  },
+  "srv-graves": {
+   "name": "Death and graves",
+   "group": "server",
+   "choice": "A",
+   "label": "Accept and write them down",
+   "recommend": "A",
+   "followed": true,
+   "note": "accept the defaults, but we don't need to tell people not to loot graves. It's an honor based world with an honor based system. If someone steals it will be sorted out in game. I am not afraid of drama",
+   "issue": 10,
+   "at": "2026-10-25T22:58:32Z"
+  },
+  "srv-tools": {
+   "name": "Three server additions",
+   "group": "server",
+   "choice": "A",
+   "label": "All three",
+   "recommend": "A",
+   "followed": true,
+   "note": "I don't like the idea of a world border unless it will really help with server-wide performance. The intent is to pre-generate a map, and to have the world outside of that (the ourskirts) as difficult end-game territory which is procedurally generated. My understanding is that it may lag someone while they are rendering the area outside of what is pregen, but won't cause lasting instability. If I am wrong we can come to some sort of compromise.",
+   "issue": 10,
+   "at": "2026-10-25T22:58:32Z"
+  }
+ },
+ "open": [
+  "act1-05",
+  "bal-p10"
+ ]
+}

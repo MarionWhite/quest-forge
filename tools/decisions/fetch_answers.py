@@ -168,6 +168,12 @@ def mark_answered(ns):
 
 
 def main():
+    # Windows consoles default to cp1252; the tables carry arrows and dashes.
+    for stream in (sys.stdout, sys.stderr):
+        try:
+            stream.reconfigure(encoding="utf-8", errors="replace")
+        except (AttributeError, ValueError):
+            pass
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--sheet", type=int, help="only this sheet")
     ap.add_argument("--print", action="store_true", help="also print the raw latest answers")
