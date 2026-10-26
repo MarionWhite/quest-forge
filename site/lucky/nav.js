@@ -76,12 +76,14 @@ export function createNav() {
 
   // push a point out of whatever it is inside (minimum translation), a few passes
   function resolve(x, z, r, ign) {
-    for (let pass = 0; pass < 6; pass++) {
+    for (let pass = 0; pass < 8; pass++) {
       const b = blockerAt(x, z, r, ign);
       if (!b) break;
-      const dl = x - (b.x0 - r), dr = (b.x1 + r) - x, dt = z - (b.z0 - r), db = (b.z1 + r) - z;
-      const m = Math.min(dl, dr, dt, db);
-      if (m === dl) x = b.x0 - r - 0.002; else if (m === dr) x = b.x1 + r + 0.002; else if (m === dt) z = b.z0 - r - 0.002; else z = b.z1 + r + 0.002;
+      const c = [[b.x0 - r - 0.002, z], [b.x1 + r + 0.002, z], [x, b.z0 - r - 0.002], [x, b.z1 + r + 0.002]];
+      c.sort((p, q) => Math.hypot(p[0] - x, p[1] - z) - Math.hypot(q[0] - x, q[1] - z));
+      const free = c.find((p) => !blockerAt(p[0], p[1], r, ign));
+      const pick = free || c[0];
+      x = pick[0]; z = pick[1];
     }
     return { x, z };
   }
@@ -159,7 +161,7 @@ export function createNav() {
   // ---- terrain from the stage's voxels: ground height per column, solid boxes for everything standing on it
   const TERRAIN = new Set(['grass', 'path', 'dirt']);
   function fromVoxels(vox, opts = {}) {
-    const leafy = new Set(['leaves']);
+    const cells = { solid: new Set(), leaf: new Set(), dais: new Set() };
     for (const [k, id] of vox.m) {
       const [x, y, z] = k.split(',').map(Number);
       if (y < 0) continue;
@@ -169,14 +171,25 @@ export function createNav() {
         continue;
       }
       if (y > 1 && !opts.tall) continue;
-      if (id === 'brick' && x >= -1 && x <= 1 && z >= -1 && z <= 1) { add('dais:' + x + ',' + z, x, z, x + 1, z + 1, 'dais'); continue; }
-      add('vox:' + k, x, z, x + 1, z + 1, leafy.has(id) ? 'leaf' : 'solid');
+      const kind = id === 'brick' && x >= -1 && x <= 1 && z >= -1 && z <= 1 ? 'dais' : id === 'leaves' ? 'leaf' : 'solid';
+      cells[kind].add(x + ',' + z);
     }
     // a hill higher than one step blocks everybody; a one-step rise is walked over
-    for (const [key, h] of ground) {
-      if (h < 2) continue;
-      const [x, z] = key.split(',').map(Number);
-      add('hill:' + key, x, z, x + 1, z + 1, 'solid');
+    for (const [key, h] of ground) if (h >= 2) cells.solid.add(key);
+    // merge cells into big rectangles so pushing out of one never lands inside its neighbour
+    for (const [kind, set] of Object.entries(cells)) {
+      const used = new Set();
+      const list = [...set].map((s) => s.split(',').map(Number)).sort((p, q) => p[1] - q[1] || p[0] - q[0]);
+      for (const [x, z] of list) {
+        if (used.has(x + ',' + z)) continue;
+        let w = 1;
+        while (set.has((x + w) + ',' + z) && !used.has((x + w) + ',' + z)) w++;
+        let h = 1;
+        const rowOk = (zz) => { for (let i = 0; i < w; i++) if (!set.has((x + i) + ',' + zz) || used.has((x + i) + ',' + zz)) return false; return true; };
+        while (rowOk(z + h)) h++;
+        for (let i = 0; i < w; i++) for (let j = 0; j < h; j++) used.add((x + i) + ',' + (z + j));
+        add(kind + ':' + x + ',' + z, x, z, x + w, z + h, kind);
+      }
     }
   }
   function groundAt(x, z) {
@@ -192,6 +205,7 @@ export function createNav() {
   function track(tag, x, z, r, ign) {
     stats.samples++;
     stats.by[tag] = (stats.by[tag] || 0) + 1;
+    if (stats.samples % 20 === 0) publish();
     const b = blockerAt(x, z, r, ign);
     if (b) {
       stats.violations++;

@@ -55,6 +55,9 @@ function routeFor(m, from, to) {
   const ign = new Set(big ? SOFT : []);
   if (m.style === 'pour') ign.add('dais');
   const r = mobRadius(m);
+  // an unlucky spawn point inside a hill or a tree starts at the nearest open ground
+  const sf = nav.nearestFree(from.x, from.z, r, ign, 12);
+  from = { x: sf.x, z: sf.z };
   const pts = nav.path(from.x, from.z, to.x, to.z, r, { ign, step: 0.5 });
   const full = [[from.x, from.z], ...pts];
   const cum = [0];
