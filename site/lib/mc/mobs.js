@@ -11,10 +11,11 @@ import { attachEquipment } from './equipment.js';
 export { whenMobTexturesLoaded };
 export { parseEquipment, classify as classifyItem, EQUIP_PRESETS } from './equipment.js';
 // Feature detection for callers that may load an older copy of this file: `MOB_FEATURES.equipment`.
-// makeMob(id, { equipment: [...], enchanted }) dresses the biped mobs (Zombie, Giant, PigZombie, ZombieVillager,
+// makeMob(id, { equipment: [...], enchanted }) dresses the biped mobs (Zombie, PigZombie, ZombieVillager,
 // Skeleton, WitherSkeleton, Steve); `equipment` is the Lucky drop's `actions[].equipment` array.
+// Not the Giant: 1.7.10's RenderGiantZombie draws no armour or held item, so an equipped Giant looks bare in game.
 export const MOB_FEATURES = { equipment: true };
-const EQUIP_KEYS = new Set(['Zombie', 'Giant', 'PigZombie', 'ZombieVillager', 'Skeleton', 'WitherSkeleton', 'Steve']);
+const EQUIP_KEYS = new Set(['Zombie', 'PigZombie', 'ZombieVillager', 'Skeleton', 'WitherSkeleton', 'Steve']);
 
 const TEXP = (p) => new URL('./tex/' + p, import.meta.url).href;
 const FEET = 24;
