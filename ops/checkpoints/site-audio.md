@@ -1,11 +1,4 @@
-# site-audio (checkpoint, started 2026-10-25 23:00, Mac)
-
-Brief: ops/briefs/site-3d-page.md + the task prompt (design notes: /private/tmp/claude-503/-Users-suaz-Desktop-QuestForge/91769071-2ed0-4412-b25d-3c510232d8e5/scratchpad/shared/round4.md).
-Owns: site/lib/sfx/**, site/lib/qfaudio.js (fixes only), tools/site/build_sfx.py, tools/music/site_cues.py, Sounds section in site/README.md
-Done means: bank from 1.7.10 + OreSpawn sounds as AAC .m4a (Safari-safe), manifest valid; qf.* synthesized set; music.lucky and music.krypt seamless with loop points; loudness measured; every name used in site/lucky, site/graves, site/lib/mc present
-
-## Done
-- (nothing checkpointed yet)
-
-## Next
-- (the running agent rewrites this after every step)
+# site-audio checkpoint
+Done: tools/site/build_sfx.py (game bank: site/lib/sfx/**, manifest.json, 332 events, 9.5 MB; --own-only drops game sounds).
+Next: fix krypt_groan in tools/music/site_cues.py (S.groan needs >= 7.6 s), run sfx then music, verify names, README Sounds section, journal line.
+Venv: /private/tmp/claude-503/-Users-suaz-Desktop-QuestForge/91769071-2ed0-4412-b25d-3c510232d8e5/scratchpad/audio/venv; QF_TMP=.../audio/tmp

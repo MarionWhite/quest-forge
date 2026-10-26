@@ -1,0 +1,6510 @@
+{
+ "events": {
+  "ambient.cave.cave": {
+   "files": [
+    "ambient/cave/cave1.m4a",
+    "ambient/cave/cave10.m4a",
+    "ambient/cave/cave11.m4a",
+    "ambient/cave/cave12.m4a",
+    "ambient/cave/cave13.m4a",
+    "ambient/cave/cave2.m4a",
+    "ambient/cave/cave3.m4a",
+    "ambient/cave/cave4.m4a",
+    "ambient/cave/cave5.m4a",
+    "ambient/cave/cave6.m4a",
+    "ambient/cave/cave7.m4a",
+    "ambient/cave/cave8.m4a",
+    "ambient/cave/cave9.m4a"
+   ],
+   "volume": 0.9,
+   "pitch": 1,
+   "bus": "ambient"
+  },
+  "ambient.weather.rain": {
+   "files": [
+    "ambient/weather/rain1.m4a",
+    "ambient/weather/rain2.m4a",
+    "ambient/weather/rain3.m4a",
+    "ambient/weather/rain4.m4a"
+   ],
+   "volume": 0.9,
+   "pitch": 1,
+   "bus": "ambient"
+  },
+  "ambient.weather.thunder": {
+   "files": [
+    "ambient/weather/thunder1.m4a",
+    "ambient/weather/thunder2.m4a",
+    "ambient/weather/thunder3.m4a"
+   ],
+   "volume": 0.9,
+   "pitch": 1,
+   "bus": "ambient"
+  },
+  "creeper.primed": {
+   "files": [
+    "random/fuse.m4a"
+   ],
+   "volume": 1,
+   "pitch": 1,
+   "bus": "sfx"
+  },
+  "dig.cloth": {
+   "files": [
+    "dig/cloth1.m4a",
+    "dig/cloth2.m4a",
+    "dig/cloth3.m4a",
+    "dig/cloth4.m4a"
+   ],
+   "volume": 0.8,
+   "pitch": [
+    0.8,
+    1.2
+   ],
+   "bus": "sfx"
+  },
+  "dig.glass": {
+   "files": [
+    "random/glass1.m4a",
+    "random/glass2.m4a",
+    "random/glass3.m4a"
+   ],
+   "volume": 0.8,
+   "pitch": [
+    0.8,
+    1.2
+   ],
+   "bus": "sfx"
+  },
+  "dig.grass": {
+   "files": [
+    "dig/grass1.m4a",
+    "dig/grass2.m4a",
+    "dig/grass3.m4a",
+    "dig/grass4.m4a"
+   ],
+   "volume": 0.8,
+   "pitch": [
+    0.8,
+    1.2
+   ],
+   "bus": "sfx"
+  },
+  "dig.gravel": {
+   "files": [
+    "dig/gravel1.m4a",
+    "dig/gravel2.m4a",
+    "dig/gravel3.m4a",
+    "dig/gravel4.m4a"
+   ],
+   "volume": 0.8,
+   "pitch": [
+    0.8,
+    1.2
+   ],
+   "bus": "sfx"
+  },
+  "dig.sand": {
+   "files": [
+    "dig/sand1.m4a",
+    "dig/sand2.m4a",
+    "dig/sand3.m4a",
+    "dig/sand4.m4a"
+   ],
+   "volume": 0.8,
+   "pitch": [
+    0.8,
+    1.2
+   ],
+   "bus": "sfx"
+  },
+  "dig.snow": {
+   "files": [
+    "dig/snow1.m4a",
+    "dig/snow2.m4a",
+    "dig/snow3.m4a",
+    "dig/snow4.m4a"
+   ],
+   "volume": 0.8,
+   "pitch": [
+    0.8,
+    1.2
+   ],
+   "bus": "sfx"
+  },
+  "dig.stone": {
+   "files": [
+    "dig/stone1.m4a",
+    "dig/stone2.m4a",
+    "dig/stone3.m4a",
+    "dig/stone4.m4a"
+   ],
+   "volume": 0.8,
+   "pitch": [
+    0.8,
+    1.2
+   ],
+   "bus": "sfx"
+  },
+  "dig.wood": {
+   "files": [
+    "dig/wood1.m4a",
+    "dig/wood2.m4a",
+    "dig/wood3.m4a",
+    "dig/wood4.m4a"
+   ],
+   "volume": 0.8,
+   "pitch": [
+    0.8,
+    1.2
+   ],
+   "bus": "sfx"
+  },
+  "fire.fire": {
+   "files": [
+    "fire/fire.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "fire.ignite": {
+   "files": [
+    "fire/ignite.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "fireworks.blast": {
+   "files": [
+    "fireworks/blast1.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "fireworks.blast_far": {
+   "files": [
+    "fireworks/blast_far1.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "fireworks.largeBlast": {
+   "files": [
+    "fireworks/largeBlast1.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "fireworks.largeBlast_far": {
+   "files": [
+    "fireworks/largeBlast_far1.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "fireworks.launch": {
+   "files": [
+    "fireworks/launch1.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "fireworks.twinkle": {
+   "files": [
+    "fireworks/twinkle1.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "fireworks.twinkle_far": {
+   "files": [
+    "fireworks/twinkle_far1.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "game.hostile.die": {
+   "files": [
+    "damage/hit1.m4a",
+    "damage/hit2.m4a",
+    "damage/hit3.m4a"
+   ],
+   "volume": 1,
+   "pitch": 1,
+   "bus": "sfx"
+  },
+  "game.hostile.hurt": {
+   "files": [
+    "damage/hit1.m4a",
+    "damage/hit2.m4a",
+    "damage/hit3.m4a"
+   ],
+   "volume": 1,
+   "pitch": 1,
+   "bus": "sfx"
+  },
+  "game.hostile.hurt.fall.big": {
+   "files": [
+    "damage/fallbig.m4a"
+   ],
+   "volume": 1,
+   "pitch": 1,
+   "bus": "sfx"
+  },
+  "game.hostile.hurt.fall.small": {
+   "files": [
+    "damage/fallsmall.m4a"
+   ],
+   "volume": 1,
+   "pitch": 1,
+   "bus": "sfx"
+  },
+  "game.hostile.swim": {
+   "files": [
+    "liquid/swim1.m4a",
+    "liquid/swim2.m4a",
+    "liquid/swim3.m4a",
+    "liquid/swim4.m4a"
+   ],
+   "volume": 1,
+   "pitch": 1,
+   "bus": "sfx"
+  },
+  "game.hostile.swim.splash": {
+   "files": [
+    "liquid/splash.m4a",
+    "liquid/splash2.m4a"
+   ],
+   "volume": 1,
+   "pitch": 1,
+   "bus": "sfx"
+  },
+  "game.neutral.die": {
+   "files": [
+    "damage/hit1.m4a",
+    "damage/hit2.m4a",
+    "damage/hit3.m4a"
+   ],
+   "volume": 1,
+   "pitch": 1,
+   "bus": "sfx"
+  },
+  "game.neutral.hurt": {
+   "files": [
+    "damage/hit1.m4a",
+    "damage/hit2.m4a",
+    "damage/hit3.m4a"
+   ],
+   "volume": 1,
+   "pitch": 1,
+   "bus": "sfx"
+  },
+  "game.neutral.hurt.fall.big": {
+   "files": [
+    "damage/fallbig.m4a"
+   ],
+   "volume": 1,
+   "pitch": 1,
+   "bus": "sfx"
+  },
+  "game.neutral.hurt.fall.small": {
+   "files": [
+    "damage/fallsmall.m4a"
+   ],
+   "volume": 1,
+   "pitch": 1,
+   "bus": "sfx"
+  },
+  "game.neutral.swim": {
+   "files": [
+    "liquid/swim1.m4a",
+    "liquid/swim2.m4a",
+    "liquid/swim3.m4a",
+    "liquid/swim4.m4a"
+   ],
+   "volume": 1,
+   "pitch": 1,
+   "bus": "sfx"
+  },
+  "game.neutral.swim.splash": {
+   "files": [
+    "liquid/splash.m4a",
+    "liquid/splash2.m4a"
+   ],
+   "volume": 1,
+   "pitch": 1,
+   "bus": "sfx"
+  },
+  "game.player.die": {
+   "files": [
+    "damage/hit1.m4a",
+    "damage/hit2.m4a",
+    "damage/hit3.m4a"
+   ],
+   "volume": 1,
+   "pitch": 1,
+   "bus": "sfx"
+  },
+  "game.player.hurt": {
+   "files": [
+    "damage/hit1.m4a",
+    "damage/hit2.m4a",
+    "damage/hit3.m4a"
+   ],
+   "volume": 1,
+   "pitch": 1,
+   "bus": "sfx"
+  },
+  "game.player.hurt.fall.big": {
+   "files": [
+    "damage/fallbig.m4a"
+   ],
+   "volume": 1,
+   "pitch": 1,
+   "bus": "sfx"
+  },
+  "game.player.hurt.fall.small": {
+   "files": [
+    "damage/fallsmall.m4a"
+   ],
+   "volume": 1,
+   "pitch": 1,
+   "bus": "sfx"
+  },
+  "game.player.swim": {
+   "files": [
+    "liquid/swim1.m4a",
+    "liquid/swim2.m4a",
+    "liquid/swim3.m4a",
+    "liquid/swim4.m4a"
+   ],
+   "volume": 1,
+   "pitch": 1,
+   "bus": "sfx"
+  },
+  "game.player.swim.splash": {
+   "files": [
+    "liquid/splash.m4a",
+    "liquid/splash2.m4a"
+   ],
+   "volume": 1,
+   "pitch": 1,
+   "bus": "sfx"
+  },
+  "game.potion.smash": {
+   "files": [
+    "random/glass1.m4a",
+    "random/glass2.m4a",
+    "random/glass3.m4a"
+   ],
+   "volume": 1,
+   "pitch": 1,
+   "bus": "sfx"
+  },
+  "game.tnt.primed": {
+   "files": [
+    "random/fuse.m4a"
+   ],
+   "volume": 1,
+   "pitch": 1,
+   "bus": "sfx"
+  },
+  "liquid.lava": {
+   "files": [
+    "liquid/lava.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "liquid.lavapop": {
+   "files": [
+    "liquid/lavapop.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "liquid.splash": {
+   "files": [
+    "random/splash.m4a"
+   ],
+   "volume": 1,
+   "pitch": 1,
+   "bus": "sfx"
+  },
+  "liquid.water": {
+   "files": [
+    "liquid/water.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.bat.death": {
+   "files": [
+    "mob/bat/death.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.bat.hurt": {
+   "files": [
+    "mob/bat/hurt1.m4a",
+    "mob/bat/hurt2.m4a",
+    "mob/bat/hurt3.m4a",
+    "mob/bat/hurt4.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.bat.idle": {
+   "files": [
+    "mob/bat/idle1.m4a",
+    "mob/bat/idle2.m4a",
+    "mob/bat/idle3.m4a",
+    "mob/bat/idle4.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.bat.loop": {
+   "files": [
+    "mob/bat/loop.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.bat.takeoff": {
+   "files": [
+    "mob/bat/takeoff.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.blaze.breathe": {
+   "files": [
+    "mob/blaze/breathe1.m4a",
+    "mob/blaze/breathe2.m4a",
+    "mob/blaze/breathe3.m4a",
+    "mob/blaze/breathe4.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.blaze.death": {
+   "files": [
+    "mob/blaze/death.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.blaze.hit": {
+   "files": [
+    "mob/blaze/hit1.m4a",
+    "mob/blaze/hit2.m4a",
+    "mob/blaze/hit3.m4a",
+    "mob/blaze/hit4.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.cat.hiss": {
+   "files": [
+    "mob/cat/hiss1.m4a",
+    "mob/cat/hiss2.m4a",
+    "mob/cat/hiss3.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.cat.hitt": {
+   "files": [
+    "mob/cat/hitt1.m4a",
+    "mob/cat/hitt2.m4a",
+    "mob/cat/hitt3.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.cat.meow": {
+   "files": [
+    "mob/cat/meow1.m4a",
+    "mob/cat/meow2.m4a",
+    "mob/cat/meow3.m4a",
+    "mob/cat/meow4.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.cat.purr": {
+   "files": [
+    "mob/cat/purr1.m4a",
+    "mob/cat/purr2.m4a",
+    "mob/cat/purr3.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.cat.purreow": {
+   "files": [
+    "mob/cat/purreow1.m4a",
+    "mob/cat/purreow2.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.chicken.hurt": {
+   "files": [
+    "mob/chicken/hurt1.m4a",
+    "mob/chicken/hurt2.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.chicken.plop": {
+   "files": [
+    "mob/chicken/plop.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.chicken.say": {
+   "files": [
+    "mob/chicken/say1.m4a",
+    "mob/chicken/say2.m4a",
+    "mob/chicken/say3.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.chicken.step": {
+   "files": [
+    "mob/chicken/step1.m4a",
+    "mob/chicken/step2.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.cow.hurt": {
+   "files": [
+    "mob/cow/hurt1.m4a",
+    "mob/cow/hurt2.m4a",
+    "mob/cow/hurt3.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.cow.say": {
+   "files": [
+    "mob/cow/say1.m4a",
+    "mob/cow/say2.m4a",
+    "mob/cow/say3.m4a",
+    "mob/cow/say4.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.cow.step": {
+   "files": [
+    "mob/cow/step1.m4a",
+    "mob/cow/step2.m4a",
+    "mob/cow/step3.m4a",
+    "mob/cow/step4.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.creeper.death": {
+   "files": [
+    "mob/creeper/death.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.creeper.say": {
+   "files": [
+    "mob/creeper/say1.m4a",
+    "mob/creeper/say2.m4a",
+    "mob/creeper/say3.m4a",
+    "mob/creeper/say4.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.enderdragon.end": {
+   "files": [
+    "mob/enderdragon/end.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.enderdragon.growl": {
+   "files": [
+    "mob/enderdragon/growl1.m4a",
+    "mob/enderdragon/growl2.m4a",
+    "mob/enderdragon/growl3.m4a",
+    "mob/enderdragon/growl4.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.enderdragon.hit": {
+   "files": [
+    "mob/enderdragon/hit1.m4a",
+    "mob/enderdragon/hit2.m4a",
+    "mob/enderdragon/hit3.m4a",
+    "mob/enderdragon/hit4.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.enderdragon.wings": {
+   "files": [
+    "mob/enderdragon/wings1.m4a",
+    "mob/enderdragon/wings2.m4a",
+    "mob/enderdragon/wings3.m4a",
+    "mob/enderdragon/wings4.m4a",
+    "mob/enderdragon/wings5.m4a",
+    "mob/enderdragon/wings6.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.endermen.death": {
+   "files": [
+    "mob/endermen/death.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.endermen.hit": {
+   "files": [
+    "mob/endermen/hit1.m4a",
+    "mob/endermen/hit2.m4a",
+    "mob/endermen/hit3.m4a",
+    "mob/endermen/hit4.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.endermen.idle": {
+   "files": [
+    "mob/endermen/idle1.m4a",
+    "mob/endermen/idle2.m4a",
+    "mob/endermen/idle3.m4a",
+    "mob/endermen/idle4.m4a",
+    "mob/endermen/idle5.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.endermen.portal": {
+   "files": [
+    "mob/endermen/portal.m4a",
+    "mob/endermen/portal2.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.endermen.scream": {
+   "files": [
+    "mob/endermen/scream1.m4a",
+    "mob/endermen/scream2.m4a",
+    "mob/endermen/scream3.m4a",
+    "mob/endermen/scream4.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.endermen.stare": {
+   "files": [
+    "mob/endermen/stare.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.ghast.affectionate_scream": {
+   "files": [
+    "mob/ghast/affectionate_scream.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.ghast.charge": {
+   "files": [
+    "mob/ghast/charge.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.ghast.death": {
+   "files": [
+    "mob/ghast/death.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.ghast.fireball": {
+   "files": [
+    "mob/ghast/fireball4.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.ghast.moan": {
+   "files": [
+    "mob/ghast/moan1.m4a",
+    "mob/ghast/moan2.m4a",
+    "mob/ghast/moan3.m4a",
+    "mob/ghast/moan4.m4a",
+    "mob/ghast/moan5.m4a",
+    "mob/ghast/moan6.m4a",
+    "mob/ghast/moan7.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.ghast.scream": {
+   "files": [
+    "mob/ghast/scream1.m4a",
+    "mob/ghast/scream2.m4a",
+    "mob/ghast/scream3.m4a",
+    "mob/ghast/scream4.m4a",
+    "mob/ghast/scream5.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.horse.angry": {
+   "files": [
+    "mob/horse/angry1.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.horse.armor": {
+   "files": [
+    "mob/horse/armor.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.horse.breathe": {
+   "files": [
+    "mob/horse/breathe1.m4a",
+    "mob/horse/breathe2.m4a",
+    "mob/horse/breathe3.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.horse.death": {
+   "files": [
+    "mob/horse/death.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.horse.donkey.angry": {
+   "files": [
+    "mob/horse/donkey/angry1.m4a",
+    "mob/horse/donkey/angry2.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.horse.donkey.death": {
+   "files": [
+    "mob/horse/donkey/death.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.horse.donkey.hit": {
+   "files": [
+    "mob/horse/donkey/hit1.m4a",
+    "mob/horse/donkey/hit2.m4a",
+    "mob/horse/donkey/hit3.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.horse.donkey.idle": {
+   "files": [
+    "mob/horse/donkey/idle1.m4a",
+    "mob/horse/donkey/idle2.m4a",
+    "mob/horse/donkey/idle3.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.horse.gallop": {
+   "files": [
+    "mob/horse/gallop1.m4a",
+    "mob/horse/gallop2.m4a",
+    "mob/horse/gallop3.m4a",
+    "mob/horse/gallop4.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.horse.hit": {
+   "files": [
+    "mob/horse/hit1.m4a",
+    "mob/horse/hit2.m4a",
+    "mob/horse/hit3.m4a",
+    "mob/horse/hit4.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.horse.idle": {
+   "files": [
+    "mob/horse/idle1.m4a",
+    "mob/horse/idle2.m4a",
+    "mob/horse/idle3.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.horse.jump": {
+   "files": [
+    "mob/horse/jump.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.horse.land": {
+   "files": [
+    "mob/horse/land.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.horse.leather": {
+   "files": [
+    "mob/horse/leather.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.horse.skeleton.death": {
+   "files": [
+    "mob/horse/skeleton/death.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.horse.skeleton.hit": {
+   "files": [
+    "mob/horse/skeleton/hit1.m4a",
+    "mob/horse/skeleton/hit2.m4a",
+    "mob/horse/skeleton/hit3.m4a",
+    "mob/horse/skeleton/hit4.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.horse.skeleton.idle": {
+   "files": [
+    "mob/horse/skeleton/idle1.m4a",
+    "mob/horse/skeleton/idle2.m4a",
+    "mob/horse/skeleton/idle3.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.horse.soft": {
+   "files": [
+    "mob/horse/soft1.m4a",
+    "mob/horse/soft2.m4a",
+    "mob/horse/soft3.m4a",
+    "mob/horse/soft4.m4a",
+    "mob/horse/soft5.m4a",
+    "mob/horse/soft6.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.horse.wood": {
+   "files": [
+    "mob/horse/wood1.m4a",
+    "mob/horse/wood2.m4a",
+    "mob/horse/wood3.m4a",
+    "mob/horse/wood4.m4a",
+    "mob/horse/wood5.m4a",
+    "mob/horse/wood6.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.horse.zombie.death": {
+   "files": [
+    "mob/horse/zombie/death.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.horse.zombie.hit": {
+   "files": [
+    "mob/horse/zombie/hit1.m4a",
+    "mob/horse/zombie/hit2.m4a",
+    "mob/horse/zombie/hit3.m4a",
+    "mob/horse/zombie/hit4.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.horse.zombie.idle": {
+   "files": [
+    "mob/horse/zombie/idle1.m4a",
+    "mob/horse/zombie/idle2.m4a",
+    "mob/horse/zombie/idle3.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.irongolem.death": {
+   "files": [
+    "mob/irongolem/death.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.irongolem.hit": {
+   "files": [
+    "mob/irongolem/hit1.m4a",
+    "mob/irongolem/hit2.m4a",
+    "mob/irongolem/hit3.m4a",
+    "mob/irongolem/hit4.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.irongolem.throw": {
+   "files": [
+    "mob/irongolem/throw.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.irongolem.walk": {
+   "files": [
+    "mob/irongolem/walk1.m4a",
+    "mob/irongolem/walk2.m4a",
+    "mob/irongolem/walk3.m4a",
+    "mob/irongolem/walk4.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.magmacube.big": {
+   "files": [
+    "mob/magmacube/big1.m4a",
+    "mob/magmacube/big2.m4a",
+    "mob/magmacube/big3.m4a",
+    "mob/magmacube/big4.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.magmacube.jump": {
+   "files": [
+    "mob/magmacube/jump1.m4a",
+    "mob/magmacube/jump2.m4a",
+    "mob/magmacube/jump3.m4a",
+    "mob/magmacube/jump4.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.magmacube.small": {
+   "files": [
+    "mob/magmacube/small1.m4a",
+    "mob/magmacube/small2.m4a",
+    "mob/magmacube/small3.m4a",
+    "mob/magmacube/small4.m4a",
+    "mob/magmacube/small5.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.pig.death": {
+   "files": [
+    "mob/pig/death.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.pig.say": {
+   "files": [
+    "mob/pig/say1.m4a",
+    "mob/pig/say2.m4a",
+    "mob/pig/say3.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.pig.step": {
+   "files": [
+    "mob/pig/step1.m4a",
+    "mob/pig/step2.m4a",
+    "mob/pig/step3.m4a",
+    "mob/pig/step4.m4a",
+    "mob/pig/step5.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.sheep.say": {
+   "files": [
+    "mob/sheep/say1.m4a",
+    "mob/sheep/say2.m4a",
+    "mob/sheep/say3.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.sheep.shear": {
+   "files": [
+    "mob/sheep/shear.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.sheep.step": {
+   "files": [
+    "mob/sheep/step1.m4a",
+    "mob/sheep/step2.m4a",
+    "mob/sheep/step3.m4a",
+    "mob/sheep/step4.m4a",
+    "mob/sheep/step5.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.silverfish.hit": {
+   "files": [
+    "mob/silverfish/hit1.m4a",
+    "mob/silverfish/hit2.m4a",
+    "mob/silverfish/hit3.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.silverfish.kill": {
+   "files": [
+    "mob/silverfish/kill.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.silverfish.say": {
+   "files": [
+    "mob/silverfish/say1.m4a",
+    "mob/silverfish/say2.m4a",
+    "mob/silverfish/say3.m4a",
+    "mob/silverfish/say4.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.silverfish.step": {
+   "files": [
+    "mob/silverfish/step1.m4a",
+    "mob/silverfish/step2.m4a",
+    "mob/silverfish/step3.m4a",
+    "mob/silverfish/step4.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.skeleton.death": {
+   "files": [
+    "mob/skeleton/death.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.skeleton.hurt": {
+   "files": [
+    "mob/skeleton/hurt1.m4a",
+    "mob/skeleton/hurt2.m4a",
+    "mob/skeleton/hurt3.m4a",
+    "mob/skeleton/hurt4.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.skeleton.say": {
+   "files": [
+    "mob/skeleton/say1.m4a",
+    "mob/skeleton/say2.m4a",
+    "mob/skeleton/say3.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.skeleton.step": {
+   "files": [
+    "mob/skeleton/step1.m4a",
+    "mob/skeleton/step2.m4a",
+    "mob/skeleton/step3.m4a",
+    "mob/skeleton/step4.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.slime.attack": {
+   "files": [
+    "mob/slime/attack1.m4a",
+    "mob/slime/attack2.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.slime.big": {
+   "files": [
+    "mob/slime/big1.m4a",
+    "mob/slime/big2.m4a",
+    "mob/slime/big3.m4a",
+    "mob/slime/big4.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.slime.small": {
+   "files": [
+    "mob/slime/small1.m4a",
+    "mob/slime/small2.m4a",
+    "mob/slime/small3.m4a",
+    "mob/slime/small4.m4a",
+    "mob/slime/small5.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.spider.death": {
+   "files": [
+    "mob/spider/death.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.spider.say": {
+   "files": [
+    "mob/spider/say1.m4a",
+    "mob/spider/say2.m4a",
+    "mob/spider/say3.m4a",
+    "mob/spider/say4.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.spider.step": {
+   "files": [
+    "mob/spider/step1.m4a",
+    "mob/spider/step2.m4a",
+    "mob/spider/step3.m4a",
+    "mob/spider/step4.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.villager.death": {
+   "files": [
+    "mob/villager/death.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.villager.haggle": {
+   "files": [
+    "mob/villager/haggle1.m4a",
+    "mob/villager/haggle2.m4a",
+    "mob/villager/haggle3.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.villager.hit": {
+   "files": [
+    "mob/villager/hit1.m4a",
+    "mob/villager/hit2.m4a",
+    "mob/villager/hit3.m4a",
+    "mob/villager/hit4.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.villager.idle": {
+   "files": [
+    "mob/villager/idle1.m4a",
+    "mob/villager/idle2.m4a",
+    "mob/villager/idle3.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.villager.no": {
+   "files": [
+    "mob/villager/no1.m4a",
+    "mob/villager/no2.m4a",
+    "mob/villager/no3.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.villager.yes": {
+   "files": [
+    "mob/villager/yes1.m4a",
+    "mob/villager/yes2.m4a",
+    "mob/villager/yes3.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.wither.death": {
+   "files": [
+    "mob/wither/death.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.wither.hurt": {
+   "files": [
+    "mob/wither/hurt1.m4a",
+    "mob/wither/hurt2.m4a",
+    "mob/wither/hurt3.m4a",
+    "mob/wither/hurt4.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.wither.idle": {
+   "files": [
+    "mob/wither/idle1.m4a",
+    "mob/wither/idle2.m4a",
+    "mob/wither/idle3.m4a",
+    "mob/wither/idle4.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.wither.shoot": {
+   "files": [
+    "mob/wither/shoot.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.wither.spawn": {
+   "files": [
+    "mob/wither/spawn.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.wolf.bark": {
+   "files": [
+    "mob/wolf/bark1.m4a",
+    "mob/wolf/bark2.m4a",
+    "mob/wolf/bark3.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.wolf.death": {
+   "files": [
+    "mob/wolf/death.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.wolf.growl": {
+   "files": [
+    "mob/wolf/growl1.m4a",
+    "mob/wolf/growl2.m4a",
+    "mob/wolf/growl3.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.wolf.howl": {
+   "files": [
+    "mob/wolf/howl1.m4a",
+    "mob/wolf/howl2.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.wolf.hurt": {
+   "files": [
+    "mob/wolf/hurt1.m4a",
+    "mob/wolf/hurt2.m4a",
+    "mob/wolf/hurt3.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.wolf.panting": {
+   "files": [
+    "mob/wolf/panting.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.wolf.shake": {
+   "files": [
+    "mob/wolf/shake.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.wolf.step": {
+   "files": [
+    "mob/wolf/step1.m4a",
+    "mob/wolf/step2.m4a",
+    "mob/wolf/step3.m4a",
+    "mob/wolf/step4.m4a",
+    "mob/wolf/step5.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.wolf.whine": {
+   "files": [
+    "mob/wolf/whine.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.zombie.death": {
+   "files": [
+    "mob/zombie/death.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.zombie.hurt": {
+   "files": [
+    "mob/zombie/hurt1.m4a",
+    "mob/zombie/hurt2.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.zombie.infect": {
+   "files": [
+    "mob/zombie/infect.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.zombie.metal": {
+   "files": [
+    "mob/zombie/metal1.m4a",
+    "mob/zombie/metal2.m4a",
+    "mob/zombie/metal3.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.zombie.remedy": {
+   "files": [
+    "mob/zombie/remedy.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.zombie.say": {
+   "files": [
+    "mob/zombie/say1.m4a",
+    "mob/zombie/say2.m4a",
+    "mob/zombie/say3.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.zombie.step": {
+   "files": [
+    "mob/zombie/step1.m4a",
+    "mob/zombie/step2.m4a",
+    "mob/zombie/step3.m4a",
+    "mob/zombie/step4.m4a",
+    "mob/zombie/step5.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.zombie.unfect": {
+   "files": [
+    "mob/zombie/unfect.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.zombie.wood": {
+   "files": [
+    "mob/zombie/wood1.m4a",
+    "mob/zombie/wood2.m4a",
+    "mob/zombie/wood3.m4a",
+    "mob/zombie/wood4.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.zombie.woodbreak": {
+   "files": [
+    "mob/zombie/woodbreak.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.zombiepig.zpig": {
+   "files": [
+    "mob/zombiepig/zpig1.m4a",
+    "mob/zombiepig/zpig2.m4a",
+    "mob/zombiepig/zpig3.m4a",
+    "mob/zombiepig/zpig4.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.zombiepig.zpigangry": {
+   "files": [
+    "mob/zombiepig/zpigangry1.m4a",
+    "mob/zombiepig/zpigangry2.m4a",
+    "mob/zombiepig/zpigangry3.m4a",
+    "mob/zombiepig/zpigangry4.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.zombiepig.zpigdeath": {
+   "files": [
+    "mob/zombiepig/zpigdeath.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "mob.zombiepig.zpighurt": {
+   "files": [
+    "mob/zombiepig/zpighurt1.m4a",
+    "mob/zombiepig/zpighurt2.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "note.bass": {
+   "files": [
+    "note/bass.m4a"
+   ],
+   "volume": 1,
+   "pitch": 1,
+   "bus": "sfx"
+  },
+  "note.bassattack": {
+   "files": [
+    "note/bassattack.m4a"
+   ],
+   "volume": 1,
+   "pitch": 1,
+   "bus": "sfx"
+  },
+  "note.bd": {
+   "files": [
+    "note/bd.m4a"
+   ],
+   "volume": 1,
+   "pitch": 1,
+   "bus": "sfx"
+  },
+  "note.harp": {
+   "files": [
+    "note/harp.m4a"
+   ],
+   "volume": 1,
+   "pitch": 1,
+   "bus": "sfx"
+  },
+  "note.hat": {
+   "files": [
+    "note/hat.m4a"
+   ],
+   "volume": 1,
+   "pitch": 1,
+   "bus": "sfx"
+  },
+  "note.pling": {
+   "files": [
+    "note/pling.m4a"
+   ],
+   "volume": 1,
+   "pitch": 1,
+   "bus": "sfx"
+  },
+  "note.snare": {
+   "files": [
+    "note/snare.m4a"
+   ],
+   "volume": 1,
+   "pitch": 1,
+   "bus": "sfx"
+  },
+  "orespawn:Beebuzz": {
+   "files": [
+    "orespawn/Beebuzz.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:MothraWings": {
+   "files": [
+    "orespawn/MothraWings1.m4a",
+    "orespawn/MothraWings2.m4a",
+    "orespawn/MothraWings3.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:MothraWings1": {
+   "files": [
+    "orespawn/MothraWings1.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:MothraWings2": {
+   "files": [
+    "orespawn/MothraWings2.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:MothraWings3": {
+   "files": [
+    "orespawn/MothraWings3.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:alien_death": {
+   "files": [
+    "orespawn/alien_death.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:alien_hurt": {
+   "files": [
+    "orespawn/alien_hurt.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:alien_living": {
+   "files": [
+    "orespawn/alien_living.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:alo_death": {
+   "files": [
+    "orespawn/alo_death.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:alo_hurt": {
+   "files": [
+    "orespawn/alo_hurt.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:alo_living": {
+   "files": [
+    "orespawn/alo_living.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:b_dark": {
+   "files": [
+    "orespawn/b_dark.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:b_death_boyfriend": {
+   "files": [
+    "orespawn/b_death_boyfriend.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:b_death_single": {
+   "files": [
+    "orespawn/b_death_single1.m4a",
+    "orespawn/b_death_single2.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:b_death_single1": {
+   "files": [
+    "orespawn/b_death_single1.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:b_death_single2": {
+   "files": [
+    "orespawn/b_death_single2.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:b_fight": {
+   "files": [
+    "orespawn/b_fight1.m4a",
+    "orespawn/b_fight2.m4a",
+    "orespawn/b_fight3.m4a",
+    "orespawn/b_fight4.m4a",
+    "orespawn/b_fight5.m4a",
+    "orespawn/b_fight6.m4a",
+    "orespawn/b_fight7.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:b_fight1": {
+   "files": [
+    "orespawn/b_fight1.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:b_fight2": {
+   "files": [
+    "orespawn/b_fight2.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:b_fight3": {
+   "files": [
+    "orespawn/b_fight3.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:b_fight4": {
+   "files": [
+    "orespawn/b_fight4.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:b_fight5": {
+   "files": [
+    "orespawn/b_fight5.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:b_fight6": {
+   "files": [
+    "orespawn/b_fight6.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:b_fight7": {
+   "files": [
+    "orespawn/b_fight7.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:b_happy": {
+   "files": [
+    "orespawn/b_happy1.m4a",
+    "orespawn/b_happy2.m4a",
+    "orespawn/b_happy3.m4a",
+    "orespawn/b_happy4.m4a",
+    "orespawn/b_happy5.m4a",
+    "orespawn/b_happy6.m4a",
+    "orespawn/b_happy7.m4a",
+    "orespawn/b_happy8.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:b_happy1": {
+   "files": [
+    "orespawn/b_happy1.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:b_happy2": {
+   "files": [
+    "orespawn/b_happy2.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:b_happy3": {
+   "files": [
+    "orespawn/b_happy3.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:b_happy4": {
+   "files": [
+    "orespawn/b_happy4.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:b_happy5": {
+   "files": [
+    "orespawn/b_happy5.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:b_happy6": {
+   "files": [
+    "orespawn/b_happy6.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:b_happy7": {
+   "files": [
+    "orespawn/b_happy7.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:b_happy8": {
+   "files": [
+    "orespawn/b_happy8.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:b_hurt": {
+   "files": [
+    "orespawn/b_hurt1.m4a",
+    "orespawn/b_hurt2.m4a",
+    "orespawn/b_hurt3.m4a",
+    "orespawn/b_hurt4.m4a",
+    "orespawn/b_hurt5.m4a",
+    "orespawn/b_hurt6.m4a",
+    "orespawn/b_hurt7.m4a",
+    "orespawn/b_hurt8.m4a",
+    "orespawn/b_hurt9.m4a",
+    "orespawn/b_hurt10.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:b_hurt1": {
+   "files": [
+    "orespawn/b_hurt1.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:b_hurt10": {
+   "files": [
+    "orespawn/b_hurt10.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:b_hurt2": {
+   "files": [
+    "orespawn/b_hurt2.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:b_hurt3": {
+   "files": [
+    "orespawn/b_hurt3.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:b_hurt4": {
+   "files": [
+    "orespawn/b_hurt4.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:b_hurt5": {
+   "files": [
+    "orespawn/b_hurt5.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:b_hurt6": {
+   "files": [
+    "orespawn/b_hurt6.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:b_hurt7": {
+   "files": [
+    "orespawn/b_hurt7.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:b_hurt8": {
+   "files": [
+    "orespawn/b_hurt8.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:b_hurt9": {
+   "files": [
+    "orespawn/b_hurt9.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:b_ow": {
+   "files": [
+    "orespawn/b_ow1.m4a",
+    "orespawn/b_ow2.m4a",
+    "orespawn/b_ow3.m4a",
+    "orespawn/b_ow4.m4a",
+    "orespawn/b_ow5.m4a",
+    "orespawn/b_ow6.m4a",
+    "orespawn/b_ow7.m4a",
+    "orespawn/b_ow8.m4a",
+    "orespawn/b_ow9.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:b_ow1": {
+   "files": [
+    "orespawn/b_ow1.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:b_ow2": {
+   "files": [
+    "orespawn/b_ow2.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:b_ow3": {
+   "files": [
+    "orespawn/b_ow3.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:b_ow4": {
+   "files": [
+    "orespawn/b_ow4.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:b_ow5": {
+   "files": [
+    "orespawn/b_ow5.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:b_ow6": {
+   "files": [
+    "orespawn/b_ow6.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:b_ow7": {
+   "files": [
+    "orespawn/b_ow7.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:b_ow8": {
+   "files": [
+    "orespawn/b_ow8.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:b_ow9": {
+   "files": [
+    "orespawn/b_ow9.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:b_rain": {
+   "files": [
+    "orespawn/b_rain1.m4a",
+    "orespawn/b_rain2.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:b_rain1": {
+   "files": [
+    "orespawn/b_rain1.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:b_rain2": {
+   "files": [
+    "orespawn/b_rain2.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:b_taunt": {
+   "files": [
+    "orespawn/b_taunt1.m4a",
+    "orespawn/b_taunt2.m4a",
+    "orespawn/b_taunt3.m4a",
+    "orespawn/b_taunt4.m4a",
+    "orespawn/b_taunt5.m4a",
+    "orespawn/b_taunt6.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:b_taunt1": {
+   "files": [
+    "orespawn/b_taunt1.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:b_taunt2": {
+   "files": [
+    "orespawn/b_taunt2.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:b_taunt3": {
+   "files": [
+    "orespawn/b_taunt3.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:b_taunt4": {
+   "files": [
+    "orespawn/b_taunt4.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:b_taunt5": {
+   "files": [
+    "orespawn/b_taunt5.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:b_taunt6": {
+   "files": [
+    "orespawn/b_taunt6.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:b_thunder": {
+   "files": [
+    "orespawn/b_thunder.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:b_water": {
+   "files": [
+    "orespawn/b_water1.m4a",
+    "orespawn/b_water2.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:b_water1": {
+   "files": [
+    "orespawn/b_water1.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:b_water2": {
+   "files": [
+    "orespawn/b_water2.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:b_woohoo": {
+   "files": [
+    "orespawn/b_woohoo1.m4a",
+    "orespawn/b_woohoo2.m4a",
+    "orespawn/b_woohoo3.m4a",
+    "orespawn/b_woohoo4.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:b_woohoo1": {
+   "files": [
+    "orespawn/b_woohoo1.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:b_woohoo2": {
+   "files": [
+    "orespawn/b_woohoo2.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:b_woohoo3": {
+   "files": [
+    "orespawn/b_woohoo3.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:b_woohoo4": {
+   "files": [
+    "orespawn/b_woohoo4.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:basilisk_living": {
+   "files": [
+    "orespawn/basilisk_living.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:bb_happy": {
+   "files": [
+    "orespawn/bb_happy1.m4a",
+    "orespawn/bb_happy2.m4a",
+    "orespawn/bb_happy3.m4a",
+    "orespawn/bb_happy4.m4a",
+    "orespawn/bb_happy5.m4a",
+    "orespawn/bb_happy6.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:bb_happy1": {
+   "files": [
+    "orespawn/bb_happy1.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:bb_happy2": {
+   "files": [
+    "orespawn/bb_happy2.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:bb_happy3": {
+   "files": [
+    "orespawn/bb_happy3.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:bb_happy4": {
+   "files": [
+    "orespawn/bb_happy4.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:bb_happy5": {
+   "files": [
+    "orespawn/bb_happy5.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:bb_happy6": {
+   "files": [
+    "orespawn/bb_happy6.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:big_splat": {
+   "files": [
+    "orespawn/big_splat.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:birds": {
+   "files": [
+    "orespawn/birds1.m4a",
+    "orespawn/birds2.m4a",
+    "orespawn/birds3.m4a",
+    "orespawn/birds4.m4a",
+    "orespawn/birds5.m4a",
+    "orespawn/birds6.m4a",
+    "orespawn/birds7.m4a",
+    "orespawn/birds8.m4a",
+    "orespawn/birds9.m4a",
+    "orespawn/birds10.m4a",
+    "orespawn/birds11.m4a",
+    "orespawn/birds12.m4a",
+    "orespawn/birds13.m4a",
+    "orespawn/birds14.m4a",
+    "orespawn/birds15.m4a",
+    "orespawn/birds16.m4a",
+    "orespawn/birds17.m4a",
+    "orespawn/birds18.m4a",
+    "orespawn/birds19.m4a",
+    "orespawn/birds20.m4a",
+    "orespawn/birds21.m4a",
+    "orespawn/birds22.m4a",
+    "orespawn/birds23.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:birds1": {
+   "files": [
+    "orespawn/birds1.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:birds10": {
+   "files": [
+    "orespawn/birds10.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:birds11": {
+   "files": [
+    "orespawn/birds11.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:birds12": {
+   "files": [
+    "orespawn/birds12.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:birds13": {
+   "files": [
+    "orespawn/birds13.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:birds14": {
+   "files": [
+    "orespawn/birds14.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:birds15": {
+   "files": [
+    "orespawn/birds15.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:birds16": {
+   "files": [
+    "orespawn/birds16.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:birds17": {
+   "files": [
+    "orespawn/birds17.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:birds18": {
+   "files": [
+    "orespawn/birds18.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:birds19": {
+   "files": [
+    "orespawn/birds19.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:birds2": {
+   "files": [
+    "orespawn/birds2.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:birds20": {
+   "files": [
+    "orespawn/birds20.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:birds21": {
+   "files": [
+    "orespawn/birds21.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:birds22": {
+   "files": [
+    "orespawn/birds22.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:birds23": {
+   "files": [
+    "orespawn/birds23.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:birds3": {
+   "files": [
+    "orespawn/birds3.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:birds4": {
+   "files": [
+    "orespawn/birds4.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:birds5": {
+   "files": [
+    "orespawn/birds5.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:birds6": {
+   "files": [
+    "orespawn/birds6.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:birds7": {
+   "files": [
+    "orespawn/birds7.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:birds8": {
+   "files": [
+    "orespawn/birds8.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:birds9": {
+   "files": [
+    "orespawn/birds9.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:caterkiller_death": {
+   "files": [
+    "orespawn/caterkiller_death.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:caterkiller_hit": {
+   "files": [
+    "orespawn/caterkiller_hit1.m4a",
+    "orespawn/caterkiller_hit2.m4a",
+    "orespawn/caterkiller_hit3.m4a",
+    "orespawn/caterkiller_hit4.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:caterkiller_hit1": {
+   "files": [
+    "orespawn/caterkiller_hit1.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:caterkiller_hit2": {
+   "files": [
+    "orespawn/caterkiller_hit2.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:caterkiller_hit3": {
+   "files": [
+    "orespawn/caterkiller_hit3.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:caterkiller_hit4": {
+   "files": [
+    "orespawn/caterkiller_hit4.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:caterkiller_living": {
+   "files": [
+    "orespawn/caterkiller_living1.m4a",
+    "orespawn/caterkiller_living2.m4a",
+    "orespawn/caterkiller_living3.m4a",
+    "orespawn/caterkiller_living4.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:caterkiller_living1": {
+   "files": [
+    "orespawn/caterkiller_living1.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:caterkiller_living2": {
+   "files": [
+    "orespawn/caterkiller_living2.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:caterkiller_living3": {
+   "files": [
+    "orespawn/caterkiller_living3.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:caterkiller_living4": {
+   "files": [
+    "orespawn/caterkiller_living4.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:chain_rattles": {
+   "files": [
+    "orespawn/chain_rattles.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:chainsaw": {
+   "files": [
+    "orespawn/chainsaw.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:chainsawshort": {
+   "files": [
+    "orespawn/chainsawshort.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:clatter": {
+   "files": [
+    "orespawn/clatter1.m4a",
+    "orespawn/clatter2.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:clatter1": {
+   "files": [
+    "orespawn/clatter1.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:clatter2": {
+   "files": [
+    "orespawn/clatter2.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:cliffracer": {
+   "files": [
+    "orespawn/cliffracer.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:creepinghorror_dead": {
+   "files": [
+    "orespawn/creepinghorror_dead.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:creepinghorror_hit": {
+   "files": [
+    "orespawn/creepinghorror_hit.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:creepinghorror_living": {
+   "files": [
+    "orespawn/creepinghorror_living.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:cricket": {
+   "files": [
+    "orespawn/cricket.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:crunch": {
+   "files": [
+    "orespawn/crunch.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:cryo_death": {
+   "files": [
+    "orespawn/cryo_death.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:cryo_hurt": {
+   "files": [
+    "orespawn/cryo_hurt.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:cryo_living": {
+   "files": [
+    "orespawn/cryo_living.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:dbdead": {
+   "files": [
+    "orespawn/dbdead.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:dbhit": {
+   "files": [
+    "orespawn/dbhit1.m4a",
+    "orespawn/dbhit2.m4a",
+    "orespawn/dbhit3.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:dbhit1": {
+   "files": [
+    "orespawn/dbhit1.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:dbhit2": {
+   "files": [
+    "orespawn/dbhit2.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:dbhit3": {
+   "files": [
+    "orespawn/dbhit3.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:dragonfly_death": {
+   "files": [
+    "orespawn/dragonfly_death.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:dragonfly_hurt": {
+   "files": [
+    "orespawn/dragonfly_hurt.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:dragonfly_living": {
+   "files": [
+    "orespawn/dragonfly_living.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:duck_hurt": {
+   "files": [
+    "orespawn/duck_hurt.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:emperorscorpion_death": {
+   "files": [
+    "orespawn/emperorscorpion_death.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:fart": {
+   "files": [
+    "orespawn/fart1.m4a",
+    "orespawn/fart2.m4a",
+    "orespawn/fart3.m4a",
+    "orespawn/fart4.m4a",
+    "orespawn/fart5.m4a",
+    "orespawn/fart6.m4a",
+    "orespawn/fart7.m4a",
+    "orespawn/fart8.m4a",
+    "orespawn/fart9.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:fart1": {
+   "files": [
+    "orespawn/fart1.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:fart2": {
+   "files": [
+    "orespawn/fart2.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:fart3": {
+   "files": [
+    "orespawn/fart3.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:fart4": {
+   "files": [
+    "orespawn/fart4.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:fart5": {
+   "files": [
+    "orespawn/fart5.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:fart6": {
+   "files": [
+    "orespawn/fart6.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:fart7": {
+   "files": [
+    "orespawn/fart7.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:fart8": {
+   "files": [
+    "orespawn/fart8.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:fart9": {
+   "files": [
+    "orespawn/fart9.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:ghost_sound": {
+   "files": [
+    "orespawn/ghost_sound.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:glassdead": {
+   "files": [
+    "orespawn/glassdead1.m4a",
+    "orespawn/glassdead2.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:glassdead1": {
+   "files": [
+    "orespawn/glassdead1.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:glassdead2": {
+   "files": [
+    "orespawn/glassdead2.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:glasshit": {
+   "files": [
+    "orespawn/glasshit1.m4a",
+    "orespawn/glasshit2.m4a",
+    "orespawn/glasshit3.m4a",
+    "orespawn/glasshit4.m4a",
+    "orespawn/glasshit5.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:glasshit1": {
+   "files": [
+    "orespawn/glasshit1.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:glasshit2": {
+   "files": [
+    "orespawn/glasshit2.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:glasshit3": {
+   "files": [
+    "orespawn/glasshit3.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:glasshit4": {
+   "files": [
+    "orespawn/glasshit4.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:glasshit5": {
+   "files": [
+    "orespawn/glasshit5.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:godzilla_death": {
+   "files": [
+    "orespawn/godzilla_death.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:godzilla_living": {
+   "files": [
+    "orespawn/godzilla_living.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:hammerhead_death": {
+   "files": [
+    "orespawn/hammerhead_death.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:hammerhead_living": {
+   "files": [
+    "orespawn/hammerhead_living1.m4a",
+    "orespawn/hammerhead_living2.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:hammerhead_living1": {
+   "files": [
+    "orespawn/hammerhead_living1.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:hammerhead_living2": {
+   "files": [
+    "orespawn/hammerhead_living2.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:hercules_death": {
+   "files": [
+    "orespawn/hercules_death.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:hover": {
+   "files": [
+    "orespawn/hover1.m4a",
+    "orespawn/hover2.m4a",
+    "orespawn/hover3.m4a",
+    "orespawn/hover4.m4a",
+    "orespawn/hover5.m4a",
+    "orespawn/hover6.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:hover1": {
+   "files": [
+    "orespawn/hover1.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:hover2": {
+   "files": [
+    "orespawn/hover2.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:hover3": {
+   "files": [
+    "orespawn/hover3.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:hover4": {
+   "files": [
+    "orespawn/hover4.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:hover5": {
+   "files": [
+    "orespawn/hover5.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:hover6": {
+   "files": [
+    "orespawn/hover6.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:king_hit": {
+   "files": [
+    "orespawn/king_hit.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:king_living": {
+   "files": [
+    "orespawn/king_living.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:kraken_living": {
+   "files": [
+    "orespawn/kraken_living.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:kyuubi_living": {
+   "files": [
+    "orespawn/kyuubi_living.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:leaves_death": {
+   "files": [
+    "orespawn/leaves_death.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:leaves_hit": {
+   "files": [
+    "orespawn/leaves_hit.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:leon_death": {
+   "files": [
+    "orespawn/leon_death.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:leon_hit": {
+   "files": [
+    "orespawn/leon_hit1.m4a",
+    "orespawn/leon_hit2.m4a",
+    "orespawn/leon_hit3.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:leon_hit1": {
+   "files": [
+    "orespawn/leon_hit1.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:leon_hit2": {
+   "files": [
+    "orespawn/leon_hit2.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:leon_hit3": {
+   "files": [
+    "orespawn/leon_hit3.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:leon_living": {
+   "files": [
+    "orespawn/leon_living.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:little_splat": {
+   "files": [
+    "orespawn/little_splat.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:lurkinghorror_dead": {
+   "files": [
+    "orespawn/lurkinghorror_dead.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:lurkinghorror_hit": {
+   "files": [
+    "orespawn/lurkinghorror_hit.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:lurkinghorror_living": {
+   "files": [
+    "orespawn/lurkinghorror_living.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:molenoid_death": {
+   "files": [
+    "orespawn/molenoid_death.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:molenoid_hit": {
+   "files": [
+    "orespawn/molenoid_hit1.m4a",
+    "orespawn/molenoid_hit2.m4a",
+    "orespawn/molenoid_hit3.m4a",
+    "orespawn/molenoid_hit4.m4a",
+    "orespawn/molenoid_hit5.m4a",
+    "orespawn/molenoid_hit6.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:molenoid_hit1": {
+   "files": [
+    "orespawn/molenoid_hit1.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:molenoid_hit2": {
+   "files": [
+    "orespawn/molenoid_hit2.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:molenoid_hit3": {
+   "files": [
+    "orespawn/molenoid_hit3.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:molenoid_hit4": {
+   "files": [
+    "orespawn/molenoid_hit4.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:molenoid_hit5": {
+   "files": [
+    "orespawn/molenoid_hit5.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:molenoid_hit6": {
+   "files": [
+    "orespawn/molenoid_hit6.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:molenoid_living": {
+   "files": [
+    "orespawn/molenoid_living1.m4a",
+    "orespawn/molenoid_living2.m4a",
+    "orespawn/molenoid_living3.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:molenoid_living1": {
+   "files": [
+    "orespawn/molenoid_living1.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:molenoid_living2": {
+   "files": [
+    "orespawn/molenoid_living2.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:molenoid_living3": {
+   "files": [
+    "orespawn/molenoid_living3.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:mosquito": {
+   "files": [
+    "orespawn/mosquito.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:o_dark": {
+   "files": [
+    "orespawn/o_dark.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:o_death_girlfriend": {
+   "files": [
+    "orespawn/o_death_girlfriend.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:o_death_single": {
+   "files": [
+    "orespawn/o_death_single.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:o_fight": {
+   "files": [
+    "orespawn/o_fight1.m4a",
+    "orespawn/o_fight2.m4a",
+    "orespawn/o_fight3.m4a",
+    "orespawn/o_fight4.m4a",
+    "orespawn/o_fight5.m4a",
+    "orespawn/o_fight6.m4a",
+    "orespawn/o_fight7.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:o_fight1": {
+   "files": [
+    "orespawn/o_fight1.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:o_fight2": {
+   "files": [
+    "orespawn/o_fight2.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:o_fight3": {
+   "files": [
+    "orespawn/o_fight3.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:o_fight4": {
+   "files": [
+    "orespawn/o_fight4.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:o_fight5": {
+   "files": [
+    "orespawn/o_fight5.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:o_fight6": {
+   "files": [
+    "orespawn/o_fight6.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:o_fight7": {
+   "files": [
+    "orespawn/o_fight7.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:o_happy": {
+   "files": [
+    "orespawn/o_happy1.m4a",
+    "orespawn/o_happy2.m4a",
+    "orespawn/o_happy3.m4a",
+    "orespawn/o_happy4.m4a",
+    "orespawn/o_happy5.m4a",
+    "orespawn/o_happy6.m4a",
+    "orespawn/o_happy7.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:o_happy1": {
+   "files": [
+    "orespawn/o_happy1.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:o_happy2": {
+   "files": [
+    "orespawn/o_happy2.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:o_happy3": {
+   "files": [
+    "orespawn/o_happy3.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:o_happy4": {
+   "files": [
+    "orespawn/o_happy4.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:o_happy5": {
+   "files": [
+    "orespawn/o_happy5.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:o_happy6": {
+   "files": [
+    "orespawn/o_happy6.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:o_happy7": {
+   "files": [
+    "orespawn/o_happy7.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:o_hurt": {
+   "files": [
+    "orespawn/o_hurt1.m4a",
+    "orespawn/o_hurt2.m4a",
+    "orespawn/o_hurt3.m4a",
+    "orespawn/o_hurt4.m4a",
+    "orespawn/o_hurt5.m4a",
+    "orespawn/o_hurt6.m4a",
+    "orespawn/o_hurt7.m4a",
+    "orespawn/o_hurt8.m4a",
+    "orespawn/o_hurt9.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:o_hurt1": {
+   "files": [
+    "orespawn/o_hurt1.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:o_hurt2": {
+   "files": [
+    "orespawn/o_hurt2.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:o_hurt3": {
+   "files": [
+    "orespawn/o_hurt3.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:o_hurt4": {
+   "files": [
+    "orespawn/o_hurt4.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:o_hurt5": {
+   "files": [
+    "orespawn/o_hurt5.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:o_hurt6": {
+   "files": [
+    "orespawn/o_hurt6.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:o_hurt7": {
+   "files": [
+    "orespawn/o_hurt7.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:o_hurt8": {
+   "files": [
+    "orespawn/o_hurt8.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:o_hurt9": {
+   "files": [
+    "orespawn/o_hurt9.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:o_ow": {
+   "files": [
+    "orespawn/o_ow1.m4a",
+    "orespawn/o_ow2.m4a",
+    "orespawn/o_ow3.m4a",
+    "orespawn/o_ow4.m4a",
+    "orespawn/o_ow5.m4a",
+    "orespawn/o_ow6.m4a",
+    "orespawn/o_ow7.m4a",
+    "orespawn/o_ow8.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:o_ow1": {
+   "files": [
+    "orespawn/o_ow1.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:o_ow2": {
+   "files": [
+    "orespawn/o_ow2.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:o_ow3": {
+   "files": [
+    "orespawn/o_ow3.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:o_ow4": {
+   "files": [
+    "orespawn/o_ow4.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:o_ow5": {
+   "files": [
+    "orespawn/o_ow5.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:o_ow6": {
+   "files": [
+    "orespawn/o_ow6.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:o_ow7": {
+   "files": [
+    "orespawn/o_ow7.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:o_ow8": {
+   "files": [
+    "orespawn/o_ow8.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:o_taunt": {
+   "files": [
+    "orespawn/o_taunt1.m4a",
+    "orespawn/o_taunt2.m4a",
+    "orespawn/o_taunt3.m4a",
+    "orespawn/o_taunt4.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:o_taunt1": {
+   "files": [
+    "orespawn/o_taunt1.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:o_taunt2": {
+   "files": [
+    "orespawn/o_taunt2.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:o_taunt3": {
+   "files": [
+    "orespawn/o_taunt3.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:o_taunt4": {
+   "files": [
+    "orespawn/o_taunt4.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:o_thunder": {
+   "files": [
+    "orespawn/o_thunder.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:o_water": {
+   "files": [
+    "orespawn/o_water1.m4a",
+    "orespawn/o_water2.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:o_water1": {
+   "files": [
+    "orespawn/o_water1.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:o_water2": {
+   "files": [
+    "orespawn/o_water2.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:o_woohoo": {
+   "files": [
+    "orespawn/o_woohoo1.m4a",
+    "orespawn/o_woohoo2.m4a",
+    "orespawn/o_woohoo3.m4a",
+    "orespawn/o_woohoo4.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:o_woohoo1": {
+   "files": [
+    "orespawn/o_woohoo1.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:o_woohoo2": {
+   "files": [
+    "orespawn/o_woohoo2.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:o_woohoo3": {
+   "files": [
+    "orespawn/o_woohoo3.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:o_woohoo4": {
+   "files": [
+    "orespawn/o_woohoo4.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:peacockdead": {
+   "files": [
+    "orespawn/peacockdead.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:peacockhit": {
+   "files": [
+    "orespawn/peacockhit.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:peacocklive": {
+   "files": [
+    "orespawn/peacocklive.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:pitchblack_dead": {
+   "files": [
+    "orespawn/pitchblack_dead.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:pitchblack_hit": {
+   "files": [
+    "orespawn/pitchblack_hit.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:pitchblack_living": {
+   "files": [
+    "orespawn/pitchblack_living.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:ratdead": {
+   "files": [
+    "orespawn/ratdead1.m4a",
+    "orespawn/ratdead2.m4a",
+    "orespawn/ratdead3.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:ratdead1": {
+   "files": [
+    "orespawn/ratdead1.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:ratdead2": {
+   "files": [
+    "orespawn/ratdead2.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:ratdead3": {
+   "files": [
+    "orespawn/ratdead3.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:rathit": {
+   "files": [
+    "orespawn/rathit.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:ratlive": {
+   "files": [
+    "orespawn/ratlive.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:roar": {
+   "files": [
+    "orespawn/roar1.m4a",
+    "orespawn/roar2.m4a",
+    "orespawn/roar3.m4a",
+    "orespawn/roar4.m4a",
+    "orespawn/roar5.m4a",
+    "orespawn/roar6.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:roar1": {
+   "files": [
+    "orespawn/roar1.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:roar2": {
+   "files": [
+    "orespawn/roar2.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:roar3": {
+   "files": [
+    "orespawn/roar3.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:roar4": {
+   "files": [
+    "orespawn/roar4.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:roar5": {
+   "files": [
+    "orespawn/roar5.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:roar6": {
+   "files": [
+    "orespawn/roar6.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:robot1_death": {
+   "files": [
+    "orespawn/robot1_death.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:robot_death": {
+   "files": [
+    "orespawn/robot_death1.m4a",
+    "orespawn/robot_death2.m4a",
+    "orespawn/robot_death3.m4a",
+    "orespawn/robot_death4.m4a",
+    "orespawn/robot_death5.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:robot_death1": {
+   "files": [
+    "orespawn/robot_death1.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:robot_death2": {
+   "files": [
+    "orespawn/robot_death2.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:robot_death3": {
+   "files": [
+    "orespawn/robot_death3.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:robot_death4": {
+   "files": [
+    "orespawn/robot_death4.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:robot_death5": {
+   "files": [
+    "orespawn/robot_death5.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:robot_hurt": {
+   "files": [
+    "orespawn/robot_hurt1.m4a",
+    "orespawn/robot_hurt2.m4a",
+    "orespawn/robot_hurt3.m4a",
+    "orespawn/robot_hurt4.m4a",
+    "orespawn/robot_hurt5.m4a",
+    "orespawn/robot_hurt6.m4a",
+    "orespawn/robot_hurt7.m4a",
+    "orespawn/robot_hurt8.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:robot_hurt1": {
+   "files": [
+    "orespawn/robot_hurt1.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:robot_hurt2": {
+   "files": [
+    "orespawn/robot_hurt2.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:robot_hurt3": {
+   "files": [
+    "orespawn/robot_hurt3.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:robot_hurt4": {
+   "files": [
+    "orespawn/robot_hurt4.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:robot_hurt5": {
+   "files": [
+    "orespawn/robot_hurt5.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:robot_hurt6": {
+   "files": [
+    "orespawn/robot_hurt6.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:robot_hurt7": {
+   "files": [
+    "orespawn/robot_hurt7.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:robot_hurt8": {
+   "files": [
+    "orespawn/robot_hurt8.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:robot_living": {
+   "files": [
+    "orespawn/robot_living1.m4a",
+    "orespawn/robot_living2.m4a",
+    "orespawn/robot_living3.m4a",
+    "orespawn/robot_living4.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:robot_living1": {
+   "files": [
+    "orespawn/robot_living1.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:robot_living2": {
+   "files": [
+    "orespawn/robot_living2.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:robot_living3": {
+   "files": [
+    "orespawn/robot_living3.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:robot_living4": {
+   "files": [
+    "orespawn/robot_living4.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:robotspider": {
+   "files": [
+    "orespawn/robotspider1.m4a",
+    "orespawn/robotspider2.m4a",
+    "orespawn/robotspider3.m4a",
+    "orespawn/robotspider4.m4a",
+    "orespawn/robotspider5.m4a",
+    "orespawn/robotspider6.m4a",
+    "orespawn/robotspider7.m4a",
+    "orespawn/robotspider8.m4a",
+    "orespawn/robotspider9.m4a",
+    "orespawn/robotspider10.m4a",
+    "orespawn/robotspider11.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:robotspider1": {
+   "files": [
+    "orespawn/robotspider1.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:robotspider10": {
+   "files": [
+    "orespawn/robotspider10.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:robotspider11": {
+   "files": [
+    "orespawn/robotspider11.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:robotspider2": {
+   "files": [
+    "orespawn/robotspider2.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:robotspider3": {
+   "files": [
+    "orespawn/robotspider3.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:robotspider4": {
+   "files": [
+    "orespawn/robotspider4.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:robotspider5": {
+   "files": [
+    "orespawn/robotspider5.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:robotspider6": {
+   "files": [
+    "orespawn/robotspider6.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:robotspider7": {
+   "files": [
+    "orespawn/robotspider7.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:robotspider8": {
+   "files": [
+    "orespawn/robotspider8.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:robotspider9": {
+   "files": [
+    "orespawn/robotspider9.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:robotspidermount": {
+   "files": [
+    "orespawn/robotspidermount.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:rubybird": {
+   "files": [
+    "orespawn/rubybird.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:scorpion_attack": {
+   "files": [
+    "orespawn/scorpion_attack.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:scorpion_hit": {
+   "files": [
+    "orespawn/scorpion_hit.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:scorpion_living": {
+   "files": [
+    "orespawn/scorpion_living.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:seamonster_death": {
+   "files": [
+    "orespawn/seamonster_death.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:seamonster_hit": {
+   "files": [
+    "orespawn/seamonster_hit.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:seamonster_living": {
+   "files": [
+    "orespawn/seamonster_living1.m4a",
+    "orespawn/seamonster_living2.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:seamonster_living1": {
+   "files": [
+    "orespawn/seamonster_living1.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:seamonster_living2": {
+   "files": [
+    "orespawn/seamonster_living2.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:seaviper_death": {
+   "files": [
+    "orespawn/seaviper_death.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:seaviper_hit": {
+   "files": [
+    "orespawn/seaviper_hit1.m4a",
+    "orespawn/seaviper_hit2.m4a",
+    "orespawn/seaviper_hit3.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:seaviper_hit1": {
+   "files": [
+    "orespawn/seaviper_hit1.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:seaviper_hit2": {
+   "files": [
+    "orespawn/seaviper_hit2.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:seaviper_hit3": {
+   "files": [
+    "orespawn/seaviper_hit3.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:seaviper_living": {
+   "files": [
+    "orespawn/seaviper_living.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:squid_death": {
+   "files": [
+    "orespawn/squid_death1.m4a",
+    "orespawn/squid_death2.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:squid_death1": {
+   "files": [
+    "orespawn/squid_death1.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:squid_death2": {
+   "files": [
+    "orespawn/squid_death2.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:squid_hurt": {
+   "files": [
+    "orespawn/squid_hurt1.m4a",
+    "orespawn/squid_hurt2.m4a",
+    "orespawn/squid_hurt3.m4a",
+    "orespawn/squid_hurt4.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:squid_hurt1": {
+   "files": [
+    "orespawn/squid_hurt1.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:squid_hurt2": {
+   "files": [
+    "orespawn/squid_hurt2.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:squid_hurt3": {
+   "files": [
+    "orespawn/squid_hurt3.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:squid_hurt4": {
+   "files": [
+    "orespawn/squid_hurt4.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:terribleterror_dead": {
+   "files": [
+    "orespawn/terribleterror_dead.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:terribleterror_hit": {
+   "files": [
+    "orespawn/terribleterror_hit.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:terribleterror_living": {
+   "files": [
+    "orespawn/terribleterror_living.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:trex_death": {
+   "files": [
+    "orespawn/trex_death.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:trex_living": {
+   "files": [
+    "orespawn/trex_living.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:triffid_dead": {
+   "files": [
+    "orespawn/triffid_dead.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:triffid_hit": {
+   "files": [
+    "orespawn/triffid_hit.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:triffid_living": {
+   "files": [
+    "orespawn/triffid_living.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:vortexlive": {
+   "files": [
+    "orespawn/vortexlive.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:waterdragon_death": {
+   "files": [
+    "orespawn/waterdragon_death.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:waterdragon_hurt": {
+   "files": [
+    "orespawn/waterdragon_hurt1.m4a",
+    "orespawn/waterdragon_hurt2.m4a",
+    "orespawn/waterdragon_hurt3.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:waterdragon_hurt1": {
+   "files": [
+    "orespawn/waterdragon_hurt1.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:waterdragon_hurt2": {
+   "files": [
+    "orespawn/waterdragon_hurt2.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:waterdragon_hurt3": {
+   "files": [
+    "orespawn/waterdragon_hurt3.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:wtf_hurt": {
+   "files": [
+    "orespawn/wtf_hurt.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "orespawn:wtf_living": {
+   "files": [
+    "orespawn/wtf_living.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "bus": "sfx"
+  },
+  "portal.portal": {
+   "files": [
+    "portal/portal.m4a"
+   ],
+   "volume": 1,
+   "pitch": 1,
+   "bus": "sfx"
+  },
+  "portal.travel": {
+   "files": [
+    "portal/travel.m4a"
+   ],
+   "volume": 1,
+   "pitch": 1,
+   "bus": "sfx"
+  },
+  "portal.trigger": {
+   "files": [
+    "portal/trigger.m4a"
+   ],
+   "volume": 1,
+   "pitch": 1,
+   "bus": "sfx"
+  },
+  "random.anvil_break": {
+   "files": [
+    "random/anvil_break.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "random.anvil_land": {
+   "files": [
+    "random/anvil_land.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "random.anvil_use": {
+   "files": [
+    "random/anvil_use.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "random.bow": {
+   "files": [
+    "random/bow.m4a"
+   ],
+   "volume": 1,
+   "pitch": 1,
+   "bus": "sfx"
+  },
+  "random.bowhit": {
+   "files": [
+    "random/bowhit1.m4a",
+    "random/bowhit2.m4a",
+    "random/bowhit3.m4a",
+    "random/bowhit4.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.8,
+    1.2
+   ],
+   "bus": "sfx"
+  },
+  "random.break": {
+   "files": [
+    "random/break.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.8,
+    1.2
+   ],
+   "bus": "sfx"
+  },
+  "random.burp": {
+   "files": [
+    "random/burp.m4a"
+   ],
+   "volume": 1,
+   "pitch": 1,
+   "bus": "sfx"
+  },
+  "random.chestclosed": {
+   "files": [
+    "random/chestclosed.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "random.chestopen": {
+   "files": [
+    "random/chestopen.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "random.click": {
+   "files": [
+    "random/click.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "ui"
+  },
+  "random.door_close": {
+   "files": [
+    "random/door_close.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "random.door_open": {
+   "files": [
+    "random/door_open.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "random.drink": {
+   "files": [
+    "random/drink.m4a"
+   ],
+   "volume": 1,
+   "pitch": 1,
+   "bus": "sfx"
+  },
+  "random.eat": {
+   "files": [
+    "random/eat1.m4a",
+    "random/eat2.m4a",
+    "random/eat3.m4a"
+   ],
+   "volume": 1,
+   "pitch": 1,
+   "bus": "sfx"
+  },
+  "random.explode": {
+   "files": [
+    "random/explode1.m4a",
+    "random/explode2.m4a",
+    "random/explode3.m4a",
+    "random/explode4.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "bus": "sfx"
+  },
+  "random.fizz": {
+   "files": [
+    "random/fizz.m4a"
+   ],
+   "volume": 1,
+   "pitch": 1,
+   "bus": "sfx"
+  },
+  "random.fuse": {
+   "files": [
+    "random/fuse.m4a"
+   ],
+   "volume": 1,
+   "pitch": 1,
+   "bus": "sfx"
+  },
+  "random.glass": {
+   "files": [
+    "random/glass1.m4a",
+    "random/glass2.m4a",
+    "random/glass3.m4a"
+   ],
+   "volume": 0.8,
+   "pitch": [
+    0.8,
+    1.2
+   ],
+   "bus": "sfx"
+  },
+  "random.levelup": {
+   "files": [
+    "random/levelup.m4a"
+   ],
+   "volume": 1,
+   "pitch": 1,
+   "bus": "sfx"
+  },
+  "random.orb": {
+   "files": [
+    "random/orb.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.8,
+    1.2
+   ],
+   "bus": "sfx"
+  },
+  "random.pop": {
+   "files": [
+    "random/pop.m4a"
+   ],
+   "volume": 1,
+   "pitch": [
+    0.8,
+    1.2
+   ],
+   "bus": "ui"
+  },
+  "random.splash": {
+   "files": [
+    "random/splash.m4a"
+   ],
+   "volume": 1,
+   "pitch": 1,
+   "bus": "sfx"
+  },
+  "random.successful_hit": {
+   "files": [
+    "random/successful_hit.m4a"
+   ],
+   "volume": 1,
+   "pitch": 1,
+   "bus": "sfx"
+  },
+  "random.wood_click": {
+   "files": [
+    "random/wood_click.m4a"
+   ],
+   "volume": 1,
+   "pitch": 1,
+   "bus": "sfx"
+  },
+  "step.cloth": {
+   "files": [
+    "step/cloth1.m4a",
+    "step/cloth2.m4a",
+    "step/cloth3.m4a",
+    "step/cloth4.m4a"
+   ],
+   "volume": 0.8,
+   "pitch": [
+    0.8,
+    1.2
+   ],
+   "bus": "sfx"
+  },
+  "step.grass": {
+   "files": [
+    "step/grass1.m4a",
+    "step/grass2.m4a",
+    "step/grass3.m4a",
+    "step/grass4.m4a",
+    "step/grass5.m4a",
+    "step/grass6.m4a"
+   ],
+   "volume": 0.8,
+   "pitch": [
+    0.8,
+    1.2
+   ],
+   "bus": "sfx"
+  },
+  "step.gravel": {
+   "files": [
+    "step/gravel1.m4a",
+    "step/gravel2.m4a",
+    "step/gravel3.m4a",
+    "step/gravel4.m4a"
+   ],
+   "volume": 0.8,
+   "pitch": [
+    0.8,
+    1.2
+   ],
+   "bus": "sfx"
+  },
+  "step.ladder": {
+   "files": [
+    "step/ladder1.m4a",
+    "step/ladder2.m4a",
+    "step/ladder3.m4a",
+    "step/ladder4.m4a",
+    "step/ladder5.m4a"
+   ],
+   "volume": 0.8,
+   "pitch": [
+    0.8,
+    1.2
+   ],
+   "bus": "sfx"
+  },
+  "step.sand": {
+   "files": [
+    "step/sand1.m4a",
+    "step/sand2.m4a",
+    "step/sand3.m4a",
+    "step/sand4.m4a",
+    "step/sand5.m4a"
+   ],
+   "volume": 0.8,
+   "pitch": [
+    0.8,
+    1.2
+   ],
+   "bus": "sfx"
+  },
+  "step.snow": {
+   "files": [
+    "step/snow1.m4a",
+    "step/snow2.m4a",
+    "step/snow3.m4a",
+    "step/snow4.m4a"
+   ],
+   "volume": 0.8,
+   "pitch": [
+    0.8,
+    1.2
+   ],
+   "bus": "sfx"
+  },
+  "step.stone": {
+   "files": [
+    "step/stone1.m4a",
+    "step/stone2.m4a",
+    "step/stone3.m4a",
+    "step/stone4.m4a",
+    "step/stone5.m4a",
+    "step/stone6.m4a"
+   ],
+   "volume": 0.8,
+   "pitch": [
+    0.8,
+    1.2
+   ],
+   "bus": "sfx"
+  },
+  "step.wood": {
+   "files": [
+    "step/wood1.m4a",
+    "step/wood2.m4a",
+    "step/wood3.m4a",
+    "step/wood4.m4a",
+    "step/wood5.m4a",
+    "step/wood6.m4a"
+   ],
+   "volume": 0.8,
+   "pitch": [
+    0.8,
+    1.2
+   ],
+   "bus": "sfx"
+  },
+  "tile.piston.in": {
+   "files": [
+    "tile/piston/in.m4a"
+   ],
+   "volume": 1,
+   "pitch": 1,
+   "bus": "sfx"
+  },
+  "tile.piston.out": {
+   "files": [
+    "tile/piston/out.m4a"
+   ],
+   "volume": 1,
+   "pitch": 1,
+   "bus": "sfx"
+  }
+ }
+}
