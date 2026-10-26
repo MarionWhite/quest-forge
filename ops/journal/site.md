@@ -1,5 +1,13 @@
 # Site journal (newest first)
 
+- 2026-10-26 (Mac) orchestrator: round 4 done, all seven tasks critic-passed on contact sheets.
+  Critic rounds caught: OreSpawn rotations missing (ants scattered), OreSpawn fit offset (mobs
+  below their roots, Mothras on the ground), unknown ids silently drawn as Zombies (vet now flags
+  them), scare camera inside mobs, scare set not matching the Krypt segment (getWalk().segment),
+  Steve silhouetted, phone framing, well item camera. Checks: vet_lucky 306/306 ok (OreSpawn drops
+  re-vetted after the fit fix), check_sounds 0 missing. Not verified: audio by ear, Safari, real
+  scroll, true portrait phone. Approximations: Mothra (no jar model), horse gait, dragon static.
+
 - 2026-10-26 (Mac) site-lucky-outcomes: every drop has its own scene (generic is only a crash guard); wells and temples play the rolled hidden-block result; big mobs get night, lightning, fog, shake and their own roar; 4 dud drops; tools/site/vet_lucky.py vets all 306 drops with a per-scene report.
 - 2026-10-25 (Mac) site-audio: sound bank site/lib/sfx (Minecraft 1.7.10 + OreSpawn as m4a, plus our own qf.* and music.lucky/music.krypt synthesized in tools/music/site_cues.py); game sounds ship only if the owner decides so (build_sfx.py --own-only).
 - 2026-10-25 (Mac) first-night: Infernal modifiers (all 27) and Level Up classes and skills from the jars; difficulty noted as shipped inert; friends' server rules from decision 0007; parties, sleep and Farmer claims corrected. Voice keys stay Tab/U (local commit 5e9a96f; origin still B/N).
