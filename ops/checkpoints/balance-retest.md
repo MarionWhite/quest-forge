@@ -48,6 +48,11 @@ before anything ships; no further fight-length changes without a check-in.
 - The build worktree C:\qfb\wt-enchant (detached at ad7f9f4) holds the jar; remove it with
   `git worktree remove C:\qfb\wt-enchant` once the jar has been installed or rebuilt.
 
+## Update 2026-10-26: steps 1-2 DONE
+- Census finished 22:53:21 ("campaign complete"); all 8 R-* have finished.json, no failed.json.
+- c4 rahovart.json restored from .orig; `trial.py guard` OK (112 live jars match).
+- **Next is step 3** (write §9 using qfcampaign.py on the R-* tsvs vs v2), then step 4.
+
 ## Next (a fresh agent, when the owner resumes)
 1. Triage: `type C:\qfs\campaign-v3\driver-v3.log` ends with "campaign complete"? Every R-* has
    finished.json? A failed.json: read the node's `C:\qfs\c4\logs\fml-server-latest.log` and
