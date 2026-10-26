@@ -83,6 +83,16 @@ current bank and list the gaps here.
   logs every frame gap over 45 ms with the carve time. Left: sporadic 40-130 ms gaps in build-ups (shared machine, GC).
 - check_sounds exits 0. No requests to other agents.
 
+- Critic pass (151551d): the four lunges that did not read are redone. Creeper (whole face a hand from the lens,
+  swelling, green with black eyes and mouth, white flashes on a quickening fuse; the old flash test never fired in
+  the hold), Wither Skeleton (skull lit cold and faint, capped cold eyes in black sockets, teeth in the open jaw),
+  Pigman (face alone against the dark, small red eyes, gold blade raised past the lens), Silverfish (vanilla size,
+  three-quarters on with a key light so the segments step, mandibles, sixty leaping past on the free side; the hole's
+  carve a frame early behind stand-ins). 4-frame sheet `scratchpad/r6/scares/fix4/final3/lunge4.png`
+  (dump_frames sheet `fix4/final3/sheet.png`). J flow on the four (`rt/scareflow4.js`, `?only=`): no exceptions, all
+  respawn, 60 fps; the only gaps over 45 ms are carves on frames you do not see (the Creeper's under its white flash,
+  the Silverfish's a frame before the burst).
+
 ## Owner
 - Approve scares in `site/graves/scares/approved.json` (empty, so the director plays nothing). The gap deaths
   (LavaFall, DrownedGrab) take 15% of failed jumps once approved.
