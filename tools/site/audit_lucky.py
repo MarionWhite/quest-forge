@@ -29,6 +29,45 @@ CONFIG_TYPOS = {
 }
 
 
+def _num(v):
+    """posX/posY/posZ text -> the offset the parser keeps (the middle of a random range)."""
+    if v is None:
+        return 0
+    lohi = bl.pos_offset(v)
+    return lohi[0] if lohi[0] == lohi[1] else sum(lohi) // 2
+
+
+def raw_blocks(raw):
+    """Independent read of a drop's raw line: every type=falling_block / type=block member as
+    (kind, id, damage, dx, dy, dz), splitting on ; and , outside brackets and quotes (a nested lucky block stays one value)."""
+    body = raw
+    if "group" in raw.split("(", 1)[0] and "(" in raw and not raw.startswith("group:"):
+        body = raw[raw.index("(") + 1:raw.rindex(")")]
+    out = []
+    for member in bl.mod_split(body, ";"):
+        f = dict(t.strip().split("=", 1) for t in bl.mod_split(member, ",") if "=" in t)
+        kind = f.get("type")
+        if kind not in ("falling_block", "block") or "ID" not in f:
+            continue
+        ident = f["ID"].strip()
+        if ident.isdigit():
+            ident = bl.LEGACY_BLOCK[int(ident)][0]
+        elif ":" not in ident:
+            ident = "minecraft:" + ident
+        dmg = int(f["damage"]) if f.get("damage", "").lstrip("-").isdigit() else 0
+        out.append(("falling" if kind == "falling_block" else "block", ident, dmg, _num(f.get("posX")), _num(f.get("posY")), _num(f.get("posZ"))))
+    return sorted(out)
+
+
+def data_blocks(actions):
+    out = []
+    for a in actions:
+        if a["t"] in ("falling", "block"):
+            for b in a["blocks"]:
+                out.append((a["t"], b["id"], b.get("meta", 0), b.get("dx", 0), b.get("dy", 0), b.get("dz", 0)))
+    return sorted(out)
+
+
 def run(timeout, budget):
     exe = df.browser()
     httpd, port = df.serve()
@@ -80,6 +119,20 @@ def main():
                 notes.append("drop %d %s: equipment %s is a config typo (%s)" % (d["index"], d["title"], e, CONFIG_TYPOS[e]))
             elif not equip_seen[e]:
                 d["issues"].append("equipment " + e + " FALLBACK (no icon in items.json)")
+    # every falling or placed block against the raw config line, read a second way
+    lucky = json.load(open(os.path.join(bl.OUT_DIR, "lucky.json"), encoding="utf-8"))
+    for d, q in zip(res["drops"], lucky["drops"]):
+        if q.get("raw", "").startswith("group:") or q.get("broken"):
+            continue
+        if any(a["t"] == "choice" for a in q["actions"]):
+            continue
+        want = raw_blocks(q["raw"].split("@")[0] if "@luck" in q["raw"] or "@chance" in q["raw"] else q["raw"])
+        got = data_blocks(q["actions"])
+        # a block the page draws as air or fire stays in the data; compare as read
+        if want != got:
+            miss = [w for w in want if w not in got][:3]
+            extra = [g for g in got if g not in want][:3]
+            d["issues"].append("blocks differ from the raw line: raw-only %s, data-only %s" % (miss, extra))
     problems = []
     for d in res["drops"]:
         for i in d["issues"]:

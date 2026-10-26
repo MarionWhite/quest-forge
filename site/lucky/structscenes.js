@@ -253,7 +253,8 @@ STRUCT.lucky_choice = (ctx) => {
   watch('blocks', () => new THREE.Vector3(P.x, 1.2, P.z + 2.2), 2);
   return {
     dur: sp.dur + 2.6,
-    cam: (t) => ({ pos: V(P.x + 0.6, 1.5, P.z + 5.6), look: V(P.x + 0.1, 1.05, P.z + 2.2), fov: 36 }),
+    // the sign faces Steve (north), so the camera stands on his side of it, off to the right
+    cam: (t) => ({ pos: V(P.x + 1.7, 3.3, P.z - 3.0), look: V(P.x - 0.1, 0.95, P.z + 2.2), fov: 38 }),
     update(t, dt) {
       sp.update(t);
       ctx.steve.anim(t, dt, { walk: 0 });

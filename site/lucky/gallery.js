@@ -50,7 +50,7 @@ async function main() {
     if (Q.has('from')) list = list.slice(Number(Q.get('from')), Number(Q.get('to')) || undefined);
     const yaw = Q.has('yaw') ? (Number(Q.get('yaw')) * Math.PI) / 180 : -Math.PI / 4;
     for (const b of list) {
-      const o = { yaw, world: Q.has('world'), falling: Q.has('falling') };
+      const o = { yaw, world: Q.has('world'), falling: Q.has('falling'), lines: Q.has('lines') ? ['', ...Q.get('lines').split('|'), ''] : undefined };
       cells.push({ label: bare(b.id) + (b.meta ? '@' + b.meta : ''), draw: (g, x, y, w, h) => { const r = blockIcon(b.id, b.meta, o); if (r && r.canvas) g.drawImage(r.canvas, x, y, w, h); else { g.fillStyle = '#f0f'; g.fillRect(x, y, w, h); } } });
     }
   }
