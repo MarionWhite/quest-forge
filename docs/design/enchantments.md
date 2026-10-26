@@ -286,3 +286,47 @@ Two things that will bite anyone editing it:
 - **The hook must never throw.** `slotClick` handles *every* inventory click in
   the game, so an exception escaping the hook breaks all inventory interaction.
   `QFHooks.onSlotClick` catches `Throwable` and falls back to vanilla behaviour.
+
+## Changes from the combat census, 2026-10-25
+
+The first balance changes made from measurement rather than intent. Source:
+[`../reference/enchantment-combat-results.md`](../reference/enchantment-combat-results.md)
+§6; accepted in [decision 0005](../decisions/0005-enchant-census-proposals.md);
+the numbers each change was written to, in
+[`../reference/enchantment-tuning.md`](../reference/enchantment-tuning.md)
+(census pass, 2026-10-25). The owner's condition: every change is re-measured
+with the census before it is installed anywhere.
+
+Three of them change the architecture a little, and that is what belongs here:
+
+- **`ProcContext.baseDamage` (P2).** The dispatcher runs flat adds, then
+  multipliers, then procs, which settled application order (balance pass,
+  2026-09-06). It also meant a proc that *scales* with the hit — the three
+  damage-over-time enchantments — scaled with the hit *after* Colossus, Cultist
+  and Roulette had boosted it, and the pairs measured far beyond independence.
+  The dispatcher now records the hit as it received it, before the FLAT phase,
+  and the DoTs seed from that. Flat adds and multipliers boost the swing only.
+  Any future effect that scales with the hit should read `baseDamage` too.
+- **`Mitigation.predict` on the target (P1).** `LivingHurtEvent` runs before the
+  victim's armour, so "a fraction of the hit" used to mean a fraction of the raw
+  swing. The DoTs now ask `Mitigation.predict(target, source, baseDamage)` for
+  the damage that will land, and take their fraction of that. The helper was
+  written for the wearer's side (Cockroach's "would this kill me"); it serves
+  the attacker's side unchanged, because mobs use vanilla's armour formula and
+  players the Forge one, both of which it mirrors.
+- **Summons that yield to their owner (P8).** `TickedEffects.Summon` carries a
+  `yieldsToOwner` flag; Bastion's golems set it. The bridge records every
+  swing (`CombatState.recordStrike`) and refuses a yielding summon's target at
+  `LivingSetAttackTargetEvent` while the owner struck it within the last 20
+  ticks. Clearing the target once a tick was not enough: a golem's targeting AI
+  re-picks the nearest hostile every tick and its attack task swings in the
+  same update, so the refusal has to happen at the moment of acquisition.
+- **`QFEnchantment.tooltipNote()` (P4).** A translation key for one line a
+  player must know before using an enchantment, shown on the book and, through
+  `QFClientEvents.onItemTooltip`, on the gear. Rage and Excalibur are the first
+  two (they both grant Strength I and do not stack).
+
+The rest are numbers: Cultist's price is a fixed 0.6 health that bypasses
+armour (P7); Rage, Momentum, Roulette and Tank moved to Legendary, Epic, Rare
+and Epic (P9); and Rahovart's MobProperties health boost dropped from
+`3.0~9.0` to `0.5~2.0` (P6, a config change).

@@ -72,7 +72,7 @@ effect (1.9) postdate 1.7.10 — both confirmed doable, just not free.
 | 1 | Executioner | Damage scales with target's missing health | Rare | Easy |
 | 2 | Colossus | Damage scales with target's max health — **probability-based proc, not flat** | Epic | Easy |
 | 3 | Rupture | Stacking bleed over time | Rare | Med |
-| 4 | Momentum | Consecutive hits on same target ramp up (absorbs Ferocious) | Uncommon | Med |
+| 4 | Momentum | Consecutive hits on same target ramp up (absorbs Ferocious) | Epic (Uncommon until 2026-10-25) | Med |
 | 5 | Riposte | Next hit within 3s of being hit is amplified | **Uncommon** | Med |
 | 6 | Arc | Chance to chain damage to nearby mobs | Epic | Med |
 | 7 | Disarm | Chance to knock a mob's weapon out | Uncommon | Med |
@@ -167,7 +167,7 @@ simpler and removes a soft-dep. It's no longer "Transmuter"; wants a new name.
 | Excalibur | Permanent Strength/Resistance/Speed + bonus base damage | Legendary | Med |
 | Lich | Temporary bonus max health on kill | Epic | Easy |
 | Daze | Chance to spin target 180° | Uncommon | Easy |
-| Roulette | 50/50 half or double damage | Uncommon | Easy |
+| Roulette | 50/50 half or double damage | Rare (Uncommon until 2026-10-25) | Easy |
 | Cultist | Chance to take weapon damage yourself for double on target | Rare | Easy |
 | Multi Strike | All custom enchant procs fire twice | Legendary | **See below** |
 
@@ -206,7 +206,7 @@ apply step, which is also fine. Needs a tier.
 | Deft | Permanent speed | Epic | Easy |
 | Affliction | Chance to inflict every negative effect on attackers | Legendary | Easy |
 | Reflect | Knockback attackers, no damage | Epic | Easy |
-| Tank | Permanent slowness for permanent resistance | Rare | Easy |
+| Tank | Permanent slowness for permanent resistance | Epic (Rare until 2026-10-25) | Easy |
 | Cockroach | Resistance at half a heart or lower | Epic | Easy |
 
 ### PvP
