@@ -11,8 +11,10 @@ Previous state: `ops/checkpoints/site-mobs.md`.
 - On the Krypt Silverfish scare: "the silverfish textures weren't properly loaded." The scares
   agent also found the library Silverfish rendering as tan slabs.
 
+## STATUS: done (2026-10-26). Sheet: /private/tmp/claude-503/-Users-suaz-Desktop-QuestForge/91769071-2ed0-4412-b25d-3c510232d8e5/scratchpad/r5/mobs-gear/final/sheet.png
+
 ## Done means
-- [ ] **Equipment:** `makeMob(id, { equipment })` accepts the drop's `equipment` array, using the
+- [x] **Equipment:** `makeMob(id, { equipment })` accepts the drop's `equipment` array, using the
   same format as the `actions[].equipment` field in `site/lucky/data/lucky.json`. It renders:
   - Armour: the 1.7.10 armour layers (the `models/armor/*_layer_1/2.png` textures, the
     ModelBiped scaled 1.0 and 0.5, as RenderBiped does) on every biped-style mob. That covers
@@ -22,11 +24,11 @@ Previous state: `ops/checkpoints/site-mobs.md`.
   - Held items: the 1.7.10 third-person transform from `RenderBiped`, for swords, axes and the
     Queen Battle Axe.
   Feature-detectable: export `MOB_FEATURES.equipment = true`.
-- [ ] **Silverfish:** the 1.7.10 silverfish model and texture, with its segments animated,
+- [x] **Silverfish:** the 1.7.10 silverfish model and texture, with its segments animated,
   correct in the lineup and at small scale.
-- [ ] Lineup frame: Zombie, Giant (scaled) and Skeleton in diamond armour, King Bob in Queen
+- [x] Lineup frame: Zombie, Giant (scaled) and Skeleton in diamond armour, King Bob in Queen
   armour with the axe, and Silverfish front and 3/4.
-- [ ] `python3 -I tools/site/check_sounds.py` exits 0.
+- [x] `python3 -I tools/site/check_sounds.py` exits 0.
 
 ## Done
 - Equipment API committed (milestone 1): `makeMob(id, { equipment, enchanted })`, `MOB_FEATURES.equipment`,

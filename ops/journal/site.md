@@ -1,5 +1,6 @@
 # Site journal (newest first)
 
+- 2026-10-26 (Mac) site-r5-mobs-gear: makeMob(id,{equipment}) dresses Zombie/Giant/PigZombie/Skeleton/Steve: 1.7.10 armour layers (ModelBiped 1.0/0.5), enchant glint (2 additive passes), RenderBiped hand transform, extruded sprite items, OreSpawn Queen armour + battle axe (scale 1.0 bytecode: ~7 blocks long). MOB_FEATURES.equipment. Silverfish model/texture were already exact; anim speed fixed. Vanilla Giants draw no armour in 1.7.10 (done anyway).
 - 2026-10-26 (Mac) site-r5-lucky-flow: Close black screen = S.clearTemp threw on array materials (anvil_trap, bedrock_problem, lava_trap, lucky_choice) inside the dip's timer, so #dip never lifted; fixed, dip now always lifts. Particle freeze = buildScene was followed by st.fx.length = 0, orphaning the reveal burst Points mid-air; removed. Added warmStage() and a mined-time reel prebuild against break stalls. Not verified: Safari timing (Chrome headless only).
 - 2026-10-26 (Mac) site-r5-audio: 15 qf.scare.* events (scream x3, scream_far x2, shriek x3, stinger x3, hit, heartbeat x3, breath, drone, ringing, chitter, whisper x3, fall, crunch x3, gore x3, cackle x2) synthesized in tools/music/scare_sounds.py, peaks about -1 dBFS, loops exactly periodic; checked by spectrogram and peak only, not by ear.
 
