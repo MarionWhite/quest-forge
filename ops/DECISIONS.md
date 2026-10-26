@@ -45,3 +45,7 @@ delete the entry here. Sheet 1 (30 cards) was answered 2026-10-25 → decisions 
 - **The last ~10 ms of focus risk.** LWJGL calls SetForegroundWindow once per test-client launch,
   and the guard hands focus back within 10 ms. Removing it fully needs a qf-tweaks transformer,
   which means a live-jar install. *Recommend: yes, low risk.*
+
+## Balance: enchant documents (2026-10-25)
+- **Enchant rarity plan** (docs/design/enchant-rarity-plan.md): accept the rarity bands as "proportionate", pick redesigns (section 4) and which of 15 new enchant ideas to prototype. *Recommend: yes to bands; prototype Leech, Hunter's Mark, Parry, Brace, Evasion, Siphon.*
+- **Fight-duration study** (docs/design/fight-duration-study.md, DRAFT, evidence thin): accept the per-tier target band (section 4) as the working target? Nothing changes until yes. *Recommend: yes as a target only.*
