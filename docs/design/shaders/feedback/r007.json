@@ -1,0 +1,213 @@
+{
+ "round": 7,
+ "id": "r007",
+ "note": "Built by tools/shaders/review/fetch_feedback.py from GitHub issues; the latest response is last.",
+ "responses": [
+  {
+   "issue": 11,
+   "url": "https://github.com/MarionWhite/quest-forge/issues/11",
+   "user": "MarionWhite",
+   "state": "open",
+   "created_at": "2026-10-26T00:43:24Z",
+   "updated_at": "2026-10-26T00:43:24Z",
+   "from": "body",
+   "answers": {
+    "round": 7,
+    "scenes": {
+     "sunset-sky": {
+      "choice": "B",
+      "rating": 4,
+      "note": "I think the critic addresses the main concerns, but I like the sun a little larger, and maybe even a bit bigger than the 1.8x"
+     },
+     "sunset-full": {
+      "choice": "C",
+      "rating": 4,
+      "note": "The round 6 sun may be a sharp disk, but at least it has some form to it and it is visible, the other ones are just soft dots, and the light doesn't seem to have much of a source. Also there are weird white dots all over the screen for some reason."
+     },
+     "golden": {
+      "choice": "A",
+      "rating": 4,
+      "note": "The horizon is still pretty weak, as the critic aptly points out. The clouds look quite good though and we still see the weird white particles all over the screen here as we did in the water scene. If they are dynamic I cannot tell."
+     },
+     "forest-light": {
+      "choice": "A",
+      "rating": 4,
+      "note": "I think the scene isn't as warm because the clouds aren't as perfectly positioned, but this looks pretty good."
+     },
+     "motes": {
+      "choice": "A",
+      "rating": 3,
+      "note": "Denser look like shit, but the new dust one is hard to tell that it's there. I see it, and it looks alright, but we can do WAYY better on this."
+     },
+     "lake-sunset": {
+      "choice": "A",
+      "rating": 2,
+      "note": "The critic is spot on. It can probably give more fine tuned feedback on this if necessary."
+     },
+     "water-biomes": {
+      "choice": "C",
+      "rating": 5,
+      "note": "The coast is still by far the best in the set, and the critic properly addresses the issues with the river and swamp, but the problem with the river is just how the light is interacting with the top surface of the nearby dirt on the left side of the screen with the water's refraction. The lower blocks on the left look really good, but the ones that are like 1 block from the surface of the water look like of orangey and flat."
+     },
+     "biome-borders": {
+      "choice": "A",
+      "rating": 4,
+      "note": "We're getting pretty close with this. So far the critic has been right on the money with the water, so just follow it on this."
+     },
+     "light-on-blocks": {
+      "choice": "A",
+      "rating": 4,
+      "note": "A looks notably better, but the difference between C and D is minimal, and D honestly just looks more colorful/vibrant."
+     },
+     "vibrance": {
+      "choice": "A",
+      "rating": 3,
+      "note": "Somewhere between .15 and .35"
+     },
+     "night-sky": {
+      "choice": "A",
+      "rating": 4,
+      "note": "The still frame of the meteor shower looks good, but I would expect more than 2 and I don't know what the animation actually looks like, so it's hard to give full feedback."
+     },
+     "night-new": {
+      "choice": "neither",
+      "rating": 3,
+      "note": "There just isn't any meteors in the frame at all so IDK"
+     },
+     "pbr": {
+      "choice": "C",
+      "rating": 4,
+      "note": "C looks a little better than D, but the main difference between the first 2 that I see is that the metallic blocks just look like they are in the shade. Not necessarily better, especially in the case of the gold, but I don't really see what the intended difference is here."
+     },
+     "tex-wall": {
+      "choice": "C",
+      "rating": 4,
+      "note": "The only thing that B does better is the side profile of the dirt."
+     },
+     "tex-glass": {
+      "choice": "C",
+      "rating": 4,
+      "note": "same as my last response"
+     },
+     "tex-forest": {
+      "choice": "C",
+      "rating": 3,
+      "note": "A and C look the exact same here."
+     },
+     "tex-golden": {
+      "choice": "C",
+      "rating": 4,
+      "note": ""
+     },
+     "tex-packs": {
+      "choice": null,
+      "rating": null,
+      "note": "Faithful 64 is just a better version of 32. I really like the texture and dimension of blocks like the stone bricks from it, and some of the metallic surfaces. \n\nI actually quite like the crops and plant art of stay true. The wheat looks fucking spectacular, and I really really like how the leaves look when they are on custom trees, but I think the extra frilly bullshit that sticks off of them looks kinda stupid on just the blocks by themselves or when building a hedge wall out of leaves, so I am unsure how to approach that.\n\nI actually like Patrix 32x quite a bit, especially the mobs! Patrix looks like something that takes a long time to get right though, and I imagine it may be intensive on performance, but I would be interested to hear if some of these elements are more achievable than I thought.\n\nVanilla-Normals-Renewed does some of the best light interactions and reflections of all of the packs that I have looked at here. \n\nI don't think I like the textures of Conquest very much, but they do a pretty decent job with environmental lighting and effects like the bubbles in the water, or the visual effects of being in the water or specific other environments.\n\nThere aren't many pictures of Soartex, but I like the bookshelves, and the rest of it looks a little bland.\n\nIt isn't listed here, but I also like the faithless texture pack. I like the majority of the sprites for items, and details like all of the potions having unique shapes, and enchantments having unique books. The quality of the sprites is really stellar, and I honestly like a lot of the guy designs. The actual block textures aren't my favorite, especially after looking at a lot of these other options, but the animations in the faithless resource pack are very well done as well.\n\nFrom all of these packs I grabbed a few screenshots of some of the elements I described. Hopefully this is enough to set the direction and begin the work."
+     },
+     "fl-style": {
+      "choice": "B",
+      "rating": 5,
+      "note": "The creative tabs are cool from this list, but I did a much better job of articulating what I like from it in a section above."
+     },
+     "fl-stone-ores": {
+      "choice": "B",
+      "rating": 3,
+      "note": "The bastion looks okay, and I like the custom healthcare for the enderdragon, and presumably some of the other bosses from the mudpack."
+     },
+     "fl-wood-build": {
+      "choice": "B",
+      "rating": 2,
+      "note": "The TNT is the only thing that stands out here because it has the enchantment language on it to spell TNT. That is pretty sick."
+     },
+     "fl-nature": {
+      "choice": "C",
+      "rating": 4,
+      "note": "I like the leaves compared to vanilla, but I feel like I have seen better."
+     },
+     "fl-redstone": {
+      "choice": "A",
+      "rating": 3,
+      "note": "this is pretty cool, and if we can find a sleeker design for it while still preserving the same utility then that would be interesting to see."
+     },
+     "fl-items": {
+      "choice": "A",
+      "rating": 5,
+      "note": "Fucking awesome and I mentioned it above"
+     },
+     "fl-gui": {
+      "choice": "A",
+      "rating": 5,
+      "note": "Main menu is the only thing that doesn't belong in this list."
+     },
+     "fl-mobs-sound": {
+      "choice": "C",
+      "rating": 4,
+      "note": "We have seen better options for these."
+     },
+     "fl-access": {
+      "choice": "C",
+      "rating": null,
+      "note": "I don't give a fuck to be quite frank."
+     }
+    },
+    "overall": "I feel like we had some productive questions in this round, and I have taken a lot of time to give thorough and deep explanations for a lot of this shit so I have VERY high expectations for the results of the next round. I want to see a massive leap!"
+   },
+   "attachments": [
+    {
+     "scene": "tex-packs",
+     "name": "Screenshot 2026-10-25 at 8.04.52_PM.jpg",
+     "path": "docs/design/shaders/feedback/attachments/r007/20261026T004310546Z-tex-packs-1.jpg",
+     "url": "https://raw.githubusercontent.com/MarionWhite/quest-forge/main/docs/design/shaders/feedback/attachments/r007/20261026T004310546Z-tex-packs-1.jpg"
+    },
+    {
+     "scene": "tex-packs",
+     "name": "Screenshot 2026-10-25 at 8.05.48_PM.jpg",
+     "path": "docs/design/shaders/feedback/attachments/r007/20261026T004310546Z-tex-packs-2.jpg",
+     "url": "https://raw.githubusercontent.com/MarionWhite/quest-forge/main/docs/design/shaders/feedback/attachments/r007/20261026T004310546Z-tex-packs-2.jpg"
+    },
+    {
+     "scene": "tex-packs",
+     "name": "Screenshot 2026-10-25 at 8.11.30_PM.jpg",
+     "path": "docs/design/shaders/feedback/attachments/r007/20261026T004310546Z-tex-packs-3.jpg",
+     "url": "https://raw.githubusercontent.com/MarionWhite/quest-forge/main/docs/design/shaders/feedback/attachments/r007/20261026T004310546Z-tex-packs-3.jpg"
+    },
+    {
+     "scene": "tex-packs",
+     "name": "Screenshot 2026-10-25 at 8.11.42_PM.jpg",
+     "path": "docs/design/shaders/feedback/attachments/r007/20261026T004310546Z-tex-packs-4.jpg",
+     "url": "https://raw.githubusercontent.com/MarionWhite/quest-forge/main/docs/design/shaders/feedback/attachments/r007/20261026T004310546Z-tex-packs-4.jpg"
+    },
+    {
+     "scene": "tex-packs",
+     "name": "Screenshot 2026-10-25 at 8.25.21_PM.jpg",
+     "path": "docs/design/shaders/feedback/attachments/r007/20261026T004310546Z-tex-packs-5.jpg",
+     "url": "https://raw.githubusercontent.com/MarionWhite/quest-forge/main/docs/design/shaders/feedback/attachments/r007/20261026T004310546Z-tex-packs-5.jpg"
+    },
+    {
+     "scene": "tex-packs",
+     "name": "pasted-203046-1.jpg",
+     "path": "docs/design/shaders/feedback/attachments/r007/20261026T004310546Z-tex-packs-6.jpg",
+     "url": "https://raw.githubusercontent.com/MarionWhite/quest-forge/main/docs/design/shaders/feedback/attachments/r007/20261026T004310546Z-tex-packs-6.jpg"
+    },
+    {
+     "scene": "fl-style",
+     "name": "Screenshot 2026-10-25 at 8.35.10_PM.jpg",
+     "path": "docs/design/shaders/feedback/attachments/r007/20261026T004310546Z-fl-style-1.jpg",
+     "url": "https://raw.githubusercontent.com/MarionWhite/quest-forge/main/docs/design/shaders/feedback/attachments/r007/20261026T004310546Z-fl-style-1.jpg"
+    },
+    {
+     "scene": "fl-style",
+     "name": "Screenshot 2026-10-25 at 8.35.38_PM.jpg",
+     "path": "docs/design/shaders/feedback/attachments/r007/20261026T004310546Z-fl-style-2.jpg",
+     "url": "https://raw.githubusercontent.com/MarionWhite/quest-forge/main/docs/design/shaders/feedback/attachments/r007/20261026T004310546Z-fl-style-2.jpg"
+    },
+    {
+     "scene": "fl-style",
+     "name": "Screenshot 2026-10-25 at 8.36.00_PM.jpg",
+     "path": "docs/design/shaders/feedback/attachments/r007/20261026T004310546Z-fl-style-3.jpg",
+     "url": "https://raw.githubusercontent.com/MarionWhite/quest-forge/main/docs/design/shaders/feedback/attachments/r007/20261026T004310546Z-fl-style-3.jpg"
+    }
+   ]
+  }
+ ]
+}
