@@ -38,6 +38,11 @@ Owner overall: no drastic improvement; over budget on performance; wants optimis
   r8xwaves (WAVES+FOAM+CAUSTICS), r8xrim, r8xaer (AERIAL+HAZE_HEIGHT), r8xgh, r8xflk (FLECKS+SUN_SPARKLE)) on
   ocean_sunset, golden_lit, forest_golden, dust_b, lake_glitter, river_noon. Low (preset 1, 1080p): r8lb, r8lxshaft,
   r8lxpbr, r8lxwaves, r8lxbounce on golden_lit, lake_glitter, biome_hills, ocean_sunset. Off baselines: r008 p8off/p8looff.
-- **Next:** `renderq.py results 1026-174757-r009-cost-breakdown`; per scene, delta = base p50 minus each x-tag p50; rank
-  the top terms for High and Low and write the table to ops/journal/shader.md. Then gate or cut the top terms and draft
-  the auto-tier helper (step 2). Metal-path cost (QF_METAL_SSR, lighting.glsl:85) is not in this run; it goes in step 3's run.
+- 2026-10-26 (later): cost breakdown read and ranked; the table is in ops/journal/shaders.md. High: SHAFTS -1.84 ms mean
+  (-2.50 max) and DUST+MOTES -1.48 (-2.30) dwarf the rest (WAVES -0.15, PBR -0.11, all others <=0.06). Low: SHAFTS -0.51,
+  everything else <=0.06. Volumetrics are the whole budget problem. dust_b has no r8b base row.
+- **Next:** find the shaft/dust march (grep VOLUMETRIC/SHAFT steps in shaders/QuestForge) and cut it: fewer steps plus
+  dither/blue-noise jitter, half-resolution march, and dust computed inside the shaft loop (not its own pass). Submit a
+  High/Low cost run against r8b/r8lb (after 08:00). Then draft the auto-tier helper: measured p50 above the tier budget
+  (High 3.0, Low 0.9) drops to the next preset; first drop is shafts quality, then shafts off. Look-changing default
+  edits go to ops/DECISIONS.md. Metal-path cost (QF_METAL_SSR, lighting.glsl:85) is not in this run; it goes in step 3's run.

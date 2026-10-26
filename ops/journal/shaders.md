@@ -1,5 +1,14 @@
 # Shaders journal (newest first)
 
+- 2026-10-26: r009 cost breakdown (renderq 1026-174757, p50 ms, delta = base minus option-off; base r8b/r8lb were cached).
+  High (2560x1440, base 2.8-5.0 ms, off 0.35-0.51): SHAFTS -1.84 mean / -2.50 max; DUST+MOTES -1.48 / -2.30;
+  WAVES+FOAM+CAUSTICS -0.15 / -0.30; PBR -0.11 / -0.19; AERIAL+HAZE -0.06; GOLDEN_HOUR -0.06; BOUNCE -0.04; RIM -0.03;
+  FLECKS+SPARKLE ~0. Low (preset 1, 1080p, base 1.51-1.74, off 0.42-0.52): SHAFTS -0.51 / -0.69; WAVES -0.06; PBR -0.04;
+  BOUNCE -0.01. The volumetric pair (shafts + dust) is about 3.3 of High's ~4.7 ms; everything else together is under 0.5.
+  They probably share the march (critic: dust off also kills beam haze), so the two deltas overlap and don't add up.
+  dust_b has no base row in r8b, so it is missing from the table. Next: cut march steps or resolution, gate dust on shafts,
+  then the auto-tier helper.
+
 - 2026-10-26: r008 posted (006fe9b, --no-push) from cost run 1026-015851 (39/39 done, terrain in every frame); critic 6.3,
   not yet a leap (motes in beams; iron reflection; ocean sun path; forest_golden wash; sky_noon deck); 10 p8 frames 3.5-4.6 ms > 3.0.
 
