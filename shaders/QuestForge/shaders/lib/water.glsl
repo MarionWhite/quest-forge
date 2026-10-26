@@ -131,6 +131,11 @@ float waterLakeShare() {
     // r008 ub: a slow river at sunset calms too (lake_glitter read as river water and kept its chop).
     return waterBiomeWeights().w * (1.0 - 0.4 * waterRiverShare());
 }
+// Loop 2 (critic: lake_glitter still choppy, no mirror): any sheltered water (lake or slow river,
+// the whole glassy weight) calms at golden hour, whatever the biome detector called it.
+float waterCalmShare() {
+    return max(waterLakeShare(), waterBiomeWeights().w);
+}
 // Glassy water is calmer: fewer wind ripples, so it mirrors more cleanly.
 float waterBiomeRipple() {
     vec4 w = waterBiomeWeights();
@@ -138,6 +143,7 @@ float waterBiomeRipple() {
 }
 #else
 float waterLakeShare() { return 0.0; }
+float waterCalmShare() { return 0.0; }
 vec3 waterAbsorb() { return WATER_ABSORB; }
 vec3 waterScatter() { return WATER_SCATTER; }
 float waterBiomeRipple() { return 1.0; }
@@ -282,7 +288,7 @@ vec4 waterNormalRough(vec3 worldPos, vec3 faceNormal) {
     // raised every water's chop 1.7x at golden hour, so the sheltered lake was rougher at sunset
     // than the ocean at noon. A lake at sunset is a near mirror (the reference packs all show the
     // cliff mirrored cleanly): its chop now falls to about a quarter at low sun.
-    amp *= mix(1.0, mix(0.72, 0.20, smoothstep(0.0, 0.55, goldenHour())), waterLakeShare());   // ub: 0.26 linear in gh left a 10-degree sun at 0.44
+    amp *= mix(1.0, mix(0.72, 0.12, smoothstep(0.0, 0.5, goldenHour())), waterCalmShare());   // loop 2: 0.20 on the lake share alone left lake_glitter choppy   // ub: 0.26 linear in gh left a 10-degree sun at 0.44
 #else
     amp *= mix(1.0, 0.72, waterLakeShare());
 #endif

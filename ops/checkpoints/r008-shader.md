@@ -54,3 +54,36 @@ Shader WIP da16ea8: compiles clean (check_glsl), NOT yet reviewed in frames.
 - `#if` cannot compare floats.
 - gBeam and UW_SURF must be declared before ambientMotes.
 - Costs measured under the night cap are invalid.
+
+## Loop 2 (uc..., 2026-10-25 ~23:30) - fixes in the tree, compiled clean, not yet rendered
+- Sun: QF_SUN_SIZE 15 (3x; options 3-18); cutoff cos(R*1.3) instead of 0.999; white core over mu>0.55, gold rim; near glare 0.20->0.10; glare taps 0.45R, want 0.30 peak.
+- Beach/shore mint: Tdown x4 + shallow tint only for river share (lib waterRiverShare); sea keeps 1.6 at 0.35 weight.
+- Golden band cream-peach (blue kept), below-horizon veil 1.0/0.94/0.88, golden haze and aerial air desaturated to cream.
+- Lake: waterCalmShare() = max(lake, glassy w); chop to 0.12 at golden hour; SSR flatS 0.92; SSR weight no longer falls linearly per step (shore mirror).
+- Dust: beam motes gated per mote (inBeam), not by the dithered per-pixel gBeam; brighter.
+- Meteors: tint white/warm; added after the clouds via gMeteor with smoothstep(0.85,0.99,cloudT).
+- Metals: metalShade(..., diffuse): x1.6 env + horizon band, broad sun sheen, never below diffuse*1.05.
+- Cloud blob: light samples use soft cloudDensL (smoothstep of signed field), far weight 130->90.
+- Spec: C:/qfb/shaderdev/r008/specs/ud.json, submitted as 1025-225155-r008-ud (tags ud, ud_met, ud_pbr, ud_pbr0, ud_clip{met,wat,cld,dust}). Next: wait, sheets vs refs, commit.
+- ud reviewed (sheets C:/qfb/shaderdev/r008/look/ud, clips C:/qfb/shaderdev/r008/clips/ud_*.webp): sun ~50 px white disk (fixed);
+  beach/shore sand tan again (fixed); lake a clean mirror of cliff, tower and clouds (fixed); metals bright and reflective (fixed);
+  meteors behind the dark core but trains green and over thin cloud; golden band still khaki (187,163,116 vs CR 222,179,155);
+  cloud blob softer in biome_ocean, still in river_noon; dust still invisible in the clip.
+- Post-ud tweaks: band rosier + lift 1.15; deep cloud diffusion octave; metal env 1.4+0.9; meteor train blue-white, cloud cut 0.93;
+  dust: raw 3.5 m four-side beam test, maxD 30, QF_DUST_DBG diagnostic. Verify batch 1025-231105-r008-ue (tags ue, ue_pbr, ue_clipmet, ue_clipdust, ue_dustdbg).
+- ue reviewed: cloud blob gone in biome_ocean, faint in river_noon; band a bit lighter (193,168,128); QF_DUST_DBG 1 also lit nothing
+  in the beam: not the gate. Cause found: MOTE_STEPS 22 walks only ~16 m. Now 38 (Ultra) / 26 (High) with QF_DUST; band pushed rosier.
+  Verify batch 1025-232208-r008-uf (uf, uf_clipdust, uf_dustdbg).
+- uf/ug/uh reviewed: band 199,170,137 (CR 222,179,155; closer, still a little khaki); a bright ring at the limb behind leaves
+  (glare skipped inside the disk on non-sky pixels) fixed in final.glsl; sunlit motes over sky and bright far land were white
+  specks (owner's r007 complaint): motes now never over sky and fade over bright backgrounds (uh: specks gone).
+- Loop 2 committed (see git log "r008 loop 2"). Renders this loop: ud, ud_met, ud_pbr, ud_pbr0, ud_clip{met,wat,cld,dust},
+  ue, ue_pbr, ue_clipmet, ue_clipdust, ue_dustdbg, uf, uf_clipdust, uf_dustdbg, ug, uh. Clips: C:/qfb/shaderdev/r008/clips/ud_*.webp.
+
+## Next (loop 3)
+- Dust in the beam is still not visible (even QF_DUST_DBG 1): the forest_golden beam lies 20-40 m out where a 1.25 m-cell mote is
+  ~1 px, and the near air is shaded. Try: larger mote cells past 15 m (2.5-4 m, 2-3 px flakes), or a dust view with a beam in front
+  of dark trunks; also check sampleShadow's vis at the mote is not zeroed by eyeSky^2 under canopy. Cost of MOTE_STEPS 38 needs a cost run (morning).
+- Golden band: still ~20 under CR in R and B; try a below-horizon veil lift and less haze yellow.
+- river_noon cloud: faint grey patch left.
+- Then the morning cost submission, spec_scenes.py, round.json, finish_round (see the earlier Next list).

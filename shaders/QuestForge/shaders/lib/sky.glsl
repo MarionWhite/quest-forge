@@ -156,6 +156,11 @@ int nightVariant() {
 float meteorTime() {
     return frameTimeCounter;   // not animTime(): QF_STILL renders keep the shower moving
 }
+// Loop 2 (critic: meteors drew over the dark cloud bodies): the meteor term is kept apart and added
+// after the clouds, behind them with a steep cut (a thin night cloud still let ~30 % of the bright
+// head through, which read as a streak in front of the cloud).
+vec3 gMeteor = vec3(0.0);
+float gCloudT = 1.0;
 vec3 meteors(vec3 dir) {
     vec3 R = normalize(vec3(0.35 + 0.3 * hash12(vec2(float(worldDay), 3.3)), 0.80, -0.45 + 0.4 * hash12(vec2(float(worldDay), 5.1))));
     float pxA = 2.0 / (gbufferProjection[1][1] * viewHeight);
@@ -189,7 +194,7 @@ vec3 meteors(vec3 dir) {
         if (thd < th0 - 0.01 || thd > head + 0.01) continue;
         vec3 N = cross(R, U);
         float perp = abs(dot(dir, N));
-        vec3 tint = mix(vec3(0.85, 0.92, 1.0), vec3(0.75, 1.0, 0.80), hash12(sd + 7.7) * 0.6);
+        vec3 tint = mix(vec3(0.90, 0.94, 1.0), vec3(1.0, 0.90, 0.76), hash12(sd + 7.7) * 0.6);   // loop 2: the green end read lime (critic)
         if (p < 1.0) {
             float w = pxA * (bright > 1.0 ? 1.9 : 1.4);   // ub: 1.1 px streaks thinned out under TAA in ua
             float line = exp(-perp * perp / (w * w));
@@ -208,7 +213,7 @@ vec3 meteors(vec3 dir) {
             float lineT = exp(-perp * perp / (wt * wt));
             float span = smoothstep(th0 - 0.005, th0 + len * 0.3, thd) * smoothstep(head + 0.003, head - len * 0.15, thd);
             float fadeT = (1.0 - age) * (1.0 - age) * smoothstep(0.0, 0.08, age + p * 0.1);
-            sum += vec3(0.70, 1.0, 0.82) * lineT * span * fadeT * 0.22 * bright;
+            sum += vec3(0.82, 0.92, 1.0) * lineT * span * fadeT * 0.16 * bright;   // ud: the green train was the lime the critic saw; a faint blue-white glow instead
         }
     }
     return sum * SUN_I * 0.06;
@@ -248,7 +253,7 @@ vec3 nightSkyTexture(vec3 dir) {
     if (v == 1 || v == 4) {
         L += faintStars(dir, 0.35) * mix(0.5, 1.0, moonWash);
         L *= 1.15;
-        if (v == 4) L += meteors(dir) * mix(0.6, 1.0, moonWash) * smoothstep(-0.02, 0.10, dir.y);
+        if (v == 4) gMeteor = meteors(dir) * mix(0.6, 1.0, moonWash) * smoothstep(-0.02, 0.10, dir.y);
     } else if (v == 2) {
         L += faintStars(dir, 0.15) * mix(0.5, 1.0, moonWash);
         // Airglow: a green layer about 90 km up seen edge-on, so brightest 5-20 degrees above the
@@ -369,8 +374,11 @@ vec3 skyScatter(vec3 dir) {
             // ub (ua vs refs: our band was a tint, the refs' a luminous peach-gold glow brighter than
             // the zenith): the band now lifts the light as well as warming it, and the sky aloft
             // takes the lavender-blue of a golden-hour zenith instead of noon's cyan.
-            vec3 warm = mix(vec3(1.40, 1.05, 1.00), vec3(1.85, 1.18, 0.58), pow(az, 1.6));
-            float lift = 1.0 + 0.45 * pow(az, 4.0) * band;            // brighter round the sun's bearing
+            // Loop 2 (critic: ub's band read brown-khaki smog; CR's is a bright cream-peach band
+            // that fades upward): blue is kept (0.58 cut it to khaki), so the band is cream to
+            // peach, a touch rosier away from the sun, and the lift carries the glow.
+            vec3 warm = mix(vec3(1.48, 1.22, 1.45), vec3(1.84, 1.42, 1.36), pow(az, 1.6));   // ud: 1.12/1.00 blue still read khaki (187,163,116 vs CR 222,179,155)
+            float lift = 1.22 + 0.45 * pow(az, 4.0) * band;   // ud: the band sat 15 % under CR's            // brighter round the sun's bearing
             L *= mix(vec3(1.0), warm * lift, clamp(ghH * band, 0.0, 1.0));
             L *= mix(vec3(1.0), vec3(1.10, 0.93, 1.02), clamp(ghH * (1.0 - band) * 0.85, 0.0, 1.0));
         }
@@ -387,7 +395,7 @@ vec3 skyScatter(vec3 dir) {
     // The distance haze uses this colour too, so far terrain fades into the same tone.
     float below = smoothstep(0.0, -0.10, belowY);
     // r008: at golden hour the far land's veil is warm, not blue-grey.
-    L = mix(L, L * mix(vec3(0.58, 0.64, 0.74), vec3(0.92, 0.80, 0.70), goldenHour() * min(QF_GOLD_HORIZON, 1.0)), below);
+    L = mix(L, L * mix(vec3(0.58, 0.64, 0.74), vec3(1.00, 0.94, 0.88), goldenHour() * min(QF_GOLD_HORIZON, 1.0)), below);   // loop 2: 0.92/0.80/0.70 was the brown under the band
 #endif
     float g = luminance(L);
     return mix(L, vec3(g) * 0.55, rainStrength * 0.75);
@@ -487,9 +495,9 @@ float cloudThreshold() {
     // Thinner at night, so most nights show the night sky (r005: the night views were all cloud).
     return mix(mix(0.52, 0.45, day) + 0.07 * cloudNight() + QF_CLOUD_COVER, 0.33, rainStrength);
 }
-float cloudDens(vec3 p, bool detail) {
+float cloudDensD(vec3 p, bool detail) {   // the signed field: > 0 inside, -1 out of the slab
     float h = (p.y - CL_BASE) / (CL_TOP - CL_BASE);
-    if (h <= 0.0 || h >= 1.0) return 0.0;
+    if (h <= 0.0 || h >= 1.0) return -1.0;
     vec2 q = (p.xz + cloudWind()) * CL_SCALE;
     // Base: a smooth 4-octave field (cells 520 down to 65 blocks), bent by a 3D warp so walls lean.
     float warp = noise3t(vec3(q * 2.2, h * 1.6 + animTime() * 0.0015)) - 0.5;
@@ -502,7 +510,7 @@ float cloudDens(vec3 p, bool detail) {
     // walls, which streak toward the zenith seen from below).
     float th = cloudThreshold() + 0.55 * pow(h, 1.3) + 0.06 * (1.0 - smoothstep(0.0, 0.07, h));
     float d = base - th;
-    if (d <= -0.12) return 0.0;
+    if (d <= -0.12) return d;
     if (detail) {
         // Erosion: billows near the top, wisps at the base; drifting slowly so they boil.
         // j1: soft, lightly eroded sheets read as smooth streaks fanning from overhead; sharper
@@ -511,7 +519,17 @@ float cloudDens(vec3 p, bool detail) {
         float e = noise3t(q3) * 0.52 + noise3t(q3 * 2.7 + 9.2) * 0.31 + noise3t(q3 * 6.9 + 4.1) * 0.17;
         d -= (e - 0.42) * mix(0.16, 0.30, h);
     }
-    return clamp(d * 15.0, 0.0, 1.0);
+    return d;
+}
+float cloudDens(vec3 p, bool detail) {
+    return clamp(cloudDensD(p, detail) * 15.0, 0.0, 1.0);
+}
+// Loop 2 (critic: a grey lens-shaped blob in the big clouds of river_noon and biome_ocean): the
+// light samples read the smooth base field with its steep x15 edge, so the shadow of the dome above
+// a cloud base drew as a clean-edged dark oval inside the eroded cloud. The light path now sees a
+// soft version of the field, so the shade under a thick dome fades in over tens of blocks.
+float cloudDensL(vec3 p) {
+    return smoothstep(-0.06, 0.16, cloudDensD(p, false)) * 0.85;
 }
 float cloudShadow(vec3 worldPos, vec3 L) {
     if (L.y < 0.05 || worldPos.y > CL_BASE) return 1.0;
@@ -562,7 +580,11 @@ vec3 cloudPhases(float mu) {
 vec3 cloudLum(CloudLight c, float od, float h, float mu, float dens) {
     // Wrenninge's multiple-scattering octaves: each bounce sees less extinction and a softer lobe
     // (the lobes, c.ph, from cloudPhases).
-    vec3 s = c.E * (exp(-od) * c.ph.x + 0.52 * exp(-od * 0.42) * c.ph.y + 0.2704 * exp(-od * 0.1764) * c.ph.z);
+    vec3 s = c.E * (exp(-od) * c.ph.x + 0.52 * exp(-od * 0.42) * c.ph.y + 0.2704 * exp(-od * 0.1764) * c.ph.z
+                    // ud (critic: a grey lens in river_noon's and biome_ocean's big clouds, still there with
+                    // soft light samples): the thick core's flat base, lit only through the full dome, fell
+                    // to the octaves' floor. A deep, isotropic diffusion term lifts thick bases evenly.
+                    + 0.16 * exp(-od * 0.06));
     // Powder: the sunward side of a thick body is darker than its thin edges.
     float powder = 1.0 - 0.7 * exp(-od * 0.9 - dens * 2.0);
     s *= mix(1.0, powder, 0.75) / (4.0 * PI) * 2.2;
@@ -610,8 +632,8 @@ vec4 cloudMarch(vec3 dir, int steps, float jitter) {
 #if QF_PRESET == 0
             float od = (cloudDens(p + c.L * 24.0, false) * 24.0 + cloudDens(p + c.L * 120.0, false) * 150.0) * CL_SIGMA;
 #else
-            float od = (cloudDens(p + c.L * 16.0, false) * 16.0 + cloudDens(p + c.L * 60.0, false) * 44.0
-                      + cloudDens(p + c.L * 190.0, false) * 130.0) * CL_SIGMA;
+            float od = (cloudDensL(p + c.L * 16.0) * 16.0 + cloudDensL(p + c.L * 60.0) * 44.0
+                      + cloudDensL(p + c.L * 190.0) * 90.0) * CL_SIGMA;
 #endif
             vec3 lum = cloudLum(c, od, h, mu, dens);
             float Ts = exp(-dens * CL_SIGMA * dt);
@@ -634,6 +656,7 @@ vec3 applyClouds2(vec3 L, vec3 dir, int steps) {
     j = ign(gl_FragCoord.xy + float(frameCounter % 64) * vec2(5.588, 3.124));
 #endif
     vec4 c = cloudMarch(dir, steps, j);
+    gCloudT = c.a;
     return L * c.a + c.rgb;
 }
 // Reflections (water): two looks into the slab, lit the same way as the sky's clouds.
@@ -680,7 +703,7 @@ vec3 skyRadiance(vec3 dir) {
 #endif
         float night = 1.0 - smoothstep(-0.12, 0.04, sunDir.y);
         L += T * stars(dir) * night;
-        if (night > 0.0) L += T * nightSkyTexture(dir) * night;
+        if (night > 0.0) { L += T * nightSkyTexture(dir) * night; gMeteor *= T * night; }
 #if QF_GLITTER == 2
         L += T * sunAureole(dir, sunDir);
 #endif
@@ -690,5 +713,7 @@ vec3 skyRadiance(vec3 dir) {
 #elif QF_CLOUDS == 2
     L = applyClouds2(L, dir, CL_STEPS);
 #endif
+    L += gMeteor * smoothstep(0.93, 0.995, gCloudT);   // ud: 0.85 still let streaks over the thin grey cloud
+    gMeteor = vec3(0.0); gCloudT = 1.0;
     return L;
 }

@@ -79,7 +79,7 @@ vec3 fresnelSchlick(float c, vec3 f0) {
 // own colour. What it reflects here: the sky dome along the reflected ray (blurred toward the sky's
 // irradiance as it gets rough), the lit ground below the horizon, and the sun as a sharp GGX
 // highlight. So gold and iron read as polished metal, bright where they face the sky or the sun.
-vec3 metalShade(vec3 albedo, vec3 n, vec3 viewDir, vec3 L, vec3 E, float smooth_, float shadow, float sky, float ao) {
+vec3 metalShade(vec3 albedo, vec3 n, vec3 viewDir, vec3 L, vec3 E, float smooth_, float shadow, float sky, float ao, vec3 diffuse) {
     float r = (1.0 - smooth_) * (1.0 - smooth_);
     float a2 = max(r * r, 0.0012);
     vec3 V = -viewDir;
@@ -100,9 +100,19 @@ vec3 metalShade(vec3 albedo, vec3 n, vec3 viewDir, vec3 L, vec3 E, float smooth_
     vec3 H = normalize(L + V);
     float NdotL = clamp(dot(n, L), 0.0, 1.0);
     float sp = ggx(clamp(dot(n, H), 0.0, 1.0), a2) * NdotL / (4.0 * NdotV + 0.4);
-    col += fresnelSchlick(clamp(dot(H, V), 0.0, 1.0), f0) * E * min(sp, 80.0) * shadow;
-    // A little diffuse-looking fill from the micro-roughness, so a metal in deep shade is not black.
-    col += albedo * skyD * sky * ao * 0.06;
+    vec3 FH = fresnelSchlick(clamp(dot(H, V), 0.0, 1.0), f0);
+    col += FH * E * min(sp, 80.0) * shadow;
+    // Loop 2 (critic: ub's iron and gold read dimmer than PBR off, "in the shade", with no sky
+    // reflection or sun sheen). A block face mirrors mostly the horizon sky, which is far dimmer
+    // than the sun on a diffuse face, so a pure mirror reads as a darkened block. Polished metal
+    // in a game reads by its highlights: a brighter, contrastier sky reflection (a horizon band
+    // in the reflection, bright above and dark ground below), a broad sun sheen across the face,
+    // and the block's diffuse look kept underneath so it is never darker than with PBR off.
+    float hb = exp(-abs(Rf.y) / 0.12);                                  // the bright horizon band in the reflection
+    col *= 1.4 + 0.9 * hb * smoothstep(-0.05, 0.02, Rf.y);   // ud: 1.6 + 1.2 pushed diamond and gold edges toward neon
+    float sh2 = ggx(clamp(dot(n, H), 0.0, 1.0), 0.08) * NdotL / (4.0 * NdotV + 0.4);
+    col += FH * E * min(sh2, 6.0) * shadow * 0.55;
+    col = max(col + diffuse * 0.55, diffuse * 1.05);
     return col;
 }
 
@@ -213,7 +223,7 @@ vec3 shadeSurface(Surface s, vec3 viewDir, vec2 pixel) {
         // reflection and lose most of their diffuse light.
         bool metal = s.f0 > 0.895;
         if (metal) {
-            color = metalShade(s.albedo, s.normal, viewDir, L, E, max(s.smoothness, 0.35), shadow, sky, ao);
+            color = metalShade(s.albedo, s.normal, viewDir, L, E, max(s.smoothness, 0.35), shadow, sky, ao, color);
             return color;
         }
         float r = (1.0 - s.smoothness) * (1.0 - s.smoothness);
@@ -254,7 +264,7 @@ vec3 shadeSurface(Surface s, vec3 viewDir, vec2 pixel) {
     // Specular from the light on metal and polished stone (no reflections beyond that yet).
 #if QF_PBR == 1
     // Metal blocks without a map in the pack: the same model, polished.
-    if (s.mat == MAT_METAL && !hasPbr) return metalShade(s.albedo, s.normal, viewDir, L, E, 0.72, shadow, sky, ao);
+    if (s.mat == MAT_METAL && !hasPbr) return metalShade(s.albedo, s.normal, viewDir, L, E, 0.72, shadow, sky, ao, color);
 #endif
     if (s.mat == MAT_METAL || s.mat == MAT_POLISHED || s.mat == MAT_ORE) {
         float rough = s.mat == MAT_METAL ? 0.38 : (s.mat == MAT_ORE ? 0.3 : 0.28);

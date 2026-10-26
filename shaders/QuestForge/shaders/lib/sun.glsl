@@ -28,7 +28,7 @@ float sunPeak() {
 // Disk radiance (scene units) seen through transmittance T, at dir.
 vec3 sunDiskReal(vec3 dir, vec3 sunDir, vec3 T) {
     float c = dot(dir, sunDir);
-    if (c < 0.999) return vec3(0.0);
+    if (c < cos(SUN_REAL_R * 1.3)) return vec3(0.0);
     float a = length(cross(dir, sunDir));                        // ~ the angle, for small angles
     float pxA = 2.0 / (gbufferProjection[1][1] * viewHeight);      // radians per pixel
     float cov = clamp((SUN_REAL_R - a) / pxA + 0.5, 0.0, 1.0);
@@ -44,5 +44,10 @@ vec3 sunDiskReal(vec3 dir, vec3 sunDir, vec3 T) {
     // r008: a hot core that tone-maps to near white, so the hue lives in the limb, as photographs
     // of a low sun show it (white centre, gold to orange rim).
     col = mix(col, vec3(1.0, 0.97, 0.92) * max(col.r, max(col.g, col.b)), 0.55 * mu * mu);
+    // r008 loop 2 (critic: at size 5 the disk was 20 px and pale against the glare round it):
+    // a white-hot core over the inner 70 % of the radius and a gold rim that falls to a few times
+    // the sky, so the disk has a visible form (white centre, gold limb, crisp edge), not a flat dot.
+    float core = smoothstep(0.55, 0.95, mu);
+    col = mix(col * mix(0.10, 0.5, smoothstep(0.0, 0.6, mu)), vec3(1.0, 0.98, 0.95) * 1.6, core);
     return col * cov * sunPeak() / max(exposure(), 1e-4);
 }
