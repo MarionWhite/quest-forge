@@ -1,5 +1,6 @@
 # Site journal (newest first)
 
+- 2026-10-25 (Mac) first-night: Infernal modifiers (all 27) and Level Up classes and skills from the jars; difficulty noted as shipped inert; friends' server rules from decision 0007; parties, sleep and Farmer claims corrected. Voice keys stay Tab/U (local commit 5e9a96f; origin still B/N).
 - 2026-10-25 23:30 (Mac): site work moved under the ops harness (track, checkpoints, brief).
   Round 4 running: lucky-stage, lucky-outcomes, mobs, audio, krypt-world, krypt-scares,
   first-night. New shared tools: `site/lib/qfaudio.js`, `tools/site/dump_frames.py`.

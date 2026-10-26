@@ -465,16 +465,56 @@ footer.site a:hover{color:var(--ember-ink);border-color:var(--ember)}
 </section>
 
 <section class="step" id="classes">
-  <!-- Sources: pack/config/betterquesting/DefaultQuests.json, quest 431 "Pick a Class" (text: no Book of Unlearning on this server);
-       pack/config/levelup.cfg ("Max points per skill"=25). -->
+  <!-- Sources: pack/config/betterquesting/DefaultQuests.json, quest 431 "Pick a Class" (names Miner, Warrior, Scout; "no Book of
+       Unlearning" on this build); pack/config/levelup.cfg (Max points per skill=25; Skill points lost on death=5; Reset player
+       class on death=false; Add Bonus XP on Craft, Fighting, Mining=false). server/runtime/mods/LevelUp.jar: class and skill
+       text from assets/levelup/lang/en_US.lang (class1-class13, skill1-skill12); the bonus enum is assets/levelup/ClassBonus$CLASSES.
+       Checked against origin/main 2026-10-25: unchanged. -->
   <h2>Level Up classes</h2>
-  <p class="sum">Press <kbd>L</kbd>. Quest 431, <i>Pick a Class</i>, names the first choices: Miner, Warrior, Scout, Farmer, and more.</p>
+  <p class="sum">Press <kbd>L</kbd>. A class adds skill points to three skills at once. Quest 431, <i>Pick a Class</i>, names Miner, Warrior and Scout.</p>
   <dl class="ref">
-    <div><dt>Payback</dt><dd>Each class pays back every level you put into it.</dd></div>
-    <div><dt>Undo</dt><dd><b>None.</b> There is no Book of Unlearning on this server.</dd></div>
+    <div><dt>Points</dt><dd>Automatic. A class adds 10 points to its first skill, 5 to its second and 5 to its third. Freelancer adds 20 skill points instead.</dd></div>
+    <div><dt>Extra XP</dt><dd>Each class also names an activity that earns extra XP (mining, combat or crafting). This pack turns those bonuses off, so only the points apply.</dd></div>
     <div><dt>Cap</dt><dd>25 points per skill.</dd></div>
+    <div><dt>Undo</dt><dd>Quest 431 says this build has no Book of Unlearning. Nothing in the pack config says a class can be changed.</dd></div>
     <div><dt>Death</dt><dd>The class survives death. Skill points are reduced by five percent. See <a href="#dying">When you die</a>.</dd></div>
   </dl>
+
+  <h3>The classes</h3>
+  <table>
+    <tr><th>Class</th><th>Points (+10 / +5 / +5)</th><th>Extra XP from</th></tr>
+    <tr><td>Miner</td><td>Mining, Digging, Smelting</td><td>Mining</td></tr>
+    <tr><td>Warrior</td><td>Melee, Defense, Marksman</td><td>Combat</td></tr>
+    <tr><td>Artisan</td><td>Smelting, Woodcutting, Cooking</td><td>Crafting</td></tr>
+    <tr><td>Spelunker</td><td>Defense, Athletics, Mining</td><td>Mining</td></tr>
+    <tr><td>Scout</td><td>Marksman, Stealth, Athletics</td><td>Combat</td></tr>
+    <tr><td>Farmer</td><td>Farming, Fishing, Woodcutting</td><td>Crafting</td></tr>
+    <tr><td>Archaeologist</td><td>Digging, Mining, Woodcutting</td><td>Mining</td></tr>
+    <tr><td>Assassin</td><td>Stealth, Melee, Marksman</td><td>Combat</td></tr>
+    <tr><td>Lumberjack</td><td>Woodcutting, Defense, Athletics</td><td>Crafting</td></tr>
+    <tr><td>Hermit</td><td>Cooking, Mining, Digging</td><td>Mining</td></tr>
+    <tr><td>Zealot</td><td>Athletics, Melee, Defense</td><td>Combat</td></tr>
+    <tr><td>Fisherman</td><td>Fishing, Cooking, Woodcutting</td><td>Crafting</td></tr>
+    <tr><td>Freelancer</td><td>20 skill points, no class skills</td><td>None</td></tr>
+  </table>
+  <p class="sum">Skill names are as the in-game text writes them. Melee, Marksman and Stealth are not on the skill list below.</p>
+
+  <h3>The skills</h3>
+  <table>
+    <tr><th>Skill</th><th>Every level</th><th>Every 5 levels</th></tr>
+    <tr><td>Mining</td><td>Chance of 2x ore drops</td><td>Mining speed</td></tr>
+    <tr><td>Sword</td><td>Chance of a random crit</td><td>Damage with items</td></tr>
+    <tr><td>Defense</td><td>Chance of a super block</td><td>Less damage from mobs</td></tr>
+    <tr><td>WoodCutting</td><td>Chance of more wood</td><td>Chopping speed</td></tr>
+    <tr><td>Smelting</td><td>Chance of 2x smelt yield</td><td>Smelting speed</td></tr>
+    <tr><td>Archery</td><td>Arrow speed</td><td>Bow draw speed</td></tr>
+    <tr><td>Athletics</td><td>Sprint speed</td><td>Less fall damage</td></tr>
+    <tr><td>Cooking</td><td>Chance of 2x cook yield</td><td>Cooking speed</td></tr>
+    <tr><td>Sneaking</td><td>Sneak speed</td><td>Less mob sight range while sneaking</td></tr>
+    <tr><td>Farming</td><td>Crop grow speed</td><td>Chance of 2x wheat</td></tr>
+    <tr><td>Fishing</td><td>Chance of a bite</td><td>Chance of better fish loot</td></tr>
+    <tr><td>Digging</td><td>Chance of digging up loot</td><td>Chance of flint from gravel</td></tr>
+  </table>
 </section>
 
 <section class="step" id="quests">
@@ -488,7 +528,8 @@ footer.site a:hover{color:var(--ember-ink);border-color:var(--ember)}
     <div><dt>Chapters</dt><dd>1 Start, 2 Base, 3 Twilight, 4 Witchery, 5 Dark Paths, 6 The End, 7 OreSpawn, 8 TragicMC, 9 ProjectE. Chapter 1 ends at <i>Diamond Gear</i>.</dd></div>
     <div><dt>Rewards</dt><dd>They wait. Claim each one when you like; nothing is claimed for you.</dd></div>
     <div><dt>Infernal</dt><dd>Quest 430, <i>The Name Was Longer</i>, asks you to kill an Infernal mob.</dd></div>
-    <div><dt>Parties</dt><dd>A kill by any party member counts for the party. See <a href="#together">Playing together</a>.</dd></div>
+    <div><dt>Parties</dt><dd>The pack has quest parties. The friends' server does not: its quests are personal (decision 0007). See <a href="#together">Playing together</a>.</dd></div>
+    <div><dt>Being rewritten</dt><dd>The Prologue and Act I are being redesigned (decision 0004): 17 Prologue quests, no parties, Act I starts at iron. The chapters above are still the shipped book.</dd></div>
   </dl>
 </section>
 
@@ -522,6 +563,7 @@ footer.site a:hover{color:var(--ember-ink);border-color:var(--ember)}
     <div><dt>Vault</dt><dd><code>/pv</code>: a private 54-slot vault that exists nowhere in the world. Its contents follow you through death and dimension changes. It is not an ender chest.</dd></div>
     <div><dt>World tickets</dt><dd>1 in 5000 from any mob a player kills.</dd></div>
     <div><dt>Dimension tickets</dt><dd>The way back into a dimension. They drop only inside it: 1 in 10 from a boss there, 1 in 3000 from any other kill there.</dd></div>
+    <div><dt>Planned</dt><dd><code>/tpa</code> on the friends' server, as a ticket unlock like <code>/home</code> (decision 0007). Not in the pack yet.</dd></div>
   </dl>
 </section>
 
@@ -532,11 +574,28 @@ footer.site a:hover{color:var(--ember-ink);border-color:var(--ember)}
   <h2>Playing together</h2>
   <p class="sum">Parties, voice chat, and shared storage.</p>
   <dl class="ref">
-    <div><dt>Party</dt><dd>Open the quest book, choose Party, and invite by name. A kill by any member counts for the party.</dd></div>
+    <div><dt>Party</dt><dd>The pack's quest book has a Party tab. The friends' server has no parties (below). Decided for boss hunts: everyone who damaged the boss gets the credit (decision 0004).</dd></div>
     <div><dt>Talk</dt><dd><kbd>Tab</kbd> to talk, <kbd>U</kbd> to mute. You hear a player within 40 blocks in the same dimension, at full volume inside 6 blocks, fading out at 40.</dd></div>
     <div><dt>Voice commands</dt><dd><code>/voice</code> shows your status. <code>/voice mode open</code> switches to an open mic. <code>/voice level</code> and <code>/voice threshold &lt;n&gt;</code> tune it; the threshold runs from 0 to 1.</dd></div>
     <div><dt>EnderStorage</dt><dd>A chest shares its colour code with everyone, unless it is locked with a diamond (<code>personalItemID=diamond</code>). It is a mailbox until you lock it.</dd></div>
   </dl>
+
+  <h3>The friends' server</h3>
+  <!-- Sources: docs/decisions/0007-server-rules.md (status accepted, 2026-10-25; cards srv-pvp, srv-quests, srv-sleep, srv-afk,
+       srv-hub, srv-loaders, srv-graves, srv-tools); docs/setup/hosting-a-server.md rules table (sleep 43 = Morpheus SleeperPerc,
+       hub = spawn-protection 16). Decided, and applied by build_play_server.py --rules when the server is set up. The hub,
+       /tpa and the loaders bundle are described in 0007 as the consequences. -->
+  <p class="sum">Decided 2026-10-25 (decision 0007). These are the server's settings, not the pack's.</p>
+  <ol>
+    <li><b>PvP:</b> as the pack has it. One team is not used, and friendly fire stays on.</li>
+    <li><b>Quests:</b> personal. No parties.</li>
+    <li><b>Sleep:</b> the night skips when 43 percent of players are asleep, which is half of the players, rounded down.</li>
+    <li><b>Idle:</b> you are kicked after 30 minutes.</li>
+    <li><b>Spawn:</b> 16 blocks of spawn protection. The hub at spawn is a design proposal, with no portals.</li>
+    <li><b>Loaders and machines:</b> Railcraft world anchors cannot be crafted. Sync does not load chunks. A Chest Transporter cannot carry spawners. The Time Watch pedestal bonus is lower. Lycanites events start on day 2 or 3. Operator loaders stop when their owner is offline.</li>
+    <li><b>Graves:</b> the defaults. Nobody is told not to loot graves.</li>
+    <li><b>Map:</b> no world border. Opis is on. <code>/tpa</code> is planned as a ticket unlock.</li>
+  </ol>
 </section>
 
 <section class="step" id="then">
