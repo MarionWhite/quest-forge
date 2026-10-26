@@ -6,13 +6,14 @@ Rewrite this file when the state changes; keep it under 2 KB.
 - **Direction:** `docs/design/textures/direction.md` and `faithless-study.md`. The owner's round 7 pack notes are in
   `docs/design/shaders/feedback/r007.json` (scene `tex-packs`) plus the attachments.
 - **v0** (shipped to r007) won every comparison but changed too little in the forest.
-- **v1 in progress** (cc3230e):
-  - Faithful 64x for stone, bricks, ores and metals, plus Faithful's dirt sides.
-  - Our own plant and crop art in the direction of Stay True.
-  - PBR improved toward Vanilla Normals Renewed (licence check pending).
-  - Bookshelves.
-  - Leaf gaps as small pockets.
-  - CIT potion and enchanted-book prototypes (Faithless-inspired), with CIT on in TRIAL config only.
+- **v1 done for r008** (`C:\qfb	extures\QFTextures-v1.zip`, not committed):
+  - Faithful 64x for stone, bricks, ores, metals, glass and dirt; its connected glass (clear glass keeps Faithful's own rule, or Angelica's 16x rule wins).
+  - Our own leaves, bark, grass top, tall grass, fern, wheat (straw when ripe) and four bookshelf variants.
+  - PBR from Vanilla Normals Renewed (converted / hybrid), ours elsewhere.
+  - CIT potion and enchanted-book prototypes, CIT on in TRIAL config only. Faithless-level sprites need a pixel artist.
+  - Leaf frills A/B/C rendered (`--leaf-edges none|all|sides`); D (real outward frills) needs qf-tweaks code.
+  - Weak spots: fern, birch bark, wheat middle stages, grass top a little flat.
+- **r008 hand-off written:** `C:\qfb\shaderdev008	exture_scenes.json` + `TEXTURES-READY` (11 scenes). Next: the owner's r008 answers.
 - **Owner likes:**
   - Faithful 64x stone bricks and metals.
   - Stay True's wheat and leaves on trees, but not the frills on single blocks or hedges.

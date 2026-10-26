@@ -312,7 +312,7 @@ py -3.10 -I tools/textures/build_qf_textures.py --out C:\qfb\textures\QFTextures
 | Part | Source | Notes |
 |---|---|---|
 | Stone, stone bricks (4 kinds), cobble, mossy cobble, all ores, gold/iron/diamond/emerald/lapis/redstone/coal blocks, glowstone, glass + stained + pane tops, dirt, grass_side (+ overlay), farmland | **Faithful 64x**, 1.7.10 branch (61 textures) | chroma x1.10 |
-| Connected glass | Faithful 64x's 851 CTM files | Its rules use 1.13 names (`matchBlocks=black_stained_glass`), which 1.7.10 does not know. The build rewrites them to `95`/`160` + `metadata`, and `20`/`102` for clear glass. Unrewritten, Faithful 64x's own zip has **no** connected glass on 1.7.10. |
+| Connected glass | Faithful 64x's 851 CTM files | Its stained rules use 1.13 names (`matchBlocks=black_stained_glass`), which 1.7.10 does not know. The build rewrites them to `95`/`160` + `metadata` and names each rule after its folder, as Angelica's defaults are named (`black_stained_glass`, `black_stained_glasspane`). Clear glass ships Faithful's own rule unchanged (`matchBlocks=glass` is a 1.7.10 name too): renamed, or moved to Angelica's path with `20`, it lost to Angelica's built-in 16x glass rule (r008 renders v1 and v1b). |
 | Leaves (oak, birch, jungle, acacia, dark oak; spruce needles), their Fast `_opaque` forms | **ours**, 32x, `qf_art.leaves` | Lit clumps of single leaves: bright crown, dark underside, dark seams between leaves, gaps only between clumps. Grey, so biome tint still applies. Mean value kept at vanilla's. |
 | Log sides and ends, six woods | **ours**, 32x | Bark ridges broken into plates, lit left, dark fissures; ring ends with a bark rim. |
 | Tall grass, fern, wheat stages 0-7 | **ours**, 32x | Wheat: 13 stalks, kernel-pair ears that nod, awns, green to turning to gold. |
@@ -340,7 +340,8 @@ py -3.10 -I tools/textures/build_qf_textures.py --out C:\qfb\textures\QFTextures
 **Where generated art falls short (honest):**
 - Leaves, bark and bookshelves read well at 1:1 and in game. They are a clear step from vanilla.
 - They are not Stay True's hand-placed quality: the leaf clumps are blobby in places.
-- The wheat is dense and golden but its ears are chunky. A pixel artist would draw each ear.
+- The wheat is dense, and its ripe colour is now straw (the first render's gold went orange in the sun). The ears are chunky and the middle stages blotchy lime next to Faithful's; a pixel artist would draw each ear.
+- The grass top is calm but a little flat.
 - The fern is weak (a stiff, symmetrical frond) and the birch bark is blotchy. Both are candidates for hand drawing.
 - I did not redraw flowers, saplings, double plants, carrots or potatoes. Code would not beat vanilla's own there, so they stay vanilla.
 
