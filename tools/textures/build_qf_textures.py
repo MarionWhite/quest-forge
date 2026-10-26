@@ -206,7 +206,14 @@ def main():
         if m.endswith(".png"):
             textures[m], source[m] = (vibrance(rgba(fread(m))), None), "ctm"
         elif m.endswith(".properties"):
-            out.writestr(m, glass_rule(fread(m).decode("utf-8")))
+            # Faithful 64x names every rule glass.properties / glass_pane.properties. MCPatcher also
+            # reads a rule's file name as a tile name, so every stained rule then matched CLEAR
+            # glass too and the first (black) won: the r008 first render drew the clear panel
+            # black. Name each rule after its own folder, as Faithful 32x does.
+            folder = m.split("/")[-2]
+            pane = os.path.basename(m) == "glass_pane.properties"
+            new = m.rsplit("/", 1)[0] + "/" + (("clear_glass" if folder == "glass" else folder) + ("_pane" if pane else "")) + ".properties"
+            out.writestr(new, glass_rule(fread(m).decode("utf-8")))
         tally["ctm"] += 1
     # bookshelves: four variants mixed at random (replaces Angelica's built-in horizontal rule)
     d = CTM + "bookshelf/"

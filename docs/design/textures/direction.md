@@ -280,3 +280,199 @@ which the merge asserts).
   so the order does not matter today); the Angelica edition inherits both. The client profiles
   (`tools/lite-client/profiles/*.json`, `resourcepacks` section) select it on apply and leave the
   selection alone when the zip is missing.
+
+## 5. QF Textures v1 (Shader Lab round 8, 2026-10-25)
+
+**The owner's round 7, in short:**
+- **QF v0 won** the wall, glass, forest and golden comparisons.
+- In the forest, v0 and vanilla looked identical: v0 changed too little there.
+- Faithful's dirt has the better side profile.
+- Faithful 64x is "just a better version of 32": the stone bricks and metals.
+- Stay True's crops and leaves, but not its frills on lone blocks and hedges.
+- Patrix's mobs: are they achievable, and at what cost?
+- Vanilla Normals Renewed has the best light interaction.
+- Conquest's water effects. They are shader-side; the shader agent has them.
+- Soartex's bookshelves.
+- Faithless's items, GUI, creative tabs, TNT lettering, boss bars, animations; not its blocks.
+
+**Build:**
+```
+py -3.10 -I tools/textures/build_qf_textures.py --out C:\qfb\textures\QFTextures-v1.zip [--leaf-edges none|all|sides] [--no-cit]
+```
+- The output zip is not committed (it holds Mojang pixels).
+- v0's builder is commit e4dd9f6; v0 itself is `C:\qfb\textures\QFTextures-v0.zip`.
+- Sources:
+  - `resourcepacks/QFTextures/`: pack.mcmeta, CREDITS.txt, faithful64.txt, ctm47.json;
+  - `tools/textures/qf_art.py`: our drawn blocks;
+  - `qf_items.py`: items;
+  - `vnr.py`: PBR conversion.
+
+**What v1 contains:**
+
+| Part | Source | Notes |
+|---|---|---|
+| Stone, stone bricks (4 kinds), cobble, mossy cobble, all ores, gold/iron/diamond/emerald/lapis/redstone/coal blocks, glowstone, glass + stained + pane tops, dirt, grass_side (+ overlay), farmland | **Faithful 64x**, 1.7.10 branch (61 textures) | chroma x1.10 |
+| Connected glass | Faithful 64x's 851 CTM files | Its rules use 1.13 names (`matchBlocks=black_stained_glass`), which 1.7.10 does not know. The build rewrites them to `95`/`160` + `metadata`, and `20`/`102` for clear glass. Unrewritten, Faithful 64x's own zip has **no** connected glass on 1.7.10. |
+| Leaves (oak, birch, jungle, acacia, dark oak; spruce needles), their Fast `_opaque` forms | **ours**, 32x, `qf_art.leaves` | Lit clumps of single leaves: bright crown, dark underside, dark seams between leaves, gaps only between clumps. Grey, so biome tint still applies. Mean value kept at vanilla's. |
+| Log sides and ends, six woods | **ours**, 32x | Bark ridges broken into plates, lit left, dark fissures; ring ends with a bark rim. |
+| Tall grass, fern, wheat stages 0-7 | **ours**, 32x | Wheat: 13 stalks, kernel-pair ears that nod, awns, green to turning to gold. |
+| Grass top | **ours**, 32x | Calm: clump-scale light and shade, sparse blade marks, narrow value range (no "carpet"). |
+| Bookshelf | **ours**, 32x, four variants | Leather books of varied width, height and colour, gilt bands, title labels, gaps, the odd leaning book. Mixed by CTM `method=random`. This **replaces Angelica's built-in bookshelf CTM** (DarkBum's `method=horizontal`, which otherwise overrides any `bookshelf.png`). |
+| Everything else | vanilla 1.7.10 | chroma x1.10 (v0 used 1.12; "keep vibrance modest") |
+| LabPBR `_n`/`_s` | 142 VNR converted, 33 hybrid, the rest ours | Details below |
+| Potion bottles, enchanted-book covers | **ours**, CIT | Section 7 |
+
+**PBR, toward VNR's quality:**
+- **Vanilla textures VNR covers** (142) get VNR's own maps, converted to LabPBR:
+  - VNR's normals are OpenGL (green up the image): `G` correlates -0.83 to -0.98 with the height's downward slope on stonebrick, cobble, planks and brick. So G is flipped to DirectX.
+  - AO is computed from VNR's height.
+  - The metal flag (G 255) becomes LabPBR 230 (iron) or 231 (gold).
+  - VNR's blue-channel emission moves to alpha.
+- **Faithful 64x textures that keep vanilla's layout** (33; luminance correlation over 0.45 after box-filtering to 16x) get a hybrid:
+  - VNR's height and normal, upscaled smoothly: the bevelled bricks and rounded cobbles;
+  - plus our own relief from the 64x pixels (weight 0.7);
+  - VNR's smoothness pattern;
+  - our ore-fleck rule on the 64x art.
+- **Everything else** (our drawn art, CTM tiles, the rest) uses `labpbr.py` as in v0.
+- The QuestForge shader does not read `_n`/`_s` by default yet (QF_PBR is the shader agent's).
+- The owner's r007 note, "the metallic blocks just look like they are in the shade", is the shader's side. LabPBR metals (230/231) have no diffuse term, so without a sky or environment reflection they render dark. Handed to the shader agent.
+
+**Where generated art falls short (honest):**
+- Leaves, bark and bookshelves read well at 1:1 and in game. They are a clear step from vanilla.
+- They are not Stay True's hand-placed quality: the leaf clumps are blobby in places.
+- The wheat is dense and golden but its ears are chunky. A pixel artist would draw each ear.
+- The fern is weak (a stiff, symmetrical frond) and the birch bark is blotchy. Both are candidates for hand drawing.
+- I did not redraw flowers, saplings, double plants, carrots or potatoes. Code would not beat vanilla's own there, so they stay vanilla.
+
+### Licences checked 2026-10-25
+
+**Faithful 64x:**
+- Downloaded from https://github.com/Faithful-Resource-Pack/Faithful-64x-Java, branch `1.7.10`, head `89f200c` (2026-10-25). sha256 `992d7c04...`; details in `C:\qfb\faithful64\meta.txt`.
+- There is no 1.7.10 release, so we use the branch archive. It is repacked flat for trials as `C:\qfb\faithful64\Faithful-64x-1.7.10.zip`.
+- It ships **Faithful License v4** (Jul 31, 2026), identical to the 32x copy we already credit: use, modify and distribute with credit and a link, never paywalled.
+- 438 block textures are true 64x. Only `water_overlay` is an upscale.
+- It lacks the six `leaves_*_opaque` and the beds. The leaves do not matter here: v1 draws its own.
+
+**Vanilla Normals Renewed:**
+- The 1.13+ repo uses `block/` names. The pre-1.13 pack is the separate archive repo https://github.com/Poudingue/Vanilla-Normals-Renewed-1.12 (v0.04, commit `c848329`, 2020-05-24), which already uses 1.7.10-style names (`blocks/`, `planks_oak`, `stonebrick_mossy`).
+- It has no LICENSE file. The README's terms:
+  > "You can do whatever you want with my texture pack, screenshots, videos, modifications for
+  > personal use or redistribution, as long as you don't sell it and provide a link to this page
+  > or my Patreon. Oh, and also, don't mix it with Realistico."
+- **Verdict: allowed.** A free, never-sold pack may redistribute modified (converted, renamed) maps with a link. We do that, credit it in CREDITS.txt and pack.mcmeta, and never mix it with Realistico.
+- We ship **only its `_n`/`_s` maps**, never its 321 albedo PNGs, which are modified Mojang textures.
+- **Caveats:**
+  - It is an informal README grant, not a formal licence, so the author could change it.
+  - His later MIT pack, Vanilla-Normals-Reborn, was made "to make sure I don't get into legal trouble with Mojang". It is a cleaner-licensed fallback; not yet inventoried.
+
+## 6. The owner's questions, answered
+
+### Patrix: what is achievable on 1.7.10, and what it costs
+
+**Patrix itself:** ARR and 1.20+. We can only take ideas from it, never files.
+
+**Mobs, the part the owner liked:**
+- **What Patrix does:** its mobs are mostly OptiFine **CEM**, custom entity models (`.jem`): new geometry (horns, manes, fur tufts, armour plates), new animations, plus emissive eyes.
+- **What 1.7.10 has:** no CEM, and no OptiFine at all on our Angelica stack. Mob geometry is Java code (`ModelBase` subclasses).
+- **So, in tiers:**
+  1. **Skin repaints: yes, cheap.**
+     - A resource pack can replace every vanilla mob texture, at 2x or 4x resolution, if the aspect ratio is kept (1.7.10 scales entity UVs).
+     - Patrix-style shading and detail on the existing shapes: fur, scales, cloth, eyes.
+     - Frame cost: none measurable; one bound texture per mob either way. VRAM: kilobytes per mob at 32x.
+     - Work: an artist's work. Generated mob skins would be junk; I will not ship them.
+  2. **Random variants: yes, one switch.**
+     - Angelica's MCPatcherForge `random_mobs` module is off by default.
+     - It gives several skins per mob, chosen per biome or height. Frame cost: none (a texture choice at render).
+     - It needs a trial (`trial.py`) before it goes live, like CIT.
+  3. **Glowing eyes and other emissive parts: probably, shader-side.**
+     - Our deferred shader can make chosen pixels emissive.
+     - Unverified: whether Angelica's Iris port loads `_s` maps for entity textures. Iris does on modern versions; I did not test Angelica.
+     - The fallback is an entity-ID rule in the shader. Cost: one texture fetch in the entity pass, a few hundredths of a ms.
+  4. **New shapes: only with code.**
+     - A per-mob replacement model and renderer in our own mod (qf-content). It must keep the vanilla animation hooks, mob by mob.
+     - Modded mobs (Twilight Forest, the mob mods) need their own renderers and would not follow.
+     - Frame cost: small. Entities are a tiny share of our frame next to terrain. A few dozen extra cubes per mob, on 20-40 mobs, is well under 0.1 ms. That is an estimate; measure it if we go there.
+     - The real cost is the work and compatibility, not the GPU.
+
+**The rest of Patrix** (32x blocks, extensive CTM, LabPBR) is the route we are already on:
+- **32x/64x blocks:** VRAM and atlas size.
+  - We use 64x only on about 60 textures.
+  - With thousands of modded 16x textures in the atlas, 64x everywhere would multiply atlas memory by 16. That would hurt the friends' weaker PCs.
+- **CTM:** costs CPU at chunk rebuild, not per frame.
+- **PBR:** two texture fetches and a TBN per terrain fragment, about 0.1-0.2 ms at 1440p High (estimate, section 2).
+
+**Answer:** Patrix-quality mob skins and random variants are fully achievable at no performance cost, but they need a pixel artist. Patrix's 3D mob shapes need Java renderers, mob by mob.
+
+### Leaf frills: options on 1.7.10
+
+Stay True's frills are **block-model geometry**: 1.14+ JSON models with planes sticking out of the leaf cube. 1.7.10 has no JSON block models; a leaf block is always the cube `RenderBlocks` draws. Options:
+
+| Option | How | Frills go | Lone block / hedge | Cost | Rendered |
+|---|---|---|---|---|---|
+| A. No frills (v1 default) | Our clumped leaf texture on the cube | none | Clean cube | none | `t8v1` |
+| B. Ragged edges everywhere | CTM `method=ctm` (47 tiles per wood): every face edge with no leaf block beyond it is bitten in, with a wandering profile and a dark rim | **inward**: the silhouette breaks up | A lone block reads as a ragged bush; a hedge's top and ends are ragged, its flat sides clean | none per frame; 47 tiles per wood in the atlas | `t8e1` |
+| C. Ragged top and bottom only | Same, but only side faces (`faces=sides`), and only their top/bottom edges | inward, only where no leaf is above or below | Hedge sides and ends stay straight; only the top line is ragged | as B | `t8e2` |
+| D. Real outward frills | Code in qf-tweaks: extra crossed quads (like tall grass) on leaf faces that have air beyond, optionally only above and below | **outward**, like Stay True | Can be skipped for lone blocks: draw frills only on leaves with leaves beside them | More vertices in leafy chunks (estimate +30-60% there), slower chunk rebuilds. Must work inside Angelica's chunk renderer; modded leaves (BOP, Twilight) need their own hook. Days of work plus a trial | not built |
+| E. Shader silhouette | A geometry shader growing leaf triangles, or alpha-dithering leaf edges in the fragment shader | GS: outward. Dither: inward only, like B | as B/C | GS on every terrain triangle is expensive, and whether Angelica's Iris supports `.gsh` is unverified. Not recommended | not built |
+
+- **The owner's own idea,** "frills only with air above or below", is option C as a texture, or D as geometry.
+- **CTM caveat:** CTM only sees neighbours in the face's own plane. So "air above" means "no leaf block above", which is the same thing in practice.
+
+**Recommendation:** pick between A, B and C from the renders now; they are free. Build D only if B and C fall short, as a trial with a measured cost.
+
+## 7. Items: potion bottles and enchanted books (CIT prototype)
+
+**What it is:** `tools/textures/qf_items.py`, built into the pack under `assets/minecraft/mcpatcher/cit/`.
+
+**CIT is on only in the trial:**
+- It is off in the live `mcpatcherforge.cfg`.
+- renderq's `"cit": true` job field switches it on in its trial's config only (`batch.enable_cit`, commit 691b16d).
+
+**How it works:**
+- A potion draws two layers:
+  - `potion_overlay`, the liquid, tinted with the effect's colour;
+  - `potion_bottle_drinkable` or `potion_bottle_splash`, the glass.
+- Our rule replaces both. The liquid stays grey, so the game's own colour fills our bottle: the shape says which effect, the colour stays familiar.
+- `damageMask=16399` (effect bits plus the splash bit) gives all levels and durations of an effect one bottle.
+- Books match `enchantmentIDs`; CIT reads StoredEnchantments.
+
+**The prototype:**
+- **Seven bottle shapes for 12 effects, plus a splash grenade:**
+  - round flask: regeneration;
+  - slim vial: swiftness, weakness;
+  - squat jar: fire resistance, slowness;
+  - heart: healing;
+  - cone flask: night vision, invisibility;
+  - square bottle: strength, harming;
+  - teardrop: water breathing, poison.
+- **Nine book covers:** a coloured cover per family, each with a 7x7 emblem:
+  - armour (blue): shield, flame;
+  - weapon (red): sword, flame;
+  - tool (green): pickaxe, thread, anvil, gem;
+  - bow (brown): arrow.
+
+**Quality, honestly:**
+- The sprites are readable. The silhouettes differ at a glance, and the heart, cone and jar read best.
+- They are flat next to Faithless:
+  - no 3/4 tilt on the books;
+  - two or three shading steps;
+  - emblems are icons, not illustrations;
+  - per-effect props (feathers, flames, bubbles) are missing.
+- They are hand-placed pixel grids, not generated art: each shape is typed in the code as a 16x16 grid. A grid is as good as the person typing it.
+- Faithless-level sprites need a pixel artist. A skilled one might do the 81 custom enchantments' emblems in two to three days (about 10-15 minutes each, plus review). The potion set takes a day.
+
+**A sustainable path:**
+1. **Style guide** (already the legend in qf_items.py):
+   - 16x;
+   - a one-pixel dark outline (34,30,44);
+   - light from the upper left;
+   - three steps of shading;
+   - tell items apart by silhouette first, colour second;
+   - potion liquids grey (the game tints them);
+   - book covers coloured by family, the emblem in a fixed 7x7 slot at (5,4).
+2. **Templates:** the book base and the bottle grids. An artist edits a grid, or drops in a PNG of the same size, and the build picks it up.
+3. **Coverage first, polish second:**
+   - Family covers for all 81 custom enchantments, so enchanting is readable at once. This needs the enchant census's ID list.
+   - Then emblems, most-used first.
+4. **Next and cheap:** the TNT side with enchanting-table (Standard Galactic) lettering; Faithless-style creative tabs; boss bars. Each is a plain texture or a small GUI repaint.
+5. **Not cheap:** GUI layout outside a container's frame, and the redstone readouts. Both need code.

@@ -78,12 +78,12 @@ river_swamp      -43.5   65.5   186.5    260    9      6000
 modded_wall      272.0   69.6   186.5    180    6      7000
 modded_close     267.5   70.2   181.8    180    4      7000
 # QF Textures v1 (round 8; build_showcase.py --v1, only in the showcase copy). texture_wall2: wall 2
-# (stone bricks, cobble, bookshelves, a dirt/grass step, emerald/lapis/redstone/coal) from 8.5
+# (stone bricks, cobble, bookshelves, a dirt/grass step, emerald/lapis/redstone/coal) from 5
 # blocks. farm: wheat, carrots, potatoes from above and south, low sun from the west; farm_close:
 # the front row of every wheat stage from 3.5 blocks. leaves_close: a lone leaf block and a 4x2
 # hedge from 4 blocks, the small oak behind; tree_close: the small oak from 8 blocks, looking up a
 # little. items_frames: 8 potions over 8 enchanted books in item frames (custom item textures).
-texture_wall2    233.5   69.6   186.5    180    6      7000
+texture_wall2    233.5   70.4   183.0    180    8      7000
 farm             232.5   73.5   213.5    180    26     11500
 farm_close       232.5   69.6   208.0    180    14     11500
 leaves_close     248.0   69.4   195.0    0      6      7000
