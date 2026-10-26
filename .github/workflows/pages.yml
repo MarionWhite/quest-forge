@@ -82,7 +82,9 @@ jobs:
           cp -R site/lucky _site/lucky
           cp -R site/graves _site/graves
           cp -R site/players _site/players
+          cp -R site/lib _site/lib
           test -s _site/index.html
+          test -s _site/lib/three/three.module.min.js
           test -s _site/404.html
           test -s _site/first-night/index.html
           test -s _site/lucky/index.html

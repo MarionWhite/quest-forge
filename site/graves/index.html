@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>The Wall of Graves · Quest Forge</title>
-<meta name="description" content="Every death on the Quest Forge server, as a gravestone in a graveyard. Written from the server log.">
+<meta name="description" content="Every death on the Quest Forge server, as a stone in the Krypt under the pack's sky. Written from the server log.">
 <meta name="theme-color" content="#E9EAE4">
 <meta name="robots" content="noindex">
 <link rel="icon" href="../favicon.png" type="image/png">
@@ -44,7 +44,7 @@
 [hidden]{display:none!important}
 body{margin:0;background:var(--paper);color:var(--ink);
   font-family:"Source Serif 4",Georgia,serif;font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
-h1,h2,h3,.ui,button,select{font-family:Archivo,"Helvetica Neue",Arial,sans-serif}
+h1,h2,h3,.ui,button,select,input{font-family:Archivo,"Helvetica Neue",Arial,sans-serif}
 code,.mono{font-family:"JetBrains Mono",ui-monospace,Menlo,monospace}
 .wrap{max-width:1180px;margin:0 auto;padding-left:28px;padding-right:28px}
 a{color:var(--ember-ink)}
@@ -65,71 +65,81 @@ nav.site .theme:focus-visible{outline:2px solid var(--ember);outline-offset:1px}
 nav.site .theme svg{width:17px;height:17px;display:none}
 nav.site .theme[data-mode="auto"] .i-auto,nav.site .theme[data-mode="light"] .i-light,nav.site .theme[data-mode="dark"] .i-dark{display:block}
 
-header.mast{padding:48px 0 30px;border-bottom:2px solid var(--ink)}
+header.mast{padding:44px 0 26px}
+header.mast .wrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.9fr);gap:12px 40px;align-items:end}
 .kicker{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ember-ink);margin:0 0 14px}
-h1{font-size:clamp(38px,7vw,68px);line-height:.94;font-weight:800;letter-spacing:-.03em;margin:0;text-wrap:balance}
-.lede{max-width:62ch;margin:18px 0 0;font-size:17.5px;color:var(--ink-2)}
+h1{font-size:clamp(38px,6.6vw,64px);line-height:.94;font-weight:800;letter-spacing:-.03em;margin:0;text-wrap:balance}
+.lede{margin:0;font-size:16.5px;color:var(--ink-2);max-width:52ch;justify-self:end}
 
+/* The Krypt: full bleed under the header, always dark whatever the theme. */
+.stage{position:relative;width:100%;height:min(84vh,840px);min-height:540px;overflow:hidden;background:#0E0B12;color:var(--night-ink);
+  border-top:1px solid #2a2330;border-bottom:1px solid #2a2330;touch-action:none;user-select:none;-webkit-user-select:none}
+.stage canvas{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:grab}
+.stage:active canvas{cursor:grabbing}
+.hud{position:absolute;left:0;right:0;top:0;padding:18px 26px;display:flex;flex-wrap:wrap;gap:12px 22px;align-items:flex-start;justify-content:space-between;pointer-events:none;
+  background:linear-gradient(180deg,rgba(14,11,18,.82),rgba(14,11,18,0));z-index:3}
+.hud > *{pointer-events:auto}
+.hud-l{min-width:0;max-width:60%}
+.hud-k{margin:0 0 4px;font-family:"JetBrains Mono",monospace;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:#A99DB9}
+.hud-name{margin:0;font-family:Archivo,sans-serif;font-weight:800;font-size:clamp(22px,3vw,32px);letter-spacing:-.02em;color:var(--night-ink);line-height:1.05}
+.hud-sub{margin:4px 0 0;font-size:14.5px;color:var(--night-2);max-width:60ch;font-style:italic}
+.hud-r{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.search{width:190px;padding:8px 11px;border:1px solid #3B3248;border-radius:2px;background:rgba(14,11,18,.7);color:var(--night-ink);font-size:14px}
+.search::placeholder{color:#8E83A0}
+.search:focus{outline:2px solid var(--glow);outline-offset:1px}
+.hud-btn{font-family:Archivo,sans-serif;font-size:13px;font-weight:600;letter-spacing:.01em;padding:8px 13px;border:1px solid #4A3F5E;border-radius:2px;background:rgba(14,11,18,.7);color:var(--night-ink);cursor:pointer}
+.hud-btn:hover{border-color:var(--glow);color:#fff}
+.hud-note{width:100%;margin:0;text-align:right;font-family:"JetBrains Mono",monospace;font-size:11px;color:#A99DB9;min-height:1em}
+.hint{position:absolute;left:26px;bottom:76px;margin:0;font-family:"JetBrains Mono",monospace;font-size:10.5px;letter-spacing:.06em;color:#8E83A0;pointer-events:none;z-index:2}
+
+.sheet{position:absolute;right:22px;top:132px;max-height:calc(100% - 226px);width:min(372px,calc(100% - 44px));overflow:auto;z-index:5;
+  padding:20px 22px 18px;background:rgba(14,11,18,.93);border:1px solid #3B3248;border-radius:3px;box-shadow:0 16px 40px rgba(0,0,0,.55);color:var(--night-ink)}
+.sheet-top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}
+.sheet-top .mono{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#A99DB9}
+.sheet h2{margin:0;font-family:Archivo,sans-serif;font-weight:800;font-size:30px;letter-spacing:-.025em;line-height:1}
+.sheet-msg{margin:10px 0 14px;font-style:italic;font-size:16px;color:var(--night-2);line-height:1.4}
+.sheet dl{display:grid;grid-template-columns:76px 1fr;gap:7px 12px;margin:0 0 16px;font-size:14px;line-height:1.4}
+.sheet dt{font-family:"JetBrains Mono",monospace;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:#8E83A0;padding-top:2px}
+.sheet dd{margin:0;color:var(--night-ink)}
+.ago{color:var(--glow)}
+.epitaph{margin:0 0 14px;padding:12px 14px 12px 16px;border-left:2px solid var(--glow);background:rgba(240,138,60,.07);font-size:15px;line-height:1.5;color:var(--night-ink)}
+.epitaph b{font-family:Archivo,sans-serif;font-weight:800;color:#fff}
+.sheet-nav{display:flex;gap:8px;align-items:center;justify-content:space-between}
+.sheet-nav .hud-btn{flex:1}
+.sheet-nav .mono{font-size:11px;color:#8E83A0;letter-spacing:.06em}
+
+/* The strip along the bottom: the gallery, a tick per grave, the camera.*/
+.strip-wrap{position:absolute;left:26px;right:26px;bottom:16px;z-index:4}
+.strip{position:relative;height:30px;border:1px solid #3B3248;border-radius:2px;background:linear-gradient(90deg,rgba(14,11,18,.85),rgba(35,26,44,.6),rgba(14,11,18,.85));cursor:pointer}
+.strip .marker{position:absolute;top:-5px;bottom:-5px;width:2px;margin-left:-1px;background:var(--glow);box-shadow:0 0 8px rgba(240,138,60,.8);pointer-events:none;transition:left .12s linear}
+.ticks{position:absolute;inset:0}
+.tick{position:absolute;top:6px;bottom:6px;width:9px;margin-left:-4px;padding:0;border:0;background:none;cursor:pointer}
+.tick::before{content:"";position:absolute;left:3px;top:0;bottom:0;width:2px;background:#8E7FA8;transition:background .15s}
+.tick:hover::before,.tick.near::before{background:#D9C6FF}
+.tick.on::before{background:var(--glow);box-shadow:0 0 6px var(--glow)}
+.tick:focus-visible{outline:2px solid var(--glow);outline-offset:1px}
+.strip-meta{display:flex;justify-content:space-between;margin-top:6px;font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#8E83A0}
+
+/* The page below the stage. */
 main{padding:34px 0 0}
 .bar-top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px 28px}
 .count{font-family:Archivo,sans-serif;font-size:clamp(22px,3vw,30px);font-weight:800;letter-spacing:-.02em;margin:0}
-.count small{display:block;margin-top:4px;font-family:"JetBrains Mono",monospace;font-size:11.5px;font-weight:400;letter-spacing:0;color:var(--muted)}
-.controls{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:flex-end}
-.controls label{display:flex;flex-direction:column;gap:4px;font-family:"JetBrains Mono",monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
-.controls select{font-size:14px;font-weight:500;padding:7px 30px 7px 10px;border:1px solid var(--rule);border-radius:2px;background:var(--surface);color:var(--ink);min-width:160px}
-
+.count-sub{margin:4px 0 0;font-family:"JetBrains Mono",monospace;font-size:11.5px;color:var(--muted)}
 .note{margin:18px 0 0;padding:10px 14px;border-left:3px solid var(--patina);background:var(--patina-wash);font-size:14.5px;color:var(--ink-2);border-radius:0 3px 3px 0}
+.panel{border:1px solid var(--rule);background:var(--surface);border-radius:3px;padding:24px 26px;max-width:820px;margin-top:26px}
+.panel .state{display:flex;align-items:center;gap:12px;font-family:Archivo,sans-serif;font-size:clamp(20px,2.6vw,27px);font-weight:800;letter-spacing:-.02em;margin:0}
+.dot{width:12px;height:12px;border-radius:50%;background:var(--muted);flex:none}
+.panel .sub{margin:8px 0 0;color:var(--ink-2);font-size:15.5px}
+.panel .sub a{color:var(--ember-ink)}
 
-/* The graveyard. The scene is always night, whatever the page theme. */
-.yard{position:relative;margin-top:18px}
-.scene{position:relative;height:clamp(390px,58vw,540px);overflow:hidden;border:1px solid #2a2330;border-radius:3px;
-  perspective:900px;perspective-origin:50% 34%;color:var(--night-ink);
-  background:
-    radial-gradient(1.2px 1.2px at 12% 14%,#ECE6F2 50%,transparent 52%),
-    radial-gradient(1px 1px at 37% 8%,#ECE6F2 50%,transparent 52%),
-    radial-gradient(1.2px 1.2px at 71% 17%,#ECE6F2 50%,transparent 52%),
-    radial-gradient(1px 1px at 86% 6%,#ECE6F2 50%,transparent 52%),
-    radial-gradient(1px 1px at 55% 25%,#ECE6F2 50%,transparent 52%),
-    radial-gradient(ellipse 70% 30% at 50% 52%,rgba(240,138,60,.28),transparent 72%),
-    linear-gradient(180deg,#05040A 0%,var(--night) 40%,#1E1522 62%,#2B1D1F 80%,#120E14 100%)}
-.fog{position:absolute;inset:0;pointer-events:none;z-index:5;
-  background:linear-gradient(180deg,var(--night) 0%,rgba(14,11,18,.82) 22%,rgba(14,11,18,.25) 46%,rgba(14,11,18,0) 60%)}
-.world{position:absolute;left:50%;top:50%;width:0;height:0;transform-style:preserve-3d;transform:rotateX(62deg)}
-.ground{position:absolute;left:-1100px;top:-300px;width:2200px;height:1000px;transform-style:flat;
-  background:
-    linear-gradient(180deg,rgba(14,11,18,.95) 0%,rgba(14,11,18,.55) 22%,rgba(14,11,18,0) 42%),
-    linear-gradient(180deg,#141519,#1A1A1C 60%,#1F1C1E)}
-.ground::after{content:"";position:absolute;inset:0;background-image:var(--earth);background-size:128px 128px;opacity:.55}
-@media (prefers-reduced-motion:no-preference){
-  .world{animation:drift 40s ease-in-out infinite alternate}
-}
-@keyframes drift{from{transform:rotateX(62deg) rotateZ(-1.4deg)}to{transform:rotateX(62deg) rotateZ(1.4deg)}}
-
-.stone{position:absolute;left:0;top:0;width:0;height:0;transform-style:preserve-3d;cursor:pointer;outline:none;-webkit-tap-highlight-color:transparent}
-.cub{position:absolute;left:0;top:0;width:0;height:0;transform-style:preserve-3d}
-.face{position:absolute;background-repeat:repeat;backface-visibility:hidden}
-.face.fr{background-image:linear-gradient(180deg,rgba(255,255,255,.06),rgba(0,0,0,.22)),var(--stone)}
-.face.tp{background-image:linear-gradient(180deg,#9AA0A4,#7C8286),var(--stone)}
-.face.sd{background-image:linear-gradient(180deg,#4B5055,#2C2F33),var(--stone)}
-.stone:hover .fr,.stone:focus-visible .fr,.stone.on .fr{filter:brightness(1.18)}
-.plate{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:0 4px;
-  font-family:Archivo,sans-serif;font-weight:800;letter-spacing:.02em;text-transform:uppercase;color:#17191B;
-  text-shadow:0 1px 0 rgba(255,255,255,.22);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none}
-.nomatch{position:absolute;left:0;right:0;bottom:14px;text-align:center;font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--night-2);z-index:6}
-
-.card{position:absolute;z-index:10;width:270px;max-width:calc(100% - 20px);padding:13px 15px 14px;
-  background:rgba(14,11,18,.96);color:var(--night-ink);border:1px solid #3B3248;border-radius:3px;
-  box-shadow:0 12px 32px rgba(0,0,0,.55);pointer-events:none;font-size:13.5px;line-height:1.45}
-.card .cn{font-family:Archivo,sans-serif;font-weight:800;font-size:17px;letter-spacing:-.01em}
-.card .cm{margin:6px 0 10px;font-style:italic;color:var(--night-2);font-size:14px}
-.card dl{display:grid;grid-template-columns:62px 1fr;gap:4px 10px;margin:0}
-.card dt{font-family:"JetBrains Mono",monospace;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:#8E83A0;padding-top:2px}
-.card dd{margin:0;color:var(--night-ink)}
-.card .ago{color:var(--glow)}
-
-.boards{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:34px}
-.board{border:1px solid var(--rule);background:var(--surface);border-radius:3px;padding:18px 20px}
-.board h2{font-size:19px;font-weight:800;letter-spacing:-.02em;margin:0 0 4px}
+.drawer{margin-top:30px;border:1px solid var(--rule);background:var(--surface);border-radius:3px}
+.drawer summary{cursor:pointer;list-style:none;padding:14px 20px;display:flex;justify-content:space-between;align-items:baseline;gap:12px;font-family:Archivo,sans-serif;font-weight:700;font-size:16px}
+.drawer summary::-webkit-details-marker{display:none}
+.drawer summary .mono{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ember-ink);font-weight:400}
+.drawer summary::after{content:"+";font-family:"JetBrains Mono",monospace;font-size:18px;color:var(--muted);margin-left:auto}
+.drawer[open] summary::after{content:"\2212"}
+.boards{display:grid;grid-template-columns:1fr 1fr;gap:18px;padding:0 20px 20px}
+.board h2{font-size:17px;font-weight:800;letter-spacing:-.02em;margin:0 0 4px}
 .board p{margin:0 0 10px;font-size:13.5px;color:var(--muted)}
 .board ol{list-style:none;margin:0;padding:0}
 .board li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 12px;padding:7px 0;border-bottom:1px solid var(--rule);font-size:14.5px}
@@ -140,26 +150,49 @@ main{padding:34px 0 0}
 .board .bar i{display:block;height:100%;background:var(--ember)}
 .board .empty{color:var(--muted);font-size:14px}
 
-.panel{border:1px solid var(--rule);background:var(--surface);border-radius:3px;padding:26px 28px;max-width:820px;margin-top:34px}
-.panel .state{display:flex;align-items:center;gap:12px;font-family:Archivo,sans-serif;font-size:clamp(22px,3vw,30px);font-weight:800;letter-spacing:-.02em}
-.dot{width:12px;height:12px;border-radius:50%;background:var(--muted);flex:none}
-.panel .sub{margin:8px 0 0;color:var(--ink-2);font-size:15.5px}
-.panel .sub a{color:var(--ember-ink)}
+/* The 2D fallback: the same stones as engraved cards. */
+.flat-list{list-style:none;margin:30px 0 0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:18px}
+.flat-card{display:grid;grid-template-columns:118px minmax(0,1fr);gap:16px;padding:14px;border:1px solid var(--rule);border-radius:3px;background:var(--surface)}
+.flat-stone{position:relative;min-height:150px;padding:14px 10px;border-radius:44px 44px 3px 3px / 34px 34px 3px 3px;color:#17191B;text-align:center;
+  background:radial-gradient(circle at 30% 20%,rgba(255,255,255,.18),transparent 45%),radial-gradient(circle at 70% 90%,rgba(40,70,40,.35),transparent 40%),
+    linear-gradient(180deg,#8A9095,#6E7478);box-shadow:inset 0 0 0 2px rgba(0,0,0,.25),inset 0 -6px 0 rgba(0,0,0,.2)}
+.flat-stone::before{content:"";position:absolute;inset:10px 12px;border:1px solid rgba(20,22,24,.35);box-shadow:inset 1px 1px 0 rgba(0,0,0,.25),inset -1px -1px 0 rgba(255,255,255,.25);border-radius:30px 30px 2px 2px / 22px 22px 2px 2px}
+.flat-name{position:relative;display:block;font-family:Archivo,sans-serif;font-weight:800;font-size:16px;letter-spacing:.02em;text-transform:uppercase;text-shadow:0 1px 0 rgba(255,255,255,.25)}
+.flat-epi{position:relative;display:block;margin-top:10px;font-family:Georgia,"Source Serif 4",serif;font-size:12.5px;line-height:1.35;color:#1d1f21;text-shadow:0 1px 0 rgba(255,255,255,.2)}
+.flat-body p{margin:0 0 6px;font-size:14.5px}
+.flat-msg{font-weight:600;color:var(--ink)}
+.flat-meta{font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--muted);letter-spacing:.02em}
+.flat-empty{grid-column:1/-1;font-family:Archivo,sans-serif;font-weight:800;font-size:22px;color:var(--ink)}
 
 footer.site{margin-top:64px;border-top:1px solid var(--rule);padding:26px 0 56px;font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--muted)}
 footer.site .wrap{display:flex;flex-wrap:wrap;gap:6px 24px}
 footer.site a{color:var(--ink-2);text-decoration:none;border-bottom:1px solid var(--rule)}
 footer.site a:hover{color:var(--ember-ink);border-color:var(--ember)}
 
+@media (max-width:900px){
+  header.mast .wrap{grid-template-columns:minmax(0,1fr)}
+  .lede{justify-self:start}
+  .hud-l{max-width:100%}
+  .sheet{top:auto;left:12px;right:12px;bottom:12px;width:auto;max-height:62%}
+}
 @media (max-width:640px){
   .wrap{padding-left:16px;padding-right:16px}
-  header.mast{padding:34px 0 24px}
+  header.mast{padding:30px 0 20px}
   nav.site .wrap{gap:2px 12px}
   nav.site a:not(.brand){font-size:12.5px}
-  .controls{width:100%}
-  .controls label,.controls select{width:100%;min-width:0}
-  .boards{grid-template-columns:minmax(0,1fr)}
-  .panel{padding:20px}
+  .stage{height:min(80vh,600px);min-height:470px}
+  .hud{padding:12px 14px}
+  .hud-name{font-size:22px}
+  .hud-sub{font-size:13px}
+  .search{width:150px}
+  .hud-r{width:100%}
+  .hint{display:none}
+  .strip-wrap{left:12px;right:12px;bottom:10px}
+  .sheet{max-height:58%;padding:16px}
+  .sheet h2{font-size:24px}
+  .boards{grid-template-columns:minmax(0,1fr);padding:0 14px 16px}
+  .flat-list{grid-template-columns:minmax(0,1fr)}
+  .flat-card{grid-template-columns:96px minmax(0,1fr)}
 }
 </style>
 </head>
@@ -179,40 +212,74 @@ footer.site a:hover{color:var(--ember-ink);border-color:var(--ember)}
 </div></nav>
 
 <header class="mast"><div class="wrap">
-  <p class="kicker">Minecraft 1.7.10 &middot; The server</p>
-  <h1>The Wall of Graves</h1>
-  <p class="lede">Every death on the server, one stone each. The server writes a line to its log when someone dies,
-    and the page reads what it wrote. Nothing is added by hand.</p>
+  <div>
+    <p class="kicker">Minecraft 1.7.10 &middot; The server</p>
+    <h1>The Wall of Graves</h1>
+  </div>
+  <p class="lede">Every death on the server, one stone each, in the order it happened. Walk the Krypt with the wheel or the arrow keys. The server writes a line to its log when someone dies, and the page reads what it wrote. Nothing is added by hand.</p>
 </div></header>
+
+<section id="stage" class="stage" aria-label="The Krypt. A gallery of graves. Scroll or drag to walk, click a stone to read it." hidden>
+  <canvas id="gl" role="img" aria-label="The Krypt: a stone gallery with torches, lit by the violet sky through the ceiling."></canvas>
+  <div class="hud" id="hud" data-focus="0">
+    <div class="hud-l">
+      <p class="hud-k">Nearest stone</p>
+      <p class="hud-name" id="hudName">Walking the Krypt</p>
+      <p class="hud-sub" id="hudSub"></p>
+    </div>
+    <div class="hud-r">
+      <input id="search" class="search" type="search" list="names" placeholder="Find a name" aria-label="Find a stone by name">
+      <button id="btnNewest" class="hud-btn" type="button">Newest death</button>
+      <button id="btnHere" class="hud-btn" type="button">Open this stone</button>
+      <datalist id="names"></datalist>
+      <p class="hud-note" id="searchNote"></p>
+    </div>
+  </div>
+  <p class="hint">Scroll or drag to walk &middot; click a stone or press Enter to read it &middot; left and right step through the stones</p>
+  <aside class="sheet" id="sheet" hidden aria-live="polite">
+    <div class="sheet-top"><span class="mono" id="sheetIndex"></span><button id="btnBack" class="hud-btn" type="button">Back to the walk</button></div>
+    <h2 id="sheetName"></h2>
+    <p class="sheet-msg" id="sheetMsg"></p>
+    <dl>
+      <dt>When</dt><dd id="sheetWhen"></dd>
+      <dt>Where</dt><dd id="sheetWhere"></dd>
+      <dt>Killer</dt><dd id="sheetKiller"></dd>
+      <dt id="sheetCauseRow">Cause</dt><dd id="sheetCause"></dd>
+      <dt>Record</dt><dd id="sheetNth"></dd>
+    </dl>
+    <blockquote class="epitaph" id="sheetEpitaph"></blockquote>
+    <div class="sheet-nav">
+      <button id="btnPrev" class="hud-btn" type="button">&larr; Earlier</button>
+      <button id="btnNext" class="hud-btn" type="button">Later &rarr;</button>
+    </div>
+  </aside>
+  <div class="strip-wrap">
+    <div class="strip" id="strip" role="presentation"><div class="ticks" id="ticks"></div><div class="marker" id="marker"></div></div>
+    <div class="strip-meta"><span>The entrance</span><span>Newest</span></div>
+  </div>
+</section>
 
 <main class="wrap">
   <div id="demoNote" class="note" hidden>Demo data. These deaths are invented to show the layout. The live page shows what the server logged.</div>
 
-  <section id="stats" hidden>
-    <div class="bar-top">
+  <section class="bar-top" style="margin-top:6px">
+    <div>
       <p class="count" id="count"></p>
-      <div class="controls">
-        <label>Sort
-          <select id="sort">
-            <option value="new">Newest first</option>
-            <option value="player">By player</option>
-          </select>
-        </label>
-        <label>Player
-          <select id="filter"><option value="">Everyone</option></select>
-        </label>
-      </div>
+      <p class="count-sub" id="countSub"></p>
     </div>
+  </section>
 
-    <div class="yard" id="yard">
-      <div class="scene" id="scene" aria-label="Graveyard. Hover or tap a stone for its details.">
-        <div class="world" id="world"><div class="ground" id="ground"></div></div>
-        <div class="fog"></div>
-        <div class="card" id="card" role="status" hidden></div>
-        <p class="nomatch" id="nomatch" hidden>No grave matches that player.</p>
-      </div>
-    </div>
+  <div class="panel" id="emptyPanel" hidden aria-live="polite">
+    <p class="state"><span class="dot"></span><span id="emptyText">The first grave is still unclaimed.</span></p>
+    <p class="sub" id="emptySub"></p>
+  </div>
 
+  <section id="flat" hidden aria-label="The graves as a list">
+    <ol class="flat-list" id="flatList"></ol>
+  </section>
+
+  <details class="drawer" id="drawer" open>
+    <summary>The records <span class="mono">what kills people here &middot; who dies most</span></summary>
     <div class="boards">
       <section class="board" aria-labelledby="killersTitle">
         <h2 id="killersTitle">What kills people here</h2>
@@ -225,13 +292,9 @@ footer.site a:hover{color:var(--ember-ink);border-color:var(--ember)}
         <ol id="deaths"></ol>
       </section>
     </div>
-  </section>
+  </details>
 
-  <div class="panel" id="empty" hidden aria-live="polite">
-    <div class="state"><span class="dot"></span><span id="emptyText">The ground is undisturbed.</span></div>
-    <p class="sub" id="emptySub"></p>
-  </div>
-  <p class="panel" id="sourceLine" style="border:0;background:none;padding:22px 0 0;max-width:none;font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--muted)" hidden></p>
+  <p id="source" class="mono" style="margin:22px 0 0;font-size:11.5px;color:var(--muted)"></p>
 </main>
 
 <footer class="site"><div class="wrap">
@@ -241,297 +304,8 @@ footer.site a:hover{color:var(--ember-ink);border-color:var(--ember)}
   <a href="https://github.com/MarionWhite/quest-forge">Source on GitHub</a>
 </div></footer>
 
-<script>
-"use strict";
-// Every death on the server, as a stone. config.json holds the feed; while it is empty the page reads
-// data/graves.json beside it, written by tools/server/graves_from_log.py. ?demo shows data/demo.json instead.
-// The model is the GraveStones mod's ModelGraveStone, rebuilt as cuboids from its addBox calls (see the README).
-const $ = s => document.querySelector(s);
-const scene = $("#scene"), world = $("#world"), card = $("#card");
-const TILT = 62;                       // degrees the ground is tipped toward the viewer
-const DEMO = new URLSearchParams(location.search).has("demo");
-// [x0,x1, y0,y1, z0,z1] in model units, 16 per block, y down, feet on y = 24.
-// From ModelGraveStone: Base1, Base2, Base3, Shape14 (the stone, carries the plaque), Shape16, Shape15, Shape17.
-const STONE = [
-  [-8, 8, 23, 24, -4, 4],
-  [-7.5, 7.5, 22, 23, -3.5, 3.5],
-  [-7, 7, 21, 22, -3, 3],
-  [-6, 6, 7, 21, -1, 1],
-  [-5, 5, 6, 7, -1, 1],
-  [-5.5, -4.5, 6.5, 7.5, -1, 1],
-  [4.5, 5.5, 6.5, 7.5, -1, 1]
-];
-const PLATE_BOX = 3;
-const CAUSE = {mob: "Killed by a mob", player: "Killed by another player", explosion: "Blown up", lava: "Lava",
-  drown: "Drowned", fall: "A fall", other: "Something else"};
-const NOUN = {mob: "Unnamed mob", player: "Another player", explosion: "Explosions", lava: "Lava",
-  drown: "Drowning", fall: "Falling", other: "Everything else"};
-
-let graves = [], feed = "", loadError = false, updated = null, pinned = null, shown = null;
-
-function rng(seed){ let s = seed >>> 0 || 1; return () => (s = (Math.imul(s, 1664525) + 1013904223) >>> 0) / 4294967296; }
-function hash(str){ let h = 2166136261; for (const c of str) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); } return h >>> 0; }
-
-// Procedural surfaces: a noise canvas per material, no mod texture.
-function noise(base, dark, light, seed, count, size){
-  const c = document.createElement("canvas"); c.width = c.height = size;
-  const x = c.getContext("2d"); x.fillStyle = base; x.fillRect(0, 0, size, size);
-  const r = rng(seed);
-  for (let i = 0; i < count; i++) {
-    x.globalAlpha = .12 + r() * .34; x.fillStyle = r() < .5 ? dark : light;
-    const w = 1 + Math.floor(r() * 2.6);
-    x.fillRect(Math.floor(r() * size), Math.floor(r() * size), w, w);
-  }
-  x.globalAlpha = 1;
-  return c.toDataURL();
-}
-function paintSurfaces(){
-  const root = document.documentElement.style;
-  root.setProperty("--stone", `url(${noise("#6B7074", "#2E3235", "#A3A9AD", 7, 900, 96)})`);
-  root.setProperty("--earth", `url(${noise("#15161B", "#060608", "#34363E", 3, 1100, 128)})`);
-}
-
-function cuboid([x0, x1, y0, y1, z0, z1], u, plate){
-  const w = (x1 - x0) * u, h = (y1 - y0) * u, d = (z1 - z0) * u;
-  const c = document.createElement("div");
-  c.className = "cub";
-  // Model y runs down with the feet on 24, so the stone's origin is its foot and up is negative.
-  c.style.transform = `translate3d(${((x0 + x1) / 2 * u).toFixed(2)}px,${(((y0 + y1) / 2 - 24) * u).toFixed(2)}px,${((z0 + z1) / 2 * u).toFixed(2)}px)`;
-  const faces = [
-    ["fr", w, h, `translateZ(${d / 2}px)`],
-    ["tp", w, d, `rotateX(90deg) translateZ(${h / 2}px)`],
-    ["sd", d, h, `rotateY(90deg) translateZ(${w / 2}px)`],
-    ["sd", d, h, `rotateY(-90deg) translateZ(${w / 2}px)`]
-  ];
-  for (const [cls, W, H, t] of faces) {
-    const f = document.createElement("div");
-    f.className = "face " + cls;
-    f.style.cssText = `left:${-W / 2}px;top:${-H / 2}px;width:${W}px;height:${H}px;transform:${t}`;
-    if (cls === "fr" && plate) {
-      const p = document.createElement("span");
-      p.className = "plate";
-      p.style.fontSize = Math.max(6.5, u * 1.2).toFixed(1) + "px";
-      p.textContent = plate;
-      f.append(p);
-    }
-    c.append(f);
-  }
-  return c;
-}
-
-function stoneEl(g, u){
-  const el = document.createElement("div");
-  el.className = "stone";
-  el.tabIndex = 0;
-  el.setAttribute("role", "button");
-  el.dataset.id = g.id;
-  el.setAttribute("aria-label", `${g.player}. ${g.message}. Details.`);
-  STONE.forEach((b, i) => el.append(cuboid(b, u, i === PLATE_BOX ? g.player : null)));
-  el.addEventListener("mouseenter", () => { if (!pinned) showCard(g, el); });
-  el.addEventListener("mouseleave", () => { if (!pinned) hideCard(); });
-  el.addEventListener("focus", () => { if (!pinned) showCard(g, el); });
-  el.addEventListener("blur", () => { if (!pinned) hideCard(); });
-  el.addEventListener("click", () => togglePin(g, el));
-  el.addEventListener("keydown", e => {
-    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); togglePin(g, el); }
-    if (e.key === "Escape") { pinned = null; hideCard(); }
-  });
-  return el;
-}
-
-// Stones are laid out in rows, the front row nearest the viewer. Unit size follows the scene width.
-function unitFor(w){ return Math.min(5.2, Math.max(3.4, w / 95)); }
-function layout(list, w){
-  const u = unitFor(w), per = Math.max(2, Math.floor(w * .8 / (u * 24))), n = list.length;
-  const rows = Math.max(1, Math.ceil(n / per));
-  const gap = rows > 1 ? Math.min(92, 380 / (rows - 1)) : 0, step = u * 24;
-  return list.map((g, i) => {
-    const r = Math.floor(i / per), k = i % per, cnt = Math.min(per, n - r * per);
-    const jitter = (hash(g.id) % 1000) / 1000 - .5;
-    const x = (k - (cnt - 1) / 2) * step + (r % 2 ? step * .3 : 0) + jitter * u * 4;
-    const y = rows > 1 ? 190 - r * gap : 60;
-    return {g, u, x, y};
-  });
-}
-
-function ago(iso){
-  const s = (Date.now() - Date.parse(iso)) / 1000;
-  if (!isFinite(s)) return "";
-  const a = Math.abs(s);
-  for (const [name, v] of [["year", 31536000], ["month", 2592000], ["day", 86400], ["hour", 3600], ["minute", 60]]) {
-    if (a >= v) { const k = Math.floor(a / v), t = `${k} ${name}${k > 1 ? "s" : ""}`; return s < 0 ? `in ${t}` : `${t} ago`; }
-  }
-  return "just now";
-}
-function absolute(iso){
-  const d = new Date(iso);
-  return isNaN(d) ? iso : d.toLocaleString([], {dateStyle: "medium", timeStyle: "short"});
-}
-function where(g){
-  const dim = g.dimension || "Unknown dimension";
-  return g.pos && g.pos.length === 3 ? `${dim}, ${g.pos.join(", ")}` : `${dim}; position not logged`;
-}
-
-function fillCard(g){
-  card.textContent = "";
-  const name = document.createElement("div"); name.className = "cn"; name.textContent = g.player;
-  const msg = document.createElement("div"); msg.className = "cm"; msg.textContent = g.message;
-  const dl = document.createElement("dl");
-  const rows = [
-    ["When", null],
-    ["Where", where(g)],
-    ["Killer", g.killer || (CAUSE[g.cause] || "Not recorded")]
-  ];
-  for (const [k, v] of rows) {
-    const dt = document.createElement("dt"); dt.textContent = k;
-    const dd = document.createElement("dd");
-    if (k === "When") {
-      const a = document.createElement("span"); a.className = "ago"; a.textContent = ago(g.time);
-      dd.append(a, document.createTextNode(` · ${absolute(g.time)}`));
-    } else dd.textContent = v;
-    dl.append(dt, dd);
-  }
-  card.append(name, msg, dl);
-}
-
-function showCard(g, el){
-  fillCard(g);
-  card.hidden = false;
-  shown = g.id;
-  const sr = scene.getBoundingClientRect();
-  const plate = el.querySelector(".plate") || el;
-  const pr = plate.getBoundingClientRect();
-  const cw = card.offsetWidth, ch = card.offsetHeight;
-  let left = pr.left - sr.left + pr.width / 2 - cw / 2;
-  left = Math.max(10, Math.min(sr.width - cw - 10, left));
-  let top = pr.top - sr.top - ch - 14;
-  if (top < 10) top = pr.bottom - sr.top + 14;
-  card.style.left = left + "px";
-  card.style.top = Math.max(8, top) + "px";
-  document.querySelectorAll(".stone.on").forEach(s => s.classList.remove("on"));
-  el.classList.add("on");
-}
-function hideCard(){
-  card.hidden = true; shown = null;
-  document.querySelectorAll(".stone.on").forEach(s => s.classList.remove("on"));
-}
-function togglePin(g, el){
-  if (pinned === g.id) { pinned = null; hideCard(); return; }
-  pinned = g.id; showCard(g, el);
-  history.replaceState(null, "", "#grave=" + encodeURIComponent(g.id));
-}
-document.addEventListener("click", e => {
-  if (pinned && !scene.contains(e.target)) { pinned = null; hideCard(); history.replaceState(null, "", location.pathname + location.search); }
-});
-
-function visible(){
-  const sort = $("#sort").value, who = $("#filter").value;
-  let list = graves.slice();
-  if (who) list = list.filter(g => g.player === who);
-  if (sort === "player") list.sort((a, b) => a.player.localeCompare(b.player) || b.time.localeCompare(a.time));
-  else list.sort((a, b) => b.time.localeCompare(a.time));
-  return list;
-}
-
-function renderYard(){
-  world.querySelectorAll(".stone").forEach(e => e.remove());
-  pinned = null; hideCard();
-  const list = visible();
-  $("#nomatch").hidden = list.length > 0;
-  const w = scene.clientWidth || 800;
-  for (const p of layout(list, w)) {
-    const el = stoneEl(p.g, p.u);
-    el.style.transform = `translate3d(${p.x.toFixed(1)}px,${p.y.toFixed(1)}px,0) rotateX(${-TILT}deg)`;
-    world.append(el);
-  }
-  const want = location.hash.match(/^#grave=(.+)$/);
-  if (want) {
-    const id = decodeURIComponent(want[1]);
-    const g = graves.find(x => x.id === id), el = g && world.querySelector(`.stone[data-id="${CSS.escape(id)}"]`);
-    if (el) { pinned = id; showCard(g, el); }
-  }
-}
-
-function rank(entries){
-  const ol = entries.ol; ol.textContent = "";
-  if (!entries.items.length) { const li = document.createElement("li"); li.className = "empty"; li.textContent = "Nothing yet."; ol.append(li); return; }
-  const max = entries.items[0][1];
-  for (const [name, n] of entries.items.slice(0, 8)) {
-    const li = document.createElement("li");
-    const nm = document.createElement("span"); nm.className = "nm"; nm.textContent = name;
-    const c = document.createElement("span"); c.className = "n"; c.textContent = n;
-    const bar = document.createElement("span"); bar.className = "bar"; const i = document.createElement("i");
-    i.style.width = (n / max * 100).toFixed(1) + "%"; bar.append(i);
-    li.append(nm, c, bar); ol.append(li);
-  }
-}
-function count(keyFn){
-  const m = new Map();
-  for (const g of graves) { const k = keyFn(g); m.set(k, (m.get(k) || 0) + 1); }
-  return [...m.entries()].sort((a, b) => b[1] - a[1] || String(a[0]).localeCompare(String(b[0])));
-}
-
-function renderAll(){
-  const empty = $("#empty"), stats = $("#stats");
-  $("#demoNote").hidden = !DEMO;
-  const src = $("#sourceLine");
-  if (!graves.length) {
-    stats.hidden = true; empty.hidden = false;
-    const t = $("#emptyText"), sub = $("#emptySub");
-    if (loadError) { t.textContent = "The graves could not be read."; sub.textContent = "Try again in a minute. The page reads the server's file on every visit."; }
-    else if (!feed && !DEMO) {
-      t.textContent = "The ground is undisturbed. The server has not opened.";
-      sub.innerHTML = `Each death on the server will put a stone here. Until then, <a href="../play/">get the pack ready</a> so the first night isn't spent installing.`;
-    } else {
-      t.textContent = "The ground is undisturbed.";
-      sub.textContent = "Nobody has died on the server yet.";
-    }
-  } else {
-    empty.hidden = true; stats.hidden = false;
-    const first = graves.reduce((a, g) => g.time < a ? g.time : a, graves[0].time);
-    $("#count").textContent = "";
-    const big = document.createElement("span");
-    big.textContent = `${graves.length} ${graves.length === 1 ? "death" : "deaths"} since the server opened`;
-    const small = document.createElement("small");
-    small.textContent = `First on record ${absolute(first)}` + (updated ? `. Written ${ago(updated)}.` : ".");
-    $("#count").append(big, small);
-    const sel = $("#filter"), keep = sel.value;
-    sel.textContent = ""; sel.append(new Option("Everyone", ""));
-    for (const [name, n] of count(g => g.player).sort((a, b) => a[0].localeCompare(b[0]))) sel.append(new Option(`${name} (${n})`, name));
-    sel.value = [...sel.options].some(o => o.value === keep) ? keep : "";
-    rank({ol: $("#killers"), items: count(g => g.killer || NOUN[g.cause] || "Not recorded")});
-    rank({ol: $("#deaths"), items: count(g => g.player)});
-    renderYard();
-  }
-  src.hidden = false;
-  src.textContent = (DEMO ? "Source: demo data" : feed ? "Source: published feed" : "Source: data/graves.json, written from the server log") +
-    (updated ? ` · updated ${absolute(updated)}` : "");
-}
-
-async function load(){
-  paintSurfaces();
-  try {
-    let url = "data/graves.json";
-    if (DEMO) url = "data/demo.json";
-    else {
-      try { const c = await (await fetch("config.json", {cache: "no-store"})).json(); feed = String(c.feed || "").trim(); }
-      catch { feed = ""; }
-      if (feed) url = feed;
-    }
-    const r = await fetch(url, {cache: "no-store"});
-    if (!r.ok) throw new Error(String(r.status));
-    const d = await r.json();
-    graves = Array.isArray(d.graves) ? d.graves : [];
-    updated = d.updated || null;
-  } catch { loadError = true; graves = []; }
-  renderAll();
-}
-
-$("#sort").addEventListener("change", renderYard);
-$("#filter").addEventListener("change", renderYard);
-window.addEventListener("resize", () => { if (graves.length) renderYard(); });
-load();
-</script>
+<script type="importmap">{"imports":{"three":"../lib/three/three.module.min.js","three/addons/":"../lib/three/addons/"}}</script>
+<script type="module" src="app.js"></script>
 <script>(function(){var b=document.querySelector('[data-theme-toggle]');if(!b)return;var h=document.documentElement,mq=matchMedia('(prefers-color-scheme: dark)');function mode(){try{var t=localStorage.getItem('qf-theme');return t==='light'||t==='dark'?t:'auto'}catch(e){return 'auto'}}function sys(){return mq.matches?'dark':'light'}function show(){var m=mode();b.dataset.mode=m;var s=m==='auto'?'Theme follows your system ('+sys()+')':'Theme: '+m;b.title=s+'. Click to switch.';b.setAttribute('aria-label',s)}b.addEventListener('click',function(){var m=mode(),s=sys(),n=(m==='auto'||m===s)?(s==='dark'?'light':'dark'):'auto';try{if(n==='auto')localStorage.removeItem('qf-theme');else localStorage.setItem('qf-theme',n)}catch(e){}if(n==='auto')h.removeAttribute('data-theme');else h.setAttribute('data-theme',n);show()});if(mq.addEventListener)mq.addEventListener('change',show);show()})();</script>
 </body>
 </html>

@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Your first night · Quest Forge</title>
-<meta name="description" content="Survival primer for Quest Forge, a Minecraft 1.7.10 modpack: what to do before dark, the keys that matter, what comes out at night, what death costs you, playing with friends, and the rare tickets that unlock teleport commands.">
+<meta name="description" content="Reference for Quest Forge, a Minecraft 1.7.10 modpack: the keys that are not vanilla, what spawns after dark, what death costs, Level Up classes, quests, tickets and voice chat.">
 <meta name="theme-color" content="#E9EAE4">
 <meta property="og:title" content="Your first night · Quest Forge">
-<meta property="og:description" content="The first night is not a fight. It is a test of walls.">
+<meta property="og:description" content="The keys, night spawns, death rules and systems to learn first in Quest Forge.">
 <link rel="canonical" href="https://marionwhite.github.io/quest-forge/first-night/">
 <link rel="icon" href="../favicon.png" type="image/png">
 <link rel="apple-touch-icon" href="../apple-touch-icon.png">
@@ -68,21 +68,21 @@ nav.site .theme svg{width:17px;height:17px;display:none}
 nav.site .theme[data-mode="auto"] .i-auto,nav.site .theme[data-mode="light"] .i-light,nav.site .theme[data-mode="dark"] .i-dark{display:block}
 
 /* ---- masthead ---- */
-header.mast{padding:48px 0 32px;border-bottom:2px solid var(--ink);
+header.mast{padding:44px 0 30px;border-bottom:2px solid var(--ink);
   background:linear-gradient(180deg,var(--surface),var(--paper))}
 .kicker{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ember-ink);margin:0 0 14px}
-h1{font-size:clamp(38px,7vw,68px);line-height:.94;font-weight:800;letter-spacing:-.03em;margin:0;text-wrap:balance}
-h1 .amp{color:var(--ember);font-weight:600}
-.lede{max-width:62ch;margin:18px 0 0;font-size:17.5px;color:var(--ink-2)}
-.cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:26px}
+h1{font-size:clamp(38px,7vw,64px);line-height:.94;font-weight:800;letter-spacing:-.03em;margin:0;text-wrap:balance}
+.lede{max-width:64ch;margin:16px 0 0;font-size:17px;color:var(--ink-2)}
+.cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:24px}
 .btn{font-family:Archivo,sans-serif;font-weight:600;font-size:15px;text-decoration:none;padding:11px 20px;border-radius:2px;
   border:1px solid var(--ink);color:var(--ink);background:transparent;cursor:pointer;line-height:1.2}
 .btn:hover{background:var(--sunk)}
 .btn.primary{background:var(--ember);border-color:var(--ember);color:#fff}
 .btn.primary:hover{background:var(--ember-ink);border-color:var(--ember-ink)}
 
-/* ---- layout ---- */
-.layout{display:grid;grid-template-columns:220px minmax(0,1fr);gap:48px;align-items:start;padding-top:40px}
+/* ---- layout: a reference page with a narrow index beside it ---- */
+.layout{display:grid;grid-template-columns:196px minmax(0,1fr);gap:56px;align-items:start;padding-top:34px}
+main{counter-reset:s}
 .toc{position:sticky;top:20px}
 .toc h2{font-family:"JetBrains Mono",monospace;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:500;margin:0 0 10px}
 .toc ol{list-style:none;margin:0;padding:0;border-left:2px solid var(--rule)}
@@ -91,64 +91,65 @@ h1 .amp{color:var(--ember);font-weight:600}
 .toc li a:hover{color:var(--ink);border-color:var(--muted)}
 .toc li a.on{color:var(--ember-ink);border-color:var(--ember)}
 
-/* ---- sections ---- */
-.step{position:relative;padding:0 0 44px;scroll-margin-top:16px;max-width:760px}
-.step h2{font-size:clamp(24px,3vw,30px);font-weight:800;letter-spacing:-.022em;margin:0 0 6px;line-height:1.12}
-.step h3{font-size:17px;font-weight:700;margin:22px 0 6px;letter-spacing:-.01em}
+/* ---- sections: numbered, dense, one rule above each heading ---- */
+.step{position:relative;padding:0 0 44px;scroll-margin-top:16px;max-width:800px}
+.step:not(.lead){counter-increment:s}
+.step h2{font-size:clamp(23px,2.8vw,28px);font-weight:800;letter-spacing:-.02em;margin:0;line-height:1.15;
+  padding-top:14px;border-top:2px solid var(--ink)}
+.step:not(.lead) h2::before{content:counter(s,decimal-leading-zero);font-family:"JetBrains Mono",monospace;font-size:12px;
+  font-weight:500;letter-spacing:.06em;color:var(--ember-ink);vertical-align:.32em;margin-right:12px}
+.step h3{font-family:"JetBrains Mono",monospace;font-size:11.5px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ember-ink);margin:30px 0 4px}
+.sum{margin:8px 0 0;color:var(--muted);font-size:15px}
 .step p{margin:10px 0 0;color:var(--ink-2);font-size:15.5px}
-.step p.sum{color:var(--muted);font-size:15px;margin-top:2px}
-.step ol,.step ul{margin:10px 0 0;padding-left:22px;color:var(--ink-2);font-size:15.5px}
-.step li{margin:6px 0}
-.step li::marker{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--ember-ink)}
+.step ul,.step ol{margin:10px 0 0;padding-left:22px;color:var(--ink-2);font-size:15.5px}
+.step li{margin:5px 0}
+.step ol.order li::marker{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--ember-ink)}
 .step b{color:var(--ink);font-weight:600}
-.quote{margin:18px 0 0;padding:4px 0 4px 16px;border-left:3px solid var(--patina);color:var(--ink-2);font-style:italic;font-size:15.5px}
-.quote span{display:block;margin-top:4px;font-family:"JetBrains Mono",monospace;font-style:normal;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
 code{font-size:.88em;background:var(--sunk);padding:1px 5px;border-radius:2px;color:var(--ink)}
 kbd{font-size:.85em;border:1px solid var(--rule);border-bottom-width:2px;border-radius:3px;padding:0 6px;background:var(--surface);color:var(--ink)}
-table{border-collapse:collapse;width:100%;margin:14px 0 0;font-size:14.5px}
+
+/* definition rows: a label column in mono caps, the fact beside it */
+dl.ref{margin:12px 0 0;border-top:1px solid var(--rule)}
+dl.ref > div{display:grid;grid-template-columns:150px minmax(0,1fr);gap:0 18px;padding:10px 0;border-bottom:1px solid var(--rule)}
+dl.ref dt{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding-top:3px}
+dl.ref dd{margin:0;font-size:15px;color:var(--ink-2)}
+dl.ref dd b{color:var(--ink)}
+
+table{border-collapse:collapse;width:100%;margin:12px 0 0;font-size:14.5px}
 th,td{text-align:left;vertical-align:top;padding:9px 12px 9px 0;border-bottom:1px solid var(--rule)}
-th{font-family:Archivo,sans-serif;font-weight:600;font-size:12.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+th{font-family:Archivo,sans-serif;font-weight:600;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
 td{color:var(--ink-2)}
 td:first-child{color:var(--ink);font-weight:600;font-family:Archivo,sans-serif;font-size:14px;white-space:nowrap;padding-right:18px}
 td kbd{font-family:"JetBrains Mono",monospace}
-.note{margin:14px 0 0;padding:12px 16px;border-left:3px solid var(--ember);background:var(--ember-wash);font-size:14.5px;color:var(--ink-2);border-radius:0 3px 3px 0}
-.note.calm{border-color:var(--patina);background:var(--patina-wash)}
-.note b{color:var(--ink)}
+td b{color:var(--ink)}
 
-/* checklist: a visual tick box, not a form control */
-ul.check{list-style:none;padding-left:0;margin-top:14px}
-ul.check li{position:relative;padding-left:32px;margin:0 0 12px;font-size:15.5px;color:var(--ink-2)}
-ul.check li::before{content:"";position:absolute;left:2px;top:.36em;width:14px;height:14px;border:1.5px solid var(--patina);border-radius:2px}
-ul.check li b{color:var(--ink);font-weight:600}
+/* the Weeping Angels entry: its own block inside the night section; #weepCard is what the angel script measures */
+.entry{margin-top:14px;padding:6px 18px 4px;border:1px solid var(--rule);border-left:3px solid var(--lav);background:var(--surface);border-radius:0 3px 3px 0}
+.entry dl.ref{border-top:0}
+.entry dl.ref > div:last-child{border-bottom:0}
 
-/* cards: the same look as the play page's profile cards */
-.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:14px}
-.card{border:1px solid var(--rule);background:var(--surface);border-radius:3px;padding:16px 18px}
-.card h3{margin:0 0 4px;font-size:18px}
-.card .for{font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
-.card p{font-size:14px;margin-top:8px}
-.card.pick{border-color:var(--ember);box-shadow:inset 0 0 0 1px var(--ember)}
-
-footer.site{margin-top:40px;border-top:1px solid var(--rule);padding:26px 0 56px;font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--muted)}
+footer.site{margin-top:20px;border-top:1px solid var(--rule);padding:26px 0 56px;font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--muted)}
 footer.site .wrap{display:flex;flex-wrap:wrap;gap:6px 24px}
 footer.site a{color:var(--ink-2);text-decoration:none;border-bottom:1px solid var(--rule)}
 footer.site a:hover{color:var(--ember-ink);border-color:var(--ember)}
 
 @media (max-width:900px){
   .layout{grid-template-columns:minmax(0,1fr);gap:0}
-  .toc{position:static;margin-bottom:30px}
+  .toc{position:static;margin-bottom:26px}
   .toc ol{display:flex;flex-wrap:wrap;gap:4px 14px;border:0}
   .toc li a{padding:4px 0;border:0;margin:0;border-bottom:2px solid var(--rule)}
 }
 @media (max-width:640px){
   .wrap{padding-left:16px;padding-right:16px}
-  header.mast{padding:34px 0 26px}
-  td:first-child{white-space:normal}
+  header.mast{padding:32px 0 24px}
   nav.site .wrap{gap:2px 12px}
   nav.site a:not(.brand){font-size:12.5px}
-  .cards{grid-template-columns:minmax(0,1fr)}
+  dl.ref > div{grid-template-columns:minmax(0,1fr);gap:4px 0}
   table{font-size:14px}
+  td:first-child{white-space:normal}
   td,th{padding-right:8px}
+  .entry{padding:4px 14px 2px}
 }
 /* ---- the Weeping Angel: a rail at the foot of the night section, pinned to the bottom of the screen ---- */
 .angel-rail{position:sticky;bottom:16px;height:0;z-index:5;pointer-events:none}
@@ -215,12 +216,12 @@ footer.site a:hover{color:var(--ember-ink);border-color:var(--ember)}
 </div></nav>
 
 <header class="mast"><div class="wrap">
-  <p class="kicker">Minecraft 1.7.10 &middot; Survival primer</p>
+  <p class="kicker">Minecraft 1.7.10 &middot; Reference</p>
   <h1>Your first night</h1>
-  <p class="lede">The first night is not a fight. It is a test of walls. This is what to do in the first hour, what is out
-    there after dark, and how to keep the things you pick up.</p>
+  <p class="lede">What this pack changes from vanilla: the keys, what spawns after dark, what death costs, and the
+    systems you meet first. Each entry is checked against the pack's configs, quest book or mod source.</p>
   <div class="cta">
-    <a class="btn primary" href="#dark">Before dark</a>
+    <a class="btn primary" href="#keys">Keys that are not vanilla</a>
     <a class="btn" href="../play/">Get the pack</a>
   </div>
 </div></header>
@@ -229,69 +230,91 @@ footer.site a:hover{color:var(--ember-ink);border-color:var(--ember)}
 <aside class="toc" aria-label="Sections">
   <h2>On this page</h2>
   <ol>
-    <li><a href="#dark">Before dark</a></li>
-    <li><a href="#keys">The keys that matter</a></li>
-    <li><a href="#night">What comes out at night</a></li>
+    <li><a href="#day-one">Day one, in order</a></li>
+    <li><a href="#keys">Keys</a></li>
+    <li><a href="#night">What is different at night</a></li>
     <li><a href="#dying">When you die</a></li>
+    <li><a href="#classes">Level Up classes</a></li>
+    <li><a href="#quests">Quests</a></li>
+    <li><a href="#loot">Items and luck</a></li>
+    <li><a href="#tickets">Tickets and commands</a></li>
     <li><a href="#together">Playing together</a></li>
-    <li><a href="#loot">Luck and loot</a></li>
-    <li><a href="#tickets">Tickets</a></li>
-    <li><a href="#then">Then what</a></li>
+    <li><a href="#then">The climb</a></li>
   </ol>
 </aside>
 
 <main>
-<section class="step" id="dark">
-  <h2>Before dark</h2>
-  <p class="sum">Five jobs, in this order. Do them before the light goes.</p>
-  <ul class="check">
-    <li><b>Note where you woke.</b> Press <kbd>F3</kbd> and write the coordinates down on paper, not in your head.</li>
-    <li><b>Open the map.</b> Press <kbd>J</kbd>. The full-screen map remembers everywhere you walked and marks where you died.</li>
-    <li><b>Wall the place you sleep.</b> Hostile mobs spawn in the dark, so a wooden door and 8 torches are the minimum. Zombies walk through an open door.</li>
-    <li><b>Get food.</b> Hunger never stops. Plant the seeds grass gives you and bake bread.</li>
-    <li><b>Make a bed.</b> You respawn at your last bed. The reward for <i>Welcome to Quest Forge</i> includes one, and it waits for you.</li>
-  </ul>
-  <p>The quest book opens with the apostrophe key, <kbd>'</kbd>. Start with <i>Welcome to Quest Forge</i>, then the Start
-    chapter: <i>Punch Some Trees</i>, <i>Crafting Station</i>, <i>Better Tools</i>, <i>Diamond Dreams</i>.</p>
-  <p class="quote">I built a beautiful house and forgot the door. It was beautiful for about a minute.<span>Mason</span></p>
+<section class="step lead" id="day-one">
+  <h2>Day one, in order</h2>
+  <!-- Sources: pack/config/betterquesting/DefaultQuests.json (quest 0 reward; autoClaim 0 on all 312 quests; quest 431 Pick a Class);
+       pack/scripts/questforge_tips.zs (apostrophe key); pack/config/levelup.cfg (no undo, see classes). -->
+  <ol class="order">
+    <li>Open the quest book with <kbd>'</kbd>. Chapter 1 is Start. Claim the reward for <i>Welcome to Quest Forge</i>: 16 cooked beef, two BiblioCraft lanterns, a bed.</li>
+    <li>Read <a href="#classes">Level Up classes</a> before you press <kbd>L</kbd> for <i>Pick a Class</i>. The choice cannot be undone.</li>
+    <li>Read <a href="#night">what spawns below Y 40</a> before you dig there.</li>
+    <li>Learn the voice keys: <kbd>Tab</kbd> talks, <kbd>U</kbd> mutes. See <a href="#together">Playing together</a>.</li>
+  </ol>
 </section>
 
 <section class="step" id="keys">
-  <h2>The keys that matter</h2>
-  <p class="sum">The defaults the pack ships with. Everything here can be changed in Controls, which is searchable.</p>
+  <!-- Sources: pack/scripts/questforge_tips.zs; mods/qf-content/src/main/java/com/questforge/content/voice/VoiceKeys.java (Tab, U);
+       mods/qf-content/src/main/java/com/questforge/content/jukebox/RecordKeys.java (V);
+       server/runtime/mods/AdventureBackpack.jar Keybindings (B open, N hose); pack draft quest 474 (M);
+       site/play/index.html (F4, F8, Angelica). J: JourneyMap, from the draft quests 470 and 474. -->
+  <h2>Keys that are not vanilla</h2>
+  <p class="sum">The shipped defaults. Controls is searchable: type the name of a binding, not its key.</p>
   <table>
-    <tr><th>Key</th><th>What it does</th></tr>
-    <tr><td><kbd>'</kbd></td><td>Quest book. Chapter one is Start.</td></tr>
-    <tr><td><kbd>L</kbd></td><td>Level Up: skills and classes. <i>Pick a Class</i> is the quest that asks you to open it.</td></tr>
-    <tr><td><kbd>J</kbd></td><td>Full-screen map. It keeps every place you walked and marks where you died.</td></tr>
-    <tr><td><kbd>F3</kbd></td><td>Coordinates. Write them down.</td></tr>
-    <tr><td><kbd>M</kbd></td><td>Choose your gravestone design (GraveStones). A new one unlocks every 5 levels.</td></tr>
-    <tr><td><kbd>R</kbd> <kbd>U</kbd></td><td>Over any item in an inventory: R shows how it is made, U what it goes into (NEI). The quickest way to learn a mod you have never seen.</td></tr>
-    <tr><td><kbd>V</kbd></td><td>Menu for the record you are pointing at.</td></tr>
-    <tr><td><kbd>Tab</kbd></td><td>Push-to-talk for voice chat. Holding it also shows the player list.</td></tr>
-    <tr><td><kbd>U</kbd></td><td>Mutes your microphone. Inside an inventory, U is still NEI's uses.</td></tr>
-    <tr><td><kbd>B</kbd></td><td>Opens the Adventure Backpack you wear.</td></tr>
-    <tr><td><kbd>N</kbd></td><td>The backpack's hose: switch its tank and mode.</td></tr>
+    <tr><th>Key</th><th>Does</th><th>Note</th></tr>
+    <tr><td><kbd>'</kbd></td><td>Quest book</td><td>Chapters are numbered in the order to meet them.</td></tr>
+    <tr><td><kbd>J</kbd></td><td>Full-screen map</td><td>Keeps every place you walked and marks where you died.</td></tr>
+    <tr><td><kbd>L</kbd></td><td>Level Up: skills and class</td><td>The class is permanent. See <a href="#classes">Level Up classes</a>.</td></tr>
+    <tr><td><kbd>M</kbd></td><td>Gravestone design</td><td>A new design unlocks every 5 levels.</td></tr>
+    <tr><td><kbd>Tab</kbd></td><td>Push to talk</td><td>Voice chat. Holding it also opens the player list.</td></tr>
+    <tr><td><kbd>U</kbd></td><td>Mute your microphone</td><td>Inside an inventory, U is NEI's uses instead.</td></tr>
+    <tr><td><kbd>B</kbd></td><td>Open the Adventure Backpack you wear</td><td>Two tool slots and two fluid tanks.</td></tr>
+    <tr><td><kbd>N</kbd></td><td>Backpack hose</td><td>Switches the tank and the mode.</td></tr>
+    <tr><td><kbd>R</kbd> <kbd>U</kbd></td><td>NEI: recipe and uses</td><td>For the item under the cursor in an inventory.</td></tr>
+    <tr><td><kbd>V</kbd></td><td>Record menu</td><td>For a jukebox record under the cursor.</td></tr>
+    <tr><td><kbd>F4</kbd> <kbd>F8</kbd></td><td>Shaders on and off; pick a pack</td><td>Angelica build only.</td></tr>
   </table>
 </section>
 
 <section class="step" id="night">
-  <h2>What comes out at night</h2>
-  <p class="sum">Zombies in numbers, and four kinds of thing you should not meet yet.</p>
-  <div class="cards">
-    <div class="card"><span class="for">Every night</span><h3>Zombies at the door</h3>
-      <p>They walk through an open door. Fight from the doorway, and step back inside when you are under half health.</p></div>
-    <div class="card"><span class="for">Roughly one mob in fifteen</span><h3>Infernal names</h3>
-      <p>A long name and extra modifiers: more health, more powers, enchanted loot. The quest <i>The Name Was Longer</i> asks you to survive one.</p></div>
-    <div class="card pick" id="weepCard"><span class="for">Below Y 40, light level 8 or less</span><h3>Weeping Angels</h3>
-      <p>They move only while nobody looks, and only a pickaxe hurts them. A hit can teleport you 5 to 25 blocks away, or start an infection
-        (10 percent). Light your mines, keep a pickaxe in the hotbar, and stay out of the dark below Y 40 until you have iron.
-        They do not steal your inventory.</p></div>
-    <div class="card"><span class="for">Overworld, in the open</span><h3>Giants and mutants</h3>
-      <p>Mutant Creatures, Lycanites Mobs and OreSpawn's giants roam the overworld. OreSpawn's random overworld dungeons are switched
-        off in its config. If it is taller than your house, walk away.</p></div>
+  <!-- Sources, Infernal Mobs: pack/config/InfernalMobs.cfg (general: eliteRarity=15, ultraRarity=7, infernoRarity=7,
+       droppedItemIDsElite / droppedItemIDsUltra / droppedItemIDsInfernal, maxOneShotDamage=10.0, all 27 MM_* enabled;
+       entitybasehealth: EntityCreeper 140.73, EntitySpider 16.0, EntitySkeleton 20.0, EntitySilverfish 8.0).
+       The chain of odds and the tier names (Rare, Ultra, Infernal) are from the mod's config comments in
+       server/runtime/mods/InfernalMobs-1.7.10.jar (InfernalMobsCore) and its en_US.lang.
+       Sources, Weeping Angels: pack/config/Weeping Angels.cfg (Statistics). Sources, overworld: pack/config/OreSpawn.cfg
+       (DisableOverworldDungeons=1); server/runtime/mods holds LycanitesMobsComplete, MutantCreatures.jar and orespawn.zip. -->
+  <h2>What is different at night</h2>
+  <p class="sum">Infernal names, Weeping Angels, and the giants of the overworld. None of them spawn the way they do in vanilla.</p>
+
+  <h3>Infernal names</h3>
+  <dl class="ref">
+    <div><dt>Odds</dt><dd>One mob in 15 is at least <b>Rare</b>. One Rare in 7 becomes at least <b>Ultra</b>. One Ultra in 7 becomes <b>Infernal</b>. Roughly one mob in 735 ends as Infernal.</dd></div>
+    <div><dt>Modifiers</dt><dd>Each name carries modifiers, and all 27 types are on: 1UP, Alchemist, Berserk, Blastoff, Bulwark, Choke, Cloaking, Darkness, Ender, Exhaust, Fiery, Ghastly, Gravity, Lifesteal, Ninja, Poisonous, Quicksand, Regen, Rust, Sapper, Sprint, Sticky, Storm, Vengeance, Weakness, Webber, Wither. Read the modifiers on the nameplate before you commit.</dd></div>
+    <div><dt>Damage cap</dt><dd>A modified mob has extra health, and no single hit takes more than 10 off it (<code>maxOneShotDamage</code>). Big weapons do not one-shot them; count on a longer fight.</dd></div>
+    <div><dt>Rare drops</dt><dd>Iron tools and armour, chainmail, a cookie.</dd></div>
+    <div><dt>Ultra drops</dt><dd>Bow, iron hoe, iron and golden armour, golden apples, blaze powder, enchanted books.</dd></div>
+    <div><dt>Infernal drops</dt><dd>Diamond tools and armour, chainmail, ender pearls, enchanted books.</dd></div>
+  </dl>
+
+  <h3>Weeping Angels</h3>
+  <!-- The angel rail below this block is the easter egg. It is kept verbatim (markup, CSS, script): do not edit it here. -->
+  <div class="entry" id="weepCard">
+    <dl class="ref">
+      <div><dt>Spawns</dt><dd>Below Y 40, at light level 8 or less.</dd></div>
+      <div><dt>Health</dt><dd>20.</dd></div>
+      <div><dt>Damage</dt><dd><b>Only a pickaxe hurts them.</b></dd></div>
+      <div><dt>Movement</dt><dd>They move only while nobody looks at them.</dd></div>
+      <div><dt>Teleport</dt><dd>35 percent of hits move you 5 to 25 blocks away.</dd></div>
+      <div><dt>Infection</dt><dd>10 percent of hits.</dd></div>
+      <div><dt>Names</dt><dd>They take a player's name, and they throw sounds.</dd></div>
+      <div><dt>Not taken</dt><dd>Your inventory. They do not knock down light, so your torches stay.</dd></div>
+      <div><dt>Practical</dt><dd>Light the mine and keep a pickaxe in the hotbar before you go below Y 40.</dd></div>
+    </dl>
   </div>
-  <p class="quote">Five is a good night. Six is when you learn to count.<span>Gate Log</span></p>
   <div class="angel-rail" id="angelRail">
     <button class="angel" id="angel" type="button" data-stage="1" data-pose="weep" hidden
       aria-label="Weeping angel. Press to dismiss it. Only a pickaxe hurts them.">
@@ -362,82 +385,114 @@ footer.site a:hover{color:var(--ember-ink);border-color:var(--ember)}
       </svg>
     </button>
   </div>
+
+  <h3>Overworld giants</h3>
+  <p>Mutant Creatures, Lycanites Mobs and OreSpawn's giants roam the overworld. OreSpawn's random overworld dungeons are
+    switched off. A giant in the open is a reason to leave, not to fight.</p>
 </section>
 
 <section class="step" id="dying">
+  <!-- Sources: pack/config/gravestonemod.cfg ("change graves every x level"=5; no owner-only setting);
+       pack/config/levelup.cfg ("Skill points lost on death"=5, "Reset player class on death"=false);
+       mods/qf-commands/src/main/java/com/questforge/commands/HomeAccess.java (/home does not move respawn);
+       sleep rule: vanilla 1.7.10, no sleep mod in pack/config. -->
   <h2>When you die</h2>
-  <p class="sum">Your things go into a gravestone where you fell.</p>
-  <ul>
-    <li><b>Walk back and open the gravestone.</b> Everything you carried is inside it.</li>
-    <li><b>Respawn is at your last bed</b>, not at the grave. Sleep in one before any trip.</li>
-    <li><b>Your friends can open it too.</b> Tell them where you fell rather than hoping they look.</li>
-    <li><b>Level Up keeps your class</b> but takes five percent of your skill points. No skill holds more than 25 points.</li>
-    <li><b>Everyone must be in bed to skip the night.</b> Every player in the dimension counts. No sleep mod is installed.</li>
-  </ul>
-  <p class="quote">We found the grave. Then we found the creeper that made it. In that order.<span>Recovery Team</span></p>
+  <p class="sum">What the pack adds to vanilla death.</p>
+  <dl class="ref">
+    <div><dt>Gravestone</dt><dd>Everything you carry goes into a gravestone where you fell. GraveStones mod.</dd></div>
+    <div><dt>Opening it</dt><dd>Friends can open it too. The mod has no owner-only setting, so tell them where you fell.</dd></div>
+    <div><dt>Respawn</dt><dd>Your last bed. The gravestone does not respawn you, and <code>/home</code> does not change it.</dd></div>
+    <div><dt>Skill points</dt><dd>Five percent are lost. Your class is kept.</dd></div>
+    <div><dt>Designs</dt><dd>A new gravestone design unlocks every 5 levels. Pick it with <kbd>M</kbd>.</dd></div>
+    <div><dt>Sleep</dt><dd>Every player in the dimension must be in bed to skip the night. No sleep mod is installed.</dd></div>
+  </dl>
 </section>
 
-<section class="step" id="together">
-  <h2>Playing together</h2>
-  <p class="sum">Parties, voice chat, and a few things that are safer with friends.</p>
-  <ul>
-    <li><b>Parties.</b> Open the quest book, choose Party, and invite by name. A kill by any member counts for the party.</li>
-    <li><b>Voice chat.</b> Hold <kbd>Tab</kbd> to talk (it also shows the player list) and press <kbd>U</kbd> to mute. You hear a player within 40 blocks in the same
-      dimension, at full volume inside 6 blocks, fading to silence at 40. <code>/voice</code> shows your status;
-      <code>/voice mode open</code> for an open mic; <code>/voice level</code> and <code>/voice threshold &lt;n&gt;</code> tune it.</li>
-    <li><b>EnderStorage.</b> A chest shares its colour code with everyone unless it is locked with a diamond
-      (the pack's <code>personalItemID</code> is diamond). It is a mailbox until you lock it, and a safe after.</li>
-    <li><b>Builds.</b> Ask before you touch another player's build. Other server rules are not written down yet.</li>
-  </ul>
-  <p class="quote">Everyone starts on the same page. Not everyone turns it.<span>Keeper</span></p>
+<section class="step" id="classes">
+  <!-- Sources: pack/config/betterquesting/DefaultQuests.json, quest 431 "Pick a Class" (text: no Book of Unlearning on this server);
+       pack/config/levelup.cfg ("Max points per skill"=25). -->
+  <h2>Level Up classes</h2>
+  <p class="sum">Press <kbd>L</kbd>. Quest 431, <i>Pick a Class</i>, names the first choices: Miner, Warrior, Scout, Farmer, and more.</p>
+  <dl class="ref">
+    <div><dt>Payback</dt><dd>Each class pays back every level you put into it.</dd></div>
+    <div><dt>Undo</dt><dd><b>None.</b> There is no Book of Unlearning on this server.</dd></div>
+    <div><dt>Cap</dt><dd>25 points per skill.</dd></div>
+    <div><dt>Death</dt><dd>The class survives death. Skill points are reduced by five percent. See <a href="#dying">When you die</a>.</dd></div>
+  </dl>
+</section>
+
+<section class="step" id="quests">
+  <!-- Sources: pack/config/betterquesting/DefaultQuests.json (312 quests in questDatabase; chapter names "Ch 1: Start" to
+       "Ch 9: ProjectE"; autoClaim 0 on every quest, so rewards wait; quest 430 "The Name Was Longer"; quest 1127 Twilight pool);
+       parties: pack/config (party_enable=1, see Playing together). -->
+  <h2>Quests</h2>
+  <p class="sum">312 quests in nine numbered chapters. Chapter numbers are the order to meet things.</p>
+  <dl class="ref">
+    <div><dt>Open</dt><dd>The quest book, <kbd>'</kbd>.</dd></div>
+    <div><dt>Chapters</dt><dd>1 Start, 2 Base, 3 Twilight, 4 Witchery, 5 Dark Paths, 6 The End, 7 OreSpawn, 8 TragicMC, 9 ProjectE. Chapter 1 ends at <i>Diamond Gear</i>.</dd></div>
+    <div><dt>Rewards</dt><dd>They wait. Claim each one when you like; nothing is claimed for you.</dd></div>
+    <div><dt>Infernal</dt><dd>Quest 430, <i>The Name Was Longer</i>, asks you to kill an Infernal mob.</dd></div>
+    <div><dt>Parties</dt><dd>A kill by any party member counts for the party. See <a href="#together">Playing together</a>.</dd></div>
+  </dl>
 </section>
 
 <section class="step" id="loot">
-  <h2>Luck and loot</h2>
-  <p class="sum">Things that are fun to open, and a few that are better opened away from home.</p>
+  <!-- Sources: site/items/data/descriptions.json (lucky:lucky_block, lootbags:lootbag, lootbags:loot_recycler, pandorasbox:pandorasBox,
+       qfcontent:sealed_tome, lootbags note "bags never contain Quest Forge items"); server/runtime/mods AdventureBackpack.jar (B, N);
+       site/items/data/descriptions.json (backpack: 39 slots, two tool slots, two fluid tanks; Bat night vision, Squid water breathing);
+       jukebox: mods/qf-content jukebox and the draft quest 476. Quest names: DefaultQuests.json. -->
+  <h2>Items and luck</h2>
+  <p class="sum">Things worth knowing on day one, and where to open them.</p>
   <table>
     <tr><th>Item</th><th>What to know</th></tr>
-    <tr><td>Lucky Block</td><td>Break it for one of about 300 outcomes: gear, ores, mobs, traps, explosions. Craft it with diamonds, gold or
-      emeralds to raise its luck; rotten flesh or spider eyes lower it. The pack removed the boss-tier jackpots.
-      Quest: <i>Feeling Lucky?</i> You can <a href="../lucky/">break one here</a> first, with the real odds.</td></tr>
-    <tr><td>Loot Bag</td><td>Right-click to open for 1 to 5 random items from the pack's chest pools. Five tiers, Common to Legendary, and
-      mobs drop one only when a player kills them. A Loot Recycler pays out Common bags for what you no longer want.
-      Quest: <i>Loot Bag Basics</i>.</td></tr>
-    <tr><td>Pandora's Box</td><td>Place it and open it for up to three random world effects, a little more often bad than good: terraforming,
-      item showers, mob armies, TNT, lightning, lava cages. Open it away from your base. Quest: <i>Pandora's Box</i>.</td></tr>
-    <tr><td>Sealed Tome</td><td>Right-click to open an enchantment book. Drop the book onto an item. The tooltip gives the chance it takes
-      and the chance it destroys the item. Magic Dust adds five points. Full detail on the <a href="../enchantments/">enchantments page</a>.</td></tr>
-    <tr><td>Adventure Backpack</td><td>A chest you wear, with two fluid tanks. Open it on the move with <kbd>B</kbd>. The Bat skin sees in the dark
-      and the Squid skin breathes underwater.</td></tr>
-    <tr><td>Jukebox</td><td>Craft a blank record from coal, string and redstone. Right-click the jukebox to search music, sneak-right-click to
-      play or stop it. Drop your own mp3 or ogg files into the <code>jukebox</code> folder of the game directory. Put a blank record
-      in the jukebox to press a song onto it.</td></tr>
+    <tr><td>Lucky Block</td><td>Break it for one of about 300 outcomes: gear, ores, mobs, traps, explosions. Craft it with diamonds, gold or emeralds to raise luck; rotten flesh or spider eyes lower it. The pack removed the boss-tier jackpots. Quest: <i>Feeling Lucky?</i> <a href="../lucky/">Break one on this site</a> first.</td></tr>
+    <tr><td>Loot Bag</td><td>Right-click for 1 to 5 random items from the pack's chest pools, better at higher tiers. Five tiers, Common to Legendary. Bags never contain Quest Forge items. Mobs drop one only when a player kills them. The Loot Recycler takes unwanted items and outputs a Common bag. Quest: <i>Loot Bag Basics</i>.</td></tr>
+    <tr><td>Pandora's Box</td><td>Place it and open it for up to three random world effects, slightly more often bad than good: terraforming into Nether, End or snow, item showers, mob armies, TNT, lightning, lava cages. Open it away from your base. Found in dungeon, mineshaft, temple and stronghold chests. Quest: <i>Pandora's Box</i>.</td></tr>
+    <tr><td>Sealed Tome</td><td>Right-click to break the seal: it becomes an enchantment book of its rarity, Common to Legendary. Drop the book onto an item; the tooltip gives the chance it takes and the chance it destroys the item. Magic Dust adds five points. <a href="../enchantments/">Enchantments</a> has the detail.</td></tr>
+    <tr><td>Adventure Backpack</td><td>39 slots, two tool slots and two fluid tanks. Open it on the move with <kbd>B</kbd>. Bat skin sees in the dark; Squid skin breathes underwater.</td></tr>
+    <tr><td>Jukebox</td><td>Craft a blank record from coal, string and redstone. Right-click the jukebox to search music; sneak-right-click to play or stop it. Your own mp3 or ogg files go in the <code>jukebox</code> folder of the game directory. A blank record in the jukebox presses a song onto it.</td></tr>
   </table>
-  <p class="quote">It said twelve percent to destroy. I rounded down.<span>Binder</span></p>
 </section>
 
 <section class="step" id="tickets">
-  <h2>Tickets</h2>
+  <!-- Sources: mods/qf-commands/src/main/java/com/questforge/commands/TicketLoot.java (WORLD_LOOT_ODDS = 5000, BOSS_ODDS = 10,
+       IN_DIMENSION_ODDS = 3000; the pool skips commands already owned); HomeAccess.java (/home); /pv and /sethome:
+       the facts file, from mods/qf-commands. -->
+  <h2>Tickets and commands</h2>
   <p class="sum">Ordinary players have no teleport commands. A ticket unlocks one, for good.</p>
-  <ul>
-    <li><b>Right-click a ticket</b> to use it. <code>/commands</code> lists what you have.</li>
-    <li><b><code>/sethome</code> and <code>/home</code></b>: one home, reachable from anywhere, even from another dimension.
-      It does not change where you respawn.</li>
-    <li><b><code>/pv</code></b>: a private 54-slot vault that exists nowhere in the world. Its contents follow you through death
-      and dimension changes. It is not an ender chest.</li>
-    <li><b>Where they drop.</b> Any mob a player kills has a 1 in 5000 chance to drop a world-loot ticket. A dimension ticket,
-      the way back to a dimension, drops only inside that dimension: 1 in 10 from a boss there, 1 in 3000 from anything else.</li>
-  </ul>
+  <dl class="ref">
+    <div><dt>Use</dt><dd>Right-click a ticket. <code>/commands</code> lists what you have.</dd></div>
+    <div><dt>Home</dt><dd><code>/sethome</code> and <code>/home</code>: one home, reachable from any dimension. It does not change your respawn.</dd></div>
+    <div><dt>Vault</dt><dd><code>/pv</code>: a private 54-slot vault that exists nowhere in the world. Its contents follow you through death and dimension changes. It is not an ender chest.</dd></div>
+    <div><dt>World tickets</dt><dd>1 in 5000 from any mob a player kills.</dd></div>
+    <div><dt>Dimension tickets</dt><dd>The way back into a dimension. They drop only inside it: 1 in 10 from a boss there, 1 in 3000 from any other kill there.</dd></div>
+  </dl>
+</section>
+
+<section class="step" id="together">
+  <!-- Sources: mods/qf-content/src/main/java/com/questforge/content/voice/VoiceFormat.java (MAX_RANGE 40, FULL_RANGE 6),
+       VoiceStream.java (fade between them), CommandVoice.java (mode, level, threshold), VoiceSettings.java (threshold clamped 0 to 1);
+       VoiceKeys.java (Tab, U); pack/config/EnderStorage.cfg (personalItemID=diamond); party: the quest book, Party tab (BetterQuesting). -->
+  <h2>Playing together</h2>
+  <p class="sum">Parties, voice chat, and shared storage.</p>
+  <dl class="ref">
+    <div><dt>Party</dt><dd>Open the quest book, choose Party, and invite by name. A kill by any member counts for the party.</dd></div>
+    <div><dt>Talk</dt><dd><kbd>Tab</kbd> to talk, <kbd>U</kbd> to mute. You hear a player within 40 blocks in the same dimension, at full volume inside 6 blocks, fading out at 40.</dd></div>
+    <div><dt>Voice commands</dt><dd><code>/voice</code> shows your status. <code>/voice mode open</code> switches to an open mic. <code>/voice level</code> and <code>/voice threshold &lt;n&gt;</code> tune it; the threshold runs from 0 to 1.</dd></div>
+    <div><dt>EnderStorage</dt><dd>A chest shares its colour code with everyone, unless it is locked with a diamond (<code>personalItemID=diamond</code>). It is a mailbox until you lock it.</dd></div>
+  </dl>
 </section>
 
 <section class="step" id="then">
-  <h2>Then what</h2>
-  <p class="sum">The climb, in one line: iron, then diamonds, then the Twilight Forest.</p>
-  <p>Chapter one ends at <i>Diamond Gear</i>. The Twilight Forest is next. Make a 2 by 2 pool of water in open grass, ring it
-    with flowers, throw in a diamond, and step back.</p>
-  <p>The numbered chapters, and what has to die before each one opens, are on the
-    <a href="../#climb-h">homepage</a>. The <a href="../worlds/">worlds page</a> covers the dimensions, and every item is in the
-    <a href="../items/">item index</a>.</p>
+  <!-- Sources: pack/config/betterquesting/DefaultQuests.json quest 1127 "Twilight: The Pool at Dusk" (2 by 2 pool, flowers around
+       every edge, one diamond, step away); chapter 1 ends at Diamond Gear (quest 479). Climb section: site/home/index.html id="climb". -->
+  <h2>The climb</h2>
+  <p class="sum">Iron, then diamonds, then the Twilight Forest.</p>
+  <p>Chapter 1 ends at <i>Diamond Gear</i>. The first step out is <i>Twilight: The Pool at Dusk</i>: dig a 2 by 2 pool in open
+    grass, ring every edge with flowers, throw in a diamond, and step away from the water.</p>
+  <p>The numbered chapters, and what has to die before each one opens, are on the <a href="../#climb">homepage</a>.
+    The <a href="../worlds/">worlds page</a> covers the dimensions, the <a href="../items/">item index</a> covers every item,
+    and <a href="../enchantments/">enchantments</a> covers the tomes.</p>
 </section>
 </main>
 </div>
