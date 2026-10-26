@@ -61,7 +61,7 @@ Previous state: `ops/checkpoints/site-lucky-outcomes.md`.
 - Sheets: tiles r5/lucky-accuracy/tiles/t*.png, scenes s1/, s2/ (scratchpad .../r5/lucky-accuracy/).
 
 ## Next
-- Full vet (`vet_lucky.py r5/lucky-accuracy/vet1/<a..d> --jobs 2 --timeout 240`, by key groups), look at sheets per key.
+- DONE except armour check: full vet = 306 drops, 0 broken (vet1/a,b,c,d; 12 NO DUMP/TIMEOUT from load all pass rerun alone). Was: full vet (`vet_lucky.py r5/lucky-accuracy/vet1/<a..d> --jobs 2 --timeout 240`, by key groups), look at sheets per key.
 - Verify King Bob armour once mobs-gear lands (makeMob must read opts.equipment: list of item ids).
 
 ## Log (2026-10-26)
