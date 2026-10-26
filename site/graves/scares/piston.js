@@ -17,7 +17,9 @@ function pistonMats(T, amb, KRbake) {
 }
 
 // web: the bottom two blocks under the hole are cobweb (the fall stops in it, no fall damage, then a slow sink).
-export async function pistonTrap(R, { click = 1.2, open = 1.95, D = 7, web = false } = {}) {
+// ri, rk: the room's reach beyond the patch, across and along (it shrinks to fit the rock; if nothing fits, it is
+// carved at this size anyway).
+export async function pistonTrap(R, { click = 1.2, open = 1.95, D = 7, web = false, ri: RI = 3, rk: RK = 2 } = {}) {
   const [side, bottom, inner, sticky] = await Promise.all(["piston_side", "piston_bottom", "piston_inner", "piston_top_sticky"].map((n) => tex(n)));
   const T = { side, bottom, inner, sticky };
   const r = R.r, f = R.f;
@@ -31,14 +33,14 @@ export async function pistonTrap(R, { click = 1.2, open = 1.95, D = 7, web = fal
   const solidB = (i, j, k) => { const c = cen(i, j, k); return R.solidW(c.x, c.y, c.z) && R.blockW(c.x, c.y, c.z) !== "bedrock"; };
   // The room: as big and as deep as the rock under you allows (never into another space).
   let room = null;
-  for (const [dd, ri, rk] of [[D, 3, 2], [D - 1, 3, 2], [D, 2, 1], [D - 1, 2, 1], [D - 2, 2, 1]]) {
+  for (const [dd, ri, rk] of [[D, RI, RK], [D - 1, RI, RK], [D, 2, Math.min(RK, 2)], [D, 2, 1], [D - 1, 2, 1], [D - 2, 2, 1]]) {
     let ok = true;
     for (let i = a - ri - 1; i <= a + 1 + ri + 1 && ok; i++) for (let k = b - rk - 1; k <= b + 1 + rk + 1 && ok; k++) for (let j = -dd - 1; j <= -2; j++) if (!solidB(i, j, k)) { ok = false; break; }
     for (let i = a - ri; i <= a + 1 + ri && ok; i++) for (let k = b - rk; k <= b + 1 + rk && ok; k++) if (!solidB(i, -1, k)) ok = false;
     if (ok) { room = { D: dd, ri, rk }; break; }
   }
   const fits = !!room;
-  if (!room) room = { D: D - 1, ri: 2, rk: 1 };
+  if (!room) room = { D: D - 1, ri: RI, rk: RK };
   const Dp = room.D;
   // The real floor's look where our pieces go, read before anything is carved.
   const KRbake = R.patchBake;
