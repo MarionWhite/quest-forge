@@ -260,7 +260,11 @@ footer.site a:hover{color:var(--ember-ink);border-color:var(--ember)}
   <!-- Sources: pack/scripts/questforge_tips.zs; mods/qf-content/src/main/java/com/questforge/content/voice/VoiceKeys.java (Tab, U);
        mods/qf-content/src/main/java/com/questforge/content/jukebox/RecordKeys.java (V);
        server/runtime/mods/AdventureBackpack.jar Keybindings (B open, N hose); pack draft quest 474 (M);
-       site/play/index.html (F4, F8, Angelica). J: JourneyMap, from the draft quests 470 and 474. -->
+       site/play/index.html (F4, F8, Angelica). J: JourneyMap, from the draft quests 470 and 474.
+       Checked 2026-10-25 against origin/main: VoiceKeys.java there still binds push to talk to B and mute to N. The Tab and U
+       binding is local commit 5e9a96f, not yet on origin/main, so this table follows the local branch. Graphics row:
+       docs/decisions/0006-textures-ship-and-panes.md and pack/config/mcpatcherforge.cfg (glassPane=true). -->
+
   <h2>Keys that are not vanilla</h2>
   <p class="sum">The shipped defaults. Controls is searchable: type the name of a binding, not its key.</p>
   <table>
@@ -277,6 +281,9 @@ footer.site a:hover{color:var(--ember-ink);border-color:var(--ember)}
     <tr><td><kbd>V</kbd></td><td>Record menu</td><td>For a jukebox record under the cursor.</td></tr>
     <tr><td><kbd>F4</kbd> <kbd>F8</kbd></td><td>Shaders on and off; pick a pack</td><td>Angelica build only.</td></tr>
   </table>
+  <dl class="ref">
+    <div><dt>Graphics</dt><dd>QF Textures ships with the pack. Glass panes connect to their neighbours (the MCPatcher module is marked alpha).</dd></div>
+  </dl>
 </section>
 
 <section class="step" id="night">
@@ -293,12 +300,50 @@ footer.site a:hover{color:var(--ember-ink);border-color:var(--ember)}
   <h3>Infernal names</h3>
   <dl class="ref">
     <div><dt>Odds</dt><dd>One mob in 15 is at least <b>Rare</b>. One Rare in 7 becomes at least <b>Ultra</b>. One Ultra in 7 becomes <b>Infernal</b>. Roughly one mob in 735 ends as Infernal.</dd></div>
-    <div><dt>Modifiers</dt><dd>Each name carries modifiers, and all 27 types are on: 1UP, Alchemist, Berserk, Blastoff, Bulwark, Choke, Cloaking, Darkness, Ender, Exhaust, Fiery, Ghastly, Gravity, Lifesteal, Ninja, Poisonous, Quicksand, Regen, Rust, Sapper, Sprint, Sticky, Storm, Vengeance, Weakness, Webber, Wither. Read the modifiers on the nameplate before you commit.</dd></div>
+    <div><dt>Modifiers</dt><dd>All 27 types are on. The table below says what each one does. Read the modifiers on the nameplate before you commit.</dd></div>
     <div><dt>Damage cap</dt><dd>A modified mob has extra health, and no single hit takes more than 10 off it (<code>maxOneShotDamage</code>). Big weapons do not one-shot them; count on a longer fight.</dd></div>
     <div><dt>Rare drops</dt><dd>Iron tools and armour, chainmail, a cookie.</dd></div>
     <div><dt>Ultra drops</dt><dd>Bow, iron hoe, iron and golden armour, golden apples, blaze powder, enchanted books.</dd></div>
     <div><dt>Infernal drops</dt><dd>Diamond tools and armour, chainmail, ender pearls, enchanted books.</dd></div>
   </dl>
+
+  <h3>Infernal modifiers</h3>
+  <!-- Sources, each modifier: server/runtime/mods/InfernalMobs-1.7.10.jar, classes atomicstryker/infernalmobs/common/mods/MM_<Name>.class
+       and their .java sources (inside the jar, read with unzip). Hooks read: onHurt (when the mob is hit), onAttack (when it hits),
+       onUpdate (every tick). Durations: potion durations are ticks (120 = 6 s, 200 = 10 s, 45 = 2.25 s). Cooldowns: coolDown constants
+       in each class. Blacklists and mixing: getBlackListMobClasses and getModsNotToMixWith. Damage cap: pack/config/InfernalMobs.cfg
+       maxOneShotDamage=10.0. Arrow exceptions: the EntityDamageSourceIndirect checks in MM_Fiery, MM_Poisonous, MM_Wither, MM_Rust. -->
+  <p class="sum">What each modifier does, one line each. Times are the code's values.</p>
+  <table>
+    <tr><th>Modifier</th><th>What it does</th></tr>
+    <tr><td>1UP</td><td>Once per mob: when its health drops below 25 percent, it heals to full.</td></tr>
+    <tr><td>Alchemist</td><td>Every 6 seconds it throws a splash potion at the nearest player in sight, 2 or more blocks away. From 8 blocks or more: Slowness, unless already slowed. Otherwise Poison while the player has 8 or more health. Within 3 blocks: Weakness, 25 percent of the time.</td></tr>
+    <tr><td>Berserk</td><td>Its hits do double damage, still under the damage cap. Creepers never get it.</td></tr>
+    <tr><td>Blastoff</td><td>Every 15 seconds, when it fights a player in sight, the player is thrown up. Not with Webber.</td></tr>
+    <tr><td>Bulwark</td><td>Takes half the damage from each hit, and at least 1.</td></tr>
+    <tr><td>Choke</td><td>Drowns a player it can see. While it can see you, your air runs down; once it is empty you take 2 damage each second. Each hit you land on it gives 3 seconds of air back.</td></tr>
+    <tr><td>Cloaking</td><td>Every 10 seconds, when it sees or is hit by a player, it turns invisible for 10 seconds. Spiders never get it.</td></tr>
+    <tr><td>Darkness</td><td>Blinds you for 6 seconds when you hit it, and when it hits you.</td></tr>
+    <tr><td>Ender</td><td>Every 15 seconds, when you hit it, it teleports about 16 blocks away from you, and the damage of your hit lands on you instead. The hit does nothing to it.</td></tr>
+    <tr><td>Exhaust</td><td>Each hit between it and a player adds exhaustion, so the player's food runs down faster.</td></tr>
+    <tr><td>Fiery</td><td>Its hits and your melee hits set you on fire for 3 seconds. Arrows do not.</td></tr>
+    <tr><td>Ghastly</td><td>Every 6 seconds, when a player is in sight 3 or more blocks away, it fires a large fireball at them.</td></tr>
+    <tr><td>Gravity</td><td>Every 5 seconds it knocks a player away, with a short upward hop. Not with Webber.</td></tr>
+    <tr><td>Lifesteal</td><td>Each of its hits heals it by the damage dealt, while it is below full health.</td></tr>
+    <tr><td>Ninja</td><td>Every 15 seconds, when you hit it, it teleports about 8 blocks away and hits you back for the same damage. The hit does nothing to it.</td></tr>
+    <tr><td>Poisonous</td><td>Its hits and your melee hits give Poison for 6 seconds. Arrows do not.</td></tr>
+    <tr><td>Quicksand</td><td>While it can see you, every 2.5 seconds it gives you Slowness for about 2 seconds.</td></tr>
+    <tr><td>Regen</td><td>While it is hurt, it heals 1 health every half second.</td></tr>
+    <tr><td>Rust</td><td>Each hit you land costs your held item 4 durability. Its hits wear down your armour.</td></tr>
+    <tr><td>Sapper</td><td>Its hits and your hits give Hunger for 6 seconds.</td></tr>
+    <tr><td>Sprint</td><td>Every 5 seconds it switches a speed boost on or off.</td></tr>
+    <tr><td>Sticky</td><td>Every 15 seconds, when you hit it with an item in your hand, one item is knocked out of that stack and dropped. Creepers never get it.</td></tr>
+    <tr><td>Storm</td><td>Every 15 seconds, when you stand under open sky 3 or more blocks away, lightning strikes you. Not while you ride something.</td></tr>
+    <tr><td>Vengeance</td><td>When you hit it, it hits you back for half the damage, at least 1.</td></tr>
+    <tr><td>Weakness</td><td>Its hits and your hits give Weakness for 6 seconds.</td></tr>
+    <tr><td>Webber</td><td>Every 15 seconds, when it can see you, a cobweb is placed at your feet or just below you. Not with Gravity or Blastoff.</td></tr>
+    <tr><td>Wither</td><td>Its hits and your hits give Wither for 6 seconds. Arrows do not.</td></tr>
+  </table>
 
   <h3>Weeping Angels</h3>
   <!-- The angel rail below this block is the easter egg. It is kept verbatim (markup, CSS, script): do not edit it here. -->
@@ -389,6 +434,17 @@ footer.site a:hover{color:var(--ember-ink);border-color:var(--ember)}
   <h3>Overworld giants</h3>
   <p>Mutant Creatures, Lycanites Mobs and OreSpawn's giants roam the overworld. OreSpawn's random overworld dungeons are
     switched off. A giant in the open is a reason to leave, not to fight.</p>
+
+  <h3>Difficulty by place</h3>
+  <!-- Sources: docs/design/world/r14/difficulty.md and difficulty-mechanism.md (status: ships inert; no T1; pockets; ten spawns);
+       mods/qf-content/src/main/java/com/questforge/content/difficulty/DifficultyConfig.java (every multiplier defaults to 1.0);
+       the Lycanites rule: DifficultyEvents.java (suppressEventsInPockets). Checked against origin/main, 2026-10-25. -->
+  <dl class="ref">
+    <div><dt>Status</dt><dd>Built and shipped inert. Until a tier grid is in the world, nothing changes. Tuning waits for the author's approval.</dd></div>
+    <div><dt>Tiers</dt><dd>T2 to T6, set by map position. There is no T1. T2 is the spawn pocket, within about 650 blocks of a spawn. T3 is most of the land, T5 the hot zones, T6 the outer sea.</dd></div>
+    <div><dt>Spawns</dt><dd>Ten spawn points, each rated Gentle, Hard, Brutal or Deadly by the land around it. The picker is not in the game yet.</dd></div>
+    <div><dt>Pockets</dt><dd>Once the grid is in a world, Lycanites event mobs do not spawn inside a spawn pocket. This is the one rule that acts by default.</dd></div>
+  </dl>
 </section>
 
 <section class="step" id="dying">
@@ -404,7 +460,7 @@ footer.site a:hover{color:var(--ember-ink);border-color:var(--ember)}
     <div><dt>Respawn</dt><dd>Your last bed. The gravestone does not respawn you, and <code>/home</code> does not change it.</dd></div>
     <div><dt>Skill points</dt><dd>Five percent are lost. Your class is kept.</dd></div>
     <div><dt>Designs</dt><dd>A new gravestone design unlocks every 5 levels. Pick it with <kbd>M</kbd>.</dd></div>
-    <div><dt>Sleep</dt><dd>Every player in the dimension must be in bed to skip the night. No sleep mod is installed.</dd></div>
+    <div><dt>Sleep</dt><dd>In the pack, every player in the dimension must be in bed to skip the night; the pack has no sleep mod. The friends' server votes at half, rounded down. See <a href="#together">Playing together</a>.</dd></div>
   </dl>
 </section>
 
