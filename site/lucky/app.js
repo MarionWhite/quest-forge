@@ -1093,7 +1093,7 @@ function dumpNow() {
     el.id = 'dumpshot';
     el.textContent = JSON.stringify({
       phase: st.phase, T: st.T, pre: st.pre, scene: st.winner && st.winner.scene, index: st.winnerIndex, built: !!st.sceneBuilt,
-      steve: brain ? { state: brain.state(), activity: brain.activity(), x: +brain.x().toFixed(2), z: +brain.z().toFixed(2) } : null,
+      steve: brain ? { state: brain.state(), activity: brain.activity(), x: +brain.x().toFixed(2), z: +brain.z().toFixed(2), pace: brain.stats() } : null,
       caption: ($('#caption') || {}).textContent || '', chat: ($('#chat') || {}).textContent || '',
       errors: ERRORS, sfx: SFXNAMES, sceneReport: report,
       flow: params.has('flowclose') || params.has('flowbreak') ? { now: probe(), trace: FLOW.trace, err: FLOW.err, lum: lumOf(st.stage.renderer.domElement) } : undefined,

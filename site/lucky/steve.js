@@ -179,7 +179,7 @@ export function createBrain(deps) {
     state: 'idle', frozen: false, gen: null, wait: 0, fn: null, cleanups: [], lastAct: -1, plan: [], planAt: 0,
     camPos: new THREE.Vector3(7.6, 3.4, 10.2), stepIdx: 0, arrivedAt: -1, swingClock: 0, mining: false,
     held: null, heldSpec: null, bang: null, items: [], extras: [], fireT: 2, ambT: 5, turnRate: 9,
-    ign: new Set(), smelt: 0, smeltT: 0,
+    ign: new Set(), smelt: 0, smeltT: 0, spd: 0, dist: 0, tWalk: 0, tPause: 0, tWork: 0, tAll: 0, pausing: false,
   };
   // the idle camera's view of him: a 3/4 side view while he works at a station or mines, eased in and out
   const cam = { want: false, w: 0, off: 0, offS: 0, lastT: -9, lastApply: 0, ray: Object.assign(new THREE.Raycaster(), { camera: S.camera }), close: /[?&]camclose/.test(location.search) };
@@ -360,39 +360,90 @@ export function createBrain(deps) {
   }
   function* faceDir(dx, dz, rate) { yield* faceYaw(yawFor(dx, dz), rate); }
   function* faceAt(x, z, rate) { yield* faceYaw(yawFor(x - b.x, z - b.z), rate); }
-  // walk to a point along a route planned around every prop; arms swing with the stride, never with a slide
+  // walk to a point along a route planned around every prop. A leisurely stroll, not a march: about 1.5 m/s
+  // (the game's walk is 4.3, so this is a saunter), eased in and out, a slow drift in pace, a path that
+  // bends (rounded corners and a gentle bow on long runs), and a head that looks where he is going a beat
+  // before his body turns. Arms swing with the stride, never with a slide.
+  const CRUISE = 1.75;
+  const segOk = (ax, az, bx, bz, ign) => nav.segFree(ax, az, bx, bz, R_P, ign);
+  function curve(ax, az, pts, ign) {
+    // 1. round each corner: cut it between points a third of the way along either leg
+    let out = [[ax, az], ...pts];
+    if (out.length > 2) {
+      const r = [out[0]];
+      for (let i = 1; i < out.length - 1; i++) {
+        const p = out[i], a = out[i - 1], c = out[i + 1];
+        const la = Math.hypot(p[0] - a[0], p[1] - a[1]), lc = Math.hypot(c[0] - p[0], c[1] - p[1]);
+        const ka = Math.min(0.4, 1.2 / Math.max(la, 0.01)), kc = Math.min(0.4, 1.2 / Math.max(lc, 0.01));
+        r.push([p[0] + (a[0] - p[0]) * ka, p[1] + (a[1] - p[1]) * ka], [p[0] + (c[0] - p[0]) * kc, p[1] + (c[1] - p[1]) * kc]);
+      }
+      r.push(out[out.length - 1]);
+      let ok = true;
+      for (let i = 1; i < r.length && ok; i++) ok = segOk(r[i - 1][0], r[i - 1][1], r[i][0], r[i][1], ign);
+      if (ok) out = r;
+    }
+    // 2. a long straight run bows to one side a little, as nobody walks a ruler line
+    const w = [out[0]];
+    for (let i = 1; i < out.length; i++) {
+      const a = out[i - 1], c = out[i], len = Math.hypot(c[0] - a[0], c[1] - a[1]);
+      if (len > 2.6) {
+        const nx = -(c[1] - a[1]) / len, nz = (c[0] - a[0]) / len, bow = Math.min(0.55, len * 0.09) * (R() < 0.5 ? -1 : 1);
+        const m = [(a[0] + c[0]) / 2 + nx * bow, (a[1] + c[1]) / 2 + nz * bow];
+        if (segOk(a[0], a[1], m[0], m[1], ign) && segOk(m[0], m[1], c[0], c[1], ign)) w.push(m);
+      }
+      w.push(c);
+    }
+    return w.slice(1);
+  }
   function* walkTo(x, z, o = {}) {
-    const speed = o.speed ?? 2.1;
+    const sprint = !!o.sprint;
+    const cruise = o.speed ?? (sprint ? 6.2 : CRUISE);
     const ign = o.ign || b.ign;
-    const pts = o.straight ? [[x, z]] : nav.path(b.x, b.z, x, z, R_P, { ign });
+    let pts = o.straight ? [[x, z]] : nav.path(b.x, b.z, x, z, R_P, { ign });
+    if (!o.straight && !sprint) pts = curve(b.x, b.z, pts, ign);
     cam.want = false;
-    b.state = o.sprint ? 'run' : 'walk';
+    b.state = sprint ? 'run' : 'walk';
+    // total length, so he slows for the last metre or so and eases away from a standstill
+    let remain = 0, px0 = b.x, pz0 = b.z;
+    for (const [qx, qz] of pts) { remain += Math.hypot(qx - px0, qz - pz0); px0 = qx; pz0 = qz; }
+    const drift = R(0, TAU), driftRate = R(0.35, 0.7);
+    let spd = b.spd || 0, since = 0;
     for (let i = 0; i < pts.length; i++) {
       const [px, pz] = pts[i];
       const last = i === pts.length - 1;
       let stuck = 0, bestD = 1e9;
       yield (dt) => {
         const dx = px - b.x, dz = pz - b.z, d = Math.hypot(dx, dz);
-        if (d < (last ? 0.06 : 0.15)) return true;
-        if (d < bestD - 0.01) { bestD = d; stuck = 0; } else if ((stuck += dt) > 1.6) return true;
+        if (d < (last ? 0.06 : 0.22)) return true;
+        if (d < bestD - 0.01) { bestD = d; stuck = 0; } else if ((stuck += dt) > 2.2) return true;
+        since += dt;
         const want = yawFor(dx, dz);
         const diff = wrapA(want - b.yaw);
-        b.yaw += diff * Math.min(1, dt * (o.turn ?? 8));
-        const align = 1 - Math.min(1, Math.abs(diff) / 1.4) * 0.85;
-        const slow = last ? clamp(d / 0.6, 0.35, 1) : 1;
-        const sp = speed * align * slow;
-        const step = Math.min(d, sp * dt);
+        // the head leads: it looks at where the path goes, the body turns after it
+        if (!o.crouch) { b.head.tyaw = clamp(diff * 0.9, -0.85, 0.85); b.head.tpitch = sprint ? 0 : 0.02; }
+        b.yaw += diff * Math.min(1, dt * (o.turn ?? (sprint ? 12 : 4.2)));
+        const align = 1 - Math.min(1, Math.abs(diff) / 1.4) * 0.8;
+        // brake over the last 0.9 m, and ease up from a standstill
+        const brake = last ? clamp(remain / 0.9, 0.18, 1) : 1;
+        const pace = 1 + (sprint ? 0 : 0.1 * Math.sin(drift + since * driftRate * TAU * 0.35) + 0.05 * Math.sin(since * 3.1));
+        const target = cruise * align * brake * pace;
+        spd += clamp(target - spd, -5.5 * dt, 2.6 * dt);
+        const step = Math.min(d, spd * dt);
         b.x += (dx / d) * step; b.z += (dz / d) * step;
+        remain = Math.max(0, remain - step);
         const f = nav.resolve(b.x, b.z, R_H, ign);
         b.x = f.x; b.z = f.z;
-        b.ampT = clamp(sp / 2.1, 0.1, 1.5) * (o.crouch ? 0.7 : 1);
-        b.phase += step * (o.sprint ? 2.2 : 2.7);
-        if (o.sprint) { b.leanT = 0.16; setArm('r', 0); b.r.on = false; }
+        b.spd = spd;
+        b.dist += step;
+        b.ampT = clamp(spd / 2.1, 0.12, 1.5) * (o.crouch ? 0.7 : 1);
+        b.phase += step * (sprint ? 2.2 : 2.9);
+        if (sprint) { b.leanT = 0.16; setArm('r', 0); b.r.on = false; }
         if (o.onStep) o.onStep(dt, d);
         return false;
       };
     }
-    b.ampT = 0; b.leanT = 0; b.state = 'idle';
+    b.ampT = 0; b.leanT = 0; b.state = 'idle'; b.spd = 0;
+    if (!o.crouch) { b.head.tyaw = 0; b.head.tpitch = 0; }
     // let the stride settle
     b.phase = Math.round(b.phase / Math.PI) * Math.PI;
   }
@@ -1119,6 +1170,62 @@ export function createBrain(deps) {
     }
     return b.plan.shift();
   }
+  // ---- the pauses between things: he stops and takes a breath. His head goes first, the body follows.
+  const FIRE_AT = new THREE.Vector3(L.fireCenter.x, 1.2, L.fireCenter.z);
+  const look = (v, secs) => { b.head.target = v; return secs; };
+  const FIDGETS = {
+    * around() {
+      const k = R() < 0.5 ? 1 : -1;
+      b.head.tyaw = 0.8 * k; b.head.tpitch = 0; yield R(0.8, 1.3);
+      b.head.tyaw = -0.8 * k; yield R(0.9, 1.5);
+      b.head.tyaw = 0.3 * k; b.head.tpitch = -0.05; yield R(0.5, 1);
+    },
+    * sky() {
+      const sun = new THREE.Vector3(b.x + SUN_H.x * 30, 14, b.z + SUN_H.z * 30);
+      yield look(sun, R(1.4, 2.4));
+      b.head.target = null; b.head.tyaw = 0.4; b.head.tpitch = 0; yield 0.5;
+    },
+    * fire() { yield look(FIRE_AT, R(1.6, 2.6)); },
+    * stretch() {
+      // both arms overhead, back arched, a long breath out
+      b.leanT = -0.12; setArm('r', 3.05, 0.25); setArm('l', 3.05, -0.25); b.head.tpitch = -0.35;
+      yield 1.5;
+      b.leanT = 0; b.r.on = b.l.on = false; b.head.tpitch = 0.12; yield 0.7;
+    },
+    * scratch() {
+      // right hand to the back of the head, a few small scrubs
+      b.head.tyaw = 0.2; setArm('r', 2.6, -0.5);
+      for (let i = 0; i < 4; i++) { setArm('r', 2.75, -0.45); yield 0.16; setArm('r', 2.5, -0.55); yield 0.16; }
+      freeArm('r'); yield 0.4;
+    },
+    * shrug() {
+      b.head.tpitch = 0.1; setArm('r', 0.2, 0.55); setArm('l', 0.2, -0.55); b.head.tyaw = 0.25; yield 0.8;
+      freeArm('r'); freeArm('l'); yield 0.4;
+    },
+    * rock() {
+      // shifts his weight, looks at his boots
+      b.head.tpitch = 0.4; b.twist = 0.12; yield 0.7; b.twist = -0.12; yield 0.7; b.twist = 0; yield 0.4;
+    },
+    * hum() {
+      // a few quiet little nods, as if to a tune
+      for (let i = 0; i < 5; i++) { b.head.tpitch = 0.08; yield 0.28; b.head.tpitch = -0.05; yield 0.28; }
+    },
+  };
+  function* fidget() {
+    const names = Object.keys(FIDGETS);
+    let n = R() < 0.4 ? 2 : 1;
+    b.pausing = true;
+    try {
+      while (n-- > 0) {
+        let k = names[Math.floor(R() * names.length)];
+        if (k === b.lastFid) k = names[(names.indexOf(k) + 1) % names.length];
+        b.lastFid = k;
+        yield* FIDGETS[k]();
+        relax();
+        yield R(0.4, 1.1);
+      }
+    } finally { b.pausing = false; relax(); }
+  }
   function* idleLoop() {
     for (;;) {
       const id = nextAct();
@@ -1127,10 +1234,8 @@ export function createBrain(deps) {
       b.act = id;
       try { yield* a.f(); } finally { doCleanup(); relax(); }
       b.act = null;
-      // a breath between things: a glance at the camera
-      if (R() < 0.5) b.head.target = b.camPos;
-      yield R(0.5, 1.4);
-      b.head.target = null; b.head.tyaw = 0; b.head.tpitch = 0;
+      // a breath between things
+      yield* fidget();
     }
   }
 
@@ -1312,7 +1417,7 @@ export function createBrain(deps) {
       for (const q of camp.quarry) { q.mesh.visible = true; q.removed = false; nav.restore(q.box); }
       camp.chest.setOpen(0);
       camp.setFurnace(false);
-      Object.assign(b, { x: 3.2, z: 0.5, y: 0, vy: 0, floor: 0, air: false, yaw: Math.PI / 2, phase: 0, amp: 0, ampT: 0, sit: 0, sitT: 0, crouch: 0, crouchT: 0, lean: 0, leanT: 0, twist: 0, state: 'idle', arrivedAt: -1, swingClock: 0 });
+      Object.assign(b, { spd: 0, dist: 0, tWalk: 0, tPause: 0, tWork: 0, tAll: 0, pausing: false, x: 3.2, z: 0.5, y: 0, vy: 0, floor: 0, air: false, yaw: Math.PI / 2, phase: 0, amp: 0, ampT: 0, sit: 0, sitT: 0, crouch: 0, crouchT: 0, lean: 0, leanT: 0, twist: 0, state: 'idle', arrivedAt: -1, swingClock: 0 });
       b.r.on = b.l.on = false; b.r.w = b.l.w = 0;
       b.head.tyaw = b.head.tpitch = b.head.yaw = b.head.pitch = 0; b.head.target = null;
       b.gen = idleLoop();
@@ -1337,6 +1442,8 @@ export function createBrain(deps) {
       if (camPos) b.camPos.copy(camPos);
       b.t += dt;
       if (!b.frozen) {
+        b.tAll += dt;
+        if (b.state === 'walk' && b.spd > 0.1) b.tWalk += dt; else if (b.pausing) b.tPause += dt; else b.tWork += dt;
         runGen(dt);
         keepOut();
         headTrack();
@@ -1368,6 +1475,8 @@ export function createBrain(deps) {
       return true;
     },
     acts: () => ACTS.map((a) => a.id),
+    // the pace over the run so far: distance, time walking / pausing / working, the average speeds
+    stats: () => ({ seconds: +b.tAll.toFixed(1), metres: +b.dist.toFixed(1), walkS: +b.tWalk.toFixed(1), pauseS: +b.tPause.toFixed(1), workS: +b.tWork.toFixed(1), avgWalkSpeed: +(b.dist / Math.max(1, b.tWalk)).toFixed(2), avgSpeed: +(b.dist / Math.max(1, b.tAll)).toFixed(2), pauseShare: +(b.tPause / Math.max(1, b.tAll)).toFixed(3), walkShare: +(b.tWalk / Math.max(1, b.tAll)).toFixed(3) }),
   };
   b.gen = idleLoop();
   api.reset(seed);
