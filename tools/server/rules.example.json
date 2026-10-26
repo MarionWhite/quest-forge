@@ -1,7 +1,7 @@
 {
   "_comment": "The owner's server decisions, by decision id (docs/decisions, srv-*). Apply with build_play_server.py --rules THIS_FILE ... --force. Every value here is the audit's recommendation (docs/design/server-readiness.md, sections 4 and 6), not a decision: change it to what the owner said. Keys starting with _ are ignored. The file is remembered in the server's play-options.json, so later rebuilds keep applying it.",
 
-  "_srv-pvp": "\"team\": everyone on one vanilla team with friendly fire off, Gravity Gun cannot grab players, server pvp stays on for duels by leaving the team. \"off\": pvp=false. \"on\": vanilla.",
+  "_srv-pvp": "\"as-is\": the pack as it is (no team, pvp and GraviGun.cfg untouched; the owner's 2026-10-25 decision). \"team\": everyone on one vanilla team with friendly fire off, Gravity Gun cannot grab players, server pvp stays on for duels by leaving the team. \"off\": pvp=false. \"on\": vanilla, written out (pvp=true, Gravity Gun grabs players).",
   "srv-pvp": "team",
 
   "_srv-quests": "\"personal\": BetterQuesting parties off, each friend progresses alone. \"parties\": parties allowed (BQ default). Takes effect at world creation; an existing world needs /bq_admin default load.",
@@ -16,8 +16,8 @@
   "_srv-hub": "spawn-protection radius in blocks: non-ops cannot place or break inside it (vanilla interactions only). 0 = off.",
   "srv-hub": 16,
 
-  "_srv-loaders": "world_anchors: \"off\" (Railcraft World Anchor not craftable; personal and passive anchors stay), \"capped\" (craftable, but Forge allows Railcraft 20 tickets x 9 chunks per world), \"on\" (unlimited). sync_shells: whether Sync shell storages keep their chunk loaded.",
-  "srv-loaders": {"world_anchors": "capped", "sync_shells": false},
+  "_srv-loaders": "world_anchors: \"off\" (Railcraft World Anchor not craftable; personal and passive anchors stay), \"capped\" (craftable, but Forge allows Railcraft 20 tickets x 9 chunks per world), \"on\" (unlimited). sync_shells: whether Sync shell storages keep their chunk loaded. op_loaders_offline: whether an operator's ChickenChunks loaders keep running while the operator is offline (players' never do).",
+  "srv-loaders": {"world_anchors": "capped", "sync_shells": false, "op_loaders_offline": false},
 
   "_srv-graves": "Text for the rules post only: \"shared\" (anyone may loot a grave; ask first) or \"owner-only\" (a rule, not enforced: GraveStones has no owner-only option).",
   "srv-graves": "shared",

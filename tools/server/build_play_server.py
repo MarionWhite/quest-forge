@@ -236,13 +236,16 @@ PLAY_OPTIONS = "play-options.json"
 # applies a JSON file of {id: value}; tools/server/rules.example.json lists
 # every key with its choices.
 RULE_IDS = {
-    "srv-pvp":     '"team" (everyone on one vanilla team, friendly fire off; the Gravity Gun '
-                   'cannot grab players), "off" (pvp=false), or "on" (vanilla)',
+    "srv-pvp":     '"as-is" (the pack as it is: no team, pvp and the Gravity Gun untouched), '
+                   '"team" (everyone on one vanilla team, friendly fire off; the Gravity Gun '
+                   'cannot grab players), "off" (pvp=false), or "on" (vanilla: pvp=true, the '
+                   'Gravity Gun grabs players)',
     "srv-quests":  '"personal" (BetterQuesting parties off) or "parties"',
     "srv-sleep":   'percent of players that must sleep to skip the night (Morpheus); 0 = no sleep vote',
     "srv-afk":     'minutes before an idle player is kicked (player-idle-timeout); 0 = never',
     "srv-hub":     'spawn-protection radius in blocks around spawn (non-ops cannot build); 0 = off',
-    "srv-loaders": '{"world_anchors": "off" | "capped" | "on", "sync_shells": true | false}',
+    "srv-loaders": '{"world_anchors": "off" | "capped" | "on", "sync_shells": true | false, '
+                   '"op_loaders_offline": true | false}',
     "srv-graves":  '"shared" or "owner-only": a rule for the rules post only (GraveStones has no '
                    'owner-only option); nothing is configured',
     "srv-tools":   '{"chest_transporter_spawners": true | false, "projecte_time_watch_pedestal": '
@@ -288,6 +291,42 @@ def set_cfg(path, key, value, section=None):
                 fh.write(nl.join(lines))
             return True
     sys.exit("%s: no key %s%s" % (path, key, " in section %s" % section if section else ""))
+
+
+def get_cfg(path, key, section=None):
+    """Read one `T:key=value` of a Forge .cfg (the value only), or None."""
+    with open(path, encoding="latin-1", newline="") as fh:
+        text = fh.read()
+    pat = re.compile(r'^\s*[A-Z]:"?%s"?=(.*?)\s*$' % re.escape(key), re.M)
+    m = pat.search(text)
+    return m.group(1) if m else None
+
+
+def set_cc_cfg(path, section, key, value):
+    """Set `key=value` inside a `section` block of a CodeChickenCore-style config
+    (ChickenChunks.cfg: the section name on one line, the brace on the next,
+    tab-indented keys, # comments). Exits if the section or key is missing,
+    for the same reason as set_cfg."""
+    with open(path, encoding="latin-1", newline="") as fh:
+        text = fh.read()
+    nl = "\r\n" if "\r\n" in text else "\n"
+    lines = text.split(nl)
+    sec = next((i for i, l in enumerate(lines) if l.strip() == section), None)
+    if sec is None or sec + 1 >= len(lines) or lines[sec + 1].strip() != "{":
+        sys.exit("%s: no section %s" % (path, section))
+    for i in range(sec + 2, len(lines)):
+        s = lines[i].strip()
+        if s == "}":
+            break
+        if s.startswith(key + "="):
+            if s == "%s=%s" % (key, value):
+                return False
+            indent = lines[i][:len(lines[i]) - len(lines[i].lstrip())]
+            lines[i] = indent + "%s=%s" % (key, value)
+            with open(path, "w", encoding="latin-1", newline="") as fh:
+                fh.write(nl.join(lines))
+            return True
+    sys.exit("%s: no key %s in section %s" % (path, key, section))
 
 
 def append_cfg_block(path, name, body):
@@ -372,15 +411,26 @@ def apply_rules(out, rules, props, sup):
 
     v = rules.get("srv-pvp")
     if v is not None:
-        if v not in ("team", "off", "on"):
-            sys.exit('--rules: srv-pvp must be "team", "off" or "on", not %r' % v)
-        sup["team"] = "qf" if v == "team" else ""
-        props["pvp"] = "false" if v == "off" else "true"
-        # iChun's GraviGun checks this on the server when a player is targeted.
-        set_cfg(need(cfg("GraviGun.cfg")), "grabablePlayers", 0 if v != "on" else 1)
-        done.append("srv-pvp=%s: pvp=%s, Gravity Gun grabablePlayers=%d%s" % (
-            v, props["pvp"], 0 if v != "on" else 1,
-            "; the supervisor keeps every player on team qf with friendly fire off" if v == "team" else ""))
+        if v not in ("as-is", "team", "off", "on"):
+            sys.exit('--rules: srv-pvp must be "as-is", "team", "off" or "on", not %r' % v)
+        if v == "as-is":
+            # The owner's decision (docs/decisions/0007-server-rules.md): leave PvP as
+            # it is, no team, friendly fire stays, Gravity Gun unchanged. Nothing is
+            # written to server.properties or GraviGun.cfg, which stay as the pack has
+            # them; only a team left in supervisor.json by an earlier "team" build
+            # is cleared, since "no team" is part of the decision.
+            sup["team"] = ""
+            done.append("srv-pvp=as-is: no team; pvp and GraviGun.cfg untouched (the pack's "
+                        "GraviGun.cfg has grabablePlayers=%s)" % get_cfg(need(cfg("GraviGun.cfg")),
+                                                                        "grabablePlayers"))
+        else:
+            sup["team"] = "qf" if v == "team" else ""
+            props["pvp"] = "false" if v == "off" else "true"
+            # iChun's GraviGun checks this on the server when a player is targeted.
+            set_cfg(need(cfg("GraviGun.cfg")), "grabablePlayers", 0 if v != "on" else 1)
+            done.append("srv-pvp=%s: pvp=%s, Gravity Gun grabablePlayers=%d%s" % (
+                v, props["pvp"], 0 if v != "on" else 1,
+                "; the supervisor keeps every player on team qf with friendly fire off" if v == "team" else ""))
 
     v = rules.get("srv-quests")
     if v is not None:
@@ -449,6 +499,13 @@ def apply_rules(out, rules, props, sup):
             set_cfg(need(cfg("Sync.cfg")), "allowChunkLoading", 1 if v["sync_shells"] else 0)
             done.append("srv-loaders.sync_shells=%s: Sync allowChunkLoading=%d"
                         % (v["sync_shells"], 1 if v["sync_shells"] else 0))
+        if "op_loaders_offline" in v:
+            # ChickenChunks: whether an operator's chunk loaders keep running while
+            # the operator is offline. Players' loaders already stop (DEFAULT=false).
+            on = bool(v["op_loaders_offline"])
+            set_cc_cfg(need(cfg("ChickenChunks.cfg")), "allowoffline", "OP", "true" if on else "false")
+            done.append("srv-loaders.op_loaders_offline=%s: ChickenChunks allowoffline OP=%s"
+                        % (on, "true" if on else "false"))
 
     v = rules.get("srv-graves")
     if v is not None:

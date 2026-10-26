@@ -530,14 +530,16 @@ outside it (`main.cfg`). Pick the radius to match the pregenerated area
 Sections 4 and 6 of the audit are choices only the owner makes. Each one is a
 line in a small JSON file keyed by decision id, and
 `build_play_server.py --rules FILE --force` turns the whole file into the
-server's settings in one rebuild. `tools/server/rules.example.json` lists every
-key with its choices; its values are the audit's recommendations, so edit it to
-the owner's answers, then:
+server's settings in one rebuild. **The owner's decided values are
+`tools/server/rules.json`** ([decision 0007](../decisions/0007-server-rules.md),
+2026-10-25, applied to the friends' server the same day);
+`tools/server/rules.example.json` keeps the audit's recommendations with every
+key and choice explained. The friends' server is rebuilt with:
 
 ```
 py -3.10 tools/server/build_play_server.py --java25 ^
   --instance %APPDATA%\.crazycraft4 --out C:\qfs\friends ^
-  --rules docs\decisions\server-rules.json --force
+  --force --opis --rules tools\server\rules.json
 ```
 
 The file is remembered in the server's `play-options.json`, so later rebuilds
@@ -551,12 +553,12 @@ edit landed, the server booted, and the team was created at boot.
 
 | Decision | Values | What the builder changes |
 |---|---|---|
-| `srv-pvp` | `"team"`, `"off"`, `"on"` | `team`: supervisor.json `team=qf` (one team, friendly fire off, see "Running the server"), `GraviGun.cfg grabablePlayers=0`, `pvp=true`. `off`: `pvp=false`, `grabablePlayers=0`. `on`: vanilla. |
+| `srv-pvp` | `"as-is"`, `"team"`, `"off"`, `"on"` | `as-is` (the owner's choice): nothing is written; `pvp` and `GraviGun.cfg` stay as the pack has them (`pvp=true`, `grabablePlayers=1`) and any team left by an earlier build is cleared. `team`: supervisor.json `team=qf` (one team, friendly fire off, see "Running the server"), `GraviGun.cfg grabablePlayers=0`, `pvp=true`. `off`: `pvp=false`, `grabablePlayers=0`. `on`: vanilla, written out (`pvp=true`, `grabablePlayers=1`). |
 | `srv-quests` | `"personal"`, `"parties"` | `party_enable` in `config/betterquesting/DefaultQuests.json`. BetterQuesting copies that file into the world at creation; an existing world takes it with `/bq_admin default load` (back up first). |
-| `srv-sleep` | percent `0`-`100` | Above 0: Morpheus 1.6.21 installed and `config/Morpheus.cfg` `SleeperPerc` set; that share of the players in the dimension asleep skips the night. `0`: no mod, vanilla rule. |
+| `srv-sleep` | percent `0`-`100` | Above 0: Morpheus 1.6.21 installed and `config/Morpheus.cfg` `SleeperPerc` set. The night skips when `floor(100 * sleepers / counted players) >= SleeperPerc` (read from the jar's `WorldSleepState`); players below y=64 are not counted, and a dimension with one sleeper and nobody else counted skips. The owner's "half rounded down" is `43`: exact for 2, 4, 6 and 8 to 15 players, one more than half (2 of 3, 3 of 5, 4 of 7) for 3, 5 and 7; no single value does better, and `50` asks half rounded up at every odd count. `0`: no mod, vanilla rule. |
 | `srv-afk` | minutes, `0` = never | `server.properties player-idle-timeout`. |
 | `srv-hub` | blocks, `0` = off | `server.properties spawn-protection`: non-ops cannot place or break inside that radius of spawn (vanilla interactions only). |
-| `srv-loaders` | `{"world_anchors": "off"\|"capped"\|"on", "sync_shells": bool}` | `off`: Railcraft `anchors.craftable=false` (World Anchors; Personal and Passive stay). `capped`: a `Railcraft { 20 tickets x 9 chunks }` block in `forgeChunkLoading.cfg`. `sync_shells`: Sync `allowChunkLoading`. Note: the audit said World Anchors burn no fuel; the live config has `world.fuel=minecraft:ender_pearl=12`, so they do. |
+| `srv-loaders` | `{"world_anchors": "off"\|"capped"\|"on", "sync_shells": bool, "op_loaders_offline": bool}` | `off`: Railcraft `anchors.craftable=false` (World Anchors; Personal and Passive stay). `capped`: a `Railcraft { 20 tickets x 9 chunks }` block in `forgeChunkLoading.cfg`. `sync_shells`: Sync `allowChunkLoading`. `op_loaders_offline`: ChickenChunks `allowoffline { OP }` (players' loaders already stop at logout, `DEFAULT=false`). Note: the audit said World Anchors burn no fuel; the live config has `world.fuel=minecraft:ender_pearl=12`, so they do. |
 | `srv-graves` | `"shared"`, `"owner-only"` | Nothing: GraveStones has no owner-only option. The value is for the rules post. |
 | `srv-tools` | `{"chest_transporter_spawners": bool, "projecte_time_watch_pedestal": ticks, "lycanites_first_event_day": day}` | ChestTransporter `pickupSpawners`; ProjectE `timePedBonus` (mod default 18, `0` = the Watch of Flowing Time gives machines nothing from a pedestal); Lycanites `Random Mob Events Day Minimum Overworld (0)`. |
 
