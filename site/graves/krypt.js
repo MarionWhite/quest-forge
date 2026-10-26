@@ -1003,21 +1003,41 @@ export function makeLightAt(a) {
 // ---- meshing -----------------------------------------------------------------------------------------
 const AO = [0.42, 0.62, 0.8, 1.0];
 export const bakeUniform = { value: 1 };
+// The light effects of the contract (window.__krypt.light, lightfx.js): a global scale for every light, and up to four
+// dim spheres (position and radius, amount) that darken the baked light and the torches around one point.
+export const lightScale = { value: 1 };
+export const dimU = { P: { value: [new THREE.Vector4(0, -999, 0, 1), new THREE.Vector4(0, -999, 0, 1), new THREE.Vector4(0, -999, 0, 1), new THREE.Vector4(0, -999, 0, 1)] }, A: { value: [0, 0, 0, 0] } };
+export const torchGain = { value: 1 };
+const DIM_GLSL = "uniform vec4 uDimP[4]; uniform float uDimA[4]; uniform float uLightScale;\n" +
+  "float dimAt(vec3 p){ float f = 1.0; for (int i = 0; i < 4; i++) { float d = distance(p, uDimP[i].xyz); f *= 1.0 - uDimA[i] * (1.0 - smoothstep(uDimP[i].w * 0.3, uDimP[i].w, d)); } return f; }";
+const hookDim = (sh) => { sh.uniforms.uDimP = dimU.P; sh.uniforms.uDimA = dimU.A; sh.uniforms.uLightScale = lightScale; };
 
 // Adds the baked light to a Lambert or Standard material as emissive-times-albedo from a per-vertex 'bake' attribute
 // (or a fixed vec3 when the object has none).
 export function patchBake(mat, { fixed = null } = {}) {
   mat.onBeforeCompile = (sh) => {
     sh.uniforms.uBakeGain = bakeUniform;
+    hookDim(sh);
     if (fixed) sh.uniforms.uBakeFixed = { value: fixed };
     sh.vertexShader = sh.vertexShader
-      .replace("#include <common>", fixed ? "#include <common>" : "#include <common>\nattribute vec3 bake;\nvarying vec3 vBake;")
-      .replace("#include <begin_vertex>", fixed ? "#include <begin_vertex>" : "#include <begin_vertex>\nvBake = bake;");
+      .replace("#include <common>", "#include <common>\nvarying vec3 vWP;" + (fixed ? "" : "\nattribute vec3 bake;\nvarying vec3 vBake;"))
+      .replace("#include <begin_vertex>", "#include <begin_vertex>\nvWP = (modelMatrix * vec4(transformed, 1.0)).xyz;" + (fixed ? "" : "\nvBake = bake;"));
     sh.fragmentShader = sh.fragmentShader
-      .replace("#include <common>", (fixed ? "#include <common>\nuniform vec3 uBakeFixed;" : "#include <common>\nvarying vec3 vBake;") + "\nuniform float uBakeGain;")
-      .replace("#include <emissivemap_fragment>", "#include <emissivemap_fragment>\ntotalEmissiveRadiance += diffuseColor.rgb * " + (fixed ? "uBakeFixed" : "vBake") + " * uBakeGain;");
+      .replace("#include <common>", (fixed ? "#include <common>\nuniform vec3 uBakeFixed;" : "#include <common>\nvarying vec3 vBake;") + "\nvarying vec3 vWP;\nuniform float uBakeGain;\n" + DIM_GLSL)
+      .replace("#include <emissivemap_fragment>", "#include <emissivemap_fragment>\ntotalEmissiveRadiance += diffuseColor.rgb * " + (fixed ? "uBakeFixed" : "vBake") + " * uBakeGain * uLightScale * dimAt(vWP);");
   };
-  mat.customProgramCacheKey = () => (fixed ? "bakeF" : "bakeV");
+  mat.customProgramCacheKey = () => (fixed ? "bakeF2" : "bakeV2");
+  return mat;
+}
+// The torch's own material: fullbright, but it follows the light scale and goes dark inside a dim sphere.
+export function patchTorch(mat) {
+  mat.onBeforeCompile = (sh) => {
+    hookDim(sh); sh.uniforms.uTorchGain = torchGain;
+    sh.vertexShader = sh.vertexShader.replace("#include <common>", "#include <common>\nvarying vec3 vWP;").replace("#include <begin_vertex>", "#include <begin_vertex>\nvWP = (modelMatrix * vec4(transformed, 1.0)).xyz;");
+    sh.fragmentShader = sh.fragmentShader.replace("#include <common>", "#include <common>\nvarying vec3 vWP;\nuniform float uTorchGain;\n" + DIM_GLSL)
+      .replace("#include <color_fragment>", "#include <color_fragment>\ndiffuseColor.rgb *= uTorchGain * (0.12 + 0.88 * dimAt(vWP));");
+  };
+  mat.customProgramCacheKey = () => "torchDim";
   return mat;
 }
 

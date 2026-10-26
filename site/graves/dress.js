@@ -2,7 +2,7 @@
 // for webs, vines, rails, bones, lily pads and bars, skulls, the minecart, the spawner with its spinning mob, fire,
 // and the water and lava surfaces. Everything static is merged by material and carries its baked light.
 import * as THREE from "three";
-import { patchBake } from "./krypt.js";
+import { patchBake, patchTorch } from "./krypt.js";
 import { boxGeometry, makeMob } from "../lib/mc/mobs.js";
 import { tex as mcTex } from "../lib/mc/textures.js";
 
@@ -188,7 +188,7 @@ export function dress(a, lay, IMG, lightAt) {
 
   // Torches: one merged mesh, fullbright like the game's.
   const torchTex = nearest(IMG.torch_on);
-  const tm = new THREE.Mesh(torchGeometry(a.torches), new THREE.MeshBasicMaterial({ map: torchTex, alphaTest: 0.4, side: THREE.DoubleSide, color: new THREE.Color(1.35, 1.2, 1.0) }));
+  const tm = new THREE.Mesh(torchGeometry(a.torches), patchTorch(new THREE.MeshBasicMaterial({ map: torchTex, alphaTest: 0.4, side: THREE.DoubleSide, color: new THREE.Color(1.35, 1.2, 1.0) })));
   group.add(tm);
 
   // Water and lava: an animated 16 by 16 canvas, drawn from the strip, repeated over each rectangle.

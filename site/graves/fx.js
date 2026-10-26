@@ -93,14 +93,16 @@ export function makeFx(scene, emitters, { phone = false } = {}) {
   const acc = emitters.map(() => Math.random());
   const rr = (s) => (Math.random() - 0.5) * s;
   return {
-    update(dt, cam, viewHeightPx, fovRad) {
+    update(dt, cam, viewHeightPx, fovRad, gate = null) {
       const sc = viewHeightPx * 0.5 / Math.tan(fovRad / 2);
       add.uni.scale.value = sc; nrm.uni.scale.value = sc;
       for (let e = 0; e < emitters.length; e++) {
         const m = emitters[e];
         const dx = m.x - cam.x, dz = m.z - cam.z, dy = m.y - cam.y;
         if (dx * dx + dz * dz + dy * dy > R2) continue;
-        acc[e] += dt;
+        const gf = gate ? gate(m.x, m.y, m.z) : 1;
+        if (gf <= 0.03) continue;
+        acc[e] += dt * Math.min(1, gf);
         const rate = m.k === "torch" ? 5 : m.k === "fire" ? 9 : m.k === "spawner" ? 12 : m.k === "lava" ? 1.4 : m.k === "drip" ? 0.28 : 0;
         const every = 1 / rate;
         while (acc[e] > every) {

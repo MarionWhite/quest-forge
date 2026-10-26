@@ -13,6 +13,7 @@ import {
 import { layout, buildGrid, meshGrid, pathCurve, finishLayout, profileAt, legAt, legDir, legMap, legYaw, slotFrame, patchBake, makeCarver } from "./krypt.js";
 import { dress } from "./dress.js";
 import { makeFx } from "./fx.js";
+import { makeLightFx } from "./lightfx.js";
 import { makeAmbience, sfxLog } from "./kaudio.js";
 import { audio } from "../lib/qfaudio.js";
 import { buildStone, buildStatue, buildAngelFigure, makeTexture, imageTexture, statueCanvas, STONE_HEIGHT } from "./model.js";
@@ -62,12 +63,26 @@ const state = {
 //                   cracked_stonebrick, gravel, coal_ore, iron_ore, obsidian, bedrock, netherrack, glowstone, water,
 //                   nether_brick, soul_sand, bookshelf, planks, log, lava, dirt (more as segments add them).
 //                   Decor (torches, webs, rails) is not blocks; ask the scene for those.
+//   cornersNear(s, range)  the same list for any place on the path: s is 0..1, range in blocks (default 150).
+//                   `corners` itself holds the ones within 150 blocks of the walker and is replaced as the walk goes.
+//   gaps            [{ s, pos: Vector3, dir: Vector3, width, kind: 'lava' | 'water', side }] the broken stretches of
+//                   floor near the walker (within 150 blocks), refreshed like corners. pos is the floor-level centre
+//                   of the gap's first block, dir the unit heading across it, width 2 to 3 blocks, side the bend's
+//                   turn (-1 left, 0 straight on, +1 right).
+//   event 'krypt-gap'  fired on window just before the walker jumps a gap: detail { gap, takeover() }. A listener that
+//                   calls takeover() animates the jump itself (a failed jump, say); otherwise the normal jump plays.
+//   light           { scale(k, seconds), flicker(pos, seconds), off(pos, seconds), pulse(seconds) }: effects on the
+//                   Krypt's lights. Every one eases in and ends restored. pos is [x,y,z] or a Vector3; flicker and off
+//                   act on the nearest torch (and return false when none is near).
+//   getWalk() also gives stratum (0-based index) and stratumName.
 //   takeover(on)    true pauses the camera control and walk input (and own footsteps) while a scare plays;
 //                   false restores them. The scare may move window.__krypt.camera while taken over.
 const __kryptHold = { on: false };
 window.__krypt = {
   scene: null, camera: null, renderer: null, composer: null, corners: [],
-  getWalk() { return { s: 0, speed: 0, activeSeconds: 0, depth: 0, segment: "crypt" }; },
+  gaps: [], cornersNear() { return []; },
+  light: { scale() {}, flicker() { return false; }, off() { return false; }, pulse() {} },
+  getWalk() { return { s: 0, speed: 0, activeSeconds: 0, depth: 0, segment: "crypt", stratum: 0, stratumName: "" }; },
   takeover(on) { __kryptHold.on = !!on; },
   carve() { return 0; }, restore() { return 0; }, solidAt() { return false; }, blockAt() { return "air"; }
 };
@@ -75,6 +90,10 @@ window.__krypt = {
 // --- scares: begin (owned by scares.js) ---
 import("./scares.js").then((m) => m.initScares({ enabled: () => !!state.webgl && !state.reduced })).catch((e) => console.warn("scares", e));
 // --- scares: end ---
+
+// --- mood: begin (owned by mood.js) ---
+import("./mood.js").then((m) => m.initMood()).catch((e) => console.warn("mood", e));
+// --- mood: end ---
 
 // ---- helpers --------------------------------------------------------------------------------
 function ago(iso) {
@@ -323,9 +342,24 @@ async function startKrypt() {
 function publishKrypt() {
   const kr = window.__krypt;
   kr.scene = K.scene; kr.camera = K.camera; kr.renderer = K.renderer; kr.composer = K.composer;
-  kr.corners = K.lay.corners.map(c => ({ s: c.s, pos: new THREE.Vector3(c.x, c.y, c.z), dir: new THREE.Vector3(c.dx, 0, c.dz), side: c.side, kind: c.kind }));
-  kr.getWalk = () => ({ s: K.walk.s, speed: K.speed, activeSeconds: K.activeSeconds, depth: smooth01(K.walk.s), segment: (K.prof && K.prof.kind) || "crypt" });
+  const toCorner = (c) => ({ s: c.s, pos: new THREE.Vector3(c.x, c.y, c.z), dir: new THREE.Vector3(c.dx, 0, c.dz), side: c.side, kind: c.kind });
+  kr.cornersNear = (s, range = 150) => K.lay.corners.filter(c => Math.abs(c.s - s) * K.length <= range).map(toCorner);
+  K.refreshNear = (force) => {
+    const s = K.walk.s;
+    if (!force && K.nearAt != null && Math.abs(s - K.nearAt) * K.length < 15) return;
+    K.nearAt = s;
+    kr.corners = kr.cornersNear(s, 150);
+    kr.gaps = (K.lay.gaps || []).filter(g => Math.abs(g.s - s) * K.length <= 150).map(g => ({ s: g.s, pos: new THREE.Vector3(g.x, g.y, g.z), dir: new THREE.Vector3(g.dx, 0, g.dz), width: g.width, kind: g.kind, side: g.side }));
+  };
+  K.refreshNear(true);
+  K.lightFx = makeLightFx({ torches: () => K.grid.torches, hemi: K.hemi });
+  kr.light = {
+    scale: (k, sec) => K.lightFx.scale(k, sec), flicker: (p, sec) => K.lightFx.flicker(asPos(p), sec),
+    off: (p, sec) => K.lightFx.off(asPos(p), sec), pulse: (sec) => K.lightFx.pulse(sec)
+  };
+  kr.getWalk = () => ({ s: K.walk.s, speed: K.speed, activeSeconds: K.activeSeconds, depth: smooth01(K.walk.s), segment: (K.prof && K.prof.kind) || "crypt", stratum: K.stratum ? K.stratum.index : 0, stratumName: K.stratum ? K.stratum.name : "" });
   const asV = (v) => (Array.isArray(v) ? v : [v.x, v.y, v.z]);
+  const asPos = (v) => (Array.isArray(v) ? { x: v[0], y: v[1], z: v[2] } : v);
   kr.carve = (mn, mx) => K.carver.carve(asV(mn), asV(mx));
   kr.restore = () => K.carver.restore();
   kr.solidAt = (x, y, z) => K.carver.solidAt(x, y, z);
@@ -551,7 +585,7 @@ function frame(now) {
 const _f = new THREE.Vector3(), _d = new THREE.Vector3();
 function frameInner(now) {
   if (!K.visible || document.hidden) { K.last = now; return; }
-  const dt = Math.min(0.05, (now - K.last) / 1000); K.last = now;
+  const dt = Math.max(0, Math.min(0.05, (now - K.last) / 1000)); K.last = now;
   const t = now / 1000;
   const W = K.walk;
   const L = K.length;
@@ -628,7 +662,7 @@ function frameInner(now) {
   K.bloom.strength = prof.bloom;
   K.sky.position.x = K.pos.x; K.sky.position.z = K.pos.z;
   updateLights(t, dt, prof);
-  K.hemi.intensity = 0.32 * (1 - 0.5 * K.focusAmt);
+  K.hemi.intensity = 0.32 * (1 - 0.5 * K.focusAmt) * (K.lightFx ? K.lightFx.scaleNow() : 1);
   if (K.focusI != null) {
     const fr = K.anchors[K.focusI].frame, leg = fr.leg;
     const fw = legDir(leg);
@@ -637,9 +671,11 @@ function frameInner(now) {
     K.spot.intensity = 14 * K.focusAmt;
   } else K.spot.intensity = 0;
   K.dress.update(t, dt, K.pos);
-  K.fx.update(dt, K.pos, K.renderer.domElement.height, K.camera.fov * Math.PI / 180);
+  if (K.lightFx) { K.lightFx.update(dt); K.refreshNear(false); }
+  K.fx.update(dt, K.pos, K.renderer.domElement.height, K.camera.fov * Math.PI / 180, K.lightFx ? K.lightFx.factor : null);
   K.grade.uniforms.time.value = t;
-  updateBuilds(K.pos);
+  // While a scare holds the player the camera is theirs: build the chunks and the stones around it, not around K.pos.
+  updateBuilds(K.held ? K.camera.position : K.pos);
   // Sound: the walk's own steps, ambience, and the listener.
   if (K.gateOpen && !DUMP) {
     const leg = legAt(K.lay, K.pos.x, K.pos.z);
@@ -703,7 +739,7 @@ function updateLights(t, dt, prof) {
     const boost = K.focusI != null && s.dyn && K.anchors[K.focusI] && K.anchors[K.focusI].p.distanceTo(new THREE.Vector3(s.x, s.y, s.z)) < 5 ? 1 + 0.4 * K.focusAmt : 1;
     L.pl.position.set(s.x, s.y, s.z);
     L.pl.color.setRGB(s.c[0], s.c[1], s.c[2]);
-    L.pl.intensity = s.I * 0.5 * (s.sky ? 1 : (s.lava ? 1 : prof.torch)) * fl * boost * L.amt;
+    L.pl.intensity = s.I * 0.5 * (s.sky ? 1 : (s.lava ? 1 : prof.torch)) * fl * boost * L.amt * (K.lightFx ? K.lightFx.factor(s.x, s.y, s.z) : 1);
   }
 }
 
