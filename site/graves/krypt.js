@@ -1,355 +1,841 @@
-// The Krypt: a long gallery cut into stone under the pack's sky. A block grid is meshed once (one mesh per
-// texture), with the set pieces, torches, lava seam, pool, chasm, roots and the sky seen through the ceiling.
-// Graves stand in alcoves, one per death, in the order of the feed. The camera rides a spline through it.
+// The Krypt: a gallery of nine distinct segments cut into stone under the pack's sky, joined by bends and
+// side passages. The layout is a chain of straight legs (headings N, W, E; the walk goes toward -z at first).
+// A block grid is carved from the legs, lit by a bake (torches, lava, glowstone, the sky cracks, with the
+// shadows of the blocks and per-corner occlusion), meshed once per texture, and dressed by dress.js.
+// Graves stand in alcoves all the way through, in the order of the feed.
 import * as THREE from "three";
-import { hash, rng } from "./data.js";
+import { hash } from "./data.js";
 
-export const CORRIDOR_HALF = 3;          // corridor cells -3..2 (x -3..3)
-export const SLOT_STEP = 4;             // rows between alcoves (whole rows: the grid is indexed by integers)
-const SPECIALS = [
-  { at: 0.16, kind: "chasm", len: 9 },
-  { at: 0.36, kind: "mineshaft", len: 11 },
-  { at: 0.56, kind: "lava", len: 7 },
-  { at: 0.76, kind: "pool", len: 9 }
+export const SLOT_STEP = 4;
+export const T_AIR = 0, T_STONE = 1, T_COBBLE = 2, T_MOSSY = 3, T_BRICK = 4, T_BRICK_MOSSY = 5, T_BRICK_CRACK = 6,
+  T_GRAVEL_FLOOR = 7, T_COAL = 8, T_IRON = 9, T_OBS = 10, T_BEDROCK = 11, T_NETHER = 12, T_GLOW = 13, T_BRIDGE = 14,
+  T_WATER = 15, T_NBRICK = 16, T_SOUL = 17, T_SHELF = 18, T_PLANK = 19, T_LOG = 20, T_LAVA = 22, T_DIRT = 23,
+  T_WALL = 255;
+
+// ---- the segments --------------------------------------------------------------------------------
+// weight: share of the stones; hw: half width; ht: height of the air; pre/post: empty rows at either end;
+// branch: side passages; holes: where the sky cracks open (fractions along the content).
+const SPEC = [
+  { kind: "crypt",   h: "N", hw: 3, ht: 4, pre: 6, post: 0, weight: 2, branch: 0, holes: [0.6] },
+  { kind: "mine",    h: "W", hw: 3, ht: 4, pre: 2, post: 0, weight: 3, branch: 1, holes: [0.45] },
+  { kind: "ossuary", h: "N", hw: 3, ht: 4, pre: 2, post: 0, weight: 3, branch: 2, holes: [] },
+  { kind: "flood",   h: "E", hw: 4, ht: 5, pre: 2, post: 0, weight: 3, branch: 1, holes: [0.5] },
+  { kind: "dungeon", h: "N", hw: 6, ht: 5, pre: 4, post: 4, weight: 2, branch: 0, holes: [] },
+  { kind: "library", h: "W", hw: 4, ht: 6, pre: 2, post: 0, weight: 3, branch: 1, holes: [0.8] },
+  { kind: "chasm",   h: "N", hw: 5, ht: 6, pre: 3, post: 0, weight: 2, branch: 0, holes: [0.3, 0.75] },
+  { kind: "stairs",  h: "N", hw: 3, ht: 4, pre: 0, post: 0, weight: 1, branch: 0, holes: [], stairs: true },
+  { kind: "deep",    h: "N", hw: 4, ht: 5, pre: 2, post: 4, weight: 4, branch: 1, holes: [] }
 ];
-export const T_AIR = 0, T_STONE = 1, T_COBBLE = 2, T_MOSSY = 3, T_BRICK = 4, T_BRICK_MOSSY = 5,
-  T_BRICK_CRACK = 6, T_GRAVEL_FLOOR = 7, T_COAL = 8, T_IRON = 9, T_OBS = 10, T_BEDROCK = 11,
-  T_NETHER = 12, T_GLOW = 13, T_BRIDGE = 14, T_WATER = 15;
+export const KINDS = SPEC.map(s => s.kind);
+const STAIR_LANDING = 6, STAIR_LEN = 12, STAIR_DROP = 6, CHASM_DEPTH = 9, PASSAGE_LEN = 9;
 
-// The layout: where each alcove is, which set piece sits where, and where the sky opens.
+// Lighting by depth: the bake and the page's live lighting read the same table (keyed at each segment's centre).
+// amb: the baked ambient; fog: colour and density; exposure; torch: scale of torch light; hemi: live fill.
+export const PROFILE = {
+  crypt:   { amb: [0.060, 0.082, 0.150], fog: [0.030, 0.040, 0.075], fogD: 0.040, exposure: 1.18, torch: 0.78, bloom: 0.30 },
+  mine:    { amb: [0.075, 0.075, 0.085], fog: [0.040, 0.036, 0.040], fogD: 0.040, exposure: 1.18, torch: 0.9,  bloom: 0.32 },
+  ossuary: { amb: [0.080, 0.068, 0.078], fog: [0.040, 0.030, 0.038], fogD: 0.042, exposure: 1.2,  torch: 0.9,  bloom: 0.32 },
+  flood:   { amb: [0.050, 0.095, 0.110], fog: [0.020, 0.045, 0.052], fogD: 0.040, exposure: 1.2,  torch: 1.0,  bloom: 0.34 },
+  dungeon: { amb: [0.095, 0.082, 0.062], fog: [0.044, 0.034, 0.026], fogD: 0.036, exposure: 1.2,  torch: 1.1,  bloom: 0.36 },
+  library: { amb: [0.115, 0.082, 0.052], fog: [0.052, 0.035, 0.022], fogD: 0.034, exposure: 1.2,  torch: 1.2,  bloom: 0.36 },
+  chasm:   { amb: [0.130, 0.060, 0.034], fog: [0.070, 0.028, 0.014], fogD: 0.030, exposure: 1.22, torch: 1.2,  bloom: 0.46 },
+  stairs:  { amb: [0.130, 0.058, 0.032], fog: [0.066, 0.026, 0.012], fogD: 0.034, exposure: 1.22, torch: 1.2,  bloom: 0.44 },
+  deep:    { amb: [0.165, 0.058, 0.028], fog: [0.085, 0.024, 0.010], fogD: 0.034, exposure: 1.25, torch: 1.25, bloom: 0.55 }
+};
+
+// ---- leg geometry ----------------------------------------------------------------------------------
+// A leg has an origin lattice point (px, pz) and a heading. Local a runs across (right is +), b along.
+export function legMap(leg, a, b) {
+  if (leg.h === "N") return [leg.px + a, leg.pz - b];
+  if (leg.h === "W") return [leg.px - b, leg.pz - a];
+  return [leg.px + b, leg.pz + a];
+}
+export function legLocal(leg, x, z) {
+  if (leg.h === "N") return [x - leg.px, leg.pz - z];
+  if (leg.h === "W") return [leg.pz - z, leg.px - x];
+  return [z - leg.pz, x - leg.px];
+}
+export const legYaw = (leg) => (leg.h === "N" ? 0 : leg.h === "W" ? Math.PI / 2 : -Math.PI / 2);
+const legCell = (leg, lu, lv) => { const [x, z] = legMap(leg, lu + 0.5, lv + 0.5); return [Math.floor(x), Math.floor(z)]; };
+const legDir = (leg) => (leg.h === "N" ? [0, -1] : leg.h === "W" ? [-1, 0] : [1, 0]);
+const turnOf = (from, to) => (from === "N" ? (to === "W" ? -1 : 1) : (from === "W" ? 1 : -1));
+
+// Floor top of leg row lv (an integer y); the stairs step down every two rows.
+export function floorTop(leg, lv) {
+  if (!leg.stairs) return leg.y0;
+  const t = lv - leg.stairsAt;
+  if (t < 0) return leg.y0;
+  return leg.y0 - Math.min(STAIR_DROP, Math.floor(t / 2) + 1);
+}
+// Camera floor level, continuous (a ramp over the steps).
+export function floorSmooth(leg, b) {
+  if (!leg.stairs) return leg.y0;
+  const t = (b - leg.stairsAt) / 2 - 0.5;
+  return leg.y0 - Math.max(0, Math.min(STAIR_DROP, t + 0.5));
+}
+
+// ---- the layout ------------------------------------------------------------------------------------
 export function layout(n) {
-  const slots = Math.max(n, 8);
-  const segs = [];
-  let k = 7;                              // z of the entrance (the camera starts here)
-  const entrance = { kind: "entrance", k0: k, k1: k - 6 };
-  k -= 6; segs.push(entrance);
-  const slotList = [];
-  for (let i = 0; i < slots; i++) {
-    for (const sp of SPECIALS) {
-      if (Math.floor(slots * sp.at) === i && !segs.some(s => s.kind === sp.kind)) {
-        segs.push({ kind: sp.kind, k0: k, k1: k - sp.len }); k -= sp.len;
+  const S = Math.max(n, 23);
+  const wsum = SPEC.reduce((a, s) => a + s.weight, 0);
+  const counts = SPEC.map(s => (s.stairs ? 1 : Math.max(1, Math.floor(S * s.weight / wsum))));
+  let left = S - counts.reduce((a, b) => a + b, 0);
+  for (let g = 0; left > 0; g = (g + 1) % SPEC.length) { const q = SPEC.length - 1 - g; if (SPEC[q].stairs) continue; counts[q] += 1; left--; }
+  const legs = [], slots = [], corners = [];
+  let prev = null, gi = 0;
+  SPEC.forEach((sp, idx) => {
+    const leg = { ...sp, idx, m: counts[idx], slots: [], passages: [], holesAt: [], style: idx + 1, y0: 0, px: 0, pz: 0, cs: 0, b0: 0 };
+    if (prev) {
+      leg.y0 = prev.yEnd;
+      if (prev.h !== sp.h) {
+        prev.ce = prev.end + sp.hw;
+        const [cx, cz] = legMap(prev, 0, prev.ce);
+        leg.px = cx; leg.pz = cz; leg.cs = -prev.hw; leg.b0 = prev.hw;
+        leg.turn = turnOf(prev.h, sp.h);
+        const d = legDir(leg);
+        corners.push({ kind: "bend", x: cx, z: cz, y: leg.y0, dx: d[0], dz: d[1], side: leg.turn, leg: idx });
+      } else {
+        prev.ce = prev.end;
+        const [cx, cz] = legMap(prev, 0, prev.end);
+        leg.px = cx; leg.pz = cz;
       }
     }
-    const side = i % 2 ? 1 : -1;
-    slotList.push({ i, side, k: k - 2 });
-    k -= SLOT_STEP;
+    let cur = leg.b0 + sp.pre;
+    const branchAfter = new Set();
+    const nb = Math.min(sp.branch, Math.max(0, leg.m - 1));
+    for (let q = 0; q < nb; q++) branchAfter.add(Math.max(0, Math.floor((q + 1) * leg.m / (nb + 1)) - 1));
+    for (let t = 0; t < leg.m; t++) {
+      const lvc = cur + 3;
+      const slot = { i: gi, side: gi % 2 ? 1 : -1, leg: idx, lvc };
+      leg.slots.push(slot); slots.push(slot); gi++;
+      cur += SLOT_STEP;
+      if (branchAfter.has(t)) {
+        const side = slot.side, lv0 = lvc + 4;
+        leg.passages.push({ side, lv: lv0, len: PASSAGE_LEN, ok: false });
+        cur += 6;
+      }
+    }
+    leg.contentEnd = cur;
+    cur += 2 + sp.post;
+    if (sp.stairs) {
+      // The landing holds one stone; the flight starts after it. The landing keeps six rows.
+      leg.stairsAt = leg.b0 + STAIR_LANDING;
+      cur = leg.stairsAt + STAIR_LEN;
+      leg.yEnd = leg.y0 - STAIR_DROP;
+    } else leg.yEnd = leg.y0;
+    leg.end = cur;
+    leg.ce = leg.end;
+    for (const f of sp.holes) leg.holesAt.push(Math.round(leg.b0 + sp.pre + (leg.contentEnd - leg.b0 - sp.pre) * f));
+    legs.push(leg); prev = leg;
+  });
+  const lay = { legs, slots, corners, count: n, total: S };
+  return lay;
+}
+
+// Where the stone, the statue and the camera stand for a slot.
+export function slotFrame(lay, s) {
+  const leg = lay.legs[s.leg];
+  const b = s.lvc + 0.5, hw = leg.hw, sd = s.side;
+  const at = (a, bb) => { const [x, z] = legMap(leg, a, bb); return new THREE.Vector3(x, leg.y0, z); };
+  const ctr = at(0, b);
+  const stone = at(sd * (hw + 1.2), b);
+  const out = new THREE.Vector3().subVectors(stone, ctr).setY(0).normalize();
+  return {
+    leg, centre: ctr, stone, out,
+    statue: at(sd * (hw + 1.55), b + 0.95),
+    angel: at(sd * (hw + 1.55), b - 0.95),
+    yaw: sd * Math.PI / 2 + legYaw(leg),
+    camAt: (d, bb = b - 0.45) => at(sd * (hw + 1.2 - d), bb)
+  };
+}
+
+// The camera's path: the centre of every leg with a slow sway, rounded at the bends, rising and falling with the floor.
+export function pathCurve(lay) {
+  const pts = [];
+  const R = 2.7;
+  const push = (x, y, z) => pts.push(new THREE.Vector3(x, y, z));
+  lay.legs.forEach((leg, li) => {
+    const nxt = lay.legs[li + 1];
+    const bend = nxt && nxt.turn;
+    const bStart = li === 0 ? 0 : (leg.turn ? R : 0);
+    const bEnd = leg.ce;
+    const yAt = (b) => floorSmooth(leg, b) + 1.5;
+    const swayEnd = bend ? bEnd - R : bEnd;
+    const sway = (b) => {
+      const edge = Math.min(b - bStart, swayEnd - b, 7) / 7;
+      const e = Math.max(0, Math.min(1, edge));
+      return Math.sin(b / 6.5 + li * 1.7) * 0.7 * e * e * (3 - 2 * e);
+    };
+    // Start of the leg: its corner point was already pushed by the previous leg's arc; start just after it.
+    const from = li === 0 ? 0 : (leg.turn ? R + 1.5 : 1.5);
+    const to = bend ? bEnd - R : bEnd;
+    for (let b = from; b < to; b += 1.5) { const [x, z] = legMap(leg, sway(b), b); push(x, yAt(b), z); }
+    if (!bend) { const [x, z] = legMap(leg, 0, to); push(x, yAt(to), z); }
+    if (bend) {
+      // The arc, from heading A to heading B around the corner point C.
+      const dA = legDir(leg), dB = legDir(nxt);
+      const [cx, cz] = legMap(leg, 0, bEnd);
+      for (let q = 0; q <= 4; q++) {
+        const f = (q / 4) * Math.PI / 2;
+        const x = cx - dA[0] * R + dB[0] * R - dB[0] * R * Math.cos(f) + dA[0] * R * Math.sin(f);
+        const z = cz - dA[1] * R + dB[1] * R - dB[1] * R * Math.cos(f) + dA[1] * R * Math.sin(f);
+        push(x, yAt(bEnd), z);
+      }
+    }
+  });
+  return new THREE.CatmullRomCurve3(pts, false, "centripetal", 0.5);
+}
+
+// After the curve exists: every slot, corner and leg gets its s (0..1 along the path), and the profile keys.
+export function finishLayout(lay, curve) {
+  const N = Math.max(400, Math.round(curve.getLength() * 3));
+  const pts = curve.getSpacedPoints(N);
+  const sOf = (x, y, z, hint = null) => {
+    let best = 0, bd = Infinity;
+    const lo = hint != null ? Math.max(0, Math.floor((hint - 0.2) * N)) : 0, hi = hint != null ? Math.min(N, Math.ceil((hint + 0.2) * N)) : N;
+    for (let i = lo; i <= hi; i++) {
+      const p = pts[i], d = (p.x - x) ** 2 + (p.z - z) ** 2 + ((p.y - y) * 0.5) ** 2;
+      if (d < bd) { bd = d; best = i; }
+    }
+    return best / N;
+  };
+  lay.sOf = sOf; lay.length = curve.getLength();
+  for (const leg of lay.legs) {
+    const [x0, z0] = legMap(leg, 0, Math.max(leg.cs, leg.b0));
+    const [x1, z1] = legMap(leg, 0, leg.ce);
+    leg.s0 = sOf(x0, leg.y0 + 1.5, z0); leg.s1 = sOf(x1, leg.yEnd + 1.5, z1);
+    if (leg.s1 < leg.s0) leg.s1 = Math.min(1, leg.s0 + 0.01);
+    const [xm, zm] = legMap(leg, 0, (leg.b0 + leg.contentEnd) / 2);
+    leg.sMid = sOf(xm, leg.y0 + 1.5, zm);
+    for (const s of leg.slots) { const f = slotFrame(lay, s); s.s = sOf(f.centre.x, leg.y0 + 1.5, f.centre.z, leg.sMid); }
   }
-  const deep = { kind: "deep", k0: k, k1: k - 12 }; k -= 12; segs.push(deep);
-  const kEnd = k - 4;
-  // Sky holes: three, in the walk's first, middle and last thirds.
-  const holes = [0.14, 0.42, 0.78].map(f => Math.round(7 - f * (7 - kEnd)));
-  return { slots: slotList, segs, kStart: 7, kEnd, holes, count: n };
+  for (const c of lay.corners) c.s = sOf(c.x, c.y + 1.5, c.z);
+  lay.keys = lay.legs.map(l => ({ s: l.sMid, p: PROFILE[l.kind], kind: l.kind }));
+  return lay;
 }
 
-function cell(a, i, j, k) { return a.g[((k - a.k0) * a.NJ + (j - a.j0)) * a.NI + (i - a.i0)]; }
-function setCell(a, i, j, k, t) { a.g[((k - a.k0) * a.NJ + (j - a.j0)) * a.NI + (i - a.i0)] = t; }
-
-// Block at the wall: stone with the occasional ore, moss, crack or seam.
-// Every wall, alcove backs and sides included, is stone brick, cracked or mossy brick, cobble or mossy cobble.
-// No ore and no plain stone: the ore's speckle read as dirt under the torches.
-function wallType(i, j, k) {
-  const h = hash(`${i}|${j}|${k}`) % 1000;
-  if (h < 160) return T_COBBLE;
-  if (h < 260) return T_MOSSY;
-  if (h < 560) return T_BRICK;
-  if (h < 700) return T_BRICK_MOSSY;
-  return T_BRICK_CRACK;
+// Profile values at s (smoothly blended between the segment keys).
+export function profileAt(lay, s) {
+  const K = lay.keys;
+  if (s <= K[0].s) return { ...K[0].p, kind: K[0].kind, depth: 0 };
+  let i = 0;
+  while (i < K.length - 2 && s > K[i + 1].s) i++;
+  const A = K[i], B = K[Math.min(K.length - 1, i + 1)];
+  const t = Math.max(0, Math.min(1, (s - A.s) / Math.max(1e-4, B.s - A.s)));
+  const e = t * t * (3 - 2 * t);
+  const mix = (x, y) => x + (y - x) * e;
+  const v3 = (x, y) => [mix(x[0], y[0]), mix(x[1], y[1]), mix(x[2], y[2])];
+  return {
+    amb: v3(A.p.amb, B.p.amb), fog: v3(A.p.fog, B.p.fog), fogD: mix(A.p.fogD, B.p.fogD), exposure: mix(A.p.exposure, B.p.exposure),
+    torch: mix(A.p.torch, B.p.torch), bloom: mix(A.p.bloom, B.p.bloom), kind: e < 0.5 ? A.kind : B.kind
+  };
+}
+// The leg that holds a world point, and its path fraction (for the bake, which has no curve at hand).
+export function legAt(lay, x, z) {
+  let best = null, bd = Infinity;
+  for (const leg of lay.legs) {
+    const [a, b] = legLocal(leg, x, z);
+    const ra = Math.max(0, Math.abs(a) - (leg.hw + 2.5)), rb = Math.max(0, leg.cs - b, b - leg.ce);
+    const d = ra * ra + rb * rb;
+    if (d < bd) { bd = d; best = { leg, a, b }; if (d === 0) break; }
+  }
+  return best;
+}
+function sApprox(lay, x, z) {
+  const h = legAt(lay, x, z);
+  const { leg, b } = h;
+  const t = Math.max(0, Math.min(1, (b - leg.b0) / Math.max(1, leg.ce - leg.b0)));
+  return leg.s0 + (leg.s1 - leg.s0) * t;
 }
 
-// The whole gallery, as a grid of blocks. Returns the meshes and the anchors for the alcoves.
+// ---- the grid --------------------------------------------------------------------------------------
+const ih = (i, j, k, s = 0) => {
+  let h = (i * 374761393 + j * 668265263 + k * 2147483647 + s * 1274126177) | 0;
+  h = Math.imul(h ^ (h >>> 13), 1274126177); h ^= h >>> 16;
+  return (h >>> 0) % 1000;
+};
+const pickW = (h, table) => { for (const [lim, t] of table) if (h < lim) return t; return table[table.length - 1][1]; };
+const WALLS = {
+  1: [[150, T_COBBLE], [230, T_MOSSY], [560, T_BRICK], [700, T_BRICK_MOSSY], [1000, T_BRICK_CRACK]],
+  2: [[300, T_COBBLE], [560, T_STONE], [620, T_MOSSY], [720, T_DIRT], [850, T_COAL], [920, T_IRON], [1000, T_COBBLE]],
+  3: [[330, T_BRICK], [700, T_BRICK_CRACK], [850, T_COBBLE], [960, T_BRICK_MOSSY], [1000, T_OBS]],
+  4: [[420, T_BRICK_MOSSY], [650, T_MOSSY], [880, T_BRICK], [1000, T_BRICK_CRACK]],
+  5: [[700, T_MOSSY], [1000, T_COBBLE]],
+  6: [[620, T_BRICK], [740, T_BRICK_CRACK], [840, T_BRICK_MOSSY], [1000, T_COBBLE]],
+  7: [[300, T_STONE], [550, T_COBBLE], [700, T_OBS], [880, T_NETHER], [1000, T_BEDROCK]],
+  8: [[400, T_BRICK], [650, T_COBBLE], [1000, T_BRICK_CRACK]],
+  9: [[380, T_NBRICK], [840, T_NETHER], [880, T_GLOW], [940, T_OBS], [1000, T_NETHER]]
+};
+function wallType(style, i, j, k) { return pickW(ih(i, j, k, 7), WALLS[style] || WALLS[1]); }
+
+export const isOpen = (t) => t === T_AIR || t === T_WATER || t === T_LAVA;
+const TEX_OF = {
+  [T_STONE]: ["stone"], [T_COBBLE]: ["cobblestone"], [T_MOSSY]: ["cobblestone_mossy"], [T_BRICK]: ["stonebrick"],
+  [T_BRICK_MOSSY]: ["stonebrick_mossy"], [T_BRICK_CRACK]: ["stonebrick_cracked"], [T_GRAVEL_FLOOR]: ["stone", "gravel"],
+  [T_COAL]: ["coal_ore"], [T_IRON]: ["iron_ore"], [T_OBS]: ["obsidian"], [T_BEDROCK]: ["bedrock"], [T_NETHER]: ["netherrack"],
+  [T_GLOW]: ["glowstone"], [T_BRIDGE]: ["stonebrick"], [T_NBRICK]: ["nether_brick"], [T_SOUL]: ["soul_sand"],
+  [T_SHELF]: ["bookshelf", "planks_oak", "planks_oak"], [T_PLANK]: ["planks_oak"], [T_LOG]: ["log_oak", "log_oak_top", "log_oak_top"],
+  [T_DIRT]: ["dirt"]
+};
+
 export function buildGrid(lay) {
-  const k0 = lay.kEnd - 6, k1 = lay.kStart + 6;
-  const i0 = -8, i1 = 8, j0 = -8, j1 = 7;
-  const a = { k0, NK: k1 - k0 + 1, i0, NI: i1 - i0 + 1, j0, NJ: j1 - j0 + 1 };
-  a.g = new Uint8Array(a.NK * a.NJ * a.NI);
-  // Fill: solid everywhere, air in the corridor.
-  for (let k = k0; k <= k1; k++) for (let j = j0; j <= j1; j++) for (let i = i0; i <= i1; i++) {
-    let t = wallType(i, j, k);
-    if (j === 4) { const c = hash(`c${i}|${k}`) % 10; t = c < 2 ? T_BRICK_CRACK : c < 4 ? T_BRICK_MOSSY : T_BRICK; }   // the vault
-    if (j === -1) t = T_BRICK;                                                   // floor base
-    if (j === -8 || j === 7 || i === -8 || i === 8 || k === k0 || k === k1) t = T_BEDROCK;
-    setCell(a, i, j, k, t);
+  // Bounds from every leg's corners, with room for pockets and passages.
+  let xmin = 1e9, xmax = -1e9, zmin = 1e9, zmax = -1e9, ymin = 0, ymax = 0;
+  for (const leg of lay.legs) {
+    const ext = leg.hw + 14;
+    for (const a of [-ext, ext]) for (const b of [leg.cs - 2, leg.ce + 2]) {
+      const [x, z] = legMap(leg, a, b);
+      xmin = Math.min(xmin, x); xmax = Math.max(xmax, x); zmin = Math.min(zmin, z); zmax = Math.max(zmax, z);
+    }
+    ymin = Math.min(ymin, Math.min(leg.y0, leg.yEnd) - (leg.kind === "chasm" ? CHASM_DEPTH + 3 : 4));
+    ymax = Math.max(ymax, leg.y0 + leg.ht + 9);
   }
-  const carve = (i, j, k, t = T_AIR) => setCell(a, i, j, k, t);
-  for (let k = lay.kStart + 5; k >= lay.kEnd - 5; k--) {
-    // Corridor: air from floor top to the ceiling, with the top-of-floor as gravel.
-    for (let i = -CORRIDOR_HALF; i <= CORRIDOR_HALF - 1; i++) for (let j = 0; j <= 3; j++) carve(i, j, k);
-    for (let i = -CORRIDOR_HALF; i <= CORRIDOR_HALF - 1; i++) setCell(a, i, -1, k, T_GRAVEL_FLOOR);
-    // The stone-brick path down the middle of the gallery.
-    setCell(a, -1, -1, k, T_BRICK); setCell(a, 0, -1, k, T_BRICK);
+  const i0 = Math.floor(xmin) - 2, i1 = Math.ceil(xmax) + 2, k0 = Math.floor(zmin) - 2, k1 = Math.ceil(zmax) + 2;
+  const j0 = ymin - 2, j1 = ymax;
+  const a = { i0, NI: i1 - i0 + 1, k0, NK: k1 - k0 + 1, j0, NJ: j1 - j0 + 1 };
+  a.g = new Uint8Array(a.NK * a.NJ * a.NI).fill(T_WALL);
+  a.st = new Uint8Array(a.g.length);
+  a.lay = lay;
+  const inb = (i, j, k) => i >= a.i0 && i < a.i0 + a.NI && j >= a.j0 && j < a.j0 + a.NJ && k >= a.k0 && k < a.k0 + a.NK;
+  const idx = (i, j, k) => ((k - a.k0) * a.NJ + (j - a.j0)) * a.NI + (i - a.i0);
+  const get = (i, j, k) => (inb(i, j, k) ? a.g[idx(i, j, k)] : T_BEDROCK);
+  const set = (i, j, k, t) => { if (inb(i, j, k)) a.g[idx(i, j, k)] = t; };
+  a.get = get; a.set = set; a.inb = inb;
+  a.solid = (i, j, k) => !isOpen(get(i, j, k));
+  a.torches = []; a.decor = []; a.sources = []; a.emit = []; a.spots = { water: [], lava: [], fire: [], drip: [], passages: [] };
+  a.lavaCells = []; a.waterRects = []; a.lavaRects = []; a.holes = [];
+
+  const decor = (o) => a.decor.push(o);
+  // Local cell setter: leg, local cell (lu, lv), height j.
+  const L = (leg, lu, lv, j, t) => { const [i, k] = legCell(leg, lu, lv); set(i, j, k, t); };
+  const LG = (leg, lu, lv, j) => { const [i, k] = legCell(leg, lu, lv); return get(i, j, k); };
+  const W3 = (leg, aa, bb, y) => { const [x, z] = legMap(leg, aa, bb); return [x, y, z]; };
+  const dirw = (leg, fa, fb) => { const p = legMap(leg, fa, fb), q = legMap(leg, 0, 0); return [p[0] - q[0], p[1] - q[1]]; };
+
+  // A wall torch on a block face: the wall cell (local), and the side it faces (local a direction +-1).
+  function torchAt(leg, lu, lv, j, faceA, opts = {}) {
+    const [fx, fz] = dirw(leg, faceA, 0);
+    const [i, k] = legCell(leg, lu, lv);
+    if (!a.solid(i, j, k) || a.solid(i + fx, j, k + fz)) return false;
+    pushTorch(i, j, k, fx, fz, opts);
+    return true;
   }
-  // Alcoves: pockets on each side for every slot, with a solid back wall.
-  // A cell i spans x in [i, i+1]. The right pocket is cells 3 and 4 (x 3 to 5) with its back at cell 5;
-  // the left pocket is cells -4 and -5 (x -5 to -3) with its back at cell -6. The stone stands at x = side * 4.2.
-  for (const s of lay.slots) {
-    const inner = s.side > 0 ? [3, 4] : [-4, -5];
-    const back = s.side > 0 ? 5 : -6;
-    for (let k = s.k - 1; k <= s.k + 1; k++) for (let j = 0; j <= 3; j++) {
-      carve(inner[0], j, k); carve(inner[1], j, k);
-      setCell(a, back, j, k, wallType(back, j, k));
+  function pushTorch(i, j, k, fx, fz, opts = {}) {
+    const cx = i + 0.5 + fx * 0.5, cz = k + 0.5 + fz * 0.5;
+    const tip = [cx + fx * 0.35, j + 0.845, cz + fz * 0.35];
+    a.torches.push({ i, j, k, fx, fz, x: tip[0], y: tip[1], z: tip[2], cx, cz, ...opts });
+    const s = opts.I != null ? opts.I : 4.4;
+    a.sources.push({ x: tip[0] + fx * 0.2, y: tip[1] + 0.15, z: tip[2] + fz * 0.2, c: [1.0, 0.56, 0.24], I: s, R: 12, dyn: true });
+    a.emit.push({ k: "torch", x: tip[0], y: tip[1] + 0.02, z: tip[2] });
+  }
+
+  // 1. Carve every leg's corridor, with its floor, ceiling and the style of its walls.
+  for (const leg of lay.legs) {
+    const { hw, ht, y0 } = leg;
+    // Style of the surrounding stone, marked before carving.
+    for (let lv = leg.cs - 4; lv < leg.ce + 4; lv++) for (let lu = -hw - 4; lu < hw + 4; lu++) {
+      const [i, k] = legCell(leg, lu, lv);
+      const lo = leg.kind === "chasm" ? y0 - CHASM_DEPTH - 3 : Math.min(y0, leg.yEnd) - 4, hi = y0 + ht + 3;
+      for (let j = lo; j <= hi; j++) if (inb(i, j, k) && !a.st[idx(i, j, k)]) a.st[idx(i, j, k)] = leg.style;
     }
   }
-  // Each alcove mouth is framed by two stone-brick pillars in the corridor's edge, with a slab across the top.
-  for (const s of lay.slots) {
-    const px = s.side > 0 ? 2 : -3;
-    for (const k of [s.k - 2, s.k + 2]) {
-      for (let j = 0; j <= 2; j++) setCell(a, px, j, k, j === 0 ? T_BRICK_MOSSY : T_BRICK);
-    }
-    for (let k = s.k - 2; k <= s.k + 2; k++) setCell(a, px, 3, k, T_BRICK);
-  }
-  // Holes in the ceiling for the sky.
-  for (const hk of lay.holes) for (let k = hk - 1; k <= hk + 1; k++) for (let i = -1; i <= 1; i++) carve(i, 4, k);
-  // Set pieces.
-  for (const sg of lay.segs) {
-    const kA = sg.k0, kB = sg.k1;
-    if (sg.kind === "chasm") {
-      for (let k = kA; k >= kB; k--) {
-        for (let i = -CORRIDOR_HALF; i <= CORRIDOR_HALF - 1; i++) {
-          if (i === -1 || i === 0) { setCell(a, i, -1, k, T_BRIDGE); continue; }
-          for (let j = -6; j <= -1; j++) carve(i, j, k);
+  for (const leg of lay.legs) {
+    const { hw, ht, y0, kind } = leg;
+    for (let lv = leg.cs; lv < leg.ce; lv++) {
+      const yf = floorTop(leg, lv);
+      for (let lu = -hw; lu < hw; lu++) {
+        let floorT = T_BRICK, airFrom = yf;
+        const hv = ih(lu, lv, leg.idx, 3);
+        const centre = lu === -1 || lu === 0;
+        if (kind === "crypt") floorT = centre ? (hv < 250 ? T_BRICK_CRACK : hv < 420 ? T_BRICK_MOSSY : T_BRICK) : T_GRAVEL_FLOOR;
+        else if (kind === "mine") floorT = centre && hv < 500 ? T_DIRT : T_GRAVEL_FLOOR;
+        else if (kind === "ossuary") floorT = hv < 300 ? T_BRICK_CRACK : hv < 420 ? T_GRAVEL_FLOOR : T_BRICK;
+        else if (kind === "flood") {
+          if (lu >= -1 && lu <= 0) floorT = hv < 300 ? T_BRICK_MOSSY : T_BRICK;
+          else { floorT = T_GRAVEL_FLOOR; airFrom = yf - 1; }
+        } else if (kind === "dungeon") floorT = hv < 650 ? T_MOSSY : T_COBBLE;
+        else if (kind === "library") floorT = hv < 160 ? T_BRICK_CRACK : T_BRICK;
+        else if (kind === "chasm") {
+          if (lu >= -2 && lu < 2) floorT = T_BRIDGE;
+          else { floorT = T_AIR; airFrom = y0 - CHASM_DEPTH; }
+        } else if (kind === "stairs") floorT = hv < 200 ? T_BRICK_CRACK : T_BRICK;
+        else if (kind === "deep") {
+          if (lu === -hw || lu === hw - 1) { floorT = T_LAVA; airFrom = yf - 1; }
+          else floorT = hv < 560 ? T_SOUL : hv < 840 ? T_NETHER : T_NBRICK;
         }
-        for (let j = -7; j <= -6; j++) for (let i = -CORRIDOR_HALF; i <= CORRIDOR_HALF - 1; i++) {
-          if (i === -1 || i === 0) continue;
-          setCell(a, i, j, k, j === -7 ? T_NETHER : T_BEDROCK);
+        for (let j = airFrom; j < yf + ht; j++) L(leg, lu, lv, j, T_AIR);
+        if (kind === "chasm" && floorT === T_AIR) {
+          L(leg, lu, lv, y0 - CHASM_DEPTH - 1, T_BEDROCK);
+          L(leg, lu, lv, y0 - CHASM_DEPTH, T_LAVA);
+          a.lavaCells.push([lu, lv]);
+        } else if (kind === "deep" && floorT === T_LAVA) {
+          L(leg, lu, lv, yf - 1, T_LAVA); L(leg, lu, lv, yf - 2, T_OBS);
+        } else {
+          L(leg, lu, lv, airFrom - 1, floorT === T_AIR ? T_BRICK : floorT);
+          if (kind === "flood" && airFrom < yf) { L(leg, lu, lv, yf - 1, T_AIR); L(leg, lu, lv, airFrom - 1, T_GRAVEL_FLOOR); }
         }
       }
     }
-    if (sg.kind === "pool") {
-      for (let k = kA; k >= kB; k--) for (let i = -2; i <= 1; i++) {
-        carve(i, -1, k); setCell(a, i, -2, k, T_STONE);
+  }
+
+  // Alcoves: a pocket two cells deep with a solid back, framed by two pillars and a lintel.
+  const free = (leg) => ({ 1: new Set(), "-1": new Set() }); // rows used on each side
+  for (const leg of lay.legs) {
+    leg.used = free(leg);
+    const { hw, y0, kind } = leg;
+    for (const s of leg.slots) {
+      const sd = s.side, inner = sd > 0 ? [hw, hw + 1] : [-hw - 1, -hw - 2];
+      const pil = sd > 0 ? hw - 1 : -hw;
+      for (let lv = s.lvc - 1; lv <= s.lvc + 1; lv++) for (let j = y0; j <= y0 + 3; j++) { L(leg, inner[0], lv, j, T_AIR); L(leg, inner[1], lv, j, T_AIR); }
+      const pb = kind === "chasm" ? y0 - CHASM_DEPTH + 1 : kind === "flood" ? y0 - 1 : kind === "deep" ? y0 - 1 : y0;
+      for (const lv of [s.lvc - 2, s.lvc + 2]) for (let j = pb; j <= y0 + 2; j++) {
+        L(leg, pil, lv, j, kind === "deep" ? T_NBRICK : (j === y0 ? T_BRICK_MOSSY : T_BRICK));
       }
-    }
-    if (sg.kind === "lava") {
-      // The seam: a pocket in the right wall, with lava behind iron bars.
-      for (let k = kA - 1; k >= kB + 1; k--) for (let j = 0; j <= 2; j++) { carve(3, j, k); carve(4, j, k); }
-    }
-    if (sg.kind === "deep") {
-      for (let k = kA; k >= kB; k--) {
-        for (let i = -4; i <= 3; i++) for (let j = -1; j <= 4; j++) {
-          if (i >= -3 && i <= 2 && j >= 0 && j <= 3) continue;
-          const h = hash(`n${i}|${j}|${k}`) % 100;
-          setCell(a, i, j, k, h < 8 ? T_GLOW : (h < 40 ? T_NETHER : cell(a, i, j, k)));
-        }
-      }
+      for (let lv = s.lvc - 2; lv <= s.lvc + 2; lv++) L(leg, pil, lv, y0 + 3, kind === "deep" ? T_NBRICK : T_BRICK);
+      for (let lv = s.lvc - 3; lv <= s.lvc + 3; lv++) leg.used[sd].add(lv);
+      // The torch: on the corridor face of the rear pillar, level with the lintel's underside.
+      s.torch = false;
     }
   }
+
+  // 2. Passages: a narrow corridor off the wall, checked against everything already carved.
+  for (const leg of lay.legs) {
+    for (const p of leg.passages) {
+      const { side, lv } = p, hw = leg.hw, y0 = leg.y0;
+      const a0 = side > 0 ? hw : -hw - 1;
+      let clear = true;
+      for (let q = 0; q <= p.len + 1 && clear; q++) for (let w = -1; w <= 2 && clear; w++) for (let j = y0 - 1; j <= y0 + 3 && clear; j++) {
+        const lu = side > 0 ? hw + q : -hw - 1 - q;
+        if (LG(leg, lu, lv + w, j) !== T_WALL) clear = false;
+      }
+      if (!clear) continue;
+      p.ok = true;
+      for (let q = 0; q < p.len; q++) {
+        const lu = side > 0 ? hw + q : -hw - 1 - q;
+        for (let w = 0; w < 2; w++) {
+          for (let j = y0; j <= y0 + 2; j++) L(leg, lu, lv + w, j, T_AIR);
+          L(leg, lu, lv + w, y0 - 1, leg.kind === "deep" ? T_NETHER : T_COBBLE);
+        }
+      }
+      for (let q = -1; q <= p.len + 1; q++) for (let w = -2; w <= 3; w++) {
+        const lu = side > 0 ? hw + q : -hw - 1 - q;
+        const [ci, ck] = legCell(leg, lu, lv + w);
+        for (let j = y0 - 3; j <= y0 + 5; j++) if (inb(ci, j, ck)) { const ix = idx(ci, j, ck); if (a.st[ix] === 0 || a.st[ix] === leg.style) a.st[ix] = leg.style; }
+      }
+      const [mx, my, mz] = W3(leg, side * (hw + 0.5), lv + 1, y0);
+      const [ex, , ez] = W3(leg, side * (hw + p.len - 0.5), lv + 1, y0);
+      p.mouth = [mx, my, mz]; p.end = [ex, my, ez];
+      const dd = dirw(leg, -side, 0);
+      a.spots.passages.push({ mouth: [mx, my, mz], end: [ex, my, ez], dir: dd, leg: leg.idx, side, s: null, rowsB: lv + 1 });
+      // A torch at the far end, on its wall, and a cobweb or two.
+      const luEnd = side > 0 ? hw + p.len : -hw - 1 - p.len;
+      torchAt(leg, luEnd, lv, y0 + 1, -side, { I: 2.6 });
+      decor({ t: "web", x: ex, y: y0 + 2.5, z: ez, ry: Math.PI / 2 + legYaw(leg), w: 1.1 });
+      lay.corners.push({ kind: "passage", x: mx, y: y0, z: mz, dx: dd[0], dz: dd[1], side, leg: leg.idx });
+    }
+  }
+
+  // 3. Holes in the ceiling: the violet sky cracks.
+  for (const leg of lay.legs) {
+    for (const hb of leg.holesAt) {
+      const yTop = leg.y0 + leg.ht;
+      for (let lv = hb - 1; lv <= hb + 1; lv++) for (let lu = -1; lu <= 1; lu++) for (let j = yTop; j <= a.j0 + a.NJ - 1; j++) L(leg, lu, lv, j, T_AIR);
+      const [x, , z] = W3(leg, 0.5, hb + 0.5, 0);
+      a.holes.push({ x: x - 0.0, z, y: yTop, leg: leg.idx, hb });
+      for (let q = 0; q < 3; q++) a.sources.push({ x: x + (q - 1) * 0.9, y: yTop + 0.6, z: z + (q % 2 ? 0.6 : -0.6), c: [0.60, 0.46, 1.0], I: 4.6, R: 13, sky: true });
+    }
+  }
+
+  // 4. Set dressing, segment by segment.
+  for (const leg of lay.legs) dressLeg(a, lay, leg, { L, LG, W3, dirw, torchAt, pushTorch, decor, legCell, set, get });
+
+  // 5. A torch for each stone: on the corridor face of the rear pillar. Fewer in the cold entrance and the ossuary.
+  for (const leg of lay.legs) for (const s of leg.slots) {
+    const { hw, y0, kind } = leg;
+    const every = kind === "crypt" ? 2 : kind === "ossuary" ? 2 : 1;
+    if (s.i % every && !(kind === "crypt" && s.i === 0)) continue;
+    const pil = s.side > 0 ? hw - 1 : -hw;
+    const I = kind === "crypt" ? 3.2 : 4.4;
+    if (torchAt(leg, pil, s.lvc + 2, y0 + 2, -s.side, { I })) s.torch = true;
+    else if (torchAt(leg, pil, s.lvc - 2, y0 + 2, -s.side, { I })) s.torch = true;
+  }
+
+  // Lava sources and lava planes from the cells recorded by the legs.
+  for (const leg of lay.legs) {
+    if (leg.kind === "chasm") {
+      const yL = leg.y0 - CHASM_DEPTH + 0.9;
+      const xs = [];
+      for (const [lu, lv] of a.lavaCells) if (lu % 3 === 0 && lv % 3 === 0) xs.push([lu, lv]);
+      for (const [lu, lv] of xs) { const [x, , z] = W3(leg, lu + 0.5, lv + 0.5, 0); a.sources.push({ x, y: yL + 0.6, z, c: [1.0, 0.36, 0.08], I: 4.2, R: 12, lava: true, dyn: true }); }
+      const [xa, , za] = W3(leg, -leg.hw, leg.cs, 0), [xb, , zb] = W3(leg, leg.hw, leg.ce, 0);
+      a.lavaRects.push({ x0: Math.min(xa, xb), x1: Math.max(xa, xb), z0: Math.min(za, zb), z1: Math.max(za, zb), y: yL - 0.15 });
+      a.spots.lava.push([ (xa + xb) / 2, yL, (za + zb) / 2 ]);
+    }
+  }
+  if (lay.sOf) { for (const c of lay.corners) if (c.s == null) c.s = lay.sOf(c.x, c.y + 1.5, c.z); for (const p of a.spots.passages) p.s = lay.sOf(p.mouth[0], p.mouth[1] + 1.5, p.mouth[2]); }
   return a;
 }
 
-// Mesh the grid: one BufferGeometry per texture key, faces only where air touches solid.
-const FACE_UV = {
-  "+x": (k, j, i) => [k, j], "-x": (k, j, i) => [-k, j],
-  "+y": (k, j, i) => [i, k], "-y": (k, j, i) => [i, -k],
-  "+z": (k, j, i) => [i, j], "-z": (k, j, i) => [-i, j]
-};
-const TEX_OF = {
-  [T_STONE]: ["stone.png"], [T_COBBLE]: ["cobblestone.png"], [T_MOSSY]: ["cobblestone_mossy.png"],
-  [T_BRICK]: ["stonebrick.png"], [T_BRICK_MOSSY]: ["stonebrick_mossy.png"], [T_BRICK_CRACK]: ["stonebrick_cracked.png"],
-  [T_GRAVEL_FLOOR]: ["stone.png", "gravel.png"], [T_COAL]: ["stone.png", null, "coal_ore.png"], [T_IRON]: ["stone.png", null, "iron_ore.png"],
-  [T_OBS]: ["obsidian.png"], [T_BEDROCK]: ["bedrock.png"], [T_NETHER]: ["netherrack.png"], [T_GLOW]: ["glowstone.png"],
-  [T_BRIDGE]: ["stonebrick.png"]
-};
-export function meshGrid(a, images, { shadows = true } = {}) {
+// ---- the dressing of each segment (grid blocks, torches, decor lists) ----------------------------------
+function dressLeg(a, lay, leg, H) {
+  const { L, LG, W3, dirw, torchAt, decor, legCell, set, get } = H;
+  const { hw, y0, kind, ht } = leg;
+  const rowsFree = (side, lv) => !leg.used[side].has(lv) && !leg.passages.some(p => p.ok && p.side === side && lv >= p.lv - 1 && lv <= p.lv + 2);
+  const lo = leg.b0 + leg.pre, hi = leg.contentEnd;
+  const yaw = legYaw(leg);
+  const rnd = (i, s) => ih(i, leg.idx, s, 11) / 1000;
+  const wallCell = (side) => (side > 0 ? hw : -hw - 1);
+  const edgeCell = (side) => (side > 0 ? hw - 1 : -hw);
+
+  if (kind === "crypt") {
+    // The gate arch at the entrance: iron bars between two brick piers and a lintel.
+    for (const lu of [-hw, hw - 1]) for (let j = y0; j <= y0 + 2; j++) { L(leg, lu, 3, j, T_BRICK); L(leg, lu, 4, j, T_BRICK); }
+    for (let lu = -hw; lu < hw; lu++) { L(leg, lu, 3, y0 + 3, T_BRICK); L(leg, lu, 4, y0 + 3, T_BRICK); }
+    for (const sd of [-1, 1]) torchAt(leg, edgeCell(sd), 4, y0 + 2, -sd, { I: 3.0 });
+    // The two pier torches face the corridor; the lintel and the piers frame the first view.
+    const [bx, by, bz] = W3(leg, 0, 4.0, y0);
+    decor({ t: "bars", x: bx - 0.0, y: by + 1.4, z: bz, ry: yaw + Math.PI / 2, w: 4.0, h: 2.8, open: true });
+    for (let q = 0; q < 6; q++) decor({ t: "web", x: W3(leg, (q % 2 ? 1 : -1) * (hw - 0.2), 4 + q * 3.2, 0)[0], y: y0 + 3.4, z: W3(leg, (q % 2 ? 1 : -1) * (hw - 0.2), 4 + q * 3.2, 0)[2], ry: yaw + (q % 2 ? -1 : 1) * Math.PI / 4, w: 1.4 });
+    for (let lv = lo; lv < hi; lv += 3) {
+      const sd = lv % 2 ? 1 : -1;
+      if (rowsFree(sd, lv)) { const [x, y, z] = W3(leg, sd * (hw - 0.04), lv + 0.5, y0 + 2.2); decor({ t: "vine", x, y, z, ry: yaw + sd * Math.PI / 2, w: 1.0, h: 1.4 }); }
+    }
+  }
+
+  if (kind === "mine") {
+    // Support frames: a log post at the edge of the free stretch and a plank beam across the roof.
+    for (const s of leg.slots) {
+      const lv = s.lvc + 4, sd = s.side;
+      if (!rowsFree(sd, lv) || !rowsFree(sd, lv + 1)) continue;
+      for (let j = y0; j <= y0 + 2; j++) L(leg, edgeCell(sd), lv, j, T_LOG);
+      for (let lu = -hw; lu < hw; lu++) if (LG(leg, lu, lv, y0 + 3) === T_AIR) L(leg, lu, lv, y0 + 3, T_PLANK);
+      torchAt(leg, wallCell(-sd), lv, y0 + 2, sd, { I: 3.6 });
+      decor({ t: "web", x: W3(leg, -sd * (hw - 0.3), lv + 0.5, 0)[0], y: y0 + 3.1, z: W3(leg, -sd * (hw - 0.3), lv + 0.5, 0)[2], ry: yaw + Math.PI / 4, w: 1.5 });
+    }
+    // Rails down the middle, a minecart, a heap of rubble where the roof gave way.
+    for (let lv = lo - 2; lv < hi; lv++) { const [x, y, z] = W3(leg, 0, lv + 0.5, y0); decor({ t: "rail", x, y: y + 0.02, z, ry: leg.h === "N" ? 0 : Math.PI / 2 }); }
+    const mid = Math.round((lo + hi) / 2);
+    const [cx, cy, cz] = W3(leg, 0.25, mid + 0.5, y0);
+    decor({ t: "cart", x: cx, y: cy + 0.06, z: cz, ry: yaw + 0.12 });
+    const rub = Math.min(hi - 3, lo + 3);
+    for (let lv = rub; lv < rub + 2; lv++) for (let lu = -hw; lu < -hw + 2; lu++) {
+      if (rowsFree(-1, lv) && LG(leg, lu, lv, y0) === T_AIR) { L(leg, lu, lv, y0, rnd(lu + lv, 1) < 0.5 ? T_COBBLE : T_GRAVEL_FLOOR); if (lu === -hw) L(leg, lu, lv, y0 + 1, T_COBBLE); }
+    }
+    for (let q = 0; q < 5; q++) { const lv = lo + 1 + q * 3; const sd = q % 2 ? 1 : -1; const [x, y, z] = W3(leg, sd * 1.6, lv + 0.5, y0); decor({ t: "rubble", x, y, z, s: 0.35 + rnd(q, 2) * 0.3, ry: q }); }
+    // A beam that has come down, one end on the floor.
+    const [fx, fy, fz] = W3(leg, 1.2, hi - 2.5, y0 + 1.3);
+    decor({ t: "beam", x: fx, y: fy, z: fz, ry: yaw + 0.3, rz: 0.75, len: 3.1 });
+  }
+
+  if (kind === "ossuary") {
+    // Wall niches with skulls and bones, two high, in the free stretches.
+    for (const sd of [-1, 1]) for (let lv = lo + 1; lv < hi; lv++) {
+      if (!rowsFree(sd, lv) || !rowsFree(sd, lv - 1) || !rowsFree(sd, lv + 1)) continue;
+      if ((lv + (sd > 0 ? 1 : 0)) % 2) continue;
+      const lu = wallCell(sd), [ci, ck] = legCell(leg, lu, lv);
+      for (let j = y0 + 1; j <= y0 + 2; j++) if (a.solid(ci, j, ck)) L(leg, lu, lv, j, T_AIR);
+      for (let j = y0 + 1; j <= y0 + 2; j++) {
+        const [x, y, z] = W3(leg, sd * (hw + 0.5), lv + 0.5, y0);
+        const r = rnd(lv * 3 + j, sd + 5);
+        if (r < 0.78) decor({ t: "skull", x, y: j, z, ry: yaw + sd * Math.PI / 2 + (r - 0.4) * 0.8 });
+        if (r > 0.45) decor({ t: "bone", x: x + (r - 0.6) * 0.2, y: j + 0.02, z: z + 0.1, ry: r * 6 });
+      }
+      const [wx, wy, wz] = W3(leg, sd * (hw + 0.95), lv + 0.5, y0 + 2.5);
+      if (rnd(lv, 9) < 0.5) decor({ t: "web", x: W3(leg, sd * (hw + 0.1), lv + 0.5, 0)[0], y: y0 + 2.7, z: W3(leg, sd * (hw + 0.1), lv + 0.5, 0)[2], ry: yaw + sd * Math.PI / 2, w: 0.9 });
+      void wx; void wy; void wz;
+    }
+    // Bones across the floor, cobwebs in the roof.
+    for (let q = 0; q < 26; q++) {
+      const lv = lo + 0.5 + rnd(q, 3) * (hi - lo), lu = (rnd(q, 4) - 0.5) * (hw * 1.7);
+      const [x, y, z] = W3(leg, lu, lv, y0);
+      decor({ t: "bone", x, y: y + 0.02, z, ry: rnd(q, 5) * 6.28 });
+    }
+    for (let q = 0; q < 8; q++) {
+      const lv = lo + 1 + q * ((hi - lo) / 8), sd = q % 2 ? 1 : -1; const [x, , z] = W3(leg, sd * (hw - 0.3), lv, 0);
+      decor({ t: "web", x, y: y0 + 3.4, z, ry: yaw + sd * Math.PI / 4, w: 1.6 });
+    }
+    // A heap of skulls on the floor by the middle of the hall.
+    const [hx, hy, hz] = W3(leg, -1.9, (lo + hi) / 2 + 2, y0);
+    for (let q = 0; q < 7; q++) decor({ t: "skull", x: hx + (rnd(q, 6) - 0.5) * 0.9, y: hy + (q > 3 ? 0.46 : 0), z: hz + (rnd(q, 7) - 0.5) * 0.9, ry: rnd(q, 8) * 6.28 });
+  }
+
+  if (kind === "flood") {
+    // Water on the sides of the causeway, lily pads, free columns, drips from the roof.
+    const [xa, , za] = W3(leg, -hw, leg.cs + 1, 0), [xb, , zb] = W3(leg, hw, leg.ce - 1, 0);
+    a.waterRects.push({ x0: Math.min(xa, xb), x1: Math.max(xa, xb), z0: Math.min(za, zb), z1: Math.max(za, zb), y: y0 - 0.3 });
+    a.spots.water.push(W3(leg, 0, (lo + hi) / 2, y0));
+    for (let lv = lo + 1; lv < hi; lv += 6) for (const lu of [-3, 2]) {
+      const sd = lu < 0 ? -1 : 1;
+      if (!rowsFree(sd, lv) || !rowsFree(sd, lv + 1)) continue;
+      for (let j = y0 - 1; j < y0 + ht; j++) L(leg, lu, lv, j, j === y0 - 1 ? T_BRICK_MOSSY : (rnd(lv + j, lu) < 0.3 ? T_BRICK_MOSSY : T_BRICK));
+      torchAt(leg, lu, lv, y0 + 3, lu < 0 ? 1 : -1, { I: 3.8 });
+    }
+    for (let q = 0; q < 34; q++) {
+      const lv = lo + rnd(q, 12) * (hi - lo), lu = (rnd(q, 13) < 0.5 ? -1 : 1) * (1.3 + rnd(q, 14) * (hw - 2.0));
+      const [x, y, z] = W3(leg, lu, lv, y0 - 0.28); decor({ t: "lily", x, y, z, ry: rnd(q, 15) * 6.28 });
+    }
+    for (let q = 0; q < 14; q++) {
+      const lv = lo + 1 + rnd(q, 16) * (hi - lo - 2), lu = (rnd(q, 17) - 0.5) * 2 * (hw - 1.4);
+      const [x, , z] = W3(leg, lu, lv, 0);
+      a.emit.push({ k: "drip", x, y: y0 + ht - 0.1, z, floorY: y0 - 0.3 });
+      a.spots.drip.push([x, y0 + 1, z]);
+    }
+    for (let q = 0; q < 8; q++) { const sd = q % 2 ? 1 : -1; const lv = lo + 1 + q * ((hi - lo) / 8); const [x, , z] = W3(leg, sd * (hw - 0.2), lv, 0); decor({ t: "vine", x, y: y0 + 3.3, z, ry: yaw + sd * Math.PI / 2, w: 1.0, h: 1.8 }); }
+  }
+
+  if (kind === "dungeon") {
+    // The spawner on a mossy pedestal, free columns, four torches on the walls.
+    const mid = Math.round((leg.b0 + leg.ce) / 2) - 1;
+    for (const lu of [-3, -2]) for (const lv of [mid, mid + 1]) L(leg, lu, lv, y0, T_MOSSY);
+    const [sx, sy, sz] = W3(leg, -2.0, mid + 1.0, y0 + 1);
+    decor({ t: "spawner", x: sx, y: sy, z: sz });
+    a.sources.push({ x: sx, y: sy + 0.8, z: sz, c: [1.0, 0.52, 0.22], I: 3.4, R: 11, dyn: true });
+    a.emit.push({ k: "spawner", x: sx, y: sy + 1.0, z: sz });
+    a.spots.fire.push([sx, sy + 0.5, sz]);
+    for (let lv = leg.b0 + leg.pre + 3; lv < leg.contentEnd; lv += 4) for (const lu of [-4, 3]) {
+      for (let j = y0; j < y0 + ht; j++) L(leg, lu, lv, j, ih(lu, lv, j, 5) < 300 ? T_MOSSY : T_COBBLE);
+    }
+    for (const sd of [-1, 1]) for (const lv of [leg.b0 + 1, leg.contentEnd + 2]) torchAt(leg, wallCell(sd), lv, y0 + 2, -sd, { I: 4.4 });
+    for (let q = 0; q < 10; q++) {
+      const lv = lo + 1 + q * ((hi - lo) / 10), sd = q % 2 ? 1 : -1; const [x, , z] = W3(leg, sd * (hw - 0.25), lv, 0);
+      decor({ t: "vine", x, y: y0 + 2.2 + (q % 3) * 0.2, z, ry: yaw + sd * Math.PI / 2, w: 1.2, h: 1.6 });
+      decor({ t: "web", x: W3(leg, -sd * (hw - 0.3), lv + 1, 0)[0], y: y0 + ht - 0.6, z: W3(leg, -sd * (hw - 0.3), lv + 1, 0)[2], ry: yaw + Math.PI / 4, w: 1.6 });
+    }
+  }
+
+  if (kind === "library") {
+    // Bookshelves three high along the free walls, beams across the roof, bars over the passage mouth.
+    for (const sd of [-1, 1]) for (let lv = lo; lv < hi + 1; lv++) {
+      if (!rowsFree(sd, lv)) continue;
+      if (leg.passages.some(p => p.ok && p.side === sd && lv >= p.lv - 2 && lv <= p.lv + 3)) continue;
+      const lu = edgeCell(sd);
+      for (let j = y0; j <= y0 + 2; j++) if (LG(leg, lu, lv, j) === T_AIR) L(leg, lu, lv, j, T_SHELF);
+      if (lv % 5 === 2) torchAt(leg, wallCell(sd), lv, y0 + 3, -sd, { I: 4.4 });
+    }
+    for (let lv = lo + 1; lv < hi; lv += 4) {
+      const [x, y, z] = W3(leg, 0, lv + 0.5, y0 + ht - 0.2);
+      decor({ t: "beam", x, y, z, ry: yaw, rz: 0, len: hw * 2 - 0.3 });
+    }
+    for (const p of leg.passages) if (p.ok) {
+      const [x, y, z] = W3(leg, p.side * (hw + 0.1), p.lv + 1, y0);
+      decor({ t: "bars", x, y: y + 1.0, z, ry: yaw + Math.PI / 2 + Math.PI / 2, w: 2.0, h: 2.0 });
+    }
+    for (let q = 0; q < 9; q++) {
+      const lv = lo + q * ((hi - lo) / 9), sd = q % 2 ? 1 : -1; const [x, , z] = W3(leg, sd * (hw - 0.3), lv, 0);
+      decor({ t: "web", x, y: y0 + ht - 0.6, z, ry: yaw + sd * Math.PI / 4, w: 1.6 });
+    }
+  }
+
+  if (kind === "chasm") {
+    // Parapet posts along the bridge with torches, obsidian at either end.
+    for (let lv = leg.b0 + 1; lv < leg.ce - 1; lv += 5) for (const lu of [-2, 1]) {
+      const sd = lu < 0 ? -1 : 1;
+      L(leg, lu, lv, y0, T_OBS); L(leg, lu, lv, y0 + 1, T_OBS);
+      torchAt(leg, lu, lv, y0 + 1, -sd, { I: 4.2 });
+    }
+    a.spots.fire.push(...a.spots.lava);
+  }
+
+  if (kind === "stairs") {
+    for (let lv = leg.stairsAt + 1; lv < leg.stairsAt + STAIR_LEN; lv += 4) for (const sd of [-1, 1]) {
+      const yf = floorTop(leg, lv);
+      torchAt(leg, wallCell(sd), lv, yf + 2, -sd, { I: 4.4 });
+    }
+    for (const sd of [-1, 1]) torchAt(leg, wallCell(sd), leg.b0 + 1, y0 + 2, -sd, { I: 3.6 });
+  }
+
+  if (kind === "deep") {
+    // Glowstone in the roof, fire on the netherrack, torches thin: the lava does the lighting.
+    for (let lv = leg.cs + 1; lv < leg.ce - 1; lv++) for (let lu = -hw + 1; lu < hw - 1; lu++) {
+      const h = ih(lu, lv, leg.idx, 21);
+      const yf = floorTop(leg, lv);
+      if (h < 55) { L(leg, lu, lv, yf + ht, T_GLOW); a.sources.push({ ...(() => { const [x, , z] = W3(leg, lu + 0.5, lv + 0.5, 0); return { x, y: yf + ht - 0.3, z }; })(), c: [1.0, 0.82, 0.46], I: 3.2, R: 11 }); }
+      else if (h < 70 && LG(leg, lu, lv, yf + ht - 1) === T_AIR && lv > lo) { L(leg, lu, lv, yf + ht - 1, T_GLOW); const [x, , z] = W3(leg, lu + 0.5, lv + 0.5, 0); a.sources.push({ x, y: yf + ht - 1, z, c: [1.0, 0.82, 0.46], I: 3.2, R: 11 }); }
+    }
+    for (let lv = lo; lv < hi + 3; lv++) for (let lu = -hw + 1; lu < hw - 1; lu++) {
+      if (LG(leg, lu, lv, y0 - 1) !== T_NETHER) continue;
+      if (ih(lu, lv, leg.idx, 31) < 70 && Math.abs(lu + 0.5) > 1.2) {
+        const [x, y, z] = W3(leg, lu + 0.5, lv + 0.5, y0);
+        decor({ t: "fire", x, y, z });
+        a.sources.push({ x, y: y + 0.6, z, c: [1.0, 0.48, 0.16], I: 2.6, R: 9, dyn: true });
+        a.emit.push({ k: "fire", x, y: y + 0.7, z });
+        a.spots.fire.push([x, y + 0.5, z]);
+      }
+    }
+    for (let lv = leg.cs; lv < leg.ce; lv++) for (const lu of [-hw, hw - 1]) {
+      if (LG(leg, lu, lv, y0 - 1) === T_LAVA && lv % 3 === 0) {
+        const [x, , z] = W3(leg, lu + 0.5, lv + 0.5, 0);
+        a.sources.push({ x, y: y0 + 0.3, z, c: [1.0, 0.34, 0.07], I: 3.4, R: 10, lava: true, dyn: true });
+        a.lavaRects.push({ x0: x - 0.5, x1: x + 0.5, z0: z - 0.5, z1: z + 0.5, y: y0 - 0.12 });
+        if (lv % 6 === 0) { a.spots.lava.push([x, y0, z]); a.emit.push({ k: "lava", x, y: y0 - 0.05, z }); }
+      }
+    }
+    for (const sd of [-1, 1]) for (let lv = lo + 3; lv < hi; lv += 8) if (rowsFree(sd, lv)) torchAt(leg, wallCell(sd), lv, y0 + 2, -sd, { I: 3.8 });
+  }
+}
+
+// ---- the bake ---------------------------------------------------------------------------------------
+// A solid test along a ray through the grid (cell centres, Amanatides and Woo).
+function makeVisible(a) {
+  return (x0, y0, z0, x1, y1, z1) => {
+    let i = Math.floor(x0), j = Math.floor(y0), k = Math.floor(z0);
+    const ie = Math.floor(x1), je = Math.floor(y1), ke = Math.floor(z1);
+    const dx = x1 - x0, dy = y1 - y0, dz = z1 - z0;
+    const sx = dx > 0 ? 1 : -1, sy = dy > 0 ? 1 : -1, sz = dz > 0 ? 1 : -1;
+    const adx = Math.abs(dx), ady = Math.abs(dy), adz = Math.abs(dz);
+    let tx = adx > 1e-9 ? ((sx > 0 ? i + 1 - x0 : x0 - i) / adx) : Infinity;
+    let ty = ady > 1e-9 ? ((sy > 0 ? j + 1 - y0 : y0 - j) / ady) : Infinity;
+    let tz = adz > 1e-9 ? ((sz > 0 ? k + 1 - z0 : z0 - k) / adz) : Infinity;
+    const ddx = adx > 1e-9 ? 1 / adx : Infinity, ddy = ady > 1e-9 ? 1 / ady : Infinity, ddz = adz > 1e-9 ? 1 / adz : Infinity;
+    for (let n = 0; n < 48; n++) {
+      if (i === ie && j === je && k === ke) return true;
+      if (tx < ty && tx < tz) { i += sx; tx += ddx; } else if (ty < tz) { j += sy; ty += ddy; } else { k += sz; tz += ddz; }
+      if (i === ie && j === je && k === ke) return true;
+      if (a.solid(i, j, k)) return false;
+    }
+    return true;
+  };
+}
+
+// lightAt(x, y, z, nx, ny, nz) -> [r, g, b]: the ambient of the segment plus every source in reach, with occlusion.
+export function makeLightAt(a) {
+  const lay = a.lay, BIN = 13;
+  const bins = new Map();
+  const key = (i, j, k) => (i + 512) * 1048576 + (j + 512) * 1024 + (k + 512);
+  for (const s of a.sources) {
+    const kk = key(Math.floor(s.x / BIN), Math.floor(s.y / BIN), Math.floor(s.z / BIN));
+    if (!bins.has(kk)) bins.set(kk, []);
+    bins.get(kk).push(s);
+  }
+  const vis = makeVisible(a);
+  const out = [0, 0, 0];
+  const lightAt = (x, y, z, nx, ny, nz, o = {}) => {
+    const s = sApprox(lay, x, z);
+    const pr = profileAt(lay, s);
+    out[0] = pr.amb[0]; out[1] = pr.amb[1]; out[2] = pr.amb[2];
+    // A touch of hemisphere: faces that look up are brighter than those looking down.
+    const hm = 1 + 0.28 * ny;
+    out[0] *= hm; out[1] *= hm; out[2] *= hm;
+    const bi = Math.floor(x / BIN), bj = Math.floor(y / BIN), bk = Math.floor(z / BIN);
+    for (let di = -1; di <= 1; di++) for (let dj = -1; dj <= 1; dj++) for (let dk = -1; dk <= 1; dk++) {
+      const list = bins.get(key(bi + di, bj + dj, bk + dk));
+      if (!list) continue;
+      for (const sc of list) {
+        const lx = sc.x - x, ly = sc.y - y, lz = sc.z - z;
+        const d2 = lx * lx + ly * ly + lz * lz;
+        if (d2 > sc.R * sc.R) continue;
+        const d = Math.sqrt(d2);
+        let ndl = d > 1e-4 ? (nx * lx + ny * ly + nz * lz) / d : 1;
+        if (o.omni) ndl = 0.7;
+        if (ndl <= -0.15) continue;
+        ndl = Math.max(0, ndl) * 0.85 + 0.15;
+        const win = Math.max(0, 1 - (d2 / (sc.R * sc.R)) ** 2);
+        let I = sc.I * (sc.sky ? 1 : (sc.lava || sc.c[2] > 0.8 ? 1 : pr.torch));
+        const att = I * win * win / (d2 + 0.7);
+        if (att < 0.004) continue;
+        if (!vis(x, y, z, sc.x, sc.y, sc.z)) continue;
+        const f = att * ndl * (sc.dyn ? 0.62 : 1);
+        out[0] += sc.c[0] * f; out[1] += sc.c[1] * f; out[2] += sc.c[2] * f;
+      }
+    }
+    return out;
+  };
+  return lightAt;
+}
+
+// ---- meshing -----------------------------------------------------------------------------------------
+const AO = [0.42, 0.62, 0.8, 1.0];
+export const bakeUniform = { value: 1 };
+
+// Adds the baked light to a Lambert or Standard material as emissive-times-albedo from a per-vertex 'bake' attribute
+// (or a fixed vec3 when the object has none).
+export function patchBake(mat, { fixed = null } = {}) {
+  mat.onBeforeCompile = (sh) => {
+    sh.uniforms.uBakeGain = bakeUniform;
+    if (fixed) sh.uniforms.uBakeFixed = { value: fixed };
+    sh.vertexShader = sh.vertexShader
+      .replace("#include <common>", fixed ? "#include <common>" : "#include <common>\nattribute vec3 bake;\nvarying vec3 vBake;")
+      .replace("#include <begin_vertex>", fixed ? "#include <begin_vertex>" : "#include <begin_vertex>\nvBake = bake;");
+    sh.fragmentShader = sh.fragmentShader
+      .replace("#include <common>", (fixed ? "#include <common>\nuniform vec3 uBakeFixed;" : "#include <common>\nvarying vec3 vBake;") + "\nuniform float uBakeGain;")
+      .replace("#include <emissivemap_fragment>", "#include <emissivemap_fragment>\ntotalEmissiveRadiance += diffuseColor.rgb * " + (fixed ? "uBakeFixed" : "vBake") + " * uBakeGain;");
+  };
+  mat.customProgramCacheKey = () => (fixed ? "bakeF" : "bakeV");
+  return mat;
+}
+
+export function meshGrid(a, images) {
   const group = new THREE.Group();
   const bins = new Map();
-  const bin = (file) => {
-    if (!bins.has(file)) bins.set(file, { pos: [], nor: [], uv: [] });
-    return bins.get(file);
+  const bin = (file) => { if (!bins.has(file)) bins.set(file, { pos: [], nor: [], uv: [], bake: [] }); return bins.get(file); };
+  const lightAt = makeLightAt(a);
+  const AX = [[1, 0, 0], [0, 1, 0], [0, 0, 1]];
+  const resolve = (i, j, k) => {
+    const t = a.g[((k - a.k0) * a.NJ + (j - a.j0)) * a.NI + (i - a.i0)];
+    return t === T_WALL ? wallType(a.st[((k - a.k0) * a.NJ + (j - a.j0)) * a.NI + (i - a.i0)], i, j, k) : t;
   };
-  const dirs = [[1, 0, 0, "+x"], [-1, 0, 0, "-x"], [0, 1, 0, "+y"], [0, -1, 0, "-y"], [0, 0, 1, "+z"], [0, 0, -1, "-z"]];
-  for (let k = a.k0; k <= a.k0 + a.NK - 1; k++) for (let j = a.j0; j < a.j0 + a.NJ; j++) for (let i = a.i0; i < a.i0 + a.NI; i++) {
-    const t = cell(a, i, j, k);
-    if (!t || t === T_WATER) continue;
-    const names = TEX_OF[t] || ["stone.png"];
-    for (const [di, dj, dk, dir] of dirs) {
-      const ni = i + di, nj = j + dj, nk = k + dk;
-      if (ni < a.i0 || ni >= a.i0 + a.NI || nj < a.j0 || nj >= a.j0 + a.NJ || nk < a.k0 || nk >= a.k0 + a.NK) continue;
-      if (cell(a, ni, nj, nk) !== T_AIR) continue;
-      // Which face: top = +y gets names[1] (the gravel), the ore sides get names[2].
-      let file = names[0];
-      if (dir === "+y" && names[1]) file = names[1];
-      if (names[2] && dir !== "+y" && dir !== "-y") file = names[2];
-      if (!file) file = names[0];
-      if (dir === "+y" && t === T_GRAVEL_FLOOR) file = "gravel.png";
+  const dirs = [[1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], [0, 0, 1], [0, 0, -1]];
+  for (let k = a.k0 + 1; k < a.k0 + a.NK - 1; k++) for (let j = a.j0 + 1; j < a.j0 + a.NJ - 1; j++) for (let i = a.i0 + 1; i < a.i0 + a.NI - 1; i++) {
+    const raw = a.g[((k - a.k0) * a.NJ + (j - a.j0)) * a.NI + (i - a.i0)];
+    if (raw === T_AIR || raw === T_WATER || raw === T_LAVA) continue;
+    let tt = null;
+    for (const [di, dj, dk] of dirs) {
+      const n = a.g[((k + dk - a.k0) * a.NJ + (j + dj - a.j0)) * a.NI + (i + di - a.i0)];
+      if (n !== T_AIR && n !== T_WATER && n !== T_LAVA) continue;
+      if (tt === null) tt = resolve(i, j, k);
+      const names = TEX_OF[tt] || TEX_OF[T_STONE];
+      const top = dj > 0, bot = dj < 0;
+      const file = top ? (names[1] || names[0]) : bot ? (names[2] || names[1] && tt !== T_GRAVEL_FLOOR ? (names[2] || names[1]) : names[0]) : names[0];
       const b = bin(file);
-      // The cell spans x in [i, i+1], y in [j, j+1], z in [k, k+1]. The walk goes toward -z (deeper rows
-      // have smaller k), so a face toward a row at k+1 sits at z+1 and faces +z.
-      const x = i, y = j, z = k;
-      let quad, want;
-      if (di) {
-        const cx = di > 0 ? x + 1 : x;
-        quad = [[cx, y, z], [cx, y + 1, z], [cx, y + 1, z + 1], [cx, y, z + 1]];
-        want = [di, 0, 0];
-      } else if (dj) {
-        const cy = dj > 0 ? y + 1 : y;
-        quad = [[x, cy, z], [x + 1, cy, z], [x + 1, cy, z + 1], [x, cy, z + 1]];
-        want = [0, dj, 0];
-      } else {
-        const cz = dk > 0 ? z + 1 : z;
-        quad = [[x, y, cz], [x + 1, y, cz], [x + 1, y + 1, cz], [x, y + 1, cz]];
-        want = [0, 0, dk];
-      }
-      // Make the winding face outward.
-      const e1 = [quad[1][0] - quad[0][0], quad[1][1] - quad[0][1], quad[1][2] - quad[0][2]];
-      const e2 = [quad[2][0] - quad[0][0], quad[2][1] - quad[0][1], quad[2][2] - quad[0][2]];
+      const ax = di ? 0 : dj ? 1 : 2, sn = di + dj + dk;
+      const t1 = (ax + 1) % 3, t2 = (ax + 2) % 3;
+      const base = [i, j, k]; base[ax] += sn > 0 ? 1 : 0;
+      const corners = [[0, 0], [1, 0], [1, 1], [0, 1]];
+      const verts = corners.map(([c1, c2]) => { const p = base.slice(); p[t1] += c1; p[t2] += c2; return p; });
+      // Winding: make it face along the normal.
+      const e1 = [verts[1][0] - verts[0][0], verts[1][1] - verts[0][1], verts[1][2] - verts[0][2]];
+      const e2 = [verts[2][0] - verts[0][0], verts[2][1] - verts[0][1], verts[2][2] - verts[0][2]];
       const cr = [e1[1] * e2[2] - e1[2] * e2[1], e1[2] * e2[0] - e1[0] * e2[2], e1[0] * e2[1] - e1[1] * e2[0]];
-      const sgn = cr[0] * want[0] + cr[1] * want[1] + cr[2] * want[2];
-      const order = sgn >= 0 ? [0, 1, 2, 0, 2, 3] : [0, 2, 1, 0, 3, 2];
-      const uvf = FACE_UV[dir];
+      const order = (cr[0] * di + cr[1] * dj + cr[2] * dk) >= 0 ? [0, 1, 2, 0, 2, 3] : [0, 2, 1, 0, 3, 2];
+      // Light at the face centre, then the corner occlusion.
+      const cxm = i + 0.5 + di * 0.52, cym = j + 0.5 + dj * 0.52, czm = k + 0.5 + dk * 0.52;
+      const bl = tt === T_GLOW ? [1.7, 1.45, 0.9] : lightAt(cxm, cym, czm, di, dj, dk);
+      const bkr = bl[0], bkg = bl[1], bkb = bl[2];
+      const aos = corners.map(([c1, c2]) => {
+        const s1 = c1 ? 1 : -1, s2 = c2 ? 1 : -1;
+        const p = [i + di, j + dj, k + dk];
+        const q1 = p.slice(); q1[t1] += s1; const q2 = p.slice(); q2[t2] += s2; const q3 = p.slice(); q3[t1] += s1; q3[t2] += s2;
+        const o1 = a.solid(q1[0], q1[1], q1[2]) ? 1 : 0, o2 = a.solid(q2[0], q2[1], q2[2]) ? 1 : 0, o3 = a.solid(q3[0], q3[1], q3[2]) ? 1 : 0;
+        return AO[(o1 && o2) ? 0 : 3 - (o1 + o2 + o3)];
+      });
       for (const q of order) {
-        const [px, py, pz] = quad[q];
-        b.pos.push(px, py, pz);
-        b.nor.push(...want);
-        // Texture coordinates in block units: one tile per block.
-        const uu = dir[1] === "x" ? (dir[0] === "+" ? -pz : pz) : dir[1] === "y" ? px : px;
-        const vv = dir[1] === "y" ? pz : py;
+        const [px, py, pz] = verts[q];
+        b.pos.push(px, py, pz); b.nor.push(di, dj, dk);
+        const uu = di ? (di > 0 ? -pz : pz) : px, vv = dj ? pz : py;
         b.uv.push(uu, vv);
-        void uvf;
+        const ao = tt === T_GLOW ? 1 : aos[q];
+        b.bake.push(bkr * ao, bkg * ao, bkb * ao);
       }
     }
   }
-  const mats = [];
+  const disposables = [];
+  const mats = {};
   for (const [file, b] of bins) {
-    const img = images[file.replace(/\.png$/, "")];
+    const img = images[file];
     if (!img) continue;
     const tex = new THREE.Texture(img);
-    tex.colorSpace = THREE.SRGBColorSpace;
-    tex.magFilter = THREE.NearestFilter; tex.minFilter = THREE.NearestFilter;
+    tex.colorSpace = THREE.SRGBColorSpace; tex.magFilter = THREE.NearestFilter; tex.minFilter = THREE.NearestFilter;
     tex.wrapS = tex.wrapT = THREE.RepeatWrapping; tex.generateMipmaps = false; tex.needsUpdate = true;
     const g = new THREE.BufferGeometry();
     g.setAttribute("position", new THREE.Float32BufferAttribute(b.pos, 3));
     g.setAttribute("normal", new THREE.Float32BufferAttribute(b.nor, 3));
     g.setAttribute("uv", new THREE.Float32BufferAttribute(b.uv, 2));
-    const m = new THREE.Mesh(g, new THREE.MeshLambertMaterial({ map: tex }));
-    m.castShadow = shadows; m.receiveShadow = true;
-    group.add(m); mats.push(tex, g, m);
+    g.setAttribute("bake", new THREE.Float32BufferAttribute(b.bake, 3));
+    const m = new THREE.Mesh(g, patchBake(new THREE.MeshLambertMaterial({ map: tex })));
+    group.add(m); disposables.push(tex, g, m);
+    mats[file] = m;
   }
-  return { group, disposables: mats };
+  return { group, disposables, lightAt };
 }
 
-// World z of the centre of grid row k. The walk goes toward -z: deeper rows have smaller k and smaller z.
-export const worldZ = (k) => k + 0.5;
-
-// Torches are placed beside each alcove, on the corridor side of the wall, and at the entrance.
-// Each torch stands on the corridor face of its alcove's pillar, level with the alcove's mouth.
-export function torchSpots(lay) {
-  const out = [];
-  for (const s of lay.slots) {
-    out.push({ x: s.side * 1.5, y: 2.15, z: worldZ(s.k), side: s.side, slot: s.i, live: true });
-  }
-  out.push({ x: -1.5, y: 2.15, z: worldZ(lay.kStart - 2), side: -1, slot: -1, live: true });
-  out.push({ x: 1.5, y: 2.15, z: worldZ(lay.kStart - 2), side: 1, slot: -1, live: true });
-  return out;
-}
-
-export function alcoveFor(lay, s) {
-  return { x: s.side * 4.15, y: 0, z: worldZ(s.k), rot: s.side * Math.PI / 2 };
-}
-
-// The camera's path: the same as the gallery's centre, swaying a block either side.
-export function pathCurve(lay) {
-  const pts = [];
-  const z0 = worldZ(lay.kStart - 0.5), z1 = worldZ(lay.kEnd + 1);
-  for (let z = z0; z >= z1; z -= 1.5) pts.push(new THREE.Vector3(0.85 * Math.sin(-z / 17), 1.5, z));
-  pts.push(new THREE.Vector3(0.85 * Math.sin(-z1 / 17), 1.5, z1));
-  return new THREE.CatmullRomCurve3(pts, false, "centripetal");
-}
-
-// Sky: the shattered violet sky above the ceiling, and god-rays down through each hole.
-export function skyObjects(lay, skyTex, rayTex, floorTex = rayTex) {
-  const g = new THREE.Group();
-  const sky = new THREE.Mesh(new THREE.PlaneGeometry(260, 260), new THREE.MeshBasicMaterial({ map: skyTex, fog: false, depthWrite: false }));
-  sky.rotation.x = Math.PI / 2; sky.position.set(0, 42, -60);
-  g.add(sky);
-  for (const hk of lay.holes) {
-    for (let r = 0; r < 3; r++) {
-      const ray = new THREE.Mesh(new THREE.PlaneGeometry(1.6 + r * 0.7, 9.5),
-        new THREE.MeshBasicMaterial({ map: rayTex, transparent: true, opacity: 0.2 - r * 0.05, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide, fog: true, color: new THREE.Color(0.9, 0.8, 1.0) }));
-      ray.position.set((r - 1) * 0.9, 2.6, worldZ(hk));
-      ray.rotation.z = (r - 1) * 0.12; ray.rotation.x = 0.08;
-      g.add(ray);
-    }
-    // The lavender that falls through the crack, pooled on the stone-brick floor under it.
-    const pool = new THREE.Mesh(new THREE.CircleGeometry(2.4, 32),
-      new THREE.MeshBasicMaterial({ map: floorTex, transparent: true, opacity: 0.55, blending: THREE.AdditiveBlending, depthWrite: false, fog: true, color: new THREE.Color(0.85, 0.7, 1.0) }));
-    pool.rotation.x = -Math.PI / 2; pool.position.set(0, 0.04, worldZ(hk));
-    g.add(pool);
-    // Roots coming through the ceiling around the hole.
-    const rr = rng(hash("roots" + hk));
-    for (let n = 0; n < 4; n++) {
-      const len = 1.2 + rr() * 1.8;
-      const root = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.07, len, 5),
-        new THREE.MeshLambertMaterial({ color: 0x3f2a1b }));
-      root.position.set((rr() - 0.5) * 2.2, 4 - len / 2, worldZ(hk) + (rr() - 0.5) * 2.2);
-      root.rotation.set((rr() - 0.5) * 0.5, 0, (rr() - 0.5) * 0.6);
-      g.add(root);
-    }
-  }
-  return g;
-}
-
-// Set-piece dressing: rails and fence posts in the mineshaft, cobwebs, vines, the bars and lava of the seam,
-// the water of the pool. The walls are the grid; these are the decor on it.
-export function dressing(lay, images, { planeTex }) {
-  const g = new THREE.Group();
-  const r = rng(hash("dress"));
-  const mk = (tex, w, h, x, y, z, ry = 0, rx = 0, opts = {}) => {
-    const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshLambertMaterial({ map: tex, alphaTest: 0.5, side: THREE.DoubleSide, ...opts }));
-    m.position.set(x, y, z); m.rotation.set(rx, ry, 0); g.add(m);
-    return m;
-  };
-  const { lava, bars, web, vine, rail, water } = planeTex;
-  for (const sg of lay.segs) {
-    const zc = worldZ((sg.k0 + sg.k1) / 2);
-    if (sg.kind === "mineshaft") {
-      // Rails along the floor, fence posts (logs) on both sides, a collapse of gravel.
-      for (let z = sg.k0; z >= sg.k1; z -= 1) {
-        const m = mk(rail, 1, 1, 0, 0.02, worldZ(z), 0, -Math.PI / 2, { alphaTest: 0.3 });
-        m.rotation.z = Math.PI / 2;   // the rail texture runs along the corridor
-      }
-      for (let z = sg.k0; z >= sg.k1; z -= 2) {
-        for (const x of [-2.6, 2.6]) {
-          const post = new THREE.Mesh(new THREE.BoxGeometry(0.22, 3.1, 0.22), new THREE.MeshLambertMaterial({ color: 0x6b4b2e }));
-          post.position.set(x, 1.55, worldZ(z)); post.castShadow = true; g.add(post);
-          const beam = new THREE.Mesh(new THREE.BoxGeometry(5.4, 0.22, 0.22), new THREE.MeshLambertMaterial({ color: 0x6b4b2e }));
-          beam.position.set(0, 3.2, worldZ(z)); beam.castShadow = true;
-          if (x > 0) g.add(beam);
-        }
-      }
-      for (let n = 0; n < 9; n++) {
-        const gr = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.7, 0.7), new THREE.MeshLambertMaterial({ color: 0x7d7a76 }));
-        gr.position.set((r() - 0.5) * 4, 0.35, zc + (r() - 0.5) * 6);
-        gr.castShadow = true; g.add(gr);
-      }
-    }
-    if (sg.kind === "lava") {
-      // Iron bars across the pocket mouth, lava behind.
-      const zl = worldZ((sg.k0 + sg.k1) / 2);
-      mk(bars, 5.2, 2.6, 3.35, 1.4, zl, Math.PI / 2, 0, { color: 0xffffff });
-      const lt = lava.clone(); lt.repeat.set(5, 2.6 / 20); lt.needsUpdate = true;
-      const L = new THREE.Mesh(new THREE.PlaneGeometry(5, 2.6), new THREE.MeshBasicMaterial({ map: lt, color: new THREE.Color(1.6, 0.8, 0.35), side: THREE.DoubleSide }));
-      L.position.set(4.8, 1.3, zl); L.rotation.y = Math.PI / 2; g.add(L);
-      g.userData.lavaTex = lt;
-    }
-    if (sg.kind === "pool") {
-      const wt = water.clone(); wt.repeat.set(1, 1 / 32); wt.needsUpdate = true;
-      const W = new THREE.Mesh(new THREE.PlaneGeometry(4.6, Math.abs(sg.k0 - sg.k1)),
-        new THREE.MeshLambertMaterial({ map: wt, transparent: true, opacity: 0.62, color: 0x5d8799 }));
-      W.rotation.x = -Math.PI / 2; W.position.set(-0.5, -0.4, worldZ((sg.k0 + sg.k1) / 2)); g.add(W);
-      g.userData.waterTex = wt;
-    }
-  }
-  // Cobwebs in the top corners, and vines hanging from the walls.
-  for (const s of lay.slots) {
-    if (s.i % 2 === 0) {
-      mk(web, 1.2, 1.2, s.side * 1.95, 3.4, worldZ(s.k) + 1.4, s.side * Math.PI / 2);
-    }
-    mk(vine, 1.0, 1.4, s.side * 1.97, 2.3, worldZ(s.k) - 1.6, s.side * Math.PI / 2, 0, { color: 0xffffff });
-  }
-  for (const sg of lay.segs) {
-    for (let n = 0; n < 2; n++) mk(web, 1.6, 1.6, (r() < 0.5 ? -1 : 1) * 2.9, 3.5, worldZ(sg.k0 - 1 - n * 4), r() * 3);
-  }
-  return g;
-}
-
-export function sizeOf(lay) { return Math.abs(lay.kEnd - lay.kStart); }
+export const sizeOf = (lay) => lay.length;

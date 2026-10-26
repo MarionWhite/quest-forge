@@ -3,12 +3,13 @@
 Owns: site/graves/* except scares.js, scares/, tex/scare/ and the marked block in app.js.
 
 ## Done
-- window.__krypt stub + empty scares markers committed in app.js (fields filled in as the rewrite lands).
-- Design settled (not yet built): legs with 90-degree bends in krypt.js (cell mapping by heading N/W/E), 9 segments
-  (crypt, mineshaft, ossuary, flooded hall, dungeon spawner, library, chasm bridge, stair descent, nether depths),
-  baked vertex light + AO, 4 live point lights, wall torches from torch_on.png on real faces, drop sun/shadows/halos/bokeh.
+- window.__krypt stub + scares markers in app.js (committed).
+- krypt.js rewritten: legs with bends (N/W/E), 9 segments, passages, PROFILE (lighting by depth), bake (lightAt, AO),
+  slotFrame, pathCurve (arcs at bends), finishLayout (s for slots/corners), meshGrid with patchBake. Node-tested (/tmp/kt/t.mjs).
+- dress.js (torches, decor, water, lava, fire, spawner) and fx.js (particles) written, syntax-checked, not yet run in a browser.
+- textures copied into site/graves/tex (bookshelf, nether_brick, soul_sand, mob_spawner, fire_layer_0, minecart, bone, iron_block, lava_flow).
 
 ## Next
-1. krypt.js rewrite (layout legs, grid, bake, torches, dressing); 2. app.js (anchors in 3D, passing focus, lights by depth,
-audio gate + ambience, speaker toggle, __krypt fill); 3. textures to site/graves/tex (bookshelf, nether_brick, soul_sand,
-mob_spawner, fire_layer_0, planks, log, skeleton) ; 4. verify with dump_frames (--list, --sheet) ; 5. journal line.
+1. app.js: use new layout/anchors (3D), dress+fx, lights by profile, passing focus camera, remove sun/halos/bokeh/embers.
+2. kaudio.js + gate in index.html, speaker toggle, fill window.__krypt.
+3. verify with tools/site/dump_frames.py (--list, --sheet); fix once; node --check; journal line (ops/journal/site.md).
