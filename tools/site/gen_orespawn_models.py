@@ -96,9 +96,9 @@ def simulate(text, cname):
                 fields[f] = v
                 if isinstance(v, R) and v.name is None: v.name = f
         elif op.startswith('invoke'):
-            mm = re.search(r'Method ([\w/$]+)\.("?[\w<>$]+"?):(\(.*)$', rest)
+            mm = re.search(r'Method (?:([\w/$]+)\.)?("?[\w<>$]+"?):(\(.*)$', rest)
             if not mm: continue
-            cls, meth, desc = mm.group(1), mm.group(2).strip('"'), mm.group(3)
+            cls, meth, desc = mm.group(1) or '', mm.group(2).strip('"'), mm.group(3)
             args, ret = descr_args(desc)
             vals = [stack.pop() for _ in args][::-1]
             obj = stack.pop() if op != 'invokestatic' else None

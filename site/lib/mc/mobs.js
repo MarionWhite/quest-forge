@@ -283,7 +283,7 @@ const OS = (model, file, h, o = {}) => ({ os: model, tex: 'orespawn/' + file, h,
 export const OS_SPECS = {
   Mantis: OS('Mantis', 'Mantistexture.png', 2.0),
   Bee: OS('Bee', 'Beetexture.png', 0.9, { hover: 0.8, flap: true }),
-  Brutalfly: OS('Brutalfly', 'Brutalflytexture.png', 1.6, { hover: 0.8, flap: true }),
+  Brutalfly: OS('Brutalfly', 'Brutalflytexture.png', 1.6, { hover: 0.8, flap: true, lift: 0.9 }),
   CaterKiller: OS('CaterKiller', 'CaterKillertexture.png', 1.4),
   Cephadrome: OS('Cephadrome', 'Cephadrome.png', 1.5, { hover: 0.8, flap: true }),
   CloudShark: OS('CloudShark', 'CloudShark.png', 2.0, { hover: 0.8, flap: true }),
@@ -292,19 +292,19 @@ export const OS_SPECS = {
   EasterBunny: OS('EasterBunny', 'EasterBunnytexture.png', 1.6),
   Hammerhead: OS('Hammerhead', 'Hammerheadtexture.png', 2.2),
   Robot1: OS('Robot1', 'Robot1.png', 2.6),
-  Robot2: OS('Robot2', 'Robot2.png', 2.6),
-  Robot3: OS('Robot3', 'Robot3.png', 2.6),
-  Robot4: OS('Robot4', 'Robot4.png', 2.6),
+  Robot2: OS('Robot2', 'Robot2.png', 2.6, { glow: 0x30343f }),
+  Robot3: OS('Robot3', 'Robot3.png', 2.6, { glow: 0x30343f }),
+  Robot4: OS('Robot4', 'Robot4.png', 2.6, { glow: 0x30343f }),
   Robot5: OS('Robot5', 'Robot5texture.png', 2.0),
   Ant: OS('Ant', 'ant.png', 0.9),
   RedAnt: OS('Ant', 'red_ant.png', 0.9),
   RainbowAnt: OS('Ant', 'rainbow_ant.png', 0.9),
   UnstableAnt: OS('Ant', 'unstableant.png', 0.9),
   Termite: OS('Ant', 'termite.png', 0.9),
-  Rotator: OS('Rotator', 'Rotatortexture.png', 1.6, { hover: 0.8, spin: true }),
+  Rotator: OS('Rotator', 'Rotatortexture.png', 1.6, { hover: 0.8, spin: true, glow: 0x30343f }),
   LargeWorm: OS('WormLarge', 'WormLargetexture.png', 1.2),
   Mobzilla: OS('Godzilla', 'Godzillatexture.png', 4),
-  Mothra: OS('Butterfly', 'mothscale_1.png', 2.4, { hover: 0.8, flap: true, mothra: true }),
+  Mothra: OS('Butterfly', 'mothscale_1.png', 2.4, { hover: 0.8, flap: true, lift: 1.1, mothra: true }),
   GoldenAppleCow: { layers: [{ model: 'cow', tex: 'orespawn/gold_cow.png' }], anim: 'quad', kind: 'quad' },
   RedAppleCow: { layers: [{ model: 'cow', tex: 'orespawn/red_cow.png' }], anim: 'quad', kind: 'quad' },
   CrystalCow: { layers: [{ model: 'cow', tex: 'orespawn/crystal_cow.png' }], anim: 'quad', kind: 'quad' },
@@ -582,7 +582,7 @@ function buildOreSpawn(key, spec, opts) {
   const rig = new THREE.Group();
   group.add(rig);
   const data = OS_MODELS[spec.os];
-  const r = buildRig(data, loadTex(spec.tex), { color: opts.color ?? 0xffffff });
+  const r = buildRig(data, loadTex(spec.tex), { color: opts.color ?? 0xffffff, emissive: spec.glow, emissiveIntensity: 1 });
   // fit: ground the model and scale it to its target height
   rig.add(r.root);
   rig.updateMatrixWorld(true);
@@ -610,10 +610,12 @@ function osAnim(spec, P, c) {
   names.forEach((n, i) => {
     const g = P[n];
     if (!g || !g.userData.rest) return;
-    const left = /^(l|left)/i.test(n) || /^[a-z_]*l(wing|leg|arm)/i.test(n);
+    const left = /left/i.test(n) || (/^l[a-z]*(wing|leg|arm|foot|fin)/i.test(n) && !/^leg/i.test(n));
     const sgn = left ? 1 : -1;
     if (OS_FLAP.test(n) && !/tail/i.test(n)) {
-      if (spec.flap) addRot(g, 0, 0, sgn * sin(c.t * 14) * 0.45);
+      const base = spec.lift || 0;
+      // the wings of Brutalfly and Mothra are flat plates: lift them into a V so they read in 3/4
+      if (spec.flap) addRot(g, 0, 0, sgn * (base + sin(c.t * 14) * 0.45));
       else addRot(g, 0, 0, sgn * sin(c.t * 2) * 0.05);
     } else if (/leg|foot|toe|thigh/i.test(n) && !/spike/i.test(n)) addRot(g, sin(c.t * 5 * (c.o.walk ?? 1) + (left ? 0 : PI)) * 0.3 * (c.o.walk ?? 1));
     else if (/arm|claw|hand|jaw|mouth|pincer/i.test(n)) addRot(g, sin(c.t * 2.2 + i) * 0.08);
