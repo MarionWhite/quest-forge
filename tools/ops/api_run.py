@@ -14,11 +14,16 @@
     --reserve              needed for the reserve lane
     --dry-run              print the plan (command, ledger check) and exit; no key needed, no spend
 
-    Overflow (subscription limit reached):
+    Overflow (subscription nearly or fully used):
     --when-subscription-limited   only run if the subscription is known to be limited; otherwise exit 0
                                   doing nothing. Continuity lane only (auto-overflow is approved there,
-                                  within its daily allowance). "Known limited" = the marker file
-                                  ~/.qf/subscription-limited exists and has not expired, or --probe says so.
+                                  within its daily allowance). "Known limited" = the 5-hour session OR the
+                                  weekly limit is at or above --limit-pct (default 90, the owner's choice
+                                  2026-10-26: switch at 90 % so 10 % of the subscription stays in reserve),
+                                  or the marker file ~/.qf/subscription-limited exists and has not expired,
+                                  or --probe says so.
+    --limit-pct N                 the usage threshold, percent (default 90; env QF_LIMIT_PCT).
+    --usage                       print the subscription's current usage and whether it counts as limited.
     --mark-limited [ISO_TIME]     write the marker (default: expires in 5 h). Call it when a subscription
                                   session reports it hit the limit; then call api_run with
                                   --when-subscription-limited --checkpoint NAME to carry on.
@@ -48,6 +53,48 @@ DENIED = ("Bash(py -3.10 -I tools/trial/trial.py install*),Bash(git push*),"
           "Bash(py -3.10 -I tools/renderq/renderq.py *--busy-ok*)")
 
 LIMIT_WORDS = ("usage limit", "limit reached", "rate limit", "you've hit your", "quota")
+
+# Subscription usage, as Claude Code's /usage shows it. Read with the owner's own Claude Code login
+# (~/.claude/.credentials.json); the token is sent only to api.anthropic.com, never printed, logged or
+# passed to the child. The endpoint is undocumented: any failure means "unknown" and the marker/probe
+# rules still apply. An expired token is not refreshed here (that would rotate the owner's login).
+USAGE_URL = "https://api.anthropic.com/api/oauth/usage"
+CREDENTIALS = os.path.join(os.path.expanduser("~"), ".claude", ".credentials.json")
+DEFAULT_LIMIT_PCT = float(os.environ.get("QF_LIMIT_PCT") or 90)
+
+
+def subscription_usage():
+    """{"session": (pct, resets_at), "weekly": (pct, resets_at)} or None if it cannot be read."""
+    import urllib.request
+    try:
+        with open(CREDENTIALS, "r", encoding="utf-8") as f:
+            o = json.load(f).get("claudeAiOauth") or {}
+        tok = o.get("accessToken")
+        exp = o.get("expiresAt")
+        if not tok or (isinstance(exp, (int, float)) and exp / 1000.0 < dt.datetime.now().timestamp()):
+            return None
+        req = urllib.request.Request(USAGE_URL, headers={
+            "Authorization": "Bearer " + tok, "anthropic-beta": "oauth-2025-04-20",
+            "User-Agent": "quest-forge-api-run"})
+        with urllib.request.urlopen(req, timeout=20) as r:
+            d = json.load(r)
+    except Exception:
+        return None
+    out = {}
+    for key, name in (("five_hour", "session"), ("seven_day", "weekly")):
+        w = d.get(key) or {}
+        if isinstance(w.get("utilization"), (int, float)):
+            out[name] = (float(w["utilization"]), w.get("resets_at"))
+    return out or None
+
+
+def over_threshold(pct):
+    """(True/False/None, text). None = usage unknown."""
+    u = subscription_usage()
+    if not u:
+        return None, "subscription usage unknown"
+    text = ", ".join("%s %.0f%% (resets %s)" % (k, v[0], (v[1] or "?")[:16]) for k, v in u.items())
+    return any(v[0] >= pct for v in u.values()), text
 
 
 def find_claude(explicit=None):
@@ -144,9 +191,17 @@ def main(argv=None):
     ap.add_argument("--probe", action="store_true")
     ap.add_argument("--mark-limited", nargs="?", const="", metavar="ISO_TIME")
     ap.add_argument("--clear-limited", action="store_true")
+    ap.add_argument("--limit-pct", type=float, default=DEFAULT_LIMIT_PCT)
+    ap.add_argument("--usage", action="store_true")
     ap.add_argument("--claude")
     a = ap.parse_args(argv)
 
+    if a.usage:
+        hit, text = over_threshold(a.limit_pct)
+        print("%s; threshold %.0f%% -> %s; marker %s" % (
+            text, a.limit_pct, {True: "LIMITED (API overflow runs)", False: "not limited",
+                                None: "unknown"}[hit], "live" if limited_now() else "absent"))
+        return 0
     if a.clear_limited:
         try:
             os.remove(MARKER)
@@ -163,9 +218,12 @@ def main(argv=None):
     if a.when_subscription_limited:
         if a.lane != "continuity":
             sys.exit("--when-subscription-limited overflow is approved for the continuity lane only.")
-        if not limited_now() and not (a.probe and probe_limited(find_claude(a.claude))):
-            print("subscription not known to be limited; nothing to do (use --mark-limited when it is).")
+        hit, text = over_threshold(a.limit_pct)
+        if not (hit or limited_now() or (a.probe and probe_limited(find_claude(a.claude)))):
+            print("subscription not limited (%s; threshold %.0f%%); nothing to do." % (text, a.limit_pct))
             return 0
+        print("subscription limited (%s; threshold %.0f%%): running on API credits." % (text, a.limit_pct),
+              file=sys.stderr)
 
     ok, code, msg = ledger.check(a.lane, a.est_usd, a.reserve)
     if not ok:

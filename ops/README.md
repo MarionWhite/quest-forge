@@ -61,8 +61,10 @@ Daily allowance is the monthly budget divided by 30. Commands (all `py -3.10 -I 
   `trial.py install` and `git push` denied). Not `bypassPermissions`: the harness rules depend on tool limits.
 - Overflow: when a subscription session hits its limit it (or a workflow/scheduled task) runs
   `api_run.py --mark-limited`, then `api_run.py --lane continuity --model sonnet --task X --checkpoint X --when-subscription-limited`.
-  That does nothing unless the marker (`~/.qf/subscription-limited`, 5 h expiry) is live, and runs only within continuity's
-  daily allowance. `--probe` tests the subscription with a trivial call instead. `--clear-limited` removes the marker.
+  It runs when the 5-hour session or the weekly limit is at **90 % or more** (`--limit-pct`, env `QF_LIMIT_PCT`; read from
+  the same usage Claude Code's /usage shows, via the owner's local login, so 10 % stays in reserve), or when the marker
+  (`~/.qf/subscription-limited`, 5 h expiry) is live, and only within continuity's
+  daily allowance. `--probe` tests the subscription with a trivial call instead. `--clear-limited` removes the marker. `api_run.py --usage` prints the current percentages.
 - `batch.py submit JOBS.json [--dry-run]`, `status ID`, `fetch ID OUT_DIR`: one result file per `custom_id`,
   cost logged under lane `batch` at fetch (usage priced at the batch rate). Shared `system` text is prompt-cached.
   Job format is in the script's docstring. Tests: `py -3.10 -I tools/ops/test_ledger.py`.
