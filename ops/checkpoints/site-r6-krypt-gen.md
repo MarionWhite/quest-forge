@@ -1,5 +1,10 @@
 # site-r6-krypt-gen (checkpoint, started 2026-10-26, Mac)
 
+STATUS: done (2026-10-26). 46 kinds, 12 strata, 10,000 graves in 79 ms of plan; `node tools/site/check_krypt_plan.mjs` passes (no-repeat, determinism, append-only). Sheets: scratchpad r6/krypt-gen/f1, f2, fin, fin2.
+Open items for the owner/next round: water gaps look almost black; cycle name reads "Lower The Crypt"; stronghold portal side-room kind not re-implemented; draw-call/heap numbers at grave 9,000 and real phone timing not measured; gap-jump mid-arc and find-rush only checked by dump, not by CDP motion.
+Requests: none.
+
+
 Brief: `ops/briefs/site-3d-page.md`. Agent: sonnet.
 Spec: `docs/design/site/krypt-endless.md`. Read it first.
 Catalogue: `docs/design/site/krypt-structures.md`. The research task is writing it now. Start

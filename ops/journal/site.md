@@ -1,5 +1,7 @@
 # Site journal (newest first)
 
+- 2026-10-26 (Mac) site-r6-krypt-gen: the Krypt is endless. plan.js lays 10,000 graves as a deterministic append-only chain of legs (79 ms), krypt.js streams 48-block chunk windows (flat memory), 46 kinds in 12 strata (kinds.js, kinds_a.js, kinds_b.js on kindlib.js/kindreg.js), gaps with a jump arc and `krypt-gen` contract (`window.__krypt`), depth gauge, find rush, `?grave/at/stratum/kinds/leg`. Check: `tools/site/check_krypt_plan.mjs`. Not measured: phone timing, draw calls at grave 9,000.
+
 - 2026-10-26 (Mac) site-r6-audio: screams are now real voices. `tools/music/scream_pack.py` layers CC0 OpenGameArt recordings (male death/pain screams, deaths, screeches, retching, wet foley, bubbles) with octave-down doubles, crunch, boom and cave/room reverb: qf.scare.death_scream x6 (three end in a gurgle), jumpscreech x4, underwater x3, static loop, and recorded scream/scream_far/shriek; qf.mood.far_* (x5, bank-derived, flagged "mojang"), scamper, scrape, breath_near. Sources, authors and licences: `site/lib/sfx/sources.json` and README.md. Checked by spectrogram and levels only, not by ear.
 
 - 2026-10-26 (Mac) orchestrator: round 5 done. Critic rounds caught Steve hidden behind his own
