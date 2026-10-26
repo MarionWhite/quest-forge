@@ -15,7 +15,7 @@ import { createLight } from "./mood/light.js";
 import { farEvent, scamperEvent, breathEvent, scrapeEvent } from "./mood/events-sound.js";
 import { lightEvent } from "./mood/events-light.js";
 import { peekEvent, stillEvent, eyesEvent } from "./mood/events-visual.js";
-import { frameOf, findPeek, findHidden, findEyesSpot } from "./mood/geo.js";
+import { frameOf, clear, findPeek, findHidden, findEyesSpot } from "./mood/geo.js";
 
 const QS = new URLSearchParams(location.search);
 const MODE = QS.get("mood");
@@ -209,9 +209,26 @@ async function dumpMode(kind, ms) {
       { const rows = [], R = 20, e = fr.eye; for (let dz = -R; dz <= R; dz++) { let r = ""; for (let dx = -R; dx <= R; dx++) { const x = Math.round(e.x) + dx, z = Math.round(e.z) + dz;
           let ch = kr.solidAt(x, e.y, z) ? "#" : ".";
           if (dx === 0 && dz === 0) ch = "@"; for (const k of kr.corners || []) if (Math.round(k.pos.x) === x && Math.round(k.pos.z) === z) ch = k.kind === "bend" ? "B" : "P";
-          r += ch; } rows.push(r); } info.map = rows; info.fwd = [+fr.fwd.x.toFixed(2), +fr.fwd.z.toFixed(2)]; } findPeek(kr, fr, () => 0.5, 8, 34, info.dbg);
+          r += ch; } rows.push(r); } info.map = rows; info.fwd = [+fr.fwd.x.toFixed(2), +fr.fwd.z.toFixed(2)]; } findPeek(kr, fr, () => 0.5, 18, 30, info.dbg);
       info.near = (kr.corners || []).map((k) => { const d = k.pos.clone().sub(fr.eye); d.y = 0; const L = d.length(); return [k.kind, +L.toFixed(1), +(d.normalize().dot(fr.fwd)).toFixed(2), k.pos.toArray().map((x) => +x.toFixed(1))]; }).filter((a) => a[1] < 60).sort((a, b) => a[1] - b[1]).slice(0, 8); }
-    const ev = build(c, kind);
+    let ev = build(c, kind);
+    if (!ev) {   // dump only: walk the camera round the corners in view until the event has a place (the dump's own frame may stand in a bare corridor)
+      const cams = [], f0 = frameOf(kr), c0 = f0.eye.clone();
+      for (const k of kr.corners || []) for (const sg of [1, -1]) for (const D of [20, 23, 26, 29]) for (const lat of [0, -1, 1]) {
+        const f = f0.fwd.clone().multiplyScalar(sg), r = new THREE.Vector3(-f.z, 0, f.x);
+        const u0 = k.pos.clone().sub(c0).dot(f);
+        const p = c0.clone().addScaledVector(f, u0 - D).addScaledVector(r, lat);
+        if (kr.solidAt(p.x, p.y, p.z) || !kr.solidAt(p.x, k.pos.y - 0.4, p.z)) continue;
+        cams.push([p, new THREE.Vector3(p.x + f.x * 10, p.y, p.z + f.z * 10), k]);
+      }
+      info.seek = cams.length; info.dbg2 = {};
+      for (const [p, look] of cams.slice(0, 12)) { kr.camera.position.copy(p); kr.camera.lookAt(look.x, p.y - 0.1, look.z); kr.camera.updateMatrixWorld(true); findPeek(kr, frameOf(kr), () => 0.5, 18, 30, info.dbg2); }
+      for (const [p, look] of cams.slice(0, 60)) {
+        kr.camera.position.copy(p); kr.camera.lookAt(look.x, p.y - 0.1, look.z); kr.camera.updateMatrixWorld(true);
+        ev = build(c, kind);
+        if (ev) { info.seekCam = p.toArray().map((x) => +x.toFixed(1)); break; }
+      }
+    }
     if (!ev) errors.push("no place for " + kind + " from this camera (try another &at=)");
     else {
       if (ev.ready) await ev.ready;

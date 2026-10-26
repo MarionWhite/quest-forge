@@ -4,7 +4,7 @@
 import * as THREE from "three";
 import { makeMob, whenMobTexturesLoaded } from "../../lib/mc/mobs.js";
 import { patchBake } from "../krypt.js";
-import { at, clear, inView, offAxis, findPeek, findHidden, findEyesSpot, findSeen, cornersAhead } from "./geo.js";
+import { at, clear, inView, offAxis, findPeek, findHidden, findEyesSpot, findSeen, dark } from "./geo.js";
 
 const PEEK_MOB = { peek_zombie: "Zombie", peek_skeleton: "Skeleton", peek_creeper: "Creeper", peek_witch: "Witch", peek_enderman: "Enderman" };
 const ease = (x) => { x = Math.max(0, Math.min(1, x)); return x * x * (3 - 2 * x); };
@@ -16,7 +16,11 @@ function dressMob(id, amb) {
   const a = new THREE.Vector3(amb, amb * 0.92, amb * 0.9);
   m.root.traverse((o) => {
     if (!o.isMesh || !o.material) return;
-    for (const mt of Array.isArray(o.material) ? o.material : [o.material]) if (mt.isMeshLambertMaterial && patchBake) patchBake(mt, { fixed: a });
+    for (const mt of Array.isArray(o.material) ? o.material : [o.material]) {
+      if (!mt.isMeshLambertMaterial) continue;
+      if (patchBake) patchBake(mt, { fixed: a });
+      if (mt.emissive) mt.emissive.setRGB(0.028, 0.032, 0.05);   // a faint cold rim of light, no torchlight on it
+    }
   });
   const pivot = new THREE.Group(); pivot.rotation.order = "YXZ"; pivot.add(m.root);
   m.pivot = pivot; pivot.visible = false;
@@ -30,16 +34,22 @@ function dispose(ctx, m) { if (m && m.pivot) ctx.scene.remove(m.pivot); }
 
 export function peekEvent(ctx, kind) {
   const fr = ctx.frame(), rng = ctx.rng;
-  const spot = findPeek(ctx.kr, fr, rng, ctx.dump ? 8 : 12, ctx.dump ? 34 : 30);
+  const spot = findPeek(ctx.kr, fr, rng, 18, 30, null, kind === "peek_enderman" ? 2.9 : 1.8);
   if (!spot) return null;
-  const m = dressMob(PEEK_MOB[kind], 0.17);
+  const m = dressMob(PEEK_MOB[kind], 0.05);
   if (!m) return null;
   ctx.scene.add(m.pivot);
   const { P, H } = spot;
-  const hold = 1.0 + rng() * 0.8;
+  const hold = 0.6 + rng() * 0.6;
   const cur = H.clone();
   let phase = ctx.dump ? "out" : "armed", t0 = 0, lean = 0, quick = false, retractFrom = 0, armedFor = 0;
   const lateral = Math.sign(((P.x - H.x) * fr.fwd.z - (P.z - H.z) * fr.fwd.x)) || 1;
+  let eyes = null;
+  if (kind === "peek_enderman") {
+    eyes = new THREE.Group();
+    for (const dx of [-0.1, 0.1]) { const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: glow(), color: 0xc040ff, blending: THREE.AdditiveBlending, depthWrite: false, transparent: true, fog: false, opacity: 0 })); sp.scale.set(0.2, 0.12, 1); sp.userData.dx = dx; eyes.add(sp); }
+    ctx.scene.add(eyes);
+  }
   const head = () => cur.clone().setY(cur.y + (kind === "peek_enderman" ? 2.4 : 1.6));
   const ev = {
     dur: 40, ready: whenMobTexturesLoaded(), mob: m, spot,
@@ -48,8 +58,8 @@ export function peekEvent(ctx, kind) {
       const dist = Math.hypot(P.x - f.eye.x, P.z - f.eye.z);
       if (phase === "armed") {
         armedFor += dt;
-        if (armedFor > 16 || dist < 10.5) return true;
-        if (dist <= 31 && offAxis(f, hp) < 0.42 && inView(ctx.kr.camera, hp, 0.1)) { phase = "out"; t0 = t; }
+        if (armedFor > 16 || dist < 16) return true;
+        if (dist <= 31 && dist >= 17 && offAxis(f, hp) < 0.42 && inView(ctx.kr.camera, hp, 0.1)) { phase = "out"; t0 = t; }
       }
       if (phase === "out") {
         lean = ease((t - t0) / 0.8);
@@ -59,10 +69,10 @@ export function peekEvent(ctx, kind) {
         if (t - t0 > hold) { phase = "back"; t0 = t; retractFrom = 1; }
       } else if (phase === "back") {
         lean = retractFrom * (1 - ease((t - t0) / (quick ? 0.22 : 0.55)));
-        if (lean <= 0) { dispose(ctx, m); return true; }
+        if (lean <= 0) { dispose(ctx, m); if (eyes) ctx.scene.remove(eyes); return true; }
       }
       if ((phase === "out" || phase === "hold") && !ctx.dump) {
-        if (offAxis(f, hp) > 0.9 || dist < 9) { phase = "back"; t0 = t; retractFrom = lean; quick = true; }
+        if (offAxis(f, hp) > 0.8 || dist < 15) { phase = "back"; t0 = t; retractFrom = lean; quick = true; }
       }
       cur.lerpVectors(H, P, lean);
       cur.y += Math.sin(t * 1.7) * 0.01;
@@ -70,9 +80,13 @@ export function peekEvent(ctx, kind) {
       faceEye(m.pivot, f.eye, lateral * 0.2 * lean);
       m.pivot.visible = phase !== "armed" && lean > 0.001;
       if (m.anim) m.anim(t, dt, { walk: 0 });
+      if (eyes) {
+        const r = f.right, q = ev.mob.pivot.position, toE = new THREE.Vector3(f.eye.x - q.x, 0, f.eye.z - q.z).normalize();
+        for (const sp of eyes.children) { sp.position.set(q.x + r.x * sp.userData.dx + toE.x * 0.28, q.y + 2.52, q.z + r.z * sp.userData.dx + toE.z * 0.28); sp.material.opacity = m.pivot.visible ? 0.95 * Math.min(1, lean * 1.5) : 0; }
+      }
       return false;
     },
-    stop() { dispose(ctx, m); }
+    stop() { dispose(ctx, m); if (eyes) ctx.scene.remove(eyes); }
   };
   return ev;
 }
@@ -80,9 +94,9 @@ export function peekEvent(ctx, kind) {
 // A creeper that stands perfectly still in the dark. It is gone the next time it is in view.
 export function stillEvent(ctx) {
   const fr = ctx.frame(), rng = ctx.rng;
-  const spot = ctx.dump ? findSeen(ctx.kr, fr, rng, 9, 26) : findHidden(ctx.kr, fr, rng, 12, 28);
+  const spot = ctx.dump ? findSeen(ctx.kr, fr, rng, 9, 26) : findHidden(ctx.kr, fr, rng, 14, 28);
   if (!spot) return null;
-  const m = dressMob("Creeper", 0.14);
+  const m = dressMob("Creeper", 0.045);
   if (!m) return null;
   ctx.scene.add(m.pivot);
   m.pivot.position.copy(spot.P);

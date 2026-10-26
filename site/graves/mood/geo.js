@@ -78,28 +78,67 @@ function scatter(kr, c, r = 5.5, step = 0.8) {
 }
 const DIRS = []; for (let i = 0; i < 8; i++) DIRS.push(new THREE.Vector3(Math.cos(i * Math.PI / 4), 0, Math.sin(i * Math.PI / 4)));
 
-// Look for a peek: P where a head shows from the eye, H one step to the side where all of it is hidden behind a block.
-export function findPeek(kr, fr, rng, lo = 12, hi = 30, dbg = null) {
+// Torch positions (world), read once from the Krypt's merged torch meshes (20 vertices each) and cached per scene.
+let _torch = null;
+export function torches(kr) {
+  if (_torch && _torch.scene === kr.scene) return _torch.list;
+  const list = [];
+  kr.scene.traverse((o) => {
+    if (!o.isMesh || !o.material || !o.material.map || !o.material.map.image) return;
+    if (!/torch_on\.png/.test(o.material.map.image.src || "")) return;
+    const pos = o.geometry.attributes.position; if (!pos) return;
+    o.updateMatrixWorld();
+    for (let i = 0; i + 20 <= pos.count; i += 20) {
+      let x = 0, y = 0, z = 0;
+      for (let q = 16; q < 20; q++) { x += pos.getX(i + q); y += pos.getY(i + q); z += pos.getZ(i + q); }
+      list.push(new THREE.Vector3(x / 4, y / 4, z / 4).applyMatrix4(o.matrixWorld));
+    }
+  });
+  _torch = { scene: kr.scene, list };
+  return list;
+}
+// True when no torch lights this point (torchlight reaches about 7 blocks).
+export function dark(kr, p, reach = 7.5) {
+  for (const t of torches(kr)) if (Math.hypot(t.x - p.x, t.z - p.z) < reach && Math.abs(t.y - p.y) < 6) return false;
+  return true;
+}
+// Fraction of a body of height h standing at floor point P that the eye can see (18 rays), and whether the head shows.
+export function exposure(kr, eye, P, h = 1.8) {
+  const toEye = new THREE.Vector3(eye.x - P.x, 0, eye.z - P.z).normalize();
+  const side = new THREE.Vector3(-toEye.z, 0, toEye.x);
+  let seen = 0, n = 0, head = false;
+  for (const fy of [0.1, 0.3, 0.5, 0.7, 0.85, 0.95]) for (const lat of [-0.3, 0, 0.3]) {
+    n++;
+    const q = P.clone().addScaledVector(side, lat).setY(P.y + h * fy);
+    if (clear(kr, eye, q)) { seen++; if (fy >= 0.85 && lat === 0) head = true; }
+  }
+  return { frac: seen / n, head };
+}
+
+// Look for a peek: P where the head and one shoulder show (at most ~35% of the body), in the dark, 18 to 30 blocks off;
+// H a step to the side where all of it is hidden behind a block.
+export function findPeek(kr, fr, rng, lo = 18, hi = 30, dbg = null, h = 1.8) {
   const D = (k) => { if (dbg) dbg[k] = (dbg[k] || 0) + 1; };
   const found = [], eye = fr.eye;
-  let corners = cornersAhead(kr, fr, lo, hi);
+  let corners = cornersAhead(kr, fr, lo - 3, hi);
   if (corners.length > 4) corners = corners.sort(() => rng() - 0.5).slice(0, 4);
-  for (const { c, d } of corners) {
-    for (const P of scatter(kr, c)) {
-      const dist = Math.hypot(P.x - eye.x, P.z - eye.z);
-      if (dist < lo - 1 || dist > hi + 2) { D("range"); continue; }
-      const headP = P.clone().setY(P.y + 1.62);
-      if (!clear(kr, eye, headP)) { D("headP-blocked"); continue; }
+  for (const { c } of corners) {
+    for (const B of scatter(kr, c, 6, 0.8)) {
+      const dist = Math.hypot(B.x - eye.x, B.z - eye.z);
+      if (dist < lo - 1.5 || dist > hi + 1) { D("range"); continue; }
+      if (!dark(kr, B, 4)) { D("lit"); continue; }
+      if (exposure(kr, eye, B, h).frac > 0) { D("B-visible"); continue; }          // B is the hidden spot
       for (const dv of DIRS) {
-        D("tried");
-        const H = P.clone().addScaledVector(dv, 1.0);
-        if (!standable(kr, H)) { D("H-not-standable"); continue; }
-        if (clear(kr, eye, H.clone().setY(H.y + 1.62)) || clear(kr, eye, H.clone().setY(H.y + 0.9)) || clear(kr, eye, H.clone().setY(H.y + 0.3))) { D("H-visible"); continue; }
-        // the lean should read from the side: not straight toward or away from the eye
-        const toEye = new THREE.Vector3(eye.x - P.x, 0, eye.z - P.z).normalize();
-        if (Math.abs(dv.dot(toEye)) > 0.75) { D("lean-axis"); continue; }
-        found.push({ P, H, c, d: dist, dir: dv });
+        for (const t of [0.3, 0.6, 0.9, 1.2]) {
+          D("tried");
+          const P = B.clone().addScaledVector(dv, t);
+          if (!standable(kr, P)) break;
+          const ex = exposure(kr, eye, P, h);
+          if (ex.frac > 0.36) break;                      // further out only shows more
+          if (ex.head && ex.frac > 0.05) { found.push({ P, H: B.clone(), c, d: dist, dir: dv, frac: ex.frac }); break; }
+        }
       }
+      if (found.length > 12) break;
     }
   }
   if (!found.length) return null;
@@ -115,6 +154,7 @@ export function findHidden(kr, fr, rng, lo = 10, hi = 26) {
     for (const P of scatter(kr, c, 5, 1.0)) {
       const dist = Math.hypot(P.x - fr.eye.x, P.z - fr.eye.z);
       if (dist < lo || dist > hi + 2) continue;
+      if (!dark(kr, P, 6)) continue;
       if (clear(kr, fr.eye, P.clone().setY(P.y + 1.5)) || clear(kr, fr.eye, P.clone().setY(P.y + 0.8)) || clear(kr, fr.eye, P.clone().setY(P.y + 0.2))) continue;
       out.push({ P, c, d, dir: c.dir });
     }

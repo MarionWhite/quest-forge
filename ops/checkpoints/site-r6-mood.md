@@ -32,3 +32,9 @@ sounds.
 - Needs krypt-gen: app.js `import("./mood.js").then(m=>m.initMood({enabled, reduced}))`; `__krypt.light` (own fallback scales bakeUniform until then).
 - Needs audio: qf.mood.* (feature-detected; bank-sound fallback with echoes now). Not live-tested by ear.
 - Status: done except live listen/real-time check.
+- 2026-10-26 critic pass: glimpses now 18-30 blocks, dark spots only (no torch within 4 blocks), at most ~35% of the body past an edge,
+  faint cold rim only, enderman purple eyes, hold 0.6-1.2 s, retract on turn (>46 deg) or approach (<15 blocks); still creeper in a dark hidden spot;
+  event is skipped when no such spot exists. harness.html deleted (app.js import block has landed).
+  Final dump: r6/mood/crops_glimpses_v2.png (enderman, still creeper, spider eyes). Zombie/skeleton/creeper/witch found no spot in the dump's
+  corridor (torch-dense, few corners after krypt-gen's rewrite), so they are unframed; they run the same code path as the enderman. Not seen live.
+- Status: DONE (code committed; live check by the owner outstanding).
