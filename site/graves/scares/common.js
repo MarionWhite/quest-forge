@@ -1,6 +1,7 @@
 // Pieces several scares share: the freeze (the head settles where the walk stopped), the fall to the floor,
 // timing helpers, and the hearts' damage bookkeeping.
 import { THREE, track, clamp, lerp, sstep, wobble, loadImg } from "./rig.js";
+import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 
 // The freeze: from the pose the walk left (often turned to a stone) the head comes to rest looking down the corridor,
 // at the 1.62 m eye. Returns a base camera at t.
@@ -329,4 +330,51 @@ export function bipedSwing(m, p) {
   const f7 = Math.sin(f6 * Math.PI), hx = P.head ? -P.head.rotation.x : 0, f8 = Math.sin(p * Math.PI) * -(hx - 0.7) * 0.75;
   mcRot(P.rightArm, mx(P.rightArm) - (f7 * 1.2 + f8), my(P.rightArm) + body * 3, Math.sin(p * Math.PI) * -0.4);
   mcRot(P.leftArm, mx(P.leftArm) + body, my(P.leftArm) + body, P.leftArm.rotation.z);
+}
+
+// A library mob's animation baked into n poses over one period (anim time), one merged geometry per material layer
+// per pose, so a swarm of it costs (layers x n) draw calls. Returns { layers: [{ mat, poses }], mob }.
+export function bakePoses(R, id, { n = 8, period = 1, anim = {}, amb = [0.2, 0.2, 0.2], mob = {} } = {}) {
+  const m = R.mob(id, { amb, ...mob });
+  m.pivot.visible = false;
+  const inv = new THREE.Matrix4(), rel = new THREE.Matrix4(), layers = new Map();
+  for (let k = 0; k < n; k++) {
+    m.anim((k / n) * period, 0, anim);
+    m.pivot.updateMatrixWorld(true);
+    inv.copy(m.root.matrixWorld).invert();
+    const byMat = new Map();
+    m.root.traverse((o) => {
+      if (!o.isMesh || !o.visible) return;
+      const mat = Array.isArray(o.material) ? o.material[0] : o.material;
+      const g = o.geometry.clone(); g.applyMatrix4(rel.multiplyMatrices(inv, o.matrixWorld));
+      if (!byMat.has(mat)) byMat.set(mat, []);
+      byMat.get(mat).push(g);
+    });
+    for (const [mat, gs] of byMat) { if (!layers.has(mat)) layers.set(mat, []); layers.get(mat).push(mergeGeometries(gs, false)); for (const g of gs) g.dispose(); }
+  }
+  return { layers: [...layers].map(([mat, poses]) => ({ mat, poses })), mob: m };
+}
+// Instanced copies of baked poses: begin() each frame, put(pose, x, y, z, yaw, pitch, roll, scale) in local terms, end().
+export function swarm(R, baked, cap) {
+  const ims = baked.layers.map((L) => L.poses.map((g) => { const im = new THREE.InstancedMesh(g, L.mat, cap); im.count = 0; im.frustumCulled = false; return R.add(im); }));
+  const M = new THREE.Matrix4(), Q = new THREE.Quaternion(), E = new THREE.Euler(), P = new THREE.Vector3(), S = new THREE.Vector3();
+  const n = baked.layers[0] ? baked.layers[0].poses.length : 0;
+  return {
+    n,
+    begin() { for (const row of ims) for (const im of row) im.count = 0; },
+    put(pose, x, y, z, yaw = 0, pitch = 0, roll = 0, scale = 1) {
+      R.L(x, y, z, P); E.set(pitch, R.yaw0 + yaw, roll, "YXZ"); Q.setFromEuler(E); S.setScalar(scale); M.compose(P, Q, S);
+      for (const row of ims) { const im = row[pose % row.length]; if (im.count < cap) im.setMatrixAt(im.count++, M); }
+    },
+    end() { for (const row of ims) for (const im of row) im.instanceMatrix.needsUpdate = true; }
+  };
+}
+// Cobweb blocks as the 1.7.10 draws them (RenderBlocks crossed squares), web.png, at local block centres.
+export function webs(R, webTex, spots, { color = 0xb0b0b0 } = {}) {
+  const mat = new THREE.MeshLambertMaterial({ map: webTex, side: THREE.DoubleSide, alphaTest: 0.1, color });
+  if (R.patchBake) R.patchBake(mat, { fixed: new THREE.Vector3(0.12, 0.12, 0.12) });
+  const g = new THREE.PlaneGeometry(1.41, 1);
+  for (const p of spots) {
+    for (const a of [Math.PI / 4, -Math.PI / 4]) { const q = new THREE.Mesh(g, mat); R.at(q, p[0], p[1], p[2]); q.rotation.y = R.yaw0 + a; R.add(q); }
+  }
 }

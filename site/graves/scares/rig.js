@@ -134,7 +134,7 @@ const _v = new THREE.Vector3(), _q = new THREE.Quaternion(), _e = new THREE.Eule
 
 export async function createRig(kr, { seed = 1 } = {}) {
   const scene = kr.scene, camera = kr.camera;
-  const R = { kr, scene, camera, THREE, eye: 1.62, seed };
+  const R = { kr, scene, camera, THREE, eye: 1.62, seed, patchBake: KR.patchBake };
   const solidW = typeof kr.solidAt === "function" ? (x, y, z) => !!kr.solidAt(x, y, z) : () => false;
   const blockW = typeof kr.blockAt === "function" ? (x, y, z) => kr.blockAt(x, y, z) : () => "stone";
   R.solidW = solidW; R.blockW = blockW;
