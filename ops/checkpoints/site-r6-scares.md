@@ -58,6 +58,10 @@ current bank and list the gaps here.
   in; the upper plates lift off the blazing core, the lower hinge down; lunge from ahead or above; swallowed, chewed).
   Enderman anchor raised (eyes in frame). Verified in sheets c1-c4 (scratchpad r6/scares).
 
+- Wither Skeleton new ending committed (sheets c5-c12): randomised scrapes cut mid-stroke, silence, a tick (side or
+  behind), the turn back to the cocked skull 0.75 m away, lunge; a stone-sword sprite in its fist through your chest
+  (bloody past the middle), wither vignette; pull, decap flight (v2), lift to its face, jaw open.
+
 ## Next
-- Silverfish, Blaze, Ghast, Zombie Pigman, Wither Skeleton (new ending), Lava fall, Drowned grab; then the 80-frame
-  sheet and the real-time J run.
+- Lava fall, Drowned grab (scares.js already points at lavafall.js / drowned.js), then Silverfish, Blaze, Ghast,
+  Zombie Pigman; then the 80-frame sheet and the real-time J run.
