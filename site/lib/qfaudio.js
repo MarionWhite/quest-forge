@@ -2,7 +2,7 @@
 //
 //   import { audio } from '../lib/qfaudio.js';
 //   audio.play('random.explode', { pos: {x, y, z} });      // one-shot, optionally spatial
-//   const h = audio.loop('ambient.cave.drip', { pos });     // looping; h.stop(0.5), h.setPos(p)
+//   const h = audio.loop('ambient.cave.cave', { pos });     // looping; h.stop(0.5), h.setPos(p)
 //   audio.music('music.krypt', { fade: 3 });                // crossfade; audio.music(null) stops
 //   audio.updateListener(camera);                           // once per frame, after the camera moves
 //   audio.setReverb({ seconds: 3.2, wet: 0.35 });           // a room for every sound with { reverb }
