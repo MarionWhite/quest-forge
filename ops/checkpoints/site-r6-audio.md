@@ -37,3 +37,19 @@ Previous state: `site-r5-audio.md`.
   - Flag the Mojang-derived ones for `--own-only`.
 - [ ] `check_sounds.py` exits 0.
 - [ ] Report which files a human should listen to first, and the source list.
+
+## Progress (audio agent)
+- Sourcing done: OpenGameArt CC0 pages checked one by one (licence link publicdomain/zero/1.0), downloads in
+  scratchpad r6/audio/dl/<key>/. Freesound needs a login, so not used. Voice pool: deathpain (49 s of male
+  pain/death screams), manhurt, maledead pack, hurtdeath pack, screech, horror1, painemo, sick, creature pack.
+- Plan: `tools/music/scream_pack.py` (fetch -> decode -> layer/process -> encode), writes
+  `site/lib/sfx/sources.json` and `site/lib/sfx/README.md`. Mood far_* derive from the bank (Mojang): flagged
+  `"mojang": true` and dropped by `build_sfx.py --own-only`.
+- DONE pass 1 (commit c301033): `tools/music/scream_pack.py` builds every event in the checklist (death_scream 6,
+  jumpscreech 4, underwater 3, static loop, scream 3, scream_far 2, shriek 3, mood far_* x5 (2 each, flagged
+  mojang, dropped by build_sfx --own-only), scamper 4, scrape 2, breath_near 2). sources.json + README.md written.
+  Run: `QF_DL=<dir> QF_TMP=<dir> /opt/anaconda3/bin/python3 -I tools/music/scream_pack.py fetch|build [event]`
+  (scratchpad r6/audio/dl2 has the downloads). check_sounds exits 0.
+- Next: quality iteration by spectrogram (r6/audio/scripts/spec.py), journal line, final report.
+- DONE pass 2: death screams now use the full natural length of the real recordings (spectrograms show voiced
+  harmonics), all events rebuilt, check_sounds exits 0, journal line added. Remaining: only human listening.

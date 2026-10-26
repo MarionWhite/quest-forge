@@ -241,12 +241,12 @@ def master_voice(y, drive=2.2, hp=70, presence=5.0, grit_amt=0.18, rv=(0.55, 0.1
 # ---------------------------------------------------------------- death screams
 # every variant: ordered voice parts (clip, a, b, semis, tempo) joined with overlaps; the double an octave down; foley.
 DEATH = [
-    dict(parts=[("deathpain", 4.01, 6.02, -1, 0.85), ("manhurt", 4.98, 6.39, 1, 0.9)], ov=.35, end="gurgle", bend=(0, -5), under=.55, cut=2.3),
-    dict(parts=[("deathpain", 14.53, 15.92, 2, 1.0), ("deathpain", 20.44, 21.45, -3, 0.75)], ov=.5, end="drop", bend=(0, -7), under=.5, cut=None),
-    dict(parts=[("deathpain", 35.99, 37.09, -2, 0.7), ("md33", 0, None, -1, 1.2)], ov=.3, end="gurgle", bend=(0, -3), under=.6, cut=2.0),
-    dict(parts=[("deathpain", 23.90, 25.60, 0, 0.9), ("hd3_2", 0.5, 3.2, -4, 0.9)], ov=.8, end="drop", bend=(0, -6), under=.5, cut=None),
-    dict(parts=[("deathpain", 0.53, 1.75, 1, 0.7), ("deathpain", 47.50, 48.62, 2, 0.85), ("md32", 0, None, 0, 1.3)], ov=.15, end="gurgle", bend=(0, -4), under=.5, cut=2.5),
-    dict(parts=[("hd10", 0.3, 2.8, -3, 0.9), ("manhurt", 2.17, 2.65, 0, 1.6), ("deathpain", 31.57, 32.43, -2, 1.0)], ov=.4, end="drop", bend=(1, -8), under=.6, cut=None),
+    dict(parts=[("deathpain", 4.0, 6.1, -1, 1.0)], ov=.35, end="gurgle", bend=(0, -4), under=.55, cut=2.0),
+    dict(parts=[("deathpain", 14.5, 16.3, 2, 1.0), ("deathpain", 20.4, 22.6, -2, 0.95)], ov=.5, end="drop", bend=(0, -7), under=.5, cut=None),
+    dict(parts=[("deathpain", 36.0, 37.4, -2, 1.0), ("md33", 0, None, -1, 1.1)], ov=.3, end="gurgle", bend=(0, -3), under=.6, cut=2.0),
+    dict(parts=[("deathpain", 23.9, 25.8, 0, 1.0), ("hd3_2", 0.5, 3.2, -4, 0.95)], ov=1.2, end="drop", bend=(0, -6), under=.5, cut=None),
+    dict(parts=[("deathpain", 0.5, 1.9, 1, 1.0), ("deathpain", 47.5, 49.0, 2, 1.0)], ov=.15, end="gurgle", bend=(0, -4), under=.5, cut=2.5),
+    dict(parts=[("deathpain", 42.2, 43.7, -3, 1.0), ("manhurt", 4.98, 6.39, 0, 1.0), ("deathpain", 31.5, 32.6, -2, 1.0)], ov=.5, end="drop", bend=(1, -8), under=.6, cut=None),
 ]
 
 def death(i):
@@ -296,10 +296,10 @@ def death(i):
 
 # ---------------------------------------------------------------- jump screeches
 JUMP = [
-    dict(v=[("screech", 1.93, 2.86, 3, 1.0), ("deathpain", 4.01, 5.0, 4, 1.0)], m=("cr_scream_01", 0, None, -2, 1.0), sub=48),
+    dict(v=[("screech", 1.93, 2.86, 3, 1.0), ("deathpain", 4.0, 5.2, 4, 1.0)], m=("cr_scream_01", 0, None, -2, 1.0), sub=48),
     dict(v=[("horror1", 1.0, 2.6, 0, 1.0), ("hipitch", 0.1, 1.5, -3, 1.0)], m=("cr_monster_01", 0, None, -5, 1.0), sub=44),
     dict(v=[("femscream", 3.44, 4.24, -2, 1.0), ("hd11", 0, 1.8, 2, 1.0)], m=("cr_scream_02", 0, None, -4, 1.0), sub=52),
-    dict(v=[("screech", 3.86, 4.71, 2, 1.0), ("deathpain", 20.44, 21.45, 3, 1.0)], m=("cr_alien_03", 0, None, -6, 1.0), sub=46),
+    dict(v=[("screech", 3.86, 4.71, 2, 1.0), ("deathpain", 20.4, 22.0, 3, 1.0)], m=("cr_alien_03", 0, None, -6, 1.0), sub=46),
 ]
 
 def jump(i):
@@ -330,7 +330,7 @@ def jump(i):
     return limiter(out, 0.89, 2.2)
 
 # ---------------------------------------------------------------- underwater
-UNDER = [("deathpain", 4.01, 6.02, -3, 0.85), ("deathpain", 23.90, 25.60, -1, 0.8), ("manhurt", 4.98, 6.39, 3, 1.0)]
+UNDER = [("deathpain", 4.0, 6.1, -3, 0.9), ("deathpain", 23.9, 25.8, -1, 0.85), ("manhurt", 4.98, 6.39, 3, 1.0)]
 
 def underwater(i):
     cid, a, b, sm, tp = UNDER[i]; rg = np.random.default_rng(500 + i)
@@ -376,9 +376,9 @@ def static_loop():
 
 # ---------------------------------------------------------------- scream / scream_far / shriek (recorded)
 SCREAM = [
-    [("deathpain", 4.01, 5.5, 2, 1.0), ("hd11", 0, 1.6, -1, 1.0)],
+    [("deathpain", 4.0, 5.6, 2, 1.0), ("hd11", 0, 1.6, -1, 1.0)],
     [("hd11", 0, 2.0, 0, 1.0), ("md47", 0, None, 3, 1.0)],
-    [("femscream", 0.08, 1.05, -2, 1.0), ("deathpain", 20.44, 21.45, 3, 1.0)],
+    [("femscream", 0.08, 1.05, -2, 1.0), ("deathpain", 20.4, 22.0, 3, 1.0)],
 ]
 
 def scream(i, far=False):

@@ -1,5 +1,7 @@
 # Site journal (newest first)
 
+- 2026-10-26 (Mac) site-r6-audio: screams are now real voices. `tools/music/scream_pack.py` layers CC0 OpenGameArt recordings (male death/pain screams, deaths, screeches, retching, wet foley, bubbles) with octave-down doubles, crunch, boom and cave/room reverb: qf.scare.death_scream x6 (three end in a gurgle), jumpscreech x4, underwater x3, static loop, and recorded scream/scream_far/shriek; qf.mood.far_* (x5, bank-derived, flagged "mojang"), scamper, scrape, breath_near. Sources, authors and licences: `site/lib/sfx/sources.json` and README.md. Checked by spectrogram and levels only, not by ear.
+
 - 2026-10-26 (Mac) orchestrator: round 5 done. Critic rounds caught Steve hidden behind his own
   back at the stations (3/4 activity camera), the lamp post occluding, Giants dressed although
   1.7.10 never draws their armour (reverted), the lucky-choice camera, webs as cubes, a filled
