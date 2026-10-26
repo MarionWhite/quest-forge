@@ -90,6 +90,9 @@ public class EnchantEventBridge {
         // as a fresh swing and re-roll every on-hit enchantment.
         if (attacker instanceof EntityLivingBase && !CombatState.isReentrant()) {
             EntityLivingBase living = (EntityLivingBase) attacker;
+            // Bastion's golems stay off whatever their owner is hitting
+            // (TickedEffects.mustYield), so every swing is remembered.
+            CombatState.recordStrike(living, event.entityLiving);
             ItemStack weapon = living.getHeldItem();
             if (weapon != null) {
                 ProcContext ctx = new ProcContext(living, event.entityLiving, weapon,
@@ -126,9 +129,23 @@ public class EnchantEventBridge {
 
     @SubscribeEvent
     public void onTargeted(LivingSetAttackTargetEvent event) {
-        if (!(event.target instanceof EntityPlayer)) return;
         if (!(event.entityLiving instanceof EntityLiving)) return;
         if (event.entityLiving.worldObj.isRemote) return;
+
+        // A summon that has to leave this target to its owner -- Bastion's golem
+        // on the boss the wielder is hitting (TickedEffects.mustYield, decision
+        // 0005 P8) -- is taken off it here, the moment its own AI picks it, so
+        // the attack task never sees the target. Clearing it once a tick from
+        // the world tick was not enough: the golem's targeting AI re-picks the
+        // nearest hostile every tick and its attack task swings in the same
+        // update. The event is not cancelable; setting null re-fires it with no
+        // target, which falls through the tests below to nothing.
+        if (event.target != null && TickedEffects.mustYield(event.entityLiving, event.target)) {
+            ((EntityLiving) event.entityLiving).setAttackTarget(null);
+            return;
+        }
+
+        if (!(event.target instanceof EntityPlayer)) return;
 
         EntityPlayer player = (EntityPlayer) event.target;
         for (ItemStack piece : player.inventory.armorInventory) {
