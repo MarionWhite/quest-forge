@@ -1,0 +1,741 @@
+{
+ "n": 8,
+ "id": "r008",
+ "title": "A sun with form, a mirror lake, a golden horizon band, and QF Textures v1",
+ "intro": "Your round 7 answers are built in. Every render this round uses our new texture pack, QF Textures v1, except the 'round 7' frames, which are round 7's own renders with vanilla textures. What changed since round 7: The sun is three times larger than round 7's true-size dot, about 50 pixels across here: a crisp white disk with a thin warm rim, and its glare no longer draws a ring or a pale disk over the leaves in front of it. At golden hour a warm band now runs low round the whole horizon, gold toward the sun and rose opposite it, and the far land fades into warm haze. A soft warm aureole now glows round the sun's disk. Sheltered lakes stay calm at low sun instead of taking the ocean's sunset chop, so the lake is now a mirror of the sky, the clouds, the cliff and the tower; the water right in front of you stays dark instead of a painted mirror. River banks: the orange, flat look of the blocks just under the surface is gone. The light on the river bed is now filtered by its path through the water. Dust is rebuilt to live in the sunbeams, and the white specks you saw all over the screen are gone: dust is never drawn over the sky and fades over bright backgrounds. A few larger warm flakes still float outside the beams, for example in front of the island at sunset. Meteor nights are busier: one or two meteors in flight at any moment, each with a blue-white glowing train, passing behind the dark cloud cores. Metal blocks get screen-space reflections, with the sky and ground as the fallback, with or without a texture pack's maps; so far it shows on diamond and gold more than on iron. Under water there are sunbeams through the water, caustics on the bed and walls, and drifting bubbles, after Conquest's underwater look you liked. Vibrance is 0.25 by default, between the 0.15 and 0.35 you named. New on this page: motion clips. Options marked with a clip play first; the still is one tap away. Known weak spots, so you can judge them: the beams now carry a visible dust haze, but the critic finds no separate motes drifting inside them, even in motion; the iron block shows almost no reflection; the forest's golden-hour sky has a pale cream wash over the clouds; and the glitter path under the setting sun on the ocean is still dimmer than round 7's. The olive cast on the golden-hour grass that the critic found mid-round is fixed. Costs are per frame on High at 1440p, against the same view with shaders off. The budget is 3 ms and the dearest frame here is about 4.6 ms. Low at 1080p costs at most 1.32 ms (budget 0.9) and Potato at 720p at most 0.30 ms (budget 0.4). After the shader questions come the textures: QF Textures v1 against v0 and Faithful 64x, the leaf frills you asked about, the light from the new maps, and a first try at potion and book art. Credits: Faithful 32x and 64x (faithfulpack.net, Faithful License v4) in the v0, v1 and Faithful frames; the normal and specular maps in v1 are converted from Vanilla Normals Renewed by Poudingue (github.com/Poudingue/Vanilla-Normals-Renewed-1.12).",
+ "status": "open",
+ "created": "2026-10-26",
+ "scenes": [
+  {
+   "id": "sun",
+   "name": "The sun, now with form",
+   "question": "The ocean sunset, cropped round the sun at twice the size. You asked for a sun 'a little larger, and maybe even a bit bigger than the 1.8x', with form like round 6's. A is the new default, 15 on the new Sun size setting: about three times round 7's true size, a crisp white disk with a thin warm rim. B is 10, C is 18. D is round 7's 1.8x sun, which you picked.",
+   "notePrompt": "Which size? Does the disk have form now? Too white, too sharp, the glare too much or too little?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Size 15 (default)",
+     "img": "r008/sun-A.jpg",
+     "critic": "Critic 7: Loop 4 sunset. The disk has form (about 55 to 60 px across at 2560 wide, crisp and white) and a real warm aureole now: the sky above it falls from about 254,205,163 just off the rim to 181,145,118 some 350 px out, so the glow is there, not painted. Still weak: the glitter path under the sun measures 77 mean luma against r007 qw's 86 (uj was 66), so it is shorter and dimmer than r007 and far from BSL's column; the open water is dark navy at sunset; a few warm dust flakes float in front of the island, outside any beam. Fix: a longer, brighter sun path on the water.",
+     "ms": 4.58
+    },
+    {
+     "key": "B",
+     "label": "Size 10",
+     "img": "r008/sun-B.jpg",
+     "critic": "Critic 6: Size 10: a disk of about 40 px, centred in the crop. Reads as a smaller copy of the default; less presence than CR. Same water and glitter path as p8.",
+     "ms": 4.58
+    },
+    {
+     "key": "C",
+     "label": "Size 18",
+     "img": "r008/sun-C.jpg",
+     "critic": "Critic 7: Size 18: about 70 px, centred in the crop. The disk starts to dominate the aureole but still reads as a sun, not a moon. Same water faults as p8.",
+     "ms": 4.59
+    },
+    {
+     "key": "D",
+     "label": "Round 7, 1.8x (your pick)",
+     "img": "r008/sun-D.jpg",
+     "critic": "Critic 6: The 1.8x sun shows as a small soft dot when zoomed in, but it is still dim against the glare. The lens ghosts and the six-point star are not visible at all. The look bible keeps lens effects for a Cinematic profile anyway.",
+     "ms": 2.49
+    }
+   ]
+  },
+  {
+   "id": "sunset-full",
+   "name": "The whole sunset",
+   "question": "The same sunset as a whole frame: sky, clouds, sun and water together. A is the new default, B round 7. A now has a soft warm glow round the disk. The glitter path on the water under the sun is brighter than earlier in this round but still dimmer than round 7's: that is the open fault here.",
+   "notePrompt": "What still falls short? Is the glitter path under the sun missed?",
+   "options": [
+    {
+     "key": "A",
+     "label": "New default",
+     "img": "r008/sunset-full-A.jpg",
+     "critic": "Critic 7: Loop 4 sunset. The disk has form (about 55 to 60 px across at 2560 wide, crisp and white) and a real warm aureole now: the sky above it falls from about 254,205,163 just off the rim to 181,145,118 some 350 px out, so the glow is there, not painted. Still weak: the glitter path under the sun measures 77 mean luma against r007 qw's 86 (uj was 66), so it is shorter and dimmer than r007 and far from BSL's column; the open water is dark navy at sunset; a few warm dust flakes float in front of the island, outside any beam. Fix: a longer, brighter sun path on the water.",
+     "ms": 4.58,
+     "ref": {
+      "img": "r008/ref-sunset-full-A.jpg",
+      "credit": "Brocken Inaglory, retouched by User:Flamurai, CC BY-SA 3.0, via Wikimedia Commons",
+      "source": "https://commons.wikimedia.org/wiki/File:Sunset_clouds_and_crepuscular_rays_over_pacific_edit.jpg",
+      "title": "Sunset clouds and crepuscular rays over pacific edit.jpg"
+     }
+    },
+    {
+     "key": "B",
+     "label": "Round 7 (vanilla textures)",
+     "img": "r008/sunset-full-B.jpg",
+     "critic": "Critic 7: Water is still the best thing in the pack: deep blue chop with a long gold glitter path. The new sun does not read: at about 4 px it is a pale dot barely brighter than the peach glare round it, with a faint darker ring, so the frame has no sun to look at. Silver linings show on the cloud edges near the sun. Round dust flecks float over the water like bokeh spots.",
+     "ms": 2.47
+    }
+   ]
+  },
+  {
+   "id": "golden-horizon",
+   "name": "Golden hour: a warm horizon band",
+   "question": "You and the critic found round 7's golden-hour horizon 'still pretty weak'. A warm band now runs low round the whole horizon, gold toward the sun and rose opposite it, and the far land fades into warm haze. A is the default strength, B stronger, C no band (the new setting at 0), D round 7. An olive-brown cast on the near grass that appeared mid-round is fixed (it was the dust counting the grass's own shadow noise as sunbeams), so the near field is fair to judge too.",
+   "notePrompt": "Is the band warm and wide enough? Which strength? Does the near grass look right now?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Band 1.0 (default)",
+     "img": "r008/golden-horizon-A.jpg",
+     "critic": "Critic 7: The olive cast is gone. The near grass measures 43,47,15 (rows 1000 to 1300) against uk's olive 72,59,17 and r007's 42,50,29; BSL is about 45,48,25. The rose horizon band and the warm far haze are kept. What still falls short of the reference: the near field is flat green with little warm low-sun light on the grass tops, and scattered yellow flakes dot the grass (r007 has them too). Fix: warm grazing light on the lit side of the slope.",
+     "ms": 4.34
+    },
+    {
+     "key": "B",
+     "label": "Band 1.4",
+     "img": "r008/golden-horizon-B.jpg",
+     "critic": "Critic 7: Band 1.4: the rose band is wider and the far land warmer; no olive comes back on the near grass (45,48,15). A fair 'stronger' option.",
+     "ms": 4.34
+    },
+    {
+     "key": "C",
+     "label": "No band",
+     "img": "r008/golden-horizon-C.jpg",
+     "critic": "Critic 5: No band: the horizon goes olive-grey and the far land dull. It shows clearly what the band adds; the near grass is fine (40,48,14).",
+     "ms": 4.32
+    },
+    {
+     "key": "D",
+     "label": "Round 7 (vanilla textures)",
+     "img": "r008/golden-horizon-D.jpg",
+     "critic": "Critic 7: A warm, good golden hour with the zenith still blue. Cloud tops are peach with a thin bright edge; the silver lining reads only on the smaller clouds. The horizon haze band is beige and flat.",
+     "ms": 1.86
+    }
+   ]
+  },
+  {
+   "id": "forest-light",
+   "name": "Forest light",
+   "question": "Your forest view at golden hour. The rays are round 7's (your pick), with the new sun and glare: no bright ring or pale disk over the leaves in front of the sun any more, and a stray yellow smudge on the leaves (a dust mote right in front of the eye) is gone. Still weak: the sky over the gap has a pale cream wash over the clouds. A is new, B round 7.",
+   "notePrompt": "Anything lost or gained against round 7? Does the cream sky bother you?",
+   "options": [
+    {
+     "key": "A",
+     "label": "New default",
+     "img": "r008/forest-light-A.jpg",
+     "critic": "Critic 6: The stuck yellow oval on the right-hand leaves (visible in uk) is gone, and no ring or pale disk sits over the leaves at the gap. The cream wash over the sky round the gap is still there, and the rays through the gap are thin next to the reference's dark forest with strong shafts. Fix: kill the cream wash and give the canopy more contrast against the gap.",
+     "ms": 2.47,
+     "ref": {
+      "img": "r008/ref-forest-light-A.jpg",
+      "credit": "Jakub Hałun, CC BY 4.0, via Wikimedia Commons",
+      "source": "https://commons.wikimedia.org/wiki/File:Crepuscular_rays_in_the_forest_near_Przeginia_Duchowna,_Lesser_Poland_Voivodeship,_20240225_0830_6640.jpg",
+      "title": "Crepuscular rays in the forest near Przeginia Duchowna, Lesser Poland Voivodeship, 20240225 0830 6640.jpg"
+     }
+    },
+    {
+     "key": "B",
+     "label": "Round 7 (vanilla textures)",
+     "img": "r008/forest-light-B.jpg",
+     "critic": "Critic 5: The rays in the gap past the trunks are thin and faint; round 5's warmth is not back yet. Dust shows only as two or three glowing dots against the bright gap, and none in the shade.",
+     "ms": 1.61
+    }
+   ]
+  },
+  {
+   "id": "dust",
+   "name": "Dust in the sunbeams (motion clip)",
+   "question": "You asked for dust only in the light shafts, and much better than round 7's. The dust is rebuilt to live in the lit air of the beams, with a few larger flakes further out, and it is never drawn over the sky (the white specks are gone). This is a new view in the same forest, a step toward the gap, where a sunbeam crosses the near air in front of the trunks. A is a six-second clip of that beam, then the still; B is thicker dust and C the dust switched off, as stills of the same crop: with the dust off the beam itself disappears, so the lit haze in A and B is the dust. Honest note: the critic finds no separate motes drifting inside the beam, even in motion; the haze only shimmers. Motes in the beam are the next step. Tell us what you see.",
+   "notePrompt": "Do you see dust in the beam at all? What should it look like (reference images welcome)?",
+   "options": [
+    {
+     "key": "A",
+     "label": "New dust (default), clip",
+     "img": "r008/dust-A.jpg",
+     "critic": "Critic 5: The new dust_b view works: a lit shaft crosses the near air in front of the trunks, and the clip plays (90 frames). But a max-minus-median motion map of the burst, at 8x gain over the beam, shows only the shaft haze shimmering and no point-like mote trails anywhere inside it; one large flake sits on the birch at the right. So the beam now carries a visible dust haze, but separate drifting motes are not there. Fix: real motes, a few px each, drifting through the lit shaft.",
+     "ms": 2.78,
+     "clip": "r008/dust-A.webp"
+    },
+    {
+     "key": "B",
+     "label": "Thicker",
+     "img": "r008/dust-B.jpg",
+     "critic": "Critic 5: Thicker dust: the shaft is brighter and wider, the haze stronger. Still no separate motes inside it.",
+     "ms": 2.78
+    },
+    {
+     "key": "C",
+     "label": "Dust off",
+     "img": "r008/dust-C.jpg",
+     "critic": "Critic 5: Dust off: the shaft disappears completely, so the beam in A and B is the dust term itself. A useful control; tell the owner that 'off' also removes the visible beam here.",
+     "ms": 1.99
+    }
+   ]
+  },
+  {
+   "id": "lake",
+   "name": "The lake: a calm mirror (motion clip)",
+   "question": "You rated the lake 2 of 5 and said to follow the critic. The cause was that the lake took the ocean's sunset chop. Sheltered lakes now stay calm at low sun, so the near water mirrors the blue sky and the peach clouds, and the cliff and the tower reflect cleanly. A is a clip of the near water, then the still. B is the same water with the calm switched off, C round 7. The water right in front of you now fades from dark to mirror over 10 to 40 m, so it no longer reads as a painted mirror. Still missing: a glint column from the sun on the water (in this view the sun sits on the cliff edge).",
+   "notePrompt": "Is this the lake you want? Too mirror-like near you?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Calm lake (default), clip",
+     "img": "r008/lake-A.jpg",
+     "critic": "Critic 7: The painted-mirror near water is fixed. Close to the camera the water is now dark teal that you see into, and the cloud reflections come in at reduced strength, growing to a full mirror of the cliff, tower and clouds further out. The motion map shows the reflections rippling gently, with no TAA trails. Still no glint column from the sun (it sits on the cliff edge in this view). Closest yet to CR/BSL lakes.",
+     "ms": 3.54,
+     "clip": "r008/lake-A.webp"
+    },
+    {
+     "key": "B",
+     "label": "Calm off",
+     "img": "r008/lake-B.jpg",
+     "critic": "Critic 5: Calm off: the ocean's sunset chop scatters the reflection into orange sparkle. A good control; it shows why the calm matters.",
+     "ms": 3.65
+    },
+    {
+     "key": "C",
+     "label": "Round 7 (vanilla textures)",
+     "img": "r008/lake-C.jpg",
+     "critic": "Critic 5: The near water is still splotchy: torn dark and gold patches cover the lower third, much like round 6. The far lake and the sunset sky are good; the splotch fix does not show in this frame.",
+     "ms": 2.38
+    }
+   ]
+  },
+  {
+   "id": "river",
+   "name": "The river banks",
+   "question": "You said the blocks just under the river's surface looked orange and flat. The light on the river bed is now filtered by its path down through the water, and the caustics move light around instead of only adding it. A is new, B round 7. The critic still sees faint lighter stripes along the ledges and finds the water a little murky green.",
+   "notePrompt": "Is the orange gone? What does the river need next?",
+   "options": [
+    {
+     "key": "A",
+     "label": "New",
+     "img": "r008/river-A.jpg",
+     "critic": "Critic 6: No orange flat blocks under the surface. The water is still murky green and faint lighter stripes run along the submerged ledges. Fix: clearer water near the banks, lose the ledge stripes.",
+     "ms": 4.32,
+     "ref": {
+      "img": "r008/ref-river-A.jpg",
+      "credit": "amanderson2, CC BY 2.0, via Wikimedia Commons",
+      "source": "https://commons.wikimedia.org/wiki/File:Clear_River_water_Bled_Vintgar_Slovenia_(8095482709).jpg",
+      "title": "Clear River water Bled Vintgar Slovenia (8095482709).jpg"
+     }
+    },
+    {
+     "key": "B",
+     "label": "Round 7 (vanilla textures)",
+     "img": "r008/river-B.jpg",
+     "critic": "Critic 5: Green river in its gorge: a white sparkle patch still sits right in front of the camera, and the underwater ledges show as bright orange-yellow stripes across the water on the left. Still the weakest water.",
+     "ms": 2.06
+    }
+   ]
+  },
+  {
+   "id": "water-biomes",
+   "name": "Water by biome",
+   "question": "The other waters with this round's changes. The coast's tan sand under turquoise, your favourite, is kept (a mid-round regression that turned it mint is fixed). Rate the set and say which one is off.",
+   "notePrompt": "Which is off, and how?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Coast",
+     "img": "r008/water-biomes-A.jpg",
+     "critic": "Critic 8: Tan sand under turquoise is kept (no mint), with good caustics on the shallows. The best water frame of the round.",
+     "ms": 4.45,
+     "ref": {
+      "img": "r008/ref-water-biomes-A.jpg",
+      "credit": "Martin Falbisoner, CC BY-SA 4.0, via Wikimedia Commons",
+      "source": "https://commons.wikimedia.org/wiki/File:Diamonds_Thudufushi_Beach_and_Water_Villas,_May_2017_-08.jpg",
+      "title": "Diamonds Thudufushi Beach and Water Villas, May 2017 -08.jpg"
+     }
+    },
+    {
+     "key": "B",
+     "label": "Shore",
+     "img": "r008/water-biomes-B.jpg",
+     "critic": "Critic 7: Clear blue-green water with the sandbar showing through. Nothing broken.",
+     "ms": 4.31
+    },
+    {
+     "key": "C",
+     "label": "Swamp",
+     "img": "r008/water-biomes-C.jpg",
+     "critic": "Critic 6: Olive swamp water with hazy huts; reads as a swamp. Slightly flat and the far water too pale.",
+     "ms": 4.44,
+     "ref": {
+      "img": "r008/ref-water-biomes-C.jpg",
+      "credit": "JamesDeMers, CC0, via Wikimedia Commons",
+      "source": "https://commons.wikimedia.org/wiki/File:Bayou-439881.jpg",
+      "title": "Bayou-439881.jpg"
+     }
+    },
+    {
+     "key": "D",
+     "label": "Ocean",
+     "img": "r008/water-biomes-D.jpg",
+     "critic": "Critic 7: Deep blue ocean with turquoise shallows at the beach. Nothing broken.",
+     "ms": 4.32
+    }
+   ]
+  },
+  {
+   "id": "biome-borders",
+   "name": "Where biomes meet on water",
+   "question": "Round 7's blends where biomes meet, with this round's water: A ocean into swamp, B river into swamp. You said this was close; nothing here was changed on purpose. Check that nothing broke.",
+   "notePrompt": "Still good?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Ocean into swamp",
+     "img": "r008/biome-borders-A.jpg",
+     "critic": "Critic 7: The ocean-to-swamp blend still reads well: blue into olive along the bank. Nothing broke.",
+     "ms": 4.19
+    },
+    {
+     "key": "B",
+     "label": "River into swamp",
+     "img": "r008/biome-borders-B.jpg",
+     "critic": "Critic 7: River into swamp blends smoothly. Nothing broke.",
+     "ms": 4.34
+    }
+   ]
+  },
+  {
+   "id": "clouds",
+   "name": "Clouds in motion",
+   "question": "The noon sky. A is a clip of the clouds drifting, then the still; B is round 7. The clouds' 3D noise is finer in height and the grey blob some clouds had is gone. The critic finds this sky one heavy deck with a hole, less lively than round 7's.",
+   "notePrompt": "Livelier or duller than round 7? Does the motion look right?",
+   "options": [
+    {
+     "key": "A",
+     "label": "New, clip",
+     "img": "r008/clouds-A.jpg",
+     "critic": "Critic 6: The clip plays and the clouds drift smoothly with no flicker; terrain is present. The sky is still one heavy deck with a hole, less lively than r007's.",
+     "ms": 3.69,
+     "clip": "r008/clouds-A.webp"
+    },
+    {
+     "key": "B",
+     "label": "Round 7 (vanilla textures)",
+     "img": "r008/clouds-B.jpg",
+     "critic": "Critic 6: A big overhead cloud mass with a grey, smeared underside fanning toward the horizon. The edges are crisp, but the bodies still look painted, not volumetric.",
+     "ms": 1.58
+    }
+   ]
+  },
+  {
+   "id": "meteors",
+   "name": "Meteor nights (motion clip)",
+   "question": "You expected more than two meteors and could not judge a still. A is a clip of a meteor night: one or two in flight at any moment, from one point in the sky, each leaving a blue-white train, passing behind the dark cloud cores. B is a still with two meteors pinned in front of the camera by a developer switch, so you can see their shape up close; in play they come at random. C is the new-moon lake on a meteor night, D the night the rotation drew for this view.",
+   "notePrompt": "Rate, length, brightness, colour of the trains? Is the rotation mix right?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Meteor night, clip",
+     "img": "r008/meteors-A.jpg",
+     "critic": "Critic 8: Fixed against loop 3: terrain is present and the clip shows the shower. Across the 90 frames the motion map holds about twenty separate streaks from a common radiant, each with a bright train. This is what the owner asked to see.",
+     "ms": 3.64,
+     "clip": "r008/meteors-A.webp"
+    },
+    {
+     "key": "B",
+     "label": "Two meteors pinned (still)",
+     "img": "r008/meteors-B.jpg",
+     "critic": "Critic 7: Two pinned meteors in front of the camera with visible trains. Fine as a still to judge their shape.",
+     "ms": 3.7
+    },
+    {
+     "key": "C",
+     "label": "New-moon lake, meteor night",
+     "img": "r008/meteors-C.jpg",
+     "critic": "Critic 6: New-moon lake: terrain readable, stars and dark clouds; no meteor happens to be in this still. Very dark, as a new moon should be.",
+     "ms": 4.35
+    },
+    {
+     "key": "D",
+     "label": "This view's rotation night",
+     "img": "r008/meteors-D.jpg",
+     "critic": "Critic 7: The rotation drew a Milky Way night: a soft band low over the land behind the dark cloud. Terrain present.",
+     "ms": 3.49
+    }
+   ]
+  },
+  {
+   "id": "underwater",
+   "name": "Under water",
+   "question": "You liked Conquest's underwater ambience. Under water there are now sunbeams through the water from the shadow map, caustics dancing on the bed and walls, and denser drifting bubbles. A is a canyon, B looking up toward the sun, C the canyon without the new effects.",
+   "notePrompt": "Closer to what you liked? Too green, too foggy?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Canyon (new)",
+     "img": "r008/underwater-A.jpg",
+     "critic": "Critic 6: Against p8uw0 the canyon gains faint green shafts down the channel and a little caustic light on the walls. Very green and foggy; the effect is subtle.",
+     "ms": 1.86
+    },
+    {
+     "key": "B",
+     "label": "Toward the sun (new)",
+     "img": "r008/underwater-B.jpg",
+     "critic": "Critic 5: Looking up: broad green beams are visible, but the view is mostly green fog with no surface or sun to anchor it. Too murky.",
+     "ms": 1.86
+    },
+    {
+     "key": "C",
+     "label": "Canyon, effects off",
+     "img": "r008/underwater-C.jpg",
+     "critic": "Critic 5: Control without the new effects: darker and flatter than p8.",
+     "ms": 1.29
+    }
+   ]
+  },
+  {
+   "id": "metals",
+   "name": "Metal blocks",
+   "question": "You said the metal blocks with maps 'just look like they are in the shade'. Metals are now shaded as metal with or without a pack's maps, using screen-space reflections that fall back to the sky, clouds and ground where the screen holds nothing. The painted horizon stripe of earlier in this round is gone. Honest note: the diamond block now shows the sky and clouds in its lower half and gold a warm sheen, but the iron block looks almost the same as with the shading off, and the emerald's face breaks into noise, so this is not yet polished metal. A is the showcase wall with this, B with the pack's maps and the metal shading switched off. Like every screen-space reflection, what is off screen cannot be reflected.",
+   "notePrompt": "Do they read as polished metal now? Plastic anywhere?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Metal shading (default)",
+     "img": "r008/metals-A.jpg",
+     "critic": "Critic 6: The painted horizon stripe is gone. The diamond block's lower half now shows a reflection of sky and clouds, and gold shows a broken warm sheen. But the iron block, the most metal of them, looks almost the same as with the shading off, and the emerald block's face is broken into a noisy distortion. Partly real reflections, not yet polished metal. Fix: give iron a visible reflection and stop the emerald noise.",
+     "ms": 3.47
+    },
+    {
+     "key": "B",
+     "label": "Off",
+     "img": "r008/metals-B.jpg",
+     "critic": "Critic 5: Control with the metal shading off: flat diamond, emerald and gold; iron almost the same as A.",
+     "ms": 3.41
+    }
+   ]
+  },
+  {
+   "id": "vibrance",
+   "name": "Vibrance",
+   "question": "You said 'somewhere between .15 and .35', so the default is now 0.25. A is 0.25, B 0.15 (round 7's default), C 0.35, on the lit forest.",
+   "notePrompt": "Keep 0.25?",
+   "options": [
+    {
+     "key": "A",
+     "label": "0.25 (default)",
+     "img": "r008/vibrance-A.jpg",
+     "critic": "Critic 7: Vibrance 0.25: lively greens without going neon; the lit birch reads well.",
+     "ms": 2.39
+    },
+    {
+     "key": "B",
+     "label": "0.15",
+     "img": "r008/vibrance-B.jpg",
+     "critic": "Critic 6: 0.15: a touch duller than 0.25.",
+     "ms": 2.39
+    },
+    {
+     "key": "C",
+     "label": "0.35",
+     "img": "r008/vibrance-C.jpg",
+     "critic": "Critic 7: 0.35: greener; the lit leaves start to go yellow-lime. 0.25 is the better middle.",
+     "ms": 2.39
+    }
+   ]
+  },
+  {
+   "id": "tex-wall",
+   "name": "Textures: the block wall",
+   "question": "Round 7's wall in afternoon sun, same shaders in all three. A is v0, which you picked. B is v1: Faithful 64x for stone, bricks, ores, metals, glass and dirt (the blocks you liked in 64x), and our own grass on top. C is plain Faithful 64x for comparison.",
+   "notePrompt": "Is B a step up from A? Any block that looks worse?",
+   "options": [
+    {
+     "key": "A",
+     "label": "QF Textures v0 (round 7)",
+     "img": "r008/tex-wall-A.jpg",
+     "ms": 3.47,
+     "desc": "Round 7's winner: Minecraft's designs, Faithful 32x detail on stone, ores, metals, glowstone and glass, calmer grass."
+    },
+    {
+     "key": "B",
+     "label": "QF Textures v1 (new)",
+     "img": "r008/tex-wall-B.jpg",
+     "ms": 3.47,
+     "desc": "New: Faithful 64x stone, bricks, ores, metals, glass and dirt; our own leaves, bark, grass, fern, wheat and bookshelves; light from Vanilla Normals Renewed's maps."
+    },
+    {
+     "key": "C",
+     "label": "Faithful 64x (reference)",
+     "img": "r008/tex-wall-C.jpg",
+     "ms": 3.43,
+     "desc": "Faithful 64x on everything it covers, for reference (its grass and leaves included)."
+    }
+   ]
+  },
+  {
+   "id": "tex-wall-close",
+   "name": "Bricks, cobble, bookshelf, gems up close",
+   "question": "The second wall, closer: chiselled and mossy stone bricks, mossy cobble, a bookshelf, emerald, lapis, redstone and coal blocks. B's bookshelf is ours (four random variants, Soartex-inspired, drawn in code).",
+   "notePrompt": "Bookshelf: B or C? Do the 64x stone bricks look right next to vanilla-sized blocks?",
+   "options": [
+    {
+     "key": "A",
+     "label": "QF Textures v0 (round 7)",
+     "img": "r008/tex-wall-close-A.jpg",
+     "ms": 3.33,
+     "desc": "Round 7's winner: Minecraft's designs, Faithful 32x detail on stone, ores, metals, glowstone and glass, calmer grass."
+    },
+    {
+     "key": "B",
+     "label": "QF Textures v1 (new)",
+     "img": "r008/tex-wall-close-B.jpg",
+     "ms": 3.34,
+     "desc": "New: Faithful 64x stone, bricks, ores, metals, glass and dirt; our own leaves, bark, grass, fern, wheat and bookshelves; light from Vanilla Normals Renewed's maps."
+    },
+    {
+     "key": "C",
+     "label": "Faithful 64x (reference)",
+     "img": "r008/tex-wall-close-C.jpg",
+     "ms": 3.37,
+     "desc": "Faithful 64x on everything it covers, for reference (its grass and leaves included)."
+    }
+   ]
+  },
+  {
+   "id": "tex-glass",
+   "name": "Connected glass",
+   "question": "The 4x4 clear-glass panel up close. A is Faithful 32x's connected glass, B and C Faithful 64x's (one frame round the whole panel, a few streaks).",
+   "notePrompt": "Which glass?",
+   "options": [
+    {
+     "key": "A",
+     "label": "QF Textures v0 (round 7)",
+     "img": "r008/tex-glass-A.jpg",
+     "ms": 3.27,
+     "desc": "Round 7's winner: Minecraft's designs, Faithful 32x detail on stone, ores, metals, glowstone and glass, calmer grass."
+    },
+    {
+     "key": "B",
+     "label": "QF Textures v1 (new)",
+     "img": "r008/tex-glass-B.jpg",
+     "ms": 3.28,
+     "desc": "New: Faithful 64x stone, bricks, ores, metals, glass and dirt; our own leaves, bark, grass, fern, wheat and bookshelves; light from Vanilla Normals Renewed's maps."
+    },
+    {
+     "key": "C",
+     "label": "Faithful 64x (reference)",
+     "img": "r008/tex-glass-C.jpg",
+     "ms": 3.28,
+     "desc": "Faithful 64x on everything it covers, for reference (its grass and leaves included)."
+    }
+   ]
+  },
+  {
+   "id": "tex-forest",
+   "name": "The forest clearing",
+   "question": "In round 7, v0 and vanilla looked the same here. B now has our own leaves (lit clumps, dark gaps between them), bark, tall grass and a calmer grass top.",
+   "notePrompt": "Does B change enough here now? Leaves and bark: better or worse than C?",
+   "options": [
+    {
+     "key": "A",
+     "label": "QF Textures v0 (round 7)",
+     "img": "r008/tex-forest-A.jpg",
+     "ms": 2.47,
+     "desc": "Round 7's winner: Minecraft's designs, Faithful 32x detail on stone, ores, metals, glowstone and glass, calmer grass."
+    },
+    {
+     "key": "B",
+     "label": "QF Textures v1 (new)",
+     "img": "r008/tex-forest-B.jpg",
+     "ms": 2.39,
+     "desc": "New: Faithful 64x stone, bricks, ores, metals, glass and dirt; our own leaves, bark, grass, fern, wheat and bookshelves; light from Vanilla Normals Renewed's maps."
+    },
+    {
+     "key": "C",
+     "label": "Faithful 64x (reference)",
+     "img": "r008/tex-forest-C.jpg",
+     "ms": 2.44,
+     "desc": "Faithful 64x on everything it covers, for reference (its grass and leaves included)."
+    }
+   ]
+  },
+  {
+   "id": "tex-golden",
+   "name": "Golden hour on the plains",
+   "question": "The low-sun view over grass and farmland, same three packs.",
+   "notePrompt": "Which reads best in warm light?",
+   "options": [
+    {
+     "key": "A",
+     "label": "QF Textures v0 (round 7)",
+     "img": "r008/tex-golden-A.jpg",
+     "ms": 4.32,
+     "desc": "Round 7's winner: Minecraft's designs, Faithful 32x detail on stone, ores, metals, glowstone and glass, calmer grass."
+    },
+    {
+     "key": "B",
+     "label": "QF Textures v1 (new)",
+     "img": "r008/tex-golden-B.jpg",
+     "ms": 4.32,
+     "desc": "New: Faithful 64x stone, bricks, ores, metals, glass and dirt; our own leaves, bark, grass, fern, wheat and bookshelves; light from Vanilla Normals Renewed's maps."
+    },
+    {
+     "key": "C",
+     "label": "Faithful 64x (reference)",
+     "img": "r008/tex-golden-C.jpg",
+     "ms": 4.23,
+     "desc": "Faithful 64x on everything it covers, for reference (its grass and leaves included)."
+    }
+   ]
+  },
+  {
+   "id": "tex-farm",
+   "name": "The farm",
+   "question": "Wheat at every stage next to carrots and potatoes. B's wheat is ours, after Stay True's idea (a dense crop with fat, nodding ears), drawn by code; carrots and potatoes stay vanilla in A and B.",
+   "notePrompt": "Wheat: B or C? Should carrots and potatoes change too?",
+   "options": [
+    {
+     "key": "A",
+     "label": "QF Textures v0 (round 7)",
+     "img": "r008/tex-farm-A.jpg",
+     "ms": 3.47,
+     "desc": "Round 7's winner: Minecraft's designs, Faithful 32x detail on stone, ores, metals, glowstone and glass, calmer grass."
+    },
+    {
+     "key": "B",
+     "label": "QF Textures v1 (new)",
+     "img": "r008/tex-farm-B.jpg",
+     "ms": 3.48,
+     "desc": "New: Faithful 64x stone, bricks, ores, metals, glass and dirt; our own leaves, bark, grass, fern, wheat and bookshelves; light from Vanilla Normals Renewed's maps."
+    },
+    {
+     "key": "C",
+     "label": "Faithful 64x (reference)",
+     "img": "r008/tex-farm-C.jpg",
+     "ms": 3.41,
+     "desc": "Faithful 64x on everything it covers, for reference (its grass and leaves included)."
+    }
+   ]
+  },
+  {
+   "id": "tex-farm-close",
+   "name": "The farm up close",
+   "question": "The same field from the path, so each stage is visible: shoots, green ears, turning, ripe.",
+   "notePrompt": "Do the middle stages look right? Ripe colour: straw enough?",
+   "options": [
+    {
+     "key": "A",
+     "label": "QF Textures v0 (round 7)",
+     "img": "r008/tex-farm-close-A.jpg",
+     "ms": 3.27,
+     "desc": "Round 7's winner: Minecraft's designs, Faithful 32x detail on stone, ores, metals, glowstone and glass, calmer grass."
+    },
+    {
+     "key": "B",
+     "label": "QF Textures v1 (new)",
+     "img": "r008/tex-farm-close-B.jpg",
+     "ms": 3.28,
+     "desc": "New: Faithful 64x stone, bricks, ores, metals, glass and dirt; our own leaves, bark, grass, fern, wheat and bookshelves; light from Vanilla Normals Renewed's maps."
+    },
+    {
+     "key": "C",
+     "label": "Faithful 64x (reference)",
+     "img": "r008/tex-farm-close-C.jpg",
+     "ms": 3.23,
+     "desc": "Faithful 64x on everything it covers, for reference (its grass and leaves included)."
+    }
+   ]
+  },
+  {
+   "id": "tex-leaves",
+   "name": "Leaf frills: a hedge, a lone block and a tree",
+   "question": "You liked Stay True's leafy edges on trees but not on lone blocks and hedges. 1.7.10 has no block models, so its outward frills need code (option D in the notes: extra leaf quads in our mod, days of work and a little cost in leafy areas). Three free options are rendered: A clean cubes, B the edges bitten ragged wherever no leaf is beyond, C ragged only on the top and bottom (your 'frills only with air above or below' idea, as a texture). All three cost nothing per frame.",
+   "notePrompt": "A, B or C? Or is it worth building real outward frills (D)?",
+   "options": [
+    {
+     "key": "A",
+     "label": "No frills: clean leaf cubes (v1 default)",
+     "img": "r008/tex-leaves-A.jpg",
+     "ms": 3.24,
+     "desc": "New: Faithful 64x stone, bricks, ores, metals, glass and dirt; our own leaves, bark, grass, fern, wheat and bookshelves; light from Vanilla Normals Renewed's maps."
+    },
+    {
+     "key": "B",
+     "label": "Ragged edges everywhere",
+     "img": "r008/tex-leaves-B.jpg",
+     "ms": 3.25,
+     "desc": "v1 with ragged leaf edges on every outside edge (connected textures, no cost per frame)."
+    },
+    {
+     "key": "C",
+     "label": "Ragged top and bottom only",
+     "img": "r008/tex-leaves-C.jpg",
+     "ms": 3.29,
+     "desc": "v1 with ragged leaf edges only on the top and bottom of side faces."
+    }
+   ]
+  },
+  {
+   "id": "tex-leaves-tree",
+   "name": "Leaf frills on a tree",
+   "question": "The same three options on the oak tree, from under its crown.",
+   "notePrompt": "Which on trees? (We can use one on trees and another on hedges only if D is built.)",
+   "options": [
+    {
+     "key": "A",
+     "label": "No frills: clean leaf cubes (v1 default)",
+     "img": "r008/tex-leaves-tree-A.jpg",
+     "ms": 3.54,
+     "desc": "New: Faithful 64x stone, bricks, ores, metals, glass and dirt; our own leaves, bark, grass, fern, wheat and bookshelves; light from Vanilla Normals Renewed's maps."
+    },
+    {
+     "key": "B",
+     "label": "Ragged edges everywhere",
+     "img": "r008/tex-leaves-tree-B.jpg",
+     "ms": 3.57,
+     "desc": "v1 with ragged leaf edges on every outside edge (connected textures, no cost per frame)."
+    },
+    {
+     "key": "C",
+     "label": "Ragged top and bottom only",
+     "img": "r008/tex-leaves-tree-C.jpg",
+     "ms": 3.55,
+     "desc": "v1 with ragged leaf edges only on the top and bottom of side faces."
+    }
+   ]
+  },
+  {
+   "id": "tex-pbr",
+   "name": "Light on the blocks (PBR maps)",
+   "question": "Both with the shader's PBR switched on. A uses v0's generated bump and shine maps. B uses Vanilla Normals Renewed's (the light interaction you liked), converted, and blended with the 64x detail on Faithful's blocks. The textures differ too (v0 vs v1); look at how the light catches edges.",
+   "notePrompt": "Does B have the VNR feel? Too strong, too weak?",
+   "options": [
+    {
+     "key": "A",
+     "label": "v0's maps",
+     "img": "r008/tex-pbr-A.jpg",
+     "ms": 3.33,
+     "desc": "QF v0's light maps (our own generated bumps and shine)."
+    },
+    {
+     "key": "B",
+     "label": "v1's maps (VNR-based)",
+     "img": "r008/tex-pbr-B.jpg",
+     "ms": 3.34,
+     "desc": "QF v1's light maps: Vanilla Normals Renewed's on vanilla blocks, VNR blended with the 64x detail on Faithful's."
+    }
+   ]
+  },
+  {
+   "id": "tex-items",
+   "name": "Potions and enchanted books (prototype)",
+   "question": "A first try at Faithless's idea: a different bottle for each potion and a cover per enchantment family (top row: eight potions, one bottle shape per effect group; bottom row: enchanted books, brown for bow, green for tools, red for weapons, blue for armour, each with its own emblem). A is vanilla, B ours. The game still colours the liquid, so colours stay familiar. Honest note: these are readable but flat. Sprites at Faithless's level need a pixel artist; code and an agent typing pixel grids cannot get there. A skilled artist would need about a day for the potions and two to three days for emblems for all 81 custom enchantments.",
+   "notePrompt": "Keep going with this idea (shapes per effect, covers per family)? Is hiring or finding a pixel artist an option?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Vanilla items",
+     "img": "r008/tex-items-A.jpg",
+     "ms": 3.15,
+     "desc": "Minecraft's own bottle and book."
+    },
+    {
+     "key": "B",
+     "label": "QF prototype",
+     "img": "r008/tex-items-B.jpg",
+     "ms": 3.15,
+     "desc": "Seven bottle shapes plus a splash grenade; nine family covers with emblems."
+    }
+   ]
+  }
+ ]
+}

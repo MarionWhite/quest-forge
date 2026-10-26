@@ -67,9 +67,18 @@
    "n": 7,
    "id": "r007",
    "title": "A real sun, silver linings, meteor nights, and water that blends across biomes",
-   "status": "open",
+   "status": "closed",
    "created": "2026-10-25",
    "scenes": 27,
+   "feedback": true
+  },
+  {
+   "n": 8,
+   "id": "r008",
+   "title": "A sun with form, a mirror lake, a golden horizon band, and QF Textures v1",
+   "status": "open",
+   "created": "2026-10-26",
+   "scenes": 25,
    "feedback": false
   }
  ]
