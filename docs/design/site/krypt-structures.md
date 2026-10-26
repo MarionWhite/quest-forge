@@ -185,3 +185,197 @@ always the stratum's darkest, coolest one.
 - **Segment:** "raw-rock tunnel": a 3x4 smooth stone corridor (no bricks), with a lava moat (2 wide) in the floor crossing every 14 blocks and a bridge of stone slabs; the "shooting range" version has a skeleton spawner behind the lava. This is also the natural source of the **gap-with-lava** the endless spec wants at bends.
 
 (Entries 13 and 14 continue below.)
+
+### 13. Vanilla stronghold corridors, prison cells and library
+- **Source:** vanilla 1.7.10, `StructureStrongholdPieces` (Straight, Prison cell, Library, Stairs, Chest corridor, Fountain, Portal room).
+- **Layout:** 5-wide, 5-high halls of stone brick; the straight hall has a randomly placed iron-door gap; the prison hall has a row of 3-4 cells, each 1-wide, closed with iron bars 101 and a door; the library is 14x6x11 with two bookshelf tiers 47, a ladder-less gallery, cobweb 30 and a chest at the top; the chest corridor has a single chest 54 on a dais.
+- **Blocks:** stone brick 98 (0/1/2/3), iron bars 101, iron door 71, bookshelf 47, torch 50, web 30, silverfish blocks 97 for the "infested" bricks. **Tex:** VAN only (`stonebrick*`, `iron_bars`, `bookshelf`).
+- **Features:** the iron-barred cell row is the exact motif of a grave row; iron doors; arched ceilings in the library.
+- **Mobs:** Silverfish (infested bricks).
+- **Mood:** cold, cavernous, ancient.
+- **Segment:** "barred cell row": each grave alcove gets an iron-bars front (101) with a 1-block gap like a cell door; mix 98[0], [1], [2]; torches only at the hall corners. Parameter: how many alcoves are barred versus open; silverfish infested-brick chance (visual only: render as cracked brick).
+
+### 14. Roguelike prison cells and silverfish nest alcoves
+- **Source:** Roguelike Dungeons, `segment/alcove/PrisonCell`, `segment/alcove/SilverfishNest`, `segment/part/SegmentPrisonCell`, `SegmentSilverfish`, `rooms/DungeonsPrison`.
+- **Layout:** alcoves in the corridor wall: a prison cell is a 2-deep alcove closed by an iron door 71 (with a pressure plate 70 and a zombie spawner 52 behind); a silverfish nest alcove has soul sand 88 and a silverfish spawner.
+- **Blocks:** iron bars 101, iron door 71, stone pressure plate 70, soul sand 88, spawner 52. **Tex:** VAN only.
+- **Features:** alcoves that are hostile: stepping on the plate opens the cell.
+- **Mobs:** Zombie, Silverfish. **Mood:** menace in the wall.
+- **Segment:** "cell block alcoves": the same grave-alcove rhythm but 1 in 5 alcoves is a tiny prison (iron bars across, a pale shape visible inside: a standing skeleton or a pile of bones). Pairs well with the scares: a cell can be a jump-scare trigger.
+
+---
+
+## Stratum 3: Sewers, flooded halls and the drowned deep
+
+### 15. Roguelike Sewer theme
+- **Source:** Roguelike Dungeons, `theme/ThemeSewer`, `segment/part/SegmentSewer`, `SegmentSewerArch`, `SegmentSewerDoor`, `SegmentSewerDrain`.
+- **Layout:** the walkway has a channel of flowing water down one side (1-2 wide, 1 deep); arches 3-4 apart; sewer doors (iron door 71 framed by bars 101 and a glowstone 89 above); drain grates in the wall.
+- **Blocks:** stone brick 98 (0/1/2), mossy cobble 48, iron bars 101, water 8/9, glowstone 89, spruce leaves 18[1] as dangling growth. **Tex:** VAN only (`water_still`, `water_flow`, `iron_bars`).
+- **Features:** water runs in a channel with the path as a raised stone curb; drains pour from the walls; green glowstone-lit doors.
+- **Mobs:** Zombie, Slime, Skeleton. **Mood:** damp, echoing, a bit filthy.
+- **Segment:** "sewer walk": 4 blocks across; a 1-wide 1-deep water channel along the left wall, curb stones on the right; alcoves (graves) on the dry side with iron-bar grates; glowstone lamps every 6 blocks with a pale yellow-green cast. Water flow animation (VAN `water_flow`) is the signature.
+
+### 16. Roguelike drain/arch variants and sewer door cell
+- **Source:** same, `SegmentSewerArch` (mossy arch with water jets), `SegmentSewerDrain` (a bars-fronted 2x2 outlet pouring water into the channel).
+- **Layout:** one-block-deep inset in the wall, bars across, water source behind.
+- **Blocks:** mossy cobble 48, bars 101, water 8. **Tex:** VAN only.
+- **Features:** pouring water: animated, audible.
+- **Segment:** "drain gallery": alternate grave alcoves and drains every 4 blocks; the drains keep the channel full. Vary the drain colour with wet-wall dark-stone shading (render mossy 98[1]). 8-16 blocks long.
+
+### 17. Doomlike "dank" swamp hall
+- **Source:** Doomlike Dungeons, `res/themes/dank.cfg`, type SWAMP flag SWAMPY.
+- **Layout:** Y 40-50; the room floors are largely water (85% of the liquid ladder), with islands of dirt/planks as stepping platforms; verticle ladders favour low rooms.
+- **Blocks:** mossy cobble 48, stone brick 98[1], planks 5, water 8/9, log 17; ceilings planks and mossy brick; fences: cobble wall 139[1] and fence 85. **Tex:** VAN only.
+- **Features:** plank walkways across water (the dungeon's own bridging), islands, fences.
+- **Mobs:** Zombie, Skeleton, Spider, Creeper, Cave Spider, Witch.
+- **Mood:** rotten, boggy, creaking.
+- **Segment:** "plank causeway": the path is a 1-wide plank (5) walkway with fence-post rails over a water floor (waist-deep: the visible water plane 1 block below), alcoves cut into mossy walls. Plank bridges can also be the **gaps** the spec calls "water gaps": a 2-3 block missing plank over water.
+
+### 18. Doomlike oceanic and continental shelf halls
+- **Source:** Doomlike Dungeons, `res/themes/oceanic.cfg`, `continentalShelf.cfg`.
+- **Layout:** the oceanic theme puts water in rooms and in the ceiling (a ceiling entry of `water`); shelf: water everywhere (liquid ladder 100% water in oceanic), no entrance (`entrances 0`), Y 10-15.
+- **Blocks:** stone brick, cobble, sandstone, brick 45; gravel 13 for seabed; ceilings can be water 9. **Tex:** VAN only.
+- **Features:** you look up at a water ceiling; the room is a sealed pocket under the sea.
+- **Mood:** deep, muffled, claustrophobic.
+- **Segment:** "drowned hall": a normal brick corridor with a water layer for the ceiling (one extra layer rendered as translucent blue plane), blue-tinted fog, bubbles. Ties directly to the water-gap jump (fall into the flooded section). 12-20 long, with a single sunken stretch.
+
+### 19. Roguelike Pit and Slime rooms
+- **Source:** Roguelike Dungeons, `rooms/DungeonsPit`, `rooms/DungeonsSlime`.
+- **Layout:** DungeonsPit: a chamber with a bedrock-looking floor drop, a pressure plate 70 wired with redstone 55 and redstone torches 76 that drops flooding water 8; DungeonsSlime: an iron-barred cell around a water-filled floor with slime spawn.
+- **Blocks:** bedrock 7 (floor), stone pressure plate 70, redstone 55, redstone torch 76, water 8, iron bars 101. **Tex:** VAN only.
+- **Features:** the pit trap floods; the redstone tell (little red torches in the wall).
+- **Mobs:** Slime. **Mood:** a trap you can read, unlike the rest.
+- **Segment:** "pressure plate flood": a 6-long corridor with a visible stone plate, red torch glints on the wall; stepping triggers (scare hook) a water surge. Pair with krypt-gap's takeover for a reaction.
+
+### 20. Recurrent Complex "Well Shrine"
+- **Source:** Recurrent Complex, `structures/WellShrine.rcst` (17x21x17 above-ground, 21 tall: a well).
+- **Layout:** a stone-brick well shaft with white-wool banners descending 10+ blocks to water, with stairs/slabs forming a cap.
+- **Blocks:** stone brick 98, stairs 109, slab 44, wool 35[0], water 8/9. **Tex:** VAN only.
+- **Features:** vertical descent, banner-lined shaft.
+- **Mood:** votive, quiet, clean.
+- **Segment:** "well descent": the path spirals downward around a water shaft (a 5x5 shaft with a 1-wide stair along the wall), white banners hanging; 8 blocks deep, 20 stair steps; alcoves in the shaft wall. A natural **vertical transition** between strata.
+
+### 21. Lucky Blocks water trap, wishing well and cage
+- **Source:** Lucky Blocks, `mod/lucky/util/CustomStructures` (`makeWaterCage`, `makeWishingWell`, `makeCage`); data in `LuckyBlockProperties.txt` (IDs `water_trap`, `wishing_well`).
+- **Layout:** a small cage built around the player: a hollow box of iron bars 101 with water 9 inside (water cage); a wishing well: ring of cobble 4 with a water pool and a hidden lucky block 3 below plus beacon 138 drop ("a wishing well").
+- **Blocks:** iron bars 101, water 9, cobble 4, glass 20, iron block 42. **Tex:** VAN only. Lucky's own block texture is `assets/lucky/textures/blocks/lucky_block.png` in LuckyBlocks.jar (already used on the site).
+- **Mobs:** none.
+- **Mood:** a cruel joke; a coin in the well.
+- **Segment:** "wish alcove": one alcove in a flooded hall is a mini wishing well (3x3 cobble ring, water, a gold-nugget glint); in the Krypt, the well is a grave-adjacent offering (players leave a coin). Fits a late-stratum surprise.
+
+---
+
+## Stratum 4: Mosswild (jungle, roots and fungus)
+
+### 22. Doomlike jungle ruin
+- **Source:** Doomlike Dungeons, `res/themes/jungle.cfg`.
+- **Layout:** Y 25-50; more pillars, fewer symmetric rooms (symmetry 0 for small sizes), degeneracy 0 (rooms are intact); entrances plentiful (up to the top of the ladder).
+- **Blocks:** stone brick 98 and mossy 98[1], mossy cobble 48, double slab 43, cobble wall 139[1], stone brick carved 98[3]. **Tex:** VAN only.
+- **Mobs:** Zombie, Skeleton, Spider, Creeper, Enderman, Cave Spider, Witch.
+- **Mood:** old, overgrown, still intact.
+- **Segment:** "overgrown hall": normal hall with 30% mossy swaps, vine 106 hanging from the ceiling at random, a carved-brick (98[3]) pillar pair at the entrance. Add a "fallen pillar" (a lying line of carved bricks across the floor) as an obstacle.
+
+### 23. Roguelike Jungle, Mossy and Muddy themes
+- **Source:** Roguelike Dungeons, `theme/ThemeJungle`, `ThemeMossy`, `ThemeMuddy`, `segment/part/SegmentJungle`, `SegmentMossyArch`, `SegmentPlant`, `SegmentFlowers`, `SegmentWheat`.
+- **Layout:** the jungle segment grows grass 2 and leaves 18[3] out of wall niches with water; the muddy theme mixes clay 82, dirt 3 (coarse -> 3), mycelium 110, soul sand 88, cobble and cracked bricks; plant niches have podzol (use dirt), fern, peony, rose.
+- **Blocks:** mossy cobble 48, stone brick (0/1/2/3), grass 2, dirt 3, clay 82, mycelium 110, vines 106, leaves 18, water 8. **Tex:** VAN only.
+- **Mobs:** Zombie, Skeleton, Spider, Creeper.
+- **Mood:** wet, overgrown, spore-heavy.
+- **Segment:** "root hall": alcoves are planter niches with moss/fern around the grave, the floor is muddy (mix dirt and clay), vines drip. Parameter: growth density. Pair with greenish low fog.
+
+### 24. Roguelike Spider Nest and Mushroom segment
+- **Source:** Roguelike Dungeons, `rooms/DungeonsSpiderNest`, `segment/part/SegmentMushrooms`.
+- **Layout:** a chamber of gravel 13 and cobweb 30 with a cave-spider spawner 52; the mushroom segment sets a mycelium 110 bed with brown and red mushrooms in flower pots.
+- **Blocks:** web 30, gravel 13, spawner 52, mycelium 110, mushroom 39/40, flower pot 140. **Tex:** VAN only (`web`, `mycelium_top`, `mushroom_*`).
+- **Mobs:** Cave Spider.
+- **Mood:** webbed and sticky, cautionary.
+- **Segment:** "webway": the passage is draped with webs 30 across at head height (visual only, not blocking), thick web in the alcoves around the graves, a spawner cage with a spider eye glint. 10-16 long.
+
+### 25. Recurrent Complex "Underground Treeoid"
+- **Source:** Recurrent Complex, `structures/UndergroundTreeoid.rcst` (24x25x27, Y 8-40).
+- **Layout:** a giant underground tree-shaped cavern: log trunk 17, leaves 18, red and brown mushroom blocks 99/100, grass 2, dirt, vines 106, web 30, redstone ore 73, a cave-spider spawner, water.
+- **Blocks:** log, leaves, mushroom blocks, vine, web, stone. **Tex:** VAN only.
+- **Features:** a living column at the cavern centre; roots and mushroom caps overhead.
+- **Mobs:** Cave Spider, Bat.
+- **Mood:** wonder in the dark, surprising.
+- **Segment:** "root cavern": the path wraps 180 degrees around a log-and-mushroom trunk; ceiling hung with mushroom blocks and leaves; water pool below the path. 20-30 long. Provides a **big open space** to break up tunnels.
+
+### 26. Recurrent Complex "Forest Maze" pieces
+- **Source:** Recurrent Complex, `structures/ForestMaze.rcst` (53x18x53) and `forestMaze/*.rcst` (Corridor 9x11x9, Crossing, 3Way, Turn, End, Clearing 20x11x20 with a spider spawner and chest, Slimes 11x11x20 with slime spawner and chest).
+- **Layout:** a leaf-walled maze: corridors 9 wide between rows of log 17 and leaves 18 on grass; clearing rooms hold saplings, flowers and a spawner.
+- **Blocks:** leaves 18, log 17, grass 2, dirt 3, tall grass 31, flowers 37/38, sapling 6. **Tex:** VAN only.
+- **Mobs:** Spider, Slime.
+- **Mood:** green, dappled, deceptively calm.
+- **Segment:** "leaf corridor": a corridor whose walls are leaf blocks with logs at the corners, overhead leaves letting dappled "light" through; alcove graves are leaf-framed hollows (wild flowers around). Not underground feel: use as the **breath stratum** between dark ones.
+
+### 27. Vanilla jungle temple
+- **Source:** vanilla 1.7.10, `ComponentScatteredFeaturePieces$JunglePyramid`.
+- **Layout:** 12 wide, 10 high, 15 deep stepped mossy block pyramid; interior two floors: a lower chamber behind a hidden lever puzzle (3 levers 69 in a particular order opens a wall); tripwire 132 arrow dispenser corridor (dispensers 23 firing arrows); two chests 54 (one on each level); a hole stair in the floor; vines 106 draped on walls.
+- **Blocks:** mossy cobble 48, cobble 4, stairs 67, vine 106, tripwire hook 131, tripwire 132, dispenser 23, lever 69, redstone 55, sticky piston 29, chest 54. **Tex:** VAN only.
+- **Features:** the arrow trap corridor (dispensers fire when you cross a tripwire), a piston-hidden stairwell, a lever puzzle.
+- **Mobs:** none (traps).
+- **Mood:** treasure-hunt tension; the arrow corridor is "classic".
+- **Segment:** "arrow gallery": 12 blocks of mossy corridor with dispenser holes in the wall at knee height (animated arrows crossing when a scare triggers); tripwire strands visible across the floor in the dark. Can fire arrows as a **scare**.
+
+### 28. Roguelike Creeper Den
+- **Source:** Roguelike Dungeons, `rooms/DungeonsCreeperDen`.
+- **Layout:** a mossy-cobble room with gravel floor and TNT 46 buried among the walls, a creeper spawner 52, and ore chest.
+- **Blocks:** mossy cobble 48, gravel 13, TNT 46, spawner 52. **Tex:** VAN only.
+- **Mobs:** Creeper. **Mood:** hissing, tense.
+- **Segment:** "powder room": a mossy-cobble alcove run with TNT blocks (46) visibly in the walls and the floor gravel; sound bed with hissing. A creeper silhouette in an alcove is a scare hook.
+
+---
+
+## Stratum 5: Sand temples and pyramids
+
+### 29. Vanilla desert temple
+- **Source:** vanilla 1.7.10, `ComponentScatteredFeaturePieces$DesertPyramid`.
+- **Layout:** 21 x 14 x 21 stepped sandstone pyramid with a central chamber 5x5 floored with a blue stained-clay 159[11] cross pattern; beneath it a 3x3 room with a 9-TNT cache 46 over a pressure plate 70; four small chambers in the corners each with a chest 54; two corner towers.
+- **Blocks:** sandstone 24 (0/1/2), sandstone stairs 128, stained clay 159[1] orange and [11] blue, TNT 46, stone pressure plate 70, chest 54. **Tex:** VAN only (`sandstone_*`, `hardened_clay_stained_*`, `tnt_*`).
+- **Features:** the TNT trap beneath the pattern; orange/blue stained-clay motif.
+- **Mobs:** none.
+- **Mood:** dry, bright, deceptive: the shock is below.
+- **Segment:** "pyramid vestibule": a 21-long sandstone hall with a blue-clay stripe set into the floor that leads to a trap chamber under it (a short descending passage with TNT stacks visible through a grate); chest alcoves in the corners = grave alcoves. TNT as a scare trigger.
+
+### 30. Recurrent Complex "Pyramid Maze" pieces
+- **Source:** Recurrent Complex, `structures/pyramid/*.rcst` (identical piece set to Meso Maze but in sandstone 24 and sandstone stairs 128: Corridor, 3Way, Crossing, Turn, End, CorridorCollapse 3x8x5, SpiderTurn, StairCorridor/Turn, Storage with a chest, ZombieTable with spawner).
+- **Blocks:** sandstone 24, sandstone stairs 128, slab 44, web 30, spawner 52, chest 54. **Tex:** VAN only.
+- **Mobs:** Cave Spider, Zombie.
+- **Mood:** archaeological claustrophobia, warmer than the stone maze.
+- **Segment:** "sand cell chain": as entry 11 but in sandstone; use smooth sandstone 24[2] for the floors and chiseled 24[1] for pilasters between alcoves. Warm torchlight (amber #ffb347).
+
+### 31. Recurrent Complex Big and Small Pyramid, Temple Pyramid
+- **Source:** Recurrent Complex, `BigPyramid.rcst` (49x34x62), `SmallPyramid.rcst` (33x18x37), `TemplePyramid.rcst` (63x32x63, stone brick 98 and stairs).
+- **Layout:** big stepped pyramids with an interior of sand, obsidian 49 plugs, chests, torches, stairs sunk into the middle. The temple pyramid is a stone-brick stepped monument for a jungle look.
+- **Blocks:** sandstone 24, stairs 128, slab 44, torch 50, obsidian 49, chest 54, stone brick 98. **Tex:** VAN only.
+- **Mood:** monumental, awe-inspiring.
+- **Segment:** "monument stair": a descending stair 5 wide x 20 steps long, flanked by tall stepped walls with obsidian plugs (sealed doors), with grave alcoves in the plugs; the player descends into the pyramid's belly.
+
+### 32. Roguelike Pyramid theme and tomb rooms
+- **Source:** Roguelike Dungeons, `theme/ThemePyramid`, `ThemeTemple`, `rooms/DungeonPyramidTomb`, `DungeonPyramidSpawner`, `DungeonPyramidCorner`, `dungeon/towers/PyramidTower`.
+- **Layout:** chambers with sandstone walls (chiseled/smooth), the tomb room holds quartz-bordered sarcophagi with zombie spawners; the spawner room has a ring of sandstone around a spawner 52.
+- **Blocks:** sandstone 24 (0/1/2), sandstone stairs 128, quartz 155, spawner 52, chest 54. **Tex:** VAN only.
+- **Mobs:** Zombie.
+- **Mood:** pharaoh tomb.
+- **Segment:** "sarcophagus gallery": like entry 3 but sandstone with gold block (41) caps over the graves; the wall carved with chiseled sandstone friezes (24[1]).
+
+### 33. Doomlike desert and mesa halls
+- **Source:** Doomlike Dungeons, `res/themes/desert.cfg`, `res/themes/mesa.cfg`.
+- **Layout:** desert Y 35-50; walls sandstone 24 (and [2] smooth); pillars include lapis block 22 and planks; mesa uses all 16 stained clay colours 159[0-15] and hardened clay 172 in walls, floors and ceilings in banded stripes.
+- **Blocks:** sandstone 24, lapis block 22, hardened clay 172, stained clay 159 (all metas). **Tex:** VAN only.
+- **Mood:** desert: bleak and bright; mesa: rainbow strata, unusual.
+- **Segment:** "banded hall": a mesa kind with horizontal wall bands (e.g. 159 metas 1,7,14,12 repeating every 2 blocks high). Visually the most colourful kind in the catalogue; use sparingly.
+
+### 34. Chocolate Quest desert entrances: sphinx, pyramid, statues, oasis
+- **Source:** Chocolate Quest, `DungeonConfig/Building/stronghold/entrance_desert/{sphynx,sphynx_big,pyramid,pyramid_small,statues,oasis}.schematic`, config `DungeonConfig/stronghold_desert.prop`.
+- **Layout:** sphynx_big 15x15x15 (sandstone + stone, one diamond block 57, a few lava), statues 15x18x16 (sandstone statues, 10 lava), oasis 15x11x15 (water 40, sand 209, cactus 17, leaves 55), pyramid 15x9x15 and small 15x5x15 (sandstone, slabs).
+- **Blocks:** sandstone 24, slab 44, lava 11, water 9, sand 12, cactus 81, iron bars 101, diamond block 57. **Tex:** VAN only.
+- **Mood:** monumental entrances to a sand underworld.
+- **Segment:** "guardian court": a short 15x15 open room with sandstone statues of anubis-like figures flanking the path and two lava channels in the floor (2 wide); the entrance to a deeper desert corridor. Lava channels double as gaps.
+
+### 35. Lucky Blocks fort and temple
+- **Source:** Lucky Blocks, `mod/lucky/util/CustomStructures`: `makeFort`, `makeTemple` (7x7x7 cube, sandstone and gold with a lucky block inside), also `LuckyGenerator`.
+- **Layout:** a 7x7x7 hollow cube of sandstone 24 with a gold block 41 trim, stairs 128 up the outside and torches 50 at the corners; a lucky block at the centre, lit.
+- **Blocks:** sandstone 24, gold block 41, sandstone stairs 128, torch 50. **Tex:** VAN only (the lucky block itself is in LuckyBlocks.jar).
+- **Mood:** a golden treat in a trap-heavy mine.
+- **Segment:** "gold cell": a 7x7x7 sandstone chamber off the corridor with a lucky-block pedestal (gold block cap) — the grave of the most lucky death; keeps the site's Lucky motif consistent.
