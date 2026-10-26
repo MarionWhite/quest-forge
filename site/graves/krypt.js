@@ -771,78 +771,177 @@ export function patchBake(mat, { fixed = null } = {}) {
   return mat;
 }
 
+// Chunks of CH x CH blocks (full height) are meshed lazily: the page asks for the ones near the walker (pump) and
+// carve() rebuilds only the chunks a box touches. Textures are shared between chunks.
+export const CH = 16;
+export const BLOCK_NAME = {
+  [T_AIR]: "air", [T_STONE]: "stone", [T_COBBLE]: "cobblestone", [T_MOSSY]: "mossy_cobblestone", [T_BRICK]: "stonebrick",
+  [T_BRICK_MOSSY]: "mossy_stonebrick", [T_BRICK_CRACK]: "cracked_stonebrick", [T_GRAVEL_FLOOR]: "gravel", [T_COAL]: "coal_ore",
+  [T_IRON]: "iron_ore", [T_OBS]: "obsidian", [T_BEDROCK]: "bedrock", [T_NETHER]: "netherrack", [T_GLOW]: "glowstone",
+  [T_BRIDGE]: "stonebrick", [T_WATER]: "water", [T_NBRICK]: "nether_brick", [T_SOUL]: "soul_sand", [T_SHELF]: "bookshelf",
+  [T_PLANK]: "planks", [T_LOG]: "log", [T_LAVA]: "lava", [T_DIRT]: "dirt"
+};
+export function blockNameAt(a, x, y, z) {
+  const i = Math.floor(x), j = Math.floor(y), k = Math.floor(z);
+  if (!a.inb(i, j, k)) return "bedrock";
+  const ix = ((k - a.k0) * a.NJ + (j - a.j0)) * a.NI + (i - a.i0);
+  const t = a.g[ix];
+  return BLOCK_NAME[t === T_WALL ? wallType(a.st[ix], i, j, k) : t] || "stone";
+}
+
 export function meshGrid(a, images) {
   const group = new THREE.Group();
-  const bins = new Map();
-  const bin = (file) => { if (!bins.has(file)) bins.set(file, { pos: [], nor: [], uv: [], bake: [] }); return bins.get(file); };
   const lightAt = makeLightAt(a);
-  const AX = [[1, 0, 0], [0, 1, 0], [0, 0, 1]];
+  const texs = {};
+  const texOf = (file) => {
+    if (texs[file] !== undefined) return texs[file];
+    const img = images[file];
+    if (!img) return (texs[file] = null);
+    const tex = new THREE.Texture(img);
+    tex.colorSpace = THREE.SRGBColorSpace; tex.magFilter = THREE.NearestFilter; tex.minFilter = THREE.NearestFilter;
+    tex.wrapS = tex.wrapT = THREE.RepeatWrapping; tex.generateMipmaps = false; tex.needsUpdate = true;
+    return (texs[file] = tex);
+  };
+  const mats = {};
+  const matOf = (file) => mats[file] || (mats[file] = patchBake(new THREE.MeshLambertMaterial({ map: texOf(file) })));
+  const nci = Math.ceil(a.NI / CH), nck = Math.ceil(a.NK / CH);
+  const chunks = new Map();   // "ci,ck" -> { group, built }
+  const cOf = (i, k) => [Math.floor((i - a.i0) / CH), Math.floor((k - a.k0) / CH)];
+  const AX = null; void AX;
+  const dirs = [[1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], [0, 0, 1], [0, 0, -1]];
   const resolve = (i, j, k) => {
     const t = a.g[((k - a.k0) * a.NJ + (j - a.j0)) * a.NI + (i - a.i0)];
     return t === T_WALL ? wallType(a.st[((k - a.k0) * a.NJ + (j - a.j0)) * a.NI + (i - a.i0)], i, j, k) : t;
   };
-  const dirs = [[1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], [0, 0, 1], [0, 0, -1]];
-  for (let k = a.k0 + 1; k < a.k0 + a.NK - 1; k++) for (let j = a.j0 + 1; j < a.j0 + a.NJ - 1; j++) for (let i = a.i0 + 1; i < a.i0 + a.NI - 1; i++) {
-    const raw = a.g[((k - a.k0) * a.NJ + (j - a.j0)) * a.NI + (i - a.i0)];
-    if (raw === T_AIR || raw === T_WATER || raw === T_LAVA) continue;
-    let tt = null;
-    for (const [di, dj, dk] of dirs) {
-      const n = a.g[((k + dk - a.k0) * a.NJ + (j + dj - a.j0)) * a.NI + (i + di - a.i0)];
-      if (n !== T_AIR && n !== T_WATER && n !== T_LAVA) continue;
-      if (tt === null) tt = resolve(i, j, k);
-      const names = TEX_OF[tt] || TEX_OF[T_STONE];
-      const top = dj > 0, bot = dj < 0;
-      const file = top ? (names[1] || names[0]) : bot ? (names[2] || names[1] && tt !== T_GRAVEL_FLOOR ? (names[2] || names[1]) : names[0]) : names[0];
-      const b = bin(file);
-      const ax = di ? 0 : dj ? 1 : 2, sn = di + dj + dk;
-      const t1 = (ax + 1) % 3, t2 = (ax + 2) % 3;
-      const base = [i, j, k]; base[ax] += sn > 0 ? 1 : 0;
-      const corners = [[0, 0], [1, 0], [1, 1], [0, 1]];
-      const verts = corners.map(([c1, c2]) => { const p = base.slice(); p[t1] += c1; p[t2] += c2; return p; });
-      // Winding: make it face along the normal.
-      const e1 = [verts[1][0] - verts[0][0], verts[1][1] - verts[0][1], verts[1][2] - verts[0][2]];
-      const e2 = [verts[2][0] - verts[0][0], verts[2][1] - verts[0][1], verts[2][2] - verts[0][2]];
-      const cr = [e1[1] * e2[2] - e1[2] * e2[1], e1[2] * e2[0] - e1[0] * e2[2], e1[0] * e2[1] - e1[1] * e2[0]];
-      const order = (cr[0] * di + cr[1] * dj + cr[2] * dk) >= 0 ? [0, 1, 2, 0, 2, 3] : [0, 2, 1, 0, 3, 2];
-      // Light at the face centre, then the corner occlusion.
-      const cxm = i + 0.5 + di * 0.52, cym = j + 0.5 + dj * 0.52, czm = k + 0.5 + dk * 0.52;
-      const bl = tt === T_GLOW ? [1.7, 1.45, 0.9] : lightAt(cxm, cym, czm, di, dj, dk);
-      const bkr = bl[0], bkg = bl[1], bkb = bl[2];
-      const aos = corners.map(([c1, c2]) => {
-        const s1 = c1 ? 1 : -1, s2 = c2 ? 1 : -1;
-        const p = [i + di, j + dj, k + dk];
-        const q1 = p.slice(); q1[t1] += s1; const q2 = p.slice(); q2[t2] += s2; const q3 = p.slice(); q3[t1] += s1; q3[t2] += s2;
-        const o1 = a.solid(q1[0], q1[1], q1[2]) ? 1 : 0, o2 = a.solid(q2[0], q2[1], q2[2]) ? 1 : 0, o3 = a.solid(q3[0], q3[1], q3[2]) ? 1 : 0;
-        return AO[(o1 && o2) ? 0 : 3 - (o1 + o2 + o3)];
-      });
-      for (const q of order) {
-        const [px, py, pz] = verts[q];
-        b.pos.push(px, py, pz); b.nor.push(di, dj, dk);
-        const uu = di ? (di > 0 ? -pz : pz) : px, vv = dj ? pz : py;
-        b.uv.push(uu, vv);
-        const ao = tt === T_GLOW ? 1 : aos[q];
-        b.bake.push(bkr * ao, bkg * ao, bkb * ao);
+  function buildChunk(ci, ck) {
+    const key = ci + "," + ck;
+    let ch = chunks.get(key);
+    if (!ch) { ch = { group: new THREE.Group(), built: false }; ch.group.matrixAutoUpdate = false; chunks.set(key, ch); group.add(ch.group); }
+    for (const m of [...ch.group.children]) { ch.group.remove(m); m.geometry.dispose(); }
+    ch.built = true;
+    const bins = new Map();
+    const bin = (file) => { if (!bins.has(file)) bins.set(file, { pos: [], nor: [], uv: [], bake: [] }); return bins.get(file); };
+    const iLo = Math.max(a.i0 + 1, a.i0 + ci * CH), iHi = Math.min(a.i0 + a.NI - 1, a.i0 + (ci + 1) * CH);
+    const kLo = Math.max(a.k0 + 1, a.k0 + ck * CH), kHi = Math.min(a.k0 + a.NK - 1, a.k0 + (ck + 1) * CH);
+    for (let k = kLo; k < kHi; k++) for (let j = a.j0 + 1; j < a.j0 + a.NJ - 1; j++) for (let i = iLo; i < iHi; i++) {
+      const raw = a.g[((k - a.k0) * a.NJ + (j - a.j0)) * a.NI + (i - a.i0)];
+      if (raw === T_AIR || raw === T_WATER || raw === T_LAVA) continue;
+      let tt = null;
+      for (const [di, dj, dk] of dirs) {
+        const n = a.g[((k + dk - a.k0) * a.NJ + (j + dj - a.j0)) * a.NI + (i + di - a.i0)];
+        if (n !== T_AIR && n !== T_WATER && n !== T_LAVA) continue;
+        if (tt === null) tt = resolve(i, j, k);
+        const names = TEX_OF[tt] || TEX_OF[T_STONE];
+        const top = dj > 0, bot = dj < 0;
+        const file = top ? (names[1] || names[0]) : bot ? (names[2] || names[1] && tt !== T_GRAVEL_FLOOR ? (names[2] || names[1]) : names[0]) : names[0];
+        const b = bin(file);
+        const ax = di ? 0 : dj ? 1 : 2, sn = di + dj + dk;
+        const t1 = (ax + 1) % 3, t2 = (ax + 2) % 3;
+        const base = [i, j, k]; base[ax] += sn > 0 ? 1 : 0;
+        const corners = [[0, 0], [1, 0], [1, 1], [0, 1]];
+        const verts = corners.map(([c1, c2]) => { const p = base.slice(); p[t1] += c1; p[t2] += c2; return p; });
+        const e1 = [verts[1][0] - verts[0][0], verts[1][1] - verts[0][1], verts[1][2] - verts[0][2]];
+        const e2 = [verts[2][0] - verts[0][0], verts[2][1] - verts[0][1], verts[2][2] - verts[0][2]];
+        const cr = [e1[1] * e2[2] - e1[2] * e2[1], e1[2] * e2[0] - e1[0] * e2[2], e1[0] * e2[1] - e1[1] * e2[0]];
+        const order = (cr[0] * di + cr[1] * dj + cr[2] * dk) >= 0 ? [0, 1, 2, 0, 2, 3] : [0, 2, 1, 0, 3, 2];
+        const cxm = i + 0.5 + di * 0.52, cym = j + 0.5 + dj * 0.52, czm = k + 0.5 + dk * 0.52;
+        const bl = tt === T_GLOW ? [1.7, 1.45, 0.9] : lightAt(cxm, cym, czm, di, dj, dk);
+        const bkr = bl[0], bkg = bl[1], bkb = bl[2];
+        const aos = corners.map(([c1, c2]) => {
+          const s1 = c1 ? 1 : -1, s2 = c2 ? 1 : -1;
+          const p = [i + di, j + dj, k + dk];
+          const q1 = p.slice(); q1[t1] += s1; const q2 = p.slice(); q2[t2] += s2; const q3 = p.slice(); q3[t1] += s1; q3[t2] += s2;
+          const o1 = a.solid(q1[0], q1[1], q1[2]) ? 1 : 0, o2 = a.solid(q2[0], q2[1], q2[2]) ? 1 : 0, o3 = a.solid(q3[0], q3[1], q3[2]) ? 1 : 0;
+          return AO[(o1 && o2) ? 0 : 3 - (o1 + o2 + o3)];
+        });
+        for (const q of order) {
+          const [px, py, pz] = verts[q];
+          b.pos.push(px, py, pz); b.nor.push(di, dj, dk);
+          const uu = di ? (di > 0 ? -pz : pz) : px, vv = dj ? pz : py;
+          b.uv.push(uu, vv);
+          const ao = tt === T_GLOW ? 1 : aos[q];
+          b.bake.push(bkr * ao, bkg * ao, bkb * ao);
+        }
       }
     }
+    for (const [file, b] of bins) {
+      if (!texOf(file) || !b.pos.length) continue;
+      const g = new THREE.BufferGeometry();
+      g.setAttribute("position", new THREE.Float32BufferAttribute(b.pos, 3));
+      g.setAttribute("normal", new THREE.Float32BufferAttribute(b.nor, 3));
+      g.setAttribute("uv", new THREE.Float32BufferAttribute(b.uv, 2));
+      g.setAttribute("bake", new THREE.Float32BufferAttribute(b.bake, 3));
+      const m = new THREE.Mesh(g, matOf(file));
+      m.matrixAutoUpdate = false;
+      ch.group.add(m);
+    }
   }
-  const disposables = [];
-  const mats = {};
-  for (const [file, b] of bins) {
-    const img = images[file];
-    if (!img) continue;
-    const tex = new THREE.Texture(img);
-    tex.colorSpace = THREE.SRGBColorSpace; tex.magFilter = THREE.NearestFilter; tex.minFilter = THREE.NearestFilter;
-    tex.wrapS = tex.wrapT = THREE.RepeatWrapping; tex.generateMipmaps = false; tex.needsUpdate = true;
-    const g = new THREE.BufferGeometry();
-    g.setAttribute("position", new THREE.Float32BufferAttribute(b.pos, 3));
-    g.setAttribute("normal", new THREE.Float32BufferAttribute(b.nor, 3));
-    g.setAttribute("uv", new THREE.Float32BufferAttribute(b.uv, 2));
-    g.setAttribute("bake", new THREE.Float32BufferAttribute(b.bake, 3));
-    const m = new THREE.Mesh(g, patchBake(new THREE.MeshLambertMaterial({ map: tex })));
-    group.add(m); disposables.push(tex, g, m);
-    mats[file] = m;
+  const isBuilt = (ci, ck) => { const c = chunks.get(ci + "," + ck); return !!(c && c.built); };
+  // Builds the nearest unbuilt chunk within `radius` blocks of (x, z); returns true when it built one.
+  function pump(x, z, radius = 56, n = 1) {
+    let built = 0;
+    for (; built < n; built++) {
+      let best = null, bd = radius * radius;
+      const c0 = cOf(x - radius, z - radius), c1 = cOf(x + radius, z + radius);
+      for (let ci = Math.max(0, c0[0]); ci <= Math.min(nci - 1, c1[0]); ci++) for (let ck = Math.max(0, c0[1]); ck <= Math.min(nck - 1, c1[1]); ck++) {
+        if (isBuilt(ci, ck)) continue;
+        const cx = a.i0 + (ci + 0.5) * CH, cz = a.k0 + (ck + 0.5) * CH;
+        const d = (cx - x) ** 2 + (cz - z) ** 2;
+        if (d < bd) { bd = d; best = [ci, ck]; }
+      }
+      if (!best) break;
+      buildChunk(best[0], best[1]);
+    }
+    return built > 0;
   }
-  return { group, disposables, lightAt };
+  // Rebuilds the built chunks that a block box (inclusive) touches, with a one block margin for faces and occlusion.
+  function rebuildBox(mn, mx) {
+    const c0 = cOf(mn[0] - 1, mn[2] - 1), c1 = cOf(mx[0] + 1, mx[2] + 1);
+    for (let ci = Math.max(0, c0[0]); ci <= Math.min(nci - 1, c1[0]); ci++) for (let ck = Math.max(0, c0[1]); ck <= Math.min(nck - 1, c1[1]); ck++) if (isBuilt(ci, ck)) buildChunk(ci, ck);
+  }
+  function buildAll() { for (let ci = 0; ci < nci; ci++) for (let ck = 0; ck < nck; ck++) if (!isBuilt(ci, ck)) buildChunk(ci, ck); }
+  const stats = () => { let meshes = 0, built = 0; for (const c of chunks.values()) if (c.built) { built++; meshes += c.group.children.length; } return { chunks: built, total: nci * nck, meshes }; };
+  return { group, disposables: [], lightAt, pump, rebuildBox, buildAll, stats };
+}
+
+// ---- carving (the scares' contract) -----------------------------------------------------------------------
+// carve(min, max): empties the blocks in the box (inclusive, world block coords) and rebuilds the chunks it touches.
+// restore(): puts every carved block back. solidAt / blockAt read the grid as it is now.
+export function makeCarver(a, gm) {
+  const saved = new Map();   // grid index -> original value
+  const clampBox = (mn, mx) => [
+    [Math.floor(Math.min(mn[0], mx[0])), Math.floor(Math.min(mn[1], mx[1])), Math.floor(Math.min(mn[2], mx[2]))],
+    [Math.floor(Math.max(mn[0], mx[0])), Math.floor(Math.max(mn[1], mx[1])), Math.floor(Math.max(mn[2], mx[2]))]];
+  return {
+    carve(mn, mx) {
+      const [lo, hi] = clampBox(mn, mx);
+      let n = 0;
+      for (let k = lo[2]; k <= hi[2]; k++) for (let j = lo[1]; j <= hi[1]; j++) for (let i = lo[0]; i <= hi[0]; i++) {
+        // Never the outermost shell of the grid: it stays a wall.
+        if (i <= a.i0 || i >= a.i0 + a.NI - 1 || k <= a.k0 || k >= a.k0 + a.NK - 1 || j <= a.j0 || j >= a.j0 + a.NJ - 1) continue;
+        const ix = ((k - a.k0) * a.NJ + (j - a.j0)) * a.NI + (i - a.i0);
+        if (a.g[ix] === T_AIR) continue;
+        if (!saved.has(ix)) saved.set(ix, a.g[ix]);
+        a.g[ix] = T_AIR; n++;
+      }
+      if (n) gm.rebuildBox(lo, hi);
+      return n;
+    },
+    restore() {
+      if (!saved.size) return 0;
+      let mn = [1e9, 1e9, 1e9], mx = [-1e9, -1e9, -1e9];
+      for (const [ix, v] of saved) {
+        const i = ix % a.NI + a.i0, j = Math.floor(ix / a.NI) % a.NJ + a.j0, k = Math.floor(ix / (a.NI * a.NJ)) + a.k0;
+        a.g[ix] = v;
+        mn = [Math.min(mn[0], i), Math.min(mn[1], j), Math.min(mn[2], k)]; mx = [Math.max(mx[0], i), Math.max(mx[1], j), Math.max(mx[2], k)];
+      }
+      const n = saved.size; saved.clear();
+      gm.rebuildBox(mn, mx);
+      return n;
+    },
+    solidAt: (x, y, z) => a.solid(Math.floor(x), Math.floor(y), Math.floor(z)),
+    blockAt: (x, y, z) => blockNameAt(a, x, y, z)
+  };
 }
 
 export const sizeOf = (lay) => lay.length;

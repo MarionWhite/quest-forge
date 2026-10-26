@@ -11,7 +11,7 @@ Previous state: `ops/checkpoints/site-krypt-world.md`.
   and just more dungeon."
 
 ## Done means
-- [ ] **Contract for the scares task, first** (they code against it):
+- [x] (DONE, committed) **Contract for the scares task, first** (they code against it):
   - `__krypt.carve(min, max)` removes the blocks in that box and rebuilds only the affected
     chunk;
   - `__krypt.restore()` undoes every carve;
@@ -35,4 +35,4 @@ Previous state: `ops/checkpoints/site-krypt-world.md`.
   carve demo (`?carve=x,y,z,w,h,d`, a debug hook).
 
 ## Done
-(nothing yet)
+Contract shipped: krypt.js meshGrid is now chunked (16x16, lazy via pump) + makeCarver; app.js exposes __krypt.carve/restore/solidAt/blockAt, documented at top. ?carve=x,y,z,w,h,d hook in runDump. Next: new segments.

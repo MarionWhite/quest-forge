@@ -10,7 +10,7 @@ import {
   normalize, killerText, epitaph, epitaphParts, familyFor, ornaments, poseFor, seedFor,
   CAUSE_LABEL, CAUSE_NOUN, hash
 } from "./data.js";
-import { layout, buildGrid, meshGrid, pathCurve, finishLayout, profileAt, legAt, legDir, legMap, legYaw, slotFrame, patchBake } from "./krypt.js";
+import { layout, buildGrid, meshGrid, pathCurve, finishLayout, profileAt, legAt, legDir, legMap, legYaw, slotFrame, patchBake, makeCarver } from "./krypt.js";
 import { dress } from "./dress.js";
 import { makeFx } from "./fx.js";
 import { makeAmbience, sfxLog } from "./kaudio.js";
@@ -49,13 +49,23 @@ const state = {
 //       depth          0..1, the same as s but eased: 0 at the entrance crypt, 1 in the nether depths
 //   corners         [{ s, pos: Vector3, dir: Vector3, side }] where the path turns or a side passage opens:
 //                   pos is the floor-level centre of the turn, dir the unit heading after it, side -1 left / +1 right
+//   carve(min, max) min/max are [x, y, z] (or Vector3) block coordinates, inclusive. Removes the blocks in that box
+//                   and rebuilds only the chunks it touches (16 x 16 blocks, full height). Returns how many blocks went.
+//                   The outer shell of the world never goes. Carves stack; restore() undoes all of them.
+//   restore()       puts back every carved block and rebuilds those chunks. Returns how many came back.
+//   solidAt(x,y,z)  true when the block holding the world point is not air, water or lava (carves included).
+//   blockAt(x,y,z)  the block name there: air, stone, cobblestone, mossy_cobblestone, stonebrick, mossy_stonebrick,
+//                   cracked_stonebrick, gravel, coal_ore, iron_ore, obsidian, bedrock, netherrack, glowstone, water,
+//                   nether_brick, soul_sand, bookshelf, planks, log, lava, dirt (more as segments add them).
+//                   Decor (torches, webs, rails) is not blocks; ask the scene for those.
 //   takeover(on)    true pauses the camera control and walk input (and own footsteps) while a scare plays;
 //                   false restores them. The scare may move window.__krypt.camera while taken over.
 const __kryptHold = { on: false };
 window.__krypt = {
   scene: null, camera: null, renderer: null, composer: null, corners: [],
   getWalk() { return { s: 0, speed: 0, activeSeconds: 0, depth: 0, segment: "crypt" }; },
-  takeover(on) { __kryptHold.on = !!on; }
+  takeover(on) { __kryptHold.on = !!on; },
+  carve() { return 0; }, restore() { return 0; }, solidAt() { return false; }, blockAt() { return "air"; }
 };
 
 // --- scares: begin (owned by scares.js) ---
@@ -214,7 +224,7 @@ async function startKrypt() {
   const grid = buildGrid(lay);
   K.lay = lay; K.curve = curve; K.grid = grid; K.length = curve.getLength();
   const gm = meshGrid(grid, IMG);
-  scene.add(gm.group); K.gridMesh = gm; K.lightAt = gm.lightAt;
+  scene.add(gm.group); K.gridMesh = gm; K.lightAt = gm.lightAt; K.carver = makeCarver(grid, gm);
   const dr = dress(grid, lay, IMG, gm.lightAt);
   scene.add(dr.group); K.dress = dr;
   K.fx = makeFx(scene, grid.emit, { phone });
@@ -278,6 +288,7 @@ async function startKrypt() {
   K.built = new Map(); K.queue = [];
   const at0 = QS.has("at") ? Math.min(1, Math.max(0, Number(QS.get("at")) || 0)) : 0;
   K.pos.copy(curve.getPointAt(at0));
+  gm.pump(K.pos.x, K.pos.z, 44, 400);       // the blocks around the start; the rest are meshed as the walk nears them
   for (let i = 0; i < K.anchors.length && i < 80; i++) if (K.anchors[i].p.distanceTo(K.pos) < 30) buildGraveAt(i, false);
   buildEntrance(lay, IMG);
 
@@ -309,6 +320,11 @@ function publishKrypt() {
   kr.scene = K.scene; kr.camera = K.camera; kr.renderer = K.renderer; kr.composer = K.composer;
   kr.corners = K.lay.corners.map(c => ({ s: c.s, pos: new THREE.Vector3(c.x, c.y, c.z), dir: new THREE.Vector3(c.dx, 0, c.dz), side: c.side, kind: c.kind }));
   kr.getWalk = () => ({ s: K.walk.s, speed: K.speed, activeSeconds: K.activeSeconds, depth: smooth01(K.walk.s), segment: (K.prof && K.prof.kind) || "crypt" });
+  const asV = (v) => (Array.isArray(v) ? v : [v.x, v.y, v.z]);
+  kr.carve = (mn, mx) => K.carver.carve(asV(mn), asV(mx));
+  kr.restore = () => K.carver.restore();
+  kr.solidAt = (x, y, z) => K.carver.solidAt(x, y, z);
+  kr.blockAt = (x, y, z) => K.carver.blockAt(x, y, z);
   kr.takeover = (on) => {
     on = !!on; if (on === K.held) return;
     K.held = on; __kryptHold.on = on;
@@ -441,6 +457,7 @@ function setSkin(entry, img) {
 
 // Each frame: build the nearest graves, release the far ones, two builds a frame at most.
 function updateBuilds(cam) {
+  if (K.gridMesh) K.gridMesh.pump(cam.x, cam.z, 56, 1);
   for (let i = 0; i < K.anchors.length; i++) {
     const a = K.anchors[i];
     const d = a.p.distanceTo(cam);
@@ -635,6 +652,8 @@ function runDump() {
   K.visible = true;
   const now = performance.now();
   frameInner(now);
+  K.gridMesh.pump(K.pos.x, K.pos.z, 60, 400);
+  if (QS.has("carve")) { const c = QS.get("carve").split(",").map(Number); window.__krypt.carve([c[0], c[1], c[2]], [c[0] + c[3] - 1, c[1] + c[4] - 1, c[2] + c[5] - 1]); }
   for (let n = 0; n < 80; n++) updateBuilds(K.pos);
   // A second of particles and a settled flame, so the torches show their small fire.
   for (let q = 0; q < 40; q++) { frameInner(now + 16 + q * 30); }
@@ -647,7 +666,7 @@ function dumpShot() {
   const info = {
     url: location.search, focusI: K.focusI ?? null, nearI: K.nearI ?? null, walkS: K.walk.s, pos: K.pos.toArray(), look: K.look.toArray(),
     fYaw: K.fYaw, fPitch: K.fPitch, kind: K.prof && K.prof.kind, built: K.built.size, queued: K.queue.length, graves: state.graves.length,
-    torches: K.grid.torches.length, lights: K.lights.map(l => +l.pl.intensity.toFixed(2)), errors: window.__errs || [], sfx: sfxLog.slice(0, 40)
+    torches: K.grid.torches.length, mesh: K.gridMesh.stats(), carved: window.__krypt.blockAt(Math.floor(K.pos.x), Math.floor(K.pos.y), Math.floor(K.pos.z)), lights: K.lights.map(l => +l.pl.intensity.toFixed(2)), errors: window.__errs || [], sfx: sfxLog.slice(0, 40)
   };
   const sc = document.createElement("script");
   sc.type = "application/json"; sc.id = "dumpshot";
