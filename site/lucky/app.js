@@ -604,6 +604,7 @@ function beginSequence(idx) {
   st.pre = 0; st.T = 0; st.sceneT = 0;
   st.phase = 'drop';
   st.breakToken = ++breakToken;
+  { const tk = st.breakToken; setTimeout(() => prebuildReel(tk), 450); }
   st.slammed = st.shatterDone = st.reelBuilt = st.sceneBuilt = st.revealed = false;
   st.lastCrack = -1; st.hits = 0; st.arrive = -1; st.kick = 0;
   st.palette = st.palette || [0xffffff];
@@ -699,6 +700,26 @@ function camForTimeline(T, aspect) {
 }
 let sceneCamFn = null;
 
+// The reel is built while the block is still being mined, hidden, and its plaque textures go up to the
+// GPU a few per frame; at the shatter it is only switched on. Building 60 plaques there cost a visible hitch.
+function prebuildReel(token) {
+  if (st.breakToken !== token || st.reel || st.reelBuilt || !['drop', 'run', 'mine'].includes(st.phase)) return;
+  const tp = performance.now();
+  buildReelNow();
+  FLOW.marks.push({ prebuildMs: Math.round(performance.now() - tp), clock: +(st.clock || 0).toFixed(2) });
+  st.reelBuilt = false;
+  st.reel.pre = true;
+  st.reel.group.visible = false;
+  const S = st.stage, maps = new Set();
+  st.reel.group.traverse((o) => { for (const m of (Array.isArray(o.material) ? o.material : [o.material])) if (m && m.map) maps.add(m.map); });
+  const list = [...maps];
+  const up = () => {
+    if (st.breakToken !== token || !list.length) return;
+    for (let i = 0; i < 3 && list.length; i++) { try { S.renderer.initTexture(list.pop()); } catch (e) { /* ignore */ } }
+    setTimeout(up, 16);
+  };
+  up();
+}
 function buildReelNow() {
   const drops = st.drops;
   const N = 60, win = 52;
@@ -835,7 +856,9 @@ function stepTimeline(dt) {
   // ---- after the shatter: the timeline the reel and the scenes were written against
   st.T += dt;
   const T = st.T;
-  if (T >= T_REEL && !st.reelBuilt && !st.sceneBuilt) buildReelNow();
+  if (T >= T_REEL && !st.reelBuilt && !st.sceneBuilt) {
+    if (st.reel && st.reel.pre) { st.reel.pre = false; st.reel.group.visible = true; st.reelBuilt = true; } else buildReelNow();
+  }
   if (st.reel && T >= T_REEL && T < T_WIN) {
     const u = clamp01((T - T_SPIN) / SPIN_DUR);
     const p = u <= 0 ? 0 : reelCurve(u, st.reel.win, 0.34);
@@ -889,7 +912,8 @@ function stepTimeline(dt) {
       st.scene = sc;
       sceneCamFn = sc.cam;
       st.sceneDur = sc.dur;
-      st.fx.length = 0;
+      // live updaters (the reveal burst, the shock light) must keep running: wiping them here left their
+      // Points hanging in mid-air for the whole scene
       S.steve.mat.emissive.setRGB(0.3, 0.3, 0.3);
       S.setBlockHere(false);
       rebuildIfDirty();
@@ -980,14 +1004,20 @@ let last = 0;
 function frame(now) {
   requestAnimationFrame(frame);
   FLOW.frames++;
+  if (FLOW.lastNow && now - FLOW.lastNow > 70 && FLOW.gaps.length < 40) FLOW.gaps.push({ phase: st.phase, ms: Math.round(now - FLOW.lastNow), clock: +(st.clock || 0).toFixed(2) });
+  FLOW.lastNow = now;
   if (!st.stage || st.paused || !st.onscreen || document.hidden) { last = now; return; }
   // guard the first frames: a canvas with no size has nothing to draw into
   if (!st.stage.renderer.domElement.clientHeight || !st.stage.renderer.domElement.clientWidth) { last = now; return; }
   const dt = Math.min(0.05, (now - last) / 1000 || 0.016);
   last = now;
   if (st.hold) { renderFrame(0, true); return; }
+  const t1 = performance.now(), ph0 = st.phase;
   try { stepTimeline(dt); FLOW.steps++; } catch (e) { if (FLOW.err.length < 5) FLOW.err.push('step: ' + e + ' @' + st.phase); }
+  const t2 = performance.now();
   try { renderFrame(dt); FLOW.renders++; } catch (e) { if (FLOW.err.length < 5) FLOW.err.push('render: ' + e); }
+  const t3 = performance.now();
+  if (t3 - t1 > 40 && FLOW.spikes.length < 40) FLOW.spikes.push({ ph0, ph: st.phase, step: Math.round(t2 - t1), render: Math.round(t3 - t2), clock: +(st.clock || 0).toFixed(2), T: +st.T.toFixed(2) });
 }
 function currentCam(aspect) {
   const ph = st.phase;
@@ -1030,7 +1060,7 @@ function dumpShot() {
     .then(() => Promise.all([whenTexturesLoaded(), mobsReady])).then(() => dumpNow());
 }
 // flow probe: what the loop did and where the particles are, for the ?flowclose / ?flowbreak hooks
-const FLOW = { frames: 0, renders: 0, steps: 0, trace: [], err: [] };
+const FLOW = { frames: 0, renders: 0, steps: 0, trace: [], err: [], gaps: [], spikes: [], marks: [] };
 function probe() {
   const S = st.stage;
   const sum = (arr, n, o) => { let a = 0; for (let i = 0; i < n; i++) a += arr[i * 3 + o]; return +a.toFixed(3); };
@@ -1040,6 +1070,7 @@ function probe() {
   return {
     t: +performance.now().toFixed(0), phase: st.phase, hold: st.hold, clock: +(st.clock || 0).toFixed(3), frames: FLOW.frames, renders: FLOW.renders,
     emberY: sum(ea.array, ea.count, 1), ashY: sum(aa.array, aa.count, 1), solidN: sol.n, solidY: sum(sol.pos, sol.n, 1), glowN: glw.n,
+    tempPts: S.temp.children.filter((o) => o.isPoints).map((o) => { const a = o.geometry.attributes.position.array; let y = 0; for (let i = 1; i < a.length; i += 3) y += a[i]; return [a.length / 3, +y.toFixed(3), +o.material.opacity.toFixed(2)]; }), updaters: st.fx.length,
     dip: d ? +getComputedStyle(d).opacity : null, tint: +$('#tint').style.opacity || 0,
   };
 }
@@ -1069,9 +1100,57 @@ function dumpNow() {
   } catch (e) { console.error('dumpShot', e); ERRORS.push('dumpShot: ' + e); }
 }
 
+// ------------------------------------------------------------------ warm-up
+// Anything drawn for the first time compiles its shader and uploads its textures on the spot, and in
+// the middle of a break that is a visible stall: the world, the embers and the ash stop for a beat.
+// So everything the break will show is drawn once, hidden, before anyone can press Break it: the block
+// and its halo, the crack, both particle pools, the shatter fragments, the shock ring, the reel with
+// its plaques, and the depth-of-field pass. All of it happens inside one task, so no half-state is shown.
+function warmStage() {
+  const S = st.stage;
+  try {
+    syncSize();
+    const keep = { lb: S.lb.visible, halo: S.halo.visible, crack: S.crack.visible, map: S.crackMat.map };
+    S.lb.visible = S.halo.visible = true;
+    S.crack.visible = true;
+    const crackTex = CRACK_AT.map((n) => tex('blocks/destroy_stage_' + n + '.png'));
+    S.crackMat.map = crackTex[0]; S.crackMat.needsUpdate = true;
+    const p0 = { x: 0.5, y: 1.5, z: 0.5 };
+    S.fx.solid.emit({ pos: p0, vel: { x: 0, y: 0, z: 0 }, life: 5 });
+    S.fx.glow.emit({ pos: p0, vel: { x: 0, y: 0, z: 0 }, life: 5 });
+    S.fx.update(0.001, particleScale());
+    const frags = S.shatter(3, 1);
+    const ring = new THREE.Mesh(new THREE.RingGeometry(0.9, 1.1, 40), new THREE.MeshBasicMaterial({ color: 0xffe2c0, transparent: true, opacity: 0.4, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide }));
+    ring.position.set(0.5, 1.04, 0.5);
+    S.temp.add(ring);
+    // a throwaway reel: its materials compile once; its plaque textures upload now
+    let reel = null;
+    try {
+      const N = 12, win = 8;
+      const filler = fillerDrops(() => rollIndex(st.luck), N, win, st.drops).map((d, i) => (i === win ? st.drops[0] : d));
+      reel = buildReel(S, filler, st.drops[0], N, win);
+      reel.group.position.copy(POS.reel);
+      S.reelLayer.add(reel.group);
+    } catch (e) { ERRORS.push('warm reel: ' + e); }
+    S.enableDof(true);
+    followSet(idleCam(0, aspectNow()));
+    S.frame(st.clock || 0, 0, { cam: { pos: cf.pos.clone(), look: cf.look.clone(), fov: cf.fov } });
+    S.enableDof(false);
+    if (reel) { S.reelLayer.remove(reel.group); reel.dispose(); }
+    S.temp.remove(ring); ring.geometry.dispose(); ring.material.dispose();
+    S.clearTemp();
+    S.fx.clear();
+    S.lb.visible = keep.lb; S.halo.visible = keep.halo; S.crack.visible = keep.crack;
+    S.crackMat.map = keep.map; S.crackMat.needsUpdate = true;
+    void frags;
+    // the crack textures arrive over the network: upload each as soon as it lands
+    whenTexturesLoaded().then(() => { for (const t of crackTex) { try { S.renderer.initTexture(t); } catch (e) { /* ignore */ } } });
+  } catch (e) { console.error('warmStage', e); ERRORS.push('warmStage: ' + e); }
+}
+
 // ------------------------------------------------------------------ boot
 async function boot() {
-  if (params.has('flowdbg')) window.__qf = { st, FLOW, probe, closeResult, breakWith, ERRORS, lumOf, resetStage, returnToIdle, renderFrame, drops: () => st.drops.map((d) => d.scene) };
+  if (params.has('flowdbg')) window.__qf = { st, FLOW, probe, closeResult, breakWith, ERRORS, lumOf, resetStage, returnToIdle, renderFrame, seekTo, drops: () => st.drops.map((d) => d.scene) };
   const d = await loadData();
   if (!d) { $('#noData').hidden = false; return; }
   const cvs = $('#cv');
@@ -1132,6 +1211,7 @@ async function boot() {
   S.enableDof(false);
   samplePalette();
   followSet(idleCam(0, aspectNow()));
+  if (!params.has('nowarm')) { warmStage(); followSet(idleCam(0, aspectNow())); }
   const io = new IntersectionObserver((es) => { st.onscreen = es[0].isIntersecting; }, { threshold: 0 });
   io.observe(cvs);
   document.addEventListener('visibilitychange', () => { last = performance.now(); });
