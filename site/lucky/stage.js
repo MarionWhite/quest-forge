@@ -736,7 +736,15 @@ export async function createStage(canvas, opts = {}) {
     for (const f of S.fragments) f.m.material.dispose();
     for (const ch of [...S.temp.children]) {
       S.temp.remove(ch);
-      ch.traverse((o) => { if (o.geometry && o.geometry !== fragGeo) o.geometry.dispose(); if (o.material && o.material !== fragMat && !o.material.userData?.keep) { if (o.material.map?.userData?.clone) o.material.map.dispose(); o.material.dispose(); } });
+      ch.traverse((o) => {
+        if (o.geometry && o.geometry !== fragGeo && o.geometry.dispose) o.geometry.dispose();
+        // a mesh may carry an array of materials (a box with six faces): dispose each, never assume one
+        for (const m of (Array.isArray(o.material) ? o.material : [o.material])) {
+          if (!m || m === fragMat || m.userData?.keep || !m.dispose) continue;
+          if (m.map?.userData?.clone) m.map.dispose();
+          m.dispose();
+        }
+      });
     }
     S.fragments.length = 0;
     lb.visible = S.blockHere;

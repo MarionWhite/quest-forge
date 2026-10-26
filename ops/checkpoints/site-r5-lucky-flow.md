@@ -26,4 +26,9 @@ Previous state: `ops/checkpoints/site-lucky-stage.md`.
   plus the particle-motion evidence.
 
 ## Done
-(nothing yet)
+- 2026-10-26 Close black screen REPRODUCED in real time (CDP driver, scratchpad r5/lucky-flow/cdp.mjs + flow2.js, serves site on :8123):
+  anvil_trap, bedrock_problem, lava_trap, lucky_choice leave `#dip` at opacity 1 forever. Root cause: `S.clearTemp()` threw
+  `o.material.dispose is not a function` (meshes with a material ARRAY), inside the dip's setTimeout, so `lift` never ran.
+  Fixed in stage.js (clearTemp handles arrays) and app.js (`dip` try/catch + always lifts, with a 400 ms fallback timer).
+- Debug hooks in app.js: `?flowdbg=1` exposes window.__qf; `?flowclose=ms` / `?flowbreak=ms` dump hooks with a probe trace.
+- Next: re-run the sweep, then find the particle freeze (real-time trace of emberY/ashY/solidN through break).

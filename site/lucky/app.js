@@ -567,7 +567,13 @@ function dip(fn) {
   if (!d || REDUCED) { fn(); return; }
   d.style.transition = 'opacity .3s ease';
   d.style.opacity = '1';
-  setTimeout(() => { fn(); requestAnimationFrame(() => { d.style.transition = 'opacity .6s ease'; d.style.opacity = '0'; }); }, 320);
+  // the world swap may fail; the screen must come back regardless, or the page is black for good
+  const lift = () => { d.style.transition = 'opacity .6s ease'; d.style.opacity = '0'; };
+  setTimeout(() => {
+    try { fn(); } catch (e) { console.error('dip', e); ERRORS.push('dip: ' + e); }
+    requestAnimationFrame(lift);
+    setTimeout(lift, 400);
+  }, 320);
 }
 function pickIndex(forceIndex) {
   let idx = forceIndex;
@@ -973,14 +979,15 @@ function seekTo(T, hold, o = {}) {
 let last = 0;
 function frame(now) {
   requestAnimationFrame(frame);
+  FLOW.frames++;
   if (!st.stage || st.paused || !st.onscreen || document.hidden) { last = now; return; }
   // guard the first frames: a canvas with no size has nothing to draw into
   if (!st.stage.renderer.domElement.clientHeight || !st.stage.renderer.domElement.clientWidth) { last = now; return; }
   const dt = Math.min(0.05, (now - last) / 1000 || 0.016);
   last = now;
   if (st.hold) { renderFrame(0, true); return; }
-  stepTimeline(dt);
-  renderFrame(dt);
+  try { stepTimeline(dt); FLOW.steps++; } catch (e) { if (FLOW.err.length < 5) FLOW.err.push('step: ' + e + ' @' + st.phase); }
+  try { renderFrame(dt); FLOW.renders++; } catch (e) { if (FLOW.err.length < 5) FLOW.err.push('render: ' + e); }
 }
 function currentCam(aspect) {
   const ph = st.phase;
@@ -1022,6 +1029,24 @@ function dumpShot() {
   Promise.all([whenTexturesLoaded(), mobsReady]).then(() => new Promise((r) => setTimeout(r, 60)))
     .then(() => Promise.all([whenTexturesLoaded(), mobsReady])).then(() => dumpNow());
 }
+// flow probe: what the loop did and where the particles are, for the ?flowclose / ?flowbreak hooks
+const FLOW = { frames: 0, renders: 0, steps: 0, trace: [], err: [] };
+function probe() {
+  const S = st.stage;
+  const sum = (arr, n, o) => { let a = 0; for (let i = 0; i < n; i++) a += arr[i * 3 + o]; return +a.toFixed(3); };
+  const ea = S.embers.geometry.attributes.position, aa = S.ash.geometry.attributes.position;
+  const sol = S.fx.solid, glw = S.fx.glow;
+  const d = $('#dip');
+  return {
+    t: +performance.now().toFixed(0), phase: st.phase, hold: st.hold, clock: +(st.clock || 0).toFixed(3), frames: FLOW.frames, renders: FLOW.renders,
+    emberY: sum(ea.array, ea.count, 1), ashY: sum(aa.array, aa.count, 1), solidN: sol.n, solidY: sum(sol.pos, sol.n, 1), glowN: glw.n,
+    dip: d ? +getComputedStyle(d).opacity : null, tint: +$('#tint').style.opacity || 0,
+  };
+}
+// mean luminance of the canvas (a black screen reads about 0.03)
+function lumOf(cv) {
+  try { const c = document.createElement('canvas'); c.width = 32; c.height = 18; const g = c.getContext('2d'); g.drawImage(cv, 0, 0, 32, 18); const d = g.getImageData(0, 0, 32, 18).data; let a = 0; for (let i = 0; i < d.length; i += 4) a += (d[i] + d[i + 1] + d[i + 2]) / 765; return +(a / (d.length / 4)).toFixed(3); } catch (e) { return -1; }
+}
 function dumpNow() {
   try {
     syncSize();
@@ -1037,6 +1062,7 @@ function dumpNow() {
       steve: brain ? { state: brain.state(), activity: brain.activity(), x: +brain.x().toFixed(2), z: +brain.z().toFixed(2) } : null,
       caption: ($('#caption') || {}).textContent || '', chat: ($('#chat') || {}).textContent || '',
       errors: ERRORS, sfx: SFXNAMES, sceneReport: report,
+      flow: params.has('flowclose') || params.has('flowbreak') ? { now: probe(), trace: FLOW.trace, err: FLOW.err, lum: lumOf(st.stage.renderer.domElement) } : undefined,
       png: st.stage.renderer.domElement.toDataURL('image/png'),
     });
     document.body.appendChild(el);
@@ -1045,6 +1071,7 @@ function dumpNow() {
 
 // ------------------------------------------------------------------ boot
 async function boot() {
+  if (params.has('flowdbg')) window.__qf = { st, FLOW, probe, closeResult, breakWith, ERRORS, lumOf, resetStage, returnToIdle, renderFrame, drops: () => st.drops.map((d) => d.scene) };
   const d = await loadData();
   if (!d) { $('#noData').hidden = false; return; }
   const cvs = $('#cv');
@@ -1115,6 +1142,22 @@ async function boot() {
   // the URL hooks: ?scene=, ?at=, ?atm=, ?pre=, ?reel=, ?idle=, #demo=
   st.idleMs = params.has('idle') ? Math.max(0, Number(params.get('idle')) || 0) : 0;
   const want = hashDemo() || (params.has('scene') ? params.get('scene') : null);
+  // flow hooks: drive the real button paths through the real loop and dump after N ms (virtual time)
+  const flowGo = async (fn, ms) => {
+    await structsGate;
+    startLoop();
+    await new Promise((r) => setTimeout(r, 200));
+    const iv = setInterval(() => { try { FLOW.trace.push(probe()); } catch (e) {} }, Number(params.get('flowstep')) || 250);
+    fn();
+    setTimeout(() => { clearInterval(iv); dumpShot(); }, ms);
+  };
+  if (params.has('flowbreak') && !params.has('flowclose')) {
+    const idx = params.has('force') ? Number(params.get('force')) : (params.has('scene') ? findScene(params.get('scene')) : null);
+    if (idx != null) st.forced = idx;
+    st.winnerIndex = pickIndex(idx);
+    flowGo(() => breakWith(null), Number(params.get('flowbreak')));
+    return;
+  }
   const seqHook = params.has('reel') || params.has('at') || params.has('atm') || params.has('pre') || want;
   if (!seqHook) {
     if (st.idleMs) {
@@ -1152,6 +1195,12 @@ async function boot() {
     st.phase = 'closing'; returnToIdle(); st.hold = true;
     for (let i = 0; i < Number(params.get('closetest')) * 60; i++) stepTimeline(1 / 60);
     renderFrame(0, true);
+  }
+  if (params.has('flowclose')) {
+    // the real Close click path, through the real loop: hold off, closeResult() with its dip, dump N ms later
+    st.hold = false;
+    flowGo(() => { FLOW.trace.push({ at: 'close', ...probe() }); closeResult(); }, Number(params.get('flowclose')));
+    return;
   }
   dumpShot();
   startLoop();
