@@ -39,3 +39,34 @@ Scripts take every deterministic step: `renderq` (renders, costs, cache), `finis
 
 The orchestrator session stays short. It reads BOARD.md, starts the next step and exits. A new
 session per round costs nothing, because the state lives here.
+
+## API credits
+$200/month of Anthropic API credits, kept apart from the subscription, in lanes. Every spend is one
+line in `ops/api-ledger.jsonl`; check before spending, never guess.
+
+| Lane | Budget/month | Per day | For |
+|---|---|---|---|
+| continuity | $90 | $3 | carrying a checkpointed task on when the subscription is limited |
+| batch | $50 | $1.67 | bulk independent items through the Batches API (50% off) |
+| automation | $20 | $0.67 | scheduled and watcher jobs |
+| reserve | $40 | needs `--reserve` | owner-approved only |
+
+Daily allowance is the monthly budget divided by 30. Commands (all `py -3.10 -I tools/ops/...`):
+- `ledger.py status` shows month-to-date, today, remaining and projected month-end per lane;
+  `ledger.py check LANE EST_USD [--reserve]` exits non-zero if the spend would break the day or month cap.
+- `api_run.py --lane L --model opus|sonnet|haiku --task NAME [--checkpoint NAME | --brief F | PROMPT]`
+  runs headless `claude -p` in the repo, checks the ledger first, caps the run with `--max-budget-usd`
+  and logs the cost Claude Code reports. `--dry-run` shows the plan without spending.
+  Permission mode is `dontAsk` with an explicit allowlist (read/edit, `py -3.10 -I tools/*`, git status/diff/log/add/commit;
+  `trial.py install` and `git push` denied). Not `bypassPermissions`: the harness rules depend on tool limits.
+- Overflow: when a subscription session hits its limit it (or a workflow/scheduled task) runs
+  `api_run.py --mark-limited`, then `api_run.py --lane continuity --model sonnet --task X --checkpoint X --when-subscription-limited`.
+  That does nothing unless the marker (`~/.qf/subscription-limited`, 5 h expiry) is live, and runs only within continuity's
+  daily allowance. `--probe` tests the subscription with a trivial call instead. `--clear-limited` removes the marker.
+- `batch.py submit JOBS.json [--dry-run]`, `status ID`, `fetch ID OUT_DIR`: one result file per `custom_id`,
+  cost logged under lane `batch` at fetch (usage priced at the batch rate). Shared `system` text is prompt-cached.
+  Job format is in the script's docstring. Tests: `py -3.10 -I tools/ops/test_ledger.py`.
+
+**The key** lives only in `C:\Users\a2dsu\.qf\anthropic.key` (PC) or `~/.qf/anthropic.key` (Mac): one line, never in the repo,
+logs or errors. The scripts hand it to the child process / SDK client only. **Never set `ANTHROPIC_API_KEY` system-wide**:
+the owner's interactive Claude Code sessions would move onto API billing.
