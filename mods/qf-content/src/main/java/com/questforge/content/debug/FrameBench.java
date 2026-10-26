@@ -476,8 +476,8 @@ public class FrameBench {
                 if ((quiet >= 3 && ticks > Math.max(100, warmTicks)) || ticks > SETTLE_MAX + warmTicks) {
                     if (!haveLand) {
                         log(scene() + ": NO TERRAIN after " + ticks + " ticks; frames are void");
-                        rep().add("  incident no-terrain " + scene());
                     }
+                    voidScene = !haveLand;
                     log(scene() + ": settled after " + ticks + " ticks; measuring");
                     progress(mc, "measure");
                     resetShaderClock();
@@ -502,6 +502,8 @@ public class FrameBench {
                 }
                 if (ticks >= want) {
                     summarise(mc);
+                    // renderq drops a block carrying this line, so the scene re-renders.
+                    if (voidScene) rep().add("  incident no-terrain");
                     if (mv != null || scene().equals("torch") || scene().equals("torch_wall")) {
                         stage = Stage.SHOOT;
                         ticks = 0;
@@ -930,6 +932,7 @@ public class FrameBench {
     private volatile float yaw, pitch;
     private volatile boolean flying;
     private int terrainRetries;
+    private boolean voidScene;
 
     /** The client world holds real chunks in a 5x5 square round the camera. */
     private boolean terrainLoaded(Minecraft mc) {

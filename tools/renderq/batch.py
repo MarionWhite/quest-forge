@@ -451,6 +451,11 @@ def collect(d, jobs, rounds_of, busy_from, info, log, memo):
                 continue
             if any("no frames recorded" in l for l in lines[:1]):
                 continue
+            if any("incident no-terrain" in l for l in lines):
+                # FrameBench found no client chunks round the camera (r008 boot b1026000221 shot
+                # sky over void): not cached, so the retry renders it again.
+                log(f"  {tag}/{s}: no terrain loaded, dropped for a retry")
+                continue
             shots = block_shots(lines)
             if not all(os.path.exists(os.path.join(d, "screenshots", s2)) for s2 in shots):
                 continue
