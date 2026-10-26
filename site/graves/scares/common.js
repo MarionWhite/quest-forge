@@ -1,6 +1,6 @@
 // Pieces several scares share: the freeze (the head settles where the walk stopped), the fall to the floor,
 // timing helpers, and the hearts' damage bookkeeping.
-import { THREE, track, clamp, lerp, sstep, wobble } from "./rig.js";
+import { THREE, track, clamp, lerp, sstep, wobble, loadImg } from "./rig.js";
 
 // The freeze: from the pose the walk left (often turned to a stone) the head comes to rest looking down the corridor,
 // at the 1.62 m eye. Returns a base camera at t.
@@ -169,4 +169,57 @@ export function smoke(at, t0, n, { spread = 0.4, window = 0.4, life = 1.6, size 
     out.push({ t0: t0 + r() * window, at: [at[0] + (r() - 0.5) * spread, at[1] + (r() - 0.5) * spread * 0.5, at[2] + (r() - 0.5) * spread], v: [(r() - 0.5) * 0.3, rise * (0.6 + r() * 0.6), (r() - 0.5) * 0.3], life: life * (0.7 + r() * 0.6), size: size * (0.7 + r() * 0.6), color: [g, g, g], grav: -0.15, grow: 0.6 });
   }
   return out;
+}
+
+// A splash potion's item texture (ItemPotion: the overlay in the potion's colour under the bottle), as a texture.
+export async function potionTex(hex) {
+  const [bottle, over] = await Promise.all([loadImg("item_potion_bottle_splash"), loadImg("item_potion_overlay")]);
+  const c = document.createElement("canvas"); c.width = c.height = 16;
+  const x = c.getContext("2d");
+  if (over) {
+    x.drawImage(over, 0, 0);
+    x.globalCompositeOperation = "multiply"; x.fillStyle = "#" + hex.toString(16).padStart(6, "0"); x.fillRect(0, 0, 16, 16);
+    x.globalCompositeOperation = "destination-in"; x.drawImage(over, 0, 0); x.globalCompositeOperation = "source-over";
+  }
+  if (bottle) x.drawImage(bottle, 0, 0);
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace; t.magFilter = THREE.NearestFilter; t.minFilter = THREE.NearestFilter; t.generateMipmaps = false;
+  return t;
+}
+// The spell particles a splash potion leaves (EntitySpellParticleFX: tiles 128 to 135, counting down, in the colour).
+export function spell(at, t0, n, rgb, { spread = 0.8, rise = 0.9, life = 1.2, size = 0.12, seed = 6, window = 0.15 } = {}) {
+  const r = mulberry(seed), out = [];
+  for (let i = 0; i < n; i++) {
+    const a = r() * Math.PI * 2, d = r() * spread;
+    out.push({ t0: t0 + r() * window, at: [at[0] + Math.cos(a) * d, at[1] + r() * 0.3, at[2] + Math.sin(a) * d], v: [Math.cos(a) * 0.4, rise * (0.5 + r()), Math.sin(a) * 0.4],
+      life: life * (0.6 + r() * 0.7), size: size * (0.7 + r() * 0.6), tiles: [135, 134, 133, 132, 131, 130, 129, 128], color: rgb.map((c) => c * (0.75 + r() * 0.25)), grav: -0.3, fog: false });
+  }
+  return out;
+}
+
+// Fire blocks (RenderBlocks.renderBlockFire, simplified to its crossed planes) with the animated fire_layer_0 strip.
+// spots: [{ at: [x, y, z], t0, t1? }]. Returns update(t).
+export async function fireBlocks(R, spots) {
+  const img = await loadImg("k:fire_layer_0");
+  const c = document.createElement("canvas"); c.width = c.height = 16;
+  const x = c.getContext("2d"); x.imageSmoothingEnabled = false;
+  const tx = new THREE.CanvasTexture(c);
+  tx.colorSpace = THREE.SRGBColorSpace; tx.magFilter = THREE.NearestFilter; tx.minFilter = THREE.NearestFilter; tx.generateMipmaps = false;
+  const mat = new THREE.MeshBasicMaterial({ map: tx, transparent: true, alphaTest: 0.1, side: THREE.DoubleSide, depthWrite: false, color: 0xffffff });
+  const fires = spots.map((s) => {
+    const g = new THREE.Group();
+    for (let i = 0; i < 4; i++) { const m = new THREE.Mesh(new THREE.PlaneGeometry(1, 1.4), mat); m.position.y = 0.7; m.rotation.y = i * Math.PI / 4; g.add(m); }
+    g.visible = false; R.add(g); return { ...s, g };
+  });
+  let last = -1;
+  return (t) => {
+    const fr = Math.floor(t * 20) % 32;
+    if (fr !== last && img) { last = fr; x.clearRect(0, 0, 16, 16); x.drawImage(img, 0, fr * 16, 16, 16, 0, 0, 16, 16); tx.needsUpdate = true; }
+    for (const f of fires) {
+      const on = t >= f.t0 && (f.t1 == null || t < f.t1);
+      f.g.visible = on; if (!on) continue;
+      R.at(f.g, f.at[0], f.at[1], f.at[2]); f.g.rotation.y = R.yaw0;
+      f.g.scale.setScalar((f.s ?? 1) * Math.min(1, (t - f.t0) / 0.15));
+    }
+  };
 }

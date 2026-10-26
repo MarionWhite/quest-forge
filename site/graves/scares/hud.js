@@ -156,6 +156,20 @@ export async function createHud(host) {
     }
     for (let i = 0; i < amt * 90; i++) { ctx.fillStyle = rng() < 0.5 ? "#e079fa" : "#000"; ctx.fillRect(Math.floor(rng() * w), Math.floor(rng() * h), 1, 1); }
   }
+  // Charring: blocks of soot that eat in from the edges, flickering at their rim.
+  function charred(amt, t) {
+    const { w, h } = H, cs = 6, rng = rngOf(77);
+    for (let y = 0; y < h; y += cs) for (let x = 0; x < w; x += cs) {
+      const n = rng();
+      const dx = (x + cs / 2 - w / 2) / (w / 2), dy = (y + cs / 2 - h / 2) / (h / 2);
+      const edge = Math.max(Math.abs(dx), Math.abs(dy)) * 0.75 + Math.hypot(dx, dy) * 0.25;
+      const v = edge + n * 0.25 - (1.2 - amt * 1.0);
+      if (v <= 0) continue;
+      const rim = amt > 0.2 && v < 0.045 && Math.sin(t * 17 + n * 40) > 0.5;
+      ctx.fillStyle = rim ? "rgba(255,120,20,0.85)" : `rgba(${18 + Math.floor(n * 20)},${8 + Math.floor(n * 8)},4,${Math.min(0.97, 0.55 + v * 2).toFixed(2)})`;
+      ctx.fillRect(x, y, cs, cs);
+    }
+  }
   // Blocky blood on the lens: square GUI pixels that run down.
   function splats(list, t) {
     const { w, h } = H;
@@ -187,6 +201,7 @@ export async function createHud(host) {
     if (f.splats && f.splats.length) splats(f.splats, t);
     if (f.glitch > 0.01) glitch(f.glitch, t);
     if (f.fire > 0.01) fireOverlay(f.fire, t);
+    if (f.char > 0.01) charred(f.char, t);
     if (f.hurt > 0.01) { ctx.fillStyle = `rgba(190,0,0,${(f.hurt * 0.16).toFixed(3)})`; ctx.fillRect(0, 0, w, h); }
     if (f.white > 0.003) { ctx.fillStyle = `rgba(255,255,255,${clamp(f.white).toFixed(3)})`; ctx.fillRect(0, 0, w, h); }
     if (f.black > 0.003) { ctx.fillStyle = `rgba(0,0,0,${clamp(f.black).toFixed(3)})`; ctx.fillRect(0, 0, w, h); }
