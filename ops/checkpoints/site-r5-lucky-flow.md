@@ -1,4 +1,6 @@
-# site-r5-lucky-flow (checkpoint, started 2026-10-26, Mac)
+# site-r5-lucky-flow: DONE 2026-10-26 (checkpoint, Mac)
+Sheet: /private/tmp/claude-503/-Users-suaz-Desktop-QuestForge/91769071-2ed0-4412-b25d-3c510232d8e5/scratchpad/r5/lucky-flow/sheet/sheet.png (4 results + phone width, real clicks, real time)
+All sweeps: 35 scenes closed in real time, 306 drops seeked with no exception; Break-another then Close works.
 
 Brief: `ops/briefs/site-3d-page.md`. Agent: sonnet.
 Owns: `site/lucky/app.js`, `site/lucky/stage.js`, `site/lucky/particles.js`, `site/lucky/sky.js`,
