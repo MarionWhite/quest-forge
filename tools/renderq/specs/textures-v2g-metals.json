@@ -1,0 +1,31 @@
+{
+ "name": "textures-v2g-metals",
+ "owner": "texture-agent",
+ "comment": "r009 step 4 pass 2: iron lit (dielectric F0 190 everywhere, as v2f), gold metal only on its shine streaks (40%) over a low-F0 base (v2f's lit gold washed pale), emerald on our own maps. Compare with t9v1 (1026-225431) and t9v2f/t9v2fs (1026-231924). Shot mode: pictures only, allowed at night. One boot.",
+ "prebuild": [
+  [
+   "py",
+   "-3.10",
+   "-I",
+   "tools/textures/build_qf_textures.py",
+   "--no-cit",
+   "--out",
+   "C:/qfb/textures/QFTextures-v2.zip"
+  ]
+ ],
+ "defaults": {
+  "world": "C:/qfb/textures/world-showcase",
+  "preset": "3",
+  "size": "2560x1440",
+  "mode": "shot"
+ },
+ "jobs": [
+  {
+   "tag": "t9v2g",
+   "resourcepacks": [
+    "C:/qfb/textures/QFTextures-v2.zip"
+   ],
+   "scenes": "texture_wall,texture_wall2"
+  }
+ ]
+}

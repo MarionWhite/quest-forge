@@ -66,22 +66,24 @@ VNR_SKIP = {"emerald_block"}
 # r009 metals (owner r008 tex-wall: iron and gold "not receiving any direct light"). A metal-coded
 # pixel keeps only ~30% of its diffuse light in the shader and shows reflection otherwise, and
 # iron's F0 (albedo x 1.15) already clips at 1, so a brighter albedo cannot lift it. Per block:
-# (metal code, dielectric F0 byte). --metals lit: every pixel a strong dielectric (full diffuse +
-# an untinted reflection); split: metal only on the brightest 30% (the polished streaks and plate
-# highlights), the rest lit; vnr: VNR's flag as is (every pixel metal, v1).
-METAL_BLOCKS = {"iron_block": (230, 190), "gold_block": (231, 140)}
+# (metal code, dielectric F0 byte, percentile above which a pixel stays metal). Iron: every pixel
+# a strong dielectric, full diffuse + an untinted reflection (plates read, lit like its neighbours).
+# Gold: the same washed it pale (sky blue over yellow, render 1026-231924), so only its shine
+# streaks stay metal for the gold-tinted glints, over a low-F0 base that keeps the yellow.
+# --metals vnr: VNR's flag as is (every pixel metal, v1).
+METAL_BLOCKS = {"iron_block": (230, 190, 100), "gold_block": (231, 60, 55)}
 
 
 def metal_spec(s, img, name, mode):
     """Rewrite the F0 channel of a metal block's LabPBR _s for --metals (see METAL_BLOCKS)."""
     if mode == "vnr" or name not in METAL_BLOCKS:
         return s
-    code, f0 = METAL_BLOCKS[name]
+    code, f0, pct = METAL_BLOCKS[name]
     s = s.copy()
     s[..., 1] = f0
-    if mode == "split":
+    if pct < 100:
         L = labpbr.lum(img)
-        s[..., 1] = np.where(L > np.percentile(L, 70), code, f0)   # strict: a tied plateau stays lit
+        s[..., 1] = np.where(L > np.percentile(L, pct), code, f0)   # strict: a tied plateau stays lit
     s[img[..., 3] < 25] = (0, 0, 0, 255)
     return s
 
@@ -180,7 +182,7 @@ def main():
     ap.add_argument("--leaf-edges", choices=("none", "all", "sides"), default="none")
     ap.add_argument("--no-pbr", action="store_true")
     ap.add_argument("--no-cit", action="store_true")
-    ap.add_argument("--metals", choices=("lit", "split", "vnr"), default="lit")
+    ap.add_argument("--metals", choices=("qf", "vnr"), default="qf")
     a = ap.parse_args()
 
     mc = zipfile.ZipFile(a.mc_jar)
