@@ -474,6 +474,7 @@ WHEAT_GOLD = hexes("6a5222", "947632", "b99a48", "d4b868", "e9d590")   # straw, 
 WHEAT_TURN = hexes("4f5214", "70721e", "939329", "b2ad3a", "cdc65a")
 
 
+EAR = [0, 0, 0, 0, 5, 7, 9, 10]   # ear length per stage at 32x: slim and long (v2d's 4-8 read as blobs)
 WHEAT_RIPE = hexes("6e5a26", "9e8438", "c6a84c", "dfc468", "f2df92")   # v2: a step brighter and yellower
 
 
@@ -492,7 +493,7 @@ def wheat(stage, size=32, seed=51):
     ear_pal = WHEAT_GREEN if stage < 6 else (WHEAT_TURN if stage == 6 else WHEAT_RIPE)
     leaf_pal = WHEAT_GREEN if stage < 7 else WHEAT_TURN
     front = 5 if stage >= 2 else 4
-    plants = [(x, False) for x in np.linspace(4, 28, front) + r.uniform(-1.2, 1.2, front)]
+    plants = [(x, False) for x in np.linspace(4, 28, front) + r.uniform(-0.7, 0.7, front)]
     if stage >= 3:   # back plants in three of the four gaps, so their ears don't merge with the front ones
         fx = sorted(x for x, _ in plants)
         gaps = r.choice(len(fx) - 1, 3, replace=False)
@@ -505,9 +506,9 @@ def wheat(stage, size=32, seed=51):
         x0 *= s
         b = int(back)
         h = (size - 2 * s) * grow * r.uniform(0.75, 1.0) * (0.85 if back else 1.0)
-        lean = float(np.clip(r.normal(0, 2.0) * s, 1.5 * s - x0, size - 3.5 * s - x0))   # tip stays in the tile
+        lean = float(np.clip(r.normal(0, 1.5) * s, 1.5 * s - x0, size - 3.5 * s - x0))   # tip stays in the tile
         if stage >= 4:   # stalk + ear fit under the top edge
-            h = min(h, size - 2 * s - [0, 0, 0, 0, 4, 6, 7, 8][stage] * s)
+            h = min(h, size - 2 * s - EAR[stage] * s)
         y0 = size - 1
         if stage < 3:
             # a tuft: two or three blades from the root, the outer ones arching out
@@ -517,13 +518,14 @@ def wheat(stage, size=32, seed=51):
             continue
         # the stalk, 1 px, with a shaded right pixel near the root
         n = int(h)
+        bow = r.normal(0, 0.9) * s
         for i in range(n + 1):
             t = i / max(1, n)
-            x = x0 + lean * t * t
+            x = x0 + lean * t * t + bow * 4 * t * (1 - t)   # a slight bow, so the stalks aren't posts
             cv.put(x, y0 - i, stem[max(0, 1 + (t > 0.4) - b)])
             if t < 0.12 and not back:
                 cv.put(x + 1, y0 - i, stem[1])
-        tx, ty = x0 + lean, y0 - n
+        tx, ty = round(x0 + lean), y0 - n
         # one or two leaves off the stalk, low down, to opposite sides
         d = r.choice([-1, 1])
         for k in range(1 if stage >= 6 else 2):
@@ -531,11 +533,11 @@ def wheat(stage, size=32, seed=51):
         if stage < 4:
             continue
         # the ear: 2 px wide, kernels braided, nodding toward the lean near the tip
-        L = int([0, 0, 0, 0, 4, 6, 7, 8][stage] * s)
+        L = int(EAR[stage] * s)
         nod = 1 if lean >= 0 else -1
         for j in range(L):
             y = ty - j
-            x = tx + (nod if stage >= 7 and j >= L - 2 else 0)
+            x = tx + nod * ((stage >= 6 and j >= L - 3) + (stage >= 7 and j >= L - 1))   # the tip nods
             odd = j % 2
             cv.put(x, y, ear_pal[max(0, 4 - b - odd)])
             cv.put(x + 1, y, ear_pal[max(0, 3 - b + odd)])

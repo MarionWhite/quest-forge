@@ -91,8 +91,22 @@ Nothing for v2 started; no renders submitted.
     The 64x side fringe joins the top cleanly. golden_lit: no visible difference at distance. **Step 2 (grass) closed at v2c.**
     For the owner in r009 scenes: if "grass looks weird" meant the 64x side fringe, not the top, the fallback is vanilla's side overlay doubled.
 
+- 2026-10-26 (texture-dev, capped run): step 3 (crops) code + render submitted.
+  - Liked pack = Stay True (track file; direction.md l.153: ARR, study only). No local copy; CurseForge blocks scripted
+    download (Cloudflare), cfwidget gave a wrong project. So no pixel study: designed from the r008 frames instead.
+  - r008 farm_close sheet (t8v0 | t8v1 | t8f64): v1 wheat = a solid chunky straw wall (13 stalks, 3 px checker ears);
+    owner picked C = Faithful 64x (airy separate plants, leafy carrots/potatoes) at distance.
+  - `qf_art.wheat()` redrawn (old kept as `wheat_v1()` for previews): 5 front + 3 back plants (back in the gaps, darker,
+    shorter), 1 px stalks, arching blade leaves, tufts for 0-2, 2 px braided ears from stage 4, awns on the upper ear at 6-7,
+    ripe ear nods; new WHEAT_RIPE palette a step brighter/yellower. Leans clamped inside the tile, ears fit under the top.
+    Preview: scratchpad `wheat_preview.py` (rows v2 / v1 / Faithful64 / F64 carrots+potatoes + a ripe field strip). Reads as
+    wheat plants now; stage 7 tile has one sparse gap on the right (judge in-world, crossed planes overlap).
+  - Carrots/potatoes: `faithful64.txt` += carrots_stage_*, potatoes_stage_* (Faithful licence; owner rated that farm best).
+  - Committed c899ffd with spec `tools/renderq/specs/textures-v2d-crops.json` (t9v2d vs t9v1 on farm, farm_close;
+    third column = r008's `C:\qfb\shaderdev\rounds\screenshots\bench-t8f64-farm*.png`).
+  - Submission **1026-230307-textures-v2d-crops**.
+
 ## Next
-Step 3: crops. Read-only first: find which pack's crops the owner liked (r008 tex-farm / tex-farm-close notes, Stay True
-per track file) and check its licence (ARR = study only). Wheat is `qf_art.wheat()`; carrots/potatoes are vanilla.
-Preview offline, then one render (farm views; reuse spec pattern textures-v2c-grass.json, v2 vs v1).
-Emerald ("weird") stays with step 4 (metals).
+Step 3 review: 3-column sheet t9v1 | t9v2d | t8f64 (farm, farm_close) + native-res crops of the near rows. Close at v2d or one
+fix pass. If code wheat still can't match Stay True's hand-placed look, say so and propose hand-drawn wheat masters.
+Then step 4 (metals + emerald "weird").
