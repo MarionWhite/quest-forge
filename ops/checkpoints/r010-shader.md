@@ -33,3 +33,41 @@ numbers. No question left general or vague.
 8. Cost run on the final pack (cost mode, after 08:00), then critic, then publisher.
 
 ## Progress log
+- 2026-10-27 16:43 (step 1 meteors, uncommitted until verified): Earth-grazers drawn in 3D in lib/sky.glsl
+  (grazers(), gzClosest(); meteors() dispatches when QF_METEOR_STYLE > 0, the r009 body kept under #else). Each meteor is
+  a straight track 88-118 km up, heading away from a radiant 1-5 deg above the horizon; per pixel, closest approach of the
+  view ray to the track (a few dots per slot), so perspective gives long sweeps overhead and slow thin ones on the horizon.
+  New options (settings.glsl): QF_METEOR_STYLE [0 1 2 3] default 1 (0 r009, 1 grazers 24 slots, 2 grazers + fireball
+  procession every QF_METEOR_PROC_P s, 3 storm 40 slots), QF_METEOR_RAZ (pin radiant bearing, -1 per night).
+  New view night_wide (views-world-master.txt, night_sky's bearing, pitch -22, treeline in frame). Offline numpy sim:
+  scratchpad gzsim.py (gets wiped). check_glsl 0 errors (styles 0-3). Shot **1027-164245-r010-meteor1-shot**
+  (C:/qfb/shaderdev/r010/specs/r10-meteor1.json): r10g1 stills night_sky+night_wide; clips r10g1c/r10g2c/r10g3c on
+  night_wide, 120 frames x 100 ms, crop 320,180,1920,1080. Baseline r9mt / r9mclip.
+  Next: review clips (make_clip.py, motion-max composite), tune, commit; then sunset-full green tint (step 2).
+
+### Note from the texture agent (2026-10-27, r010 wall ladder 1027-164027, frames bench-t10d*-diag_column.png)
+Gold reads darker than vanilla under the shader with ANY textures, so it is shader-side: relative to plain stone in the same
+frame gold is 1.52x under every shader rung (Faithful 64x without maps, QF_PBR 0, our maps) vs 1.71x with shaders off. Under
+the shader gold's blue channel is 0 in 81-98% of its pixels (vanilla B ~34) and red peaks at 154-161 (vanilla 179): the colour
+grade / tonemap clips saturated yellow (box x 1134-1426, y 890-1022 of diag_column). Iron is fine (1.82x = vanilla).
+The diamond "light only on the bottom half" was texture-side and is fixed (VNR normal Y + diamond no longer coded metal).
+- 16:55 (step 2 sunset-full green, uncommitted until verified): cause from crops of bench-p9*-ocean_sunset (2560
+  native, box 1020,660,1340,840; peak 95,173,121 at 1192,750): the mint patch survives waves/PBR/dust/shafts off and Low,
+  and sits where reflected rays skim toward the island. waterSSR traces depthtex1 (no water), so the ray "hit" the sand a
+  block under the surface and mirrored the mint shallows. Fix (composite.glsl waterSSR, new arg fromWater): a water
+  reflection hit below the reflecting point's level (> 0.15 below) is a miss and the march goes on; metal SSR passes
+  false. check_glsl 0 errors. Shot **1027-165502-r010-green-shot** (r10-green.json, tag r10sf: ocean_sunset +
+  lake_glitter; baselines bench-p9-ocean_sunset / bench-p9-lake_glitter). Queue had the meteor shot first, ETA ~17:07.
+- Sun-cloud notes (step 3, not started): in ocean_sunset the clouds round a 2-5 deg sun get the far-cloud melt
+  (fade = exp(-t0/6500)*smoothstep(0.012,0.09,dir.y) ~0.2), while the disk uses the unfaded T: a hidden sun behind a
+  cloud you barely see. Directions to try: (A) lift the melt near the sun + strong forward lobe on thin view-depth
+  edges (silver lining), ALU only; (B) crepuscular rays as a screen-space radial blur of a cloud-T mask near the sun
+  (12-16 taps, costs; ocean_sunset is already the worst High frame at 3.29 ms vs 3.0).
+- 17:05 meteors loop 1 read (1027-164245, r10g1/r10g1c/g2c/g3c): parallel level streaks, right direction, but short
+  dashes (wake 35-110 km) and trains 2 km wide drew 25 px comet bands with hard ends; night_wide at bearing 200 was a
+  hillside; the burst writer takes ~1 s a frame (intervals 0.4 s, uneven). Loop 2 (uncommitted): wake = 40-65% of the
+  burnt path (20-160 km), thinner/tapering; trains 0.12-0.7 km, dimmer (0.12), tapered by the burn; new dev option
+  QF_METEOR_SLOW (clip slow motion) + make_clip.py --speedup; night_wide now bearing 135 pitch -18. Shot
+  **1027-170451-r010-meteor2-shot** (r10-meteor2.json: r10h1 stills, r10h1c/h2c/h3c clips at SLOW 0.25, 150 frames,
+  crop 640,360,1280,720; radiant 135). Clip: make_clip.py r10h1c night_wide --speedup 4. Review sheet script:
+  scratchpad clipsheet.py (frames + max-over-time composite).

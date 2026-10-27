@@ -109,6 +109,9 @@ def main():
     ap.add_argument("--quality", type=int, default=82)
     ap.add_argument("--ms", type=int, default=66, help="frame time when the bench txt has no capture times")
     ap.add_argument("--fps", type=float, help="resample to a steady frame rate")
+    ap.add_argument("--speedup", type=float, default=1.0,
+                    help="divide the capture times by this: a burst rendered in slow motion (QF_METEOR_SLOW 0.25: "
+                         "the slow PNG writer's uneven intervals jerk the motion 4x less) plays back at game speed")
     a = ap.parse_args()
     if a.frames:
         frames = sorted(glob.glob(a.frames))
@@ -116,6 +119,8 @@ def main():
     elif a.tag and a.scene:
         frames = find_frames(a.rounds, a.tag, a.scene)
         times = bench_times(a.rounds, a.tag, a.scene)
+        if times and a.speedup != 1.0:
+            times = [t / a.speedup for t in times]
     else:
         ap.error("give TAG SCENE or --frames")
     out = a.out or os.path.join(os.getcwd(), f"{a.tag or 'clip'}-{a.scene or 'frames'}.webp")

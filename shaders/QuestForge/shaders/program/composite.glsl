@@ -60,7 +60,7 @@ vec3 waterAmbient(float skyLight) {
 // The loop 2 weight (full strength out to the last steps) let every far hit behind the low sun
 // (ocean_sunset's island, lake_glitter's cliff) cut the glitter path to a stub.
 float gSsrOcc = 0.0;
-vec4 waterSSR(vec3 viewPos, vec3 viewRefl, float jitter) {
+vec4 waterSSR(vec3 viewPos, vec3 viewRefl, float jitter, bool fromWater) {
     gSsrOcc = 0.0;
     float stepLen = 0.6 + 0.02 * length(viewPos);
     vec3 p = viewPos + viewRefl * stepLen * jitter;
@@ -81,6 +81,17 @@ vec4 waterSSR(vec3 viewPos, vec3 viewRefl, float jitter) {
                 vec4 mc = gbufferProjection * vec4(m, 1.0);
                 vec2 mu = mc.xy / mc.w * 0.5 + 0.5;
                 if (-m.z > -viewFromScreen(mu, texture(depthtex1, mu).r).z) b = m; else a = m;
+            }
+            // r010 (owner r009 sunset-full: "some weird green coloring right in the middle of the
+            // image"): depthtex1 holds the bed under the water, so a ray skimming toward the island
+            // "hit" its sand a block under the surface and mirrored the shallows' mint onto the open
+            // water. A reflection off the surface can't see below it: a hit under the reflecting
+            // point's level is a miss, and the ray marches on (to the island's face above water).
+            if (fromWater && (mat3(gbufferModelViewInverse) * (b - viewPos)).y < -0.15) {
+                prev = p;
+                p += viewRefl * stepLen;
+                stepLen *= 1.25;
+                continue;
             }
             vec4 bc = gbufferProjection * vec4(b, 1.0);
             vec2 huv = bc.xy / bc.w * 0.5 + 0.5;
@@ -714,7 +725,7 @@ vec3 shadeWaterAbove(vec3 color, vec3 n, float var, vec3 scene0, float dist0, ve
     vec4 ssr = vec4(0.0);
     // pa: a ray reflected downward (a steep wave facet) found the lake bed in depthtex1 and mirrored
     // it as torn brown patches; it can only see the water itself, so it falls back to the sky.
-    if (reflect(viewDir, nS).y > 0.01) ssr = waterSSR(viewPos0, viewR, ign(gl_FragCoord.xy + float(frameCounter % 64) * 7.0));
+    if (reflect(viewDir, nS).y > 0.01) ssr = waterSSR(viewPos0, viewR, ign(gl_FragCoord.xy + float(frameCounter % 64) * 7.0), true);
     refl = mix(refl, ssr.rgb, ssr.a);
     sunOcc = gSsrOcc;
 #endif
@@ -917,7 +928,7 @@ vec3 metalReflection(vec3 n, vec3 viewDir, vec3 albedo, float smooth_, float sky
     env = mix(env, skyIrradiance(n) / PI, r);
     env *= mix(0.25, 1.0, smoothstep(0.3, 0.9, skyLight));
     vec3 vp = viewFromScreen(uv, depth0) + mat3(gbufferModelView) * n * 0.04;
-    vec4 ssr = waterSSR(vp, mat3(gbufferModelView) * R, ign(gl_FragCoord.xy + float(frameCounter % 64) * 7.0));
+    vec4 ssr = waterSSR(vp, mat3(gbufferModelView) * R, ign(gl_FragCoord.xy + float(frameCounter % 64) * 7.0), false);
     env = mix(env, ssr.rgb, ssr.a * (1.0 - smoothstep(0.15, 0.6, r)));
     return env * Fe * ao * 1.3;
 }
@@ -990,7 +1001,7 @@ void main() {
             vec3 viewPos0 = viewFromScreen(uv, depth0);
             vec3 viewN = mat3(gbufferModelView) * n;
             vec3 viewR = reflect(normalize(viewPos0), viewN);
-            vec4 ssr = waterSSR(viewPos0, viewR, ign(gl_FragCoord.xy + float(frameCounter % 64) * 7.0));
+            vec4 ssr = waterSSR(viewPos0, viewR, ign(gl_FragCoord.xy + float(frameCounter % 64) * 7.0), true);
             refl = mix(refl, ssr.rgb, ssr.a);
             // A reflected ray that hits land cannot see the sun either: the glitter path stops
             // where the mirrored cliff is (r003 critic: an orange column ran down the water below

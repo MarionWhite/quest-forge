@@ -33,9 +33,9 @@ leafview         109.5   110.0  104.5    180    0      10000  60
 # night_sky: a new-moon sky 45 deg up, facing away from the hill, for the stars / Milky Way question.
 lake_glow        285.5   63.4   -287.5   97     3      12400
 night_sky        272.5   auto   -268.5   200    -45    114000
-# night_wide (r010, meteors): night_sky's bearing, 22 deg up, so the treeline sits in the frame under
-# the grazers (owner r009: "a bunch of them passing by at high altitude").
-night_wide       272.5   auto   -268.5   200    -22    114000
+# night_wide (r010, meteors): night_new's bearing over the valley, 18 deg up, so the far land sits
+# under the grazers (owner r009: "a bunch of them passing by at high altitude"); bearing 200 was a hillside.
+night_wide       272.5   auto   -268.5   135    -18    114000
 # Biome views (r002 on), one per biome, for dialling in each biome's fog from inside it (owner,
 # r001). Centres of single-biome chunks found from the region files' Biomes arrays (vanilla ids);
 # the world has no snowy biome, so the tundra storm still needs a world that has one. Over

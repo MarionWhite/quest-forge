@@ -154,7 +154,7 @@ int nightVariant() {
 // out, a few seconds apart, now and then a bright one. QF_METEOR_RATE slots, each with at most one
 // meteor in flight, and only sky pixels at night evaluate it: a few dot products per slot.
 float meteorTime() {
-    return frameTimeCounter;   // not animTime(): QF_STILL renders keep the shower moving
+    return frameTimeCounter * QF_METEOR_SLOW;   // not animTime(): QF_STILL renders keep the shower moving
 }
 // Loop 2 (critic: meteors drew over the dark cloud bodies): the meteor term is kept apart and added
 // after the clouds, behind them with a steep cut (a thin night cloud still let ~30 % of the bright
@@ -178,7 +178,202 @@ vec3 meteorRadiant() {
     float rEl = 0.44 + 0.61 * hash12(vec2(float(worldDay), 5.1));
     return vec3(cos(rEl) * cos(rAz), sin(rEl), cos(rEl) * sin(rAz));
 }
+#if QF_METEOR_STYLE > 0
+// r010 (owner r009 meteors, 4/5, "neither": "It doesn't look like the meteors are coasting through
+// the atmosphere overhead. These things look like they're plummeting ... I want a beautiful cinematic
+// meteor shower where it looks like a bunch of them passing by at high altitude"). Earth-grazers: when
+// a shower's radiant sits on the horizon its meteoroids skim the upper air instead of diving into it,
+// so they burn on long, near-level tracks about 100 km up and take seconds to cross the sky. They are
+// drawn in 3D, not on the sky sphere: each is a straight track at its own height, and every sky pixel
+// finds where its view ray passes closest to that track (a few dot products). Perspective does the
+// rest: a track passing overhead sweeps across the sky, the same track 400 km off creeps along the
+// horizon, thinner and fainter (light falls as 1/r^1.5 here), and all of them run one way, parallel,
+// out of one point on the horizon. A train is ionised air left where the head passed, so it ages from
+// the start of the track forward, widens in km (wide overhead, thin far off) and drifts on the wind.
+float gzB = 0.0;
+vec3 gzMiss = vec3(0.0);
+// Closest approach of the eye ray (origin, unit dir) to the line M + x V (unit V, km): returns the
+// eye distance s to that point and x along the line; the miss vector goes to gzMiss, dot(dir, V) to gzB.
+float gzClosest(vec3 dir, vec3 M, vec3 V, out float x) {
+    float b = dot(dir, V);
+    float d = -dot(dir, M);
+    float e = -dot(V, M);
+    float den = max(1.0 - b * b, 1e-5);
+    float s = (b * e - d) / den;
+    x = (e - b * d) / den;
+    gzMiss = s * dir - M - x * V;
+    gzB = b;
+    return s;
+}
+vec3 grazers(vec3 dir) {
+    float pxA = 2.0 / (gbufferProjection[1][1] * viewHeight);
+    float day = float(worldDay);
+#if QF_METEOR_RAZ >= 0
+    float rAz = radians(float(QF_METEOR_RAZ));
+#else
+    float rAz = hash12(vec2(day, 3.3)) * 6.2832;
+#endif
+    float rEl = radians(1.0 + 4.0 * hash12(vec2(day, 5.1)));     // 1-5 deg up: they sink a little
+    float wAz = hash12(vec2(day, 8.3)) * 6.2832;
+    vec3 wind = vec3(cos(wAz), 0.0, sin(wAz));
+    float t = meteorTime();
+    vec3 sum = vec3(0.0);
+#if QF_METEOR_STYLE == 3
+    // A storm: far more meteors, mostly faint, and their trains linger, so the sky fills with
+    // parallel lines.
+    const int NS = 10 * QF_METEOR_RATE;
+    const float PB = 4.0, OCC = 0.92, BR = 0.40, TRX = 1.7;
+#elif QF_METEOR_STYLE == 2
+    const int NS = 2 * QF_METEOR_RATE;
+    const float PB = 5.0, OCC = 0.80, BR = 0.6, TRX = 1.0;
+#else
+    const int NS = 6 * QF_METEOR_RATE;
+    const float PB = 5.0, OCC = 0.88, BR = 0.6, TRX = 1.0;
+#endif
+    for (int k = 0; k < NS; k++) {
+        float P = PB + 1.3 * float(k % 4);                    // seconds per slot cycle
+        float tk = t + float(k) * 2.371;
+        float ci = floor(tk / P);
+        vec2 sd = vec2(ci * 0.713 + float(k) * 3.17, float(k) * 1.31 + day * 0.17);
+        if (hash12(sd) > OCC) continue;
+        float u = hash12(sd + 6.6);
+        float bright = min(BR / max(u, 0.015), 7.0);           // P(> b) ~ 1/b, as r009
+        float gold = smoothstep(2.0, 6.0, bright);
+        float dur = mix(1.2, 4.0, hash12(sd + 1.1));
+        float start = hash12(sd + 2.2) * max(P - dur - 0.8, 0.2);
+        // Trains end inside the slot's cycle, so none pops off when the next cycle starts.
+        float trainT = min(mix(1.2, 3.0, hash12(sd + 9.9)) * mix(0.6, 2.2, gold) * TRX, P - start - dur);
+        float tl = tk - ci * P - start;                        // seconds since it lit
+        if (tl <= 0.0 || tl >= dur + max(trainT, 0.0)) continue;
+        // Its track: away from the radiant (spread +-3.5 deg), 88-118 km up, up to 380 km to either
+        // side of the eye, its middle within 250 km along the heading.
+        float az = rAz + (hash12(sd + 3.3) - 0.5) * 0.12;
+        float el = rEl + (hash12(sd + 3.9) - 0.5) * 0.04;
+        vec3 V = -vec3(cos(el) * cos(az), sin(el), cos(el) * sin(az));
+        vec3 F = vec3(-cos(az), 0.0, -sin(az));
+        vec3 Wd = vec3(-F.z, 0.0, F.x);
+        float spd = mix(28.0, 60.0, hash12(sd + 7.1));          // km/s
+        float L = spd * dur;
+        vec3 M = vec3(0.0, mix(88.0, 118.0, hash12(sd + 4.4)), 0.0)
+               + Wd * ((hash12(sd + 5.5) * 2.0 - 1.0) * 380.0)
+               + F * ((hash12(sd + 5.9) * 2.0 - 1.0) * 250.0 - 0.5 * L);
+        float x;
+        float s = gzClosest(dir, M, V, x);
+        float perpA = length(gzMiss) / max(s, 1.0);
+        if (s <= 0.0 || perpA > 0.08) continue;
+        float xh = spd * min(tl, dur);                         // the head, km along the track
+        float near = 100.0 / s;
+        float fall = min(near * sqrt(near), 1.6);
+        float alongA = (x - xh) * sqrt(max(1.0 - gzB * gzB, 0.0)) / s;   // angle from the head
+        vec3 tint = mix(vec3(0.95, 0.96, 1.0), vec3(1.0, 0.93, 0.80), hash12(sd + 8.8));
+        float hue = hash12(sd + 7.7);
+        vec3 hc = hue < 0.5 ? vec3(1.0, 0.78, 0.50) : (hue < 0.85 ? vec3(0.66, 1.0, 0.86) : vec3(0.85, 0.72, 1.0));
+        tint = mix(tint, hc, 0.75 * smoothstep(1.2, 5.0, bright));   // grazers are famous for colour
+        if (tl < dur) {
+            float p = tl / dur;
+            float env = smoothstep(0.0, 0.15, p) * smoothstep(1.0, 0.85, p) * (0.7 + 0.6 * p);
+            env *= 1.0 + 0.35 * gold * sin(tl * 31.0 + float(k) * 2.1) * sin(tl * 13.0);   // flickers as it fragments
+            float w = pxA * mix(1.15, 1.9, smoothstep(1.0, 5.0, bright));
+            // Loop 2 (r10g1: 35-110 km wakes read as short dashes): the glowing wake is half the path
+            // burnt so far (20-160 km), thinner than the head and tapering, so a grazer in flight is a
+            // long fine line with a hot point at its front: the long-exposure look.
+            float wake = clamp(xh * mix(0.40, 0.65, hash12(sd + 2.9)), 20.0, 160.0);
+            float a = clamp((x - xh + wake) / wake, 0.0, 1.0);
+            float wl = w * mix(0.55, 1.0, a);
+            float line = exp(-perpA * perpA / (wl * wl));
+            float trail = a * sqrt(a) * step(0.0, x) * smoothstep(0.8, -0.8, alongA / w);
+            float r2 = alongA * alongA + perpA * perpA;
+            float headDot = exp(-r2 / (w * w * 1.6)) * 2.4;
+            vec3 c = tint * line * trail * 0.8 + mix(tint, vec3(1.0), 0.6) * headDot;
+            c += tint * exp(-r2 / (0.0005 * near * near)) * 0.2 * gold;   // a fireball's glow, ~1.3 deg at 100 km
+            sum += c * env * bright * fall;
+        }
+        float ageS = tl - x / spd - 0.12;                      // since the head passed this point
+        float age = ageS / max(trainT, 1e-3);
+        if (trainT > 0.0 && x > 0.0 && x < xh && age > 0.0 && age < 1.0) {
+            float drift = ageS * 0.35 * (1.0 + 0.6 * sin(x * 0.05 + float(k)));   // km: the high wind kinks it
+            float dT = length(gzMiss - wind * drift) / s;
+            // Loop 2 (r10g1 night_sky: a train 2 km wide drew a 25 px band with a hard end, a comet,
+            // not a meteor): thin (0.12-0.7 km), dim, and laid down as the meteor burnt, so it tapers
+            // in at the start and out where the meteor faded.
+            float wt = max(mix(0.12, 0.7, sqrt(age)) / s, pxA * 1.2);
+            float lineT = exp(-dT * dT / (wt * wt)) * sqrt(pxA * 1.2 / wt);
+            float px = x / max(L, 1.0);
+            float fadeT = smoothstep(0.0, 0.08, age) * (1.0 - age) * (1.0 - age) * smoothstep(0.0, 0.2, px) * smoothstep(1.0, 0.75, px);
+            vec3 cT = mix(vec3(0.70, 1.0, 0.86), vec3(0.80, 0.86, 1.0), sqrt(age));   // the 557 nm oxygen green first, then blue-white
+            sum += cT * lineT * fadeT * 0.12 * min(bright, 4.0) * fall;
+        }
+    }
+#if QF_METEOR_STYLE == 2
+    // A fireball procession (the 1913 Great Meteor Procession; re-entering debris looks the same):
+    // one slow, large body on a grazing track 95 km up that breaks into a chain of fragments, each
+    // with its own wake, crossing most of the sky in about 9 s and leaving a long glowing train.
+    {
+        float PP = QF_METEOR_PROC_P;
+        float ci = floor(t / PP);
+        float tl = t - ci * PP - 1.0;
+        const float dur = 9.0, trainT = 6.0;
+        vec2 sd = vec2(ci * 1.37 + 0.5, day * 0.31 + 2.0);
+        if (tl > 0.0 && tl < dur + trainT) {
+            float az = rAz + (hash12(sd + 3.3) - 0.5) * 0.25;
+            vec3 V = -vec3(cos(az) * 0.9996, 0.03, sin(az) * 0.9996);
+            vec3 F = vec3(-cos(az), 0.0, -sin(az));
+            vec3 Wd = vec3(-F.z, 0.0, F.x);
+            const float spd = 16.0;
+            vec3 M = vec3(0.0, 95.0, 0.0) + Wd * ((hash12(sd + 5.5) * 2.0 - 1.0) * 120.0)
+                   + F * (-0.5 * spd * dur + (hash12(sd + 5.9) - 0.5) * 60.0);
+            float x;
+            float s = gzClosest(dir, M, V, x);
+            float near = 100.0 / max(s, 1.0);
+            float fall = min(near * sqrt(near), 1.6);
+            float sinb = sqrt(max(1.0 - gzB * gzB, 0.0));
+            float split = smoothstep(1.5, 5.0, tl);           // one fireball, then a chain
+            float xl = spd * min(tl, dur);
+            if (s > 0.0 && length(gzMiss) / s < 0.1) {
+                for (int j = 0; j < 9; j++) {
+                    float fj = float(j);
+                    float hj = hash12(sd + fj * 1.7 + 0.3);
+                    float xj = xl - split * (fj * 6.5 + hj * 4.0);
+                    float endj = dur * (j == 0 ? 1.0 : mix(0.55, 1.0, hash12(sd + fj * 2.3)));
+                    if (xj <= 0.0 || tl > endj) continue;
+                    vec3 lat = (Wd * (hj - 0.5) * 2.4 + vec3(0.0, hash12(sd + fj * 3.1) - 0.5, 0.0)) * fj * 0.25 * split;
+                    float perpA = length(gzMiss - lat) / s;
+                    float alongA = (x - xj) * sinb / s;
+                    float bj = j == 0 ? 6.0 : mix(1.2, 3.5, hash12(sd + fj * 4.1));
+                    float w = pxA * (j == 0 ? 2.6 : 1.6);
+                    float env = smoothstep(0.0, 0.8, tl) * smoothstep(endj, endj - 0.8, tl)
+                              * (1.0 + 0.3 * sin(tl * 23.0 + fj * 1.9));
+                    vec3 tj = j == 0 ? vec3(1.0, 0.92, 0.78) : (hj < 0.5 ? vec3(1.0, 0.70, 0.42) : vec3(0.70, 1.0, 0.82));
+                    const float wake = 22.0;
+                    float a = clamp((x - xj + wake) / wake, 0.0, 1.0);
+                    float trail = a * a * smoothstep(0.8, -0.8, alongA / w) * exp(-perpA * perpA / (w * w));
+                    float r2 = alongA * alongA + perpA * perpA;
+                    vec3 c = tj * trail + mix(tj, vec3(1.0), 0.6) * exp(-r2 / (w * w * 1.8)) * 2.0;
+                    c += tj * exp(-r2 / (0.0004 * near * near)) * (j == 0 ? 0.35 : 0.08);
+                    sum += c * env * bj * fall;
+                }
+                // Its train, along the whole track.
+                float ageS = tl - x / spd - 0.3;
+                float age = ageS / trainT;
+                if (x > 0.0 && x < xl && age > 0.0 && age < 1.0) {
+                    float drift = ageS * 0.35 * (1.0 + 0.6 * sin(x * 0.05));
+                    float dT = length(gzMiss - wind * drift) / s;
+                    float wt = max(mix(0.6, 3.0, sqrt(age)) / s, pxA * 2.0);
+                    float lineT = exp(-dT * dT / (wt * wt)) * sqrt(pxA * 2.0 / wt);
+                    float fadeT = smoothstep(0.0, 0.05, age) * (1.0 - age) * (1.0 - age) * smoothstep(0.0, 20.0, x);
+                    sum += mix(vec3(0.95, 0.80, 0.62), vec3(0.75, 0.88, 1.0), sqrt(age)) * lineT * fadeT * 0.9 * fall;
+                }
+            }
+        }
+    }
+#endif
+    return sum;
+}
+#endif
 vec3 meteors(vec3 dir) {
+#if QF_METEOR_STYLE > 0
+    return grazers(dir) * SUN_I * 0.06;
+#else
     vec3 R = meteorRadiant();
     float occ = 0.88 * R.y / 0.866;                            // slots in use: ~ sin(radiant altitude)
     float pxA = 2.0 / (gbufferProjection[1][1] * viewHeight);
@@ -276,6 +471,7 @@ vec3 meteors(vec3 dir) {
     }
 #endif
     return sum * SUN_I * 0.06;
+#endif
 }
 
 // Faint background stars: many, dim, slightly coloured; denser where `boost` is high.
@@ -663,7 +859,13 @@ vec3 cloudLum(CloudLight c, float od, float h, float mu, float dens) {
     {
         float gh = goldenHour();
         float fringe = exp(-od * 2.6) * (1.0 - smoothstep(0.0, 0.55, dens));
+#if QF_SUN_CLOUD == 2
+        // r010 option B: the silver lining 2.5x, held to the thinnest fringe (the lit edge, not a glow).
+        fringe *= exp(-od * 1.4);
+        s += c.E * fringe * (c.rim * 0.11 * (0.6 + 1.4 * gh) + 0.30 * gh);
+#else
         s += c.E * fringe * (c.rim * 0.045 * (0.6 + 1.4 * gh) + 0.30 * gh);
+#endif
     }
 #endif
     // At night, only thin edges carry moonlight: the bodies stay dark (no glow).
@@ -712,6 +914,14 @@ vec4 cloudMarch(vec3 dir, int steps, float jitter) {
     }
     // Far clouds melt into the sky towards the horizon.
     float fade = exp(-t0 / 6500.0) * smoothstep(0.012, 0.09, dir.y);
+#if QF_SUN_CLOUD > 0
+    // r010 (owner r009 sun-cloud: "make sure that the sun is interacting realistically with the
+    // clouds in front of it"): the melt drew the clouds round a 2-5 deg sun at ~20 %, while the disk
+    // behind them took the unmelted slab: a sun hidden by a cloud you could barely see. Within ~20 deg
+    // of the sun (or moon) the melt lifts, so the cloud in front reads as what it is: a dark body
+    // against the glow with the forward-scattered light blazing through its thin edges.
+    fade = mix(fade, max(fade, smoothstep(0.012, 0.05, dir.y)), smoothstep(0.93, 0.995, mu));
+#endif
     // The disk behind a cloud: a low sun sits where the melt fades the clouds to ~10 %, so it shone
     // whole through the wisps drawn over it. It takes the unfaded slab instead (loop 1, T squared,
     // hid the whole disk behind clouds the melt draws faint: the sun was gone).
