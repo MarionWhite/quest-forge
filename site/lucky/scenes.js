@@ -253,23 +253,42 @@ SCENES.tnt_rain = (ctx) => {
   };
 };
 
+// Experience bottles (EntityExpBottle, 1.7.10): a thrown item drawn as its own sprite (experience_bottle.png, camera
+// facing, half size), gravity 0.07 a tick. On impact: playAuxSFX 2002 (eight item-crack bits of the potion bottle,
+// a hundred "spell" particles blown outward in the water-bottle blue 0x385DC6, random.glass) and 3 to 11 points
+// of experience as orbs (split 7 / 3 / 1), animated experience_orb.png icons that bob, then pull toward the player
+// (EntityXPOrb: 0.03 gravity, within eight blocks a pull of (1 - d/8)^2 * 0.1 a tick) and chime random.orb on pickup.
+const orbTex = {};
+function orbIcon(idx) {
+  const base = tex('entity/experience_orb.png');
+  if (!(base.image && base.image.width)) return null; // a clone made before the image arrives would never upload
+  if (!orbTex[idx]) { const t = base.clone(); t.repeat.set(0.25, 0.25); t.offset.set((idx % 4) / 4, 1 - (Math.floor(idx / 4) + 1) / 4); t.needsUpdate = true; orbTex[idx] = t; }
+  return orbTex[idx];
+}
+const xpSplit = (v) => (v >= 2477 ? 2477 : v >= 1237 ? 1237 : v >= 617 ? 617 : v >= 307 ? 307 : v >= 149 ? 149 : v >= 73 ? 73 : v >= 37 ? 37 : v >= 17 ? 17 : v >= 7 ? 7 : v >= 3 ? 3 : 1);
+const xpIcon = (v) => (v >= 2477 ? 10 : v >= 1237 ? 9 : v >= 617 ? 8 : v >= 307 ? 7 : v >= 149 ? 6 : v >= 73 ? 5 : v >= 37 ? 4 : v >= 17 ? 3 : v >= 7 ? 2 : v >= 3 ? 1 : 0);
 SCENES.expbottle_rain = (ctx) => {
   const rolled = roll(ctx.drop.actions);
   const a = rolled.find((x) => x.t === 'expbottle') || { n: 20 };
   const P = ctx.pos.clone();
   const from = V(0.5, 1.8, 0.5);
   const N = Math.min(a.n, 34);
-  const glass = new THREE.MeshLambertMaterial({ color: 0x5fe38b, emissive: 0x1d6a33, transparent: true, opacity: 0.85 });
+  const bottleMap = tex('items/experience_bottle.png');
   const bottles = [];
   for (let i = 0; i < N; i++) {
-    const m = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.3, 0.22), glass);
+    const m = new THREE.Sprite(new THREE.SpriteMaterial({ map: bottleMap, transparent: true, alphaTest: 0.4, depthWrite: false, fog: false }));
+    m.scale.set(0.5, 0.5, 1);
     m.visible = false; ctx.S.temp.add(m);
-    bottles.push({ m, t0: 0.4 + i * 0.1, to: V(P.x + rnd(-2.2, 0.8), 0.2, P.z + rnd(-2, 2)), fl: rnd(0.7, 1.0), landed: false });
+    // thrown at Steve: the splash falls within a block or so of him, a few right on him
+    bottles.push({ m, t0: 0.4 + i * 0.1, to: V(P.x + rnd(-1.1, 1.1), 0.1, P.z + rnd(-1.1, 1.1)), fl: rnd(0.7, 1.0), landed: false });
   }
+  const orbs = [];
+  const BLUE = new THREE.Color(0x385dc6);
+  let sn = 0, tick = 0, picked = 0, tacc = 0;
   watch('bottles', () => V(P.x - 1, 1.2, P.z), 3);
-  let sn = 0;
+  const aim = () => V(P.x, P.y + 0.9, P.z);
   return {
-    dur: 0.4 + N * 0.1 + 2.4,
+    dur: 0.4 + N * 0.1 + 3.4,
     cam: () => ({ pos: V(P.x - 0.8, 3.0, P.z + 9.0), look: V(P.x - 1.2, 1.3, P.z), fov: 46 }),
     update(t, dt) {
       for (const b of bottles) {
@@ -277,14 +296,56 @@ SCENES.expbottle_rain = (ctx) => {
         const s = t - b.t0, k = clamp01(s / b.fl);
         b.m.visible = true;
         b.m.position.set(lerp(from.x, b.to.x, k), lerp(from.y, b.to.y, k) + Math.sin(k * Math.PI) * 2.2, lerp(from.z, b.to.z, k));
-        b.m.rotation.z += dt * 9;
+        b.m.material.rotation = k * 6;
         if (k >= 1) {
           b.landed = true; b.m.visible = false;
-          burst(ctx, V(b.to.x, 0.3, b.to.z), { n: 16, colors: [0x7bff9f, 0xb8ff3a, 0xffe36a], size: 0.14, speed: 1.8, up: 2.4, life: 1.2, additive: true });
-          if (sn++ % 2 === 0) sfx('random.glass', { pos: b.to, volume: 0.6, pitch: 1.2 });
-          if (sn % 3 === 0) sfx('random.orb', { pos: b.to, volume: 0.6 });
+          const at = V(b.to.x, 0.3, b.to.z);
+          // eight bits of the bottle (iconcrack): pale glass
+          burst(ctx, at, { n: 8, colors: [0xcfe2ff, 0x9fb8e8, 0xe8f0ff], size: 0.07, speed: 1.0, up: 1.2, life: 0.9 });
+          // a hundred spell particles blown outward, 0.75..1.0 of the blue
+          const cols = [0.75, 0.82, 0.9, 1.0].map((f) => BLUE.clone().multiplyScalar(f).getHex());
+          burst(ctx, at, { n: 90, colors: cols, size: 0.15, speed: 2.8, up: 1.4, life: 1.0, additive: true, gravity: 0.5 });
+          sfx('random.glass', { pos: b.to, volume: sn++ % 2 ? 0.45 : 0.7, pitch: 0.9 + Math.random() * 0.1 });
+          // 3..11 points of experience, as orbs
+          let v = 3 + Math.floor(Math.random() * 5) + Math.floor(Math.random() * 5);
+          while (v > 0) {
+            const q = xpSplit(v); v -= q;
+            const sp = new THREE.Sprite(new THREE.SpriteMaterial({ transparent: true, alphaTest: 0.1, depthWrite: false, fog: false }));
+            const sz = 0.3 + (xpIcon(q) % 4) * 0.04;
+            sp.scale.set(sz * 1.5, sz * 1.5, 1); sp.visible = false;
+            ctx.S.temp.add(sp);
+            orbs.push({ sp, icon: xpIcon(q), p: V(b.to.x + rnd(-0.2, 0.2), 0.35, b.to.z + rnd(-0.2, 0.2)), v: V(rnd(-0.1, 0.1), rnd(0.05, 0.2), rnd(-0.1, 0.1)), age: Math.floor(rnd(0, 20)), gone: false });
+          }
         }
       }
+      // orbs run on the game's 20 ticks a second
+      tacc += dt * 20;
+      while (tacc >= 1) {
+        tacc -= 1; tick++;
+        const T = aim();
+        for (const o of orbs) {
+          if (o.gone) continue;
+          o.age++;
+          o.v.y -= 0.03;
+          const d = T.clone().sub(o.p).multiplyScalar(1 / 8), dist = d.length();
+          if (dist < 1) { const f = (1 - dist) * (1 - dist); o.v.addScaledVector(d.normalize(), f * 0.1); }
+          o.p.add(o.v);
+          if (o.p.y < 0.22 && dist >= 1 / 8 * 0.5) { o.p.y = 0.22; o.v.y *= -0.0; o.v.x *= 0.6; o.v.z *= 0.6; } else o.v.multiplyScalar(0.98);
+          if (o.p.distanceTo(T) < 0.5) { o.gone = true; o.sp.visible = false; picked++; sfx('random.orb', { pos: P, volume: 0.5, pitch: 0.5 * ((Math.random() - Math.random()) * 0.7 + 1.8) }); }
+        }
+      }
+      for (const o of orbs) {
+        if (o.gone) continue;
+        const tx = orbIcon(o.icon);
+        if (!tx) continue;
+        o.sp.material.map = tx; o.sp.material.needsUpdate = true;
+        // the orb's own colour pulse (RenderXPOrb): red and blue swing round a full green
+        const ph = (o.age + tacc) / 4;
+        o.sp.material.color.setRGB((Math.sin(ph) + 1) * 0.5, 1, (Math.sin(ph + 4.19) + 1) * 0.1);
+        o.sp.position.set(o.p.x, o.p.y + Math.sin((o.age + tacc) * 0.3) * 0.03, o.p.z);
+        o.sp.visible = true;
+      }
+      void tick; void picked;
       ctx.steve.anim(t, dt, { walk: 0 });
     },
   };

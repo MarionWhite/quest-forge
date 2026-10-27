@@ -1,5 +1,6 @@
 # Site journal (newest first)
 
+- 2026-10-27 (Mac) lucky r7: the world remembers (broken blocks stay broken, restored silently only off frame), no phasing (floor under his feet, gravity, steps; nav_check feet/world checks), parkour/hole/sapling/bow redone with permanent props (hay, bookshelves), enchanting table 1.7.10 crop + glyphs, XP bottles with real sprite/splash/orbs, bag scheduler reaches all 29 acts in ~670 s. Enchant book open state only verified in real time.
 - 2026-10-27 (Mac) audio r7: screams rebuilt as ONE real recorded man per file (13 Freesound CC0 recordings, licence
   checked per page), trim/EQ/room only, 48 kHz 160 kbps; death_scream 8, scream 3, scream_far 2, underwater 3,
   jumpscreech 2. `tools/music/scream_pack2.py`. Unheard by the agent: owner picks by ear from the preview.

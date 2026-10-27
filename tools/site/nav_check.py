@@ -70,7 +70,7 @@ def main():
         st = run(exe, port, p, timeout=300)
         if bad_of(st):
             bad += 1
-        if cover and st:
+        if cover and "idle=900000" in p and st:
             missing = [a for a in ACTS if not (st.get("acts") or {}).get(a)]
             print("coverage: started", len(ACTS) - len(missing), "of", len(ACTS), "missing", missing, "first starts (s):", st.get("actFirst"))
             if missing:

@@ -522,7 +522,6 @@ export function makeActs(k) {
       const edge = dx === 0 || dx === 2 || dz === 0 || dz === 2;
       const door = dx === 1 && dz === 2;
       for (let y = 0; y < 2; y++) if (edge && !door) cells.push([x0 + dx, y, z0 + dz]);
-      if (door) cells.push([x0 + dx, 1, z0 + dz, 'top']);
       cells.push([x0 + dx, 2, z0 + dz, 'roof']);
     }
     cells.sort((p, q) => p[1] - q[1]);

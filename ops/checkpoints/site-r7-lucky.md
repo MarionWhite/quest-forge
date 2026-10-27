@@ -16,10 +16,10 @@ Previous state: `site-r6-lucky.md`.
 - "The bottle of xp that splash on the player have bugged textures." (drop 165, Launched experience bottles)
 
 ## Done means
-- [ ] **World state:** a block Steve breaks stays broken and one he places stays placed. Restore the camp
+- [x] **World state:** a block Steve breaks stays broken and one he places stays placed. Restore the camp
   silently, only when the changed cell is outside the camera frustum. Holes, huts, torches and crops all
   follow this rule.
-- [ ] **No phasing:** Steve and the animals always stand on the real surface. They walk around holes or step
+- [x] **No phasing:** Steve and the animals always stand on the real surface. They walk around holes or step
   down and back up, never through ground or into blocks.
   - The dig act: he digs and stands beside the hole, or climbs out with a jump, but never walks through
     the ground.
@@ -27,24 +27,24 @@ Previous state: `site-r6-lucky.md`.
     Or replace it with an act that makes sense.
   - Extend `nav_check.py` to sample feet height against the surface (error ≤ 0.05) and to flag any act that
     alters a block in view without an animation. 0 violations over all 29 acts.
-- [ ] **Props first:** every act that uses a prop has it built into the camp permanently, or Steve places
+- [x] **Props first:** every act that uses a prop has it built into the camp permanently, or Steve places
   it first. Examples: the archery target, the note block, the brewing stand, the enchanting table.
-- [ ] **Smart activity camera:** frame both Steve and the act's target: the bow and the hay-bale target,
+- [x] **Smart activity camera:** frame both Steve and the act's target: the bow and the hay-bale target,
   the rod and the bobber, the dog, the sheep. Use a side-on 3/4 shot chosen from the two positions, with
   an occlusion check. Make one frame per act where both read.
-- [ ] **Enchanting table:**
+- [x] **Enchanting table:**
   - The 1.7.10 model: 12/16 height, `enchanting_table_top`/`side`/`bottom`, and the floating open book
     from `entity/enchanting_table_book.png` that bobs and turns to face Steve.
   - The enchanting glyph particles.
   - The enchant act shows up in normal idle. Prove the scheduler reaches all 29 acts within 15 minutes of
     simulated idle.
-- [ ] **XP bottles (drop 165):**
+- [x] **XP bottles (drop 165):**
   - The thrown bottle uses the `experience_bottle` item sprite.
   - The splash uses the 1.7.10 potion-splash particles in the XP colour.
   - XP orbs use the animated `experience_orb.png`, bob, and fly to Steve with the orb sound.
   - Check every other thrown-item outcome the same way: potions, eggs, snowballs, ender pearls.
-- [ ] Re-run `vet_lucky.py` and `audit_lucky.py`.
-- [ ] Verify motion in real time with the CDP driver (copy `scratchpad/orch/cdp.mjs`), not only stills.
+- [x] Re-run `vet_lucky.py` and `audit_lucky.py`.
+- [x] Verify motion in real time with the CDP driver (copy `scratchpad/orch/cdp.mjs`), not only stills.
 - [ ] Sheet: each fixed act, 3 frames each (start, middle, end), plus drop 165.
 
 ## Progress (agent log)
@@ -54,3 +54,6 @@ Previous state: `site-r6-lucky.md`.
 - [x] nav_check.py: --acts, --cover; feet/world/acts in data-nav-stats.
 - NEXT: view enchant/harvest/sapling/hut/torches stills, camera per act (spec.mark), drop 165 + thrown items, vet/audit, CDP motion check, sheet.
 - Scratch: /private/tmp/claude-503/-Users-suaz-Desktop-QuestForge/91769071-2ed0-4412-b25d-3c510232d8e5/scratchpad/r7/lucky/ (cdp.mjs, trace*.js, s1..s3 sheets)
+
+- DONE 2026-10-27: drop 165 now uses the experience_bottle sprite, 1.7.10 splash (blue 0x385DC6 burst, glass), animated experience_orb icons that pull to Steve with the orb sound (textures copied from the 1.7.10 jar). No other thrown-item scene exists on the page (potions/eggs/snowballs/pearls not used). nav_check --acts: 29 acts + call/boss/drop pages, 0 violations; --cover: 29/29 within 670 s sim. vet_lucky (165,143,150) ok, audit_lucky 0 problems, check_sounds 0 missing. CDP traces: hole, parkour, bow, quarry deferral verified in real time. Sheet: scratchpad r7/lucky/final/sheet.png
+- Caveat: enchanting book opening is only seen in real time (camp.update is not run in fast-forward stills).

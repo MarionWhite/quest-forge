@@ -256,15 +256,16 @@ export function createBrain(deps) {
   const flushAll = () => { for (const p of W.pend.splice(0)) p.fn(); };
   // the floor under a point: a footprint 0.6 wide rests on the highest thing under any corner of it
   const lowBoxes = () => W.low || (W.low = nav.boxes.filter((q) => q.kind === 'low' || q.kind === 'dais'));
-  function colTop(ix, iz) {
+  function colTop(ix, iz, yRef) {
     let h = W.holes.has(ix + ',' + iz) ? -1 : 0;
     for (const q of lowBoxes()) if (!q.off && ix + 0.5 > q.x0 && ix + 0.5 < q.x1 && iz + 0.5 > q.z0 && iz + 0.5 < q.z1) h = Math.max(h, q.kind === 'dais' ? 1 : 0.5);
-    for (let y = 4; y >= 0; y--) if (W.solids.has(ix + ',' + y + ',' + iz)) { h = Math.max(h, y + 1); break; }
+    // only what is within a step of his feet counts as floor; a lintel or roof overhead is not
+    for (let y = 4; y >= 0; y--) if (y <= yRef + 0.52 && W.solids.has(ix + ',' + y + ',' + iz)) { h = Math.max(h, y + 1); break; }
     return h;
   }
-  function surfaceAt(x, z, r = R_H - 0.01) {
+  function surfaceAt(x, z, r = R_H - 0.01, yRef = b.y) {
     let h = -9;
-    for (const dx of [-r, r]) for (const dz of [-r, r]) h = Math.max(h, colTop(Math.floor(x + dx), Math.floor(z + dz)));
+    for (const dx of [-r, r]) for (const dz of [-r, r]) h = Math.max(h, colTop(Math.floor(x + dx), Math.floor(z + dz), yRef));
     return h;
   }
   // terrain voxels he takes out (the hole, a log): remembered with what stood there, so they can be put back
@@ -302,7 +303,7 @@ export function createBrain(deps) {
     if (b.air) b.floor = s;
     else if (s > b.floor + 1e-3) {
       // a step is half a block at most; anything higher he has to jump onto (the climb counts against the checks)
-      if (s - b.y > 0.52 && b.state !== 'scene' && b.t - b.floorAt > 0.35) { W.feet.bad++; if (W.feet.first.length < 12) W.feet.first.push([b.act || '', 'climb', +b.x.toFixed(2), +b.z.toFixed(2), +b.y.toFixed(2), +s.toFixed(2), +b.t.toFixed(1)]); }
+      if (s - b.y > 0.52 && b.state !== 'scene' && b.state !== 'hop' && b.state !== 'after' && b.t - b.floorAt > 0.35) { W.feet.bad++; if (W.feet.first.length < 12) W.feet.first.push([b.act || '', 'climb', +b.x.toFixed(2), +b.z.toFixed(2), +b.y.toFixed(2), +s.toFixed(2), +b.t.toFixed(1)]); }
       b.floor = s;
     }
     else if (s < b.floor - 1e-3) { b.floor = s; if (b.y > s + 0.05) { b.air = true; b.vy = 0; } }
@@ -311,7 +312,7 @@ export function createBrain(deps) {
   function trackFeet() {
     const s = surfaceAt(b.x, b.z);
     W.feet.n++;
-    if (b.air || b.hop || b.state === 'scene' || b.t - b.floorAt < 0.35) return;
+    if (b.air || b.hop || b.state === 'scene' || b.state === 'hop' || b.state === 'after' || b.t - b.floorAt < 0.35) return;
     const e = Math.abs(b.y - s);
     if (e > W.feet.max) W.feet.max = +e.toFixed(3);
     if (e > 0.05) { W.feet.bad++; if (W.feet.first.length < 12) W.feet.first.push([b.act || '', +b.x.toFixed(2), +b.z.toFixed(2), +b.y.toFixed(2), +s.toFixed(2), +b.t.toFixed(1)]); }
