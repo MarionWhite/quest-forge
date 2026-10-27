@@ -6,7 +6,7 @@
 #define QF_NIGHT_FLOOR 1.0 // [0.0 0.5 0.75 1.0 1.5 2.0 3.0]
 #define QF_EXPOSURE_BIAS 0.0 // [-1.5 -1.0 -0.5 0.0 0.5 1.0 1.5]
 #define QF_WAVING 1 // [0 1]
-#define QF_DEBUG_VIEW 0 // [0 1 2 3 4 5 6 7 8 9 10]
+#define QF_DEBUG_VIEW 0 // [0 1 2 3 4 5 6 7 8 9 10 11 12 13 14]
 #define QF_STILL 0 // [0 1]   development: freeze wind, waves and twinkle (temporal-noise test)
 #define QF_EXPO_PIN 0 // [0 1]   development (r009 forest wash): 1 pins the exposure at QF_EXPO_PIN_LOG, so A/B frames are not re-metered
 #define QF_EXPO_PIN_LOG 1.0 // [0.0 0.5 1.0 1.5 2.0]
@@ -58,9 +58,10 @@
 #define QF_UW_VIS 2.0 // [1.0 1.4 2.0]   (r010 loop 2: 2.0, far-terrain local contrast 1.10 -> 1.55, +41 %; 1.4 +27 %)   (r010; owner r009 underwater B: "the visibility is a little bit low") clear-water (not swamp) fog thinned by this factor, hue kept; the sunbeams unchanged
 #define QF_RIVER_TINT 1 // [0 1 2]   (r010; owner r009 river: "very green") 0 r009 green-brown silty stream (water 51,79,63); 1 the same murk, teal-blue instead of green (50,74,80); 2 clear stream: glassier water and the bed's veil cut from 2.2 to 0.6 blocks, so ledges and stones show
 #define QF_SUN_CLOUD 1 // [0 1 2]   (r010; owner r009 sun-cloud: "make sure that the sun is interacting realistically with the clouds in front of it") 0 r009: clouds within 20 deg of a low sun melt to ~20 % into the haze while still hiding the disk; 1 no melt near the sun or moon, so the cloud in front is a dark body with lit edges; 2 as 1 with the silver lining 2.5x on the thinnest fringe
-#define QF_SHALLOW_SUN 2 // [0 1 2]   (r010; owner r009 sunset-full: "weird green coloring right in the middle") sunlight reaching a shallow bed: 0 r009 (the filter fades out as the sun sets, so golden-lit sand under the sea turns mint); 1 the surface's Fresnel transmission (27 % at 3 deg) and the filter held to the horizon; 2 as 1, and at low sun the bed's light counts as mostly the sun's, so sunset shallows go dark and mirror the sky
+#define QF_SHALLOW_SUN 0 // [0 1 2]   development (r010 session 3: NOT the mint's cause, which was the sky seen through deep water, fixed in composite; ss0/ss1/ss2 mint 692/661/686 px, so it stays off) sunlight reaching a shallow bed: 0 r009 (the filter fades out as the sun sets, so golden-lit sand under the sea turns mint); 1 the surface's Fresnel transmission (27 % at 3 deg) and the filter held to the horizon; 2 as 1, and at low sun the bed's light counts as mostly the sun's, so sunset shallows go dark and mirror the sky
 #define QF_CREPUSCULAR 0 // [0 1]   (r010; open owner question, ops/DECISIONS.md; High and Ultra only) crepuscular rays: sunbeams fanning from a low sun through the gaps between clouds, a screen-space march toward the sun over the sky's cloud transmittance
 #define QF_METAL_FLOOR 1 // [0 1]   (r010; texture track: gold 150,126,1 under the shader vs 178,152,34 vanilla) 1 metals keep most of their diffuse look under the reflection (PBR off 0.65 -> 0.92, PBR on 0.30 -> 0.62), so gold and iron are never darker than plain blocks; 0 r009
+#define QF_METAL_F0 1 // [0 1]   (r010; texture track: gold's top third showed a lime sheen) 1 LabPBR's hard-coded metals (F0 bytes 230-237: iron, gold, aluminium, chrome, copper, lead, platinum, silver) reflect with the real metal's colour, shaded by the texture's brightness; 0 r009 (the texture colour, which the grade pushes toward lime on gold)
 #define QF_CLOUD_RIM 1 // [0 1]   development (r007): sharp silver linings and rim light on cloud edges toward a low sun (owner r006, golden: "a sharper highlight effect on the edges of the clouds")
 #define QF_SHAFT_STYLE 1 // [0 1]   development (r007): 1 round 5's warm, open rays with r006's finer sampling (owner r006: round 5's frame, "warmer, the rays are better formed"); 0 r006's contrast-shaped rays
 #define QF_VIBRANCE 0.25 // [0.0 0.1 0.15 0.2 0.25 0.3 0.35]   (r008; owner r007: "somewhere between .15 and .35")   colour vibrance: lifts the muted colours more than the already vivid ones, so wood and gold do not turn neon (owner r006: "a little more vibrance"); 0 is r006

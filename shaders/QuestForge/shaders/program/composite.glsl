@@ -660,6 +660,13 @@ vec3 shadeWaterAbove(vec3 color, vec3 n, float var, vec3 scene0, float dist0, ve
         dR = depth1;
     }
     vec3 behind = texture(colortex3, uvR).rgb;
+    // r010 (owner r009 sunset-full: "some weird green coloring right in the middle of the image";
+    // QF_DEBUG_VIEW 12 on ocean_sunset): where no terrain lies behind the water in the depth buffer
+    // (open sea out past the loaded bed, dR = 1), "behind" was the sky itself, and at sunset that is
+    // the brightest thing in the frame. 32 blocks of reef water took its red and left its green and
+    // blue: a mint wedge (151,185,130) wherever the horizon glow sat behind the sea. Deep water with
+    // no bed in view shows only its own in-scattered light.
+    if (dR >= 1.0) behind = vec3(0.0);
     vec3 bedP = scenePosAt(uvR, dR);
     float d = dR >= 1.0 ? 32.0 : distance(scene0, bedP);
 #if QF_CAUSTICS == 1 && QF_PRESET > 0
@@ -797,6 +804,16 @@ vec3 shadeWaterAbove(vec3 color, vec3 n, float var, vec3 scene0, float dist0, ve
     }
 #endif
     vec3 col = mix(refracted, refl, F);
+#if QF_DEBUG_VIEW == 11
+    // r010 (sunset mint bisect): r the bed's sun visibility, g the water's Fresnel, b the bed depth / 4 blocks.
+    return vec3(sh, F, clamp(max(scene0.y - bedP.y, 0.0) / 4.0, 0.0, 1.0)) * 0.6 / max(exposure(), 1e-4);
+#elif QF_DEBUG_VIEW == 12
+    return behind;              // the bed as lit, after the sun filter, before the water volume
+#elif QF_DEBUG_VIEW == 13
+    return refracted * (1.0 - F);   // what comes through the surface
+#elif QF_DEBUG_VIEW == 14
+    return refl * F;                // what the surface mirrors
+#endif
 
     // The sun (or moon) on the waves.
     sh *= 1.0 - sunOcc;
@@ -954,9 +971,9 @@ float swampBlend(vec3 scene0, float sw0) {
 // in screen space (the water's SSR); where it leaves the screen or finds nothing, the sky and
 // clouds along it, and below the horizon the lit ground. Tinted by the metal's Fresnel; the
 // deferred pass drew only the sun's highlight and a little diffuse.
-vec3 metalReflection(vec3 n, vec3 viewDir, vec3 albedo, float smooth_, float skyLight, float ao, float depth0) {
+vec3 metalReflection(vec3 n, vec3 viewDir, vec3 albedo, float f0id, float smooth_, float skyLight, float ao, float depth0) {
     float r = (1.0 - smooth_) * (1.0 - smooth_);
-    vec3 f0 = clamp(albedo * 1.15, 0.0, 1.0);
+    vec3 f0 = metalF0(albedo, f0id);
     float NdotV = clamp(dot(n, -viewDir), 0.02, 1.0);
     vec3 Fe = fresnelSchlick(NdotV, f0);
     vec3 R = reflect(viewDir, n);
@@ -1045,6 +1062,10 @@ void main() {
             }
 #endif
             color = shadeWaterAbove(color, n, var, scene0, dist0, viewDir, depth0, depth1, skyLight);
+#if QF_DEBUG_VIEW >= 11
+            outColor = vec4(max(color, vec3(0.0)), 1.0);
+            return;
+#endif
 #if QF_WATER_BLEND == 1 && QF_BIOME_WATER == 1 && QF_CAL_WATER == 0 && QF_WATER_FORCE == 0
             gWaterW = vec4(-1.0);
 #endif
@@ -1059,7 +1080,7 @@ void main() {
                 uvR = uv;
                 dR = depth1;
             }
-            vec3 behind = texture(colortex3, uvR).rgb;
+            vec3 behind = dR >= 1.0 ? vec3(0.0) : texture(colortex3, uvR).rgb;   // r010: no sky through the sea
             float d = dR >= 1.0 ? 32.0 : distance(scene0, scenePosAt(uvR, dR));
             vec3 refracted = waterVolume(behind, d, skyLight);
             // Fresnel reflection of the sky (the lookup-table fallback; no SSR in milestone 1).
@@ -1270,7 +1291,7 @@ void main() {
         float smM = 1.0 - c0.a, f0M = 1.0 - g2m.a;
         bool mapped = smM > 0.02 || f0M > 0.02;
         bool metalPx = mapped ? f0M > 0.895 : unpackMaterial(g1) == MAT_METAL;
-        if (metalPx) color += metalReflection(decodeNormal(g1.rg), viewDir, toLinear(c0.rgb),
+        if (metalPx) color += metalReflection(decodeNormal(g1.rg), viewDir, toLinear(c0.rgb), mapped ? f0M : 0.0,
                                               mapped ? max(smM, 0.35) : 0.72, g2m.g, g2m.b, depth0);
     }
 #endif

@@ -152,3 +152,17 @@ Review of 1027-190711-r010-loop2-shot and -meteor3-shot (scratchpad sheet.py / c
   yellow/mint ledge stripes (keep as option C with that note). **Beach/lake:** unchanged by SHALLOW_SUN (good).
 - **Gold:** loop2's diag_column ran in the default world (no column): the spec missed `world: C:/qfb/textures/world-showcase`.
   Gold must be re-measured there (texture pack C:/qfb/textures/diag/QF-l-dense.zip = t10lb, baseline bench-t10lb-*).
+- 19:30 (uncommitted until verified): **QF_METAL_F0 1** (lib/lighting.glsl metalF0(): LabPBR F0 bytes 230-237 use the
+  real metal F0 table x texture brightness; metalShade/metalReflection take the F0 byte). Water debug views 11-14 in
+  shadeWaterAbove (11 sh/F/depth, 12 bed as lit, 13 transmitted, 14 reflected). check_glsl 0 errors.
+  Shot **1027-193024-r010-diag3-shot** (specs/r10-diag3.json): r10m11-14 ocean_sunset; r10gf1/r10gf0 (METAL_F0 1/0)
+  diag_column+texture_wall on world-showcase with QF-l-dense.zip; r10gfoff shaders off diag_column.
+  Gold boxes: gold x1134-1426 y890-1022, stone x820-1100 y1000-1100 (diag_column); lime box texture_wall ~1575,705,1700,800.
+- 19:40 diag3 read: **mint cause found** (debug 12): where depthtex1 has no terrain behind the sea (dR = 1), `behind`
+  was the sunset sky itself, and 32 blocks of reef water took its red: the mint wedge (151,185,130) is the horizon glow
+  seen through the sea. Fix in both water paths: no bed in view -> behind = 0 (in-scatter only). QF_SHALLOW_SUN back to
+  0 (not the cause; ss0/1/2 692/661/686). **Gold:** METAL_FLOOR + vibrance floor: gold/stone 1.48 (t10lb) -> 1.77
+  (gf0) / 1.74 (gf1), vanilla 1.82; blue clipped 61 % -> 0 %. METAL_F0 1: wall gold-top G/R 0.97 (t10lb) -> 0.941 (gf0)
+  -> 0.934 (gf1); the lime read is gone in gf0/gf1 crops (mostly the vibrance floor). Defaults settled: METEOR_STYLE 1,
+  SUN_CLOUD 1, DUST_LEAF 1 (fm2/fm3 no visible change), UW_VIS 2.0, RIVER_TINT 1, METAL_FLOOR 1, METAL_F0 1,
+  CREPUSCULAR 0 (owner question), SHALLOW_SUN 0. Next: commit, cost spec, submit, spec_scenes.py, round.json.

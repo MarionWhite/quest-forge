@@ -93,11 +93,33 @@ vec3 fresnelSchlick(float c, vec3 f0) {
 #else
 #define QF_METAL_SSR 0
 #endif
-vec3 metalShade(vec3 albedo, vec3 n, vec3 viewDir, vec3 L, vec3 E, float smooth_, float shadow, float sky, float ao, vec3 diffuse, vec3 scenePos) {
+// r010 (texture track, bench-t10lb-texture_wall: gold's top third had a lime sheen). A metal's
+// reflection was tinted by its texture colour; gold's texture after the grade has blue near 0 and
+// green close to red, so the green field and blue sky it mirrors came out lime. LabPBR's hard-coded
+// metals (F0 bytes 230-237) now reflect with the real metal's F0 (linear sRGB, from measured n and k),
+// scaled by the texture's brightness so the block keeps its pattern. Other metals keep the texture.
+vec3 metalF0(vec3 albedo, float f0) {
+#if QF_METAL_F0 == 1
+    int id = int(f0 * 255.0 + 0.5);
+    if (id >= 230 && id <= 237) {
+        vec3 m = vec3(0.56, 0.57, 0.58);                  // 230 iron
+        if (id == 231) m = vec3(1.00, 0.71, 0.29);        // gold
+        else if (id == 232) m = vec3(0.91, 0.92, 0.92);   // aluminium
+        else if (id == 233) m = vec3(0.55, 0.56, 0.55);   // chrome
+        else if (id == 234) m = vec3(0.95, 0.64, 0.54);   // copper
+        else if (id == 235) m = vec3(0.63, 0.63, 0.64);   // lead
+        else if (id == 236) m = vec3(0.67, 0.64, 0.59);   // platinum
+        else if (id == 237) m = vec3(0.95, 0.93, 0.88);   // silver
+        return m * clamp(0.35 + 0.9 * luminance(albedo), 0.5, 1.0);
+    }
+#endif
+    return clamp(albedo * 1.15, 0.0, 1.0);
+}
+vec3 metalShade(vec3 albedo, float f0id, vec3 n, vec3 viewDir, vec3 L, vec3 E, float smooth_, float shadow, float sky, float ao, vec3 diffuse, vec3 scenePos) {
     float r = (1.0 - smooth_) * (1.0 - smooth_);
     float a2 = max(r * r, 0.0012);
     vec3 V = -viewDir;
-    vec3 f0 = clamp(albedo * 1.15, 0.0, 1.0);
+    vec3 f0 = metalF0(albedo, f0id);
     float NdotV = clamp(dot(n, V), 0.02, 1.0);
     vec3 Rf = reflect(viewDir, n);
     // Loop 3 (critic ud_pbr: the metals are bright but read as paint, no sky or landscape in them).
@@ -275,7 +297,7 @@ vec3 shadeSurface(Surface s, vec3 viewDir, vec2 pixel) {
         // reflection and lose most of their diffuse light.
         bool metal = s.f0 > 0.895;
         if (metal) {
-            color = metalShade(s.albedo, s.normal, viewDir, L, E, max(s.smoothness, 0.35), shadow, sky, ao, color, s.scenePos);
+            color = metalShade(s.albedo, s.f0, s.normal, viewDir, L, E, max(s.smoothness, 0.35), shadow, sky, ao, color, s.scenePos);
             return color;
         }
         float r = (1.0 - s.smoothness) * (1.0 - s.smoothness);
@@ -320,7 +342,7 @@ vec3 shadeSurface(Surface s, vec3 viewDir, vec2 pixel) {
     // Specular from the light on metal and polished stone (no reflections beyond that yet).
 #if QF_PBR == 1
     // Metal blocks without a map in the pack: the same model, polished.
-    if (s.mat == MAT_METAL && !hasPbr) return metalShade(s.albedo, s.normal, viewDir, L, E, 0.72, shadow, sky, ao, color, s.scenePos);
+    if (s.mat == MAT_METAL && !hasPbr) return metalShade(s.albedo, 0.0, s.normal, viewDir, L, E, 0.72, shadow, sky, ao, color, s.scenePos);
 #endif
     if (s.mat == MAT_METAL || s.mat == MAT_POLISHED || s.mat == MAT_ORE) {
         float rough = s.mat == MAT_METAL ? 0.38 : (s.mat == MAT_ORE ? 0.3 : 0.28);
