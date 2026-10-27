@@ -177,6 +177,8 @@ def parse_result(stdout):
 
 
 def main(argv=None):
+    for stream in (sys.stdout, sys.stderr):  # agent replies carry non-cp1252 text (arrows, dashes)
+        stream.reconfigure(encoding="utf-8", errors="replace")
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("prompt", nargs="?")
     ap.add_argument("--lane", choices=list(ledger.LANES))
