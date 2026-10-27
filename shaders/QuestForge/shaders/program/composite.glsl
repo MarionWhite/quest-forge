@@ -735,7 +735,10 @@ vec3 shadeWaterAbove(vec3 color, vec3 n, float var, vec3 scene0, float dist0, ve
     // Loop 4 (critic uj ocean_sunset: the path under the sun is short and dim next to r007's qh;
     // measured 15-25% under qh down the column while the sun disk's exposure rose): a second, longer
     // lobe at low sun, so the path reaches the camera as a column (BSL), on calm water too.
-    spec += ggx(NdotH, a2b * 2.2) * G * 0.30 * gh * gh * balance;
+    // r009 (critic p8: the path is still 77 luma against r007 qw's 86, far from BSL's column): wider
+    // (2.2 -> 3.2) and brighter (0.30 -> 0.80; 0.44 gained only 5-10 % down the column), and only half
+    // the near-camera balance, so it runs on to the camera. Constants only: no cost.
+    spec += ggx(NdotH, a2b * 3.2) * G * 0.80 * gh * gh * sqrt(balance);
 #if QF_SUN_SPARKLE == 1
     {
         // The tight core under the sun (r005, kept): world-anchored glints that hold for a second
