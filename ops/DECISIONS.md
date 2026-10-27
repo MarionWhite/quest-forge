@@ -19,14 +19,12 @@ delete the entry here. Sheet 1 (30 cards) was answered 2026-10-25 → decisions 
 - **WP-6 finale and Pack Master rewards** (bag + tome per finale; statue + Legendary bag), the Act
   III diamond overage (78 vs 72), and whether Act III's tab waits for the Act II finale. In s002.
 
-## Shaders (asked on the r009 Lab page, 2026-10-27; answers come back as r009 feedback)
-- **QF_VOL_FAST 1 as the default** (14 jittered shaft steps, dust thinned where no beam): saves 0.4-1.5 ms High,
-  0.4-0.5 Low; no visible change at sheet scale. *Recommend: keep.* Lab scene "performance".
-- **Daytime torchlight outdoors ~70% weaker** (blockDayDamp, the fix for the golden-hour rectangle and coins); night
-  unchanged. *Recommend: keep.* Lab scene "golden".
-- **The sun hidden behind its cloud** at ocean_sunset (cloud transmittance now hides the disk). *Recommend: keep, and
-  let thin fringes show the disk edge.* Lab scene "sun-cloud".
-- **Noon-cloud streak fix costs one more noise fetch per cloud sample** (cost not yet measured). Lab scene "clouds".
+## Shaders: answered in r009 feedback (2026-10-27), nothing open
+- QF_VOL_FAST 1 stays the default ("doesn't look like we are trading much"). Daytime torchlight damping stays.
+  The sun stays hidden behind its cloud; make the disk/cloud interaction realistic. Noon clouds: keep the cheaper
+  version ("the performance win here is justified"); no extra noise fetch.
+- Leaves: **build real outward leaf frills** (direction.md "Leaf frills" option D) on Faithful 64x leaf art,
+  owner's choice 2026-10-27 over shipping Faithful leaves as they are. Lower presets may turn frills off.
 
 ## Textures
 - **F32 Modded Edition 1.7.10** (README-only permission, no licence file): use it for Railcraft,
