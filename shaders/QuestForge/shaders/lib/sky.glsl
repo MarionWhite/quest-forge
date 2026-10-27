@@ -164,72 +164,101 @@ float gCloudT = 1.0;
 // r009 (owner r008 sunset-full: clouds in front of the sun must cover it): the disk's own
 // transmittance through the cloud slab, without the far-cloud melt (see cloudMarch).
 float gCloudTd = 1.0;
+// r009 (owner r008: "research what an actual meteor shower looks like because it isn't just shit
+// flying in every direction"; docs/design/shaders/research/meteor-showers.md): a shower is
+// perspective on parallel paths. Each streak lies on a great circle through the radiant and moves
+// away from it. A meteor near the radiant comes almost straight at you, so its streak is short
+// (length ~ sin of its distance from the radiant), and most start 25-90 degrees out, so a view
+// away from the radiant sees streaks running one way. The radiant sits 25-60 degrees up on a random
+// bearing per night, and the rate scales with its height. Brightness follows a population index of
+// ~2.5: most meteors are faint, white and thin, one in six is bright and tinted, about one in eighty
+// is a fireball with a glow round its head, and only the bright ones leave a train.
+vec3 meteorRadiant() {
+    float rAz = hash12(vec2(float(worldDay), 3.3)) * 6.2832;
+    float rEl = 0.44 + 0.61 * hash12(vec2(float(worldDay), 5.1));
+    return vec3(cos(rEl) * cos(rAz), sin(rEl), cos(rEl) * sin(rAz));
+}
 vec3 meteors(vec3 dir) {
-    vec3 R = normalize(vec3(0.35 + 0.3 * hash12(vec2(float(worldDay), 3.3)), 0.80, -0.45 + 0.4 * hash12(vec2(float(worldDay), 5.1))));
+    vec3 R = meteorRadiant();
+    float occ = 0.88 * R.y / 0.866;                            // slots in use: ~ sin(radiant altitude)
     float pxA = 2.0 / (gbufferProjection[1][1] * viewHeight);
     vec3 a1 = normalize(cross(R, vec3(0.0, 0.0, 1.0)));
     vec3 a2 = cross(R, a1);
     vec3 sum = vec3(0.0);
     // r008 (owner r007: "I would expect more than 2"): shorter slot cycles, almost every cycle has
-    // a meteor, and each leaves a glowing train that fades over a second or so, as bright meteors
-    // do, so a moment of sky holds two or three streaks and a still frame catches some.
+    // a meteor, and the bright ones leave a glowing train that fades over a second or two, so a
+    // moment of sky holds a few streaks and a still frame catches some.
     for (int k = 0; k < QF_METEOR_RATE * 3; k++) {
         float P = 3.4 + 0.9 * float(k % 3);                  // seconds per slot cycle
         float tk = meteorTime() + float(k) * 1.917;
         float ci = floor(tk / P);
         vec2 sd = vec2(ci * 0.713 + float(k) * 3.17, float(k) * 1.31 + float(worldDay) * 0.17);
-        if (hash12(sd) > 0.88) continue;                       // a few cycles have none
-        float life = 0.40 + 0.55 * hash12(sd + 1.1);
-        float bright = hash12(sd + 6.6) > 0.80 ? 3.5 : 1.0;   // now and then a bright one
-        float trainT = bright > 1.0 ? 1.6 : 0.7;              // seconds a train glows after
+        if (hash12(sd) > occ) continue;                        // some cycles have none
+        float life = 0.35 + 0.55 * hash12(sd + 1.1);
+        // P(brighter than b) ~ 1/b, the r ~ 2.5 magnitude law: median 1.2, 1 in 6 above 3.6.
+        float u = hash12(sd + 6.6);
+        float bright = min(0.6 / max(u, 0.012), 8.0);
+        float gold = smoothstep(2.5, 8.0, bright);
+        float trainT = bright > 2.5 ? mix(0.8, 2.4, gold) : 0.0;   // seconds a train glows after
         float start = hash12(sd + 2.2) * max(P - life - trainT, 0.1);
         float p = (tk - ci * P - start) / life;                // 0..1 while it burns
         if (p <= 0.0 || p >= 1.0 + trainT / life) continue;
-        // Its path: a great circle away from the radiant, starting 10-55 degrees out.
+        // Its path: a great circle away from the radiant, starting 10-100 degrees out, uniform over
+        // the sky's area (so more far out than near), foreshortened near the radiant.
         float az = hash12(sd + 3.3) * 6.2832;
         vec3 U = a1 * cos(az) + a2 * sin(az);
-        float th0 = 0.18 + 0.78 * hash12(sd + 4.4);
-        float len = (0.12 + 0.26 * hash12(sd + 5.5)) * (bright > 1.0 ? 1.3 : 1.0);
+        float th0 = acos(mix(0.985, -0.17, hash12(sd + 4.4)));
+        float len = (0.22 + 0.28 * hash12(sd + 5.5)) * max(sin(th0), 0.06) * mix(1.0, 1.3, gold);
         float pb = min(p, 1.0);
         float head = th0 + len * pb;
+        vec3 hc = hash12(sd + 7.7) < 0.55 ? vec3(1.0, 0.80, 0.52) : (hash12(sd + 7.7) < 0.88 ? vec3(0.74, 0.95, 0.92) : vec3(0.86, 0.74, 1.0));
+        vec3 tint = mix(mix(vec3(0.94, 0.95, 1.0), vec3(1.0, 0.94, 0.82), hash12(sd + 8.8)), hc, 0.7 * smoothstep(1.5, 6.0, bright));
+        if (u < 0.012 && p < 1.0) {
+            // A fireball's glow round its head, a few degrees wide.
+            float c = 1.0 - dot(dir, R * cos(head) + U * sin(head));
+            sum += tint * 0.25 * exp(-c / 0.0008) * sin(PI * p);
+        }
         float thd = atan(dot(dir, U), dot(dir, R));
         float tail0 = head - len * mix(0.25, 0.60, pb);
         if (thd < th0 - 0.01 || thd > head + 0.01) continue;
         vec3 N = cross(R, U);
         float perp = abs(dot(dir, N));
-        vec3 tint = mix(vec3(0.90, 0.94, 1.0), vec3(1.0, 0.90, 0.76), hash12(sd + 7.7) * 0.6);   // loop 2: the green end read lime (critic)
         if (p < 1.0) {
-            float w = pxA * (bright > 1.0 ? 1.9 : 1.4);   // ub: 1.1 px streaks thinned out under TAA in ua
+            float w = pxA * mix(1.3, 2.0, smoothstep(1.0, 6.0, bright));   // ub: 1.1 px streaks thinned out under TAA in ua
             float line = exp(-perp * perp / (w * w));
             float along = clamp((thd - tail0) / max(head - tail0, 1e-4), 0.0, 1.0);
             float trail = along * along * step(tail0, thd) * smoothstep(head + 0.004, head - 0.002, thd);
             float flare = pow(sin(PI * p), 0.6) * mix(1.0, 1.8, p);
-            // The head: a brighter, slightly wider point.
+            // The head: a brighter, slightly wider, white-hot point.
             float hd = (thd - head) / 0.004;
             float headDot = exp(-hd * hd - perp * perp / (w * w * 2.2)) * 1.6;
-            sum += tint * (line * trail + headDot) * flare * bright;
+            sum += (tint * line * trail + mix(tint, vec3(1.0), 0.6) * headDot) * flare * bright;
         }
-        // The train: ionised air along the whole path, greenish, wider, fading and spreading.
-        float age = max(tk - ci * P - start - life * 0.6, 0.0) / trainT;   // 0 when it forms, 1 gone
+        // The train: ionised air along the whole path, wider, fading and spreading.
+        float age = trainT > 0.0 ? max(tk - ci * P - start - life * 0.6, 0.0) / trainT : 1.0;   // 0 when it forms, 1 gone
         if (age < 1.0) {
             float wt = pxA * mix(1.3, 2.6, age);
             float lineT = exp(-perp * perp / (wt * wt));
             float span = smoothstep(th0 - 0.005, th0 + len * 0.3, thd) * smoothstep(head + 0.003, head - len * 0.15, thd);
             float fadeT = (1.0 - age) * (1.0 - age) * smoothstep(0.0, 0.08, age + p * 0.1);
-            sum += vec3(0.82, 0.92, 1.0) * lineT * span * fadeT * 0.16 * bright;   // ud: the green train was the lime the critic saw; a faint blue-white glow instead
+            sum += vec3(0.82, 0.92, 1.0) * lineT * span * fadeT * 0.16 * min(bright, 4.0);   // ud: the green train was the lime the critic saw; a faint blue-white glow instead
         }
     }
 #if QF_METEOR_SHOW == 1
     // Loop 3 (critic: ud_met's stills show no meteor, the owner's exact r007 complaint): two meteors
     // pinned in front of the camera, still, so TAA keeps them. Same look as the shower's: a thin
-    // streak brightening to a head, a faint blue-white train along the path.
+    // streak brightening to a head, a faint blue-white train along the path. r009: both now run
+    // away from the night's radiant, as the shower's do.
     {
         vec3 fw = normalize(mat3(gbufferModelViewInverse) * vec3(0.0, 0.0, -1.0));
         vec3 rt = normalize(mat3(gbufferModelViewInverse) * vec3(1.0, 0.0, 0.0));
         vec3 up = normalize(mat3(gbufferModelViewInverse) * vec3(0.0, 1.0, 0.0));
         for (int k = 0; k < 2; k++) {
             vec3 A = normalize(fw + rt * (k == 0 ? -0.30 : 0.22) + up * (k == 0 ? 0.26 : 0.30));   // tail
-            vec3 B = normalize(fw + rt * (k == 0 ? -0.08 : 0.36) + up * (k == 0 ? 0.10 : 0.18));   // head
+            float cA = dot(A, R);
+            vec3 T = normalize(A * cA - R + up * 1e-3);                  // along the sky away from the radiant
+            float lenA = (k == 0 ? 0.26 : 0.18) * max(sqrt(1.0 - cA * cA), 0.3);
+            vec3 B = normalize(A * cos(lenA) + T * sin(lenA));  // head
             vec3 N = normalize(cross(A, B));
             float perp = abs(dot(dir, N));
             float ang = acos(clamp(dot(A, B), -1.0, 1.0));
