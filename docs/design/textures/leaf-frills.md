@@ -236,4 +236,18 @@ All four looks use the texture agent's `leaves_KIND_frill` sprites. The "off" re
   section fell 2%. All of that is noise.
 
 **crops-c** (`1027-193327-r010-crops-c`, jar 9444d77): one log line per distinct crop sprite at the hook (identity,
-by name, or no variants; the variant drawn; the stitched names). Results follow.
+by name, or no variants; the variant drawn; the stitched names).
+- **The cause:** carrots and potatoes matched by identity. Every ripe wheat reached the hook as
+  `minecraft:mcpatcher/ctm/wheat/0.png`, so it found no variants. Angelica's MCPatcher CTM overwrites
+  `RenderBlocks.getBlockIconFromSideAndMetadata` with `CTMUtils.getBlockIcon(icon, block, side, meta)`, a lookup with
+  no block position. The pack's `ctm/wheat` `method=random` rule therefore gives **every** ripe wheat tile 0, the
+  shortest sprite. That happens in-game too, with the hook off, whenever a pack ships that rule. So the rule is not
+  harmless: QF Textures should stop writing it once the hook ships.
+- **The cost:** frame p50 rose 0-1%. Whole-boot ms per section rose 40% this time, against -6% in crops-b and +7% in
+  crops-a for nearly the same code. The whole-boot figure is dominated by the world-load burst and swings that much
+  between boots, so it can't measure a per-crop map lookup.
+
+**crops-d** (`1027-193920-r010-crops-d`, jar 081cd00): `pick` now also gets the block and meta. When the icon is not a
+stitched base sprite, it looks up the block's own sprite, `block.getIcon(0, meta)`, which has no CTM. The hook's
+variants then replace the CTM tile. The bytecode verifies offline. One job, cv1d1 (hook on); the off reference is
+cv1c0 (same packs and scenes). Results follow.

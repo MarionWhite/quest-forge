@@ -230,9 +230,29 @@ Other stages have no variants (the hook draws them as before). The old ctm/wheat
   stitched names). Jar `C:\qfb\frills\jars\v5\QuestForgeTweaks-1.0.jar`. SUBMITTED `1027-193327-r010-crops-c` (spec
   `C:\qfb\frills\crops\spec-r010-crops-c.json`, cv1c0 off / cv1c1 on, same packs/scenes).
 
-## Resume here (session 6, only if session 5 exited before crops-c landed)
-1. `renderq.py results 1027-193327-r010-crops-c`; `grep -a "crop variants" <cv1c1 boot log>`: find the wheat_stage_7 line.
-   - "no variants" with a name other than wheat_stage_7: key byName by that name (strip domain etc.).
-   - wheat line absent while carrots present: wheat does not reach renderBlockCropsImpl -> find who draws it.
-   - "identity"/"by name", drew wheat_stage_7_vN: the hook works; the drawn sprite is overridden later (look for a UV remap).
-2. Then as session 5 planned: sheet, cost, leaf-frills.md, frills_make_scenes.py (CROP_COST), FRILLS-READY, commit, journal.
+- 19:37 crops-c DONE. cv1c1 boot b1027193558: carrots_stage_3 / potatoes_stage_3 "identity, drew ..._vN"; ripe wheat arrives
+  as `minecraft:mcpatcher/ctm/wheat/0.png`: "no variants". CAUSE: Angelica's MCPatcher CTM overwrites
+  getBlockIconFromSideAndMetadata (CTMUtils.getBlockIcon(icon, block, side, meta), no position), so the pack's ctm/wheat
+  method=random rule gives every ripe wheat tile 0 (also in-game with the hook off). crops-c cost: frame p50 +0..1%; whole-boot
+  ms/section +40% (vs -6% crops-b, +7% crops-a) = boot noise.
+- 19:39 v6 BUILT: leaf-frills **081cd00**: pick(icon, block, meta, x, y, z); on a miss it looks up block.getIcon(0, meta) (no CTM)
+  and its variants win. Stub Block.func_149691_a. Offline verify OK (`C:\qfbrillserify\out3`, CheckClassAdapter vs
+  srg_merged_minecraft.jar). Jar `C:\qfbrills\jars6\QuestForgeTweaks-1.0.jar`.
+- 19:39 SUBMITTED `1027-193920-r010-crops-d` (spec `C:\qfbrills\crops\spec-r010-crops-d.json`): ONE job cv1d1 (hook on);
+  off reference = cv1c0. Queue ETA ~20:01 (behind r010-publish-cost) -> session 5 exits.
+- `frills_make_scenes.py` (backup `.bak-s5`) now uses CROP_TAGS = (cv1c0, cv1d1); crop scenes appear when cv1d1's frames exist.
+  Rerun now = the 3 frills scenes.
+- Docs: leaf-frills.md crops-b, crops-c, crops-d entries. guard OK 19:39.
+- For the texture agent / owner: QF Textures' `mcpatcher/ctm/wheat` random rule is harmful under Angelica (every wheat = tile 0,
+  the shortest); drop it once the hook ships (build_qf_textures.py --wheat; not my file, noted in the journal).
+
+## Resume here (session 6)
+1. `renderq.py results 1027-193920-r010-crops-d`; `grep -a "crop variants"` in the cv1d1 boot log: want
+   `minecraft:mcpatcher/ctm/wheat/0.png ... the block's own sprite (a CTM tile reached the hook), drew wheat_stage_7_vN`.
+2. Look: `py -3.10 C:\qfbrills\scripts\grid.py C:\qfbrills\look\cv1d.jpg 960 cv1c0,cv1d1 farm farm_close` and
+   `... cv1d-near.jpg 900 cv1c0,cv1d1 farm_close:1100,640,900,380`. Five wheat heights mixed, no grid, no missingno; compare
+   with docs/design/shaders/feedback/attachments/r009/ (Stay True fields).
+3. Cost: `py -3.10 tools/textures/frills_cost.py --off cv1c0 --on cv1d1` -> leaf-frills.md crops-d + CROP_COST in
+   `C:\qfb\shaderdev010rills_make_scenes.py` (use the frame p50 line; whole-boot ms is boot noise, see crops-c).
+4. If it works: `py -3.10 -I -X utf8 C:\qfb\shaderdev010rills_make_scenes.py` -> 5 scenes; touch FRILLS-READY (keep it).
+   Commit docs/ops; journal ops/journal/textures.md. If wheat still misses: fix from the log line, rebuild v7, re-render.
