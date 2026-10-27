@@ -56,7 +56,8 @@ Nothing for v2 started; no renders submitted.
   - Built v2 (checkpoint command). Without --no-cit the build warns of duplicate zip entries for
     `mcpatcher/cit/potions/bottle_cone.png` and `liquid_cone.png`. Not fixed; fix it with the potions step (6).
   - Spec `tools/renderq/specs/textures-v2-leaves.json` (prebuild with --no-cit): t9v2 vs t9v1 on
-    leaves_close, tree_close, forest_lit. Submission **1026-223656-textures-v2-leaves**.
+    leaves_close, tree_close, forest_lit. Submission **1026-223656-textures-v2-leaves**: DONE 22:44,
+    6/6 frames, nothing cached (result.json in C:\qfb\renderq\results\1026-223656-textures-v2-leaves\). Not reviewed yet.
 
 ## Next
 Step 1d: `renderq.py results 1026-223656-textures-v2-leaves`; review t9v2 against t9v1 as a contact sheet
