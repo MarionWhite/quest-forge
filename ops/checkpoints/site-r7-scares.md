@@ -51,5 +51,7 @@ rt/scareflow16.js, rt/trace.js, cmp_trace.py).
   with hands over your shoulders (b). Frames `z1/sheet.png` (all beats, seeds 1-4), `z4/sheet.png` (bite distance).
 - [x] Skeleton: lights die (its one device), bones rattle, the miss into the wall, the creak, the standoff in the last
   light or beside you, the shot. Frames `sk1/sheet.png`, `sk2/sheet.png`.
-- Next: Spider, Cave Spider, Witch, Slime, Silverfish, Blaze, Ghast, Magma Cube, Wither
+- [x] Spider: crawls the ceiling to above you (or bare), the drop in front of you, the thump, the rear and hiss, the
+  leap onto your face. Frames `sp1/sheet.png`, `sp2/sheet.png` (leap tracked).
+- Next: Cave Spider, Witch, Slime, Silverfish, Blaze, Ghast, Magma Cube, Wither
   Skeleton, Lava fall, Drowned (in that order).
