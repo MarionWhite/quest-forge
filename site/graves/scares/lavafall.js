@@ -3,6 +3,8 @@
 // A look down at it. Maybe a pull, and the floor beyond comes into view; then the rim crumbles and one hand goes.
 // Silence; a pop below; the last fingers slide off the edge. You fall looking up at the rim and your own hands still
 // reaching for it, into the lava: the fire, a man screaming for his life, and the view sinks into orange.
+// Round 7: it was always physical; only the music stingers and the screech on the slip go. The crumble and the slip are
+// the stone, your fingers, and the fall, heard as they are.
 import { THREE, clamp, lerp, sstep, pulse, tex } from "./rig.js";
 import { shake, hitsOf, particles, mulberry } from "./common.js";
 import { silence, deathScream, jit } from "./fnaf.js";
@@ -83,11 +85,11 @@ export default {
       ...pops,
       [tLook + 0.2, "liquid.lava", { at: [0, surf, hang.z], volume: 0.9 }],
       ...(pull ? [[tPull + 0.1, "step.stone", { volume: 0.5, pitch: 0.7 }], [tPull + 0.45, "dig.stone", { volume: 0.4, pitch: 1.1 }]] : []),
-      [tCrumb - 0.02, "qf.scare.stinger", { volume: 0.9 }], [tCrumb, "dig.gravel", { volume: 1.1 }], [tCrumb + 0.03, "step.gravel", { volume: 0.9, pitch: 0.8 }], [tCrumb + 0.05, "game.player.hurt", { volume: 0.6 }],
+      [tCrumb, "qf.scare.hit", { volume: 0.55 }], [tCrumb, "dig.gravel", { volume: 1.1 }], [tCrumb + 0.03, "step.gravel", { volume: 0.9, pitch: 0.8 }], [tCrumb + 0.05, "game.player.hurt", { volume: 0.6 }],
       silence(tSil, { fade: 0.25 }),
       [tSil + R.vary(0.45, 0.3), "liquid.lavapop", { at: [0, surf, hang.z], volume: 0.3, pitch: 0.8 }],
       [tSlip - 0.45, "dig.stone", { volume: 0.35, pitch: 1.7 }], [tSlip - 0.2, "dig.stone", { volume: 0.45, pitch: 1.6 }],
-      [tSlip, "qf.scare.fall", { volume: 1.1 }], [tSlip + 0.01, "qf.scare.stinger", { volume: 1.3 }], [tSlip + 0.02, "qf.scare.jumpscreech", { volume: 0.9 }],
+      [tSlip, "qf.scare.fall", { volume: 1.2 }], [tSlip + 0.01, "qf.scare.hit", { volume: 0.5 }], [tSlip + 0.02, "step.gravel", { volume: 0.8, pitch: 0.7 }],
       [tLava, "qf.scare.hit", { volume: 1.3 }], [tLava + 0.01, "random.fizz", { volume: 1.5 }], [tLava + 0.02, "fire.ignite", { volume: 1.3 }], [tLava + 0.03, "liquid.lavapop", { volume: 1.2 }],
       ...deathScream(tLava + 0.04, { volume: 1.45 }),
       ...hits.slice(3).map((h) => [h.t, "game.player.hurt"]),
