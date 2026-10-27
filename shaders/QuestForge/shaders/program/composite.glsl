@@ -105,6 +105,30 @@ vec3 waterVolume(vec3 color, float dist, float skyLight) {
     vec3 scatterAlbedo = waterScatter() / (waterAbsorb() + waterScatter());
     return color * T + waterAmbient(skyLight) * scatterAlbedo * (1.0 - T);
 }
+// r009 (owner r008 underwater: "quite green ... I would expect it to be more blue for the other
+// water types"): with the eye under water, non-swamp water takes green out a little faster and
+// scatters more blue, so the view is blue-teal; swamp keeps its green. Same cost as waterVolume.
+// Loop 2: the shafts take the same coefficients (they carried the green), and green and blue
+// absorption trade places (river water absorbed blue fastest).
+float eyeNonSwamp() {
+#if QF_BIOME_WATER == 1 && QF_CAL_WATER == 0
+    return 1.0 - waterBiomeWeights().z;
+#else
+    return 0.0;
+#endif
+}
+vec3 eyeWaterAbsorb() {
+    vec3 A = waterAbsorb();
+    return mix(A, vec3(A.r, max(A.g, A.b), min(A.g, A.b)), 0.8 * eyeNonSwamp());
+}
+vec3 eyeWaterScatter() {
+    return waterScatter() * mix(vec3(1.0), vec3(0.75, 0.8, 1.8), eyeNonSwamp());
+}
+vec3 waterVolumeEye(vec3 color, float dist, float skyLight) {
+    vec3 A = eyeWaterAbsorb(), S = eyeWaterScatter();
+    vec3 T = exp(-A * dist);
+    return color * T + waterAmbient(skyLight) * (S / (A + S)) * (1.0 - T);
+}
 
 float gBeam = 0.0;   // r008: set by lightShafts (QF_DUST), read by ambientMotes
 bool gNoShade = false;   // r009: set by lightShafts, the ray met no shaded free air (QF_VOL_FAST skips the dust walk)
@@ -545,7 +569,7 @@ vec3 underwaterShafts(vec3 viewDir, float dist) {
     float j = ign(gl_FragCoord.xy + float(frameCounter % 64) * vec2(5.3, 2.9));
     float t = animTime();
     vec3 acc = vec3(0.0);
-    vec3 A = waterAbsorb();
+    vec3 A = eyeWaterAbsorb();
     for (int i = 0; i < N; i++) {
         float d = (float(i) + j) / float(N) * maxD;
         vec3 p = viewDir * d;
@@ -561,7 +585,7 @@ vec3 underwaterShafts(vec3 viewDir, float dist) {
     float mu = dot(viewDir, L);
     float g = 0.75;
     float phase = 0.8 * (1.0 - g * g) / (4.0 * PI * pow(1.0 + g * g - 2.0 * g * mu, 1.5)) + 0.2 / (4.0 * PI);
-    return sunIrradiance() * acc * waterScatter() * phase * 9.0 * smoothstep(0.05, 0.25, L.y);
+    return sunIrradiance() * acc * eyeWaterScatter() * phase * 9.0 * smoothstep(0.05, 0.25, L.y);
 }
 #endif
 #endif
@@ -642,11 +666,17 @@ vec3 shadeWaterAbove(vec3 color, vec3 n, float var, vec3 scene0, float dist0, ve
         // Loop 3 (critic: river_noon's ledges still show as lighter green stripes): the extra path
         // stepped with depth at the bank (0 on dry-ish ledges, 1.2 a block down). A constant 2.2
         // blocks, so every ledge under the river sits in the same dim veil, and no shallow tint.
-        vec3 TdownR = exp(-waterAbsorb() * ((wdS + 2.2) / max(L.y, 0.25)) * 4.0);
+        // r009 (critic p8: murky near the banks): 4.0 -> 3.0, the hue pull below keeps the stripes down.
+        vec3 TdownR = exp(-waterAbsorb() * ((wdS + 2.2) / max(L.y, 0.25)) * 3.0);
         vec3 TdownS = exp(-waterAbsorb() * (wdS / max(L.y, 0.25)) * 1.6);
         vec3 Tdown = mix(TdownS, TdownR, riv);
         behind *= mix(vec3(1.0), Tdown, mix(0.35, 0.9, riv) * sh * smoothstep(0.0, 0.2, L.y));
         // Loop 3: ub's shallow green tint (0.30 over 0.05-4 blocks deep) is gone; it lit the ledges green.
+        // r009 (critic p8: still lighter stripes): the stripes were yellow grass tops under teal water.
+        // Silty moving water takes the bed's own hue and leaves its shading: the bed keeps its texture
+        // and brightness but in the water's teal-green (hue weights at luma 1), so ledges stop reading as bands.
+        float lb = dot(behind, vec3(0.2126, 0.7152, 0.0722));
+        behind = mix(behind, lb * vec3(0.68, 1.10, 0.95), 0.6 * riv);
     }
     vec3 refracted = waterVolume(behind, d, skyLight);
 
@@ -1153,7 +1183,7 @@ void main() {
 #if QF_UNDERWATER == 1 && QF_PRESET > 0
         if (!water && depth0 < 1.0) color *= underwaterCaustics(scene0, decodeNormal(g1.rg));
 #endif
-        color = waterVolume(color, min(dist0, 96.0), eyeSky);
+        color = waterVolumeEye(color, min(dist0, 96.0), eyeSky);
 #if QF_UNDERWATER == 1 && QF_PRESET > 0 && QF_SHADOWS
         color += underwaterShafts(viewDir, depth0 >= 1.0 ? 40.0 : dist0);
 #endif
