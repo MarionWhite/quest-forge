@@ -248,7 +248,7 @@ def("frozen_hall", { room: true, style: wall([[560, T_BRICK], [760, T_BRICK_CRAC
       if (!clear(sd, lv, 0) || (lv - c.lo) % 4 !== (sd > 0 ? 2 : 0)) continue;
       const lu = c.edgeCell(sd) - sd, [mob, h] = MOBS[(q + leg.variant) % MOBS.length];
       if (q === 3) { c.put("ice", lu + 0.5, lv + 0.5, y0, { h: 1 }); c.L(leg, lu + sd, lv + 1, y0, B.T_PACKED_ICE); c.put("slab", lu - sd + 0.5, lv - 0.5, y0, { tex: "ice_packed" }); }
-      else { c.put("mob", lu + 0.5, lv + 0.5, y0, { mob, ry: c.faceRy(sd), scale: 0.95, glow: 0x3a4048 }); c.put("ice", lu + 0.5, lv + 0.5, y0, { h }); }
+      else { c.put("mob", lu + 0.5, lv + 0.5, y0, { mob, ry: c.faceRy(sd), scale: 0.95, lit: 0x8a96a8 }); c.put("ice", lu + 0.5, lv + 0.5, y0, { h }); }
       q++;
     }
     c.scatter(16, 440, (q2, r1, r2) => { const sd = r2 < 0.5 ? -1 : 1, lv = Math.floor(c.lo + r1 * (c.hi - c.lo)); if (clear(sd, lv, 0)) c.L(leg, c.edgeCell(sd), lv, y0, B.T_SNOW); });
@@ -367,11 +367,11 @@ def("witch_hut", { room: true, margin: 5, style: wall([[440, T_DIRT], [660, T_ST
     c.L(leg, u0, vc, y0 + 2, T_AIR); c.L(leg, u0, vc, y0 + 3, T_AIR); c.L(leg, u0 - 1, vc, y0, B.T_PLANK_SPRUCE);
     c.L(leg, u0, vc - 1, y0 + 3, T_AIR); c.put("fence", u0 + 0.5, vc - 0.5, y0 + 3, { h: 1, tex: "planks_spruce" });
     // Inside: her cauldron, her brewing stand, the crafting table, the flower pot with its red mushroom; and her.
-    c.put("cauldron", 6.5, vc - 0.5, y0 + 2, { water: 3 }); c.src(6.5, vc - 0.5, y0 + 3.2, [0.5, 1.0, 0.45], 1.8, 6, {});
+    c.put("cauldron", 6.5, vc - 0.5, y0 + 2, { water: 3 }); c.src(6.5, vc - 0.5, y0 + 3.6, [0.62, 0.9, 0.55], 1.3, 6, {});
     c.put("brewing", 4.5, vc - 0.5, y0 + 2, { bottles: 5 });
     c.put("cube", 6.5, vc + 1.5, y0 + 2, { side: "crafting_table_side", top: "crafting_table_top", h: 1 });
     c.put("pot", 4.5, vc + 1.5, y0 + 2, { plant: "mushroom_red" });
-    c.put("mob", 5.5, vc + 0.5, y0 + 2, { mob: "Witch", ry: c.faceRy(1), scale: 0.95 });
+    c.put("mob", 5.5, vc + 0.5, y0 + 2, { mob: "Witch", ry: c.faceRy(1), scale: 0.95, lit: 0xa89480 });   // lit by her lamp, not a silhouette
     // Jack o'lanterns on posts along the track to her door: the only warm light in the swamp.
     for (const dv of [2, -7, 9]) { const lv = vc + dv; if (lv < c.lo - 2 || lv > c.hi + 1) continue; c.L(leg, 2, lv, y0, B.T_LOG_SPRUCE); c.lamp(2, lv, y0 + 1, jackFacing(c, 1), [1, 0.7, 0.35], 3.2, 12); }
     c.src(5.5, vc + 0.5, y0 + 3.5, [1, 0.75, 0.45], 2.2, 7, {});

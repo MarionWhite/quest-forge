@@ -320,7 +320,7 @@ async function startKrypt() {
   K.autoWalk = QS.has("walk") && walkSec > 0 ? { dur: walkSec, t0: null } : null;
   K.pos = new THREE.Vector3(); K.look = new THREE.Vector3(); K.focusAmt = 0;
   K.fYaw = 0; K.fPitch = 0; K.fOff = new THREE.Vector3(); K.speed = 0; K.activeSeconds = 0; K.held = false;
-  K.pf = { lock: -1, hold: 0, dense: 0, pace: 0, rest: 0, side: 0, yaw: 0, vel: 0 };   // the passing focus (frameInner)
+  K.pf = { lock: -1, hold: 0, dense: 0, pace: 0, rest: 0, side: 0, yaw: 0, vel: 0, gSide: 0, gQuiet: 9, sideT: 9 };   // the passing focus (frameInner)
   if (QS.has("dbg")) window.__kdbg = { K, state };   // verification hook: the yaw metric reads K.fYaw
   K.anchorCache = new Map();
   K.built = new Map(); K.queue = [];
@@ -368,6 +368,10 @@ function anchorOf(i) {
   const slot = K.plan.slots[i];
   const fr = slotFrame(K.plan, slot);
   a = { i, side: slot.side, s: slot.d / K.length, d: slot.d, frame: fr, p: fr.stone, leg: slot.leg };
+  // Its wall as seen walking its own stretch of path (+1 left, -1 right, the sign of a turn toward it): a corner ahead
+  // can put a stone on the far side of the current heading, but it stays on the same wall.
+  const p0 = [0, 0, 0], p1 = [0, 0, 0]; K.plan.pointAt(Math.max(0, slot.d - 1), p0); K.plan.pointAt(Math.min(K.length, slot.d + 1), p1);
+  a.ys = (p1[0] - p0[0]) * fr.out.z - (p1[2] - p0[2]) * fr.out.x > 0 ? -1 : 1;
   K.anchorCache.set(i, a);
   if (K.anchorCache.size > 700) K.anchorCache.delete(K.anchorCache.keys().next().value);
   return a;
@@ -767,7 +771,7 @@ function frameInner(now) {
         const sc = sd >= 0 ? sd : -sd * 1.6;         // a stone behind counts as farther than one ahead
         if (sc < cs) { cs = sc; cand = i; }
         if (i === PF.lock) lockS = sc;
-        if (sd > -2 && sd < 14) { const g = 1 - smooth01((sd - 3) / 11); if (angTo(an.p) > 0) wL += g; else wR += g; }
+        if (sd > -2 && sd < 14) { const g = 1 - smooth01((sd - 3) / 11); if (an.ys > 0) wL += g; else wR += g; }
       }
       PF.hold += dt;
       if (cand >= 0 && (PF.lock < 0 || lockS > 9 || (cand !== PF.lock && PF.hold > 0.9 && cs + 1.2 < lockS))) { PF.lock = cand; PF.hold = 0; lockS = cs; }
@@ -778,8 +782,11 @@ function frameInner(now) {
         const gp = (j) => (j > 0 && j < n ? sl[j].d - sl[j - 1].d : 99);
         const gap = Math.min(gp(li), gp(li + 1), gp(li + 2));
         PF.dense += (1 - smooth01((gap - 5) / 3.5) - PF.dense) * (1 - Math.exp(-dt * 1.2));
-        // A glance needs the stone to pass in its own time: none when the next comes within 2.2 s, full from 3.7 s.
-        const glance = (1 - PF.dense) * smooth01((gap / Math.max(0.3, PF.pace) - 2.2) / 1.5);
+        // A glance needs the stone to pass in its own time: none when the next comes within 3 s, full from 5 s. And no
+        // glance to the other wall until the last one has been over for a couple of seconds: a stroll past stones on
+        // alternate walls looks at one, walks on, then looks at another, never left-right-left.
+        const gs = anchorOf(li).ys;
+        const glance = (1 - PF.dense) * smooth01((gap / Math.max(0.3, PF.pace) - 3.0) / 2.0) * (PF.gSide === 0 || gs === PF.gSide ? 1 : smooth01((PF.gQuiet - 1.5) / 2.0));
         // Coming to rest: a mouse wheel's notches leave about a second of stillness each, so the full turn waits
         // for a real stop, about a second, before it starts.
         const rest = smooth01((PF.rest - 1.0) / 0.8);
@@ -787,12 +794,17 @@ function frameInner(now) {
         // In until it is abeam, held, then a quicker release once it is behind.
         const w = sd >= 0 ? 1 - smooth01((sd - 2.6) / 5.2) : 1 - smooth01((-sd - 1.2) / 3.4);
         const turn = w * Math.max(glance, rest);
+        if (w * glance > 0.15) { PF.gSide = gs; PF.gQuiet = 0; } else PF.gQuiet += dt;
         // The wall to lean toward: where the stones ahead are, held until the other wall clearly has more, and set
         // to the stone's wall when you stop to read one, so walking on keeps the view on the side you were reading.
-        if (rest > 0.5 && w > 0.5) PF.side = th > 0 ? 1 : -1;
-        else if (PF.side === 0 || (PF.side > 0 ? wL : wR) < 0.05) PF.side = wL > wR ? 1 : wR > wL ? -1 : 0;
-        else if ((PF.side > 0 ? wR : wL) > 1.8 * (PF.side > 0 ? wL : wR) + 0.3) PF.side = -PF.side;
-        const bias = 0.13 * smooth01((PF.dense - 0.4) / 0.4) * PF.side;   // only where the stones are close
+        // A change of wall waits at least 2.5 s after the last, so the lean never flicks across and back.
+        const side0 = PF.side; PF.sideT += dt;
+        if (rest > 0.5 && w > 0.5) PF.side = an.ys;
+        else if (PF.side === 0 || ((PF.side > 0 ? wL : wR) < 0.05 && PF.sideT > 2.5)) PF.side = wL > wR ? 1 : wR > wL ? -1 : PF.side;
+        else if ((PF.side > 0 ? wR : wL) > 1.8 * (PF.side > 0 ? wL : wR) + 0.3 && PF.sideT > 2.5) PF.side = -PF.side;
+        if (PF.side !== side0) PF.sideT = 0;
+        // Only where the stones are close, and not at a run: hurrying past, you look where you are going.
+        const bias = 0.13 * smooth01((PF.dense - 0.4) / 0.4) * (1 - smooth01((PF.pace - 5) / 3)) * PF.side;
         fyT = bias * (1 - turn) + Math.max(-1.5, Math.min(1.5, th)) * 0.96 * turn;
         fpT = -0.1 * turn;
         // Step a little toward the stone so its name is big enough to read.
