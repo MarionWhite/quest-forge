@@ -63,5 +63,7 @@ rt/scareflow16.js, rt/trace.js, cmp_trace.py).
   Frames `sf1/sheet.png`.
 - [x] Blaze: rises, floats out, flares (tell), three shots (wall, feet, you), burning, it follows, second volley.
   Frames `bl1/sheet.png`.
-- Next: Ghast, Magma Cube, Wither
+- [x] Ghast: the face rises (or is there on the look-back), the charge, the fireball across the drop. Frames
+  `gh1/sheet.png`.
+- Next: Magma Cube, Wither
   Skeleton, Lava fall, Drowned (in that order).
