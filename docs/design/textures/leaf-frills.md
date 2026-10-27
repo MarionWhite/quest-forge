@@ -26,6 +26,28 @@ The owner's call on 2026-10-27: build real outward leaf frills, like Stay True's
 
 ## How the quads are placed
 
+v2 (worktree commit d705c6a) replaced v1's single layout with three styles (`leafFrills.style`). It also replaced v1's leaf-icon texture with the frill sprite. The rest of this section describes v1, which survives as the `tufts` style.
+
+- **`edges` (the v2 default):** one card per **open edge** of the block, or `leafFrills.tufts` cards fanned across it.
+  - An edge is open when both faces beside it are open and the block diagonally beyond it is not leaves.
+  - Each card leans out along the edge's diagonal, ±20 degrees.
+  - The cube's outline is made of these edges, so this style breaks the silhouette from every side. A flat face seen
+    head-on gets nothing.
+- **`tufts`:** v1's crossed pairs out of open faces, with `leafFrills.tufts` pairs per face and `leafFrills.droop`
+  degrees of droop on the sides.
+- **`hang`:** cards hinged near the top of open side faces, hanging `leafFrills.droop` degrees off the face. The leaves
+  spill down over the face and below the block. Tops get short tufts, and open bottoms get a downward tuft.
+- **Sprite:** `textures/blocks/leaves_KIND_frill.png`, from the texture agent's `tools/textures/leaves_dense.py
+  frill()`.
+  - qf-tweaks `LeafFrillsIcons` registers it in the blocks atlas at `TextureStitchEvent.Pre`, but only when the
+    resource pack has it, so a missing PNG never stitches as missingno.
+  - The whole sprite is mapped 1:1 onto the card. Its solid base row sits 0.15 inside the block, and its ragged top
+    reaches `length` out.
+  - Spruce has no frill sprite, so it falls back to a window of the leaf icon.
+- **Each card is one double-sided quad pair,** so a card costs 2 quads.
+
+v1 layout (`tufts`):
+
 - **Which faces:** every face whose neighbour is neither an opaque cube nor leaves.
   - Interior faces of a canopy get none. Neither do faces against a log or the ground.
   - `leafFrills.faces` can limit this to `up`, `down` or `sides`.
@@ -61,6 +83,9 @@ The owner's call on 2026-10-27: build real outward leaf frills, like Stay True's
 | `leafFrills.length` | `0.3125` | `-Dqf.frills.length` |
 | `leafFrills.density` | `0.75` | `-Dqf.frills.density` |
 | `leafFrills.faces` | `all` | `-Dqf.frills.faces` |
+| `leafFrills.style` | `edges` | `-Dqf.frills.style` (`edges`, `tufts`, `hang`) |
+| `leafFrills.tufts` | `1` | `-Dqf.frills.tufts` (cards per edge, or tufts per face, 1-4) |
+| `leafFrills.droop` | `15` | `-Dqf.frills.droop` (degrees) |
 
 - **Off by default** until the owner has seen the renders. When it is off and nothing is being measured, RenderBlocks is
   not patched at all.

@@ -100,3 +100,27 @@ blocks atlas). Generator: `tools/textures/leaves_dense.py frill()`. Test zips: C
   card tips. No z-fighting or light seams seen; cards a touch darker than faces.
 - Step 3 DONE: `C:\qfb\frills\cost-fr1a.md` (frame p50 within noise -3..+4%; leafy-section vertices +33% (+23..+45% per
   scene); leafy-section build time +4% (+0..+11%)).
+- Step 4/5 code DONE (17:18): v2 on branch leaf-frills **d705c6a**, jar `C:\qfb\frills\jars\v2\QuestForgeTweaks-1.0.jar`
+  (1.1.0+20261027.d705c6a2). New: `LeafFrillsIcons` registers `leaves_<kind>_frill` at TextureStitchEvent.Pre when the
+  pack has it (registered from QuestForgeTweaksContainer.registerBus, client + frills on); styles `qf.frills.style=
+  edges|tufts|hang`, `qf.frills.tufts=1-4`, `qf.frills.droop=deg`. Sprite pack for trials:
+  `C:\qfb\frills\QF-frill-sprites.zip` (the 5 kinds' frill PNGs + _n/_s, extracted from QF-l-faithful.zip), stacked on
+  Faithful 64x. Design note updated (styles, switches).
+- 17:19 SUBMITTED `1027-171917-r010-frills-b` (spec `C:\qfb\frills\spec-r010-frills-b.json`, queue ETA ~17:40-17:45):
+  fr1b1 edges len 0.4 dens 0.85 x2 | fr1b2 tufts short/dense len 0.25 dens 1 x3 | fr1b3 tufts long/sparse len 0.6 dens
+  0.45 x1 droop 20 | fr1b4 hang len 0.7 dens 0.9 x2 droop 25. Off reference = fr1a0. MeshStats `C:\qfb\frills\stats\fr1b*.txt`.
+- guard OK 17:20. Session 2 exits here (wait > 10 min).
+
+## Resume here (session 3)
+1. `renderq.py results 1027-171917-r010-frills-b`. In each boot log (`C:\qfb\shaderdev\rounds\logs\b*.log` after 17:20)
+   check "frill sprites for [oak, birch, jungle, acacia, big_oak]" (if [] the sprite pack did not load: check the job's
+   resourcepacks), "leaf frills ON (style ...)", "own tessellator", no exception from LeafFrills/LeafFrillsIcons.
+2. Sheets: `py -3.10 C:\qfb\frills\scripts\sheet.py OUT fr1a0 fr1bN leaves_close tree_close forest_lit forest_far
+   biome_roofed` for N=1..4 plus hedge crops (`leaves_close:780,680,980,440`, `tree_close:650,850,1250,450`,
+   `leaves_close:500,150,700,450`). Better: one 5-column sheet (off, b1..b4) per crop, so the owner sees the looks side by side.
+3. Cost: `py -3.10 tools/textures/frills_cost.py --off fr1a0 --on fr1bN` for each; table in leaf-frills.md Results "v2".
+4. Pick/tune 1-2 more if a look has seams (edges cards poking through neighbours, hang cards in the ground), then hand
+   off: write `C:\qfb\shaderdev\r010\frills_scenes.json` in texture_scenes.json's format (r009's: id, name, question,
+   notePrompt, options[key,label,img,ms,desc]); options = off (fr1a0), the looks, and a Stay True reference crop. Don't
+   overwrite the texture agent's texture_scenes.json.
+5. Commit main-repo docs/ops hunks only; journal ops/journal/textures.md.
