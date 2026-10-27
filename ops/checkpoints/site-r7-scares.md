@@ -47,5 +47,7 @@ rt/scareflow16.js, rt/trace.js, cmp_trace.py).
   square, arms drop, steps in to 0.6 m, sword wound back over his head and chopped down on yours (kick, blood up into
   view, stagger); then the horde as before. No lunge/screech/tear/static; impactSplit 0.25 on the blow; eyes 0.45.
   Frames `pig3/sheet.png` (shots `pig1.txt`, seeds 1-3 at at=0.3/0.55/0.8). Real-time check still to do (J run).
-- Next: Zombie, Skeleton, Spider, Cave Spider, Witch, Slime, Silverfish, Blaze, Ghast, Magma Cube, Wither
+- [x] Zombie: the look-back to arm's length (a, 45%) or the walk out of the dark while you back into a second one
+  with hands over your shoulders (b). Frames `z1/sheet.png` (all beats, seeds 1-4), `z4/sheet.png` (bite distance).
+- Next: Skeleton, Spider, Cave Spider, Witch, Slime, Silverfish, Blaze, Ghast, Magma Cube, Wither
   Skeleton, Lava fall, Drowned (in that order).
