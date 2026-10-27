@@ -1,5 +1,12 @@
 # Site journal (newest first)
 
+- 2026-10-26 (Mac) orchestrator: round 6 done. Critic rounds caught: every Krypt kind was one
+  reskinned corridor (palettes, then shapes, then 12 open set pieces), the round-5 segments lost
+  in the rewrite (restored), animals blocking the Lucky camera, a glowing sheep, four lunges that
+  did not read, glimpses first too clean, then invisible and spotless in the endless halls (spot
+  search widened to wall edges, coverage about 90%). 32 sound files were left uncommitted by the
+  audio task (committed 1736790). Six orphaned headless Chromes from finished runs were stopped.
+
 - 2026-10-26 (Mac) site-r6-scares: FNAF pass on all 14 Krypt scares (fnaf.js kit: lunge into the lens, split jaws, lit eyes, silence, fake-outs, a new roll of the dice every play), Magma Cube redone, Wither Skeleton's new ending (sword through the chest, decap, lifted to its face), gap deaths Lava fall and Drowned grab on `krypt-gap` (15%, approved only), recorded death screams. 80-frame sheet reviewed; all 16 run in real time through the J picker with no exceptions and no hitch in any lunge (two carve stalls found and moved). approved.json still empty.
 
 - 2026-10-26 (Mac) site-r6-krypt-gen final: 61 kinds, 12 open set pieces forced one per stratum cycle (chasm with a lava sea, void bridge under a star dome, two-level library, cistern, mushroom and ice caverns, fortress bridge, arena, hollow hill, mine crossing, labyrinth junction, sand chamber), per-kind alcove palettes and hall shapes, asymmetry pass; metrics flat (37 to 83 draw calls, heap 28 to 62 MB at graves 10 / 1,000 / 9,000); `node tools/site/check_krypt_plan.mjs` passes.
