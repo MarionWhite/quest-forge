@@ -171,3 +171,12 @@ docs/design/shaders/feedback/attachments/r009/ (look at both before starting). L
     "VNR is OpenGL" line struck). Gold lime-sheen note (albedo used as metal F0) appended to r010-shader.md.
   - C:\qfb\shaderdev\r010\texture_make_scenes.py written (8 scenes; Stay True linked via scene "links", never embedded: the
     Lab's rule is no other packs' images). Crops: r010\crops\items-t10i.png, items-sheet-t10-2row.png. Needs t10lr/t10lf frames.
+- 2026-10-27 19:20 (texture-dev, session 2): HANDED OFF.
+  - leaves2 1027-185913 reviewed: t10lr rim = dense mass, rim only visible up close (outline still cubes: frills' job);
+    t10lf fine = Stay True grain, but crowns depth 0.26 printed a dark stain per block -> 0.12; re-render
+    **1027-191153-textures-r010-leaves3** (t10lf2) queued 19:12. texture_make_scenes.py picks t10lf2 when its frames exist.
+  - Wrote C:\qfb\shaderdev\r010\texture_scenes.json (8 scenes) + TEXTURES-READY. Guard OK 19:15.
+  - Removed my duplicate wheat_stage_7_v* writer (the frills agent's c97c5a0 already writes them); carrots/potatoes stay.
+  - OPEN for the next session: once 1027-191153 is done and before the round is published, rerun
+    `py -3.10 -I -X utf8 C:\qfb\shaderdev\r010\texture_make_scenes.py` and glance at t10lf2 tree_close (stains gone?).
+    After the owner's picks: set --leaves / --wheat defaults and build QFTextures-v3.

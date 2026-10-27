@@ -101,7 +101,7 @@ def fine(leaf32):
     offsets that are not multiples of 32 and a 64-periodic light field lies over it all, so only the
     front layer repeats inside a block. (Mirrored quadrants were tried: they print kaleidoscopes.)"""
     t = np.tile(leaf32, (2, 2, 1))
-    d = crowns(t, seed=7, depth=0.26)
+    d = crowns(t, seed=7, depth=0.12)          # 0.26 (render t10lf) printed dark stains on every block of a crown
     return rim(t, d=d)
 
 
