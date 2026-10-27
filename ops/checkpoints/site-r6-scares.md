@@ -93,6 +93,14 @@ current bank and list the gaps here.
   respawn, 60 fps; the only gaps over 45 ms are carves on frames you do not see (the Creeper's under its white flash,
   the Silverfish's a frame before the burst).
 
+- Zombie Pigman v4, the owner's idea (e768e6d): diamond ore bait in the floor ahead (sparkles), walk up, iron
+  pickaxe raised (heldItem equip), dig with destroy-stage cracks and the stone sound, a silent beat one swing from
+  breaking it, he steps into the gap and the pick lands in him (hurt flash, zpigangry), his face snaps round into the
+  lunge; then the red eyes, the darts, the horde (round you, never through you, a crescent before you), the kill.
+  Strip (bait, swing, step-in lunge, horde, death): `scratchpad/r6/scares/pig4/strip/strip.png`; 3 seeds in
+  `pig4/it6/sheet.png`. J flow on the pigman at at=0.3 and 0.6: no exceptions, respawn, 60 fps, lunge gap <= 29 ms.
+  Design entry in docs/design/site/krypt-scares.md updated.
+
 ## Owner
 - Approve scares in `site/graves/scares/approved.json` (empty, so the director plays nothing). The gap deaths
   (LavaFall, DrownedGrab) take 15% of failed jumps once approved.
