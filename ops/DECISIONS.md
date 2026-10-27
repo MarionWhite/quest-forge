@@ -30,13 +30,13 @@ delete the entry here. Sheet 1 (30 cards) was answered 2026-10-25 → decisions 
   3.0 budget). *Recommend: High only, and only if the r010 cost run shows room.* To ask on the r010 Lab page with numbers.
 
 ## Textures
-- **Crop variants need a small qf-tweaks hook (r010).** Stay True's fields never tile because each wheat block picks
+- **Decided: crop variants via a small qf-tweaks hook (r010).** Stay True's fields never tile because each wheat block picks
   one of five sprites at random. Our five wheat sprites exist (`--wheat bushy`), but render 1027-164404 shows every
   block identical: Angelica 2.2.33's MCPatcher CTM mixin covers `renderCrossedSquares`, panes, vines and standard faces,
   not `renderBlockCrops` (checked in its bytecode), so CTM `method=random` never reaches wheat, carrots or potatoes.
   Fix: a qf-tweaks transformer in `renderBlockCrops` that picks one of 5 registered icons by a position hash (same
-  render path as the leaf frills; no per-frame cost, only chunk meshing). *Recommend: yes.* Without it the field shows
-  one sprite (variant 2, still dense and gold).
+  render path as the leaf frills; no per-frame cost, only chunk meshing). **Owner: yes (2026-10-27).** Built on the
+  leaf-frills track (ops/checkpoints/r010-leaf-frills.md).
 - **F32 Modded Edition 1.7.10** (README-only permission, no licence file): use it for Railcraft,
   Twilight, Witchery, Chisel, drawers, iron chests and BoP at 32x, or reference only.
   *Recommend: use, README quoted.* In s002.

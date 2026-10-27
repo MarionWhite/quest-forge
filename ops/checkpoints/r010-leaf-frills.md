@@ -124,3 +124,10 @@ blocks atlas). Generator: `tools/textures/leaves_dense.py frill()`. Test zips: C
    notePrompt, options[key,label,img,ms,desc]); options = off (fr1a0), the looks, and a Stay True reference crop. Don't
    overwrite the texture agent's texture_scenes.json.
 5. Commit main-repo docs/ops hunks only; journal ops/journal/textures.md.
+
+## Added by the orchestrator (2026-10-27): crop-variant hook, owner said yes
+Build the hook described in ops/DECISIONS.md ("crop variants via a small qf-tweaks hook"): a transformer in
+`RenderBlocks.renderBlockCrops` that picks one of the five ripe-wheat icons (and carrot/potato variants if the texture
+agent supplies them) by a block-position hash, registered like the frill sprites. Same branch/worktree as the frills,
+its own config switch. Sprites: `build_qf_textures.py --wheat bushy` (ops/checkpoints/r010-textures.md, step 2).
+Render a field near and far, hook off vs on, through renderq; measure chunk-rebuild cost with MeshStats.
