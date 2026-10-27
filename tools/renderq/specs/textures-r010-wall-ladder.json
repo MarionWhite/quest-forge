@@ -1,0 +1,20 @@
+{
+ "name": "textures-r010-wall-ladder",
+ "owner": "texture-agent",
+ "comment": "r010 step 1: wall-lighting diagnosis, one variable per rung (ops/checkpoints/r010-textures.md). d0 shaders off, d1 shader without PBR (QF_PBR 0), d2 v2 normals only (_s stripped), d3 v2 specular only (_n stripped), d4 v2 as shipped in r009, d5 = d4 with VNR normals' G no longer flipped (vnr.py fix; differs from v2 only in 174 _n maps), d6 = d5 with diamond a dielectric gem (F0 44; differs only in diamond_block_s), d7 Faithful 64x (no maps: iron/gold take the shader's MAT_METAL model, diamond/emerald plain diffuse). The d2/d3 zips are QFTextures-v2.zip with _s or _n entries dropped (made by hand, see the checkpoint). Shot mode, CIT off, one boot.",
+ "prebuild": [
+  ["py", "-3.10", "-I", "tools/textures/build_qf_textures.py", "--out", "C:/qfb/textures/diag/QF-v3y.zip"],
+  ["py", "-3.10", "-I", "tools/textures/build_qf_textures.py", "--diamond", "gem", "--out", "C:/qfb/textures/diag/QF-v3yg.zip"]
+ ],
+ "defaults": {"world": "C:/qfb/textures/world-showcase", "preset": "3", "size": "2560x1440", "mode": "shot"},
+ "jobs": [
+  {"tag": "t10d0off", "preset": "off", "resourcepacks": ["C:/qfb/textures/QFTextures-v2.zip"], "scenes": "diag_column,diag_emerald"},
+  {"tag": "t10d1nopbr", "opts": {"QF_PBR": 0}, "resourcepacks": ["C:/qfb/textures/QFTextures-v2.zip"], "scenes": "diag_column,diag_emerald"},
+  {"tag": "t10d2nrm", "resourcepacks": ["C:/qfb/textures/diag/QF-v2-nrm.zip"], "scenes": "diag_column,diag_emerald"},
+  {"tag": "t10d3spc", "resourcepacks": ["C:/qfb/textures/diag/QF-v2-spc.zip"], "scenes": "diag_column,diag_emerald"},
+  {"tag": "t10d4v2", "resourcepacks": ["C:/qfb/textures/QFTextures-v2.zip"], "scenes": "diag_column,diag_emerald,texture_wall,texture_wall2"},
+  {"tag": "t10d5yfix", "resourcepacks": ["C:/qfb/textures/diag/QF-v3y.zip"], "scenes": "diag_column,diag_emerald,texture_wall,texture_wall2"},
+  {"tag": "t10d6gem", "resourcepacks": ["C:/qfb/textures/diag/QF-v3yg.zip"], "scenes": "diag_column,diag_emerald,texture_wall,texture_wall2"},
+  {"tag": "t10d7f64", "resourcepacks": ["C:/qfb/faithful64/Faithful-64x-1.7.10.zip"], "scenes": "diag_column,diag_emerald,texture_wall,texture_wall2"}
+ ]
+}

@@ -72,13 +72,17 @@ VNR_SKIP = {"emerald_block"}
 # streaks stay metal for the gold-tinted glints, over a low-F0 base that keeps the yellow.
 # --metals vnr: VNR's flag as is (every pixel metal, v1).
 METAL_BLOCKS = {"iron_block": (230, 190, 100), "gold_block": (231, 60, 55)}
+# r010 --diamond gem: VNR flags diamond as metal (LabPBR 230, iron), so the shader mirrors the world
+# in it and keeps 30% of its diffuse. A real diamond is a dielectric, n = 2.42 -> F0 0.17 = byte 44.
+GEM_BLOCKS = {"diamond_block": (230, 44, 100)}
 
 
-def metal_spec(s, img, name, mode):
+def metal_spec(s, img, name, mode, gem=False):
     """Rewrite the F0 channel of a metal block's LabPBR _s for --metals (see METAL_BLOCKS)."""
-    if mode == "vnr" or name not in METAL_BLOCKS:
+    table = dict(METAL_BLOCKS, **(GEM_BLOCKS if gem else {}))
+    if mode == "vnr" or name not in table:
         return s
-    code, f0, pct = METAL_BLOCKS[name]
+    code, f0, pct = table[name]
     s = s.copy()
     s[..., 1] = f0
     if pct < 100:
@@ -183,6 +187,8 @@ def main():
     ap.add_argument("--no-pbr", action="store_true")
     ap.add_argument("--no-cit", action="store_true")
     ap.add_argument("--metals", choices=("qf", "vnr"), default="qf")
+    ap.add_argument("--diamond", choices=("metal", "gem"), default="metal",
+                    help="metal: VNR's metal flag (v2); gem: a dielectric, F0 44 (GEM_BLOCKS)")
     a = ap.parse_args()
 
     mc = zipfile.ZipFile(a.mc_jar)
@@ -213,6 +219,7 @@ def main():
 
     planks = rgba(mc.read(BLOCKS + "planks_oak.png"))
     art = drawn_art(planks, rgba(mc.read(BLOCKS + "grass_top.png")))
+    ywrong = []   # _n maps whose G runs OpenGL-style (labpbr.y_sign > 0): lit from below in the shader
     tally = dict(vanilla=0, faithful64=0, drawn=0, ctm=0, pbr_vnr=0, pbr_hybrid=0, pbr_ours=0, cit=0)
     textures = {}     # path -> (rgba, mcmeta bytes or None)
     source = {}       # path -> "vanilla" | "faithful64" | "drawn" | "ctm"
@@ -298,7 +305,10 @@ def main():
             n = n2 if n is None else n
             s = s2 if s is None else s
             tally["pbr_ours"] += 1
-        s = metal_spec(s, img, name, a.metals)
+        s = metal_spec(s, img, name, a.metals, a.diamond == "gem")
+        ys = labpbr.y_sign(n, img[..., 3])
+        if ys is not None and ys > 0.1:
+            ywrong.append("%s %+.2f" % (name, ys))
         out.writestr(m[:-4] + "_n.png", png(n))
         out.writestr(m[:-4] + "_s.png", png(s))
         if mcmeta:
@@ -310,6 +320,9 @@ def main():
         tally["cit"] = qf_items.write_cit(out)
     out.close()
     print("QF Textures %s: %s -> %s (%.1f MB)" % (VERSION, tally, a.out, os.path.getsize(a.out) / 1e6))
+    if ywrong:
+        print("WARNING: %d normal maps run OpenGL-style (+G up), the shader reads DirectX: %s"
+              % (len(ywrong), ", ".join(ywrong[:12])))
 
 
 if __name__ == "__main__":

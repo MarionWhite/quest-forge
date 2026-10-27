@@ -75,6 +75,29 @@ def labpbr_normal(frame, strength):
     return np.clip(out + 0.5, 0, 255).astype(np.uint8)
 
 
+def y_sign(n, alpha=None):
+    """Correlation of a LabPBR _n's (G-128) with its height's slope down the image (dh/dv), first
+    frame, over opaque interior pixels (all 3x3 neighbours opaque in `alpha`). DirectX (what the
+    QuestForge shader reads) gives < 0; OpenGL > 0; None if the height is flat or under a quarter of
+    the frame is interior (thin cut-outs: rails, ladder). r010: VNR's maps had been flipped to OpenGL
+    while ours were DirectX (a mixed pack)."""
+    n = n.astype(np.float32)[: n.shape[1]]
+    h = n[..., 3]
+    m = np.ones(h.shape, bool)
+    if alpha is not None and alpha.shape[1] == h.shape[1]:
+        a = alpha[: h.shape[0]] > 25
+        for dy in (-1, 0, 1):
+            for dx in (-1, 0, 1):
+                m &= np.roll(np.roll(a, dy, 0), dx, 1)
+    if m.mean() < 0.25 or h[m].std() < 1.0:
+        return None
+    dv = (np.roll(h, -1, 0) - np.roll(h, 1, 0)) * 0.5
+    g = n[..., 1][m] - n[..., 1][m].mean()
+    d = dv[m] - dv[m].mean()
+    den = float(np.sqrt((g * g).sum() * (d * d).sum()))
+    return float((g * d).sum() / den) if den > 0 else None
+
+
 def legacy_normals(rgba, strength):
     """Whole texture (animated strips included) in the old layout: RGB normal + A height."""
     return np.vstack([normal_map(f, strength) for f in frames(rgba)])

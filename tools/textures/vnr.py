@@ -10,11 +10,14 @@ it with Realistico." So: only its _n/_s maps are used (never its albedo PNGs, wh
 the pack is never sold, CREDITS.txt links the page, and Realistico is never part of the pack.
 
 VNR's layout (old SEUS-Renewed style, checked on the files 2026-10-25):
-    _n  RGB tangent normal, OpenGL (+Y up the image: G correlates -0.83..-0.98 with the height's
-        downward slope on stonebrick, cobblestone, planks_oak, brick), A height (255 = flat).
+    _n  RGB tangent normal, already DirectX (+Y DOWN the image), A height (255 = flat). Measured
+        2026-10-27 (r010): (G-128) correlates -0.38..-0.97 with dh/dv (v down the image) on
+        stonebrick, cobblestone, brick, planks_oak, and R with dh/du negative too, which pins
+        alpha = height. Until r010 this was misread as OpenGL and G was flipped, so every
+        VNR-derived block was lit from below (diamond's dome: top half faced the ground).
     _s  R smoothness, G metal flag (0 / 255), B emission on a few blocks (inconsistent), A 255.
 LabPBR wants:
-    _n  RG DirectX normal (G flipped), B AO, A height.
+    _n  RG DirectX normal (VNR's G as is), B AO, A height.
     _s  R smoothness, G F0 (0-229) or a metal code (230 iron, 231 gold), B porosity/SSS, A emission.
 
 VNR was drawn for vanilla's 16x art, so its maps fit textures that stay vanilla in our pack as
@@ -73,7 +76,7 @@ def to_labpbr_n(n, albedo=None):
     """VNR _n (one square frame) -> LabPBR _n at the same size."""
     n = n.astype(np.float32)
     h = n[..., 3]
-    out = np.dstack([n[..., 0], 255.0 - n[..., 1], ao_from_height(h), np.maximum(h, 1.0)])
+    out = np.dstack([n[..., 0], n[..., 1], ao_from_height(h), np.maximum(h, 1.0)])   # VNR is DirectX already
     if albedo is not None and albedo.shape[:2] == n.shape[:2]:
         out[albedo[..., 3] < 25] = (128, 128, 255, 255)
     return np.clip(out + 0.5, 0, 255).astype(np.uint8)
@@ -118,8 +121,8 @@ def hybrid_normal(vnr_n, albedo, strength, micro=0.7):
     Returns LabPBR _n at the albedo's size."""
     size = albedo.shape[0]
     big = resize(vnr_n.astype(np.float32), size)
-    # macro normal from VNR's own normal (OpenGL), re-normalised after the resize
-    nx, ny = big[..., 0] / 127.5 - 1, big[..., 1] / 127.5 - 1
+    # macro normal from VNR's own normal (DirectX), turned to OpenGL (+y up) to add ours
+    nx, ny = big[..., 0] / 127.5 - 1, 1 - big[..., 1] / 127.5
     ours = labpbr.normal_map(albedo, strength).astype(np.float32)   # OpenGL RGB + A height
     mx, my = ours[..., 0] / 127.5 - 1, ours[..., 1] / 127.5 - 1
     x, y = nx + mx * micro, ny + my * micro

@@ -44,3 +44,22 @@ docs/design/shaders/feedback/attachments/r009/ (look at both before starting). L
 5. Render through renderq; write texture_scenes.json in C:\qfb\shaderdev\r010 and TEXTURES-READY; `trial.py guard`.
 
 ## Progress log
+- 2026-10-27 (texture-dev): step 1a, offline diagnosis (no code changed, no renders yet).
+  - Stay True screenshots read: 5 wheat variants of differing height, each a dense gold mass, dark base to bright tips,
+    filling the block width; fields never tile. Leaves: dense dark clusters, bright crowns.
+  - r009 frames, front face of each block (texture_wall, px x1582-1680; diamond y636-688, iron 692-742, gold 746-792),
+    luminance top half / bottom half: v2h diamond 115.6 / 155.4, gold 120.7 / 127.4, iron 149.3 / 145.3;
+    Faithful 64x diamond 145.1 / 139.3, gold 126.1 / 123.8, iron 152.7 / 139.5. (scratchpad halves.py; recreate from this.)
+  - **Cause found (hypothesis a, with a twist):** VNR's source maps are ALREADY DirectX (Y-): (G-128) vs dh/dv from the
+    height (alpha) correlates -0.38..-0.97 (stonebrick, cobble, brick, planks); R vs dh/du is negative too, which fixes
+    alpha = height. `tools/textures/vnr.py` `to_labpbr_n` (and `hybrid_normal`) flip G again (255-G), so every
+    VNR-derived _n ships OpenGL-style into a DirectX shader (gbuffers.glsl l.186 assumes +G = down the texture).
+    Pack: brick +0.90, planks +0.97, stonebrick +0.34, iron +0.55, gold +0.29, diamond +0.22 (wrong sign);
+    our own maps (emerald -0.72, stone -0.79, log -0.89, leaves -0.82, bookshelf -0.85) are right. Mixed pack.
+  - Diamond: VNR's _n is a strong dome (G by quarter rows 78/112/140/176 = ~22 deg tilt at the edges). Flipped, the top
+    faces DOWN (reflects dark ground) and the bottom faces UP (reflects sky): the owner's "light only on the bottom half".
+    Gold: same inverted dome at about half strength. Iron: small dome (121..134).
+  - Specular (hypothesis b): diamond _s G = 230 everywhere (VNR's metal flag -> LabPBR "iron" code), R 212-229;
+    iron G 190 (dielectric F0 .75), gold 60% F0 60 / 40% 231; B 0, A 255 (no emission). Shader metal cut is sp.g > .895
+    (G >= 229; LabPBR says 230+, off by one, harmless here). Diamond as a metal is physically wrong (F0 ~44 for n=2.42).
+  - Next: render ladder (one variable each) to confirm in-game, then fix vnr.py G flip + decide diamond F0.
