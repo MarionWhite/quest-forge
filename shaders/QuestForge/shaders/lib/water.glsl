@@ -48,7 +48,17 @@ const vec3 WA_SWAMP = vec3(1.10, 0.80, 1.25),     WS_SWAMP = vec3(0.050, 0.050, 
 // River (r005; owner r004 agreed with the critic: the river was "a milky blob"): moving water
 // carries fine sediment, so a slightly green-brown, half-clear stream instead of glassy lake water;
 // the bed shows for two or three blocks.
+#if QF_RIVER_TINT == 2
+// r010 option C (owner r009 river: "very green"): clear slate water, half the scatter, green and blue
+// absorbed alike, so the bed's own browns and greys show through and the body is a cool grey-blue.
+const vec3 WA_RIVER = vec3(0.13, 0.075, 0.075),   WS_RIVER = vec3(0.0016, 0.0028, 0.0030);
+#elif QF_RIVER_TINT == 1
+// r010 option B: the same murk, rebalanced from green to teal-blue (blue absorbed less than green
+// was 0.115 vs 0.080; now 0.075 vs 0.085, and the scatter peaks in blue, not green).
+const vec3 WA_RIVER = vec3(0.15, 0.085, 0.075),   WS_RIVER = vec3(0.0026, 0.0050, 0.0058);
+#else
 const vec3 WA_RIVER = vec3(0.15, 0.080, 0.115),   WS_RIVER = vec3(0.0030, 0.0060, 0.0040);   // ih: twice this read milky mint
+#endif
 #if QF_WATER_BLEND == 1 && QF_WATER_FORCE == 0
 // Per-pixel weights (composite.glsl sets them for the water pixel it shades; x < 0: unset, use
 // the camera's). Owner r006: biome borders on water must be gradients, never cutoffs.

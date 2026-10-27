@@ -71,3 +71,24 @@ The diamond "light only on the bottom half" was texture-side and is fixed (VNR n
   **1027-170451-r010-meteor2-shot** (r10-meteor2.json: r10h1 stills, r10h1c/h2c/h3c clips at SLOW 0.25, 150 frames,
   crop 640,360,1280,720; radiant 135). Clip: make_clip.py r10h1c night_wide --speedup 4. Review sheet script:
   scratchpad clipsheet.py (frames + max-over-time composite).
+- 17:08 committed WIP **1028f79** (grazers, SSR fix, QF_SUN_CLOUD, views, make_clip --speedup). Then (uncommitted ->
+  committed next line) three ALU-only ladders: QF_DUST_LEAF 2 (composite.glsl lightShafts: the 0.4 leaf cut only on rays
+  < ~20 m: smoothstep(8, 30, dist)), QF_UW_VIS [1.0 1.4 2.0] (waterVolumeEye: non-swamp A and S / VIS, shafts
+  untouched), QF_RIVER_TINT [0 1 2] (water.glsl WA/WS_RIVER: 1 teal-blue, 2 clear slate; composite bed hue pull
+  teal-blue when > 0). QF_SUN_CLOUD [0 1 2] default 1: cloudMarch melt lifted within ~20 deg of sun/moon
+  (smoothstep(0.93,0.995,mu)); 2 also silver lining 2.5x on the thinnest fringe (cloudLum).
+- Renders queued (all shot mode, ETA ~17:25-17:30, other agents' jobs ahead):
+  **1027-165502-r010-green-shot** r10sf ocean_sunset+lake_glitter (SSR fix; compare bench-p9-*; green peak was 95,173,121
+  at 1192,750, box 1020,660,1340,840);
+  **1027-170451-r010-meteor2-shot** r10h1 stills + r10h1c/h2c/h3c clips (make_clip.py TAG night_wide --speedup 4);
+  **1027-170600-r010-suncloud-shot** r10sc0/1/2 ocean_sunset (crop round the sun ~x 1000-1500, y 500-800), r10sc1 forest_golden;
+  **1027-170749-r010-ladders-shot** r10fl1/2/0 forest_golden, r10uv10/14/20 underwater_sun (+r10uv14 underwater),
+  r10rt0/1/2 river_noon.
+- **Next (fresh agent):** renderq.py results for each; sheets with tools/shaders/review/check_frames.py (or a PIL crop
+  sheet) vs C:\qfb\shaderdev\refs and the r009 frames (bench-p9-*). Meteors: judge streak length/thinness, trains, the
+  procession's chain (h2c) and the storm (h3c); if still dashes, lengthen wake fraction / raise speed. Pick defaults per
+  ladder, then QF_UW_VIS / QF_RIVER_TINT / QF_DUST_LEAF defaults to what reads best (owner decides in the Lab: present
+  each as A/B/C with the numbers). Crepuscular rays (sun-cloud) not started: needs a cost decision (screen-space radial
+  blur ~12-16 taps near the sun; ocean_sunset is already the worst High frame, 3.29 ms vs 3.0). Then dust/golden
+  regression check, cost run (cost mode, now allowed after 08:00), spec_scenes.py + round.json in C:\qfb\shaderdev\r010,
+  critic, publisher. Every Lab question: cause + trade-off with numbers.

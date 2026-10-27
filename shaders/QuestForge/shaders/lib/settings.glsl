@@ -10,7 +10,7 @@
 #define QF_STILL 0 // [0 1]   development: freeze wind, waves and twinkle (temporal-noise test)
 #define QF_EXPO_PIN 0 // [0 1]   development (r009 forest wash): 1 pins the exposure at QF_EXPO_PIN_LOG, so A/B frames are not re-metered
 #define QF_EXPO_PIN_LOG 1.0 // [0.0 0.5 1.0 1.5 2.0]
-#define QF_DUST_LEAF 1 // [0 1]   development (r009 forest wash, canopy veil; r9xl1 canopy R 36.5 -> 28.4 at pinned exposure, dust_b beam -4 %): 1 cuts the beam dust haze to 0.4 on rays that end on leaves
+#define QF_DUST_LEAF 1 // [0 1 2]   (r010: 2 keeps the full haze on rays longer than ~20 m, so the gap's beams reach the far leaves; owner r009 liked B's longer, broader rays)   development (r009 forest wash, canopy veil; r9xl1 canopy R 36.5 -> 28.4 at pinned exposure, dust_b beam -4 %): 1 cuts the beam dust haze to 0.4 on rays that end on leaves
 
 // Calibration variants for the owner's taste survey (Shader Lab round r000). 0 is the
 // pack as tuned; 1-3 are the survey's options A-C. Development only: not on the option
@@ -55,6 +55,8 @@
 #define QF_SUN 1 // [0 1]   development (r007): 1 the real sun (true size, sharp limb-darkened disk, reddening toward the horizon, glare drawn over what is in front of it, scaled by how much of the disk shows); 0 r006 (three times the size, soft edge, a halo in the sky only) (owner r006: "the sun has not improved at all")
 #define QF_SUN_SIZE 15.0 // [3.0 5.0 8.0 10.0 12.0 15.0 18.0]   (r008 loop 2: 5.0 drew a 20 px disk at 2560 wide, CR about 65 px; 15 is 3x)   (ub: 3.0 drew a 30 px disk at 1440p; the refs draw 60-70 px)   (r008; owner r007: "a little larger ... even a bit bigger than the 1.8x", round 6's disk "has some form to it and it is visible": 3.0, about round 6's size, with the sharp limb)   development (r007): sun disk size, 1 the real sun (0.27 degrees in radius terms 0.0047 rad); larger as a longer lens would show it
 #define QF_LENS 0 // [0 1]   development (r007): a faint lens effect round a visible sun (a few dim ghosts toward the screen centre, a faint six-point starburst); off by default (look bible 7)
+#define QF_UW_VIS 1.0 // [1.0 1.4 2.0]   (r010; owner r009 underwater B: "the visibility is a little bit low") clear-water (not swamp) fog thinned by this factor, hue kept; the sunbeams unchanged
+#define QF_RIVER_TINT 0 // [0 1 2]   (r010; owner r009 river: "very green") 0 r009 green-brown silty stream; 1 the same murk, teal-blue instead of green; 2 clear slate: half the scatter, the bed shows
 #define QF_SUN_CLOUD 1 // [0 1 2]   (r010; owner r009 sun-cloud: "make sure that the sun is interacting realistically with the clouds in front of it") 0 r009: clouds within 20 deg of a low sun melt to ~20 % into the haze while still hiding the disk; 1 no melt near the sun or moon, so the cloud in front is a dark body with lit edges; 2 as 1 with the silver lining 2.5x on the thinnest fringe
 #define QF_CLOUD_RIM 1 // [0 1]   development (r007): sharp silver linings and rim light on cloud edges toward a low sun (owner r006, golden: "a sharper highlight effect on the edges of the clouds")
 #define QF_SHAFT_STYLE 1 // [0 1]   development (r007): 1 round 5's warm, open rays with r006's finer sampling (owner r006: round 5's frame, "warmer, the rays are better formed"); 0 r006's contrast-shaped rays

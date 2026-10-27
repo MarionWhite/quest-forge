@@ -137,6 +137,11 @@ vec3 eyeWaterScatter() {
 }
 vec3 waterVolumeEye(vec3 color, float dist, float skyLight) {
     vec3 A = eyeWaterAbsorb(), S = eyeWaterScatter();
+    // r010 (owner r009 underwater B: "really good. The visibility is a little bit low"): clear
+    // (non-swamp) water's fog thinned by QF_UW_VIS, hue kept (A and S scale together); the sunbeams
+    // keep their own coefficients. ALU only.
+    float vk = mix(1.0, 1.0 / QF_UW_VIS, eyeNonSwamp());
+    A *= vk; S *= vk;
     vec3 T = exp(-A * dist);
     return color * T + waterAmbient(skyLight) * (S / (A + S)) * (1.0 - T);
 }
@@ -529,7 +534,15 @@ vec3 lightShafts(vec3 viewDir, float dist, float eyeSky, float leafHit) {
 #if QF_DUST_LEAF == 1
     // r009 forest wash (canopy veil = this haze, journal 01:05): a ray that ends on sunlit leaves
     // looks at the canopy, not across a beam, so it keeps less of the haze.
+#if QF_DUST_LEAF == 2
+    // r010 (owner r009 forest-light: "B has rays that extend further, and they seem a bit broader"):
+    // B kept the full haze on rays that end on leaves. The veil the cut was for is the close canopy
+    // (a ray of a few metres that only grazes the beam's edge); a ray that runs 20+ m to the far
+    // leaves crosses the gap's beams on the way and keeps them. Same cost.
+    dustL *= mix(1.0, 0.4, leafHit * (1.0 - smoothstep(8.0, 30.0, dist)));
+#else
     dustL *= mix(1.0, 0.4, leafHit);
+#endif
 #endif
 #else
     vec3 dustL = vec3(0.0);
@@ -692,7 +705,11 @@ vec3 shadeWaterAbove(vec3 color, vec3 n, float var, vec3 scene0, float dist0, ve
         // Silty moving water takes the bed's own hue and leaves its shading: the bed keeps its texture
         // and brightness but in the water's teal-green (hue weights at luma 1), so ledges stop reading as bands.
         float lb = dot(behind, vec3(0.2126, 0.7152, 0.0722));
+#if QF_RIVER_TINT == 0
         behind = mix(behind, lb * vec3(0.68, 1.10, 0.95), 0.6 * riv);
+#else
+        behind = mix(behind, lb * vec3(0.70, 1.00, 1.06), 0.6 * riv);   // r010: the bed pulled to teal-blue, not green
+#endif
     }
     vec3 refracted = waterVolume(behind, d, skyLight);
 
