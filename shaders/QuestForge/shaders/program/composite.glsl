@@ -421,7 +421,7 @@ float dustField(vec3 wp, float t) {
     return clamp(n * 4.4 * (0.55 + 0.9 * fine), 0.0, 4.0);
 }
 #endif
-vec3 lightShafts(vec3 viewDir, float dist, float eyeSky) {
+vec3 lightShafts(vec3 viewDir, float dist, float eyeSky, float leafHit) {
     vec3 L = lightDirWorld();
     float outside = smoothstep(0.1, 0.5, eyeSky);
     if (outside <= 0.0 || L.y < 0.0) return vec3(0.0);
@@ -515,6 +515,11 @@ vec3 lightShafts(vec3 viewDir, float dist, float eyeSky) {
 #endif
     float dPhase = 0.85 * hgPhaseS(mu, 0.62) + 0.15 / (4.0 * PI);   // loop 4: mostly forward (0.4 isotropic veiled sunlit fields seen away from the sun)
     vec3 dustL = E * dPhase * DUST_S * dust * min(maxD, 24.0) * gBeam;
+#if QF_DUST_LEAF == 1
+    // r009 forest wash (canopy veil = this haze, journal 01:05): a ray that ends on sunlit leaves
+    // looks at the canopy, not across a beam, so it keeps less of the haze.
+    dustL *= mix(1.0, 0.4, leafHit);
+#endif
 #else
     vec3 dustL = vec3(0.0);
 #endif
@@ -1267,7 +1272,7 @@ void main() {
             color = mix(color, haze, amount * lit);
         }
 #if QF_SHAFTS > 0 && QF_SHADOWS
-        color += lightShafts(viewDir, dist0, eyeSky);
+        color += lightShafts(viewDir, dist0, eyeSky, isFoliage(unpackMaterial(g1)) ? 1.0 : 0.0);
 #endif
         if (wMoody + wStorm > 0.0) {
             // Heavy fog is a lit medium, not a sky-coloured wall (r001 critic: the moody and

@@ -8,6 +8,9 @@
 #define QF_WAVING 1 // [0 1]
 #define QF_DEBUG_VIEW 0 // [0 1 2 3 4 5 6 7 8 9 10]
 #define QF_STILL 0 // [0 1]   development: freeze wind, waves and twinkle (temporal-noise test)
+#define QF_EXPO_PIN 0 // [0 1]   development (r009 forest wash): 1 pins the exposure at QF_EXPO_PIN_LOG, so A/B frames are not re-metered
+#define QF_EXPO_PIN_LOG 1.0 // [0.0 0.5 1.0 1.5 2.0]
+#define QF_DUST_LEAF 1 // [0 1]   development (r009 forest wash, canopy veil; r9xl1 canopy R 36.5 -> 28.4 at pinned exposure, dust_b beam -4 %): 1 cuts the beam dust haze to 0.4 on rays that end on leaves
 
 // Calibration variants for the owner's taste survey (Shader Lab round r000). 0 is the
 // pack as tuned; 1-3 are the survey's options A-C. Development only: not on the option

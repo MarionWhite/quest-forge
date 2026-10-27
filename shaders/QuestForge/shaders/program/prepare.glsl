@@ -79,6 +79,9 @@ vec4 computeExposure(vec4 prevTexel, vec2 m) {
     float tau = target < prev ? 1.2 : 3.0;
     float k = 1.0 - exp(-clamp(frameTime, 0.0, 0.25) / tau);
     float e = mix(prev, target, k);
+#if QF_EXPO_PIN == 1
+    e = QF_EXPO_PIN_LOG;
+#endif
     float hi = floor(e * 256.0 + 0.5) / 256.0;
     return vec4(exp2(e), metered, hi, e - hi);
 }
