@@ -197,8 +197,8 @@ def main():
     ap.add_argument("--wheat", choices=("drawn", "dense", "bushy"), default="drawn",
                     help="drawn: qf_art's v2 wheat; dense/bushy (r010): Faithful 64x stages 0-6, ripe = five "
                          "variants re-composed from Faithful's own plant (wheat_dense.py), mixed by CTM random")
-    ap.add_argument("--diamond", choices=("metal", "gem"), default="metal",
-                    help="metal: VNR's metal flag (v2); gem: a dielectric, F0 44 (GEM_BLOCKS)")
+    ap.add_argument("--diamond", choices=("metal", "gem"), default="gem",
+                    help="gem (r010 default): a dielectric, F0 44 (GEM_BLOCKS); metal: VNR's metal flag (v2, a mirror)")
     a = ap.parse_args()
 
     mc = zipfile.ZipFile(a.mc_jar)
