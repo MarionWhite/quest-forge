@@ -207,3 +207,22 @@ All four looks use the texture agent's `leaves_KIND_frill` sprites. The "off" re
   patched for crops.
 - **Render:** `1027-190035-r010-crops-a`, with cv1a0 off and cv1a1 on, `farm` and `farm_close`, plus MeshStats.
   Results follow.
+
+### Crop variants, results
+
+**crops-a** (`1027-190035-r010-crops-a`, jar adec733, QF-w-bushy plus the five wheat sprites):
+- The hook loaded, and the stitch found `wheat_stage_7 x5`.
+- **The look:** on matched off exactly. Every ripe wheat drew the base sprite, so `pick`'s identity lookup never
+  matched. The sprites themselves are fine: the tops of v0-v4 sit at rows 24, 18, 12, 6 and 0 of 64.
+- **What was ruled out:** no Angelica mixin touches `renderBlockCropsImpl` or the identity of the sprite
+  `registerIcon` returns (CTM, ParallelLoad, Celeritas, NotFine), and Forge's stitch order (re-gather icons, then Pre)
+  holds.
+- **The cost of the hook running and missing:** frame p50 rose 0-1%, and whole-boot ms per section rose 7%, but over
+  different section counts (2365 off, 2244 on), so it is noise-level.
+
+**crops-b** (`1027-192003-r010-crops-b`, jar 9a3acba):
+- **The fix:** `pick` falls back to a name key (`getIconName`).
+- **Diagnostics:** it logs the first icon at the hook, whether the match was by identity or by name, and whether the
+  stitched atlas is Minecraft's blocks atlas.
+- **Sprites:** the texture agent's QF-cropvar.zip (wheat x5, carrots x4, potatoes x4).
+- Results follow.
