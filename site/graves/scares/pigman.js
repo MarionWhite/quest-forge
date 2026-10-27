@@ -1,12 +1,14 @@
 // Zombie Pigman (v4, the owner's): your fault. A diamond ore glints in the floor just ahead. The walk slows, the view
 // drifts down to it, you step up to it and raise the iron pickaxe; each swing the cracks spread across it. One swing
 // from breaking it, you stop: silence. On the swing that would break it, a pigman steps into the gap from just out of
-// view and the pick lands in him: the hurt flash, the angry squeal, and his face snaps round to yours and comes at the
-// lens with the screech. After the static, every pair of eyes in the dark goes red, the head flicks from eyes to eyes,
-// they come from every passage at once, and they cut you down.
+// view and the pick lands in him: the hurt flash, the angry squeal, and his head snaps round to you. A beat, staring.
+// Then he turns square to you, steps in chest to chest and brings the gold sword down on your head (round 7: a body in
+// the world, not a face on the lens). You stagger back; every pair of eyes in the dark goes red (hit one, and the whole
+// horde turns on you), the head flicks from eyes to eyes, they come from every passage at once, and they cut you down.
 import { THREE, clamp, lerp, sstep, pulse, tex, easeOut, blockMesh } from "./rig.js";
 import { settle, shake, hitsOf, floorFall, heldItem, swingAt, zombieArms, mulberry, glowEyes, mcRot } from "./common.js";
-import { lunge, lungeFx, screech, splitJaw, faceAnchor, boxOf, silence, deathScream, jit } from "./fnaf.js";
+import { splitJaw, boxOf, silence, deathScream } from "./fnaf.js";
+import { roar, kick, impactSplit } from "./story.js";
 
 const SWORD = [{ id: "minecraft:golden_sword", ench: false }];
 const TAU = Math.PI * 2;
@@ -33,7 +35,7 @@ function sparkTex() {
 export default {
   death: "Steve was slain by Zombie Pigman",
   async build(R) {
-    const [pickTex, oreTex, goldTex, ...stages] = await Promise.all(["mc:items/iron_pickaxe", "k:diamond_ore", "mc:items/gold_sword", ...[...Array(10)].map((_, i) => "destroy_stage_" + i)].map((n) => tex(n)));
+    const [pickTex, oreTex, ...stages] = await Promise.all(["mc:items/iron_pickaxe", "k:diamond_ore", ...[...Array(10)].map((_, i) => "destroy_stage_" + i)].map((n) => tex(n)));
     const rnd = mulberry(R.seed * 13 + 5);
     const ok = (x, z) => !R.solid(x, 0.5, z) && !R.solid(x, 1.5, z) && R.solid(x, -0.5, z);
     const inX = (x) => clamp(x, -(R.wallL - 0.35), R.wallR - 0.35);
@@ -81,7 +83,10 @@ export default {
     const hold = R.vary(1.05, 0.4), T_SWING = T_HALT + hold, T_HIT = T_SWING + 0.15;
     const fakeStep = R.chance(0.5);                                   // something shifts out of view in the silence
     const T_IN = T_HIT - 0.24;                                        // he steps in
-    const t0 = T_HIT + 0.09;
+    // The strike: a beat staring at you over his shoulder (the hurt tint on him), then he turns square, steps in and
+    // chops; the blade lands at T_CONTACT.
+    const T_TURN = T_HIT + R.vary(0.45, 0.3), T_STEP = T_TURN + 0.05, T_STRIKE = T_TURN + 0.2, T_CONTACT = T_STRIKE + 0.12;
+    const tK = T_CONTACT + 0.42;
 
     const p0 = R.mob("PigZombie", { amb: [0.24, 0.22, 0.22], equipment: SWORD, own: true });
     p0.setOwn(0.12);
@@ -89,11 +94,10 @@ export default {
     const held0 = p0.parts.rightArm && p0.parts.rightArm.children.find((o) => o.isGroup && o.matrixAutoUpdate === false);
     const jaw0 = splitJaw(p0, [{ part: p0.parts.head, box: boxOf("zombie", "bipedHead"), rows: 2 }, { part: p0.parts.headwear, box: boxOf("zombie", "bipedHeadwear"), rows: 2 }], { nTeeth: 3 });
     p0.anim(0, 0, {}); R.place(p0, 0, 0, 4, Math.PI);
-    const anchor = faceAnchor(p0, p0.parts.head, boxOf("zombie", "bipedHead")); anchor.y -= 0.07;
-    const L = lunge(R, p0, { t0, rush: R.vary(0.15, 0.2), hold: R.vary(0.6, 0.15), dist: 0.66, anchor, seed: 41 });
-    const tK = L.t3;
-    const L0 = { x: C.x + ux * 0.98, z: C.z + uz * 0.98 };             // where he stands after the static
-    const F = { x: C.x + ux * 0.8, z: C.z + uz * 0.8 };                // and where he is when you look back
+    const S1 = { x: C.x + ux * 0.6, z: C.z + uz * 0.6 };               // where he strikes from, chest to chest
+    const L0 = S1;                                                     // and stays, as you stagger back
+    const F = { x: C.x + ux * 0.36, z: C.z + uz * 0.36 };              // and where he is when you look back
+    const kickSide = -1;                                               // his sword hand is on your left: the head goes right
 
     // ---- the payoff: the others ---------------------------------------------------------------------------
     const spots = [];
@@ -141,8 +145,10 @@ export default {
     const T_H1 = Math.max(tBack + 0.35, T_RUSH + 0.85), T_FALL = T_H1 + 1.0, DUR = T_FALL + 0.55;
     const byArrival = rushers.slice().sort((a, b) => a.te - b.te);
     for (const q of rushers) q.te = Math.min(q.te, T_H1 - 0.05);   // all of them there by the first blow
-    const hitList = [[T_H1, 4, p0], [T_H1 + 0.5, 4, byArrival[0] || p0], [T_FALL, 5, byArrival[1] || byArrival[0] || p0], [DUR, 7, byArrival[2] || p0]];
+    // [t, damage, who, where he stands (if not his place), knock-back]
+    const hitList = [[T_CONTACT, 5, p0, S1, 0.36], [T_H1, 4, p0], [T_H1 + 0.5, 4, byArrival[0] || p0], [T_FALL, 4, byArrival[1] || byArrival[0] || p0], [DUR, 3, byArrival[2] || p0]];
     const hits = hitsOf(hitList.map(([t, d]) => [t, d, 1]));
+    hits.forEach((h, i) => { h.knock = hitList[i][4] ?? 0.2; });
     const posR = (q, t) => {
       const k = clamp((t - q.ts) / (q.te - q.ts));
       let d = k * q.len;
@@ -159,12 +165,11 @@ export default {
       const s = []; for (let tt = q.te + 0.15 + rnd() * 0.25; tt < DUR + 2; tt += 0.55 + rnd() * 0.2) s.push(tt);
       swings.set(q, s);
     }
-    hitList.forEach(([t, , w]) => { const s = swings.get(w); if (!s.includes(t)) s.push(t); });
-    const attackerAt = (h) => { const w = hitList.find((x) => x[0] === h.t)[2]; return w === p0 ? F : { x: w.tx, z: w.tz }; };
+    hitList.forEach(([t, , w, at]) => { const s = swings.get(w); if (!at && !s.includes(t)) s.push(t); });   // his chop is posed by hand
+    const attackerAt = (h) => { const e = hitList.find((x) => x[0] === h.t); return e[3] || (e[2] === p0 ? F : { x: e[2].tx, z: e[2].tz }); };
     hits.forEach((h) => { const a = attackerAt(h); h.side = (a.x - C.x) * uz - (a.z - C.z) * ux >= 0 ? -1 : 1; });
 
     // ---- the camera ---------------------------------------------------------------------------------------
-    const yawP = R.yawTo(C.x, C.z, P.x, P.z);
     const yawAt = (t) => {
       let y = yawL0;
       if (t > T_ANGRY && t < tBack + 0.13 && darts.length) {
@@ -181,8 +186,17 @@ export default {
     };
     const knock = (t) => {
       let x = 0, z = 0;
-      for (const h of hits) { if (t < h.t) break; const a = attackerAt(h), n = Math.hypot(a.x - C.x, a.z - C.z) || 1, k = 0.2 * easeOut((t - h.t) / 0.25); x -= (a.x - C.x) / n * k; z -= (a.z - C.z) / n * k; }
+      for (const h of hits) { if (t < h.t) break; const a = attackerAt(h), n = Math.hypot(a.x - C.x, a.z - C.z) || 1, k = h.knock * easeOut((t - h.t) / 0.25); x -= (a.x - C.x) / n * k; z -= (a.z - C.z) / n * k; }
       return { x, z };
+    };
+    // Where he is (his feet), for the head that follows him.
+    const pigXZ = (t) => {
+      if (t < T_IN + 0.22) { const k = clamp((t - T_IN) / 0.22); return { x: lerp(Pin.x, P.x, k), z: lerp(Pin.z, P.z, k) }; }
+      if (t < tK) {
+        const kb = t > T_HIT ? 0.12 * easeOut(clamp((t - T_HIT) / 0.15)) : 0, ks = sstep(T_STEP, T_STEP + 0.2, t);   // your pick knocks him back; the step in
+        return { x: lerp(P.x + ux * kb, S1.x, ks), z: lerp(P.z + uz * kb, S1.z, ks) };
+      }
+      return t < tBack - 0.04 ? L0 : F;
     };
     const camAlive = (t) => {
       const s = settle(R, t, 0.9);
@@ -191,16 +205,22 @@ export default {
       const x0 = lerp(s.x, C.x, kw), z0 = lerp(s.z, C.z, kw);
       const lo = lookOre(x0, z0), kd = sstep(T_SEE, T_SEE + 1.1, t);
       let yaw = lerp(s.yaw, lo.yaw, kd), pitch = lerp(s.pitch, lo.pitch, kd);
-      // The flinch: the pick lands in him and the head comes up to his face.
-      const kr = sstep(T_HIT, T_HIT + 0.13, t);
-      yaw = lerp(yaw, yawP, kr); pitch = lerp(pitch, 0.12, kr);
-      if (t > tK) { yaw = yawAt(t); pitch = lerp(0.12, -0.02, sstep(tK, tK + 0.6, t)); }
-      const kb = knock(t);
-      return { x: x0 - ux * 0.07 * kr + kb.x, y: s.y - (walking ? 0.035 * Math.abs(Math.sin((t - T_GO) * 7.2)) : 0), z: z0 - uz * 0.07 * kr + kb.z, yaw, pitch, roll: 0,
-        fov: s.fov - 6 * sstep(T_HALT, T_SWING, t) * (1 - sstep(T_HIT, T_HIT + 0.1, t)) + 10 * pulse(t, [L.t1], 0.12) + 5 * sstep(T_ANGRY, T_ANGRY + 0.1, t) * (1 - sstep(T_ANGRY + 0.15, T_ANGRY + 0.5, t)),
+      // The flinch: the pick lands in him and the head comes up to his face, and stays on it as he turns and steps in.
+      const kr = sstep(T_HIT, T_HIT + 0.13, t), kb = knock(t), cx = x0 - ux * 0.07 * kr + kb.x, cz = z0 - uz * 0.07 * kr + kb.z;
+      if (t < tK + 0.3) {
+        const pg = pigXZ(t), lead = 0.1 * sstep(T_TURN, T_STRIKE, t) * (1 - sstep(T_CONTACT, tK, t));   // up at the blade as it rises
+        const yF = R.yawTo(cx, cz, pg.x, pg.z), pF = R.pitchTo(cx, s.y, cz, pg.x, 1.72, pg.z) + lead;
+        yaw = lerp(yaw, yF, kr); pitch = lerp(pitch, Math.min(pF, 0.75), kr);
+      }
+      if (t > tK) { const k2 = sstep(tK, tK + 0.3, t); yaw = lerp(yaw, yawAt(t), k2); pitch = lerp(pitch, lerp(0.12, -0.02, sstep(tK, tK + 0.6, t)), k2); }
+      // The blade lands: the head is thrown down and away from it.
+      const kk = kick(t, [{ t: T_CONTACT, side: kickSide, amp: 1.7 }]);
+      yaw += kk.yaw; pitch += kk.pitch;
+      return { x: cx - ux * kk.back, y: s.y - (walking ? 0.035 * Math.abs(Math.sin((t - T_GO) * 7.2)) : 0) - 0.35 * kk.back, z: cz - uz * kk.back, yaw, pitch, roll: 0,
+        fov: s.fov - 6 * sstep(T_HALT, T_SWING, t) * (1 - sstep(T_HIT, T_HIT + 0.1, t)) + 6 * pulse(t, [T_CONTACT], 0.1) + 5 * sstep(T_ANGRY, T_ANGRY + 0.1, t) * (1 - sstep(T_ANGRY + 0.15, T_ANGRY + 0.5, t)),
         near: t >= T_IN - 0.1 ? 0.02 : undefined };
     };
-    const fallSide = hits[2] ? -hits[2].side : 1;
+    const fallSide = hits[3] ? -hits[3].side : 1;
     const cam = (t) => {
       const c = camAlive(Math.min(t, T_FALL + 0.001));
       if (t > T_FALL) { const a = camAlive(t); c.x = a.x; c.z = a.z; }
@@ -209,7 +229,7 @@ export default {
       const up = sstep(T_FALL + 0.35, T_FALL + 0.75, t);
       c.pitch = lerp(c.pitch, 1.0, up); c.fov += 8 * up; c.yaw += 0.25 * fallSide * up;
       const dig = digSw.some((s) => t >= s + 0.1 && t < s + 0.2) ? 0.0025 : 0;   // the pick biting
-      return shake(c, t, 0.0015 + dig + 0.003 * sstep(T_HALT, T_SWING, t) + L.shake(t) + 0.02 * pulse(t, [T_HIT, ...hits.map((h) => h.t)], 0.18) + 0.01 * sstep(tK, tK + 0.3, t), 7);
+      return shake(c, t, 0.0015 + dig + 0.003 * sstep(T_HALT, T_SWING, t) + 0.02 * pulse(t, [T_HIT, ...hits.map((h) => h.t)], 0.18) + 0.01 * sstep(tK, tK + 0.3, t), 7);
     };
 
     // Gore: from your chest and neck, toward the camera, at each hit.
@@ -219,18 +239,17 @@ export default {
       R.burst(h.t, at, 26, "blood", { dir: [fx * 0.6, 0.9, fz * 0.6], speed: 2.2, spread: 0.8, size: 0.05, life: 1.3, stick: 3 });
       R.burst(h.t + 0.02, at, 7, "flesh", { dir: [fx * 0.4, 0.8, fz * 0.4], speed: 1.6, spread: 0.7, size: 0.07, life: 1.2, stick: 3 });
     });
+    // The chop: from your head, up into the view.
+    { const c = cam(T_CONTACT + 0.01), fx = -Math.sin(c.yaw), fz = Math.cos(c.yaw);
+      R.burst(T_CONTACT, [c.x + fx * 0.3, c.y + 0.05, c.z + fz * 0.3], 30, "blood", { dir: [fx * 0.3, 1.4, fz * 0.3], speed: 2.4, spread: 1.0, size: 0.05, life: 1.2, stick: 3 }); }
     // The pick in his side.
     R.burst(T_HIT + 0.01, [P.x, 1.0, P.z], 14, "blood", { dir: [-ux * 0.5, 0.7, -uz * 0.5], speed: 1.8, spread: 0.8, size: 0.04, life: 1.1, stick: 3 });
     const pick = heldItem(R, pickTex, { color: 0x9a9a9a });
     const mySwings = [...digSw, T_SWING, tK + 0.25];
-    // The gold sword raised over you as he comes: a blade across the top of the view, between you and his face.
-    const raised = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ map: goldTex, transparent: true, alphaTest: 0.1, side: THREE.DoubleSide, depthTest: false, depthWrite: false, fog: false, color: 0x9a8a70 }));
-    raised.renderOrder = 2150; raised.visible = false; R.view.add(raised);
     const glow = R.ownLight(R.light(0xffb070, 0, 6, 1.4));
     const redLight = R.ownLight(R.light(0xff2010, 0, 9, 1.2));
 
     // ---- the sound ----------------------------------------------------------------------------------------
-    const S2 = screech(L, [["mob.zombiepig.zpigangry", { pitch: 0.7 }], ["mob.zombiepig.zpighurt", { pitch: 0.6, volume: 1.2 }]]);
     const at0 = [oc.x, 0.2, oc.z];
     const steps = [];
     for (let s = T_GO + 0.12; s < T_AT; s += 0.4) steps.push([s, "step.stone", { volume: 0.16, pitch: 0.9 }]);
@@ -246,7 +265,9 @@ export default {
       [T_HIT, "mob.zombiepig.zpighurt", { at: [P.x, 1.6, P.z], volume: 1.1 }],
       [T_HIT + 0.01, "qf.scare.crunch", { volume: 0.5 }],
       [T_HIT + 0.05, "mob.zombiepig.zpigangry", { at: [P.x, 1.6, P.z], volume: 1.2, pitch: 0.92 }],
-      ...S2.sounds,
+      // He turns on you with a roar, steps in, and the blade comes down.
+      ...roar(T_TURN, [["mob.zombiepig.zpigangry", { at: [P.x, 1.7, P.z], pitch: 0.74 }], ["mob.zombiepig.zpighurt", { at: [P.x, 1.7, P.z], pitch: 0.58, volume: 1.0 }]], { hit: 0.45 }),
+      [T_STEP + 0.14, "mob.zombie.step", { at: [S1.x, 0.1, S1.z], volume: 0.8, pitch: 0.85 }],
       [T_ANGRY, "mob.zombiepig.zpigangry", { at: [L0.x, 1.6, L0.z], volume: 1, pitch: 0.95 }],
       [T_ANGRY + 0.02, "qf.scare.stinger", { volume: 0.85 }],
       ...rushers.map((q, i) => [q.ta + 0.02, "mob.zombiepig.zpigangry", { at: [q.x, 1.6, q.z], volume: 0.9, pitch: 0.82 + 0.09 * (i % 5), reverb: 0.5 }]),
@@ -257,7 +278,6 @@ export default {
     ];
     const loops = [
       [T_DIG, T_HALT + 0.02, "qf.scare.drone", { volume: 0.22, fadeIn: 1.5, fadeOut: 0.02, bus: "sfx" }],
-      ...S2.loops,
       [tK, T_ANGRY, "qf.scare.heartbeat", { volume: 0.6, pitch: 1.3, fadeIn: 0.05, fadeOut: 0.02 }],
       [T_ANGRY, DUR + 0.2, "qf.scare.heartbeat", { volume: 0.8, pitch: 1.5 }]
     ];
@@ -270,7 +290,7 @@ export default {
     const yawIn = R.yawTo(Pin.x, Pin.z, P.x, P.z);
     function update(t, f) {
       const camNow = cam(t);
-      const inLunge = t >= t0 && t < tK;
+      const close = t >= T_HIT && t < tK;
       // The bait.
       for (const sp of sparks) {
         const u = ((t + sp.ph) % sp.per) / sp.per, tw = t < T_HIT ? Math.max(0, Math.sin(clamp((u - 0.7) / 0.3) * Math.PI)) : 0;
@@ -283,62 +303,61 @@ export default {
       }
       const stage = t >= T_DIG && t < T_HIT ? Math.min(8, Math.floor(clamp((t - T_DIG) / (T_HALT - T_DIG)) * 8.99)) : -1;
       crack.visible = stage >= 0; if (stage >= 0) crack.material = crackMats[stage];
-      // Him: in from out of view, across the gap; the pick lands; the head snaps round; the lunge; then at your face.
-      let x = Pin.x, z = Pin.z, yaw = yawIn, look = 0, walk = 0;
+      // Him: in from out of view, across the gap; the pick lands; the head snaps round; he turns, steps in and chops.
+      const pg = pigXZ(t);
+      let yaw = yawIn, look = 0, walk = 0;
       const toCam = (px, pz) => R.yawTo(px, pz, camNow.x, camNow.z);
-      if (t < T_IN + 0.22) { const k = clamp((t - T_IN) / 0.22); x = lerp(Pin.x, P.x, k); z = lerp(Pin.z, P.z, k); walk = 1.4; }
+      if (t < T_IN + 0.22) walk = 1.4;
       else if (t < tK) {
-        const kb = t > T_HIT ? 0.12 * easeOut(clamp((t - T_HIT) / 0.15)) : 0;
-        x = P.x + ux * kb; z = P.z + uz * kb;
-        // the head snaps round to you; as the lunge turns the whole of him to the lens, the head comes back square
-        look = -clamp(wrap(toCam(x, z) - yaw), -1.4, 1.4) * sstep(T_HIT + 0.02, T_HIT + 0.08, t) * (1 - clamp((t - t0) / (L.rush * 0.55)));
-      } else { const at = t < tBack - 0.04 ? L0 : F; x = at.x; z = at.z; yaw = toCam(x, z); }
-      const lean0 = -0.22 * sstep(T_FALL + 0.2, T_FALL + 0.8, t);
-      posePig(p0, t, x, 0, z, yaw, { walk, look, swing: swingAt(t, swings.get(p0)), lean: lean0 });
-      if (inLunge && p0.parts.rightArm) p0.parts.rightArm.visible = false;   // raised out of the view: only its blade shows
-      if (inLunge && p0.parts.leftArm) mcRot(p0.parts.leftArm, -0.25, 0, 0.1);   // the other hangs: nothing between you and the face
-      if (t >= T_HIT && t < tK && p0.parts.head) p0.parts.head.rotation.z += 0.04 * jit(t, 3, 12);
-      jaw0.set(t >= T_HIT && t < tK ? Math.max(0.15 + 0.1 * Math.max(0, jit(t, 5, 14)), sstep(t0, L.t1, t) * (0.85 + 0.15 * jit(t, 9))) : t >= tK ? 0.3 * Math.max(0, Math.sin(t * 8)) : 0);
-      if (inLunge) L.apply(t);
-      p0.setOwn(inLunge ? 0.16 : t >= T_HIT && t < tK ? 0.3 : 0.12);
+        const yc = toCam(pg.x, pg.z);
+        yaw = yawIn + wrap(yc - yawIn) * sstep(T_TURN, T_TURN + 0.16, t);   // the body comes round square to you
+        look = -clamp(wrap(yc - yaw), -1.4, 1.4) * sstep(T_HIT + 0.02, T_HIT + 0.08, t);
+        walk = t > T_STEP && t < T_STEP + 0.24 ? 1.5 : 0;
+      } else yaw = toCam(pg.x, pg.z);
+      const lean0 = -0.22 * sstep(T_FALL + 0.2, T_FALL + 0.8, t) + 0.12 * sstep(T_STRIKE, T_CONTACT, t) * (1 - sstep(T_CONTACT + 0.1, tK, t));
+      posePig(p0, t, pg.x, 0, pg.z, yaw, { walk, look, swing: swingAt(t, swings.get(p0)), lean: lean0 });
+      // His arms: they drop as the pick lands (the flinch); the sword arm winds back and over his head as he turns
+      // (round the back, never through the lens) and comes down through you; the other hangs out of the way.
+      if (t >= T_HIT && t < tK + 0.3 && p0.parts.rightArm) {
+        const fl = sstep(T_HIT, T_HIT + 0.15, t), up = sstep(T_TURN, T_STRIKE, t), dn = Math.pow(clamp((t - T_STRIKE) / 0.15), 1.5), rec = sstep(T_CONTACT + 0.12, tK + 0.3, t);
+        const TAU2 = Math.PI * 2, ra = lerp(lerp(lerp(lerp(-Math.PI / 2, -0.35, fl), 3.43, up), TAU2 - 0.3, dn), TAU2 - Math.PI / 2, rec);
+        mcRot(p0.parts.rightArm, ra, -0.1 + 0.3 * dn * (1 - rec), 0.06 + 0.15 * Math.sin(up * Math.PI) * (1 - dn));
+        if (p0.parts.leftArm) mcRot(p0.parts.leftArm, lerp(-Math.PI / 2, -0.2, fl * (1 - rec)), lerp(0.1, -0.3, fl * (1 - rec)), -0.12 * fl * (1 - rec));
+      }
+      // A snarl as he turns on you, the jaw dropping with the roar; chewing at nothing after.
+      jaw0.set(close ? 0.12 + 0.4 * sstep(T_TURN - 0.05, T_TURN + 0.1, t) * (1 - 0.6 * sstep(T_CONTACT + 0.1, tK, t)) : t >= tK ? 0.3 * Math.max(0, Math.sin(t * 8)) : 0);
+      p0.setOwn(close ? 0.24 : 0.12);
       p0.pivot.visible = t >= T_IN;
-      if (held0) held0.visible = !inLunge;
-      R.flash(p0, t >= T_HIT && t < L.t1 ? 1 - sstep(t0, L.t1, t) : 0);   // the hurt flash: your pick (gone as his face lands)
-      eyes0(inLunge ? 0 : t >= tK ? sstep(T_ANGRY - 0.06, T_ANGRY + 0.04, t) : 0); eyes0n(inLunge ? 0.8 : 0);
+      if (held0) held0.visible = true;
+      R.flash(p0, t >= T_HIT && t < T_HIT + 0.5 ? 1 - sstep(T_HIT + 0.4, T_HIT + 0.5, t) : 0);   // the hurt tint: ten ticks, as in the game
+      eyes0(close ? 0 : t >= tK ? sstep(T_ANGRY - 0.06, T_ANGRY + 0.04, t) : 0); eyes0n(close ? 0.45 * sstep(T_TURN - 0.05, T_TURN + 0.1, t) : 0);
       // Everyone else: eyes in every dark place, then they come.
       for (const q of rushers) {
-        q.m.pivot.visible = t >= q.ta && !inLunge;
-        q.eyes(t >= q.ta && !inLunge ? sstep(q.ta, q.ta + 0.1, t) : 0);
+        q.m.pivot.visible = t >= q.ta;
+        q.eyes(t >= q.ta ? sstep(q.ta, q.ta + 0.1, t) : 0);
         if (t < q.ta) continue;
         const r = posR(q, t), there = r.k >= 1, wide = 1 + 0.22 * sstep(T_FALL, T_FALL + 0.5, t);   // a step back to look at you
         if (there) { r.x = C.x + (r.x - C.x) * wide; r.z = C.z + (r.z - C.z) * wide; }
         const fy = there ? R.yawTo(q.tx, q.tz, camNow.x, camNow.z) : (t < q.ts ? R.yawTo(q.x, q.z, C.x, C.z) : r.dir);
         posePig(q.m, t, r.x, 0, r.z, fy, { walk: t > q.ts && !there ? 1.35 : 0, run: true, swing: swingAt(t, swings.get(q)), lean: -0.22 * sstep(T_FALL + 0.2, T_FALL + 0.9, t), seed: q.seed });
       }
-      pick(t, mySwings, t < T_EQ || t > T_FALL + 0.05 || inLunge, camNow.fov, sstep(T_EQ, T_EQ + 0.3, t));
-      raised.visible = inLunge;
-      if (inLunge) {
-        const h = Math.tan(R.camera.fov * Math.PI / 360) * 0.4, u = sstep(t0, L.t1, t);
-        raised.scale.setScalar(h * 1.25);
-        raised.position.set(-h * R.camera.aspect * 0.62 + jit(t, 51) * 0.006, h * (0.62 + 0.5 * (1 - u)) + jit(t, 53) * 0.006, -0.4);
-        raised.rotation.set(0, 0, 0.35 + 0.05 * jit(t, 55, 12));
-      }
-      // Light: his face lit in the lunge; the corridor dims as the eyes come up; a warm glow on them as they reach you.
-      if (inLunge) { const cl = R.toLocal(R.camera.position); R.L(cl.x, cl.y + 0.3, cl.z, glow.position); glow.intensity = 1.1; }
+      pick(t, mySwings, t < T_EQ || t > T_FALL + 0.05, camNow.fov, sstep(T_EQ, T_EQ + 0.3, t));
+      // Light: a little on his face as he comes at you; the corridor dims as the eyes come up; a warm glow on them as they reach you.
+      if (close) { const cl = R.toLocal(R.camera.position); R.L(cl.x, cl.y + 0.45, cl.z, glow.position); glow.intensity = 0.55 * sstep(T_HIT, T_TURN, t); }
       else { R.L(C.x + ux * 0.4, 2.3, C.z + uz * 0.4, glow.position); glow.intensity = 1.6 * sstep(T_H1 - 0.6, T_H1, t); }
       R.L(C.x, 1.2, C.z, redLight.position); redLight.intensity = 0.3 * sstep(T_ANGRY, T_ANGRY + 0.3, t);
-      const dim = sstep(T_ANGRY - 0.1, T_ANGRY + 0.3, t), back = sstep(T_H1 - 0.4, T_H1, t), dark = inLunge ? sstep(t0, t0 + 0.08, t) : 0;
+      const dim = sstep(T_ANGRY - 0.1, T_ANGRY + 0.3, t), back = sstep(T_H1 - 0.4, T_H1, t);
       const hush = sstep(T_HALT, T_HALT + 0.6, t) * (1 - sstep(T_HIT, T_HIT + 0.05, t));
-      f.env = { bake: (1 - 0.15 * sstep(0.2, 1.2, t) - 0.08 * hush - 0.4 * dim + 0.15 * back) * (1 - 0.8 * dark), lights: (1 - 0.15 * hush - 0.6 * dim + 0.3 * back) * (1 - 0.85 * dark), fogMul: 1 + 0.3 * sstep(1, 3, t) + 0.6 * dim + 2 * dark, fog: [0, 0, 0, dark] };
+      f.env = { bake: 1 - 0.15 * sstep(0.2, 1.2, t) - 0.08 * hush - 0.4 * dim + 0.15 * back, lights: 1 - 0.15 * hush - 0.6 * dim + 0.3 * back, fogMul: 1 + 0.3 * sstep(1, 3, t) + 0.6 * dim };
       f.tints = [[120, 0, 0, 0.05 * dim]];
       f.vig = [30, 0, 0, 0.15 * sstep(T_DIG, T_HALT, t) + 0.15 * hush + 0.3 * dim + 0.25 * sstep(T_FALL, DUR, t)]; f.vigR = 0.9;
-      f.splats = hits.filter((h) => t >= h.t).map((h, i) => ({ t0: h.t, x: [0.35, 0.66, 0.5, 0.42][i], y: [0.42, 0.33, 0.6, 0.5][i], r: 13 + i * 3, seed: 21 + i }));
+      f.splats = hits.filter((h) => t >= h.t).map((h, i) => ({ t0: h.t, x: [0.58, 0.35, 0.66, 0.5, 0.42][i], y: [0.3, 0.42, 0.33, 0.6, 0.5][i], r: 13 + i * 3, seed: 21 + i }));
       f.black = 0.45 * sstep(DUR - 0.1, DUR + 0.6, t);
-      lungeFx(L, t, f, { tear: 0.3 });
+      impactSplit(f, t, [T_CONTACT], { amt: 0.25 });   // the only device left: a split on the blow
     }
     return { dur: DUR, hits, cam, update, sounds, loops, deathSide: fallSide,
-      marks: { dread: T_SEE + 1.15, fake: digSw[nSw - 1] + 0.1, lunge: L.t1 + 0.14, kill: T_H1 + 0.3 },
-      notes: { t0: +t0.toFixed(2), dur: +DUR.toFixed(2), ore: [+oc.x.toFixed(2), +oc.z.toFixed(2)], stand: [+C.x.toFixed(2), +C.z.toFixed(2)], from: sIn, nSw, hold: +hold.toFixed(2), fakeStep,
+      marks: { dread: T_SEE + 1.15, fake: digSw[nSw - 1] + 0.1, lunge: T_CONTACT - 0.03, kill: T_H1 + 0.3 },
+      notes: { turn: +T_TURN.toFixed(2), contact: +T_CONTACT.toFixed(2), dur: +DUR.toFixed(2), ore: [+oc.x.toFixed(2), +oc.z.toFixed(2)], stand: [+C.x.toFixed(2), +C.z.toFixed(2)], from: sIn, nSw, hold: +hold.toFixed(2), fakeStep,
         spots: spots.map((s) => s.kind + "@" + s.x.toFixed(1) + "," + s.z.toFixed(1)), rushers: rushers.length, darts: darts.map((d) => +d.yaw.toFixed(2)) } };
   }
 };
