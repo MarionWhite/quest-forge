@@ -164,3 +164,31 @@ Required changes:
     struggle toward the light. A zombie's hand grabs your ankle: look down at its face in the
     murk, and it pulls you down. Bubbles, the underwater scream, the bite, blood in the water.
   - Add both to the J picker as "Lava fall" and "Drowned grab".
+
+## v4 (round 7, 2026-10-27): Story Mode, not FNAF
+The owner on v3: "The FNAF inspiration was taken too strongly." Only the Enderman and the Creeper
+fully satisfy him; both are approved and stay as they are. The Pigman was "almost perfect": less
+FNAF. v4 supersedes the v3 rules above wherever they disagree.
+
+Why the Enderman and the Creeper work, and what every scare now does:
+- **The mob's own mechanic is the scare.** The stare and the teleport; the silent walk-up, the
+  hiss and the swell. Each scare is built on what that mob does in the game.
+- **The blow lands in the world.** No face rushing the lens, no jitter, no tear, no static cut.
+  The mob steps in, leaps, shoots or bites, the head is knocked (`story.js` kick), and the kill
+  leaves a mark: the hole, the crater, the blade, the char.
+- **Its own sounds.** The mob's cry at full voice with a low hit under it (`story.js` roar), not
+  the screech or a stinger. A death scream is one recorded take that plays through; a second
+  one never starts over it.
+- **At most one device per scare, and only where the mob explains it**: the lights dying for the
+  Skeleton, the Magma Cube and the Wither Skeleton's fog; the freeze in the Cave Spider's trap;
+  a short colour split on the Pigman's blow.
+
+Per mob, in one line: Zombie, the look-back to arm's length, or the walk out of the dark while
+you back into a second one. Skeleton, the miss, the standoff, the shot. Spider, it crawls the
+ceiling and drops in front of you, rears and leaps. Cave Spider, the one on the pit wall rears
+and leaps. Witch, Slowness, Poison, then Harming in your face as she bends over you. Slime,
+squeezes through the hole or hops onto you. Silverfish, the wall bursts into the swarm. Blaze,
+the flare and the two volleys. Ghast, the charge and the fireball across the drop. Magma Cube,
+it hops in opening like an accordion, then leaps and comes down on you. Pigman, the step and the
+chop, then the horde. Wither Skeleton, it stands over you, rattles and runs you through. Lava
+fall, the rim, the slip. Drowned grab, it has your ankles, climbs you and bites.
