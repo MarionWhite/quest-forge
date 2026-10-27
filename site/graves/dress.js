@@ -5,6 +5,7 @@ import * as THREE from "three";
 import { patchBake, patchTorch } from "./krypt.js";
 import { boxGeometry, makeMob } from "../lib/mc/mobs.js";
 import { tex as mcTex } from "../lib/mc/textures.js";
+import { PROPS } from "./props.js";
 
 function nearest(img, { repeat = false } = {}) {
   const t = new THREE.Texture(img);
@@ -60,10 +61,10 @@ export function makeDresser(IMG) {
   const mkWeb = cut(IMG.web), mkVine = cut(IMG.vine), mkRail = cut(IMG.rail_normal, { alphaTest: 0.3 }), mkBone = cut(IMG.bone, { alphaTest: 0.3 });
   const mkLily = cut(IMG.waterlily), mkBars = cut(IMG.iron_bars);
   const mkPlank = lamb("planks_oak"), mkCobble = lamb("cobblestone");
-  const mkCart = () => patchBake(new THREE.MeshLambertMaterial({ color: 0x80848a }));
   const mkSkull = () => patchBake(new THREE.MeshLambertMaterial({ map: tex(IMG.skull_tex || IMG.skeleton) }));
   const mkWire = cut(IMG.trip_wire, { alphaTest: 0.2 }), mkHook = cut(IMG.trip_wire_source, { alphaTest: 0.2 });
-  const mkChest = lamb("chest"), mkLever = lamb("lever"), mkDoorL = lamb("door_iron_lower"), mkDoorU = lamb("door_iron_upper"), mkNBrick = lamb("nether_brick");
+  const propMat = (name, cutout, dbl) => () => patchBake(new THREE.MeshLambertMaterial({ map: tex(IMG[name]), ...(cutout ? { alphaTest: 0.5 } : {}), ...(dbl ? { side: THREE.DoubleSide } : {}) }));
+  const mkLever = lamb("lever"), mkDoorL = lamb("door_iron_lower"), mkDoorU = lamb("door_iron_upper"), mkNBrick = lamb("nether_brick");
   const mkFrameTop = lamb("endframe_top"), mkFrameSide = lamb("endframe_side"), mkEye = () => patchBake(new THREE.MeshLambertMaterial({ map: tex(IMG.endframe_eye), color: new THREE.Color(1.0, 1.0, 1.0), emissive: new THREE.Color(0.05, 0.22, 0.14) }));
   const SKIP = (new URLSearchParams(location.search).get("skip") || "").split(",");
 
@@ -126,6 +127,17 @@ export function makeDresser(IMG) {
       batches.get(key).list.push(geo);
     };
     const spawners = [], portals = [], fires = [];
+    const slabCells = new Set();
+    // A prop is a block: it sits in one cell, square to the grid (the kinds' leg-local offsets are snapped here).
+    const putProp = (kind, d) => {
+      const q = Math.PI / 2;
+      d = { ...d, x: Math.floor(d.x) + 0.5, z: Math.floor(d.z) + 0.5, ry: Math.round((d.ry || 0) / q) * q };
+      for (const p of PROPS[kind](d)) {
+        if (p.tex === "water") { if (wa) put("propWater", p.geo, d.x, d.y, d.z, d.ry || 0, 0, 0, waterMat); else p.geo.dispose(); continue; }
+        if (!IMG[p.tex]) { p.geo.dispose(); continue; }
+        put("prop:" + p.tex + (p.cut ? ":c" : "") + (p.double ? ":2" : ""), p.geo, d.x, d.y, d.z, d.ry || 0, 0, 0, propMat(p.tex, p.cut, p.double));
+      }
+    };
     const mobs = [], far = [], ups = [];
     const xctx = { group, disposers, lightAt, far, ups, mobs };
     for (const d of own.decor) {
@@ -142,11 +154,12 @@ export function makeDresser(IMG) {
           }
           break;
         }
-        case "chest": {
-          const body = boxGeometry([-7, -10, -7, 14, 10, 14], [0, 19], 64, 64), lid = boxGeometry([-7, -15, -7, 14, 5, 14], [0, 0], 64, 64);
-          put("chest", body, d.x, d.y, d.z, d.ry, 0, 0, mkChest); put("chest", lid, d.x, d.y, d.z, d.ry, 0, 0, mkChest);
-          break;
-        }
+        // The 1.7.10 models (props.js): chests, minecarts, cauldrons, anvils, brewing stands, enchanting tables.
+        case "chest": putProp("chest", d); break;
+        case "cauldron": putProp("cauldron", d); break;
+        case "anvil": putProp("anvil", d); break;
+        case "brewing": putProp("brewing", d); break;
+        case "enchanting": putProp("enchanting", d); break;
         case "wire": put("wire", plane(1, 1), d.x, d.y, d.z, d.ry, -Math.PI / 2, 0, mkWire); break;
         case "hook": put("hook", plane(0.7, 0.7), d.x, d.y, d.z, d.ry, 0, 0, mkHook); break;
         case "lever": {
@@ -188,20 +201,19 @@ export function makeDresser(IMG) {
         case "lily": put("lily", plane(0.8, 0.8), d.x, d.y, d.z, d.ry, -Math.PI / 2, 0, mkLily); break;
         case "bars": put("bars", plane(d.w, d.h, d.w, d.h), d.x, d.y, d.z, d.ry, 0, 0, mkBars); break;
         case "beam": { const g = new THREE.BoxGeometry(d.len, 0.28, 0.28); put("plank", g, d.x, d.y, d.z, d.ry, 0, d.rz || 0, mkPlank); break; }
-        case "rubble": put("cobble", new THREE.BoxGeometry(d.s * 1.4, d.s, d.s * 1.2), d.x, d.y + d.s * 0.5, d.z, d.ry, 0.2, 0.15, mkCobble); break;
+        case "rubble": {
+          // Where a roof gave way: a bottom slab of cobblestone on the block grid, one per cell (the game has no tilted blocks).
+          const x = Math.floor(d.x) + 0.5, z = Math.floor(d.z) + 0.5, y = Math.floor(d.y + 0.01), k = x + "," + y + "," + z;
+          if (slabCells.has(k)) break; slabCells.add(k);
+          putProp("slab", { x, y, z, ry: 0, tex: (Math.floor(x) * 7 + Math.floor(z) * 3) % 3 === 0 ? "cobblestone_mossy" : "cobblestone" });
+          break;
+        }
         case "skull": {
           const g = boxGeometry([-4, -8, -4, 8, 8, 8], [0, 0], 64, 32);
           put("skull", g, d.x, d.y, d.z, d.ry, 0, 0, mkSkull); break;
         }
-        case "cart": {
-          const parts = [[0.95, 0.07, 0.62, 0, 0.1, 0], [0.95, 0.38, 0.06, 0, 0.3, 0.31], [0.95, 0.38, 0.06, 0, 0.3, -0.31], [0.06, 0.38, 0.62, 0.45, 0.3, 0], [0.06, 0.38, 0.62, -0.45, 0.3, 0]];
-          const cy = Math.cos(d.ry), sy = Math.sin(d.ry);
-          for (const [w, h, dd, ox, oy, oz] of parts) {
-            const wx = ox * cy + oz * sy, wz = -ox * sy + oz * cy;
-            put("cart", new THREE.BoxGeometry(w, h, dd), d.x + wx, d.y + oy, d.z + wz, d.ry, 0, 0.06, mkCart);
-          }
-          break;
-        }
+        // A minecart sits on its rail: centred, the long axis along the track, the floor an eighth above the block.
+        case "cart": putProp("minecart", { ...d, y: Math.floor(d.y + 0.01) + 0.125 }); break;
         case "fire": fires.push(d); break;
         case "spawner": spawners.push(d); break;
         default: if (EXTRA[d.t]) EXTRA[d.t](d, put, xctx); break;

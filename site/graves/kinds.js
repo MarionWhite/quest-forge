@@ -43,16 +43,15 @@ DRESS.mine = (c) => {
       torchAt(leg, wallCell(-sd), lv, y0 + 2, sd, { I: 2.9 });
       decor({ t: "web", x: W3(leg, -sd * (hw - 0.3), lv + 0.5, 0)[0], y: y0 + 3.1, z: W3(leg, -sd * (hw - 0.3), lv + 0.5, 0)[2], ry: yaw + Math.PI / 4, w: 1.5 });
     }
-    // Rails down the middle, a minecart, a heap of rubble where the roof gave way.
-    for (let lv = lo - 2; lv < hi; lv++) { const [x, y, z] = W3(leg, 0, lv + 0.5, y0); decor({ t: "rail", x, y: y + 0.02, z, ry: leg.h === "N" ? 0 : Math.PI / 2 }); }
+    // Rails down one lane, a minecart on them, a heap of rubble where the roof gave way.
+    for (let lv = lo - 2; lv < hi; lv++) { const [x, y, z] = W3(leg, 0.5, lv + 0.5, y0); decor({ t: "rail", x, y: y + 0.02, z, ry: leg.h === "N" ? 0 : Math.PI / 2 }); }
     const mid = Math.round((lo + hi) / 2);
-    const [cx, cy, cz] = W3(leg, 0.25, mid + 0.5, y0);
-    decor({ t: "cart", x: cx, y: cy + 0.06, z: cz, ry: yaw + 0.12 });
+    const [cx, cy, cz] = W3(leg, 0.5, mid + 0.5, y0);
+    decor({ t: "cart", x: cx, y: cy, z: cz, ry: yaw + Math.PI / 2 });
     const rub = Math.min(hi - 3, lo + 3);
     for (let lv = rub; lv < rub + 2; lv++) for (let lu = -hw; lu < -hw + 2; lu++) {
       if (rowsFree(-1, lv) && LG(leg, lu, lv, y0) === T_AIR) { L(leg, lu, lv, y0, rnd(lu + lv, 1) < 0.5 ? T_COBBLE : T_GRAVEL_FLOOR); if (lu === -hw) L(leg, lu, lv, y0 + 1, T_COBBLE); }
     }
-    for (let q = 0; q < 5; q++) { const lv = lo + 1 + q * 3; const sd = q % 2 ? 1 : -1; const [x, y, z] = W3(leg, sd * 1.6, lv + 0.5, y0); decor({ t: "rubble", x, y, z, s: 0.35 + rnd(q, 2) * 0.3, ry: q }); }
     // A beam that has come down, one end on the floor.
     const [fx, fy, fz] = W3(leg, 1.2, hi - 2.5, y0 + 1.3);
     decor({ t: "beam", x: fx, y: fy, z: fz, ry: yaw + 0.3, rz: 0.75, len: 3.1 });
@@ -208,7 +207,7 @@ DRESS.spidermine = (c) => {
       for (let lu = -hw; lu < hw; lu++) if (LG(leg, lu, lv, y0 + 3) === T_AIR) L(leg, lu, lv, y0 + 3, T_PLANK);
       if ((lv - lo) % 8 === 1 && rowsFree(1, lv + 1)) torchAt(leg, wallCell(1), lv + 1, y0 + 2, -1, { I: 2.4 });
     }
-    for (let lv = lo - 2; lv < hi; lv++) { const [x, y, z] = W3(leg, 0, lv + 0.5, y0); decor({ t: "rail", x, y: y + 0.02, z, ry: leg.h === "N" ? 0 : Math.PI / 2 }); }
+    for (let lv = lo - 2; lv < hi; lv++) { const [x, y, z] = W3(leg, 0.5, lv + 0.5, y0); decor({ t: "rail", x, y: y + 0.02, z, ry: leg.h === "N" ? 0 : Math.PI / 2 }); }
     // The curtains: half the hall each, so the walk always has a way through.
     for (let q = 0, lv = lo + 3; lv < hi - 2; lv += 5, q++) {
       const sd = q % 2 ? 1 : -1;
@@ -266,7 +265,6 @@ DRESS.temple = (c) => {
       if (rowsFree(sd, Math.floor(lv))) decor({ t: "vine", x, y: y0 + 2.0 + (q % 3) * 0.3, z, ry: yaw + sd * Math.PI / 2, w: 1.1, h: 1.7 });
     }
     for (let q = 0; q < 8; q++) { const lv = lo + 1 + q * ((hi - lo) / 8), sd = q % 2 ? 1 : -1; const [x, , z] = W3(leg, sd * (hw - 0.3), lv, 0); decor({ t: "vine", x, y: y0 + ht - 0.9, z, ry: yaw + sd * Math.PI / 4, w: 1.0, h: 1.6 }); }
-    for (let q = 0; q < 5; q++) { const lv = lo + 1 + q * 5, sd = q % 2 ? 1 : -1; if (rowsFree(sd, lv)) { const [x, y, z] = W3(leg, sd * 2.2, lv + 0.5, y0); decor({ t: "rubble", x, y, z, s: 0.3 + rnd(q, 40) * 0.3, ry: q }); } }
     for (let lv = lo + 5; lv < hi - 4; lv += 8) if (rowsFree(-1, lv) && rowsFree(1, lv) && lv % 12 !== (lo + 3) % 12) for (const sd of [-1, 1]) torchAt(leg, wallCell(sd), lv, y0 + 2, -sd, { I: 2.4 });
 };
 
@@ -292,7 +290,8 @@ DRESS.vault = (c) => {
       const [x, y, z] = W3(leg, sd * 0.9, g0 + 1.0, y0);
       decor({ t: "idoor", x, y, z, ry: yaw });
     }
-    // Ordered storage: gold block pillars three high every sixth row on each wall, a pair of chests between them.
+    // Ordered storage: gold block pillars three high every sixth row on each wall, a chest between them (single: two side by
+    // side would join into a double chest in the game).
     let pq = 0;
     for (const sd of [-1, 1]) for (let lv = lo + 1; lv < hi + 1; lv++) {
       if (!rowsFree(sd, lv) || !rowsFree(sd, lv + 1) || !rowsFree(sd, lv - 1)) continue;
@@ -308,9 +307,7 @@ DRESS.vault = (c) => {
       if (!rowsFree(sd, lv) || !rowsFree(sd, lv + 1)) continue;
       if ((lv + (sd > 0 ? 3 : 0)) % 6 !== 3) continue;
       const [x, y, z] = W3(leg, sd * (hw - 0.5), lv + 0.5, y0);
-      decor({ t: "chest", x, y, z, ry: yaw + sd * Math.PI / 2 * -1 + Math.PI / 2 * 0 });
-      const [x2, , z2] = W3(leg, sd * (hw - 0.5), lv + 1.5, y0);
-      decor({ t: "chest", x: x2, y, z: z2, ry: yaw + sd * Math.PI / 2 * -1 });
+      decor({ t: "chest", x, y, z, ry: yaw - sd * Math.PI / 2 });
     }
     for (let lv = lo + 2; lv < hi; lv += 5) for (const sd of [-1, 1]) if (rowsFree(sd, lv)) torchAt(leg, wallCell(sd), lv, y0 + 3, -sd, { I: 3.2 });
     // The far end: a diamond block on an iron pedestal between gold pillars, behind bars.

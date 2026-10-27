@@ -1,4 +1,4 @@
-// More decor for the Krypt's newer kinds: carpets, banners, stained panes, cauldrons, anvils, fences, plates, crossed-plane
+// More decor for the Krypt's newer kinds: carpets, banners, stained panes, fences, plates, crossed-plane
 // plants, ladders, wooden doors, block-like furniture and static mob figures. Each handler adds to the dresser's per-chunk
 // batches (put) with a shared material, so a hundred of them cost one draw call per kind.
 import * as THREE from "three";
@@ -22,21 +22,7 @@ export function addDecor(dresser, IMG) {
     const n = d.tex || "glass_red"; if (!guard(n)) return;
     put("pane:" + n, plane(d.w || 1, d.h || 1), d.x, d.y, d.z, d.ry || 0, 0, 0, cutm(n, { alphaTest: 0.05, transparent: true, opacity: 0.8, depthWrite: false, emissive: new THREE.Color(0.18, 0.18, 0.2) }));
   };
-  X.cauldron = (d, put) => {
-    if (!guard("cauldron_side")) return;
-    const key = "cauldron", mk = lam("cauldron_side");
-    put(key, box(0.875, 0.75, 0.875), d.x, d.y, d.z, d.ry || 0, 0, 0, mk);
-    put("cauldronIn", (() => { const g = plane(0.7, 0.7); return g; })(), d.x, d.y + 0.62, d.z, d.ry || 0, -Math.PI / 2, 0, lam(d.water ? "water_still" : "cauldron_inner"));
-    for (const [ox, oz] of [[-0.4, -0.4], [0.4, -0.4], [-0.4, 0.4], [0.4, 0.4]]) put(key, box(0.2, 0.3, 0.2), d.x + ox, d.y, d.z + oz, d.ry || 0, 0, 0, mk);
-  };
-  X.anvil = (d, put) => {
-    if (!guard("anvil_base")) return;
-    const mk = lam("anvil_base");
-    put("anvil", box(0.75, 0.25, 0.75), d.x, d.y, d.z, d.ry || 0, 0, 0, mk);
-    put("anvil", box(0.35, 0.4, 0.5, 0.25), d.x, d.y, d.z, d.ry || 0, 0, 0, mk);
-    put("anvil", box(0.9, 0.35, 0.5, 0.65), d.x, d.y, d.z, d.ry || 0, 0, 0, mk);
-  };
-  X.plate = (d, put) => { if (!guard("stone")) return; put("plate", box(0.8, 0.06, 0.8), d.x, d.y, d.z, d.ry || 0, 0, 0, lam("stone")); };
+  X.plate = (d, put) => { if (!guard("stone")) return; put("plate", box(0.875, 0.0625, 0.875), d.x, d.y, d.z, d.ry || 0, 0, 0, lam("stone")); };
   X.fence = (d, put) => {
     const n = d.tex || "planks_oak"; if (!guard(n)) return; const key = "fence:" + n, mk = lam(n);
     put(key, box(0.25, d.h || 1.5, 0.25), d.x, d.y, d.z, d.ry || 0, 0, 0, mk);

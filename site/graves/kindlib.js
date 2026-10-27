@@ -99,7 +99,7 @@ export const FEATURES = {
   webs(c, o = {}) { c.ceilWebs(o.n || 8, o.w || 1.6, o.salt || 40); },
   vines(c, o = {}) { c.vines(o.n || 10, o.salt || 50, o.h || 1.6); },
   bones(c, o = {}) { c.bones(o.n || 12, o.salt || 60, o.spread || 1.7); },
-  rubble(c, o = {}) { c.rubble(o.n || 8, o.salt || 70, o.s || 0.3); },
+  rubble(c, o = {}) { c.rubble(o.n || 8, o.salt || 70); },
   // Alcove dressing, per slot. style: bars | cell | cap | banner | candle | none. o.tile for cap, o.color for banners, o.every to thin.
   alcoves(c, o = {}) {
     const { style = "none", tile = B.T_QUARTZ_C, pil = null, color = 3, every = 1, I = 2.4, flame = [1.0, 0.56, 0.24] } = o;

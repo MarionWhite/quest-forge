@@ -137,7 +137,7 @@ def("portal_room", { style: wall([[300, T_BRICK], [520, T_BRICK_MOSSY], [700, T_
   } });
 
 
-// Breaking the symmetry of an ordinary hall: ceiling dips, broken pillars, glimpsed side rooms, and props on the floor.
+// Breaking the symmetry of an ordinary hall: ceiling dips, broken pillars and glimpsed side rooms.
 function asym(c) {
   const { leg, y0, ht, hw, kd } = c, clear = clearer(c), lin = kd.alcoveLin || T_BRICK;
   if (ht >= 5) for (let q = 0; q < 2; q++) { const lv0 = Math.floor(c.lo + 2 + c.rnd(q, 300) * (c.hi - c.lo - 8)), len = 3 + Math.floor(c.rnd(q, 301) * 3); for (let lv = lv0; lv < lv0 + len; lv++) for (let lu = -hw; lu < hw; lu++) if (c.LG(leg, lu, lv, y0 + ht - 1) === T_AIR) c.L(leg, lu, lv, y0 + ht - 1, lin); }
@@ -145,9 +145,7 @@ function asym(c) {
   const rows = []; for (let lv = c.lo + 1; lv < c.hi - 2; lv++) for (const sd of [-1, 1]) if (clear(sd, lv, 1) && clear(sd, lv + 2, 1) && !rows.some((r) => r[0] === sd && Math.abs(r[1] - lv) < 9)) rows.push([sd, lv]);
   const n = Math.min(rows.length, 1 + (c.rnd(1, 303) < 0.5 ? 1 : 0));
   for (let q = 0; q < n; q++) { const [sd, lv] = rows[Math.floor(c.rnd(q, 304) * rows.length)]; opening(c, sd, lv, { w: 2, h: 3, depth: 4, floor: kd.passFloor || T_COBBLE, I: 1.6, color: [1.0, 0.5, 0.25] }); }
-  const props = ["chest", "cart", "cauldron", "bones", "rubble", "web"];
-  c.scatter(6, 305, (q, r1, r2, r3) => { const lu = (r2 - 0.5) * (hw * 1.5), lv = c.lo + 1 + r1 * (c.hi - c.lo - 2), sd = lu < 0 ? -1 : 1; if (!clear(sd, Math.floor(lv), 1) && Math.abs(lu) > hw - 2) return; const p = props[Math.floor(r3 * props.length)];
-    if (p === "chest") c.put("chest", lu, lv, y0, { ry: r3 * 6 }); else if (p === "cart" && Math.abs(lu) < 1.5) c.put("cart", lu, lv, y0 + 0.1, { ry: 0.3 }); else if (p === "cauldron") c.put("cauldron", lu, lv, y0, { water: r3 < 0.5 }); else if (p === "web") c.put("web", lu, lv, y0 + 0.2, { ry: r3 * 6, w: 1.2 }); else if (p === "bones") c.bones(2, 310 + q, 1.4); else c.put("rubble", lu, lv, y0, { s: 0.3 + r3 * 0.3, ry: q }); });
+  // No random props: chests, carts, cauldrons and bones go only where a builder would put them (props.js, the kinds).
 }
 
 // ---- per-kind shape, alcove frame ------------------------------------------------------------------------------------

@@ -45,12 +45,12 @@ def("mine_crossing", { margin: 11, style: wall([[300, T_DIRT], [520, T_COBBLE], 
   dress(c) {
     const { leg, y0, hw, ht } = c, vc = Math.round((c.lo + c.hi) / 2), ry = leg.h === "N" ? 0 : Math.PI / 2;
     rough(c, { depth: 2 }); spikes(c, T_STONE, 16, 2);
-    for (let lv = leg.cs; lv < leg.ce; lv++) c.put("rail", 0, lv + 0.5, y0 + 0.02, { ry });
+    for (let lv = leg.cs; lv < leg.ce; lv++) if (lv !== vc) c.put("rail", 0.5, lv + 0.5, y0 + 0.02, { ry });
     for (const sd of [-1, 1]) opening(c, sd, vc - 1, { w: 3, h: 4, depth: 9, floor: T_GRAVEL_FLOOR, tile: B.T_PLANK, I: 2.8 });
     for (let lu = -hw - 9; lu < hw + 9; lu++) c.put("rail", lu + 0.5, vc + 0.5, y0 + 0.02, { ry: ry + Math.PI / 2 });
     for (const lu of [-3, 2]) for (const dv of [-3, 3]) { c.col(lu, vc + dv, y0, y0 + ht - 2, B.T_LOG); }
     for (const dv of [-3, 3]) for (let lu = -3; lu <= 2; lu++) c.L(leg, lu, vc + dv, y0 + ht - 2, T_PLANK);
-    c.put("cart", 0.5, vc + 0.5, y0 + 0.1, { ry });
+    c.put("cart", 0.5, vc + 3.5, y0, { ry: c.acrossRy });
     for (const [lu, dv] of [[-3, -3], [2, -3], [-3, 3], [2, 3]]) c.torchAt(leg, lu, vc + dv, y0 + 3, lu < 0 ? 1 : -1, { I: 3.2 });
     c.src(0, vc, y0 + ht - 2, [1, 0.8, 0.5], 3.4, 12, {});
     F(c, [["torches", { every: 8, off: 2, I: 2.6 }], ["webs", { n: 8, w: 2 }], ["rubble", { n: 10 }]]);
@@ -106,7 +106,7 @@ def("library_balcony", { style: wall([[300, T_BRICK], [560, B.T_PLANK_SPRUCE], [
     for (let lv = c.lo + 1; lv < c.hi; lv += 4) for (const sd of [-1, 1]) { const lu = sd > 0 ? hw - 3 : -hw + 2; c.col(lu, lv, y0, yd - 1, B.T_LOG_SPRUCE); c.torchAt(leg, lu, lv, y0 + 3, sd > 0 ? 1 : -1, { I: 2.8 }); }
     for (let lv = c.lo + 1; lv < c.hi; lv += 3) for (const sd of [-1, 1]) { const lu = sd > 0 ? hw - 2 : -hw + 1; c.lamp(lu, lv, y0 + 6, T_GLOW, [1.0, 0.8, 0.45], 3.8, 13); }
     for (let lv = c.lo + 2; lv < c.hi; lv += 8) { for (const lu of [-3, 2]) { c.L(leg, lu, lv, y0 + ht - 4, T_GLOW); c.col(lu, lv, y0 + ht - 3, y0 + ht - 1, B.T_PLANK_SPRUCE); c.src(lu + 0.5, lv + 0.5, y0 + ht - 4, [1.0, 0.82, 0.5], 3.6, 12, {}); } }
-    for (let lv = c.lo + 3; lv < c.hi - 2; lv += 9) { c.put("cube", -2.5, lv + 0.5, y0, { side: "crafting_table_side", top: "crafting_table_top", ry: 0, h: 1 }); c.put("chest", 2.2, lv + 0.5, y0, { ry: c.faceRy(1) }); }
+    for (let lv = c.lo + 3, q = 0; lv < c.hi - 2; lv += 9, q++) c.put("enchanting", q % 2 ? 2.5 : -2.5, lv + 0.5, y0, {});   // the reason for the shelves
     for (let lv = c.leg.cs + 1; lv < c.leg.ce - 1; lv++) if (lv % 5 === 0) for (let lu = -hw; lu < hw; lu++) if (c.LG(leg, lu, lv, y0 + ht - 1) === T_AIR) c.L(leg, lu, lv, y0 + ht - 1, B.T_LOG_SPRUCE);
     F(c, [["webs", { n: 12, w: 2.2 }]]);
   } });
@@ -206,7 +206,6 @@ def("chasm_open", { style: wall([[420, T_STONE], [700, T_COBBLE], [880, T_BEDROC
     for (let lv = c.lo + 3; lv < c.hi; lv += 10) { for (const lu of [-3, 2]) { c.col(lu, lv, y0 - D + 1, y0 + 4, T_STONE); c.torchAt(leg, lu, lv, y0 + 3, lu < 0 ? 1 : -1, { I: 3.2 }); } for (let lu = -3; lu <= 2; lu++) { c.L(leg, lu, lv, y0 + 5, T_BRICK); } for (const lu of [-3, 2]) c.L(leg, lu, lv, y0 + 5, T_CARVED); }
     // Pillars of rock standing out of the lava.
     c.scatter(14, 265, (q, r1, r2, r3) => { const lu = Math.floor(-hw + 1 + r2 * (2 * hw - 2)); if (Math.abs(lu + 0.5) < 4) return; const lv = Math.floor(c.lo + r1 * (c.hi - c.lo)), h = D - 1 + Math.floor(r3 * 6); for (let j = 1; j < h; j++) c.L(leg, lu, lv, y0 - D + j, T_STONE); });
-    for (let lv = c.lo + 1; lv < c.hi; lv += 5) c.put("rubble", ((lv % 3) - 1) * 0.9, lv, y0, { s: 0.3, ry: lv });
     c.scatter(10, 266, (q, r1, r2) => c.src((r2 - 0.5) * hw * 1.7, c.lo + r1 * (c.hi - c.lo), y0 - D + 2.5, [1, 0.36, 0.08], 6, 16, { lava: true, dyn: true }));
   } });
 

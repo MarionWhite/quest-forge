@@ -100,7 +100,7 @@ def("vaulted_hall", { style: wall([[380, T_BRICK], [640, T_BRICK_CRACK], [820, T
       for (let lu = -hw; lu < hw; lu++) c.L(leg, lu, lv, y0 + ht - 1, B.T_LOG_SPRUCE);
       for (const sd of [-1, 1]) if (c.leg.slots.every((s) => s.side !== sd || Math.abs(s.lvc - lv) > 3)) { for (let j = y0; j < y0 + ht - 2; j++) c.L(leg, c.edgeCell(sd), lv, j, B.T_LOG_SPRUCE); c.torchAt(leg, c.edgeCell(sd), lv, y0 + 2, -sd, { I: 3.0 }); }
     }
-    F(c, [["webs", { n: 8, w: 1.8 }], ["bones", { n: 8 }]]);
+    F(c, [["webs", { n: 8, w: 1.8 }]]);
   } });
 
 // 11. Recurrent Complex meso maze: a chain of small cells joined by doorways; each cell dressed differently.

@@ -85,3 +85,15 @@ Previous state: `site-r6-krypt-gen.md`. Specs: `docs/design/site/krypt-endless.m
   since r5 (krypt.js 275579a line 184). Sparse leg (mine_crossing, gap 8): slow keeps r5 glances (range 104 deg, capped
   57 deg/s, 1.6 rev/10s); medium 0 focus reversals. JSON: scratchpad r7/krypt/yaw_before.json, yaw_after.json, yaw_sparse3.json.
   Frames: r7/krypt/cam/sheet.png. Not mine: mood.js:116 TDZ on `last` when krypt-ready fired before mood boots (intermittent).
+- Props (step 2) diagnosis: kinds_c.js asym() scatters chest/cart/cauldron/bones/rubble/web at random in EVERY kind
+  (except portal_room, crypt). Cauldron = a cauldron_side box with no alpha test (transparent pixels -> black box: the
+  owner's "black things"); chest = 15 px tall, no latch; cart = untextured grey boxes, off the rail; rails at a=0
+  straddle two cells; anvil proportions wrong; rubble = tilted cobble boxes. Plan: new site/graves/props.js
+  (mcBox with JSON-model face UVs; chest/minecart/cauldron/anvil/brewing stand/enchanting table/slab), drop the scatter,
+  props only where a builder would put them.
+- [x] Props (step 2) done: props.js (mcBox + chest/minecart/cauldron/anvil/brewing/enchanting/slab from the 1.7.10 models),
+  dress.js putProp (snapped to the block grid, quarter turns), asym scatter removed, rails on a cell (a=0.5), cart centred on
+  its rail, vault chests single (adjacent singles would be a double chest), library_balcony: enchanting tables instead of
+  chest+crafting table, vaulted_hall: no bones, rubble = slab heaps at wall feet (kindreg), loose rubble dropped from
+  mine/spidermine/chasm_open bridge. Crops: scratchpad r7/krypt/props/a1/sheet.png, a2/sheet.png (finder tools/findprops.js).
+  Anvil/brewing stand models exist but no kind uses them yet (forge and witch hut will).

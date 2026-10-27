@@ -47,7 +47,14 @@ export function makeCtx(a, plan, leg, H) {
   const ceilWebs = (n, w = 1.6, salt = 40) => scatter(n, salt, (q, r1, r2) => { const sd = q % 2 ? 1 : -1; webAt(sd * (hw - 0.3), lo + 0.5 + r1 * (hi - lo), y0 + ht - 0.6, yaw + sd * Math.PI / 4, w); void r2; });
   const vines = (n, salt = 50, h = 1.6) => scatter(n, salt, (q, r1, r2) => { const sd = q % 2 ? 1 : -1, lv = lo + r1 * (hi - lo); if (rowsFree(sd, Math.floor(lv))) put("vine", sd * (hw - 0.04), lv, y0 + 2.2 + r2 * 0.4, { ry: sideRy(sd), w: 1.0, h }); });
   const bones = (n, salt = 60, spread = 1.7) => scatter(n, salt, (q, r1, r2, r3) => put("bone", (r2 - 0.5) * hw * spread, lo + 0.5 + r1 * (hi - lo), y0 + 0.02, { ry: r3 * 6.28 }));
-  const rubble = (n, salt = 70, s0 = 0.3) => scatter(n, salt, (q, r1, r2, r3) => put("rubble", (r2 - 0.5) * (hw * 1.5), lo + r1 * (hi - lo), y0, { s: s0 + r3 * 0.3, ry: q }));
+  // Debris lies where it fell: heaps of two or three slabs at the foot of a wall, never loose in the middle of the walk.
+  const rubble = (n, salt = 70) => scatter(Math.max(1, Math.round(n / 4)), salt, (q, r1, r2, r3) => {
+    const sd = r2 < 0.5 ? -1 : 1, lv = Math.floor(lo + 1 + r1 * (hi - lo - 3));
+    if (!rowsFree(sd, lv) || !rowsFree(sd, lv + 1)) return;
+    const lu = edgeCell(sd);
+    put("rubble", lu + 0.5, lv + 0.5, y0); put("rubble", lu + 0.5, lv + 1.5, y0);
+    if (r3 < 0.5) put("rubble", lu + 0.5 - sd, lv + 0.5 + (r3 < 0.25 ? 1 : 0), y0);
+  });
   return {
     a, plan, leg, L, LG, W3, dirw, torchAt, torchAtB, pushTorch, decor, legCell, set, get, hw, y0, kind, ht, rowsFree, lo, hi, yaw, rnd, wallCell, edgeCell, dispType, webAt, freeRow,
     fill, col, put, faceRy, acrossRy, sideRy, src, emit, each, slotsEach, torches, lamp, scatter, ceilWebs, vines, bones, rubble, B
