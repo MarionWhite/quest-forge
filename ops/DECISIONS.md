@@ -25,6 +25,9 @@ delete the entry here. Sheet 1 (30 cards) was answered 2026-10-25 → decisions 
   version ("the performance win here is justified"); no extra noise fetch.
 - Leaves: **build real outward leaf frills** (direction.md "Leaf frills" option D) on Faithful 64x leaf art,
   owner's choice 2026-10-27 over shipping Faithful leaves as they are. Lower presets may turn frills off.
+- **Open (r010): crepuscular rays at sunset** (sunbeams fanning out of the clouds round a low sun). Needs a screen-space
+  pass of ~12-16 extra texture reads per pixel near the sun; ocean_sunset is already the worst High frame (3.29 ms vs
+  3.0 budget). *Recommend: High only, and only if the r010 cost run shows room.* To ask on the r010 Lab page with numbers.
 
 ## Textures
 - **F32 Modded Edition 1.7.10** (README-only permission, no licence file): use it for Railcraft,
