@@ -107,16 +107,21 @@ vec3 waterVolume(vec3 color, float dist, float skyLight) {
 }
 
 float gBeam = 0.0;   // r008: set by lightShafts (QF_DUST), read by ambientMotes
+bool gNoShade = false;   // r009: set by lightShafts, the ray met no shaded free air (QF_VOL_FAST skips the dust walk)
 const float UW_SURF = 62.9;   // r008: about where the water surface is (sea level), for under-water light
 
 #if QF_SHADOWS
-float shadowRaw(vec3 scenePos) {
-    vec3 clip = (shadowProjection * (shadowModelView * vec4(scenePos, 1.0))).xyz;
+// r009: the shadow projection is orthographic, so a point's shadow clip position is affine in the
+// point. The marches take one clip origin and per-direction steps instead of two mat4s per sample.
+vec3 shadowClip(vec3 scenePos) { return (shadowProjection * (shadowModelView * vec4(scenePos, 1.0))).xyz; }
+vec3 shadowClipDir(vec3 dir) { return mat3(shadowProjection) * (mat3(shadowModelView) * dir); }
+float shadowRawClip(vec3 clip) {
     if (max(abs(clip.x), abs(clip.y)) > 0.98) return 1.0;
     vec3 sp = distortShadow(clip) * 0.5 + 0.5;
     ivec2 t = clamp(ivec2(sp.xy * float(shadowMapResolution)), ivec2(0), ivec2(shadowMapResolution - 1));
     return step(sp.z - 0.0004, texelFetch(shadowtex0, t, 0).r);
 }
+float shadowRaw(vec3 scenePos) { return shadowRawClip(shadowClip(scenePos)); }
 #endif
 
 #if QF_MOTES > 0 && QF_PRESET > 0
@@ -133,14 +138,17 @@ float shadowRaw(vec3 scenePos) {
 // faded out from 18 m (fadeD) and a 1.25 m mote 25 m out is a 1 px dot TAA erases, while that
 // view's sunlit air lies 20-45 m out in the canopy gap. A second, coarse grid (3 m cells, flakes
 // drawn 2-3 px wide) carries the dust from 14 m to 48 m; the near grid keeps the first 18 m.
+// r009 (QF_VOL_FAST): the near walk starts 2.5 m out (about 3 cells on a diagonal), so 3 fewer
+// steps keep its reach.
+const int MOTE_SKIP = (QF_VOL_FAST == 1 && QF_DUST > 0) ? 3 : 0;
 #if QF_PRESET >= 3
-const int MOTE_STEPS = QF_DUST > 0 ? 28 : 22;
+const int MOTE_STEPS = QF_DUST > 0 ? 28 - MOTE_SKIP : 22;
 const int MOTE_FAR_STEPS = QF_DUST > 0 ? 22 : 0;
 #elif QF_PRESET == 2
-const int MOTE_STEPS = QF_DUST > 0 ? 20 : 16;
+const int MOTE_STEPS = QF_DUST > 0 ? 20 - MOTE_SKIP : 16;
 const int MOTE_FAR_STEPS = QF_DUST > 0 ? 14 : 0;
 #else
-const int MOTE_STEPS = 10;
+const int MOTE_STEPS = 10 - MOTE_SKIP;
 const int MOTE_FAR_STEPS = 0;
 #endif
 #if QF_MOTES == 2
@@ -261,8 +269,9 @@ vec3 motesGrid(vec3 viewDir, float dist0, float pixelBlock, float eyeSky,
                             // Raw (undithered) taps, 3.5 m on four sides.
                             // Loop 3: far flakes look 5 m across the light (a canopy gap's beam is wide).
                             float tap = farGrid ? 5.0 : 3.5;
-                            float s1 = shadowRaw(v + p1 * tap), s2 = shadowRaw(v - p1 * tap);
-                            float s3 = shadowRaw(v + p2 * tap), s4 = shadowRaw(v - p2 * tap);
+                            vec3 cv = shadowClip(v), c1 = shadowClipDir(p1) * tap, c2 = shadowClipDir(p2) * tap;
+                            float s1 = shadowRawClip(cv + c1), s2 = shadowRawClip(cv - c1);
+                            float s3 = shadowRawClip(cv + c2), s4 = shadowRawClip(cv - c2);
                             inBeam = 1.0 - min(min(s1, s2), min(s3, s4));
                             // Loop 4 (uq ocean_sunset, dust_b: far flakes still dotted the open air over the
                             // sea and the sunlit canopy, where a hut's or a tree's shadow sat within 5 m):
@@ -303,7 +312,13 @@ vec3 motesGrid(vec3 viewDir, float dist0, float pixelBlock, float eyeSky,
 }
 vec3 ambientMotes(vec3 viewDir, float dist0, float pixelBlock, float eyeSky) {
     bool under = isEyeInWater == 1;
-    vec3 s = motesGrid(viewDir, dist0, pixelBlock, eyeSky, MOTE_CELL, 0.0,
+#if QF_VOL_FAST == 1 && QF_DUST > 0
+    // r009 (cost run: dust and motes 1.48 ms on High): out of a beam a flake shows only by block
+    // light, so a ray the shaft march found free of shaded air, away from torches, skips the walk.
+    if (!under && gNoShade && max(pixelBlock, float(eyeBrightnessSmooth.x) / 240.0) < 0.1) return vec3(0.0);
+#endif
+    // r009: air dust fades in from 3 m (fadeD), so the near walk starts 2.5 m out.
+    vec3 s = motesGrid(viewDir, dist0, pixelBlock, eyeSky, MOTE_CELL, (QF_DUST > 0 && !under) ? 2.5 : 0.0,
                        (QF_DUST > 0 && !under) ? 18.0 : 22.0, MOTE_STEPS, false);
 #if QF_DUST_DBG == 3
     s = vec3(0.0);   // diagnostic: far grid only
@@ -327,12 +342,14 @@ vec3 ambientMotes(vec3 viewDir, float dist0, float pixelBlock, float eyeSky) {
 // along the ray instead of smeared by the dither; contrast (the lit share of the ray is raised to a
 // power, so a ray that is half in shadow reads as a gap, not a dimmer beam); and less on open-sky
 // pixels, so the glow round the sun and the sky itself do not brighten.
+// r009 (QF_VOL_FAST; cost run: shafts 1.84 ms on High, 0.51 on Low): fewer steps, the per-pixel
+// and per-frame jitter left for TAA to resolve.
 #if QF_PRESET >= 3
-const int SHAFT_STEPS = 20;
+const int SHAFT_STEPS = QF_VOL_FAST == 1 ? 14 : 20;
 #elif QF_PRESET == 2
-const int SHAFT_STEPS = 12;
+const int SHAFT_STEPS = QF_VOL_FAST == 1 ? 10 : 12;
 #else
-const int SHAFT_STEPS = 8;
+const int SHAFT_STEPS = QF_VOL_FAST == 1 ? 6 : 8;
 #endif
 #if QF_SHAFTS == 2
 const float SHAFT_GAIN = 2.0;
@@ -376,10 +393,11 @@ vec3 lightShafts(vec3 viewDir, float dist, float eyeSky) {
 #if QF_DUST > 0
     float tD = animTime();
 #endif
+    vec3 c0 = shadowClip(vec3(0.0)), cD = shadowClipDir(viewDir);
     for (int i = 0; i < SHAFT_STEPS; i++) {
         float f = (float(i) + j) / float(SHAFT_STEPS);
         float dd = f * f * maxD;
-        float sv = shadowRaw(viewDir * dd);
+        float sv = shadowRawClip(c0 + cD * dd);
         lit += sv * 2.0 * f;
         litFar += sv * 2.0 * f * smoothstep(28.0, 80.0, dd);
         // Lit/shaded transitions along the ray within ~40 blocks: beams.
@@ -396,9 +414,20 @@ vec3 lightShafts(vec3 viewDir, float dist, float eyeSky) {
         }
 #if QF_DUST > 0
         // The dust lives in the first ~24 blocks, where a beam is wide enough to show it.
+#if QF_VOL_FAST == 1 && QF_PRESET <= 1
+        // r009: Low's beam haze is even, without the drifting clumps (three noise taps a step).
+        if (sv > 0.0 && dd < 24.0 && freeAir) dust += sv * 2.0 * f * smoothstep(0.3, 1.5, dd);
+#elif QF_VOL_FAST == 1
+        // r009: the clumps on every other step, alternating by frame, at twice the weight; TAA
+        // averages the two halves.
+        if (sv > 0.0 && dd < 24.0 && freeAir && ((i + frameCounter) & 1) == 0)
+            dust += sv * dustField(viewDir * dd + cameraPosition, tD) * 4.0 * f * smoothstep(0.3, 1.5, dd);
+#else
         if (sv > 0.0 && dd < 24.0 && freeAir) dust += sv * dustField(viewDir * dd + cameraPosition, tD) * 2.0 * f * smoothstep(0.3, 1.5, dd);
 #endif
+#endif
     }
+    gNoShade = nAir > 0.0 && nearLit > nAir - 0.5;
     lit /= float(SHAFT_STEPS);          // the lit share of the ray, 0-1
     dust /= float(SHAFT_STEPS);
     // A beam: the ray crosses lit and shaded air (flips), or it is partly lit near the camera.
