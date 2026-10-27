@@ -59,5 +59,7 @@ rt/scareflow16.js, rt/trace.js, cmp_trace.py).
   in your face. Frames `wi2/sheet.png`, `wi3/sheet.png`.
 - [x] Slime: squeezes through the hole and drops on you, or sits in the pit and hops onto you. Frames
   `sl1/sheet.png` (hole branch), `sl3/sheet.png` (hop branch). Weakest of the set by nature (its size fills frames).
-- Next: Silverfish, Blaze, Ghast, Magma Cube, Wither
+- [x] Silverfish: infested wall, cracks, the stall kept; the wall bursts into the swarm (no big one at the lens).
+  Frames `sf1/sheet.png`.
+- Next: Blaze, Ghast, Magma Cube, Wither
   Skeleton, Lava fall, Drowned (in that order).
