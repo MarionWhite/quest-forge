@@ -137,3 +137,32 @@ Previous state: `site-r6-krypt-gen.md`. Specs: `docs/design/site/krypt-endless.m
   Open for the owner/next round: draw calls reach 120-147 at busy spots (r6: 37-85), ~65 of them terrain textures per
   chunk and 15 post passes; a texture array/atlas per chunk would collapse the terrain draws. Not mine: mood.js:116 TDZ
   on `last` (thrown every frame when krypt-ready fires before mood boots).
+
+## Follow-up (critic, 2026-10-27): depth lighting + terrain atlas
+Asked: (1) restore r5's cold-dark-to-warm depth progression (first stratum = r5 entrance: cold fog, low ambient,
+small torch pools; per stratum colder/darker at its top, warmer deeper; nether/End keep their glow); prove with an
+8-frame strip grave 0..9000 + side-by-side g20/g1500 vs 275579a. (2) one texture atlas per chunk for walls/floors
+(nearest, padded or texture array), before/after draw calls + one phone-width frame. mood.js TDZ fixed by coordinator.
+- Setup: r5wt re-added at scratchpad r7/krypt/r5wt (275579a).
+- [x] Depth lighting committed (f770d3e): plan.js legProfile (descent gd + per-stratum swing, kind hue softened 55%,
+  SWING for nether/end/abyss/ice/deep/sands, r5 crypt values blended over the first ~third of stratum 0), WARM_OPEN
+  (carpet_crypt, rail_ravine kept out of the opening third), krypt.js pillar torches every other stone + I<=2.6 at
+  stratum tops. Proof (scratchpad r7/krypt/light/): depth_curve.png (ambient R/B, luminance, torch vs grave, before/
+  after), after2_strip.jpg (8 frames g0..9000), after2_crypt.jpg (first stratum g0..700), after2_focus.jpg (r5 | before |
+  after at g20, g1500, w002). Tools: tools/depthshots.mjs, lightsheet.py, profcurve.mjs, curveplot.py. headwt = HEAD
+  worktree for the before curve (remove at the end).
+- NEXT: terrain atlas (krypt.js meshChunk/makeMats): one material per chunk; counts before/after; phone frame.
+- [x] Terrain texture array committed (6f93eb8): krypt.js makeMats({array}) builds one DataArrayTexture (16x16 layer per
+  TEX_OF/FRONT texture, rows flipped, nearest, no mips) + patchArray (uvw/layer attributes, fract per block, flat layer);
+  meshChunk one mesh per chunk; app.js passes renderer.capabilities.isWebGL2 && !?noarray (WebGL1 keeps per-texture).
+  Pixel diff vs per-texture: mean 1-3/255, only texel-edge rounding. Draw calls (desktop | phone): g10 48->34 | 30->20,
+  g1000 65->44 | 42->22, g1500 56->39 | 42->24, g3000 51->30 | 32->18, g6000 144->95 | 88->62 (prison block props),
+  g9000 78->49 | 45->21, leg700 79->47 | 34->18, entrance 81->51 | 26->18; true 390x844 phone g1500 41->25.
+  Sheets: scratchpad r7/krypt/atlas/counts_table.png, atlas/phone_frame.png (390x844, per-texture | array).
+- [x] Lean fix (90862fb): wall change hold 4 s, density slow to forget, lean kept with no stone near. New-plan densest
+  stretches (at 0.009576, 0.02838): focus reversals 0/0-0.65/0 per 10 s slow/medium/fast, notched 0/0/0; rooms <=1.16;
+  click focus OK (focusI 124). p95 frame 16.7-16.8 ms.
+- Side-by-side vs 275579a: light/sbs_depth.png (r5 | before | after: g20 focus, entrance/g20 walk, g1500 focus, g1500 walk).
+  Strip: light/after2_strip.jpg (8 frames g0..9000) + light/after2_crypt.jpg + light/depth_curve.png.
+- DONE (follow-up). Remaining: g6000 prison block 95 desktop calls (props per texture: beds, doors, cauldrons); props
+  could join a second array next round.
