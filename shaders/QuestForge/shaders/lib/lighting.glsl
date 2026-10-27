@@ -47,6 +47,13 @@ vec3 blockIrradiance(float b) {
     float e = pow(b, 4.2) * 0.75 + pow(b, 9.0) * 0.45;
     return blockLightColor(b) * BLOCK_I * e;
 }
+// r009 (tex-golden: golden_lit's sun-shadowed field showed warm lit patches with stair-stepped edges,
+// the per-block falloff of light sources in the grass, and the motes over them glowed as orange
+// "coins"; QF_DEBUG_VIEW 3 bisect): out in daylight block light reads far weaker against the sky, as
+// in vanilla. Up to 70% less under open sky by day; caves and nights unchanged.
+float blockDayDamp(float skyLight) {
+    return 1.0 - 0.7 * smoothstep(-0.05, 0.10, sunDirWorld().y) * skyLight * skyLight;
+}
 
 // Torchlight that breathes (owner r002: inexpensive ambient effects; r000: fire light that
 // moves naturally, not a looped flicker). Two incommensurate slow drifts plus a faint quick
@@ -225,7 +232,7 @@ vec3 shadeSurface(Surface s, vec3 viewDir, vec2 pixel) {
     vec3 irradiance = (foliage ? Eleaf : E) * diffuse * shadow
                     + Eleaf * through
                     + skyE * sky * ao
-                    + blockIrradiance(s.blockLight) * torchFlicker(s.scenePos + cameraPosition, s.blockLight) * ao
+                    + blockIrradiance(s.blockLight) * torchFlicker(s.scenePos + cameraPosition, s.blockLight) * ao * blockDayDamp(s.skyLight)
                     + nightFloor() * NIGHT_FLOOR_TINT * ao;
     // Held light (look bible 1): a soft warm pool around the player.
     if (heldBlockLightValue > 0) {

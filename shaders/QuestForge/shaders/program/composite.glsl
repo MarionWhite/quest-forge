@@ -185,7 +185,7 @@ vec3 motesGrid(vec3 viewDir, float dist0, float pixelBlock, float eyeSky,
     const float g = 0.72;
     float phase = (1.0 - g * g) / (4.0 * PI * pow(1.0 + g * g - 2.0 * g * mu, 1.5));
     float eyeBlock = float(eyeBrightnessSmooth.x) / 240.0;
-    vec3 Eblock = blockIrradiance(max(pixelBlock, eyeBlock * 0.85));
+    vec3 Eblock = blockIrradiance(max(pixelBlock, eyeBlock * 0.85)) * blockDayDamp(eyeSky);
     bool day = sunDirWorld().y > -0.02;
     vec3 tint = under ? vec3(0.85, 0.95, 1.0) : (day ? vec3(1.0, 0.93, 0.78) : vec3(0.9, 0.93, 1.0));
 
@@ -325,7 +325,8 @@ vec3 ambientMotes(vec3 viewDir, float dist0, float pixelBlock, float eyeSky) {
 #if QF_VOL_FAST == 1 && QF_DUST > 0
     // r009 (cost run: dust and motes 1.48 ms on High): out of a beam a flake shows only by block
     // light, so a ray the shaft march found free of shaded air, away from torches, skips the walk.
-    if (!under && gNoShade && max(pixelBlock, float(eyeBrightnessSmooth.x) / 240.0) < 0.1) return vec3(0.0);
+    // r009: block light damped by day (blockDayDamp), as the flakes take it.
+    if (!under && gNoShade && max(pixelBlock, float(eyeBrightnessSmooth.x) / 240.0) * blockDayDamp(eyeSky) < 0.1) return vec3(0.0);
 #endif
     // r009: air dust fades in from 3 m (fadeD), so the near walk starts 2.5 m out.
     vec3 s = motesGrid(viewDir, dist0, pixelBlock, eyeSky, MOTE_CELL, (QF_DUST > 0 && !under) ? 2.5 : 0.0,
