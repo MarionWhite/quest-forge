@@ -201,6 +201,9 @@ def main():
                     help="drawn: qf_art's v2 leaves; faithful/dense/crowns (r010, leaves_dense.py): Faithful 64x's "
                          "leaves as is / with darker leaves filling the holes / + clustered lit crowns. All but drawn "
                          "also write leaves_<kind>_frill.png for the leaf frills (qf-tweaks)")
+    ap.add_argument("--emerald", choices=("faithful", "diamond"), default="diamond",
+                    help="diamond (r010 default): Faithful 64x's diamond structure in emerald tones (gems.py); "
+                         "faithful: Faithful 64x's nested squares (v2)")
     ap.add_argument("--diamond", choices=("metal", "gem"), default="gem",
                     help="gem (r010 default): a dielectric, F0 44 (GEM_BLOCKS); metal: VNR's metal flag (v2, a mirror)")
     a = ap.parse_args()
@@ -242,6 +245,9 @@ def main():
             art["leaves_" + kind] = leaf
             art["leaves_%s_opaque" % kind] = qf_art.opaque(leaf)
             art["leaves_%s_frill" % kind] = np.clip(leaves_dense.frill(f) + 0.5, 0, 255).astype(np.uint8)
+    if a.emerald == "diamond":
+        import gems
+        art["emerald_block"] = gems.emerald_from_diamond(rgba(fread(BLOCKS + "diamond_block.png")))
     wheat_vs = None
     if a.wheat != "drawn":
         import wheat_dense
