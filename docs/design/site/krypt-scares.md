@@ -82,9 +82,16 @@ Use them to open the floor and to pick a pit spot clear of other corridors.
   opens, and the fireball fills the screen.
 - **Magma Cube (behind you):** thump, thump, closer behind. The view turns as it lands on you;
   the screen squashes flat in a lava glow.
-- **Zombie Pigman (your fault):** an idle pigman stands in a side passage, and the camera's arm
-  swings and hits it by accident. Every eye in the dark turns red, the angry sound plays, and
-  they rush from every passage at once.
+- **Zombie Pigman (your fault, the owner's version):** a diamond ore block glints in the floor
+  just ahead (1.7.10 `diamond_ore`, a faint sparkle catching the torchlight). The walk slows, the
+  view drifts down to it, you step up and raise the iron pickaxe, and each swing spreads the
+  1.7.10 destroy-stage cracks with the dig sound. One swing from breaking it you stop: a beat of
+  silence. On the swing that would break it, a pigman steps into the gap from just out of view and
+  the pick lands in him: the hurt flash, `mob.zombiepig.zpigangry`, and his face snaps round to
+  yours in the FNAF lunge with the screech. Your hit is what angers him. After the static every
+  pigman in the dark turns red-eyed, the head flicks from eyes to eyes, they rush from every
+  passage at once and close round you, and they cut you down with the death scream. Death
+  message: "Steve was slain by Zombie Pigman".
 - **Wither Skeleton (deep only):** black fog, just its eyes. Its stone sword scrapes the wall in
   sparks. The Wither effect blackens your hearts and the edges of the view. One swing, and the
   view drops and rolls across the floor to look up at its feet.

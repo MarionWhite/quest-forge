@@ -227,7 +227,8 @@ export async function fireBlocks(R, spots) {
 }
 
 // The held item in first person (ItemRenderer.renderItemInFirstPerson for a full-3D item like a sword), with the swing:
-// progress 0..1 over 6 ticks. Returns update(t, swingStarts[]) that places it in the head's frame.
+// progress 0..1 over 6 ticks. Returns update(t, swingStarts[], hide, fov, equip) that places it in the head's frame;
+// equip 0..1 is the raise as it comes into the hand (ItemRenderer's equippedProgress: 0.6 below at 0).
 export function heldItem(R, tx, { color = 0x8c8c8c } = {}) {
   const geo = new THREE.PlaneGeometry(1, 1); geo.translate(0.5, 0.5, 0);
   const uv = geo.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setX(i, 1 - uv.getX(i));
@@ -237,7 +238,7 @@ export function heldItem(R, tx, { color = 0x8c8c8c } = {}) {
   const D = Math.PI / 180, M = new THREE.Matrix4(), T = new THREE.Matrix4();
   const mul = (m) => M.multiply(m);
   // The hand is drawn with its own 70 degree projection in Minecraft: keep it there whatever the camera's FOV.
-  return (t, swings = [], hide = false, fov = R.camera.fov) => {
+  return (t, swings = [], hide = false, fov = R.camera.fov, equip = 1) => {
     mesh.visible = !hide; if (hide) return;
     const kf = Math.tan(fov * D / 2) / Math.tan(35 * D);
     let p = 0;
@@ -245,7 +246,7 @@ export function heldItem(R, tx, { color = 0x8c8c8c } = {}) {
     const f6a = Math.sin(p * Math.PI), f7 = Math.sin(Math.sqrt(p) * Math.PI), f6 = Math.sin(p * p * Math.PI);
     M.makeScale(kf, kf, 1);
     mul(T.makeTranslation(-f7 * 0.4, Math.sin(Math.sqrt(p) * Math.PI * 2) * 0.2, -f6a * 0.2));
-    mul(T.makeTranslation(0.7 * 0.8, -0.65 * 0.8, -0.9 * 0.8));
+    mul(T.makeTranslation(0.7 * 0.8, -0.65 * 0.8 - (1 - equip) * 0.6, -0.9 * 0.8));
     mul(T.makeRotationY(45 * D));
     mul(T.makeRotationY(-f6 * 20 * D)); mul(T.makeRotationZ(-f7 * 20 * D)); mul(T.makeRotationX(-f7 * 80 * D));
     mul(T.makeScale(0.4, 0.4, 0.4));
