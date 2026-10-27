@@ -164,3 +164,6 @@ docs/design/shaders/feedback/attachments/r009/ (look at both before starting). L
     leaves_close, tree_close, forest_lit), queued behind leaf-frills 1027-185527.
   - NEXT: wait/review leaves2 (sheet t10la|t10lr|t10lf + crops of hedge and crown), pick --leaves default; write
     C:\qfb\shaderdev\r010\texture_make_scenes.py + texture_scenes.json + TEXTURES-READY; gold lime note to r010-shader.
+  - Crop variants for the hook (CropVariants.java naming <stage>_v<i>): builder writes wheat_stage_7_v0..4,
+    carrots_stage_3_v0..3, potatoes_stage_3_v0..3 (new tools/textures/crops_dense.py; potatoes v0/v2 flowered). Test zip
+    C:\qfb\textures\diag\QF-cropvar.zip. Note appended to r010-leaf-frills.md.

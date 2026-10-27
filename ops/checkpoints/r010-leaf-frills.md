@@ -154,3 +154,10 @@ Render a field near and far, hook off vs on, through renderq; measure chunk-rebu
 - NEXT: wait frills-c + crops-a; review c1/c2 vs b1 (grid.py, 1:1 hedge crops), cost; pick final; write
   `C:\qfb\shaderdev\r010\frills_scenes.json` + FRILLS-READY (options off fr1a0 / best edges / runner-up / Stay True crop);
   crops: sheet cv1a0|cv1a1 farm/farm_close + cost (frills_cost.py --off cv1a0 --on cv1a1, whole-boot "all" columns); docs; journal.
+
+### Note from the texture agent (2026-10-27 19:10): crop-variant sprites for the hook
+`build_qf_textures.py --wheat dense|bushy` now writes, in CropVariants.java's naming (`textures/blocks/<stage>_v<i>.png`,
+with _n/_s maps): `wheat_stage_7_v0..v4` (five heights, wheat_dense.py), `carrots_stage_3_v0..v3` and
+`potatoes_stage_3_v0..v3` (crops_dense.py: Faithful 64x's ripe plant with darker mirrored back copies, four heights; two
+potato variants carry small white flowers). Test zip: C:\qfb\textures\diag\QF-cropvar.zip (--wheat bushy --leaves faithful).
+Other stages have no variants (the hook draws them as before). The old ctm/wheat random rule is still in the zip (harmless).

@@ -265,6 +265,15 @@ def main():
         ripe = rgba(fread(BLOCKS + "wheat_stage_7.png")).astype(np.float32)
         wheat_vs = [np.clip(v + 0.5, 0, 255).astype(np.uint8) for v in wheat_dense.variants(ripe, "bushy" if a.wheat == "bushy" else "plain")]
         art["wheat_stage_7"] = wheat_vs[2]
+        # r010 crop-variant hook (qf-tweaks CropVariants): textures/blocks/<stage>_v0.. picked per block by
+        # position; CTM random (below) never reaches crops under Angelica. Carrots and potatoes: crops_dense.py.
+        import crops_dense
+        for i, v in enumerate(wheat_vs):
+            art["wheat_stage_7_v%d" % i] = v
+        for crop in ("carrots", "potatoes"):
+            st = rgba(fread(BLOCKS + "%s_stage_3.png" % crop)).astype(np.float32)
+            for i, v in enumerate(crops_dense.variants(st, crop)):
+                art["%s_stage_3_v%d" % (crop, i)] = np.clip(v + 0.5, 0, 255).astype(np.uint8)
     ywrong = []   # _n maps whose G runs OpenGL-style (labpbr.y_sign > 0): lit from below in the shader
     tally = dict(vanilla=0, faithful64=0, drawn=0, ctm=0, pbr_vnr=0, pbr_hybrid=0, pbr_ours=0, cit=0)
     textures = {}     # path -> (rgba, mcmeta bytes or None)
