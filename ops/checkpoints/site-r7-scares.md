@@ -65,5 +65,7 @@ rt/scareflow16.js, rt/trace.js, cmp_trace.py).
   Frames `bl1/sheet.png`.
 - [x] Ghast: the face rises (or is there on the look-back), the charge, the fireball across the drop. Frames
   `gh1/sheet.png`.
-- Next: Magma Cube, Wither
-  Skeleton, Lava fall, Drowned (in that order).
+- [x] Magma Cube (4b7b2b2): power-out and the heart kept (its one device); hops in with its slices spreading in the air
+  and the core lighting the corridor; sits pulsing; the pop, small ones hit you (70%); it squats and leaps, fanned
+  wide, and comes down on you as you back away; the slices shut. Frames `mc2/sheet.png`, `mc4/sheet.png`, `mc3` (smalls).
+- Next: Wither Skeleton, Lava fall, Drowned (in that order).
