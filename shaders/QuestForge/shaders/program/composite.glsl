@@ -115,12 +115,16 @@ const float UW_SURF = 62.9;   // r008: about where the water surface is (sea lev
 // point. The marches take one clip origin and per-direction steps instead of two mat4s per sample.
 vec3 shadowClip(vec3 scenePos) { return (shadowProjection * (shadowModelView * vec4(scenePos, 1.0))).xyz; }
 vec3 shadowClipDir(vec3 dir) { return mat3(shadowProjection) * (mat3(shadowModelView) * dir); }
-float shadowRawClip(vec3 clip) {
+// jt: an offset in shadow texels. r009 (tex-golden handover: golden_lit's shaft haze ended in
+// stair-steps on the shadow texels): the shaft march jitters its taps up to a texel each way, so
+// TAA resolves a beam's edge into a ramp. The mote taps stay steady (jt 0).
+float shadowRawClipJ(vec3 clip, vec2 jt) {
     if (max(abs(clip.x), abs(clip.y)) > 0.98) return 1.0;
     vec3 sp = distortShadow(clip) * 0.5 + 0.5;
-    ivec2 t = clamp(ivec2(sp.xy * float(shadowMapResolution)), ivec2(0), ivec2(shadowMapResolution - 1));
+    ivec2 t = clamp(ivec2(sp.xy * float(shadowMapResolution) + jt), ivec2(0), ivec2(shadowMapResolution - 1));
     return step(sp.z - 0.0004, texelFetch(shadowtex0, t, 0).r);
 }
+float shadowRawClip(vec3 clip) { return shadowRawClipJ(clip, vec2(0.0)); }
 float shadowRaw(vec3 scenePos) { return shadowRawClip(shadowClip(scenePos)); }
 #endif
 
@@ -215,7 +219,8 @@ vec3 motesGrid(vec3 viewDir, float dist0, float pixelBlock, float eyeSky,
 #if QF_DUST > 0
                 // Depth-aware: a flake a metre away is a soft 2-3 px fleck, one 15 blocks out a
                 // pinpoint (r007's fixed 2 px everywhere read as screen-space speckle).
-                float rw = along * pxA * (under ? mix(4.5, 1.6, smoothstep(1.0, 10.0, along)) : mix(2.6, 1.3, smoothstep(1.0, 12.0, along)));
+                // r009 (tex-golden: flakes read as ~8 px discs): air flakes 2.6-1.3 -> 2.0-1.2.
+                float rw = along * pxA * (under ? mix(4.5, 1.6, smoothstep(1.0, 10.0, along)) : mix(2.0, 1.2, smoothstep(1.0, 12.0, along)));
                 if (farGrid) rw = along * pxA * 2.1;   // loop 3: far flakes 2-3 px, so TAA keeps them
 #else
                 float rw = along * pxA * (under ? 1.4 : 1.85);
@@ -266,13 +271,18 @@ vec3 motesGrid(vec3 viewDir, float dist0, float pixelBlock, float eyeSky,
                             vec3 p1 = normalize(cross(L, abs(L.y) < 0.95 ? vec3(0.0, 1.0, 0.0) : vec3(1.0, 0.0, 0.0)));
                             vec3 p2 = cross(L, p1);
                             // ud: 2.2 m on three sides missed the shade round a wide canopy gap.
-                            // Raw (undithered) taps, 3.5 m on four sides.
+                            // Raw (undithered) taps, 3.5 m across the light.
                             // Loop 3: far flakes look 5 m across the light (a canopy gap's beam is wide).
+                            // r009 (tex-golden: orange "coins" all over golden_lit's sunlit grass): at a
+                            // low sun p2 is nearly vertical, so the -p2 tap of a flake a metre over the
+                            // grass sat under the ground, read as shade, and called every flake near the
+                            // ground a beam. p2 points up and has one tap (three in all).
+                            if (p2.y < 0.0) p2 = -p2;
                             float tap = farGrid ? 5.0 : 3.5;
                             vec3 cv = shadowClip(v), c1 = shadowClipDir(p1) * tap, c2 = shadowClipDir(p2) * tap;
                             float s1 = shadowRawClip(cv + c1), s2 = shadowRawClip(cv - c1);
-                            float s3 = shadowRawClip(cv + c2), s4 = shadowRawClip(cv - c2);
-                            inBeam = 1.0 - min(min(s1, s2), min(s3, s4));
+                            float s3 = shadowRawClip(cv + c2);
+                            inBeam = 1.0 - min(min(s1, s2), s3);
                             // Loop 4 (uq ocean_sunset, dust_b: far flakes still dotted the open air over the
                             // sea and the sunlit canopy, where a hut's or a tree's shadow sat within 5 m):
                             // a far flake also needs this pixel's ray to cross a real beam.
@@ -394,10 +404,11 @@ vec3 lightShafts(vec3 viewDir, float dist, float eyeSky) {
     float tD = animTime();
 #endif
     vec3 c0 = shadowClip(vec3(0.0)), cD = shadowClipDir(viewDir);
+    vec2 jb = vec2(j, fract(j * 7.31 + 0.5));
     for (int i = 0; i < SHAFT_STEPS; i++) {
         float f = (float(i) + j) / float(SHAFT_STEPS);
         float dd = f * f * maxD;
-        float sv = shadowRawClip(c0 + cD * dd);
+        float sv = shadowRawClipJ(c0 + cD * dd, (fract(jb + float(i) * vec2(0.7549, 0.5698)) - 0.5) * 2.0);
         lit += sv * 2.0 * f;
         litFar += sv * 2.0 * f * smoothstep(28.0, 80.0, dd);
         // Lit/shaded transitions along the ray within ~40 blocks: beams.
@@ -442,7 +453,10 @@ vec3 lightShafts(vec3 viewDir, float dist, float eyeSky) {
     // Loop 3 (critic: golden_lit's whole field olive-brown, "the mild orange wash"; BSL keeps the
     // near and middle grass green): in open sunlight at golden hour the warm lit air starts ~30-80 m
     // out instead of at the camera. Rays that cross a beam (a canopy gap) keep the full near air.
-    lit = mix(lit, litFar / float(SHAFT_STEPS), gh * (1.0 - gBeam) * step(dist, far - 0.001));
+    // r009 (tex-golden: dark radial streaks fanning over golden_lit's ground): rays that crossed a
+    // tree's shadow kept the full near air and the rest did not, so the switch drew the shadow volumes
+    // as streaks. Only rays towards the sun, where the beams show, keep it.
+    lit = mix(lit, litFar / float(SHAFT_STEPS), gh * (1.0 - gBeam * smoothstep(-0.2, 0.4, mu)) * step(dist, far - 0.001));
 #if QF_SHAFT_STYLE == 1
     // r007 (owner r006 picked round 5's frame: "the color is warmer, the rays are better formed"):
     // round 5's linear lit air, which keeps the warm glow round the sun over open sky and the
