@@ -99,6 +99,8 @@ export function initMood(opts = {}) {
   const forced = MODE && MODE !== "off" && KINDS[MODE] ? MODE : null;
   if (MODE === "cover" && DUMP) { coverMode().catch((e) => console.error("mood cover", e)); return; }
   if (forced && DUMP) { dumpMode(forced, Number(QS.get("moodat") ?? 0) || 0).catch((e) => console.error("mood dump", e)); return; }
+  // declared before boot(): boot can run synchronously (Krypt already up) and call loop() at once
+  let last = performance.now(), lastAcc = null, acc = 0, wasScare = false, tickAt = 0, memo = null;
   const boot = () => {
     const kr = kryptOf(); if (!kr) return;
     ctx = makeCtx(kr, { seed: (Math.random() * 1e9) | 0 });
@@ -110,7 +112,6 @@ export function initMood(opts = {}) {
   };
   if (kryptOf()) boot(); else addEventListener("krypt-ready", boot, { once: true });
 
-  let last = performance.now(), lastAcc = null, acc = 0, wasScare = false, tickAt = 0, memo = null;
   function loop() {
     requestAnimationFrame(loop);
     const now = performance.now(), dt = Math.min(0.1, (now - last) / 1000); last = now;
