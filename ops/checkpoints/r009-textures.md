@@ -156,7 +156,23 @@ Nothing for v2 started; no renders submitted.
     Nothing texture-side (the orange sunlit dirt sides and the terrace dirt bands are the same in vanilla-based A and in Faithful C).
   - Handed off: a note appended to ops/checkpoints/r009-shader.md (boxes included). **Step 5 closed; no texture change.**
 
+- 2026-10-26 (texture-dev, capped run): step 6 (potions) code + render submitted.
+  - Owner r008 tex-items: "I like the style for the books, but some of the potions are kind of boring or need more detail or
+    personality." Diagnosis: books carry an emblem each, potions were plain glass + flat liquid, and 12 effects shared 8 shapes
+    (weakness = swiftness, slowness = fire res, harming = strength, poison = water breathing, invisibility = night vision).
+  - `qf_items.py`: EFFECTS entries now (shape, name, patches, dashed); patches are (row, col, chars) typed over the shape grid,
+    new glass palette chars r R y Y f F k K x v V a. Motifs: regen ribbon bow + sprout, swiftness feather + streaks, fire res
+    red wax cap + flame label, poison skull + leaking bubbles, healing gold cap + sparkle, night vision eye, weakness bandage +
+    cracks + cork askew, strength iron bands + rivets + red gem, slowness hourglass + cobweb, harming broken heart label + iron
+    spikes, water breathing rising bubbles, invisibility dashed ghost outline + sparkles. One bottle_/liquid_<effect>.png per
+    effect, splash written once: build has no duplicate zip entries now (checked, 50 potion files).
+  - Offline sheet (all 12 in 1.7.10 colours + splash + books): `py -3.10 tools/textures/qf_items.py <out.png>`. Reviewed at 8x;
+    feather and flame took one fix pass each. Weakness's cracks barely show on its dark grey liquid.
+  - Committed bf49cd9 with spec `tools/renderq/specs/textures-v2h-items.json` (t9v2h, cit on). The showcase board shows only 8
+    (regen, swift, fire, healing, night vision, strength, water breathing, splash poison); not rebuilt, to leave the other scenes'
+    world alone. Baseline: r008 bench-t8i1/t8i0-items_frames.png. Submission **1026-233707-textures-v2h-items**.
+
 ## Next
-Step 6: potions (owner r008 tex-items: "potions boring"): stronger silhouette and colour personality; also fix the duplicate
-CIT zip entries (`mcpatcher/cit/potions/bottle_cone.png`, `liquid_cone.png`) seen in builds without --no-cit.
-Steps still open: 6 (potions), 7 (scene hand-off).
+Step 6 review: `renderq.py results 1026-233707-textures-v2h-items`; sheet t8i0 | t8i1 | t9v2h items_frames + a native crop of
+the potion row; check that CIT picks up the per-effect names in-game. Then step 7 (scene hand-off).
+Steps still open: 6 (review), 7 (scene hand-off).
