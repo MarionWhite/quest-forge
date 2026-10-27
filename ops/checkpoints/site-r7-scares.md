@@ -1,4 +1,4 @@
-# site-r7-scares (checkpoint, started 2026-10-27, Mac)
+# site-r7-scares (checkpoint, started 2026-10-27, Mac) - DONE 2026-10-27
 
 Brief: `ops/briefs/site-3d-page.md`. Agent: opus (horror direction and building).
 Owns: `site/graves/scares.js`, `site/graves/scares/*`, `site/graves/tex/scare/*`.
@@ -12,21 +12,21 @@ Previous state: `site-r6-scares.md`. Spec: `docs/design/site/krypt-scares.md`.
   mob, staged where the player is.
 
 ## Done means
-- [ ] **Enderman and Creeper are approved** and in `approved.json`. Do not change how they look or play. If
+- [x] **Enderman and Creeper are approved** and in `approved.json`. Do not change how they look or play. If
   shared code changes (`fnaf.js`, `common.js`, `rig.js`), snapshot their current timing and effects first,
   then check frame by frame that they are unchanged.
-- [ ] **Pigman:** keep everything, but loosen the FNAF effect: less static, screen tear, chromatic split and
+- [x] **Pigman:** keep everything, but loosen the FNAF effect: less static, screen tear, chromatic split and
   head jitter. The lunge becomes a physical step and strike in the world rather than a glitch.
-- [ ] **The other 11 plus the 2 gap deaths:**
+- [x] **The other 11 plus the 2 gap deaths:**
   - Rebalance toward the Story Mode cinematic: in-world staging, mob behaviour, timing, sound, blocky gore.
   - Use FNAF devices (static, tear, jitter, face-into-lens lunges) sparingly: at most one subtle device per
     scare, and only where it serves that mob.
   - Each scare should scare through situation and the mob's own nature, the way the Enderman (the stare
     and teleport) and the Creeper (the silent arrival and swell) do. Study why those two work, and apply it.
-- [ ] **Screams:** the audio task is replacing `qf.scare.death_scream`, `scream`, `jumpscreech` and
+- [x] **Screams:** the audio task is replacing `qf.scare.death_scream`, `scream`, `jumpscreech` and
   `underwater` with real recorded voices. Keep the names, and prefer `death_scream` over the screech.
   Re-check the mix when they land.
-- [ ] Sheet, plus a live J run of all 16 with no exceptions. In your report, rank each scare's
+- [x] Sheet, plus a live J run of all 16 with no exceptions. In your report, rank each scare's
   fear against the Enderman and Creeper.
 
 ## Progress (opus, 2026-10-27)
@@ -74,4 +74,22 @@ rt/scareflow16.js, rt/trace.js, cmp_trace.py).
 - [x] Lava fall: already physical; stingers and the slip screech removed (sound only).
 - [x] Drowned grab: the peek is a shape drifting far down (no frame-flash); it has your ankles, climbs your legs, bites
   your side, drags you down (no clear-sound screech, no lens lunge). Frames `dr1/sheet.png`, `dr2/sheet.png`.
-- Next: trace Enderman/Creeper, full sheet of 16, live J run, check_sounds, scream mix, journal, done.
+- [x] Enderman/Creeper: `git diff 66ce321^ HEAD` is empty for enderman.js, creeper.js, fnaf.js, common.js, rig.js,
+  hud.js, director.js; scares.js changed only in the sound player (below) and Magma Cube's label. The re-run trace
+  differs from `base_trace.json` only because the world under `?demo&at=0.3` changed (krypt a84e267: segment
+  classic -> carpet_crypt, new props), not the scares.
+- [x] Screams: the new takes run 2 to 4.5 s (-12.5 to -18.4 LUFS, peaks -1 dBFS), and most scares call
+  `deathScream` twice 1 to 2 s apart, which put two different men screaming at once. `scares.js` now drops a
+  death_scream that would start while one still sounds (d96ccc9); probe: one start per scare. Creeper and Enderman
+  keep their screech (approved); Pigman keeps its one stinger on the horde.
+- [x] Sheet: `scratchpad/r7/scares/all/sheet.png` (16 rows: dread, fake, lunge, kill; every shot dumped).
+- [x] J run (`rt/flow_r7final.out`, rerun `rt/flow_r7b.out`): 16/16 entered and came back, no exceptions, 59.4-60 fps,
+  lunge gaps 28-48 ms. Creeper's ~125 ms hitch at the explosion is pre-existing (round-start flow1/flow2: 129 ms),
+  the crater carve; left alone as the Creeper is approved. Wither Skeleton 206 ms and Lava fall 110 ms did not repeat
+  (33, 34 ms on the rerun).
+- [x] `node --check` on .mjs copies of all 18 touched/approved modules; `check_sounds.py` exit 0 (189 names, 0 missing).
+- [x] Spec: `docs/design/site/krypt-scares.md` v4 section (efa6325). Journal line (58e1108).
+- Fear vs Enderman/Creeper (agent's ranking, owner to judge): near them: Ghast, Pigman, Wither Skeleton, Blaze;
+  a step below: Spider, Zombie, Magma Cube, Witch, Skeleton, Drowned grab; lower: Cave Spider, Silverfish, Lava fall,
+  Slime (weakest by nature).
+- Next round: the owner plays the 14 in the J picker and approves or names what is off.
