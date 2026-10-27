@@ -1,5 +1,21 @@
 # Shaders journal (newest first)
 
+- 2026-10-27 01:07: r009 cloud-over-sun, grazing light, forest wash (shot renders only, all cost-neutral).
+  Cloud-over-sun (owner r008 sunset-full): cloudMarch's far-cloud melt (fade ~0.1 at a low sun) also cancelled the slab's
+  transmittance on the disk, so a low sun shone whole through the wisps over it. 25e9263: skyRadiance adds the disk after
+  the clouds, times gCloudTd = mix(1, T, smoothstep(0.012, 0.03, dir.y)) from cloudMarch (QF_CLOUDS 2). r9cs (T^2) and
+  r9ct (T) look alike: the slab is dense where ocean_sunset's sun sits, so the sun now sets behind that cloud with a
+  crescent under its base and the aureole kept. The critic's "sun form" is judged on the sky views from now on.
+  Grazing light (critic p8 golden_lit): 20331ee, at golden hour up-facing lit faces take diffuse >= 0.7*goldenHour;
+  the shadow map still gates. A 7.9 deg sun throws ~7-block shadows behind every terrace step, so only the strips
+  between turn gold: ridge bands +4..+6 R (r9gy vs r9do), near field 41.9,46.7,14.7 (no olive). 0.32 (r9gz) was unseen.
+  Forest cream wash (critic p8 forest_golden), not fixed; bisects: QF_SHAFTS 0 takes the right canopy (box x 1900-2500,
+  y 300-700) 47,51,7 -> 19,47,5 and turns the sky round the gap neutral; QF_AERIAL 0 ~+10 only; QF_DUST 0 canopy -> 31,47,5
+  with the sky unchanged. So the canopy veil is mostly dust haze (dustL) and the cream sky is the shafts' open-sky veil
+  (lit *= 0.8 at dist >= far). Tried and reverted: (1) keepNear = gBeam*smoothstep(0.30,0.60,shadedAir) on the near-air
+  switch, no effect (r9fw); (2) dustL *= mix(0.35,1,smoothstep(8,40,dist)) on hits, canopy 47 -> 39 but dust_b's
+  lit beam over the path visibly weaker (r9fx), a regression on the owner's lowest-rated ask.
+
 - 2026-10-27 00:44: r009 sun step. The p8 critic already rated the disk crisp with a real warm aureole (the limb/core
   asks were uh's, done in r008 loop 3); the open ask was the water path (77 luma vs r007 qw 86). b6b26f7: the long
   low-sun lobe in shadeWaterAbove is wider (a2b x3.2, was 2.2) and brighter (0.80, was 0.30), and keeps sqrt(balance)

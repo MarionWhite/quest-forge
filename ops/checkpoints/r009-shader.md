@@ -125,6 +125,62 @@ Owner overall: no drastic improvement; over budget on performance; wants optimis
   Shot renders only until 08:00; the 08:00 cost-run note above still stands (resubmit r9-volfast.json on the current
   pack, which now includes b6b26f7).
 
+- 00:45 (look step, cloud-over-sun): owner's note is r008 sunset-full = ocean_sunset; r9so crop shows wisps crossing
+  the disk but the disk drawn whole. Cause: cloudMarch's far-cloud melt (fade = exp(-t0/6500)*smoothstep(0.012,0.09,
+  dir.y), ~0.1 at a low sun) also cancelled the clouds' transmittance on the disk. Change (uncommitted until verified,
+  lib/sky.glsl): skyRadiance adds the disk after the clouds times new global gCloudTd = mix(1, T*T, smoothstep(0.012,
+  0.03, dir.y)) set in cloudMarch (QF_CLOUDS 2 only; 1/0 keep Td 1). Aureole stays under the faded clouds. Glare needs
+  no change (its 9 taps read the dimmed disk). Cost: none. check_glsl 0 errors. Shot **1027-004547-r009-cloudsun-shot**
+  (r9-cloudsun.json, tag r9cs: ocean_sunset; baseline bench-r9so-ocean_sunset.png, sun crop box 1000,480,1400,780).
+- 00:48: r9cs hid the disk almost wholly (one sliver under a band) behind clouds the melt draws faint: reads as a sun
+  behind a cloud bank, but the sun is gone. Loop 2 (uncommitted): T, not T*T. Shot **1027-004813-r009-cloudsun-shot2**
+  (r9-cloudsun2.json, tag r9ct). If r9ct also loses the disk, the fallback is mix(1, T, sqrt(fade)).
+- 00:50: r9ct is nearly the same as r9cs: the slab is dense (T < 0.1) where the sun sits; the melt only drew it faint.
+  The sun now sets behind that cloud, a crescent shows under its base and the aureole glow stays. This is the owner's
+  ask, kept. Committed **25e9263**. **Cloud-over-sun step closed.** For the owner/critic in r009: ocean_sunset's disk
+  is now mostly hidden by its cloud (the critic's "sun form" is judged on the sky views).
+- **Next:** golden band + grazing light (critic uf/p8: cream-peach band fading to lavender, warm grazing light on lit
+  slopes, keep grass green; views golden_lit / golden-horizon). Then forest wash, river, bluer non-swamp underwater, sky_noon.
+- 00:51 (look step, golden band + grazing): p8 says the band is fine (rose band kept, olive gone); open ask is warm
+  low-sun light on the grass tops. Change (uncommitted until verified, lighting.glsl non-foliage diffuse, QF_CAL_GOLD):
+  diffuse = max(diffuse, 0.32*goldenHour()*smoothstep(0.7,0.95,geoNormal.y)*step(0,L.y)); shadow still gates. ALU only.
+  Shot **1027-005103-r009-graze-shot** (r9-graze.json, tag r9gz: golden_lit, forest_golden; baseline r9do). Check near
+  grass rows 1000-1300 (p8 43,47,15) for the olive wash returning.
+- 00:55: r9gz: near grass 41,46,15 -> 42,47,15 (no olive). The near field and most ridge tops sit in the 7-block
+  shadows a 7.9 deg sun throws behind every terrace step; lit tops between them only +2 R (direct is small next to sky
+  light). Loop 2 (uncommitted): floor 0.7. Shot **1027-005458-r009-graze-shot2** (r9-graze2.json, tag r9gy). Ridge crop
+  box 1300,680,1900,1080 (r9do bands at y 700/820/940/1060: 61.7,59.8,20.7 / 53.8,48.8,13.2 / 50,49,13.5 / 39,46.5,14.5).
+- 00:57: r9gy: lit ridge tops +4..+6 R (65.6,62.8,19.6 / 57.9,52.1,11.7 / 55.9,53.6,11.4); the sunlit grass between the
+  terrace shadows reads warm yellow-green, shade stays cool green; near field 41.9,46.7,14.7 (no olive); forest_golden
+  unchanged. Committed **20331ee**. **Golden band + grazing step closed** (band itself was fine per p8).
+- 00:58 (look step, forest cream wash): r9gy forest_golden sky: upper-left 131,122,124 / 154,141,133 grey-lavender,
+  round the gap 193,159,132 -> 252,199,153; refs (refs/forest_golden-1/-2) expose for the sun: dark forest, hot gap.
+  Bisect shot **1027-005744-r009-fwash-bisect** (r9-fwash.json): r9fs0 QF_SHAFTS 0, r9fa0 QF_AERIAL 0 vs r9gy. If neither
+  moves the sky, the wash is exposure (prepare.glsl meter lifts the dark forest); then a backlit-meter idea: count the
+  sun-side sky more when the sun is on screen at golden hour (check ocean_sunset doesn't darken).
+- 01:00: bisect: r9fs0 (shafts off) canopy 47,51,7 -> 19,47,5 and the sky round the gap goes neutral (154,151,150);
+  r9fa0 (aerial off) only ~+10 brighter. The wash is shaft in-scatter, not exposure. Change (uncommitted until verified,
+  composite.glsl lightShafts near-air switch): keepNear = gBeam*smoothstep(0.30,0.60,shadedAir) replaces gBeam there
+  (dust/motes still use gBeam). Shot **1027-010016-r009-fwash-shot** (r9-fwash2.json, tag r9fw: forest_golden, dust_b;
+  baselines r9gy forest_golden, r9do dust_b). If it fails, revert that hunk (git checkout the file: only my hunk is in it).
+- 01:03: r9fw did nothing (canopy 50,54,8; sky equal to r9fa0's, i.e. run-to-run exposure): the near-air switch is not
+  the veil. **Reverted** (composite.glsl clean). Next suspect: dust haze dustL (forward phase g 0.62, gBeam-gated; shafts
+  off removes it too). Bisect **1027-010304-r009-fwash-bisect2** (r9-fwash3.json, tag r9fd0 = QF_DUST 0, forest_golden).
+- 01:05: r9fd0: right canopy (box 1900-2500 x 300-700) 47,51,7 -> 31,47,5; sky unchanged. So canopy veil = dust haze
+  (dustL); the sky's cream = shaft open-sky veil (lit *= 0.8 at dist >= far), left for later. Change (uncommitted,
+  composite.glsl after dustL): dustL *= dist >= far ? 1 : mix(0.35, 1, smoothstep(8, 40, dist)). Shot
+  **1027-010521-r009-fwash-shot2** (r9-fwash4.json, tag r9fx: forest_golden, dust_b vs r9gy / r9do).
+- 01:07: r9fx: forest canopy 47 -> 39 R (cleaner), but dust_b's lit beam haze over the path visibly weaker: **reverted**
+  (composite.glsl clean, nothing uncommitted from this step). Forest wash **still open**; findings in the journal 01:07.
+- **Next:** forest wash, two separate parts. (a) Canopy veil = dust haze: it must stay in dust_b's beam but leave the
+  leaves in forest_golden. Ideas: scale dustL by the ray's shaded share in front of the hit (beam = shade on both sides)
+  rather than distance, or by the hit's material (foliage hit: less haze). Check dust_b's path beam (r9do) each loop.
+  (b) Cream sky round the gap = shafts' open-sky veil (composite.glsl `if (dist >= far) lit *= 0.8;`, history: 0.6 lost
+  the forest gap's glow in r006 qh, full veil washed out the ocean sun in pa); try lower only when gBeam > 0 (forest) so
+  ocean_sunset keeps 0.8. Then river, bluer non-swamp underwater, sky_noon. Shot renders only until 08:00; the 08:00
+  cost-run note stands (read 1026-223822, then resubmit r9-volfast.json with new tags on the current pack, which now
+  includes 25e9263 and 20331ee).
+
 ## Hand-off from texture-dev (2026-10-26): owner's r008 "tex-golden: weird artifacting in all photos" is shader-side
 Same artifacts in t8v0, t8v1, t8f64 (all three packs) and still in t9v1/t9v2c (r009 shader), so not textures. In golden_lit
 (2560x1440): (1) the shaft haze ends in blocky stair-steps on shadow-map texels: a hard-edged lit rectangle over the grass,
