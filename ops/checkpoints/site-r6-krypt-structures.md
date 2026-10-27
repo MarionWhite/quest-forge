@@ -31,3 +31,14 @@ the structure design from the mod pack". The krypt-gen task builds segments from
 - [ ] Where a mod ships schematic or structure files, list the paths, since krypt-gen may parse
   them directly.
 - [ ] Report in five lines.
+
+## Progress (agent log)
+- Step 1 done: jars unzipped under scratchpad r6/structures/*/x; tools in r6/tools (schem.py = schematic histogram, rc2.py = .rcst reader).
+  Harvested: Doomlike themes (res/themes/*.cfg), CQ schematics (stronghold rooms 15x10x15, castles, ships, pigcity, villages),
+  Recurrent Complex 60+ .rcst (zip: structure.json + worldData.nbt), Roguelike themes/rooms/segments (javap), TF structure class list.
+- Next: HEE, Witchery, OreSpawn, Lycanites, SecretRooms, Lucky, vanilla; then write docs/design/site/krypt-structures.md (commit partial at 10+ entries).
+- Step 2 done: harvested HEE, Witchery, OreSpawn, Lycanites, Lucky, SecretRooms, TF class lists. Wrote partial doc (outline, texture-source table, strata 1-2 first 12 entries) and committed.
+- Next: finish strata 2-12 (strata table entry ranges must be fixed to the final numbering at the end), then final commit.
+- Step 3 done: entries 1-35 written and committed. Next: strata 6-12 (36+), fix strata table ranges, final commit.
+- Step 4 done: entries 36-56 (Twilight, CQ) committed. Next: S9 arcane (57-64), S10 nether (65-71), S11 end (72-77), S12 beyond (78-84); fix strata table, final commit.
+- DONE: all 84 entries, 12 strata, gaps/params/licence sections written; final commit made.
