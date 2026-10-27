@@ -1,0 +1,12 @@
+{
+ "name": "textures-r010-items",
+ "owner": "texture-agent",
+ "comment": "r010 step 4: items board with CIT on: books centred by bounding box, a motif on every splash potion (the board's green one is splash poison). Build = r010 candidate v3c (Y fix, gem diamond, diamond-style emerald, bushy wheat, dense leaves). Shot mode.",
+ "prebuild": [
+  ["py", "-3.10", "-I", "tools/textures/build_qf_textures.py", "--wheat", "bushy", "--leaves", "dense", "--out", "C:/qfb/textures/diag/QF-v3c.zip"]
+ ],
+ "defaults": {"world": "C:/qfb/textures/world-showcase", "preset": "3", "size": "2560x1440", "mode": "shot", "cit": true},
+ "jobs": [
+  {"tag": "t10i", "resourcepacks": ["C:/qfb/textures/diag/QF-v3c.zip"], "scenes": "items_frames"}
+ ]
+}
