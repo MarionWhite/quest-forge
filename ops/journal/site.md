@@ -1,5 +1,6 @@
 # Site journal (newest first)
 
+- 2026-10-27 (Mac) krypt r7: passing focus rebuilt (lock with hysteresis, wall lean read per stone, 2.5 s wall hold, glance gate, 57 deg/s and 115 deg/s^2 caps; densest stretch 0-0.65 focus reversals/10 s, was 2.6-12.9), random prop scatter removed, props on real 1.7.10 models (props.js: chest, minecart, cauldron, anvil, brewing stand, enchanting table, piston, boat, pot, map, fence...), 15 story rooms (kinds_e.js) and a room rhythm (36% rooms, 600-block repeats 1176/1347 -> 95/1477 windows); heap after GC flat at ~15.5 MB (the 62 MB was a pre-GC dump sample); static mobs baked. Draw calls up to ~147 at busy spots (terrain per texture per chunk), left for an atlas.
 - 2026-10-27 (Mac) scares r7: FNAF pulled back to Story Mode. 13 scares reworked so the mob's own mechanic is the scare and the blow
   lands in the world (no lens lunges, jitter, tear, static or screech; at most one device each); Enderman and Creeper code
   untouched; death screams play one take per scare. Sheet `scratchpad/r7/scares/all/sheet.png`; J run 16/16, no exceptions.

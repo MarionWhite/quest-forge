@@ -1,4 +1,4 @@
-# site-r7-krypt (checkpoint, started 2026-10-27, Mac)
+# site-r7-krypt (checkpoint, started 2026-10-27, Mac) - DONE 2026-10-27
 
 Brief: `ops/briefs/site-3d-page.md`. Agent: opus, a level designer with taste, not a feature builder.
 Owns: all of `site/graves/*` except `scares.js`, `scares/*`, `tex/scare/*`, `mood.js` and `mood/*`; and
@@ -18,21 +18,21 @@ Previous state: `site-r6-krypt-gen.md`. Specs: `docs/design/site/krypt-endless.m
   and compare, and keep every quality that version had.
 
 ## Done means
-1. [ ] **Camera:**
+1. [x] **Camera:**
    - The passing focus never ping-pongs. With dense stones, hold a gentle side bias toward the wall the
      stones are on, and turn fully only toward a stone you are slowing near.
    - Add hysteresis, a minimum hold, and a cap on yaw rate and acceleration.
    - Prove it with a real-time CDP metric: steady scrolling past the densest stretch at slow, medium and
      fast speeds. Report yaw direction reversals per 10 s (target ≤ 1) and peak yaw rate.
    - Click focus works as before.
-2. [ ] **Props with common sense:**
+2. [x] **Props with common sense:**
    - Remove the generic random-prop scatter (chests, cauldrons, carts).
    - Props appear only where a builder would put them: chests in a treasury or vault, cauldrons in an
      alchemy room or witch hut, carts on rails in a mine, bones in an ossuary.
    - Every prop uses its real 1.7.10 model and texture, close-up correct: the chest model with lid and
      latch, the cauldron model with its hollow inside.
    - Make a close-crop sheet of every prop type.
-3. [ ] **Less repetition, more creativity:**
+3. [x] **Less repetition, more creativity:**
    - Judge it as the visitor walks it. Write a walk filmstrip tool that samples a frame every 12 blocks
      along 600 blocks of path at 3 depths. A viewer must not feel "I've seen this" within a strip.
    - Fewer plain corridors. More rooms, landmarks, height changes and memorable set pieces.
@@ -53,9 +53,9 @@ Previous state: `site-r6-krypt-gen.md`. Specs: `docs/design/site/krypt-endless.m
      - a flooded ossuary;
      - a crypt of iron doors.
      Study the catalogue and the mods; don't copy.
-4. [ ] Keep round 5's lighting rules, the graves in alcoves, the stone focus feel and performance. Measure
+4. [x] Keep round 5's lighting rules, the graves in alcoves, the stone focus feel and performance. Measure
    heap and draw calls; the heap rose to 62 MB, so find out why.
-5. [ ] Sheets:
+5. [x] Sheets:
    - the yaw metric table;
    - the prop crops;
    - 3 walk filmstrips, before and after;
@@ -107,3 +107,33 @@ Previous state: `site-r6-krypt-gen.md`. Specs: `docs/design/site/krypt-endless.m
   rooms running (def.room; set pieces count). strata pools widened to 10-14. check_krypt_plan.mjs: rhythm line +
   corridor run <= 4. r7 plan: 36% rooms, 6% of 600-block walks repeat (96 repeats). NEXT: one frame per structure, fix,
   after strips, commit.
+- [x] Step 3 committed (a84e267). After strips: scratchpad r7/krypt/strips/after1/{A,B,C}.png, 0 exceptions, no kind
+  repeats within a strip (A: arch_run rail_ravine tomb_gallery spider_nest crypt mine iron_crypt classic carpet_crypt
+  worn piston_trap; B: tomb_gallery piston_trap vault treasury giant_bones sand_temple sun_hall temple desert_tomb;
+  C: cartographer obsidian_vault tomb_gallery iron_crypt end_hall wool_hall treasury soul_gallery giant_bones).
+  Structure frames so far: st1/sheet.png (entries), st2/sheet.png (focal views, tools/focal.mjs) - re-dump for final.
+- Heap (step 4) in progress: the 62 MB was r6's dump stat = performance.memory right after a synchronous build (garbage
+  included). tools/heapsnap.mjs = GC + heap snapshot by constructor + dump calls; matrix r5/r6/now x graves 10/1000/9000
+  -> scratchpad r7/krypt/heap/heap_matrix.txt. NEXT: heap table, prop crops of the new props, final structure sheet,
+  side-by-side vs 275579a (r5wt :8742), check_sounds, journal, done, kill 8741-8743, remove r5wt/r6wt worktrees.
+- Heap (step 4) result: retained JS heap after GC (tools/heapsnap.mjs, demo=10000, graves 10/1,000/9,000): r5 8.9/8.8/8.8 MB,
+  r6 14.1/15.4/14.6, r7 15.0/15.5/15.7 - flat with depth, no leak. The "62 MB" was r6's dump stat: performance.memory read
+  right after the synchronous dump build, before any GC (garbage). r5->r6 +6 MB = more chunk voxel windows and plan arrays
+  (JSArrayBufferData +2-3 MB, (array) +3 MB). Draw calls (renderBufferDirect hook, tools/calls2.js): ~125 at the busiest
+  spots, 15 of them post passes and ~65 terrain textures per chunk; static mob figures now baked to one mesh per material
+  (dressx bakeFigure). p95 frame 16.7-16.8 ms walking the witch hut and the forge at 4 b/s.
+- Props crops final: scratchpad r7/krypt/props/sheet_final.png (21 crops). Witch: lit (emissiveMap) instead of a black
+  silhouette; frozen-hall mobs lit through the ice; witch cauldron light softened (was green). Structures: st3/sheet.png.
+  Side-by-side vs 275579a: sbs/sheet.png. check_sounds OK.
+- Yaw recheck on the r7 plan's densest stretch (at=0.0287): focus reversals 1.3/10 s medium, 3.6 fast because the run
+  continues into sparse rooms where glances alternate walls. Fix in app.js: glance from 3 s/stone (full at 5 s) and no
+  glance to the other wall until the last one has been over ~2 s. Rerun -> yaw_final2.txt.
+- Final yaw (r7 plan, densest stretch leg 332, final code 2562d86): focus reversals/10 s 0 / 0.65 / 0 at 1.5 / 4 / 9 b/s
+  (notched 0 / 0.68 / 0), peak 11-18 deg/s steady; camera reversals 1.2-5.6/10 s are the r5 path sway and the corners.
+  Click focus re-checked (focusI 336, sheet, unfocus). Table: scratchpad r7/krypt/cam/yaw_table.png.
+- DONE. Sheets (scratchpad r7/krypt/): cam/yaw_table.png; props/sheet_final.png; strips/before/{A,B,C}.png and
+  strips/after1/{A,B,C}.png; st6/sheet.png (one frame per structure); sbs/sheet.png (275579a vs now, 6 spots).
+  Final dumps (final_dump/) 0 errors; check_sounds exit 0; check_krypt_plan OK. Servers 8741-8743 stopped, r5wt/r6wt removed.
+  Open for the owner/next round: draw calls reach 120-147 at busy spots (r6: 37-85), ~65 of them terrain textures per
+  chunk and 15 post passes; a texture array/atlas per chunk would collapse the terrain draws. Not mine: mood.js:116 TDZ
+  on `last` (thrown every frame when krypt-ready fires before mood boots).
