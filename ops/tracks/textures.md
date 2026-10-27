@@ -11,10 +11,11 @@ Rewrite this file when the state changes; keep it under 2 KB.
   - Leaf frills A/B/C via `--leaf-edges none|all|sides`; D (outward frills) needs qf-tweaks code.
   - Weak: fern, birch bark, wheat middle stages, grass top a little flat.
 - **Hand-off:** `C:\qfb\shaderdev\r008\texture_scenes.json` + `TEXTURES-READY` (11 scenes).
-- **r009 v2 in progress** (`ops/checkpoints/r009-textures.md`): leaves closed at v2b; grass top closed at v2c (vanilla's
+- **r009 v2 handed off** (`ops/checkpoints/r009-textures.md`): leaves closed at v2b; grass top closed at v2c (vanilla's
   pattern kept crisp at 32x, as r007); crops closed at v2e (airy wheat with slim ears, Faithful 64x carrots/potatoes).
   Metals/emerald closed at v2g; the tex-golden artifact is shader-side (handed to r009-shader); potions closed at v2h
-  (a motif per effect, one sprite each). Next: step 7, the r009 scene hand-off (texture_scenes.json + TEXTURES-READY).
+  (a motif per effect, one sprite each). Hand-off: `C:\qfb\shaderdev\r009\texture_scenes.json` + `TEXTURES-READY`
+  (9 scenes, v1 | v2 | Faithful 64x under the r009 shader; render 1026-234658). Next: wait for the owner's r009 feedback.
 - **Owner likes:** Faithful 64x bricks/metals; Stay True wheat and tree leaves (no frills on lone blocks/hedges);
   Patrix mobs (repaints only on 1.7.10); VNR light; Soartex bookshelves; Faithless items, potions, books, GUI, tabs, TNT, boss bars.
 - **Owner dislikes:** Conquest's textures, Faithful's grass, Faithless's blocks.
