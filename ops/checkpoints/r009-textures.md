@@ -59,6 +59,24 @@ Nothing for v2 started; no renders submitted.
     leaves_close, tree_close, forest_lit. Submission **1026-223656-textures-v2-leaves**: DONE 22:44,
     6/6 frames, nothing cached (result.json in C:\qfb\renderq\results\1026-223656-textures-v2-leaves\). Not reviewed yet.
 
+- 2026-10-26 (texture-dev, capped run): 1d review of 1026-223656 + fix, render submitted.
+  - check_frames.py has no contact-sheet mode; built sheets/crops with a scratchpad PIL script instead.
+  - Verdict t9v2 vs t9v1: v2 calmer, clumpier, fewer harsh holes, so better. But a native-res crop of the hedge
+    (leaves_close) showed a diagonal hatch repeating block to block: every clump's crown was a straight
+    half-plane cut toward one LIGHT, and the cuts lined up. Distant canopies (tree_close) slightly flatter than v1.
+  - Fix in `leaves()`: per-clump light angle (±0.8 rad) and the crown is now a round highlight pushed toward it
+    (push 0.25-0.45, radius 0.45-0.65), drawn from its own stream rng(seed+100). Preview: hatch gone, clumps
+    read as rounded masses; acacia slightly coin-like. Committed with spec `tools/renderq/specs/textures-v2b-leaves.json`.
+  - Submission **1026-224756-textures-v2b-leaves** (tag t9v2b; compare with t9v2/t9v1 frames from 1026-223656).
+
+  - 1026-224756 DONE 22:51, 3/3 frames. Reviewed as a 3-way contact sheet t9v1 | t9v2 | t9v2b plus native-res crops
+    (2560px frame boxes: hedge 800,740,1440,1100; lower canopy 900,860,1540,1220; forest 1600,360,2240,720).
+    v2b: the hedge reads as rounded clump masses, and the hatch is down to a faint diagonal from the leaf
+    lenses (normal(pi/2, 1.0) angles). Canopy/forest same as v2 or better. **Step 1 (leaves) closed at v2b.**
+    Caveat for the owner: this refines v1's procedural clump approach rather than a ground-up redesign;
+    if r009 feedback still says the leaves are bad, the next path is hand-painted leaf masters instead of more generator tuning.
+
 ## Next
-Step 1d: `renderq.py results 1026-223656-textures-v2-leaves`; review t9v2 against t9v1 as a contact sheet
-(check_frames.py). If the leaves read as foliage masses with no tiling tell, move on to step 2 (grass).
+Step 2: grass top/side. Restore the crisp r007 read with no flat felt (owner: "emerald and grass look weird").
+Start read-only: find the grass code in qf_art.py/build_qf_textures.py and diff it against r007 (git log),
+then preview offline before any render. Reuse spec pattern `tools/renderq/specs/textures-v2b-leaves.json`.
