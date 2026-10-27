@@ -40,3 +40,12 @@ rt/scareflow16.js, rt/trace.js, cmp_trace.py).
   the hiss, the swell, the white flashes), every sound is the mob's, the one glitch is diegetic (teleport), the "lunge"
   is short and motivated (it teleported to arm's length; it was already behind you), and the kill leaves a mark in the
   world (the lava chasm, the crater, the hotbar scattered) with an aftershock (the fall, the second hiss).
+- Kit: `scares/story.js` (roar, blow, kick, impactSplit, hop, faceOf). Shared fnaf/common/rig untouched so far.
+- Dumps: dump_frames needs `--budget 60000` now (multi.py passes it); a page sometimes misses its hook on the
+  busy machine, rerun it alone.
+- [x] Pigman (66ce321): pick lands, head snaps round, a beat staring over his shoulder in the hurt tint, he turns
+  square, arms drop, steps in to 0.6 m, sword wound back over his head and chopped down on yours (kick, blood up into
+  view, stagger); then the horde as before. No lunge/screech/tear/static; impactSplit 0.25 on the blow; eyes 0.45.
+  Frames `pig3/sheet.png` (shots `pig1.txt`, seeds 1-3 at at=0.3/0.55/0.8). Real-time check still to do (J run).
+- Next: Zombie, Skeleton, Spider, Cave Spider, Witch, Slime, Silverfish, Blaze, Ghast, Magma Cube, Wither
+  Skeleton, Lava fall, Drowned (in that order).
