@@ -1,5 +1,11 @@
 # Site journal (newest first)
 
+- 2026-10-27 (Mac) orchestrator: round 7 done. The owner judged round 6's Krypt a regression; my
+  stills-only reviews had missed motion and props. This round added a real-time yaw metric, prop
+  close crops, walk filmstrips and a side-by-side against 275579a (round 5). The side-by-side caught
+  the lost cold-to-warm descent. I fixed mood.js's TDZ crash myself (initMood threw whenever the
+  Krypt was up first). Approved Enderman and Creeper on the owner's word.
+
 - 2026-10-27 (Mac) krypt r7 follow-up: round 5's depth lighting restored over the endless path (r5 crypt values at the entrance, cold-to-warm per stratum and over the descent, torches thinned at stratum tops, cold opening kinds; nether/End keep their glow); terrain on one texture array per chunk (draw calls desktop 144->95 max, phone 88->62 max, typical 18-24); wall lean holds through corners (0-0.65 focus reversals/10 s).
 - 2026-10-27 (Mac) krypt r7: passing focus rebuilt (lock with hysteresis, wall lean read per stone, 2.5 s wall hold, glance gate, 57 deg/s and 115 deg/s^2 caps; densest stretch 0-0.65 focus reversals/10 s, was 2.6-12.9), random prop scatter removed, props on real 1.7.10 models (props.js: chest, minecart, cauldron, anvil, brewing stand, enchanting table, piston, boat, pot, map, fence...), 15 story rooms (kinds_e.js) and a room rhythm (36% rooms, 600-block repeats 1176/1347 -> 95/1477 windows); heap after GC flat at ~15.5 MB (the 62 MB was a pre-GC dump sample); static mobs baked. Draw calls up to ~147 at busy spots (terrain per texture per chunk), left for an atlas.
 - 2026-10-27 (Mac) scares r7: FNAF pulled back to Story Mode. 13 scares reworked so the mob's own mechanic is the scare and the blow
