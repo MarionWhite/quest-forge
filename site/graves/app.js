@@ -781,7 +781,10 @@ function frameInner(now) {
         // close run already counts as close.
         const gp = (j) => (j > 0 && j < n ? sl[j].d - sl[j - 1].d : 99);
         const gap = Math.min(gp(li), gp(li + 1), gp(li + 2));
-        PF.dense += (1 - smooth01((gap - 5) / 3.5) - PF.dense) * (1 - Math.exp(-dt * 1.2));
+        // Quick to notice close stones, slow to forget them: a corner or a short passage inside a close run does not
+        // let the lean fall away and come back.
+        const dT = 1 - smooth01((gap - 5) / 3.5);
+        PF.dense += (dT - PF.dense) * (1 - Math.exp(-dt * (dT > PF.dense ? 1.2 : 0.15)));
         // A glance needs the stone to pass in its own time: none when the next comes within 3 s, full from 5 s. And no
         // glance to the other wall until the last one has been over for a couple of seconds: a stroll past stones on
         // alternate walls looks at one, walks on, then looks at another, never left-right-left.
@@ -797,19 +800,23 @@ function frameInner(now) {
         if (w * glance > 0.15) { PF.gSide = gs; PF.gQuiet = 0; } else PF.gQuiet += dt;
         // The wall to lean toward: where the stones ahead are, held until the other wall clearly has more, and set
         // to the stone's wall when you stop to read one, so walking on keeps the view on the side you were reading.
-        // A change of wall waits at least 2.5 s after the last, so the lean never flicks across and back.
+        // A change of wall waits at least 4 s after the last, so the lean never flicks across and back.
         const side0 = PF.side; PF.sideT += dt;
         if (rest > 0.5 && w > 0.5) PF.side = an.ys;
-        else if (PF.side === 0 || ((PF.side > 0 ? wL : wR) < 0.05 && PF.sideT > 2.5)) PF.side = wL > wR ? 1 : wR > wL ? -1 : PF.side;
-        else if ((PF.side > 0 ? wR : wL) > 1.8 * (PF.side > 0 ? wL : wR) + 0.3 && PF.sideT > 2.5) PF.side = -PF.side;
+        else if (PF.side === 0 || ((PF.side > 0 ? wL : wR) < 0.05 && PF.sideT > 4)) PF.side = wL > wR ? 1 : wR > wL ? -1 : PF.side;
+        else if ((PF.side > 0 ? wR : wL) > 1.8 * (PF.side > 0 ? wL : wR) + 0.3 && PF.sideT > 4) PF.side = -PF.side;
         if (PF.side !== side0) PF.sideT = 0;
         // Only where the stones are close, and not at a run: hurrying past, you look where you are going.
-        const bias = 0.13 * smooth01((PF.dense - 0.4) / 0.4) * (1 - smooth01((PF.pace - 5) / 3)) * PF.side;
+        const bias = 0.13 * smooth01((PF.dense - 0.3) / 0.4) * (1 - smooth01((PF.pace - 5) / 3)) * PF.side;
         fyT = bias * (1 - turn) + Math.max(-1.5, Math.min(1.5, th)) * 0.96 * turn;
         fpT = -0.1 * turn;
         // Step a little toward the stone so its name is big enough to read.
         offT = an.frame.out.clone().multiplyScalar(1.1 * turn);
         if (turn > 0.2) K.nearI = li;
+      } else {
+        // No stone near (a corner, a passage): keep the lean, letting it fade as slowly as the run is forgotten.
+        PF.dense += (0 - PF.dense) * (1 - Math.exp(-dt * 0.15));
+        fyT = 0.13 * smooth01((PF.dense - 0.3) / 0.4) * (1 - smooth01((PF.pace - 5) / 3)) * PF.side;
       }
     }
     if (!offT) offT = new THREE.Vector3();
