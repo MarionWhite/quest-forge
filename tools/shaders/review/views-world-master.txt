@@ -108,3 +108,8 @@ dust_a           259.5   auto   -44.5    90     8      10500
 dust_b           259.5   auto   -44.5    60     6      11000
 dust_c           254.5   auto   -40.5    120    10     10000
 dust_d           262.5   auto   -48.5    75     14     11300
+# r010 leaf frills (docs/design/textures/leaf-frills.md): forest_far looks down over the forest_golden
+# woods from 30-odd blocks above the clearing floor at the texture scenes' time (7000), so canopy
+# silhouettes and edges fill the frame from near to far. With leaves_close, tree_close, forest_lit
+# and biome_roofed it is the frills on/off scene set.
+forest_far       259.5   105.0  -44.5    60     18     7000
