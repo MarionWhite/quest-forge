@@ -178,15 +178,19 @@ Nothing for v2 started; no renders submitted.
     **Step 6 (potions) closed at v2h.** For the owner: the board shows 8 of the 12; include the offline sheet in the r009 items
     scene so poison/weakness/slowness/harming/invisibility are seen too.
 
-## Next
-Step 7: render the r009 comparison scenes via renderq (shot mode at night), write texture_scenes.json in C:\qfb\shaderdev\r009
-(format: r008's texture_scenes.json) + TEXTURES-READY; `trial.py guard`; no push. Default build is now
-`build_qf_textures.py --out C:/qfb/textures/QFTextures-v2.zip` (CIT on, no duplicate entries; --metals qf).
-Steps still open: 7 (scene hand-off).
-
 - 2026-10-26 (texture-dev, capped run): step 7 render submitted.
   - Spec `tools/renderq/specs/textures-v2-r009.json`: t9v2h (final v2 build) + t9f64 (Faithful 64x) under the r009 shader on
     texture_wall, texture_wall2, forest_lit, golden_lit, farm, farm_close, leaves_close, tree_close. A = existing t9v1 frames.
     Items B = existing bench-t9v2h-items_frames (final build). Glass and PBR scenes dropped (unchanged; owner: same / fine).
   - Submission **1026-234658-textures-v2-r009**. Next: wait, crop items (r008 crops are 1240x360), offline 12-potion sheet,
     write C:\qfb\shaderdev\r009\texture_make_scenes.py -> texture_scenes.json + TEXTURES-READY, guard.
+  - 1026-234658 DONE 23:51, 16/16 frames. Contact sheet t9v1 | t9v2h | t9f64 of all 8 scenes: every frame valid, framing matches.
+  - Items: t9v2h board cropped at r008's box (660,760,1900,1120, found by matching r008's crop) -> r009\crops\items-t9v2h.png;
+    offline sheet `qf_items.py` -> r009\crops\items-sheet-v2h.png, re-laid in two rows (13 potions incl. splash / 9 books)
+    -> items-sheet-v2h-2row.png, used as tex-items option C.
+  - texture_scenes.json written (9 scenes), TEXTURES-READY written, `trial.py guard` OK. **Step 7 closed. r009 textures done.**
+
+## Next
+All 7 steps closed; the hand-off is in C:\qfb\shaderdev\r009 (texture_scenes.json, TEXTURES-READY, texture_make_scenes.py, crops\).
+Nothing is open for r009 textures. The next work starts from the owner's r009 tex-* feedback. No push (the orchestrator's call).
+Default build: `build_qf_textures.py --out C:/qfb/textures/QFTextures-v2.zip` (CIT on, --metals qf).
