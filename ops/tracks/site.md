@@ -13,6 +13,9 @@ Updated 2026-10-26 (Mac).
   (Shift+M; peeks are unverified in stills), screams by ear, Safari, phone.
 - Open for the owner: a recorded voice if the CC0 screams fall short; Witchery/Twilight/HEE art
   plus the game-asset licence and publish route (`DECISIONS.md`, Site).
+- Round 7 running (owner 2026-10-27: Krypt regressed vs round 5, scares too FNAF, screams digitized,
+  Lucky act logic): lucky, krypt (opus), scares (opus), audio. Checkpoints `checkpoints/site-r7-*.md`.
+  Enderman and Creeper approved for the director.
 - Known: Krypt heap ~62 MB at grave 1,000 (37 MB a pass earlier), not yet profiled; four Lucky
   activity shots (harvest, sapling, notes, brew) are framed tight.
 - Checks: `dump_frames.py --sheet`, `vet_lucky.py`, `audit_lucky.py`, `nav_check.py`,
