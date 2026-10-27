@@ -25,7 +25,7 @@ export const SCARES = [
   { id: "Silverfish", label: "Silverfish", entry: "wall break", file: "silverfish" },
   { id: "Blaze", label: "Blaze", entry: "heat", file: "blaze" },
   { id: "Ghast", label: "Ghast", entry: "piston trap", file: "ghast", deep: true },
-  { id: "MagmaCube", label: "Magma Cube", entry: "behind you", file: "magmacube" },
+  { id: "MagmaCube", label: "Magma Cube", entry: "in the black", file: "magmacube" },
   { id: "PigZombie", label: "Zombie Pigman", entry: "your fault", file: "pigman" },
   { id: "WitherSkeleton", label: "Wither Skeleton", entry: "in the fog", file: "witherskeleton", deep: true },
   // Failed jumps: only at the Krypt's gaps (krypt-gap), never from the random director; the picker plays them here.
@@ -76,6 +76,9 @@ function hush(on) {
 }
 function soundPlayer(R, S) {
   const live = [], fired = new Set();
+  // One voice at a time: the death screams are single recorded takes of 2 to 4.5 s (round 7), so a second call while
+  // one still sounds would put a second man screaming over the first. The take plays through instead.
+  let voice = null;
   const pos = (o) => (o && o.at ? R.Lp(o.at[0], o.at[1], o.at[2]) : null);
   return {
     tick(prev, t) {
@@ -90,7 +93,8 @@ function soundPlayer(R, S) {
             for (const x of live) if (!x.done) { x.done = true; try { x.h.stop(o.s ?? 0.12); } catch (e) { /* ignore */ } }
             const ctx = audio.context(), n = audio.busNode("ambient");
             if (ctx && n) { const t0 = ctx.currentTime; n.gain.cancelScheduledValues(t0); n.gain.setValueAtTime(n.gain.value, t0); n.gain.linearRampToValueAtTime(0, t0 + (o.s ?? 0.12)); }
-          } else audio.play(name, { ...o, pos: pos(o) || undefined });
+          } else if (name === "qf.scare.death_scream") { if (!voice || voice.stopped) voice = audio.play(name, { ...o, pos: pos(o) || undefined }); }
+          else audio.play(name, { ...o, pos: pos(o) || undefined });
         } catch (e) { /* audio locked */ }
       });
       (S.loops || []).forEach((l, i) => {
