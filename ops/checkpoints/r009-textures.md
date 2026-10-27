@@ -183,3 +183,10 @@ Step 7: render the r009 comparison scenes via renderq (shot mode at night), writ
 (format: r008's texture_scenes.json) + TEXTURES-READY; `trial.py guard`; no push. Default build is now
 `build_qf_textures.py --out C:/qfb/textures/QFTextures-v2.zip` (CIT on, no duplicate entries; --metals qf).
 Steps still open: 7 (scene hand-off).
+
+- 2026-10-26 (texture-dev, capped run): step 7 render submitted.
+  - Spec `tools/renderq/specs/textures-v2-r009.json`: t9v2h (final v2 build) + t9f64 (Faithful 64x) under the r009 shader on
+    texture_wall, texture_wall2, forest_lit, golden_lit, farm, farm_close, leaves_close, tree_close. A = existing t9v1 frames.
+    Items B = existing bench-t9v2h-items_frames (final build). Glass and PBR scenes dropped (unchanged; owner: same / fine).
+  - Submission **1026-234658-textures-v2-r009**. Next: wait, crop items (r008 crops are 1240x360), offline 12-potion sheet,
+    write C:\qfb\shaderdev\r009\texture_make_scenes.py -> texture_scenes.json + TEXTURES-READY, guard.
