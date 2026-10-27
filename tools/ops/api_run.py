@@ -8,16 +8,16 @@
 
     --brief ops/briefs/x.md | --prompt-file F | PROMPT   what to do (briefs may be combined with PROMPT)
     --checkpoint NAME      "resume from ops/checkpoints/NAME.md, do the next step, checkpoint, exit"
-    --est-usd N            estimate used for the ledger check (default 0.25)
-    --max-usd N            hard cap for this run, passed to claude --max-budget-usd (default 1.00,
-                           and never more than the lane's remaining daily/monthly headroom)
-    --reserve              needed for the reserve lane
+    --est-usd N            estimate used for the ledger check (default 1.00)
+    --max-usd N            hard cap for this run, passed to claude --max-budget-usd (default 5.00,
+                           and never more than the remaining $50/day or $200/month across all lanes)
+    --reserve              accepted and ignored (no lane needs approval since 2026-10-26)
     --dry-run              print the plan (command, ledger check) and exit; no key needed, no spend
 
     Overflow (subscription nearly or fully used):
     --when-subscription-limited   only run if the subscription is known to be limited; otherwise exit 0
                                   doing nothing. Continuity lane only (auto-overflow is approved there,
-                                  within its daily allowance). "Known limited" = the 5-hour session OR the
+                                  within the shared daily cap). "Known limited" = the 5-hour session OR the
                                   weekly limit is at or above --limit-pct (default 90, the owner's choice
                                   2026-10-26: switch at 90 % so 10 % of the subscription stays in reserve),
                                   or the marker file ~/.qf/subscription-limited exists and has not expired,
@@ -156,7 +156,7 @@ def build_prompt(a):
         parts.append("Read CLAUDE.md first, then your brief at %s and carry it out." % a.brief)
     if a.checkpoint:
         parts.append("Resume from ops/checkpoints/%s.md (read CLAUDE.md first). Do the next step only, "
-                     "update the checkpoint, and exit. This run is on a capped API budget: be brief, "
+                     "update the checkpoint, and exit. This run has a hard API budget cap: "
                      "do not start work that cannot finish within it, and leave the checkpoint current." % a.checkpoint)
     if a.prompt_file:
         with open(a.prompt_file, "r", encoding="utf-8") as f:
@@ -183,8 +183,8 @@ def main(argv=None):
     ap.add_argument("--model", choices=["opus", "sonnet", "haiku"])
     ap.add_argument("--task")
     ap.add_argument("--brief"); ap.add_argument("--prompt-file"); ap.add_argument("--checkpoint")
-    ap.add_argument("--est-usd", type=float, default=0.25)
-    ap.add_argument("--max-usd", type=float, default=1.00)
+    ap.add_argument("--est-usd", type=float, default=1.00)
+    ap.add_argument("--max-usd", type=float, default=5.00)
     ap.add_argument("--reserve", action="store_true")
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--when-subscription-limited", action="store_true")

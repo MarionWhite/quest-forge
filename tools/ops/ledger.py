@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """API-credit ledger for the Quest Forge harness.
 
-$200/month of Anthropic API credits, split into lanes. Every API spend (api_run.py, batch.py)
+Two caps, shared by every lane (the owner's rule, 2026-10-26): $200 per calendar month and $50 per
+day. Lanes only label what a spend was for. Every API spend (api_run.py, batch.py)
 appends one JSON line to ops/api-ledger.jsonl; this tool reads it back.
 
     py -3.10 -I tools/ops/ledger.py status [--json]
@@ -17,10 +18,10 @@ LEDGER = os.environ.get("QF_LEDGER") or os.path.join(REPO, "ops", "api-ledger.js
 # C:\Users\a2dsu\.qf\anthropic.key on the PC, ~/.qf/anthropic.key on the Mac
 KEY_FILE = os.path.join(os.path.expanduser("~"), ".qf", "anthropic.key")
 
-# Monthly budgets, USD. Daily allowance = monthly / 30 (continuity: $90 -> $3/day).
-LANES = {"continuity": 90.0, "batch": 50.0, "automation": 20.0, "reserve": 40.0}
-NEEDS_FLAG = {"reserve"}  # only spendable with --reserve; no daily allowance
-DAYS_PER_MONTH_FOR_DAILY = 30.0
+# The only caps, USD, across all lanes together. Lanes are labels for the ledger and status.
+MONTH_CAP = 200.0
+DAY_CAP = 50.0
+LANES = ("continuity", "batch", "automation", "reserve")
 
 # Per-million-token prices (USD) from the claude-api skill (cached 2026-10-06).
 # Opus 5.5 / Sonnet 5.5 cache reads are $0.20 per the skill; Haiku 5.5 read is taken as 0.1x input.
@@ -32,10 +33,6 @@ PRICES = {
 }
 MODEL_IDS = {"opus": "claude-opus-5-5", "sonnet": "claude-sonnet-5-5", "haiku": "claude-haiku-5-5"}
 BATCH_DISCOUNT = 0.5
-
-
-def daily_allowance(lane):
-    return None if lane in NEEDS_FLAG else LANES[lane] / DAYS_PER_MONTH_FOR_DAILY
 
 
 def model_id(name):
@@ -118,62 +115,57 @@ def has_record(run_id, task, path=None):
 
 
 def summarize(records=None, now=None, path=None):
-    """Per-lane month-to-date / today spend, remaining, and projected month-end."""
+    """Month-to-date / today spend per lane and in total, remaining against the caps, projection."""
     records = read_records(path) if records is None else records
     now = now or now_local()
     days_in_month = calendar.monthrange(now.year, now.month)[1]
     elapsed = (now.day - 1) + (now.hour * 3600 + now.minute * 60 + now.second) / 86400.0
     elapsed = max(elapsed, 1.0)  # don't over-project from the first hours of a month
-    out = {}
-    for lane, budget in LANES.items():
-        month = day = 0.0
-        for r in records:
-            if r.get("lane") != lane:
-                continue
-            try:
-                t = dt.datetime.fromisoformat(r["time"]).astimezone(now.tzinfo)
-            except (KeyError, ValueError):
-                continue
-            if (t.year, t.month) == (now.year, now.month):
-                month += r.get("cost_usd", 0.0)
-                if t.day == now.day:
-                    day += r.get("cost_usd", 0.0)
-        allow = daily_allowance(lane)
-        out[lane] = {
-            "budget": budget, "month_spent": round(month, 4), "month_remaining": round(budget - month, 4),
-            "daily_allowance": allow, "today_spent": round(day, 4),
-            "today_remaining": None if allow is None else round(allow - day, 4),
-            "projected_month_end": round(month / elapsed * days_in_month, 2),
-        }
-    return out
+    lanes = {lane: {"month_spent": 0.0, "today_spent": 0.0} for lane in LANES}
+    for r in records:
+        if r.get("lane") not in lanes:
+            continue
+        try:
+            t = dt.datetime.fromisoformat(r["time"]).astimezone(now.tzinfo)
+        except (KeyError, ValueError):
+            continue
+        if (t.year, t.month) == (now.year, now.month):
+            lanes[r["lane"]]["month_spent"] += r.get("cost_usd", 0.0)
+            if t.day == now.day:
+                lanes[r["lane"]]["today_spent"] += r.get("cost_usd", 0.0)
+    month = sum(v["month_spent"] for v in lanes.values())
+    day = sum(v["today_spent"] for v in lanes.values())
+    for v in lanes.values():
+        v["projected_month_end"] = round(v["month_spent"] / elapsed * days_in_month, 2)
+        v["month_spent"] = round(v["month_spent"], 4); v["today_spent"] = round(v["today_spent"], 4)
+    return {"lanes": lanes, "total": {
+        "month_cap": MONTH_CAP, "day_cap": DAY_CAP,
+        "month_spent": round(month, 4), "month_remaining": round(MONTH_CAP - month, 4),
+        "today_spent": round(day, 4), "today_remaining": round(DAY_CAP - day, 4),
+        "projected_month_end": round(month / elapsed * days_in_month, 2)}}
 
 
 def check(lane, est_usd, reserve=False, records=None, now=None, path=None):
-    """Return (ok, code, message). code: 0 ok, 2 daily, 3 monthly, 4 needs --reserve, 5 unknown lane."""
+    """Return (ok, code, message). code: 0 ok, 2 daily, 3 monthly, 5 unknown lane.
+    `reserve` is accepted for old callers and ignored: no lane needs approval any more."""
     if lane not in LANES:
         return False, 5, "unknown lane %r (lanes: %s)" % (lane, ", ".join(LANES))
-    if lane in NEEDS_FLAG and not reserve:
-        return False, 4, "lane %s needs --reserve (owner-approved spending only)" % lane
-    s = summarize(records, now, path)[lane]
+    t = summarize(records, now, path)["total"]
     eps = 1e-9
-    if s["today_remaining"] is not None and est_usd > s["today_remaining"] + eps:
-        return False, 2, "lane %s: est $%.2f exceeds today's remaining $%.2f (allowance $%.2f/day)" % (
-            lane, est_usd, max(s["today_remaining"], 0), s["daily_allowance"])
-    if est_usd > s["month_remaining"] + eps:
-        return False, 3, "lane %s: est $%.2f exceeds month remaining $%.2f (budget $%.0f)" % (
-            lane, est_usd, max(s["month_remaining"], 0), s["budget"])
-    return True, 0, "ok: lane %s, est $%.2f, today left %s, month left $%.2f" % (
-        lane, est_usd, "n/a" if s["today_remaining"] is None else "$%.2f" % s["today_remaining"],
-        s["month_remaining"])
+    if est_usd > t["today_remaining"] + eps:
+        return False, 2, "est $%.2f exceeds today's remaining $%.2f (cap $%.0f/day, all lanes)" % (
+            est_usd, max(t["today_remaining"], 0), DAY_CAP)
+    if est_usd > t["month_remaining"] + eps:
+        return False, 3, "est $%.2f exceeds the month's remaining $%.2f (cap $%.0f/month, all lanes)" % (
+            est_usd, max(t["month_remaining"], 0), MONTH_CAP)
+    return True, 0, "ok: lane %s, est $%.2f, today left $%.2f, month left $%.2f" % (
+        lane, est_usd, t["today_remaining"], t["month_remaining"])
 
 
-def headroom(lane, records=None, now=None, path=None):
+def headroom(lane=None, records=None, now=None, path=None):
     """Largest spend that would still pass check()."""
-    s = summarize(records, now, path)[lane]
-    caps = [s["month_remaining"]]
-    if s["today_remaining"] is not None:
-        caps.append(s["today_remaining"])
-    return max(0.0, min(caps))
+    t = summarize(records, now, path)["total"]
+    return max(0.0, min(t["month_remaining"], t["today_remaining"]))
 
 
 def _fmt(v):
@@ -186,16 +178,13 @@ def cmd_status(a):
         print(json.dumps(s, indent=1))
         return 0
     print("API credits, %s (ledger: %s)" % (now_local().strftime("%Y-%m-%d"), os.path.relpath(LEDGER, REPO)))
-    print("%-11s %8s %8s %8s | %8s %8s %8s | %9s" % (
-        "lane", "budget", "month", "left", "day-cap", "today", "left", "projected"))
-    tot = [0.0, 0.0, 0.0]
-    for lane, v in s.items():
-        print("%-11s %8.2f %8.2f %8.2f | %8s %8.2f %8s | %9.2f%s" % (
-            lane, v["budget"], v["month_spent"], v["month_remaining"],
-            _fmt(v["daily_allowance"]), v["today_spent"], _fmt(v["today_remaining"]),
-            v["projected_month_end"], "  (needs --reserve)" if lane in NEEDS_FLAG else ""))
-        tot[0] += v["budget"]; tot[1] += v["month_spent"]; tot[2] += v["projected_month_end"]
-    print("%-11s %8.2f %8.2f %8.2f | %28s | %9.2f" % ("total", tot[0], tot[1], tot[0] - tot[1], "", tot[2]))
+    print("%-11s %8s %8s %9s" % ("lane", "month", "today", "projected"))
+    for lane, v in s["lanes"].items():
+        print("%-11s %8.2f %8.2f %9.2f" % (lane, v["month_spent"], v["today_spent"], v["projected_month_end"]))
+    t = s["total"]
+    print("%-11s %8.2f %8.2f %9.2f" % ("total", t["month_spent"], t["today_spent"], t["projected_month_end"]))
+    print("caps: $%.0f/month (left $%.2f), $%.0f/day (left $%.2f), shared by all lanes" % (
+        MONTH_CAP, t["month_remaining"], DAY_CAP, t["today_remaining"]))
     return 0
 
 
