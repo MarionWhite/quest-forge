@@ -97,3 +97,13 @@ Previous state: `site-r6-krypt-gen.md`. Specs: `docs/design/site/krypt-endless.m
   chest+crafting table, vaulted_hall: no bones, rubble = slab heaps at wall feet (kindreg), loose rubble dropped from
   mine/spidermine/chasm_open bridge. Crops: scratchpad r7/krypt/props/a1/sheet.png, a2/sheet.png (finder tools/findprops.js).
   Anvil/brewing stand models exist but no kind uses them yet (forge and witch hut will).
+- Step 3 in progress: before strips (r6 = b222712 worktree r6wt, port 8743): scratchpad r7/krypt/strips/before/{A,B,C}.png
+  (at 0.004/0.35/0.75; tools/strip.py + walkstrip.js). Finding: tiny pools + the no-repeat window made exact 5-leg cycles
+  (B, C) and 600 blocks of same-proportion tunnels (A). r6: 87% of 600-block walks repeat a kind (3824 repeats).
+- New: site/graves/kinds_e.js, 15 rooms with a story (spider_nest, sunken_chapel, prison_block, rail_ravine,
+  underground_lake, forge, desert_tomb, frozen_hall, piston_trap, ruined_portal, giant_bones, witch_hut, cartographer,
+  flooded_ossuary, iron_crypt); props.js adds stair/piston/boat/ice/pot/map (+flat)/dust/trapdoor; dress.js upright
+  torches (pushTorch fx=fz=0), map atlas (two joined 3x2 surveys). plan.js rhythm: a room after 2-3 corridors, never two
+  rooms running (def.room; set pieces count). strata pools widened to 10-14. check_krypt_plan.mjs: rhythm line +
+  corridor run <= 4. r7 plan: 36% rooms, 6% of 600-block walks repeat (96 repeats). NEXT: one frame per structure, fix,
+  after strips, commit.

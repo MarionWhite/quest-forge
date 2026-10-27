@@ -21,7 +21,7 @@ export function rough(c, o = {}) {
   }
 }
 // A ragged roof: tiles hang 1..len from the ceiling at random lanes (stalactites).
-function spikes(c, tile, n, len = 3, ceil = c.ht) {
+export function spikes(c, tile, n, len = 3, ceil = c.ht) {
   const { leg, y0, hw } = c;
   c.scatter(n, 240, (q, r1, r2, r3) => { const lu = Math.floor(-hw + r2 * 2 * hw), lv = Math.floor(c.lo + r1 * (c.hi - c.lo)), l = 1 + Math.floor(r3 * len); for (let j = 0; j < l; j++) c.L(leg, lu, lv, y0 + ceil - 1 - j, tile); });
 }

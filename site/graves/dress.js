@@ -20,19 +20,21 @@ function torchGeometry(list) {
   const pos = [], uv = [], idx = [];
   const h = 0.0625;
   for (const t of list) {
-    const ox = t.fx, oz = t.fz, px = -t.fz, pz = t.fx;
-    const bx = t.cx + ox * 0.1, by = t.j + 0.22, bz = t.cz + oz * 0.1;
+    // A torch with no facing stands upright on the block below (renderTorchAtAngle with no lean, at the cell floor).
+    const up = !t.fx && !t.fz, lean = up ? 0 : 0.4;
+    const ox = up ? 1 : t.fx, oz = up ? 0 : t.fz, px = -oz, pz = ox;
+    const bx = t.cx + (up ? 0 : ox * 0.1), by = t.j + (up ? 0 : 0.22), bz = t.cz + (up ? 0 : oz * 0.1);
     const cor = [[-1, -1], [1, -1], [1, 1], [-1, 1]].map(([u, v]) => [ox * h * u + px * h * v, oz * h * u + pz * h * v]);
     const u0 = 7 / 16, u1 = 9 / 16;
     for (let q = 0; q < 4; q++) {
       const c0 = cor[q], c1 = cor[(q + 1) % 4], base = pos.length / 3;
       pos.push(bx + c0[0], by, bz + c0[1], bx + c1[0], by, bz + c1[1],
-        bx + c1[0] + ox * 0.4, by + 1, bz + c1[1] + oz * 0.4, bx + c0[0] + ox * 0.4, by + 1, bz + c0[1] + oz * 0.4);
+        bx + c1[0] + ox * lean, by + 1, bz + c1[1] + oz * lean, bx + c0[0] + ox * lean, by + 1, bz + c0[1] + oz * lean);
       uv.push(u0, 0, u1, 0, u1, 1, u0, 1);
       idx.push(base, base + 1, base + 2, base, base + 2, base + 3);
     }
     const base = pos.length / 3, k = 0.625;
-    for (const c of cor) pos.push(bx + c[0] + ox * 0.4 * k, by + k, bz + c[1] + oz * 0.4 * k);
+    for (const c of cor) pos.push(bx + c[0] + ox * lean * k, by + k, bz + c[1] + oz * lean * k);
     uv.push(u0, 1 - 8 / 16, u1, 1 - 8 / 16, u1, 1 - 6 / 16, u0, 1 - 6 / 16);
     idx.push(base, base + 1, base + 2, base, base + 2, base + 3);
   }
@@ -41,6 +43,34 @@ function torchGeometry(list) {
   g.setAttribute("uv", new THREE.Float32BufferAttribute(uv, 2));
   g.setIndex(idx);
   return g;
+}
+
+// Sixteen maps in the style of a 1.7.10 filled map: a parchment margin, then terrain in the map palette (water, sand, grass,
+// forest, stone, snow) with the game's north-shading, each from its own seed. Our own drawing, not the game's art.
+function drawMaps() {
+  const c = document.createElement("canvas"); c.width = c.height = 512;
+  const x = c.getContext("2d");
+  const PAL = { water: [64, 64, 255], sand: [247, 233, 163], grass: [127, 178, 56], forest: [0, 124, 0], stone: [112, 112, 112], snow: [255, 255, 255] };
+  // Atlas cells 0-5 and 6-11 are two surveys of three by two maps that join edge to edge; 12-15 are single sheets.
+  const place = (m) => (m < 12 ? { g: Math.floor(m / 6), tx: m % 3, ty: Math.floor((m % 6) / 3) } : { g: m, tx: 0, ty: 0 });
+  for (let m = 0; m < 16; m++) {
+    const ox = (m % 4) * 128, oy = Math.floor(m / 4) * 128, { g, tx, ty } = place(m), s = g * 97 + 13;
+    x.fillStyle = "#d9c9a0"; x.fillRect(ox, oy, 128, 128);
+    x.fillStyle = "#b39b6c"; x.fillRect(ox + 4, oy + 4, 120, 120);
+    const n = (i, j) => Math.sin(i * 0.031 + s) * Math.cos(j * 0.027 - s * 0.7) + Math.sin((i + j) * 0.015 + s * 1.3) * 0.6 + Math.sin(i * 0.093 - j * 0.081 + s) * 0.22;
+    const img = x.createImageData(112, 112);
+    for (let j = 0; j < 112; j++) for (let i = 0; i < 112; i++) {
+      const gi = tx * 112 + i, gj = ty * 112 + j, h = n(gi, gj), hN = n(gi, gj - 1);
+      const k = h < -0.35 ? "water" : h < -0.24 ? "sand" : h < 0.4 ? (Math.sin(gi * 0.21 + gj * 0.17 + s) > 0.5 ? "forest" : "grass") : h < 0.85 ? "stone" : "snow";
+      const sh = k === "water" ? 0.86 + 0.14 * ((gi * 7 + gj * 3) % 2) : h > hN + 0.002 ? 1.0 : h < hN - 0.002 ? 0.71 : 0.86;
+      const col = PAL[k], o = (j * 112 + i) * 4;
+      img.data[o] = col[0] * sh; img.data[o + 1] = col[1] * sh; img.data[o + 2] = col[2] * sh; img.data[o + 3] = 255;
+    }
+    x.putImageData(img, ox + 8, oy + 8);
+  }
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace; t.magFilter = THREE.NearestFilter; t.minFilter = THREE.NearestFilter; t.generateMipmaps = false;
+  return t;
 }
 
 // One dresser for the whole Krypt: textures, materials and the animated canvases are shared, and build() dresses one chunk
@@ -63,7 +93,11 @@ export function makeDresser(IMG) {
   const mkPlank = lamb("planks_oak"), mkCobble = lamb("cobblestone");
   const mkSkull = () => patchBake(new THREE.MeshLambertMaterial({ map: tex(IMG.skull_tex || IMG.skeleton) }));
   const mkWire = cut(IMG.trip_wire, { alphaTest: 0.2 }), mkHook = cut(IMG.trip_wire_source, { alphaTest: 0.2 });
-  const propMat = (name, cutout, dbl) => () => patchBake(new THREE.MeshLambertMaterial({ map: tex(IMG[name]), ...(cutout ? { alphaTest: 0.5 } : {}), ...(dbl ? { side: THREE.DoubleSide } : {}) }));
+  const propMat = (name, cutout, dbl, tint) => () => patchBake(new THREE.MeshLambertMaterial({ map: tex(IMG[name]), ...(cutout ? { alphaTest: 0.5 } : {}), ...(dbl ? { side: THREE.DoubleSide } : {}), ...(tint ? { color: tint } : {}) }));
+  const glassMat = (name) => () => patchBake(new THREE.MeshLambertMaterial({ map: tex(IMG[name]), transparent: true, opacity: 0.72, depthWrite: false }));
+  // Filled maps for the cartographer's walls: sixteen 128 px maps in one atlas, drawn in the game's map palette on parchment.
+  let mapTex = null;
+  const mapMat = () => patchBake(new THREE.MeshLambertMaterial({ map: mapTex || (mapTex = drawMaps()) }));
   const mkLever = lamb("lever"), mkDoorL = lamb("door_iron_lower"), mkDoorU = lamb("door_iron_upper"), mkNBrick = lamb("nether_brick");
   const mkFrameTop = lamb("endframe_top"), mkFrameSide = lamb("endframe_side"), mkEye = () => patchBake(new THREE.MeshLambertMaterial({ map: tex(IMG.endframe_eye), color: new THREE.Color(1.0, 1.0, 1.0), emissive: new THREE.Color(0.05, 0.22, 0.14) }));
   const SKIP = (new URLSearchParams(location.search).get("skip") || "").split(",");
@@ -131,11 +165,13 @@ export function makeDresser(IMG) {
     // A prop is a block: it sits in one cell, square to the grid (the kinds' leg-local offsets are snapped here).
     const putProp = (kind, d) => {
       const q = Math.PI / 2;
-      d = { ...d, x: Math.floor(d.x) + 0.5, z: Math.floor(d.z) + 0.5, ry: Math.round((d.ry || 0) / q) * q };
+      d = PROPS[kind].free ? { ...d, ry: d.ry || 0 } : { ...d, x: Math.floor(d.x) + 0.5, z: Math.floor(d.z) + 0.5, ry: Math.round((d.ry || 0) / q) * q };
       for (const p of PROPS[kind](d)) {
         if (p.tex === "water") { if (wa) put("propWater", p.geo, d.x, d.y, d.z, d.ry || 0, 0, 0, waterMat); else p.geo.dispose(); continue; }
+        if (p.tex === "@maps") { put("propMaps", p.geo, d.x, d.y, d.z, d.ry || 0, 0, 0, mapMat); continue; }
         if (!IMG[p.tex]) { p.geo.dispose(); continue; }
-        put("prop:" + p.tex + (p.cut ? ":c" : "") + (p.double ? ":2" : ""), p.geo, d.x, d.y, d.z, d.ry || 0, 0, 0, propMat(p.tex, p.cut, p.double));
+        const key = "prop:" + p.tex + (p.cut ? ":c" : "") + (p.double ? ":2" : "") + (p.glass ? ":g" : "") + (p.tint ? ":" + p.tint : "");
+        put(key, p.geo, d.x, d.y, d.z, d.ry || 0, 0, 0, p.glass ? glassMat(p.tex) : propMat(p.tex, p.cut, p.double, p.tint));
       }
     };
     const mobs = [], far = [], ups = [];
@@ -216,7 +252,7 @@ export function makeDresser(IMG) {
         case "cart": putProp("minecart", { ...d, y: Math.floor(d.y + 0.01) + 0.125 }); break;
         case "fire": fires.push(d); break;
         case "spawner": spawners.push(d); break;
-        default: if (EXTRA[d.t]) EXTRA[d.t](d, put, xctx); break;
+        default: if (PROPS[d.t]) putProp(d.t, d); else if (EXTRA[d.t]) EXTRA[d.t](d, put, xctx); break;
       }
     }
     for (const [, b] of batches) {

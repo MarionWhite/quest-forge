@@ -119,7 +119,8 @@ export const DECOR_TEX = ["glass", "glass_black", "glass_blue", "glass_orange", 
   "bed_feet_side", "bed_feet_top", "bed_feet_end", "enchanting_table_side", "enchanting_table_top", "enchanting_table_bottom", "brewing_stand", "brewing_stand_base", "mushroom_red", "mushroom_brown",
   "flower_rose", "flower_dandelion", "flower_tulip_red", "flower_tulip_white", "flower_blue_orchid", "fern", "nether_wart_stage_2", "dragon_egg", "beacon", "deadbush", "redstone_torch_on",
   "hopper_outside", "hopper_top", "daylight_detector_top", "piston_side", "piston_top_normal", "stone_slab_top",
-  "minecart", "anvil_top_damaged_0", "chest", "cobblestone_mossy"];
+  "minecart", "anvil_top_damaged_0", "chest", "cobblestone_mossy", "piston_bottom", "ice", "flower_pot", "redstone_dust_line", "trapdoor", "planks_spruce",
+  "sandstone_smooth", "quartz_block_side", "stonebrick"];
 export const isOpen = (t) => t === T_AIR || t === T_WATER || t === T_LAVA;
 
 // A hash of three ints and a salt, 0..999: the dressing's dice.

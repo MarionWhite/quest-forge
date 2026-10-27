@@ -76,7 +76,7 @@ export function buildWindow(plan, ci, ck) {
 
   function pushTorch(i, j, k, fx, fz, opts = {}) {
     const cx = i + 0.5 + fx * 0.5, cz = k + 0.5 + fz * 0.5;
-    const tip = [cx + fx * 0.35, j + 0.845, cz + fz * 0.35];
+    const tip = [cx + fx * 0.35, j + (fx || fz ? 0.845 : 0.66), cz + fz * 0.35];   // a standing torch (no facing) is lower
     a.torches.push({ i, j, k, fx, fz, x: tip[0], y: tip[1], z: tip[2], cx, cz, ...opts });
     const s = opts.I != null ? opts.I : 3.4;
     a.sources.push({ x: tip[0] + fx * 0.2, y: tip[1] + 0.15, z: tip[2] + fz * 0.2, c: opts.c || [1.0, 0.56, 0.24], I: s, R: 12, dyn: true });

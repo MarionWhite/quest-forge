@@ -11,6 +11,7 @@ import { KINDS, def, wall, P, makeCtx } from "./kindreg.js";
 export { KINDS, makeCtx };
 import "./kinds_a.js";
 import "./kinds_b.js";
+import "./kinds_e.js";
 import { applyArch } from "./kinds_c.js";
 
 // ---- the dressers of the nine original segments and the six of round 5 (ported unchanged) ----

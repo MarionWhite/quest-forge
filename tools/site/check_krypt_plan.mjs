@@ -29,5 +29,20 @@ const q = makePlan({ n: Math.floor(N / 4) });
 const pre = q.legs.length - 2;
 for (let i = 0; i < pre; i++) { const a = q.legs[i], b = p.legs[i]; if (a.kind !== b.kind || a.hw !== b.hw || a.m !== b.m || a.heading !== b.heading) { fail(`leg ${i} differs between plans`); break; } }
 const p2 = makePlan({ n: N }); for (let i = 0; i < p.legs.length; i++) if (p.legs[i].kind !== p2.legs[i].kind) { fail("not deterministic"); break; }
+// Round 7: the walk's rhythm. A room (def.room) after every two or three corridors, and within any 12 legs (about 600
+// blocks, one walk filmstrip) no kind twice where the stratum's pool allows it.
+{
+  let maxRun = 0, run = 0, rooms = 0, worst = 99, worstAt = -1, dupWin = 0;
+  for (let i = 0; i < p.legs.length; i++) {
+    const l = p.legs[i]; if (l.kind === "stairs" || l.kind === "frontier") continue;
+    if (KINDS[l.kind].room) { rooms++; run = 0; } else { run++; maxRun = Math.max(maxRun, run); }
+  }
+  for (let i = 0; i + 12 <= p.legs.length; i++) {
+    const win = p.legs.slice(i, i + 12).map((l) => l.kind).filter((k) => k !== "stairs" && k !== "frontier");
+    const d = new Set(win).size; if (d < worst) { worst = d; worstAt = i; } if (d < win.length) dupWin++;
+  }
+  console.log(`rhythm: rooms ${rooms} of ${p.legs.length} legs (${(100 * rooms / p.legs.length).toFixed(0)}%), longest corridor run ${maxRun}; 12-leg windows with a repeat ${dupWin} of ${p.legs.length - 11}, fewest distinct ${worst} (at leg ${worstAt})`);
+  if (maxRun > 4) fail(`corridor run of ${maxRun} legs`);
+}
 console.log(bad ? `${bad} FAILURES` : "OK");
 process.exit(bad ? 1 : 0);

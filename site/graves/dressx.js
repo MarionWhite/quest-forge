@@ -1,4 +1,4 @@
-// More decor for the Krypt's newer kinds: carpets, banners, stained panes, fences, plates, crossed-plane
+// More decor for the Krypt's newer kinds: carpets, banners, stained panes, plates, crossed-plane
 // plants, ladders, wooden doors, block-like furniture and static mob figures. Each handler adds to the dresser's per-chunk
 // batches (put) with a shared material, so a hundred of them cost one draw call per kind.
 import * as THREE from "three";
@@ -23,11 +23,6 @@ export function addDecor(dresser, IMG) {
     put("pane:" + n, plane(d.w || 1, d.h || 1), d.x, d.y, d.z, d.ry || 0, 0, 0, cutm(n, { alphaTest: 0.05, transparent: true, opacity: 0.8, depthWrite: false, emissive: new THREE.Color(0.18, 0.18, 0.2) }));
   };
   X.plate = (d, put) => { if (!guard("stone")) return; put("plate", box(0.875, 0.0625, 0.875), d.x, d.y, d.z, d.ry || 0, 0, 0, lam("stone")); };
-  X.fence = (d, put) => {
-    const n = d.tex || "planks_oak"; if (!guard(n)) return; const key = "fence:" + n, mk = lam(n);
-    put(key, box(0.25, d.h || 1.5, 0.25), d.x, d.y, d.z, d.ry || 0, 0, 0, mk);
-    if (d.len) for (const hy of [0.55, 1.0]) put(key, box(0.1, 0.14, d.len), d.x + (d.bx || 0) * d.len / 2, d.y + hy, d.z + (d.bz || 0) * d.len / 2, d.ry || 0, 0, 0, mk);
-  };
   // Two crossed planes: a flower, a mushroom, a fern, a sapling, the brewing stand.
   X.cross = (d, put) => {
     const n = d.tex; if (!guard(n)) return; const mk = cutm(n);

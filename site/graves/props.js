@@ -135,8 +135,56 @@ export const PROPS = {
       { tex: "enchanting_table_bottom", geo: mcBox([0, 0, 0], [16, 12, 16], { down: true }) }
     ];
   },
-  slab(d) { return [{ tex: d.tex || "cobblestone", geo: mcBox([0, 0, 0], [16, 8, 16], ALL) }]; }
+  slab(d) { return [{ tex: d.tex || "cobblestone", geo: mcBox([0, 0, 0], [16, 8, 16], ALL) }]; },
+  // Stairs (a pew, a step): the bottom half and the back half, the back toward -z. d.tex: the material.
+  stair(d) { return [{ tex: d.tex || "planks_oak", geo: merge([mcBox([0, 0, 0], [16, 8, 16], ALL), mcBox([0, 8, 0], [16, 16, 8], ALL)]) }]; },
+  // A piston facing +z: the block, or extended (base 12 deep, the arm and the head in the next block).
+  piston(d) {
+    if (!d.out) return [
+      { tex: "piston_side", geo: mcBox([0, 0, 0], [16, 16, 16], { east: true, west: true, up: [0, 0, 16, 16], down: [0, 0, 16, 16] }) },
+      { tex: "piston_top_normal", geo: mcBox([0, 0, 0], [16, 16, 16], { south: true }) },
+      { tex: "piston_bottom", geo: mcBox([0, 0, 0], [16, 16, 16], { north: true }) }];
+    return [
+      { tex: "piston_side", geo: merge([mcBox([0, 0, 0], [16, 16, 12], { east: [4, 0, 16, 16], west: [0, 0, 12, 16], up: [0, 4, 16, 16], down: [0, 4, 16, 16] }),
+        mcBox([6, 6, 12], [10, 10, 28], { east: [0, 0, 16, 4], west: [0, 0, 16, 4], up: [0, 0, 16, 4], down: [0, 0, 16, 4] }),
+        mcBox([0, 0, 28], [16, 16, 32], { east: [0, 0, 4, 16], west: [12, 0, 16, 16], up: [0, 0, 16, 4], down: [0, 0, 16, 4] })]) },
+      { tex: "piston_top_normal", geo: merge([mcBox([0, 0, 28], [16, 16, 32], { south: true, north: true })]) },
+      { tex: "piston_bottom", geo: mcBox([0, 0, 0], [16, 16, 12], { north: true, south: true }) }];
+  },
+  // ModelBoat's hull (bottom 24x16x4, sides 6 high), in oak planks: the 1.7.10 boat texture is plank-like.
+  boat() {
+    return [{ tex: "planks_oak", geo: merge([mcBox([-4, 0, 0], [20, 4, 16], ALL), mcBox([-2, 4, -1], [18, 10, 1], ALL), mcBox([-2, 4, 15], [18, 10, 17], ALL),
+      mcBox([-4, 4, 0], [-2, 10, 16], ALL), mcBox([18, 4, 0], [20, 10, 16], ALL)]) }];
+  },
+  // A block of ice around something frozen: translucent, h blocks tall.
+  ice(d) { return [{ tex: "ice", glass: true, geo: mcBox([0, 0, 0], [16, 16 * (d.h || 1), 16], { south: [0, 0, 16, 16 * (d.h || 1)], north: [0, 0, 16, 16 * (d.h || 1)], east: [0, 0, 16, 16 * (d.h || 1)], west: [0, 0, 16, 16 * (d.h || 1)], up: true }, 16, 16) }]; },
+  // The flower pot (6x6x6 at the bottom centre) with a red mushroom, as the swamp hut keeps it.
+  pot(d) {
+    const parts = [{ tex: "flower_pot", cut: true, geo: mcBox([5, 0, 5], [11, 6, 11], { south: [5, 10, 11, 16], north: [5, 10, 11, 16], east: [5, 10, 11, 16], west: [5, 10, 11, 16], down: [5, 5, 11, 11] }) },
+      { tex: "dirt", geo: mcBox([6, 4, 6], [10, 4, 10], { up: true }) }];
+    const pl = d.plant || "mushroom_red", x = new THREE.PlaneGeometry(0.75, 0.75); x.translate(0, 0.25 + 0.375, 0);
+    const y = x.clone(); x.rotateY(Math.PI / 4); y.rotateY(-Math.PI / 4);
+    parts.push({ tex: pl, cut: true, double: true, geo: merge([x, y]) });
+    return parts;
+  },
+  // A filled map in an item frame on the wall behind the cell (it covers the whole block face): d.cell picks the map.
+  map(d) { const g = new THREE.PlaneGeometry(d.flat ? 0.9 : 1, d.flat ? 0.9 : 1); if (d.flat) g.rotateX(-Math.PI / 2); else g.translate(0, 0.5, -0.47); const c = (d.cell | 0) % 16, uv = g.attributes.uv;
+    for (let i = 0; i < uv.count; i++) uv.setXY(i, ((c % 4) + uv.getX(i)) / 4, 1 - (Math.floor(c / 4) + 1 - uv.getY(i)) / 4);
+    return [{ tex: "@maps", geo: g }]; },
+  // Redstone dust, a straight line along z, in the red of a powered wire (the texture is grey; the game tints it).
+  dust() { return [{ tex: "redstone_dust_line", cut: true, tint: 0xd02010, geo: mcBox([0, 0.25, 0], [16, 0.25, 16], { up: true }) }]; },
+  // A trapdoor lying shut on the floor (3 px).
+  trapdoor() { return [{ tex: "trapdoor", cut: true, geo: mcBox([0, 0, 0], [16, 3, 16], ALL) }]; }
 };
+// A fence post (4x16x4, h blocks tall) and, with len, the two bars (2x3 at 6..9 and 12..15) that join it to the next post
+// len blocks along local +z, as the game joins neighbouring fences. Placed where the caller puts it (not snapped).
+PROPS.fence = (d) => {
+  const h = (d.h || 1) * 16, list = [mcBox([6, 0, 6], [10, h, 10], ALL)];
+  if (d.len) for (const y of [6, 12]) if (y + 3 <= h + 0.01) list.push(mcBox([7, y, 10], [9, y + 3, 16 * d.len + 6], { east: true, west: true, up: true, down: true }));
+  return [{ tex: d.tex || "planks_oak", geo: merge(list) }];
+};
+PROPS.boat.free = true; PROPS.fence.free = true;
 // The textures the props use beyond the block set (blocks.js DECOR_TEX takes these).
 export const PROP_TEX = ["chest", "minecart", "cauldron_side", "cauldron_top", "cauldron_bottom", "cauldron_inner", "anvil_base", "anvil_top_damaged_0",
-  "brewing_stand", "brewing_stand_base", "enchanting_table_side", "enchanting_table_top", "enchanting_table_bottom", "cobblestone", "cobblestone_mossy", "stone_slab_top"];
+  "brewing_stand", "brewing_stand_base", "enchanting_table_side", "enchanting_table_top", "enchanting_table_bottom", "cobblestone", "cobblestone_mossy", "stone_slab_top",
+  "piston_side", "piston_top_normal", "piston_bottom", "ice", "flower_pot", "redstone_dust_line", "trapdoor", "planks_oak", "planks_spruce", "dirt", "mushroom_red"];

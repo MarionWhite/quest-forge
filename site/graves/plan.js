@@ -41,8 +41,13 @@ export function makePlan({ n = 0, seed = SEED, minSlots = 60, runway = 36, force
     let wStr = Math.min(12, Math.max(1, pool.length - 2)), wAll = 6;
     for (let attempt = 0; attempt < 12; attempt++) {
       const banned = new Set(here.slice(-wStr)); for (const id of hist.slice(-wAll)) banned.add(id);
-      const cand = pool.filter((id) => !banned.has(id));
+      let cand = pool.filter((id) => !banned.has(id));
       if (cand.length) {
+        // The rhythm: a room after every two or three corridors, and never two rooms running, so the walk keeps opening up.
+        const isRoom = (id) => !!KINDS[id].room;
+        let since = 99; for (let q = here.length - 1; q >= 0; q--) if (isRoom(here[q])) { since = here.length - 1 - q; break; }
+        const want = since === 0 ? false : since >= 2 + (fr(seed, k, 7, 5) < 0.5 ? 0 : 1) ? true : null;
+        if (want !== null) { const c2 = cand.filter((id) => isRoom(id) === want); if (c2.length) cand = c2; }
         let tot = 0; const ws = cand.map((id) => { const since = (() => { for (let q = here.length - 1; q >= 0; q--) if (here[q] === id) return here.length - q; return 99; })(); const w = (KINDS[id].weight || 1) * (1 + Math.min(1.5, since / 14)); tot += w; return w; });
         let r = fr(seed, k, 1, 5) * tot;
         for (let q = 0; q < cand.length; q++) { r -= ws[q]; if (r <= 0) return cand[q]; }
