@@ -1,5 +1,17 @@
 # Shaders journal (newest first)
 
+- 2026-10-27 19:45: **r010 shader work done, publish-cost run submitted** (1027-193818, specs/p10-cost.json; pack c542939).
+  Meteors: Earth-grazers (3D tracks 88-118 km up, radiant 1-5 deg above the horizon) read as long thin level streaks with
+  tapering wakes (r10i1c); style 1 default, 2 procession (unproven in loop 3's clip: it ran overhead, out of the crop;
+  p10clipg2 tries radiant 45), 3 storm. Sunset mint: SSR fix 1107 -> 678 px; QF_SHALLOW_SUN (bed lit by the golden boost)
+  was a wrong cause (ss0/1/2 692/661/686, now off); debug view 12 showed the wedge's "bed" was the sky: dR = 1, so
+  colortex3 there is the horizon glow, and 32 blocks of reef water left mint (151,185,130). No bed in view -> behind = 0.
+  Gold: METAL_FLOOR + vibrance floor took gold/stone 1.48 -> 1.74 (vanilla 1.82), blue clipped 61 % -> 0 %;
+  QF_METAL_F0 (LabPBR 230-237 F0 table) G/R 0.941 -> 0.934, lime gone in crops. UW_VIS 2.0 (+41 % far contrast),
+  RIVER_TINT 1 (water 51,79,63 -> 50,74,80). No visible change: SUN_CLOUD 2 (0.5 luma), DUST_LEAF 2 / SHAFTS 2 (1 luma).
+  Crepuscular rays (16 taps, High-only) -7 % luma in the sun crop; cost from p10cr goes on the Lab. spec_scenes.py and
+  round.json written (8 shader scenes + texture + frills). Next: critic, then publisher.
+
 - 2026-10-27 08:55: **r009 posted** (ab4ada7, --no-push; 20 scenes: 11 shader + 9 texture). Costs from
   1027-020424-r009-publish-cost (done 08:41, 24/24 jobs), ms vs shaders-off of the same size:
   High p9 worst ocean_sunset 3.29 (r8 4.58); over 3.0: river_swamp 3.14, beach 3.08, swamp/ocean_swamp 3.04, biome_ocean
@@ -117,14 +129,16 @@
 - 2026-10-26: r008 posted (006fe9b, --no-push) from cost run 1026-015851 (39/39 done, terrain in every frame); critic 6.3,
   not yet a leap (motes in beams; iron reflection; ocean sun path; forest_golden wash; sky_noon deck); 10 p8 frames 3.5-4.6 ms > 3.0.
 
-- 2026-10-26: r008 loop 4, bug fixes (205d13c; renders um bisect, up, uq, ur, us, ut; sheets C:\qfb\shaderdev008\look\l4).
+- 2026-10-26: r008 loop 4, bug fixes (205d13c; renders um bisect, up, uq, ur, us, ut; sheets C:\qfb\shaderdev
+008\look\l4).
   Boot fault: FrameBench settled on "0 chunk updates" with no chunks; it now waits for client chunks, retries, and renderq drops
   no-terrain scenes (f81dc5d, eca88fd; new jar). golden_lit olive = QF_DUST's beam test on ground shadow noise: 37,47,15 now.
   forest_golden oval = a TAA-smeared dust mote ~1-4 m out: gone. Metals reflect via SSR (stripe gone). Lake near Fresnel faded,
   sun path +5%, warm aureole. Open: motes inside beams still sparse in dust_b's clip; forest_golden cream wash; the queued
   publish-cost run 1026-004242 renders the pre-loop-4 shader and must be resubmitted.
 - 2026-10-26: r008 prepared for publishing: spec_scenes.py (14 shader scenes with 4 motion clips, then the 11 texture scenes) and
-  round.json in C:\qfb\shaderdev008; one cost submission 1026-004242-r008-publish-cost (p8*/c8* + baselines) waits for 08:00.
+  round.json in C:\qfb\shaderdev
+008; one cost submission 1026-004242-r008-publish-cost (p8*/c8* + baselines) waits for 08:00.
   Shader frames come from that run (critic notes still needed); texture frames stay t8*, costs from c8*. Lab footer credits Faithful/VNR.
 - 2026-10-26: r008 loop 3 (ef42eec; renders uj/uk/ul). Fixed: crisp sun limb, no glare disk over leaves, sky colour in the calm lake,
   river grey cloud patch, forced meteor stills (QF_METEOR_SHOW). Partial: metals show a horizon line, beam dust a few flakes.

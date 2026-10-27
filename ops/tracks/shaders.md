@@ -7,21 +7,16 @@ and the long archive in `C:\qfb\shaderdev\NEXT.md` (PC only).
 - **Budgets per frame:** High 1440p 3 ms · Low 1080p 0.9 ms · Potato 720p 0.4 ms.
 - **Lab:** https://marionwhite.github.io/quest-forge/shaders/. Rounds are in `site/shaders/rounds/rNNN.json`; feedback is in
   `docs/design/shaders/feedback/rNNN.json` with images in `attachments/rNNN/`. Taste is in `docs/design/shaders/look-bible.md`.
-- **Round in progress:** r008. Work dir `C:\qfb\shaderdev\r008`. Input is the r007 feedback and its 9 images. Owner's asks:
-  - a bigger sun with a visible, formed disk, more than 1.8x;
-  - dust only inside sunbeams, with no screen-wide white specks;
-  - a stronger golden-hour horizon;
-  - the lake fixed (rated 2/5, follow the critic);
-  - the river's orange, flat near-surface dirt fixed;
-  - metals that look polished under PBR;
-  - vibrance around 0.25;
-  - busier meteors;
-  - **animated clips** in the Lab (meteors, water, clouds, dust);
-  - Conquest-style underwater ambience.
-  The owner expects a "massive leap".
-- **r008 loop 4 (2026-10-26):** bug fixes committed (205d13c). The publish-cost run 1026-004242 predates them: resubmit it.
-- **Standing rules:** render with the current QF textures zip; vanilla only as a control. Label options clearly (the owner was confused by C/D labels).
+- **Round in progress:** r010, work dir `C:\qfb\shaderdev\r010` (spec_scenes.py, round.json written; checkpoint
+  `ops/checkpoints/r010-shader.md`). Pack at c542939. Publish-cost run **1027-193818-r010-publish-cost**; then critic,
+  then publisher (`finish_round.py C:/qfb/shaderdev/r010`). Built: Earth-grazer meteors (QF_METEOR_STYLE 1-3), the sunset
+  mint fixed (sky seen through deep water), UW_VIS 2.0, teal river (RIVER_TINT 1), gold fixed (METAL_FLOOR, vibrance
+  floor, METAL_F0). Open: crepuscular rays (QF_CREPUSCULAR, High-only, owner cost question); forest rays no leap;
+  dust and golden held.
+- **Debug views:** QF_DEBUG_VIEW 11-14 split water into sun visibility/Fresnel/depth, bed, transmitted, reflected.
+- **Standing rules:** render with the current QF textures zip; vanilla only as a control. Label options clearly.
+  Every Lab question states the cause and the trade-off with numbers.
 - **References (internal only, never on the site):** `C:\qfb\shaderdev\refs` holds Complementary Reimagined/Unbound and BSL on our 16 views.
-  Photon doesn't render under Angelica.
 - **Known:** the cyan-grey grass in biome_hills is that biome's own colour, not a shader fault.
-- **Tools:** `tools/renderq` (render, cost, cache), `tools/shaders/review/finish_round.py` (spec and publish), `check_glsl.py`.
+- **Tools:** `tools/renderq` (render, cost, cache), `tools/shaders/review/finish_round.py` (spec and publish), `check_glsl.py`,
+  `make_clip.py --speedup` for slow-motion meteor clips (roundlib `ov(..., speedup=4)`).

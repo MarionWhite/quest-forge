@@ -172,3 +172,10 @@ Review of 1027-190711-r010-loop2-shot and -meteor3-shot (scratchpad sheet.py / c
   is verified only by this run: check p10-ocean_sunset box 900-1460 x 560-900 (mint mask G>R+5 & G>B+5; r10l2 686 px).
   The procession clip (g2) is unproven: loop3's i2c showed no chain (it ran out of frame overhead); g2 uses radiant 45 and
   PROC_P 9. If g2 shows no procession, drop option B from the meteors scene.
+- 19:50 spec_scenes.py + round.json written in C:\qfb\shaderdev\r010 (8 shader scenes: meteors, sunset-full, sun-cloud,
+  forest-light, underwater, river, gold, checks; then texture_scenes.json and frills_scenes.json, re-read at publish;
+  dry exec OK, costs "?" until the run lands). Track rewritten for r010, journal entry added.
+  **Next (fresh agent):** when 1027-193818-r010-publish-cost is done: check the mint wedge is gone in p10-ocean_sunset
+  (box above), that p10clipg2 shows a procession (else drop meteors option B), the p10cr cost; rerun
+  texture_make_scenes.py (t10lf2 is done) and frills_make_scenes.py; then critic, then publisher
+  (`finish_round.py C:/qfb/shaderdev/r010`).
