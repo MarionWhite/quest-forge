@@ -68,4 +68,7 @@ rt/scareflow16.js, rt/trace.js, cmp_trace.py).
 - [x] Magma Cube (4b7b2b2): power-out and the heart kept (its one device); hops in with its slices spreading in the air
   and the core lighting the corridor; sits pulsing; the pop, small ones hit you (70%); it squats and leaps, fanned
   wide, and comes down on you as you back away; the slices shut. Frames `mc2/sheet.png`, `mc4/sheet.png`, `mc3` (smalls).
-- Next: Wither Skeleton, Lava fall, Drowned (in that order).
+- [x] Wither Skeleton: black fog kept (its one device); the drag, the stop, the tick; turning back it stands over you
+  at 2 m, the look up its ribs to the skull, the rattle, the stride in and the thrust; the blade, decapitation, and
+  at the end it looks at your head as the Wither black closes in. Frames `ws1/sheet.png`, `ws2/sheet.png` (strike).
+- Next: Lava fall, Drowned.
