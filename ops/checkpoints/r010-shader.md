@@ -137,3 +137,18 @@ Review of the four session-1 renders (crop sheets, scratchpad scripts csheet.py 
   run (ocean_sunset is already 3.29 ms on High). Then cost run on the final pack, spec_scenes.py + round.json in
   C:\qfb\shaderdev\r010 (texture scenes from texture_scenes.json / frills_scenes.json when READY files exist),
   track rewrite, journal entry.
+
+## Session 3 (2026-10-27 ~19:30)
+Review of 1027-190711-r010-loop2-shot and -meteor3-shot (scratchpad sheet.py / clipmax.py / measure.py, wiped with the session):
+- **Meteors (r10i1c/i2c/i3c):** long thin level streaks, tapered wakes, bright heads, parallel; cinematic. Settled:
+  QF_METEOR_STYLE 1 default; i2c (procession) and i3c (storm) as Lab options. Best frames: i1c f024, i2c f023, i3c f107.
+- **Mint (ocean_sunset box 900-1460 x 560-900):** p9 1107, r10sf 678, l2 (SHALLOW_SUN 2) 686, ss0 692, ss1 661: the
+  shallow-sun filter does NOT touch it; the mint shallows left of the island remain. Cause theory (bed lit by the golden
+  boost) unproven: the filter is weighted by `sh`, and the patch may be in the island's shadow. Next: debug views.
+- **Sun-cloud:** sd2 == l2 (sun box luma 181.8 vs 182.3): SUN_CLOUD 2 does nothing visible; keep 1. cr1 (crepuscular)
+  -7 % luma in the sun box, soft wedges, subtle; needs the cost number.
+- **Forest:** l2/fm2/fm3/cr1 all near-identical to p9; no visible longer rays. Honest "no leap" in the Lab.
+- **Underwater 2.0:** canyon reads further and bluer; keep. **River tint 1:** teal-blue, good; rv2 brings back
+  yellow/mint ledge stripes (keep as option C with that note). **Beach/lake:** unchanged by SHALLOW_SUN (good).
+- **Gold:** loop2's diag_column ran in the default world (no column): the spec missed `world: C:/qfb/textures/world-showcase`.
+  Gold must be re-measured there (texture pack C:/qfb/textures/diag/QF-l-dense.zip = t10lb, baseline bench-t10lb-*).
