@@ -44,7 +44,8 @@ SHADER_ERR = re.compile(r"(error|Error|ERROR|Failed to|failed to|Exception).*(sh
 
 JOB_DEFAULTS = {"preset": "3", "size": "2560x1440", "world": WORLD, "resourcepacks": [], "reference": None,
                 "mods": MODS, "opts": {}, "debug_view": 0, "mode": "cost", "fresh": False, "xmx": "3G",
-                "warm": 160, "measure": 0, "views": VIEWS, "rounds": ROUNDS, "cit": False}
+                "warm": 160, "measure": 0, "views": VIEWS, "rounds": ROUNDS, "cit": False,
+                "jars": [], "props": []}
 
 
 # ------------------------------------------------------------------ hashing / keys
@@ -156,6 +157,9 @@ def boot_key(job):
                        "rps": rps,
                        "mods": job["mods"], "xmx": job["xmx"], "night": bool(job.get("night")),
                        "cit": bool(job.get("cit")),
+                       # jars/props only when set, so every other job's boot key is unchanged
+                       **({"jars": job["jars"]} if job.get("jars") else {}),
+                       **({"props": job["props"]} if job.get("props") else {}),
                        "views": os.path.normcase(os.path.abspath(job["views"])),
                        "pack": (job.get("pack_sig") if on else None)}, sort_keys=True)
 
@@ -181,6 +185,10 @@ def env_sig(job, memo):
                    "night": bool(job.get("night"))}
         if job.get("cit"):
             memo[k]["cit"] = True
+        if job.get("jars"):
+            memo[k]["jars"] = [f"{os.path.basename(j)}:{sha1_file(j)}" for j in job["jars"]]
+        if job.get("props"):
+            memo[k]["props"] = list(job["props"])
     return memo[k]
 
 
@@ -348,7 +356,7 @@ def prepare_boot(boot_id, jobs, log):
     t0 = time.time()
     rps_all = list(dict.fromkeys(r for j in jobs for r in j["resourcepacks"]))
     trial.build(TRIAL, [m for m in j0["mods"].split(",") if m], world=j0["world"],
-                shader=pack_name or "off", force=True, renderer="angelica", jars=[DEBUG_JAR],
+                shader=pack_name or "off", force=True, renderer="angelica", jars=[DEBUG_JAR] + list(j0.get("jars") or []),
                 shaderpacks=[pack_dir] if pack_dir else [], quiet=True, resourcepacks=rps_all)
     d = trial.trial_dir(TRIAL)
     # FrameBench loads save 0, so the boot's world must be the only save. FML also leaves a 108 MB
@@ -423,6 +431,7 @@ def prepare_boot(boot_id, jobs, log):
     shutil.rmtree(os.path.join(d, "patched_shaders"), ignore_errors=True)
     props = ["qf.bench=1", "qf.bench.resetTime=1", f"qf.bench.tag={boot_id}", f"qf.bench.jobs={jf}", f"qf.bench.views={j0['views']}",
              f"qf.bench.gallery={GALLERY}", "fml.queryResult=confirm"]
+    props += list(j0.get("props") or [])
     cmd = [sys.executable, "-I", TRIAL_PY, "launch", TRIAL, "--size", j0["size"], "--xmx", j0["xmx"],
            "--owner", "renderq", "--idle-min", "1"]
     for p in props:

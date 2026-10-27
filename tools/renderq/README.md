@@ -65,6 +65,8 @@ Job fields, with their defaults:
 | `warm` | `160` | ticks a scene settles after a pipeline rebuild, before it is measured |
 | `measure` | `0` | measured ticks (0: the view's own, normally 200) |
 | `views`, `rounds`, `mods`, `xmx`, `debug_view` | as `bench_round.py` | |
+| `jars` | `[]` | built jars that replace the live jar of the same catalog entry in this trial only (e.g. a test `QuestForgeTweaks-1.0.jar`); keep the file in place until the job is done, its sha1 is in the cache key |
+| `props` | `[]` | extra JVM system properties, `qf.name=value` only (e.g. `qf.frills=true`); jobs with different jars or props boot apart |
 | `burst` | none | a motion clip after the shots: `{"frames": 48, "interval_ms": 66, "crop": [x, y, w, h]}` (below) |
 
 ### Motion clips (`burst`)

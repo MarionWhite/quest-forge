@@ -157,6 +157,17 @@ def normalize(spec):
             j["burst"] = b
         for k in ("world", "views", "rounds"):
             j[k] = os.path.abspath(j[k])
+        if isinstance(j["jars"], str):
+            j["jars"] = [j["jars"]]
+        j["jars"] = [os.path.abspath(p) for p in j["jars"]]
+        for p in j["jars"]:
+            if not os.path.isfile(p) or not p.lower().endswith(".jar"):
+                sys.exit(f"{j['tag']}: jars: no jar at {p}")
+        if isinstance(j["props"], str):
+            j["props"] = [j["props"]]
+        for p in j["props"]:
+            if not re.fullmatch(r"qf\.[A-Za-z0-9_.]+=[^\s\"]*", p):
+                sys.exit(f"{j['tag']}: props are qf.name=value system properties, got {p!r}")
         j["resourcepacks"] = [os.path.abspath(r) for r in j["resourcepacks"]]
         if j.get("reference"):
             j["reference"] = os.path.abspath(j["reference"])
