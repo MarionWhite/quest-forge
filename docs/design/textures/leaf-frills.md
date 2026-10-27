@@ -225,4 +225,15 @@ All four looks use the texture agent's `leaves_KIND_frill` sprites. The "off" re
 - **Diagnostics:** it logs the first icon at the hook, whether the match was by identity or by name, and whether the
   stitched atlas is Minecraft's blocks atlas.
 - **Sprites:** the texture agent's QF-cropvar.zip (wheat x5, carrots x4, potatoes x4).
-- Results follow.
+- **The log:** the stitch found `[wheat_stage_7 x5, carrots_stage_3 x4, potatoes_stage_3 x4]` in Minecraft's blocks
+  atlas. The first icon at the hook was `carrots_stage_3`, and it matched the stitched sprite by identity.
+- **The look:** carrots and potatoes now vary: mixed leaf shapes, and white flowers on some potatoes. **Ripe wheat
+  did not change**: off and on differ only by waving noise.
+- **What was ruled out for wheat:** the hash (simulated over the field, the five buckets get 25-38 blocks each), the
+  sprites, the world (the wheat is meta 7), and the trial mods (none touches wheat, and Angelica has no crop mixin).
+  The v4 log covered only the first icon, so it could not say why wheat missed.
+- **The cost:** frame p50 changed by -1% to +0% and p99 by +1%. Whole-boot ms per section fell 6% and vertices per
+  section fell 2%. All of that is noise.
+
+**crops-c** (`1027-193327-r010-crops-c`, jar 9444d77): one log line per distinct crop sprite at the hook (identity,
+by name, or no variants; the variant drawn; the stitched names). Results follow.
