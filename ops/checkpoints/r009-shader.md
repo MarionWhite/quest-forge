@@ -256,6 +256,29 @@ Owner overall: no drastic improvement; over budget on performance; wants optimis
   fix needs +1 noise fetch per cloud sample; measure and ask. (4) spec_scenes.py and round.json for r009
   (C:\qfb\shaderdev\r009); include the meteor clip r9mclip and a forest_golden QF_DUST_LEAF 0/1 pair.
 
+- 01:55 (last night run, uncommitted until verified): temporary dev toggles QF_TRY_VEIL / QF_TRY_MOTEVIS (settings.glsl,
+  default 0; composite.glsl veil `lit *= mix(0.8, 0.5, gh*smoothstep(0.1,0.4,shadedAir))`, mote vis = shadowRaw(v)). Shot
+  **1027-015510-r009-last-shot** (r9-last.json: r9lv pinned forest_golden+dust_b vs r9xl1; r9lm pinned dust_b vs r9xl1;
+  r9lmg golden_lit coin check vs r9gy; r9lm1 DBG 1 dust_b vs r9dn1; r9lvo ocean_sunset vs r9ct). Win: bake the branch in,
+  drop the toggle, commit. Lose: delete the toggle and its #if (only my hunks in both files). Then step (2) freeze below.
+- 02:03: both **reverted** (git checkout; shader tree clean). r9lv: forest sky round the gap (box 900,0,1700,500) 150.3 ->
+  147.9 R, canopy 28.4 -> 28.2, dust_b and ocean_sunset unchanged: within run noise (shaded share on sky rays is small).
+  r9lm/r9lmg: dust_b, golden_lit unchanged; r9lm1 (DBG 1) lower shaft 43.0 -> 40.7 R, no new flakes: the mote vis filter
+  is not the cause. Both stay open for r010 (cream sky round the gap; lower-shaft motes, next suspect: the near grid's
+  reach vs where the lower beam's lit air sits).
+- 02:04 **pack frozen for r009** (shaders at 76fb7ef; check_glsl 0 errors). Cancelled stale 1026-223822 (cancel asked; the
+  runner drops it on its next wake: confirm with `renderq.py status` that only the publish run remains). Submitted
+  **1027-020424-r009-publish-cost** (spec C:/qfb/shaderdev/r009/specs/p9-cost.json; 24 jobs, 112 scenes, mode cost, runs
+  after 08:00, ~50 min). Tags: p9 (19 views) / p9off; High budget lines on the 6 r8b views: p9xshaft, p9xdust, p9xwaves,
+  p9xpbr, p9vf0 (QF_VOL_FAST 0: the volfast A/B the cancelled run was for); look pairs p9dl0 (QF_DUST_LEAF 0), p9d0, p9uw0,
+  p9met/p9metshow/p9clipmet, clips p9clipwat/cld/dust; Low p9lo/p9lxshaft/p9lvf0/p9looff (1080p); Potato p9po/p9pooff
+  (720p); p9pbr/p9pbr0 showcase. Texture-cost tags (c8*) are not in it: the texture track's.
+- **Next (after the run lands):** `renderq.py results 1027-020424-r009-publish-cost`; log the High/Low/Potato worst-frame
+  table and the per-option deltas in ops/journal/shaders.md. Write C:\qfb\shaderdev\r009\spec_scenes.py + round.json
+  from p9-cost.json's tags. Then the **critic** pass (critic agent, r009 frames vs r008 critic + owner r008 feedback), then
+  the **publisher** (finish_round.py). Open for the owner in r009's notes: QF_VOL_FAST 1 default (DECISIONS), daytime
+  torchlight outdoors ~70% weaker, ocean_sunset's sun now sets behind its cloud, sky_noon smear needs +1 noise fetch.
+
 ## Hand-off from texture-dev (2026-10-26): owner's r008 "tex-golden: weird artifacting in all photos" is shader-side
 Same artifacts in t8v0, t8v1, t8f64 (all three packs) and still in t9v1/t9v2c (r009 shader), so not textures. In golden_lit
 (2560x1440): (1) the shaft haze ends in blocky stair-steps on shadow-map texels: a hard-edged lit rectangle over the grass,

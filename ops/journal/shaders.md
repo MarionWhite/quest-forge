@@ -1,5 +1,13 @@
 # Shaders journal (newest first)
 
+- 2026-10-27 02:04: r009 last night tries, then the freeze. Shot 1027-015510 (pinned exposure) put two ideas behind
+  temporary toggles: an open-sky shaft veil cut to 0.5 on golden-hour rays through shaded air (forest_golden's cream sky
+  round the gap 150.3 -> 147.9 R: noise; shaded share on sky rays is too small to key on), and raw shadow taps for mote
+  visibility (dust_b lower shaft, DBG 1: 43.0 -> 40.7 R, no new flakes: the filtered vis is not why that half is empty).
+  Both reverted; both stay open for r010. Pack frozen at 76fb7ef. The stale volfast cost run 1026-223822 (a651ede) was
+  cancelled, and **1027-020424-r009-publish-cost** (p9-cost.json, 112 scenes, High/Low/Potato + off baselines + per-option
+  budget lines + QF_VOL_FAST 0) was submitted for 08:00. Next: results table, critic, publisher.
+
 - 2026-10-27 01:52: r009 forest wash, canopy veil (0c72440). New dev pin QF_EXPO_PIN (log2 QF_EXPO_PIN_LOG) so A/B frames
   share one exposure. With it pinned at 1.0, the 01:28 pending-dust idea (keep dust only where the ray goes on into shade)
   did nothing (canopy R 36.5 -> 35.6; rays onto leaves cross shaded air too), so it was reverted. What worked is cutting
