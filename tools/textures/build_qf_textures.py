@@ -187,6 +187,9 @@ def main():
     ap.add_argument("--no-pbr", action="store_true")
     ap.add_argument("--no-cit", action="store_true")
     ap.add_argument("--metals", choices=("qf", "vnr"), default="qf")
+    ap.add_argument("--wheat", choices=("drawn", "dense", "bushy"), default="drawn",
+                    help="drawn: qf_art's v2 wheat; dense/bushy (r010): Faithful 64x stages 0-6, ripe = five "
+                         "variants re-composed from Faithful's own plant (wheat_dense.py), mixed by CTM random")
     ap.add_argument("--diamond", choices=("metal", "gem"), default="metal",
                     help="metal: VNR's metal flag (v2); gem: a dielectric, F0 44 (GEM_BLOCKS)")
     a = ap.parse_args()
@@ -219,6 +222,15 @@ def main():
 
     planks = rgba(mc.read(BLOCKS + "planks_oak.png"))
     art = drawn_art(planks, rgba(mc.read(BLOCKS + "grass_top.png")))
+    wheat_vs = None
+    if a.wheat != "drawn":
+        import wheat_dense
+        for i in range(7):
+            art.pop("wheat_stage_%d" % i)
+            take.add(BLOCKS + "wheat_stage_%d.png" % i)
+        ripe = rgba(fread(BLOCKS + "wheat_stage_7.png")).astype(np.float32)
+        wheat_vs = [np.clip(v + 0.5, 0, 255).astype(np.uint8) for v in wheat_dense.variants(ripe, "bushy" if a.wheat == "bushy" else "plain")]
+        art["wheat_stage_7"] = wheat_vs[2]
     ywrong = []   # _n maps whose G runs OpenGL-style (labpbr.y_sign > 0): lit from below in the shader
     tally = dict(vanilla=0, faithful64=0, drawn=0, ctm=0, pbr_vnr=0, pbr_hybrid=0, pbr_ours=0, cit=0)
     textures = {}     # path -> (rgba, mcmeta bytes or None)
@@ -267,6 +279,14 @@ def main():
         p = d + "%d.png" % i
         textures[p], source[p] = (qf_art.bookshelf(seed=71 + i, planks=planks), None), "ctm"
         tally["ctm"] += 1
+    if wheat_vs is not None:
+        # ripe wheat: five heights mixed per block, so a field never tiles (Stay True's technique)
+        d = CTM + "wheat/"
+        out.writestr(d + "wheat_stage_7.properties", "matchTiles=wheat_stage_7\nmethod=random\ntiles=0-4\n")
+        for i, v in enumerate(wheat_vs):
+            p = d + "%d.png" % i
+            textures[p], source[p] = (v, None), "ctm"
+            tally["ctm"] += 1
     if a.leaf_edges != "none":
         tally["ctm"] += leaf_ctm(textures, source, a.leaf_edges, out)
 
