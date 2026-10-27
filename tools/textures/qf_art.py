@@ -474,8 +474,85 @@ WHEAT_GOLD = hexes("6a5222", "947632", "b99a48", "d4b868", "e9d590")   # straw, 
 WHEAT_TURN = hexes("4f5214", "70721e", "939329", "b2ad3a", "cdc65a")
 
 
+WHEAT_RIPE = hexes("6e5a26", "9e8438", "c6a84c", "dfc468", "f2df92")   # v2: a step brighter and yellower
+
+
 def wheat(stage, size=32, seed=51):
-    """Wheat, stages 0-7: green shoots that grow tall, set green ears, turn, and end golden and bushy.
+    """Wheat v2, stages 0-7. r008: v1 (wheat_v1 below) read as a solid chunky wall and the owner wants
+    Stay True's crops (ARR, direction only: nothing of its pixels). So: separate plants with air
+    between them, each a 1 px stalk (2 px, lit left, near the root) with one or two arching leaves;
+    young stages are tufts that grow; from stage 4 a slim 2 px braided ear (alternating lit kernels,
+    a kernel off the left every other row), sparse awns on its upper half from stage 6, the ripe ear nodding toward its lean.
+    Back plants are shorter and a step darker for depth."""
+    r = rng(seed + 10 * stage)
+    cv = Canvas(size, rgb=True)
+    s = size / 32
+    grow = [0.14, 0.24, 0.36, 0.48, 0.60, 0.72, 0.84, 0.92][stage]
+    stem = WHEAT_GREEN if stage < 6 else (WHEAT_TURN if stage == 6 else WHEAT_RIPE)
+    ear_pal = WHEAT_GREEN if stage < 6 else (WHEAT_TURN if stage == 6 else WHEAT_RIPE)
+    leaf_pal = WHEAT_GREEN if stage < 7 else WHEAT_TURN
+    front = 5 if stage >= 2 else 4
+    plants = [(x, False) for x in np.linspace(4, 28, front) + r.uniform(-1.2, 1.2, front)]
+    if stage >= 3:   # back plants in three of the four gaps, so their ears don't merge with the front ones
+        fx = sorted(x for x, _ in plants)
+        gaps = r.choice(len(fx) - 1, 3, replace=False)
+        plants = [((fx[g] + fx[g + 1]) / 2 + r.uniform(-0.5, 0.5), True) for g in gaps] + plants
+    def leaf(x0, y0, d, L, back):
+        """A leaf off the stalk at (x0, y0): a thin blade rising beside it and arching out by d."""
+        blade(cv, x0 + d * 0.5, L, d * L * 0.8, 1.0 * s,
+              lambda t, side: leaf_pal[max(0, 3 - back - (t > 0.75))], bottom=y0)
+    for x0, back in plants:
+        x0 *= s
+        b = int(back)
+        h = (size - 2 * s) * grow * r.uniform(0.75, 1.0) * (0.85 if back else 1.0)
+        lean = float(np.clip(r.normal(0, 2.0) * s, 1.5 * s - x0, size - 3.5 * s - x0))   # tip stays in the tile
+        if stage >= 4:   # stalk + ear fit under the top edge
+            h = min(h, size - 2 * s - [0, 0, 0, 0, 4, 6, 7, 8][stage] * s)
+        y0 = size - 1
+        if stage < 3:
+            # a tuft: two or three blades from the root, the outer ones arching out
+            for d, k in [(-1, 0.75), (1, 0.85)] + ([(0, 1.0)] if stage >= 1 else []):
+                blade(cv, x0 + d * 0.5, h * k, d * h * r.uniform(0.35, 0.6) + lean * 0.3, 1.0 * s,
+                      lambda t, side, b=b: leaf_pal[max(0, 3 - b - (t < 0.3) + (t > 0.8 and side < 0))])
+            continue
+        # the stalk, 1 px, with a shaded right pixel near the root
+        n = int(h)
+        for i in range(n + 1):
+            t = i / max(1, n)
+            x = x0 + lean * t * t
+            cv.put(x, y0 - i, stem[max(0, 1 + (t > 0.4) - b)])
+            if t < 0.12 and not back:
+                cv.put(x + 1, y0 - i, stem[1])
+        tx, ty = x0 + lean, y0 - n
+        # one or two leaves off the stalk, low down, to opposite sides
+        d = r.choice([-1, 1])
+        for k in range(1 if stage >= 6 else 2):
+            leaf(x0 + lean * 0.05, y0 - h * r.uniform(0.25, 0.5), d * (-1) ** k, int(r.uniform(4, 7) * s), b)
+        if stage < 4:
+            continue
+        # the ear: 2 px wide, kernels braided, nodding toward the lean near the tip
+        L = int([0, 0, 0, 0, 4, 6, 7, 8][stage] * s)
+        nod = 1 if lean >= 0 else -1
+        for j in range(L):
+            y = ty - j
+            x = tx + (nod if stage >= 7 and j >= L - 2 else 0)
+            odd = j % 2
+            cv.put(x, y, ear_pal[max(0, 4 - b - odd)])
+            cv.put(x + 1, y, ear_pal[max(0, 3 - b + odd)])
+            if odd and 0 < j < L - 1:
+                cv.put(x - 1, y, ear_pal[max(0, 2 - b)])   # a kernel off the left every other row
+        # awns: a few fine hairs off the ear, up and out
+        if stage >= 6:
+            for j in range(L // 2, L, 2):
+                side = -1 if (j // 2) % 2 else 1
+                for k in range(1, 3):
+                    cv.put(tx + (0.5 + 0.5 * side) + side * k, ty - j - k, ear_pal[max(0, 3 - b)])
+    return cv.out()
+
+
+def wheat_v1(stage, size=32, seed=51):
+    """v1's wheat (r008; the build uses wheat() since v2; kept for comparison previews).
+    Wheat, stages 0-7: green shoots that grow tall, set green ears, turn, and end golden and bushy.
     Stay True's idea (ARR, direction only): a dense crop, each head a fat ear that nods a little.
     Here: 11-13 stalks with a leaf or two, each ear a column of kernel pairs (light left, dark
     right, a dark seam between rows), fine awns above, back stalks a step darker for depth."""

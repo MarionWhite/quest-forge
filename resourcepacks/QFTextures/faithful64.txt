@@ -27,3 +27,6 @@ grass_side
 grass_side_overlay
 farmland_dry
 farmland_wet
+# r009 crops: the owner rated Faithful 64x's farm best of the three (r008 tex-farm C). Wheat stays ours.
+carrots_stage_*
+potatoes_stage_*
