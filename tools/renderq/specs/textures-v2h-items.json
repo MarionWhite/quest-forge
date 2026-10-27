@@ -1,0 +1,12 @@
+{
+ "name": "textures-v2h-items",
+ "owner": "texture-agent",
+ "comment": "r009 step 6: potions get a motif each (tools/textures/qf_items.py EFFECTS patches: ribbon, feather, flame label, skull, eye, bandage, iron bands, hourglass, broken heart, bubbles, ghost outline) and one sprite per effect (fixes the duplicate CIT zip entries). Board as in r008 (8 potions); compare with t8i1/t8i0 frames from r008. cit: true in this trial's config only. Shot mode, one boot.",
+ "prebuild": [
+  ["py", "-3.10", "-I", "tools/textures/build_qf_textures.py", "--out", "C:/qfb/textures/QFTextures-v2.zip"]
+ ],
+ "defaults": {"world": "C:/qfb/textures/world-showcase", "preset": "3", "size": "2560x1440", "mode": "shot", "cit": true},
+ "jobs": [
+  {"tag": "t9v2h", "resourcepacks": ["C:/qfb/textures/QFTextures-v2.zip"], "scenes": "items_frames"}
+ ]
+}
