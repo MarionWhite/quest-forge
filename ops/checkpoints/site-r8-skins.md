@@ -25,4 +25,29 @@ never copied, traced or recoloured. The site and repo are public. Patrix is repo
 - [ ] Report in five lines: Patrix's licence, the best open option, and the paths.
 
 ## Progress
-(write after every step)
+2026-10-27 research done (Mac). Previews (UV sheets, upscaled) in
+/private/tmp/claude-503/-Users-suaz-Desktop-QuestForge/91769071-2ed0-4412-b25d-3c510232d8e5/scratchpad/r8/skins/
+(wsz_zombie.png, cc_creeper.png, be_enderman.png, be_enderman_eyes.png). Downloads in scratchpad dl_wsz, dl_cc, dl_be (outside repo).
+
+### Patrix (patrixcraft, Modrinth team: patrixcraft owner, FreshLX pack developer)
+- Modrinth API https://api.modrinth.com/v2/project/patrix-32x : licence id `LicenseRef-All-Rights-Reserved`, name empty, no licence URL, no source, no Discord.
+  Page: https://modrinth.com/resourcepack/patrix-32x . Body text has NO permission, redistribution or credit terms.
+- No permission grant found. patrixtextures.com does not resolve (unverified that any official site exists); CurseForge and Discord not checked (unverified).
+  Contact route: Patreon https://www.patreon.com/patrix (page text shows no licence terms; /about unverified).
+- Body: "The pack also features custom mob animation from FreshLX ... with additional tweaks to fit the models better." So the scary mobs
+  are Fresh Animations / OptiFine custom entity models (CEM), not vanilla 1.7.10 models: they would not fit 1.7.10 anyway, and
+  FreshLX's work is a second rights holder. Verdict: cannot ship without written permission from patrixcraft AND FreshLX; do not copy.
+- Other Patrix-derived ARR: Patrix Uncreepifier, Tax' Creepy Mob (424k dl, glowing eyes), Vivian's Horror Spectacular, Blood RP, Halloween Pack: all ARR.
+
+### Open options (Modrinth licence ids from API; Modrinth is the holder's own listing; licence text itself not shown there)
+| Pack | Licence | Mob | Res | Fit 1.7.10 vanilla model |
+| WU_SHUANGCB's Zombie Skin https://modrinth.com/resourcepack/wu_shuangcbs-zombie-skin | CC-BY-4.0 | zombie (+husk, drowned) | 64x64 | v1.0 targets 1.7.2+; plain skin, zombie.png; _e emissive via OptiFine, random/ variants |
+| Creepingly Creeper https://modrinth.com/resourcepack/creepingly-creeper | CC-BY-4.0 | creeper (red eyes, camo) | 64x32 | yes, v1.0 supports 1.0+; plain skin |
+| Better Enderman https://modrinth.com/resourcepack/betterenderman | MIT | enderman + eyes | 64x32 | yes, 1.6.1+ |
+| Enderman into Slenderman https://modrinth.com/resourcepack/enderman-into-slenderman | MIT | enderman | | 1.11+ and replaces model: no |
+| Scary Spider https://modrinth.com/resourcepack/scary-spider | MIT | spider legs | | model change (OptiFine CEM), 1.11+: no |
+| Freshly Creepers (MIT), Enhanced Evil x FA (MIT, 1.20+) | | | | Fresh Animations models: no |
+Not covered by any open pack found: skeleton, wither skeleton, cave spider, witch, slime, magma cube, blaze, ghast, silverfish, zombie pigman (Modrinth-only search; CurseForge, Planet Minecraft, GitHub not searched).
+Modrinth hosts almost nothing for 1.7.10; most scary packs are ARR. Gap: commission or paint our own (QF Textures) for the rest.
+CC BY needs credit on the site (author, licence, link).
+
