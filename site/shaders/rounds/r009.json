@@ -1,0 +1,653 @@
+{
+ "n": 9,
+ "id": "r009",
+ "title": "A third off the frame cost, a sun that sets behind its cloud, blue water, real meteor showers, and QF Textures v2",
+ "intro": "Your round 8 answers are built in. Your main note was the cost: round 8's dearest frame was 4.6 ms on High against a 3 ms budget. The cost this round is mostly the light shafts and the dust that lives in them, so their march is rebuilt: fewer, jittered steps, the dust worked out inside the shaft march, and the dust skipped where no beam is. High frames now cost 3.3 ms at most (round 8: 4.6). That is still up to 0.3 ms over the 3 ms budget on the sea, swamp and river views, so High is close, not done; the views without much water cost 1.9 to 2.9 ms. Low at 1080p costs at most 0.86 ms (budget 0.9, round 8 1.32) and Potato at 720p at most 0.29 ms (budget 0.4). What changed in the look: Motes in the forest beam are still the weak spot: only one or two show in its upper part. The forest's leaves lose most of their cream veil (the beam dust no longer hangs over a ray that ends on leaves); the cream sky round the gap is still there. The golden-hour artifacts you saw in every texture photo are gone: the lit rectangle over the grass and the orange 'coins' were torchlight from the test house showing in daylight, and the radial streaks are much fainter. As a side effect, torchlight outdoors in the daytime is now about 70% weaker; at night it is unchanged. Low sun now lays a warm light on sunlit grass tops. The ocean's sun path is 12 to 20% brighter and longer. Clouds in front of the sun now hide its disk: at this sunset the sun sets behind its cloud bank. River beds are clearer, and the yellow stripes along the ledges are gone. Under water, rivers, lakes and the ocean are now blue-teal with blue sunbeams; swamps stay green. Meteor showers are rebuilt from how real ones look: one point in the sky per night, streaks that run away from it, short near it and long far from it, most faint and white, a few bright and tinted, now and then a fireball. Not changed this round: metal blocks (the cheap reflection that would not cost anything is next), the noon clouds' streaks (see the clouds question), vibrance. Four questions need your call: keep the fast volumetrics as the default, the weaker daytime torchlight, the sun behind its cloud, and whether the noon-cloud fix is worth a small cost. Costs are per frame on High at 1440p, against the same view with shaders off. After the shader questions come the textures: QF Textures v2 against v1 and Faithful 64x, and the potions. Credits: Faithful 32x and 64x (faithfulpack.net, Faithful License v4) in the v1, v2 and Faithful frames; the normal and specular maps are converted from Vanilla Normals Renewed by Poudingue (github.com/Poudingue/Vanilla-Normals-Renewed-1.12).",
+ "status": "open",
+ "created": "2026-10-27",
+ "scenes": [
+  {
+   "id": "performance",
+   "name": "The cost, and the fast volumetrics",
+   "question": "You said round 8 was over budget and must not kill anyone's game. The fast volumetrics (a new setting, on by default) cut the High frame by about 1.3 ms and Low by about 0.5 ms. They change the look a little: the shafts take 14 steps instead of 20, jittered so they do not band, and the dust is thinned where no beam is. A and B are the golden-hour plains with it on and off; C and D the forest beam, cropped, on and off. The ms under each is the measured cost.",
+   "notePrompt": "Keep the fast volumetrics as the default? Can you see a difference?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Fast volumetrics on (default)",
+     "img": "r009/performance-A.jpg",
+     "critic": "Critic 7: The tex-golden artifacts are gone at sheet scale: no lit rectangle over the grass, no orange coins; only a few pale flecks and flowers in the near field. The sunlit terrace tops read warm yellow-green, the shade stays cool green, the rose horizon band and warm far haze are kept. Fix: the faint diagonal streaks on the shaded field (not shafts).",
+     "ms": 2.87
+    },
+    {
+     "key": "B",
+     "label": "Fast volumetrics off",
+     "img": "r009/performance-B.jpg",
+     "critic": "Critic 7: Fast volumetrics off: at sheet scale the same frame as A (a few more pale flecks in the near field), for 4.33 ms against A's 2.87. The fast path costs nothing visible here; keep it as the default.",
+     "ms": 4.33
+    },
+    {
+     "key": "C",
+     "label": "Forest beam, fast on",
+     "img": "r009/performance-C.jpg",
+     "critic": "Critic 6: The beam haze lies over the path right of the big trunk and reads as a shaft; ground, trunks and leaves clean. Few separate motes. Fix: real motes inside the lit air.",
+     "ms": 2.1
+    },
+    {
+     "key": "D",
+     "label": "Forest beam, fast off",
+     "img": "r009/performance-D.jpg",
+     "critic": "Critic 6: Fast off: the haze over the path is if anything weaker in this frame than A's, so the 14-step jittered march loses no beam; no banding in either. Supports QF_VOL_FAST 1 as the default.",
+     "ms": 2.75
+    }
+   ]
+  },
+  {
+   "id": "sun-cloud",
+   "name": "The sun behind its cloud",
+   "question": "You said clouds in front of the sun must dim it. The clouds round the setting sun were drawn faint at that distance and also stopped hiding the disk, so the disk showed whole through them. Now the cloud hides the disk: in this sunset the sun sets behind its cloud bank, a thin crescent shows under it and the glow round it stays. A is new, cropped round the sun at twice the size, B round 8.",
+   "notePrompt": "Keep the sun behind the cloud, or is a hidden sun at this sunset a loss?",
+   "options": [
+    {
+     "key": "A",
+     "label": "New",
+     "img": "r009/sun-cloud-A.jpg",
+     "critic": "Critic 7: The sun now sets behind its cloud bank: a thin white crescent under the cloud base where round 8 drew a whole disk through the cloud, with the warm aureole kept. The path on the water reads longer and brighter than p8's. A small green glint sits on the water left of the centre island at the horizon. Fix: the hidden disk takes away the frame's focal point; let thin cloud fringes show the disk's edge.",
+     "ms": 3.29
+    },
+    {
+     "key": "B",
+     "label": "Round 8",
+     "img": "r009/sun-cloud-B.jpg",
+     "critic": "Critic 7: Loop 4 sunset. The disk has form (about 55 to 60 px across at 2560 wide, crisp and white) and a real warm aureole now: the sky above it falls from about 254,205,163 just off the rim to 181,145,118 some 350 px out, so the glow is there, not painted. Still weak: the glitter path under the sun measures 77 mean luma against r007 qw's 86 (uj was 66), so it is shorter and dimmer than r007 and far from BSL's column; the open water is dark navy at sunset; a few warm dust flakes float in front of the island, outside any beam. Fix: a longer, brighter sun path on the water.",
+     "ms": 4.58
+    }
+   ]
+  },
+  {
+   "id": "sunset-full",
+   "name": "The whole sunset",
+   "question": "The same sunset as a whole frame. The sun's path on the water is 12 to 20% brighter and runs further down toward you (round 8's was dimmer than round 7's). A is new, B round 8.",
+   "notePrompt": "Is the path on the water right now? What still falls short?",
+   "options": [
+    {
+     "key": "A",
+     "label": "New",
+     "img": "r009/sunset-full-A.jpg",
+     "critic": "Critic 7: The sun now sets behind its cloud bank: a thin white crescent under the cloud base where round 8 drew a whole disk through the cloud, with the warm aureole kept. The path on the water reads longer and brighter than p8's. A small green glint sits on the water left of the centre island at the horizon. Fix: the hidden disk takes away the frame's focal point; let thin cloud fringes show the disk's edge.",
+     "ms": 3.29,
+     "ref": {
+      "img": "r009/ref-sunset-full-A.jpg",
+      "credit": "Brocken Inaglory, retouched by User:Flamurai, CC BY-SA 3.0, via Wikimedia Commons",
+      "source": "https://commons.wikimedia.org/wiki/File:Sunset_clouds_and_crepuscular_rays_over_pacific_edit.jpg",
+      "title": "Sunset clouds and crepuscular rays over pacific edit.jpg"
+     }
+    },
+    {
+     "key": "B",
+     "label": "Round 8",
+     "img": "r009/sunset-full-B.jpg",
+     "critic": "Critic 7: Loop 4 sunset. The disk has form (about 55 to 60 px across at 2560 wide, crisp and white) and a real warm aureole now: the sky above it falls from about 254,205,163 just off the rim to 181,145,118 some 350 px out, so the glow is there, not painted. Still weak: the glitter path under the sun measures 77 mean luma against r007 qw's 86 (uj was 66), so it is shorter and dimmer than r007 and far from BSL's column; the open water is dark navy at sunset; a few warm dust flakes float in front of the island, outside any beam. Fix: a longer, brighter sun path on the water.",
+     "ms": 4.58
+    }
+   ]
+  },
+  {
+   "id": "golden",
+   "name": "Golden hour: artifacts gone, warm light on the grass",
+   "question": "You found 'weird artifacting in all photos' of the golden plains. It was the shader, not the textures: the lit rectangle over the grass and the orange coins were torchlight from the test house showing in daylight, and dark streaks fanned over the ground. Torchlight is now damped in daylight, so the rectangle and the coins are gone and the streaks are much fainter (some faint diagonal ones remain on the shaded field). The low sun now lays a warm light on sunlit grass tops; shade stays cool green. A is new, B with the dust off, C round 8. The side effect: torches and lamps outdoors in the daytime light about 70% less than before; at night nothing changed.",
+   "notePrompt": "Are the artifacts gone for you? Is weaker daytime torchlight fine?",
+   "options": [
+    {
+     "key": "A",
+     "label": "New",
+     "img": "r009/golden-A.jpg",
+     "critic": "Critic 7: The tex-golden artifacts are gone at sheet scale: no lit rectangle over the grass, no orange coins; only a few pale flecks and flowers in the near field. The sunlit terrace tops read warm yellow-green, the shade stays cool green, the rose horizon band and warm far haze are kept. Fix: the faint diagonal streaks on the shaded field (not shafts).",
+     "ms": 2.87
+    },
+    {
+     "key": "B",
+     "label": "Dust off",
+     "img": "r009/golden-B.jpg",
+     "critic": "Critic 7: Dust off: nearly the same as A; the far warm haze is aerial, not dust, so dust adds little to this view and takes nothing from it (no coins either way).",
+     "ms": 2.11
+    },
+    {
+     "key": "C",
+     "label": "Round 8",
+     "img": "r009/golden-C.jpg",
+     "critic": "Critic 7: The olive cast is gone. The near grass measures 43,47,15 (rows 1000 to 1300) against uk's olive 72,59,17 and r007's 42,50,29; BSL is about 45,48,25. The rose horizon band and the warm far haze are kept. What still falls short of the reference: the near field is flat green with little warm low-sun light on the grass tops, and scattered yellow flakes dot the grass (r007 has them too). Fix: warm grazing light on the lit side of the slope.",
+     "ms": 4.34
+    }
+   ]
+  },
+  {
+   "id": "forest-light",
+   "name": "Forest light: the cream veil",
+   "question": "You and the critic named the forest's cream wash. It had two parts. The veil over the leaves was the beam dust: a ray that ends on leaves looks at the canopy, not across a beam, so it now takes 40% of the dust; the leaves are cleaner and greener. The cream sky round the gap comes from the shafts and is still there; two tries at it did nothing visible. A is new, B the old dust on the leaves, C round 8.",
+   "notePrompt": "Is the canopy better? How much does the cream sky still bother you?",
+   "options": [
+    {
+     "key": "A",
+     "label": "New",
+     "img": "r009/forest-light-A.jpg",
+     "critic": "Critic 6: Against p9dl0 and p8 the right canopy is a little greener and cleaner, with no outline at the leaf edges; the gap's glow is kept. The cream sky round the gap is unchanged and is now the main fault of this view. Fix: the shafts' open-sky veil at golden hour.",
+     "ms": 2.0,
+     "ref": {
+      "img": "r009/ref-forest-light-A.jpg",
+      "credit": "Jakub Hałun, CC BY 4.0, via Wikimedia Commons",
+      "source": "https://commons.wikimedia.org/wiki/File:Crepuscular_rays_in_the_forest_near_Przeginia_Duchowna,_Lesser_Poland_Voivodeship,_20240225_0830_6640.jpg",
+      "title": "Crepuscular rays in the forest near Przeginia Duchowna, Lesser Poland Voivodeship, 20240225 0830 6640.jpg"
+     }
+    },
+    {
+     "key": "B",
+     "label": "Old dust on the leaves",
+     "img": "r009/forest-light-B.jpg",
+     "critic": "Critic 6: The old dust on the leaves: the right canopy is slightly paler and flatter than A's. The difference is subtle at sheet scale; A is better.",
+     "ms": 2.01
+    },
+    {
+     "key": "C",
+     "label": "Round 8",
+     "img": "r009/forest-light-C.jpg",
+     "critic": "Critic 6: The stuck yellow oval on the right-hand leaves (visible in uk) is gone, and no ring or pale disk sits over the leaves at the gap. The cream wash over the sky round the gap is still there, and the rays through the gap are thin next to the reference's dark forest with strong shafts. Fix: kill the cream wash and give the canopy more contrast against the gap.",
+     "ms": 2.47
+    }
+   ]
+  },
+  {
+   "id": "dust",
+   "name": "Motes in the sunbeam (motion clip)",
+   "question": "Round 8's beam had a haze but no motes. The far motes were tested against a beam count that the cheaper march made too noisy to keep; they now test the shade on both sides of the beam. Honest note: the critic finds only one or two warm motes in the upper shaft, against the cliff, and none in the lower half, even in motion; the beam's haze in this crop is also a little fainter than round 8's. Motes in the beam are still the open fault. A is a six-second clip, then the still; B the beam haze off (the few motes stay); C round 8's clip.",
+   "notePrompt": "Do you see motes now? Is the beam's haze right?",
+   "options": [
+    {
+     "key": "A",
+     "label": "New dust, clip",
+     "img": "r009/dust-A.jpg",
+     "critic": "Critic 5: Terrain present, clip plays. A max-minus-median motion map of the 90 frames shows leaf sway and a smooth shimmer in the beam, but no separable mote tracks, the same as p8clipdust. A native crop by the cliff finds one or two warm dots, and the beam over the cliff is fainter than round 8's. Not yet: motes in the beam.",
+     "ms": 2.1,
+     "clip": "r009/dust-A.webp"
+    },
+    {
+     "key": "B",
+     "label": "Beam haze off",
+     "img": "r009/dust-B.jpg",
+     "critic": "Critic 5: Beam haze off: the shaft disappears, and a few warm mote dots stay on the cliff (QF_MOTES is still on), more visible than in A, so the haze partly hides them.",
+     "ms": 1.8
+    },
+    {
+     "key": "C",
+     "label": "Round 8, clip",
+     "img": "r009/dust-C.jpg",
+     "critic": "Critic 5: The new dust_b view works: a lit shaft crosses the near air in front of the trunks, and the clip plays (90 frames). But a max-minus-median motion map of the burst, at 8x gain over the beam, shows only the shaft haze shimmering and no point-like mote trails anywhere inside it; one large flake sits on the birch at the right. So the beam now carries a visible dust haze, but separate drifting motes are not there. Fix: real motes, a few px each, drifting through the lit shaft.",
+     "ms": 2.78,
+     "clip": "r009/dust-C.webp"
+    }
+   ]
+  },
+  {
+   "id": "river",
+   "name": "The river bed",
+   "question": "You and the critic found faint stripes along the ledges and murky green water. The water over the bed is clearer and the bed keeps its own teal; the yellow stripes (grass tops seen through the water) are gone, though the critic still sees pale mint dashes along the ledge edges and finds mid-river water green and opaque. No sun glint: in this view the sun is overhead behind you. A is new, B round 8.",
+   "notePrompt": "Clear enough? What does the river need next?",
+   "options": [
+    {
+     "key": "A",
+     "label": "New",
+     "img": "r009/river-A.jpg",
+     "critic": "Critic 6: The yellow ledge stripes are gone and the near water glitters well, but the submerged ledges now show as pale mint dashes along their edges, still a stripe pattern, only cooler; the water mid-river is still green-teal and opaque. Fix: lose the ledge-edge dashes; clearer water over the bed.",
+     "ms": 2.88,
+     "ref": {
+      "img": "r009/ref-river-A.jpg",
+      "credit": "amanderson2, CC BY 2.0, via Wikimedia Commons",
+      "source": "https://commons.wikimedia.org/wiki/File:Clear_River_water_Bled_Vintgar_Slovenia_(8095482709).jpg",
+      "title": "Clear River water Bled Vintgar Slovenia (8095482709).jpg"
+     }
+    },
+    {
+     "key": "B",
+     "label": "Round 8",
+     "img": "r009/river-B.jpg",
+     "critic": "Critic 6: No orange flat blocks under the surface. The water is still murky green and faint lighter stripes run along the submerged ledges. Fix: clearer water near the banks, lose the ledge stripes.",
+     "ms": 4.32
+    }
+   ]
+  },
+  {
+   "id": "underwater",
+   "name": "Under water: blue, not green",
+   "question": "The critic found round 8's underwater very green and foggy. Rivers, lakes and the ocean now absorb and scatter like clear water: blue-teal, with blue sunbeams; swamps stay green. A is the canyon, B looking up toward the sun, C the canyon with the underwater effects off, D round 8.",
+   "notePrompt": "Is this the underwater you want? Too blue, too clear?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Canyon (new)",
+     "img": "r009/underwater-A.jpg",
+     "critic": "Critic 7: A real change from p8's green fog: blue-teal water, blue shafts down the channel, lit walls, bubbles, and the sky in the surface window. Fix: the far channel fades to a flat teal; a little more depth gradient.",
+     "ms": 1.9
+    },
+    {
+     "key": "B",
+     "label": "Toward the sun (new)",
+     "img": "r009/underwater-B.jpg",
+     "critic": "Critic 7: Strong blue god rays fanning down from the surface, bubbles, the slope fading into blue: reads like clear water. Fix: the rays are a little regular; vary their width.",
+     "ms": 1.88
+    },
+    {
+     "key": "C",
+     "label": "Canyon, effects off",
+     "img": "r009/underwater-C.jpg",
+     "critic": "Critic 5: Effects off: dark green fog and flat walls, so A's change is clearly visible against it.",
+     "ms": 1.33
+    },
+    {
+     "key": "D",
+     "label": "Round 8",
+     "img": "r009/underwater-D.jpg",
+     "critic": "Critic 6: Against p8uw0 the canyon gains faint green shafts down the channel and a little caustic light on the walls. Very green and foggy; the effect is subtle.",
+     "ms": 1.86
+    }
+   ]
+  },
+  {
+   "id": "water-check",
+   "name": "Water by biome: check",
+   "question": "Nothing here was changed on purpose; the new underwater colour does not touch water seen from above. Check that nothing broke: A coast, B swamp, C ocean into swamp, D river into swamp.",
+   "notePrompt": "Still good?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Coast",
+     "img": "r009/water-check-A.jpg",
+     "critic": "Critic 8: Unchanged and intact: tan sand under turquoise, shallow terraces readable, clean far coast. Nothing broke.",
+     "ms": 3.08,
+     "ref": {
+      "img": "r009/ref-water-check-A.jpg",
+      "credit": "Martin Falbisoner, CC BY-SA 4.0, via Wikimedia Commons",
+      "source": "https://commons.wikimedia.org/wiki/File:Diamonds_Thudufushi_Beach_and_Water_Villas,_May_2017_-08.jpg",
+      "title": "Diamonds Thudufushi Beach and Water Villas, May 2017 -08.jpg"
+     }
+    },
+    {
+     "key": "B",
+     "label": "Swamp",
+     "img": "r009/water-check-B.jpg",
+     "critic": "Critic 7: Intact: olive swamp water, the huts and the cliff reflect, lily pads clean. Nothing broke.",
+     "ms": 3.04,
+     "ref": {
+      "img": "r009/ref-water-check-B.jpg",
+      "credit": "JamesDeMers, CC0, via Wikimedia Commons",
+      "source": "https://commons.wikimedia.org/wiki/File:Bayou-439881.jpg",
+      "title": "Bayou-439881.jpg"
+     }
+    },
+    {
+     "key": "C",
+     "label": "Ocean into swamp",
+     "img": "r009/water-check-C.jpg",
+     "critic": "Critic 7: Intact: blue ocean blends into the green swamp water with the sand readable under the shallows. Nothing broke.",
+     "ms": 3.04
+    },
+    {
+     "key": "D",
+     "label": "River into swamp",
+     "img": "r009/water-check-D.jpg",
+     "critic": "Critic 7: Intact: green swamp water, tree reflections, smooth blend from the river. Nothing broke.",
+     "ms": 3.14
+    }
+   ]
+  },
+  {
+   "id": "clouds",
+   "name": "Noon clouds (motion clip)",
+   "question": "The noon sky still has its streaks fanning from the top of the sky. We tested finer sampling: no change, so it is the cloud shape itself, a flat pattern stretched up through the whole cloud layer. The fix gives the clouds a shape that changes with height, at the cost of one more texture read per cloud sample; we have not measured it yet (likely a few tenths of a ms on High). A is a clip of the noon sky, unchanged since round 8; B is round 8's clip.",
+   "notePrompt": "Worth a small cost to fix the streaks?",
+   "options": [
+    {
+     "key": "A",
+     "label": "This round, clip",
+     "img": "r009/clouds-A.jpg",
+     "critic": "Critic 6: Unchanged since r008, as the text says: one heavy deck with radial streaks fanning from the zenith; the clip drifts smoothly with no flicker; terrain present. Fix: a height-varying cloud shape (costs one fetch).",
+     "ms": 2.31,
+     "clip": "r009/clouds-A.webp"
+    },
+    {
+     "key": "B",
+     "label": "Round 8, clip",
+     "img": "r009/clouds-B.jpg",
+     "critic": "Critic 6: The clip plays and the clouds drift smoothly with no flicker; terrain is present. The sky is still one heavy deck with a hole, less lively than r007's.",
+     "ms": 3.69,
+     "clip": "r009/clouds-B.webp"
+    }
+   ]
+  },
+  {
+   "id": "meteors",
+   "name": "Meteor showers (motion clip)",
+   "question": "You said round 8's shower was 'shit flying in every direction'. A real shower comes from one point in the sky, its radiant, a different place each night. Streaks start away from it and run away from it, short near it, long far from it; most are faint and white, about one in six bright and tinted with a short train, now and then a fireball. A is a clip of a shower night facing away from the radiant, so the streaks run the same way; B a pinned pair by a developer switch (only one of the two is in this frame); C the new-moon lake on a shower night; D round 8's clip.",
+   "notePrompt": "Does it read as a shower now? Rate, brightness, fireballs?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Shower night, clip",
+     "img": "r009/meteors-A.jpg",
+     "critic": "Critic 8: Fixed against p8's starburst. A max-minus-median map of the 90 frames holds about seven streaks, all near-parallel, running down and slightly left with their heads at the lower ends, tracing back to one radiant above the top right of the frame; near-radiant ones are short. Terrain present (dark hills, right). Fix: one night with the radiant in view.",
+     "ms": 2.49,
+     "clip": "r009/meteors-A.webp"
+    },
+    {
+     "key": "B",
+     "label": "Pinned meteor (still)",
+     "img": "r009/meteors-B.jpg",
+     "critic": "Critic 6: Only one of the pinned pair is in the frame: a short warm-white streak left of the dark cloud. Clean shape, no blob. Terrain present.",
+     "ms": 2.51
+    },
+    {
+     "key": "C",
+     "label": "New-moon lake, shower night",
+     "img": "r009/meteors-C.jpg",
+     "critic": "Critic 7: A long warm streak high on the left over the new-moon lake, thin, not comet-like; terrain dim but present.",
+     "ms": 3.11
+    },
+    {
+     "key": "D",
+     "label": "Round 8, clip",
+     "img": "r009/meteors-D.jpg",
+     "critic": "Critic 8: Fixed against loop 3: terrain is present and the clip shows the shower. Across the 90 frames the motion map holds about twenty separate streaks from a common radiant, each with a bright train. This is what the owner asked to see.",
+     "ms": 3.64,
+     "clip": "r009/meteors-D.webp"
+    }
+   ]
+  },
+  {
+   "id": "tex-wall",
+   "name": "Textures: the block wall",
+   "question": "Round 8's wall, all three under this round's shaders. You said A's iron and gold looked unlit. B's iron is now lit like its neighbours; gold keeps metal shine only on its diagonal glints; the grass on top is round 7's crisp pattern again instead of v1's soft felt.",
+   "notePrompt": "Do iron and gold look lit now? Gold too lemon? Any block worse than A?",
+   "options": [
+    {
+     "key": "A",
+     "label": "QF Textures v1 (round 8)",
+     "img": "r009/tex-wall-A.jpg",
+     "ms": null,
+     "desc": "Round 8's B (QF Textures v1), rendered again under this round's shaders.",
+     "noCost": "texture comparison, shot mode: not measured"
+    },
+    {
+     "key": "B",
+     "label": "QF Textures v2 (new)",
+     "img": "r009/tex-wall-B.jpg",
+     "ms": null,
+     "desc": "v2: leaves redrawn as rounded lit clumps, round 7's crisp grass top, airy wheat and Faithful 64x carrots and potatoes, lit iron and glinting gold, a clean emerald, a motif on every potion.",
+     "noCost": "texture comparison, shot mode: not measured"
+    },
+    {
+     "key": "C",
+     "label": "Faithful 64x (reference)",
+     "img": "r009/tex-wall-C.jpg",
+     "ms": null,
+     "desc": "Faithful 64x on everything it covers, for reference, under this round's shaders.",
+     "noCost": "texture comparison, shot mode: not measured"
+    }
+   ]
+  },
+  {
+   "id": "tex-wall-close",
+   "name": "Bricks, cobble, bookshelf, gems up close",
+   "question": "The second wall, closer. You said emerald and grass looked weird. B's emerald is Faithful 64x's square bevel with matching light maps (v1 laid vanilla's rhombus light over it and made it a green mirror).",
+   "notePrompt": "Emerald and grass: fixed? If the grass still looks off, is it the top or the side fringe?",
+   "options": [
+    {
+     "key": "A",
+     "label": "QF Textures v1 (round 8)",
+     "img": "r009/tex-wall-close-A.jpg",
+     "ms": null,
+     "desc": "Round 8's B (QF Textures v1), rendered again under this round's shaders.",
+     "noCost": "texture comparison, shot mode: not measured"
+    },
+    {
+     "key": "B",
+     "label": "QF Textures v2 (new)",
+     "img": "r009/tex-wall-close-B.jpg",
+     "ms": null,
+     "desc": "v2: leaves redrawn as rounded lit clumps, round 7's crisp grass top, airy wheat and Faithful 64x carrots and potatoes, lit iron and glinting gold, a clean emerald, a motif on every potion.",
+     "noCost": "texture comparison, shot mode: not measured"
+    },
+    {
+     "key": "C",
+     "label": "Faithful 64x (reference)",
+     "img": "r009/tex-wall-close-C.jpg",
+     "ms": null,
+     "desc": "Faithful 64x on everything it covers, for reference, under this round's shaders.",
+     "noCost": "texture comparison, shot mode: not measured"
+    }
+   ]
+  },
+  {
+   "id": "tex-forest",
+   "name": "The forest clearing",
+   "question": "B's leaves are redrawn: each leaf block is a few big lit clumps (lit crown, mid, shaded underside) with round see-through pockets, instead of v1's speckle of small leaves. The ragged-edge option is dropped.",
+   "notePrompt": "Leaves: better than A? Still bad?",
+   "options": [
+    {
+     "key": "A",
+     "label": "QF Textures v1 (round 8)",
+     "img": "r009/tex-forest-A.jpg",
+     "ms": null,
+     "desc": "Round 8's B (QF Textures v1), rendered again under this round's shaders.",
+     "noCost": "texture comparison, shot mode: not measured"
+    },
+    {
+     "key": "B",
+     "label": "QF Textures v2 (new)",
+     "img": "r009/tex-forest-B.jpg",
+     "ms": null,
+     "desc": "v2: leaves redrawn as rounded lit clumps, round 7's crisp grass top, airy wheat and Faithful 64x carrots and potatoes, lit iron and glinting gold, a clean emerald, a motif on every potion.",
+     "noCost": "texture comparison, shot mode: not measured"
+    },
+    {
+     "key": "C",
+     "label": "Faithful 64x (reference)",
+     "img": "r009/tex-forest-C.jpg",
+     "ms": null,
+     "desc": "Faithful 64x on everything it covers, for reference, under this round's shaders.",
+     "noCost": "texture comparison, shot mode: not measured"
+    }
+   ]
+  },
+  {
+   "id": "tex-leaves",
+   "name": "Leaves up close: a hedge, a lone block and a tree",
+   "question": "The hedge view from round 8, where you said the leaves need heavy rework. Honest note: B refines our code-drawn clumps rather than starting over. If this still isn't it, the next step is hand-painted leaf tiles instead of more tuning.",
+   "notePrompt": "Good enough to build on, or go hand-painted?",
+   "options": [
+    {
+     "key": "A",
+     "label": "QF Textures v1 (round 8)",
+     "img": "r009/tex-leaves-A.jpg",
+     "ms": null,
+     "desc": "Round 8's B (QF Textures v1), rendered again under this round's shaders.",
+     "noCost": "texture comparison, shot mode: not measured"
+    },
+    {
+     "key": "B",
+     "label": "QF Textures v2 (new)",
+     "img": "r009/tex-leaves-B.jpg",
+     "ms": null,
+     "desc": "v2: leaves redrawn as rounded lit clumps, round 7's crisp grass top, airy wheat and Faithful 64x carrots and potatoes, lit iron and glinting gold, a clean emerald, a motif on every potion.",
+     "noCost": "texture comparison, shot mode: not measured"
+    },
+    {
+     "key": "C",
+     "label": "Faithful 64x (reference)",
+     "img": "r009/tex-leaves-C.jpg",
+     "ms": null,
+     "desc": "Faithful 64x on everything it covers, for reference, under this round's shaders.",
+     "noCost": "texture comparison, shot mode: not measured"
+    }
+   ]
+  },
+  {
+   "id": "tex-leaves-tree",
+   "name": "Leaves on a tree",
+   "question": "The oak from under its crown, same three packs.",
+   "notePrompt": "Does the crown have shape now?",
+   "options": [
+    {
+     "key": "A",
+     "label": "QF Textures v1 (round 8)",
+     "img": "r009/tex-leaves-tree-A.jpg",
+     "ms": null,
+     "desc": "Round 8's B (QF Textures v1), rendered again under this round's shaders.",
+     "noCost": "texture comparison, shot mode: not measured"
+    },
+    {
+     "key": "B",
+     "label": "QF Textures v2 (new)",
+     "img": "r009/tex-leaves-tree-B.jpg",
+     "ms": null,
+     "desc": "v2: leaves redrawn as rounded lit clumps, round 7's crisp grass top, airy wheat and Faithful 64x carrots and potatoes, lit iron and glinting gold, a clean emerald, a motif on every potion.",
+     "noCost": "texture comparison, shot mode: not measured"
+    },
+    {
+     "key": "C",
+     "label": "Faithful 64x (reference)",
+     "img": "r009/tex-leaves-tree-C.jpg",
+     "ms": null,
+     "desc": "Faithful 64x on everything it covers, for reference, under this round's shaders.",
+     "noCost": "texture comparison, shot mode: not measured"
+    }
+   ]
+  },
+  {
+   "id": "tex-golden",
+   "name": "Golden hour on the plains",
+   "question": "The low-sun view over grass and farmland. The artifacts you saw here last round (stair-stepped light on the grass, dark streaks, orange dots) come from the shader, not the textures; they are the shader track's job this round. Judge the grass and crops here.",
+   "notePrompt": "Which grass reads best in warm light?",
+   "options": [
+    {
+     "key": "A",
+     "label": "QF Textures v1 (round 8)",
+     "img": "r009/tex-golden-A.jpg",
+     "ms": null,
+     "desc": "Round 8's B (QF Textures v1), rendered again under this round's shaders.",
+     "noCost": "texture comparison, shot mode: not measured"
+    },
+    {
+     "key": "B",
+     "label": "QF Textures v2 (new)",
+     "img": "r009/tex-golden-B.jpg",
+     "ms": null,
+     "desc": "v2: leaves redrawn as rounded lit clumps, round 7's crisp grass top, airy wheat and Faithful 64x carrots and potatoes, lit iron and glinting gold, a clean emerald, a motif on every potion.",
+     "noCost": "texture comparison, shot mode: not measured"
+    },
+    {
+     "key": "C",
+     "label": "Faithful 64x (reference)",
+     "img": "r009/tex-golden-C.jpg",
+     "ms": null,
+     "desc": "Faithful 64x on everything it covers, for reference, under this round's shaders.",
+     "noCost": "texture comparison, shot mode: not measured"
+    }
+   ]
+  },
+  {
+   "id": "tex-farm",
+   "name": "The farm",
+   "question": "B's wheat is redrawn: separate plants with thin stalks, arching leaves and long slim ears that nod when ripe, a lighter crop like the one you liked. Carrots and potatoes are now Faithful 64x's (C's farm was your pick).",
+   "notePrompt": "Wheat: closer to what you want? Carrots and potatoes OK?",
+   "options": [
+    {
+     "key": "A",
+     "label": "QF Textures v1 (round 8)",
+     "img": "r009/tex-farm-A.jpg",
+     "ms": null,
+     "desc": "Round 8's B (QF Textures v1), rendered again under this round's shaders.",
+     "noCost": "texture comparison, shot mode: not measured"
+    },
+    {
+     "key": "B",
+     "label": "QF Textures v2 (new)",
+     "img": "r009/tex-farm-B.jpg",
+     "ms": null,
+     "desc": "v2: leaves redrawn as rounded lit clumps, round 7's crisp grass top, airy wheat and Faithful 64x carrots and potatoes, lit iron and glinting gold, a clean emerald, a motif on every potion.",
+     "noCost": "texture comparison, shot mode: not measured"
+    },
+    {
+     "key": "C",
+     "label": "Faithful 64x (reference)",
+     "img": "r009/tex-farm-C.jpg",
+     "ms": null,
+     "desc": "Faithful 64x on everything it covers, for reference, under this round's shaders.",
+     "noCost": "texture comparison, shot mode: not measured"
+    }
+   ]
+  },
+  {
+   "id": "tex-farm-close",
+   "name": "The farm up close",
+   "question": "The same field from the path. Honest note: code-drawn wheat can't match a hand-placed pack's charm; the youngest stages still look like flat green crosses from above. If the wheat isn't there, the next step is hand-drawn wheat tiles.",
+   "notePrompt": "Ripe and middle stages: right? Worth hand-drawing?",
+   "options": [
+    {
+     "key": "A",
+     "label": "QF Textures v1 (round 8)",
+     "img": "r009/tex-farm-close-A.jpg",
+     "ms": null,
+     "desc": "Round 8's B (QF Textures v1), rendered again under this round's shaders.",
+     "noCost": "texture comparison, shot mode: not measured"
+    },
+    {
+     "key": "B",
+     "label": "QF Textures v2 (new)",
+     "img": "r009/tex-farm-close-B.jpg",
+     "ms": null,
+     "desc": "v2: leaves redrawn as rounded lit clumps, round 7's crisp grass top, airy wheat and Faithful 64x carrots and potatoes, lit iron and glinting gold, a clean emerald, a motif on every potion.",
+     "noCost": "texture comparison, shot mode: not measured"
+    },
+    {
+     "key": "C",
+     "label": "Faithful 64x (reference)",
+     "img": "r009/tex-farm-close-C.jpg",
+     "ms": null,
+     "desc": "Faithful 64x on everything it covers, for reference, under this round's shaders.",
+     "noCost": "texture comparison, shot mode: not measured"
+    }
+   ]
+  },
+  {
+   "id": "tex-items",
+   "name": "Potions with personality",
+   "question": "You liked the books but found the potions boring. Every potion now has its own sprite and motif. A is round 8's prototype and B the new set in the same item frames (the board shows 8; frames mirror the sprites, the inventory doesn't). C shows all 12, left to right: regeneration (ribbon, sprout), swiftness (feather), fire resistance (wax cap, flame), poison (skull), healing (heart, gold cap), night vision (eye), weakness (cracked, bandaged), strength (iron bands, gem), slowness (hourglass, cobweb), harming (broken heart, spikes), water breathing (bubbles), invisibility (ghost outline), then the splash grenade; below, the books.",
+   "notePrompt": "Do the potions have personality now? Any that miss?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Round 8 prototype",
+     "img": "r009/tex-items-A.jpg",
+     "ms": null,
+     "desc": "Seven bottle shapes plus a splash grenade; plain glass.",
+     "noCost": "texture comparison, shot mode: not measured"
+    },
+    {
+     "key": "B",
+     "label": "v2 in game",
+     "img": "r009/tex-items-B.jpg",
+     "ms": null,
+     "desc": "One sprite and motif per effect, in the round 8 item frames.",
+     "noCost": "texture comparison, shot mode: not measured"
+    },
+    {
+     "key": "C",
+     "label": "All 12 potions + books (sprite sheet)",
+     "img": "r009/tex-items-C.jpg",
+     "ms": null,
+     "desc": "The full set at 8x in the game's potion colours, straight from the generator.",
+     "noCost": "texture comparison, shot mode: not measured"
+    }
+   ]
+  }
+ ]
+}

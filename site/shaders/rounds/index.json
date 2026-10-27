@@ -76,9 +76,18 @@
    "n": 8,
    "id": "r008",
    "title": "A sun with form, a mirror lake, a golden horizon band, and QF Textures v1",
-   "status": "open",
+   "status": "closed",
    "created": "2026-10-26",
    "scenes": 25,
+   "feedback": true
+  },
+  {
+   "n": 9,
+   "id": "r009",
+   "title": "A third off the frame cost, a sun that sets behind its cloud, blue water, real meteor showers, and QF Textures v2",
+   "status": "open",
+   "created": "2026-10-27",
+   "scenes": 20,
    "feedback": false
   }
  ]
