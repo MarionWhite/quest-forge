@@ -206,6 +206,13 @@ vec3 shadeSurface(Surface s, vec3 viewDir, vec2 pixel) {
         diffuse += back;
     } else {
         diffuse = clamp(NdotL, 0.0, 1.0) * step(-0.01, geoNdotL);
+#if QF_CAL_GOLD > 0
+        // r009 (critic p8 golden_lit: the near field is flat green with no warm low-sun light on
+        // the grass tops): a flat top gets NdotL ~0.15 from a low sun, but blades and ground relief
+        // stand up into it. Up-facing faces take at least 0.7 at golden hour (loop 1, 0.32: +2 on the
+        // lit tops, unseen); the shadow map still decides which patches are lit, so only those turn gold.
+        diffuse = max(diffuse, 0.7 * goldenHour() * smoothstep(0.7, 0.95, s.geoNormal.y) * step(0.0, L.y));
+#endif
     }
     float sky = s.skyLight * s.skyLight * s.skyLight;
     float ao = mix(1.0, s.ao, QF_AO_STRENGTH);
