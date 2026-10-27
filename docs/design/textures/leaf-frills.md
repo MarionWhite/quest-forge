@@ -174,3 +174,36 @@ All four looks use the texture agent's `leaves_KIND_frill` sprites. The "off" re
 - **Edges is the look to keep.** It gives the most per vertex: +26% in leafy sections, with frame time inside the noise.
 - **Short tufts are out on cost.** They more than double the vertices in leafy sections, and they are the only look whose
   frame time rises beyond the noise.
+
+### v2 tuning (render `1027-185527-r010-frills-c`, same jar, edges only, density 1)
+
+| tag | settings | vertices per leafy section | ms per leafy section | vertices, all sections | frame p50 per scene |
+|---|---|---|---|---|---|
+| fr1b1 | length 0.4, 2 per edge, density 0.85 | +26% | +14% | +8% | noise |
+| fr1c1 | length 0.5, 2 per edge | +29% | +9% | +10% | -1% to +4% (noise) |
+| fr1c2 | length 0.4, 3 per edge | +42% | +11% | +15% | -1% to +5% (noise) |
+
+- **c2 is the fullest fringe:** the hedge top and the oak's crown read as a mass of leaves spilling over the edge, the
+  closest to Stay True's hedges.
+- **c1 is the cheaper alternative:** fewer, longer leaves, and a little streakier from below.
+- **Both went to the owner** as r010 scenes B and C, against no frills (`C:\qfb\shaderdev\r010\frills_scenes.json`).
+  Sheets: `C:\qfb\frills\look\fr1c-full.jpg` and `fr1c-hedge-1to1.jpg`.
+- **Leaf build time is noisy.** The per-leafy-section build time (+9..+14%) moves between boots by about as much as
+  the looks differ, so treat the vertex count as the solid number.
+
+## Crop variants (same branch, owner's yes 2026-10-27)
+
+- **Why a hook:** Stay True's fields never tile, because each ripe wheat block picks one of five sprites. Angelica's
+  MCPatcher CTM never reaches `RenderBlocks.renderBlockCrops`, so the pack's `ctm/wheat` `method=random` rule does
+  nothing on 1.7.10.
+- **The hook:** `CropVariantsTransformer` patches `renderBlockCropsImpl` (SRG `func_147795_a`). It passes the icon from
+  `getBlockIconFromSideAndMetadata` through `CropVariants.pick(icon, x, y, z)`.
+- **The sprites:** a crop stage `NAME` (wheat 0-7, carrots 0-3, potatoes 0-3) with `textures/blocks/NAME_v0.png`,
+  `NAME_v1.png`, and so on in the pack gets one of those per block, picked by a position hash. They are registered at
+  `TextureStitchEvent.Pre` only when they exist. `build_qf_textures.py --wheat dense|bushy` writes
+  `wheat_stage_7_v0-4`.
+- **The cost:** one identity-map lookup per crop block while a chunk is meshed, and nothing per frame.
+- **The switch:** `cropVariants.enabled` (`-Dqf.cropvariants`), default true. With it off, RenderBlocks is not
+  patched for crops.
+- **Render:** `1027-190035-r010-crops-a`, with cv1a0 off and cv1a1 on, `farm` and `farm_close`, plus MeshStats.
+  Results follow.
