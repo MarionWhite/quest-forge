@@ -117,7 +117,39 @@ Nothing for v2 started; no renders submitted.
     read as flat lime "+" shapes from above (Faithful's are upright shoots). **Step 3 (crops) closed at v2e.**
     For the owner: code wheat isn't Stay True's hand-placed look; if r009 says so, hand-drawn wheat masters are the next path.
 
+- 2026-10-26 (texture-dev, capped run): step 4 (metals, emerald) diagnosis + code + render submitted.
+  - Crops (texture_wall box 0.52,0.36,0.68,0.58; texture_wall2 box 0.70,0.36,0.86,0.66; t8v0 | t8v1 | t8f64): A's iron/gold dull
+    and flat; B's (= v2 before this step) gold dark on top with a bright liquid-like horizon band; B emerald a murky green mirror.
+  - Cause: iron/gold `_s` are 100% metal (230/231) in v0, v1 and v2. The shader (lighting.glsl metalShade, SSR path at preset 3)
+    keeps 0.30 of a metal's diffuse and shows reflection otherwise. Iron's F0 = albedo x 1.15 already clips at 1, so the plan's
+    "raise albedo" can't work. A's were flatter than B's only because v0's normals are near flat (nsd 1.2 vs 10.8/20.2).
+  - Emerald: VNR's vanilla rhombus maps over Faithful 64x's square bevels (layout_match let it through), and VNR flags it as
+    metal (code 230, so f0 = green albedo). Diamond: also VNR metal (owner liked it, kept), but its `_s` alpha was 254 = full
+    LabPBR emission (VNR B=255 everywhere). QuestForge ignores spec emission, but other shaders would make it glow.
+  - Fix (commit fa0c7e1): `build_qf_textures.py` VNR_SKIP={emerald_block} (falls to labpbr: dielectric 0.62/F0 14, normals from
+    the 64x art); METAL_BLOCKS + `metal_spec()` + `--metals lit|split|vnr` (default lit): lit = every pixel a dielectric F0 190
+    (iron) / 140 (gold), full diffuse + untinted reflection; split = metal only where lum > its 70th pct (iron 9%: plate
+    highlight lines; gold 16%: diagonal shine streaks). `vnr.py`: B>=250 everywhere is not emission (beacon excepted).
+  - Spec `tools/renderq/specs/textures-v2f-metals.json`: t9v2f (lit, QFTextures-v2.zip) and t9v2fs (split, QFTextures-v2-split.zip)
+    on texture_wall, texture_wall2. Baseline t9v1 frames from 1026-225431. Submission **1026-231924-textures-v2f-metals**.
+
+  - 1026-231924 DONE 23:27. Review (t9v1 | t9v2f | t9v2fs, both boxes + native crop px 1450,600,1700,850):
+    emerald fixed in both (clean square bevels, no murk). Iron: lit = split, both better than v1 (plates read, lit like the
+    neighbours). Gold: both washed pale and plastic-orange (crop B 44 -> 66: untinted sky over yellow); v1's all-metal gold richer.
+    Note: under the r009 shader v1's metals are already much brighter than in r008 (iron crop mean 134 vs t8v1 91).
+  - Pass 2 (commit 70b04a2): METAL_BLOCKS is per block (code, dielectric F0, metal percentile); `--metals qf|vnr` (default qf):
+    iron F0 190 everywhere; gold metal above its 55th pct (40%, the diagonal shine bands) over F0 60.
+    Spec `textures-v2g-metals.json` (t9v2g). Submission **1026-232836-textures-v2g-metals**.
+
+  - 1026-232836 DONE 23:30. Review (t9v1 | t9v2f | t9v2g, wide box + native crop): gold saturated again, its diagonal shine
+    bands read as polished glints, lit over the whole face (no dark top half); a touch more lemon than v1's deeper gold.
+    Iron as v2f. **Step 4 (metals, emerald) closed at v2g.** QFTextures-v2.zip is the default build (--metals qf).
+    For the owner: if gold reads too lemon, raise its metal share (lower pct in METAL_BLOCKS); if metals still look unlit in
+    r009, the lever is the shader's metal diffuse (0.30, lighting.glsl metalShade), not the textures.
+    C:/qfb/textures/QFTextures-v2-split.zip is a leftover of 1026-231924 (scratch, deletable).
+
 ## Next
-Step 4: metals (raise iron/gold albedo in the PBR set; no per-frame cost, see r009-shader) and emerald ("weird", r008
-tex-wall-close). Read-only diagnosis first (r008 texture_wall/texture_wall2 crops, t8v1 vs t8f64), then fix + one render.
+Step 5: find the tex-golden artifact (owner r008: "weird artifacting in all photos"). Read-only diagnosis first:
+r008 tex-golden frames (site/shaders/rounds/r008/tex-golden-*.jpg, bench golden_lit pngs), native-res crops, check whether it
+is texture-side (mips, alpha, CTM, PBR maps) or shader-side (then hand it to r009-shader in ops/DECISIONS or the board).
 Steps still open: 5 (tex-golden artifact), 6 (potions; also fix the duplicate CIT zip entries), 7 (scene hand-off).
