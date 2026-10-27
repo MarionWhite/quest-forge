@@ -326,6 +326,11 @@ def main():
             p = d + "%d.png" % i
             textures[p], source[p] = (v, None), "ctm"
             tally["ctm"] += 1
+            # The same five as block sprites for qf-tweaks' CropVariants hook: Angelica's CTM never reaches
+            # renderBlockCrops, so the rule above does nothing there (docs/design/textures/leaf-frills.md).
+            p = BLOCKS + "wheat_stage_7_v%d.png" % i
+            textures[p], source[p] = (v, None), "drawn"
+            tally["drawn"] += 1
     if a.leaf_edges != "none":
         tally["ctm"] += leaf_ctm(textures, source, a.leaf_edges, out)
 
