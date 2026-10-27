@@ -148,8 +148,15 @@ Nothing for v2 started; no renders submitted.
     r009, the lever is the shader's metal diffuse (0.30, lighting.glsl metalShade), not the textures.
     C:/qfb/textures/QFTextures-v2-split.zip is a leftover of 1026-231924 (scratch, deletable).
 
+- 2026-10-26 (texture-dev, capped run): step 5 (tex-golden artifact) diagnosed, read-only, no renders.
+  - Sheets of site r008 tex-golden-A/B/C and bench golden_lit t8v0 | t8f64 | t8v1 | t9v1 | t9v2c, plus native crops.
+    The artifacts are the same in all three packs, so they come from the shader, not the textures: (1) the shaft haze ends in
+    shadow-map-texel stair-steps (a hard lit rectangle on the grass, box 680,860,1000,1010); (2) dark radial streaks fan
+    across the ground; (3) under r009 the motes read as orange discs on the grass. r008's brown ground smear is gone in r009.
+    Nothing texture-side (the orange sunlit dirt sides and the terrace dirt bands are the same in vanilla-based A and in Faithful C).
+  - Handed off: a note appended to ops/checkpoints/r009-shader.md (boxes included). **Step 5 closed; no texture change.**
+
 ## Next
-Step 5: find the tex-golden artifact (owner r008: "weird artifacting in all photos"). Read-only diagnosis first:
-r008 tex-golden frames (site/shaders/rounds/r008/tex-golden-*.jpg, bench golden_lit pngs), native-res crops, check whether it
-is texture-side (mips, alpha, CTM, PBR maps) or shader-side (then hand it to r009-shader in ops/DECISIONS or the board).
-Steps still open: 5 (tex-golden artifact), 6 (potions; also fix the duplicate CIT zip entries), 7 (scene hand-off).
+Step 6: potions (owner r008 tex-items: "potions boring"): stronger silhouette and colour personality; also fix the duplicate
+CIT zip entries (`mcpatcher/cit/potions/bottle_cone.png`, `liquid_cone.png`) seen in builds without --no-cit.
+Steps still open: 6 (potions), 7 (scene hand-off).

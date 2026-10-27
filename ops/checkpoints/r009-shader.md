@@ -61,3 +61,11 @@ Owner overall: no drastic improvement; over budget on performance; wants optimis
   High is still over budget, try half-res shafts; Low will likely still be over 0.9 (shafts were 0.51 of 1.32), so the
   auto-tier helper draft (unchanged plan above) is next. QF_VOL_FAST 1 changes the look slightly: once the frames are
   checked, put "keep it as the default" in ops/DECISIONS.md.
+
+## Hand-off from texture-dev (2026-10-26): owner's r008 "tex-golden: weird artifacting in all photos" is shader-side
+Same artifacts in t8v0, t8v1, t8f64 (all three packs) and still in t9v1/t9v2c (r009 shader), so not textures. In golden_lit
+(2560x1440): (1) the shaft haze ends in blocky stair-steps on shadow-map texels: a hard-edged lit rectangle over the grass,
+native box 680,860,1000,1010 (zoom 2x nearest); (2) dark radial streaks fanning across the whole ground (anti-crepuscular
+shafts lying on the terrain), visible in a half-size full frame; (3) under r009 the motes read as soft orange discs up to ~8 px
+sitting on the grass ("coins"), box 640,792,1280,1224. r008's brown ground smear is gone in r009. Check these three in the
+volfast look-check (shaft jitter/blue noise should break the stair-steps; mote size/brightness at distance).
