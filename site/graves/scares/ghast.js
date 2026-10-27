@@ -1,13 +1,15 @@
-// Ghast (piston trap, deep, v3): the floor drops you down a short shaft onto a ledge in a vast netherrack cavern over
-// a lava sea. Far off, a cry; another, nearer; maybe a fireball out of nowhere bursting on the rock beside you. Then
-// silence. Either the huge white face rises slowly from below the edge, eyes shut, and the eyes open; or you look
-// down over the edge at nothing, and the dark beside you, and when the view comes back it is hanging there, eyes open.
-// Its mouth opens and the whole face drives into the lens with the scream; after the static the fireball goes off in
-// your face and you are thrown back across the ledge, burning.
+// Ghast (piston trap, deep, round 7): the floor drops you down a short shaft onto a ledge in a vast netherrack cavern
+// over a lava sea. Far off, a cry; another, nearer; maybe a fireball from one far out in the dark, bursting on the rock
+// beside you (they shoot from that far in the game). Then silence. Either the huge white face rises slowly from below
+// the edge, eyes shut, until it hangs level with you, and the eyes open; or you look down over the edge at nothing, and
+// the dark beside you, and when the view comes back it is hanging there, eyes open (its one device). It charges, as in
+// the game: the mouth opens with its cry, and the fireball comes out of it and across the drop at you, growing, until
+// it goes off in your face and you are thrown back across the ledge, burning.
 import { THREE, clamp, lerp, sstep, pulse, tex, loadImg, easeOut, track } from "./rig.js";
 import { settle, shake, hitsOf, particles, mulberry, explosionFX, smoke } from "./common.js";
 import { pistonTrap } from "./piston.js";
-import { lunge, lungeFx, screech, faceAnchor, boxOf, silence, deathScream } from "./fnaf.js";
+import { silence, deathScream } from "./fnaf.js";
+import { roar } from "./story.js";
 
 // The cavern, as instanced blocks under the hole (cells aligned with the Krypt's grid, so the shaft lines up):
 // an ellipsoid of air with a ragged skin, the ledge you land on, a lava sea, glowstone in the roof.
@@ -97,7 +99,6 @@ export default {
     G.root.traverse((o) => { if (o.isMesh && o.material && o.material.map) o.material.map = faces[0]; });
     const setFace = (i) => G.root.traverse((o) => { if (o.isMesh && o.material && o.material.map !== faces[i] && o.material.map) { o.material.map = faces[i]; o.material.emissiveMap = faces[i]; } });
     G.anim(0, 0, {}); R.place(G, 0, -20, 8, Math.PI);
-    const anchor = faceAnchor(G, G.parts.body, boxOf("ghast", "body")); anchor.y -= 0.12;   // eyes and the open mouth both in
 
     // ---- the dice -------------------------------------------------------------------------------------------
     const T_LOOK = trap.land + 0.3, T_CRY1 = T_LOOK + R.vary(1.3, 0.3), T_CRY2 = T_CRY1 + R.vary(0.65, 0.3);
@@ -106,9 +107,9 @@ export default {
     const rise = R.chance(0.5), side = R.pick([-1, 1]);
     const T_RISE = T_SIL + R.vary(0.7, 0.3), T_UP = T_RISE + R.vary(1.4, 0.2), T_EYES = T_UP + R.vary(0.6, 0.3);
     const T_DOWN = T_SIL + 0.2, T_SIDE = T_DOWN + R.vary(1.5, 0.3), T_BACKV = T_SIDE + 0.6 + R.vary(0.8, 0.4);
-    const t0 = rise ? T_EYES + R.vary(0.85, 0.4) : T_BACKV + 0.28;
-    const L = lunge(R, G, { t0, rush: R.vary(0.3, 0.15), hold: R.vary(0.62, 0.15), dist: 3.0, anchor, seed: 47 });
-    const tK = L.t3, T_HIT = tK + 0.03, DUR = T_HIT + 1.5;
+    // The charge: the mouth opens with its cry (t0); the fireball leaves it (T_SHOOT) and crosses the drop (T_HIT).
+    const t0 = rise ? T_EYES + R.vary(0.85, 0.4) : T_BACKV + R.vary(0.55, 0.3);
+    const T_SHOOT = t0 + R.vary(0.55, 0.2), T_HIT = T_SHOOT + 0.6, DUR = T_HIT + 1.5;
     const gz = hole.z + 7.2, gx = hole.x - 0.3;   // it hangs out over the drop in front of the ledge
     const camEye = LEDGE + R.eye;
     // Its pivot (the body is 2.25 to 6.75 m above it at scale 4.5): up from far below until the face is level with yours.
@@ -132,13 +133,15 @@ export default {
         c.yaw = lerp(c.yaw, yawT(t), kk); c.pitch = lerp(c.pitch, pitchT(t), kk); c.x = lerp(c.x, hole.x, kk); c.z = lerp(c.z, hole.z + 0.6 * sstep(T_LOOK, T_LOOK + 1, t), kk);
         if (rise) c.fov = s.fov - 8 * sstep(T_UP, t0, t);
         c.near = t >= t0 - 0.1 ? 0.05 : undefined;
+        // It comes at you: the head pulls back a little from it, and the field narrows on it.
+        const come = sstep(T_SHOOT, T_HIT, t) * (t < T_HIT ? 1 : 0);
+        c.z -= 0.12 * come; c.pitch += 0.04 * come; c.fov -= 6 * come;
       }
       if (t > T_HIT) {   // blown back off your feet onto the ledge, looking up past the edge of the roof
         const k2 = easeOut((t - T_HIT) / 0.45);
         c.z -= 1.4 * k2; c.y = lerp(c.y, LEDGE + 0.3, k2); c.pitch = lerp(c.pitch, 0.75, k2); c.roll = lerp(0, 0.5, k2);
       }
-      c.fov += 10 * pulse(t, [L.t1], 0.12);
-      return shake(c, t, 0.0015 + 0.004 * (rise ? sstep(T_RISE, T_UP, t) : 0) + L.shake(t) * 2 + 0.035 * pulse(t, [trap.land, T_HIT], 0.2) + (fakeFb ? 0.03 * pulse(t, [tFb + 0.25], 0.2) : 0), 9);
+      return shake(c, t, 0.0015 + 0.004 * (rise ? sstep(T_RISE, T_UP, t) : 0) + 0.006 * sstep(t0, T_HIT, t) * (t < T_HIT ? 1 : 0) + 0.035 * pulse(t, [trap.land, T_HIT], 0.2) + (fakeFb ? 0.03 * pulse(t, [tFb + 0.25], 0.2) : 0), 9);
     };
     // The fake: a fireball from a ghast far off, bursting on the rock beside the ledge.
     const fb = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ map: fbTex, transparent: true, alphaTest: 0.1, fog: false }));
@@ -151,19 +154,27 @@ export default {
     for (let i = 0; i < 50; i++) ember.push({ t0: T_LOOK + r() * (DUR - T_LOOK), at: [gx + (r() - 0.5) * 14, LEDGE - 22 + r() * 6, gz + (r() - 0.5) * 14], v: [(r() - 0.5) * 0.3, 1.5 + r() * 2, (r() - 0.5) * 0.3], life: 2.5, size: 0.1, tile: 49, color: [1, 0.65, 0.3], grav: -0.2, fog: false, add: true });
     for (let i = 0; i < 30; i++) ember.push({ t0: trap.land + r() * (DUR - trap.land), at: [hole.x + (r() - 0.5) * 18, LEDGE - 24 + r() * 4, hole.z + 8 + (r() - 0.5) * 14], v: [0, 2 + r() * 2, 0], life: 3, size: 0.1, tile: 49, color: [1, 0.6, 0.25], grav: -0.1, fog: false, add: true });
     const fx = particles(R, partTex, [...ember, ...smoke([hole.x, camEye, hole.z + 1.0], T_HIT + 0.05, 16, { spread: 1.6, window: 0.6, life: 2, size: 0.45, rise: 0.8, seed: 23 }), ...(fakeFb ? smoke(fbAt, tFb + 0.3, 10, { spread: 1.2, window: 0.4, life: 1.6, size: 0.4, rise: 0.7, seed: 29 }) : [])]);
+    // Its fireball: out of the mouth (the front of the body, low) and across the drop to your face, growing as it comes.
+    const fb2 = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ map: fbTex, transparent: true, alphaTest: 0.1, fog: false }));
+    fb2.renderOrder = 8; fb2.visible = false; R.add(fb2);
+    fb2.onBeforeRender = function (rr, sc, cm) { this.quaternion.copy(cm.quaternion); this.updateMatrixWorld(); };
+    const mouthAt = (t) => [gx, gY(t) + 2.25 + 1.0, gz - 2.3], faceAt = [hole.x, camEye - 0.05, hole.z + 1.0];
     const lavaLight = R.ownLight(R.light(0xff6a20, 0, 40, 0.6));
     const fbLight = R.ownLight(R.light(0xffa040, 0, 9, 1.4));
-    const S2 = screech(L, [["mob.ghast.scream", { pitch: 0.7 }], ["mob.ghast.affectionate_scream", { pitch: 0.6, volume: 1.2 }]]);
     const sounds = [
       ...trap.sounds,
       [trap.land + 0.4, "liquid.lava", { at: [hole.x, -31, hole.z + 10], volume: 0.6 }],
       [T_CRY1, "mob.ghast.moan", { at: [hole.x - 14, LEDGE - 6, hole.z + 22], volume: 0.7, pitch: 0.9, reverb: 0.9 }],
       [T_CRY2, "mob.ghast.affectionate_scream", { at: [hole.x + 9, LEDGE - 10, hole.z + 14], volume: 0.8, reverb: 0.8 }],
-      ...(fakeFb ? [[tFb, "mob.ghast.fireball", { at: fbFrom, volume: 0.8, reverb: 0.6 }], [tFb + 0.24, "qf.scare.stinger", { volume: 0.9 }], [tFb + 0.25, "random.explode", { at: fbAt, volume: 1.1 }], [tFb + 0.3, "game.player.hurt", { volume: 0.6 }]] : []),
+      ...(fakeFb ? [[tFb, "mob.ghast.fireball", { at: fbFrom, volume: 0.8, reverb: 0.6 }], [tFb + 0.25, "random.explode", { at: fbAt, volume: 1.1 }], [tFb + 0.3, "game.player.hurt", { volume: 0.6 }]] : []),
       silence(T_SIL, { fade: 0.6 }),
       ...(rise ? [[T_RISE + 0.6, "mob.ghast.moan", { at: [gx, LEDGE - 6, gz], volume: 0.5, pitch: 0.7, reverb: 0.5 }], [T_EYES, "mob.ghast.charge", { at: [gx, camEye, gz], volume: 0.9 }]]
-        : [[T_SIDE - 0.3, "mob.ghast.moan", { at: [hole.x + side * 6, LEDGE - 2, hole.z + 2], volume: 0.3, pitch: 0.6, reverb: 0.7 }], [T_BACKV + 0.15, "mob.ghast.charge", { at: [gx, camEye, gz], volume: 0.7 }]]),
-      ...S2.sounds,
+        : [[T_SIDE - 0.3, "mob.ghast.moan", { at: [hole.x + side * 6, LEDGE - 2, hole.z + 2], volume: 0.3, pitch: 0.6, reverb: 0.7 }], [T_BACKV + 0.15, "mob.ghast.moan", { at: [gx, camEye, gz], volume: 0.4, pitch: 0.7 }]]),
+      // The charge: its cry as the mouth opens; the fireball out of it.
+      [t0 - 0.05, "mob.ghast.charge", { at: [gx, camEye, gz], volume: 1.2 }],
+      ...roar(t0 + 0.05, [["mob.ghast.scream", { at: [gx, camEye, gz], pitch: 0.75 }], ["mob.ghast.affectionate_scream", { at: [gx, camEye, gz], pitch: 0.65, volume: 1.0 }]], { hit: 0.5 }),
+      [T_SHOOT, "mob.ghast.fireball", { at: [gx, camEye - 0.5, gz - 2.3], volume: 1.3 }],
+      [T_SHOOT + 0.3, "fire.fire", { volume: 0.6 }],
       [T_HIT, "random.explode", { volume: 1.2 }], [T_HIT + 0.01, "qf.scare.hit", { volume: 1 }], [T_HIT, "game.player.hurt"],
       [T_HIT + 0.03, "@muffle", { hz: 300, s: 3 }], ...deathScream(T_HIT + 0.15, { volume: 1.35 }),
       [T_HIT + 0.5, "game.player.hurt"], [T_HIT + 0.55, "fire.fire", { volume: 0.9 }],
@@ -174,7 +185,6 @@ export default {
       [trap.land, T_SIL, "liquid.lava", { at: [hole.x, -28, hole.z + 10], volume: 0.5, fadeIn: 0.8 }],
       [T_SIL + 0.8, t0 - 0.05, "qf.scare.heartbeat", { volume: 0.4, fadeIn: 0.8, fadeOut: 0.02 }],
       ...(rise ? [[T_RISE, t0 - 0.05, "qf.scare.drone", { volume: 0.5, fadeIn: 0.8, fadeOut: 0.03, pitch: 0.7, bus: "sfx" }]] : []),
-      ...S2.loops,
       [T_HIT + 0.05, DUR + 1, "qf.scare.ringing", { volume: 0.5, fadeIn: 0.05, fadeOut: 1.5 }]
     ];
     function update(t, f) {
@@ -185,27 +195,29 @@ export default {
       G.pivot.visible = rise ? t >= T_RISE && t < T_HIT + 0.05 : t >= T_SIDE + 0.62 && t < T_HIT + 0.05;
       R.place(G, gx, y, gz, R.yawTo(gx, gz, cl.x, cl.z));
       G.anim(t, 0, {});
-      if (t >= t0 && t < tK) L.apply(t);
-      setFace(t >= t0 ? 2 : (rise ? t >= T_EYES : t >= T_SIDE + 0.62) ? 1 : 0);
-      G.setOwn(0.28 + 0.2 * (t >= t0 ? 1 : 0));
+      setFace(t >= t0 && t < T_SHOOT + 0.5 ? 2 : (rise ? t >= T_EYES : t >= T_SIDE + 0.62) ? 1 : 0);
+      G.setOwn(0.28 + 0.12 * (t >= t0 ? 1 : 0) + 0.25 * pulse(t, [T_SHOOT], 0.3));
+      // Its fireball, across the drop at you.
+      const kb = (t - T_SHOOT) / (T_HIT - T_SHOOT);
+      fb2.visible = kb >= 0 && kb < 1;
+      if (fb2.visible) { const m = mouthAt(T_SHOOT); R.at(fb2, lerp(m[0], faceAt[0], kb), lerp(m[1], faceAt[1], kb), lerp(m[2], faceAt[2], kb)); fb2.scale.setScalar(1.1 + 0.15 * Math.sin(t * 40)); fb2.rotation.z = t * 5; }
       // The fake fireball.
       const kf = clamp((t - tFb) / 0.25);
       fb.visible = fakeFb && t >= tFb && t < tFb + 0.25;
       if (fb.visible) { R.at(fb, lerp(fbFrom[0], fbAt[0], kf), lerp(fbFrom[1], fbAt[1], kf), lerp(fbFrom[2], fbAt[2], kf)); fb.scale.setScalar(1.0 + 0.2 * Math.sin(t * 40)); fb.rotation.z = t * 6; }
       boom(t); boomFake(t); fx(t);
       R.L(gx, LEDGE - 18, gz, lavaLight.position); lavaLight.intensity = t >= trap.open ? 1.6 * (1 - 0.35 * sstep(T_SIL, T_SIL + 1, t) * (1 - sstep(t0, t0 + 0.1, t))) : 0;
-      if (fb.visible) fbLight.position.copy(fb.position); else if (fakeFb && t < tFb + 1) R.L(fbAt[0], fbAt[1], fbAt[2], fbLight.position);
-      fbLight.intensity = fb.visible ? 4 : (fakeFb ? 7 * pulse(t, [tFb + 0.25], 0.3) : 0) + 6 * pulse(t, [T_HIT], 0.3);
+      if (fb2.visible) fbLight.position.copy(fb2.position); else if (fb.visible) fbLight.position.copy(fb.position); else if (fakeFb && t < tFb + 1) R.L(fbAt[0], fbAt[1], fbAt[2], fbLight.position);
+      fbLight.intensity = fb.visible || fb2.visible ? 4 + 3 * (fb2.visible ? kb : 0) : (fakeFb && t < T_SHOOT ? 7 * pulse(t, [tFb + 0.25], 0.3) : 0) + 6 * pulse(t, [T_HIT], 0.3);
       const inCave = sstep(trap.tFall, trap.tFall + 0.3, t), sil = sstep(T_SIL, T_SIL + 1, t) * (1 - sstep(t0, t0 + 0.1, t));
       f.env = { bake: 1 - 0.2 * sstep(0.2, 1.2, t), lights: 1 - 0.5 * inCave, fogMul: lerp(1 + 0.4 * sstep(1, 3, t), 0.55, inCave) * (1 + 0.5 * sil), fog: [0.16 * (1 - 0.5 * sil), 0.04, 0.02, inCave] };
       f.white = t >= T_HIT ? 1 - sstep(T_HIT + 0.1, T_HIT + 0.9, t) : 0;
       f.fire = t >= T_HIT ? 1 : 0;
       f.vig = [40, 8, 0, 0.3 + 0.2 * inCave + 0.2 * sil + 0.25 * sstep(T_HIT, DUR, t)]; f.vigR = 0.9;
       f.black = 0.3 * sstep(DUR - 0.2, DUR + 0.6, t);
-      lungeFx(L, t, f);
     }
     return { dur: DUR, hits, cam, update, sounds, loops, deathSide: -1,
-      marks: { dread: rise ? T_UP + 0.2 : T_DOWN + 0.9, fake: fakeFb ? tFb + 0.3 : (rise ? T_EYES + 0.2 : T_SIDE + 0.7), lunge: L.t1 + 0.1, kill: T_HIT + 0.6 },
+      marks: { dread: rise ? T_UP + 0.2 : T_DOWN + 0.9, fake: fakeFb ? tFb + 0.3 : (rise ? T_EYES + 0.2 : T_SIDE + 0.7), lunge: T_SHOOT + 0.35, kill: T_HIT + 0.6 },
       notes: { fits: trap.fits, fakeFb, rise, t0: +t0.toFixed(2), dur: +DUR.toFixed(2) } };
   }
 };
