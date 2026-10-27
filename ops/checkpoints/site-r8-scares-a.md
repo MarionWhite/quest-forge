@@ -1,0 +1,48 @@
+# site-r8-scares-a (checkpoint, started 2026-10-27, Mac)
+
+Brief: `ops/briefs/site-3d-page.md`. Agent: opus (horror direction and building).
+Owns: `site/graves/scares/spider.js`, `zombie.js`, `witherskeleton.js`, and any new helper file you add.
+Shared files (`scares.js`, `story.js`, `common.js`, `rig.js`, `fnaf.js`): additive changes only, commit only your hunks.
+A second agent (`site-r8-scares-b.md`) works on Magma Cube, Blaze, Ghast and Silverfish at the same time.
+Previous state: `site-r7-scares.md` (its tools in the scratchpad `r7/scares/`: trace.js, cmp_trace.py, scareflow16.js,
+multi.py, sheet2.py; reuse them). Spec: `docs/design/site/krypt-scares.md`.
+
+## Owner's words (2026-10-27, round 8)
+- Zombie: "it starts with the zombie teleporting right in front of the camera. This doesn't make any fucking sense.
+  It's there, the character turns for some reason, and the zombie waits until they look back to do anything?"
+- Spider: "there should be a spider sound, the player looks left and right over their shoulders, and then after
+  they look back forward they should slowly look up, and as soon as they see the spider for a second it jumps on
+  their face and brutally starts ripping them apart."
+- Wither Skeleton: "looks like shit and doesn't make sense, so please just scrap it and rethink it."
+- Enderman and Creeper stay approved. The owner wants Story Mode quality, MK-level brutality, Minecraft-accurate.
+
+## Rules for every scare this round (from the owner's notes)
+- No mob appears in view out of nowhere. It enters from a place that makes sense: a grave, a door, a hole, the
+  ceiling, the dark beyond the light. Prove it: the frame before a mob first shows on screen, it is off screen,
+  occluded or in darkness, and it has moved there, not popped.
+- The camera only turns for a reason the viewer can perceive: a sound, a sight, a touch.
+- Mobs act on their own nature. Nothing waits for the player to look back.
+- Every sound and loop the scare starts stops when it ends and on Enter (respawn).
+
+## Done means
+- [ ] **Spider, the owner's script beat by beat:** the spider's sound (1.7.10 `mob.spider.say`); the player looks
+  over the left shoulder, then the right; back forward; then slowly looks up; the spider on the ceiling is seen for
+  about a second; it leaps onto the face and rips them apart: legs and fangs over the lens, the camera thrashed and
+  knocked to the floor, hurt flashes, bites, the scream, hearts emptying. Brutal in Minecraft's own vocabulary.
+- [ ] **Zombie, rethought so it makes sense.** Suggested: 1.7.10 zombies break wooden doors. A wooden door is set in
+  the crypt wall beside or behind the player (placed out of view before the scare starts). Banging
+  (`mob.zombie.wood`) makes the player turn to it; the door shakes, dust falls, the block-crack overlay grows; the
+  player backs away; groans; the door bursts (`mob.zombie.woodbreak`, door particles); the zombie lurches through,
+  arms out, grabs and bites. A better idea that keeps the logic is fine; say why in the journal.
+- [ ] **Wither Skeleton, scrapped and rethought.** Suggested: a torch behind the player throws their shadow on the
+  wall ahead (a shadow-only body, invisible to the camera). A second, taller shadow rises behind theirs, a sword in
+  its hand. The player freezes, then turns slowly: the 1.2-scale wither skeleton towers over them, looks down, and
+  swings its stone sword. Hearts turn black (Wither), the view drains to black. Again, better ideas are welcome.
+- [ ] Enderman and Creeper unchanged: re-run trace.js and `cmp_trace.py base_trace.json` after any shared change.
+- [ ] Review: per scare, a filmstrip at 5 frames per second across the whole scare, plus a beat log (time, camera
+  yaw and pitch, what is on screen, sounds started and stopped) set beside the owner's script. Live J run of all
+  16 with no exceptions and no sound left playing after Enter. Chrome: one at a time (another agent renders too).
+- [ ] Commit your own paths, journal line in `ops/journal/site.md`, report in five lines with the filmstrip paths.
+
+## Progress
+(write after every step)
