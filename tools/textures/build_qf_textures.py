@@ -77,8 +77,11 @@ METAL_BLOCKS = {"iron_block": (230, 190, 100), "gold_block": (231, 60, 55)}
 GEM_BLOCKS = {"diamond_block": (230, 44, 100)}
 
 
-def metal_spec(s, img, name, mode, gem=False):
-    """Rewrite the F0 channel of a metal block's LabPBR _s for --metals (see METAL_BLOCKS)."""
+def metal_spec(s, img, name, mode, gem=False, n=None):
+    """Rewrite the F0 channel of a metal block's LabPBR _s for --metals (see METAL_BLOCKS). With the
+    block's _n (`n`), a pixel stays metal only where its normal tilts under ~14.5 deg: a mirror on a
+    steep bevel reflects sky or ground at a hard angle (r010 wall ladder: gold's top bevel became a
+    noisy bright line once VNR's normals faced the right way)."""
     table = dict(METAL_BLOCKS, **(GEM_BLOCKS if gem else {}))
     if mode == "vnr" or name not in table:
         return s
@@ -87,7 +90,11 @@ def metal_spec(s, img, name, mode, gem=False):
     s[..., 1] = f0
     if pct < 100:
         L = labpbr.lum(img)
-        s[..., 1] = np.where(L > np.percentile(L, pct), code, f0)   # strict: a tied plateau stays lit
+        metal = L > np.percentile(L, pct)   # strict: a tied plateau stays lit
+        if n is not None and n.shape[:2] == L.shape:
+            x, y = n[..., 0] / 127.5 - 1.0, n[..., 1] / 127.5 - 1.0
+            metal &= (x * x + y * y) < 0.0625   # sin(14.5 deg)^2: VNR gold is a whole-face dome, 0.39 at the rim
+        s[..., 1] = np.where(metal, code, f0)
     s[img[..., 3] < 25] = (0, 0, 0, 255)
     return s
 
@@ -325,7 +332,7 @@ def main():
             n = n2 if n is None else n
             s = s2 if s is None else s
             tally["pbr_ours"] += 1
-        s = metal_spec(s, img, name, a.metals, a.diamond == "gem")
+        s = metal_spec(s, img, name, a.metals, a.diamond == "gem", n)
         ys = labpbr.y_sign(n, img[..., 3])
         if ys is not None and ys > 0.1:
             ywrong.append("%s %+.2f" % (name, ys))
