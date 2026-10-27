@@ -1,0 +1,31 @@
+{
+ "name": "textures-v2b-leaves",
+ "owner": "texture-agent",
+ "comment": "r009 step 1d: v2b leaves (round per-clump crowns with jittered light, fixing the diagonal hatch seen on the hedge in 1026-223656) on the leaf and forest views. Compare against t9v2/t9v1 from 1026-223656. Shot mode: pictures only, allowed at night. One boot.",
+ "prebuild": [
+  [
+   "py",
+   "-3.10",
+   "-I",
+   "tools/textures/build_qf_textures.py",
+   "--no-cit",
+   "--out",
+   "C:/qfb/textures/QFTextures-v2.zip"
+  ]
+ ],
+ "defaults": {
+  "world": "C:/qfb/textures/world-showcase",
+  "preset": "3",
+  "size": "2560x1440",
+  "mode": "shot"
+ },
+ "jobs": [
+  {
+   "tag": "t9v2b",
+   "resourcepacks": [
+    "C:/qfb/textures/QFTextures-v2.zip"
+   ],
+   "scenes": "leaves_close,tree_close,forest_lit"
+  }
+ ]
+}

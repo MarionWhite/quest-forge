@@ -127,9 +127,6 @@ def leaves(kind="oak", size=32):
     # macro light in three value groups per clump (r009: 1a found per-leaf steps read as speckle):
     # lit crown toward the light, mid, shadowed underside; each clump gets its own overall value
     # so neighbouring masses separate instead of repeating one lighting pattern.
-    lit = -(off[..., 0] * LIGHT[0] + off[..., 1] * LIGHT[1])
-    crown = lit > 0.30
-    shadow = (lit < -0.25) | (best > 0.75)
     nearest = np.zeros((size, size), np.int32)
     bd = np.full((size, size), 1e9, np.float32)
     for i, ((px, py), rd) in enumerate(zip(cen, rad)):
@@ -137,6 +134,18 @@ def leaves(kind="oak", size=32):
         d2 = (dx * dx + dy * dy) / (rd * rd)
         nearest = np.where(d2 < bd, i, nearest)
         bd = np.minimum(bd, d2)
+    # r009 1d: one light direction for every clump drew the same crown/underside split 8x per tile,
+    # a diagonal hatch across a hedge: the crown was a straight half-plane cut, and the cuts lined up.
+    # Now the crown is a round highlight pushed toward a per-clump light, with its own size.
+    # (own stream, so the leaf and pocket layout below stay as reviewed)
+    rj = rng(k["seed"] + 100)
+    ang = math.atan2(LIGHT[1], LIGHT[0]) + rj.uniform(-0.8, 0.8, len(cen))
+    lx, ly = np.cos(ang).astype(np.float32)[nearest], np.sin(ang).astype(np.float32)[nearest]
+    lit = -(off[..., 0] * lx + off[..., 1] * ly)
+    push = rj.uniform(0.25, 0.45, len(cen)).astype(np.float32)[nearest]
+    rc = rj.uniform(0.45, 0.65, len(cen)).astype(np.float32)[nearest]
+    crown = (off[..., 0] + push * lx) ** 2 + (off[..., 1] + push * ly) ** 2 < rc * rc
+    shadow = (lit < -0.30) | (best > 0.75)
     clump_val = r.uniform(-0.08, 0.08, len(cen)).astype(np.float32)
     macro = 0.50 + clump_val[nearest] + np.where(crown, 0.16, 0.0) - np.where(shadow & ~crown, 0.16, 0.0)
     # micro: single leaves only on crowns and clump silhouettes, faint seams where leaves meet
