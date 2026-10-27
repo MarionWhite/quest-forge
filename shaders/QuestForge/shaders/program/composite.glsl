@@ -220,7 +220,9 @@ vec3 motesGrid(vec3 viewDir, float dist0, float pixelBlock, float eyeSky,
                 // Depth-aware: a flake a metre away is a soft 2-3 px fleck, one 15 blocks out a
                 // pinpoint (r007's fixed 2 px everywhere read as screen-space speckle).
                 // r009 (tex-golden: flakes read as ~8 px discs): air flakes 2.6-1.3 -> 2.0-1.2.
-                float rw = along * pxA * (under ? mix(4.5, 1.6, smoothstep(1.0, 10.0, along)) : mix(2.0, 1.2, smoothstep(1.0, 12.0, along)));
+                // r009 dust (QF_DUST_DBG 1 on dust_b: hardly a sunlit near flake survived TAA; the
+                // coins were the under-ground beam tap, fixed since): flakes past 8 m keep 1.7, ~4 px.
+                float rw = along * pxA * (under ? mix(4.5, 1.6, smoothstep(1.0, 10.0, along)) : mix(2.0, 1.7, smoothstep(3.0, 8.0, along)));
                 if (farGrid) rw = along * pxA * 2.1;   // loop 3: far flakes 2-3 px, so TAA keeps them
 #else
                 float rw = along * pxA * (under ? 1.4 : 1.85);
