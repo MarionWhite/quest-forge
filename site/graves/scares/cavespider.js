@@ -2,13 +2,15 @@
 // cobweb, and the web catches you short of the floor. Stuck. In the corner a spawner cage burns, its little spider
 // spinning. Hissing from the walls; then they come out of the cracks, dozens, across the floor and up the strands.
 // Then everything stops. Every one of them, frozen where it is, all their red eyes on you; the hissing gone, the fire
-// low. Silence, longer or shorter each time. One click. One of them comes off the web into your face, fangs open,
-// with the screech; and the rest move again, all at once, up over you. Each bite poisons: the hearts go green and the
-// view pulses green until their legs close over it.
+// low (the one device: the swarm gone still). Silence, longer or shorter each time. One click, close: the head turns to
+// it. One of them on a strand just below you rises on its legs, hisses, and leaps off the web onto your face (round 7:
+// a body in the air, not a face on the lens); and the rest move again, all at once, up over you. Each bite poisons:
+// the hearts go green and the view pulses green until their legs close over it.
 import { THREE, clamp, lerp, sstep, pulse, tex } from "./rig.js";
 import { settle, shake, hitsOf, particles, mulberry, lensLimbs, bakePoses, swarm, webs } from "./common.js";
 import { pistonTrap } from "./piston.js";
-import { lunge, lungeFx, screech, splitJaw, faceAnchor, boxOf, silence, deathScream, jit } from "./fnaf.js";
+import { splitJaw, boxOf, silence, deathScream } from "./fnaf.js";
+import { hop } from "./story.js";
 
 export default {
   death: "Steve was slain by Cave Spider",
@@ -79,39 +81,45 @@ export default {
     const cs = R.mob("CaveSpider", { amb: [0.05, 0.05, 0.06], own: true });
     const jaw = splitJaw(cs, [{ part: cs.parts.head, box: boxOf("spider", "spiderHead"), rows: 2 }], { nTeeth: 0, max: 0.75, mouth: 0x050000, tongue: 0x1a0202 });
     cs.anim(0, 0, { walk: 0 }); R.place(cs, 0, 0, 3, Math.PI);
-    const anchor = faceAnchor(cs, cs.parts.head, boxOf("spider", "spiderHead"));
-    const perch = { x: me.x + lungeSide * 0.55, y: eye - 1.05, z: me.z + 0.45 };
-    const L = lunge(R, cs, { t0, rush: R.vary(0.17, 0.15), hold: R.vary(0.55, 0.15), dist: 0.3, anchor, seed: 17, rise: 0.2 });
-    const tK = L.t3, DUR = tK + R.vary(2.9, 0.1);
+    // The one that comes: on the pit wall across from you at about head height (spiders cling to walls), where the
+    // spawner's fire catches it. The head turns to its click; it pushes off the wall toward you; the leap; on your face.
+    const camY = trap.stopEye - 0.5;
+    // (the room is carved when the floor opens, so its walls come from the trap's room box, not from the blocks now)
+    const cands = [[rb.i0, b], [rb.i1, b + 1], [a, rb.k0], [a + 1, rb.k1]].map(([i, k]) => { const c = loc(i, -Dp, k); const d = Math.hypot(c.x - me.x, c.z - me.z) || 1; return { c, d, ux: (c.x - me.x) / d, uz: (c.z - me.z) / d }; });
+    const pref = cands.filter((q) => q.d >= 1.25).sort((p, q) => (q.ux * lungeSide) - (p.ux * lungeSide))[0] || cands.slice().sort((p, q) => q.d - p.d)[0];
+    const pd = Math.min(pref.d + 0.3, 2.2);
+    const perch = { x: me.x + pref.ux * pd, y: camY - 0.3, z: me.z + pref.uz * pd };
+    const tRear = tClick + 0.22, tK = t0 + 0.22, DUR = tK + R.vary(2.9, 0.1);
+    const faceAt = { x: lerp(me.x, perch.x, 0.42), y: camY - 0.12, z: lerp(me.z, perch.z, 0.42) };
     const hits = hitsOf([[tK + 0.05, 3, 1], [tK + 0.45, 3, -1], [tK + 0.9, 3, 1], [tK + 1.35, 3, -1], [tK + 1.8, 3, 1], [tK + 2.3, 2, -1], [DUR, 3, 1]]);
 
     // The head: down the hole and caught; up at the light; round the pit; down at them coming; held still in the
     // freeze, turning slowly from one frozen spider to the next; snapped to the one that comes.
     const ySpawn = R.yawTo(me.x, me.z, sp.x, sp.z), pSpawn = Math.atan2(sp.y - (trap.stopEye - 0.1), Math.hypot(sp.x - me.x, sp.z - me.z));
     const e0 = exits[0], yCrack = R.yawTo(me.x, me.z, e0.x, e0.z);
-    const yPerch = R.yawTo(me.x, me.z, perch.x, perch.z);
+    const yPerch = R.yawTo(me.x, me.z, perch.x, perch.z), pPerch = R.pitchTo(me.x, camY, me.z, perch.x, perch.y + 0.15, perch.z);
     const cam = (t) => {
       const s = settle(R, t, 0.9);
       const k = sstep(0.8, 1.3, t);
-      let c = { x: s.x * (1 - k), y: s.y, z: s.z * (1 - k), yaw: lerp(s.yaw, 0, k), pitch: lerp(s.pitch, -0.02, k), roll: 0, fov: s.fov, near: t >= t0 && t < tK ? 0.02 : undefined };
+      let c = { x: s.x * (1 - k), y: s.y, z: s.z * (1 - k), yaw: lerp(s.yaw, 0, k), pitch: lerp(s.pitch, -0.02, k), roll: 0, fov: s.fov, near: t >= t0 - 0.1 ? 0.02 : undefined };
       c = trap.cam(t, c);
       if (t > trap.land) {
         const Lt = trap.land;
         const keys = [[Lt, c.yaw, c.pitch], [Lt + 0.7, 0.2, 1.2], [Lt + 1.4, ySpawn, pSpawn], [tOut + 0.2, yCrack, -0.5], [tOut + 1.2, yCrack * 0.4, -1.1], [tF, 0.2, -0.95],
-          [tF + (tClick - tF) * 0.5, -0.5 * lungeSide, -0.85], [tClick, 0.35 * lungeSide, -0.9], [t0, 0.3 * lungeSide, -0.75], [L.t1, yPerch * 0.4, -0.15, 1], [tK, 0.15, -0.6], [DUR, 0.2, -0.9]];
+          [tF + (tClick - tF) * 0.5, -0.5 * lungeSide, -0.85], [tClick, -0.45 * lungeSide, -0.85], [tRear, yPerch, pPerch, 1], [t0, yPerch, pPerch], [tK, yPerch * 0.9, pPerch * 0.45, 1], [tK + 0.7, 0.15, -0.6], [DUR, 0.2, -0.9]];
         let yy = keys[0][1], pp = keys[0][2];
         for (let q = 1; q < keys.length; q++) { if (t <= keys[q][0]) { const u = keys[q][3] ? 1 - Math.pow(1 - clamp((t - keys[q - 1][0]) / (keys[q][0] - keys[q - 1][0])), 4) : sstep(keys[q - 1][0], keys[q][0], t); yy = lerp(keys[q - 1][1], keys[q][1], u); pp = lerp(keys[q - 1][2], keys[q][2], u); break; } yy = keys[q][1]; pp = keys[q][2]; }
         c.yaw = yy; c.pitch = pp;
         c.roll = 0.05 * Math.sin(t * 1.3);
-        c.fov += 8 * pulse(t, [L.t1], 0.12);
+        c.fov += 6 * pulse(t, [tK], 0.12);
       }
-      return shake(c, t, 0.0015 + 0.01 * pulse(t, [trap.land], 0.2) + L.shake(t) + 0.016 * pulse(t, hits.map((h) => h.t), 0.18), 3);
+      return shake(c, t, 0.0015 + 0.01 * pulse(t, [trap.land], 0.2) + 0.02 * pulse(t, [tK], 0.15) + 0.016 * pulse(t, hits.map((h) => h.t), 0.18), 3);
     };
     const donor = R.mob("CaveSpider"); donor.pivot.visible = false;
     const LL = (fx, fy, tx, ty, t1, ph) => ({ from: [fx, fy], to: [tx, ty], t0: t1, t1: t1 + 0.3, z: -0.26, scale: 0.5, axis: "x-", twist: 0.12, ph, curl: 0.25 * Math.sign(fx) });
-    const legs = lensLimbs(R, donor, "spiderLeg1", [LL(-0.62, -0.3, -0.24, -0.16, tK + 0.7, 0), LL(0.62, -0.28, 0.24, -0.14, tK + 0.85, 1), LL(-0.6, 0.0, -0.22, 0.0, tK + 1.1, 2), LL(0.6, 0.02, 0.22, 0.02, tK + 1.3, 3), LL(-0.6, 0.26, -0.2, 0.14, tK + 1.5, 4), LL(0.6, 0.26, 0.2, 0.14, tK + 1.65, 5)], { color: 0x3c4450 });
+    const LQ = (fx, fy, tx, ty, t1, ph) => ({ from: [fx, fy], to: [tx, ty], t0: t1, t1: t1 + 0.1, z: -0.25, scale: 0.46, axis: "x-", twist: 0.14, ph, curl: 0.3 * Math.sign(fx) });   // the leaper's, as it lands
+    const legs = lensLimbs(R, donor, "spiderLeg1", [LQ(-0.62, -0.12, -0.27, -0.08, tK - 0.04, 6), LQ(0.62, -0.1, 0.27, -0.06, tK - 0.02, 7), LQ(-0.6, 0.18, -0.25, 0.1, tK, 8), LL(-0.62, -0.3, -0.24, -0.16, tK + 0.7, 0), LL(0.62, -0.28, 0.24, -0.14, tK + 0.85, 1), LL(-0.6, 0.0, -0.22, 0.0, tK + 1.1, 2), LL(0.6, 0.02, 0.22, 0.02, tK + 1.3, 3), LL(-0.6, 0.26, -0.2, 0.14, tK + 1.5, 4), LL(0.6, 0.26, 0.2, 0.14, tK + 1.65, 5)], { color: 0x3c4450 });
 
-    const S2 = screech(L, [["mob.spider.say", { pitch: 0.75 }], ["mob.spider.death", { pitch: 0.9, volume: 1.1 }]]);
     const sounds = [
       ...trap.sounds,
       [trap.land + 0.05, "qf.scare.whisper", { volume: 0.3 }],
@@ -122,8 +130,9 @@ export default {
       ...[...Array(9)].map((_, n) => [tOut + 0.3 + n * 0.22, n % 3 ? "mob.spider.step" : "mob.spider.say", { at: [me.x + Math.sin(n) * 1.5, y0 + 0.3, me.z + Math.cos(n) * 1.5], volume: 0.8, pitch: 1.25 + 0.05 * (n % 4) }]).filter((s) => s[0] < tF - 0.05),
       silence(tF, { fade: 0.04 }),
       [tClick, "mob.spider.step", { at: [perch.x, perch.y, perch.z], volume: 0.35, pitch: 1.5 }],
-      ...S2.sounds,
-      ...hits.flatMap((h, i) => [[h.t, "game.player.hurt"], [h.t + 0.02, i % 2 ? "qf.scare.gore" : "qf.scare.crunch", { volume: 0.7 }]]),
+      [tRear, "mob.spider.say", { at: [perch.x, perch.y, perch.z], volume: 0.75, pitch: 1.45 }],
+      [t0, "mob.spider.say", { at: [perch.x, perch.y + 0.3, perch.z], volume: 1.35, pitch: 1.3 }], [t0 + 0.005, "qf.scare.hit", { volume: 0.5 }],
+      ...hits.flatMap((h, i) => [[h.t, "game.player.hurt"], ...(i ? [] : [[h.t + 0.01, "qf.scare.hit", { volume: 0.9 }]]), [h.t + 0.02, i % 2 ? "qf.scare.gore" : "qf.scare.crunch", { volume: 0.7 }]]),
       ...[...Array(8)].map((_, n) => [tK + 0.1 + n * 0.2, n % 3 ? "mob.spider.step" : "mob.spider.say", { at: [me.x + Math.sin(n * 2) * 1.2, eye - 0.5, me.z + Math.cos(n * 2) * 1.2], volume: 0.9, pitch: 1.3 + 0.05 * (n % 4) }]),
       ...deathScream(tK + 0.3, { volume: 1.1, under: false }),
       ...deathScream(DUR - 0.9, { volume: 1.25 }),
@@ -134,7 +143,6 @@ export default {
       [trap.land + 0.3, tF, "fire.fire", { at: [sp.x, sp.y, sp.z], volume: 0.35, fadeIn: 0.5 }],
       [tOut - 0.3, tF, "qf.scare.chitter", { volume: 0.7, fadeIn: 0.8 }],
       [trap.land + 0.2, tF, "qf.scare.breath", { volume: 0.4, fadeIn: 0.6 }],
-      ...S2.loops,
       [tK, DUR + 0.4, "qf.scare.chitter", { volume: 1.0, fadeIn: 0.05 }],
       [tK, DUR + 0.2, "qf.scare.heartbeat", { volume: 0.7, pitch: 1.35 }]
     ];
@@ -156,10 +164,12 @@ export default {
       let jo = 0;
       cs.pivot.visible = t > tOut;
       if (t < tK) {
-        R.place(cs, perch.x, perch.y, perch.z, R.yawTo(perch.x, perch.z, me.x, me.z), -0.9, 0);
-        cs.anim(st, 0, { walk: t < tF ? 1 : 0 });
-        if (t >= t0) { L.apply(t); jo = sstep(t0, L.t1, t) * (0.85 + 0.15 * jit(t, 31)); }
-        cs.setOwn(t >= t0 ? 0.45 : 0.08);
+        // On its strand, climbing; at the click it rises on its legs toward you; then the leap.
+        const rear = sstep(tRear - 0.1, t0, t), u = clamp((t - t0) / (tK - t0)), q = t < t0 ? perch : hop(perch, faceAt, u * u * (1.6 - 0.6 * u), 0.2);
+        R.place(cs, q.x, q.y, q.z, R.yawTo(q.x, q.z, me.x, me.z), lerp(lerp(-1.25, -0.5, rear), -0.15, u), 0);
+        cs.anim(t < t0 ? st : t * 3, 0, { walk: t < tF ? 1 : t >= t0 ? 2 : 0.2 * rear });
+        jo = 0.35 * rear + 0.5 * u;
+        cs.setOwn(0.1 + 0.14 * rear);
       } else cs.pivot.visible = false;
       jaw.set(jo);
       legs(t);
@@ -171,10 +181,9 @@ export default {
       f.vig = [10, 40, 0, 0.3 + 0.25 * sstep(trap.land, trap.land + 1, t) + 0.15 * sil + 0.25 * gp * (poison ? 1 : 0) + 0.3 * sstep(tK + 1.6, DUR, t)]; f.vigR = 0.9;
       f.env = { bake: 1 - 0.2 * sstep(0.2, 1.2, t) - 0.25 * sil, fogMul: 1 + 0.4 * sstep(1, 3, t), nausea: poison ? 0.25 + 0.15 * gp : 0 };
       f.black = 0.35 * sstep(DUR - 0.2, DUR + 0.6, t);
-      lungeFx(L, t, f);
     }
     return { dur: DUR, hits, cam, update, sounds, loops, deathSide: 1,
-      marks: { dread: tOut + 1.3, fake: (tF + tClick) / 2, lunge: L.t1 + 0.1, kill: tK + 1.6 },
+      marks: { dread: tOut + 1.3, fake: (tF + tClick) / 2, lunge: t0 + 0.12, kill: tK + 1.6 },
       notes: { fits: trap.fits, D: Dp, open: +trap.open.toFixed(2), exits: exits.length, tF: +tF.toFixed(2), t0: +t0.toFixed(2), dur: +DUR.toFixed(2) } };
   }
 };
