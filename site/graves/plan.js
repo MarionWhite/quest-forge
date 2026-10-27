@@ -14,6 +14,7 @@ export const SEED = 1707;
 export const CORNER_R = 2.7;
 const REACH_PAD = 6;                       // beyond hw + passage length: stone styling and torches
 const fr = (seed, a, b = 0, c = 0) => (ih(a, b, c, seed) * 1000 + ih(a, b, c, seed + 977)) / 1e6;   // 0..1, finer than ih
+const WARM_OPEN = new Set(["carpet_crypt", "rail_ravine"]);   // kinds kept out of the cold opening (chooseKind)
 const pickInt = (r, [lo, hi]) => lo + Math.min(hi - lo, Math.floor(r * (hi - lo + 1)));
 
 export function makePlan({ n = 0, seed = SEED, minSlots = 60, runway = 36, force = null } = {}) {
@@ -42,6 +43,9 @@ export function makePlan({ n = 0, seed = SEED, minSlots = 60, runway = 36, force
     for (let attempt = 0; attempt < 12; attempt++) {
       const banned = new Set(here.slice(-wStr)); for (const id of hist.slice(-wAll)) banned.add(id);
       let cand = pool.filter((id) => !banned.has(id));
+      // The opening third of the first stratum stays in the cold stone halls, as round 5 began: the red-carpet crypt
+      // and the lava ravine wait until the walk has warmed.
+      if (stratum.index === 0 && gi - stratum.g0 < 0.3 * (stratum.g1 - stratum.g0)) { const c0 = cand.filter((id) => !WARM_OPEN.has(id)); if (c0.length) cand = c0; }
       if (cand.length) {
         // The rhythm: a room after every two or three corridors, and never two rooms running, so the walk keeps opening up.
         const isRoom = (id) => !!KINDS[id].room;
@@ -308,16 +312,42 @@ export function makePlan({ n = 0, seed = SEED, minSlots = 60, runway = 36, force
   };
 }
 
-// The light a leg carries: its kind's profile, bent toward its stratum's palette, warmer and brighter with depth in the
-// stratum (p, 0 at its first stone and 1 at its last), and a little different from leg to leg (tint).
+// The light a leg carries. Round 5's rule, kept over the endless path: the descent opens cold and dark (blue-grey
+// shadow, a low ambient, small torch pools) and warms and brightens as it goes down. Each stratum keeps its own palette
+// and tells the same story in small: colder and darker where it begins, warmer toward its last stone (p, 0..1). The
+// kind adds its own hue, softened, so a red-carpet hall near the top is still a cold place; the Nether and the End keep
+// their glow (they take little of the swing). A leg also differs a little from the next (tint).
+const R5_ENTRANCE = { amb: [0.060, 0.082, 0.150], fog: [0.030, 0.040, 0.075], fogD: 0.040, exposure: 1.18, torch: 0.7, bloom: 0.30 };   // r5 crypt (torch 0.78 over half the torches)
+const SWING = { nether: 0.25, end: 0.3, abyss: 0.5, ice: 0.6, deep: 0.7, sands: 0.7 };
+const lum3 = (a) => 0.3 * a[0] + 0.59 * a[1] + 0.11 * a[2];
 export function legProfile(leg, p) {
-  const kp = leg.kd.prof, sd = leg.st.def.light || {}, tn = leg.tint, cyc = Math.min(leg.st.cycle, 3);
-  const am = sd.amb || [1, 1, 1], fm = sd.fog || [1, 1, 1];
-  const warm = [1 + 0.22 * p, 1 + 0.04 * p, 1 - 0.14 * p];
-  const amb = kp.amb.map((v, i) => v * am[i] * warm[i] * (1 + tn[i] * 0.6) * (1 + 0.06 * p));
-  const fog = kp.fog.map((v, i) => v * fm[i] * (1 + 0.1 * p * (i === 0 ? 1 : -0.4)));
-  return {
-    amb, fog, fogD: kp.fogD * (sd.fogD || 1) * (1 + 0.04 * cyc), exposure: kp.exposure * (sd.exposure || 1) * (1 + 0.05 * p),
-    torch: kp.torch * (0.9 + 0.3 * p) * (sd.torch || 1), bloom: kp.bloom * (sd.bloom || 1), pitch: kp.pitch || 0, kind: leg.kind
+  const kp = leg.kd.prof, st = leg.st, sd = st.def.light || {}, tn = leg.tint, cyc = Math.min(st.cycle, 3);
+  const am = sd.amb || [1, 1, 1], fm = sd.fog || [1, 1, 1], sw = SWING[st.def.id] ?? 1;
+  const e = p * p * (3 - 2 * p);
+  // The descent: 0 at the entrance, 1 from the bottom of the first cycle on (a later cycle starts warmer than the first).
+  const gd = Math.min(1, ((st.index % STRATA.length) + p + st.cycle * STRATA.length) / STRATA.length);
+  // Temperature, -1 cold .. +1 warm: the stratum's own swing, and the descent's.
+  const T = Math.max(-1, Math.min(1, sw * (e * 2 - 1) * 0.45 + (gd * 2 - 1) * 0.7 * Math.max(sw, 0.5)));
+  const temp = T < 0 ? [1 + 0.22 * T, 1 + 0.05 * T, 1 - 0.4 * T] : [1 + 0.3 * T, 1 + 0.04 * T, 1 - 0.28 * T];
+  // Brightness: darker where a stratum begins, and the whole descent brightens.
+  const B = (0.74 + 0.3 * e) * (0.78 + 0.3 * gd);
+  // The kind's hue, softened toward its own grey.
+  const soft = (a, k) => { const l = lum3(a); return a.map((v) => l + (v - l) * k); };
+  const ka = soft(kp.amb, 0.55), kf = soft(kp.fog, 0.6);
+  const amb = ka.map((v, i) => v * am[i] * temp[i] * B * (1 + tn[i] * 0.6));
+  const fog = kf.map((v, i) => v * fm[i] * (1 + (temp[i] - 1) * 0.8) * (0.8 + 0.25 * B));
+  const out = {
+    amb, fog, fogD: kp.fogD * (sd.fogD || 1) * (1 + 0.04 * cyc) * (1.08 - 0.1 * e), exposure: kp.exposure * (sd.exposure || 1) * (1 + 0.04 * e),
+    torch: kp.torch * (sd.torch || 1) * (0.78 + 0.3 * e) * (0.8 + 0.3 * gd), bloom: kp.bloom * (sd.bloom || 1) * (0.9 + 0.2 * e), pitch: kp.pitch || 0, kind: leg.kind
   };
+  // The entrance itself is round 5's crypt: its fog, its low blue ambient and its small torch pools, over the first
+  // third of the first stratum, then the stratum's own journey takes over.
+  if (st.index === 0) {
+    const w = 0.9 * (1 - smooth01((p - 0.12) / 0.4));
+    const mx = (u, v) => u + (v - u) * w;
+    for (let i = 0; i < 3; i++) { out.amb[i] = mx(out.amb[i], R5_ENTRANCE.amb[i] * (1 + tn[i] * 0.4)); out.fog[i] = mx(out.fog[i], R5_ENTRANCE.fog[i]); }
+    out.fogD = mx(out.fogD, R5_ENTRANCE.fogD); out.exposure = mx(out.exposure, R5_ENTRANCE.exposure); out.torch = mx(out.torch, R5_ENTRANCE.torch); out.bloom = mx(out.bloom, R5_ENTRANCE.bloom);
+  }
+  return out;
 }
+const smooth01 = (x) => { const t = Math.max(0, Math.min(1, x)); return t * t * (3 - 2 * t); };

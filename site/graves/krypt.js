@@ -177,13 +177,17 @@ export function buildWindow(plan, ci, ck) {
   const H = { L, LG, W3, dirw, torchAt, torchAtB, pushTorch, decor, legCell, set, get };
   for (const leg of legs) leg.kd.dress && leg.kd.dress(makeCtx(a, plan, leg, H));
   // 5. A torch for each stone: on the corridor face of the rear pillar. Fewer in the cold entrance and the ossuary.
+  // Where a stratum begins, and over the first part of the entrance, the pillar torches thin out to every other stone
+  // and burn lower: small pools in the cold, as round 5's crypt (plan.js legProfile carries the rest of the journey).
   for (const leg of legs) for (const s of leg.slots) {
     const { hw, y0 } = leg, kd = leg.kd;
     if (s.i >= plan.count) continue;
     torchAtB(leg, s.side > 0 ? hw + 1 : -hw - 2, s.lvc + 2, y0 + 2, -1, { I: 2.4 });
-    if (s.i % kd.torchEvery && !(leg.idx === 0 && s.i === 0)) continue;
+    const cold = leg.depthP < (leg.st.index === 0 ? 0.45 : 0.18);
+    const every = cold ? Math.max(2, kd.torchEvery) : kd.torchEvery, I = cold ? Math.min(kd.torchI, 2.6) : kd.torchI;
+    if (s.i % every && !(leg.idx === 0 && s.i === 0)) continue;
     const pil = s.side > 0 ? hw - 1 : -hw;
-    if (!torchAt(leg, pil, s.lvc + 2, y0 + 2, -s.side, { I: kd.torchI })) torchAt(leg, pil, s.lvc - 2, y0 + 2, -s.side, { I: kd.torchI });
+    if (!torchAt(leg, pil, s.lvc + 2, y0 + 2, -s.side, { I })) torchAt(leg, pil, s.lvc - 2, y0 + 2, -s.side, { I });
   }
   // Lava: sources and planes over the open lava cells of chasm and fortress floors, and over every gap.
   for (const leg of legs) {
