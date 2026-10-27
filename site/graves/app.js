@@ -320,6 +320,8 @@ async function startKrypt() {
   K.autoWalk = QS.has("walk") && walkSec > 0 ? { dur: walkSec, t0: null } : null;
   K.pos = new THREE.Vector3(); K.look = new THREE.Vector3(); K.focusAmt = 0;
   K.fYaw = 0; K.fPitch = 0; K.fOff = new THREE.Vector3(); K.speed = 0; K.activeSeconds = 0; K.held = false;
+  K.pf = { lock: -1, hold: 0, dense: 0, pace: 0, rest: 0, side: 0, yaw: 0, vel: 0 };   // the passing focus (frameInner)
+  if (QS.has("dbg")) window.__kdbg = { K, state };   // verification hook: the yaw metric reads K.fYaw
   K.anchorCache = new Map();
   K.built = new Map(); K.queue = [];
   // Where to start: ?at (0..1 of the whole path), ?grave=N, ?stratum=k, ?gap=g with ?jx (blocks into the jump).
@@ -742,31 +744,72 @@ function frameInner(now) {
     else { K.plan.pointAt(L - 6.5, _pt); K.plan.pointAt(L, _pt2); _wl.copy(_wp).add(_d.set(_pt2[0] - _pt[0], 0, _pt2[2] - _pt[2]).normalize().multiplyScalar(6)); }
     const wp = _wp, wl = _wl;
     wl.y = wl.y - 0.1 + W.pitch * 1.2 + K.fPitch * 6 + (prof.pitch || 0) * 6;
-    // Passing focus: as an alcove comes near the view eases toward its stone, holds while it is the nearest, and
-    // eases back to the corridor as you move on. Damped, and weaker when you are flying past.
+    // Passing focus. Round 5 eased toward whichever stone was nearest; with stones every four blocks on alternating
+    // walls that flipped sides every couple of blocks and the view swung back and forth. Now:
+    //  - a lock with hysteresis picks the stone the view may turn to. It changes only after a minimum hold, and only
+    //    when another stone is clearly nearer;
+    //  - how far the view turns depends on spacing and pace. Where stones are sparse and each one passes in its own
+    //    couple of seconds, the view eases to each as in round 5. Where they are dense, walking holds a gentle bias
+    //    toward the wall the stones are on, and the view turns fully only to a stone you come to rest beside;
+    //  - the yaw moves under a rate and acceleration cap, so no change of target can whip the view.
     let fyT = 0, fpT = 0, offT = null;
+    const PF = K.pf;
+    PF.pace += (Math.abs(K.speed) - PF.pace) * (1 - Math.exp(-dt * (Math.abs(K.speed) > PF.pace ? 4 : 1.5)));   // quick to rise, slow to fall
+    if (Math.abs(K.speed) < 0.4 && Math.abs(W.sT - W.s) * L < 0.2) PF.rest += dt; else PF.rest = 0;
+    if (K.snap) PF.rest = Math.max(PF.rest, 2);      // arriving by a link or a jump is arriving at rest
+    K.nearI = -1;
     if (!focusing && K.gateOpen && state.graves.length) {
-      let best = -1, bd = Infinity;
-      for (const i of nearSlots(dW, 9)) { const q = Math.abs(K.plan.slots[i].d - dW); if (q < bd) { bd = q; best = i; } }
-      if (best >= 0 && bd < 8) {
-        const an = anchorOf(best);
-        const sd = an.d - dW;                      // positive: the stone is still ahead
-        _f.set(wl.x - wp.x, 0, wl.z - wp.z).normalize();
-        _d.set(an.p.x - wp.x, 0, an.p.z - wp.z).normalize();
-        const th = Math.atan2(_f.z * _d.x - _f.x * _d.z, _f.x * _d.x + _f.z * _d.z);
+      _f.set(wl.x - wp.x, 0, wl.z - wp.z).normalize();
+      const angTo = (p) => { _d.set(p.x - wp.x, 0, p.z - wp.z).normalize(); return Math.atan2(_f.z * _d.x - _f.x * _d.z, _f.x * _d.x + _f.z * _d.z); };
+      let cand = -1, cs = Infinity, lockS = Infinity, wL = 0, wR = 0;
+      for (const i of nearSlots(dW, 14)) {
+        const an = anchorOf(i), sd = an.d - dW;      // sd > 0: the stone is still ahead
+        const sc = sd >= 0 ? sd : -sd * 1.6;         // a stone behind counts as farther than one ahead
+        if (sc < cs) { cs = sc; cand = i; }
+        if (i === PF.lock) lockS = sc;
+        if (sd > -2 && sd < 14) { const g = 1 - smooth01((sd - 3) / 11); if (angTo(an.p) > 0) wL += g; else wR += g; }
+      }
+      PF.hold += dt;
+      if (cand >= 0 && (PF.lock < 0 || lockS > 9 || (cand !== PF.lock && PF.hold > 0.9 && cs + 1.2 < lockS))) { PF.lock = cand; PF.hold = 0; lockS = cs; }
+      if (PF.lock >= 0 && lockS <= 9) {
+        const sl = K.plan.slots, li = PF.lock, n = Math.min(state.graves.length, sl.length);
+        // The spacing here: the gaps either side of the locked stone and the one after it, so the first stone of a
+        // close run already counts as close.
+        const gp = (j) => (j > 0 && j < n ? sl[j].d - sl[j - 1].d : 99);
+        const gap = Math.min(gp(li), gp(li + 1), gp(li + 2));
+        PF.dense += (1 - smooth01((gap - 5) / 3.5) - PF.dense) * (1 - Math.exp(-dt * 1.2));
+        // A glance needs the stone to pass in its own time: none when the next comes within 2.2 s, full from 3.7 s.
+        const glance = (1 - PF.dense) * smooth01((gap / Math.max(0.3, PF.pace) - 2.2) / 1.5);
+        // Coming to rest: a mouse wheel's notches leave about a second of stillness each, so the full turn waits
+        // for a real stop, about a second, before it starts.
+        const rest = smooth01((PF.rest - 1.0) / 0.8);
+        const an = anchorOf(li), sd = an.d - dW, th = angTo(an.p);
         // In until it is abeam, held, then a quicker release once it is behind.
         const w = sd >= 0 ? 1 - smooth01((sd - 2.6) / 5.2) : 1 - smooth01((-sd - 1.2) / 3.4);
-        const calm = 1 - 0.55 * smooth01((Math.abs(K.speed) - 5) / 9);
-        fyT = Math.max(-1.5, Math.min(1.5, th)) * w * 0.96 * calm;
-        fpT = -0.1 * w * calm;
+        const turn = w * Math.max(glance, rest);
+        // The wall to lean toward: where the stones ahead are, held until the other wall clearly has more, and set
+        // to the stone's wall when you stop to read one, so walking on keeps the view on the side you were reading.
+        if (rest > 0.5 && w > 0.5) PF.side = th > 0 ? 1 : -1;
+        else if (PF.side === 0 || (PF.side > 0 ? wL : wR) < 0.05) PF.side = wL > wR ? 1 : wR > wL ? -1 : 0;
+        else if ((PF.side > 0 ? wR : wL) > 1.8 * (PF.side > 0 ? wL : wR) + 0.3) PF.side = -PF.side;
+        const bias = 0.13 * smooth01((PF.dense - 0.4) / 0.4) * PF.side;   // only where the stones are close
+        fyT = bias * (1 - turn) + Math.max(-1.5, Math.min(1.5, th)) * 0.96 * turn;
+        fpT = -0.1 * turn;
         // Step a little toward the stone so its name is big enough to read.
-        offT = an.frame.out.clone().multiplyScalar(1.1 * w * calm);
-        K.nearI = best;
-      } else K.nearI = -1;
+        offT = an.frame.out.clone().multiplyScalar(1.1 * turn);
+        if (turn > 0.2) K.nearI = li;
+      }
     }
     if (!offT) offT = new THREE.Vector3();
-    if (K.snap) { K.fYaw = fyT; K.fPitch = fpT; K.fOff.copy(offT); }
-    K.fYaw += (fyT - K.fYaw) * (1 - Math.exp(-dt * 2.4));
+    if (K.snap) { PF.yaw = fyT; PF.vel = 0; K.fPitch = fpT; K.fOff.copy(offT); }
+    {
+      const MAXV = 1.0, MAXA = 2.0;                 // rad/s and rad/s^2
+      const err = fyT - PF.yaw;
+      const vDes = Math.sign(err) * Math.min(Math.abs(err) * 2.6, MAXV, Math.sqrt(2 * MAXA * Math.abs(err)));
+      PF.vel += Math.max(-MAXA * dt, Math.min(MAXA * dt, vDes - PF.vel));
+      PF.yaw += PF.vel * dt;
+      K.fYaw = PF.yaw;
+    }
     K.fPitch += (fpT - K.fPitch) * (1 - Math.exp(-dt * 2.4));
     K.fOff.lerp(offT, 1 - Math.exp(-dt * 2.4));
     const dir = new THREE.Vector3().subVectors(wl, wp);

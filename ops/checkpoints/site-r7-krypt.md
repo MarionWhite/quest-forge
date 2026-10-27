@@ -61,3 +61,27 @@ Previous state: `site-r6-krypt-gen.md`. Specs: `docs/design/site/krypt-endless.m
    - 3 walk filmstrips, before and after;
    - one frame per new structure;
    - a side-by-side against 275579a at 3 matching spots.
+
+## Progress log
+- Setup (2026-10-27): r5 worktree at scratchpad r7/krypt/r5wt (275579a); servers I started: 8741 (current tree),
+  8742 (r5 worktree), both `tools/site/serve.py`. Kill them (lsof -iTCP:8741/8742) and `git worktree remove` at the end.
+- Camera diagnosis: the passing-focus code is unchanged since r5; r6 made most kinds step 4 (kindreg default) with
+  alternating sides, so the nearest stone flips side every ~2 blocks and fyT flips sign -> ping-pong.
+- [x] Camera (step 1). app.js passing focus rewritten: lock with hysteresis (0.9 s minimum hold, switch only when another
+  stone is 1.2 blocks nearer), spacing+pace gate (dense = gap <= 5 around the lock and the next stone: no per-stone glance,
+  only a 7 deg bias toward the held wall; sparse: r5 glance only when each stone passes in >= 2.2..3.7 s), the full turn
+  only after ~1 s at rest, and the yaw under a 57 deg/s rate and 115 deg/s^2 acceleration cap. `?dbg` exposes
+  window.__kdbg = { K, state } for the metric. Click focus checked by CDP (clicktest.js: focusI 50, sheet, unfocus OK).
+  Metric tools: scratchpad r7/krypt/tools/{cdp.mjs, yawmetric.js, ym.py, clicktest.js, dense.mjs}.
+  Densest stretch: leg 6 raw_tunnel, graves 49-57 (4 blocks apart, alternating), ?demo=10000&at=0.0036462.
+  Yaw table (steady window, real time, 60 fps; before = HEAD b222712, after = this fix):
+    | run | before rev/10s, peak | after focus rev/10s | after camera rev/10s (1 deg / 3 deg) | after peak |
+    | slow 1.5 b/s smooth | 2.6, 170 deg/s (range 169 deg) | 0 | 1.2 / 1.2 | 16 deg/s |
+    | medium 4 b/s smooth | 6.9, 153-238 deg/s | 0 | 3.6 / 1.2 | 11-14 deg/s |
+    | fast 9 b/s smooth | 12.9, 121 deg/s | 0 | 2.3 / 2.3 | 13 deg/s |
+    | slow notched (mouse) | 2.1, 251 deg/s | 0 | 1.2 / 1.2 | 11.5 deg/s |
+    | medium notched | 5.9, 161 deg/s | 0 | 0 / 0 | 11.5 deg/s |
+  The remaining camera reversals are the path's slow sway (+-0.7 block, +-6 deg heading, period 41 blocks), unchanged
+  since r5 (krypt.js 275579a line 184). Sparse leg (mine_crossing, gap 8): slow keeps r5 glances (range 104 deg, capped
+  57 deg/s, 1.6 rev/10s); medium 0 focus reversals. JSON: scratchpad r7/krypt/yaw_before.json, yaw_after.json, yaw_sparse3.json.
+  Frames: r7/krypt/cam/sheet.png. Not mine: mood.js:116 TDZ on `last` when krypt-ready fired before mood boots (intermittent).
