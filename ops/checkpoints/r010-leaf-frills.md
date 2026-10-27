@@ -161,3 +161,20 @@ with _n/_s maps): `wheat_stage_7_v0..v4` (five heights, wheat_dense.py), `carrot
 `potatoes_stage_3_v0..v3` (crops_dense.py: Faithful 64x's ripe plant with darker mirrored back copies, four heights; two
 potato variants carry small white flowers). Test zip: C:\qfb\textures\diag\QF-cropvar.zip (--wheat bushy --leaves faithful).
 Other stages have no variants (the hook draws them as before). The old ctm/wheat random rule is still in the zip (harmless).
+- 19:15 frills-c DONE and reviewed: c2 (edges len 0.4 x3 dens 1) fullest fringe, +42% leafy verts / +11% build; c1 (len 0.5
+  x2) +29% / +9%; frame within noise. HANDED OFF: `C:\qfb\shaderdev\r010\frills_scenes.json` (frills-hedge/-tree/-forest,
+  A off fr1a0, B c2, C c1, Stay True as link only: all-rights-reserved, never shown) + `FRILLS-READY`; generator
+  `C:\qfb\shaderdev\r010\frills_make_scenes.py`. Docs db7d35c, journal entry. guard OK 19:12. Session 3 exits (crops ETA ~19:25).
+
+## Resume here (session 4)
+1. `renderq.py results 1027-190035-r010-crops-a`. In both boot logs (`C:\qfb\shaderdev\rounds\logs\b*.log` after 19:10, jobs
+   cv1a0/cv1a1): cv1a0 "crop variants off ... left untouched"; cv1a1 "Transform applied: crop variants hook" and
+   "crop variants: [wheat_stage_7 x5]". If cv1a1's list is [] the sprite zip did not load (check resourcepacks).
+2. Sheet: `py -3.10 C:\qfb\frills\scripts\grid.py C:\qfb\frills\look\cv1a.jpg 960 cv1a0,cv1a1 farm farm_close` plus a 1:1 crop
+   of the near field. Judge: do five heights show, no tiling, no missingno.
+   If every block is still identical: the base-sprite identity key failed (Angelica's atlas?). Fallback: key by icon name
+   (IIcon.func_94215_i getIconName; add to the stub) in pick.
+3. Cost: `py -3.10 tools/textures/frills_cost.py --off cv1a0 --on cv1a1` (use the whole-boot "all sections" ms and vertices;
+   the leafy columns don't apply). Expect noise-level change. Add to leaf-frills.md "Crop variants" Results.
+4. Add a scene "crops-variants" (A cv1a0 off, B cv1a1 on; farm_close, maybe farm) to `frills_make_scenes.py`, rerun, touch
+   FRILLS-READY. Commit docs/ops; journal.
