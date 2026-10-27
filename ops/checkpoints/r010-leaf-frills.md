@@ -143,3 +143,14 @@ Render a field near and far, hook off vs on, through renderq; measure chunk-rebu
   b4 hang = big smeared diagonal planes, messy from below.
 - 18:55 SUBMITTED `1027-185527-r010-frills-c` (spec `C:\qfb\frills\spec-r010-frills-c.json`): fr1c1 edges len 0.5 dens 1 x2,
   fr1c2 edges len 0.4 dens 1 x3. Meanwhile: crop-variant hook code in the worktree.
+- 19:00 crop variants BUILT: branch leaf-frills **adec733** (CropVariants + CropVariantsTransformer, cropVariants.enabled /
+  -Dqf.cropvariants, default true; sprites textures/blocks/NAME_vN.png registered at stitch when present). Offline verify OK
+  (`C:\qfb\frills\verify\src2\VerifyCrops.java` vs srg_merged_minecraft.jar). Jar `C:\qfb\frills\jars\v3\QuestForgeTweaks-1.0.jar`
+  (1.1.0+20261027.adec733c; also has frills). Builder on main (c97c5a0) writes wheat_stage_7_v0-4. Trial sprite zip
+  `C:\qfb\frills\crops\QF-crop-variants.zip` (from QF-w-bushy ctm/wheat).
+- 19:00 SUBMITTED `1027-190035-r010-crops-a` (spec `C:\qfb\frills\crops\spec-r010-crops-a.json`): cv1a0 off / cv1a1 on, farm +
+  farm_close, cost mode, MeshStats `C:\qfb\frills\stats\cv1a{0,1}.txt`. Boot logs: look for "crop variants: [wheat_stage_7 x5]".
+- v2 results in leaf-frills.md (4680b96).
+- NEXT: wait frills-c + crops-a; review c1/c2 vs b1 (grid.py, 1:1 hedge crops), cost; pick final; write
+  `C:\qfb\shaderdev\r010\frills_scenes.json` + FRILLS-READY (options off fr1a0 / best edges / runner-up / Stay True crop);
+  crops: sheet cv1a0|cv1a1 farm/farm_close + cost (frills_cost.py --off cv1a0 --on cv1a1, whole-boot "all" columns); docs; journal.
