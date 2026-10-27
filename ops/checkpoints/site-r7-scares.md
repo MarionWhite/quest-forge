@@ -28,3 +28,15 @@ Previous state: `site-r6-scares.md`. Spec: `docs/design/site/krypt-scares.md`.
   Re-check the mix when they land.
 - [ ] Sheet, plus a live J run of all 16 with no exceptions. In your report, rank each scare's
   fear against the Enderman and Creeper.
+
+## Progress (opus, 2026-10-27)
+Scratch: `scratchpad/r7/scares/` (serve.py on :8765, pid in serve.pid; tools mk.py, multi.py, sheet2.py, rt/cdp.mjs,
+rt/scareflow16.js, rt/trace.js, cmp_trace.py).
+- Baseline for Enderman and Creeper: `base_trace.json` (rt/trace.js at `graves/?demo&at=0.3&trace=Enderman,Creeper`,
+  seeds 1-4: camera, frame fields, every visible object, sounds, loops on a 0.05 s grid). Deterministic run to run
+  except the first 0.9 s camera settle (cmp_trace.py ignores it). Re-run and `cmp_trace.py base_trace.json new.json`
+  after any shared change.
+- Why those two work: the scare is the mob's own vanilla mechanic (the stare and the teleport; the silent walk-up,
+  the hiss, the swell, the white flashes), every sound is the mob's, the one glitch is diegetic (teleport), the "lunge"
+  is short and motivated (it teleported to arm's length; it was already behind you), and the kill leaves a mark in the
+  world (the lava chasm, the crater, the hotbar scattered) with an aftershock (the fall, the second hiss).
