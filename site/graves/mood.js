@@ -15,7 +15,7 @@ import { createLight } from "./mood/light.js";
 import { farEvent, scamperEvent, breathEvent, scrapeEvent } from "./mood/events-sound.js";
 import { lightEvent } from "./mood/events-light.js";
 import { peekEvent, stillEvent, eyesEvent } from "./mood/events-visual.js";
-import { frameOf, clear, findPeek, findHidden, findEyesSpot } from "./mood/geo.js";
+import { frameOf, clear, findPeek, findHidden, findEyesSpot, standable } from "./mood/geo.js";
 
 const QS = new URLSearchParams(location.search);
 const MODE = QS.get("mood");
@@ -97,6 +97,7 @@ export function initMood(opts = {}) {
   const enabled = opts.enabled || (() => true);
   const reducedNow = () => (typeof opts.reduced === "function" ? !!opts.reduced() : matchMedia("(prefers-reduced-motion: reduce)").matches || QS.has("flat"));
   const forced = MODE && MODE !== "off" && KINDS[MODE] ? MODE : null;
+  if (MODE === "cover" && DUMP) { coverMode().catch((e) => console.error("mood cover", e)); return; }
   if (forced && DUMP) { dumpMode(forced, Number(QS.get("moodat") ?? 0) || 0).catch((e) => console.error("mood dump", e)); return; }
   const boot = () => {
     const kr = kryptOf(); if (!kr) return;
@@ -214,15 +215,12 @@ async function dumpMode(kind, ms) {
     let ev = build(c, kind);
     if (!ev) {   // dump only: walk the camera round the corners in view until the event has a place (the dump's own frame may stand in a bare corridor)
       const cams = [], f0 = frameOf(kr), c0 = f0.eye.clone();
-      for (const k of kr.corners || []) for (const sg of [1, -1]) for (const D of [20, 23, 26, 29]) for (const lat of [0, -1, 1]) {
-        const f = f0.fwd.clone().multiplyScalar(sg), r = new THREE.Vector3(-f.z, 0, f.x);
-        const u0 = k.pos.clone().sub(c0).dot(f);
-        const p = c0.clone().addScaledVector(f, u0 - D).addScaledVector(r, lat);
-        if (kr.solidAt(p.x, p.y, p.z) || !kr.solidAt(p.x, k.pos.y - 0.4, p.z)) continue;
-        cams.push([p, new THREE.Vector3(p.x + f.x * 10, p.y, p.z + f.z * 10), k]);
+      for (let u = -70; u <= 70; u += 7) {
+        const p = c0.clone().addScaledVector(f0.fwd, u);
+        if (kr.solidAt(p.x, p.y, p.z) || !kr.solidAt(p.x, c0.y - 1.9, p.z)) continue;
+        cams.push([p, new THREE.Vector3(p.x + f0.fwd.x * 10, p.y, p.z + f0.fwd.z * 10)]);
       }
-      info.seek = cams.length; info.dbg2 = {};
-      for (const [p, look] of cams.slice(0, 12)) { kr.camera.position.copy(p); kr.camera.lookAt(look.x, p.y - 0.1, look.z); kr.camera.updateMatrixWorld(true); findPeek(kr, frameOf(kr), () => 0.5, 18, 30, info.dbg2); }
+      info.seek = cams.length;
       for (const [p, look] of cams.slice(0, 60)) {
         kr.camera.position.copy(p); kr.camera.lookAt(look.x, p.y - 0.1, look.z); kr.camera.updateMatrixWorld(true);
         ev = build(c, kind);
@@ -254,5 +252,33 @@ async function dumpMode(kind, ms) {
   if (old) { try { base = JSON.parse(old.textContent); } catch (e) { base = {}; } old.remove(); }
   const sc = document.createElement("script"); sc.type = "application/json"; sc.id = "dumpshot";
   sc.textContent = JSON.stringify({ ...base, png: png || base.png, ...info, errors: (base.errors || []).concat(errors, window.__errs || []) });
+  document.body.appendChild(sc);
+}
+
+// ---- verification: how often does each glimpse kind find a place? Samples positions along the corridor round the dump's camera.
+async function coverMode() {
+  const wait = async (fn, max = 20000) => { const t0 = performance.now(); while (!fn() && performance.now() - t0 < max) await new Promise((r) => setTimeout(r, 120)); return fn(); };
+  await wait(() => kryptOf()); await wait(() => document.getElementById("dumpshot"));
+  const kr = kryptOf(), errors = [];
+  const res = { peek: [0, 0], peek_enderman: [0, 0], eyes: [0, 0], still: [0, 0] }, rows = [];
+  try {
+    const b = JSON.parse(document.getElementById("dumpshot").textContent);
+    kr.takeover(true);
+    const f0 = (kr.camera.position.fromArray(b.pos), kr.camera.lookAt(b.look[0], b.look[1], b.look[2]), kr.camera.updateMatrixWorld(true), frameOf(kr));
+    const c0 = f0.eye.clone(), rng = mulberry(5), T0 = performance.now();
+    for (let u = -70; u <= 70; u += 7) {
+      const p = c0.clone().addScaledVector(f0.fwd, u);
+      if (!standable(kr, new THREE.Vector3(p.x, c0.y - 1.5, p.z))) { rows.push([u, "wall"]); continue; }
+      kr.camera.position.copy(p); kr.camera.lookAt(p.x + f0.fwd.x * 10, p.y, p.z + f0.fwd.z * 10); kr.camera.updateMatrixWorld(true);
+      const fr = frameOf(kr);
+      const r = { peek: !!findPeek(kr, fr, rng, 15, 30, (res.dbg = res.dbg || {})), peek_enderman: !!findPeek(kr, fr, rng, 15, 30, null, 2.9), eyes: !!findEyesSpot(kr, fr, rng), still: !!findHidden(kr, fr, rng, 14, 28) };
+      for (const k in r) { res[k][1]++; if (r[k]) res[k][0]++; }
+      rows.push([u, ...Object.values(r).map((v) => (v ? 1 : 0))]);
+    }
+  } catch (e) { errors.push(String(e && e.stack || e)); }
+  const old = document.getElementById("dumpshot");
+  let base = {}; if (old) { try { base = JSON.parse(old.textContent); } catch (e) { /* */ } old.remove(); }
+  const sc = document.createElement("script"); sc.type = "application/json"; sc.id = "dumpshot";
+  sc.textContent = JSON.stringify({ ...base, cover: res, rows, ms: Math.round(performance.now()), errors: (base.errors || []).concat(errors) });
   document.body.appendChild(sc);
 }

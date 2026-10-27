@@ -76,6 +76,20 @@ function scatter(kr, c, r = 5.5, step = 0.8) {
   }
   return out;
 }
+// Standable floor cells in the fan ahead of the eye (not only around corners): the walls, pillars, alcoves, side rooms and
+// door frames of the new Krypt all make edges to hide behind. lateral = signed offset from the walking line.
+export function fanCells(kr, fr, lo, hi, step = 1, h = 2.0) {
+  const out = [], y0 = fr.eye.y - 1.5;
+  for (let f = lo - 2; f <= hi + 1; f += step) for (let l = -16; l <= 16; l += step) {
+    if (Math.abs(l) > f * 0.85) continue;
+    const p = at(fr, f, l, 0); p.y = y0;
+    for (const dy of [0, 1, -1]) { const q = p.clone(); q.y = y0 + dy; if (standable(kr, q, h)) { q.lat = l; out.push(q); break; } }
+  }
+  return out;
+}
+// A cell that touches a wall, pillar or frame (solid within 0.8 block at chest height): where a body can half-hide.
+function hug(kr, q) { const y = q.y + 1.1; return kr.solidAt(q.x + 0.8, y, q.z) || kr.solidAt(q.x - 0.8, y, q.z) || kr.solidAt(q.x, y, q.z + 0.8) || kr.solidAt(q.x, y, q.z - 0.8); }
+function shuffled(a, rng) { const b = a.slice(); for (let i = b.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; } return b; }
 const DIRS = []; for (let i = 0; i < 8; i++) DIRS.push(new THREE.Vector3(Math.cos(i * Math.PI / 4), 0, Math.sin(i * Math.PI / 4)));
 
 // Torch positions (world), read once from the Krypt's merged torch meshes (20 vertices each) and cached per scene.
@@ -107,7 +121,7 @@ export function exposure(kr, eye, P, h = 1.8) {
   const toEye = new THREE.Vector3(eye.x - P.x, 0, eye.z - P.z).normalize();
   const side = new THREE.Vector3(-toEye.z, 0, toEye.x);
   let seen = 0, n = 0, head = false;
-  for (const fy of [0.1, 0.3, 0.5, 0.7, 0.85, 0.95]) for (const lat of [-0.3, 0, 0.3]) {
+  for (const fy of [0.1, 0.3, 0.5, 0.7, 0.85, 0.95]) for (const lat of [-0.3, -0.15, 0, 0.15, 0.3]) {
     n++;
     const q = P.clone().addScaledVector(side, lat).setY(P.y + h * fy);
     if (clear(kr, eye, q)) { seen++; if (fy >= 0.85 && lat === 0) head = true; }
@@ -117,7 +131,7 @@ export function exposure(kr, eye, P, h = 1.8) {
 
 // Look for a peek: P where the head and one shoulder show (at most ~35% of the body), in the dark, 18 to 30 blocks off;
 // H a step to the side where all of it is hidden behind a block.
-export function findPeek(kr, fr, rng, lo = 18, hi = 30, dbg = null, h = 1.8) {
+export function findPeek(kr, fr, rng, lo = 15, hi = 30, dbg = null, h = 1.8) {
   // Prefer the darkest spots; in torch-dense halls fall back to spots nearer a torch (the mob carries its own
   // fixed dim light, so the torch only matters for the background), rather than never peeking at all.
   for (const reach of [4, 2.5, 1.2]) { const r = findPeekAt(kr, fr, rng, lo, hi, dbg, h, reach); if (r) return r; }
@@ -128,23 +142,49 @@ function findPeekAt(kr, fr, rng, lo, hi, dbg, h, reach) {
   const found = [], eye = fr.eye;
   let corners = cornersAhead(kr, fr, lo - 3, hi);
   if (corners.length > 4) corners = corners.sort(() => rng() - 0.5).slice(0, 4);
-  for (const { c } of corners) {
-    for (const B of scatter(kr, c, 6, 0.8)) {
+  const sets = corners.map(({ c }) => ({ c, cells: scatter(kr, c, 6, 0.8) }));
+  sets.push({ c: { pos: fr.eye, dir: fr.fwd, kind: "edge" }, cells: shuffled(fanCells(kr, fr, lo, hi, 0.5, h).filter((q) => hug(kr, q)), rng) });
+  let probed = 0;
+  for (const { c, cells } of sets) {
+    for (const B of cells) {
       const dist = Math.hypot(B.x - eye.x, B.z - eye.z);
       if (dist < lo - 1.5 || dist > hi + 1) { D("range"); continue; }
       if (!dark(kr, B, reach)) { D("lit"); continue; }
+      if (clear(kr, eye, B.clone().setY(B.y + h * 0.95))) { D("B-head-visible"); continue; }
+      if (++probed > 160) break;
       if (exposure(kr, eye, B, h).frac > 0) { D("B-visible"); continue; }          // B is the hidden spot
       for (const dv of DIRS) {
-        for (const t of [0.3, 0.6, 0.9, 1.2]) {
+        for (const t of [0.12, 0.25, 0.4, 0.55, 0.7, 0.9, 1.1]) {
           D("tried");
           const P = B.clone().addScaledVector(dv, t);
           if (!standable(kr, P)) break;
           const ex = exposure(kr, eye, P, h);
-          if (ex.frac > 0.5) break;                       // further out only shows more
-          if (ex.head && ex.frac > 0.04) { found.push({ P, H: B.clone(), c, d: dist, dir: dv, frac: ex.frac }); break; }
+          if (ex.frac > 0.6) break;                       // further out only shows more
+          if (ex.head && ex.frac > 0.15) { found.push({ P, H: B.clone(), c, d: dist, dir: dv, frac: ex.frac }); break; }
         }
       }
       if (found.length > 12) break;
+    }
+  }
+  if (!found.length) {
+    // From the other end: a floor point whose head shows and whose body mostly does not (an edge of a pillar, door frame or wall),
+    // with a spot one step to the side where it is wholly hidden.
+    let n = 0;
+    const cells = sets.flatMap((x) => x.cells);
+    for (const P of shuffled(cells, rng)) {
+      const dist = Math.hypot(P.x - eye.x, P.z - eye.z);
+      if (dist < lo || dist > hi) continue;
+      if (!dark(kr, P, reach)) continue;
+      if (!clear(kr, eye, P.clone().setY(P.y + h * 0.95))) continue;
+      if (++n > 300) break;
+      const ex = exposure(kr, eye, P, h);
+      if (!ex.head || ex.frac > 0.6 || ex.frac < 0.15) { D("P-exposure"); continue; }
+      for (const dv of DIRS) {
+        const H = P.clone().addScaledVector(dv, 1.0);
+        if (!standable(kr, H) || exposure(kr, eye, H, h).frac > 0) continue;
+        found.push({ P, H, c: sets[0] ? sets[0].c : null, d: dist, dir: dv, frac: ex.frac }); break;
+      }
+      if (found.length > 8) break;
     }
   }
   if (!found.length) return null;
@@ -160,8 +200,10 @@ function findHiddenAt(kr, fr, rng, lo, hi, reach) {
   const out = [];
   let corners = cornersAhead(kr, fr, lo, hi);
   if (corners.length > 4) corners = corners.sort(() => rng() - 0.5).slice(0, 4);
-  for (const { c, d } of corners) {
-    for (const P of scatter(kr, c, 5, 1.0)) {
+  const sets = corners.map(({ c, d }) => ({ c, d, cells: scatter(kr, c, 5, 1.0) }));
+  sets.push({ c: { pos: fr.eye, dir: fr.fwd, kind: "edge" }, d: 0, cells: fanCells(kr, fr, lo, hi, 1).filter((q) => Math.abs(q.lat) >= 1.5) });
+  for (const { c, d, cells } of sets) {
+    for (const P of cells) {
       const dist = Math.hypot(P.x - fr.eye.x, P.z - fr.eye.z);
       if (dist < lo || dist > hi + 2) continue;
       if (!dark(kr, P, reach)) continue;
@@ -183,6 +225,13 @@ export function findEyesSpot(kr, fr, rng, lo = 7, hi = 28) {
       const E = P.clone().setY(P.y + 0.5);
       if (!clear(kr, fr.eye, E)) continue;
       out.push({ E, c, d, dir: d1, dep });
+    }
+  }
+  if (!out.length) {   // side rooms, alcoves and door frames: a low spot off the walking line that the eye sees into
+    for (const P of fanCells(kr, fr, lo, hi, 1, 1.2)) {
+      if (Math.abs(P.lat) < 3.5) continue;
+      const E = P.clone().setY(P.y + 0.5);
+      if (clear(kr, fr.eye, E)) out.push({ E, c: { kind: "edge" }, d: Math.hypot(P.x - fr.eye.x, P.z - fr.eye.z), dir: new THREE.Vector3(Math.sign(P.lat) * fr.right.x, 0, Math.sign(P.lat) * fr.right.z), dep: 0 });
     }
   }
   return out.length ? out[Math.floor(rng() * out.length)] : null;

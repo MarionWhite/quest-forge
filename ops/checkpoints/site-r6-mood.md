@@ -38,3 +38,9 @@ sounds.
   Final dump: r6/mood/crops_glimpses_v2.png (enderman, still creeper, spider eyes). Zombie/skeleton/creeper/witch found no spot in the dump's
   corridor (torch-dense, few corners after krypt-gen's rewrite), so they are unframed; they run the same code path as the enderman. Not seen live.
 - Status: DONE (code committed; live check by the owner outstanding).
+- 2026-10-26 coverage pass: findPeek / findHidden / findEyesSpot now also scan a fan of wall-hugging floor cells 15-30 blocks ahead
+  (pillar, frame and alcove edges), not only corners; peeks search from both ends; exposure uses 5 columns; min distance 15.
+  Coverage (`?mood=cover&dump=1`, 34 corridor positions over at=0.12/0.45/0.8, tools/site/dump_frames.py): peek 32/34 (94%),
+  enderman 32/34, spider eyes 29/34 (85%), still creeper 33/34 (97%). Frames: r6/mood/crops_glimpses_v3.png and crops_peeks_left.png (f1/).
+  After the frames I raised the minimum visible share to 0.15 (zombie/creeper/witch were near-invisible slivers); that last change is not re-shot.
+- Status: DONE.
