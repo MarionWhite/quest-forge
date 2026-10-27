@@ -1,12 +1,14 @@
-// Silverfish (v3): the wall. A dry chittering somewhere close. The head turns to the wall beside you: one block of it
-// moves. Again. Cracks spread across it and its neighbours (the block-breaking overlay). Then either it all stops
-// (silence; the head turns away, relieved; one tick from the stone; the head turns back) or it races and then stops
-// dead for a breath. The wall bursts: a big one comes out of it straight into your eye with the screech and the rest
-// spatter the lens; after the static you are looking down at hundreds pouring across the floor at you and up your
-// legs, the view drops among them, and they crawl over the lens until it is dark.
+// Silverfish (round 7): the wall. A dry chittering somewhere close. The head turns to the wall beside you: one block of
+// it moves. Again. Cracks spread across it and its neighbours (the block-breaking overlay): it is infested stone, as in
+// the game. Then either it all stops (silence; the head turns away, relieved; one tick from the stone; the head turns
+// back: its one device) or it races and then stops dead for a breath. The whole face of the wall bursts outward, and
+// they pour out of it: a flood across the floor at you, dozens leaping past you, a few onto your face. You look down at
+// hundreds coming at your feet and up your legs, the view drops among them, and they crawl over the lens until it is
+// dark.
 import { THREE, clamp, lerp, sstep, pulse, tex, blockTexName, blockMesh, easeOut } from "./rig.js";
 import { settle, shake, hitsOf, floorFall, mulberry } from "./common.js";
-import { lunge, lungeFx, screech, faceAnchor, boxOf, silence, deathScream, jit } from "./fnaf.js";
+import { silence, deathScream } from "./fnaf.js";
+import { roar } from "./story.js";
 import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 
 const TAU = Math.PI * 2;
@@ -83,28 +85,9 @@ export default {
     const T_BREAK = t0;
     const jolts = [];
     for (let tt = T_LOOK - 0.2, gap = 0.3; tt < tStall; tt += gap, gap = Math.max(0.06, gap * R.vary(0.88, 0.12))) jolts.push(tt);
-    // The big one: out of the hole into your eye.
-    const big = R.mob("Silverfish", { amb: [0.2, 0.2, 0.21], own: true, scale: 1.0 });
-    big.anim(0, 0, {}); R.place(big, 0, 0, 4, Math.PI);
-    const anchor = faceAnchor(big, big.parts.silverfishBodyParts0, boxOf("silverfish", "silverfishBodyParts0"));
-    // Its mandibles (the model has none; a silverfish has them): two hooked pincers under the head's front, snapping.
-    const key = R.ownLight(R.light(0xdfe3ee, 0, 3, 1.6));
-    const jawMat = new THREE.MeshLambertMaterial({ color: 0x4a443e, emissive: new THREE.Color(0x14110e) });
-    const tipMat = new THREE.MeshLambertMaterial({ color: 0x1e1a16, emissive: new THREE.Color(0x080605) });
-    const pincers = [1, -1].map((s) => {
-      const g = new THREE.Group(); g.position.set(s * 1.05 / 16, -1.7 / 16, -0.95 / 16);
-      const a = new THREE.Mesh(new THREE.BoxGeometry(0.32 / 16, 0.3 / 16, 1.0 / 16).translate(0, 0, -0.5 / 16), jawMat);
-      const tip = new THREE.Group(); tip.position.z = -0.95 / 16; tip.rotation.y = s * 0.95;
-      tip.add(new THREE.Mesh(new THREE.BoxGeometry(0.26 / 16, 0.26 / 16, 0.75 / 16).translate(0, 0, -0.37 / 16), tipMat));
-      g.add(a, tip); g.visible = false;
-      if (big.parts.silverfishBodyParts0) big.parts.silverfishBodyParts0.add(g);
-      return { g, s };
-    });
-    // Face on, the back plates (the model's "wings") are one grey wall behind the head: in the lunge they are laid
-    // back and it comes at the lens three-quarters on, the segments trailing away to one side behind the mandibles.
-    const L = lunge(R, big, { t0, rush: R.vary(0.16, 0.2), hold: R.vary(0.55, 0.15), dist: 0.3, anchor, seed: 31, tilt: -0.1, turn: 0.72 * side });
-    const tK = L.t3, T_DOWN = tK + 0.02, T_FALL = tK + 1.45, DUR = tK + 2.95;
-    const hits = hitsOf([[L.t1, 1, side], [tK + 0.4, 3, -side], [tK + 0.9, 3, side], [T_FALL, 3, -side], [T_FALL + 0.5, 3, side], [T_FALL + 1.0, 3, -side], [DUR, 4, side]]);
+    // The burst: the swarm reaches you (tK) a breath after the wall goes.
+    const tK = T_BREAK + 0.6, T_DOWN = T_BREAK + 0.5, T_FALL = tK + 1.45, DUR = tK + 2.95;
+    const hits = hitsOf([[T_BREAK + 0.34, 1, side], [tK + 0.4, 3, -side], [tK + 0.9, 3, side], [T_FALL, 3, -side], [T_FALL + 0.5, 3, side], [T_FALL + 1.0, 3, -side], [DUR, 4, side]]);
     // Cracks: the moving block first, then its neighbours; they stop where the stall leaves them; stage 9 as it breaks.
     const crackAt = (i, t) => { const c0 = i === 0 ? T_CRACK : T_CRACK + 0.25 + 0.08 * i; const tt = t >= t0 ? T_END : Math.min(t, tStall); return tt < c0 ? -1 : Math.min(9, Math.floor((tt - c0) / (T_END - c0) * 10)); };
     const hole = () => {
@@ -120,12 +103,12 @@ export default {
     // The swarm.
     const N = 110, { mat, poses } = silverfishPoses(R, 8);
     const ims = poses.map((g) => { const im = new THREE.InstancedMesh(g, mat, N + 8); im.count = 0; im.frustumCulled = false; return R.add(im); });
-    // The ones that leap out with the big one (their own instances: the swarm's are full).
+    // The ones that leap out past you as the wall goes (their own instances: the swarm's are full).
     const lims = poses.map((g) => { const im = new THREE.InstancedMesh(g, mat, 64); im.count = 0; im.frustumCulled = false; return R.add(im); });
     const camEnd = { x: 0, z: -0.15 };
     const fish = [];
     for (let i = 0; i < N; i++) {
-      const te = T_BREAK + 0.03 + Math.pow(i / N, 1.3) * 2.6 + r() * 0.04;   // a flood at first: behind the big one
+      const te = T_BREAK + 0.03 + Math.pow(i / N, 1.3) * 2.6 + r() * 0.04;   // a flood at first
       const hy = 0.1 + r() * 1.6, hz = zc + (r() - 0.5) * 2.6, hx = side * (wall + 0.2);
       // Where it ends up: packed round your feet, nearer ones first, in layers so they lie on each other.
       const a = r() * TAU, rad = 0.5 + Math.pow(i / N, 0.6) * 1.6 + r() * 0.3;
@@ -144,11 +127,11 @@ export default {
       const from = edge === 0 ? [e * 0.7, -0.3] : edge === 1 ? [-0.5, e * 0.4] : edge === 2 ? [0.5, e * 0.4] : [e * 0.7, 0.3];
       return { m, t0: T_DOWN + 0.75 + Math.pow(i / 15, 0.85) * 1.9, from, to: [(r() - 0.5) * 0.6, (r() - 0.5) * 0.32], s: 0.15 + r() * 0.07, ph: r() * 8, z: -0.3 - i * 0.004 };
     });
-    // The spatter: the ones that come out with the big one hit the lens all round it and cling there until the cut.
+    // The spatter: a few of the first ones out leap onto your face and cling round the edge of the view.
     const spat = [...Array(7)].map((_, i) => {
       const m = new THREE.Mesh(poses[0], lensMat); m.renderOrder = 2090 + i; m.visible = false; R.view.add(m);
       const a = (i / 7) * Math.PI * 2 + r() * 0.6, rad = 0.3 + r() * 0.08;   // round the edge of the view, clear of its head
-      return { m, t0: L.t1 + 0.12 + i * 0.04, to: [Math.cos(a) * rad * 1.5, Math.sin(a) * rad], s: 0.11 + r() * 0.05, ph: r() * 8, z: -0.28 - i * 0.004, head: -a + Math.PI / 2 };
+      return { m, t0: T_BREAK + 0.3 + i * 0.05, to: [Math.cos(a) * rad * 1.5, Math.sin(a) * rad], s: 0.11 + r() * 0.05, ph: r() * 8, z: -0.28 - i * 0.004, head: -a + Math.PI / 2 };
     });
 
     const pose = (t, ph) => Math.floor(((t * 20 * 0.9) / TAU * 8 + ph) % 8 + 8) % 8;
@@ -183,17 +166,16 @@ export default {
       floorFall(c, t, T_FALL, { d: 0.5, side: -side, roll: 0.5, y: 0.2, pitch: 0.06, back: 0.15 });
       if (t > T_FALL) { const lk = sstep(T_FALL + 0.3, T_FALL + 0.9, t); c.yaw = lerp(c.yaw, yWall * 0.6, lk); c.pitch = lerp(c.pitch, 0.05, lk); }
       c.near = t >= t0 - 0.1 ? 0.02 : undefined;
-      c.fov += 10 * pulse(t, [L.t1], 0.12);
-      return shake(c, t, 0.0015 + 0.003 * sstep(T_LOOK, tStall, t) * (1 - away) + L.shake(t) + 0.02 * pulse(t, hits.map((h) => h.t), 0.18) + 0.006 * sstep(tK, T_FALL, t), 4);
+      c.fov += 6 * pulse(t, [T_BREAK], 0.15);
+      return shake(c, t, 0.0015 + 0.003 * sstep(T_LOOK, tStall, t) * (1 - away) + 0.025 * pulse(t, [T_BREAK], 0.15) + 0.02 * pulse(t, hits.map((h) => h.t), 0.18) + 0.006 * sstep(tK, T_FALL, t), 4);
     };
     hits.forEach((h, i) => { const c = cam(h.t), fx = -Math.sin(c.yaw), fz = Math.cos(c.yaw); R.burst(h.t, [c.x + fx * 0.35, Math.max(0.15, c.y - 0.9), c.z + fz * 0.35], 16, "blood", { dir: [fx * 0.4, 0.8, fz * 0.4], speed: 1.6, spread: 0.8, size: 0.04, life: 1.1, stick: 3 }); });
 
     const bc = R.toLocal({ x: face[0][0] + 0.5, y: face[0][1] + 0.5, z: face[0][2] + 0.5 });
     const at = [bc.x, bc.y, bc.z];
-    // The rest burst out with the big one: leaping from the whole broken face past you, round it, at every depth.
+    // Dozens burst out of the whole broken face and leap past you, at every depth.
     const cB = cam(t0 + 0.4);
-    // The big one comes three-quarters on with its tail to one side of the view (turn); they come on the other side,
-    // in its wake (the wall can be metres off): from part-way along its path, past you.
+    // They come on the free side, from part-way along the way from the wall (it can be metres off), past you.
     const free = side, fwd = [-Math.sin(cB.yaw), Math.cos(cB.yaw)], rgt = [Math.cos(cB.yaw), Math.sin(cB.yaw)];
     const along = clamp(Math.hypot(bc.x - cB.x, bc.z - cB.z), 1.2, 6);
     const ahead = (f, l, v) => [cB.x + fwd[0] * f + rgt[0] * l, cB.y + v, cB.z + fwd[1] * f + rgt[1] * l];
@@ -203,7 +185,6 @@ export default {
       const to = ahead(0.3 + r() * 0.4, free * (0.45 + r() * 0.6), -0.65 + r() * 0.75);   // beside you, never into the lens
       return { ts, dur, from, to, arc: 0.1 + r() * 0.25, ph: r() * 8, s: 1.3 + r() * 0.6 };
     });
-    const S2 = screech(L, [["mob.silverfish.say", { pitch: 0.6 }], ["mob.silverfish.hit", { pitch: 0.65, volume: 1.3 }], ["qf.scare.chitter", { volume: 1.2 }]]);
     const sounds = [
       [T_SAY, "mob.silverfish.say", { at, volume: 0.35, pitch: 0.9 }],
       ...jolts.map((tt, i) => [tt, i % 3 === 2 ? "dig.stone" : "step.stone", { at, volume: Math.min(0.85, 0.35 + 0.04 * i), pitch: Math.min(1.1, 0.5 + 0.03 * i) }]),
@@ -211,7 +192,7 @@ export default {
       silence(tStall + 0.02, { fade: 0.05 }),
       ...(fake ? [[tTick, "dig.stone", { at, volume: 0.22, pitch: 1.8 }]] : []),
       [T_BREAK, "dig.stone", { at, volume: 1.2, pitch: 0.8 }], [T_BREAK + 0.03, "dig.stone", { at: [bc.x, 0.5, bc.z + 1], volume: 1, pitch: 1.0 }], [T_BREAK + 0.06, "dig.stone", { at: [bc.x, 0.5, bc.z - 1], volume: 1, pitch: 0.9 }],
-      ...S2.sounds,
+      ...roar(T_BREAK + 0.02, [["mob.silverfish.say", { at, pitch: 0.7 }], ["mob.silverfish.hit", { at, pitch: 0.7, volume: 1.0 }], ["qf.scare.chitter", { volume: 1.0 }]], { hit: 0.8 }),
       ...[...Array(10)].map((_, i) => [T_BREAK + 0.1 + i * 0.28, "mob.silverfish.say", { at: [side * (wall - 0.5 - i * 0.15), 0.3, zc + (i % 3 - 1)], volume: 0.8, pitch: 0.85 + 0.05 * (i % 5) }]),
       ...[...Array(16)].map((_, i) => [T_BREAK + 0.2 + i * 0.18, "mob.silverfish.step", { at: [side * (wall - 0.8) * (1 - i / 16), 0.1, zc * (1 - i / 16)], volume: 0.6 }]),
       ...hits.flatMap((h, i) => [[h.t, "game.player.hurt"], [h.t + 0.02, i % 2 ? "qf.scare.gore" : "qf.scare.crunch", { volume: 0.7 }]]),
@@ -222,7 +203,6 @@ export default {
       [0.5, tStall, "qf.scare.heartbeat", { volume: 0.5 }],
       [0.6, tStall, "qf.scare.chitter", { at, volume: 0.25, fadeIn: 1.5, fadeOut: 0.05 }],
       ...(fake ? [[tStall + 1.0, t0 - 0.1, "qf.scare.heartbeat", { volume: 0.3, fadeIn: 0.6, fadeOut: 0.02 }]] : []),
-      ...S2.loops,
       [T_BREAK, DUR + 0.5, "qf.scare.chitter", { volume: 0.9, fadeIn: 0.1 }],
       [tK, DUR + 0.2, "qf.scare.heartbeat", { volume: 0.7, pitch: 1.4 }],
       [T_FALL + 0.4, DUR, "qf.scare.breath", { volume: 0.5, fadeIn: 0.3 }]
@@ -270,23 +250,8 @@ export default {
         put(pose(t, c.ph), x, y, z, R.yawTo(x, z, 0, 0), Math.PI / 2);
       }
       for (const im of [...ims, ...lims]) im.instanceMatrix.needsUpdate = true;
-      // The big one: out of the hole at your eye; gone with the cut.
-      big.pivot.visible = t >= t0 && t < tK;
-      if (big.pivot.visible) {
-        const cl = R.toLocal(R.camera.position), hx = bc.x - side * 0.45;
-        R.place(big, hx, bc.y - 0.2, bc.z, R.yawTo(hx, bc.z, cl.x, cl.z));
-        big.anim(t * 2.5, 0, {});
-        for (const k of ["silverfishWings0", "silverfishWings2"]) if (big.parts[k]) big.parts[k].visible = t < L.t0;
-        const snap = 0.5 + 0.5 * Math.sin(t * 34) * Math.sin(t * 9.3 + 1);
-        for (const p of pincers) { p.g.visible = true; p.g.rotation.y = p.s * (0.5 - 0.95 * snap); }
-        L.apply(t);
-        big.setOwn(0.06);
-      }
-      // Its key light, above the lens: the segments' tops, fronts and sides take different light, so they read as steps.
-      if (big.pivot.visible) { const cl = R.toLocal(R.camera.position); R.L(cl.x, cl.y + 0.45, cl.z, key.position); }
-      key.intensity = big.pivot.visible ? 2.4 : 0;
       for (const q of spat) {
-        q.m.visible = t >= q.t0 && t < tK;
+        q.m.visible = t >= q.t0 && t < T_FALL;
         if (!q.m.visible) continue;
         const k = easeOut((t - q.t0) / 0.07), w = Math.sin(t * 13 + q.ph) * 0.01;
         q.m.geometry = poses[pose(t, q.ph)];
@@ -309,10 +274,9 @@ export default {
       f.vig = [0, 0, 0, 0.25 * sstep(T_LOOK, T_BREAK, t) + 0.55 * cover + 0.15 * sil]; f.vigR = 0.9 - 0.25 * cover;
       f.splats = hits.filter((h) => t >= h.t).map((h, i) => ({ t0: h.t, x: [0.3, 0.7, 0.5, 0.4, 0.62, 0.45][i], y: [0.6, 0.55, 0.4, 0.66, 0.3, 0.5][i], r: 10 + i * 2, seed: 31 + i }));
       f.black = 0.3 * sstep(DUR - 0.6, DUR + 0.4, t);
-      lungeFx(L, t, f, { tear: 0.3 });
     }
     return { dur: DUR, hits, cam, update, sounds, loops, deathSide: -side,
-      marks: { dread: (T_CRACK + tStall) / 2, fake: fake ? tStall + 1.2 : tStall + 0.3, lunge: L.t1 + 0.08, kill: tK + 0.7 },
+      marks: { dread: (T_CRACK + tStall) / 2, fake: fake ? tStall + 1.2 : tStall + 0.3, lunge: T_BREAK + 0.14, kill: tK + 0.7 },
       notes: { wall: W.name, wide: W.wide, fake, jolts: jolts.length, t0: +t0.toFixed(2), dur: +DUR.toFixed(2) } };
   }
 };
