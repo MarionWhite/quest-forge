@@ -1,5 +1,23 @@
 # Shaders journal (newest first)
 
+- 2026-10-27 01:52: r009 forest wash, canopy veil (0c72440). New dev pin QF_EXPO_PIN (log2 QF_EXPO_PIN_LOG) so A/B frames
+  share one exposure. With it pinned at 1.0, the 01:28 pending-dust idea (keep dust only where the ray goes on into shade)
+  did nothing (canopy R 36.5 -> 35.6; rays onto leaves cross shaded air too), so it was reverted. What worked is cutting
+  the haze by what the ray hits: dustL x0.4 when the pixel is foliage (g1 is already fetched, so no cost). Canopy 36.5 -> 28.4 R
+  (dust off 20.9), green kept, no outline at the leaf/sky edge, dust_b path beam -4 %. Part (b), the cream sky veil round the
+  gap, is still open.
+
+- 2026-10-27 01:45: r009 meteors (513fa7d, lib/sky.glsl), built from docs/design/shaders/research/meteor-showers.md
+  for the owner's r008 note ("isn't just shit flying in every direction"). r008 had a radiant already, but it sat mid-view in
+  night_sky, so the clip was a starburst of equal-length streaks at every heading. Now: random bearing, 25-60 deg up per
+  night, slot use ~ sin(altitude); starts 10-100 deg out (cos-uniform, so most far out), length (0.22-0.50 rad)*sin(d), so
+  meteors near the radiant are short; brightness min(0.6/u, 8) (P(>b) ~ 1/b, r ~ 2.5), colour saturates with brightness, white
+  head; trains only above 2.5; fireball (u<0.012) head glow. Same 12-slot loop on night sky pixels: no added cost. r9mclip:
+  ~5 streaks in 90 frames, all moving left/down-left (head tracked frame by frame), so the view reads as one direction.
+  The pinned QF_METEOR_SHOW pair runs the same way. Caught a fireball in r9mt night_new: soft ~90 px halo, streak fat
+  under bloom; for the critic to judge. Skipped: sporadics, persistent trains of 20-60 s (the ~4 s slot cycle can't hold
+  them), sky flash.
+
 - 2026-10-27 01:31: r009 river, underwater, sky_noon, forest wash retry (shot renders only, all ALU-only or reverted).
   River (critic p8): the "ledge stripes" were yellow-green grass tops seen through teal water. 85dab7a pulls the bed's
   hue to the water's teal at its own luma (mix 0.6*river) and eases the down-path filter 4.0 -> 3.0: in r9rv the near

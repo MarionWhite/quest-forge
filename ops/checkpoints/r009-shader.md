@@ -220,6 +220,42 @@ Owner overall: no drastic improvement; over budget on performance; wants optimis
   its cost and put it to the owner if not free. (4) Meteors once docs/design/shaders/research/meteor-showers.md exists.
   Then spec_scenes.py and round.json for r009 (C:\qfb\shaderdev\r009).
 
+- 01:34 (meteors, uncommitted until verified, lib/sky.glsl meteors()/new meteorRadiant()): per the research note:
+  radiant random bearing, 25-60 deg up per night; slot occupancy 0.88*sin(alt)/0.866; starts 10-100 deg from the radiant
+  (cos-uniform), length (0.22-0.50)*sin(d); brightness min(0.6/u, 8) (r~2.5 law); colour saturates with brightness, white
+  head; trains only when bright > 2.5; fireball (u<0.012) head glow. QF_METEOR_SHOW pair now runs away from R. Same slot
+  loop (no added cost; night sky pixels only). check_glsl 0 errors. Shot **1027-013422-r009-meteor-shot**
+  (r9-meteor.json: r9mt night_sky+night_new, r9mshow pinned, r9mclip 90-frame burst; baselines bench-p8clipmet/p8metshow/
+  p8met). Clip: tools/shaders/review/make_clip.py. If it fails: `git checkout shaders/QuestForge/shaders/lib/sky.glsl`
+  (only my hunk in it). Not done: sporadics, 20-60 s persistent trains (slot cycle is ~4 s), sky flash.
+- 01:45: r9mclip (90 frames) vs p8clipmet: p8 was a starburst (radiant mid-view, ~25 streaks every way); r9 has ~5
+  streaks, all heading left/down-left (head tracking f50-51, f66-68, f84-85), parallel-ish = a view away from the
+  radiant. r9mshow pair runs the same way (heads left). r9mt night_new caught a fireball: soft halo ~90 px, streak fat
+  under bloom (bright cap 8): flag for the critic; tune only if it reads as a comet (glow 0.0008 -> 0.0004, cap 6).
+  Committed **513fa7d**. **Meteor step closed.** For r009's page: the clip is r9mclip (make_clip.py); option ideas:
+  a night with the radiant in view (starburst, short near streaks) vs facing away.
+- 01:46 (forest wash retry, exposure pinned; uncommitted): new dev options in settings.glsl QF_EXPO_PIN [0 1] +
+  QF_EXPO_PIN_LOG 1.0 (prepare.glsl computeExposure: e = pin) and QF_DUST_PEND [0 1] (composite.glsl lightShafts: dust
+  macro'd to dustP, flushed in full at a shaded free-air sample, +0.35*dustP at the end; default 0). check_glsl 0
+  errors both ways. Shot **1027-014554-r009-fwash-pinned** (r9-fwash6.json: r9xp0 pinned base, r9xp1 PEND 1, r9xpd0
+  QF_DUST 0; forest_golden + dust_b). Compare canopy box 1900-2500 x 300-700 and dust_b path beam. If PEND wins:
+  default 1 (or rewrite without the macro), commit; if not, revert the PEND hunks, keep the pin options (commit them).
+- 01:48: pinned (log 1.0 is darker than auto: sky UL 51 vs ~131) canopy R: r9xp0 36.5, r9xp1 (PEND) 35.6, r9xpd0
+  (dust off) 20.9; dust_b path equal. PEND does nothing (leaf rays do cross shaded air): **reverted**. New try
+  (uncommitted): QF_DUST_LEAF [0 1] default 0 (settings.glsl; replaces QF_DUST_PEND), lightShafts gets leafHit
+  (isFoliage(unpackMaterial(g1)) at the call), dustL *= mix(1, 0.4, leafHit). Shot **1027-014930-r009-fwash-leaf**
+  (r9-fwash7.json, tag r9xl1 pinned: forest_golden + dust_b vs r9xp0). Metric: canopy box 1900-2500 x 300-700 toward
+  20.9 R; dust_b path box 1280-2560 x 480-1200 must stay 38.9,58,36.1. Win: default 1, commit with the pin options.
+- 01:52: r9xl1: canopy 36.5,39.4,5.0 -> 28.4,36.1,4.0 (halfway to dust-off, green kept), left canopy and gap unchanged,
+  no outline at the leaf/sky edge (native crop); dust_b path 38.9,58,36.1 -> 37.4,57.3,35.2 (-4 %), beam still reads.
+  QF_DUST_LEAF default 1, committed **0c72440** (with QF_EXPO_PIN / QF_EXPO_PIN_LOG). **Forest wash part (a) closed.**
+- **Next:** (1) at/after 08:00: read cost run 1026-223822 (a651ede only), then resubmit r9-volfast.json with new tags on
+  the current pack (now incl. 513fa7d meteors, 0c72440). (2) Forest wash part (b), cream sky round the gap = shafts'
+  open-sky veil (`if (dist >= far) lit *= 0.8;` composite.glsl): r9sf's gBeam-gated 0.5 did nothing (gBeam low on sky rays);
+  retry pinned (QF_EXPO_PIN 1) with a mu/goldenHour-gated veil, checking ocean_sunset's glow. (3) sky_noon smear: shape
+  fix needs +1 noise fetch per cloud sample; measure and ask. (4) spec_scenes.py and round.json for r009
+  (C:\qfb\shaderdev\r009); include the meteor clip r9mclip and a forest_golden QF_DUST_LEAF 0/1 pair.
+
 ## Hand-off from texture-dev (2026-10-26): owner's r008 "tex-golden: weird artifacting in all photos" is shader-side
 Same artifacts in t8v0, t8v1, t8f64 (all three packs) and still in t9v1/t9v2c (r009 shader), so not textures. In golden_lit
 (2560x1440): (1) the shaft haze ends in blocky stair-steps on shadow-map texels: a hard-edged lit rectangle over the grass,
