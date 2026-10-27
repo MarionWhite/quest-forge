@@ -1,5 +1,13 @@
 # Shaders journal (newest first)
 
+- 2026-10-27 00:44: r009 sun step. The p8 critic already rated the disk crisp with a real warm aureole (the limb/core
+  asks were uh's, done in r008 loop 3); the open ask was the water path (77 luma vs r007 qw 86). b6b26f7: the long
+  low-sun lobe in shadeWaterAbove is wider (a2b x3.2, was 2.2) and brighter (0.80, was 0.30), and keeps sqrt(balance)
+  near the camera. Constants only, no cost. Shot renders 1027-003639 (r9sn, weight 0.44: only +5-10 %) and 004022 (r9so):
+  ocean_sunset path luma (x 1140-1300, 120-row bands from y 760) 127->133, 69->80, 45->53, 37->45, 30->35, 25->25 against
+  r9dm; off-path water unchanged; lake_glitter unchanged (sun behind the cliff). Not done: the dark navy open water at
+  sunset (critic p8). It stays open.
+
 - 2026-10-27 00:35: r009 dust motes (dust_b, critic p8clipdust), shot renders 1027-002247 (r9dm, r9dm1 = QF_DUST_DBG 1),
   002705 (r9dn, r9dn1), 002955 (r9dv1 = DBG 1 + QF_VOL_FAST 0), 003222 (r9do). Three commits, all cost-neutral or cheaper:
   ca40184 far flakes gated per mote (shade on BOTH sides across the light, 2 taps, was 3 + gBeam; gBeam is dithered per

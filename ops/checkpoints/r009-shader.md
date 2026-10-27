@@ -109,6 +109,22 @@ Owner overall: no drastic improvement; over budget on performance; wants optimis
   1026-223822 measures a651ede only: after reading it, resubmit r9-volfast.json with new tags on the current pack
   (now includes ca40184/c209810/bbf3b79). Crop helper: 10-line PIL side-by-side (scratchpad copies get wiped).
 
+- 00:36 (look step, sun): p8 critic already rated the disk crisp with a real aureole (limb/core asks were uh's, done
+  in r008 loop 3); the open sun ask is the water path (77 luma vs r007 qw 86). Change (uncommitted until verified,
+  composite.glsl shadeWaterAbove, the long low-sun lobe): a2b x2.2 -> x3.2, weight 0.30 -> 0.44, sqrt(balance).
+  Constants only. Shot render **1027-003639-r009-sun-shot** (r9-sun.json, tag r9sn: ocean_sunset, lake_glitter);
+  baseline C:\qfb\shaderdev\rounds\screenshots\bench-r9dm-ocean_sunset.png (frames land in rounds\screenshots).
+- 00:40: r9sn path luma (x 1140-1300, 120-row bands from y 760) +2..+4 (5-10 %), off-path water unchanged: too mild.
+  Loop 2 (uncommitted): weight 0.80. Shot render **1027-004022-r009-sun-shot2** (r9-sun2.json, tag r9so).
+- 00:44: r9so path luma 127->133, 69->80, 45->53, 37->45, 30->35, 25->25 (+12-20 % down the column, the p8 target
+  ratio 77->86); off-path water unchanged; the column reads longer and brighter in the crop; lake_glitter unchanged
+  (sun behind the cliff). Committed **b6b26f7**. **Sun step closed** (disk/limb/aureole were done in r008 per p8).
+- **Next:** cloud-over-sun occlusion (critic uh forest_golden / owner: clouds in front of the sun must dim the disk
+  and glare; check final.glsl sunGlare's 9-tap vis against a cloud-covered sun, lib/sky.glsl applyClouds order vs
+  sunDiskReal in skyRadiance). Find or pick a view with a cloud crossing the sun (ocean_sunset has clouds near it).
+  Shot renders only until 08:00; the 08:00 cost-run note above still stands (resubmit r9-volfast.json on the current
+  pack, which now includes b6b26f7).
+
 ## Hand-off from texture-dev (2026-10-26): owner's r008 "tex-golden: weird artifacting in all photos" is shader-side
 Same artifacts in t8v0, t8v1, t8f64 (all three packs) and still in t9v1/t9v2c (r009 shader), so not textures. In golden_lit
 (2560x1440): (1) the shaft haze ends in blocky stair-steps on shadow-map texels: a hard-edged lit rectangle over the grass,
