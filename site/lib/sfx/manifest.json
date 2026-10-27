@@ -6477,12 +6477,14 @@
     "qf/scare_death_scream3.m4a",
     "qf/scare_death_scream4.m4a",
     "qf/scare_death_scream5.m4a",
-    "qf/scare_death_scream6.m4a"
+    "qf/scare_death_scream6.m4a",
+    "qf/scare_death_scream7.m4a",
+    "qf/scare_death_scream8.m4a"
    ],
    "volume": 1.0,
    "pitch": [
-    0.96,
-    1.04
+    0.97,
+    1.03
    ],
    "bus": "sfx"
   },
@@ -6542,14 +6544,12 @@
   "qf.scare.jumpscreech": {
    "files": [
     "qf/scare_jumpscreech1.m4a",
-    "qf/scare_jumpscreech2.m4a",
-    "qf/scare_jumpscreech3.m4a",
-    "qf/scare_jumpscreech4.m4a"
+    "qf/scare_jumpscreech2.m4a"
    ],
    "volume": 1.0,
    "pitch": [
-    0.97,
-    1.03
+    0.98,
+    1.02
    ],
    "bus": "sfx"
   },
@@ -6580,8 +6580,8 @@
    ],
    "volume": 1.0,
    "pitch": [
-    0.96,
-    1.04
+    0.97,
+    1.03
    ],
    "bus": "sfx"
   },
@@ -6592,8 +6592,8 @@
    ],
    "volume": 0.9,
    "pitch": [
-    0.95,
-    1.05
+    0.97,
+    1.03
    ],
    "bus": "sfx"
   },

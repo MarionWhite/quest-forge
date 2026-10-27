@@ -1,5 +1,9 @@
 # Site journal (newest first)
 
+- 2026-10-27 (Mac) audio r7: screams rebuilt as ONE real recorded man per file (13 Freesound CC0 recordings, licence
+  checked per page), trim/EQ/room only, 48 kHz 160 kbps; death_scream 8, scream 3, scream_far 2, underwater 3,
+  jumpscreech 2. `tools/music/scream_pack2.py`. Unheard by the agent: owner picks by ear from the preview.
+
 - 2026-10-26 (Mac) orchestrator: round 6 done. Critic rounds caught: every Krypt kind was one
   reskinned corridor (palettes, then shapes, then 12 open set pieces), the round-5 segments lost
   in the rewrite (restored), animals blocking the Lucky camera, a glowing sheep, four lunges that

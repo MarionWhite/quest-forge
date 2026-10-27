@@ -1,5 +1,5 @@
 {
- "note": "Every voice and foley recording in the scream pack is CC0 1.0 (public domain dedication) from OpenGameArt.org; the licence line on each page was checked when it was downloaded. Nothing is NC, nothing is from a game. Synthesised layers (booms, static, ticks, crunch/gore in tools/music/scare_sounds.py) are our own. qf.mood.far_* are the bank's Mojang mob sounds reprocessed: flagged \"mojang\": true in manifest.json and dropped by build_sfx.py --own-only.",
+ "note": "Round 7: the screams (qf.scare.death_scream, scream, scream_far, underwater, jumpscreech) are single real recordings of a man screaming, CC0 1.0 from Freesound.org (licence link checked on each sound page), with at most one quiet CC0 foley layer from OpenGameArt. The other pack sources are CC0 1.0 from OpenGameArt.org. Nothing is NC, nothing is from a game. Synthesised layers are our own. qf.mood.far_* are the bank's Mojang mob sounds reprocessed: flagged \"mojang\": true in manifest.json and dropped by build_sfx.py --own-only.",
  "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
  "sources": [
   {
@@ -298,50 +298,182 @@
     "scrape-8.ogg"
    ],
    "used_for": "mood.scrape, scamper"
+  },
+  {
+   "id": "fs575674",
+   "title": "Startled, Tortured, and Terrified (Man)",
+   "url": "https://freesound.org/people/ericnorcross81/sounds/575674/",
+   "author": "ericnorcross81",
+   "licence": "CC0 1.0",
+   "files": [
+    "575674 (HQ preview mp3)"
+   ],
+   "used_for": "the recorded voice (one per file)"
+  },
+  {
+   "id": "fs752055",
+   "title": "Man Screams His Death Into The Void",
+   "url": "https://freesound.org/people/BlockFrog/sounds/752055/",
+   "author": "BlockFrog",
+   "licence": "CC0 1.0",
+   "files": [
+    "752055 (HQ preview mp3)"
+   ],
+   "used_for": "the recorded voice (one per file)"
+  },
+  {
+   "id": "fs542128",
+   "title": "Male increasing scream - horror yelling in pain.wav",
+   "url": "https://freesound.org/people/gtrempe/sounds/542128/",
+   "author": "gtrempe",
+   "licence": "CC0 1.0",
+   "files": [
+    "542128 (HQ preview mp3)"
+   ],
+   "used_for": "the recorded voice (one per file)"
+  },
+  {
+   "id": "fs724173",
+   "title": "Pain man scream",
+   "url": "https://freesound.org/people/Piement_infernal/sounds/724173/",
+   "author": "Piement_infernal",
+   "licence": "CC0 1.0",
+   "files": [
+    "724173 (HQ preview mp3)"
+   ],
+   "used_for": "the recorded voice (one per file)"
+  },
+  {
+   "id": "fs530471",
+   "title": "male scream pain torture.wav",
+   "url": "https://freesound.org/people/martian/sounds/530471/",
+   "author": "martian",
+   "licence": "CC0 1.0",
+   "files": [
+    "530471 (HQ preview mp3)"
+   ],
+   "used_for": "the recorded voice (one per file)"
+  },
+  {
+   "id": "fs325548",
+   "title": "Man screaming.wav",
+   "url": "https://freesound.org/people/Archeos/sounds/325548/",
+   "author": "Archeos",
+   "licence": "CC0 1.0",
+   "files": [
+    "325548 (HQ preview mp3)"
+   ],
+   "used_for": "the recorded voice (one per file)"
+  },
+  {
+   "id": "fs381784",
+   "title": "Guttural Screams.wav",
+   "url": "https://freesound.org/people/fattirewhitey/sounds/381784/",
+   "author": "fattirewhitey",
+   "licence": "CC0 1.0",
+   "files": [
+    "381784 (HQ preview mp3)"
+   ],
+   "used_for": "the recorded voice (one per file)"
+  },
+  {
+   "id": "fs556976",
+   "title": "Male Screams [1]",
+   "url": "https://freesound.org/people/marc3122/sounds/556976/",
+   "author": "marc3122",
+   "licence": "CC0 1.0",
+   "files": [
+    "556976 (HQ preview mp3)"
+   ],
+   "used_for": "the recorded voice (one per file)"
+  },
+  {
+   "id": "fs690702",
+   "title": "Man Screams.WAV",
+   "url": "https://freesound.org/people/Capt_Bligh1/sounds/690702/",
+   "author": "Capt_Bligh1",
+   "licence": "CC0 1.0",
+   "files": [
+    "690702 (HQ preview mp3)"
+   ],
+   "used_for": "the recorded voice (one per file)"
+  },
+  {
+   "id": "fs760720",
+   "title": "screamimg pain",
+   "url": "https://freesound.org/people/ronse/sounds/760720/",
+   "author": "ronse",
+   "licence": "CC0 1.0",
+   "files": [
+    "760720 (HQ preview mp3)"
+   ],
+   "used_for": "the recorded voice (one per file)"
+  },
+  {
+   "id": "fs221544",
+   "title": "Wounded man scream",
+   "url": "https://freesound.org/people/joseppujol/sounds/221544/",
+   "author": "joseppujol",
+   "licence": "CC0 1.0",
+   "files": [
+    "221544 (HQ preview mp3)"
+   ],
+   "used_for": "the recorded voice (one per file)"
+  },
+  {
+   "id": "fs661477",
+   "title": "manscreamingintowarmwaterfilledpot.WAV",
+   "url": "https://freesound.org/people/Bemine2506/sounds/661477/",
+   "author": "Bemine2506",
+   "licence": "CC0 1.0",
+   "files": [
+    "661477 (HQ preview mp3)"
+   ],
+   "used_for": "the recorded voice (one per file)"
+  },
+  {
+   "id": "fs767590",
+   "title": "young man screaming, pillow on face",
+   "url": "https://freesound.org/people/WickedWeed/sounds/767590/",
+   "author": "WickedWeed",
+   "licence": "CC0 1.0",
+   "files": [
+    "767590 (HQ preview mp3)"
+   ],
+   "used_for": "the recorded voice (one per file)"
   }
  ],
  "events": {
   "qf.scare.death_scream": [
-   "bubbles",
-   "deathpain",
-   "hurtdeath",
-   "maledead",
-   "manhurt",
-   "meat",
-   "sick",
+   "fs575674",
+   "fs752055",
+   "fs542128",
+   "fs724173",
+   "fs530471",
+   "fs325548",
+   "fs381784",
    "slimy"
   ],
   "qf.scare.jumpscreech": [
-   "creature",
-   "deathpain",
-   "femscream",
-   "hipitch",
-   "horror1",
-   "hurtdeath",
-   "meat",
-   "screech"
+   "fs724173",
+   "fs221544",
+   "slimy"
   ],
   "qf.scare.underwater": [
-   "bubbles",
-   "deathpain",
-   "manhurt",
-   "sick",
-   "slimy"
+   "fs661477",
+   "fs767590",
+   "fs752055",
+   "bubbles"
   ],
   "qf.scare.static": [],
   "qf.scare.scream": [
-   "deathpain",
-   "femscream",
-   "hurtdeath",
-   "maledead",
-   "slimy"
+   "fs556976",
+   "fs690702",
+   "fs760720"
   ],
   "qf.scare.scream_far": [
-   "deathpain",
-   "femscream",
-   "hurtdeath",
-   "maledead",
-   "slimy"
+   "fs690702",
+   "fs760720"
   ],
   "qf.scare.shriek": [
    "creature",

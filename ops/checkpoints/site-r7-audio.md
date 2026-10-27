@@ -38,3 +38,13 @@ and about 86 kbps. That combination is what sounds digital.
 - [ ] If CC0 sources can't reach the bar, say so plainly in the report, and name the 2 best routes. For example,
   a Freesound account and API key from the owner, or a recorded performance.
 - [ ] `check_sounds.py` exits 0.
+
+## Progress (audio agent)
+- Freesound CC0 search + sound pages + HQ preview mp3 are public via curl (no login). Harvest scripts in scratchpad
+  r7/audio/scripts (harvest.py, dlall.py); downloads r7/audio/dl/fs<ID>/ (p.mp3, meta.json). ~265 candidates.
+- Next: ffprobe durations, spectral triage (voiced/loud), listen-proxy ranking, build via new script tools/music/scream_pack2.py.
+- DONE pass 1: Freesound CC0 pool (265 pages checked, licence link verified), segmented by voiced-energy, spectrogram-reviewed.
+  `tools/music/scream_pack2.py` (fetch|build) builds death_scream 8, scream 3, scream_far 2, underwater 3, jumpscreech 2
+  from 13 Freesound CC0 recordings, one voice each, 48 kHz 160 kbps AAC. scream_pack.py skips those 5 events now.
+  sources.json/README updated by merge_sources(). Raw downloads: scratchpad r7/audio/dl/fs<ID>/p.mp3.
+- Next: ranked preview file, commit, journal line, report.

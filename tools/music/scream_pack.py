@@ -545,17 +545,23 @@ DEFS = [
     ("qf.mood.breath_near", lambda: [breath_near(i) for i in range(2)], {"volume": .7}),
 ]
 
+R7_OWNED = {"qf.scare.death_scream", "qf.scare.jumpscreech", "qf.scare.underwater", "qf.scare.scream", "qf.scare.scream_far"}
+
 def main():
     args = sys.argv[1:]
     if args and args[0] == "fetch": return fetch()
     if args and args[0] == "build": args = args[1:]
     for name, fn, kw in DEFS:
+        if name in R7_OWNED: continue   # rebuilt by scream_pack2.py (round 7: one real voice, minimal processing)
         if args and not any(a in (name, name.split(".", 2)[-1]) for a in args): continue
         kw = dict(kw); P = kw.pop("loop", None)
         SS.save(name, fn(), loop_P=int(P * SR) if P else None, **kw)
         print("built", name, flush=True)
     flag_mojang([n for n in FAR_NAMES if n in json.load(open(os.path.join(SFX, "manifest.json")))["events"]])
     write_sources()
+    try:
+        import scream_pack2; scream_pack2.merge_sources()
+    except FileNotFoundError: pass
     for r in SS.REP: print(r)
 
 if __name__ == "__main__":
