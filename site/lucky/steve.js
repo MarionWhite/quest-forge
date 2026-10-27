@@ -155,7 +155,7 @@ function bangTexture() {
 }
 
 export function createBrain(deps) {
-  const { S, camp, fx, play, seed = 11, setVoxel = () => {} } = deps;
+  const { S, camp, fx, play, seed = 11, setVoxel = () => {}, shot = null } = deps;
   const steve = S.steve;
   const root = steve.root, P = steve.parts;
   root.rotation.order = 'YXZ';
@@ -182,7 +182,7 @@ export function createBrain(deps) {
     head: { yaw: 0, pitch: 0, tyaw: 0, tpitch: 0, target: null },
     state: 'idle', frozen: false, gen: null, wait: 0, fn: null, cleanups: [], lastAct: -1, plan: [], planAt: 0,
     camPos: new THREE.Vector3(7.6, 3.4, 10.2), stepIdx: 0, arrivedAt: -1, swingClock: 0, mining: false,
-    held: null, heldSpec: null, bang: null, items: [], extras: [], fireT: 2, ambT: 5, turnRate: 9,
+    held: null, heldSpec: null, bang: null, items: [], extras: [], fireT: 2, ambT: 5, turnRate: 9, handAt: -9, ff: false, hop: false, floorAt: -9,
     ign: new Set(), smelt: 0, smeltT: 0, spd: 0, dist: 0, tWalk: 0, tPause: 0, tWork: 0, tAll: 0, pausing: false,
   };
   // the idle camera's view of him: a 3/4 side view while he works at a station or mines, eased in and out
@@ -199,6 +199,123 @@ export function createBrain(deps) {
     if (Math.hypot(x - (ax + vx * t), z - (az + vz * t)) < 0.8) return 'gravel';
     return 'grass';
   };
+  // ------------------------------------------------------------ the world's memory
+  // Everything Steve changes stays changed. A block he breaks is broken until the camera is looking elsewhere,
+  // then it is put back without a sound; a block he places stays until he breaks it. W.later() is that rule;
+  // W.hand() records a change made by his hand (the arm must have swung a moment ago); W.solids/W.holes are what
+  // he can stand on, and surfaceAt() is the height of the floor under his feet, the one number the checks use.
+  const W = {
+    pend: [], solids: new Map(), holes: new Set(), vox: new Map(), low: null,
+    st: { changes: 0, hand: 0, silent: 0, forced: 0, bad: 0, first: [] },
+    feet: { n: 0, bad: 0, max: 0, first: [] },
+    fr: new THREE.Frustum(), pm: new THREE.Matrix4(), sph: new THREE.Sphere(), v: new THREE.Vector3(), viewT: -9,
+    cam: new THREE.PerspectiveCamera(36, 1.5, 0.1, 200),
+  };
+  nav.stats.world = W.st; nav.stats.feet = W.feet;
+  // the frustum the player sees: the live camera, or (with no one watching, fast-forward) the page's follow shot
+  function refreshView() {
+    let c = S.camera;
+    if (b.ff && shot) {
+      if (b.t - W.viewT < 0.4) return;
+      W.viewT = b.t;
+      const s = shot();
+      W.cam.position.copy(s.pos); W.cam.fov = s.fov || 36; W.cam.aspect = s.aspect || 1.5; W.cam.up.set(0, 1, 0); W.cam.lookAt(s.look);
+      W.cam.updateMatrixWorld(true); W.cam.updateProjectionMatrix();
+      c = W.cam;
+    }
+    W.pm.multiplyMatrices(c.projectionMatrix, c.matrixWorldInverse);
+    W.fr.setFromProjectionMatrix(W.pm);
+  }
+  const inView = (x, y, z, r = 0.8) => { W.sph.center.set(x, y, z); W.sph.radius = r; return W.fr.intersectsSphere(W.sph); };
+  const flag = (what, x, y, z) => { W.st.bad++; if (W.st.first.length < 12) W.st.first.push([b.act || '', what, +x.toFixed(1), +y.toFixed(1), +z.toFixed(1), +b.t.toFixed(1)]); };
+  // a change by his own hand (an animation is on screen): break, place, plant, dig
+  function hand(what, x, y, z) {
+    W.st.changes++; W.st.hand++;
+    if (b.t - b.handAt > 1.3 && inView(x, y, z)) flag('no-swing ' + what, x, y, z);
+  }
+  // put something back once nobody can see it: runs now if it is already out of the frame
+  function later(what, x, y, z, r, fn) {
+    if (!inView(x, y, z, r)) { W.st.silent++; fn(); return; }
+    W.pend.push({ what, x, y, z, r, fn });
+  }
+  function stepPend() {
+    if (!W.pend.length) return;
+    for (let i = W.pend.length - 1; i >= 0; i--) {
+      const p = W.pend[i];
+      if (!inView(p.x, p.y, p.z, p.r)) { W.pend.splice(i, 1); W.st.silent++; p.fn(); }
+    }
+  }
+  // an act is about to use something that may still be waiting to be put back: do it now
+  function settle(what) {
+    for (let i = W.pend.length - 1; i >= 0; i--) {
+      const p = W.pend[i];
+      if (what && p.what !== what) continue;
+      W.pend.splice(i, 1); W.st.forced++; p.fn();
+    }
+  }
+  const flushAll = () => { for (const p of W.pend.splice(0)) p.fn(); };
+  // the floor under a point: a footprint 0.6 wide rests on the highest thing under any corner of it
+  const lowBoxes = () => W.low || (W.low = nav.boxes.filter((q) => q.kind === 'low' || q.kind === 'dais'));
+  function colTop(ix, iz) {
+    let h = W.holes.has(ix + ',' + iz) ? -1 : 0;
+    for (const q of lowBoxes()) if (!q.off && ix + 0.5 > q.x0 && ix + 0.5 < q.x1 && iz + 0.5 > q.z0 && iz + 0.5 < q.z1) h = Math.max(h, q.kind === 'dais' ? 1 : 0.5);
+    for (let y = 4; y >= 0; y--) if (W.solids.has(ix + ',' + y + ',' + iz)) { h = Math.max(h, y + 1); break; }
+    return h;
+  }
+  function surfaceAt(x, z, r = R_H - 0.01) {
+    let h = -9;
+    for (const dx of [-r, r]) for (const dz of [-r, r]) h = Math.max(h, colTop(Math.floor(x + dx), Math.floor(z + dz)));
+    return h;
+  }
+  // terrain voxels he takes out (the hole, a log): remembered with what stood there, so they can be put back
+  function voxOut(x, y, z, id) {
+    W.vox.set(x + ',' + y + ',' + z, id);
+    setVoxel(x, y, z, null);
+  }
+  function voxBack(x, y, z) {
+    const k = x + ',' + y + ',' + z, id = W.vox.get(k);
+    if (id === undefined) return;
+    W.vox.delete(k);
+    setVoxel(x, y, z, id);
+  }
+  function digHole(hx, hz) {
+    voxOut(hx, -1, hz, 'grass');
+    W.holes.add(hx + ',' + hz);
+    W.hbox = W.hbox || new Map();
+    W.hbox.set(hx + ',' + hz, nav.add('hole', hx, hz, hx + 1, hz + 1, 'hole'));
+    hand('dig', hx + 0.5, 0, hz + 0.5);
+  }
+  // he fills it with the dirt he dug: a dirt block, which turns back to grass once nobody is looking
+  function fillHole(hx, hz) {
+    setVoxel(hx, -1, hz, 'dirt');
+    W.holes.delete(hx + ',' + hz);
+    nav.remove(W.hbox && W.hbox.get(hx + ',' + hz));
+    hand('fill', hx + 0.5, 0, hz + 0.5);
+    later('grass', hx + 0.5, -0.5, hz + 0.5, 1.2, () => voxBack(hx, -1, hz));
+  }
+  const addSolid = (x, y, z) => W.solids.set(Math.floor(x) + ',' + Math.floor(y) + ',' + Math.floor(z), true);
+  const delSolid = (x, y, z) => W.solids.delete(Math.floor(x) + ',' + Math.floor(y) + ',' + Math.floor(z));
+  // gravity and steps: where there is no floor he falls, a step of half a block or less is walked up
+  function settleFloor() {
+    const s = surfaceAt(b.x, b.z);
+    const old = b.floor;
+    if (b.air) b.floor = s;
+    else if (s > b.floor + 1e-3) {
+      // a step is half a block at most; anything higher he has to jump onto (the climb counts against the checks)
+      if (s - b.y > 0.52 && b.state !== 'scene' && b.t - b.floorAt > 0.35) { W.feet.bad++; if (W.feet.first.length < 12) W.feet.first.push([b.act || '', 'climb', +b.x.toFixed(2), +b.z.toFixed(2), +b.y.toFixed(2), +s.toFixed(2), +b.t.toFixed(1)]); }
+      b.floor = s;
+    }
+    else if (s < b.floor - 1e-3) { b.floor = s; if (b.y > s + 0.05) { b.air = true; b.vy = 0; } }
+    if (b.floor !== old) b.floorAt = b.t;
+  }
+  function trackFeet() {
+    const s = surfaceAt(b.x, b.z);
+    W.feet.n++;
+    if (b.air || b.hop || b.state === 'scene' || b.t - b.floorAt < 0.35) return;
+    const e = Math.abs(b.y - s);
+    if (e > W.feet.max) W.feet.max = +e.toFixed(3);
+    if (e > 0.05) { W.feet.bad++; if (W.feet.first.length < 12) W.feet.first.push([b.act || '', +b.x.toFixed(2), +b.z.toFixed(2), +b.y.toFixed(2), +s.toFixed(2), +b.t.toFixed(1)]); }
+  }
   // walk through something for the length of an activity (the dais, the bench, the block he stands on)
   const ignoring = (...kinds) => { for (const k of kinds) b.ign.add(k); onCleanup(() => { for (const k of kinds) b.ign.delete(k); }); };
 
@@ -350,7 +467,7 @@ export function createBrain(deps) {
       }
     } else b.y += (b.floor - b.y) * Math.min(1, dt * 18);
     const bob = Math.abs(Math.sin(b.phase)) * 0.045 * b.amp;
-    root.position.set(b.x, b.y + bob - 0.25 * sit, b.z);
+    root.position.set(b.x, lerp(b.y, -0.25, sit) + bob, b.z);
     root.rotation.set(-b.lean, b.yaw, 0);
     bumpFoot();
   }
@@ -461,7 +578,7 @@ export function createBrain(deps) {
         const f2 = Math.sin(f1 * Math.PI), f3 = Math.sin(p * Math.PI) * -0.7;
         setArm('r', (o.base ?? 0.5) + f2 * (o.amp ?? 1.1) + f3 * 0.7, 0);
         b.twist = Math.sin(Math.sqrt(p) * TAU) * 0.2;
-        if (!fired && p >= 0.4) { fired = true; if (onHit) onHit(i); }
+        if (!fired && p >= 0.4) { fired = true; b.handAt = b.t; if (onHit) onHit(i); }
         return p >= 1;
       };
     }
@@ -496,9 +613,12 @@ export function createBrain(deps) {
     m.castShadow = m.receiveShadow = true;
     world.add(m);
     const box = y === 0 ? nav.add('placed', x - 0.5, z - 0.5, x + 0.5, z + 0.5, 'placed') : null;
-    const blk = { m, t: 0, file, box };
+    const blk = { m, t: 0, file, box, cx: x, cy: y, cz: z };
     b.extras.push(blk);
-    onCleanup(() => { world.remove(m); nav.remove(box); const i = b.extras.indexOf(blk); if (i >= 0) b.extras.splice(i, 1); });
+    addSolid(x, y, z);
+    hand('place', x, y + 0.5, z);
+    // interrupted: it stays where it is until nobody is looking, then goes
+    onCleanup(() => { if (b.extras.includes(blk)) later('block', x, y + 0.5, z, 1.0, () => dropBlock(blk)); });
     snd(DIG[file] || 'dig.stone', { pos: { x, y: y + 0.5, z }, volume: 0.9, pitch: [0.9, 1.1] });
     fx.chips({ x, y: y + 0.5, z }, palette(file), 6, { speed: 1 });
     return blk;
@@ -508,12 +628,17 @@ export function createBrain(deps) {
       if (e.t < 0.2) { e.t += dt; const k = e.t / 0.2; e.m.scale.setScalar(0.6 + 0.4 * Math.min(1, k) + Math.sin(Math.min(1, k) * Math.PI) * 0.12); }
     }
   }
+  function dropBlock(blk) {
+    world.remove(blk.m);
+    nav.remove(blk.box);
+    delSolid(blk.cx, blk.cy, blk.cz);
+    const i = b.extras.indexOf(blk); if (i >= 0) b.extras.splice(i, 1);
+  }
   function breakBlock(blk, pos, file) {
     snd(DIG[file] || 'dig.stone', { pos, volume: 1, pitch: [0.8, 0.95] });
     fx.chips(pos, palette(file), 16, { speed: 2, up: 1.3 });
-    world.remove(blk.m);
-    nav.remove(blk.box);
-    const i = b.extras.indexOf(blk); if (i >= 0) b.extras.splice(i, 1);
+    hand('break', pos.x, pos.y, pos.z);
+    dropBlock(blk);
   }
 
   // ------------------------------------------------------------ the activities
@@ -532,6 +657,7 @@ export function createBrain(deps) {
   function* tap(n = 1, gap = 0.25) {
     for (let i = 0; i < n; i++) {
       setArm('r', 1.1, -0.12);
+      b.handAt = b.t;
       yield 0.14;
       setArm('r', 0.85, -0.12);
       yield gap;
@@ -555,11 +681,11 @@ export function createBrain(deps) {
     });
     crack.remove();
     q.mesh.visible = false; q.removed = true; nav.remove(q.box);
-    const back = () => { q.mesh.visible = true; q.removed = false; nav.restore(q.box); };
-    onCleanup(back);
+    hand('quarry', q.x, q.y, q.z);
+    // it stays broken; the quarry is made whole again, silently, once the camera has looked away
+    later('quarry', q.x, q.y, q.z, 1.0, () => { q.mesh.visible = true; q.removed = false; nav.restore(q.box); });
     snd('dig.stone', { pos: { x: q.x, y: q.y, z: q.z }, volume: 1, pitch: 0.75 });
     fx.chips({ x: q.x, y: q.y, z: q.z }, palette(q.file), 18, { speed: 2, up: 1.3 });
-    return back;
   }
 
   function* actMine() {
@@ -567,18 +693,12 @@ export function createBrain(deps) {
     const choices = camp.quarry.filter((q) => !q.removed && q.kind !== 'iron' && !(q.kind === 'stone' && q.y < 1 && camp.quarry.some((o) => o !== q && !o.removed && o.x === q.x && o.y > q.y)));
     if (!choices.length) return;
     const q = choices[Math.floor(R() * choices.length)];
-    const back = yield* mineBlock(q, 'wood_pickaxe');
+    yield* mineBlock(q, 'wood_pickaxe');
     spawnItem(q.kind === 'coal' ? { item: 'coal' } : { block: 'cobblestone' }, { x: q.x, y: q.y, z: q.z + 0.4 }, { x: R(-0.4, 0.4), y: 4, z: 1.4 }, { pickAt: 0.9, ground: 0 });
     yield 1.3;
     yield* waitItems();
-    // put the block back: the next visitor finds the quarry whole
     b.head.tpitch = 0;
-    yield* armSwing(1, 0.35, () => {
-      back();
-      snd('dig.stone', { pos: { x: q.x, y: q.y, z: q.z }, volume: 0.8, pitch: 1.1 });
-      fx.chips({ x: q.x, y: q.y, z: q.z + 0.5 }, palette(q.file), 5, { speed: 0.8 });
-    });
-    yield 0.6;
+    yield 0.4;
     hold(null);
   }
 
@@ -694,6 +814,7 @@ export function createBrain(deps) {
     return null;
   }
   function* actWood() {
+    settle('log');
     const st = treeStand();
     if (!st) return;
     yield* standAt(st.x, st.z, st.yaw);
@@ -710,6 +831,11 @@ export function createBrain(deps) {
       if (i === 3) fx.solid.emit({ pos: { x: tp.x + 0.2, y: 4.2, z: tp.z + 0.4 }, vel: { x: 0.2, y: -0.3, z: 0.1 }, color: 0x59ae30, size: 0.14, life: 2.2, grav: 0.6, bounce: 0 });
     });
     crack.remove();
+    // the log is gone from the trunk (the logs above hang where they were, as in the game); the trunk is
+    // made whole again, silently, once the camera has looked away
+    voxOut(L.tree.cx, 1, L.tree.cz, 'log');
+    hand('log', tp.x, tp.y, tp.z);
+    later('log', tp.x, tp.y, tp.z, 1.2, () => voxBack(L.tree.cx, 1, L.tree.cz));
     snd('dig.wood', { pos: tp, volume: 1, pitch: 0.75 });
     fx.chips(tp, [0x6b5030, 0x4d3920, 0x7a5c38], 16, { speed: 2, up: 1.3 });
     spawnItem({ block: 'log_oak' }, { x: tp.x + Math.sign(st.x - tp.x) * 0.5, y: 1.4, z: tp.z + Math.sign(st.z - tp.z) * 0.5 }, { x: Math.sign(st.x - tp.x) * 0.8, y: 3, z: Math.sign(st.z - tp.z) * 0.8 }, { pickAt: 0.8, ground: 0 });
@@ -839,7 +965,7 @@ export function createBrain(deps) {
   function* actSit() {
     yield* walkTo(L.seatApproach.x, L.seatApproach.z);
     yield* faceYaw(Math.PI);
-    // step onto the log
+    // step onto the log (half a block is a step, as in the game)
     ignoring('low');
     yield* walkTo(L.seatPos.x, L.seatPos.z, { straight: true, speed: 1.2 });
     yield* faceYaw(Math.PI);
@@ -870,6 +996,8 @@ export function createBrain(deps) {
     yield 0.4;
   }
 
+  // the first of these spots that is outside the camera's frame: a visitor walks in rather than appearing
+  const unseen = (spots) => spots.find(([x, z]) => !inView(x, 0.6, z, 1.2)) || spots[spots.length - 1];
   // ---- the chicken: it wanders, notices him, flees in hops with its wings flapping; he follows at about a
   // block and swings. Either it gets away or a few hits end in a puff of feathers. Neither of them ever
   // stands inside the other, and both go around props.
@@ -878,7 +1006,8 @@ export function createBrain(deps) {
     const sp = L.dance;
     const m = makeMob('Chicken', {});
     m.root.traverse((o) => { if (o.isMesh) o.castShadow = true; });
-    const ch = { x: 6.0, z: 5.2, yaw: yawFor(-1, -0.2), y: 0, path: null, i: 0, hp: 4, hop: 0, flap: 0, t: 0, speed: 0, hurt: 0, dead: 0 };
+    const sp0 = unseen([[6.0, 5.2], [8.6, 6.5], [9.5, 3.0], [-3, 9.5]]);
+    const ch = { x: sp0[0], z: sp0[1], yaw: yawFor(-1, -0.2), y: 0, path: null, i: 0, hp: 4, hop: 0, flap: 0, t: 0, speed: 0, hurt: 0, dead: 0 };
     m.root.position.set(ch.x, 0, ch.z);
     m.root.rotation.y = ch.yaw;
     world.add(m.root);
@@ -1075,6 +1204,7 @@ export function createBrain(deps) {
       b.head.tpitch = -0.9;
       setArm('r', 1.0, 0);
       yield () => b.vy < 0;
+      b.handAt = b.t;
       blocks.push(placeBlock('dirt.png', sp.x, lvl, sp.z));
       b.floor = lvl + 1;
       yield* waitLanded();
@@ -1113,6 +1243,8 @@ export function createBrain(deps) {
     const notes = [1, 1.26, 1.5, 1.26, 1, 1.5, 1.68, 1.5];
     let tt = 0;
     const base = b.yaw;
+    b.hop = true;
+    onCleanup(() => { b.hop = false; });
     yield (dt) => {
       const prev = tt; tt += dt;
       const bt = tt / 0.28;
@@ -1168,6 +1300,7 @@ export function createBrain(deps) {
     b, R, snd, fx, play, hold, setArm, freeArm, relax, walkTo, standAt, faceYaw, faceAt, armSwing, onCleanup, ignoring, spawnItem,
     placeBlock, breakBlock, crackMesh, palette, nav, L, camp, crit, yawFor, wrapA, smooth, lerp, clamp, entity, jump, showBang, world,
     setVoxel, TAU, dirOf, R_P, cam, waitItems, tap,
+    W, later, settle, hand, inView, unseen, voxOut, voxBack, digHole, fillHole, surfaceAt, addSolid, delSolid, dropBlock,
   });
   const ACTS = [
     { id: 'tree', f: actWood }, { id: 'mine', f: actMine }, { id: 'iron', f: actIron }, { id: 'chest', f: actChest },
@@ -1178,22 +1311,30 @@ export function createBrain(deps) {
   const ALIAS = { craft: 'iron', wood: 'tree' };
   const byId = (id) => ACTS.find((a) => a.id === (ALIAS[id] || id));
 
-  // A day in the camp: gather wood, mine stone, smelt iron and craft, then something to unwind (a shuffled
-  // pick of the rest) before the chest. The chains are in order so the item in his hand always makes sense.
+  // A day in the camp: every activity once, in a shuffled order, before any is repeated, so a watcher sees all
+  // of them rather than the same few. The working chain keeps its order inside the shuffle (wood, stone, iron,
+  // then the chest), so what is in his hand always makes sense. An act whose props are broken or busy right now
+  // (no stone left in the quarry, the sheep already sheared) is passed over for a later turn.
+  const CHAIN = ['tree', 'mine', 'iron', 'chest'];
+  const ready = (id) => {
+    if (id === 'mine') return camp.quarry.some((q) => !q.removed && q.kind !== 'iron' && !(q.kind === 'stone' && q.y < 1 && camp.quarry.some((o) => o !== q && !o.removed && o.x === q.x && o.y > q.y)));
+    if (id === 'iron') return camp.quarry.some((q) => q.kind === 'iron' && !q.removed);
+    if (id === 'shear') return !!crit.list.find((c) => c.kind === 'Sheep' && !c.sheared);
+    return true;
+  };
   function nextAct() {
     if (!b.plan.length) {
-      // the working chain keeps its order, so what is in his hand always makes sense; between its steps he does
-      // one or two of the other things, never the same one twice running
-      const chain = ['tree', 'mine', 'iron', 'chest'];
-      const extras = ACTS.map((a) => a.id).filter((id) => !chain.includes(id) && id !== b.lastId);
-      for (let i = extras.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); [extras[i], extras[j]] = [extras[j], extras[i]]; }
-      const plan = [];
-      chain.forEach((id, i) => { plan.push(...extras.splice(0, i === 0 ? 1 : 2), id); });
-      plan.push(...extras.splice(0, 1));
-      b.plan = plan;
-      if (b.plan[0] === b.lastId) b.plan.push(b.plan.shift());
+      const ids = ACTS.map((a) => a.id);
+      for (let i = ids.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); [ids[i], ids[j]] = [ids[j], ids[i]]; }
+      const slots = ids.map((id, i) => (CHAIN.includes(id) ? i : -1)).filter((i) => i >= 0);
+      CHAIN.forEach((id, k) => { ids[slots[k]] = id; });
+      if (ids[0] === b.lastId) ids.push(ids.shift());
+      b.plan = ids;
     }
-    return b.plan.shift();
+    // the first one whose props are ready
+    let k = b.plan.findIndex((id) => ready(id));
+    if (k < 0) k = 0;
+    return b.plan.splice(k, 1)[0];
   }
   // ---- the pauses between things: he stops and takes a breath. His head goes first, the body follows.
   const FIRE_AT = new THREE.Vector3(L.fireCenter.x, 1.2, L.fireCenter.z);
@@ -1251,13 +1392,16 @@ export function createBrain(deps) {
       }
     } finally { b.pausing = false; relax(); }
   }
+  function endAct(id) { const D = nav.stats.actDur = nav.stats.actDur || {}; D[id] = +(b.tAll - (b.actT0 || 0)).toFixed(1); }
+  function logAct(id) { b.actT0 = b.tAll;  const A = nav.stats.acts = nav.stats.acts || {}; const F = nav.stats.actFirst = nav.stats.actFirst || {}; A[id] = (A[id] || 0) + 1; if (F[id] === undefined) F[id] = Math.round(b.tAll); }
   function* idleLoop() {
     for (;;) {
       const id = nextAct();
       const a = byId(id);
       b.lastId = id;
       b.act = id;
-      try { yield* a.f(); } finally { doCleanup(); relax(); }
+      logAct(id);
+      try { yield* a.f(); } finally { doCleanup(); relax(); endAct(id); }
       b.act = null;
       // a breath between things
       yield* fidget();
@@ -1370,6 +1514,8 @@ export function createBrain(deps) {
   }
   // the one rule that matters: whatever the activity did, he does not end a frame inside a prop
   function keepOut() {
+    settleFloor();
+    trackFeet();
     const f = nav.resolve(b.x, b.z, R_H, b.ign);
     if (Math.hypot(f.x - b.x, f.z - b.z) > 0.02) nav.stats.pushed = (nav.stats.pushed || 0) + 1;
     b.x = f.x; b.z = f.z;
@@ -1382,12 +1528,14 @@ export function createBrain(deps) {
     activity: () => b.act || null,
     x: () => b.x, z: () => b.z,
     pos: () => ({ x: b.x, y: b.y, z: b.z }),
+    dbg: () => ({ b, W, cam, crit, surfaceAt, world }),
     // the idle camera, shaped: base is the page's follow shot; while he works it orbits to a 3/4 side view
     // (face, hands, held item and the block he faces), and it slides along the orbit if a prop is in the way
     camShape(base) {
       const spec = cam.spec;
       const focus = spec ? new THREE.Vector3((b.x + spec.target.x) / 2, b.y + 0.95, (b.z + spec.target.z) / 2) : new THREE.Vector3(b.x, b.y + 1.0, b.z);
       const marks = [new THREE.Vector3(b.x, b.y + 1.6, b.z), new THREE.Vector3(b.x, b.y + 1.1, b.z)];
+      if (spec && spec.mark) marks.push(spec.mark);
       const dx = base.pos.x - focus.x, dz = base.pos.z - focus.z;
       const baseA = Math.atan2(dx, dz), baseD = Math.hypot(dx, dz), baseH = base.pos.y - focus.y;
       const f = dirOf(b.yaw), fa = Math.atan2(f.x, f.z);
@@ -1442,8 +1590,13 @@ export function createBrain(deps) {
       b.gen = null; b.fn = null; b.wait = 0; b.plan = []; b.lastId = null; b.act = null; b.frozen = false;
       for (const it of b.items) world.remove(it.g);
       b.items.length = 0;
+      flushAll();
       for (const e of b.extras) { world.remove(e.m); nav.remove(e.box); }
       b.extras.length = 0;
+      W.solids.clear();
+      for (const [k, id] of W.vox) { const [x, y, z] = k.split(',').map(Number); setVoxel(x, y, z, id); }
+      W.vox.clear(); W.holes.clear();
+      if (W.hbox) for (const bx of W.hbox.values()) nav.remove(bx);
       if (b.bang) b.bang.visible = false;
       hold(null);
       for (const q of camp.quarry) { q.mesh.visible = true; q.removed = false; nav.restore(q.box); }
@@ -1476,6 +1629,7 @@ export function createBrain(deps) {
       dt = Math.min(dt, 0.05);
       if (camPos) b.camPos.copy(camPos);
       b.t += dt;
+      refreshView();
       if (!b.frozen) {
         b.tAll += dt;
         if (b.state === 'walk' && b.spd > 0.1) b.tWalk += dt; else if (b.pausing) b.tPause += dt; else b.tWork += dt;
@@ -1487,6 +1641,7 @@ export function createBrain(deps) {
         stepExtras(dt);
         crit.update(dt, b.x, b.z, b.camPos);
       }
+      stepPend();
       camp.near = { x: b.x, z: b.z };
       cam.w += ((cam.want ? 1 : 0) - cam.w) * Math.min(1, dt * 1.5);
       stepItems(dt);
@@ -1500,18 +1655,19 @@ export function createBrain(deps) {
       if (b.fireT <= 0) { b.fireT = R(2.6, 4.2); play('fire.fire', { pos: { x: L.fireCenter.x, y: 1, z: L.fireCenter.z }, volume: 0.5, ref: 5 }); }
     },
     // fast-forward the behaviour with no one watching (the ?idle= hook)
-    fastForward(ms, camPos) { for (let t = 0; t < ms; t += 33) api.update(0.033, camPos); nav.publish(); },
+    fastForward(ms, camPos) { b.ff = true; for (let t = 0; t < ms; t += 33) api.update(0.033, camPos); b.ff = false; W.viewT = -9; nav.publish(); },
     setSkin(mat) { void mat; },
     startIdle() { b.gen = idleLoop(); },
     // debug hook (?act=): run one named activity first, then the normal loop
     start(id) {
       const a = byId(id);
       if (!a) return false;
-      b.act = a.id;
-      startGen((function* () { try { yield* a.f(); } finally { doCleanup(); relax(); } b.act = null; yield* idleLoop(); })());
+      b.act = a.id; logAct(a.id);
+      startGen((function* () { try { yield* a.f(); } finally { doCleanup(); relax(); endAct(a.id); } b.act = null; yield* idleLoop(); })());
       return true;
     },
     acts: () => ACTS.map((a) => a.id),
+    keeps: (key) => W.vox.has(key),
     // the pace over the run so far: distance, time walking / pausing / working, the average speeds
     stats: () => ({ errs: b.errs || [], seconds: +b.tAll.toFixed(1), metres: +b.dist.toFixed(1), walkS: +b.tWalk.toFixed(1), pauseS: +b.tPause.toFixed(1), workS: +b.tWork.toFixed(1), avgWalkSpeed: +(b.dist / Math.max(1, b.tWalk)).toFixed(2), avgSpeed: +(b.dist / Math.max(1, b.tAll)).toFixed(2), pauseShare: +(b.tPause / Math.max(1, b.tAll)).toFixed(3), walkShare: +(b.tWalk / Math.max(1, b.tAll)).toFixed(3) }),
   };

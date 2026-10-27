@@ -482,12 +482,15 @@ function setVoxel(x, y, z, id) {
   st.dirty = true;
 }
 function restoreVoxels() {
+  let n = 0;
   for (const [key, id] of st.orig) {
+    if (brain && brain.keeps && brain.keeps(key)) continue; // a hole or a log Steve took out: his to put back
     const [x, y, z] = key.split(',').map(Number);
     st.stage.vox.set(x, y, z, id);
+    st.orig.delete(key);
+    n++;
   }
-  if (st.orig.size) st.dirty = true;
-  st.orig.clear();
+  if (n) st.dirty = true;
 }
 function explodeAt(pos, power = 1) {
   const S = st.stage;
@@ -649,7 +652,7 @@ function idleCam(t, aspect = 1.7) {
 }
 // The idle shot follows Steve: close enough that what he is doing reads, from a little above the
 // dais and the campfire, gliding as he walks (the follow camera smooths every change).
-function idleWant(t, aspect) {
+function idleWant(t, aspect, raw = false) {
   const base = idleCam(t, aspect);
   if (!brain) return base;
   const p = brain.pos();
@@ -661,6 +664,7 @@ function idleWant(t, aspect) {
   // keep a hint of the dais in the frame: bias the focus a little toward it
   focus.lerp(new THREE.Vector3(0.5, 1.2, 0.5), 0.22);
   const shot = { pos, look: focus, fov: 36 + narrow * 30 };
+  if (raw) return shot;
   return brain.camShape ? brain.camShape(shot) : shot; // steve.js: 3/4 view at his stations, clear of props
 }
 function reelCam(aspect) {
@@ -978,6 +982,7 @@ function prepIdle(ms) {
   brain.reset();
   if (params.get('act')) brain.start(params.get('act'));
   brain.fastForward(ms, st.stage.camera.position);
+  rebuildIfDirty(); // a hole or a log taken out of the terrain during the fast-forward
   st.clock = ms / 1000;
 }
 
@@ -1153,7 +1158,7 @@ function warmStage() {
 
 // ------------------------------------------------------------------ boot
 async function boot() {
-  if (params.has('flowdbg')) window.__qf = { st, FLOW, probe, closeResult, breakWith, ERRORS, lumOf, resetStage, returnToIdle, renderFrame, seekTo, drops: () => st.drops.map((d) => d.scene) };
+  if (params.has('flowdbg')) window.__qf = { st, brain: () => brain, camp: () => camp, FLOW, probe, closeResult, breakWith, ERRORS, lumOf, resetStage, returnToIdle, renderFrame, seekTo, drops: () => st.drops.map((d) => d.scene) };
   const d = await loadData();
   if (!d) { $('#noData').hidden = false; return; }
   const cvs = $('#cv');
@@ -1203,7 +1208,7 @@ async function boot() {
   const S = st.stage;
   S.steve.root.position.copy(POS.player);
   camp = buildCamp(S);
-  brain = createBrain({ S, camp, fx: S.fx, play, setVoxel, seed: params.has('seed') ? Number(params.get('seed')) : (params.has('dump') ? 11 : Math.floor(Math.random() * 1e6)) });
+  brain = createBrain({ S, camp, fx: S.fx, play, setVoxel, shot: () => ({ ...idleWant(st.clock || 0, aspectNow(), true), aspect: aspectNow() }), seed: params.has('seed') ? Number(params.get('seed')) : (params.has('dump') ? 11 : Math.floor(Math.random() * 1e6)) });
   if (params.has('noshadow')) S.renderer.shadowMap.enabled = false;
   const resize = () => {
     const w = cvs.clientWidth, h = cvs.clientHeight;

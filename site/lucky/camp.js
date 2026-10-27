@@ -32,6 +32,9 @@ export const L = {
   noteStand: { x: 0.5, z: -3.45 }, brewStand: { x: 1.5, z: -3.45 }, enchantStand: { x: 7.5, z: -3.45 },
   pen: { x0: -10, x1: -5, z0: 2, z1: 7 },   // the animals' fenced pen, west of the pond, by the wheat
   hut: { cx: 4, cz: -1 },       // a 3x3 patch of ground for the dirt hut
+  hole: { cx: 1, cz: 3 },       // the cell he digs, and the one he sprint-jumps onto
+  jump: { cx: 1, cz: 8 },
+  shelves: [{ cx: 5, cz: -7 }, { cx: 6, cz: -7 }, { cx: 7, cz: -7 }], // two high, behind the enchanting table
   target: { x: 6.5, z: 6.5 },   // the hay bale the bow shoots at, and the spot he shoots from
   shoot: { x: 1.5, z: 6.5 },
   sapling: { cx: 5, cz: 0 },
@@ -52,6 +55,10 @@ export const L = {
     [6.9, -5.1, 8.1, -3.9],
     [-10.1, 1.9, -4.9, 7.1],
     [3.9, -1.1, 7.1, 2.1],
+    [6.0, 6.0, 7.0, 7.0],
+    [1.0, 3.0, 2.0, 4.0],
+    [0.9, 7.9, 2.1, 9.1],
+    [4.9, -7.1, 8.1, -5.9],
   ],
 };
 
@@ -366,7 +373,13 @@ export function buildCamp(S) {
   out.note = noteBlock;
   // enchanting table: a 16x12x16 block, obsidian-dark sides, and the floating book
   const et = M('enchanting_table_top.png'), es = M('enchanting_table_side.png'), eb = M('enchanting_table_bottom.png');
-  const enchant = new THREE.Mesh(new THREE.BoxGeometry(1, 0.75, 1), faces6(es, es, et, eb, es, es));
+  const eGeo = new THREE.BoxGeometry(1, 0.75, 1);
+  { // RenderBlocks with the bounds 0..0.75: v runs from row 4 (the top of the 12 px) to row 16 on the four sides
+    const uv = eGeo.attributes.uv;
+    for (const f of [0, 1, 4, 5]) for (let i = 0; i < 4; i++) uv.setY(f * 4 + i, uv.getY(f * 4 + i) * 0.75);
+    uv.needsUpdate = true;
+  }
+  const enchant = new THREE.Mesh(eGeo, faces6(es, es, et, eb, es, es));
   enchant.position.set(c(L.enchant.cx), 0.375, c(L.enchant.cz));
   enchant.castShadow = enchant.receiveShadow = true;
   group.add(enchant);
@@ -375,12 +388,27 @@ export function buildCamp(S) {
   book.group.position.set(c(L.enchant.cx), 0.75, c(L.enchant.cz));
   group.add(book.group);
   out.enchant = { table: enchant, book, spread: 0, flipA: 0, flipB: 0, rot: 0, tick: 0, flipT: 0, last: null };
+  // the bookshelves round the table (two high, with a gap of air between): the enchanting glyphs fly from them
+  const bsS = M('bookshelf.png'), bsT = M('planks_oak.png');
+  out.shelves = [];
+  for (const sh of L.shelves) for (let y = 0; y < 2; y++) {
+    const m = cube(faces6(bsS, bsS, bsT, bsT, bsS, bsS), c(sh.cx), y + 0.5, c(sh.cz));
+    group.add(m);
+    out.shelves.push({ x: sh.cx, y, z: sh.cz });
+  }
+  for (const sh of L.shelves) nav.add('shelf', sh.cx, sh.cz, sh.cx + 1, sh.cz + 1, 'solid');
+  // the hay bale the bow shoots at: a permanent target, so nothing appears out of thin air
+  const hs = M('hay_block_side.png'), ht = M('hay_block_top.png');
+  const hay = cube(faces6(hs, hs, ht, ht, hs, hs), L.target.x, 0.5, L.target.z);
+  group.add(hay);
+  nav.add('hay', L.target.x - 0.5, L.target.z - 0.5, L.target.x + 0.5, L.target.z + 0.5, 'solid');
+  out.hay = hay;
   // brewing stand: the rod and the three base plates, exactly RenderBlocks.renderBlockBrewingStand
   const brewG = new THREE.Group();
   brewG.position.set(L.brew.cx, 0, L.brew.cz);
-  const bsT = M('brewing_stand.png', { transparent: true, alphaTest: 0.2 }), bbT = M('brewing_stand_base.png', { transparent: true, alphaTest: 0.2 });
+  const bsTex = M('brewing_stand.png', { transparent: true, alphaTest: 0.2 }), bbT = M('brewing_stand_base.png', { transparent: true, alphaTest: 0.2 });
   const plate = (x0, z0, x1, z1) => { const m = new THREE.Mesh(new THREE.BoxGeometry(x1 - x0, 0.125, z1 - z0), bbT); m.position.set((x0 + x1) / 2, 0.0625, (z0 + z1) / 2); m.castShadow = m.receiveShadow = true; return m; };
-  const rod = new THREE.Mesh(new THREE.BoxGeometry(0.125, 0.875, 0.125), bsT); rod.position.set(0.5, 0.4375, 0.5); rod.castShadow = true;
+  const rod = new THREE.Mesh(new THREE.BoxGeometry(0.125, 0.875, 0.125), bsTex); rod.position.set(0.5, 0.4375, 0.5); rod.castShadow = true;
   brewG.add(rod, plate(0.5625, 0.3125, 0.9375, 0.6875), plate(0.0625, 0.0625, 0.4375, 0.4375), plate(0.0625, 0.5625, 0.4375, 0.9375));
   // the blaze rod's top is the stand's burner: three bottles hang off the plates
   const bottleMat = new THREE.MeshLambertMaterial({ color: 0x3f76e4, transparent: true, opacity: 0.85 });
@@ -403,8 +431,58 @@ export function buildCamp(S) {
     out.quarry.push({ mesh, box, x: q.cx + 0.5, y: (q.y || 0) + 0.5, z: q.cz + 0.5, kind: q.kind, file: kinds[q.kind], removed: false });
   }
 
+  // The enchanting glyphs (BlockEnchantmentTable.randomDisplayTick + EntityEnchantmentTableParticleFX): every tick
+  // each bookshelf round the table has a 1 in 16 chance to send one; it starts at the shelf and drifts to the
+  // table top along a curve, in one of the 26 galactic letters of particles.png (cells 225..250), light blue-white.
+  const glyphMat = [];
+  const glyphTex = () => {
+    if (glyphMat.length) return glyphMat;
+    const base = tex('particle/particles.png');
+    if (!(base.image && base.image.width)) return null; // still loading: a clone made now would never upload
+    for (let i = 0; i < 26; i++) {
+      const idx = 225 + i, col = idx % 16, row = Math.floor(idx / 16);
+      const t = base.clone();
+      t.repeat.set(1 / 16, 1 / 16); t.offset.set(col / 16, 1 - (row + 1) / 16); t.needsUpdate = true;
+      glyphMat.push(t);
+    }
+    return glyphMat;
+  };
+  const glyphs = [];
+  const ET = { x: L.enchant.cx + 0.5, y: 2.0, z: L.enchant.cz + 0.5 };
+  function spawnGlyph(mx, my, mz) {
+    const gm = glyphTex();
+    if (!gm) return;
+    const f = Math.random() * 0.6 + 0.4;
+    const mat = new THREE.SpriteMaterial({ map: gm[Math.floor(Math.random() * 26)], color: new THREE.Color(f * 0.9, f * 0.9, f), transparent: true, depthWrite: false, fog: false });
+    const sp = new THREE.Sprite(mat);
+    const sc = (Math.random() * 0.5 + 0.2) * 0.2 * 1.7;
+    sp.scale.set(sc, sc, 1);
+    group.add(sp);
+    glyphs.push({ sp, mx, my, mz, age: 0, max: Math.floor(Math.random() * 10) + 30 });
+  }
+  let glyphT = null, glyphAcc = 0;
+  function stepGlyphs(t) {
+    const dt = glyphT === null ? 0 : Math.min(0.1, t - glyphT);
+    glyphT = t;
+    glyphAcc += dt * 20;
+    while (glyphAcc >= 1) {
+      glyphAcc -= 1;
+      for (const sh of out.shelves) if (Math.random() < 1 / 16) spawnGlyph(sh.x - L.enchant.cx + Math.random() - 0.5, sh.y - Math.random() - 1.0, sh.z - L.enchant.cz + Math.random() - 0.5);
+      for (const g of glyphs) g.age++;
+    }
+    for (let i = glyphs.length - 1; i >= 0; i--) {
+      const g = glyphs[i];
+      const a = Math.min(1, (g.age + glyphAcc) / g.max), f1 = a;
+      const f = 1 - (-a + a * a * 2);
+      g.sp.position.set(ET.x + g.mx * f, ET.y + g.my * f + (1 - f1), ET.z + g.mz * f);
+      if (g.age >= g.max) { group.remove(g.sp); g.sp.material.dispose(); glyphs.splice(i, 1); }
+    }
+  }
+  out.glyphs = glyphs;
+
   // each frame: fire and lamp flicker; the furnace glows only while it is lit
   out.update = (t) => {
+    stepGlyphs(t);
     fireLight.intensity = 4.6 + 0.9 * Math.sin(t * 11.3) + 0.5 * Math.sin(t * 19.7 + 1);
     fireGlow.material.opacity = 0.5 + 0.12 * Math.sin(t * 9.1);
     lampLight.intensity = 4.0 + 0.2 * Math.sin(t * 3.1);

@@ -46,3 +46,11 @@ Previous state: `site-r6-lucky.md`.
 - [ ] Re-run `vet_lucky.py` and `audit_lucky.py`.
 - [ ] Verify motion in real time with the CDP driver (copy `scratchpad/orch/cdp.mjs`), not only stills.
 - [ ] Sheet: each fixed act, 3 frames each (start, middle, end), plus drop 165.
+
+## Progress (agent log)
+- [x] 2026-10-27 world-state core in steve.js ("the world's memory": W.later/hand/settle, surfaceAt, auto floor + gravity + half-block steps, frustum from S.camera or, in fast-forward, the page's follow shot via deps.shot). Quarry/tree log/hole/crops/torches/hut/sapling/hay arrows put back only when out of frame. Restores of terrain voxels survive resetStage (app.js restoreVoxels skips brain.keeps(key)).
+- [x] acts: parkour (place, run-up, jump, stand, step off, break+drop), hole (dig, fall, jump out, fill with dirt), sapling (instant tree, chop 4 logs, nav boxes), bow (permanent hay, real EntityArrow flight, crit trail, side-on frame), enchant (no diamond swap), creeper/chicken spawn out of frame, scheduler = shuffled bag of all 29 (every act within ~670 s sim).
+- [x] camp.js: hay target, 3x2 bookshelves behind the enchanting table, table side UVs cropped (1.7.10 bounds), glyph particles (particles.png cells 225-250).
+- [x] nav_check.py: --acts, --cover; feet/world/acts in data-nav-stats.
+- NEXT: view enchant/harvest/sapling/hut/torches stills, camera per act (spec.mark), drop 165 + thrown items, vet/audit, CDP motion check, sheet.
+- Scratch: /private/tmp/claude-503/-Users-suaz-Desktop-QuestForge/91769071-2ed0-4412-b25d-3c510232d8e5/scratchpad/r7/lucky/ (cdp.mjs, trace*.js, s1..s3 sheets)

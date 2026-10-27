@@ -24,7 +24,7 @@ export function makeCritters({ world, play, fx, seed = 5 }) {
     Wolf: { r: 0.3, walk: 1.5, voice: null, every: [6, 12] },
     Creeper: { r: 0.32, walk: 0.95, voice: null, every: [999, 999] },
   };
-  const ign = new Set(['low']);
+  const ign = new Set(); // a bench is a block: animals go round it
 
   function tame(m) {
     // RenderWolf: the tame skin, and the collar pass in the collar colour (red) over the same geometry

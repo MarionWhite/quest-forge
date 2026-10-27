@@ -214,7 +214,7 @@ export function createNav() {
     }
   }
   function publish() {
-    try { document.documentElement.dataset.navStats = JSON.stringify({ samples: stats.samples, violations: stats.violations, pushed: stats.pushed || 0, first: stats.first, by: stats.by, last: stats.last, noroute: stats.noroute, routes: stats.routes }); } catch (e) { /* no document */ }
+    try { document.documentElement.dataset.navStats = JSON.stringify({ samples: stats.samples, violations: stats.violations, pushed: stats.pushed || 0, first: stats.first, by: stats.by, last: stats.last, noroute: stats.noroute, routes: stats.routes, world: stats.world, feet: stats.feet, acts: stats.acts, actFirst: stats.actFirst, actDur: stats.actDur }); } catch (e) { /* no document */ }
   }
 
   return { add, remove, restore, blocked, blockerAt, segFree, resolve, nearestFree, path, fromVoxels, groundAt, track, publish, stats, boxes };
