@@ -1,0 +1,16 @@
+{
+ "name": "textures-r010-leaves-wall",
+ "owner": "texture-agent",
+ "comment": "r010 step 3 leaves: three directions from Faithful 64x's own leaves (leaves_dense.py): t10la faithful (as is), t10lb dense (darker leaves fill the holes), t10lc crowns (dense + clustered lit crowns). All builds carry the step 1 fix (VNR normal Y, gem diamond, gold metal off steep bevels) and bushy wheat; t10lb's wall scenes are the step 1 re-render (compare t10d4v2 = r009's v2). Shot mode, one boot.",
+ "prebuild": [
+  ["py", "-3.10", "-I", "tools/textures/build_qf_textures.py", "--wheat", "bushy", "--leaves", "faithful", "--out", "C:/qfb/textures/diag/QF-l-faithful.zip"],
+  ["py", "-3.10", "-I", "tools/textures/build_qf_textures.py", "--wheat", "bushy", "--leaves", "dense", "--out", "C:/qfb/textures/diag/QF-l-dense.zip"],
+  ["py", "-3.10", "-I", "tools/textures/build_qf_textures.py", "--wheat", "bushy", "--leaves", "crowns", "--out", "C:/qfb/textures/diag/QF-l-crowns.zip"]
+ ],
+ "defaults": {"world": "C:/qfb/textures/world-showcase", "preset": "3", "size": "2560x1440", "mode": "shot"},
+ "jobs": [
+  {"tag": "t10la", "resourcepacks": ["C:/qfb/textures/diag/QF-l-faithful.zip"], "scenes": "leaves_close,tree_close,forest_lit"},
+  {"tag": "t10lb", "resourcepacks": ["C:/qfb/textures/diag/QF-l-dense.zip"], "scenes": "leaves_close,tree_close,forest_lit,texture_wall,texture_wall2,diag_column"},
+  {"tag": "t10lc", "resourcepacks": ["C:/qfb/textures/diag/QF-l-crowns.zip"], "scenes": "leaves_close,tree_close,forest_lit"}
+ ]
+}
