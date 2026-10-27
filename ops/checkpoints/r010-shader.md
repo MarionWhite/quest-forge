@@ -92,3 +92,4 @@ The diamond "light only on the bottom half" was texture-side and is fixed (VNR n
   blur ~12-16 taps near the sun; ocean_sunset is already the worst High frame, 3.29 ms vs 3.0). Then dust/golden
   regression check, cost run (cost mode, now allowed after 08:00), spec_scenes.py + round.json in C:\qfb\shaderdev\r010,
   critic, publisher. Every Lab question: cause + trade-off with numbers.
+- At the end: ops/tracks/shaders.md still describes r008; rewrite it for r010, and add one journal entry (ops/journal/shaders.md).
