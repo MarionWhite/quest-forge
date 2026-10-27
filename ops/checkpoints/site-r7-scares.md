@@ -55,5 +55,7 @@ rt/scareflow16.js, rt/trace.js, cmp_trace.py).
   leap onto your face. Frames `sp1/sheet.png`, `sp2/sheet.png` (leap tracked).
 - [x] Cave Spider: freeze kept as the one device; the click, the one on the pit wall rears and leaps onto your face.
   Frames `cs1/sheet.png`, `cs3/sheet.png`.
-- Next: Witch, Slime, Silverfish, Blaze, Ghast, Magma Cube, Wither
+- [x] Witch: Slowness at your feet, she walks up, Poison on your chest (kneel), she bends over you, silence, Harming
+  in your face. Frames `wi2/sheet.png`, `wi3/sheet.png`.
+- Next: Slime, Silverfish, Blaze, Ghast, Magma Cube, Wither
   Skeleton, Lava fall, Drowned (in that order).
