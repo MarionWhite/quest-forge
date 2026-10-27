@@ -149,3 +149,28 @@ Whole boot (every section built, from world load to the last scene):
 - **Vertices:** +33% in leafy sections (+23% to +45% per scene) and +12% over all sections. On a weak GPU the vertex
   count is the cost to watch.
 - **Chunk rebuilds:** +4% per leafy section over the whole boot, and up to +11% in the dense forest scenes.
+
+### v2 (render `1027-171917-r010-frills-b`, jar d705c6a, Faithful 64x + the frill sprites, preset 3, 2560x1440)
+
+All four looks use the texture agent's `leaves_KIND_frill` sprites. The "off" reference is fr1a0. Sheets:
+`C:\qfb\frills\look\fr1b-full.jpg` (five columns: off, b1-b4), `fr1b-hedge.jpg` and `fr1b-hedge-1to1.jpg`.
+
+| tag | look | settings | verdict |
+|---|---|---|---|
+| fr1b1 | edges | length 0.4, density 0.85, 2 per edge | **Best.** Whole leaves break the hedge's top edge and the canopy outline, which is Stay True's effect. The side edges change less. |
+| fr1b2 | short, dense tufts | length 0.25, density 1, 3 per face, droop 10 | Bushier, but busy. Edge-on cards show as slivers across the faces, and it costs the most. |
+| fr1b3 | long, sparse tufts | length 0.6, density 0.45, 1 per face, droop 20 | Long stretched streaks. Reads as cards, not leaves. |
+| fr1b4 | hanging | length 0.7, density 0.9, 2 per face, droop 25 | Large smeared diagonal planes. Messy from below (tree_close, leaves_close looking up). |
+
+**Cost**, whole boot (`frills_cost.py --off fr1a0 --on fr1bN`; tables per scene in `C:\qfb\frills\cost-fr1bN.md`):
+
+| tag | vertices per leafy section | ms per leafy section (chunk build) | vertices, all sections | frame p50 per scene |
+|---|---|---|---|---|
+| fr1b1 edges | +26% | +14% | +8% | -2% to +4% (noise) |
+| fr1b2 short tufts | +139% | +50% | +46% | +2% to +11% |
+| fr1b3 long tufts | +19% | +7% | +8% | 0% to +4% (noise) |
+| fr1b4 hanging | +60% | +18% | +22% | -0% to +7% |
+
+- **Edges is the look to keep.** It gives the most per vertex: +26% in leafy sections, with frame time inside the noise.
+- **Short tufts are out on cost.** They more than double the vertices in leafy sections, and they are the only look whose
+  frame time rises beyond the noise.
