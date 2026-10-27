@@ -1,5 +1,16 @@
 # Shaders journal (newest first)
 
+- 2026-10-27: r009 tex-golden artifacts (texture-dev handover), shot renders 1026-235508 (r9tg), bisects 1027-000345
+  (debug view 7), 000618 (shafts/dust/bounce off), 000950 (view 5, clouds off), 001317 (views 2, 3), verify 001651 (r9tg2).
+  The stepped "lit rectangle" was none of shafts, dust, bounce, clouds or the sun shadow (view 5: the whole field is in the
+  hill's shadow). View 3 showed block light (colortex2.r) up to ~1 in soft patches over the field: light sources in the
+  grass, the stair-steps being vanilla's per-block falloff, and the motes took that block light (Eblock) and glowed as the
+  orange "coins". Fix cd1cfa7: blockDayDamp(skyLight) = 1 - 0.7*smoothstep(-0.05,0.10,sunY)*sky^2 on surfaces and motes
+  (the mote-walk skip uses it too, so that field now skips the walk). r9tg2: rectangle and warm patches gone, coins nearly
+  gone, radial streaks much fainter. forest_golden and dust_b beams unchanged. Also in 4666aab (did not cure the rectangle
+  alone, kept): shaft taps jittered +-1 shadow texel, the golden-hour near-air switch only towards the sun, the mote beam
+  test's downward tap removed (it sat under the grass at low sun; 3 taps, was 4), near flakes 2.6-1.3 -> 2.0-1.2.
+
 - 2026-10-26: r009 cost breakdown (renderq 1026-174757, p50 ms, delta = base minus option-off; base r8b/r8lb were cached).
   High (2560x1440, base 2.8-5.0 ms, off 0.35-0.51): SHAFTS -1.84 mean / -2.50 max; DUST+MOTES -1.48 / -2.30;
   WAVES+FOAM+CAUSTICS -0.15 / -0.30; PBR -0.11 / -0.19; AERIAL+HAZE -0.06; GOLDEN_HOUR -0.06; BOUNCE -0.04; RIM -0.03;

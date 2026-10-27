@@ -62,6 +62,28 @@ Owner overall: no drastic improvement; over budget on performance; wants optimis
   auto-tier helper draft (unchanged plan above) is next. QF_VOL_FAST 1 changes the look slightly: once the frames are
   checked, put "keep it as the default" in ops/DECISIONS.md.
 
+- 2026-10-26 23:55 (look step, tex-golden artifacts): commit **4666aab** (composite.glsl; check_glsl 0 errors). Cost
+  run 1026-223822 is still queued for 08:00 and snapshotted its pack at submit, so it measures a651ede, not this.
+  Changes: (1) stair-steps: shaft march taps via shadowRawClipJ, jittered up to +-1 shadow texel per step (R2 sequence
+  off the ign seed); (2) radial streaks: the golden-hour near-air switch (lit vs litFar by gBeam) now scales gBeam by
+  smoothstep(-0.2,0.4,mu), so rays away from the sun all take litFar; (3) coins: root cause was the mote inBeam test,
+  whose -p2 tap (near-vertical at low sun) sat under the grass, read as shade, and lit every flake near the ground.
+  p2 now points up with one tap (3 taps, was 4: cheaper); near air flakes rw factor 2.6-1.3 -> 2.0-1.2.
+  Shot render **1026-235508-r009-texgold-shot** (spec r9-texgold.json; tag r9tg: golden_lit, forest_golden, dust_b).
+- 2026-10-27 00:20: r9tg left the rectangle in place. The bisect renders showed it was block light, not shadows (journal
+  entry). Fix commit **cd1cfa7**: blockDayDamp() in lighting.glsl on surfaces and motes. Verify render
+  **1027-001651-r009-texgold-shot2** (tag r9tg2): rectangle and warm patches gone, coins nearly gone (a few faint flakes),
+  radial streaks much fainter, forest_golden/dust_b beams unchanged. **tex-golden step closed.** Still open from it:
+  the faint diagonal streaks on golden_lit's shadowed field (not shafts: they persist with QF_SHAFTS 0; likely terrain
+  sky/AO shading, low priority). Look change for the owner to see in r009: daytime torchlight outdoors is ~70% weaker.
+- Cost: 4666aab + cd1cfa7 are neutral or cheaper (one mote tap fewer; mote-walk skip fires in daylight block light), but
+  the queued 08:00 run **1026-223822** measures a651ede only. After reading it, resubmit r9-volfast.json (new tags,
+  e.g. r9vf2/r9lvf2) with the current pack before publishing.
+- **Next:** the brief's order from dust motes: dust_b ("real motes, a few px each, drifting through the lit shaft";
+  bench-r9tg2-dust_b.png is the current state), then sun, cloud-over-sun, golden band, forest wash, river, bluer
+  non-swamp underwater, sky_noon. Crop helper idea: scratchpad scripts are gone; rebuild with PIL (full frame 640x360 +
+  native crops side by side).
+
 ## Hand-off from texture-dev (2026-10-26): owner's r008 "tex-golden: weird artifacting in all photos" is shader-side
 Same artifacts in t8v0, t8v1, t8f64 (all three packs) and still in t9v1/t9v2c (r009 shader), so not textures. In golden_lit
 (2560x1440): (1) the shaft haze ends in blocky stair-steps on shadow-map texels: a hard-edged lit rectangle over the grass,
