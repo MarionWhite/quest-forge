@@ -523,7 +523,8 @@ def wheat(stage, size=32, seed=51):
 
 
 def grass_top(size=32, seed=61):
-    """Grass top, grey for the biome tint. Calm (the owner: no "noisy green carpet"): soft clump-
+    """v1's grass top (the build uses grass_top_from since v2; kept for comparison previews).
+    Grey for the biome tint. Calm (the owner: no "noisy green carpet"): soft clump-
     scale light and shadow a few pixels across, and sparse short blade marks, all within a narrow
     value range so it reads as turf up close and as an even field at a distance."""
     r = rng(seed)
@@ -543,6 +544,23 @@ def grass_top(size=32, seed=61):
         val[(y + 1) % size, x] -= 0.05
     val = quant(np.clip(val, 0.40, 0.75), [0.47, 0.52, 0.565, 0.61, 0.655, 0.70])
     return grey(val)
+
+
+def grass_top_from(vanilla, keep=0.75):
+    """Grass top for v2, from vanilla's own 16x grass_top (the player's jar, read at build time).
+    grass_top() above read as flat felt in r008 (6 grey values); the owner preferred r007's, which
+    was vanilla's pattern doubled. So vanilla's pattern stays: its clump-scale shading is kept whole,
+    only the pixel-to-pixel contrast is lowered (to `keep`), and each pixel is doubled with hard
+    edges (r007 blurred after doubling, which softened them). At 32x, a pixel brighter than its
+    neighbours gets a lit upper-left sub-pixel and a shaded lower-right one: a blade tip."""
+    g = vanilla[..., :3].astype(np.float32).mean(-1) / 255.0
+    blur = sum(np.roll(np.roll(g, dy, 0), dx, 1) for dy in (-1, 0, 1) for dx in (-1, 0, 1)) / 9.0
+    hi = g - blur
+    v = (blur + hi * keep).repeat(2, 0).repeat(2, 1)
+    tip = np.clip(hi / 0.08, 0, 1) * 0.035
+    v[0::2, 0::2] += tip
+    v[1::2, 1::2] -= tip * 0.6
+    return grey(v)
 
 
 # --- bookshelf --------------------------------------------------------------------------------------

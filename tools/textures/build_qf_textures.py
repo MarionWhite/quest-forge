@@ -17,7 +17,7 @@ What goes in, and why (docs/design/textures/direction.md, "QF Textures v1"; owne
     its 1.13-style rules (matchBlocks=black_stained_glass) rewritten to 1.7.10 ids + metadata.
   * Our own art (tools/textures/qf_art.py; Stay True's plant art as the direction, nothing
     copied): leaves for all six woods (+ the Fast-graphics _opaque ones), bark and log ends, tall
-    grass, fern, wheat 0-7, a calm grass top, and bookshelves (four variants, mixed by CTM random,
+    grass, fern, wheat 0-7, the grass top (v2: vanilla's pattern kept crisp at 32x, as r007), and bookshelves (four variants, mixed by CTM random,
     replacing Angelica's built-in horizontal bookshelf CTM).
   * --leaf-edges: the leaf "frill" options as connected textures (direction.md, "Leaf frills"):
     none (default), all (every leaf face bitten where no leaf block continues it), sides (only the
@@ -90,8 +90,8 @@ def vibrance(a, gain=VIBRANCE):
     return a
 
 
-def drawn_art(planks):
-    """{texture name: rgba} for everything qf_art draws."""
+def drawn_art(planks, grass):
+    """{texture name: rgba} for everything qf_art draws (grass: vanilla's grass_top, which v2 keeps)."""
     out = {}
     for w in WOODS:
         leaf = qf_art.needles() if w == "spruce" else qf_art.leaves(w, LEAF_SIZE)
@@ -103,7 +103,7 @@ def drawn_art(planks):
     out["fern"] = qf_art.fern()
     for i in range(8):
         out["wheat_stage_%d" % i] = qf_art.wheat(i)
-    out["grass_top"] = qf_art.grass_top()
+    out["grass_top"] = qf_art.grass_top_from(grass)
     out["bookshelf"] = qf_art.bookshelf(planks=planks)
     return out
 
@@ -184,7 +184,7 @@ def main():
     out.write(a.faithful_license, "LICENSE-Faithful.txt")
 
     planks = rgba(mc.read(BLOCKS + "planks_oak.png"))
-    art = drawn_art(planks)
+    art = drawn_art(planks, rgba(mc.read(BLOCKS + "grass_top.png")))
     tally = dict(vanilla=0, faithful64=0, drawn=0, ctm=0, pbr_vnr=0, pbr_hybrid=0, pbr_ours=0, cit=0)
     textures = {}     # path -> (rgba, mcmeta bytes or None)
     source = {}       # path -> "vanilla" | "faithful64" | "drawn" | "ctm"
