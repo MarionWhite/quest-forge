@@ -10,7 +10,9 @@ Rewrite this file when the state changes; keep it under 2 KB.
   - CIT potions and books, CIT on in trials only. Faithless-level sprites need a pixel artist.
   - Leaf frills A/B/C via `--leaf-edges none|all|sides`; D (outward frills) needs qf-tweaks code.
   - Weak: fern, birch bark, wheat middle stages, grass top a little flat.
-- **Hand-off:** `C:\qfb\shaderdev\r008\texture_scenes.json` + `TEXTURES-READY` (11 scenes). Next: the owner's r008 answers.
+- **Hand-off:** `C:\qfb\shaderdev\r008\texture_scenes.json` + `TEXTURES-READY` (11 scenes).
+- **r009 v2 in progress** (`ops/checkpoints/r009-textures.md`): leaves closed at v2b; grass top closed at v2c (vanilla's
+  pattern kept crisp at 32x, as r007). Next: crops, metals/emerald, tex-golden artifact, potions.
 - **Owner likes:** Faithful 64x bricks/metals; Stay True wheat and tree leaves (no frills on lone blocks/hedges);
   Patrix mobs (repaints only on 1.7.10); VNR light; Soartex bookshelves; Faithless items, potions, books, GUI, tabs, TNT, boss bars.
 - **Owner dislikes:** Conquest's textures, Faithful's grass, Faithless's blocks.
