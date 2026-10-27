@@ -1,5 +1,22 @@
 # Shaders journal (newest first)
 
+- 2026-10-27 01:31: r009 river, underwater, sky_noon, forest wash retry (shot renders only, all ALU-only or reverted).
+  River (critic p8): the "ledge stripes" were yellow-green grass tops seen through teal water. 85dab7a pulls the bed's
+  hue to the water's teal at its own luma (mix 0.6*river) and eases the down-path filter 4.0 -> 3.0: in r9rv the near
+  stripes read as teal bed texture, the far yellow dashes are gone, the bed is a little clearer. No glint: river_noon's
+  sun is overhead/behind, so none is physically in frame. Underwater (owner r008 "more blue for the other water
+  types"): first try (volume only) barely moved, because the shafts carried the green; 85dab7a gives the volume and the
+  shafts shared eye coefficients (non-swamp: g/b absorption swapped at 0.8, scatter x(0.75,0.8,1.8)). r9uw is blue-teal
+  with blue shafts; swamp keeps its green by construction (river_swamp above water unchanged).
+  sky_noon radial smear: a 380-block march segment plus 0.5 dt in-cloud steps (r9sf) matched the same-pack baseline (r9sb)
+  exactly, so it is not along-ray undersampling. Cause is the shape: the base field is 2D and runs through the 170-block
+  slab, and columns seen from below fan out from the zenith. A fix needs height-varying base shape, likely one more noise
+  fetch per sample (not cost-neutral), so it was reverted and left for a cost decision.
+  Forest wash retry: (b) open-sky veil mix(0.8, 0.5, gBeam*gh) did nothing beyond run noise (gBeam is low on sky rays
+  round the gap); (a) dust counted only ahead of shaded free air (else 0.35) brightened the whole frame instead (canopy
+  46->50, sky 175->190, likely exposure), and dust_b was unchanged. Both reverted. Next idea for (a): the exposure meter
+  compensates whatever the haze loses, so pair any haze cut with a fixed-exposure A/B (or read prepare.glsl's meter) first.
+
 - 2026-10-27 01:07: r009 cloud-over-sun, grazing light, forest wash (shot renders only, all cost-neutral).
   Cloud-over-sun (owner r008 sunset-full): cloudMarch's far-cloud melt (fade ~0.1 at a low sun) also cancelled the slab's
   transmittance on the disk, so a low sun shone whole through the wisps over it. 25e9263: skyRadiance adds the disk after

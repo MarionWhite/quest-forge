@@ -180,6 +180,45 @@ Owner overall: no drastic improvement; over budget on performance; wants optimis
   ocean_sunset keeps 0.8. Then river, bluer non-swamp underwater, sky_noon. Shot renders only until 08:00; the 08:00
   cost-run note stands (read 1026-223822, then resubmit r9-volfast.json with new tags on the current pack, which now
   includes 25e9263 and 20331ee).
+- 01:10 (look step, river + bluer underwater; both uncommitted until verified, composite.glsl only): (1) river bed:
+  TdownR coefficient 4.0 -> 3.0 (clarity) and the bed's hue pulled to teal at its own luma, mix 0.6*riv (stripes were
+  yellow grass tops under teal water); (2) new waterVolumeEye() for the eye-in-water branch: non-swamp water absorbs
+  +0.012 g / -0.006 b and scatters x(0.8,0.85,1.6). check_glsl 0 errors. Shot **1027-011017-r009-river-shot**
+  (r9-river.json, tag r9rv: river_noon, underwater, underwater_sun, river_swamp; baselines bench-p8-*). River glint: sun
+  is overhead/behind in river_noon, so no glint is physically in frame; not attempted. If a loop fails, revert only that hunk.
+- 01:19: r9rv river_noon: yellow ledge stripes now teal bed texture, far ledge dashes gone, bed a touch clearer: river
+  hunks KEEP (still uncommitted, commit with the underwater hunks). Underwater barely moved (shafts carried the green).
+  Loop 2 (uncommitted): eyeNonSwamp/eyeWaterAbsorb/eyeWaterScatter (g/b absorption swap at 0.8*ns, scatter
+  x(0.75,0.8,1.8)) used by waterVolumeEye and underwaterShafts. Shot **1027-011924-r009-uw-shot2** (r9-uw2.json, tag r9uw:
+  underwater, underwater_sun; compare r9rv/p8). Crop helper: scratchpad cmp.py (OUT SCALE x0 y0 x1 y1 A B ...).
+- 01:22: r9uw: underwater and underwater_sun now blue-teal with blue shafts (were green). Committed river + underwater
+  as **85dab7a**. **River and underwater steps closed** (glint: no sun in river_noon's frame).
+- 01:23 (sky_noon smear + forest wash b; uncommitted until verified): lib/sky.glsl cloudMarch segment cap t0+520 ->
+  t0+380, in-cloud step 0.6 -> 0.5 dt (same 24-step cap); composite.glsl open-sky veil `lit *= mix(0.8, 0.5, gBeam*gh)`.
+  Shot **1027-012312-r009-skyfw-shot** (r9-skyfw.json, tag r9sf: sky_noon vs bench-p8-sky_noon; forest_golden vs r9gy
+  (sky round the gap 193,159,132 -> 252,199,153; gap glow must stay); dust_b vs r9do; ocean_sunset vs r9ct (unchanged)).
+  Revert whichever hunk fails (sky.glsl and the composite veil hunk are independent). Part (a) canopy veil still open.
+- 01:26: r9sf forest_golden sky round the gap 181,153,130 -> 175,149,126 (run noise; gBeam is low on those sky rays),
+  dust_b/ocean_sunset unchanged: veil hunk **reverted** (composite.glsl clean). sky_noon: p8's clouds had drifted, so no
+  clean A/B; edges look a bit crisper, body still radial. Baseline **1027-012556-r009-skybase-shot** (tag r9sb, sky_noon,
+  submitted with sky.glsl reverted; the change is back in the tree, uncommitted, copy at C:/qfb/shaderdev/r009/
+  sky-smear.patch). Compare r9sb vs r9sf crop 1500,100,2560,800: commit if the fringes/streaks are cleaner, else
+  `git checkout shaders/QuestForge/shaders/lib/sky.glsl`.
+- 01:28: r9sb vs r9sf: no visible difference, so the smear is not along-ray undersampling; it's the cloud shape (2D
+  base field extruded through the 170-block slab: columns seen from below fan from the zenith). sky.glsl **reverted**.
+  sky_noon stays open; a real fix needs height-varying base shape (likely one more noise fetch: not cost-neutral, ask).
+- 01:28 (forest wash part a, uncommitted): lightShafts dust goes to a pending sum dustP, committed to dust in full when a
+  later free-air sample is shaded (a beam against shade), else dust += 0.35*dustP at the end. ALU only. Shot
+  **1027-012811-r009-fwash-shot3** (r9-fwash5.json, tag r9fy: forest_golden vs r9sf (canopy 46,49,7), dust_b vs r9sf
+  (path beam must stay), golden_lit vs r9gy). Revert = undo the dustP hunks in composite.glsl (only hunks in the file).
+- 01:31: r9fy: forest_golden brighter overall (canopy 46,49,7 -> 50,54,8; sky 175 -> 190, likely exposure making up for
+  the lost haze), dust_b unchanged: **reverted**. Shader tree clean; nothing uncommitted. Journal 01:31 has the detail.
+- **Next:** (1) at/after 08:00: read cost run 1026-223822 (measures a651ede only), then resubmit r9-volfast.json with
+  new tags on the current pack (now incl. 85dab7a) before publishing. (2) Forest wash still open: test with exposure
+  pinned first (find the meter in prepare.glsl; is there a fixed-exposure option?), then retry the haze cut (a) and the
+  sky veil (b). (3) sky_noon smear: shape fix needs a height-varying base field (+1 noise fetch per cloud sample): measure
+  its cost and put it to the owner if not free. (4) Meteors once docs/design/shaders/research/meteor-showers.md exists.
+  Then spec_scenes.py and round.json for r009 (C:\qfb\shaderdev\r009).
 
 ## Hand-off from texture-dev (2026-10-26): owner's r008 "tex-golden: weird artifacting in all photos" is shader-side
 Same artifacts in t8v0, t8v1, t8f64 (all three packs) and still in t9v1/t9v2c (r009 shader), so not textures. In golden_lit
