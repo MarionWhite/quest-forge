@@ -172,7 +172,14 @@ Nothing for v2 started; no renders submitted.
     (regen, swift, fire, healing, night vision, strength, water breathing, splash poison); not rebuilt, to leave the other scenes'
     world alone. Baseline: r008 bench-t8i1/t8i0-items_frames.png. Submission **1026-233707-textures-v2h-items**.
 
+  - 1026-233707 DONE 23:44, 1/1 frame. Review (native crop px 700,800,1870,930 of t8i1 | t9v2h items_frames): CIT picks up
+    every per-effect sprite in-game; the ribbon, feather, flame, bands + gem, eye, sparkle and bubbles read at frame distance; each
+    bottle is more distinct than r008's. Item frames show the sprites mirrored (vanilla behaviour; inventory is unmirrored).
+    **Step 6 (potions) closed at v2h.** For the owner: the board shows 8 of the 12; include the offline sheet in the r009 items
+    scene so poison/weakness/slowness/harming/invisibility are seen too.
+
 ## Next
-Step 6 review: `renderq.py results 1026-233707-textures-v2h-items`; sheet t8i0 | t8i1 | t9v2h items_frames + a native crop of
-the potion row; check that CIT picks up the per-effect names in-game. Then step 7 (scene hand-off).
-Steps still open: 6 (review), 7 (scene hand-off).
+Step 7: render the r009 comparison scenes via renderq (shot mode at night), write texture_scenes.json in C:\qfb\shaderdev\r009
+(format: r008's texture_scenes.json) + TEXTURES-READY; `trial.py guard`; no push. Default build is now
+`build_qf_textures.py --out C:/qfb/textures/QFTextures-v2.zip` (CIT on, no duplicate entries; --metals qf).
+Steps still open: 7 (scene hand-off).
