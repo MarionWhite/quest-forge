@@ -308,8 +308,10 @@ export function blockNameAt(a, x, y, z) {
   return BLOCK_NAME[t === T_WALL ? wallType(a.st[ix], i, j, k) : t] || "stone";
 }
 
-// Materials and textures, shared by every chunk.
-export function makeMats(images) {
+// Materials and textures, shared by every chunk. With WebGL2 (array: true) the terrain draws from one texture array,
+// a 16x16 layer per block texture, nearest and without mips, so nothing bleeds between textures and a chunk's walls and
+// floors are one draw call instead of one per texture. WebGL1 keeps a material per texture.
+export function makeMats(images, { array = false } = {}) {
   const texs = {}, mats = {};
   const texOf = (file) => {
     if (texs[file] !== undefined) return texs[file];
@@ -321,17 +323,58 @@ export function makeMats(images) {
     return (texs[file] = tex);
   };
   const matOf = (file) => mats[file] || (mats[file] = patchBake(new THREE.MeshLambertMaterial({ map: texOf(file) })));
-  return { texOf, matOf };
+  const out = { texOf, matOf, array: null, layerOf: null, arrayMat: null };
+  if (array) {
+    const files = new Set();
+    for (const v of Object.values(TEX_OF)) for (const f of v) if (f) files.add(f);
+    for (const v of Object.values(FRONT)) files.add(v[2]);
+    const list = [...files].filter((f) => images[f] && (images[f].width || images[f].naturalWidth));
+    const S = 16, data = new Uint8Array(S * S * 4 * list.length);
+    const cv = document.createElement("canvas"); cv.width = cv.height = S;
+    const cx = cv.getContext("2d", { willReadFrequently: true }); cx.imageSmoothingEnabled = false;
+    const layers = new Map();
+    list.forEach((f, li) => {
+      cx.clearRect(0, 0, S, S); cx.drawImage(images[f], 0, 0, S, S);
+      const px = cx.getImageData(0, 0, S, S).data;
+      // Rows bottom-up, as a flipped image texture: v = 0 is the image's bottom row.
+      for (let y = 0; y < S; y++) data.set(px.subarray((S - 1 - y) * S * 4, (S - y) * S * 4), (li * S + y) * S * 4);
+      layers.set(f, li);
+    });
+    const tex = new THREE.DataArrayTexture(data, S, S, list.length);
+    tex.colorSpace = THREE.SRGBColorSpace; tex.magFilter = THREE.NearestFilter; tex.minFilter = THREE.NearestFilter;
+    tex.generateMipmaps = false; tex.needsUpdate = true;
+    out.array = tex;
+    out.layerOf = (f) => (layers.has(f) ? layers.get(f) : -1);
+    out.arrayMat = patchArray(patchBake(new THREE.MeshLambertMaterial()), tex);
+  }
+  return out;
+}
+// The terrain's texture-array lookup on top of the bake: the block's own UV wraps per block (fract), the layer is flat.
+function patchArray(mat, tex) {
+  const prev = mat.onBeforeCompile;
+  mat.onBeforeCompile = (sh, r) => {
+    prev(sh, r);
+    sh.uniforms.tArr = { value: tex };
+    sh.vertexShader = sh.vertexShader
+      .replace("#include <common>", "#include <common>\nattribute vec2 uvw;\nattribute float layer;\nvarying vec2 vUvw;\nflat varying float vLayer;")
+      .replace("#include <begin_vertex>", "#include <begin_vertex>\nvUvw = uvw; vLayer = layer;");
+    sh.fragmentShader = sh.fragmentShader
+      .replace("#include <common>", "#include <common>\nuniform highp sampler2DArray tArr;\nvarying vec2 vUvw;\nflat varying float vLayer;")
+      .replace("#include <map_fragment>", "diffuseColor *= texture(tArr, vec3(fract(vUvw), vLayer));");
+  };
+  mat.customProgramCacheKey = () => "bakeArr";
+  return mat;
 }
 
 const DIRS = [[1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], [0, 0, 1], [0, 0, -1]];
 const CORNERS = [[0, 0], [1, 0], [1, 1], [0, 1]];
-// The faces of one chunk (the window's blocks inside its box), one mesh per texture, with the bake in a vertex colour.
+// The faces of one chunk (the window's blocks inside its box), with the bake in a vertex colour: one mesh with a
+// layer per face on the texture array, or one mesh per texture without it.
 export function meshChunk(win, mm) {
   const a = win, bb = win.bb, group = new THREE.Group();
   const lightAt = win.lightAt || (win.lightAt = makeLightAt(a));
-  const bins = new Map();
-  const bin = (file) => { if (!bins.has(file)) bins.set(file, { pos: [], nor: [], uv: [], bake: [] }); return bins.get(file); };
+  const bins = new Map(), arr = !!mm.array;
+  const bin = (file) => { const key = arr ? "*" : file; if (!bins.has(key)) bins.set(key, { pos: [], nor: [], uv: [], bake: [], layer: [] }); return bins.get(key); };
   const iLo = Math.max(a.i0 + 1, bb.x0), iHi = Math.min(a.i0 + a.NI - 1, bb.x1), kLo = Math.max(a.k0 + 1, bb.z0), kHi = Math.min(a.k0 + a.NK - 1, bb.z1);
   const NIJ = a.NI * a.NJ;
   for (let k = kLo; k < kHi; k++) for (let j = a.j0 + 1; j < a.j0 + a.NJ - 1; j++) for (let i = iLo; i < iHi; i++) {
@@ -347,6 +390,8 @@ export function meshChunk(win, mm) {
       const top = dj > 0, bot = dj < 0;
       const fr = FRONT[tt];
       const file = fr && fr[0] === di && fr[1] === dk ? fr[2] : top ? (names[1] || names[0]) : bot ? (names[2] || (names[1] && tt !== 7 ? names[1] : names[0])) : names[0];
+      const ly = arr ? mm.layerOf(file) : 0;
+      if (ly < 0) continue;
       const b = bin(file);
       const ax = di ? 0 : dj ? 1 : 2, sn = di + dj + dk;
       const t1 = (ax + 1) % 3, t2 = (ax + 2) % 3;
@@ -372,17 +417,19 @@ export function meshChunk(win, mm) {
         b.uv.push(di ? (di > 0 ? -pz : pz) : px, dj ? pz : py);
         const ao = em ? 1 : aos[q];
         b.bake.push(bkr * ao, bkg * ao, bkb * ao);
+        if (arr) b.layer.push(ly);
       }
     }
   }
   for (const [file, b] of bins) {
-    if (!mm.texOf(file) || !b.pos.length) continue;
+    if (!b.pos.length || (!arr && !mm.texOf(file))) continue;
     const g = new THREE.BufferGeometry();
     g.setAttribute("position", new THREE.Float32BufferAttribute(b.pos, 3));
     g.setAttribute("normal", new THREE.Float32BufferAttribute(b.nor, 3));
-    g.setAttribute("uv", new THREE.Float32BufferAttribute(b.uv, 2));
+    g.setAttribute(arr ? "uvw" : "uv", new THREE.Float32BufferAttribute(b.uv, 2));
     g.setAttribute("bake", new THREE.Float32BufferAttribute(b.bake, 3));
-    const m = new THREE.Mesh(g, mm.matOf(file));
+    if (arr) g.setAttribute("layer", new THREE.Float32BufferAttribute(b.layer, 1));
+    const m = new THREE.Mesh(g, arr ? mm.arrayMat : mm.matOf(file));
     m.matrixAutoUpdate = false;
     group.add(m);
   }
@@ -390,8 +437,8 @@ export function meshChunk(win, mm) {
 }
 
 // ---- the world: chunks streamed around the walker ----------------------------------------------------------------
-export function makeWorld({ plan, images, scene, dresser, onChange = null, radius = 84 }) {
-  const mm = makeMats(images);
+export function makeWorld({ plan, images, scene, dresser, onChange = null, radius = 84, array = false }) {
+  const mm = makeMats(images, { array });
   const chunks = new Map();                       // key -> { ci, ck, win, terrain, dress, bb }
   const carves = [];                               // boxes carved so far, applied to every window built later
   const saved = new Map();                         // window -> Map(grid index -> original)

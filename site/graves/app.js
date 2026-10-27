@@ -264,7 +264,7 @@ async function startKrypt() {
   const dresser = makeDresser(IMG);
   addDecor(dresser, IMG);
   K.dresser = dresser;
-  const world = makeWorld({ plan, images: IMG, scene, dresser, radius: phone ? 66 : 84, onChange: (agg) => { K.agg = agg; } });
+  const world = makeWorld({ plan, images: IMG, scene, dresser, radius: phone ? 66 : 84, array: renderer.capabilities.isWebGL2 && !QS.has("noarray"), onChange: (agg) => { K.agg = agg; } });
   K.world = world;
   K.lightAt = (x, y, z, nx, ny, nz, o) => world.lightAt(x, y, z, nx, ny, nz, o);
   K.fx = makeFx(scene, () => K.agg.emit, { phone });
