@@ -71,4 +71,7 @@ rt/scareflow16.js, rt/trace.js, cmp_trace.py).
 - [x] Wither Skeleton: black fog kept (its one device); the drag, the stop, the tick; turning back it stands over you
   at 2 m, the look up its ribs to the skull, the rattle, the stride in and the thrust; the blade, decapitation, and
   at the end it looks at your head as the Wither black closes in. Frames `ws1/sheet.png`, `ws2/sheet.png` (strike).
-- Next: Lava fall, Drowned.
+- [x] Lava fall: already physical; stingers and the slip screech removed (sound only).
+- [x] Drowned grab: the peek is a shape drifting far down (no frame-flash); it has your ankles, climbs your legs, bites
+  your side, drags you down (no clear-sound screech, no lens lunge). Frames `dr1/sheet.png`, `dr2/sheet.png`.
+- Next: trace Enderman/Creeper, full sheet of 16, live J run, check_sounds, scream mix, journal, done.
