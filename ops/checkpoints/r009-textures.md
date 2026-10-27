@@ -106,7 +106,18 @@ Nothing for v2 started; no renders submitted.
     third column = r008's `C:\qfb\shaderdev\rounds\screenshots\bench-t8f64-farm*.png`).
   - Submission **1026-230307-textures-v2d-crops**.
 
+  - 1026-230307 DONE 23:10. Review (sheet t9v1 | t9v2d | t8f64 of farm, farm_close; native crop of farm_close box
+    900,800,1560,1150): v2d clearly airier than v1's wall, carrots/potatoes now Faithful's leafy darker green (no neon).
+    But ripe ears read as short blobs on rigid posts next to Faithful's curving plants.
+  - Fix pass v2e (commit 390b0fd): EAR lengths 5/7/9/10 (stages 4-7), stalk bow, tip nods from stage 6, jitter ±0.7, lean sd 1.5.
+    Ripe tile still bunches a little (reads as tufts). Spec `textures-v2e-crops.json`; submission **1026-231132-textures-v2e-crops**.
+
+  - 1026-231132 DONE 23:14. Review (crops t9v2d | t9v2e | t8f64; farm_close box 900,800,1560,1150, farm box 900,500,1560,860):
+    v2e ears are longer and slimmer and read as wheat heads, better than v2d. Behind Faithful: stalks fairly straight, and stages 1-2
+    read as flat lime "+" shapes from above (Faithful's are upright shoots). **Step 3 (crops) closed at v2e.**
+    For the owner: code wheat isn't Stay True's hand-placed look; if r009 says so, hand-drawn wheat masters are the next path.
+
 ## Next
-Step 3 review: 3-column sheet t9v1 | t9v2d | t8f64 (farm, farm_close) + native-res crops of the near rows. Close at v2d or one
-fix pass. If code wheat still can't match Stay True's hand-placed look, say so and propose hand-drawn wheat masters.
-Then step 4 (metals + emerald "weird").
+Step 4: metals (raise iron/gold albedo in the PBR set; no per-frame cost, see r009-shader) and emerald ("weird", r008
+tex-wall-close). Read-only diagnosis first (r008 texture_wall/texture_wall2 crops, t8v1 vs t8f64), then fix + one render.
+Steps still open: 5 (tex-golden artifact), 6 (potions; also fix the duplicate CIT zip entries), 7 (scene hand-off).
