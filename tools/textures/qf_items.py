@@ -213,6 +213,25 @@ EFFECTS = {   # effect bits -> (bottle, name for the files, patches, dashed outl
     14: ("cone", "invisibility", [        # a ghost of a bottle: dashed outline, sparkles
         (2, 2, "h"), (5, 12, "h"), (4, 13, "w"), (9, 1, "w"), (13, 14, "h")], True),
 }
+# r010 (owner r009: "the green potion is boring" = splash poison, the board's only green): every splash potion
+# had one plain grenade. Now each effect's splash carries a small version of its motif on the grenade's body
+# (rows 7-12, cols 4-12 are liquid; the fuse cork is rows 0-2, cols 8-10).
+SPLASH = {   # effect bits -> (patches on the "splash" grid, dashed outline)
+    1: ([(0, 11, "vV"), (1, 11, "v"), (3, 7, "rRr"), (9, 8, "l"), (11, 6, "l"), (10, 10, "l")], False),
+    2: ([(0, 11, "ff"), (1, 11, "fF"), (2, 11, "F"), (8, 0, "ww"), (10, 1, "ww"), (12, 0, "ww")], False),
+    3: ([(0, 8, "r"), (1, 8, "rR"), (8, 8, "a"), (9, 7, "aya"), (10, 7, "ayy"), (11, 7, "aaa")], False),
+    4: ([(8, 7, "xxx"), (9, 7, "OxO"), (10, 7, "xxx"), (11, 7, "xOx"),
+         (0, 12, "l"), (1, 11, "m"), (2, 12, "m"), (0, 14, "m"),
+         (15, 7, "m"), (15, 10, "l"), (14, 12, "m")], False),
+    5: ([(0, 9, "y"), (1, 9, "Y"), (8, 8, "h"), (9, 7, "hwh"), (10, 8, "h"), (1, 1, "h"), (2, 2, "w")], False),
+    6: ([(9, 6, "OOOOO"), (10, 5, "OxyOyxO"), (11, 6, "OOOOO")], False),
+    8: ([(0, 9, "c"), (1, 9, "C"), (9, 4, "sssssssss"), (8, 8, "O"), (10, 9, "O"), (11, 8, "O")], False),
+    9: ([(8, 4, "kkkkkkkkk"), (8, 4, "y"), (8, 12, "y"), (10, 7, "ysy"), (11, 7, "srs"), (12, 7, "ysy")], False),
+    10: ([(8, 7, "YYY"), (9, 8, "y"), (10, 7, "YyY"), (1, 5, "w.w"), (2, 6, "w")], False),
+    12: ([(9, 6, "rr.rr"), (10, 6, "rrOrr"), (11, 7, "rOr"), (12, 8, "r"), (4, 3, "K"), (2, 2, "K")], False),
+    13: ([(0, 11, "w"), (1, 12, "h"), (2, 11, "w"), (9, 6, "l"), (10, 9, "l"), (11, 7, "l")], False),
+    14: ([(2, 2, "h"), (5, 13, "h"), (9, 1, "w"), (13, 14, "h")], True),
+}
 GLASS = {"o": (34, 30, 44, 255), "O": (20, 16, 26, 255), "w": (232, 240, 250, 200), "g": (178, 198, 222, 170),
          "G": (120, 136, 160, 190), "h": (255, 255, 255, 235), "c": (176, 128, 74, 255), "C": (118, 80, 42, 255),
          "s": (234, 222, 190, 255),
@@ -270,7 +289,8 @@ BOOK = """
 ..oYyyyyyyyyyPo.
 ...oooooooooooo.
 ................"""
-EMBLEMS = {   # 7x7, drawn on the cover centred at (8, 7); e emblem, E emblem dark, y gilt
+EMBLEMS = {   # 7x7, e emblem, E emblem dark, y gilt. Placed by bounding box on the cover's centre pixel (8, 7)
+              # (emblem_origin); r010: every box must be odd-sized so it centres exactly (owner r009: logos off centre)
     "shield": """
 .yyyyy.
 yeeeeey
@@ -289,10 +309,10 @@ y.yey..
 E....y.""",
     "flame": """
 ...e...
-..ee...
+..eEe..
 ..eEe.e
 .eEyEee
-.eyyyEe
+eEyyyEe
 .eEyEe.
 ..eee..""",
     "pickaxe": """
@@ -304,17 +324,17 @@ y..E..y
 ...E...
 ...E...""",
     "thread": """
-.yyyyy.
+yyyyyyy
 .eeeee.
 .EEEEE.
 .eeeee.
 .EEEEE.
-.yyyyy.
-.....ee""",
+yyyyyyy
+....ee.""",
     "anvil": """
-.......
 eeeeeey
 .eEEEe.
+..eEe..
 ..eEe..
 ..eEe..
 .eeeee.
@@ -368,11 +388,27 @@ def book(eid):
                 out[y, x] = pal[ch]
     rows = [r for r in EMBLEMS[emblem].strip("\n").split("\n")]
     epal = {"e": em + (255,), "E": emd + (255,), "y": BOOK_FIXED["y"]}
+    ox, oy = emblem_origin(emblem)
     for dy, r in enumerate(rows):
         for dx, ch in enumerate(r):
             if ch != ".":
-                out[4 + dy, 5 + dx] = epal[ch]
+                out[oy + dy, ox + dx] = epal[ch]
     return out
+
+
+COVER_CENTRE = (8, 7)   # the cover face is x 4-12, y 3-11 of BOOK
+
+
+def emblem_origin(name):
+    """Where to put an emblem's grid so its drawn pixels' bounding box is centred on COVER_CENTRE."""
+    rows = EMBLEMS[name].strip("\n").split("\n")
+    pts = [(x, y) for y, r in enumerate(rows) for x, c in enumerate(r) if c != "."]
+    x0, x1 = min(p[0] for p in pts), max(p[0] for p in pts)
+    y0, y1 = min(p[1] for p in pts), max(p[1] for p in pts)
+    if (x1 - x0) % 2 or (y1 - y0) % 2:
+        raise ValueError("emblem %s: bounding box %dx%d is even-sized, cannot centre exactly"
+                         % (name, x1 - x0 + 1, y1 - y0 + 1))
+    return COVER_CENTRE[0] - (x0 + x1) // 2, COVER_CENTRE[1] - (y0 + y1) // 2
 
 
 def png(a):
@@ -395,12 +431,16 @@ def write_cit(z):
         glass, liquid = bottle_layers(shape, patches, dashed)
         z.writestr(d + "bottle_%s.png" % name, png(glass))
         z.writestr(d + "liquid_%s.png" % name, png(liquid))
+        sg, sl = bottle_layers("splash", *SPLASH[bits])
+        z.writestr(d + "bottle_%s_splash.png" % name, png(sg))
+        z.writestr(d + "liquid_%s_splash.png" % name, png(sl))
         z.writestr(d + "%s.properties" % name,
                    "type=item\nitems=minecraft:potion\ndamage=%d\ndamageMask=16399\n"
                    "texture.potion_bottle_drinkable=bottle_%s\ntexture.potion_overlay=liquid_%s\n" % (bits, name, name))
         z.writestr(d + "%s_splash.properties" % name,
                    "type=item\nitems=minecraft:potion\ndamage=%d\ndamageMask=16399\n"
-                   "texture.potion_bottle_splash=bottle_splash\ntexture.potion_overlay=liquid_splash\n" % (16384 | bits))
+                   "texture.potion_bottle_splash=bottle_%s_splash\ntexture.potion_overlay=liquid_%s_splash\n"
+                   % (16384 | bits, name, name))
         n += 2
     for eid, (_, _, name) in ENCHANTS.items():
         d = CIT + "books/"
@@ -416,10 +456,15 @@ def sheet(path, scale=8):
     tints = {1: 0xCD5CAB, 2: 0x7CAFC6, 3: 0xE49A3A, 4: 0x4E9331, 5: 0xF82423, 6: 0x1F1FA1, 8: 0x484D48,
              9: 0x932423, 10: 0x5A6C81, 12: 0x430A09, 13: 0x2E5299, 14: 0x7F8392, 0: 0x4E9331}
     tiles = []
-    for bits, c in tints.items():
+    order = [(b, False) for b in tints if b] + [(b, True) for b in tints if b]   # drinkables, then each splash
+    for bits, splash in order:
+        c = tints[bits]
         t = (c >> 16, (c >> 8) & 255, c & 255)
-        shape, _, patches, dashed = EFFECTS[bits] if bits else ("splash", "", (), False)
-        glass, liquid = bottle_layers(shape, patches, dashed)
+        if splash:
+            glass, liquid = bottle_layers("splash", *SPLASH[bits])
+        else:
+            shape, _, patches, dashed = EFFECTS[bits]
+            glass, liquid = bottle_layers(shape, patches, dashed)
         lq = liquid.astype(np.float32)
         lq[..., :3] *= np.array(t) / 255.0
         im = Image.fromarray(lq.astype(np.uint8), "RGBA")
