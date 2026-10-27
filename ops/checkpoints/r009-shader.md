@@ -279,6 +279,9 @@ Owner overall: no drastic improvement; over budget on performance; wants optimis
   the **publisher** (finish_round.py). Open for the owner in r009's notes: QF_VOL_FAST 1 default (DECISIONS), daytime
   torchlight outdoors ~70% weaker, ocean_sunset's sun now sets behind its cloud, sky_noon smear needs +1 noise fetch.
 
+- 2026-10-27 08:55: **publish done**: r009 posted as ab4ada7 (not pushed); see ops/checkpoints/r009-publish.md.
+  r009 shader work is closed; next is the owner's r009 feedback, then r010 (open list in r009-publish.md).
+
 ## Hand-off from texture-dev (2026-10-26): owner's r008 "tex-golden: weird artifacting in all photos" is shader-side
 Same artifacts in t8v0, t8v1, t8f64 (all three packs) and still in t9v1/t9v2c (r009 shader), so not textures. In golden_lit
 (2560x1440): (1) the shaft haze ends in blocky stair-steps on shadow-map texels: a hard-edged lit rectangle over the grass,

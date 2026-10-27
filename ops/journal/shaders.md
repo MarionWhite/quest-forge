@@ -1,5 +1,19 @@
 # Shaders journal (newest first)
 
+- 2026-10-27 08:55: **r009 posted** (ab4ada7, --no-push; 20 scenes: 11 shader + 9 texture). Costs from
+  1027-020424-r009-publish-cost (done 08:41, 24/24 jobs), ms vs shaders-off of the same size:
+  High p9 worst ocean_sunset 3.29 (r8 4.58); over 3.0: river_swamp 3.14, beach 3.08, swamp/ocean_swamp 3.04, biome_ocean
+  3.03; the rest 1.88-3.00. Low p9lo worst 0.86 (r8 1.32, budget 0.9). Potato 0.29 (0.4).
+  Budget lines on the 6 r8b views (High, ms saved when off): SHAFTS 0.62-0.85 (r8 1.84 mean), DUST+MOTES 0.30-1.03,
+  WAVES 0-0.23, PBR 0.03-0.10. QF_VOL_FAST 0 adds +0.42 (forest_golden) to +1.46 (golden_lit) High and +0.41-0.50 Low;
+  its look at sheet scale is the same (golden_lit, dust_b). Water views now carry the High overage.
+  Critic (me, r009/critic.json): mean 6.5 over 22 frames, "not yet: motes in the beam". Dust clip motion map: leaf sway
+  and beam shimmer only, no separable mote tracks (same as p8); the p9 shaft by the cliff is fainter than p8's, and with
+  QF_DUST 0 the few motes show more (haze hides them). River: yellow stripes gone, but pale mint dashes on the ledge edges.
+  Meteor clip: about 7 near-parallel streaks with heads at the lower ends, one radiant above the top right of the frame.
+  Pre-post checks: terrain in all 22 frames, clips 1.1-2.9 MB, intro numbers filled. Texture options carry the new
+  "noCost" flag (shot-mode t9* frames; finish_round.py skips them in the no-cost stop).
+
 - 2026-10-27 02:04: r009 last night tries, then the freeze. Shot 1027-015510 (pinned exposure) put two ideas behind
   temporary toggles: an open-sky shaft veil cut to 0.5 on golden-hour rays through shaded air (forest_golden's cream sky
   round the gap 150.3 -> 147.9 R: noise; shaded share on sky rays is too small to key on), and raw shadow taps for mote

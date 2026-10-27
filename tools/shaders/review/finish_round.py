@@ -103,7 +103,8 @@ def main():
     if "n" in conf:
         spec["n"] = conf["n"]
         spec["id"] = f"r{conf['n']:03d}"
-    nocost = [f"{s['id']}/{o['key']}" for s in spec["scenes"] for o in s["options"] if "img" in o and o.get("ms") is None]
+    nocost = [f"{s['id']}/{o['key']}" for s in spec["scenes"] for o in s["options"]
+              if "img" in o and o.get("ms") is None and not o.get("noCost")]
     if nocost:
         sys.exit("no cost (no shaders-off baseline found; add round.json \"base\" or render one with renderq):\n  "
                  + "\n  ".join(nocost) + "\n  missing p50: " + ", ".join(sorted(set(R.missing_cost))))
