@@ -178,3 +178,42 @@ Other stages have no variants (the hook draws them as before). The old ctm/wheat
    the leafy columns don't apply). Expect noise-level change. Add to leaf-frills.md "Crop variants" Results.
 4. Add a scene "crops-variants" (A cv1a0 off, B cv1a1 on; farm_close, maybe farm) to `frills_make_scenes.py`, rerun, touch
    FRILLS-READY. Commit docs/ops; journal.
+
+### 2026-10-27 session 4 (leaf-frills agent)
+- 19:30 guard OK. crops-a boots: cv1a0 b1027191111 "crop variants off ... untouched"; cv1a1 b1027191250 "Transform applied:
+  crop variants hook", "crop variants: [wheat_stage_7 x5]" (logged twice, 19:13:11/12). The IllegalArgumentException
+  "Unable to read a class file" is FML mod discovery (in every boot since 17:03), harmless.
+- Look: `C:\qfb\frills\look\cv1a.jpg`, `cv1a-near.jpg`: on == off, every ripe wheat the same height -> pick() returns the
+  base icon. Sprites are fine (v0..v4 tops at rows 24/18/12/6/0). No Angelica mixin touches renderBlockCropsImpl or
+  registerIcon identity (decompiled into C:\qfb\frills\ang\src3). Cause unknown -> v4: name-keyed fallback + one-shot
+  diagnostic log in pick ("crop variants: first lookup ..."), rebuild jar v4, re-render crops-b with QF-cropvar.zip
+  (wheat + carrots + potatoes variants).
+- 19:20 v4 BUILT: leaf-frills **9a3acba** (CropVariants: name-keyed fallback `byName` via IIcon.func_94215_i; logs "first crop
+  icon at the hook: NAME (class@id), N stitched stage(s)", then "NAME matched the stitched sprite" or "...reached the hook as
+  ..., matching by name"; the stitch line now names the atlas and says whether it is Minecraft's blocks atlas). Jar
+  `C:\qfb\frills\jars\v4\QuestForgeTweaks-1.0.jar`. Docs 4c2032e (leaf-frills.md "Crop variants, results").
+- 19:20 SUBMITTED `1027-192003-r010-crops-b` (spec `C:\qfb\frills\crops\spec-r010-crops-b.json`): cv1b0 off / cv1b1 on,
+  packs QF-w-bushy + `C:\qfb\textures\diag\QF-cropvar.zip` (wheat x5, carrots x4, potatoes x4), farm + farm_close, cost mode,
+  MeshStats `C:\qfb\frills\stats\cv1b{0,1}.txt`. Queue ETA ~19:35-19:40.
+- crops-a cost (hook on, all misses): frame p50 +0..1%, whole-boot ms/section +7% over different section counts = noise.
+- `frills_make_scenes.py` (backup `.bak-s4`) now appends scenes `crops-variants` (farm_close) and `crops-variants-far` (farm),
+  A cv1b0 / B cv1b1, ONLY when all four cv1b frames exist; rerun now = unchanged 3 scenes (checked with cmp). Fill
+  `CROP_COST` there with the cost line.
+- guard OK 19:22. Session 4 exits (wait > 10 min).
+
+## Resume here (session 5)
+1. `renderq.py results 1027-192003-r010-crops-b`. Boot logs (`C:\qfb\shaderdev\rounds\logs\b*.log` after 19:25, jobs
+   cv1b0/cv1b1): `grep -a "crop variants"`. cv1b1 needs "[wheat_stage_7 x5, carrots_stage_3 x4, potatoes_stage_3 x4]
+   (... the blocks atlas)", "first crop icon at the hook", and a "matched"/"matching by name" line.
+   - No "first crop icon" line at all: the hook never runs (renderBlockCropsImpl not reached) -> check Angelica's
+     ThreadedAngelicaChunkBuilderMeshingTask / any ISBRH for crops.
+   - "first crop icon ... 0 stitched stage(s)": classloader split (two CropVariants classes) -> put the map in a class both see.
+   - "NOT Minecraft's blocks atlas": another type-0 TextureMap stitched last; only accept the stitch when map == func_147117_R().
+   - First icon named e.g. "minecraft:wheat_stage_7": strip the domain in the byName key.
+2. Look: `py -3.10 C:\qfb\frills\scripts\grid.py C:\qfb\frills\look\cv1b.jpg 960 cv1b0,cv1b1 farm farm_close` and 1:1
+   `... cv1b-near.jpg 900 cv1b0,cv1b1 farm_close:1100,640,900,380` (wheat); carrots/potatoes are the green rows to the
+   right/front. Judge: five heights mix, no grid, no missingno; compare with docs/design/shaders/feedback/attachments/r009/.
+3. Cost: `py -3.10 tools/textures/frills_cost.py --off cv1b0 --on cv1b1` (whole-boot "all sections" ms and vertices).
+   Write into leaf-frills.md "Crop variants, results" (crops-b) and into CROP_COST in frills_make_scenes.py.
+4. `py -3.10 -I -X utf8 C:\qfb\shaderdev\r010\frills_make_scenes.py` -> 5 scenes; touch FRILLS-READY. Commit docs/ops; journal.
+   If the hook works, drop the diagnostics? No: they are one-shot and cheap; keep.
