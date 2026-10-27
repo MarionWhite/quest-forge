@@ -84,6 +84,31 @@ Owner overall: no drastic improvement; over budget on performance; wants optimis
   non-swamp underwater, sky_noon. Crop helper idea: scratchpad scripts are gone; rebuild with PIL (full frame 640x360 +
   native crops side by side).
 
+- 2026-10-27 00:23 (look step, dust motes): r9tg2 dust_b showed the beam haze but almost no motes in the shaft.
+  Cause found: far flakes (14-48 m, the grid that carries dust_b's shaft) were gated by gBeam, a dithered per-pixel,
+  per-frame count that the 14-step march made noisier, so TAA kept none. Change (uncommitted until verified,
+  composite.glsl motesGrid): far flakes need shade on BOTH sides across the light (inBeam = (1-s1)(1-s2), two taps,
+  was three + gBeam: cheaper); near flakes unchanged. check_glsl 0 errors. Shot render **1027-002247-r009-dust-shot**
+  (spec r9-dust.json): r9dm on dust_b, forest_golden, ocean_sunset (watch: no flakes over the open sea); r9dm1 =
+  QF_DUST_DBG 1 on dust_b (every sunlit mote, to tell a missing mote from a failed beam test).
+- 00:27: r9dm: far motes now show in the upper shaft (against the cliff); ocean_sunset clean (r8b's orange specks
+  over the sea gone, none added); forest_golden unchanged. Committed **ca40184**. r9dm1 (DBG 1) still showed almost
+  no sunlit near flakes in the lower shaft: likely the tex-golden size cut (2.6-1.3 -> 2.0-1.2) left them ~1 px, which
+  TAA erases. Loop 2 (uncommitted): near air flakes mix(2.0, 1.7, smoothstep(3, 8, along)). Shot render
+  **1027-002705-r009-dust-shot2** (r9-dust2.json): r9dn on dust_b + golden_lit (coin check, box 640,792,1280,1224),
+  r9dn1 = DBG 1 on dust_b.
+- 00:31: r9dn: upper-shaft motes a little bolder, golden_lit no coins back: committed **c209810**. Lower shaft still
+  empty in DBG 1, also with QF_VOL_FAST 0 (r9dv1), so not the fast path. Loop 3 (uncommitted): flakes in front of a
+  surface fade over the last 1.5 m (were last 18% near, last 8 m far; those long fades stay for the walk's end).
+  Shot render **1027-003222-r009-dust-shot4** (r9-dust4.json, tag r9do: dust_b, golden_lit, forest_golden).
+- 00:35: r9do: a couple more upper motes, golden_lit identical (no ground dots); committed **bbf3b79**. Dust step
+  result: motes in the upper shaft; the lower half still has no sunlit flake even in DBG 1 (suspects and next
+  diagnostic in the journal's 00:35 entry). Parked as open, not blocking: the owner sees r009's dust as it is.
+- **Next:** the sun step (critic uh/uj/p8: sharper limb, core ~1.5x hotter, wider warm Mie glow, longer brighter sun
+  path on the water; views ocean_sunset, sky views). Shot renders only until 08:00. At 08:00 the queued cost run
+  1026-223822 measures a651ede only: after reading it, resubmit r9-volfast.json with new tags on the current pack
+  (now includes ca40184/c209810/bbf3b79). Crop helper: 10-line PIL side-by-side (scratchpad copies get wiped).
+
 ## Hand-off from texture-dev (2026-10-26): owner's r008 "tex-golden: weird artifacting in all photos" is shader-side
 Same artifacts in t8v0, t8v1, t8f64 (all three packs) and still in t9v1/t9v2c (r009 shader), so not textures. In golden_lit
 (2560x1440): (1) the shaft haze ends in blocky stair-steps on shadow-map texels: a hard-edged lit rectangle over the grass,

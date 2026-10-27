@@ -1,5 +1,18 @@
 # Shaders journal (newest first)
 
+- 2026-10-27 00:35: r009 dust motes (dust_b, critic p8clipdust), shot renders 1027-002247 (r9dm, r9dm1 = QF_DUST_DBG 1),
+  002705 (r9dn, r9dn1), 002955 (r9dv1 = DBG 1 + QF_VOL_FAST 0), 003222 (r9do). Three commits, all cost-neutral or cheaper:
+  ca40184 far flakes gated per mote (shade on BOTH sides across the light, 2 taps, was 3 + gBeam; gBeam is dithered per
+  pixel/frame and with 14 shaft steps flickered under every flake, so TAA kept none); c209810 near air flakes keep a 1.7
+  size factor past 8 m (~4 px; tex-golden's 1.2 left ~1 px dots); bbf3b79 flakes fade over the last 1.5 m in front of a
+  surface (were last 18% near / 8 m far). Result: motes now drift in dust_b's upper shaft (against the cliff); ocean_sunset
+  clean (r8b's orange specks over the sea gone, none added); golden_lit no coins back; forest_golden unchanged.
+  Open: the shaft's lower half (box 1460,560,1900,1160, over the corridor grass) has no sunlit flake even in DBG 1, with or
+  without QF_VOL_FAST; not size, not the end fade, not the fast-path skip. Remaining suspects: the mote vis
+  (sampleShadow, filtered + normal offset) disagreeing with the march's raw shadowtex0 taps, or that haze's lit air sits
+  past the near grid's reach (25 cells from 2.5 m). Next diagnostic: a debug view of the first lit free-air distance on
+  those pixels, and DBG 1 with vis from shadowRaw instead of sampleShadow.
+
 - 2026-10-27: r009 tex-golden artifacts (texture-dev handover), shot renders 1026-235508 (r9tg), bisects 1027-000345
   (debug view 7), 000618 (shafts/dust/bounce off), 000950 (view 5, clouds off), 001317 (views 2, 3), verify 001651 (r9tg2).
   The stepped "lit rectangle" was none of shafts, dust, bounce, clouds or the sun shadow (view 5: the whole field is in the
