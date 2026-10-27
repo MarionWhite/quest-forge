@@ -147,3 +147,20 @@ docs/design/shaders/feedback/attachments/r009/ (look at both before starting). L
     listed above (C:\qfb\shaderdev\r010\texture_scenes.json + TEXTURES-READY; scenes: wall (v2 | v3 | Faithful; question
     states the cause in one sentence with the ladder numbers), farm + farm_close (bushy | dense | Faithful + Stay True shot;
     say plainly the variants need the hook), leaves (faithful | dense | crowns + Stay True), items). `trial.py guard`.
+- 2026-10-27 (texture-dev, session 2): reviewed 1027-165735 (leaves, walls) and 1027-171234 (items). Sheets in scratchpad (sheet.py).
+  - Walls (t10lb vs t10d4v2 vs t10d7f64): diamond now evenly lit and glossy, matches Faithful; iron fine; emerald in diamond's
+    direction reads as one family with diamond. Gold: a lime patch in the top third of each block = the metal mirrors the green
+    field/horizon, tinted by gold's albedo (shader uses albedo as metal F0; blue clipped -> lime). Shader-side (hard-coded LabPBR
+    231 F0 would fix it) -> add to the r010-shader hand-off note.
+  - Items t10i (crop 660,760,1900,1120): splash poison skull motif reads; books look centred. Done.
+  - Leaves: t10la Faithful = airy, ragged silhouette, big leaves. t10lb dense / t10lc crowns = solid opaque cubes: silhouette
+    became hard squares (worse than Faithful), lb/lc barely differ, both lime in sun (forest_lit). Not 3 genuine directions.
+  - NEXT: leaves_dense.py: `rim` (dense core, Faithful's own alpha kept in a ragged rim band) and `fine` (half-scale leaves,
+    mirrored 2x2 = Stay True's grain); render t10lr/t10lf on leaves_close,tree_close,forest_lit; then texture_scenes.json.
+  - Done: leaves_dense.py `rim` (dense core, Faithful holes in a patchy wavy edge band, lo=-8 hi=8) and `fine` (Faithful 32x
+    leaves tiled 2x2 = half-size leaves, crowns light field, rim; mirrored quadrants were tried and printed kaleidoscopes).
+    Builder `--leaves rim|fine`, `--faithful32`; CREDITS updated (Faithful 32x leaves, r010 Faithful uses, VNR G kept).
+    Zips C:\qfb\textures\diag\QF-l-rim.zip, QF-l-fine.zip. Submitted **1027-185913-textures-r010-leaves2** (t10lr, t10lf;
+    leaves_close, tree_close, forest_lit), queued behind leaf-frills 1027-185527.
+  - NEXT: wait/review leaves2 (sheet t10la|t10lr|t10lf + crops of hedge and crown), pick --leaves default; write
+    C:\qfb\shaderdev\r010\texture_make_scenes.py + texture_scenes.json + TEXTURES-READY; gold lime note to r010-shader.

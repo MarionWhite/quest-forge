@@ -3,7 +3,8 @@
 Stay True builds its canopies (studied from the owner's r009 screenshots, never its pixels), plus
 the leaf-edge texture for the leaf frills (ops/checkpoints/r010-leaf-frills.md).
 
-    py -3.10 tools/textures/leaves_dense.py <faithful64.zip> <preview.png>
+    py -3.10 tools/textures/leaves_dense.py <faithful64.zip> <preview.png> [<faithful32.zip>]
+    (columns: faithful | rim | fine (crowns without the 32x zip) | frill)
 
 Directions (all grey, biome-tinted in game like vanilla):
   faithful  Faithful 64x as is (the owner's pick in all three r009 leaf scenes).
@@ -11,6 +12,11 @@ Directions (all grey, biome-tinted in game like vanilla):
             holes, so a canopy reads as a mass with depth instead of a sieve (faithless-study item 13).
   crowns    dense + a tileable large-scale light pattern: each ~32 px cluster gets a lit crown and a
             dark underside (Stay True's value structure), so the canopy reads as clumps from afar.
+  rim       dense inside, but Faithful's own see-through holes kept in a wavy band 3-10 px wide along the
+            tile edge, so a canopy is a mass yet its outline stays ragged (r010 review: dense and crowns
+            turned every leaf block into a hard-edged opaque cube).
+  fine      Faithful 32x's leaves (smaller, clustered: the closest licensed art to Stay True's grain),
+            four mirrored copies per 64 px tile = half-size leaves at 64x pixel size, then rim.
 frill(...)  whole Faithful leaves (connected units, never cut mid-leaf) inside a bottom-heavy blob, on
             transparency: the texture for the outward frill quads.
 
@@ -75,6 +81,30 @@ def crowns(leaf, seed=5, depth=0.30):
     return d
 
 
+def rim(leaf, lo=-8, hi=8, seed=11, d=None):
+    """dense() in the core, the original alpha (Faithful's holes) in a wavy band along the tile edge.
+    lo < 0: some stretches of edge get no band at all, so neighbouring blocks don't print a grid."""
+    size = leaf.shape[0]
+    d = dense(leaf) if d is None else d
+    y, x = np.mgrid[0:size, 0:size]
+    edge = np.minimum(np.minimum(x, size - 1 - x), np.minimum(y, size - 1 - y)).astype(np.float32)
+    n = _periodic_noise(size, 6, seed)
+    n = (n - n.min()) / max(n.max() - n.min(), 1e-6)
+    band = edge < lo + (hi - lo) * n * size / 64.0
+    out = d.copy()
+    out[band] = leaf[band]
+    return out
+
+
+def fine(leaf32):
+    """Faithful 32x tiled 2x2 (seamless; half-size leaves). The darker back layers are shifted by
+    offsets that are not multiples of 32 and a 64-periodic light field lies over it all, so only the
+    front layer repeats inside a block. (Mirrored quadrants were tried: they print kaleidoscopes.)"""
+    t = np.tile(leaf32, (2, 2, 1))
+    d = crowns(t, seed=7, depth=0.26)
+    return rim(t, d=d)
+
+
 def frill(leaf, seed=0):
     """Whole leaves inside a bottom-heavy blob (wide at the base, ragged leafy top), transparent
     elsewhere. The frill quad's base sits on the leaf block's face."""
@@ -114,7 +144,7 @@ def main():
     rows = []
     for kind in KINDS:
         leaf = read_faithful(zp, "leaves_%s.png" % kind)
-        tiles = [leaf, dense(leaf), crowns(leaf), frill(leaf)]
+        tiles = [leaf, rim(leaf), fine(read_faithful(sys.argv[3], "leaves_%s.png" % kind)) if len(sys.argv) > 3 else crowns(leaf), frill(leaf)]
         row = []
         for t in tiles:
             tt = tint(t, TINTS[kind])

@@ -1,0 +1,14 @@
+{
+ "name": "textures-r010-leaves2",
+ "owner": "texture-agent",
+ "comment": "r010 leaves, second pass after reviewing 1027-165735: dense/crowns made every leaf block a hard opaque cube. t10lr rim (Faithful 64x dense core, Faithful's own holes kept in a patchy rim), t10lf fine (Faithful 32x leaves at half size, darker leaves behind, lit crowns, rim = Stay True's grain). Compare with t10la (Faithful as is). Shot mode, one boot each.",
+ "prebuild": [
+  ["py", "-3.10", "-I", "tools/textures/build_qf_textures.py", "--wheat", "bushy", "--leaves", "rim", "--out", "C:/qfb/textures/diag/QF-l-rim.zip"],
+  ["py", "-3.10", "-I", "tools/textures/build_qf_textures.py", "--wheat", "bushy", "--leaves", "fine", "--out", "C:/qfb/textures/diag/QF-l-fine.zip"]
+ ],
+ "defaults": {"world": "C:/qfb/textures/world-showcase", "preset": "3", "size": "2560x1440", "mode": "shot"},
+ "jobs": [
+  {"tag": "t10lr", "resourcepacks": ["C:/qfb/textures/diag/QF-l-rim.zip"], "scenes": "leaves_close,tree_close,forest_lit"},
+  {"tag": "t10lf", "resourcepacks": ["C:/qfb/textures/diag/QF-l-fine.zip"], "scenes": "leaves_close,tree_close,forest_lit"}
+ ]
+}

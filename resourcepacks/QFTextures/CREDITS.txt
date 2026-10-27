@@ -13,17 +13,24 @@ Built by tools/textures/build_qf_textures.py from four sources:
        mossy cobblestone; all ores; gold, iron, diamond, emerald, lapis, redstone and coal
        blocks; glowstone; glass, the 16 stained glasses and the pane tops; dirt, grass_side and
        grass_side_overlay; farmland;
+     - r010 builds (--leaves, --wheat): the leaves of the five broadleaf woods, re-layered
+       (darker copies of the same leaves behind, a light pattern over them), and the wheat
+       stages, the ripe stage re-composed into five variants from Faithful's own plant;
+     - the emerald block re-coloured from Faithful's diamond block (--emerald diamond);
      - the connected-glass tiles (assets/minecraft/mcpatcher/ctm/glass/), with their rules
        rewritten for 1.7.10 block ids.
    Licence: Faithful License, Version 4 -- https://faithfulpack.net/license
    An unmodified copy is included as LICENSE-Faithful.txt.
    This pack is not made or endorsed by Faithful.
+   With --leaves fine, the leaves come from Faithful 32x (Java 1.7.10 branch,
+   https://github.com/Faithful-Resource-Pack/Faithful-Java-32x), same licence, tiled at half
+   size and re-layered as above.
 
 2. Vanilla Normals Renewed, by Poudingue (Thomas Cusson) --
    https://github.com/Poudingue/Vanilla-Normals-Renewed-1.12
    (1.12 v0.04, commit c848329; also https://www.patreon.com/Poudingue)
    What we use: its normal (_n) and specular (_s) maps, converted to the LabPBR 1.3 layout
-   (green flipped to DirectX, ambient occlusion from its height, metal flags to LabPBR metal
+   (green kept as is: its maps are already DirectX-style; ambient occlusion from its height, metal flags to LabPBR metal
    codes), on the textures that stay vanilla; on Faithful 64x textures its shapes are upscaled
    and combined with fine relief we generate. None of its colour textures are used.
    Terms (its README): free to modify and redistribute if not sold and with a link to its page.

@@ -50,6 +50,7 @@ import vnr as vnrmod  # noqa: E402
 LIVE = os.path.join(os.environ.get("APPDATA", os.path.expanduser("~")), ".crazycraft4")
 FAITHFUL64 = r"C:\qfb\faithful64\dl\Faithful-64x-Java-1.7.10.zip"
 FAITHFUL_LICENSE = r"C:\qfb\faithful64\LICENSE-faithful.txt"
+FAITHFUL32 = r"C:\qfb\faithful\dl\Faithful.32x.-.1.7.10.zip"      # --leaves fine only
 VERSION = "v1"
 VIBRANCE = 1.10            # chroma gain; 1.0 = unchanged ("keep vibrance modest")
 BLOCKS = "assets/minecraft/textures/blocks/"
@@ -197,10 +198,12 @@ def main():
     ap.add_argument("--wheat", choices=("drawn", "dense", "bushy"), default="drawn",
                     help="drawn: qf_art's v2 wheat; dense/bushy (r010): Faithful 64x stages 0-6, ripe = five "
                          "variants re-composed from Faithful's own plant (wheat_dense.py), mixed by CTM random")
-    ap.add_argument("--leaves", choices=("drawn", "faithful", "dense", "crowns"), default="drawn",
-                    help="drawn: qf_art's v2 leaves; faithful/dense/crowns (r010, leaves_dense.py): Faithful 64x's "
-                         "leaves as is / with darker leaves filling the holes / + clustered lit crowns. All but drawn "
+    ap.add_argument("--leaves", choices=("drawn", "faithful", "dense", "crowns", "rim", "fine"), default="drawn",
+                    help="drawn: qf_art's v2 leaves; faithful/dense/crowns/rim (r010, leaves_dense.py): Faithful 64x's "
+                         "leaves as is / with darker leaves filling the holes / + clustered lit crowns / dense with a "
+                         "ragged see-through rim; fine: Faithful 32x's leaves at half size, crowns + rim. All but drawn "
                          "also write leaves_<kind>_frill.png for the leaf frills (qf-tweaks)")
+    ap.add_argument("--faithful32", default=FAITHFUL32, help="Faithful 32x 1.7.10 zip (--leaves fine)")
     ap.add_argument("--emerald", choices=("faithful", "diamond"), default="diamond",
                     help="diamond (r010 default): Faithful 64x's diamond structure in emerald tones (gems.py); "
                          "faithful: Faithful 64x's nested squares (v2)")
@@ -240,7 +243,12 @@ def main():
         import leaves_dense
         for kind in leaves_dense.KINDS:
             f = rgba(fread(BLOCKS + "leaves_%s.png" % kind)).astype(np.float32)
-            leaf = {"faithful": lambda x: x, "dense": leaves_dense.dense, "crowns": leaves_dense.crowns}[a.leaves](f)
+            if a.leaves == "fine":
+                f32 = leaves_dense.read_faithful(a.faithful32, "leaves_%s.png" % kind)
+                leaf, f = leaves_dense.fine(f32), np.tile(f32, (2, 2, 1))     # the frill takes the small leaves too
+            else:
+                leaf = {"faithful": lambda x: x, "dense": leaves_dense.dense, "crowns": leaves_dense.crowns,
+                        "rim": leaves_dense.rim}[a.leaves](f)
             leaf = np.clip(leaf + 0.5, 0, 255).astype(np.uint8)
             art["leaves_" + kind] = leaf
             art["leaves_%s_opaque" % kind] = qf_art.opaque(leaf)
