@@ -1,0 +1,38 @@
+{
+ "name": "textures-v2-leaves",
+ "owner": "texture-agent",
+ "comment": "r009 step 1c: v2 leaves (3 value groups per clump, leaves on crowns/silhouettes, round see-through pockets) against v1, the version the owner rated in r008, on the leaf and forest views. Shot mode: pictures only, allowed at night. One boot.",
+ "prebuild": [
+  [
+   "py",
+   "-3.10",
+   "-I",
+   "tools/textures/build_qf_textures.py",
+   "--no-cit",
+   "--out",
+   "C:/qfb/textures/QFTextures-v2.zip"
+  ]
+ ],
+ "defaults": {
+  "world": "C:/qfb/textures/world-showcase",
+  "preset": "3",
+  "size": "2560x1440",
+  "mode": "shot"
+ },
+ "jobs": [
+  {
+   "tag": "t9v2",
+   "resourcepacks": [
+    "C:/qfb/textures/QFTextures-v2.zip"
+   ],
+   "scenes": "leaves_close,tree_close,forest_lit"
+  },
+  {
+   "tag": "t9v1",
+   "resourcepacks": [
+    "C:/qfb/textures/QFTextures-v1.zip"
+   ],
+   "scenes": "leaves_close,tree_close,forest_lit"
+  }
+ ]
+}

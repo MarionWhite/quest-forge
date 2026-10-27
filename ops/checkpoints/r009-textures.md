@@ -47,5 +47,17 @@ Nothing for v2 started; no renders submitted.
     thin tick marks; jungle gaps are large Y-shapes. Only 5 grey values survive quantisation. Possible 1b+ touch-ups,
     otherwise judge them in the 1c render.
 
+- 2026-10-26 (texture-dev, capped run): 1c gap fix + render submitted.
+  - `leaves()` see-through pockets: the valley-following pockets (oak zigzag columns, jungle Y-shapes,
+    acacia ticks) are replaced by round pockets centred on each field minimum (7x7 window, f below 0.24-0.30),
+    varied in size (0.6-1.4x) and made of two overlapping discs so they don't read as a dot grid.
+    Alpha now: oak .92, big_oak .95, birch .96, jungle .95, acacia .97. Preview looked right; oak has
+    one keyhole-shaped pocket per tile, so judge that in the render.
+  - Built v2 (checkpoint command). Without --no-cit the build warns of duplicate zip entries for
+    `mcpatcher/cit/potions/bottle_cone.png` and `liquid_cone.png`. Not fixed; fix it with the potions step (6).
+  - Spec `tools/renderq/specs/textures-v2-leaves.json` (prebuild with --no-cit): t9v2 vs t9v1 on
+    leaves_close, tree_close, forest_lit. Submission **1026-223656-textures-v2-leaves**.
+
 ## Next
-Step 1c: render tex-leaves, tex-leaves-tree, tex-forest via renderq (shot mode, night). Build with the command above first.
+Step 1d: `renderq.py results 1026-223656-textures-v2-leaves`; review t9v2 against t9v1 as a contact sheet
+(check_frames.py). If the leaves read as foliage masses with no tiling tell, move on to step 2 (grass).

@@ -169,13 +169,23 @@ def leaves(kind="oak", size=32):
     # See-through gaps: only small pockets at the deepest points between clumps. Long gap
     # channels repeat block after block and read as a tiling pattern (r008 first render: a row of
     # zigzags along every oak canopy), so a pocket is kept only where the field is a local minimum.
+    # r009 1c: pockets that followed the field's valleys still came out as oak zigzag columns,
+    # jungle Y-shapes and acacia ticks; a pocket is now a round hole centred on each minimum.
     deep = f < {"jungle": 0.12, "acacia": 0.24}.get(kind, 0.18)
-    nb_min = np.minimum.reduce([np.roll(np.roll(f, dy, 0), dx, 1) for dy in (-2, 0, 2) for dx in (-2, 0, 2)])
-    pocket = f <= nb_min + 0.06
-    grow = pocket.copy()
-    for dy, dx in ((0, 1), (1, 0), (0, -1), (-1, 0)):
-        grow |= np.roll(np.roll(pocket, dy, 0), dx, 1)
-    hole = gap & deep & grow
+    low = f < {"jungle": 0.24, "acacia": 0.30}.get(kind, 0.26)
+    nb_min = np.minimum.reduce([np.roll(np.roll(f, dy, 0), dx, 1)
+                                for dy in range(-3, 4) for dx in range(-3, 4)])
+    hole = np.zeros((size, size), bool)
+    hr = {"jungle": 2.3, "acacia": 1.5, "oak": 1.7}.get(kind, 1.9) * (size / 32)
+    for py, px in zip(*np.nonzero((f <= nb_min) & low)):
+        # sizes vary and each pocket is two overlapping discs, so they never read as a dot grid
+        s = hr * r.uniform(0.6, 1.4)
+        for j in range(2):
+            ox, oy = (0.0, 0.0) if j == 0 else r.uniform(-1.2, 1.2, 2) * s
+            dy, dx = wrapped_offsets(size, px + 0.5 + ox, py + 0.5 + oy)
+            hole |= dx * dx + dy * dy <= (s * (1.0 if j == 0 else 0.7)) ** 2
+    hole &= gap | low
+    deep |= hole
     val = np.where(gap & ~deep, 0.22 + 0.06 * f, val)
     alpha = ~hole
     if alpha.mean() < 0.55:      # never sparser than vanilla's 61 % opaque
