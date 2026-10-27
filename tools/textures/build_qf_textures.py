@@ -197,6 +197,10 @@ def main():
     ap.add_argument("--wheat", choices=("drawn", "dense", "bushy"), default="drawn",
                     help="drawn: qf_art's v2 wheat; dense/bushy (r010): Faithful 64x stages 0-6, ripe = five "
                          "variants re-composed from Faithful's own plant (wheat_dense.py), mixed by CTM random")
+    ap.add_argument("--leaves", choices=("drawn", "faithful", "dense", "crowns"), default="drawn",
+                    help="drawn: qf_art's v2 leaves; faithful/dense/crowns (r010, leaves_dense.py): Faithful 64x's "
+                         "leaves as is / with darker leaves filling the holes / + clustered lit crowns. All but drawn "
+                         "also write leaves_<kind>_frill.png for the leaf frills (qf-tweaks)")
     ap.add_argument("--diamond", choices=("metal", "gem"), default="gem",
                     help="gem (r010 default): a dielectric, F0 44 (GEM_BLOCKS); metal: VNR's metal flag (v2, a mirror)")
     a = ap.parse_args()
@@ -229,6 +233,15 @@ def main():
 
     planks = rgba(mc.read(BLOCKS + "planks_oak.png"))
     art = drawn_art(planks, rgba(mc.read(BLOCKS + "grass_top.png")))
+    if a.leaves != "drawn":
+        import leaves_dense
+        for kind in leaves_dense.KINDS:
+            f = rgba(fread(BLOCKS + "leaves_%s.png" % kind)).astype(np.float32)
+            leaf = {"faithful": lambda x: x, "dense": leaves_dense.dense, "crowns": leaves_dense.crowns}[a.leaves](f)
+            leaf = np.clip(leaf + 0.5, 0, 255).astype(np.uint8)
+            art["leaves_" + kind] = leaf
+            art["leaves_%s_opaque" % kind] = qf_art.opaque(leaf)
+            art["leaves_%s_frill" % kind] = np.clip(leaves_dense.frill(f) + 0.5, 0, 255).astype(np.uint8)
     wheat_vs = None
     if a.wheat != "drawn":
         import wheat_dense
@@ -254,6 +267,11 @@ def main():
         else:
             textures[m], source[m] = (vibrance(rgba(mc.read(m))), mcmeta), "vanilla"
         tally[source[m]] += 1
+    for name in sorted(art):                       # our own extra sprites (r010: leaves_<kind>_frill)
+        m = BLOCKS + name + ".png"
+        if m not in textures:
+            textures[m], source[m] = (art[name], None), "drawn"
+            tally["drawn"] += 1
 
     # Faithful 64x's connected glass, rules rewritten for 1.7.10
     for m in sorted(n for n in fnames if n.startswith(CTM + "glass/") and not n.endswith("/")):
