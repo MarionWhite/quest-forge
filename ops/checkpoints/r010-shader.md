@@ -93,3 +93,8 @@ The diamond "light only on the bottom half" was texture-side and is fixed (VNR n
   regression check, cost run (cost mode, now allowed after 08:00), spec_scenes.py + round.json in C:\qfb\shaderdev\r010,
   critic, publisher. Every Lab question: cause + trade-off with numbers.
 - At the end: ops/tracks/shaders.md still describes r008; rewrite it for r010, and add one journal entry (ops/journal/shaders.md).
+### Note from the texture agent (2026-10-27 19:15): gold's lime sheen
+With the map fixes, gold's metal pixels show a lime sheen in their top third (bench-t10lb-texture_wall.png, box ~1575,705,1700,800):
+lighting.glsl uses the albedo as metal F0 (`f0v = metal ? s.albedo : ...`, metalShade tint), and gold's albedo after the grade has
+B ~0 and G close to R, so a reflected green field and blue sky come out lime. Suggest: for LabPBR hard-coded metals (230-237) use
+the spec's F0 table (gold 231 ~ (1.00, 0.78, 0.34)); textures cannot fix it without dropping gold's metal flag.

@@ -167,3 +167,7 @@ docs/design/shaders/feedback/attachments/r009/ (look at both before starting). L
   - Crop variants for the hook (CropVariants.java naming <stage>_v<i>): builder writes wheat_stage_7_v0..4,
     carrots_stage_3_v0..3, potatoes_stage_3_v0..3 (new tools/textures/crops_dense.py; potatoes v0/v2 flowered). Test zip
     C:\qfb\textures\diag\QF-cropvar.zip. Note appended to r010-leaf-frills.md.
+  - Cause write-up in docs/design/textures/direction.md ("r010: why the wall was lit from below", ladder table; the old
+    "VNR is OpenGL" line struck). Gold lime-sheen note (albedo used as metal F0) appended to r010-shader.md.
+  - C:\qfb\shaderdev\r010\texture_make_scenes.py written (8 scenes; Stay True linked via scene "links", never embedded: the
+    Lab's rule is no other packs' images). Crops: r010\crops\items-t10i.png, items-sheet-t10-2row.png. Needs t10lr/t10lf frames.

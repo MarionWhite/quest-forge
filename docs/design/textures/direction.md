@@ -324,7 +324,11 @@ py -3.10 -I tools/textures/build_qf_textures.py --out C:\qfb\textures\QFTextures
 
 **PBR, toward VNR's quality:**
 - **Vanilla textures VNR covers** (142) get VNR's own maps, converted to LabPBR:
-  - VNR's normals are OpenGL (green up the image): `G` correlates -0.83 to -0.98 with the height's downward slope on stonebrick, cobble, planks and brick. So G is flipped to DirectX.
+  - ~~VNR's normals are OpenGL, so G is flipped to DirectX.~~ **Wrong, corrected in r010:** VNR's normals are
+    already DirectX. The negative correlation of `G` with the height's slope down the image is exactly what a
+    DirectX map shows, so the flip turned them OpenGL. The converter now keeps G (`vnr.to_labpbr_n`), and every
+    build checks the sign (`labpbr.y_sign`, a warning on any OpenGL-style map). See "r010: why the wall was lit
+    from below" below.
   - AO is computed from VNR's height.
   - The metal flag (G 255) becomes LabPBR 230 (iron) or 231 (gold).
   - VNR's blue-channel emission moves to alpha.
@@ -344,6 +348,35 @@ py -3.10 -I tools/textures/build_qf_textures.py --out C:\qfb\textures\QFTextures
 - The grass top is calm but a little flat.
 - The fern is weak (a stiff, symmetrical frond) and the birch bark is blotchy. Both are candidates for hand drawing.
 - I did not redraw flowers, saplings, double plants, carrots or potatoes. Code would not beat vanilla's own there, so they stay vanilla.
+
+### r010: why the wall was lit from below (2026-10-27)
+Owner (r009): "why the diamond blocks are only getting light on the bottom half, and why the iron and gold look so much darker".
+**Cause:** two map errors on top of each other. (1) VNR's normals are already DirectX and our converter flipped them,
+so 34 maps in v2 were lit from below (bricks, planks, stonebrick, iron, gold, diamond...). (2) VNR flags diamond as metal,
+which became LabPBR 230: a mirror. Diamond's normal is a strong dome (about 22 degrees at the edges); flipped, its top
+half faced down and mirrored the dark ground, its bottom half faced up and mirrored the sky.
+
+Ladder (renderq 1027-164027, view `diag_column`, one variable per rung; mean luminance of the diamond face, top / bottom half):
+
+| Rung | Diamond top / bottom | Iron | Gold |
+|---|---|---|---|
+| shaders off | 151.5 / 147.8 | 158.7 | 148.8 |
+| no maps | 144.8 / 140.8 | 133.0 | 122.4 |
+| normals only | 124.0 / 150.9 | 142.1 | 128.8 |
+| specular only | 157.4 / 160.2 | 150.9 | 127.3 |
+| v2 (r009) | 127.1 / 167.2 | 150.3 | 125.9 |
+| Y fixed | 176.2 / 121.8 | 153.7 | 128.0 |
+| Y fixed + diamond as a gem (F0 44) | 164.8 / 135.7 | 153.7 | 128.0 |
+| Faithful 64x, no maps | 153.5 / 147.2 | 143.1 | 129.8 |
+
+Fixing only the Y axis reverses the split, because a mirror still shows the ground and the sky. Fixing both lights the
+whole face, at Faithful's mean (150). The remaining 1.2 ratio is the bevel lit from above. Iron is now 1.82x the stone
+beside it, the same as vanilla. Gold sits at 1.52x stone (vanilla 1.71x) under every rung, Faithful's included: the
+shader's colour grade clips gold's blue to 0. That is the shader's to fix. Gold's metal pixels also mirror the green field
+with gold's own colour as the tint, which reads as a lime sheen. Real gold reflectance (LabPBR 231's hard-coded F0)
+would fix it in the shader. Both are handed to r010-shader.
+Fixes: `vnr.to_labpbr_n` keeps G, `--diamond gem` (now the default), and gold keeps metal only where its normal tilts
+less than 14.5 degrees.
 
 ### Licences checked 2026-10-25
 
