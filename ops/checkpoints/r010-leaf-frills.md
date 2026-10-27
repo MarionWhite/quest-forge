@@ -81,3 +81,11 @@ blocks atlas). Generator: `tools/textures/leaves_dense.py frill()`. Test zips: C
    texture_scenes.json: on/off/reference).
 - 17:06 fr1a0 boot log (trial `%APPDATA%\.qf-trials\renderq\logs\latest.log`): leaf-frills hook and both meshstats
   patches applied under Angelica; MeshStats writing (2434 sections by 17:05). fr1a1 (frills ON) is the real test.
+- Step 3 input already exists: the texture agent (477eecc) writes `assets/minecraft/textures/blocks/leaves_<kind>_frill.png`
+  (kinds = leaves_dense.KINDS: oak, spruce, birch, jungle, acacia, big_oak) into QFTextures when built with
+  `--leaves faithful|dense|crowns`: whole Faithful leaves in a blob, BASE AT THE BOTTOM ROW, ragged top at 35-75% of the
+  height, transparent above. To use it: register `leaves_<kind>_frill` in the blocks atlas (TextureStitchEvent.Pre, map
+  type 0) only if the resource exists (else keep the leaf icon: a missing PNG would stitch as missingno), map the whole
+  sprite onto the card at 1:1 scale (card ~1 block tall: base just inside the face, tip ~0.55-0.75 out), meta&3 -> kind
+  (leaves: oak, spruce, birch, jungle; leaves2: acacia, big_oak). Needs stubs for TextureMap (func_94245_a registerIcon,
+  func_130086_a getTextureType) and the Forge event (forge universal jar is on build.bat's classpath).
