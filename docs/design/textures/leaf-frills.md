@@ -93,4 +93,34 @@ hook in their own renderer.
 
 ## Results
 
-See "Results" below once the renders are in.
+### v1 (render `1027-165243-r010-frills-a`, jar b373480, Faithful 64x, preset 3, 2560x1440)
+
+**Look:** it does not read as leaves sticking out.
+- The cards stand straight out of the face centre. Seen face-on they are edge-on, so they show as streaks smeared across
+  the hedge.
+- The silhouette barely changes: the tips reach only 0.31 out, and half the leaf icon is holes.
+- A window of the leaf icon gives every card a straight-cut tip, so the cards read as slabs, not leaves.
+- No z-fighting or light seams were seen. The cards are a touch darker than the cube faces.
+
+**Cost** (`py -3.10 tools/textures/frills_cost.py --off fr1a0 --on fr1a1`; this PC, so frame times are a floor):
+
+| scene | frame p50 ms off / on | p99 ms off / on | leafy sections built off / on | ms per leafy section off / on | vertices per leafy section off / on | frill quads |
+|---|---|---|---|---|---|---|
+| leaves_close | 2.73 / 2.66 (-3%) | 3.47 / 3.34 (-4%) | 912 / 809 | 3.21 / 3.20 (-0%) | 8139 / 9985 (+23%) | 390632 |
+| tree_close | 2.93 / 2.89 (-1%) | 3.60 / 3.63 (+1%) | 184 / 305 | 2.24 / 2.36 (+5%) | 7879 / 9763 (+24%) | 148320 |
+| forest_lit | 2.36 / 2.38 (+1%) | 3.23 / 3.45 (+7%) | 228 / 236 | 3.78 / 4.19 (+11%) | 9581 / 13908 (+45%) | 261556 |
+| forest_far | 3.00 / 3.11 (+4%) | 3.63 / 3.70 (+2%) | 52 / 78 | 2.60 / 2.80 (+8%) | 9456 / 11904 (+26%) | 68764 |
+| biome_roofed | 2.75 / 2.80 (+2%) | 3.65 / 3.76 (+3%) | 671 / 788 | 3.41 / 3.77 (+10%) | 11466 / 15711 (+37%) | 773796 |
+
+Whole boot (every section built, from world load to the last scene):
+
+| | sections | ms per section | vertices per section | leafy sections | ms per leafy section | vertices per leafy section | leaf blocks | frill quads |
+|---|---|---|---|---|---|---|---|---|
+| off | 7738 | 3.841 | 7176 | 2058 | 3.239 | 9415 | 281710 | 0 |
+| on | 8167 | 3.696 | 8048 | 2216 | 3.378 | 12476 | 329186 | 1643068 |
+| change | | -4% | +12% | | +4% | +33% | | |
+
+- **Frame time:** no measurable change on this GPU. p50 moved -3% to +4% per scene, which is inside the noise.
+- **Vertices:** +33% in leafy sections (+23% to +45% per scene) and +12% over all sections. On a weak GPU the vertex
+  count is the cost to watch.
+- **Chunk rebuilds:** +4% per leafy section over the whole boot, and up to +11% in the dense forest scenes.

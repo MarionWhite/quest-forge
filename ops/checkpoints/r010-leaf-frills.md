@@ -89,3 +89,14 @@ blocks atlas). Generator: `tools/textures/leaves_dense.py frill()`. Test zips: C
   sprite onto the card at 1:1 scale (card ~1 block tall: base just inside the face, tip ~0.55-0.75 out), meta&3 -> kind
   (leaves: oak, spruce, birch, jungle; leaves2: acacia, big_oak). Needs stubs for TextureMap (func_94245_a registerIcon,
   func_130086_a getTextureType) and the Forge event (forge universal jar is on build.bat's classpath).
+
+### 2026-10-27 session 2 (leaf-frills agent)
+- 17:15 step 1 DONE: both boots (b1027170341 fr1a0, b1027170725 fr1a1) show the hook, both meshstats patches, "leaf frills
+  off"/"ON", "meshing on 'Chunk Render Task Executor #9' with its own tessellator", no frills error. The SplashProgress
+  "crash report" is the usual specs printout (in every boot). guard OK 17:11.
+- Step 2 DONE: sheets `C:\qfb\frills\look\fr1a.jpg`, crops `C:\qfb\frills\look\fr1a-crops.jpg`. Verdict: v1 does NOT read
+  as leaves sticking out. Cards stand perpendicular at face centres, so face-on they are edge-on streaks smeared across the
+  hedge; the silhouette barely changes (0.31 out, leaf icon half holes); the window of the leaf icon gives straight-cut
+  card tips. No z-fighting or light seams seen; cards a touch darker than faces.
+- Step 3 DONE: `C:\qfb\frills\cost-fr1a.md` (frame p50 within noise -3..+4%; leafy-section vertices +33% (+23..+45% per
+  scene); leafy-section build time +4% (+0..+11%)).
