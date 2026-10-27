@@ -61,5 +61,7 @@ rt/scareflow16.js, rt/trace.js, cmp_trace.py).
   `sl1/sheet.png` (hole branch), `sl3/sheet.png` (hop branch). Weakest of the set by nature (its size fills frames).
 - [x] Silverfish: infested wall, cracks, the stall kept; the wall bursts into the swarm (no big one at the lens).
   Frames `sf1/sheet.png`.
-- Next: Blaze, Ghast, Magma Cube, Wither
+- [x] Blaze: rises, floats out, flares (tell), three shots (wall, feet, you), burning, it follows, second volley.
+  Frames `bl1/sheet.png`.
+- Next: Ghast, Magma Cube, Wither
   Skeleton, Lava fall, Drowned (in that order).
