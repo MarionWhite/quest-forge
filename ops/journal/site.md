@@ -1,5 +1,8 @@
 # Site journal (newest first)
 
+- 2026-10-27 (Mac) scares r7: FNAF pulled back to Story Mode. 13 scares reworked so the mob's own mechanic is the scare and the blow
+  lands in the world (no lens lunges, jitter, tear, static or screech; at most one device each); Enderman and Creeper code
+  untouched; death screams play one take per scare. Sheet `scratchpad/r7/scares/all/sheet.png`; J run 16/16, no exceptions.
 - 2026-10-27 (Mac) lucky r7: the world remembers (broken blocks stay broken, restored silently only off frame), no phasing (floor under his feet, gravity, steps; nav_check feet/world checks), parkour/hole/sapling/bow redone with permanent props (hay, bookshelves), enchanting table 1.7.10 crop + glyphs, XP bottles with real sprite/splash/orbs, bag scheduler reaches all 29 acts in ~670 s. Enchant book open state only verified in real time.
 - 2026-10-27 (Mac) audio r7: screams rebuilt as ONE real recorded man per file (13 Freesound CC0 recordings, licence
   checked per page), trim/EQ/room only, 48 kHz 160 kbps; death_scream 8, scream 3, scream_far 2, underwater 3,
