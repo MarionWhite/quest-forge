@@ -180,3 +180,6 @@ docs/design/shaders/feedback/attachments/r009/ (look at both before starting). L
   - OPEN for the next session: once 1027-191153 is done and before the round is published, rerun
     `py -3.10 -I -X utf8 C:\qfb\shaderdev\r010\texture_make_scenes.py` and glance at t10lf2 tree_close (stains gone?).
     After the owner's picks: set --leaves / --wheat defaults and build QFTextures-v3.
+
+## Note from the orchestrator (2026-10-27, from the crop-hook agent)
+Drop the `mcpatcher/ctm/wheat` random rule from QF Textures once the crop-variant hook ships: under Angelica, MCPatcher CTM picks crop icons without the block position, so that rule makes every ripe wheat the same (shortest) sprite. The hook (leaf-frills branch, v6) picks the variant itself. Details: ops/checkpoints/r010-leaf-frills.md, session 5.
