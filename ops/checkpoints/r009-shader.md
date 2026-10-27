@@ -46,3 +46,18 @@ Owner overall: no drastic improvement; over budget on performance; wants optimis
   High/Low cost run against r8b/r8lb (after 08:00). Then draft the auto-tier helper: measured p50 above the tier budget
   (High 3.0, Low 0.9) drops to the next preset; first drop is shafts quality, then shafts off. Look-changing default
   edits go to ops/DECISIONS.md. Metal-path cost (QF_METAL_SSR, lighting.glsl:85) is not in this run; it goes in step 3's run.
+- 2026-10-26 22:38: loops cut, commit **a651ede** (check_glsl: 0 errors, 48 stages x 5 presets). New option
+  `QF_VOL_FAST` [0 1], default 1 (settings.glsl). Exact changes (always on): affine shadow-clip march (shadowClip/
+  shadowClipDir/shadowRawClip in composite.glsl), the same for the mote inBeam taps, and the near mote walk starts 2.5 m
+  out (flakes fade in from 3 m anyway). Lossy changes (QF_VOL_FAST 1 only): SHAFT_STEPS High 20->14, Med 12->10,
+  Low 8->6; dust clumps on alternating steps by frame at 2x weight; Low (preset<=1) beam haze has no clumps (density 1);
+  MOTE_STEPS -3 to match the later start; the whole mote walk is skipped when the shaft march found no shaded free air
+  (gNoShade) and block light < 0.1. Submitted **1026-223822-r009-volfast-cost** (spec C:/qfb/shaderdev/r009/specs/
+  r9-volfast.json; 4 jobs, 20 scenes; ETA ~22:49 if the owner is idle). Tags: r9vf / r9vf0 (High, QF_VOL_FAST 1/0) on the
+  6 r8b scenes; r9lvf / r9lvf0 (Low 1080p) on the 4 r8lb scenes.
+- **Next:** `renderq.py results 1026-223822-r009-volfast-cost`. Compare r9vf vs r9vf0 and r8b (High, budget 3.0) and
+  r9lvf vs r9lvf0 and r8lb (Low, 0.9); log the table in ops/journal/shaders.md. Look-check forest_golden, dust_b and
+  golden_lit crops (check_frames.py) for shaft banding/noise from 14 steps, and flakes lost to the gNoShade gate. If
+  High is still over budget, try half-res shafts; Low will likely still be over 0.9 (shafts were 0.51 of 1.32), so the
+  auto-tier helper draft (unchanged plan above) is next. QF_VOL_FAST 1 changes the look slightly: once the frames are
+  checked, put "keep it as the default" in ops/DECISIONS.md.
