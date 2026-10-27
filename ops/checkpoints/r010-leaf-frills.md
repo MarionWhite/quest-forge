@@ -217,3 +217,22 @@ Other stages have no variants (the hook draws them as before). The old ctm/wheat
    Write into leaf-frills.md "Crop variants, results" (crops-b) and into CROP_COST in frills_make_scenes.py.
 4. `py -3.10 -I -X utf8 C:\qfb\shaderdev\r010\frills_make_scenes.py` -> 5 scenes; touch FRILLS-READY. Commit docs/ops; journal.
    If the hook works, drop the diagnostics? No: they are one-shot and cheap; keep.
+
+### 2026-10-27 session 5 (leaf-frills agent)
+- 19:31 guard OK. crops-b boots: cv1b0 b1027192552 "crop variants off"; cv1b1 b1027192729 hook applied, stitch "[wheat_stage_7 x5,
+  carrots_stage_3 x4, potatoes_stage_3 x4] (... the blocks atlas)", first icon carrots_stage_3 "matched the stitched sprite".
+- Look (`C:\qfb\frills\look\cv1b.jpg`, `cv1b-near.jpg`, `cv1b-wheat-1to1.jpg` = off/on/diff): carrots and potatoes VARY (mixed
+  leaf shapes, potato flowers); ripe wheat is IDENTICAL off vs on (diff = waving noise only). Not the hash (simulated: 5 buckets
+  25-38 each over the field), not the sprites (v0..v4 tops 24/18/12/6/0), world wheat is meta 7 (build_showcase.py), trial mods
+  have nothing touching wheat, Angelica has no crop mixin. The v4 log only covered the first icon, so the wheat miss is unexplained.
+- Cost crops-b: frame p50 -1%/+0%, p99 +1%; whole boot ms/section -6%, vertices/section -2% = noise.
+- 19:33 v5 BUILT: leaf-frills **9444d77** (one log line per distinct crop sprite: identity / by name / no variants, variant drawn,
+  stitched names). Jar `C:\qfb\frills\jars\v5\QuestForgeTweaks-1.0.jar`. SUBMITTED `1027-193327-r010-crops-c` (spec
+  `C:\qfb\frills\crops\spec-r010-crops-c.json`, cv1c0 off / cv1c1 on, same packs/scenes).
+
+## Resume here (session 6, only if session 5 exited before crops-c landed)
+1. `renderq.py results 1027-193327-r010-crops-c`; `grep -a "crop variants" <cv1c1 boot log>`: find the wheat_stage_7 line.
+   - "no variants" with a name other than wheat_stage_7: key byName by that name (strip domain etc.).
+   - wheat line absent while carrots present: wheat does not reach renderBlockCropsImpl -> find who draws it.
+   - "identity"/"by name", drew wheat_stage_7_vN: the hook works; the drawn sprite is overridden later (look for a UV remap).
+2. Then as session 5 planned: sheet, cost, leaf-frills.md, frills_make_scenes.py (CROP_COST), FRILLS-READY, commit, journal.
