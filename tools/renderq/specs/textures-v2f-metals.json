@@ -1,0 +1,51 @@
+{
+ "name": "textures-v2f-metals",
+ "owner": "texture-agent",
+ "comment": "r009 step 4: iron/gold lit (owner r008: 'not receiving any direct light') in two candidates, --metals lit (strong dielectric everywhere) and split (metal only on the brightest streaks), plus emerald on our own maps (VNR's rhombus/metal flag dropped). Compare with t9v1 frames from 1026-225431. Shot mode: pictures only, allowed at night. One boot.",
+ "prebuild": [
+  [
+   "py",
+   "-3.10",
+   "-I",
+   "tools/textures/build_qf_textures.py",
+   "--no-cit",
+   "--metals",
+   "lit",
+   "--out",
+   "C:/qfb/textures/QFTextures-v2.zip"
+  ],
+  [
+   "py",
+   "-3.10",
+   "-I",
+   "tools/textures/build_qf_textures.py",
+   "--no-cit",
+   "--metals",
+   "split",
+   "--out",
+   "C:/qfb/textures/QFTextures-v2-split.zip"
+  ]
+ ],
+ "defaults": {
+  "world": "C:/qfb/textures/world-showcase",
+  "preset": "3",
+  "size": "2560x1440",
+  "mode": "shot"
+ },
+ "jobs": [
+  {
+   "tag": "t9v2f",
+   "resourcepacks": [
+    "C:/qfb/textures/QFTextures-v2.zip"
+   ],
+   "scenes": "texture_wall,texture_wall2"
+  },
+  {
+   "tag": "t9v2fs",
+   "resourcepacks": [
+    "C:/qfb/textures/QFTextures-v2-split.zip"
+   ],
+   "scenes": "texture_wall,texture_wall2"
+  }
+ ]
+}

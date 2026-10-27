@@ -91,7 +91,7 @@ def to_labpbr_s(s, name, albedo=None, por=0):
         code = 231 if base.startswith("gold") else 230
     g = np.where(metal, float(code), 10.0)
     emis = np.where(s[..., 2] > 8, np.minimum(s[..., 2], 254.0), 255.0)
-    if base in ("gold_block",):            # VNR's gold_block B=255 everywhere is not emission
+    if (s[..., 2] >= 250).all() and not labpbr.EMISSIVE.match(base):   # B=255 everywhere (gold, diamond) is not emission; beacon keeps it
         emis[:] = 255.0
     out = np.dstack([s[..., 0], g, np.full(s.shape[:2], float(por)), emis])
     if albedo is not None and albedo.shape[:2] == s.shape[:2]:

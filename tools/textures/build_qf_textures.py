@@ -59,6 +59,31 @@ COLOURS = ["white", "orange", "magenta", "light_blue", "yellow", "lime", "pink",
            "cyan", "purple", "blue", "brown", "green", "red", "black"]
 WOODS = ["oak", "spruce", "birch", "jungle", "acacia", "big_oak"]
 LEAF_SIZE = 32
+# Faithful 64x redrew these and VNR's vanilla-layout maps no longer line up (layout_match still
+# passes them): emerald's rhombus height and metal flag over Faithful's square bevels read as a murky
+# green mirror (owner r008 tex-wall-close). They take our own maps from the 64x art instead.
+VNR_SKIP = {"emerald_block"}
+# r009 metals (owner r008 tex-wall: iron and gold "not receiving any direct light"). A metal-coded
+# pixel keeps only ~30% of its diffuse light in the shader and shows reflection otherwise, and
+# iron's F0 (albedo x 1.15) already clips at 1, so a brighter albedo cannot lift it. Per block:
+# (metal code, dielectric F0 byte). --metals lit: every pixel a strong dielectric (full diffuse +
+# an untinted reflection); split: metal only on the brightest 30% (the polished streaks and plate
+# highlights), the rest lit; vnr: VNR's flag as is (every pixel metal, v1).
+METAL_BLOCKS = {"iron_block": (230, 190), "gold_block": (231, 140)}
+
+
+def metal_spec(s, img, name, mode):
+    """Rewrite the F0 channel of a metal block's LabPBR _s for --metals (see METAL_BLOCKS)."""
+    if mode == "vnr" or name not in METAL_BLOCKS:
+        return s
+    code, f0 = METAL_BLOCKS[name]
+    s = s.copy()
+    s[..., 1] = f0
+    if mode == "split":
+        L = labpbr.lum(img)
+        s[..., 1] = np.where(L > np.percentile(L, 70), code, f0)   # strict: a tied plateau stays lit
+    s[img[..., 3] < 25] = (0, 0, 0, 255)
+    return s
 
 
 def load_list(name):
@@ -155,6 +180,7 @@ def main():
     ap.add_argument("--leaf-edges", choices=("none", "all", "sides"), default="none")
     ap.add_argument("--no-pbr", action="store_true")
     ap.add_argument("--no-cit", action="store_true")
+    ap.add_argument("--metals", choices=("lit", "split", "vnr"), default="lit")
     a = ap.parse_args()
 
     mc = zipfile.ZipFile(a.mc_jar)
@@ -252,7 +278,7 @@ def main():
         kind, _, strength = gsp.classify(os.path.basename(mat))
         por = 170 if kind in ("leaves", "plant") else (55 if kind == "soil" else (30 if kind == "wood" else 0))
         square = img.shape[0] == img.shape[1]
-        if m.startswith(BLOCKS) and vn.has(name) and square and src in ("vanilla", "faithful64"):
+        if m.startswith(BLOCKS) and vn.has(name) and square and src in ("vanilla", "faithful64") and name not in VNR_SKIP:
             vn_n, vn_s = vn.read(name, "n"), vn.read(name, "s")
             van = rgba(mc.read(m))
             if vn_n is not None and vn_n.shape[0] == vn_n.shape[1] == van.shape[0]:
@@ -270,6 +296,7 @@ def main():
             n = n2 if n is None else n
             s = s2 if s is None else s
             tally["pbr_ours"] += 1
+        s = metal_spec(s, img, name, a.metals)
         out.writestr(m[:-4] + "_n.png", png(n))
         out.writestr(m[:-4] + "_s.png", png(s))
         if mcmeta:
