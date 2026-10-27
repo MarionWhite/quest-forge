@@ -49,5 +49,7 @@ rt/scareflow16.js, rt/trace.js, cmp_trace.py).
   Frames `pig3/sheet.png` (shots `pig1.txt`, seeds 1-3 at at=0.3/0.55/0.8). Real-time check still to do (J run).
 - [x] Zombie: the look-back to arm's length (a, 45%) or the walk out of the dark while you back into a second one
   with hands over your shoulders (b). Frames `z1/sheet.png` (all beats, seeds 1-4), `z4/sheet.png` (bite distance).
-- Next: Skeleton, Spider, Cave Spider, Witch, Slime, Silverfish, Blaze, Ghast, Magma Cube, Wither
+- [x] Skeleton: lights die (its one device), bones rattle, the miss into the wall, the creak, the standoff in the last
+  light or beside you, the shot. Frames `sk1/sheet.png`, `sk2/sheet.png`.
+- Next: Spider, Cave Spider, Witch, Slime, Silverfish, Blaze, Ghast, Magma Cube, Wither
   Skeleton, Lava fall, Drowned (in that order).
