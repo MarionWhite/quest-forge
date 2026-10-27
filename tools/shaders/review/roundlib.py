@@ -119,9 +119,13 @@ class Round:
         import make_clip
         out = os.path.join(self.d, "clips", f"{tag}-{scene}.webp")
         frames = make_clip.find_frames(self.rounds, tag, scene)
+        speedup = clip_kw.pop("speedup", 1.0)   # r010: a clip shot in slow motion (QF_METEOR_SLOW) played back at game speed
         if frames:
             self.used.extend(frames[:1])
-            make_clip.make_clip(frames, out, times=make_clip.bench_times(self.rounds, tag, scene), quiet=True, **clip_kw)
+            times = make_clip.bench_times(self.rounds, tag, scene)
+            if times and speedup != 1.0:
+                times = [t / speedup for t in times]
+            make_clip.make_clip(frames, out, times=times, quiet=True, **clip_kw)
         else:
             self.used.append(os.path.join(self.rounds, "screenshots", f"bench-{tag}-{scene}-f000.png"))
         d = self.oc(k, label, tag, scene, box, desc=desc) if box else self.o(k, label, tag, scene, r=r, desc=desc)

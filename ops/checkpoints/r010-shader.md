@@ -166,3 +166,9 @@ Review of 1027-190711-r010-loop2-shot and -meteor3-shot (scratchpad sheet.py / c
   -> 0.934 (gf1); the lime read is gone in gf0/gf1 crops (mostly the vibrance floor). Defaults settled: METEOR_STYLE 1,
   SUN_CLOUD 1, DUST_LEAF 1 (fm2/fm3 no visible change), UW_VIS 2.0, RIVER_TINT 1, METAL_FLOOR 1, METAL_F0 1,
   CREPUSCULAR 0 (owner question), SHALLOW_SUN 0. Next: commit, cost spec, submit, spec_scenes.py, round.json.
+- 19:38 committed c542939. roundlib.ov() takes speedup= (slow-motion clips). **Publish-cost run submitted:
+  1027-193818-r010-publish-cost** (C:/qfb/shaderdev/r010/specs/p10-cost.json; tags p10, p10cr (crepuscular), p10fm3,
+  p10uv14, p10rv2, p10clipg1/g2/g3, p10off, p10lo/looff, p10po/pooff, p10gd/gd0/gdoff on world-showcase). The mint fix
+  is verified only by this run: check p10-ocean_sunset box 900-1460 x 560-900 (mint mask G>R+5 & G>B+5; r10l2 686 px).
+  The procession clip (g2) is unproven: loop3's i2c showed no chain (it ran out of frame overhead); g2 uses radiant 45 and
+  PROC_P 9. If g2 shows no procession, drop option B from the meteors scene.
