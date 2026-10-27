@@ -131,3 +131,15 @@ Build the hook described in ops/DECISIONS.md ("crop variants via a small qf-twea
 agent supplies them) by a block-position hash, registered like the frill sprites. Same branch/worktree as the frills,
 its own config switch. Sprites: `build_qf_textures.py --wheat bushy` (ops/checkpoints/r010-textures.md, step 2).
 Render a field near and far, hook off vs on, through renderq; measure chunk-rebuild cost with MeshStats.
+
+### 2026-10-27 session 3 (leaf-frills agent)
+- 18:50 step 1 DONE: frills-b boots all show "frill sprites for [oak, birch, jungle, acacia, big_oak]", "leaf frills ON
+  (style ...)", own tessellator. "Unable to determine registrant mod for LeafFrillsIcons" is FML's harmless warning for a
+  coremod-container handler (it still registers). guard OK 18:48.
+- Sheets: `C:\qfb\frills\look\fr1b-full.jpg` (5 cols off,b1..b4), `fr1b-hedge.jpg`, `fr1b-hedge-1to1.jpg`; grid script
+  `C:\qfb\frills\scripts\grid.py OUT CELLW tag,tag scene[:box]...`. Costs `C:\qfb\frills\cost-fr1b{1..4}.md`.
+- Verdict: b1 edges best (whole leaves break the top silhouette, +26% leafy vertices, +14% leafy build, frame in noise);
+  b2 short tufts busier + streaky slivers, +139% vertices/+50% build/+8% frame; b3 long sparse = stretched streaks;
+  b4 hang = big smeared diagonal planes, messy from below.
+- 18:55 SUBMITTED `1027-185527-r010-frills-c` (spec `C:\qfb\frills\spec-r010-frills-c.json`): fr1c1 edges len 0.5 dens 1 x2,
+  fr1c2 edges len 0.4 dens 1 x3. Meanwhile: crop-variant hook code in the worktree.
