@@ -57,5 +57,7 @@ rt/scareflow16.js, rt/trace.js, cmp_trace.py).
   Frames `cs1/sheet.png`, `cs3/sheet.png`.
 - [x] Witch: Slowness at your feet, she walks up, Poison on your chest (kneel), she bends over you, silence, Harming
   in your face. Frames `wi2/sheet.png`, `wi3/sheet.png`.
-- Next: Slime, Silverfish, Blaze, Ghast, Magma Cube, Wither
+- [x] Slime: squeezes through the hole and drops on you, or sits in the pit and hops onto you. Frames
+  `sl1/sheet.png` (hole branch), `sl3/sheet.png` (hop branch). Weakest of the set by nature (its size fills frames).
+- Next: Silverfish, Blaze, Ghast, Magma Cube, Wither
   Skeleton, Lava fall, Drowned (in that order).
