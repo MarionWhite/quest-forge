@@ -281,12 +281,15 @@ vec3 motesGrid(vec3 viewDir, float dist0, float pixelBlock, float eyeSky,
                             float tap = farGrid ? 5.0 : 3.5;
                             vec3 cv = shadowClip(v), c1 = shadowClipDir(p1) * tap, c2 = shadowClipDir(p2) * tap;
                             float s1 = shadowRawClip(cv + c1), s2 = shadowRawClip(cv - c1);
-                            float s3 = shadowRawClip(cv + c2);
-                            inBeam = 1.0 - min(min(s1, s2), s3);
                             // Loop 4 (uq ocean_sunset, dust_b: far flakes still dotted the open air over the
-                            // sea and the sunlit canopy, where a hut's or a tree's shadow sat within 5 m):
-                            // a far flake also needs this pixel's ray to cross a real beam.
-                            if (farGrid) inBeam *= smoothstep(0.15, 0.45, gBeam);
+                            // sea and the sunlit canopy, where a hut's or a tree's shadow sat within 5 m)
+                            // gated far flakes by gBeam. r009 (critic p8clipdust: no real motes in dust_b's
+                            // shaft): gBeam is dithered per pixel and per frame, and with QF_VOL_FAST's 14
+                            // steps it flickered under every 2-3 px flake, so TAA kept none. A far flake
+                            // now needs shade on both sides across the light, its own steady test: a gap's
+                            // beam passes, air beside one hut or over a sunlit canopy does not (two taps).
+                            if (farGrid) inBeam = (1.0 - s1) * (1.0 - s2);
+                            else inBeam = 1.0 - min(min(s1, s2), shadowRawClip(cv + c2));
 #if QF_DUST_DBG == 1
                             inBeam = 1.0;   // diagnostic: every sunlit mote
 #endif
