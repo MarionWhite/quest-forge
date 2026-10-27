@@ -305,8 +305,13 @@ vec3 motesGrid(vec3 viewDir, float dist0, float pixelBlock, float eyeSky,
                             + Eblock * 0.32;
 #endif
                     }
-                    float fadeD = farGrid ? smoothstep(d0, d0 + 3.0, along) * smoothstep(maxD, maxD - 8.0, along)
-                                          : smoothstep(maxD, maxD * 0.82, along) * smoothstep(0.15, 0.8, along);
+                    // r009 dust (QF_DUST_DBG 1 on dust_b: no sunlit flake in the shaft's lower half, whose
+                    // lit air lies just over the lit ground at the far end of each ray): the long fades
+                    // (last 18% near, last 8 m far) are the hand-over at the walk's end; in front of a
+                    // surface a flake fades over the last metre and a half.
+                    float fadeEnd = dist0 - 0.2 < dEnd ? maxD - 1.5 : (farGrid ? maxD - 8.0 : maxD * 0.82);
+                    float fadeD = smoothstep(maxD, fadeEnd, along)
+                                * (farGrid ? smoothstep(d0, d0 + 3.0, along) : smoothstep(0.15, 0.8, along));
 #if QF_DUST > 0
                     // Loop 4 (critic: a static yellow oval on forest_golden's leaves, in every tag; the
                     // near/far diagnostic put it in the near grid): a flake a metre from the eye drifts
