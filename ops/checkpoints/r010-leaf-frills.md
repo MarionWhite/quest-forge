@@ -79,3 +79,5 @@ blocks atlas). Generator: `tools/textures/leaves_dense.py frill()`. Test zips: C
    qf.frills.density=..., qf.frills.faces=...), same jar; code changes = rebuild jar into `C:\qfb\frills\jars\v2\`.
 5. Step 3 (edge sprite, with r010-textures item 3) and step 4 (scene hand-off to C:\qfb\shaderdev\r010, like
    texture_scenes.json: on/off/reference).
+- 17:06 fr1a0 boot log (trial `%APPDATA%\.qf-trials\renderq\logs\latest.log`): leaf-frills hook and both meshstats
+  patches applied under Angelica; MeshStats writing (2434 sections by 17:05). fr1a1 (frills ON) is the real test.
