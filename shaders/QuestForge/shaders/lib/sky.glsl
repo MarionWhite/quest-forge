@@ -161,6 +161,9 @@ float meteorTime() {
 // head through, which read as a streak in front of the cloud).
 vec3 gMeteor = vec3(0.0);
 float gCloudT = 1.0;
+// r009 (owner r008 sunset-full: clouds in front of the sun must cover it): the disk's own
+// transmittance through the cloud slab, without the far-cloud melt (see cloudMarch).
+float gCloudTd = 1.0;
 vec3 meteors(vec3 dir) {
     vec3 R = normalize(vec3(0.35 + 0.3 * hash12(vec2(float(worldDay), 3.3)), 0.80, -0.45 + 0.4 * hash12(vec2(float(worldDay), 5.1))));
     float pxA = 2.0 / (gbufferProjection[1][1] * viewHeight);
@@ -680,6 +683,10 @@ vec4 cloudMarch(vec3 dir, int steps, float jitter) {
     }
     // Far clouds melt into the sky towards the horizon.
     float fade = exp(-t0 / 6500.0) * smoothstep(0.012, 0.09, dir.y);
+    // The disk behind a cloud: a low sun sits where the melt fades the clouds to ~10 %, so it shone
+    // whole through the wisps drawn over it. It takes the unfaded slab instead (loop 1, T squared,
+    // hid the whole disk behind clouds the melt draws faint: the sun was gone).
+    gCloudTd = mix(1.0, T, smoothstep(0.012, 0.03, dir.y));
     return vec4(S * fade, mix(1.0, T, fade));
 }
 vec3 applyClouds2(vec3 L, vec3 dir, int steps) {
@@ -720,13 +727,15 @@ vec3 applyCloudsCheap(vec3 L, vec3 dir) {
 // The full sky in a direction: scattering plus the sun, moon and stars seen through it.
 vec3 skyRadiance(vec3 dir) {
     vec3 L = skyScatter(dir);
+    vec3 Ldisk = vec3(0.0);
     float r = cameraRadius();
     if (distToGround(r, dir.y) < 0.0) {
         vec3 T = lookupTransmittance(r, dir.y) * (1.0 - 0.9 * rainStrength);
         vec3 sunDir = sunDirWorld();
 #if QF_SUN == 1
         // The real sun (lib/sun.glsl); its glare is drawn in final.glsl, over what is in front.
-        L += sunDiskReal(dir, sunDir, T) * (1.0 - 0.9 * rainStrength) + T * moonDisk(dir, moonDirWorld());
+        Ldisk = sunDiskReal(dir, sunDir, T) * (1.0 - 0.9 * rainStrength);   // added after the clouds
+        L += T * moonDisk(dir, moonDirWorld());
         {
             // Loop 4 (critic uj ocean_sunset: the disk reads as a flat white sticker; BSL's sun burns
             // into the sky round it): a warm Mie aureole a few degrees wide, deeper gold at low sun.
@@ -753,6 +762,7 @@ vec3 skyRadiance(vec3 dir) {
     L = applyClouds2(L, dir, CL_STEPS);
 #endif
     L += gMeteor * smoothstep(0.93, 0.995, gCloudT);   // ud: 0.85 still let streaks over the thin grey cloud
-    gMeteor = vec3(0.0); gCloudT = 1.0;
+    L += Ldisk * gCloudTd;
+    gMeteor = vec3(0.0); gCloudT = 1.0; gCloudTd = 1.0;
     return L;
 }
