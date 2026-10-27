@@ -49,9 +49,10 @@ const vec3 WA_SWAMP = vec3(1.10, 0.80, 1.25),     WS_SWAMP = vec3(0.050, 0.050, 
 // carries fine sediment, so a slightly green-brown, half-clear stream instead of glassy lake water;
 // the bed shows for two or three blocks.
 #if QF_RIVER_TINT == 2
-// r010 option C (owner r009 river: "very green"): clear slate water, half the scatter, green and blue
-// absorbed alike, so the bed's own browns and greys show through and the body is a cool grey-blue.
-const vec3 WA_RIVER = vec3(0.13, 0.075, 0.075),   WS_RIVER = vec3(0.0016, 0.0028, 0.0030);
+// r010 option C (owner r009 river: "very green"): a clear stream. Loop 1's "clear slate" (half the
+// scatter) read the same as B (water 48,65,68 vs 50,74,80): the bed's veil in composite, not these
+// coefficients, sets the look. Now glassier still, with the veil cut there too, so the bed shows.
+const vec3 WA_RIVER = vec3(0.11, 0.060, 0.060),   WS_RIVER = vec3(0.0012, 0.0022, 0.0024);
 #elif QF_RIVER_TINT == 1
 // r010 option B: the same murk, rebalanced from green to teal-blue (blue absorbed less than green
 // was 0.115 vs 0.080; now 0.075 vs 0.085, and the scatter peaks in blue, not green).

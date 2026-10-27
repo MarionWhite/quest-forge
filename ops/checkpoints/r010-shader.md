@@ -98,3 +98,42 @@ With the map fixes, gold's metal pixels show a lime sheen in their top third (be
 lighting.glsl uses the albedo as metal F0 (`f0v = metal ? s.albedo : ...`, metalShade tint), and gold's albedo after the grade has
 B ~0 and G close to R, so a reflected green field and blue sky come out lime. Suggest: for LabPBR hard-coded metals (230-237) use
 the spec's F0 table (gold 231 ~ (1.00, 0.78, 0.34)); textures cannot fix it without dropping gold's metal flag.
+
+## Session 2 (2026-10-27 ~19:10)
+Review of the four session-1 renders (crop sheets, scratchpad scripts csheet.py / clipmax.py, wiped with the session):
+- **Green (r10sf):** SSR fix cut the mint from 1107 to 678 px (mask G>R+5 & G>B+5, box 900-1460 x 560-900); Low (no SSR)
+  kept it, so the rest is the bed: QF_CAL_GOLD lights flat sand tops with 0.7 of the amber sun at golden hour and the
+  composite bed filter faded to 0 as L.y -> 0, so orange sand through the sea's red absorption came out mint. New
+  **QF_SHALLOW_SUN [0 1 2] default 2** (composite shadeWaterAbove): Fresnel transmission into the water (73 % reflected
+  at 3 deg), filter held to the horizon; 2 also counts the bed's light as mostly the sun's at low sun (0.9 not 0.35).
+- **Meteors (r10h1c/h2c/h3c):** level parallel streaks with tapering wakes look right, but each crossed ~15 deg (an
+  eighth of the frame); procession barely caught; storm fireball glow read as a comet ball. Loop 3 (lib/sky.glsl
+  grazers): dur 2-5 s, PB 7 (storm 6), side offset weighted overhead (sign * u^1.6 * 380 km), wake 55-85 % up to 300 km,
+  fireball glow 0.12 at ~1 deg.
+- **Sun-cloud (r10sc0/1/2):** sc1 vs sc0 0.7 luma in the sun box, sc2 == sc1 (the narrower fringe cancelled the 2.5x
+  gain). Not a leap. Option 2 redone: rim lobe cap 80 -> 320 (cloudMarch c.rim), gain 0.045 -> 0.09. New High-only
+  **QF_CREPUSCULAR [0 1] default 0**: deferred writes the sky's cloud T (gSkyT) to colortex1.g (RENDERTARGETS 3,1, only
+  when on); composite crepuscularGain(): 16 taps along the screen line to the sun, sky gain 0.5 (wedge) .. 1.15 (lane).
+- **Forest (r10fl*):** fl2 == fl0 because `#if QF_DUST_LEAF == 1` wrapped the `== 2` branch (fixed to >= 1). All
+  three within 1.1 luma of each other. New ladder: fm2 (fixed DUST_LEAF 2), fm3 (+ QF_SHAFTS 2, gain 2.0).
+- **Underwater (r10uv*):** far-terrain local contrast (|l - box15 mean|) 1.10 / 1.40 / 2.0: 1.55; hue unchanged.
+  Default **QF_UW_VIS 2.0**.
+- **River (r10rt*):** water mean rt0 51,79,63 (green); rt1 50,74,80 (teal-blue); rt2 48,65,68 (just darker; the bed veil
+  in composite sets the look). Default **QF_RIVER_TINT 1**; option 2 reworked as "clear stream" (WA 0.11/0.06/0.06,
+  veil 0.6 blocks x1.8, hue pull 0.25).
+- **Gold (texture note):** cause found. diag_column box: gold 178,152,34 off -> 150,126,1 PBR 0 (iron 154 -> 128,
+  stone level). (a) lighting.glsl PBR-0 metal path `color *= 0.65`, PBR-1 metalShade with SSR keeps 0.30 of diffuse;
+  (b) vibrance pushed the weakest channel below 0 and clipped it. Fix: **QF_METAL_FLOOR 1** (0.65 -> 0.92, 0.30 ->
+  0.62) and vibrance k held so the weakest channel keeps >= half its value (global, final.glsl).
+- check_glsl: 0 errors, all presets and the option combos.
+- **Renders queued (19:07), ETA ~19:35-19:45:** **1027-190711-r010-loop2-shot** (r10-loop2.json: r10l2 defaults on
+  ocean_sunset, lake_glitter, beach_noon, river_noon, underwater, underwater_sun, forest_golden, diag_column; r10ss0,
+  r10ss1 ocean_sunset; r10sd2 ocean_sunset+forest_golden; r10cr1 ocean_sunset+forest_golden+lake_glitter; r10fm2,
+  r10fm3 forest_golden; r10rv2 river_noon; r10gd0 diag_column) and **1027-190711-r010-meteor3-shot** (r10i1 stills,
+  r10i1c/i2c(240 fr)/i3c clips). DO NOT edit shaders/ until both have booted (the pack is read live).
+- **Next:** review (ocean_sunset box 900-1460 x 560-900 mint count vs r10sf 678; sun box 1000-1500 x 400-620 for sd2/cr1;
+  gold/stone in diag_column: gold box x1134-1426 y890-1022, stone x820-1100 y1000-1100, target ~1.8; beach_noon vs
+  bench-p9-beach_noon for SHALLOW_SUN at noon; underwater at 2.0 vs bench-p9-underwater). Cost of cr1 needs a cost-mode
+  run (ocean_sunset is already 3.29 ms on High). Then cost run on the final pack, spec_scenes.py + round.json in
+  C:\qfb\shaderdev\r010 (texture scenes from texture_scenes.json / frills_scenes.json when READY files exist),
+  track rewrite, journal entry.

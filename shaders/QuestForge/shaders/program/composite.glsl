@@ -531,7 +531,7 @@ vec3 lightShafts(vec3 viewDir, float dist, float eyeSky, float leafHit) {
 #endif
     float dPhase = 0.85 * hgPhaseS(mu, 0.62) + 0.15 / (4.0 * PI);   // loop 4: mostly forward (0.4 isotropic veiled sunlit fields seen away from the sun)
     vec3 dustL = E * dPhase * DUST_S * dust * min(maxD, 24.0) * gBeam;
-#if QF_DUST_LEAF == 1
+#if QF_DUST_LEAF >= 1   // r010 loop 2: was == 1, so option 2 compiled as 0 (r10fl2 read the same as fl0)
     // r009 forest wash (canopy veil = this haze, journal 01:05): a ray that ends on sunlit leaves
     // looks at the canopy, not across a beam, so it keeps less of the haze.
 #if QF_DUST_LEAF == 2
@@ -696,10 +696,36 @@ vec3 shadeWaterAbove(vec3 color, vec3 n, float var, vec3 scene0, float dist0, ve
         // stepped with depth at the bank (0 on dry-ish ledges, 1.2 a block down). A constant 2.2
         // blocks, so every ledge under the river sits in the same dim veil, and no shallow tint.
         // r009 (critic p8: murky near the banks): 4.0 -> 3.0, the hue pull below keeps the stripes down.
+#if QF_RIVER_TINT == 2
+        // r010 option C (clear stream): the bed's veil cut to 0.6 blocks at 1.8x, so ledges and stones
+        // show through as in a clear creek; the ledge stripes the veil hid (r008-r009 critics) can return.
+        vec3 TdownR = exp(-waterAbsorb() * ((wdS + 0.6) / max(L.y, 0.25)) * 1.8);
+#else
         vec3 TdownR = exp(-waterAbsorb() * ((wdS + 2.2) / max(L.y, 0.25)) * 3.0);
+#endif
         vec3 TdownS = exp(-waterAbsorb() * (wdS / max(L.y, 0.25)) * 1.6);
         vec3 Tdown = mix(TdownS, TdownR, riv);
+#if QF_SHALLOW_SUN > 0
+        // r010 (owner r009 sunset-full: "some weird green coloring right in the middle of the image";
+        // the SSR fix took the mint patch from 1107 to 678 px, and Low, without SSR, kept it). The rest
+        // is the bed: the deferred pass lights a flat sand top at golden hour with 0.7 of the amber sun
+        // (QF_CAL_GOLD, meant for grass), and this filter faded out as the sun sank (0 at L.y 0), so
+        // orange-lit sand a block down went through the sea's red absorption and came out mint
+        // (95,173,121). A low sun mostly bounces off the surface (Fresnel: 73 % reflected at 3 degrees,
+        // 30 % at 12, 2 % at noon) and what enters crosses the water to the bed. 1: that transmission,
+        // the filter held on to the horizon; 2: also, at low sun the bed's light is counted as mostly
+        // the sun's (0.9 instead of the sea's 0.35), so sunset shallows go dark and take the sky's
+        // reflection. ALU only.
+        float sunT = 1.0 - fresnelWater(max(L.y, 0.0));
+#if QF_SHALLOW_SUN == 2
+        float bedW = mix(0.35, 0.9, max(riv, 1.0 - smoothstep(0.08, 0.35, L.y)));
+#else
+        float bedW = mix(0.35, 0.9, riv);
+#endif
+        behind *= mix(vec3(1.0), Tdown * sunT, bedW * sh * smoothstep(0.0, 0.03, L.y));
+#else
         behind *= mix(vec3(1.0), Tdown, mix(0.35, 0.9, riv) * sh * smoothstep(0.0, 0.2, L.y));
+#endif
         // Loop 3: ub's shallow green tint (0.30 over 0.05-4 blocks deep) is gone; it lit the ledges green.
         // r009 (critic p8: still lighter stripes): the stripes were yellow grass tops under teal water.
         // Silty moving water takes the bed's own hue and leaves its shading: the bed keeps its texture
@@ -707,6 +733,8 @@ vec3 shadeWaterAbove(vec3 color, vec3 n, float var, vec3 scene0, float dist0, ve
         float lb = dot(behind, vec3(0.2126, 0.7152, 0.0722));
 #if QF_RIVER_TINT == 0
         behind = mix(behind, lb * vec3(0.68, 1.10, 0.95), 0.6 * riv);
+#elif QF_RIVER_TINT == 2
+        behind = mix(behind, lb * vec3(0.86, 1.00, 1.00), 0.25 * riv);   // r010 C: a light pull, the bed keeps most of its own colour
 #else
         behind = mix(behind, lb * vec3(0.70, 1.00, 1.06), 0.6 * riv);   // r010: the bed pulled to teal-blue, not green
 #endif
@@ -948,6 +976,40 @@ vec3 metalReflection(vec3 n, vec3 viewDir, vec3 albedo, float smooth_, float sky
     vec4 ssr = waterSSR(vp, mat3(gbufferModelView) * R, ign(gl_FragCoord.xy + float(frameCounter % 64) * 7.0), false);
     env = mix(env, ssr.rgb, ssr.a * (1.0 - smoothstep(0.15, 0.6, r)));
     return env * Fe * ao * 1.3;
+}
+#endif
+
+#if QF_CREPUSCULAR == 1 && QF_PRESET >= 3 && QF_CLOUDS == 2
+// r010 crepuscular rays (owner r009 sun-cloud: "the sun interacting realistically with the clouds in
+// front of it"; an open owner question for the default, ops/DECISIONS.md). Clouds near a low sun cast
+// shadows into the air between them and you, so the glow round the sun breaks into lanes: lit air
+// where the line to the sun is clear, shadow wedges behind each cloud. Per sky pixel near the sun,
+// 16 jittered taps along the screen line to the sun read the deck's transmittance that deferred
+// left on the sky (colortex1.g; terrain counts as shade, off-screen as half open). The sky keeps its
+// own radiance and only takes a gain: down to 0.5 in a wedge, up to 1.15 in a clear lane, strongest
+// toward the sun and at golden hour. TAA resolves the jitter.
+float crepuscularGain(vec3 viewDir) {
+    vec3 Ls = sunDirWorld();
+    float mu = dot(viewDir, Ls);
+    float w = smoothstep(0.35, 0.97, mu) * smoothstep(-0.03, 0.03, Ls.y) * mix(0.45, 1.0, goldenHour()) * (1.0 - rainStrength);
+    if (w <= 0.0) return 1.0;
+    vec3 sv = mat3(gbufferModelView) * Ls;
+    if (sv.z > -0.01) return 1.0;
+    vec4 sc = gbufferProjection * vec4(sv, 1.0);
+    vec2 dl = (sc.xy / sc.w * 0.5 + 0.5) - uv;
+    float j = ign(gl_FragCoord.xy + float(frameCounter % 64) * vec2(2.31, 5.17));
+    float open = 0.0;
+    for (int i = 0; i < 16; i++) {
+        vec2 q = uv + dl * (0.04 + 0.96 * (float(i) + j) / 16.0);
+        float m = 0.5;
+        if (all(greaterThanEqual(q, vec2(0.0))) && all(lessThanEqual(q, vec2(1.0)))) {
+            ivec2 qp = ivec2(q * vec2(viewWidth, viewHeight));
+            m = texelFetch(depthtex0, qp, 0).r >= 1.0 ? texelFetch(colortex1, qp, 0).g : 0.0;
+        }
+        open += m;
+    }
+    open /= 16.0;
+    return mix(1.0 - 0.5 * w, 1.0 + 0.15 * w, open);
 }
 #endif
 
@@ -1350,6 +1412,9 @@ void main() {
         if (isEyeInWater == 0) mo *= 1.0 - smoothstep(0.55, 1.10, luminance(color * exposure()));
         color += mo;
     }
+#endif
+#if QF_CREPUSCULAR == 1 && QF_PRESET >= 3 && QF_CLOUDS == 2
+    if (isEyeInWater == 0 && depth0 >= 1.0) color *= crepuscularGain(viewDir);
 #endif
     // r008: never hand TAA a NaN or Inf (r007's PBR blob spread from one through the history).
     if (any(isnan(color)) || any(isinf(color))) color = vec3(0.0);

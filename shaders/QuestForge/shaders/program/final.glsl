@@ -49,7 +49,12 @@ vec3 vibrance(vec3 c) {
     float sat = mx > 1e-5 ? 1.0 - sqrt(max(mn, 0.0) / mx) : 0.0;
     float l = luminance(c);
     float k = 1.0 + float(QF_VIBRANCE) * (1.0 - sat) * 2.2 * smoothstep(0.0, 0.25, sat + 0.05);
-    c = max(vec3(l) + (c - vec3(l)) * k, vec3(0.0));
+    // r010 (texture track: gold's blue was 0 in 98 % of its pixels, vanilla ~34): the push away from
+    // grey drove a vivid colour's weakest channel below zero, then clipped it, so gold, sand and
+    // sunset orange lost their last trace of blue and went flat. The weakest channel now keeps at
+    // least half its value: k is held to (l - mn/2) / (l - mn).
+    k = min(k, (l - 0.5 * mn) / max(l - mn, 1e-5));
+    c = max(vec3(l) + (c - vec3(l)) * max(k, 1.0), vec3(0.0));
     return c;
 }
 vec3 display(vec3 exposed) {

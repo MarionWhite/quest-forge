@@ -164,6 +164,7 @@ float gCloudT = 1.0;
 // r009 (owner r008 sunset-full: clouds in front of the sun must cover it): the disk's own
 // transmittance through the cloud slab, without the far-cloud melt (see cloudMarch).
 float gCloudTd = 1.0;
+float gSkyT = 1.0;
 // r009 (owner r008: "research what an actual meteor shower looks like because it isn't just shit
 // flying in every direction"; docs/design/shaders/research/meteor-showers.md): a shower is
 // perspective on parallel paths. Each streak lies on a great circle through the radiant and moves
@@ -222,13 +223,13 @@ vec3 grazers(vec3 dir) {
     // A storm: far more meteors, mostly faint, and their trains linger, so the sky fills with
     // parallel lines.
     const int NS = 10 * QF_METEOR_RATE;
-    const float PB = 4.0, OCC = 0.92, BR = 0.40, TRX = 1.7;
+    const float PB = 6.0, OCC = 0.92, BR = 0.40, TRX = 1.7;
 #elif QF_METEOR_STYLE == 2
     const int NS = 2 * QF_METEOR_RATE;
-    const float PB = 5.0, OCC = 0.80, BR = 0.6, TRX = 1.0;
+    const float PB = 7.0, OCC = 0.80, BR = 0.6, TRX = 1.0;
 #else
     const int NS = 6 * QF_METEOR_RATE;
-    const float PB = 5.0, OCC = 0.88, BR = 0.6, TRX = 1.0;
+    const float PB = 7.0, OCC = 0.88, BR = 0.6, TRX = 1.0;
 #endif
     for (int k = 0; k < NS; k++) {
         float P = PB + 1.3 * float(k % 4);                    // seconds per slot cycle
@@ -239,7 +240,10 @@ vec3 grazers(vec3 dir) {
         float u = hash12(sd + 6.6);
         float bright = min(BR / max(u, 0.015), 7.0);           // P(> b) ~ 1/b, as r009
         float gold = smoothstep(2.0, 6.0, bright);
-        float dur = mix(1.2, 4.0, hash12(sd + 1.1));
+        // Loop 3 (r10h1c max-over-time: each meteor crossed only ~15 deg, an eighth of the frame): grazers
+        // burn longer (2-5 s, so 56-300 km of track) and more of them pass near overhead (the side offset
+        // weighted toward the eye), where perspective turns the same track into a 40-90 deg sweep.
+        float dur = mix(2.0, 5.0, hash12(sd + 1.1));
         float start = hash12(sd + 2.2) * max(P - dur - 0.8, 0.2);
         // Trains end inside the slot's cycle, so none pops off when the next cycle starts.
         float trainT = min(mix(1.2, 3.0, hash12(sd + 9.9)) * mix(0.6, 2.2, gold) * TRX, P - start - dur);
@@ -255,7 +259,7 @@ vec3 grazers(vec3 dir) {
         float spd = mix(28.0, 60.0, hash12(sd + 7.1));          // km/s
         float L = spd * dur;
         vec3 M = vec3(0.0, mix(88.0, 118.0, hash12(sd + 4.4)), 0.0)
-               + Wd * ((hash12(sd + 5.5) * 2.0 - 1.0) * 380.0)
+               + Wd * (sign(hash12(sd + 5.5) - 0.5) * pow(hash12(sd + 5.7), 1.6) * 380.0)
                + F * ((hash12(sd + 5.9) * 2.0 - 1.0) * 250.0 - 0.5 * L);
         float x;
         float s = gzClosest(dir, M, V, x);
@@ -277,7 +281,8 @@ vec3 grazers(vec3 dir) {
             // Loop 2 (r10g1: 35-110 km wakes read as short dashes): the glowing wake is half the path
             // burnt so far (20-160 km), thinner than the head and tapering, so a grazer in flight is a
             // long fine line with a hot point at its front: the long-exposure look.
-            float wake = clamp(xh * mix(0.40, 0.65, hash12(sd + 2.9)), 20.0, 160.0);
+            // Loop 3: 55-85 % of the burnt path, up to 300 km: the line stretches back across the sky.
+            float wake = clamp(xh * mix(0.55, 0.85, hash12(sd + 2.9)), 30.0, 300.0);
             float a = clamp((x - xh + wake) / wake, 0.0, 1.0);
             float wl = w * mix(0.55, 1.0, a);
             float line = exp(-perpA * perpA / (wl * wl));
@@ -285,7 +290,7 @@ vec3 grazers(vec3 dir) {
             float r2 = alongA * alongA + perpA * perpA;
             float headDot = exp(-r2 / (w * w * 1.6)) * 2.4;
             vec3 c = tint * line * trail * 0.8 + mix(tint, vec3(1.0), 0.6) * headDot;
-            c += tint * exp(-r2 / (0.0005 * near * near)) * 0.2 * gold;   // a fireball's glow, ~1.3 deg at 100 km
+            c += tint * exp(-r2 / (0.0003 * near * near)) * 0.12 * gold;   // a fireball's glow, ~1 deg at 100 km (loop 3: 0.2 at 1.3 deg read as a comet's ball in h3c)
             sum += c * env * bright * fall;
         }
         float ageS = tl - x / spd - 0.12;                      // since the head passed this point
@@ -860,9 +865,12 @@ vec3 cloudLum(CloudLight c, float od, float h, float mu, float dens) {
         float gh = goldenHour();
         float fringe = exp(-od * 2.6) * (1.0 - smoothstep(0.0, 0.55, dens));
 #if QF_SUN_CLOUD == 2
-        // r010 option B: the silver lining 2.5x, held to the thinnest fringe (the lit edge, not a glow).
-        fringe *= exp(-od * 1.4);
-        s += c.E * fringe * (c.rim * 0.11 * (0.6 + 1.4 * gh) + 0.30 * gh);
+        // r010 option B, loop 2 (loop 1, 2.5x on a narrower fringe, changed 0.7 luma round the sun: the
+        // two cancelled): blazing linings. The forward lobe is no longer capped at 80 (the HG 0.92 lobe
+        // reaches ~300 within 2 deg of the disk, i.e. the cap flattened everything inside ~5 deg) and
+        // its gain doubles, so thin edges right by the sun burn several times brighter than the sky
+        // behind them while the thick bodies stay dark.
+        s += c.E * fringe * (c.rim * 0.09 * (0.6 + 1.4 * gh) + 0.30 * gh);   // c.rim capped at 320 (cloudMarch)
 #else
         s += c.E * fringe * (c.rim * 0.045 * (0.6 + 1.4 * gh) + 0.30 * gh);
 #endif
@@ -886,7 +894,11 @@ vec4 cloudMarch(vec3 dir, int steps, float jitter) {
     CloudLight c = cloudLight();
     float mu = dot(dir, c.L);
     c.ph = cloudPhases(mu);
+#if QF_SUN_CLOUD == 2
+    c.rim = min(hgPhase(mu, 0.92) * 4.0 * PI, 320.0);
+#else
     c.rim = min(hgPhase(mu, 0.92) * 4.0 * PI, 80.0);
+#endif
     float T = 1.0;
     vec3 S = vec3(0.0);
     float t = t0 + dt * jitter;
@@ -1002,6 +1014,7 @@ vec3 skyRadiance(vec3 dir) {
 #endif
     L += gMeteor * smoothstep(0.93, 0.995, gCloudT);   // ud: 0.85 still let streaks over the thin grey cloud
     L += Ldisk * gCloudTd;
+    gSkyT = gCloudT;   // r010: kept for the crepuscular rays' mask (deferred writes it to colortex1.g)
     gMeteor = vec3(0.0); gCloudT = 1.0; gCloudTd = 1.0;
     return L;
 }

@@ -147,7 +147,14 @@ vec3 metalShade(vec3 albedo, vec3 n, vec3 viewDir, vec3 L, vec3 E, float smooth_
     float sh2 = ggx(clamp(dot(n, H), 0.0, 1.0), 0.08) * NdotL / (4.0 * NdotV + 0.4);
     col += FH * E * min(sh2, 6.0) * shadow * 0.55;
 #if QF_METAL_SSR == 1
+    // r010 (texture track, diag_column: gold 158,134,1 under the shader vs 178,152,34 vanilla, iron
+    // 143 vs 154, plain stone level): a block face mirrors mostly the dim horizon and ground, so 0.30
+    // of the diffuse under the reflection left gold and iron ~17 % darker than plain blocks.
+#if QF_METAL_FLOOR == 1
+    col += diffuse * 0.62;
+#else
     col += diffuse * 0.30;
+#endif
 #else
     col = max(col + diffuse * 0.32, diffuse * 0.95);
 #endif   // loop 3: 0.55 of the diffuse on top buried the reflection (read as paint)
@@ -326,7 +333,11 @@ vec3 shadeSurface(Surface s, vec3 viewDir, vec2 pixel) {
         float spec = ggx(max(dot(s.normal, H), 0.0), a2) * clamp(NdotL, 0.0, 1.0) / (4.0 * NdotV + 0.5);
         float oreMask = s.mat == MAT_ORE ? smoothstep(0.25, 0.6, abs(s.albedo.r - s.albedo.g) + abs(s.albedo.g - s.albedo.b)) : 1.0;
         color += F * E * spec * shadow * oreMask;
+#if QF_METAL_FLOOR == 1
+        if (s.mat == MAT_METAL) color *= 0.92;   // r010: 0.65 put gold at 150 (vanilla 178) next to level stone
+#else
         if (s.mat == MAT_METAL) color *= 0.65;   // metal: less diffuse, energy goes to F
+#endif
     }
     return color;
 }
