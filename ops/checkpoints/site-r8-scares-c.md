@@ -79,3 +79,11 @@ Scratch: `scratchpad/r8/scares-c/` (film.js, film.py, crop.py, probe.js, cdp.mjs
   then comes up with it. Hand beat 0.6 s (was 0.45). One FNAF scream only (dropped the one at the volley).
 - Running: scratch `final_run.sh` -> review/film_at{0.3,0.8}, proof_at*.txt (.films_done), crops_at*_s*.png
   (.crops_done). Old set in review_old/. Then: README beats (times shift ~+0.2 s), scare_flow, commit, journal, report.
+- [x] Committed 571122b (skeleton.js, ossuary.js, this checkpoint). Proof at=0.3 (new code) clean on all seeds.
+- Next: proof_at0.8 + sheets (review/film_at0.8), crops (.crops_done), README beats, scare_flow (--only Skeleton, then
+  all 16), journal line + commit, report.
+- [x] Review set done (scratch review/): film_at{0.3,0.8}/Skeleton_s{1,2,3}_part0N.jpg + _log.txt, proof_at*.txt (clean:
+  every riser occluded/off frame the step before it shows), crops_at{0.3,0.8}_s{1,2,3}.png, README.txt (beats table).
+- Next: scare_flow all 16 (--out scratch flow_all.json), journal line + commit, report.
+- [x] scare_flow all 16 (02:21): ok, no flashes, no leaks, no exceptions (Skeleton 20.95 s, fps 9.1 on a machine shared
+  with two other renderers). Journal line added. DONE.

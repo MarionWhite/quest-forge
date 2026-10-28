@@ -1,5 +1,16 @@
 # Site journal (newest first)
 
+- 2026-10-28 (Mac) krypt scares r8 C, Skeleton redo, the bone pile (the owner's concept). New `scares/ossuary.js`:
+  a room carved off the corridor before the first frame (doorway in a side wall out of frame through the settle, 1-3
+  blocks of wall, rock shell checked with a summed-area table, graves and torches avoided, restored on dispose), heaps of
+  1.7.10 bone items (2D-extruded) and skull blocks over a dark core that is the occluder, wall niches with skulls, a
+  copied Krypt torch. Beats: clatter, walk in on bones, a skull rolls off a heap by itself, the rattle, an arm claws out
+  of the heap's flank (its bow stays in the bones until the hand is buried again, then comes up with it), it sits up and
+  stands with bones sliding off, a second rises behind you by the doorway, more all round (4-6), bows up together,
+  silence, the volley, knocked down, point blank. One FNAF scream (at the kill). About 21 s. Proof on part boxes: every
+  riser occluded or off frame the step before it shows (2 depths x 3 seeds). Room fit: 54/56 spots probed; on riddled
+  'worn' rock (about 4%) build throws and the scare does not play there. scare_flow: all 16 ok, no flashes, no leaks.
+
 - 2026-10-28 (Mac) krypt scares r8b, part B (all scares): the start flash and the hotbar (1b31ce3, flow follow-up).
   The owner's "the mob will flash on the screen in front of me, and disappear" had two causes, both in rig.js. The
   rig's group was in the scene from createRig while the Krypt kept rendering through the build, warm-up and sound
