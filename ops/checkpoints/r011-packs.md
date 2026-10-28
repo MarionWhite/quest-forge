@@ -76,3 +76,13 @@ underwater effects. Stay True leaves and wheat belong to the other texture agent
   r11p0 = QF-v3c (r010 candidate), r11p1 = QF-v3c + QF-r011-packs.zip. Shot mode, CIT on, jars-r011, difficulty easy.
 - Next: GUI part as a SEPARATE overlay (QF-r011-gui.zip, tools/textures/r007gui.py) so the items/mobs cache stays;
   then review r11p0/r11p1 sheets, drop Patrix skins that break (MOB_SKIP), hand off to C:\qfb\shaderdev\r011\.
+### 2026-10-27 step 4: GUI overlay + shader note (texture-dev #2)
+- tools/textures/r007gui.py (part gui of r007packs.py) -> C:\qfb\textures\QF-r011-gui.zip: Faithless containers
+  (its pre-1.20.2 atlas layout; inventory grid/result moved (-10,+8), offhand painted out), legacy tabs.png +
+  creative backgrounds, icons.png/widgets.png composited from its 1.20 sprites at 1.7.10 UVs (pink boss bar;
+  per-boss framed bars bar_dragon/bar_wither need a GuiIngame hook), empty armour slot icons moved here.
+- Render 1027-223357-textures-r011-gui (r11p2: v3c + packs + gui, 12 gui_* views). Packs render 1027-222844 running.
+- Conquest note appended to ops/checkpoints/r011-shader.md (uncommitted there: that file holds the shader agent's WIP;
+  they commit it).
+- Next: review r11p0/r11p1/r11p2 frames (contact sheets), MOB_SKIP for broken Patrix skins, hand-off JSON
+  C:\qfb\shaderdev\r011\packs_scenes.json, journal + track update, commit.

@@ -113,7 +113,10 @@ for _m in ("axe", "hoe", "pickaxe", "shovel", "sword", "boots", "chestplate", "h
     ITEM_IDS["wood_" + _m] = "wooden_" + _m
 ITEM_SKIP = {"quiver", "ruby",                       # unused in 1.7.10
              "skull_creeper", "skull_skeleton", "skull_steve", "skull_wither", "skull_zombie",   # modern heads are 3D
-             "bow_standby", "bow_pulling_0", "bow_pulling_1", "bow_pulling_2", "compass", "clock"}   # special below
+             "bow_standby", "bow_pulling_0", "bow_pulling_1", "bow_pulling_2", "compass", "clock",   # special below
+             # drawn for Faithless's slot frames: shipped with its GUI (r007gui.py), not alone
+             "empty_armor_slot_boots", "empty_armor_slot_chestplate", "empty_armor_slot_helmet",
+             "empty_armor_slot_leggings"}
 # 1.7.10 bow stages (ItemBow.getItemIconForUseDuration): pulling_0 under 13 ticks, _1 from 13, _2 from 18 (of 20)
 BOW_PULL = {"bow_pulling_0": 0.3, "bow_pulling_1": 0.7, "bow_pulling_2": 0.95}
 

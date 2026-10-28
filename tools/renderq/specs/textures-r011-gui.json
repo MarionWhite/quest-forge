@@ -1,0 +1,16 @@
+{
+ "name": "textures-r011-gui",
+ "owner": "texture-dev-2",
+ "comment": "r011 step 4: Faithless GUI on 1.7.10 layouts (tools/textures/r007gui.py: containers, inventory remapped, creative tabs, icons/widgets composited from its sprites) over r11p1's packs. GUI views only (FrameBench GuiShots, jars-r011). Compare with r11p0 (r010) and r11p1 (items only) of 1027-222844-textures-r011-packs.",
+ "prebuild": [
+  ["py", "-3.10", "-I", "tools/textures/r007packs.py", "--out", "C:/qfb/textures/QF-r011-packs.zip", "--parts", "items,cit,tnt,books,mobs,env"],
+  ["py", "-3.10", "-I", "tools/textures/r007packs.py", "--out", "C:/qfb/textures/QF-r011-gui.zip", "--parts", "gui"]
+ ],
+ "defaults": {"world": "C:/qfb/textures/world-r011", "views": "tools/textures/views-r011.txt", "preset": "3",
+              "size": "2560x1440", "mode": "shot", "cit": true,
+              "jars": ["C:/qfb/renderq/jars-r011/QuestForgeContent-1.0.0.jar"], "props": ["qf.bench.difficulty=easy"]},
+ "jobs": [
+  {"tag": "r11p2", "resourcepacks": ["C:/qfb/textures/diag/QF-v3c.zip", "C:/qfb/textures/QF-r011-packs.zip", "C:/qfb/textures/QF-r011-gui.zip"],
+   "scenes": "gui_hud,gui_inventory,gui_creative_combat,gui_creative_tools,gui_creative_brewing,gui_creative_materials,gui_furnace,gui_crafting,gui_chest,gui_brewing,gui_enchanting,gui_anvil"}
+ ]
+}
