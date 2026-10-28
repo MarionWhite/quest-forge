@@ -56,3 +56,25 @@ multi.py, sheet2.py; reuse them). Spec: `docs/design/site/krypt-scares.md`.
   (`node tools/site/scare_flow.mjs [--only A,B] [--mood] [--out f.json]`, exits 1 on a leak/exception/no return).
   Proof: the old behaviour (scratch `leaksite/`, port 8771) FAILS "LEAK at the death screen: qf.scare.chitter; after
   Enter"; the fix passes. Full run `r8/scares-b/flow_all1.json`: 16/16 ok + 20 mood events ok, no leaks, 59-60 fps.
+- step 2 (in progress, uncommitted): Ghast `ghast.js`: the fake fireball and its dice removed (exactly one fireball, after
+  the face/charge); on the look-back branch it now floats in out of the dark (drift 5 m out, 2.2 m down) while you
+  look away, instead of popping in. Blaze: `app.js` contract gains `kr.gravesNear(pos, range)` (additive, 12 lines:
+  stone foot, out dir, statue, family, objs). Probe `r8/scares-b/probe_graves.js`: at=0.3 graves every ~4.5 m in
+  alcoves at x=+-5.2 (stone 1.2 past the hall's half width); at=0.55/0.8 no graves within 16 m (fallback needed).
+  Blaze plan: the grave plot (2 floor blocks in front of the stone) is carved in build() under stand-in blocks; cracks
+  grow with orange glow seeping through, smoke wisps, breathing from below; the head turns to it (sound + glow); the
+  plot bursts (floor block particles, flame column), it rises out of the pit rods spinning, floats out ahead (P1) and
+  the rest is as r7. Fallback with no grave in 16 m: the same through the corridor floor ahead.
+- step 3 (uncommitted): Blaze rewritten (`blaze.js`, findPlot + stand-ins + cracks/glow + burst + rise; r7 volley kept).
+  Beat log tool `r8/scares-b/beat.js` + `beatfmt.py` (cdp: `graves/?demo&at=A&beat=ID&beatseed=N`); filmstrip tool
+  `r8/scares-b/film.py NAME "<query>" DUR OUT` (5 fps, pages of 20, one Chrome). Blaze seed 1 at=0.3: grave 16 (cross)
+  at 3.9 m left; crack 1.6 s, turn 2.0 s (after the sound), burst 3.9 s, rises 4.0-4.6, out 5.2-6.1, flare 6.1.
+  Filmstrip `r8/scares-b/film/bl1/film.png` was rendering (slow: >10 min for 61 frames).
+- step 4: Blaze and Ghast reviewed (sheets `r8/scares-b/film/bl1/film.png` (5 fps, before skins), `chk1/sheet.png`
+  (Blaze no-grave fallback at=0.8; Ghast rise and look-back), `sk1/sheet.png` (with the local Patrix skins)).
+  Ghast with a skin: its three faces are now painted on the skin (eyes opened, mouth opened at the painting's own
+  lids and crease) instead of switching to the vanilla face mid-scare. Flow tool: progress lines + a 150 s stall
+  watchdog (a first Blaze+Ghast run hung >15 min with no output on the loaded machine; alone each passes).
+  Magma Cube rewritten (uncommitted): beat log `mc_beat1.json`, frames `mc1/`, `mc2/` (size 6 at ceil 4 and 7,
+  width-limited); fixes so far: baby enters from the far dark (fades up from unlit), fullbright cubes, face at 2.4 m,
+  slices spread capped to the ceiling.

@@ -80,6 +80,9 @@ const state = {
 //                   Krypt's lights. Every one eases in and ends restored. pos is [x,y,z] or a Vector3; flicker and off
 //                   act on the nearest torch (and return false when none is near).
 //   getWalk() also gives stratum (0-based index) and stratumName.
+//   gravesNear(pos, range)  the graves within range blocks (default 12) of a world point, nearest first:
+//                   [{ i, stone: Vector3 (the foot of the headstone, floor level), out: Vector3 (unit, from the corridor
+//                   toward the stone), statue: Vector3, yaw, family, objs: [the stone's and statue's groups] or null }]
 //   takeover(on)    true pauses the camera control and walk input (and own footsteps) while a scare plays;
 //                   false restores them. The scare may move window.__krypt.camera while taken over.
 const __kryptHold = { on: false };
@@ -391,6 +394,16 @@ function publishKrypt() {
   kr.scene = K.scene; kr.camera = K.camera; kr.renderer = K.renderer; kr.composer = K.composer;
   const toCorner = (c) => ({ s: c.d / K.length, pos: new THREE.Vector3(c.x, c.y, c.z), dir: new THREE.Vector3(c.dx, 0, c.dz), side: c.side, kind: c.kind });
   kr.cornersNear = (s, range = 150) => K.plan.corners.filter(c => Math.abs(c.d - s * K.length) <= range).map(toCorner);
+  kr.gravesNear = (pos, range = 12) => {
+    const d = K.walk.s * K.length, out = [];
+    for (const i of nearSlots(d, range + 40)) {
+      const a = anchorOf(i), fr = a.frame, dist = a.p.distanceTo(pos);
+      if (dist > range) continue;
+      const e = K.built.get(i);
+      out.push({ i, dist, stone: fr.stone.clone(), out: fr.out.clone(), statue: fr.statue.clone(), yaw: fr.yaw, family: familyFor(state.graves[i]), objs: e ? e.objs.slice() : null });
+    }
+    return out.sort((x, y) => x.dist - y.dist);
+  };
   K.refreshNear = (force) => {
     const d = K.walk.s * K.length;
     if (!force && K.nearAt != null && Math.abs(d - K.nearAt) < 15) return;

@@ -43,6 +43,7 @@ const inPage = async (ONLY, MOOD) => {
     for (let i = 0; i < 100 && window.__scares.busy; i++) await sleep(100);
     const base = new Set(V().map((v) => v.id));
     key("j"); await sleep(350);
+    console.info("scareflow: " + id + " start");
     const btn = [...document.querySelectorAll(".qfs-pick button")].find((b) => b.textContent.includes(s.label));
     if (!btn) { out.runs.push({ id, error: "no picker button for " + s.label }); key("Escape"); continue; }
     const tClick = performance.now();
@@ -63,7 +64,7 @@ const inPage = async (ONLY, MOOD) => {
         if (!seen.has(v.id)) { seen.set(v.id, v); events.push([+t.toFixed(2), "+", v.name, v.loop]); out.sawScareVoice = true; }
       }
       for (const [k, v] of seen) if (!ids.has(k) && !v.gone) { v.gone = true; events.push([+t.toFixed(2), "-", v.name, v.loop]); }
-      if (!st) { if (first != null) break; continue; }
+      if (!st) { if (first != null) break; if (now - tClick > 15000) { out.runs.push({ id, error: "the scare never started (15 s after the click)" }); break; } continue; }
       if (st.frames > 0 && first == null) { first = Math.round(now - tClick); lastF = st.frames; lastFAt = now; }
       marks = st.marks; dur = st.dur;
       if (st.frames !== lastF) {
@@ -78,6 +79,7 @@ const inPage = async (ONLY, MOOD) => {
         entered = true; key("Enter");
       }
     }
+    if (first == null) continue;
     await sleep(900);
     const after = V();
     const afterEnter = after.filter((v) => v.tag === "scare").map((v) => v.name + (v.loop ? " (loop)" : ""));
@@ -88,12 +90,14 @@ const inPage = async (ONLY, MOOD) => {
       entered, back: !window.__scares.busy, voices: seen.size, deadLoops, afterEnter, strays, leak: !!leak, marks, events });
   }
   if (MOOD && window.__mood && typeof window.__mood.trigger === "function") {
+    console.info("scareflow: mood events");
     const kinds = Array.isArray(window.__mood.kinds) ? window.__mood.kinds : Object.keys(window.__mood.kinds || {});
     for (const kind of kinds) {
       for (let i = 0; i < 200 && window.__mood.busy; i++) await sleep(100);
       const base = new Set(V().map((v) => v.id));
       let ok = false;
       try { ok = !!window.__mood.trigger(kind); } catch (e) { out.mood.push({ kind, error: String(e) }); continue; }
+      console.info("scareflow: mood " + kind);
       if (!ok) { out.mood.push({ kind, fired: false }); continue; }
       const t0 = performance.now();
       while (window.__mood.busy && performance.now() - t0 < 30000) await sleep(100);
@@ -120,6 +124,10 @@ if (!tab) { console.error("scare_flow: Chrome did not start"); done(2); }
 const ws = new WebSocket(tab.webSocketDebuggerUrl);
 await new Promise((r) => (ws.onopen = r));
 let id = 0; const pend = new Map(); const exc = [], warns = [];
+// A page that stops reporting (a renderer crash, a hung frame) fails the run instead of hanging it: one scare and its
+// death screen take well under two minutes even on a busy machine.
+let lastNews = Date.now();
+setInterval(() => { if (Date.now() - lastNews > 150000) { console.error("SCARE FLOW FAILED: the page stopped reporting for 150 s" + (exc.length ? ": " + exc.slice(-2).join(" | ") : "")); done(3); } }, 5000).unref();
 ws.onmessage = (m) => {
   const d = JSON.parse(m.data);
   if (d.id && pend.has(d.id)) { pend.get(d.id)(d); pend.delete(d.id); return; }
@@ -128,6 +136,7 @@ ws.onmessage = (m) => {
     const txt = d.params.args.map((a) => a.value ?? a.description).join(" ");
     if (d.params.type === "error") exc.push("console.error: " + txt);
     else if (d.params.type === "warning" && /qfaudio|scare/i.test(txt)) warns.push(txt);
+    else if (d.params.type === "info" && txt.startsWith("scareflow: ")) { lastNews = Date.now(); process.stderr.write(txt.slice(11) + "\n"); }   // progress
   }
 };
 const send = (method, params = {}) => new Promise((r) => { const i = ++id; pend.set(i, r); ws.send(JSON.stringify({ id: i, method, params })); });
