@@ -146,3 +146,18 @@ Scratch: `scratchpad/r8/scares-c/` (film.js, film.py, crop.py, probe.js, cdp.mjs
   the isFull3D branch, not RenderPlayer's bow branch (T(0,.125,.3125) R(-20,Y)): noted for the owner, not changed.
   Still to do for #2: Skeleton bow before/after in the real scare (after #4), stoodPose = ModelZombie arms.
 - Next: #4 ring of bows.
+- [x] #4 ring of bows (commit 22bb1f6): stand where they rose (R1 no step, R2 no doorway walk); side-on (SIDE_ON 1 rad,
+  right side + bow to you) until each draws, squares up over its raise (bow face visible -> edge-on at full draw);
+  ModelZombie arms. Order = R1 then up to 3 by brute force (snaps 35-120 deg, nearest included), tUp gap ~0.68 s,
+  rattle cue, look snap 0.24 s "x"; the rest rise during the turn to `fin` (R1 + another depth + edge, no side by
+  side). Marks bow0..bow3 (tUp+0.17), bows (tFrame+0.55). Lift REF 0.18 (bow 2.5). Scratch: ring/c0.3.png c0.8.png
+  (bow crops), ring/frame_full.png (whole frames), ring/l_ba_small.png (light before/after, :8011 = HEAD light).
+  film3.js mark regex now takes digits (bow0).
+- Next: final review set (final_run.sh with ats incl. bow0..bow3), proof, flow (Skeleton + all 16), journal, report.
+- [x] review set (scratch review/): films 5 fps at 0.3/0.8 x seeds 1-3 (film_at*/), proof_at*_s*.txt (every skeleton
+  occluded or off frame the step before it shows, no pops), crops_at*_s*.png (hand, sit, stand, behind, bow0-3,
+  bows, volley). Known, not new: in the fall the rolled skull can sit next to your face (a big grey block, 22.2 s).
+- Next: scare_flow --only Skeleton, then all 16; journal; report.
+- [x] scare_flow: --only Skeleton ok (fps 10.1, gap 651 ms); all 16 ok in two halves (no flashes, leaks, exceptions).
+- [x] before/after sheet: scratch held/held_before_after.png (bow critic vs now, light-only, Wither sword), held/lucky_ba.png.
+- [x] journal entry; DONE. Not pushed. Before-server on :8011 stopped.

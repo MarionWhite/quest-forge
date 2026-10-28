@@ -1,5 +1,21 @@
 # Site journal (newest first)
 
+- 2026-10-28 (Mac) krypt scares r8 C, Skeleton critic round ("still low quality at 1:1"). Heaps: lumpy heightfield
+  core (7 shoulders, 70 knobs), a 128 texel/m pile texture of pale bones with shadowed gaps, 2.5x the pieces, skulls
+  lying back half buried, the torch's light wrapped round them (1bb584c). Hand: far-heap risers lie head toward you,
+  so the claw arm comes up near-upright on your side out of a dark hole that dents the heap, knocking a skull off, the
+  view narrowing on it. Fallback (a1558ac, scares.js): any build that throws is logged, goes back in the pool and
+  another plays; a J press retries once with a wider search (Skeleton: a 5th room pass), then plays another. Held
+  items (6b04f60, rig.js + equipment.js): the transforms are RenderBiped's and ItemRenderer's term by term, and an
+  aimed bow is edge-on to its target in vanilla too. The black came from the light: held items took the mob's flat
+  ambient and their textures are dark (bow 0.07 linear, stone 0.13, bone ~0.4). Now every held item in the scares is
+  lifted to at least 0.18 tone (bow x2.5, stone x1.3, gold/iron/diamond x1) and shaded with 1.7.10's item lighting;
+  the Lucky page is unchanged (sunlit, own lights). The Wither's sword stays dark because its mob's own light is 0.03
+  by design. Ring of bows (22bb1f6): they stand where they rose, side-on with their skulls on you; a rattle, a snap,
+  a bow comes up as its skeleton squares up (face to edge-on), up to four in turn, then the frame with the first far
+  off, one at another depth, one at the edge. Proof clean at 0.3/0.8 x 3 seeds; scare_flow all 16 ok. Noted, not
+  changed: lucky/steve.js draws Steve's bow with the isFull3D transform, not RenderPlayer's bow branch.
+
 - 2026-10-28 (Mac) krypt scares r8b A, Wither opening fix (review: "the player stands frozen" ~3 s while it walked
   from 9 m to 3.9 m). Now it waits in its hiding place turned away into the dark (its stone sword with it: pixels showed
   the blade poking out of the alcove in the first frame at 0.42; the spot test only covered the body), turns at the
