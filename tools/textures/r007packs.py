@@ -245,6 +245,7 @@ def part_items(out, fl, mc, log):
         out[ITEMS + name + ".png"] = png(bow_frame(fl, pull))
     took += ["bow_standby"] + list(BOW_PULL)
     out[ITEMS + "compass.png"] = png(compass_strip(fl))
+    out[ITEMS + "compass.png.mcmeta"] = b'{"animation": {}}'   # as vanilla's: a frame strip, not a broken sprite
     took.append("compass")
     log["items"] = "%d item sprites from Faithless; not in Faithless (kept as is): %s" % (len(took), " ".join(miss))
     return took
@@ -358,11 +359,21 @@ def block_pbr(out, path, im):
 
 
 def part_tnt(out, fl, mc, log):
+    """Faithless's TNT. Its blockstate picks tnt_side2, TNT spelt in the enchanting table's letters, for one block
+    in five (weights 4:1); the same mix as an MCPatcher random rule, one choice per block (symmetry=all)."""
     for side in ("side", "top", "bottom"):
         p = BLOCKS + "tnt_%s.png" % side
         out[p] = fl.read(T + "block/tnt_%s.png" % side)
         block_pbr(out, p, fl.img(T + "block/tnt_%s.png" % side))
-    log["tnt"] = "tnt_side/top/bottom from Faithless (+ our LabPBR maps)"
+    w = [v.get("weight", 1) for v in fl.json(A + "blockstates/tnt.json")["variants"][""]]
+    d = CTM + "tnt/"
+    for i, n in enumerate(("tnt_side", "tnt_side2")):
+        out[d + "%d.png" % i] = fl.read(T + "block/%s.png" % n)
+        block_pbr(out, d + "%d.png" % i, fl.img(T + "block/%s.png" % n))
+    out[d + "tnt.properties"] = ("matchTiles=tnt_side\nmethod=random\nfaces=sides\nsymmetry=all\ntiles=0-1\n"
+                                 "weights=%d %d\n" % tuple(w)).encode()
+    log["tnt"] = "Faithless TNT (+ our LabPBR maps); enchanting-table lettering on %d of %d blocks, as Faithless" % (
+        w[1], sum(w))
 
 
 SOARTEX_VARIANTS = ("brim", "color", "react", "tome")   # its biome rules already use 1.7 names (swamplandm, hell)
@@ -415,7 +426,14 @@ MOBS = {   # 1.7.10 entity texture -> Patrix 26.3 path (under textures/entity/)
     "silverfish.png": "silverfish/silverfish.png", "blaze.png": "blaze/blaze.png", "bat.png": "bat/bat.png",
     "zombie_pigman.png": "piglin/zombified_piglin.png", "wither/wither.png": "wither/wither.png",
 }
-MOB_SKIP = set()   # filled from the in-game lineup: skins whose layout does not fit the 1.7.10 model
+# From the in-game lineup (render 1027-222844-textures-r011-packs, r11p1 r11_mob_1..6): skins whose layout is Patrix's
+# CEM one, not the 1.7.10 model's. Seen broken: chicken (a plain box), cow (body pattern on the head), sheep (the wool
+# has no face window: a blank block), blaze (head missing), witch (hat broken into a floating ring), zombie pigman
+# (a piglin face on a pigman body). Not seen in a frame yet, held back until they are: slime, magma cube, ghast,
+# squid, bat, wither.
+MOB_SKIP = {"chicken.png", "cow/cow.png", "sheep/sheep.png", "sheep/sheep_fur.png", "blaze.png", "witch.png",
+            "zombie_pigman.png", "slime/slime.png", "slime/magmacube.png", "ghast/ghast.png",
+            "ghast/ghast_shooting.png", "squid.png", "bat.png", "wither/wither.png"}
 
 
 def part_mobs(out, px, mc, log):
@@ -431,8 +449,8 @@ def part_mobs(out, px, mc, log):
             continue
         out[E + v] = png(im)
         took.append(v)
-    log["mobs"] = "%d Patrix skins: %s; wrong aspect for 1.7.10 (CEM layout): %s" % (
-        len(took), " ".join(t[:-4] for t in took), " ".join(aspect))
+    log["mobs"] = "%d Patrix skins: %s; wrong aspect for 1.7.10 (CEM layout): %s; skipped (MOB_SKIP): %d" % (
+        len(took), " ".join(t[:-4] for t in took), " ".join(aspect) or "none", len(MOB_SKIP))
     return took
 
 

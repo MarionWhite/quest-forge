@@ -86,3 +86,18 @@ underwater effects. Stay True leaves and wheat belong to the other texture agent
   they commit it).
 - Next: review r11p0/r11p1/r11p2 frames (contact sheets), MOB_SKIP for broken Patrix skins, hand-off JSON
   C:\qfb\shaderdev\r011\packs_scenes.json, journal + track update, commit.
+### 2026-10-27 step 5: first review (texture-dev #2)
+- Render 1027-222844 done (r11p0 A / r11p1 B, frames in C:\qfb\shaderdev\rounds\screenshots\bench-r11p*-*.png).
+- Found: compass = missing texture (1.7.10 needs compass.png.mcmeta {"animation":{}}: fixed); Faithless TNT's
+  Galactic letters are tnt_side2, picked 1 in 5 by its blockstate (now CTM random weights 4 1, symmetry=all);
+  item board reads right-to-left from the camera (cosmetic, left as is).
+- Patrix in game: good = creeper, zombie, skeleton, wither skeleton, spider, cave spider, enderman, wolf, ocelot,
+  pig, iron golem, snowman, silverfish. Broken (CEM layout) = chicken, cow, sheep (+wool), blaze, witch, zombie
+  pigman. Unseen, held back = slime, magma cube, ghast, squid, bat, wither. -> MOB_SKIP in r007packs.py.
+- Conquest particles: its smoke (blaze) is heavy black swirls vs vanilla specks: flag for the owner.
+- MISTAKE: rebuilt QF-r011-packs.zip by hand while the r11p2 GUI boot was running (its prebuild had built it).
+  Only mob skins differed (not in GUI frames). Rule: hand builds go to scratch; renderq prebuilds own the real zips.
+- Submitted 1027-...-textures-r011-packs-b (r11p3: corrected B for items, items_tl, tnt, mob_1..6).
+- Wide mob views r11_mobs_a/b/c are far (FrameBench FOV wide): hand off the close r11_mob_N views instead.
+- Next: wait GUI (1027-223357) + cost (1027-223454) + packs-b; review GUI frames; run tools/textures/r011_packs_handoff.py
+  (switch B to r11p3 for the re-rendered scenes); journal, track, commit.

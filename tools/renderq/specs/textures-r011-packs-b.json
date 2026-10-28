@@ -1,0 +1,15 @@
+{
+ "name": "textures-r011-packs-b",
+ "owner": "texture-dev-2",
+ "comment": "r011 step 6: after the first review: compass strip gets its animation mcmeta (was the missing texture), TNT gets Faithless's 1-in-5 enchanting-table lettering (CTM random 4:1), Patrix skins cut to the 19 that map on 1.7.10 models (MOB_SKIP). Re-renders only the scenes those touch; A stays r11p0.",
+ "prebuild": [
+  ["py", "-3.10", "-I", "tools/textures/r007packs.py", "--out", "C:/qfb/textures/QF-r011-packs.zip", "--parts", "items,cit,tnt,books,mobs,env"]
+ ],
+ "defaults": {"world": "C:/qfb/textures/world-r011", "views": "tools/textures/views-r011.txt", "preset": "3",
+              "size": "2560x1440", "mode": "shot", "cit": true,
+              "jars": ["C:/qfb/renderq/jars-r011/QuestForgeContent-1.0.0.jar"], "props": ["qf.bench.difficulty=easy"]},
+ "jobs": [
+  {"tag": "r11p3", "resourcepacks": ["C:/qfb/textures/diag/QF-v3c.zip", "C:/qfb/textures/QF-r011-packs.zip"],
+   "scenes": "r11_items,r11_items_tl,r11_tnt,r11_mob_1,r11_mob_2,r11_mob_3,r11_mob_4,r11_mob_5,r11_mob_6"}
+ ]
+}
