@@ -1069,7 +1069,13 @@ vec4 cloudMarch(vec3 dir, int steps, float jitter) {
     // The disk behind a cloud: a low sun sits where the melt fades the clouds to ~10 %, so it shone
     // whole through the wisps drawn over it. It takes the unfaded slab instead (loop 1, T squared,
     // hid the whole disk behind clouds the melt draws faint: the sun was gone).
-    gCloudTd = mix(1.0, T, smoothstep(0.012, 0.03, dir.y));
+    // r012 pre-publish (critic: "a large tilted oval with a hard rim" through the cloud in every gem
+    // frame; it was there in r011 too, not the new glow): the disk's core is drawn at ~50 exposed,
+    // 60-80x the cloud, and the march stops at T < 0.02, so even a cloud drawn opaque passed 1-2 % of
+    // the whole 4-degree disk: +38 luma on a 186 cloud with a 1 px limb (+7 luma/px). The disk now
+    // fades out with the cloud over T 0.25 -> 0.03 (a thin veil still shows a crisp sun, a cloud you
+    // read as solid covers it; the glow in final.glsl still carries the light through).
+    gCloudTd = mix(1.0, T * smoothstep(0.03, 0.25, T), smoothstep(0.012, 0.03, dir.y));
     return vec4(S * fade, mix(1.0, T, fade));
 }
 vec3 applyClouds2(vec3 L, vec3 dir, int steps) {

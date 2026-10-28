@@ -279,7 +279,23 @@ vec3 sunGlare(ivec2 px) {
     // behind them): on land the glare close to the sun is cut and fades back in over 2.5 radii, so
     // leaves in front of a partly hidden sun stay dark, with no ring and no disk.
     if (texelFetch(depthtex0, px, 0).r < 1.0) inDisk *= mix(0.12, 1.0, smoothstep(SUN_REAL_R * 0.9, SUN_REAL_R * 2.5, th));
-    float psf = (0.12 * exp(-thl / 0.0026) + 0.030 * exp(-thl / 0.016) + 0.0045 * exp(-thl / 0.09)) * inDisk;   // pa: 0.22/0.045/0.006 washed out the gold sky; loop 3: core 0.10 @ 0.0040 -> 0.12 @ 0.0026, a tighter corona
+    // r012 pre-publish: the tight corona hugs only the part of the limb that shows. With the disk hidden
+    // behind cloud (sky.glsl now fades it out with the cloud) the corona drew a thin bright outline round
+    // the invisible disk (+4-5 luma, 2-3 px, gem glint views). One tap just inside the limb, on the line
+    // from the sun's centre to this pixel, says whether the disk shows there; only pixels within 2.5 radii.
+    float limbVis = 1.0;
+    if (th < SUN_REAL_R * 2.5) {
+        vec3 sn = normalize(sv);
+        vec3 tng = dir - sn * dot(dir, sn);
+        float tl = length(tng);
+        if (tl > 1e-6) {
+            vec4 pc = gbufferProjection * vec4(normalize(sn + tng / tl * tan(SUN_REAL_R * 0.85)), 1.0);
+            ivec2 q = clamp(ivec2((pc.xy / pc.w * 0.5 + 0.5) * vec2(viewWidth, viewHeight)), ivec2(0), ivec2(viewWidth, viewHeight) - 1);
+            vec3 e = sceneExposed(q);
+            limbVis = step(1.0, texelFetch(depthtex0, q, 0).r) * clamp(max(e.r, max(e.g, e.b)) / want, 0.0, 1.0);
+        }
+    }
+    float psf = ((0.12 * exp(-thl / 0.0026) + 0.030 * exp(-thl / 0.016)) * limbVis + 0.0045 * exp(-thl / 0.09)) * inDisk;   // pa: 0.22/0.045/0.006 washed out the gold sky; loop 3: core 0.10 @ 0.0040 -> 0.12 @ 0.0026, a tighter corona
     vec3 E = sunIrradiance() * exposure() * (1.0 - rainStrength);
     vec3 g = E * psf * vis;
 #if QF_SUN_BLOOM > 0

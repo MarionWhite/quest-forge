@@ -1,6 +1,17 @@
 # Shaders journal (newest first)
 
-- 2026-10-28 16:40: **r012 shader scenes handed off** (C:\qfb\shaderdev012\spec_scenes.py, SHADERS-READY; 4 scenes:
+- 2026-10-28 17:05: **r012 pre-publish fix: the oval through the cloud was the sun disk, not the glow.** Critic: a
+  hard-edged tilted oval through thin cloud in the gem glint frames, blamed on QF_SUN_BLOOM. Those frames were shot on the
+  r011 base pack (no glow at all) and the r012 pack shows the same oval. Profile (g12a gem_glint_d row 300): cloud 185-189,
+  inside 223-228, rim +7 luma/px; 78 x 112 px = the 4-degree disk (QF_SUN_SIZE 15) projected off-axis. The disk core is ~50
+  exposed and the cloud march stops at T < 0.02, so 1-2 % still beat the cloud (r009 on). sky.glsl: the disk fades out
+  with the cloud (T x smoothstep(0.03, 0.25, T)); that left the tight corona as a +4-5 luma outline round the hidden disk,
+  so final.glsl draws the corona only where a tap just inside the limb shows the disk (th < 2.5 R). Now a monotonic glow
+  (peak 206) with the crisp sliver below the cloud. Gem glint views re-shot g12a2/b2/c2 (1028-165517); gem_lit B clip
+  re-cut as g12bclip2 (960x540 on both gems; sweep +9 luma on the pillars, one frame in 84). sun-glow scene dropped
+  (sun behind cloud in every option); r013 needs a clear-sun view. Sunset frames predate the fix (not re-shot).
+
+- 2026-10-28 16:40: **r012 shader scenes handed off** (C:\qfb\shaderdev\r012\spec_scenes.py, SHADERS-READY; 4 scenes:
   sunset-full, sun-glow 2x crops, sun-cloud, meteors; pack 4f9e553). Loop 2 (1028-151425): the glow shows once measured
   in display units with its own visibility (thin sunlit cloud over the disk counts): sun box 194.0 none / 196.0 default /
   197.4 strong, BSL 224 (clear disk); noon unchanged. Gold: ocean_sunset upper sky 154,133,116 (r011 154,121,122 lilac);

@@ -66,3 +66,27 @@ longer, fainter). Every change with measured cost (High 1440p vs 3.0, Low, Potat
 ## Resume here (fresh agent)
 Done. Next is the critic (r012/critic.json) and the publisher (finish_round.py). Follow-up for r013: a cheaper round-10
 rays pass (16 random-access taps per sky pixel near the sun = +0.30 ms on ocean_sunset) if the owner keeps them.
+
+## Pre-publish fix (2026-10-28 16:45, shader-dev)
+Critic: hard-edged oval through cloud in the gem glint frames; sun-glow scene unjudgeable; gem_lit B clip misaimed.
+- Cause (numbers, g12a-gem_glint_d): the oval is the **sun disk**, not the glow. The g12 gem frames were shot on
+  C:/qfb/gems/base (r011 export, no QF_SUN_BLOOM at all) and gm0 (r012 pack) shows the same oval. Profile row 300:
+  cloud 185-189 -> inside 223-228, +7 luma/px rim; oval 78 x 112 px = the 4-deg disk (SUN_REAL_R 0.0705) projected
+  off-axis. Disk core ~50 exposed x cloud T (march stops at T < 0.02) -> 1-2 % still beats the cloud. Only the glint
+  views (sun in frame); gem_lit has the sun behind the camera (glare returns early): no oval there.
+- Fix: lib/sky.glsl gCloudTd = T * smoothstep(0.03, 0.25, T) (disk fades out with the cloud). check_glsl 0 errors
+  (defaults, GEM_SSR=1).
+- Shot **1028-164341-r012-gemfix-shot** (r012/specs/r12-gemfix.json): g12af / g12bf / g12cf (GEM_SSR 1) glint_d/e on
+  the current pack; g12bclip2 gem_lit burst crop 800,400,960,540 on the base pack (matches g12b's still).
+- Next: wait, check oval gone, make_clip g12bclip2, textures_make_scenes.py new tags, drop sun-glow from
+  spec_scenes.py (r013: clear-sun view), critic notes for new tags, commit, push.
+- 16:53 gemfix done: oval fill gone (row 300 inside 224 -> 196-204, smooth glow), but a thin outline stayed (+4-5 luma,
+  2-3 px): the glare's tight corona hugging the hidden limb. final.glsl: corona x limbVis (one tap at 0.85 R toward the
+  pixel, only th < 2.5 R). check_glsl 0 errors (defaults, GEM_SSR 1, BLOOM 0 + LENS 1).
+  Shot **1028-165517-r012-gemfix2-shot** (specs/r12-gemfix2.json): g12a2 / g12b2 / g12c2 glint_d/e. Use these tags
+  (not g12af/bf/cf). g12bclip2 (from gemfix) is the B clip. spec_scenes.py: sun-glow dropped (done).
+- 17:05 **done.** gemfix2 read: no oval, no outline (row 300 monotonic, peak 206). textures_make_scenes.py: glint views
+  -> g12a2/b2/c2, gem_lit B -> clips\g12bclip2-gem_lit.webp (make_clip done); rerun OK. spec_scenes.py: sun-glow dropped.
+  critic.json: notes for g12a2/b2/c2 x glint_d/e, g12bclip2/gem_lit, crop/g12bclip2-gem_lit.webp; summary appended.
+  round.json renders += both gemfix submissions. Dry check: 0 missing frames, 0 missing critic notes. Publisher next.
+  r013: clear-sun glow view; sunset frames (p12) predate the disk fix.
