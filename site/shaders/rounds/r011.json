@@ -3,7 +3,7 @@
  "id": "r011",
  "title": "Photon's sky, sunbeams through the clouds, and a meteor storm inside the budget",
  "intro": "What changed in method: this round copies from the packs you named (Stay True leaves and wheat, Photon's sky, Faithless items and GUI, Patrix mob skins, Soartex shelves, Conquest particles and weather) instead of inventing. It only shows answers to your round 10 feedback, so a few scenes are small and some of your picks are kept as they were. The shader scenes: Photon's sky, sunbeams through the clouds, and a meteor shower, each against round 10. Cost: High frames cost 3.3 ms at most (round 10: 3.5, budget 3.0), Low at 1080p 0.86 ms (budget 0.9), Potato at 720p 0.30 ms (budget 0.4), per frame against the same view with shaders off. High is over its budget only on the sea and swamp-water views, as in round 10; this round's three changes add at most 0.07 ms anywhere.",
- "status": "open",
+ "status": "closed",
  "created": "2026-10-28",
  "scenes": [
   {

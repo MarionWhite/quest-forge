@@ -103,9 +103,18 @@
    "n": 11,
    "id": "r011",
    "title": "Photon's sky, sunbeams through the clouds, and a meteor storm inside the budget",
-   "status": "open",
+   "status": "closed",
    "created": "2026-10-28",
    "scenes": 29,
+   "feedback": true
+  },
+  {
+   "n": 12,
+   "id": "r012",
+   "title": "A gold sunset with a glowing sun, round 10's sunbeams back, and leaner meteors",
+   "status": "open",
+   "created": "2026-10-28",
+   "scenes": 23,
    "feedback": false
   }
  ]

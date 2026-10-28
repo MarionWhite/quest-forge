@@ -1,0 +1,699 @@
+{
+ "n": 12,
+ "id": "r012",
+ "title": "A gold sunset with a glowing sun, round 10's sunbeams back, and leaner meteors",
+ "intro": "This round answers your round 11 notes, copying from the packs as in round 11, each option against round 11 with its cost. High frames cost 3.65 ms at most (round 11: 3.30, budget 3.0), Low at 1080p 0.89 ms (budget 0.9) and Potato at 720p 0.31 ms (budget 0.4), per frame against the same view with shaders off; the sea sunset is over its High budget, as in rounds 10 and 11, because round 10's rays you picked cost 0.30 ms there.",
+ "status": "open",
+ "created": "2026-10-28",
+ "scenes": [
+  {
+   "id": "sunset-full",
+   "name": "Sunset: gold instead of pink, and a sun that glows",
+   "question": "You said to listen to the critic: round 11's sunset was pink-lilac where your photo is amber-gold, and the sun was a thin white sliver with no glow. Causes, measured: the pink is Photon's own dusk tint (it lowers green below blue in the sunlight and in the whole sky); the missing glow is because our glare only drew round the part of the disk in clear sky, so a sun just under a cloud got none, and it held a ten-thousandth of the sun's light where Photon's bloom spreads about 12 %. Now Photon's own per-hour sun tint setting is set to gold for the sunlight and the glow round the sun, while the upper sky keeps a near-neutral tint so it stays blue, and the sun gets a wide warm glow like BSL's and Photon's, drawn over the clouds in front of it when they are thin and sunlit (the photo's sun bursting through). Cost: gold +0.00 to +0.04 ms, glow +0.00 to +0.09 ms on High. A new, B round 11.",
+   "notePrompt": "Gold enough? Is the glow the right size and strength?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Gold, with glow (default)",
+     "img": "r012/sunset-full-A.jpg",
+     "critic": "Critic 7: Answers the note on colour. The sky, clouds and haze are amber-gold from the horizon up (horizon 182,146,92 against round 11's 186,136,106), and the upper sky is no longer lilac. Round 10's fan of rays is back over the sun, and the islands read through gold air. Two gaps to the photo and BSL remain. The sea stays navy (25,44,69, darker than round 11's 42,46,74), so the lower half does not take the sunset. The sun is still a white sliver under the cloud; in the 2x crop its glow is only a faint round lobe above the sliver, about 3 luma above no glow. Fix: make the sea reflect the gold sky, and judge the glow on a view where the sun is clear of cloud.",
+     "ms": 3.65,
+     "ref": {
+      "img": "r012/ref-sunset-full-A.jpg",
+      "credit": "Brocken Inaglory, retouched by User:Flamurai, CC BY-SA 3.0, via Wikimedia Commons",
+      "source": "https://commons.wikimedia.org/wiki/File:Sunset_clouds_and_crepuscular_rays_over_pacific_edit.jpg",
+      "title": "Sunset clouds and crepuscular rays over pacific edit.jpg"
+     }
+    },
+    {
+     "key": "B",
+     "label": "Round 11",
+     "img": "r012/sunset-full-B.jpg",
+     "critic": "Critic 6: Round 11: the same scene in pink-lilac (upper sky 131,108,120), with a brighter sea. A has the gold the owner asked for.",
+     "ms": 3.28
+    }
+   ]
+  },
+  {
+   "id": "sun-cloud",
+   "name": "Round 10's sunbeams on Photon's sky, without the near haze",
+   "question": "You picked round 10's rays (C) and said Photon's looked like artifacting (A) and rays off was very hazy (B). Round 10's rays are back as the default on High and Ultra, now over Photon's sky. The haze: Photon's dusk haze lay right up to your feet, so the near grass came out lifted and grey (round 11 69,67,41 against round 10's 38,45,15, bottom of the frame). Its haze now starts 32 blocks out and grows from there, so distance still fades into gold air but the ground round you keeps its colour (now 40,56,19). Cost on High: round 10's rays +0.01 to +0.30 ms (Photon's were +0.00 to +0.02), the clear near air +0.00 ms. Round 10's rays are the dearest part of this round: they read 16 points of the sky on the line to the sun for every sky pixel near a low sun; Photon's cost almost nothing because they read a small shadow map. A cheaper round-10 look (fewer reads, or Photon's march with round 10's lanes) is next round's work if you keep these. A new, B round 11, C round 10 (what you picked).",
+   "notePrompt": "Do the rays read the way you liked in round 10? Is the near field clear enough?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Round 10's rays, clear near air (default)",
+     "img": "r012/sun-cloud-A.jpg",
+     "critic": "Critic 8: Answers both notes. The near grass has its colour back: the bottom of the frame is 38,56,20, against round 11's 67,67,40 and round 10's 37,45,16. The light lanes falling from the hill are round 10's, drawn on the ground as in C, and the gold air stays in the distance. The horizon is gold where C's is pink. Two flaws remain. The far-left hills sink into a flat beige wall of haze. The fan above the sun that B drew is gone, because round 10's rays draw lanes on the ground, not in the sky. Next: a cheaper version of these rays. They cost up to +0.30 ms and make the sea sunset the round's worst frame, at 3.65 ms.",
+     "ms": 2.87
+    },
+    {
+     "key": "B",
+     "label": "Round 11",
+     "img": "r012/sun-cloud-B.jpg",
+     "critic": "Critic 5: Round 11: Photon's fan above the hill, but the near field is lifted to grey (67,67,40) and the horizon is pink. The owner said these rays looked like artifacting.",
+     "ms": 2.87
+    },
+    {
+     "key": "C",
+     "label": "Round 10",
+     "img": "r012/sun-cloud-C.jpg",
+     "critic": "Critic 6: Round 10, the owner's pick: the same ground lanes as A, with a pink horizon and slightly duller near grass.",
+     "ms": 2.92
+    }
+   ]
+  },
+  {
+   "id": "meteors",
+   "name": "Leaner meteors, like your photos",
+   "question": "You said the storm meteors looked bulky next to your photos. Each streak is now a hairline about half as wide, a third longer, fainter, and it fades in and out along its length with no bright head, as in the photos. Round 11's clip was also a 1:1 crop of the screen, which doubled every streak's width on your phone; both clips now show a wider part of the sky at the size the game draws it. Meteors also wait until the sun is well down (the critic's contrail at dusk). Cost on the wide night view: A 2.94 ms, B 2.94 ms (budget 3.0): the lean shape costs nothing extra. A lean (default), B round 11's shape, same view.",
+   "notePrompt": "Lean enough? Too faint?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Lean storm (default), clip",
+     "img": "r012/meteors-A.jpg",
+     "critic": "Critic 7: Answers the note. Each streak is now a hairline, about half round 11's width, and peaks at 122 luma over the sky where round 11's peaked at 188. That is much closer to the Perseid photo. It still differs from the photos in one way: every streak runs parallel at the same angle and about the same length, so the storm reads as rain or scratches. In the photos the streaks radiate from one point and range from short to long. Also, a streak that crosses a thin cloud breaks into dashes. Fix: radiate the streaks from a radiant point and vary their length and brightness.",
+     "ms": 2.94,
+     "clip": "r012/meteors-A.webp"
+    },
+    {
+     "key": "B",
+     "label": "Round 11's storm shape, clip",
+     "img": "r012/meteors-B.jpg",
+     "critic": "Critic 5: Round 11's shape on the same crop: thicker, soft-edged streaks up to 188 luma. Beside A they look bulky, as the owner said.",
+     "ms": 2.94,
+     "clip": "r012/meteors-B.webp"
+    }
+   ]
+  },
+  {
+   "id": "gems-diamond",
+   "name": "Diamond: glassier and more reflective",
+   "question": "Why r011's copy was not glassier, measured: Stay True's art is the same brightness as Faithful's; its glint is animated (one 10 s still frame, then 7 glint frames of 1/20 s), so a still shows it 3% of the time; it lost r010's domed normal map (24 deg tilt -> 2 deg, flat); and our shader gave a polished non-metal only a sky reflection clamped at the horizon, so every pixel of a flat face mirrored the same bright horizon: +15% brighter, -24% colour, -39% contrast on the diamond face. So this round shows three ways forward on a diamond floor and pillar, looking into a low sun, where a polished surface shows its reflection. These two views are on round 12's shader (the sun no longer shows through the cloud as a hard oval); its gold sky lifts the gem floors 3 to 6 luma over the numbers below, which were measured on round 11's shader next to the r010 and r011 gems.",
+   "notePrompt": "Which reads most like polished gem? Too mirror-like anywhere?",
+   "options": [
+    {
+     "key": "A",
+     "label": "A: Faithful gems, polished",
+     "img": "r012/gems-diamond-A.jpg",
+     "ms": 2.83,
+     "desc": "Your r010 diamond and emerald (Faithful 64x art; the emerald in the diamond's direction), both on the diamond's domed normal map and polished (smoothness 240, diamond's reflectance on both). Texture-only. Into the sun every block catches its own sun glint; r011's flat streak of bright horizon is gone (floor brightness 116 vs r011 118, r010 129).",
+     "critic": "Critic 5: Re-shot on round 12's shader after the fix: the hard oval through the cloud is gone (it was the sun disk passing 1-2 % through the cloud, not the glow); the sun behind the cloud base is now a smooth glow with the crisp sliver below it. Texture unchanged from g12a: clean polished Faithful diamond, but every block has the same white hotspot in the same place, so the floor reads as a grid of lamps."
+    },
+    {
+     "key": "B",
+     "label": "B: Stay True's glass, no squares",
+     "img": "r012/gems-diamond-B.jpg",
+     "ms": 2.85,
+     "desc": "Stay True's diamond as it is, glint and all; its emerald replaced by the same glass face in Stay True's emerald colours, so the nested squares are gone. Same polish and domed normal as A. Same glint per block as A on Stay True's art (floor 116).",
+     "critic": "Critic 5: Re-shot on round 12's shader after the fix: the hard oval through the cloud is gone (it was the sun disk passing 1-2 % through the cloud, not the glow); the sun behind the cloud base is now a smooth glow with the crisp sliver below it. Stay True's glass face: in a still it is almost the same as A, corner bevels and one dot per block, no glassier."
+    },
+    {
+     "key": "C",
+     "label": "C: real reflections (shader)",
+     "img": "r012/gems-diamond-C.jpg",
+     "ms": 3.01,
+     "desc": "A's textures, plus a shader change: polished gems reflect what is really around them (the sky and clouds, the ground, the pillar) the way our metals already do, instead of one horizon colour. Works with B's art too. Shader cost on High at 1440p, QF_GEM_SSR on vs off on the same view: +0.18 ms on the first glint view (2.43 -> 2.61 ms against shaders off), +0.17 on the second, +0.05 on the lit view; it scales with how much of the screen is gem, and costs nothing with no gems in view or below Medium. The most glass-like here: the floor mirrors the clouds and pillars, darker (106) with the same contrast. Each block reads a little cushioned, from the domed normal map. ",
+     "critic": "Critic 7: Re-shot on round 12's shader after the fix: the hard oval through the cloud is gone (it was the sun disk passing 1-2 % through the cloud, not the glow); the sun behind the cloud base is now a smooth glow with the crisp sliver below it. Still the only option that reads as polished gem: sky and sun reflected, changing block to block. The reflection still wobbles (wet plastic more than cut stone)."
+    }
+   ]
+  },
+  {
+   "id": "gems-emerald",
+   "name": "Emerald: glassier, no nested squares",
+   "question": "The same three on emerald. A keeps r010's emerald; B swaps Stay True's nested squares for its glass face. These two views are on round 12's shader (the sun no longer shows through the cloud as a hard oval); its gold sky lifts the gem floors 3 to 6 luma over the numbers below, which were measured on round 11's shader next to the r010 and r011 gems.",
+   "notePrompt": "Which emerald?",
+   "options": [
+    {
+     "key": "A",
+     "label": "A: Faithful gems, polished",
+     "img": "r012/gems-emerald-A.jpg",
+     "ms": 2.87,
+     "desc": "Your r010 diamond and emerald (Faithful 64x art; the emerald in the diamond's direction), both on the diamond's domed normal map and polished (smoothness 240, diamond's reflectance on both). Texture-only. Glint per block; r011's nested squares and horizon streak gone.",
+     "critic": "Critic 5: Re-shot on round 12's shader after the fix: the hard oval through the cloud is gone (it was the sun disk passing 1-2 % through the cloud, not the glow); the sun behind the cloud base is now a smooth glow with the crisp sliver below it. Faithful emerald: flat, diagonal stripes, the same hotspot on every block."
+    },
+    {
+     "key": "B",
+     "label": "B: Stay True's glass, no squares",
+     "img": "r012/gems-emerald-B.jpg",
+     "ms": 2.9,
+     "desc": "Stay True's diamond as it is, glint and all; its emerald replaced by the same glass face in Stay True's emerald colours, so the nested squares are gone. Same polish and domed normal as A. Stay True's glass face in green: no nested squares, glint per block.",
+     "critic": "Critic 6: Re-shot on round 12's shader after the fix: the hard oval through the cloud is gone (it was the sun disk passing 1-2 % through the cloud, not the glow); the sun behind the cloud base is now a smooth glow with the crisp sliver below it. Nested squares gone, the glass face cleaner; the same hotspot on every block."
+    },
+    {
+     "key": "C",
+     "label": "C: real reflections (shader)",
+     "img": "r012/gems-emerald-C.jpg",
+     "ms": 3.05,
+     "desc": "A's textures, plus a shader change: polished gems reflect what is really around them (the sky and clouds, the ground, the pillar) the way our metals already do, instead of one horizon colour. Works with B's art too. Shader cost on High at 1440p, QF_GEM_SSR on vs off on the same view: +0.18 ms on the first glint view (2.43 -> 2.61 ms against shaders off), +0.17 on the second, +0.05 on the lit view; it scales with how much of the screen is gem, and costs nothing with no gems in view or below Medium. Real reflections, deepest green of the three; same cushioned blocks as on diamond. ",
+     "critic": "Critic 6: Re-shot on round 12's shader after the fix: the hard oval through the cloud is gone (it was the sun disk passing 1-2 % through the cloud, not the glow); the sun behind the cloud base is now a smooth glow with the crisp sliver below it. Reflections add depth, but the domed normals still make every block pillowed; try B's flat face with C's reflections."
+    }
+   ]
+  },
+  {
+   "id": "gems-lit",
+   "name": "Both gems in morning light",
+   "question": "Sun behind you, both gems side by side. B is a clip: Stay True's glint sweeps across every 10 seconds.",
+   "notePrompt": "Keep the glint (B), or a still polished look (A / C)?",
+   "options": [
+    {
+     "key": "A",
+     "label": "A: Faithful gems, polished",
+     "img": "r012/gems-lit-A.jpg",
+     "ms": 2.56,
+     "desc": "Your r010 diamond and emerald (Faithful 64x art; the emerald in the diamond's direction), both on the diamond's domed normal map and polished (smoothness 240, diamond's reflectance on both). Texture-only. Honest: with the sun behind you A looks almost like r011, still pale (emerald floor brightness 130 vs r011 137, r010 115; colour 0.74 vs 0.72, r010 0.80).",
+     "critic": "Critic 5: With the sun behind the camera, the three options look the same at this size: bright mint floors. This view does not tell them apart."
+    },
+    {
+     "key": "B",
+     "label": "B: Stay True's glass, no squares",
+     "img": "r012/gems-lit-B.jpg",
+     "ms": 2.56,
+     "desc": "Stay True's diamond as it is, glint and all; its emerald replaced by the same glass face in Stay True's emerald colours, so the nested squares are gone. Same polish and domed normal as A. Same as A in a still (133). The clip is what B adds: the glint sweep, about 1/3 s every 10 s.",
+     "critic": "Critic 4: Re-cut: 960x540 crop centred on both gems (diamond and emerald pillars and floors), same base shader as g12b's still. Aimed right now, but the glint sweep is faint: one frame in 84 lifts each pillar about +9 luma (+4 on the diamond floor), so it is easy to miss."
+    },
+    {
+     "key": "C",
+     "label": "C: real reflections (shader)",
+     "img": "r012/gems-lit-C.jpg",
+     "ms": 2.54,
+     "desc": "A's textures, plus a shader change: polished gems reflect what is really around them (the sky and clouds, the ground, the pillar) the way our metals already do, instead of one horizon colour. Works with B's art too. Shader cost on High at 1440p, QF_GEM_SSR on vs off on the same view: +0.18 ms on the first glint view (2.43 -> 2.61 ms against shaders off), +0.17 on the second, +0.05 on the lit view; it scales with how much of the screen is gem, and costs nothing with no gems in view or below Medium. Removes the pale wash (emerald 96, contrast +50%, colour 0.77), but the floors turn checkered: the far half of each block mirrors the dark ground. ",
+     "critic": "Critic 6: The reflections darken the floors and draw the block seams. This is the only option that differs from A in this view."
+    }
+   ]
+  },
+  {
+   "id": "st-leaves-roofed",
+   "name": "Stay True's leaves: the roofed forest",
+   "question": "Re-aimed from over the lake into the dark oak canopy (r011's camera showed a plank wall). A is Stay True's leaf planes (your r011 pick), B the same textures without them.",
+   "notePrompt": "Does the dark oak canopy read as soft volume?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Stay True's planes",
+     "img": "r012/st-leaves-roofed-A.jpg",
+     "ms": 3.42,
+     "desc": "Stay True's dark oak leaves with its crossing leaf planes. Cost on this view: frame p50 3.18 -> 3.42 ms (+8%), p99 +9%; leafy chunk sections carry 40% more vertices (+3% frame time on a view with fewer leaves).",
+     "critic": "Critic 7: Answers the note: the camera now looks over the dark oak canopy. The planes turn it into a deep, layered mass of leaves with real gaps and shadow, where B's tops are flat tiles. Two flaws: the canopy is a bright grass green, not the dark, heavy roof of a roofed forest, and a village roof sits at the right edge. Next: add a shot from under the canopy, where the forest's gloom is. Costs +0.24 ms."
+    },
+    {
+     "key": "B",
+     "label": "No planes",
+     "img": "r012/st-leaves-roofed-B.jpg",
+     "ms": 3.18,
+     "desc": "The same textures on plain cubes.",
+     "critic": "Critic 5: No planes: the canopy is flat tiled cubes."
+    }
+   ]
+  },
+  {
+   "id": "pk-creative-combat",
+   "name": "Creative: combat tab",
+   "question": "Fixed. Cause of the broken look: Faithless draws its tabs 26 px wide on a 26 px grid (Minecraft 1.19.3+), 1.7.10 cuts 28 px cells, so every tab was sliced across two of Faithless's. Rebuilt on 1.7.10's grid. B is Faithless's own look made whole (its wood-framed panel, item cells). C answers 'richer': the parchment page and red banner bookmarks of Faithless's recipe book, from the screenshots you sent in round 7.",
+   "notePrompt": "B or C?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Round 11 (as you saw it)",
+     "img": "r012/pk-creative-combat-A.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 2: Round 11 as the owner saw it: every tab sliced across two cells."
+    },
+    {
+     "key": "B",
+     "label": "Faithless, fixed",
+     "img": "r012/pk-creative-combat-B.jpg",
+     "ms": null,
+     "desc": "Grey tabs on the right grid, wood frame, item cells.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 6: Fixed: every tab is whole, and the wood-framed panel reads as Faithless. It is still grey and plain, which is what the owner meant by 'not richer'. The two right-hand tabs (compass, chest) are still red banners next to grey tabs."
+    },
+    {
+     "key": "C",
+     "label": "Recipe-book style",
+     "img": "r012/pk-creative-combat-C.jpg",
+     "ms": null,
+     "desc": "Parchment page, every tab a red banner. Not finished: the hotbar row sits on the page's dark bottom edge (the page is a few pixels short); fixed in round 13 if you pick C.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 7: The richer answer: a parchment page with red banner bookmarks, one style across all the tabs, and the selected tab outlined in gold. Three flaws: a dark red smear runs along the page's bottom edge under the hotbar row, the item cells have no outlines so the grid is hard to read, and the grey scrollbar looks pasted on. Fix those three and this is the pick."
+    }
+   ]
+  },
+  {
+   "id": "pk-creative-brewing",
+   "name": "Creative: brewing tab",
+   "question": "Same fix and the same two styles.",
+   "notePrompt": "",
+   "options": [
+    {
+     "key": "A",
+     "label": "Round 11 (as you saw it)",
+     "img": "r012/pk-creative-brewing-A.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 3: Round 11: sliced tabs on a flat grey page."
+    },
+    {
+     "key": "B",
+     "label": "Faithless, fixed",
+     "img": "r012/pk-creative-brewing-B.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 6: Whole tabs and a clean grid, but still grey, with red banner tabs mixed in on the right."
+    },
+    {
+     "key": "C",
+     "label": "Recipe-book style",
+     "img": "r012/pk-creative-brewing-C.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 7: Parchment and banners: richer, as asked, and consistent. It has the same red smear under the hotbar row and no cell outlines, so the potions float."
+    }
+   ]
+  },
+  {
+   "id": "pk-furnace",
+   "name": "Furnace",
+   "question": "Text: 1.7.10 writes every screen title in fixed dark grey with no shadow. Faithless's plaques were dark wood and sized for its own font, so titles sank in and ran off them. Each plaque is now widened to the title and painted the light honey wood of Faithless's newer screens. The furnace's other 'not right' part was its plaques: the slots, flame and arrow already sit where 1.7.10 draws them.",
+   "notePrompt": "Text readable now?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Round 11 (as you saw it)",
+     "img": "r012/pk-furnace-A.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 4: Round 11: 'Furnace' sinks into a dark plaque that is too short for it."
+    },
+    {
+     "key": "B",
+     "label": "Plaques fixed",
+     "img": "r012/pk-furnace-B.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 7: The title reads now, dark text on a honey plaque, though the letters touch the plaque's ends. The furnace art is unchanged, so if the owner's 'not exactly right' meant the art, this does not answer it. Show a Faithless furnace beside it."
+    }
+   ]
+  },
+  {
+   "id": "pk-enchanting",
+   "name": "Enchanting table",
+   "question": "Text: 1.7.10 writes every screen title in fixed dark grey with no shadow. Faithless's plaques were dark wood and sized for its own font, so titles sank in and ran off them. Each plaque is now widened to the title and painted the light honey wood of Faithless's newer screens. The option ribbons are parchment now (1.7.10's spell text is a dark brown), with Faithless's red seal kept under the green level number, narrowed to the number so less spell text runs onto the red (1.7.10 wraps that text at the ribbon's full width).",
+   "notePrompt": "Text readable now?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Round 11 (as you saw it)",
+     "img": "r012/pk-enchanting-A.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 4: Round 11: the title is lost in the dark plaque, and the red ribbons bury the spell text."
+    },
+    {
+     "key": "B",
+     "label": "Plaques fixed",
+     "img": "r012/pk-enchanting-B.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 7: The title and the spell text on parchment are both legible, which answers 'make the text pop'. The 'Enchant' plaque is a pixel short (the t touches its end), and on all three rows the spell text still runs under the red seal."
+    }
+   ]
+  },
+  {
+   "id": "pk-crafting",
+   "name": "Crafting table",
+   "question": "Text: 1.7.10 writes every screen title in fixed dark grey with no shadow. Faithless's plaques were dark wood and sized for its own font, so titles sank in and ran off them. Each plaque is now widened to the title and painted the light honey wood of Faithless's newer screens.",
+   "notePrompt": "Text readable now?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Round 11 (as you saw it)",
+     "img": "r012/pk-crafting-A.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 4: Round 11: 'Crafting' is unreadable on dark wood."
+    },
+    {
+     "key": "B",
+     "label": "Plaques fixed",
+     "img": "r012/pk-crafting-B.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 7: The title reads on a honey plaque. The plaque needs 2-3 px of padding at each end."
+    }
+   ]
+  },
+  {
+   "id": "pk-brewing",
+   "name": "Brewing stand",
+   "question": "Text: 1.7.10 writes every screen title in fixed dark grey with no shadow. Faithless's plaques were dark wood and sized for its own font, so titles sank in and ran off them. Each plaque is now widened to the title and painted the light honey wood of Faithless's newer screens.",
+   "notePrompt": "Text readable now?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Round 11 (as you saw it)",
+     "img": "r012/pk-brewing-A.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 4: Round 11: 'Brewing Stand' is unreadable."
+    },
+    {
+     "key": "B",
+     "label": "Plaques fixed",
+     "img": "r012/pk-brewing-B.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 7: 'Brewing Stand' is centred and readable, and the scene art is untouched. Good."
+    }
+   ]
+  },
+  {
+   "id": "pk-anvil",
+   "name": "Anvil",
+   "question": "Text: 1.7.10 writes every screen title in fixed dark grey with no shadow. Faithless's plaques were dark wood and sized for its own font, so titles sank in and ran off them. Each plaque is now widened to the title and painted the light honey wood of Faithless's newer screens. 1.7.10's anvil draws no 'Inventory' title, so its lower plaque stays Faithless's dark wood rather than a blank light one.",
+   "notePrompt": "Text readable now?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Round 11 (as you saw it)",
+     "img": "r012/pk-anvil-A.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 4: Round 11: 'Repair & Name' is unreadable."
+    },
+    {
+     "key": "B",
+     "label": "Plaques fixed",
+     "img": "r012/pk-anvil-B.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 7: The title reads. Keeping the lower plaque dark and blank is right, because 1.7.10 draws no title there."
+    }
+   ]
+  },
+  {
+   "id": "pk-hud",
+   "name": "HUD: three Quest Forge directions",
+   "question": "Our own art, Faithless's hearts and food kept. Iron: the main menu's forged plates, lavender rim, ember selection, molten XP. Arcane: indigo and gold, gem corners, emerald XP, runes in the boss channel. Banner: walnut and brass, red banner selection, gold XP, red ribbon boss bar. 1.7.10 draws every boss bar from one 182 x 5 strip; a taller framed bar (one per boss) needs a small qf-tweaks hook. The designs cannot be drawn in game yet, because QuestForge.zip's widgets.png sits on top of the pack's HUD, so there are no in-game frames this round (the three we shot had chat covering the hearts and the food bar draining). Instead, M is an offline mock of round 11 and all three directions, our art at 1.7.10's layout, with each direction's hotbar and selection; shipping one means replacing QuestForge.zip's hotbar too.",
+   "notePrompt": "Which direction? And build the framed boss bar hook?",
+   "options": [
+    {
+     "key": "M",
+     "label": "Offline mock: round 11, iron, arcane, banner (no in-game frame)",
+     "img": "r012/pk-hud-M.jpg",
+     "ms": null,
+     "desc": "Top to bottom; our art at 1.7.10's layout, 4x, hotbars included.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 6: The only fair view of the three directions. Arcane (indigo cells, gold rims, gem corners, a rune channel) is the most distinctive; Iron and Banner are the same strip in other colours. Every boss bar is still a 5 px strip. Next: take one direction further, with a framed boss bar and name plate via the qf-tweaks hook."
+    }
+   ]
+  },
+  {
+   "id": "pk-tnt",
+   "name": "TNT: lettering on every block",
+   "question": "Fixed: Faithless letters one block in five; now all.",
+   "notePrompt": "",
+   "options": [
+    {
+     "key": "A",
+     "label": "Round 11 (as you saw it)",
+     "img": "r012/pk-tnt-A.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 4: Round 11: only one block in five lettered."
+    },
+    {
+     "key": "B",
+     "label": "All lettered",
+     "img": "r012/pk-tnt-B.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 8: Answered exactly: every block is lettered. The blocks are small in the frame, so a close crop would show it better."
+    }
+   ]
+  },
+  {
+   "id": "pk-mob-1",
+   "name": "Mobs (1 of 7)",
+   "question": "Every mob is non-vanilla now. Patrix where its skin fits 1.7.10's model; where Patrix drew for its own 3D shapes, B remaps its skin face by face onto 1.7.10's boxes (its shapes cannot come: they need a Java renderer per mob), C uses Conquest's 1.7-era mobs instead. Passive mobs added: mooshroom, horse, villager, squid, bat. Remaps that landed wrong in the first render (pigman: no face; blaze: see-through head) use Conquest. Still vanilla: the wither's shield shimmer and one horse marking overlay (no source has them). Listed right to left as they stand in the frame: chicken (B: Patrix remapped, C: Conquest), creeper (B: Patrix), zombie (B: Patrix), skeleton (B: Patrix). ",
+   "notePrompt": "Patrix remap (B) or Conquest (C), per mob?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Round 11",
+     "img": "r012/pk-mob-1-A.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 5: Round 11: Patrix creeper, zombie and skeleton, with a vanilla-shaped chicken."
+    },
+    {
+     "key": "B",
+     "label": "Patrix + remapped",
+     "img": "r012/pk-mob-1-B.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 6: The remapped Patrix chicken works: it has a wattle and beak and is crisper than vanilla. The zombie and creeper have their backs to the camera, so they cannot be judged. All seven mob views share two faults: the amber glowstone room tints every skin orange, and the mobs wander and turn, so their faces are often hidden."
+    },
+    {
+     "key": "C",
+     "label": "Patrix + Conquest",
+     "img": "r012/pk-mob-1-C.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 6: Conquest's chicken is whiter and softer, and fits Patrix's crisp style less well than B's."
+    }
+   ]
+  },
+  {
+   "id": "pk-mob-2",
+   "name": "Mobs (2 of 7)",
+   "question": "Listed right to left as they stand in the frame: wither skeleton (B: Patrix), spider (B: Patrix), cave spider (B: Patrix), enderman (B: Patrix). ",
+   "notePrompt": "",
+   "options": [
+    {
+     "key": "A",
+     "label": "Round 11",
+     "img": "r012/pk-mob-2-A.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 5: Round 11, with the vanilla pigman and witch still in the back row."
+    },
+    {
+     "key": "B",
+     "label": "Patrix + remapped",
+     "img": "r012/pk-mob-2-B.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 6: The wither skeleton and both spiders are Patrix and read well. The enderman stands side-on and reads as a black T on a pole, and the blaze's black smoke hides the witch."
+    },
+    {
+     "key": "C",
+     "label": "Patrix + Conquest",
+     "img": "r012/pk-mob-2-C.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 6: The same as B apart from the chicken. The enderman is still side-on."
+    }
+   ]
+  },
+  {
+   "id": "pk-mob-3",
+   "name": "Mobs (3 of 7)",
+   "question": "Listed right to left as they stand in the frame: enderman (B: Patrix), zombie pigman (B: Conquest), witch (B: Patrix remapped), blaze (B: Conquest). ",
+   "notePrompt": "",
+   "options": [
+    {
+     "key": "A",
+     "label": "Round 11",
+     "img": "r012/pk-mob-3-A.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 4: Round 11: the vanilla pigman, witch and blaze that the owner asked to replace."
+    },
+    {
+     "key": "B",
+     "label": "Patrix + remapped",
+     "img": "r012/pk-mob-3-B.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 7: All four are non-vanilla now. Conquest's blaze reads well, the remapped Patrix witch keeps a face, and the enderman faces front. Conquest's pigman is a brown, furry ghoul with no pig left in it."
+    },
+    {
+     "key": "C",
+     "label": "Patrix + Conquest",
+     "img": "r012/pk-mob-3-C.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 6: The same as B, but the enderman is side-on again."
+    }
+   ]
+  },
+  {
+   "id": "pk-mob-4",
+   "name": "Mobs (4 of 7)",
+   "question": "Not shown: the slime and the magma cube are missing from every option of this view (they did not render), so Conquest's slime and magma cube cannot be judged here. In frame: silverfish (B: Patrix), sheep (B: Patrix remapped, C: Conquest).",
+   "notePrompt": "",
+   "options": [
+    {
+     "key": "A",
+     "label": "Round 11",
+     "img": "r012/pk-mob-4-A.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 3: Broken view, do not show: two of the four mobs this scene lists, the slime and the magma cube, are not in the frame. Their two glowstone pads are empty, because they despawn on peaceful. Round 11's sheep and cow are vanilla-shaped."
+    },
+    {
+     "key": "B",
+     "label": "Patrix + remapped",
+     "img": "r012/pk-mob-4-B.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 3: Broken view, do not show: two of the four mobs this scene lists, the slime and the magma cube, are not in the frame. Their two glowstone pads are empty, because they despawn on peaceful. The remapped Patrix sheep reads well, and the silverfish is a speck."
+    },
+    {
+     "key": "C",
+     "label": "Patrix + Conquest",
+     "img": "r012/pk-mob-4-C.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 3: Broken view, do not show: two of the four mobs this scene lists, the slime and the magma cube, are not in the frame. Their two glowstone pads are empty, because they despawn on peaceful. Conquest's sheep and cow are noisy and blotchy."
+    }
+   ]
+  },
+  {
+   "id": "pk-mob-5",
+   "name": "Mobs (5 of 7)",
+   "question": "Listed right to left as they stand in the frame: cow (B: Patrix remapped, C: Conquest), pig (B: Patrix), ocelot (B: Patrix), wolf (B: Patrix). ",
+   "notePrompt": "",
+   "options": [
+    {
+     "key": "A",
+     "label": "Round 11",
+     "img": "r012/pk-mob-5-A.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 5: Round 11: vanilla cow and pig faces."
+    },
+    {
+     "key": "B",
+     "label": "Patrix + remapped",
+     "img": "r012/pk-mob-5-B.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 7: The remapped Patrix cow and the Patrix pig read well side-on. The ocelot and wolf are too small to judge."
+    },
+    {
+     "key": "C",
+     "label": "Patrix + Conquest",
+     "img": "r012/pk-mob-5-C.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 5: Conquest's cow is a noisy brown smear next to Patrix's clean pig."
+    }
+   ]
+  },
+  {
+   "id": "pk-mob-6",
+   "name": "Mobs (6 of 7)",
+   "question": "Listed right to left as they stand in the frame: wolf (B: Patrix), mooshroom (B: Conquest), horse (B: Conquest), villager (B: Conquest). ",
+   "notePrompt": "",
+   "options": [
+    {
+     "key": "A",
+     "label": "Round 11",
+     "img": "r012/pk-mob-6-A.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 4: Round 11: vanilla villager, horse and mooshroom."
+    },
+    {
+     "key": "B",
+     "label": "Patrix + remapped",
+     "img": "r012/pk-mob-6-B.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 5: Every mob is non-vanilla, but Conquest's painted, photo-like style clashes with Patrix. The villager has an uncanny human face, the horse is a smooth grey painting, and the mooshroom is a brown camouflage hide that has lost its red. Fix: Patrix remaps, or Faithless entity art, for the passive mobs."
+    },
+    {
+     "key": "C",
+     "label": "Patrix + Conquest",
+     "img": "r012/pk-mob-6-C.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 5: Conquest's iron golem (stone and vines) suits Conquest, not Patrix. The rest is the same as B."
+    }
+   ]
+  },
+  {
+   "id": "pk-mob-7",
+   "name": "Mobs (7 of 7)",
+   "question": "Not shown: the squid is missing from every option of this view (it did not render), so Conquest's squid cannot be judged here. In frame: bat (hanging) (B: Conquest), iron golem (B: Patrix remapped, C: Conquest), snow golem (B: Patrix).",
+   "notePrompt": "",
+   "options": [
+    {
+     "key": "A",
+     "label": "Round 11",
+     "img": "r012/pk-mob-7-A.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 4: Broken view: the squid, first on this scene's list, is missing (its pads are empty; a squid out of water dies), and the hanging bat is a speck on the ceiling. Round 11's iron golem is vanilla."
+    },
+    {
+     "key": "B",
+     "label": "Patrix + remapped",
+     "img": "r012/pk-mob-7-B.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 4: Broken view: the squid, first on this scene's list, is missing (its pads are empty; a squid out of water dies), and the hanging bat is a speck on the ceiling. The remapped Patrix iron golem reads, but it is a noisy pink-grey with red eyes."
+    },
+    {
+     "key": "C",
+     "label": "Patrix + Conquest",
+     "img": "r012/pk-mob-7-C.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 4: Broken view: the squid, first on this scene's list, is missing (its pads are empty; a squid out of water dies), and the hanging bat is a speck on the ceiling. This option has Conquest's mossy stone golem."
+    }
+   ]
+  }
+ ]
+}
