@@ -34,6 +34,12 @@ tools/textures/showcase-modded.txt). LIST holds one `modid:name@meta` per line; 
 come from the copied world's own level.dat (FML's registry), so a name the world does not know
 is reported and skipped, never guessed. Views modded_wall and modded_close look at it.
 
+--gems (r012, build into its own copy: --src C:\qfb	extures\world-showcase --dst C:\qfb	extures\world-gems)
+adds a gem display on the plain in front of the wall, for "glassier and more reflective" diamond and emerald
+(ops/checkpoints/r012-textures.md): a diamond floor (x 244-250, z 181-185) and an emerald floor (z 188-192) set flush
+in the grass at y 67, each with a 3-wide, 3-tall pillar of the same gem on its west edge (x 243). Floors catch the sky
+and the low sun at a grazing angle, pillars stand in their reflection. Views gem_glint_d / gem_glint_e / gem_lit.
+
 Never writes to --src. The copy is made once; the wall is rebuilt in it on every run.
 """
 import argparse, io, os, shutil, struct, sys, types, zlib
@@ -241,6 +247,19 @@ def v1_blocks():
     return b
 
 
+def gem_display():
+    """{(x, y, z): (id, meta)} for --gems (module docstring). y GROUND entries replace the grass."""
+    b = {}
+    for ident, z0 in ((57, 181), (133, 188)):          # diamond block, emerald block
+        for x in range(244, 251):
+            for z in range(z0, z0 + 5):
+                b[(x, GROUND, z)] = (ident, 0)
+        for y in range(GROUND + 1, GROUND + 4):
+            for z in range(z0 + 1, z0 + 4):
+                b[(243, y, z)] = (ident, 0)
+    return b
+
+
 # Item frames on the board (x 262-269, y 70 potions, y 69 books), facing north (Direction 2).
 FRAME_POTIONS = [8193, 8194, 8195, 8197, 8198, 8201, 8205, 16388]      # regen, swift, fire res,
 #   healing, night vision, strength, water breathing, splash poison
@@ -296,6 +315,7 @@ def main():
     ap.add_argument("--modded", nargs="?", const=os.path.join(HERE, "showcase-modded.txt"),
                     help="also build the modded-block wall from this list (default: tools/textures/showcase-modded.txt)")
     ap.add_argument("--v1", action="store_true", help="also build the QF Textures v1 scenes (module docstring)")
+    ap.add_argument("--gems", action="store_true", help="also build the r012 gem display (module docstring)")
     a = ap.parse_args()
     if os.path.abspath(a.src) == os.path.abspath(a.dst):
         sys.exit("--dst must differ from --src")
@@ -317,6 +337,8 @@ def main():
         print("modded wall: %d of %d blocks placed" % (sum(1 for k in extra if k[1] > 68), len(entries)))
         if missing:
             print("  not in this world's registry, skipped: " + ", ".join(missing))
+    if a.gems:
+        place.update(gem_display())
     areas = [(X0, x1, Z0, Z1)]
     frames = []
     if a.v1:

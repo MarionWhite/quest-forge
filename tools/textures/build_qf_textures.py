@@ -80,6 +80,10 @@ GEM_BLOCKS = {"diamond_block": (230, 44, 100)}
 # with --stay-true, emerald joins diamond as a polished dielectric, and both gems get at least this smoothness.
 GEM_BLOCKS_R011 = {"diamond_block": (230, 44, 100), "emerald_block": (230, 44, 100)}
 GEM_SMOOTH = 230
+# r012 --gems (owner r010: "glassier and more reflective"; r011's Stay True copy measured paler and flatter in a still,
+# ops/checkpoints/r012-textures.md): both gems a polished dielectric (smoothness 240, F0 44) on a domed _n, so the
+# reflection sweeps across each face instead of laying one flat horizon colour over it.
+GEM_SMOOTH_R012 = 240
 
 
 def metal_spec(s, img, name, mode, gem=False, n=None):
@@ -87,15 +91,15 @@ def metal_spec(s, img, name, mode, gem=False, n=None):
     block's _n (`n`), a pixel stays metal only where its normal tilts under ~14.5 deg: a mirror on a
     steep bevel reflects sky or ground at a hard angle (r010 wall ladder: gold's top bevel became a
     noisy bright line once VNR's normals faced the right way)."""
-    gems = GEM_BLOCKS_R011 if gem == "r011" else GEM_BLOCKS
+    gems = GEM_BLOCKS_R011 if gem in ("r011", "r012") else GEM_BLOCKS
     table = dict(METAL_BLOCKS, **(gems if gem else {}))
     if mode == "vnr" or name not in table:
         return s
     code, f0, pct = table[name]
     s = s.copy()
     s[..., 1] = f0
-    if gem == "r011" and name in gems:
-        s[..., 0] = np.maximum(s[..., 0], GEM_SMOOTH)      # glassy: sharp reflections
+    if gem in ("r011", "r012") and name in gems:
+        s[..., 0] = np.maximum(s[..., 0], GEM_SMOOTH if gem == "r011" else GEM_SMOOTH_R012)   # glassy: sharp reflections
     if pct < 100:
         L = labpbr.lum(img)
         metal = L > np.percentile(L, pct)   # strict: a tied plateau stays lit
@@ -220,7 +224,14 @@ def main():
                     help="r011 (owner's call, CLAUDE.md Licences): copy Stay True's leaves and crops from this folder at "
                          "build time (staytrue.py): textures under 1.7.10 names + textures/blocks/staytrue/*, and "
                          "qf/staytrue_models.txt for qf-tweaks' StayTrueModels. NEVER commit the output or its PNGs")
+    ap.add_argument("--gems", choices=("facet", "staytrue"),
+                    help="r012 gem options (gems.py): facet = Faithful 64x diamond + its emerald re-tone (r010 art), both on "
+                         "the diamond's VNR dome _n; staytrue = Stay True's animated diamond, and its emerald re-toned from "
+                         "that diamond in Stay True's own emerald colours (no nested squares), on a dome _n (needs "
+                         "--stay-true). Both: smoothness 240, F0 44. Default: as r010/r011")
     a = ap.parse_args()
+    if a.gems == "staytrue" and not a.stay_true:
+        sys.exit("--gems staytrue reads Stay True: give --stay-true PATH")
     if a.stay_true and (a.wheat != "drawn" or a.leaves != "drawn"):
         sys.exit("--stay-true replaces the leaves and wheat: leave --leaves and --wheat at drawn")
 
@@ -279,8 +290,8 @@ def main():
         out.writestr(staytrue.SPEC_PATH, staytrue_spec)
         out.writestr("CREDITS-StayTrue.txt", "Leaf and crop textures and their models: Stay True by HaiMcFly "
                      "(all rights reserved). Used in a private server pack only; never redistribute this zip.\n")
-    if a.emerald == "diamond":
-        import gems
+    import gems
+    if a.emerald == "diamond" or a.gems == "facet":
         art["emerald_block"] = gems.emerald_from_diamond(rgba(fread(BLOCKS + "diamond_block.png")))
     wheat_vs = None
     if a.wheat != "drawn":
@@ -369,11 +380,19 @@ def main():
     if a.stay_true:
         # Stay True's diamond and emerald blocks: glass-like faces with a light glint sweeping across every ~10 s
         # (animated strips + their .mcmeta), the "glassier, more reflective" look the owner asked for (r010).
-        for name, (img, mcmeta) in staytrue.gems(a.stay_true).items():
+        st_gems = staytrue.gems(a.stay_true)
+        if a.gems == "staytrue":
+            # r012 option B: Stay True's diamond kept (glass face + glint); its emerald's nested squares replaced
+            # by the diamond's own face re-toned in Stay True's emerald colours, glint frames and timing included.
+            d_img, d_meta = st_gems["diamond_block"]
+            ramp = gems.ramp_from(st_gems["emerald_block"][0][:d_img.shape[1]])
+            st_gems["emerald_block"] = (gems.emerald_from_diamond(d_img, ramp, by_value=True), d_meta)
+        for name, (img, mcmeta) in (st_gems.items() if a.gems in (None, "staytrue") else ()):
             m = BLOCKS + name + ".png"
             textures[m], source[m] = (img, mcmeta), "drawn"
 
     stone = textures[BLOCKS + "stone.png"][0]
+    gem_n = {}        # --gems facet: diamond's (VNR hybrid) _n, reused for the emerald drawn from it
     for m, (img, mcmeta) in sorted(textures.items()):
         out.writestr(m, png(img))
         if mcmeta:
@@ -408,7 +427,16 @@ def main():
             n = n2 if n is None else n
             s = s2 if s is None else s
             tally["pbr_ours"] += 1
-        s = metal_spec(s, img, name, a.metals, ("r011" if a.stay_true else True) if a.diamond == "gem" else False, n)
+        if a.gems and name in ("diamond_block", "emerald_block"):
+            if a.gems == "facet":
+                gem_n.setdefault("diamond_block", n)
+                n = gem_n["diamond_block"]
+            else:
+                n = gems.dome_normal(img.shape[1], img.shape[0] // img.shape[1])
+            s = np.zeros(img.shape, np.uint8)
+            s[..., 0], s[..., 3] = GEM_SMOOTH_R012, 255
+        gem_mode = ("r012" if a.gems else "r011" if a.stay_true else True) if a.diamond == "gem" else False
+        s = metal_spec(s, img, name, a.metals, gem_mode, n)
         ys = labpbr.y_sign(n, img[..., 3])
         if ys is not None and ys > 0.1:
             ywrong.append("%s %+.2f" % (name, ys))

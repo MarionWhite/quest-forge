@@ -113,3 +113,17 @@ dust_d           262.5   auto   -48.5    75     14     11300
 # silhouettes and edges fill the frame from near to far. With leaves_close, tree_close, forest_lit
 # and biome_roofed it is the frills on/off scene set.
 forest_far       259.5   105.0  -44.5    60     18     7000
+# r012 textures (ops/checkpoints/r012-textures.md). Gem views: only in C:\qfb\textures\world-gems
+# (build_showcase.py --gems): a diamond floor (z 181-185) and an emerald floor (z 188-192) flush in the
+# grass at x 244-250, each with a 3x3 pillar of the same gem at x 243. gem_glint_d/e: looking west down
+# onto each floor into a sun ~24 deg up, so its glint and the low sky lie in the floor at a grazing
+# angle (Fresnel ~0.45) with the pillar standing in the reflection; gem_lit: both, morning sun behind.
+gem_glint_d      252.5   68.0   183.5    90     18     11000
+gem_glint_e      252.5   68.0   190.5    90     18     11000
+gem_lit          256.5   68.0   187.0    90     12     4000
+# Roofed forest canopy (r011 biome_roofed looked at a plank wall; biome_roofed stays as the shader's fog
+# scene). From over the lake east of the densest dark oak (chunks -15..-14, -10..-7: 500-670 dark oak
+# leaves each, canopy top y 80-82, edge at x -210): roofed_canopy looks across the roof, roofed_edge at
+# the edge's side and its silhouette against the sky.
+roofed_canopy    -205.5  81.0   -124.5   90     10     7000
+roofed_edge      -205.5  72.0   -124.5   90     -6     7000
