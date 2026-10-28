@@ -126,3 +126,12 @@ underwater effects. Stay True leaves and wheat belong to the other texture agent
 - Hand-off rerun with the owner's questions and causes (pk-shelves, pk-mob-4, pk-hud, GUI scenes); PACKS-READY touched.
 - Next, after the owner's answers: lighten plaques + paint out the enchanting book in r007gui.py; per-boss bar hook if
   yes; vanilla smoke if no; remove worktree C:/qfb/wt-r011-fb once gui_* views reach the shared runner jar.
+### 2026-10-28 step 8: pre-publish fixes (texture-dev #2)
+- Critic (C:\qfb\shaderdev\r011\critic.json): pk-items-close / pk-library used stale r11p1 frames (missing texture);
+  pk-enchanting "lost its option rows". Cause of the latter: Faithless's enchantment_slot_disabled is fully transparent
+  (by design: its rows are red ribbons that only slide out when an item is in), and 1.7.10 draws the disabled row for
+  an empty table. Fix in GuiShots.java (main + worktree): a diamond sword in the table, levels 4/17/30 set by hand.
+  Jar rebuilt in C:\qfb\wt-r011-fb with -PqfDebugTools=true (without it debug/** is excluded!) -> jars-r011
+  (old jar in scratch). Spec tools/renderq/specs/textures-r011-packs-c.json.
+- SUBMITTED 1028-091920-textures-r011-packs-c (r11p3: r11_items_bl, r11_library; r11p2: gui_enchanting).
+- Next: wait; check crops for magenta; rerun r011_packs_handoff.py; stay-true gems/roofed drop (r011-stay-true.md); commit, push.
