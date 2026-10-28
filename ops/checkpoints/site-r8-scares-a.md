@@ -175,3 +175,25 @@ up. Same review (filmstrip, beat log, occlusion proof, live J run).
   exceptions (machine at load ~30: fps 2-12, Wither worst gap 3.7 s, Creeper 9.2 s).
 - [x] Journal entry; commit of own paths (witherskeleton.js, zombie.js, chase.js, shadow.js removed, this file, journal).
 - [ ] Report (five lines): Wither fear rank vs Enderman/Creeper; loadout.js HELD.WitherSkeleton "sword" is stale.
+### 8b fix: the Wither opening (coordinator, after review)
+Owner/coordinator: the player stood frozen ~3 s while it walked from 9 m to 3.9 m. Wanted: a 0.4-0.6 s freeze once it
+squares up and walks at you, then back off (unsteady steps, breath up, view on it), turn and run at ~6-7 m; the chase
+still fair (it never gains on a sprint), in just in time; sooner welcome. loadout.js is done by the coordinator (null).
+- [x] witherskeleton.js: it steps out at V_OUT 2.4 right after the rattle (tM0 = tSay+0.2), walks at you at V_ON 1.9;
+  tF0 = max(head on it, squared up); freeze vary(0.5, 0.2); back steps (vary 0.4 m / 0.5 s each, head dip and rock,
+  breath loop from tB0) along the first of the run path, at most straight-3.2 m; run when it is gapR ~6.5 m off (at
+  least two steps, or one if it is already 5.2 m); then it runs (V_CH 2.8-4.4, a 0.4 s pick-up) so you are in and
+  round 1.3 s before it reaches the opening. Probes `ws8b/wbp_*.json`: gap at run 6.0-6.4 at 0.42/0.8, 5.2 at 0.6
+  (closest spot, 7.1 m at square-up); tRun 3.3-4.4 (was ~4.05 after 3 s of standing); dur 24.0-25.9.
+  (A probe once threw "no rock" at 0.42 s2: the demo page's start point drifts between builds in one page; a fresh page
+  passes. Pre-existing, the live path returns false and cleans up.)
+- [x] Films `ws8b/wf9_{0.42,0.8}` + back-off crops `ws8b/cr/wbk_*`: reads (out sideways, squares up ~9 m, frozen,
+  closer, the whip at ~6.5 m). Live J run x2 clean (`ws8b/flow_wither.json`). BUT pixels (`pix.js`) showed its stone
+  sword poking out of the alcove at t=0 at 0.42 (900 px; the box check of the spot never covered the sword) -> it now
+  waits turned away into its dark and turns at the rattle (tM0..tMw 0.35 s): 0 px until 1.0-1.1 s (`ws8b/wpix2_0.42.json`).
+- [x] Step-out at 3 m/s (less standing while it comes out sideways). Final films `ws8b/wf11_{0.42,0.8}` (2 seeds):
+  first sightings 0.95-1.5 s occluded/off frame; tF0 1.7-2.6, run 3.3-4.4 s at 6.4-6.7 m, lead 1.3 s, V_CH 3.7-4.0,
+  dur 24.0-24.9. Pixels 0 px to 0.9-1.0 s (`ws8b/wpix3_0.42.json`). Back-off crops `ws8b/cr/wbk3_0.42_s2.png`,
+  `wbk2_0.8_s2.png`. J runs of the Wither x2 three times clean (one 10.5 s frame stall at load ~40).
+- [x] Journal, commit of witherskeleton.js + this file + journal with `git commit -- <paths>`.
+- [ ] Report.

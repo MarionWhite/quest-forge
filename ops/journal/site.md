@@ -1,5 +1,17 @@
 # Site journal (newest first)
 
+- 2026-10-28 (Mac) krypt scares r8b A, Wither opening fix (review: "the player stands frozen" ~3 s while it walked
+  from 9 m to 3.9 m). Now it waits in its hiding place turned away into the dark (its stone sword with it: pixels showed
+  the blade poking out of the alcove in the first frame at 0.42; the spot test only covered the body), turns at the
+  rattle, steps out quickly (3 m/s) and squares up about 9 m off, then walks at you (1.9 m/s). You freeze 0.4-0.6 s, then
+  back away from it (0.4 m steps every ~0.5 s, the head dipping and rocking, the breath coming up, the eyes on it) along
+  the start of your run, and turn and run when it is ~6.5 m off (at least two steps; at once if it is already 5.2 m).
+  Then it runs too, with a 0.4 s pick-up. Its pace is set between 2.8 and 4.4 m/s so it never gains on your sprint, and
+  you are in and turned round 1.3 s before it reaches the opening. Gap at the run 6.4-6.7 m at 0.42/0.8 (5.2 at
+  0.6's close spot). Pixel proof (render with and without it, diff): 0 px until it turns out at 1.0-1.1 s. Live J runs
+  of the Wither clean. A probe once threw "no rock" at 0.42 when two builds ran in one page (the demo start point drifts
+  between builds; a fresh page passes; the live path returns false and cleans up).
+
 - 2026-10-28 (Mac) krypt scares r8 C, Skeleton redo, the bone pile (the owner's concept). New `scares/ossuary.js`:
   a room carved off the corridor before the first frame (doorway in a side wall out of frame through the settle, 1-3
   blocks of wall, rock shell checked with a summed-area table, graves and torches avoided, restored on dispose), heaps of

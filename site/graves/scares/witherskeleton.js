@@ -22,6 +22,7 @@ import { poly, bez, runProfile, bob, lightOf, STEP, blocks, startView, hidden, s
 
 const wrap = (a) => Math.atan2(Math.sin(a), Math.cos(a));
 const V_RUN = 5.4, V_MOB = 3.1, V_WALK = 1.8;
+const V_OUT = 3.0, V_ON = 1.9;   // it steps out of its dark quickly, then walks at you; once you run it runs too (V_CH, 2.8-4.4: never as fast as your sprint)
 
 export default {
   death: "Steve was slain by Wither Skeleton",
@@ -170,26 +171,45 @@ export default {
     else if (kE < 13) for (const sd of [-1, 1]) { let j = 0; while (j < 6 && clear(sd * (j + 1), -d * kE)) j++; if (j >= 2 && (!pre.length || j > pre.j)) { pre = [cL(sd * j, -d * kE)]; pre.j = j; } }
     const zE = cL(0, -d * kE).z;
     const chase = poly([...pre, { x: xRun, z: zE }, { x: xRun, z: zA - d * 1.0 }, FA2]);
-    const u0 = (pre.length ? Math.hypot(pre[0].x - xRun, pre[0].z - zE) : 0) + Math.abs(zE);   // its way to where you stand
     const hid0 = bodyHidden(chase.at(0));
 
     // ---- your flight: turn, sprint, round into the passage ------------------------------------------------------------
     const zCorner = zA - d * Math.min(1.5, Math.abs(zA) - 0.6);
     const runP = poly([{ x: 0, z: 0 }, { x: xRun * 0.6, z: d * 0.7 }, { x: xRun, z: zCorner }, ...bez({ x: xRun, z: zCorner }, { x: xRun, z: zA }, { x: faceX - s * 0.2, z: zA }, 12).slice(1), inA(D1)]);
-    const prof = runProfile(runP.L, { v: V_RUN }), runDur = prof.dur, uRunAt = prof.u;
+    const straight = Math.abs(zCorner) - 0.4;
 
     // ---- the beats -----------------------------------------------------------------------------------------------------
     const tSay = R.vary(0.6, 0.2);                                        // its rattle, far off in the dark
     const tLook = tSay + 0.15, tLook1 = tLook + (Math.abs(wrap(yawMob - st.yaw)) > 1.6 ? 1.0 : 0.6);
-    // you run when it is a few metres off, early enough to be in and turned round before it reaches the opening
-    const gap0 = Math.max(3.8, V_MOB * (1.3 + 0.15 + runDur) - (chase.L - u0));
-    const tRun = Math.max(tLook1 + 1.4, (hid0 && pre.length ? tSay + 0.35 : 0.15) + (u0 - gap0) / V_MOB);
-    const tM0 = tRun - (u0 - gap0) / V_MOB;                              // it starts toward you (stood in the dark before)
+    // It steps out after the rattle, squares up to you and walks at you. You freeze a moment, then back away from it
+    // (unsteady steps, the eyes on it, the breath coming), and turn and run while it is still 6-7 m off.
+    // (in its hiding place it stands turned away, into the dark, its sword with it; it turns at the rattle and comes)
+    const tM0 = tSay + 0.2, tMw = tM0 + (pre.length ? 0.35 : 0);
+    const uSq = pre.length ? Math.hypot(pre[0].x - xRun, pre[0].z - zE) : 0;   // out of its hiding place, square to you
+    const tF0 = Math.max(tLook1, tMw + uSq / V_OUT);                     // you see it come at you: frozen
+    const tB0 = tF0 + R.vary(0.5, 0.2);                                   // then backing away
+    const uBmax = clamp(straight - 3.2, 0.35, 1.3);                       // (room left to run before the corner)
+    const bSteps = [];
+    { let u = 0, t = tB0; for (let i = 0; i < 8; i++) { const l = R.vary(0.4, 0.2), dt = R.vary(0.5, 0.15); bSteps.push({ t, dt, u0: u, l }); u += l; t += dt; } }
+    const backU = (t) => { let u = 0; for (const b of bSteps) { if (t <= b.t) break; u = b.u0 + b.l * sstep(0, 0.75, (t - b.t) / b.dt); } return Math.min(u, uBmax); };
+    const uOn = (t) => { const e = Math.max(0, t - tMw), e1 = uSq / V_OUT; return Math.min(chase.L, e <= e1 ? e * V_OUT : uSq + (e - e1) * V_ON); };
+    const gapAt = (t) => { const m = chase.at(uOn(t)), p = runP.at(backU(t)); return Math.hypot(m.x - p.x, m.z - p.z); };
+    const gapR = R.vary(6.5, 0.07);
+    // (two steps back at least, unless it is on you sooner: then you run when it is 5.2 m off)
+    let tRun = tB0 + 0.45;
+    while (tRun < tB0 + 2.4 && gapAt(tRun) > (tRun < tB0 + 0.95 ? 5.2 : gapR)) tRun += 0.05;
+    const uP0 = backU(tRun);
+    const prof = runProfile(runP.L - uP0, { v: V_RUN }), runDur = prof.dur, uRunAt = (dt) => uP0 + prof.u(dt);
     const tGo = tRun + 0.15, tIn = tGo + runDur;                         // the sprint; in the passage
-    const tMA = tM0 + chase.L / V_MOB;                                   // it reaches the opening
+    // It runs when you do: slower than your sprint (it never gains on you), and you are in and turned round about
+    // 1.3 s before it is at the opening (a 0.4 s pick-up from its walk).
+    const uR = Math.min(chase.L - 0.3, uOn(tRun)), Lr = chase.L - uR, aC = 0.4, T1 = tIn + 1.3 - tRun;
+    const V_CH = clamp((Lr - V_ON * aC / 2) / Math.max(0.5, T1 - aC / 2), 2.8, 4.4);
+    const tMA = tRun + (Lr + (V_CH - V_ON) * aC / 2) / V_CH;            // it reaches the opening
+    const uMob = (t) => { if (t < tRun) return uOn(t); const e = t - tRun; return Math.min(chase.L, uR + V_ON * e + (V_CH - V_ON) * (e < aC ? e * e / (2 * aC) : e - aC / 2)); };
     // the look back: once, on the straight
-    const straight = Math.abs(zCorner) - 0.4;
-    const tGl = tGo + prof.tAt(Math.min(Math.max(0.6, straight * 0.18), Math.max(0.6, straight - 3.6))), glLen = 0.72;
+    const sR = straight - uP0;
+    const tGl = tGo + prof.tAt(Math.max(0.45, Math.min(sR * 0.18, sR - 3.6))), glLen = 0.72;
     const tTurnA = tIn - 0.05, tTurnA1 = tTurnA + 0.55, tBk1 = tTurnA1 + 0.75;   // round to face the opening; backing away
     // in the opening: its tries, the stillness, the step back and the look in, the turn away
     const shoves = [tMA + 0.15]; const nSh = R.chance(0.5) ? 4 : 3;
@@ -215,7 +235,7 @@ export default {
     // ---- it -------------------------------------------------------------------------------------------------------------
     // where it is, which way it faces, how far it has walked (its legs swing with distance, as limbSwing does)
     const mobAt = (t) => {
-      if (t < tMA) { const u = Math.max(0, (t - tM0) * V_MOB), p = chase.at(u); return { x: p.x, z: p.z, yaw: R.yawTo(0, 0, p.dx, p.dz), dist: u, moving: t > tM0 }; }
+      if (t < tMA) { const u = uMob(t), p = chase.at(u); return { x: p.x, z: p.z, yaw: R.yawTo(0, 0, p.dx, p.dz) + (pre.length ? Math.PI * (1 - sstep(tM0, tMw, t)) : 0), dist: u, moving: t > tMw }; }
       if (t < tBack) return { x: FA2.x, z: FA2.z, yaw: yawIn, dist: chase.L, moving: false };
       if (t < tAw0) { const k = sstep(tBack, tPeek, t); return { x: lerp(FA2.x, FA3.x, k), z: lerp(FA2.z, FA3.z, k), yaw: t < tAway ? yawIn : lerp(yawIn, yawIn + wrap(yawTo(FA3, away.at(0.6)) - yawIn), sstep(tAway, tAw0, t)), dist: chase.L + 0.58 * k + (t > tAway ? (t - tAway) * 0.4 : 0), moving: t > tBack && t < tPeek }; }
       if (t < tKarr) { const u = (t - tAw0) * V_MOB, p = away.at(u), q = away.at(u + 0.5); return { x: p.x, z: p.z, yaw: yawTo(p, q), dist: chase.L + 0.8 + u, moving: true }; }
@@ -248,7 +268,13 @@ export default {
       const yM = st.yaw + wrap(yawMob - st.yaw);
       c.yaw = lerp(st.yaw, yM, sstep(tLook, tLook1, t));
       // the eyes on it as it comes (a little)
-      if (t > tLook1 - 0.2 && t < tGo + 0.4) { const m = mobAt(t), ly = R.yawTo(c.x, c.z, m.x, m.z); const w = 0.5 * sstep(tLook1 - 0.2, tLook1 + 0.6, t); c.yaw += w * wrap(ly - yM); c.pitch += 0.6 * w * (R.pitchTo(c.x, c.y, c.z, m.x, 1.8, m.z) + 0.03); }
+      // backing away from it, a step at a time (the head dips and rocks with each), the eyes on it more
+      if (t > tB0 && t < tRun + 0.2) {
+        const p = runP.at(backU(Math.min(t, tRun))); c.x = p.x; c.z = p.z;
+        for (const [i, b] of bSteps.entries()) { const k = (t - b.t) / b.dt; if (k > 0 && k < 1 && b.u0 < uBmax && b.t < tRun) { c.y -= 0.045 * Math.sin(Math.PI * k); c.roll += (i % 2 ? 1 : -1) * 0.022 * Math.sin(Math.PI * k); } }
+        c.y += 0.006 * Math.sin((t - tB0) * Math.PI * 2 / 0.6) * sstep(tB0, tB0 + 0.5, t);   // (the breath)
+      }
+      if (t > tLook1 - 0.2 && t < tGo + 0.4) { const m = mobAt(t), ly = R.yawTo(c.x, c.z, m.x, m.z); const w = 0.5 * sstep(tLook1 - 0.2, tLook1 + 0.6, t) + 0.35 * sstep(tB0 - 0.1, tB0 + 0.5, t); c.yaw += w * wrap(ly - yM); c.pitch += 0.6 * w * (R.pitchTo(c.x, c.y, c.z, m.x, 1.8, m.z) + 0.03); }
       // the flight
       if (t >= tRun) {
         const u = uRunAt(t - tGo), p = runP.at(u);
@@ -345,10 +371,13 @@ export default {
       [tSay + 0.55, "qf.mood.scrape", { at: (() => { const m = mobAt(tSay + 0.55); return [m.x, 0.2, m.z]; })(), volume: 0.5, pitch: 0.85 }]
     ];
     // its steps (one each 1.67 m it walks, as an entity's) while it walks to the opening; the sword dragging on stone
-    for (let u = STEP; u < chase.L - 0.2; u += STEP) { const t = tM0 + u / V_MOB; if (t < 0.05) continue; const p = chase.at(u); sounds.push([t, "mob.skeleton.step", { at: [p.x, 0.1, p.z], volume: clamp(0.55 + 0.4 * sstep(tRun, tMA, t), 0, 1), pitch: 0.82 }]); }
+    const tOfU = (u) => { if (u <= uR) return u <= uSq ? tMw + u / V_OUT : tMw + uSq / V_OUT + (u - uSq) / V_ON; let t = tRun; while (t < tMA && uMob(t) < u) t += 0.01; return t; };
+    for (let u = STEP; u < chase.L - 0.2; u += STEP) { const t = tOfU(u); if (t < 0.05) continue; const p = chase.at(u); sounds.push([t, "mob.skeleton.step", { at: [p.x, 0.1, p.z], volume: clamp(0.55 + 0.4 * sstep(tRun, tMA, t), 0, 1), pitch: 0.82 }]); }
+    // your steps back from it
+    for (const b of bSteps) if (b.t < tRun - 0.1 && b.u0 < uBmax) sounds.push([b.t + b.dt * 0.6, "step.stone", { volume: 0.22, pitch: 0.9 }]);
     for (let t = Math.max(tM0 + 0.5, tSay + 1.4); t < tMA - 0.3; t += R.vary(1.15, 0.2)) { const p = mobAt(t); sounds.push([t, "qf.mood.scrape", { at: [p.x, 0.15, p.z], volume: 0.45 + 0.35 * sstep(tRun, tMA, t), pitch: 0.8 }]); }
     // your sprint: a step each 1.67 m
-    for (let u = STEP * 0.5; u < runP.L - 0.3; u += STEP) sounds.push([tGo + prof.tAt(u), "step.stone", { volume: 0.45, pitch: 1.0 }]);
+    for (let u = STEP * 0.5; u < runP.L - uP0 - 0.3; u += STEP) sounds.push([tGo + prof.tAt(u), "step.stone", { volume: 0.45, pitch: 1.0 }]);
     sounds.push(
       [tGl + 0.12, "mob.skeleton.say", { at: (() => { const m = mobAt(tGl + 0.12); return [m.x, 2.1, m.z]; })(), volume: 1.0, pitch: 0.62 }],
       [tIn - 0.35, "step.stone", { volume: 0.6, pitch: 0.85 }],
@@ -384,6 +413,7 @@ export default {
       [0.3, tStill, "qf.scare.drone", { volume: 0.4, fadeIn: 1.5, fadeOut: 0.3, pitch: 0.7, bus: "sfx" }],
       [tSay + 0.3, tRun, "qf.scare.heartbeat", { volume: 0.5, fadeIn: 0.4, fadeOut: 0.2 }],
       [tRun, tStill, "qf.scare.heartbeat", { volume: 0.7, pitch: 1.4, fadeIn: 0.1 }],
+      [tB0 - 0.1, tRun + 0.35, "qf.scare.breath", { volume: 0.45, pitch: 1.12, fadeIn: 0.5, fadeOut: 0.3 }],   // (it comes on you)
       [tRun + 0.2, tStill, "qf.scare.breath", { volume: 0.6, pitch: 1.3, fadeIn: 0.3 }],
       // the calm: the heart slows, the breath goes out of you and settles
       [tGone + 0.2, tDeep + 0.4, "qf.scare.breath", { volume: 0.42, pitch: 0.8, fadeIn: 0.5, fadeOut: 1.2 }],
@@ -454,8 +484,8 @@ export default {
     const r2 = (v) => +v.toFixed(2);
     // (held: the hand is not drawn in this one, so the hotbar has the empty slot selected; loadout.js, round 8b)
     return { dur: DUR, hits, cam, update, sounds, loops, deathSide: dirT, held: null,
-      marks: { dread: tRun - 0.4, fake: tGone + 1.2, lunge: tH1, kill: tH2 + 0.6, see: tLook1 + 0.5, run: tRun, glance: tGl + 0.3, dive: tIn, push: shoves[1] ?? shoves[0], still: tStill + 0.6, peek: tPeek + 0.2, away: tAw0 + 0.3, room: tUp1, cue: tCue, reveal: tRev, go: tGoK },
-      notes: { d, s, hid0, kA: Lay.kA, dB: Lay.dB, aw: Lay.aw, awB: Lay.awB, kM: Lay.kM, room: [LA, RW, RH], tries, remesh: Lay.nm, carveT, face: r2(faceX), zA: r2(zA), zB: r2(zB), pre: pre.length ? 1 : 0, gap0: r2(gap0), lead: r2(tMA - tIn),
+      marks: { dread: tRun - 0.4, fake: tGone + 1.2, lunge: tH1, kill: tH2 + 0.6, see: tLook1 + 0.5, freeze: tF0 + 0.25, back: tB0 + 0.55, run: tRun, glance: tGl + 0.3, dive: tIn, push: shoves[1] ?? shoves[0], still: tStill + 0.6, peek: tPeek + 0.2, away: tAw0 + 0.3, room: tUp1, cue: tCue, reveal: tRev, go: tGoK },
+      notes: { d, s, hid0, kA: Lay.kA, dB: Lay.dB, aw: Lay.aw, awB: Lay.awB, kM: Lay.kM, room: [LA, RW, RH], tries, remesh: Lay.nm, carveT, face: r2(faceX), zA: r2(zA), zB: r2(zB), pre: pre.length ? 1 : 0, gapF: r2(gapAt(tF0)), gapRun: r2(gapAt(tRun)), uBack: r2(uP0), vCh: r2(V_CH), lead: r2(tMA - tIn), tF0: r2(tF0), tB0: r2(tB0),
         K: [r2(K.x), r2(K.z)], PR: [r2(PR.x), r2(PR.z)], carveMs: Math.round(R.carveMs || 0), tRun: r2(tRun), tGl: r2(tGl), tIn: r2(tIn), tMA: r2(tMA), tStill: r2(tStill), tBack: r2(tBack), tAway: r2(tAway), tGone: r2(tGone), tKarr: r2(tKarr), tRoom: r2(tRoom), tCue: r2(tCue), tRev: r2(tRev), tH1: r2(tH1), dur: r2(DUR) } };
   }
 };
