@@ -124,3 +124,15 @@ Owner's r010 picks to keep: tex-wall B (metal look on real metals only), dense w
 - Next: cost (step 3), make_scenes, READY, track/journal, push.
 - DONE: cost `C:\qfb\frills\cost-st1a.md` (p50 +0-5%, leafy +23% vertices, build -2%) -> leaf-frills.md "r011 results";
   COST_* filled, staytrue_scenes.json written (7 scenes), STAYTRUE-READY; track + journal updated. Task complete.
+
+### 2026-10-28 pre-publish (texture-dev #2, at the lead's request)
+- Dropped from staytrue_scenes.json (C:\qfb\shaderdev\r011\staytrue_make_scenes.py edited and rerun; now 5 scenes):
+  - **st-gems -> NEXT ROUND ITEM.** Critic (gm1b/texture_wall 4): in a still the gems are paler and flatter than r010
+    and show no highlight, and the emerald brings back the nested-square face the owner moved away from in r010
+    (tex-wall B). Cause: Stay True's gem faces ARE concentric squares (its emerald art), and its "glassy" look is the
+    animated glint sweep (8/10-frame strips, ~10 s), which no still frame catches; our smoothness 230 alone adds no
+    visible reflection on a flat block face. Next round: keep r010's facet emerald, raise reflection/F0 response on
+    both gems, and show the glint in a clip (or a frame timed on the glint), not a still.
+  - **st-leaves-roofed.** The biome_roofed camera is a plank wall with dark oak only in a corner (A = B = C). No
+    existing frame shows the dark oak canopy (forest_far is a far oak forest). Next round: re-aim biome_roofed into
+    the roofed forest canopy (worst case for cost) and re-render st1a0/st1a1/fr1c2.
