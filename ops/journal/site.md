@@ -1,5 +1,22 @@
 # Site journal (newest first)
 
+- 2026-10-27 (Mac) krypt scares r8, part B (Silverfish leak, Ghast, Blaze, Magma Cube). Silverfish (bf57898): the
+  sound that "stays permanently" was qf.scare.chitter in its roar, a looping manifest event played as a one-shot: qfaudio
+  looped it and the sound player only ever stopped its own loops. Every scare sound now goes through scareAudio() in
+  scares.js (one-shots play one pass, tagged "scare", Enter stops any still sounding) and qfaudio has voices().
+  tools/site/scare_flow.mjs plays all 16 live (J, death screen, Enter) and fails on a scare loop at the death screen,
+  any scare sound after Enter, or a loop a mood event leaves (it reproduced the old leak; now 16/16 and 20 mood events
+  clean, twice). Ghast (e88931a, 8d9bbb5): the far fireball is gone, one fireball after the face and the charge; on the
+  look-back it floats in while you look away and its charge warble turns your head; with the local skin its opened
+  eyes and mouth are painted on that skin. Blaze (e88931a): out of the nearest grave (kr.gravesNear, new in the scare
+  contract): a crackle and a breath under the floor turn the head, the plot cracks with the glow through it, bursts, it
+  rises out of the pit; then round 7's volley; no grave within 16 m: the floor ahead. Magma Cube (8d9bbb5), the owner's
+  script: lights dim, a size-1 cube out of the dark with the game's squish and flame, you look down at it, a thud and
+  an orange glow growing on the floor from behind, the big squelch, the head snaps round to a massive one (size 6 in a
+  4-high crypt, up to 12 where the corridor allows), it jumps open on the core and crushes you. Filmstrips (5 fps) and
+  beat logs beside the owner's words: scratchpad r8/scares-b/film/{bl2,gh1,mc1}/film.png, r8/scares-b/beats/.
+  Frame gaps up to 197 ms in the last J run were load from other renders (28-48 ms on a quiet machine).
+
 - 2026-10-27 (Mac) krypt r8 (floating props): the owner's dispensers were the piston_trap's far-end pair, set mid-hall at
   y0+1 over the walk (they touched only each other). Now set into the side walls. New support.js (what holds a prop) with a
   safety net in buildWindow (unsupported props and torches dropped; floating pieces up to 6 blocks removed) and put()/webAt()

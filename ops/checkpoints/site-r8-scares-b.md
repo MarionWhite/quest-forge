@@ -42,7 +42,7 @@ multi.py, sheet2.py; reuse them). Spec: `docs/design/site/krypt-scares.md`.
   run of all 16 with no exceptions and no leaks. Chrome: one at a time (another agent renders too).
 - [ ] Commit your own paths, journal line in `ops/journal/site.md`, report in five lines with the filmstrip paths.
 
-## Progress
+## Progress (status: DONE 2026-10-27, see the last step)
 (write after every step)
 - 2026-10-27 step 0: read. Scratch `scratchpad/r8/scares-b/`. **Silverfish leak cause found:** `silverfish.js` puts
   `qf.scare.chitter` in `roar()` (S.sounds, a one-shot), but the manifest marks that event `loop: true`, and
@@ -96,3 +96,7 @@ multi.py, sheet2.py; reuse them). Spec: `docs/design/site/krypt-scares.md`.
   owner's words: `r8/scares-b/beats/{magmacube,blaze,ghast,silverfish}.txt`. Full live J run + mood:
   `flow_all2.json`: 16/16 ok, 20 mood ok, no leaks, no exceptions (gaps to 197 ms under load from other renders).
   check_sounds exit 0; node --check on .mjs copies of all touched modules.
+- DONE: commits bf57898 (leak + flow check), e88931a (Blaze, Ghast, gravesNear), 8d9bbb5 (Magma Cube, spec v5), journal.
+  Done-means: leak fixed and checked in all 16 + mood [x]; Ghast one fireball after [x]; Blaze from the nearest grave [x];
+  Magma Cube beat by beat [x]; Enderman/Creeper untouched by these commits [x]; films + beat logs + live J run [x].
+  Owner to judge: the Magma baby's tall stretched hops are vanilla-accurate but read less "cute"; the 14 s length.
