@@ -113,3 +113,24 @@ multi.py, sheet2.py; reuse them). Spec: `docs/design/site/krypt-scares.md`.
   Film `film/mc2/film.png` (10.0-14.0 re-rendered). Hop crop `film/hop_peak.png` (rest / squish peak ~1.95x / top ~1.5x).
   Live run `flow_mc_final.json`: ok, mood 20 ok, no leaks. Spec v5 Magma lines updated. DONE: committed with the journal entry; report sent.
 
+
+## Round 8b (owner, 2026-10-27): "things are much much better." Two fixes across all scares (this agent)
+1. "when I activate an animation, often times the mob will flash on the screen in front of me, and disappear."
+   Find the cause (suspects: a rig rendered for a frame before its scare places it, at the origin or in front of the
+   camera; the skin swap; the J picker's or director's start path; 0.05 s traces start at the scare clock and may
+   miss frames before t=0). Fix it once in the shared path: a rig stays hidden until its scare places it. Add to
+   scare_flow.mjs a check over every rendered frame from the J press: no mob on screen in the first frames unless
+   its script puts it there. Run all 16 from J live, at least 3 times each (it is intermittent).
+2. "the hotbar that appears on the screen usually doesn't match what the character has or make any sense." One
+   loadout as the single source of truth: a plausible crypt explorer's hotbar with counts (sword, pickaxe, torches,
+   food), hearts, hunger and XP that make sense. The selected slot always matches what the first-person hand holds
+   in each scene; when a scene changes item (the Pigman's pickaxe swing) the selection moves to that slot; if a
+   scene uses an item the hotbar has it; an empty hand selects an empty slot. Audit all 16 scares and the two gap
+   deaths: each scene's held item before and after.
+- Enderman and Creeper may change only in the hotbar and HUD (timing and staging stay as traced). witherskeleton.js
+  is another agent's: leave it alone. Commit own paths. Report in five lines with a crop sheet: J-press frames
+  before and after the fix, and the hotbar in each scene.
+
+### 8b steps
+- step 0: section written. Next: trace the J start path (scares.js, rig.js, director) for a frame where a rig is
+  in the scene before its first update/place.
