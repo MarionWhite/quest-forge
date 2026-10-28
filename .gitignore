@@ -129,3 +129,7 @@ mods/*/src/**/*.class
 
 # Wrangler local secrets for the Shader Lab relay; never commit
 tools/shaders/relay/.dev.vars
+
+# Local-only mob skins for the Krypt page (tools/textures/mobs/import_patrix.py): third-party, All Rights
+# Reserved art used on the owner's machine only. Never commit, push or deploy anything in here.
+site/graves/tex/mobs-local/

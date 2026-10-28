@@ -574,19 +574,34 @@ function aliasParts(P, key) {
 // ===================================================================== makeMob
 const SOUND_KEYS = ['say', 'hurt', 'death', 'step'];
 const loadTex = (p) => tex(p);
+// Per-page skins: setSkinOverrides({ Zombie: [url], Spider: [url, eyesUrl], Blaze: { layers: [url], glow: url } })
+// swaps a vanilla mob's layer textures (by layer index; null keeps one) for sheets of the same layout at any multiple
+// of the vanilla size, since the UVs are fractions of the model's texW/texH; `glow` adds an additive layer on the
+// first layer's model (embers, glowing marks). The Krypt sets its own (site/graves/tex/mobs/skins.js); other pages
+// never call this and keep vanilla.
+const SKINS = {};
+export function setSkinOverrides(map) { Object.assign(SKINS, map || {}); }
 
 function buildVanilla(key, spec, opts) {
   const group = new THREE.Group();             // outer: callers place and scale this
   const rig = new THREE.Group();               // inner: the animation moves and squishes this
   group.add(rig);
+  const sk = SKINS[key], skL = Array.isArray(sk) ? sk : sk && sk.layers;
   const layers = spec.layers.map((L, i) => {
     const data = VANILLA_MODELS[L.model];
-    const texture = loadTex(L.tex);
+    const ov = skL && skL[i];
+    const texture = ov ? tex(ov, { url: ov }) : loadTex(L.tex);
     const color = L.fleece ? FLEECE[opts.dye ?? 0] : (opts.color ?? 0xffffff);
     const r = buildRig(data, texture, { ...L, color });
     rig.add(r.root);
     return r;
   });
+  if (sk && sk.glow) {
+    const L0 = spec.layers[0];
+    const r = buildRig(VANILLA_MODELS[L0.model], tex(sk.glow, { url: sk.glow }), { skip: L0.skip, additive: true });
+    rig.add(r.root);
+    layers.push(r);
+  }
   const primary = layers[0];
   aliasParts(primary.parts, key);
   if (spec.mushrooms) {
