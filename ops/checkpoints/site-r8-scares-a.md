@@ -46,3 +46,27 @@ multi.py, sheet2.py; reuse them). Spec: `docs/design/site/krypt-scares.md`.
 
 ## Progress
 (write after every step)
+Scratch: `scratchpad/r8/scares-a/` (tools copied from `../r7/scares/`). Preview server :8000.
+- [2026-10-27] Read brief, track, r7 checkpoint, the three scares, rig/common/fnaf/story/scares.js. Plan:
+  - Spider: the say (from overhead), left shoulder, right shoulder, forward, slow look up; it is on the ceiling over
+    you (it was there when the walk stopped, out of frame; its steps overhead while you look round); ~1 s seen, it
+    leaps (vanilla leap), the face, thrashed, floored, bites, scream, hearts out.
+  - Zombie: a wooden door carved into the nearer side wall behind-beside you (out of frame at the freeze), a short
+    dark passage behind it; bangs (mob.zombie.wood), crack overlay (destroy_stage), dust, backing away; woodbreak,
+    the zombie lurches through, grab, bite, floored, two more through the doorway.
+  - Wither Skeleton: planar/projected shadows (new helper `scares/shadow.js`): a torch behind throws your shadow
+    ahead; a taller one with a sword comes up behind it; you turn, the first blow lands mid-turn (vanilla: it hits
+    as soon as it is in range), Wither hearts, the second blow, floored, drain to black.
+- Tools (scratch `r8/scares-a/`): `film.js` (CDP: `node cdp.mjs "<graves url>&film=Spider&seeds=1,2[&w=900&ats=6.2,kill+0.4]" film.js > X.json`),
+  `film.py X.json OUTDIR` (filmstrip at 5 fps, beat log `<id>_s<seed>_log.txt`, appearance proof printed), `crop.py X.json SEED T0 T1 out.png`.
+  `S.solid(worldVec)` (optional, in a scare) tells film.js about occluders that are not blocks (the door).
+- [x] Spider built and committed (4d1de85). Films: `sp3_0.8/`, `sp3_0.42/`, `sp2/` (at=0.3: perch in a 6 m vault). Proof: off frame
+  until the look up reaches it (first on screen ~0.7-1 s before tSee). Next: Zombie (door), then Wither Skeleton (shadows).
+- [x] Zombie + `scares/door.js` committed. Films `z6/` (at=0.42 s2), `z3/` (0.8 s1). Proof: all three zombies occluded by the door
+  until the break. Open: fallback (no wall spot) not yet seen in a film. Next: Wither Skeleton (shadows, new `scares/shadow.js`).
+- [x] Wither Skeleton + `scares/shadow.js` (projected shadows: casters drawn from the light into a mask, the Krypt's
+  chunk meshes re-drawn with a multiply). Torch pick: a Krypt torch behind whose shadows of you and of it climb the wall
+  ahead; else a copy of a Krypt wall torch moved whole blocks to a wall behind you; else (a hall) floor shadows from the
+  torch lifted 1.1 m. A spot from the flame lights the stone where they fall. Films `ws4_0.42/`, `ws4_0.8/` (own torch,
+  wall shadows), `ws4_0.3/` (hall, floor). Proof: the skeleton is first on screen mid-turn (5.1-5.35 s), off frame before.
+  Next: zombie teeth lit (coordinator note), trace/cmp, live J run of 16, journal, report.
