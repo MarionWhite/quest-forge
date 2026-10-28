@@ -3,7 +3,8 @@
 ## r011: Stay True's leaves and crops, copied (supersedes the r010 frills and crop sprites below)
 The owner's call on 2026-10-27 after r010 ("they make the tree look spiky"; crops "the wrong execution"; "actually check
 what Stay True does"): copy Stay True into the private pack (CLAUDE.md, Licences exception). Its files stay in
-`C:\qf-worldeference-packs\Stay True 1\` and are read at build time; nothing of it is committed or shown on the site.
+`C:\qf-world
+eference-packs\Stay True 1\` and are read at build time; nothing of it is committed or shown on the site.
 
 What Stay True does, read from its JSON (`tools/textures/staytrue.py --dump` prints the table):
 - Leaves: every leaf block picks one of 2-3 models (equal weight, all distances). Each is the leaf cube plus two vertical
@@ -296,4 +297,35 @@ cv1c0 (same packs and scenes).
 - **Follow-up:** QF Textures should drop `mcpatcher/ctm/wheat` once the hook ships (it is what made every wheat tile 0).
 
 ## r011 results
-Render `1027-220844-r011-staytrue-a` (st1a0 hooks off / st1a1 on, QF Textures --stay-true, jar 718473f): pending.
+Render `1027-220844-r011-staytrue-a` (st1a0 hooks off / st1a1 on, QF Textures --stay-true, jar 718473f).
+Both boots clean (st1a1: both transforms applied, 11 model kinds, 50 sprites, 280 quads, none dropped, first tall crop drawn).
+
+**Look** (sheets `C:\qfbrills\look\st1a*.jpg`): the planes break the cube outline into a soft, rounded crown and
+hedge; the canopy is denser and less see-through than Stay True's textures on plain cubes (the clumps fill the gaps);
+faint edge-on plane streaks show on flat hedge faces. Ripe wheat is a tall, uneven field with dark stalks and gold heads,
+no seam at y 16. No re-render needed. Gems (`1027-221021-r011-gems-a`, gm1b): emerald is Stay True's concentric glass
+face, diamond glassy.
+
+**Cost** (`frills_cost.py --off st1a0 --on st1a1`): frame p50 +0 to +5%, leafy sections +23% vertices, rebuild time
+per section unchanged.
+
+Frills off `st1a0` vs on `st1a1`.
+
+| scene | frame p50 ms off / on | p99 ms off / on | leafy sections built off / on | ms per leafy section off / on | vertices per leafy section off / on | frill quads |
+|---|---|---|---|---|---|---|
+| leaves_close | 2.72 / 2.76 (+1%) | 3.63 / 3.69 (+2%) | 685 / 666 | 3.40 / 3.39 (-0%) | 8033 / 9468 (+18%) | 231388 |
+| tree_close | 2.90 / 2.91 (+0%) | 3.84 / 3.76 (-2%) | 185 / 365 | 2.31 / 2.38 (+3%) | 8069 / 9534 (+18%) | 130336 |
+| forest_lit | 2.45 / 2.47 (+1%) | 3.41 / 3.73 (+9%) | 213 / 197 | 4.18 / 4.81 (+15%) | 9627 / 13573 (+41%) | 184828 |
+| forest_far | 3.09 / 3.25 (+5%) | 3.89 / 4.08 (+5%) | 59 / 102 | 2.36 / 2.77 (+18%) | 8357 / 12354 (+48%) | 65432 |
+| biome_roofed | 2.83 / 2.88 (+2%) | 3.88 / 3.93 (+1%) | 712 / 620 | 3.70 / 3.59 (-3%) | 11385 / 14523 (+28%) | 478936 |
+| farm | 2.92 / 2.97 (+2%) | 3.86 / 3.85 (-0%) | 97 / 92 | 2.35 / 2.38 (+1%) | 7420 / 10022 (+35%) | 60476 |
+| farm_close | 2.76 / 2.78 (+1%) | 3.70 / 3.61 (-2%) | 23 / 12 | 1.65 / 1.69 (+3%) | 5485 / 8039 (+47%) | 6256 |
+
+Whole boot (every section built, from world load to the last scene):
+
+| | sections | ms per section | vertices per section | leafy sections | ms per leafy section | vertices per leafy section | leaf blocks | frill quads |
+|---|---|---|---|---|---|---|---|---|
+| off | 8580 | 3.699 | 7085 | 1980 | 3.384 | 9366 | 290536 | 0 |
+| on | 8475 | 3.555 | 7762 | 2055 | 3.321 | 11556 | 289481 | 1157924 |
+| change | | -4% | +10% | | -2% | +23% | | |
+

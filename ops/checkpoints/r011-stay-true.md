@@ -122,3 +122,5 @@ Owner's r010 picks to keep: tex-wall B (metal look on real metals only), dense w
   uneven, dark-stalk base + gold heads, no seam at y 16. Gems: emerald = Stay True's concentric glass face, diamond glassy.
   Verdict: nothing clearly wrong, NO re-render.
 - Next: cost (step 3), make_scenes, READY, track/journal, push.
+- DONE: cost `C:\qfb\frills\cost-st1a.md` (p50 +0-5%, leafy +23% vertices, build -2%) -> leaf-frills.md "r011 results";
+  COST_* filled, staytrue_scenes.json written (7 scenes), STAYTRUE-READY; track + journal updated. Task complete.
