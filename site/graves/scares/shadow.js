@@ -4,7 +4,8 @@
 // what the mask covers and is further from the light than the caster (multiplied into what is there, so a shadow
 // takes the torch's light away and keeps the stone's texture). The casters live in a scene of their own: a body can cast
 // a shadow and not be seen (yours, from inside your head).
-//   const SH = castShadows(R, { light: [x, y, z] local, center: () => [x, y, z] local, strength, reach })
+//   const SH = castShadows(R, { light: [x, y, z] local, center: () => [x, y, z] local, strength, reach, fov, size, flat })
+//     fov: the light's frustum (degrees), fitted to what the shadows fall on; flat: no fall-off with distance (one wall)
 //   const body = SH.add(mob)       a caster drawn only into the mask (call R.mob, then SH.add moves it out of the scene)
 //   SH.mirror(src, copy)          each frame: the copy (in the mask scene) takes src's pose (same model, same equipment)
 //   SH.set({ strength })          the shadows' darkness 0..1 (fade them in or out)
@@ -15,8 +16,10 @@ import { THREE, clamp } from "./rig.js";
 const FAR = 24;
 const casterVS = "varying vec3 vW; varying vec2 vUv; void main(){ vec4 w = modelMatrix * vec4(position, 1.0); vW = w.xyz; vUv = uv; gl_Position = projectionMatrix * viewMatrix * w; }";
 const casterFS = "uniform vec3 uL; uniform sampler2D map; uniform float useMap; varying vec3 vW; varying vec2 vUv; void main(){ if (useMap > 0.5 && texture2D(map, vUv).a < 0.1) discard; gl_FragColor = vec4(1.0, clamp(length(vW - uL) / " + FAR.toFixed(1) + ", 0.0, 1.0), 0.0, 1.0); }";
-const recvVS = "uniform mat4 uLVP; varying vec4 vL; varying vec3 vW; varying vec3 vN; void main(){ vec4 w = modelMatrix * vec4(position, 1.0); vW = w.xyz; vN = normalize(mat3(modelMatrix) * normal); vL = uLVP * w; gl_Position = projectionMatrix * viewMatrix * w; }";
-const recvFS = `uniform sampler2D uMask; uniform vec3 uL; uniform vec3 uCam; uniform float uK; uniform float uReach; uniform float uFog; uniform vec2 uTexel;
+// (gl_Position as three.js computes it for the Krypt's own draw, modelViewMatrix from the CPU: the same depth to the
+// last bit, so the multiply lands on the stone it copies; world * view in the shader is off by more far from the origin)
+const recvVS = "uniform mat4 uLVP; varying vec4 vL; varying vec3 vW; varying vec3 vN; void main(){ vec4 w = modelMatrix * vec4(position, 1.0); vW = w.xyz; vN = normalize(mat3(modelMatrix) * normal); vL = uLVP * w; gl_Position = projectionMatrix * (modelViewMatrix * vec4(position, 1.0)); }";
+const recvFS = `uniform sampler2D uMask; uniform vec3 uL; uniform vec3 uCam; uniform float uK; uniform float uReach; uniform float uFog; uniform vec2 uTexel; uniform float uFlat;
 varying vec4 vL; varying vec3 vW; varying vec3 vN;
 void main(){
   if (uK < 0.002 || vL.w <= 0.0) discard;
@@ -27,24 +30,24 @@ void main(){
   if (facing <= 0.02) discard;                     // a face the torch does not light has no shadow of it
   vec2 uv = p.xy * 0.5 + 0.5;
   vec4 m = texture2D(uMask, uv);
-  if (m.r < 0.5 || m.g * ${FAR.toFixed(1)} > d - 0.12) discard;   // nothing in the way, or the caster is behind it
+  if (m.r < 0.5 || m.g * ${FAR.toFixed(1)} > d - 0.05) discard;   // nothing in the way, or the caster is behind it
   // (the blend is in linear light: 0.15 here reads as about 0.4 on screen, a torch's shadow in a dark crypt)
-  float fall = clamp(1.45 - d / uReach, 0.35, 0.88) * clamp(facing * 2.5, 0.0, 1.0);
+  float fall = (uFlat > 0.5 ? 1.0 : clamp(1.45 - d / uReach, 0.35, 0.88)) * clamp(facing * 2.5, 0.0, 1.0);
   float c = length(uCam - vW), fog = exp(-uFog * uFog * c * c);
   gl_FragColor = vec4(vec3(1.0 - uK * fall * fog), 1.0);
 }`;
 
-export function castShadows(R, { light, center, strength = 0.7, reach = 9, size = 512 } = {}) {
+export function castShadows(R, { light, center, strength = 0.7, reach = 9, size = 512, fov = 110, flat = false } = {}) {
   const kr = R.kr, scene = R.scene;
   const L = R.L(light[0], light[1], light[2], new THREE.Vector3());
   const maskScene = new THREE.Scene();
   maskScene.background = null;
-  const lightCam = new THREE.PerspectiveCamera(110, 1, 0.08, FAR);
-  const rt = new THREE.WebGLRenderTarget(size, size, { depthBuffer: true, magFilter: THREE.NearestFilter, minFilter: THREE.NearestFilter, generateMipmaps: false });
+  const lightCam = new THREE.PerspectiveCamera(fov, 1, 0.05, FAR);
+  const rt = new THREE.WebGLRenderTarget(size, size, { depthBuffer: true, magFilter: THREE.NearestFilter, minFilter: THREE.NearestFilter, generateMipmaps: false });   // (half float: the distance to a few mm)
   const LVP = new THREE.Matrix4();
-  const uniforms = { uMask: { value: rt.texture }, uL: { value: L }, uCam: { value: new THREE.Vector3() }, uK: { value: strength }, uReach: { value: reach }, uFog: { value: 0.04 }, uLVP: { value: LVP }, uTexel: { value: new THREE.Vector2(1 / size, 1 / size) } };
+  const uniforms = { uMask: { value: rt.texture }, uL: { value: L }, uCam: { value: new THREE.Vector3() }, uK: { value: strength }, uReach: { value: reach }, uFog: { value: 0.04 }, uFlat: { value: flat ? 1 : 0 }, uLVP: { value: LVP }, uTexel: { value: new THREE.Vector2(1 / size, 1 / size) } };
   const recvMat = new THREE.ShaderMaterial({ uniforms, vertexShader: recvVS, fragmentShader: recvFS, transparent: true, depthWrite: false, depthTest: true,
-    blending: THREE.CustomBlending, blendSrc: THREE.DstColorFactor, blendDst: THREE.ZeroFactor, polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -2, fog: false });
+    blending: THREE.CustomBlending, blendSrc: THREE.DstColorFactor, blendDst: THREE.ZeroFactor, polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -4, fog: false });
   // The receivers: the Krypt's chunk meshes within reach of the visitor, drawn again (their geometry, shared).
   const recv = new THREE.Group(); recv.name = "scare-shadows";
   const near = new THREE.Box3(), ctr = R.L(0, 1, 4, new THREE.Vector3());

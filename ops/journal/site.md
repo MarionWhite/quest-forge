@@ -1,5 +1,12 @@
 # Site journal (newest first)
 
+- 2026-10-27 (Mac) krypt scares r8 A, Wither Skeleton shadow redo (coordinator review): the walk stops square on to a
+  flat open face 3 m off (nearest along the walk, else further); a copy of a Krypt wall torch at eye level behind you; the
+  crypt dims round its light. The old shadows were half missing in most frames: the receiver pass computed gl_Position
+  as view*(world*p) in the shader, which far from the origin differs from three's CPU modelViewMatrix by more than the
+  polygon offset, so it z-failed against the very wall it copies. Now identical depth, 2048 mask fitted to the face, no
+  fall-off. Its shadow spills huge (skull, ribs) then shrinks to stand over yours with the sword going up the wall.
+
 - 2026-10-27 (Mac) krypt scares r8, part B, coordinator's two Magma Cube tweaks. The baby's hops are small and low:
   its squish decays x0.6 a tick and stretches half as far, so at the peak it is about twice as tall as wide for a tick
   or two (vanilla's top slice rides 6.8 px over an 8 px cube), 0.45 m high. The engulf is now about 2 s and readable:

@@ -1,18 +1,19 @@
-// Wither Skeleton (round 8, rethought: the shadow). A torch on the wall behind you throws your shadow down the
-// corridor ahead, over the floor and up the stone; the walk stops with your eyes on it. Far behind you, in the dark
-// past that torch, a wither skeleton is walking up the corridor (its steps, faint). It passes the torch, and its
-// shadow sweeps forward over everything and comes to stand behind yours: a head and more taller, the stone sword in
-// its hand. You go still. Its steps stop. You turn round, slowly, and it does not wait: as you turn it swings (a wither
+// Wither Skeleton (round 8, rethought: the shadow). The walk stops square on to a flat wall, two or three metres off,
+// with a torch on the wall behind you (your shadow sprang up the stone as you passed it): your shadow, head, shoulders
+// and the sword in your hand, crisp in the torchlight; the rest of the crypt has gone dim. Its steps, faint, somewhere
+// behind you. Then it steps between the torch and you: the wall goes black with it, a skull and long thin limbs spilling
+// over the whole stone; it shrinks as it comes up behind you, until it stands over yours, half as tall again, and the
+// sword goes up the wall. You go still. You turn round, slowly, and it does not wait: as you turn it swings (a wither
 // skeleton strikes the moment you are in reach) and the blow knocks your head round to it. Your hearts go black
 // (Wither). It towers over you against the torchlight, 1.2 times a skeleton, and looks down at you; it swings again
 // and you go down. On your back, the Wither eats at your hearts; it steps over you, the sword goes up, and comes down.
 // Vanilla throughout: the 1.2-scale model and texture, the stone sword, the skeleton's sounds (1.7.10 has no others for
-// it), the Wither hearts; the one device is the shadow itself (1.7.10 draws none; the Krypt's torchlight here does).
-// The torch is one of the Krypt's when one behind you throws the shadows up the wall ahead; otherwise a copy of one of
-// its wall torches, moved whole blocks along to a wall block behind you, out of sight from the first frame; in a hall
-// with no wall near enough, the shadows lie along the floor and you look down at them.
-import { THREE, track, clamp, lerp, sstep, pulse, tex } from "./rig.js";
-import { settle, shake, hitsOf, floorFall, bipedSwing, swingAt, mcRot } from "./common.js";
+// it), the Wither hearts; the one device is the shadow itself (1.7.10 draws none; this torch does).
+// The torch is a copy of one of the Krypt's wall torches (its model and material), moved whole blocks to the wall
+// behind the spot, at eye level as a player sets one; it is there from the first frame. The spot is the nearest one
+// along the walk with a flat face (3 m wide, 2.6 m high) two to three metres off and a wall behind for the torch.
+import { THREE, clamp, lerp, sstep, pulse } from "./rig.js";
+import { shake, hitsOf, floorFall, bipedSwing, swingAt, mcRot } from "./common.js";
 import { silence, deathScream } from "./fnaf.js";
 import { blow, kick } from "./story.js";
 import { castShadows } from "./shadow.js";
@@ -23,139 +24,135 @@ export default {
   death: "Steve was slain by Wither Skeleton",
   async build(R) {
     const eye = R.eye;
-    // ---- the torch behind you, and where your shadow falls ----------------------------------------------------------
-    const land = (Lp, p) => { const d = [p[0] - Lp[0], p[1] - Lp[1], p[2] - Lp[2]], n = Math.hypot(...d); const u = d.map((v) => v / n); const r = R.ray(p[0], p[1], p[2], u[0], u[1], u[2], 16, 0.08); return { x: p[0] + u[0] * r, y: p[1] + u[1] * r, z: p[2] + u[2] * r, r }; };
-    // Where it stands when its shadow is over yours: on the line to the light, 1.7 m from you (just out of its reach), a
-    // little to one side (so its head and its sword show beside yours, not lost inside it).
-    const standAt = (Lp, d, off) => { const n = Math.hypot(Lp[0], Lp[2]) || 1, u = { x: Lp[0] / n, z: Lp[2] / n }; return { x: u.x * d + u.z * off, z: u.z * d - u.x * off }; };
-    const clear = (Lp, p) => { const d = [p[0] - Lp[0], p[1] - Lp[1], p[2] - Lp[2]], n = Math.hypot(...d); return R.ray(Lp[0], Lp[1], Lp[2], d[0] / n, d[1] / n, d[2] / n, n, 0.08) >= n - 0.15; };
-    // A shadow reads when it is thrown up a wall (upright, a figure); along the floor, seen from above, it is a smear. So
-    // the torch is the one whose shadows of you and of it climb the stone ahead of you, near enough to see whole, its
-    // head above yours (a torch about a metre over your head and three to four behind does it).
-    const judge = (Lp, own) => {
-      const a = standAt(Lp, 1.7, 0.3);
-      if (!clear(Lp, [0, 1.6, 0]) || !clear(Lp, [a.x, 2.0, a.z])) return null;
-      const H = land(Lp, [0, 1.85, 0]), F = land(Lp, [0, 0.9, 0]), K = land(Lp, [a.x, 2.35, a.z]);
-      if (H.r >= 15.9 || K.r >= 15.9) return null;
-      const hd = Math.hypot(H.x, H.z);
-      const tgt = { x: (H.x + K.x) / 2, y: (H.y + K.y) / 2 + 0.15, z: (H.z + K.z) / 2 };
-      const yw = R.yawTo(0, 0, tgt.x, tgt.z), pt = R.pitchTo(0, eye, 0, tgt.x, tgt.y, tgt.z);
-      const off = Math.abs(wrap(R.yawTo(0, 0, Lp[0], Lp[2]) - yw)), ld = Math.hypot(Lp[0], Lp[2]);
-      const score = Math.abs(yw) * 0.6 + Math.abs(hd - 3.2) * 0.3 + Math.abs(H.y - 0.9) * 0.8 + Math.abs(ld - 3.4) * 0.25 + (own ? 0.6 : 0)
-        + (H.y < 0.3 ? 2.5 : 0) + (K.y < H.y + 0.1 ? 1 : 0) + (hd < 1.8 || hd > 6 ? 1.5 : 0) + (Math.abs(yw) > 0.95 ? 3 : 0) + (off < 1.25 ? 6 : 0);
-      return { Lp, H, F, K, a, tgt, yw, pt, score, own };
-    };
-    let best = null;
-    const consider = (c) => { if (c && (!best || c.score < best.score)) best = c; };
-    for (const tc of R.torches) {
-      const l = tc.l;
-      if (l.z > -0.9 || l.z < -8 || Math.abs(l.x) > 6 || l.y < 1.9 || l.y > 4.6) continue;
-      consider(judge([l.x, l.y + 0.1, l.z], null));
+    const land = (Lp, p) => { const d = [p[0] - Lp[0], p[1] - Lp[1], p[2] - Lp[2]], n = Math.hypot(...d); const u = d.map((v) => v / n); const r = R.ray(p[0], p[1], p[2], u[0], u[1], u[2], 16, 0.03); return { x: p[0] + u[0] * r, y: p[1] + u[1] * r, z: p[2] + u[2] * r, r }; };
+    const ray = (x, y, z, dx, dz, max) => R.ray(x, y, z, dx, 0, dz, max, 0.02);
+    const clearPath = (a, b, ys = [0.5, 1.2, 2.0]) => { const n = Math.max(1, Math.ceil(Math.hypot(b.x - a.x, b.z - a.z) / 0.25)); for (let i = 0; i <= n; i++) { const x = lerp(a.x, b.x, i / n), z = lerp(a.z, b.z, i / n); if (ys.some((y) => R.solid(x, y, z)) || !R.solid(x, -0.3, z)) return false; } return true; };
+
+    // ---- the Krypt's wall torches, the models for ours ----------------------------------------------------------------
+    const temps = [];
+    for (const T of R.torches) {
+      const side = Math.sign(T.l.x); if (!side || Math.abs(T.l.x) > 9) continue;
+      const tb = new THREE.Vector3(Math.floor(T.w.x), Math.floor(T.w.y), Math.floor(T.w.z));
+      const att = R.dirW(side, 0, 0).map(Math.round);
+      if (R.solidW(tb.x + att[0] + 0.5, tb.y + 0.5, tb.z + att[2] + 0.5)) temps.push({ T, side, tb });
     }
-    // A torch of our own where none of the Krypt's will do: a copy of one of its wall torches (the same model, the same
-    // height, on the same kind of wall), moved whole blocks along to a wall block behind you where the shadows work. It
-    // is there from the first frame, out of sight; its light comes up as the walk stops.
-    if (!best || best.score > 1.6) {
-      const seen = new Set();
-      for (const T of R.torches) {
-        const s = Math.sign(T.l.x); if (!s || Math.abs(T.l.x) > 8) continue;
-        const tb = new THREE.Vector3(Math.floor(T.w.x), Math.floor(T.w.y), Math.floor(T.w.z));
-        const rr = R.dirW(s, 0, 0).map(Math.round), ab = [tb.x + rr[0], tb.y, tb.z + rr[2]];
-        if (!R.solidW(ab[0] + 0.5, ab[1] + 0.5, ab[2] + 0.5)) continue;   // its wall is on our side of it
-        for (let dzL = -10; dzL <= 10; dzL++) for (let dxL = -3; dxL <= 3; dxL++) {
-          const dW = R.dirW(dxL, 0, dzL).map(Math.round), key = s + ":" + (tb.x + dW[0]) + ":" + (tb.z + dW[2]);
-          if (seen.has(key)) continue; seen.add(key);
-          const w = new THREE.Vector3(T.w.x + dW[0], T.w.y, T.w.z + dW[2]), l = R.toLocal(w);
-          if (l.z > -1.4 || l.z < -5.5 || Math.abs(l.x) > 6) continue;
-          if (!R.solidW(ab[0] + dW[0] + 0.5, ab[1] + 0.5, ab[2] + dW[2] + 0.5) || R.solidW(tb.x + dW[0] + 0.5, tb.y + 0.5, tb.z + dW[2] + 0.5)) continue;
-          if (R.torches.some((o) => o.w.distanceTo(w) < 1.5)) continue;
-          const c = judge([l.x, l.y + 0.1, l.z], { T, dW, s });
-          if (c) consider(c);
+    // ---- where the walk stops: square on to a flat face, with a wall behind you for the torch -------------------------
+    const st = R.start;
+    const hfov = Math.atan(Math.tan(THREE.MathUtils.degToRad(R.camera.fov) / 2) * (R.camera.aspect || 1.78));
+    const lookS = { x: -Math.sin(st.yaw), z: Math.cos(st.yaw) };
+    const seen0 = (p) => { const v = { x: p.x - st.x, z: p.z - st.z }, n = Math.hypot(v.x, v.z) || 1; return (v.x * lookS.x + v.z * lookS.z) / n > Math.cos(hfov + 0.12); };
+    const flatAt = (s, dW, zc, half) => {
+      for (let dz = -half; dz <= half + 1e-6; dz += 0.4) {
+        for (const y of [0.25, 0.9, 1.6, 2.3, 2.6]) if (!R.solid(s * (dW + 0.2), y, zc + dz) || R.solid(s * (dW - 0.2), y, zc + dz)) return false;
+        // and open in front of it (no pillar, no recess side between it and you)
+        for (const d of [0.8, 1.7]) for (const y of [0.9, 2.0]) if (R.solid(s * (dW - d), y, zc + dz)) return false;
+      }
+      return true;
+    };
+    function search({ zMax, half, dMin, pen }) {
+      let best = null;
+      for (let zs = 0; zs <= zMax + 1e-6; zs += 0.5) {
+        if (!clearPath({ x: 0, z: 0 }, { x: 0, z: zs })) break;   // the walk goes no further
+        for (const s of [-1, 1]) {
+          const dW = ray(0, 1.0, zs, s, 0, 9); if (dW >= 9 || dW < dMin) continue;
+          const xs = s * Math.max(0, dW - 3.0), dF = dW - Math.abs(xs);
+          if (!flatAt(s, dW, zs, half) || !clearPath({ x: 0, z: zs }, { x: xs, z: zs })) continue;
+          // how far the face stays flat each way along it (its shadow stands to the roomier side of yours)
+          const ext = (dir) => { let e = half; for (let d = half + 0.25; d <= 3.01; d += 0.25) { if (!flatAt(s, dW, zs + dir * d, 0)) break; e = d; } return e; };
+          const eP = ext(1), eN = ext(-1);
+          const dO = ray(xs, 1.5, zs, -s, 0, 8); if (dO >= 8 || dO < 1.3) continue;
+          const fx = xs - s * dO, tp = temps.find((q) => q.side === -s); if (!tp) continue;
+          const att = R.dirW(-s, 0, 0).map(Math.round);
+          for (const dz of [0, -0.5, 0.5, -1, 1, -1.5, -2]) {   // (further back along the way: out of sight as you come)
+            const wb = R.L(fx + s * 0.5, 1.5, zs + dz), blk = new THREE.Vector3(Math.floor(wb.x), Math.floor(wb.y), Math.floor(wb.z));
+            if (!R.solidW(blk.x + att[0] + 0.5, blk.y + 0.5, blk.z + att[2] + 0.5) || R.solidW(blk.x + 0.5, blk.y + 0.5, blk.z + 0.5)) continue;
+            const dB = blk.clone().sub(tp.tb), tipW = tp.T.w.clone().add(dB);
+            if (R.torches.some((o) => o.w.distanceTo(tipW) < 1.2)) continue;
+            const tip = R.toLocal(tipW), Lp = [tip.x, tip.y + 0.1, tip.z];
+            const rP = Math.hypot(xs - Lp[0], zs - Lp[2]), H = land(Lp, [xs, 1.85, zs]);
+            const onFace = Math.abs(H.x - s * dW) < 0.12 && Math.abs(H.z - zs) < 1.2 && H.y > 0.9;
+            const vis = seen0(tip) ? 1 : 0;
+            // (a torch further back throws figures nearer their own size; a torch on the face itself would compete)
+            const faceTorch = R.torches.some((o) => Math.abs(o.l.x - s * dW) < 0.7 && Math.abs(o.l.z - zs) < 2.3) ? 1 : 0;
+            const score = zs * 0.3 + Math.abs(dF - 2.9) + Math.abs(rP - 4.3) * 0.5 + Math.abs(H.z - zs) * 0.8 + (onFace ? 0 : 5) + vis * 1.2 + faceTorch * 1.5 + Math.max(0, 2.2 - Math.max(eP, eN)) * 2 + pen;
+            if (!best || score < best.score) best = { s, zs, xs, dW, dF, dO, Lp, tp, dB, rP, H, vis, score, roomZ: eP >= eN ? 1 : -1 };
+          }
         }
       }
+      return best;
     }
-    if (!best || best.score > 2.8) {
-      // A hall, its walls too far off for any shadow to climb: they lie along the floor instead, and you look down at
-      // them. A wall torch is barely over your head and its floor shadows of you would run ten metres up the hall, so the
-      // light they are cast from is taken a metre above the flame (nobody can tell; the figures come out near enough to read).
-      let fb = null;
-      for (const tc of R.torches) {
-        const l = tc.l;
-        if (l.z > -0.9 || l.z < -8 || Math.abs(l.x) > 6.5 || l.y < 1.9 || l.y > 4.6) continue;
-        // (on the floor one shadow inside another is a blot: it stands off to one side of the line, toward the middle of
-        // the way, and its shadow lies beside yours, longer, two figures)
-        const Lp = [l.x, l.y + 1.1, l.z], a = [standAt(Lp, 1.7, 0.65), standAt(Lp, 1.7, -0.65)].sort((p, q) => Math.abs(p.x) - Math.abs(q.x))[0];
-        if (!clear([l.x, l.y + 0.1, l.z], [0, 1.6, 0])) continue;
-        const H = land(Lp, [0, 1.85, 0]), F = land(Lp, [0, 0.9, 0]), K = land(Lp, [a.x, 2.35, a.z]);
-        if (H.r >= 15.9 || H.z < 1.5) continue;
-        const tgt = { x: (H.x + F.x + K.x) / 3, y: (H.y + F.y + K.y) / 3, z: (H.z + F.z + K.z) / 3 };
-        const yw = R.yawTo(0, 0, tgt.x, tgt.z), pt = R.pitchTo(0, eye, 0, tgt.x, tgt.y, tgt.z), ld = Math.hypot(l.x, l.z);
-        const score = 3.2 + Math.abs(yw) * 1.2 + Math.abs(pt + 0.45) + Math.abs(ld - 3.5) * 0.3 + (H.r > 9 ? 1 : 0) + (Math.abs(yw) > 0.95 ? 3 : 0);
-        if (!fb || score < fb.score) fb = { Lp, H, F, K, a, tgt, yw, pt, score, own: null, floor: true };
-      }
-      if (fb) best = fb;
+    let spot = null;
+    for (const o of [{ zMax: 7, half: 1.6, dMin: 2.0, pen: 0 }, { zMax: 12, half: 1.2, dMin: 2.0, pen: 0.6 }, { zMax: 12, half: 0.8, dMin: 1.7, pen: 1.2 }]) {
+      if (spot && spot.score < 2.6) break;
+      const b = search(o); if (b && (!spot || b.score < spot.score)) spot = b;
     }
+    if (!spot) {
+      // nowhere along the walk (a stair, a shaft): the nearer wall, a light across from it at eye level
+      const s = R.wallL <= R.wallR ? -1 : 1, dW = Math.min(s < 0 ? R.wallL : R.wallR, 8), dO = Math.min(s < 0 ? R.wallR : R.wallL, 3);
+      const Lp = [-s * (dO - 0.3), 1.95, -0.3];
+      spot = { s, zs: 0, xs: 0, dW, dF: dW, dO, Lp, tp: null, rP: Math.hypot(Lp[0], Lp[2]), H: land(Lp, [0, 1.85, 0]), vis: 0, score: 99, roomZ: 1 };
+    }
+    const { s, Lp } = spot, P = { x: spot.xs, z: spot.zs };
+    const C = [s * spot.dW, 1.5, spot.zs];                                   // the middle of the face
+    let yawS = -s * Math.PI / 2; const pitchS = 0;                                // square on to it (the floor line at the foot of the frame)
+    // the torch: the template's quads moved whole blocks, the Krypt's own torch material; its light, a little out
     let ownTorch = null;
-    if (best && best.own) {
-      // the copy: the template's 20 vertices (its quads), moved by whole blocks; the Krypt's own torch material
-      const { T, dW } = best.own, src = T.mesh.geometry, g = new THREE.BufferGeometry();
+    if (spot.tp) {
+      const { T } = spot.tp, src = T.mesh.geometry, g = new THREE.BufferGeometry();
       for (const [name, at] of Object.entries(src.attributes)) {
         const arr = new at.array.constructor(20 * at.itemSize);
         for (let q = 0; q < 20; q++) for (let c = 0; c < at.itemSize; c++) arr[q * at.itemSize + c] = at.array[(T.i + q) * at.itemSize + c];
         g.setAttribute(name, new THREE.BufferAttribute(arr, at.itemSize, at.normalized));
       }
-      if (src.index) { const ix = []; const I = src.index.array; for (let k = 0; k + 2 < I.length; k += 3) if (I[k] >= T.i && I[k] < T.i + 20 && I[k + 1] >= T.i && I[k + 1] < T.i + 20 && I[k + 2] >= T.i && I[k + 2] < T.i + 20) ix.push(I[k] - T.i, I[k + 1] - T.i, I[k + 2] - T.i); g.setIndex(ix); }
-      g.applyMatrix4(T.mesh.matrixWorld); g.translate(dW[0], 0, dW[2]);
+      if (src.index) { const ix = [], I = src.index.array; for (let k = 0; k + 2 < I.length; k += 3) if (I[k] >= T.i && I[k] < T.i + 20 && I[k + 1] >= T.i && I[k + 1] < T.i + 20 && I[k + 2] >= T.i && I[k + 2] < T.i + 20) ix.push(I[k] - T.i, I[k + 1] - T.i, I[k + 2] - T.i); g.setIndex(ix); }
+      g.applyMatrix4(T.mesh.matrixWorld); g.translate(spot.dB.x, spot.dB.y, spot.dB.z);
       ownTorch = new THREE.Mesh(g, T.mesh.material); R.add(ownTorch);
-      // its light: a torch's, a little out from the wall (as the Krypt's own torches light the stone round them)
-      const pl = R.ownLight(R.light(0xffc880, 0, 8, 1.6)); R.at(pl, best.Lp[0] - best.own.s * 0.45, best.Lp[1] - 0.2, best.Lp[2]); ownTorch.userData.light = pl;
+      // (if it is in sight as the scare takes the head, it comes up over the first moments rather than being there at once)
+      if (spot.vis) { const fm = T.mesh.material.clone(); fm.transparent = true; fm.opacity = 0; ownTorch.userData.fade = fm; ownTorch.userData.mat = T.mesh.material; ownTorch.material = fm; }
     }
-    if (!best) {
-      // nowhere at all (a stair, a shaft): the nearest torch behind, or a light above and behind you
-      const tc = R.torches.find((t) => t.l.z < -0.9 && t.l.z > -9 && Math.abs(t.l.x) < 7);
-      const Lp = tc ? [tc.l.x, tc.l.y + 0.1, tc.l.z] : [0.6, 3.0, -3];
-      const H = land(Lp, [0, 1.85, 0]), F = land(Lp, [0, 0.9, 0]), a = standAt(Lp, 1.7, 0.3), K = land(Lp, [a.x, 2.35, a.z]);
-      const tgt = { x: (H.x + K.x) / 2, y: (H.y + K.y) / 2, z: (H.z + K.z) / 2 };
-      best = { Lp, H, F, K, a, tgt, yw: R.yawTo(0, 0, tgt.x, tgt.z), pt: R.pitchTo(0, eye, 0, tgt.x, tgt.y, tgt.z), own: null };
-    }
-    const Lp = best.Lp;
-    // The torch's light on the stone ahead, where the shadows fall (the Krypt's baked light alone leaves it too dim for
-    // a shadow to show): a soft cone from the flame, coming up as the walk stops.
-    const spot = R.ownLight(new THREE.SpotLight(0xffc27a, 0, 14, 0.45, 0.9, 1.2)); R.at(spot, Lp[0], Lp[1], Lp[2]); R.add(spot);
-    R.at(spot.target, best.tgt.x, best.tgt.y, best.tgt.z); R.add(spot.target);
-    const yawS = clamp(best.yw, -0.95, 0.95), pitchS = clamp(best.pt, -0.55, 0.1);
+    const glow = R.ownLight(R.light(0xffc880, 0, 6, 1.6)); R.at(glow, Lp[0] + s * 0.45, Lp[1] - 0.15, Lp[2]);
+    // its light on the face, where the shadows fall: a cone from the flame, the light that makes them
+    const D = Math.hypot(C[0] - Lp[0], C[1] - Lp[1], C[2] - Lp[2]);
+    const spotL = R.ownLight(new THREE.SpotLight(0xffc27a, 0, 0, Math.atan(3.6 / D) + 0.12, 0.35, 1.0)); R.at(spotL, Lp[0], Lp[1], Lp[2]); R.add(spotL);
+    R.at(spotL.target, C[0], C[1], C[2]); R.add(spotL.target);
 
-    // ---- its way: from the dark past the torch to just behind you, between you and the light --------------------------
-    const Sa = best.a;                         // where it stops, its shadow over yours, just out of reach
-    const S1 = standAt(Lp, 1.5, 0.15);         // where it strikes from (a wither skeleton hits inside about 1.6 m)
-    let S0 = { x: clamp(Lp[0] * 0.35, -(R.wallL - 0.6), R.wallR - 0.6), z: Lp[2] - 3.4 };
-    for (let k = 0; k < 8 && (R.solid(S0.x, 1.0, S0.z) || R.solid(S0.x, 2.0, S0.z)); k++) S0 = { x: S0.x * 0.7, z: S0.z + 0.4 };
-    const SPD = 1.9, walkL = Math.hypot(Sa.x - S0.x, Sa.z - S0.z);
-    const tW0 = 1.1 + R.vary(0.3, 0.5), tArr = tW0 + walkL / SPD;
-    const wAt = (t) => { const k = clamp((t - tW0) / (tArr - tW0)); return { x: lerp(S0.x, Sa.x, k), z: lerp(S0.z, Sa.z, k) }; };
-    // when its shadow first comes into your view (its skull's shadow inside the middle of the frame)
-    const look0 = { x: -Math.sin(yawS) * Math.cos(pitchS), y: Math.sin(pitchS), z: Math.cos(yawS) * Math.cos(pitchS) };
-    let tSh = tArr - 1.0;
-    // (its middle's shadow inside the middle of the frame: the skull's runs too far up the corridor to judge by)
-    for (let t = tW0; t < tArr && tSh === tArr - 1.0; t += 0.02) for (const hy of [1.0, 1.5]) {
-      const q = wAt(t), h = land(Lp, [q.x, hy, q.z]);
-      if (h.r >= 15.9) continue;
-      const v = [h.x, h.y - eye, h.z], n = Math.hypot(...v);
-      if (n < 14 && (v[0] * look0.x + v[1] * look0.y + v[2] * look0.z) / n > Math.cos(0.45)) { tSh = t; break; }
-    }
-    tSh = clamp(tSh, tW0 + 0.6, tArr - 0.7);
+    // ---- its way: along the wall behind you out of the dark, in front of the torch, then up behind you ---------------
+    const u = (() => { const dx = P.x - Lp[0], dz = P.z - Lp[2], n = Math.hypot(dx, dz) || 1; return { x: dx / n, z: dz / n }; })();
+    const pp = { x: -u.z, z: u.x };                                           // across the line, along the wall
+    const at2 = (o, du, dp) => ({ x: o.x + u.x * du + pp.x * dp, z: o.z + u.z * du + pp.z * dp });
+    // (to the side where the face runs on further, so its shadow stands on flat stone beside yours)
+    const side2 = Math.sign(pp.z * spot.roomZ) || 1;
+    const dSa = clamp(spot.rP * 0.25, 0.95, 1.1);   // (a pace behind you: its blade, held out before it, clear of your head)
+    const Sa = at2(P, -dSa, 0.35 * side2);       // where it stands over you: a pace behind, to one side (its shadow beside yours)
+    const S1 = at2(P, -dSa, 0.3 * side2);               // where it strikes from (in reach: a wither skeleton hits inside ~1.6 m)
+    const Sb = at2({ x: Lp[0], z: Lp[2] }, Math.min(2.2, spot.rP * 0.5), 0.3 * side2);   // in front of the torch
+    let S0 = null;
+    for (const x of [Sb.x, (Sb.x + P.x) / 2, P.x]) { const c = { x, z: Math.min(Sb.z - 4.5, -2.2) }; if (clearPath(c, Sb)) { S0 = c; break; } }
+    if (!S0) S0 = { x: Sb.x, z: Sb.z - 1.5 };
+
     // ---- the beats ----------------------------------------------------------------------------------------------------
-    const tFreeze = tSh + 0.25;                                   // you see it: still
-    // It stops with its shadow over yours, lifts the sword (its shadow rises up the stone ahead), steps into reach and
-    // strikes; you have begun to turn round.
-    const tRaise = tArr + 0.05, tStep = tArr + 0.5, tH1 = tArr + R.vary(1.0, 0.1);
-    const tTurn0 = tArr + R.vary(0.2, 0.3);
-    const yawK = R.yawTo(0, 0, S1.x, S1.z);
+    const Lw = Math.hypot(P.x - st.x, P.z - st.z);
+    const tWk = Lw > 0.3 ? 0.4 + Lw / 1.5 : 0;                                // the walk to the spot
+    const tTurnS = tWk > 0 ? tWk - 0.35 : 0.35, tStop = tTurnS + 1.15;       // the turn to the wall
+    const tSpill = tStop + R.vary(1.7, 0.15);                                // it steps in front of the torch
+    let l0 = Math.hypot(Sb.x - S0.x, Sb.z - S0.z);
+    if (tSpill - l0 / 1.6 < 0.2) { const k = ((tSpill - 0.2) * 1.6) / l0; S0 = { x: Sb.x + (S0.x - Sb.x) * k, z: Sb.z + (S0.z - Sb.z) * k }; l0 = Math.hypot(Sb.x - S0.x, Sb.z - S0.z); }
+    const tW0 = tSpill - l0 / 1.6, l1 = Math.hypot(Sa.x - Sb.x, Sa.z - Sb.z);
+    const tFreeze = tSpill + 0.12, tGo = tSpill + 0.25, tArr = tGo + l1 / 1.15;
+    const tRaise = tArr + 0.1, tTurn0 = tArr + R.vary(0.8, 0.15), tH1 = tTurn0 + R.vary(0.7, 0.12);
+    const wAt = (t) => {
+      if (t < tSpill) { const k = clamp((t - tW0) / (tSpill - tW0)); return { x: lerp(S0.x, Sb.x, k), z: lerp(S0.z, Sb.z, k), walk: t > tW0 ? 0.75 : 0, dir: [Sb.x - S0.x, Sb.z - S0.z] }; }
+      const k = clamp((t - tGo) / (tArr - tGo)); return { x: lerp(Sb.x, Sa.x, k), z: lerp(Sb.z, Sa.z, k), walk: k > 0.01 && k < 0.99 ? 0.6 : 0, dir: [Sa.x - Sb.x, Sa.z - Sb.z] };
+    };
+    // square on to the face, turned a little to frame the pair of shadows (yours and its, where it will stand)
+    { const h = land(Lp, [P.x, 1.6, P.z]), k = land(Lp, [Sa.x, 2.0, Sa.z]); yawS += clamp(wrap(R.yawTo(P.x, P.z, (h.x + k.x) / 2, (h.z + k.z) / 2) - yawS), -0.3, 0.3); }
+    const yawK = R.yawTo(P.x, P.z, S1.x, S1.z);
     const dirT = Math.sign(wrap(yawK - yawS)) || 1, spanT = Math.abs(wrap(yawK - yawS));
     const tH2 = tH1 + 1.05, tFl = tH2 + 0.05, tFloor = tFl + 0.5;
     const tW1 = tFloor + 0.45, tW2 = tW1 + 0.55, tUp = tW2 + 0.1, tH3 = tUp + 0.5, DUR = tH3 + 0.15;
     const hits = hitsOf([[tH1, 7, -dirT], [tH2, 6, dirT], [tW1, 2, 1], [tW2, 2, -1], [DUR, 3, 1]]);
-    const S2 = { x: S1.x * 0.55, z: S1.z * 0.55 };                   // where it stands over you on the floor
+    const kb = (() => { const dx = P.x - S1.x, dz = P.z - S1.z, n = Math.hypot(dx, dz) || 1; return { x: dx / n, z: dz / n }; })();
+    const S2 = { x: P.x + kb.x * 0.25, z: P.z + kb.z * 0.25 };   // where it stands over you on the floor (you went back a step)
     // ---- the head -----------------------------------------------------------------------------------------------------
     const turnK = (t) => {   // the slow turn; the blow knocks the rest of the way round
       const slow = clamp((t - tTurn0) / 1.7); let k = slow * slow * (3 - 2 * slow) * 0.85;
@@ -163,23 +160,28 @@ export default {
       return k;
     };
     const skullAt = (t) => { const q = t < tH2 + 0.3 ? S1 : { x: lerp(S1.x, S2.x, sstep(tH2 + 0.3, tW1, t)), z: lerp(S1.z, S2.z, sstep(tH2 + 0.3, tW1, t)) }; return { x: q.x, y: 2.15, z: q.z }; };
+    const walkYaw = Lw > 0.5 ? R.yawTo(st.x, st.z, P.x, P.z) : st.yaw;
+    const yawS2 = walkYaw + wrap(yawS - walkYaw);
     const cam = (t) => {
-      const s = settle(R, t, 1.2, { yaw: yawS, pitch: pitchS });
-      const c = { ...s, near: t >= tTurn0 ? 0.02 : undefined };
+      const kW = tWk > 0 ? sstep(0, tWk, t) : 0, walking = tWk > 0 ? sstep(0, 0.35, t) * (1 - sstep(tWk - 0.45, tWk, t)) : 0;
+      let yaw = lerp(st.yaw, walkYaw, sstep(0, 0.6, t)); yaw = lerp(yaw, yawS2, sstep(tTurnS, tStop, t));
+      let pitch = lerp(lerp(st.pitch, -0.03, sstep(0, 0.6, t)), pitchS, sstep(tTurnS, tStop, t));
+      // the eyes go up the wall with its sword
+      pitch += 0.14 * sstep(tRaise, tRaise + 0.7, t) * (1 - sstep(tTurn0, tTurn0 + 0.7, t));
+      const c = { x: lerp(st.x, P.x, kW), y: lerp(st.y, eye, sstep(0, 0.6, t)) + 0.022 * Math.sin(t * 8.4) * walking, z: lerp(st.z, P.z, kW), yaw, pitch, roll: 0, fov: st.fov, near: t >= tTurn0 ? 0.02 : undefined };
       c.y -= 0.01 * sstep(tFreeze, tFreeze + 0.2, t);
       // the turn round, slowly; then the eyes go up it to its skull
-      const k = turnK(t);
-      c.yaw = s.yaw + dirT * spanT * k;
-      c.pitch = lerp(s.pitch, -0.02, sstep(tTurn0, tTurn0 + 1.0, t));
+      c.yaw = yaw + dirT * spanT * turnK(t);
+      c.pitch = lerp(c.pitch, -0.02, sstep(tTurn0, tTurn0 + 1.0, t));
       const sk = skullAt(t), up = clamp(R.pitchTo(c.x, c.y, c.z, sk.x, sk.y, sk.z), -0.2, 0.75);
       c.pitch = lerp(c.pitch, up, sstep(tH1 + 0.1, tH1 + 0.6, t));
-      c.z -= 0.1 * sstep(tH1, tH1 + 0.25, t);
+      const kn = 0.35 * sstep(tH1, tH1 + 0.3, t); c.x += kb.x * kn; c.z += kb.z * kn;   // (the blow knocks you back a step)
       const kk = kick(t, hits.slice(0, 2).map((h) => ({ t: h.t, side: h.side, amp: 1.3 })).concat(hits.slice(2).map((h) => ({ t: h.t, side: h.side, amp: 0.4 }))));
       c.yaw += kk.yaw; c.pitch += kk.pitch;
       // knocked down; on your back, the eyes on it as it steps over you
       floorFall(c, t, tFl, { d: 0.5, side: dirT, roll: 0.55, y: 0.28, pitch: 0.95, back: 0.35 });
       if (t > tFloor) { const q = skullAt(t), ly = R.yawTo(c.x, c.z, q.x, q.z); c.yaw = lerp(c.yaw, c.yaw + wrap(ly - c.yaw) * 0.8, sstep(tFloor, tW1, t)); c.pitch = lerp(c.pitch, clamp(R.pitchTo(c.x, c.y, c.z, q.x, q.y, q.z) + 0.15, 0.5, 1.3), sstep(tFloor, tW1 + 0.3, t)); }
-      c.fov = s.fov - 4 * sstep(tFreeze, tTurn0 + 1, t) * (1 - sstep(tH1, tH1 + 0.3, t)) + 6 * pulse(t, [tH1, tH2, DUR], 0.15);
+      c.fov = st.fov - 4 * sstep(tTurn0, tTurn0 + 1, t) * (1 - sstep(tH1, tH1 + 0.3, t)) + 6 * pulse(t, [tH1, tH2, DUR], 0.15);
       const amp = 0.0015 + 0.0025 * sstep(tFreeze, tH1, t) + 0.03 * pulse(t, [tH1, tH2, tFloor, DUR], 0.15) + 0.01 * pulse(t, [tW1, tW2], 0.12) + 0.004 * sstep(tH1, tH1 + 0.3, t);
       return shake(c, t, amp, 6);
     };
@@ -187,10 +189,12 @@ export default {
     // ---- the figures --------------------------------------------------------------------------------------------------
     const W = R.mob("WitherSkeleton", { amb: [0.03, 0.03, 0.035], own: true, equipment: [{ id: "minecraft:stone_sword", ench: false }] });
     W.anim(0, 0, {}); R.place(W, S0.x, 0, S0.z, 0);
-    const SH = castShadows(R, { light: Lp, center: () => { const q = wAt(Math.min(R._t || 0, tArr)); return [q.x * 0.5, 1.2, q.z * 0.5]; }, strength: 0, reach: best.floor ? Math.max(10, 2.2 * Math.hypot(Lp[0], Lp[2])) : 10 });   // (a floor shadow from further off is longer and fainter: it is let reach)
+    // the shadows: drawn from the flame, the light's frustum fitted to the face (2048, hard-edged)
+    const SH = castShadows(R, { light: Lp, center: () => C, strength: 0, size: 2048, fov: THREE.MathUtils.radToDeg(2 * Math.atan(3.6 / D)), flat: true });
     R._sh = SH;   // (for checks)
     const Wsh = SH.add(R.mob("WitherSkeleton", { amb: [0.03, 0.03, 0.035], equipment: [{ id: "minecraft:stone_sword", ench: false }] }));
-    const you = SH.add(R.mob("Steve", { amb: [0.2, 0.2, 0.2] }));
+    // you: the body you stand in (it casts, it is not seen), with the sword the hotbar holds
+    const you = SH.add(R.mob("Steve", { amb: [0.2, 0.2, 0.2], equipment: [{ id: "minecraft:iron_sword", ench: false }] }));
     // gore: from you, where the blows land
     const at = (t, up = 1.35, fw = 0.2) => { const c = cam(t), f = { x: -Math.sin(c.yaw), z: Math.cos(c.yaw) }; return [c.x + f.x * fw, Math.min(up, c.y - 0.1), c.z + f.z * fw]; };
     for (const [i, h] of hits.entries()) {
@@ -202,13 +206,17 @@ export default {
 
     // ---- the sound ----------------------------------------------------------------------------------------------------
     const steps = [];
-    for (let tt = tW0 + 0.2; tt < tArr - 0.05; tt += 0.45) { const q = wAt(tt), d = Math.hypot(q.x, q.z); steps.push([tt, "mob.skeleton.step", { at: [q.x, 0.1, q.z], volume: clamp(0.75 - d * 0.08, 0.12, 0.6), pitch: 0.82 }]); }
+    for (let tt = tW0 + 0.2; tt < tArr - 0.05; tt += 0.45) {
+      if (tt > tSpill - 0.1 && tt < tGo + 0.1) continue;
+      const q = wAt(tt), d = Math.hypot(q.x - P.x, q.z - P.z);
+      steps.push([tt, "mob.skeleton.step", { at: [q.x, 0.1, q.z], volume: clamp(0.8 - d * 0.09, 0.12, 0.65), pitch: 0.82 }]);
+    }
     const sounds = [
       ...steps,
+      [tSpill - 0.02, "mob.skeleton.step", { at: [Sb.x, 0.1, Sb.z], volume: 0.7, pitch: 0.78 }],
       silence(tFreeze, { fade: 0.3 }),
-      [tArr - 0.02, "mob.skeleton.step", { at: [Sa.x, 0.1, Sa.z], volume: 0.75, pitch: 0.75 }],
+      [tArr - 0.02, "mob.skeleton.step", { at: [Sa.x, 0.1, Sa.z], volume: 0.8, pitch: 0.75 }],
       [tArr + 0.3, "mob.skeleton.say", { at: [Sa.x, 2.2, Sa.z], volume: 1.0, pitch: 0.62 }],
-      [tStep + 0.15, "mob.skeleton.step", { at: [S1.x, 0.1, S1.z], volume: 0.9, pitch: 0.75 }],
       ...blow(tH1, { volume: 1.2, gore: true }), [tH1 + 0.01, "qf.scare.crunch", { volume: 0.9 }],
       ...deathScream(tH1 + 0.12, { volume: 1.15, under: false }),
       [tH2 - 0.25, "mob.skeleton.say", { at: [S1.x, 2.2, S1.z], volume: 0.9, pitch: 0.55 }],
@@ -233,44 +241,50 @@ export default {
     function update(t, f) {
       R._t = t;
       const cl = R.toLocal(R.camera.position);
-      // It: walking up out of the dark, past the torch, to you; it strikes; it looks down at you; it strikes again;
-      // it steps over you; the sword goes up and comes down.
-      let q, walk = 0, lookP = 0, sw = 0, raise = 0;
-      if (t < tArr) { q = wAt(t); walk = t > tW0 ? 0.75 : 0; }
-      else if (t < tH1 + 0.1) { const k = sstep(tStep, tH1 - 0.1, t); q = { x: lerp(Sa.x, S1.x, k), z: lerp(Sa.z, S1.z, k) }; walk = k > 0.02 && k < 0.98 ? 0.6 : 0; }
-      else if (t < tH2 + 0.3) { q = S1; lookP = 0.55 * sstep(tH1 + 0.15, tH1 + 0.6, t); }
-      else { const k = sstep(tH2 + 0.3, tW1, t); q = { x: lerp(S1.x, S2.x, k), z: lerp(S1.z, S2.z, k) }; walk = k > 0.02 && k < 0.98 ? 0.6 : 0; lookP = 0.55 + 0.35 * k; }
-      sw = swingAt(t, [tH2 - 0.15], 0.3);
+      // It: along the wall out of the dark, in front of the torch, up behind you; it strikes; it looks down at you; it
+      // strikes again; it steps over you; the sword goes up and comes down.
+      let q, walk = 0, lookP = 0, face;
+      if (t < tArr) { const w = wAt(t); q = w; walk = w.walk; face = R.yawTo(0, 0, w.dir[0], w.dir[1]); }
+      else if (t < tH2 + 0.3) { q = t < tH1 - 0.2 ? Sa : S1; lookP = 0.55 * sstep(tH1 + 0.15, tH1 + 0.6, t); face = R.yawTo(q.x, q.z, cl.x, cl.z); }
+      else { const k = sstep(tH2 + 0.3, tW1, t); q = { x: lerp(S1.x, S2.x, k), z: lerp(S1.z, S2.z, k) }; walk = k > 0.02 && k < 0.98 ? 0.6 : 0; lookP = 0.55 + 0.35 * k; face = R.yawTo(q.x, q.z, cl.x, cl.z); }
+      if (t >= tArr && t < tH1 - 0.2) { const w = sstep(tArr - 0.3, tArr + 0.3, t); face = lerp(R.yawTo(0, 0, Sa.x - Sb.x, Sa.z - Sb.z), R.yawTo(Sa.x, Sa.z, P.x, P.z), w); }
+      const sw = swingAt(t, [tH2 - 0.15], 0.3);
       // the sword up over its head, and down: behind you (the first blow) and over you on the floor (the last)
-      raise = Math.max(sstep(tRaise, tRaise + 0.45, t) * (1 - sstep(tH1 - 0.14, tH1, t)), sstep(tUp, tUp + 0.3, t) * (1 - sstep(DUR - 0.14, DUR, t)));
+      const raise = Math.max(sstep(tRaise, tRaise + 0.5, t) * (1 - sstep(tH1 - 0.14, tH1, t)), sstep(tUp, tUp + 0.3, t) * (1 - sstep(DUR - 0.14, DUR, t)));
       const chop = Math.max(t >= tH1 - 0.14 && t < tH1 + 0.35 ? 1 - sstep(tH1 + 0.1, tH1 + 0.35, t) : 0, t >= DUR - 0.14 ? 1 : 0);
-      const face = t < tArr ? R.yawTo(q.x, q.z, q.x + (S1.x - S0.x), q.z + (S1.z - S0.z)) : R.yawTo(q.x, q.z, cl.x, cl.z);
       R.place(W, q.x, 0, q.z, face, 0);
       W.anim(t, 0, { walk, lookPitch: lookP });
       bipedSwing(W, sw);
-      if (W.parts.rightArm && (raise > 0 || chop > 0)) mcRot(W.parts.rightArm, raise > 0.001 ? lerp(-0.3, -2.75, raise) : lerp(-0.3, -0.55, chop), 0.1, 0);
+      // (raised out to its side as well as up, so the blade's sweep passes wide of your head)
+      if (W.parts.rightArm && (raise > 0 || chop > 0)) mcRot(W.parts.rightArm, raise > 0.001 ? lerp(-0.3, -2.75, raise) : lerp(-0.3, -0.55, chop), 0.1, raise > 0.001 ? 0.5 * Math.sin(Math.PI * Math.min(1, raise * 1.4)) + 0.15 * raise : 0);
       W.pivot.visible = true;
       // its own light: a little, so the black bone reads against the torch behind it
       W.setOwn(0.03 + 0.1 * sstep(tTurn0, tH1, t) + 0.05 * sstep(tFloor, tW1, t));
-      // the shadows: its copy, and your body standing where you stand (until you go down)
+      // the shadows: its copy, and your body where you stand (until you go down), the sword held up a little
       SH.mirror(W, Wsh);
       const y = youAt(t);
-      R.place(you, y.x, 0, y.z, y.yaw); you.anim(t, 0, { walk: 0, still: true });
+      R.place(you, y.x, 0, y.z, y.yaw); you.anim(t, 0, { walk: tWk > 0 && t < tWk ? 0.6 : 0, still: !(tWk > 0 && t < tWk) });
+      if (you.parts.rightArm) mcRot(you.parts.rightArm, -0.3, -0.6, 0.9);   // (the sword arm out from your side, the blade clear of you)   // (the arm up before you, the blade upright beside your head)
       you.pivot.visible = t < tFl + 0.1;
-      SH.set({ strength: 0.9 * sstep(0.2, 1.2, t) * (1 - 0.5 * sstep(tFl, tFloor + 0.5, t)) });
-      if (ownTorch) ownTorch.userData.light.intensity = 0.6 * sstep(0, 1.0, t);
-      spot.intensity = 11 * sstep(0.1, 1.3, t) * (1 - 0.6 * sstep(tFloor, DUR, t));
+      SH.set({ strength: 0.84 * sstep(0, 0.6, t) * (1 - 0.6 * sstep(tFl, tFloor + 0.5, t)) });
+      // the torch (there from the first frame; its light comes up as the scare takes the head) dominates the face: the
+      // crypt's own light and torches go down round it while you stand there, and come back as you turn
+      glow.intensity = 0.6 * sstep(0, 0.6, t);
+      if (ownTorch && ownTorch.userData.fade) { const k = sstep(0, 0.8, t); ownTorch.material = k >= 1 ? ownTorch.userData.mat : ownTorch.userData.fade; ownTorch.userData.fade.opacity = k; }
+      spotL.intensity = 9 * sstep(0, 0.6, t) * (1 - 0.6 * sstep(tFloor, DUR, t));
+      const beat = sstep(tTurnS, tStop + 0.3, t) * (1 - 0.65 * sstep(tTurn0 + 0.3, tH1 + 0.4, t));
       // the Wither: black hearts from the first blow; the dark closing in from the edges on the floor
       f.hpMode = t >= tH1 ? "wither" : "normal";
       const dark = sstep(tFloor, DUR + 0.4, t);
-      f.env = { bake: 1 - 0.15 * sstep(0.3, 1.5, t) - 0.35 * dark, lights: 1 - 0.4 * dark, fogMul: 1 + 0.5 * sstep(0.5, 3, t) + 1.2 * dark };
+      f.env = { bake: 1 - 0.68 * beat - 0.3 * dark, lights: 1 - 0.75 * beat - 0.35 * dark, fogMul: 1 + 0.5 * sstep(0.5, 3, t) + 1.2 * dark };
       f.vig = [0, 0, 0, Math.min(1, 0.25 + 0.15 * sstep(tFreeze, tH1, t) + 0.55 * dark)]; f.vigR = 0.9 - 0.35 * dark;
       f.tints = [[0, 0, 0, 0.18 * sstep(tH1, tH1 + 0.5, t) + 0.25 * dark]];
       f.splats = [hits[0], hits[1], hits[4]].filter((h) => t >= h.t).map((h, i) => ({ t0: h.t, x: [0.66, 0.3, 0.5][i], y: [0.42, 0.55, 0.35][i], r: [11, 10, 14][i], seed: 61 + i }));
       f.black = 0.5 * sstep(DUR - 0.1, DUR + 0.6, t);
     }
+    const r2 = (v) => +v.toFixed(2);
     return { dur: DUR, hits, cam, update, sounds, loops, deathSide: dirT,
-      marks: { dread: tSh + 0.6, fake: tTurn0 + 0.6, lunge: tH1, kill: tH2 + 0.6 },
-      notes: { score: best.score != null ? +best.score.toFixed(2) : null, H: [best.H.x, best.H.y, best.H.z].map((v) => +v.toFixed(2)), K: [best.K.x, best.K.y, best.K.z].map((v) => +v.toFixed(2)), walls: [R.wallL, R.wallR], floor: !!best.floor, ownTorch: !!ownTorch, light: Lp.map((v) => +v.toFixed(2)), yawS: +yawS.toFixed(2), pitchS: +pitchS.toFixed(2), tSh: +tSh.toFixed(2), tArr: +tArr.toFixed(2), tH1: +tH1.toFixed(2), dur: +DUR.toFixed(2) } };
+      marks: { dread: tSpill + 0.3, fake: tTurn0 + 0.5, lunge: tH1, kill: tH2 + 0.6 },
+      notes: { stop: [r2(P.x), r2(P.z)], side: s, face: r2(spot.dF), torchBack: r2(spot.rP), walk: r2(Lw), torch0seen: spot.vis, score: r2(spot.score), light: Lp.map(r2), tStop: r2(tStop), tSpill: r2(tSpill), tArr: r2(tArr), tTurn0: r2(tTurn0), tH1: r2(tH1), dur: r2(DUR) } };
   }
 };

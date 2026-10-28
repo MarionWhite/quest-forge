@@ -80,3 +80,11 @@ Scratch: `scratchpad/r8/scares-a/` (tools copied from `../r7/scares/`). Preview 
 - [x] Live J run, all 16 (scare_flow.mjs, flow16.json): no leaks, no exceptions, 60 fps. Review set: scratchpad
   `r8/scares-a/review/` (README.txt = the owner's script beside the beats, proof.txt, filmstrips + beat logs per scare).
   Journal entry written. DONE apart from the report.
+- [x] Coordinator review fixes (Wither Skeleton shadow): the walk stops square on to a flat, open face 3 m off (the
+  nearest along the walk; else further, up to 12 m); floor fallback dropped; the torch is a copy of a Krypt wall torch at
+  eye level on the wall behind (faded in if it is in sight at the first frame); its spot dominates while the Krypt's
+  bake/lights go down (0.32/0.25) during the beat. shadow.js: 2048 mask, frustum fitted to the face, flat (no fall-off),
+  bias 5 cm, and the receivers now take gl_Position from modelViewMatrix exactly as three.js does (world*view in the shader
+  lost precision far from the origin and z-failed against the wall in about half the frames: the old "faint smudge").
+  Skeleton: in front of the torch at rP*0.5 (spill), then a pace behind you to the roomier side (0.35 m), raise swung wide.
+  Review: scratchpad review/wither/ (crops_at0.8|0.3_s1-3, film_at*_s*, logs, proof_wither.txt). Live run ok.
