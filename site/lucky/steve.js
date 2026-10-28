@@ -28,6 +28,7 @@ export const R_P = 0.45, R_H = 0.3;
 // ---------------------------------------------------------------- the held item, 1.7.10's third-person transform
 // RenderPlayer.renderEquippedItems: from the right arm's pivot, translate (-1/16, 7/16, 1/16), then
 //   block items   : translate (0, 3/16, -5/16), rotate X 20, Y 45, scale (-3/8, -3/8, 3/8)
+//   the bow       : translate (0, 1/8, 5/16), rotate Y -20, scale (5/8, -5/8, 5/8), rotate X -100, Y 45
 //   full-3D items : (tools, sticks) translate (0, 3/16, 0), scale (5/8, -5/8, 5/8), rotate X -100, Y 45
 //   flat items    : translate (1/4, 3/16, -3/16), scale 3/8, rotate Z 60, X -90, Z 20
 // and then ItemRenderer.renderItem for a sprite: translate (0, -0.3, 0), scale 1.5, rotate Y 50, Z 335,
@@ -42,10 +43,12 @@ const mul = (...ms) => ms.reduce((a, m) => a.multiply(m), new THREE.Matrix4());
 const D = mS(1, -1, 1);
 const SPRITE_M = mul(mT(0, -0.3, 0), mS(1.5, 1.5, 1.5), mRy(50), mRz(335), mT(-0.9375, -0.0625, 0));
 const HAND_M = mT(-0.0625, 0.4375, 0.0625);
-const FULL3D = new Set(['wood_pickaxe', 'stone_pickaxe', 'iron_pickaxe', 'diamond_pickaxe', 'stick', 'fishing_rod_uncast', 'fishing_rod_cast', 'wood_axe', 'iron_axe', 'wood_shovel', 'iron_shovel', 'diamond_shovel', 'wood_hoe', 'iron_hoe', 'bone', 'bow_standby', 'bow_pulling_0', 'bow_pulling_1', 'bow_pulling_2']);
+const FULL3D = new Set(['wood_pickaxe', 'stone_pickaxe', 'iron_pickaxe', 'diamond_pickaxe', 'stick', 'fishing_rod_uncast', 'fishing_rod_cast', 'wood_axe', 'iron_axe', 'wood_shovel', 'iron_shovel', 'diamond_shovel', 'wood_hoe', 'iron_hoe', 'bone']);
 const ROD = new Set(['fishing_rod_uncast', 'fishing_rod_cast']);
+const BOW = new Set(['bow_standby', 'bow_pulling_0', 'bow_pulling_1', 'bow_pulling_2']);
 function heldMatrix(spec) {
   if (spec.block) return mul(D, HAND_M, mT(0, 0.1875, -0.3125), mRx(20), mRy(45), mS(-0.375, -0.375, 0.375));
+  if (BOW.has(spec.item)) return mul(D, HAND_M, mT(0, 0.125, 0.3125), mRy(-20), mS(0.625, -0.625, 0.625), mRx(-100), mRy(45), SPRITE_M);
   if (FULL3D.has(spec.item)) {
     const parts = [D, HAND_M];
     if (ROD.has(spec.item)) parts.push(mRz(180), mT(0, -0.125, 0));
