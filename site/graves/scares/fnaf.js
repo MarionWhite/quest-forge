@@ -168,9 +168,10 @@ export function musicBox(t0, notes, { step = 0.32, wind = 0.06, sag = 0.012, sto
   }
   return { sounds: out, end: t };
 }
-// The kill's scream: a man dying (the recorded set), with the game's own death sound under it.
+// The kill's scream: a man dying (the recorded set), with the game's own hurt sound just before it (round 8: not on
+// top of it, where a second voice landed on the scream's first 20 ms). The scream plays on the 'voice' bus, as recorded.
 export function deathScream(t, { volume = 1.25, under = true } = {}) {
-  return [[t, "qf.scare.death_scream", { volume }], ...(under ? [[t + 0.02, "game.player.hurt", { volume: 0.7 }]] : [])];
+  return [[t, "qf.scare.death_scream", { volume }], ...(under ? [[Math.max(0, t - 0.1), "game.player.hurt", { volume: 0.7 }]] : [])];
 }
 // A single-frame glimpse: true for `len` seconds after each time.
 export const glimpse = (t, times, len = 0.07) => times.some((x) => t >= x && t < x + len);

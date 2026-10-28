@@ -25,6 +25,10 @@ const BASE = new URL('./sfx/', import.meta.url);
 const MANIFEST_URL = new URL('manifest.json', BASE).href;
 const BUSES = ['sfx', 'music', 'ambient', 'ui'];
 const BUS_GAIN = { sfx: 0.9, music: 0.45, ambient: 0.7, ui: 0.7 };
+// bus 'voice' (round 8): the player's own voice, the screams. It plays the take as recorded: no panner, no pitch or
+// playbackRate change, no reverb send, gain at most 1, and it skips the master compressor and muffle(). Only the
+// final safety limiter (-1 dBFS, which a lone voice never reaches) sits between it and the speakers.
+let masterComp = null, voiceOut = null;
 
 let ctx = null;
 let master = null;
@@ -58,10 +62,15 @@ function makeContext() {
   const comp = ctx.createDynamicsCompressor();
   comp.threshold.value = -10; comp.knee.value = 12; comp.ratio.value = 4;
   comp.attack.value = 0.004; comp.release.value = 0.2;
+  const lim = ctx.createDynamicsCompressor();   // the safety limiter: the sum of everything never hard-clips
+  lim.threshold.value = -1; lim.knee.value = 0; lim.ratio.value = 20; lim.attack.value = 0.001; lim.release.value = 0.1;
+  lim.connect(ctx.destination);
   master = ctx.createGain();
   master.gain.value = muted ? 0 : 1;
-  master.connect(comp); comp.connect(ctx.destination);
+  master.connect(comp); comp.connect(lim); masterComp = comp;
   for (const b of BUSES) { bus[b] = ctx.createGain(); bus[b].gain.value = BUS_GAIN[b]; bus[b].connect(master); }
+  voiceOut = ctx.createGain(); voiceOut.gain.value = muted ? 0 : 1; voiceOut.connect(lim);
+  bus.voice = ctx.createGain(); bus.voice.connect(voiceOut);
   reverbWet = ctx.createGain(); reverbWet.gain.value = 0;
   reverbIn = ctx.createConvolver();
   reverbIn.buffer = impulse(2.4, 2.2);
@@ -135,17 +144,18 @@ export function play(name, o = {}) {
       if (!buf || h.stopped) return;
       const src = ctx.createBufferSource();
       src.buffer = buf;
-      src.playbackRate.value = pick(o.pitch ?? ev.pitch ?? 1);
+      const voice = (o.bus || ev.bus) === 'voice';   // the player's own voice: the take as recorded (see voiceOut)
+      src.playbackRate.value = voice ? 1 : pick(o.pitch ?? ev.pitch ?? 1);
       if (!o.once && (o.loop || ev.loop)) { src.loop = true; if (ev.loopStart != null) src.loopStart = ev.loopStart; if (ev.loopEnd != null) src.loopEnd = ev.loopEnd; }
       const g = ctx.createGain();
-      const vol = (o.volume ?? 1) * (ev.volume ?? 1);
+      const vol = Math.min(voice ? 1 : Infinity, (o.volume ?? 1) * (ev.volume ?? 1));
       g.gain.value = o.fadeIn ? 0 : vol;
       if (o.fadeIn) g.gain.linearRampToValueAtTime(vol, ctx.currentTime + o.fadeIn);
       src.connect(g);
-      const out = o.pos ? spatial(g, o.pos, o) : g;
+      const out = o.pos && !voice ? spatial(g, o.pos, o) : g;
       out.connect(bus[o.bus || ev.bus || 'sfx'] || bus.sfx);
-      if (o.reverb) { const s = ctx.createGain(); s.gain.value = o.reverb; out.connect(s); s.connect(reverbIn); }
-      h.src = src; h.gain = g; h.panner = o.pos ? out : null;
+      if (o.reverb && !voice) { const s = ctx.createGain(); s.gain.value = o.reverb; out.connect(s); s.connect(reverbIn); }
+      h.src = src; h.gain = g; h.panner = out !== g ? out : null;
       src.start(ctx.currentTime + (o.delay || 0));
       const v = { id: ++voiceN, name, loop: src.loop, bus: o.bus || ev.bus || 'sfx', tag: o.tag || null, t0: ctx.currentTime };
       voices.add(v);
@@ -224,8 +234,9 @@ export function muffle(hz = 500, seconds = 2) {
   if (!ctx) return;
   if (!muffleNode) {
     muffleNode = ctx.createBiquadFilter(); muffleNode.type = 'lowpass'; muffleNode.frequency.value = 20000;
-    master.disconnect(); master.connect(muffleNode);
-    const comp = ctx.createDynamicsCompressor(); muffleNode.connect(comp); comp.connect(ctx.destination);
+    // into the same compressor (a new default one squashed the whole mix for the rest of the visit); the voice bus
+    // is not muffled
+    master.disconnect(); master.connect(muffleNode); muffleNode.connect(masterComp);
   }
   const f = muffleNode.frequency, t = ctx.currentTime;
   f.cancelScheduledValues(t); f.setValueAtTime(hz, t); f.exponentialRampToValueAtTime(20000, t + seconds);
@@ -240,6 +251,7 @@ export function setMuted(v) {
   muted = !!v;
   try { if (muted) localStorage.setItem('qf-sound', 'off'); else localStorage.removeItem('qf-sound'); } catch (e) { /* storage blocked */ }
   if (master) master.gain.setTargetAtTime(muted ? 0 : 1, ctx.currentTime, 0.05);
+  if (voiceOut) voiceOut.gain.setTargetAtTime(muted ? 0 : 1, ctx.currentTime, 0.05);
   listeners.forEach((f) => f(muted));
 }
 export function isMuted() { return muted; }
