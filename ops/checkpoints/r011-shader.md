@@ -135,3 +135,8 @@ environments" (not underwater: done). Checked what reaches the screen under our 
   Loop 4: QF_CREP_SHADE 0.5 (new): sky dimmed by (1-lit share) x (1-T to cloud base) x 0.5. check_glsl 0 errors.
   Cost spec r011/specs/p11r-rays.json (p11r on 8 ray views, p11r75 SHADE 0.75 on 4); spec_scenes then uses p11r for
   ocean_sunset / shore_dusk / RAYVIEW (p11cr0, p11cr1, p11a0 unaffected by the change).
+- 09:20 loop 4 landed (1028-085424-r011-p11r-rays; sheets r011/sheets/loop4_rays.jpg, loop4_raycrop.jpg): wedges now
+  show (sky round the sun p5 -6 luma, r75 -10, r010 -16); rays +0.00..+0.07 ms. spec_scenes.py final (A p11r, D p11r75;
+  sunset A/C p11r; golden_lit veil stated with numbers), round.json renders + budgets updated, SHADERS-READY written.
+  DECISIONS rays/meteor entries updated; track + journal done. **Task complete**: critic and publisher are the
+  caller's (finish_round dry run was blocked by the permission classifier; spec checked offline with roundlib).

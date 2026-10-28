@@ -31,9 +31,15 @@ delete the entry here. Sheet 1 (30 cards) was answered 2026-10-25 → decisions 
   lake_glitter +0.22, forest_golden/dust_b +0.15, golden_lit and sky_noon +0.04 (off at noon). Look: cloud wedges
   about 7% darker; a clear fan of lanes above the sun in the full frame. *Recommend: leave off by default (the sunset frame is already
   0.31 ms over); offer as an Ultra-only option if the owner likes it.* Asked on the r010 Lab page (scene "sun-cloud").
+  *r011 (owner r010: B, "only if we can afford them"):* Photon's rays (world-space march through a cloud shadow map,
+  Medium+) with shadow wedges cost **+0.00 to +0.07 ms** on High (r010's +0.14 to +0.31; 1028-085424). Wedge depth
+  round the sun: A (QF_CREP_SHADE 0.5) -6 luma, D (0.75) -10, r010 -16. Asked on the r011 Lab: A, D or off.
 - **Open (r010): meteor density vs cost.** Grazer meteors test every slot per sky pixel: night_sky 2.46 -> 2.88 ms,
   night_wide 3.47 ms (A, 24 slots) and 3.98 ms (storm, 40 slots), budget 3.0; about 0.03 ms per slot. Halving to 12
   slots saves about 0.4 ms. Asked on the r010 Lab page (scene "meteors"); the fireball-procession style was dropped.
+  *r011 (owner r010: B storm, "improve performance again"):* sectored shower, 3 slots per pixel whatever the count:
+  night_wide **2.99 ms** for both the shower (96 wedges) and the storm (240), vs r010 3.47 / 3.98 (1027-224601).
+  Asked again on the r011 Lab page: shower or storm as the default.
 
 ## Textures
 - **Decided: crop variants via a small qf-tweaks hook (r010).** Stay True's fields never tile because each wheat block picks

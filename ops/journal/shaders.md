@@ -1,5 +1,14 @@
 # Shaders journal (newest first)
 
+- 2026-10-28 09:20: **r011 shader scenes handed off** (be6b241; C:\qfb\shaderdev011\spec_scenes.py, SHADERS-READY;
+  3 scenes). Loop 3 read: rays invisible (+1-3 luma; Photon's term only adds light to a sky that already holds the lit
+  air's glow); loop 4 QF_CREP_SHADE 0.5 dims that glow by the shadowed share of the air below the cloud base: wedges
+  round the sun p5 -6 luma (0.75: -10, r010 -16). golden_lit near grass still lifted, 66,64,39 vs r010 40,45,15; at x1
+  density (r11a1) already 62,63,35, so it is Photon's own evening Mie haze: stated on the Lab, a later item. Costs (High
+  1440p, 1027-224601 + 1028-085424): atmosphere -0.12..+0.03, rays +0.00..+0.07 (r010 +0.14..+0.31); worst ocean_sunset
+  3.28-3.30 (r010 3.31; sea/swamp-water views 3.01-3.16 over, as before); night_wide 2.99 for shower and storm (r010
+  3.47 / 3.98). Low 0.86, Potato 0.30. Later: Conquest's sky/fog/lightmaps need shader-side ports (texture-dev note).
+
 - 2026-10-27 22:47: **r011 Photon port, loops 1-3** (ada996a). Owner r010: "copy from the packs that are doing things
   right". Atmosphere: Angelica 2.2.33 parses raw TEXTURE_3D custom textures, so Photon's scattering LUT ships unmodified;
   offline check (r011/tools/atmo_sim.py) shows it is in our sky-view units (zenith 0.8-1.2x ours), so it fills prepare's
