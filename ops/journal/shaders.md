@@ -1,5 +1,16 @@
 # Shaders journal (newest first)
 
+- 2026-10-27 22:47: **r011 Photon port, loops 1-3** (ada996a). Owner r010: "copy from the packs that are doing things
+  right". Atmosphere: Angelica 2.2.33 parses raw TEXTURE_3D custom textures, so Photon's scattering LUT ships unmodified;
+  offline check (r011/tools/atmo_sim.py) shows it is in our sky-view units (zenith 0.8-1.2x ours), so it fills prepare's
+  sky-view tables at no per-pixel cost. With Photon's sun tint, horizon stretch and air fog: twilight is a lit blue hour
+  (shore_dusk was near black); at 8 chunks Photon's fog was a third as thick as CR's horizon band (139,109,97 vs
+  212,160,120) because its densities assume a 16-32 chunk view: land x sqrt(256/far), sky and reflections through 256
+  blocks. Rays: Photon's march through a 64x64 cloud shadow map; loop 1 drew nothing (debug 15: ~1 % of the sky, the
+  gain was 6x too low for our light units), now QF_CREP_I 0.3. Meteors: the sky cut into 96 (storm 240) wedges round the
+  radiant, 3 slots per pixel instead of 24/40; loop 2 hairlines, longer, fainter, Milky Way on shower nights; matches
+  the owner's photos in max-over-time sheets. Costs pending 1027-224601-r011-publish-cost (08:00).
+
 - 2026-10-27 20:30: **r010 posted** (01b7fe4, --no-push; 21 scenes: 8 shader, 8 texture, 5 frills/crops). Costs from
   1027-193818-r010-publish-cost (done 20:04, 17/17 jobs). High p10 worst night_wide 3.47 (grazers), night_new 3.42,
   night_sky 2.88 (r9 2.46); sunset/water views 3.04-3.31, within 0.03 of r9. Clip p50s: grazers 3.43, storm 3.98
