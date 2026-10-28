@@ -1,5 +1,16 @@
 # Shaders journal (newest first)
 
+- 2026-10-27 20:30: **r010 posted** (01b7fe4, --no-push; 21 scenes: 8 shader, 8 texture, 5 frills/crops). Costs from
+  1027-193818-r010-publish-cost (done 20:04, 17/17 jobs). High p10 worst night_wide 3.47 (grazers), night_new 3.42,
+  night_sky 2.88 (r9 2.46); sunset/water views 3.04-3.31, within 0.03 of r9. Clip p50s: grazers 3.43, storm 3.98
+  (~0.034 ms per meteor slot). Low 0.89, Potato 0.31. Crepuscular rays (p10cr - p10): ocean_sunset +0.33 (3.64), lake
+  +0.22, forest/dust +0.15, golden/noon +0.04; in the full frame they draw a clear fan above the sun, more than the
+  "-7 % luma" suggested. Mint box (900-1460 x 560-900): p9 1107, **p10 0 px**. Procession (p10clipg2, radiant 45,
+  PROC_P 9): one fireball dives steeply from the top edge with 2-3 fragments and vanishes in one frame (f107 -> f108),
+  so not a procession: dropped from the Lab (meteors now A grazers, B storm, C r9). Critic (me, r010/critic.json):
+  56 frames, mean 6.6 (shader 6.9); 8s for grazers, sunset, rays, gold, underwater_sun, beach, frills B, crop variants;
+  "not yet: forest light needs a new view and technique". Two owner cost calls in DECISIONS (rays, meteor slots).
+
 - 2026-10-27 19:45: **r010 shader work done, publish-cost run submitted** (1027-193818, specs/p10-cost.json; pack c542939).
   Meteors: Earth-grazers (3D tracks 88-118 km up, radiant 1-5 deg above the horizon) read as long thin level streaks with
   tapering wakes (r10i1c); style 1 default, 2 procession (unproven in loop 3's clip: it ran overhead, out of the crop;

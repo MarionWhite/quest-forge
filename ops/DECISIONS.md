@@ -19,15 +19,21 @@ delete the entry here. Sheet 1 (30 cards) was answered 2026-10-25 → decisions 
 - **WP-6 finale and Pack Master rewards** (bag + tome per finale; statue + Legendary bag), the Act
   III diamond overage (78 vs 72), and whether Act III's tab waits for the Act II finale. In s002.
 
-## Shaders: answered in r009 feedback (2026-10-27), nothing open
+## Shaders: r009 answers (2026-10-27); two r010 questions open on the Lab
 - QF_VOL_FAST 1 stays the default ("doesn't look like we are trading much"). Daytime torchlight damping stays.
   The sun stays hidden behind its cloud; make the disk/cloud interaction realistic. Noon clouds: keep the cheaper
   version ("the performance win here is justified"); no extra noise fetch.
 - Leaves: **build real outward leaf frills** (direction.md "Leaf frills" option D) on Faithful 64x leaf art,
   owner's choice 2026-10-27 over shipping Faithful leaves as they are. Lower presets may turn frills off.
 - **Open (r010): crepuscular rays at sunset** (sunbeams fanning out of the clouds round a low sun). Needs a screen-space
-  pass of ~12-16 extra texture reads per pixel near the sun; ocean_sunset is already the worst High frame (3.29 ms vs
-  3.0 budget). *Recommend: High only, and only if the r010 cost run shows room.* To ask on the r010 Lab page with numbers.
+  pass of 16 extra texture reads per sky pixel near a low sun (QF_CREPUSCULAR 1, High/Ultra only). Measured in
+  1027-193818-r010-publish-cost (High, 1440p): **+0.33 ms at most**, on ocean_sunset (3.31 -> 3.64 ms, budget 3.0);
+  lake_glitter +0.22, forest_golden/dust_b +0.15, golden_lit and sky_noon +0.04 (off at noon). Look: cloud wedges
+  about 7% darker; a clear fan of lanes above the sun in the full frame. *Recommend: leave off by default (the sunset frame is already
+  0.31 ms over); offer as an Ultra-only option if the owner likes it.* Asked on the r010 Lab page (scene "sun-cloud").
+- **Open (r010): meteor density vs cost.** Grazer meteors test every slot per sky pixel: night_sky 2.46 -> 2.88 ms,
+  night_wide 3.47 ms (A, 24 slots) and 3.98 ms (storm, 40 slots), budget 3.0; about 0.03 ms per slot. Halving to 12
+  slots saves about 0.4 ms. Asked on the r010 Lab page (scene "meteors"); the fireball-procession style was dropped.
 
 ## Textures
 - **Decided: crop variants via a small qf-tweaks hook (r010).** Stay True's fields never tile because each wheat block picks
