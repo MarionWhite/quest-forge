@@ -12,7 +12,7 @@ and the long archive in `C:\qfb\shaderdev\NEXT.md` (PC only).
   checkpoint `ops/checkpoints/r011-shader.md`). Pack ada996a: Photon 1.4 atmosphere ported (QF_ATMOS 1: scattering LUT
   `textures/qf_scattering.dat` as a raw 3D customTexture, sun tint by the hour, analytic air fog), Photon-style rays
   (QF_CREPUSCULAR 2), sectored meteor shower (QF_METEOR_STYLE 4/5, 3 slots per pixel).
-  Publish-cost run **1027-224601-r011-publish-cost** (after 08:00), then critic, then publisher. Photon LICENSE in `LICENSES/`. Owner picks kept: underwater A, river A, gold A, checks C, forest-light B, VOL_FAST on.
+  Publish-cost run **1027-224601-r011-publish-cost** (after 08:00), then critic, then publisher. Photon LICENSE in `LICENSES/`. r010 picks kept.
 - **Debug views:** QF_DEBUG_VIEW 9 colortex5 raw; 11-14 water (sun/Fresnel/depth, bed, transmitted, reflected); 15 rays, cloud map, sky.
 - **Standing rules:** render with the current QF textures zip; vanilla only as a control. Label options clearly.
   Every Lab question states the cause and the trade-off with numbers.
