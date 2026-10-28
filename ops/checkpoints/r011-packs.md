@@ -101,3 +101,19 @@ underwater effects. Stay True leaves and wheat belong to the other texture agent
 - Wide mob views r11_mobs_a/b/c are far (FrameBench FOV wide): hand off the close r11_mob_N views instead.
 - Next: wait GUI (1027-223357) + cost (1027-223454) + packs-b; review GUI frames; run tools/textures/r011_packs_handoff.py
   (switch B to r11p3 for the re-rendered scenes); journal, track, commit.
+### 2026-10-27 step 6: GUI reviewed, hand-off written (texture-dev #2) -- RESUME HERE
+- GUI render 1027-223357 (r11p2): every screen works in game (inventory grid aligned, creative tabs, furnace lit,
+  crafting, chest, brewing, enchanting, anvil, HUD with the dragon bar). Cosmetic: titles are dark text on its wooden
+  plaques; 1.7.10's floating enchanting book overlaps its drawn table; hotbar compass magenta (pre-fix build).
+- Hand-off written: C:\qfb\shaderdev\r011\packs_scenes.json (21 scenes, crops in r011\packs\), by
+  `py -3.10 -I tools/textures/r011_packs_handoff.py` (prefers r11p3 frames where they exist; cost from r11c0/r11c1).
+- PENDING renders (queued behind other agents, ETA ~23:40): 1027-224607-textures-r011-packs-b (r11p3),
+  1027-224805-textures-r011-gui (r11p2 again, fixed compass), 1027-223454-textures-r011-cost (r11c0/r11c1).
+  When all three are done: review r11p3 mob/TNT/items frames and r11c0 vs r11c1 p50; rerun the hand-off script;
+  touch C:\qfb\shaderdev\r011\PACKS-READY; one journal line; commit.
+- Rule: never rebuild C:\qfb\textures\QF-r011-*.zip by hand while a render runs (prebuilds own them); test builds to scratch.
+- Worktree C:\qfb\wt-r011-fb (detached, for rebuilding the jars-r011 FrameBench jar); remove with
+  `git worktree remove C:/qfb/wt-r011-fb` once FrameBench's gui_* views reach the shared runner jar.
+- Not copyable / open: Patrix CEM shapes (Java renderer per mob); Faithless per-boss framed bars (GuiIngame hook);
+  Faithless clock (3D dial); Faithless villager/horse GUIs (modern layouts); custom enchantments' books (81 modded
+  ids, no Faithless art); Conquest sky/fog/lightmaps (shader). Owner question: Soartex here is R.1.6 for 1.21.

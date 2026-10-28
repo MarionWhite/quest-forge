@@ -17,6 +17,7 @@ BENCH = r"C:\qfb\shaderdev\rounds\bench"
 OUT = r"C:\qfb\shaderdev\r011"
 CROPS = os.path.join(OUT, "packs")
 A, B, C = "r11p0", "r11p1", "r11p2"          # r010 / + items, mobs, shelves, TNT, env / + GUI
+B2 = "r11p3"                                 # B after review (compass, TNT lettering, 19 mobs): used where rendered
 GUI_BOX = (600, 150, 1960, 1290)            # the screen at GUI scale 6 on 2560x1440, centred
 HUD_BOXES = [(0, 0, 2560, 260), (640, 1100, 1920, 1440)]   # boss bar strip; hotbar, hearts, food, XP
 
@@ -55,7 +56,7 @@ def cost(tag, scene):
         return None
     for line in open(p, encoding="utf-8", errors="replace"):
         if line.split()[:1] == [scene]:
-            m = re.search(r"mean\s+([\d.]+)", line) or re.search(r"p50\s+([\d.]+)", line)
+            m = re.search(r"p50\s+([\d.]+)\s*ms", line)      # "mean" is fps; p50 is ms
             return float(m.group(1)) if m else None
     return None
 
@@ -68,6 +69,8 @@ def main():
     scenes = []
 
     def pair(sid, name, question, prompt, scene, box=None, desc_a="", desc_b="", tag_b=B, cost_scene=None):
+        if tag_b == B and frame(B2, scene):
+            tag_b = B2
         a, b = crop(A, scene, box, sid), crop(tag_b, scene, box, sid)
         if not (a and b):
             print("missing frames for", sid)
@@ -117,12 +120,17 @@ def main():
     pair("pk-library", "Library wall", "", "", "r11_library")
     pair("pk-tnt", "TNT with enchanting-table lettering", "Faithless's TNT (the only block taken from it).", "Keep?",
          "r11_tnt")
-    for sc in ("r11_mobs_a", "r11_mobs_b", "r11_mobs_c"):
-        pair("pk-" + sc[4:].replace("_", "-"), "Mobs: Patrix skins on 1.7.10 models",
-             "Patrix's 3D shapes are OptiFine CEM models; 1.7.10 has none, so only the skins come, and only where "
-             "they still map onto the vanilla model.", "Which mobs keep Patrix?", sc, cost_scene="r11_mobs_b")
+    mob_q = ("Patrix's 3D shapes are OptiFine CEM models; 1.7.10 has none, so only the skins come, and only where "
+             "they map onto the vanilla model. Kept (seen working in game): creeper, zombie, skeleton, wither "
+             "skeleton, spider, cave spider, enderman, wolf, ocelot and cats, pig, iron golem, snow golem, silverfish. "
+             "Dropped (their layout is for the CEM shape, they render broken): chicken, cow, sheep, blaze, witch, "
+             "zombie pigman. Not seen yet: slime, magma cube, ghast, squid, bat, wither. The new shapes themselves "
+             "(horns, manes, thin skeleton bones) would need a Java renderer per mob. The blaze's black swirls are "
+             "Conquest's smoke particles (in B for every fire and torch).")
     for i in range(1, 7):
-        pair("pk-mob-%d" % i, "Mobs up close (%d of 6)" % i, "", "", "r11_mob_%d" % i)
+        pair("pk-mob-%d" % i, "Mobs up close (%d of 6)" % i, mob_q if i == 1 else "",
+             "Which mobs keep Patrix? Conquest's smoke: keep or vanilla?" if i == 1 else "", "r11_mob_%d" % i,
+             cost_scene="r11_mobs_b" if i == 1 else None)
     os.makedirs(OUT, exist_ok=True)
     doc = {"from": "texture agent #2 (r011 packs)", "round": "r011", "scenes": scenes,
            "notes": "A = round 10 (QF-v3c). B = the r007 packs copied in (QF-r011-packs.zip, + QF-r011-gui.zip for GUI "
