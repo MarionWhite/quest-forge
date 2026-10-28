@@ -256,10 +256,10 @@ cv1c0 (same packs and scenes).
   identity; unripe stages log "no variants" as intended.
 - **The look:** **it works.** Ripe wheat now mixes all five heights. Near (farm_close) the rows break into an uneven,
   hand-placed field; far (farm) the gold mass has a ragged top instead of a regular grid of identical tufts. No
-  missingno, no seams. Sheets: `C:\qfbrills\look\cv1d.jpg`, `cv1d-near.jpg`.
+  missingno, no seams. Sheets: `C:\qfb\frills\look\cv1d.jpg`, `cv1d-near.jpg`.
 - **The cost (frills_cost.py --off cv1c0 --on cv1d1):** frame p50 +1% (farm) and +0% (farm_close); p99 -9% / -7%.
   Whole boot: ms per section -1%, vertices per section +2% (the taller variants), all within noise. **Answer: no
   measurable cost.**
 - **Handed off:** crop scenes `crops-variants` and `crops-variants-far` (A cv1c0 / B cv1d1) are in
-  `C:\qfb\shaderdev010rills_scenes.json` (5 scenes, FRILLS-READY updated).
+  `C:\qfb\shaderdev\r010\frills_scenes.json` (5 scenes, FRILLS-READY updated).
 - **Follow-up:** QF Textures should drop `mcpatcher/ctm/wheat` once the hook ships (it is what made every wheat tile 0).
