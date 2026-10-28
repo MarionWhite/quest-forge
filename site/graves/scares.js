@@ -143,7 +143,7 @@ function gapNear(kr, kind) {
 }
 const soundNames = (S) => [...new Set([...(S.sounds || []).map((s) => s[1]), ...(S.loops || []).map((l) => l[2])].filter((n) => n && n[0] !== "@"))];
 
-export async function playScare(id, { score = 0, onDone, gap = null } = {}) {
+export async function playScare(id, { score = 0, onDone, gap = null, widen = false } = {}) {
   id = canon(id);
   const kr = kryptOf();
   if (!id || !kr || running) return false;
@@ -186,6 +186,7 @@ export async function playScare(id, { score = 0, onDone, gap = null } = {}) {
     hud = await HUD.createHud(stage);
     // A new roll of the dice every play: the build-up's lengths, fake-outs and directions change each time.
     R = await RIG.createRig(kr, { seed: hashStr(id) & 0xffff, rand: (Math.random() * 4294967296) >>> 0, gap, frame: gap && gap.dir ? { dir: gap.dir } : null });
+    R.widen = !!widen;   // a retry: the scare may search further for the room it needs (R.widen)
     const S = await def.build(R);
     await R.ready();
     S.death = S.death || def.death;
@@ -333,14 +334,25 @@ function openPicker() {
   document.body.appendChild(el);
   picker = { el, buf: "", timer: 0, sel: -1 };
 }
-// A picked scare that cannot be staged where you stand (the Skeleton's ossuary needs rock to carve and found none) says so
-// in the picker, rather than nothing happening.
+// A picked scare that cannot be staged where you stand (its build throws: the Skeleton's ossuary or the Wither's
+// passage found no rock to carve) is tried once more with a wider search and new dice; if that fails too another scare
+// plays (and the console says why), so a press never gives nothing.
 function pickPlay(id) {
+  const why = (x) => console.warn(`[scares] ${x}`);
   playScare(id).then((ok) => {
     if (ok || running) return;
-    openPicker();
-    const p = picker && picker.el.querySelector("p"), s = SCARES.find((q) => q.id === canon(id));
-    if (p) { p.textContent = `${s ? s.label : id}: no room for it here. Walk on a little and try again.`; p.style.color = "#ffaa55"; }
+    why(`${id} could not be staged here; trying once more, searching wider`);
+    return playScare(id, { widen: true }).then((ok2) => {
+      if (ok2 || running) return;
+      const pool = SCARES.filter((q) => q.id !== id && !q.gap).map((q) => q.id), ap = pool.filter((q) => approved.includes(q));
+      const tryNext = (left) => {
+        if (!left.length || running) return;
+        const next = left[Math.floor(Math.random() * left.length)];
+        why(`${id} could not be staged here; playing ${next} instead`);
+        playScare(next, { widen: true }).then((ok3) => { if (!ok3 && !running) tryNext(left.filter((q) => q !== next)); });
+      };
+      tryNext(ap.length ? ap : pool);
+    });
   });
 }
 function closePicker() { if (!picker) return; clearTimeout(picker.timer); picker.el.remove(); picker = null; }
@@ -426,7 +438,8 @@ export function initScares(opts = {}) {
           director.fired(acc, id); writeSession(director.done);
           playScare(id, { score: Math.floor(acc), onDone: () => { lastS = null; } }).then((ok) => {
             if (ok || running) return;
-            // it could not be staged here (no room for it): it never played, so it stays in the pool, and another plays
+            // it could not be staged here (its build threw): it never played, so it stays in the pool, and another plays
+            console.warn(`[scares] ${id} could not be staged here; the director picks another`);
             const i = director.done.lastIndexOf(id); if (i >= 0) director.done.splice(i, 1); writeSession(director.done);
             const pool = approved.filter((q) => { const s = SCARES.find((x) => x.id === q); return s && !s.gap && (!s.deep || deep) && q !== id && !tried.includes(q); });
             const next = director.pick(pool);

@@ -129,3 +129,7 @@ Scratch: `scratchpad/r8/scares-c/` (film.js, film.py, crop.py, probe.js, cdp.mjs
   (widened if supported), then another + console log; test by forcing a throw. (b) equipment.js is mine now: if the
   black look has a shared cause, fix for every held item; before/after: Wither sword, Skeleton bow, Lucky held items.
   Don't touch witherskeleton.js.
+- [x] #5 widened (scares.js): any build that throws -> random: logged, back in the pool, another plays; J: logged, retry
+  once with R.widen (Skeleton: a 5th findRoom pass zq -42..12, T<=5, wall<=26 m; others re-roll the dice), then another
+  scare (approved first), logged. Tested by forcing throws: scratch force_throw.js (J: build x2 -> Creeper plays) and
+  force_dir.js (?nogate&walk=400, CFG shortened: Enderman throws -> Creeper plays).
