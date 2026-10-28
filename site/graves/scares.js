@@ -327,11 +327,21 @@ function openPicker() {
     b.type = "button";
     const ok = approved.includes(s.id);
     b.innerHTML = `<span class="n">${i + 1}</span><span>${s.label} <span class="e">${s.entry}</span></span><span class="${ok ? "ok" : "no"}">${ok ? "approved" : "not yet"}</span>`;
-    b.addEventListener("click", () => { closePicker(); playScare(s.id); });
+    b.addEventListener("click", () => { closePicker(); pickPlay(s.id); });
     li.appendChild(b); ol.appendChild(li);
   });
   document.body.appendChild(el);
   picker = { el, buf: "", timer: 0, sel: -1 };
+}
+// A picked scare that cannot be staged where you stand (the Skeleton's ossuary needs rock to carve and found none) says so
+// in the picker, rather than nothing happening.
+function pickPlay(id) {
+  playScare(id).then((ok) => {
+    if (ok || running) return;
+    openPicker();
+    const p = picker && picker.el.querySelector("p"), s = SCARES.find((q) => q.id === canon(id));
+    if (p) { p.textContent = `${s ? s.label : id}: no room for it here. Walk on a little and try again.`; p.style.color = "#ffaa55"; }
+  });
 }
 function closePicker() { if (!picker) return; clearTimeout(picker.timer); picker.el.remove(); picker = null; }
 function pickerKey(e) {
@@ -350,7 +360,7 @@ function pickerKey(e) {
   if (/^[0-9]$/.test(e.key)) {
     e.preventDefault(); e.stopPropagation();
     picker.buf += e.key; clearTimeout(picker.timer);
-    const go = () => { const n = Number(picker.buf); picker.buf = ""; if (n >= 1 && n <= SCARES.length) { const id = SCARES[n - 1].id; closePicker(); playScare(id); } };
+    const go = () => { const n = Number(picker.buf); picker.buf = ""; if (n >= 1 && n <= SCARES.length) { const id = SCARES[n - 1].id; closePicker(); pickPlay(id); } };
     // "1" may start 10 to 14: wait a moment for a second digit.
     if (picker.buf === "1") picker.timer = setTimeout(go, 650); else go();
   }
@@ -412,9 +422,19 @@ export function initScares(opts = {}) {
       // Fire mid-stride, a beat after the walk was moving: the freeze has to interrupt something.
       waited += dt;
       if (moving && waited > 0.6) {
+        const fire = (id, tried) => {
+          director.fired(acc, id); writeSession(director.done);
+          playScare(id, { score: Math.floor(acc), onDone: () => { lastS = null; } }).then((ok) => {
+            if (ok || running) return;
+            // it could not be staged here (no room for it): it never played, so it stays in the pool, and another plays
+            const i = director.done.lastIndexOf(id); if (i >= 0) director.done.splice(i, 1); writeSession(director.done);
+            const pool = approved.filter((q) => { const s = SCARES.find((x) => x.id === q); return s && !s.gap && (!s.deep || deep) && q !== id && !tried.includes(q); });
+            const next = director.pick(pool);
+            if (next) fire(next, [...tried, id]);
+          });
+        };
         const id = pending; pending = null;
-        director.fired(acc, id); writeSession(director.done);
-        playScare(id, { score: Math.floor(acc), onDone: () => { lastS = null; } });
+        fire(id, []);
       } else if (waited > 30) pending = null;
     }
   }, 100);

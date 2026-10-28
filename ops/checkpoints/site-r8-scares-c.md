@@ -87,3 +87,29 @@ Scratch: `scratchpad/r8/scares-c/` (film.js, film.py, crop.py, probe.js, cdp.mjs
 - Next: scare_flow all 16 (--out scratch flow_all.json), journal line + commit, report.
 - [x] scare_flow all 16 (02:21): ok, no flashes, no leaks, no exceptions (Skeleton 20.95 s, fps 9.1 on a machine shared
   with two other renderers). Journal line added. DONE.
+
+## Critic round (coordinator, after 8fe661d): five fixes, then the same review set
+1. Heaps read as a knitted sack: make them pale bone piles (core texture of bone sprites, dark gaps <=30%, torch-shaded),
+   broken lumpy silhouette, many more pieces, skulls half buried at tilts. Before/after crops near (1 m) and far.
+2. Bows are black poles: fix lib/mc/equipment.js bow branch only (RenderBiped bow transform), check every bow user
+   (Lucky page, other scares), before/after crops each; draw pose arms straight at you.
+3. Hand: crop at the hand's peak; must read as forearm + fingers clawing out of the flank, torch-lit; shift a piece off.
+4. Ring of bows: they stand where they rose, spread around (near, far, frame edge); snap from one to the next as each
+   bow comes up; never two side by side.
+5. No-room 4%: random play picks another scare; J for Skeleton searches further / smaller room first. scares.js minimal
+   touch allowed (not the start path). Never stage scares-A files (zombie, witherskeleton, chase, shadow.js deletion,
+   its journal/checkpoint hunks).
+- Bow analysis (step 2, done): equipment.js's bow chain is RenderBiped's bow branch + ItemRenderer.renderItem exactly
+  (checked term by term). Worked through numerically for the aiming arm (X=-pi/2, Y=-0.1): the sprite's normal in
+  model space is (0.935, 0.355, 0.008), so from in front the bow is edge-on (|n.view| < 0.01): a ~1 m line from head
+  height to the waist, tilted ~20 deg = what we draw. Hanging arm: |n.z| = 0.355 (the face shows). Texels are dark
+  wood (73,54,21)/(40,30,11) + grey string (68..150): under the dim fixed ambient it reads black. Also: 1.7.10
+  ModelSkeleton extends ModelZombie, so the arms are ModelZombie's (X=-pi/2 flat, NOT head pitch; Y -/+0.1; Z sway).
+  Plan: no change to equipment.js's maths (it is vanilla); make the bow read by staging (each bow seen as it comes
+  up, when its face turns toward you), the exact ModelZombie pose; report the maths to the critic.
+- Order: #5 (picker fallback) -> #1 heaps -> #3 hand -> #4 ring + bow pose -> review set -> flow -> commit -> report.
+- [x] #5: scares.js (minimal, not the start path): the director, when playScare returns false (build threw: no room),
+  takes the scare back out of `done` and plays another from the pool; the picker (click or number) reopens with
+  "Skeleton: no room for it here. Walk on a little and try again." (tested: scratch pick_fail.js at 0.66 +24 m).
+  ossuary findRoom: 4th pass zq -26..7, T up to 4, wall up to 20 m (rescued none of the 2 'worn' misses at 0.66:
+  riddled shell / curving tunnel; kept, costs only on a miss, max 617 ms).

@@ -22,7 +22,9 @@ export function findRoom(R, opts = {}) {
   const small = [[7, 7], [6, 6], [5, 6], [5, 5], [4, 5], [5, 4], [4, 4]];
   return findRoom1(R, opts) || findRoom1(R, { zMin: -7.5, zMax: 2.5, Ts: [1, 2, 3], maxW: 14, sizes: small, ...opts }) ||
     // (last: well back along the way you came, or in a rough-hewn wall; the clatter is behind you and you go back to it)
-    findRoom1(R, { zMin: -16, zMax: 2.5, Ts: [1, 2, 3], maxW: 14, sizes: small, flat: false, margin: 0.22, ...opts });
+    findRoom1(R, { zMin: -16, zMax: 2.5, Ts: [1, 2, 3], maxW: 14, sizes: small, flat: false, margin: 0.22, ...opts }) ||
+    // (then further along both ways, behind thicker rock, as long as the doorway is out of the first frame)
+    findRoom1(R, { zMin: -26, zMax: 7, Ts: [1, 2, 3, 4], maxW: 20, sizes: small, flat: false, margin: 0.2, ...opts });
 }
 function findRoom1(R, { sizes = [[7, 7], [7, 6], [6, 7], [6, 6], [5, 6], [5, 5]], H = 3, zMin = -3.5, zMax = 1.5, Ts = [1, 2], maxW = 9, flat = true, margin = 0.35 } = {}) {
   const st = R.start, cam = R.camera;
