@@ -84,3 +84,31 @@ Owner's r010 picks to keep: tex-wall B (metal look on real metals only), dense w
   st1a1 on, QF-staytrue.zip, 7 scenes, cost mode, MeshStats `C:\qfb\frills\stats\st1a{0,1}.txt`. Behind 2 shader boots (ETA ~22:25).
 - Next: results; boot log of st1a1 needs "Stay True models: [leaves:0 x3, ...]", "Transform applied: Stay True leaves hooks",
   "Stay True crops hooks", "own tessellator", "first tall crop drawn"; sheets off/on; cost (frills_cost.py --off st1a0 --on st1a1).
+- Step 4 (gems) DONE in code (main, commit after a19d179): Stay True's diamond/emerald ARE the glassy look (glass-like face, a
+  white glint sweeping across every ~10-11 s: 8/10-frame strips with .mcmeta). `--stay-true` copies them (staytrue.gems) and
+  both gems become polished dielectrics (GEM_BLOCKS_R011: smoothness >= 230, F0 44; was diamond 222/44, emerald 158/14).
+  Pack with gems: `C:\qfb\textures\r011\QF-staytrue-b.zip` (QF-staytrue.zip = same minus gems, used by staytrue-a).
+  SUBMITTED `1027-221021-r011-gems-a` (spec `C:\qfb\frills\spec-r011-gems-a.json`): gm1b, texture_wall, texture_wall2,
+  diag_emerald, diag_column. r010 reference = t10lb (texture_wall, texture_wall2).
+- Step 5 prepared: `C:\qfb\shaderdev\r011\staytrue_make_scenes.py` -> staytrue_scenes.json (7 scenes: leaves hedge/tree/
+  forest/roofed A st1a1 / B fr1c2 / C st1a0; crops close/far A st1a1 / B cv1d1 / C st1a0; gems A gm1b / B t10lb).
+  COST_LEAVES / COST_CROPS strings are "COST PENDING": fill them first.
+- Docs: leaf-frills.md r011 section (main). 22:12 session 1 exits: queue ETA ~22:27 (> 10 min).
+
+## Resume here (session 2)
+1. `py -3.10 tools/renderq/renderq.py results 1027-220844-r011-staytrue-a` (and `... 1027-221021-r011-gems-a`).
+   Boot logs `C:\qfb\shaderdev\rounds\logs\b*.log` of jobs st1a0/st1a1: `grep -a "QuestForgeTweaks"`. st1a1 needs
+   "Transform applied: Stay True leaves hooks", "Stay True crops hooks", "Stay True models: [leaves:0 x3, leaves:1 x2, ...,
+   wheat:5 x5, wheat:6 x5, wheat:7 x5, carrots:7 x4, potatoes:7 x7], 7x sprites, N quads" (no "dropped"), "Stay True leaves:
+   meshing on '...' with its own tessellator", "first tall crop drawn". If "no qf/staytrue_models.txt": the pack did not load.
+2. Look: `py -3.10 C:\qfb\frills\scripts\grid.py C:\qfb\frills\look\st1a.jpg 960 fr1c2,st1a0,st1a1 leaves_close tree_close
+   forest_lit biome_roofed` and `... st1a-crops.jpg 960 cv1d1,st1a0,st1a1 farm farm_close`, plus 1:1 crops of a crown and the
+   near field. Check: planes cross each block (X from above), round clumps not squares, no missingno, tall wheat tops sit on
+   the bottoms (no gap at y 16), tint right (birch not double-tinted, spruce green), cube variants on dark oak.
+   Compare with Stay True screenshots in docs/design/shaders/feedback/attachments/r009/.
+3. Cost: `py -3.10 tools/textures/frills_cost.py --off st1a0 --on st1a1 --md C:\qfb\frills\cost-st1a.md`; paste into
+   leaf-frills.md "r011 results"; fill COST_LEAVES / COST_CROPS in staytrue_make_scenes.py (frame p50/p99, vertices and build
+   ms per leafy section; whole-boot for crops).
+4. Gems: grid gm1b vs t10lb texture_wall(2); if fine, run `py -3.10 -I -X utf8 C:\qfb\shaderdev\r011\staytrue_make_scenes.py`,
+   write `C:\qfb\shaderdev\r011\STAYTRUE-READY` (one line: the json path + scene count). Commit docs/ops (main) only.
+5. Update ops/tracks/textures.md (r011 state), one journal entry in ops/journal/textures.md, guard, report (5 lines).
