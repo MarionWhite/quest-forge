@@ -1,4 +1,35 @@
-# Leaf frills (r010, option D)
+# Leaf frills (r010, option D) and the Stay True port (r011)
+
+## r011: Stay True's leaves and crops, copied (supersedes the r010 frills and crop sprites below)
+The owner's call on 2026-10-27 after r010 ("they make the tree look spiky"; crops "the wrong execution"; "actually check
+what Stay True does"): copy Stay True into the private pack (CLAUDE.md, Licences exception). Its files stay in
+`C:\qf-worldeference-packs\Stay True 1\` and are read at build time; nothing of it is committed or shown on the site.
+
+What Stay True does, read from its JSON (`tools/textures/staytrue.py --dump` prints the table):
+- Leaves: every leaf block picks one of 2-3 models (equal weight, all distances). Each is the leaf cube plus two vertical
+  planes 2 blocks wide (x or z -7..25) and 1.75 tall (y -6..22; cross2 2 tall), rotated -22.5 or +22.5 degrees about Y so
+  they cross near the block centre, unshaded, textured with a 32x32 round "bushy" clump (~51% opaque). Tinted, except
+  birch (its PNGs are pre-coloured; the build divides the birch cube by 1.7.10's fixed 0x80A755 tint). Spruce and dark
+  oak also vary the cube texture per variant.
+- Crops: wheat 5-7 and ripe carrots/potatoes pick weighted models. Some are the plain crop with one of several sprites,
+  the rest are two blocks tall: the same four planes at 4 and 12, y -1..16 with a "bottom" sprite and 16..32 with a
+  "top" one, unshaded, no AO, untinted. Ripe wheat: 6 plain / 3,3,4,4 tall.
+
+How it is built:
+- `build_qf_textures.py --stay-true PATH` (staytrue.py): Stay True's PNGs under 1.7.10 names (leaves_<kind>, crop
+  stages) and `textures/blocks/staytrue/*`, nearest 4x (16 px/block -> 64); and `assets/minecraft/qf/staytrue_models.txt`:
+  per 1.7.10 block + metadata the weighted variants and every face as four vertices, rotated by Minecraft's FaceBakery
+  rules (right-handed about the axis through the origin, no rescale). Also Stay True's animated diamond/emerald.
+- qf-tweaks (branch leaf-frills, `StayTrueModels`, `LeafFrills`, `CropVariants`): the spec is read and its sprites
+  registered at every blocks-atlas stitch; the pick is weight-proportional from a position hash. Leaves: a before-hook
+  sets the variant's cube sprite as overrideBlockTexture, the after-hook adds the planes (block brightness, colour
+  multiplier where Stay True tints). Crops: a head hook in renderBlockCropsImpl draws tall variants and skips vanilla's
+  planes; one-block variants swap the icon. Switches: leafFrills.enabled (-Dqf.frills), cropVariants.enabled
+  (-Dqf.cropvariants). Fancy leaves only. Without the spec file in the resource packs nothing changes.
+- Cost: see "r011 results" at the end.
+
+The r010 sections below are history.
+
 
 The owner's call on 2026-10-27: build real outward leaf frills, like Stay True's, on Faithful 64x leaves. The options are in
 `direction.md`, "Leaf frills: options on 1.7.10". This note says how the build works and what it costs.
@@ -263,3 +294,6 @@ cv1c0 (same packs and scenes).
 - **Handed off:** crop scenes `crops-variants` and `crops-variants-far` (A cv1c0 / B cv1d1) are in
   `C:\qfb\shaderdev\r010\frills_scenes.json` (5 scenes, FRILLS-READY updated).
 - **Follow-up:** QF Textures should drop `mcpatcher/ctm/wheat` once the hook ships (it is what made every wheat tile 0).
+
+## r011 results
+Render `1027-220844-r011-staytrue-a` (st1a0 hooks off / st1a1 on, QF Textures --stay-true, jar 718473f): pending.
