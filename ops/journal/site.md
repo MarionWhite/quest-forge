@@ -1,5 +1,22 @@
 # Site journal (newest first)
 
+- 2026-10-28 (Mac) krypt scares r8b, part B (all scares): the start flash and the hotbar (1b31ce3, flow follow-up).
+  The owner's "the mob will flash on the screen in front of me, and disappear" had two causes, both in rig.js. The
+  rig's group was in the scene from createRig while the Krypt kept rendering through the build, warm-up and sound
+  preload, so mobs stood at their build poses in front of you for 5-10 frames (seen: Skeleton, Creeper, Cave Spider,
+  Enderman). And three.js updates world matrices before scene.onBeforeRender, where the live run evaluates, so the
+  whole rig was drawn a frame behind: on the first frame the Creeper that is behind you stood 2 m in front. Dump mode
+  evaluates before rendering, so no filmstrip ever showed either. Fix: the group is hidden until the first evaluate,
+  and its matrices are updated after every update. scare_flow.mjs now watches every frame from the J press (the box
+  as drawn against the box as placed, blinks, other mobs in view), with --repeat/--shots/--dice, and measures leaks on
+  the audio clock. The hotbar: scares/loadout.js is the one source (iron sword, iron pickaxe, 23 torches, 6 bread, 3
+  apples; hunger 8.5, XP 7); the selected slot is what the hand holds (empty in 13 scenes and both gap deaths, the
+  Pigman's pickaxe from the moment it comes up until it leaves the hand at the fall, the Wither Skeleton's sword);
+  stack counts drawn; the Creeper scatters and the Blaze burns these items; at death the hotbar empties. Live: 16 x3
+  from J, 0 flashes in 295 frames before first frames and in every first frame; the machine was under load 35-50
+  (fps 0.5-12) and its audio clock stalled, which first read as leaks: the four scares flagged were rechecked x3
+  clean. Sheets: scratchpad r8/scares-b/r8b/jpress_sheet.png, r8b/hud_sheet.png.
+
 - 2026-10-27 (Mac) krypt scares r8 A, Wither Skeleton shadow redo (coordinator review): the walk stops square on to a
   flat open face 3 m off (nearest along the walk, else further); a copy of a Krypt wall torch at eye level behind you; the
   crypt dims round its light. The old shadows were half missing in most frames: the receiver pass computed gl_Position

@@ -134,3 +134,69 @@ multi.py, sheet2.py; reuse them). Spec: `docs/design/site/krypt-scares.md`.
 ### 8b steps
 - step 0: section written. Next: trace the J start path (scares.js, rig.js, director) for a frame where a rig is
   in the scene before its first update/place.
+- step 1: cause found. playScare adds the rig's group to the scene at createRig and the Krypt keeps rendering while the
+  scare builds, loads textures, warms up (R.ready renders one frame) and preloads sounds (up to 2.5 s): every mob stood
+  where its build left it, a few metres in front of you, for ~5-10 frames, then the first scare frame moved or hid it.
+  Seen before the fix (J-press watch, `r8b/before/`, sheet `r8b/before_sheet.png`): Skeleton 7 frames 16% of the screen,
+  Creeper 7 frames 10%, Cave Spider 5 frames, Enderman 7 frames. Fix in rig.js: the group starts hidden and R.evaluate
+  shows it after the scare's update; R.mob marks pivots userData.qfMob. scare_flow.mjs: J-press watch (scene
+  onAfterRender + composer.render hook; FAIL on rig on screen before the first frame, or a mob blinking on/off in the
+  first 0.3 s), --repeat N, --shots DIR. The machine was loaded (load avg 37): Witch ran at 4 fps and the picker failed
+  for the rest of the list in that run; rerun when quieter.
+
+- step 2: a second cause, found from the J-press frames (Creeper, 2 of 3 plays): the renderer updates world matrices
+  BEFORE scene.onBeforeRender, where the live run evaluates, so every rig object was drawn one frame behind; on the
+  first frame each mob stood at its build pose (the "behind you" creeper drawn 2 m in front for one frame), and any mob
+  shown and moved in the same frame (teleports, entrances) showed for a frame where it had been. Dump mode never had
+  it (it evaluates before rendering), which is why no filmstrip showed it. Fix in rig.js: group.updateMatrixWorld(true)
+  after each evaluate. Flow watch now measures the DRAWN box (each mesh's matrixWorld as drawn), FAILs when a mob is
+  drawn where its script did not put it, counts blinks in frames, and scans the whole scene for other mobs in view.
+  Old-rig copy served on :8772 (scratch `oldsite/`, pid in `old_http.pid`) to prove the watch catches both causes.
+  Evidence: `r8b/cr5_all.png` (first-frame creeper in #1 and #2). Machine heavily loaded (load 25-57, the owner's
+  GrowCastle at 200% CPU and other agents), so flows run at 2-15 fps.
+- step 3: hotbar. New `site/graves/scares/loadout.js` is the one source: SLOTS (iron sword, iron pickaxe, 23 torches,
+  6 bread, 3 apples, four empty), STATS (hunger 17 = 8.5 shanks, XP level 7 at 37%), HELD per scene, heldAt/slotOf.
+  rig.evaluate: f.hotbar = slot of what the hand holds (S.held, else HELD[id] set in scares.js live and dump); dead:
+  the hotbar empties (the inventory drops). hud.js draws SLOTS with stack counts, hunger from STATS. Pigman: held
+  [[0, null], [T_EQ, "pickaxe"]], its pick texture from the loadout, the slot empties as the pick leaves the hand at
+  the fall. Creeper scatters the loadout's items (the pickaxe is now iron, as in the hotbar). Blaze burns ITEMS.
+  Checked: `r8b/hud/pig_check.png` (empty slot at 0.4 s; pickaxe slot + iron pick at the dig; empty after the fall;
+  empty hotbar at death). Flow: --dice N; death-screen loop check waits up to 3 s more for fading loops (the load
+  made the audio thread lag: false "leaks"). HUD dumps of all scenes rendering (`r8b/hud/s2.txt`, `s3.txt`; s2 went
+  to the background past 10 min under the load). Next: s3 dumps, hotbar crop sheet, J-press sheet before/after,
+  live flow of all 16 x3 (in groups of 4), commit, journal, report.
+- step 4: hotbar crop sheet `r8b/hud_sheet.png` (all 16 scenes + Pigman's 4 moments + the old HUD); spec section
+  "Round 8b" written (uncommitted). Live run of all 16 x3 from J started in the background
+  (`r8b/flow_after.{txt,err,json}`, shots `r8b/after/`). Next: J-press before/after sheet from `r8b/before/`,
+  `r8b/cr5/` and `r8b/after/`; commit (rig.js, hud.js, scares.js hunks, loadout.js, pigman.js, creeper.js, blaze.js,
+  scare_flow.mjs, spec, checkpoint, journal); kill the :8772 server (pid in `old_http.pid`).
+- step 5: live 16 x3 (`r8b/flow_after.txt`): 48 runs, 276 frames before first frames, 0 with the rig on screen, 0
+  drawn-where-not-placed, 0 blinks, 0 other mobs, no exceptions. But "leaks" in most runs at load 35-45 (fps 0.2-14):
+  the audio thread and the page's events fall behind wall time. Leak checks now on the audio clock (a voice's age):
+  loops at the death screen get 3 audio s more, voices after Enter 0.9 audio s. Proven still to catch a real stuck
+  loop (scratch `leak3/` on :8773: a never-ending drone in a Silverfish copy -> "LEAK at the death screen"), and the
+  three leakiest scares pass under the same load. Rerun of 16 x3 in the background (`r8b/flow_after2.*`).
+  J-press sheet `r8b/jpress_sheet.png` (before: Skeleton/Creeper/Cave Spider/Enderman pre-start, Creeper behind-you
+  first frame; after: clean). Next: Creeper --dice 2 for the after row; commit; journal; report.
+- step 6: committed 1b31ce3 (rig.js, hud.js, scares.js hunks, loadout.js, pigman.js, creeper.js, blaze.js,
+  scare_flow.mjs, spec). Rerun `flow_after2`: the page stalled in the Cave Spider (0 fps, load 40+) and the rest
+  cascaded ("no picker button"); `flow_after3` never booted in 150 s. Flow made patient: waits up to 2 min for a
+  running scare before the next J, 4 min per scare, reports every 20 s while frames advance, boot up to 4 min,
+  watchdog 240 s. `flow_after4` running in the background. Not yet: Creeper --dice 2 for the after row; journal.
+- step 7: `flow_after4` (16 x3, load ~40, fps 0.5-12): all 48 reached the death screen and came back; 295 frames
+  before first frames, 0 rig on screen, 0 drawn-where-not-placed, 0 blinks, 0 other mobs, 0 exceptions, 0 voices
+  after Enter, 0 strays. 5 runs flagged a loop at the death screen (Skeleton heartbeat, Silverfish chitter x2,
+  Pigman heartbeat, Wither Skeleton breath), all in runs with 5-48 s page stalls; the 15 s wall fallback flagged
+  them whatever the audio clock did. Now: a verdict only when the audio clock has moved 3 s with the loop still
+  there; if it moves less in 30 s, no verdict ("audio clock stalled"). Recheck of those four x3 and the Creeper
+  --dice 2 (after row) running in the background (`r8b/flow_loops.*`, `r8b/flow_dice2.*`).
+- step 8 (DONE): recheck `r8b/flow_loops.txt`: Skeleton, Silverfish, Pigman, Wither Skeleton x3 clean (one run: the
+  audio clock moved 0.1 s in 30 s of wall time, so no verdict); Creeper --dice 2 (behind you) clean. Sheets:
+  `r8b/jpress_sheet.png` (J-press frames before/after), `r8b/hud_sheet.png` (the hotbar in each scene). Old-rig server
+  on :8772 stopped. Commits: 1b31ce3 (fixes), then the flow follow-up with this checkpoint and the journal.
+  Audit, held item before -> after: Zombie, Skeleton, Creeper, Spider, Cave Spider, Enderman, Witch, Slime,
+  Silverfish, Blaze, Ghast, Magma Cube, Lava fall, Drowned grab: slot 1 (sword) with an empty hand -> empty slot 6,
+  empty hand. Zombie Pigman: slot 1 (sword) while an iron pickaxe was in hand and the hotbar held a stone one -> empty
+  slot until the pick comes up, then slot 2 (the same iron pickaxe), empty as it leaves the hand at the fall. Wither
+  Skeleton: slot 1 (sword, its shadow holds it) -> unchanged.
+

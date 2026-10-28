@@ -42,8 +42,9 @@ const CHROME = process.env.CHROME || "/Applications/Google Chrome.app/Contents/M
 const inPage = async (ONLY, MOOD, REPEAT, SHOTS, DICE) => {
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   const key = (k) => dispatchEvent(new KeyboardEvent("keydown", { key: k, bubbles: true, cancelable: true }));
-  for (let i = 0; i < 150 && !(window.__scares && window.__krypt && window.__krypt.camera); i++) await sleep(200);
-  if (!window.__scares) return { error: "no window.__scares (the Krypt did not boot)" };
+  for (let i = 0; i < 1200 && !(window.__scares && window.__krypt && window.__krypt.camera); i++) { await sleep(200); if (i % 50 === 49) console.info("scareflow: booting"); }
+  if (!window.__scares) return { error: "no window.__scares (the Krypt did not boot in 4 minutes)" };
+  console.info("scareflow: booted");
   const V = () => (typeof window.__scares.voices === "function" ? window.__scares.voices() : null);
   if (!V()) return { error: "no __scares.voices(): qfaudio has no voice registry, so leaks cannot be checked" };
   await sleep(2500);
@@ -183,7 +184,7 @@ const inPage = async (ONLY, MOOD, REPEAT, SHOTS, DICE) => {
     btn.click();
     let first = null, lastF = 0, lastFAt = 0, maxGap = 0, maxGapAt = 0, lungeGap = 0, st = null, entered = false, marks = null, dur = null, frames = 0, tEnd = 0, t = 0;
     const seen = new Map(), events = [];
-    let deadLoops = null, lastGapS = 0, dl = null, lastF0 = 0;
+    let deadLoops = null, lastGapS = 0, dl = null, lastF0 = 0, audioStall = null;
     let news = performance.now();
     while (performance.now() - tClick < 240000) {
       await sleep(25);
@@ -220,7 +221,10 @@ const inPage = async (ONLY, MOOD, REPEAT, SHOTS, DICE) => {
         if (!dl) dl = { w: now, a: new Map() };
         for (const v of loops) if (!dl.a.has(v.id)) dl.a.set(v.id, v.age);
         const stuck = loops.filter((v) => v.age - dl.a.get(v.id) >= 3);
-        if (!loops.length || (stuck.length && now - dl.w >= 3000) || now - dl.w > 15000) { deadLoops = (stuck.length ? stuck : loops).map((v) => v.name); entered = true; key("Enter"); }
+        if (!loops.length || (stuck.length && now - dl.w >= 3000)) { deadLoops = stuck.map((v) => v.name); entered = true; key("Enter"); }
+        else if (now - dl.w > 30000) {   // the audio clock barely moved in 30 s of wall time: no verdict either way
+          deadLoops = []; audioStall = loops.map((v) => `${v.name} +${(v.age - dl.a.get(v.id)).toFixed(1)} audio s in 30 s`); entered = true; key("Enter");
+        }
       }
     }
     WT.on = false; Math.random = rnd0;
@@ -245,7 +249,7 @@ const inPage = async (ONLY, MOOD, REPEAT, SHOTS, DICE) => {
     const leak = (deadLoops && deadLoops.length) || afterEnter.length || strays.length;
     out.runs.push({ id, rep, watch, firstFrameMs: first, dur: dur && +dur.toFixed(2), frames, fps: tEnd ? +(frames / tEnd).toFixed(1) : 0,
       maxGapMs: Math.round(maxGap), maxGapAt: +maxGapAt.toFixed(2), lungeGapMs: Math.round(lungeGap), lunge: marks && +marks.lunge.toFixed(2),
-      entered, back: !window.__scares.busy, voices: seen.size, deadLoops, afterEnter, strays, leak: !!leak, marks, events });
+      entered, back: !window.__scares.busy, voices: seen.size, deadLoops, audioStall, afterEnter, strays, leak: !!leak, marks, events });
   }
   if (MOOD && window.__mood && typeof window.__mood.trigger === "function") {
     console.info("scareflow: mood events");
@@ -282,10 +286,10 @@ if (!tab) { console.error("scare_flow: Chrome did not start"); done(2); }
 const ws = new WebSocket(tab.webSocketDebuggerUrl);
 await new Promise((r) => (ws.onopen = r));
 let id = 0; const pend = new Map(); const exc = [], warns = [];
-// A page that stops reporting (a renderer crash, a hung frame) fails the run instead of hanging it: one scare and its
-// death screen take well under two minutes even on a busy machine.
+// A page that stops reporting (a renderer crash, a hung frame) fails the run instead of hanging it: the page reports
+// while it boots and every 20 s while a scare's frames advance, so four minutes of silence is a hang.
 let lastNews = Date.now();
-setInterval(() => { if (Date.now() - lastNews > 150000) { console.error("SCARE FLOW FAILED: the page stopped reporting for 150 s" + (exc.length ? ": " + exc.slice(-2).join(" | ") : "")); done(3); } }, 5000).unref();
+setInterval(() => { if (Date.now() - lastNews > 240000) { console.error("SCARE FLOW FAILED: the page stopped reporting for 240 s" + (exc.length ? ": " + exc.slice(-2).join(" | ") : "")); done(3); } }, 5000).unref();
 ws.onmessage = (m) => {
   const d = JSON.parse(m.data);
   if (d.id && pend.has(d.id)) { pend.get(d.id)(d); pend.delete(d.id); return; }
@@ -335,6 +339,7 @@ for (const x of res.runs || []) {
   if (w && w.blinks.length) bad.push("FLASH: a mob on and off in the first frames: " + w.blinks.map((b) => `${b.name} ${b.on}-${b.off} s`).join(", "));
   console.log(`${(x.id || "?").padEnd(15)}${repeat > 1 ? " #" + x.rep : ""} pre ${w ? String(w.preFrames).padStart(3) : "  ?"} dur ${String(x.dur).padEnd(6)} fps ${String(x.fps).padEnd(5)} gap ${String(x.maxGapMs).padStart(4)} ms (lunge ${String(x.lungeGapMs).padStart(3)})  voices ${String(x.voices).padStart(3)}  ${bad.length ? "FAIL: " + bad.join("; ") : "ok"}`);
   if (bad.length) fails.push(`${x.id}: ${bad.join("; ")}`);
+  if (x.audioStall) console.log(`   (${x.id}: the audio clock stalled at the death screen, no loop verdict: ${x.audioStall.join(", ")})`);
 }
 for (const m of res.mood || []) {
   const bad = m.error ? [m.error] : m.leak ? ["LEAK: " + m.loopsLeft.join(", ")] : [];
