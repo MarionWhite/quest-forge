@@ -1,21 +1,23 @@
 # site: current state (rewrite, don't append; under 2 KB)
 
-Updated 2026-10-27 (Mac).
+Updated 2026-10-28 (Mac).
 
-- Rounds 4 to 8 are done and critic-passed. Round 8 (owner's notes on scares, screams, floating props, scary mobs):
-  - redone: Spider and Magma Cube (owner's scripts), Zombie (door break), Wither Skeleton (shadow on the wall),
-    Blaze (from the grave), Ghast (one fireball);
-  - `tools/site/scare_flow.mjs` fails on any sound left after a scare or Enter (Silverfish's chitter leaked);
-  - nothing floats: `check_krypt_support.mjs` over 10,000 graves, run by `check_krypt_plan.mjs`;
-  - screams: CC0/CC BY, ranked by Freesound downloads and ratings, own 'voice' bus; credits page;
-  - Patrix mob skins load from `site/graves/tex/mobs-local/` (gitignored, never commit). Re-import with
-    `tools/textures/mobs/import_patrix.py <zip>`. Our own painted skins are paused and gated (`?ownskins`).
+- Rounds 4 to 8b are done and critic-passed. Round 8b (owner's notes of 10-27):
+  - redone: Wither Skeleton "Too tall to follow", Skeleton "Bone pile" (`scares/ossuary.js`); Zombie: you back off
+    and run (`scares/chase.js`);
+  - no mob flash at the J press; `scare_flow.mjs` checks every frame from J;
+  - one hotbar (`scares/loadout.js`): the selected slot is what the hand holds; items drop at death;
+  - held items read in the dark; Steve's bow on the Lucky page uses the 1.7.10 bow transform;
+  - a scare that finds no room plays another, never silence.
+- Round 8: Spider, Magma Cube, Zombie door, Blaze grave, Ghast; sound-leak check; nothing floats
+  (`check_krypt_support.mjs`); screams CC0/CC BY with credits; Patrix skins local only
+  (`site/graves/tex/mobs-local/`, gitignored, never commit; `import_patrix.py <zip>`).
 - Approved for the director: Enderman and Creeper (`site/graves/scares/approved.json`).
-- Lives on the Mac's local `main`: 202 commits ahead of origin/main, ~150 behind. Not pushed.
+- Lives on the Mac's local `main`, far ahead of origin/main and ~150 behind. Not pushed.
   Publishing needs a merge (the PC's `/online/` page wins) and the owner's word.
-- Owner to do: pick screams on the audition page (scratchpad `r8/audio/audition/index.html`); test the 14 scares
-  (J); say if the End islands should stay floating.
+- Owner to do: test the scares (J); pick screams (scratchpad `r8/audio/audition/index.html`); say which scares go
+  into random play and if the End islands stay floating.
 - Open: Witchery/Twilight/HEE art, the game-asset licence and the publish route (`DECISIONS.md`, Site).
-- Known: prison block props cost 95 draw calls; Creeper explosion hitch of about 125 ms (approved, left as is).
+- Known: prison props 95 draw calls; Creeper blast hitch ~125 ms; empty hands draw no bare arm.
 - Checks: `dump_frames.py --sheet`, `vet_lucky.py`, `audit_lucky.py`, `nav_check.py`, `check_sounds.py`,
   `node tools/site/check_krypt_plan.mjs`, `node tools/site/scare_flow.mjs`; preview `tools/site/serve.py`.

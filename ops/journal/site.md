@@ -1,5 +1,13 @@
 # Site journal (newest first)
 
+- 2026-10-28 (Mac) round 8b critic, coordinator. Passed on filmstrips and 1:1 crops: scares-B (J-press frames before
+  and after: no mob before the first frame; hotbar sheet of all 16 + 2 gap deaths), scares-A (Wither push and reveal
+  crops, back-off crop; Zombie flight film at 0.42), scares-C after one round of fixes (heaps were dark woven domes,
+  bows black poles, the hand missing from its crop, two skeletons posed side by side; all fixed and re-cropped).
+  Own fixes: Blaze no longer burns the hotbar while you live (87c48e5; items drop at death); loadout.js Wither entry
+  null (665bec5); Steve's bow on the Lucky page uses RenderPlayer's bow branch (a432013, before/after crops). Lesson:
+  others leave files staged in the shared index; commit with `git commit -- <paths>`.
+
 - 2026-10-28 (Mac) krypt scares r8 C, Skeleton critic round ("still low quality at 1:1"). Heaps: lumpy heightfield
   core (7 shoulders, 70 knobs), a 128 texel/m pile texture of pale bones with shadowed gaps, 2.5x the pieces, skulls
   lying back half buried, the torch's light wrapped round them (1bb584c). Hand: far-heap risers lie head toward you,
