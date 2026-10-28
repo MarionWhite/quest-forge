@@ -64,6 +64,12 @@ import com.questforge.content.ench.QFEnchantments;
  * test, and no screenshot hitch lands inside a measured window. worldTime picks
  * the moon phase too: 18000 is a full moon, 114000 (day 4) a new moon.
  * -Dqf.bench.reload=scene,scene calls Iris.reload() (the F9 key) before those scenes.
+ * GUI views (r011 texture review): a view named gui_<kind> keeps the HUD and opens a screen over
+ * its camera once settled -- inventory, creative_<tab> (combat, tools, brewing, materials, food,
+ * redstone, misc), furnace, crafting, chest, brewing, enchanting, anvil, beacon, hopper,
+ * dispenser -- filled with sample items; gui_hud is the bare HUD in survival with armour, XP and
+ * an Ender Dragon boss bar. -Dqf.bench.difficulty=easy|normal|hard keeps hostile mobs a view
+ * placed in the world (FrameBench otherwise sets peaceful, which removes them).
  *
  * Batch mode (tools/renderq, 2026-10-25): -Dqf.bench.jobs=<file> renders many jobs -- each a
  * tag, shaders on or off and a shader option file -- in ONE boot, instead of one boot per
@@ -405,7 +411,8 @@ public class FrameBench {
         // Singleplayer pauses when the window loses focus, and an unattended run
         // always has lost focus. A paused game renders the menu, not the scene.
         mc.gameSettings.pauseOnLostFocus = false;
-        if (stage.ordinal() >= Stage.SETUP.ordinal() && mc.currentScreen != null) {
+        if (stage.ordinal() >= Stage.SETUP.ordinal() && mc.currentScreen != null
+                && !(sceneIdx >= 0 && sceneIdx < scenes.length && isGui(scene()) && GuiShots.isOurs(mc.currentScreen))) {
             mc.displayGuiScreen(null);
         }
 
@@ -625,12 +632,24 @@ public class FrameBench {
         return (EntityPlayerMP) server.getConfigurationManager().playerEntityList.get(0);
     }
 
+    private static EnumDifficulty difficulty() {
+        String d = System.getProperty("qf.bench.difficulty", "peaceful");
+        for (EnumDifficulty e : EnumDifficulty.values()) {
+            if (e.name().equalsIgnoreCase(d)) return e;
+        }
+        return EnumDifficulty.PEACEFUL;
+    }
+
+    private static boolean isGui(String scene) {
+        return scene != null && scene.startsWith("gui_");
+    }
+
     private void setUp(Minecraft mc, String scene) {
         MinecraftServer server = mc.getIntegratedServer();
         WorldServer w = server.worldServerForDimension(0);
         EntityPlayerMP mp = serverPlayer(mc);
 
-        server.func_147139_a(EnumDifficulty.PEACEFUL);
+        server.func_147139_a(difficulty());
         w.getGameRules().setOrCreateGameRule("doDaylightCycle", "false");
         w.getGameRules().setOrCreateGameRule("doMobSpawning", "false");
         w.getWorldInfo().setRaining(false);
@@ -673,6 +692,7 @@ public class FrameBench {
             place(mc, 0.5, y, 0.5, -90F, 15F, true);
         }
         mp.inventory.mainInventory[0] = scene.equals("torch") ? mp.inventory.mainInventory[0] : null;
+        if (isGui(scene)) GuiShots.setUpServer(mp, scene);
         log(scene + ": set up");
     }
 
@@ -974,8 +994,9 @@ public class FrameBench {
     private void hold(Minecraft mc) {
         if (mc.thePlayer == null) return;
         // F1 for view scenes: review frames carry no HUD for the critic to mistake for the world.
-        mc.gameSettings.hideGUI = sceneIdx >= 0 && sceneIdx < scenes.length
+        mc.gameSettings.hideGUI = sceneIdx >= 0 && sceneIdx < scenes.length && !isGui(scene())
                 && (views.containsKey(scene()) || scene().equals("gallery") || scene().equals("torch_wall"));
+        if (sceneIdx >= 0 && sceneIdx < scenes.length && isGui(scene())) GuiShots.client(mc, scene());
         mc.thePlayer.capabilities.isFlying = flying;
         mc.thePlayer.motionX = mc.thePlayer.motionY = mc.thePlayer.motionZ = 0;
         mc.thePlayer.setPositionAndRotation(px, py + mc.thePlayer.yOffset, pz, yaw, pitch);

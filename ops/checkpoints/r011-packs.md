@@ -35,3 +35,44 @@ underwater effects. Stay True leaves and wheat belong to the other texture agent
    The items scene answers the owner's r010 ask, "at least one other art style set for all of them before we commit".
 
 ## Progress log
+### 2026-10-27 step 1: survey (texture-dev #2)
+- Faithless licence (its credits.txt): modpack use allowed with credit + link to modrinth.com/resourcepack/faithless.
+- Faithless: 16x, 1.20 names. Potions = CIT model per effect (layer0 item/potions/<effect>[_strong] full colour + layer1
+  cap_normal|cap_splash|cap_*_long) -> 1.7.10 CIT on damage bits (reuse qf_items' EFFECTS map, same file paths so ours
+  override). Books = CIT enchantmentIDs=<name> -> 1.7.10 numeric ids. Worn-tool sprites (<tool>_1.._5 by damage
+  predicate) -> CIT damage=%. Stackables (stackSize) -> CIT. Animated items (buckets, discs, redstone, slime, xp bottle,
+  glowstone dust...) carry .mcmeta -> work on 1.7.10. Bow: bow/bow + bow1..11 by pull -> bow_standby/pulling_0-2.
+  Compass/clock are 3D models with separate hands: need compositing into 1.7.10 frame strips.
+- GUI: 1.20.2+ split widgets/icons into gui/sprites/*; 1.7.10 needs icons.png/widgets.png/tabs.png re-composited at
+  the old UVs. Slot layouts changed since 1.7.10 in inventory (crafting grid moved, offhand), brewing stand (fuel slot,
+  bottle y), enchanting table (lapis slot): remap or skip each. FrameBench has NO GUI capture: in-game GUI shots need
+  a FrameBench change (qf-content jar; other sessions' WIP in AutoShot/QFNetwork -> build from a clean worktree).
+- Patrix: every mob has CEM. Aspect-compatible skins: creeper, zombie, spider, enderman, sheep, ghast, wolf, slime,
+  snowman, iron golem, pig(?), witch, cats, squid. Clearly CEM-only layouts: cow, skeleton, horses, bat, blaze, chicken.
+  No villager/zombie_villager/dragon/player in the "basic" zip. Judge in game (mob lineup), keep only those that map.
+- Plan: overlay pack built by tools/textures/r007packs.py -> C:\qfb\textures\QF-r011-packs.zip (layered over the
+  QFTextures build; no edits to build_qf_textures.py). World C:\qfb\textures\world-r011 (copy of world-showcase +
+  mob hall, TNT/bookshelf wall, item board) by tools/textures/build_r011_world.py; own views file.
+### 2026-10-27 step 2: builder + FrameBench GUI views (texture-dev #2)
+- tools/textures/r007packs.py (new, uncommitted yet): overlay zip, parts items,cit,tnt,books,mobs,env (gui next).
+  Built C:\qfb\textures\QF-r011-packs.zip. Items: 204 Faithless sprites + compass strip (32 frames from its 50
+  angle models) + bow pull frames with its 3D arrow rasterised in; clock kept (Faithless clock = 3D dial, no frames).
+  CIT: potions per effect x normal/strong/long x drink/splash (damageMask 0x406F), 24 books, worn tools (damage %),
+  arrow/seed stacks. Verified in Angelica's CIT class: damage % and stackSize are parsed.
+- Conquest: live mcpatcherforge.cfg has custom_colors and better_skies OFF, and our shader discards vanilla sky and
+  never reads fogColor/skyColor/lightmap -> its sky layers, fog/sky colormaps and lightmaps cannot show as files;
+  shader work (note for r011-shader.md). Shipping: particles.png, footprint, rain, snow, ambient cave/rain sounds.
+- FrameBench forces PEACEFUL (hostile mobs removed) and has no GUI capture. Added (opt-in, nothing else changes):
+  views named gui_<kind> open a filled screen (GuiShots.java), gui_hud = survival HUD + Ender Dragon boss bar,
+  -Dqf.bench.difficulty=easy. Built from a clean worktree C:\qfb\wt-r011-fb (HEAD 369939c + my two files) ->
+  C:\qfb\renderq\jars-r011\QuestForgeContent-1.0.0.jar; use it per job via "jars" (replaces the runner's FrameBench
+  jar for my jobs only; the shared jar is untouched). Source edits in the main tree are mine to commit.
+- Next: tools/textures/build_r011_world.py (world-r011: mob hall, library+TNT, item board), views file, spec, submit.
+### 2026-10-27 step 3: scenes submitted (texture-dev #2)
+- World C:\qfb\textures\world-r011 (tools/textures/build_r011_world.py; copy of world-showcase): item board 12x5 at
+  x 224-237 z 216, library 9x3 + TNT at x 240-256 z 216, mob hall x 223-269 z 222-232 (21 mobs, speed/followRange 0,
+  light flood-filled by the builder: block 12-13 at the mobs). Views tools/textures/views-r011.txt (incl. gui_* views).
+- Spec tools/renderq/specs/textures-r011-packs.json -> render 1027-222844-textures-r011-packs (58 renders):
+  r11p0 = QF-v3c (r010 candidate), r11p1 = QF-v3c + QF-r011-packs.zip. Shot mode, CIT on, jars-r011, difficulty easy.
+- Next: GUI part as a SEPARATE overlay (QF-r011-gui.zip, tools/textures/r007gui.py) so the items/mobs cache stays;
+  then review r11p0/r11p1 sheets, drop Patrix skins that break (MOB_SKIP), hand off to C:\qfb\shaderdev\r011\.

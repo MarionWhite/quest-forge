@@ -1,0 +1,17 @@
+{
+ "name": "textures-r011-packs",
+ "owner": "texture-dev-2",
+ "comment": "r011 step 3 (ops/checkpoints/r011-packs.md): the r007 packs copied in as an overlay (tools/textures/r007packs.py: Faithless items/potions/books/TNT, Soartex shelves, Patrix mob skins, Conquest particles/weather/sounds) over the r010 candidate QF-v3c, against QF-v3c alone. World world-r011 (build_r011_world.py: item board, library, TNT, mob hall), views tools/textures/views-r011.txt. FrameBench from C:/qfb/renderq/jars-r011 (GUI views + qf.bench.difficulty, these jobs only). Shot mode, CIT on.",
+ "prebuild": [
+  ["py", "-3.10", "-I", "tools/textures/r007packs.py", "--out", "C:/qfb/textures/QF-r011-packs.zip", "--parts", "items,cit,tnt,books,mobs,env"]
+ ],
+ "defaults": {"world": "C:/qfb/textures/world-r011", "views": "tools/textures/views-r011.txt", "preset": "3",
+              "size": "2560x1440", "mode": "shot", "cit": true,
+              "jars": ["C:/qfb/renderq/jars-r011/QuestForgeContent-1.0.0.jar"], "props": ["qf.bench.difficulty=easy"]},
+ "jobs": [
+  {"tag": "r11p0", "resourcepacks": ["C:/qfb/textures/diag/QF-v3c.zip"],
+   "scenes": "r11_items,r11_items_tl,r11_items_tr,r11_items_bl,r11_items_br,r11_library,r11_shelves,r11_tnt,r11_mobs_a,r11_mobs_b,r11_mobs_c,r11_mob_1,r11_mob_2,r11_mob_3,r11_mob_4,r11_mob_5,r11_mob_6,gui_hud,gui_inventory,gui_creative_combat,gui_creative_tools,gui_creative_brewing,gui_creative_materials,gui_furnace,gui_crafting,gui_chest,gui_brewing,gui_enchanting,gui_anvil"},
+  {"tag": "r11p1", "resourcepacks": ["C:/qfb/textures/diag/QF-v3c.zip", "C:/qfb/textures/QF-r011-packs.zip"],
+   "scenes": "r11_items,r11_items_tl,r11_items_tr,r11_items_bl,r11_items_br,r11_library,r11_shelves,r11_tnt,r11_mobs_a,r11_mobs_b,r11_mobs_c,r11_mob_1,r11_mob_2,r11_mob_3,r11_mob_4,r11_mob_5,r11_mob_6,gui_hud,gui_inventory,gui_creative_combat,gui_creative_tools,gui_creative_brewing,gui_creative_materials,gui_furnace,gui_crafting,gui_chest,gui_brewing,gui_enchanting,gui_anvil"}
+ ]
+}
