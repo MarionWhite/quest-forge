@@ -1,6 +1,9 @@
 # Shaders journal (newest first)
 
-- 2026-10-28 09:20: **r011 shader scenes handed off** (be6b241; C:\qfb\shaderdev011\spec_scenes.py, SHADERS-READY;
+- 2026-10-28: **r011 posted** (1553b04, 29 scenes via finish_round --publish). Rays scene moved to golden_lit (lake_glitter A looked like off; no p11r75 frame there, option dropped); pack scenes marked noCost. Checkpoint ops/checkpoints/r011-publish.md.
+
+- 2026-10-28 09:20: **r011 shader scenes handed off** (be6b241; C:\qfb\shaderdev
+011\spec_scenes.py, SHADERS-READY;
   3 scenes). Loop 3 read: rays invisible (+1-3 luma; Photon's term only adds light to a sky that already holds the lit
   air's glow); loop 4 QF_CREP_SHADE 0.5 dims that glow by the shadowed share of the air below the cloud base: wedges
   round the sun p5 -6 luma (0.75: -10, r010 -16). golden_lit near grass still lifted, 66,64,39 vs r010 40,45,15; at x1
