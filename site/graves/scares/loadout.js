@@ -19,7 +19,7 @@ export const SLOTS = [
 ];
 export const EMPTY = SLOTS.indexOf(null);   // the first empty slot
 export const STATS = { food: 17, xpLevel: 7, xpBar: 0.37 };
-export const ITEMS = SLOTS.filter(Boolean);   // the filled slots, in order (what a blast scatters, what burns)
+export const ITEMS = SLOTS.filter(Boolean);   // the filled slots, in order (what a blast scatters)
 
 export function slotOf(item) {
   if (item == null) return EMPTY;
@@ -37,7 +37,7 @@ export const HELD = {
   Zombie: null, Skeleton: null, Creeper: null, Spider: null, CaveSpider: null, Enderman: null, Witch: null, Slime: null,
   Silverfish: null, Blaze: null, Ghast: null, MagmaCube: null,
   PigZombie: "pickaxe",          // pigman.js says when: empty until the pickaxe comes up for the ore (S.held)
-  WitherSkeleton: "sword",       // your shadow on the wall holds the iron sword
+  WitherSkeleton: null,          // the chase (round 8b redo): no hand drawn
   LavaFall: null,                // both hands on the rim
   DrownedGrab: null
 };
