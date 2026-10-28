@@ -44,3 +44,15 @@ multi.py, sheet2.py; reuse them). Spec: `docs/design/site/krypt-scares.md`.
 
 ## Progress
 (write after every step)
+- 2026-10-27 step 0: read. Scratch `scratchpad/r8/scares-b/`. **Silverfish leak cause found:** `silverfish.js` puts
+  `qf.scare.chitter` in `roar()` (S.sounds, a one-shot), but the manifest marks that event `loop: true`, and
+  `qfaudio.play` loops any looping event; the scare's soundPlayer only tracks S.loops, so nothing ever stops it.
+  No other scare plays a looping event as a one-shot (grep of the 10 looping names); mood stops its events (ev.stop).
+  Plan: qfaudio voice registry + `voices()` + `once` option; soundPlayer tags "scare", one-shots `once`, tracks and
+  stops them on Enter; silverfish chitter burst becomes a bounded loop; flow check samples voices.
+- step 1 DONE (leak): `qfaudio.js` voice registry (`audio.voices()`: id, name, loop, bus, tag, age) and `once`;
+  `scares.js` scareAudio(): one-shots `once`, all tagged "scare", stop() ends one-shots too (0.2 s) on Enter;
+  `__scares.voices()`; `silverfish.js` chitter burst is a bounded loop. New check `tools/site/scare_flow.mjs`
+  (`node tools/site/scare_flow.mjs [--only A,B] [--mood] [--out f.json]`, exits 1 on a leak/exception/no return).
+  Proof: the old behaviour (scratch `leaksite/`, port 8771) FAILS "LEAK at the death screen: qf.scare.chitter; after
+  Enter"; the fix passes. Full run `r8/scares-b/flow_all1.json`: 16/16 ok + 20 mood events ok, no leaks, 59-60 fps.

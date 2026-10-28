@@ -192,7 +192,7 @@ export default {
       silence(tStall + 0.02, { fade: 0.05 }),
       ...(fake ? [[tTick, "dig.stone", { at, volume: 0.22, pitch: 1.8 }]] : []),
       [T_BREAK, "dig.stone", { at, volume: 1.2, pitch: 0.8 }], [T_BREAK + 0.03, "dig.stone", { at: [bc.x, 0.5, bc.z + 1], volume: 1, pitch: 1.0 }], [T_BREAK + 0.06, "dig.stone", { at: [bc.x, 0.5, bc.z - 1], volume: 1, pitch: 0.9 }],
-      ...roar(T_BREAK + 0.02, [["mob.silverfish.say", { at, pitch: 0.7 }], ["mob.silverfish.hit", { at, pitch: 0.7, volume: 1.0 }], ["qf.scare.chitter", { volume: 1.0 }]], { hit: 0.8 }),
+      ...roar(T_BREAK + 0.02, [["mob.silverfish.say", { at, pitch: 0.7 }], ["mob.silverfish.hit", { at, pitch: 0.7, volume: 1.0 }]], { hit: 0.8 }),
       ...[...Array(10)].map((_, i) => [T_BREAK + 0.1 + i * 0.28, "mob.silverfish.say", { at: [side * (wall - 0.5 - i * 0.15), 0.3, zc + (i % 3 - 1)], volume: 0.8, pitch: 0.85 + 0.05 * (i % 5) }]),
       ...[...Array(16)].map((_, i) => [T_BREAK + 0.2 + i * 0.18, "mob.silverfish.step", { at: [side * (wall - 0.8) * (1 - i / 16), 0.1, zc * (1 - i / 16)], volume: 0.6 }]),
       ...hits.flatMap((h, i) => [[h.t, "game.player.hurt"], [h.t + 0.02, i % 2 ? "qf.scare.gore" : "qf.scare.crunch", { volume: 0.7 }]]),
@@ -204,6 +204,8 @@ export default {
       [0.6, tStall, "qf.scare.chitter", { at, volume: 0.25, fadeIn: 1.5, fadeOut: 0.05 }],
       ...(fake ? [[tStall + 1.0, t0 - 0.1, "qf.scare.heartbeat", { volume: 0.3, fadeIn: 0.6, fadeOut: 0.02 }]] : []),
       [T_BREAK, DUR + 0.5, "qf.scare.chitter", { volume: 0.9, fadeIn: 0.1 }],
+      // The burst's own chitter over it (it was a one-shot of this looping event in the roar, and never stopped: r8).
+      [T_BREAK + 0.02, tK + 1.0, "qf.scare.chitter", { volume: 1.0, fadeIn: 0.02, fadeOut: 0.8 }],
       [tK, DUR + 0.2, "qf.scare.heartbeat", { volume: 0.7, pitch: 1.4 }],
       [T_FALL + 0.4, DUR, "qf.scare.breath", { volume: 0.5, fadeIn: 0.3 }]
     ];

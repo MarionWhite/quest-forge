@@ -120,6 +120,7 @@ function setPannerPos(p, v) {
 }
 
 // play(name, { pos, volume, pitch, loop, reverb (0..1), delay (s), ref, max, rolloff, bus })
+//   once: true plays one pass even of an event the manifest loops; tag: a label for voices() ("scare", ...)
 export function play(name, o = {}) {
   if (!ctx || ctx.state === 'closed') { if (pending.length < 8) pending.push([name, o]); return nullHandle(); }
   const h = { stopped: false, src: null, gain: null, panner: null,
@@ -135,7 +136,7 @@ export function play(name, o = {}) {
       const src = ctx.createBufferSource();
       src.buffer = buf;
       src.playbackRate.value = pick(o.pitch ?? ev.pitch ?? 1);
-      if (o.loop || ev.loop) { src.loop = true; if (ev.loopStart != null) src.loopStart = ev.loopStart; if (ev.loopEnd != null) src.loopEnd = ev.loopEnd; }
+      if (!o.once && (o.loop || ev.loop)) { src.loop = true; if (ev.loopStart != null) src.loopStart = ev.loopStart; if (ev.loopEnd != null) src.loopEnd = ev.loopEnd; }
       const g = ctx.createGain();
       const vol = (o.volume ?? 1) * (ev.volume ?? 1);
       g.gain.value = o.fadeIn ? 0 : vol;
@@ -146,12 +147,23 @@ export function play(name, o = {}) {
       if (o.reverb) { const s = ctx.createGain(); s.gain.value = o.reverb; out.connect(s); s.connect(reverbIn); }
       h.src = src; h.gain = g; h.panner = o.pos ? out : null;
       src.start(ctx.currentTime + (o.delay || 0));
-      src.onended = () => { h.stopped = true; };
+      const v = { id: ++voiceN, name, loop: src.loop, bus: o.bus || ev.bus || 'sfx', tag: o.tag || null, t0: ctx.currentTime };
+      voices.add(v);
+      src.onended = () => { h.stopped = true; voices.delete(v); };
     });
   });
   return h;
 }
 function nullHandle() { return { stopped: true, stop() {}, setPos() {} }; }
+
+// Every source that is sounding now (started and not yet ended), for checks: a loop nobody stops is a leak.
+//   voices() -> [{ id, name, loop, bus, tag, age (s) }]
+const voices = new Set();
+let voiceN = 0;
+export function liveVoices() {
+  const now = ctx ? ctx.currentTime : 0;
+  return [...voices].map((v) => ({ id: v.id, name: v.name, loop: v.loop, bus: v.bus, tag: v.tag, age: +(now - v.t0).toFixed(2) }));
+}
 
 export function loop(name, o = {}) { return play(name, { ...o, loop: true }); }
 
@@ -237,5 +249,5 @@ export function busNode(name = 'sfx') { return bus[name] || null; }
 export function has(name) { return !!(manifest && manifest.events[name]); }
 export function ready() { return loadManifest(); }
 
-export const audio = { play, loop, music, updateListener, setReverb, duck, muffle, preload, setMuted, isMuted, onMute, context, busNode, has, ready, unlock };
+export const audio = { play, loop, music, updateListener, setReverb, duck, muffle, preload, setMuted, isMuted, onMute, context, busNode, has, ready, unlock, voices: liveVoices };
 export default audio;

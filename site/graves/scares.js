@@ -74,8 +74,18 @@ function hush(on) {
     n.gain.setTargetAtTime(on ? BUS_FULL[b] * low : BUS_FULL[b], t, on ? 0.12 : 0.9);
   }
 }
+// Every sound a scare starts goes through this (round 8): a one-shot plays one pass even of an event the manifest
+// loops (the Silverfish's chitter in its roar was one, and played on forever after Enter), each is tagged "scare" for
+// the leak check (audio.voices()), and stop() ends every one still sounding, one-shots included.
+function scareAudio(shots) {
+  const tag = (o) => ({ ...o, tag: "scare" });
+  return { ...audio,
+    play(name, o = {}) { const h = audio.play(name, tag({ once: !o.loop, ...o })); shots.push(h); return h; },
+    loop(name, o = {}) { return audio.loop(name, tag(o)); } };
+}
 function soundPlayer(R, S) {
   const live = [], fired = new Set();
+  const shots = [], audio = scareAudio(shots);   // (shadows the module's audio in here; see scareAudio)
   // One voice at a time: the death screams are single recorded takes of 2 to 4.5 s (round 7), so a second call while
   // one still sounds would put a second man screaming over the first. The take plays through instead.
   let voice = null;
@@ -104,7 +114,10 @@ function soundPlayer(R, S) {
       });
       for (const x of live) if (!x.done && t >= x.t1) { x.done = true; try { x.h.stop(x.fade); } catch (e) { /* ignore */ } }
     },
-    stop() { for (const x of live) if (!x.done) { x.done = true; try { x.h.stop(0.3); } catch (e) { /* ignore */ } } }
+    stop() {
+      for (const x of live) if (!x.done) { x.done = true; try { x.h.stop(0.3); } catch (e) { /* ignore */ } }
+      for (const h of shots) if (h && !h.stopped) { try { h.stop(0.2); } catch (e) { /* ignore */ } }
+    }
   };
 }
 
@@ -348,6 +361,8 @@ export function initScares(opts = {}) {
   if (forced && DUMP) { dumpMode(forced).catch((e) => console.error("scare dump", e)); return; }
   addEventListener("keydown", pickerKey, true);
   window.__scares = { play: (m) => playScare(m), list: SCARES, get approved() { return approved.slice(); }, get busy() { return !!running; },
+    // (for the leak check: every sound sounding now, tagged "scare" if a scare started it)
+    voices: () => (audio.voices ? audio.voices() : null),
     // (for the real-time check: where the playing scare's clock is)
     get state() { return running ? { id: running.id, t: running.t ?? -1, frames: running.frames || 0, dur: running.dur ?? null, marks: running.marks || null, notes: running.notes || null, carveMs: running.rig ? Math.round(running.rig.carveMs || 0) : 0 } : null; } };
   // Failed jumps: before each jump the Krypt asks (krypt-gap, { gap, takeover }); an approved gap death of that kind
