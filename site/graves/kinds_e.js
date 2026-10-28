@@ -277,8 +277,9 @@ def("piston_trap", { room: true, style: wall([[480, T_BRICK], [720, T_BRICK_CRAC
     for (let lv = c.lo; lv < c.hi; lv++) if (lv !== vc) for (const lu of [-hw + 1, hw - 2]) c.put("dust", lu + 0.5, lv + 0.5, y0, { ry: c.yaw });
     // Who set it off: under the sprung head on the left, bones and a skull.
     c.put("bone", -hw + 1.5, vc + 1.3, y0 + 0.02, { ry: 2.1 }); c.put("skull", -hw + 1.4, vc - 0.6, y0, { ry: c.faceRy(-1) + 0.4 });
-    // Dispensers at the far end, aimed down the hall; the lever that should have made it safe, still off.
-    c.L(leg, -1, c.hi + 1, y0 + 1, c.dispType(...c.dirw(leg, 0, -1))); c.L(leg, 0, c.hi + 1, y0 + 1, c.dispType(...c.dirw(leg, 0, -1)));
+    // Dispensers at the far end; the lever that should have made it safe, still off.
+    // They are set into the side walls (a pair mid-hall hung in the air over the walk), aimed across it at the plate's line.
+    for (const sd of [-1, 1]) if (c.rowsFree(sd, c.hi + 1)) c.L(leg, c.wallCell(sd), c.hi + 1, y0 + 1, c.dispType(...c.dirw(leg, -sd, 0)));
     c.put("lever", hw - 0.1, c.lo - 3.5, y0 + 1.4, { ry: c.sideRy(1), on: false });
     c.torchAt(leg, c.wallCell(-1), c.lo - 3, y0 + 2, 1, { I: 2.6 });
   } });
@@ -373,7 +374,7 @@ def("witch_hut", { room: true, margin: 5, style: wall([[440, T_DIRT], [660, T_ST
     c.put("pot", 4.5, vc + 1.5, y0 + 2, { plant: "mushroom_red" });
     c.put("mob", 5.5, vc + 0.5, y0 + 2, { mob: "Witch", ry: c.faceRy(1), scale: 0.95, lit: 0xa89480 });   // lit by her lamp, not a silhouette
     // Jack o'lanterns on posts along the track to her door: the only warm light in the swamp.
-    for (const dv of [2, -7, 9]) { const lv = vc + dv; if (lv < c.lo - 2 || lv > c.hi + 1) continue; c.L(leg, 2, lv, y0, B.T_LOG_SPRUCE); c.lamp(2, lv, y0 + 1, jackFacing(c, 1), [1, 0.7, 0.35], 3.2, 12); }
+    for (const dv of [2, -7, 9]) { const lv = vc + dv; if (lv < c.lo - 2 || lv > c.hi + 1) continue; c.under(2, lv, y0, B.T_LOG_SPRUCE); c.lamp(2, lv, y0 + 1, jackFacing(c, 1), [1, 0.7, 0.35], 3.2, 12); }
     c.src(5.5, vc + 0.5, y0 + 3.5, [1, 0.75, 0.45], 2.2, 7, {});
     // The swamp: trees grown to the roof, leaves hanging, lily pads, mushrooms on the hummocks, vines.
     for (const [lu, dv] of [[-6, -8], [-5, 6], [6, -9], [-7, 1]]) { const lv = vc + dv; if (lv < c.lo || lv >= c.hi) continue; c.col(lu, lv, y0, y0 + ht - 1, T_LOG); for (let du = -2; du <= 2; du++) for (let dw = -2; dw <= 2; dw++) if (Math.abs(du) + Math.abs(dw) < 4 && c.LG(leg, lu + du, lv + dw, y0 + ht - 1) === T_AIR) { c.L(leg, lu + du, lv + dw, y0 + ht - 1, B.T_LEAVES_OAK); if ((du + dw) % 2 === 0 && Math.abs(lu + du + 0.5) > 2) c.L(leg, lu + du, lv + dw, y0 + ht - 2, B.T_LEAVES_OAK); } }
@@ -421,8 +422,8 @@ def("flooded_ossuary", { room: true, style: wall([[360, T_BRICK_MOSSY], [600, T_
   dress(c) {
     const { leg, y0, hw, ht } = c, clear = clearer(c), vc = Math.round((leg.b0 + leg.pre + leg.contentEnd) / 2);
     c.a.waterRects.push({ ...rectOf(c, -hw, hw - 1, leg.cs + 1, leg.ce - 2), y: y0 - 0.3 });
-    // Skull shelves: the walls between the graves are cut into niches, three tiers, every niche a skull.
-    for (const sd of [-1, 1]) for (let lv = c.lo; lv < c.hi; lv++) if (clear(sd, lv, 0)) for (const j of [y0 + 1, y0 + 2, y0 + 3]) {
+    // Skull shelves: the walls between the graves are cut into niches, two tiers, every niche a skull.
+    for (const sd of [-1, 1]) for (let lv = c.lo; lv < c.hi; lv++) if (clear(sd, lv, 0)) for (const j of [y0 + 1, y0 + 3]) {   // two tiers: the shelf between them is stone
       if (c.rnd(lv * 5 + j, 470 + sd) < 0.2) continue;
       c.L(leg, c.wallCell(sd), lv, j, T_AIR); c.put("skull", c.wallCell(sd) + 0.5 - sd * 0.1, lv + 0.5, j, { ry: c.faceRy(sd) });
     }

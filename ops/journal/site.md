@@ -1,5 +1,14 @@
 # Site journal (newest first)
 
+- 2026-10-27 (Mac) krypt r8 (floating props): the owner's dispensers were the piston_trap's far-end pair, set mid-hall at
+  y0+1 over the walk (they touched only each other). Now set into the side walls. New support.js (what holds a prop) with a
+  safety net in buildWindow (unsupported props and torches dropped; floating pieces up to 6 blocks removed) and put()/webAt()
+  refusing unsupported spots; tools/site/check_krypt_support.mjs builds every window of the 10,000-grave plan and flood-fills
+  blocks to rock (run by check_krypt_plan.mjs). Generator fixes: two-tier niches with a stone shelf (ossuary, catacomb,
+  flooded ossuary), arena/gold/iron pillars carried to the bed, fortress_bridge rails on the 2-wide bridge, carpet skipped
+  over floor gaps, skylight pane lies flat, void_bridge arch on a landing, roof lamps need a roof. End islands of void_bridge
+  float on purpose (kind.floatingOk). HUD at 1149 wide: no overflow (the screenshot is a crop of a ~1460 window).
+
 - 2026-10-27 (Mac) skins r8: owner switched to Patrix for local use only ("not publicly distributed"). Local layer
   site/graves/tex/mobs-local/ (git-ignored; Pages deploys from checkout, so it cannot ship); import_patrix.py (Patrix
   #92 basic zip, refuses non-ignored outputs, 1.7.10 conversions, LabPBR glow); skins.js: local > own (gated) > vanilla.

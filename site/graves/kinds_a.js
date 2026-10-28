@@ -52,13 +52,13 @@ def("carpet_crypt", { style: wall([[420, T_BRICK], [620, T_BRICK_CRACK], [800, T
   floor: ({ lv, hv, centre }) => (centre ? B.T_BRICK : (hv < 240 ? T_BRICK_CRACK : T_BRICK)),
   prof: P([0.105, 0.055, 0.062], [0.055, 0.026, 0.03], 0.04, 1.22, 1.05, 0.36),
   dress(c) {
-    for (let lv = c.leg.cs + 2; lv < c.leg.ce - 2; lv++) c.put("carpet", 0, lv + 0.5, c.y0, { w: 2, d: 1, color: 3, ry: c.yaw });
-    for (const s of c.leg.slots) for (const q of [-1.6, 1.6]) c.put("banner", s.side * (c.hw - 1 - 0.06), s.lvc + 0.5 + q, c.y0 + 2.2, { ry: c.acrossRy, w: 0.8, h: 2.2, color: (s.lvc % 8 < 4) ? 3 : 2 });
+    for (let lv = c.leg.cs + 2; lv < c.leg.ce - 2; lv++) if (c.floored(-1, lv, c.y0) && c.floored(0, lv, c.y0)) c.put("carpet", 0, lv + 0.5, c.y0, { w: 2, d: 1, color: 3, ry: c.yaw });   // none over a gap in the floor
+    for (const s of c.leg.slots) for (const q of [-1.6, 1.6]) if (c.walled(c.edgeCell(s.side), Math.floor(s.lvc + 0.5 + q), c.y0 + 2)) c.put("banner", s.side * (c.hw - 1 - 0.06), s.lvc + 0.5 + q, c.y0 + 2.2, { ry: c.acrossRy, w: 0.8, h: 2.2, color: (s.lvc % 8 < 4) ? 3 : 2 });
     F(c, [["between", { tile: B.T_BRICK, h: c.ht - 1, torch: 2, I: 2.6, color: [1.0, 0.22, 0.12] }], ["torches", { every: 5, off: 1, I: 2.6, y: 3, color: [1.0, 0.25, 0.14] }]]);
     // Slits in the roof: coloured light falls through stained glass.
     for (let lv = c.lo + 2; lv < c.hi; lv += 6) {
       for (const lu of [-1, 0]) { c.L(c.leg, lu, lv, c.y0 + c.ht, T_AIR); c.L(c.leg, lu, lv, c.y0 + c.ht + 1, T_AIR); }
-      c.put("pane", 0, lv + 0.5, c.y0 + c.ht + 1.5, { tex: "glass_red", w: 2, h: 1, ry: c.yaw, rx: 0 });
+      c.put("pane", 0, lv + 0.5, c.y0 + c.ht + 1.98, { tex: "glass_red", w: 2, h: 1, ry: c.yaw, flat: true });   // a skylight under the cap of the slit, lying flat
       c.src(0, lv + 0.5, c.y0 + c.ht + 0.3, [0.95, 0.22, 0.2], 2.6, 9, {});
     }
   } });

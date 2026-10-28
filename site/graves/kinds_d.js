@@ -171,7 +171,7 @@ def("fortress_bridge", { style: wall([[600, T_NBRICK], [850, T_NETHER], [940, B.
   dress(c) {
     const { leg, y0, hw, ht } = c;
     rough(c, { depth: 3 }); spikes(c, T_NETHER, 60, 5);
-    for (let lv = c.lo; lv < c.hi + 2; lv++) for (const lu of [-2, 1]) { const [x, , z] = c.W3(leg, lu + (lu < 0 ? 0.14 : 0.86), lv + 0.5, 0), [bx, bz] = c.dirw(leg, 0, 1); c.a.decor.push({ t: "nfence", x: x - bx * 0.5, y: y0, z: z - bz * 0.5, ry: c.yaw, bx, bz, rails: true }); }
+    for (let lv = c.lo; lv < c.hi + 2; lv++) for (const lu of [-1, 0]) { const [x, , z] = c.W3(leg, lu + (lu < 0 ? 0.14 : 0.86), lv + 0.5, 0), [bx, bz] = c.dirw(leg, 0, 1); c.a.decor.push({ t: "nfence", x: x - bx * 0.5, y: y0, z: z - bz * 0.5, ry: c.yaw, bx, bz, rails: true }); }
     for (let lv = c.lo + 2; lv < c.hi; lv += 8) { for (const lu of [-3, 2]) { c.col(lu, lv, y0 - D + 1, y0 + 3, T_NBRICK); c.torchAt(leg, lu, lv, y0 + 3, lu < 0 ? 1 : -1, { I: 3.4, c: [1, 0.45, 0.15] }); } for (let lu = -3; lu <= 2; lu++) c.L(leg, lu, lv, y0 + 3, T_NBRICK); }
     for (let lv = c.lo + 1; lv < c.hi; lv += 6) c.lamp(((lv * 7) % 9) - 4, lv, y0 + ht - 1, T_GLOW, [1, 0.5, 0.2], 3.4, 13);
     c.scatter(8, 260, (q, r1, r2) => c.a.emit.push({ k: "lava", ...(() => { const [x, , z] = c.W3(leg, (r2 - 0.5) * hw * 1.7, c.lo + r1 * (c.hi - c.lo), 0); return { x, z }; })(), y: y0 - D + 1 }));
@@ -187,7 +187,7 @@ def("arena", { style: wall([[400, T_BRICK], [650, T_STONE], [860, T_BRICK_CRACK]
     for (let lv = c.lo + 2; lv < c.hi - 1; lv++) for (const lu of [-2, 1]) c.put("bars", lu + (lu < 0 ? 1 : 0), lv + 0.5, y0 + 1, { ry: c.yaw, w: 1, h: 2 });
     for (let lv = c.lo + 2; lv < c.hi - 1; lv++) for (const sd of [-1, 1]) for (let t = 0; t < 3; t++) { const lu = sd > 0 ? 5 + t : -6 - t; for (let j = 0; j <= t; j++) c.L(leg, lu, lv, y0 + j, T_STONE); }
     for (let lv = c.lo + 4; lv < c.hi - 3; lv += 7) { c.put("mob", -3.5, lv + 0.5, y0 - 3, { mob: "Skeleton", ry: 1.57, scale: 0.9 }); c.put("mob", 3.5, lv + 3.5, y0 - 3, { mob: "Zombie", ry: -1.57, scale: 0.9 }); c.put("bone", 3.0, lv + 0.5, y0 - 2.95, { ry: lv }); }
-    for (let lv = c.lo + 3; lv < c.hi - 1; lv += 8) for (const lu of [-1, 0]) { c.col(lu === -1 ? -3 : 2, lv, y0, y0 + ht - 2, B.T_IRONB); }
+    for (let lv = c.lo + 3; lv < c.hi - 1; lv += 8) for (const lu of [-1, 0]) { const pu = lu === -1 ? -3 : 2; c.under(pu, lv, y0 - 1, B.T_IRONB); c.col(pu, lv, y0, y0 + ht - 2, B.T_IRONB); }   // the pillars rise from the pit's floor
     for (let lv = c.lo + 3; lv < c.hi - 1; lv += 8) for (const lu of [-3, 2]) c.torchAt(leg, lu, lv, y0 + 4, lu < 0 ? 1 : -1, { I: 3.2 });
     for (let lv = c.lo + 1; lv < c.hi; lv += 6) c.lamp(((lv >> 2) % 2) - 1, lv, y0 + ht - 1, B.T_GLOW, [1, 0.85, 0.55], 3.4, 12);
     c.a.sources.push(...[]);
@@ -210,7 +210,7 @@ def("chasm_open", { style: wall([[420, T_STONE], [700, T_COBBLE], [880, T_BEDROC
   } });
 
 // ---- S11: the void bridge: no walls, a starfield, islands of end stone ----------------------------------------------------------------------------------------
-def("void_bridge", { margin: 3, style: wall([[600, B.T_ENDSTONE], [850, T_OBS], [1000, B.T_ENDSTONE]]), hw: [10, 10], ht: [14, 14], pre: [3, 3], post: [3, 3], m: [5, 6], branch: [0, 0], step: 8, below: D + 4, holes: [],
+def("void_bridge", { floatingOk: true, margin: 3, style: wall([[600, B.T_ENDSTONE], [850, T_OBS], [1000, B.T_ENDSTONE]]), hw: [10, 10], ht: [14, 14], pre: [3, 3], post: [3, 3], m: [5, 6], branch: [0, 0], step: 8, below: D + 4, holes: [],
   floor: ({ lu, leg }) => ((lu === -1 || lu === 0) ? T_OBS : { from: leg.y0 - D - 2, cells: [[leg.y0 - D - 3, T_BEDROCK]] }),
   alcoveBase: (leg) => leg.y0 - 2, alcovePil: T_OBS, alcoveLin: B.T_ENDSTONE,
   prof: P([0.075, 0.05, 0.12], [0.04, 0.03, 0.09], 0.03, 1.32, 1.2, 0.65, { pitch: -0.2 }),
@@ -225,7 +225,8 @@ def("void_bridge", { margin: 3, style: wall([[600, B.T_ENDSTONE], [850, T_OBS], 
       c.src(lu + 0.5, lv + 0.5, yy + 2, [0.7, 0.45, 1.0], 3.0, 11, {});
     });
     for (let lv = c.lo + 1; lv < c.hi; lv += 6) for (const lu of [-2, 1]) { c.col(lu, lv, y0, y0 + 1, T_OBS); c.src(lu + 0.5, lv + 0.5, y0 + 1.8, [0.8, 0.5, 1.0], 2.8, 9, {}); c.L(leg, lu, lv, y0 + 2, B.T_GLOW); }
-    for (let lv = c.lo + 3; lv < c.hi; lv += 12) { for (const lu of [-3, 2]) c.col(lu, lv, y0 - 2, y0 + 5, T_OBS); for (let lu = -3; lu <= 2; lu++) c.L(leg, lu, lv, y0 + 6, T_OBS); }
+    for (let lv = c.lo + 3; lv < c.hi; lv += 12) { for (let lu = -3; lu <= 2; lu++) c.L(leg, lu, lv, y0 - 1, T_OBS); for (const lu of [-3, 2]) c.col(lu, lv, y0, y0 + 5, T_OBS);   // the arch stands on a landing beside the bridge, not in the void
+      for (let lu = -3; lu <= 2; lu++) c.L(leg, lu, lv, y0 + 6, T_OBS); }
     void ht;
   } });
 

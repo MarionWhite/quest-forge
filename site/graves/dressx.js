@@ -42,7 +42,7 @@ export function addDecor(dresser, IMG) {
   };
   X.pane = (d, put) => {
     const n = d.tex || "glass_red"; if (!guard(n)) return;
-    put("pane:" + n, plane(d.w || 1, d.h || 1), d.x, d.y, d.z, d.ry || 0, 0, 0, cutm(n, { alphaTest: 0.05, transparent: true, opacity: 0.8, depthWrite: false, emissive: new THREE.Color(0.18, 0.18, 0.2) }));
+    put("pane:" + n, plane(d.w || 1, d.h || 1), d.x, d.y, d.z, d.ry || 0, d.flat ? -Math.PI / 2 : 0, 0, cutm(n, { alphaTest: 0.05, transparent: true, opacity: 0.8, depthWrite: false, emissive: new THREE.Color(0.18, 0.18, 0.2) }));
   };
   X.plate = (d, put) => { if (!guard("stone")) return; put("plate", box(0.875, 0.0625, 0.875), d.x, d.y, d.z, d.ry || 0, 0, 0, lam("stone")); };
   // Two crossed planes: a flower, a mushroom, a fern, a sapling, the brewing stand.

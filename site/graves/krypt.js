@@ -12,6 +12,7 @@ import {
 import { legMap, legLocal, legCell, legYaw, legDir, floorTop, PASSAGE_LEN, SLOT_STEP } from "./geom.js";
 import { makePlan, SEED, legProfile } from "./plan.js";
 import { KINDS, makeCtx } from "./kinds.js";
+import { decorProblem, makeSupport } from "./support.js";
 
 export { SLOT_STEP, makePlan, SEED, KINDS };
 export { legMap, legLocal, legYaw, legDir };
@@ -77,10 +78,11 @@ export function buildWindow(plan, ci, ck) {
   function pushTorch(i, j, k, fx, fz, opts = {}) {
     const cx = i + 0.5 + fx * 0.5, cz = k + 0.5 + fz * 0.5;
     const tip = [cx + fx * 0.35, j + (fx || fz ? 0.845 : 0.66), cz + fz * 0.35];   // a standing torch (no facing) is lower
-    a.torches.push({ i, j, k, fx, fz, x: tip[0], y: tip[1], z: tip[2], cx, cz, ...opts });
     const s = opts.I != null ? opts.I : 3.4;
-    a.sources.push({ x: tip[0] + fx * 0.2, y: tip[1] + 0.15, z: tip[2] + fz * 0.2, c: opts.c || [1.0, 0.56, 0.24], I: s, R: 12, dyn: true });
-    a.emit.push({ k: "torch", x: tip[0], y: tip[1] + 0.02, z: tip[2] });
+    const src = { x: tip[0] + fx * 0.2, y: tip[1] + 0.15, z: tip[2] + fz * 0.2, c: opts.c || [1.0, 0.56, 0.24], I: s, R: 12, dyn: true };
+    const em = { k: "torch", x: tip[0], y: tip[1] + 0.02, z: tip[2] };
+    a.torches.push({ i, j, k, fx, fz, x: tip[0], y: tip[1], z: tip[2], cx, cz, ...opts, _src: src, _em: em });
+    a.sources.push(src); a.emit.push(em);
   }
   function torchAt(leg, lu, lv, j, faceA, opts = {}) {
     const [fx, fz] = dirw(leg, faceA, 0);
@@ -174,8 +176,43 @@ export function buildWindow(plan, ci, ck) {
     for (let q = 0; q < 3; q++) a.sources.push({ x: x + (q - 1) * 0.9, y: yTop + 0.6, z: z + (q % 2 ? 0.6 : -0.6), c: [0.55, 0.42, 0.95], I: 3.4, R: 12, sky: true });
   }
   // 4. Set dressing, leg by leg.
+  a.support = makeSupport(a, T_WATER, T_LAVA); a.refused = [];
   const H = { L, LG, W3, dirw, torchAt, torchAtB, pushTorch, decor, legCell, set, get };
   for (const leg of legs) leg.kd.dress && leg.kd.dress(makeCtx(a, plan, leg, H));
+  // 4b. Nothing floats: a prop or a torch with nothing to stand on or hang from is dropped (the kinds are meant never to
+  // make one: tools/site/check_krypt_support.mjs fails on every entry of a.dropped).
+  const S = makeSupport(a, T_WATER, T_LAVA);
+  a.dropped = [];
+  // A small floating piece (up to six blocks, joined face to face or edge to edge, touching no rock): a lamp whose roof a hole
+  // took, a post over a gap. It is removed. Anything larger, or touching rock, stays (the checker flood-fills the rest).
+  {
+    const { NI, NJ, NK, g } = a, sj = NI, sk = NI * NJ, seen = new Uint8Array(g.length), rock = (t) => t === T_WALL || t === T_BEDROCK;
+    const OFF = []; for (let dk = -1; dk <= 1; dk++) for (let dj = -1; dj <= 1; dj++) for (let di = -1; di <= 1; di++) if ((di || dj || dk) && Math.abs(di) + Math.abs(dj) + Math.abs(dk) <= 2) OFF.push(di + dj * sj + dk * sk);
+    const floats = a.legs.some((l) => l.kd.floatingOk);
+    for (let k = 1; k < NK - 1; k++) for (let j = 1; j < NJ - 1; j++) for (let i = 1; i < NI - 1; i++) {
+      const ix = (k * NJ + j) * NI + i, t = g[ix];
+      if (seen[ix] || t === T_AIR || rock(t) || isOpen(t)) continue;
+      const comp = [ix]; seen[ix] = 1; let held = false;
+      for (let q = 0; q < comp.length; q++) {   // the whole piece, so a big one is marked once and never looked at again
+        const c = comp[q], ci = c % NI, cj = Math.floor(c / NI) % NJ, ck = Math.floor(c / (NI * NJ));
+        if (ci < 1 || cj < 1 || ck < 1 || ci > NI - 2 || cj > NJ - 2 || ck > NK - 2) { held = true; continue; }
+        for (const o of OFF) {
+          const n = c + o, tn = g[n];
+          if (rock(tn)) { held = true; continue; }
+          if (tn === T_AIR || isOpen(tn) || seen[n]) continue;
+          seen[n] = 1; comp.push(n);
+        }
+      }
+      if (comp.length > 6) held = true;
+      if (held || floats) continue;
+      for (const c of comp) {
+        const wi = a.i0 + (c % NI), wj = a.j0 + (Math.floor(c / NI) % NJ), wk = a.k0 + Math.floor(c / (NI * NJ));
+        if (S.chain(wi, wj, wk)) continue;
+        a.dropped.push({ t: "lone" + g[c], why: "floating piece removed", x: wi + 0.5, y: wj, z: wk + 0.5 }); g[c] = T_AIR;
+      }
+    }
+  }
+  a.decor = a.decor.filter((d) => { const why = decorProblem(d, S); if (!why) return true; a.dropped.push({ ...d, why }); return false; });
   // 5. A torch for each stone: on the corridor face of the rear pillar. Fewer in the cold entrance and the ossuary.
   // Where a stratum begins, and over the first part of the entrance, the pillar torches thin out to every other stone
   // and burn lower: small pools in the cold, as round 5's crypt (plan.js legProfile carries the rest of the journey).
@@ -188,6 +225,15 @@ export function buildWindow(plan, ci, ck) {
     if (s.i % every && !(leg.idx === 0 && s.i === 0)) continue;
     const pil = s.side > 0 ? hw - 1 : -hw;
     if (!torchAt(leg, pil, s.lvc + 2, y0 + 2, -s.side, { I })) torchAt(leg, pil, s.lvc - 2, y0 + 2, -s.side, { I });
+  }
+  {
+    const dead = new Set();
+    a.torches = a.torches.filter((t) => {
+      const held = t.fx || t.fz ? a.solid(t.i, t.j, t.k) : a.solid(t.i, t.j - 1, t.k) || a.solid(t.i, t.j, t.k);
+      if (held) return true;
+      a.dropped.push({ t: "torch", why: "no wall block", x: t.x, y: t.y, z: t.z }); dead.add(t._src); dead.add(t._em); return false;
+    });
+    if (dead.size) { a.sources = a.sources.filter((s) => !dead.has(s)); a.emit = a.emit.filter((e) => !dead.has(e)); }
   }
   // Lava: sources and planes over the open lava cells of chasm and fortress floors, and over every gap.
   for (const leg of legs) {

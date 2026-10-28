@@ -65,8 +65,10 @@ DRESS.ossuary = (c) => {
       if (!rowsFree(sd, lv) || !rowsFree(sd, lv - 1) || !rowsFree(sd, lv + 1)) continue;
       if ((lv + (sd > 0 ? 1 : 0)) % 2) continue;
       const lu = wallCell(sd), [ci, ck] = legCell(leg, lu, lv);
-      for (let j = y0 + 1; j <= y0 + 2; j++) if (a.solid(ci, j, ck)) L(leg, lu, lv, j, T_AIR);
-      for (let j = y0 + 1; j <= y0 + 2; j++) {
+      // Two tiers with a shelf of stone between: what lies in the upper niche rests on that shelf, not on air.
+      const tiers = ht >= 5 ? [y0 + 1, y0 + 3] : [y0 + 1];
+      for (const j of tiers) if (a.solid(ci, j, ck)) L(leg, lu, lv, j, T_AIR);
+      for (const j of tiers) {
         const [x, y, z] = W3(leg, sd * (hw + 0.5), lv + 0.5, y0);
         const r = rnd(lv * 3 + j, sd + 5);
         if (r < 0.78) decor({ t: "skull", x, y: j, z, ry: yaw + sd * Math.PI / 2 + (r - 0.4) * 0.8 });
@@ -171,19 +173,20 @@ DRESS.chasm = (c) => {
 
 DRESS.catacomb = (c) => {
   const { a, plan, leg, L, LG, W3, dirw, torchAt, torchAtB, pushTorch, decor, legCell, set, get, hw, y0, kind, ht, rowsFree, lo, hi, yaw, rnd, wallCell, edgeCell, dispType, webAt, freeRow } = c;
-    // Loculi: three niches high, two deep, in every second row of the free walls; each holds a skull and bones, the
+    // Loculi: two tiers high, two deep, in every second row of the free walls; each holds a skull and bones, the
     // upper ones a cobweb. Brick arches across the hall every nine rows.
     for (const sd of [-1, 1]) for (let lv = lo; lv < hi; lv++) {
       if (!rowsFree(sd, lv) || !rowsFree(sd, lv - 1) || !rowsFree(sd, lv + 1)) continue;
       if ((lv + (sd > 0 ? 1 : 0)) % 2) continue;
       const lu = wallCell(sd), lu2 = lu + sd;
-      for (let j = y0; j <= y0 + 2; j++) { L(leg, lu, lv, j, T_AIR); L(leg, lu2, lv, j, T_AIR); }
-      for (let j = y0; j <= y0 + 2; j++) {
+      // Two loculi tiers with a stone shelf between, so what lies in the upper one rests on stone.
+      for (const j of [y0, y0 + 2]) { L(leg, lu, lv, j, T_AIR); L(leg, lu2, lv, j, T_AIR); }
+      for (const j of [y0, y0 + 2]) {
         const [x, , z] = W3(leg, sd * (hw + 0.5), lv + 0.5, y0);
         const r = rnd(lv * 7 + j, sd + 20);
         if (r < 0.7) decor({ t: "skull", x, y: j, z, ry: yaw + sd * Math.PI / 2 + (r - 0.35) * 0.9 });
         if (r > 0.3) decor({ t: "bone", x: x + (r - 0.6) * 0.3, y: j + 0.02, z: z + 0.15, ry: r * 7 });
-        if (j === y0 + 1 && ih(lv, leg.rid, sd + 3, 61) < 600) a.sources.push({ x: x + sd * -0.3, y: j + 0.6, z, c: [1.0, 0.72, 0.4], I: 2.6, R: 7 });
+        if (j === y0 && ih(lv, leg.rid, sd + 3, 61) < 600) a.sources.push({ x: x + sd * -0.3, y: j + 0.6, z, c: [1.0, 0.72, 0.4], I: 2.6, R: 7 });
         if (j === y0 + 2 && r > 0.55) { const [wx, , wz] = W3(leg, sd * (hw + 0.1), lv + 0.5, 0); decor({ t: "web", x: wx, y: j + 0.7, z: wz, ry: yaw + sd * Math.PI / 2, w: 0.9 }); }
       }
     }
@@ -299,6 +302,7 @@ DRESS.vault = (c) => {
       if ((lv + (sd > 0 ? 3 : 0)) % 6 !== 0) continue;
       const lu = edgeCell(sd);
       if (LG(leg, lu, lv, y0) !== T_AIR) continue;
+      c.under(lu, lv, y0 - 1, T_GOLD);   // a pillar over a gap in the floor is carried down to the bed
       for (let j = y0; j <= y0 + 2; j++) L(leg, lu, lv, j, T_GOLD);
       const [gx, , gz] = W3(leg, lu + 0.5, lv + 0.5, 0);
       a.sources.push({ x: gx, y: y0 + 3.2, z: gz, c: [1.0, 0.82, 0.38], I: 2.2, R: 8 });
@@ -313,9 +317,9 @@ DRESS.vault = (c) => {
     for (let lv = lo + 2; lv < hi; lv += 5) for (const sd of [-1, 1]) if (rowsFree(sd, lv)) torchAt(leg, wallCell(sd), lv, y0 + 3, -sd, { I: 3.2 });
     // The far end: a diamond block on an iron pedestal between gold pillars, behind bars.
     const pv = leg.ce - leg.post - 1;
-    for (const lu of [-1, 0]) for (const lv of [pv, pv + 1]) L(leg, lu, lv, y0, T_IRONB);
+    for (const lu of [-1, 0]) for (const lv of [pv, pv + 1]) { c.under(lu, lv, y0 - 1, T_IRONB); L(leg, lu, lv, y0, T_IRONB); }
     L(leg, 0, pv, y0 + 1, T_DIAM);
-    for (const lu of [-3, 2]) for (const lv of [pv - 1, pv + 2]) for (let j = y0; j <= y0 + 3; j++) L(leg, lu, lv, j, T_GOLD);
+    for (const lu of [-3, 2]) for (const lv of [pv - 1, pv + 2]) { c.under(lu, lv, y0 - 1, T_GOLD); for (let j = y0; j <= y0 + 3; j++) L(leg, lu, lv, j, T_GOLD); }
     const [px, , pz] = W3(leg, 0.5, pv + 1.0, 0);
     a.sources.push({ x: px, y: y0 + 2.6, z: pz, c: [0.7, 0.96, 1.0], I: 3.6, R: 11, dyn: true });
     for (let lv = lo; lv < hi; lv += 4) { const sd = (lv / 4) % 2 ? 1 : -1; const [x, , z] = W3(leg, sd * (hw - 0.3), lv, 0); decor({ t: "web", x, y: y0 + ht - 0.6, z, ry: yaw + sd * Math.PI / 4, w: 1.2 }); }
@@ -336,6 +340,7 @@ DRESS.fortress = (c) => {
     }
     for (let lv = leg.cs + 1; lv < leg.ce - 1; lv++) for (const e of [-2, 1]) {
       if (LG(leg, e, lv, y0) !== T_AIR) continue;
+      { const [fi, fk] = legCell(leg, e, lv); if (!a.solid(fi, y0 - 1, fk)) continue; }   // a rail needs a floor under it
       const [x, , z] = W3(leg, e + (e < 0 ? 0.14 : 0.86), lv + 0.5, 0);
       const [bx, bz] = dirw(leg, 0, 1);
       decor({ t: "nfence", x: x - bx * 0.5, y: y0, z: z - bz * 0.5, ry: yaw, bx, bz, rails: lv < leg.ce - 2 });

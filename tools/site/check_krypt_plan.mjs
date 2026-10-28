@@ -44,5 +44,13 @@ const p2 = makePlan({ n: N }); for (let i = 0; i < p.legs.length; i++) if (p.leg
   console.log(`rhythm: rooms ${rooms} of ${p.legs.length} legs (${(100 * rooms / p.legs.length).toFixed(0)}%), longest corridor run ${maxRun}; 12-leg windows with a repeat ${dupWin} of ${p.legs.length - 11}, fewest distinct ${worst} (at leg ${worstAt})`);
   if (maxRun > 4) fail(`corridor run of ${maxRun} legs`);
 }
+// Nothing floats (round 8): every chunk window of the plan, headless; a separate process (it hooks the module loader).
+{
+  const { spawnSync } = await import("node:child_process");
+  const r = spawnSync(process.execPath, [new URL("./check_krypt_support.mjs", import.meta.url).pathname, String(N)], { encoding: "utf8" });
+  const lines = r.stdout.trim().split("\n"), last = lines[lines.length - 1];
+  console.log(`support (nothing floats): ${last}`);
+  if (r.status !== 0) { bad++; for (const l of lines.filter((x) => /FAIL/.test(x)).slice(0, 12)) console.log("  ", l.trim()); if (r.stderr) console.log(r.stderr.slice(0, 400)); }
+}
 console.log(bad ? `${bad} FAILURES` : "OK");
 process.exit(bad ? 1 : 0);
