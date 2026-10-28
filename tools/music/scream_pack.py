@@ -552,7 +552,7 @@ def main():
     if args and args[0] == "fetch": return fetch()
     if args and args[0] == "build": args = args[1:]
     for name, fn, kw in DEFS:
-        if name in R7_OWNED: continue   # rebuilt by scream_pack2.py (round 7: one real voice, minimal processing)
+        if name in R7_OWNED: continue   # rebuilt by scream_pack3.py (round 8: one real recorded voice, as recorded)
         if args and not any(a in (name, name.split(".", 2)[-1]) for a in args): continue
         kw = dict(kw); P = kw.pop("loop", None)
         SS.save(name, fn(), loop_P=int(P * SR) if P else None, **kw)
@@ -560,7 +560,7 @@ def main():
     flag_mojang([n for n in FAR_NAMES if n in json.load(open(os.path.join(SFX, "manifest.json")))["events"]])
     write_sources()
     try:
-        import scream_pack2; scream_pack2.merge_sources()
+        import scream_pack3; scream_pack3.merge_sources(json.load(open(scream_pack3.META)))
     except FileNotFoundError: pass
     for r in SS.REP: print(r)
 

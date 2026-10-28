@@ -57,22 +57,25 @@ Machine-readable copy: `sources.json`. Licence text: https://creativecommons.org
 - `qf.mood.far_cry`: the bank's zombie / skeleton / enderman / ghast / spider / cat sounds, pitched down, low-passed, in a cave echo
 - `qf.mood.far_hiss`: the bank's zombie / skeleton / enderman / ghast / spider / cat sounds, pitched down, low-passed, in a cave echo
 
-## Freesound recordings (round 7 screams; all CC0 1.0, one real voice per file)
+## Freesound recordings (round 8 screams; one real voice per file)
 
 | Sound | Author | Licence | Events |
 |---|---|---|---|
-| [Startled, Tortured, and Terrified (Man)](https://freesound.org/people/ericnorcross81/sounds/575674/) | ericnorcross81 | CC0 1.0 | death_scream |
-| [Man Screams His Death Into The Void](https://freesound.org/people/BlockFrog/sounds/752055/) | BlockFrog | CC0 1.0 | death_scream, underwater |
-| [Male increasing scream - horror yelling in pain.wav](https://freesound.org/people/gtrempe/sounds/542128/) | gtrempe | CC0 1.0 | death_scream |
-| [Pain man scream](https://freesound.org/people/Piement_infernal/sounds/724173/) | Piement_infernal | CC0 1.0 | death_scream, jumpscreech |
-| [male scream pain torture.wav](https://freesound.org/people/martian/sounds/530471/) | martian | CC0 1.0 | death_scream |
-| [Man screaming.wav](https://freesound.org/people/Archeos/sounds/325548/) | Archeos | CC0 1.0 | death_scream |
-| [Guttural Screams.wav](https://freesound.org/people/fattirewhitey/sounds/381784/) | fattirewhitey | CC0 1.0 | death_scream |
-| [Male Screams [1]](https://freesound.org/people/marc3122/sounds/556976/) | marc3122 | CC0 1.0 | scream |
-| [Man Screams.WAV](https://freesound.org/people/Capt_Bligh1/sounds/690702/) | Capt_Bligh1 | CC0 1.0 | scream, scream_far |
-| [screamimg pain](https://freesound.org/people/ronse/sounds/760720/) | ronse | CC0 1.0 | scream, scream_far |
-| [Wounded man scream](https://freesound.org/people/joseppujol/sounds/221544/) | joseppujol | CC0 1.0 | jumpscreech |
-| [manscreamingintowarmwaterfilledpot.WAV](https://freesound.org/people/Bemine2506/sounds/661477/) | Bemine2506 | CC0 1.0 | underwater |
-| [young man screaming, pillow on face](https://freesound.org/people/WickedWeed/sounds/767590/) | WickedWeed | CC0 1.0 | underwater |
+| [male_Thijs_loud_scream.aiff](https://freesound.org/people/thanvannispen/sounds/9432/) | thanvannispen | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) | death_scream |
+| [Male Being Impaled/Beaten AC.wav](https://freesound.org/people/oldedgar/sounds/131710/) | oldedgar | [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) | death_scream |
+| [Male voice screaming loudly](https://freesound.org/people/Dinsfire/sounds/169628/) | Dinsfire | [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) | death_scream |
+| [human male scream multi](https://freesound.org/people/JohnsonBrandEditing/sounds/173944/) | JohnsonBrandEditing | [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) | death_scream |
+| [screaming_male_pain.mp3](https://freesound.org/people/GabrielaUPF/sounds/220290/) | GabrielaUPF | [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/) | scream |
+| [human male scream 2](https://freesound.org/people/JohnsonBrandEditing/sounds/243376/) | JohnsonBrandEditing | [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) | death_scream |
+| [Studio roar](https://freesound.org/people/AugustSandberg/sounds/265554/) | AugustSandberg | [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) | scream |
+| [Man screaming.wav](https://freesound.org/people/Archeos/sounds/325548/) | Archeos | [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) | death_scream |
+| [Grunt2 - Death Pain.wav](https://freesound.org/people/tonsil5/sounds/416838/) | tonsil5 | [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) | jumpscreech |
+| [Warrior Death Cry - British Male](https://freesound.org/people/theuncertainman/sounds/417539/) | theuncertainman | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) | death_scream |
+| [Man Scream2.wav](https://freesound.org/people/Yu_De/sounds/445007/) | Yu_De | [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) | scream |
+| [male scream pain torture.wav](https://freesound.org/people/martian/sounds/530471/) | martian | [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) | death_scream |
+| [Man Screaming, A](https://freesound.org/people/Moulaythami/sounds/548377/) | Moulaythami | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) | scream_far |
+| [Male Death Cry 4.wav](https://freesound.org/people/F.M.Audio/sounds/695387/) | F.M.Audio | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) | jumpscreech |
+| [drowning](https://freesound.org/people/RNAn_SoundDesign/sounds/725874/) | RNAn_SoundDesign | [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) | underwater |
+| [Man Drowning Underwater](https://freesound.org/people/simonjeffery13/sounds/752733/) | simonjeffery13 | [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) | underwater |
 
-Built by `tools/music/scream_pack2.py` (trim, high-pass, presence, a pitch shift within one semitone, a short room, 48 kHz 160 kbps AAC).
+Built by `tools/music/scream_pack3.py` from the Freesound HQ previews: trim, fade and level only (no pitch, EQ or reverb), 48 kHz, 192 kbps AAC. The owner chooses them on the audition page the script writes.

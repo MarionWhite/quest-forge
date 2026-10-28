@@ -6481,12 +6481,9 @@
     "qf/scare_death_scream7.m4a",
     "qf/scare_death_scream8.m4a"
    ],
-   "volume": 1.0,
-   "pitch": [
-    0.97,
-    1.03
-   ],
-   "bus": "sfx"
+   "volume": 1,
+   "pitch": 1,
+   "bus": "voice"
   },
   "qf.scare.drone": {
    "files": [
@@ -6546,12 +6543,9 @@
     "qf/scare_jumpscreech1.m4a",
     "qf/scare_jumpscreech2.m4a"
    ],
-   "volume": 1.0,
-   "pitch": [
-    0.98,
-    1.02
-   ],
-   "bus": "sfx"
+   "volume": 1,
+   "pitch": 1,
+   "bus": "voice"
   },
   "qf.scare.ringing": {
    "files": [
@@ -6578,24 +6572,18 @@
     "qf/scare_scream2.m4a",
     "qf/scare_scream3.m4a"
    ],
-   "volume": 1.0,
-   "pitch": [
-    0.97,
-    1.03
-   ],
-   "bus": "sfx"
+   "volume": 1,
+   "pitch": 1,
+   "bus": "voice"
   },
   "qf.scare.scream_far": {
    "files": [
     "qf/scare_scream_far1.m4a",
     "qf/scare_scream_far2.m4a"
    ],
-   "volume": 0.9,
-   "pitch": [
-    0.97,
-    1.03
-   ],
-   "bus": "sfx"
+   "volume": 1,
+   "pitch": 1,
+   "bus": "voice"
   },
   "qf.scare.shriek": {
    "files": [
@@ -6637,9 +6625,9 @@
     "qf/scare_underwater2.m4a",
     "qf/scare_underwater3.m4a"
    ],
-   "volume": 0.9,
+   "volume": 1,
    "pitch": 1,
-   "bus": "sfx"
+   "bus": "voice"
   },
   "qf.scare.whisper": {
    "files": [

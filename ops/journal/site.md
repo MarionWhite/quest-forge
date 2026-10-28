@@ -1,5 +1,19 @@
 # Site journal (newest first)
 
+- 2026-10-27 (Mac) audio r8 (screams): the playback path coloured every scream. Manifest pitch [.97,1.03] meant a
+  random playbackRate; volumes 1.1-1.7 drove a -10 dB 4:1 master compressor with automatic makeup gain, then a hard
+  clip at the destination; ghast's @muffle low-passed the scream; muffle() swapped in a default (-24 dB 12:1)
+  compressor for the rest of the visit; the game's "oof" landed 20 ms into each death scream; drowned.js stacked three
+  underwater takes and a death scream. Now a qfaudio 'voice' bus (as recorded: no panner, rate 1, no reverb, gain <= 1,
+  past the compressor and muffle, one -1 dBFS safety limiter for the whole mix), the oof 0.1 s before, one voice at a
+  time for death_scream + underwater (6a1cd83 and this commit). r7's scream_pack2 pitch-shifted with rubberband and
+  added a synthetic noise room: both gone. Pool: 70 Freesound searches sorted by downloads (911 results, 427 sound
+  pages), CC0/CC BY 3.0/4.0 only, male only, clipped-at-source left out; rank = Bayesian rating + 0.15 log10(downloads).
+  `tools/music/scream_pack3.py` (fetch|build|audition): trim, fade, level (-12 dBFS loudest 400 ms, -1 dBTP), 48 kHz
+  192 kbps AAC (AudioToolbox), from the HQ Ogg previews (not r7's 128k mp3). Defaults wired (8/3/2/3/2); 34-take
+  audition page in the scratchpad `r8/audio/audition/index.html`; credits at `site/lib/sfx/credits.html` (footer
+  link on the Graves page). OGA and Commons checked: only Wilhelm-style or BY-SA, skipped. Owner picks by number.
+
 - 2026-10-27 (Mac) orchestrator: round 7 done. The owner judged round 6's Krypt a regression; my
   stills-only reviews had missed motion and props. This round added a real-time yaw metric, prop
   close crops, walk filmstrips and a side-by-side against 275579a (round 5). The side-by-side caught

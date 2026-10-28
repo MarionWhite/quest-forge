@@ -303,6 +303,8 @@ def write_meta():
 
 def main():
     a = sys.argv[1:]
+    if os.environ.get("QF_R7") != "1":   # round 8: the five events, sources.json and README come from scream_pack3.py
+        raise SystemExit("superseded by tools/music/scream_pack3.py (round 8); set QF_R7=1 to run the round-7 build anyway")
     if a and a[0] == "fetch": fetch(); write_meta(); return
     if a and a[0] == "build": a = a[1:]
     for name, fn, kw in DEFS:

@@ -1,5 +1,5 @@
 {
- "note": "Round 7: the screams (qf.scare.death_scream, scream, scream_far, underwater, jumpscreech) are single real recordings of a man screaming, CC0 1.0 from Freesound.org (licence link checked on each sound page), with at most one quiet CC0 foley layer from OpenGameArt. The other pack sources are CC0 1.0 from OpenGameArt.org. Nothing is NC, nothing is from a game. Synthesised layers are our own. qf.mood.far_* are the bank's Mojang mob sounds reprocessed: flagged \"mojang\": true in manifest.json and dropped by build_sfx.py --own-only.",
+ "note": "Round 8: the screams (qf.scare.death_scream, scream, scream_far, underwater, jumpscreech) are single real recordings of a man, from Freesound.org, CC0 1.0 or CC BY 3.0/4.0 (licence checked on each sound page; the CC BY authors are credited here, in README.md and on site/lib/sfx/credits.html). They are trimmed, faded and levelled, nothing else, and play on qfaudio's 'voice' bus. The other pack sources are CC0 1.0 from OpenGameArt.org. Nothing is NC, nothing is from a game. Synthesised layers are our own. qf.mood.far_* are the bank's Mojang mob sounds reprocessed: flagged \"mojang\": true in manifest.json and dropped by build_sfx.py --own-only.",
  "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
  "sources": [
   {
@@ -300,59 +300,88 @@
    "used_for": "mood.scrape, scamper"
   },
   {
-   "id": "fs575674",
-   "title": "Startled, Tortured, and Terrified (Man)",
-   "url": "https://freesound.org/people/ericnorcross81/sounds/575674/",
-   "author": "ericnorcross81",
-   "licence": "CC0 1.0",
+   "id": "fs9432",
+   "title": "male_Thijs_loud_scream.aiff",
+   "url": "https://freesound.org/people/thanvannispen/sounds/9432/",
+   "author": "thanvannispen",
+   "licence": "CC BY 4.0",
+   "licence_url": "https://creativecommons.org/licenses/by/4.0/",
    "files": [
-    "575674 (HQ preview mp3)"
+    "9432 (HQ preview)"
    ],
-   "used_for": "the recorded voice (one per file)"
+   "used_for": "the recorded voice, trimmed, faded and levelled only"
   },
   {
-   "id": "fs752055",
-   "title": "Man Screams His Death Into The Void",
-   "url": "https://freesound.org/people/BlockFrog/sounds/752055/",
-   "author": "BlockFrog",
+   "id": "fs131710",
+   "title": "Male Being Impaled/Beaten AC.wav",
+   "url": "https://freesound.org/people/oldedgar/sounds/131710/",
+   "author": "oldedgar",
    "licence": "CC0 1.0",
+   "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
    "files": [
-    "752055 (HQ preview mp3)"
+    "131710 (HQ preview)"
    ],
-   "used_for": "the recorded voice (one per file)"
+   "used_for": "the recorded voice, trimmed, faded and levelled only"
   },
   {
-   "id": "fs542128",
-   "title": "Male increasing scream - horror yelling in pain.wav",
-   "url": "https://freesound.org/people/gtrempe/sounds/542128/",
-   "author": "gtrempe",
+   "id": "fs169628",
+   "title": "Male voice screaming loudly",
+   "url": "https://freesound.org/people/Dinsfire/sounds/169628/",
+   "author": "Dinsfire",
    "licence": "CC0 1.0",
+   "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
    "files": [
-    "542128 (HQ preview mp3)"
+    "169628 (HQ preview)"
    ],
-   "used_for": "the recorded voice (one per file)"
+   "used_for": "the recorded voice, trimmed, faded and levelled only"
   },
   {
-   "id": "fs724173",
-   "title": "Pain man scream",
-   "url": "https://freesound.org/people/Piement_infernal/sounds/724173/",
-   "author": "Piement_infernal",
+   "id": "fs173944",
+   "title": "human male scream multi",
+   "url": "https://freesound.org/people/JohnsonBrandEditing/sounds/173944/",
+   "author": "JohnsonBrandEditing",
    "licence": "CC0 1.0",
+   "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
    "files": [
-    "724173 (HQ preview mp3)"
+    "173944 (HQ preview)"
    ],
-   "used_for": "the recorded voice (one per file)"
+   "used_for": "the recorded voice, trimmed, faded and levelled only"
   },
   {
-   "id": "fs530471",
-   "title": "male scream pain torture.wav",
-   "url": "https://freesound.org/people/martian/sounds/530471/",
-   "author": "martian",
-   "licence": "CC0 1.0",
+   "id": "fs220290",
+   "title": "screaming_male_pain.mp3",
+   "url": "https://freesound.org/people/GabrielaUPF/sounds/220290/",
+   "author": "GabrielaUPF",
+   "licence": "CC BY 3.0",
+   "licence_url": "https://creativecommons.org/licenses/by/3.0/",
    "files": [
-    "530471 (HQ preview mp3)"
+    "220290 (HQ preview)"
    ],
-   "used_for": "the recorded voice (one per file)"
+   "used_for": "the recorded voice, trimmed, faded and levelled only"
+  },
+  {
+   "id": "fs243376",
+   "title": "human male scream 2",
+   "url": "https://freesound.org/people/JohnsonBrandEditing/sounds/243376/",
+   "author": "JohnsonBrandEditing",
+   "licence": "CC0 1.0",
+   "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "files": [
+    "243376 (HQ preview)"
+   ],
+   "used_for": "the recorded voice, trimmed, faded and levelled only"
+  },
+  {
+   "id": "fs265554",
+   "title": "Studio roar",
+   "url": "https://freesound.org/people/AugustSandberg/sounds/265554/",
+   "author": "AugustSandberg",
+   "licence": "CC0 1.0",
+   "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "files": [
+    "265554 (HQ preview)"
+   ],
+   "used_for": "the recorded voice, trimmed, faded and levelled only"
   },
   {
    "id": "fs325548",
@@ -360,120 +389,136 @@
    "url": "https://freesound.org/people/Archeos/sounds/325548/",
    "author": "Archeos",
    "licence": "CC0 1.0",
+   "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
    "files": [
-    "325548 (HQ preview mp3)"
+    "325548 (HQ preview)"
    ],
-   "used_for": "the recorded voice (one per file)"
+   "used_for": "the recorded voice, trimmed, faded and levelled only"
   },
   {
-   "id": "fs381784",
-   "title": "Guttural Screams.wav",
-   "url": "https://freesound.org/people/fattirewhitey/sounds/381784/",
-   "author": "fattirewhitey",
+   "id": "fs416838",
+   "title": "Grunt2 - Death Pain.wav",
+   "url": "https://freesound.org/people/tonsil5/sounds/416838/",
+   "author": "tonsil5",
    "licence": "CC0 1.0",
+   "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
    "files": [
-    "381784 (HQ preview mp3)"
+    "416838 (HQ preview)"
    ],
-   "used_for": "the recorded voice (one per file)"
+   "used_for": "the recorded voice, trimmed, faded and levelled only"
   },
   {
-   "id": "fs556976",
-   "title": "Male Screams [1]",
-   "url": "https://freesound.org/people/marc3122/sounds/556976/",
-   "author": "marc3122",
-   "licence": "CC0 1.0",
+   "id": "fs417539",
+   "title": "Warrior Death Cry - British Male",
+   "url": "https://freesound.org/people/theuncertainman/sounds/417539/",
+   "author": "theuncertainman",
+   "licence": "CC BY 4.0",
+   "licence_url": "https://creativecommons.org/licenses/by/4.0/",
    "files": [
-    "556976 (HQ preview mp3)"
+    "417539 (HQ preview)"
    ],
-   "used_for": "the recorded voice (one per file)"
+   "used_for": "the recorded voice, trimmed, faded and levelled only"
   },
   {
-   "id": "fs690702",
-   "title": "Man Screams.WAV",
-   "url": "https://freesound.org/people/Capt_Bligh1/sounds/690702/",
-   "author": "Capt_Bligh1",
+   "id": "fs445007",
+   "title": "Man Scream2.wav",
+   "url": "https://freesound.org/people/Yu_De/sounds/445007/",
+   "author": "Yu_De",
    "licence": "CC0 1.0",
+   "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
    "files": [
-    "690702 (HQ preview mp3)"
+    "445007 (HQ preview)"
    ],
-   "used_for": "the recorded voice (one per file)"
+   "used_for": "the recorded voice, trimmed, faded and levelled only"
   },
   {
-   "id": "fs760720",
-   "title": "screamimg pain",
-   "url": "https://freesound.org/people/ronse/sounds/760720/",
-   "author": "ronse",
+   "id": "fs530471",
+   "title": "male scream pain torture.wav",
+   "url": "https://freesound.org/people/martian/sounds/530471/",
+   "author": "martian",
    "licence": "CC0 1.0",
+   "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
    "files": [
-    "760720 (HQ preview mp3)"
+    "530471 (HQ preview)"
    ],
-   "used_for": "the recorded voice (one per file)"
+   "used_for": "the recorded voice, trimmed, faded and levelled only"
   },
   {
-   "id": "fs221544",
-   "title": "Wounded man scream",
-   "url": "https://freesound.org/people/joseppujol/sounds/221544/",
-   "author": "joseppujol",
-   "licence": "CC0 1.0",
+   "id": "fs548377",
+   "title": "Man Screaming, A",
+   "url": "https://freesound.org/people/Moulaythami/sounds/548377/",
+   "author": "Moulaythami",
+   "licence": "CC BY 4.0",
+   "licence_url": "https://creativecommons.org/licenses/by/4.0/",
    "files": [
-    "221544 (HQ preview mp3)"
+    "548377 (HQ preview)"
    ],
-   "used_for": "the recorded voice (one per file)"
+   "used_for": "the recorded voice, trimmed, faded and levelled only"
   },
   {
-   "id": "fs661477",
-   "title": "manscreamingintowarmwaterfilledpot.WAV",
-   "url": "https://freesound.org/people/Bemine2506/sounds/661477/",
-   "author": "Bemine2506",
-   "licence": "CC0 1.0",
+   "id": "fs695387",
+   "title": "Male Death Cry 4.wav",
+   "url": "https://freesound.org/people/F.M.Audio/sounds/695387/",
+   "author": "F.M.Audio",
+   "licence": "CC BY 4.0",
+   "licence_url": "https://creativecommons.org/licenses/by/4.0/",
    "files": [
-    "661477 (HQ preview mp3)"
+    "695387 (HQ preview)"
    ],
-   "used_for": "the recorded voice (one per file)"
+   "used_for": "the recorded voice, trimmed, faded and levelled only"
   },
   {
-   "id": "fs767590",
-   "title": "young man screaming, pillow on face",
-   "url": "https://freesound.org/people/WickedWeed/sounds/767590/",
-   "author": "WickedWeed",
+   "id": "fs725874",
+   "title": "drowning",
+   "url": "https://freesound.org/people/RNAn_SoundDesign/sounds/725874/",
+   "author": "RNAn_SoundDesign",
    "licence": "CC0 1.0",
+   "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
    "files": [
-    "767590 (HQ preview mp3)"
+    "725874 (HQ preview)"
    ],
-   "used_for": "the recorded voice (one per file)"
+   "used_for": "the recorded voice, trimmed, faded and levelled only"
+  },
+  {
+   "id": "fs752733",
+   "title": "Man Drowning Underwater",
+   "url": "https://freesound.org/people/simonjeffery13/sounds/752733/",
+   "author": "simonjeffery13",
+   "licence": "CC0 1.0",
+   "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "files": [
+    "752733 (HQ preview)"
+   ],
+   "used_for": "the recorded voice, trimmed, faded and levelled only"
   }
  ],
  "events": {
   "qf.scare.death_scream": [
-   "fs575674",
-   "fs752055",
-   "fs542128",
-   "fs724173",
-   "fs530471",
+   "fs169628",
+   "fs173944",
+   "fs243376",
    "fs325548",
-   "fs381784",
-   "slimy"
+   "fs530471",
+   "fs131710",
+   "fs417539",
+   "fs9432"
   ],
   "qf.scare.jumpscreech": [
-   "fs724173",
-   "fs221544",
-   "slimy"
+   "fs695387",
+   "fs416838"
   ],
   "qf.scare.underwater": [
-   "fs661477",
-   "fs767590",
-   "fs752055",
-   "bubbles"
+   "fs752733",
+   "fs725874"
   ],
   "qf.scare.static": [],
   "qf.scare.scream": [
-   "fs556976",
-   "fs690702",
-   "fs760720"
+   "fs265554",
+   "fs445007",
+   "fs220290"
   ],
   "qf.scare.scream_far": [
-   "fs690702",
-   "fs760720"
+   "fs548377"
   ],
   "qf.scare.shriek": [
    "creature",
