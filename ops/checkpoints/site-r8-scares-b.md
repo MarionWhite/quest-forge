@@ -78,3 +78,21 @@ multi.py, sheet2.py; reuse them). Spec: `docs/design/site/krypt-scares.md`.
   Magma Cube rewritten (uncommitted): beat log `mc_beat1.json`, frames `mc1/`, `mc2/` (size 6 at ceil 4 and 7,
   width-limited); fixes so far: baby enters from the far dark (fades up from unlit), fullbright cubes, face at 2.4 m,
   slices spread capped to the ceiling.
+- step 5: committed Blaze + Ghast + gravesNear + flow tool (e88931a). Magma fix: the big cube's first hop was in
+  place (zG0 used min instead of the midpoint). Magma film re-rendering to `r8/scares-b/film/mc1/film.png`
+  (background). NOTE: my `pkill -f "dump-dom"` at ~20:55 may have killed another agent's dump Chromes; only kill by PID.
+  Next: films for Blaze (with skins) and Ghast, beat files beside the owner's words, full J run + mood, trace check
+  for Enderman/Creeper, spec section, commit, journal.
+- step 6: Magma film done `r8/scares-b/film/mc1/film.png` (72 frames; reads beat by beat: dim 0-1.8, baby out of
+  the dark 2.0-5.2, stretched accordion hops, at your feet 6.6, looking down 6.8-9.2, turn 9.4, massive face 9.6,
+  slices open 10.0, inside 10.2+, death 14.0). After it: floor glow from behind boosted (it was subtle), big start
+  guarded against a near wall behind. Re-render 7.0-9.4 only: `FROM=7000 film.py mc1 "<q>" 9.4 film` (film.py now
+  rebuilds the sheet from every frame in the dir). Films bl2/gh1/sf1 rendering in background (`films.sh`, logs
+  `film_*.log`). Spec section v5 written (uncommitted, docs/design/site/krypt-scares.md). Beat-file builder
+  `beatfile.py`. Enderman/Creeper: none of my commits touch enderman/creeper/rig/common/fnaf/story/hud/director.
+- step 7: films `film/bl2/film.png` (Blaze, local skins on), `film/gh1/film.png` (Ghast, one fireball), `film/mc1/film.png`
+  (Magma, 7.0-9.6 re-rendered with the stronger glow); Silverfish film skipped (visually unchanged; r7 `sf1/sheet.png`).
+  Ghast look-back: its charge warble (T_BACKV - 0.15) turns the head; it fires on its own clock. Beat files beside the
+  owner's words: `r8/scares-b/beats/{magmacube,blaze,ghast,silverfish}.txt`. Full live J run + mood:
+  `flow_all2.json`: 16/16 ok, 20 mood ok, no leaks, no exceptions (gaps to 197 ms under load from other renders).
+  check_sounds exit 0; node --check on .mjs copies of all touched modules.

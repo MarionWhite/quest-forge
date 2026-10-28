@@ -192,3 +192,24 @@ the flare and the two volleys. Ghast, the charge and the fireball across the dro
 it hops in opening like an accordion, then leaps and comes down on you. Pigman, the step and the
 chop, then the horde. Wither Skeleton, it stands over you, rattles and runs you through. Lava
 fall, the rim, the slip. Drowned grab, it has your ankles, climbs you and bites.
+
+## v5 (round 8, 2026-10-27): entrances that make sense, sounds that stop
+The owner's rules this round, for every scare: no mob appears in view out of nowhere (it comes from a
+grave, a door, a hole, the ceiling, or the dark beyond the light); the camera turns only for something
+the viewer perceives (a sound, a sight, a touch); mobs act on their own nature and never wait for the
+player to look back; every sound and loop a scare starts stops when it ends and on Enter.
+- **Sounds that stop.** Every scare sound goes through `scares.js` scareAudio(): a one-shot plays one
+  pass even of an event the manifest loops, all are tagged "scare", and Enter stops any still sounding.
+  `qfaudio.voices()` lists what is sounding; `node tools/site/scare_flow.mjs [--only A,B] [--mood]`
+  plays every scare live and fails if a scare loop still sounds at the death screen or any scare sound
+  after Enter (the Silverfish's chitter played on forever: a looping event used as a one-shot).
+- **Blaze**: out of the nearest grave (`kr.gravesNear`): a crackle and a breath under the floor turn
+  the head to it, the plot in front of the headstone cracks with the glow seeping through, bursts, and
+  it rises out of the pit and floats out; then the round-7 volley. No grave within 16 m: the floor ahead.
+- **Ghast**: one fireball only, after it has shown itself and charged. On the look-back it floats in
+  out of the dark while you look away.
+- **Magma Cube** (the owner's script): the lights dim; a size-1 cube hops out of the dark, high and
+  bouncy (EntitySlime's squish, flame on each landing, the small squelch), to your feet, and you look
+  down at it; a heavy thud behind, an orange light growing on the floor round it, the big squelch right
+  behind; the head snaps round into the face of a massive one (as big as the corridor behind allows,
+  sizes 4 to 12, size 6 in a 4-high crypt), which jumps, slices open on the core, and comes down on you.

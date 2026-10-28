@@ -121,7 +121,8 @@ export default {
     const T_RISE = T_SIL + R.vary(0.7, 0.3), T_UP = T_RISE + R.vary(1.4, 0.2), T_EYES = T_UP + R.vary(0.6, 0.3);
     const T_DOWN = T_SIL + 0.2, T_SIDE = T_DOWN + R.vary(1.5, 0.3), T_BACKV = T_SIDE + 0.6 + R.vary(0.8, 0.4);
     // The charge: the mouth opens with its cry (t0); the fireball leaves it (T_SHOOT) and crosses the drop (T_HIT).
-    const t0 = rise ? T_EYES + R.vary(0.85, 0.4) : T_BACKV + R.vary(0.55, 0.3);
+    // (on the look-back its charge warble is what turns the head back; it opens its mouth on its own clock after it)
+    const t0 = rise ? T_EYES + R.vary(0.85, 0.4) : T_BACKV + R.vary(0.42, 0.25);
     const T_SHOOT = t0 + R.vary(0.55, 0.2), T_HIT = T_SHOOT + 0.6, DUR = T_HIT + 1.5;
     const gz = hole.z + 7.2, gx = hole.x - 0.3;   // it hangs out over the drop in front of the ledge
     const camEye = LEDGE + R.eye;
@@ -175,9 +176,9 @@ export default {
       [T_CRY2, "mob.ghast.affectionate_scream", { at: [hole.x + 9, LEDGE - 10, hole.z + 14], volume: 0.8, reverb: 0.8 }],
       silence(T_SIL, { fade: 0.6 }),
       ...(rise ? [[T_RISE + 0.6, "mob.ghast.moan", { at: [gx, LEDGE - 6, gz], volume: 0.5, pitch: 0.7, reverb: 0.5 }], [T_EYES, "mob.ghast.charge", { at: [gx, camEye, gz], volume: 0.9 }]]
-        : [[T_SIDE - 0.3, "mob.ghast.moan", { at: [hole.x + side * 6, LEDGE - 2, hole.z + 2], volume: 0.3, pitch: 0.6, reverb: 0.7 }], [T_BACKV + 0.15, "mob.ghast.moan", { at: [gx, camEye, gz], volume: 0.4, pitch: 0.7 }]]),
+        : [[T_SIDE - 0.3, "mob.ghast.moan", { at: [hole.x + side * 6, LEDGE - 2, hole.z + 2], volume: 0.3, pitch: 0.6, reverb: 0.7 }], [T_BACKV - 0.15, "mob.ghast.charge", { at: [gx, camEye, gz], volume: 0.9 }]]),
       // The charge: its cry as the mouth opens; the fireball out of it.
-      [t0 - 0.05, "mob.ghast.charge", { at: [gx, camEye, gz], volume: 1.2 }],
+      ...(rise ? [[t0 - 0.05, "mob.ghast.charge", { at: [gx, camEye, gz], volume: 1.2 }]] : []),
       ...roar(t0 + 0.05, [["mob.ghast.scream", { at: [gx, camEye, gz], pitch: 0.75 }], ["mob.ghast.affectionate_scream", { at: [gx, camEye, gz], pitch: 0.65, volume: 1.0 }]], { hit: 0.5 }),
       [T_SHOOT, "mob.ghast.fireball", { at: [gx, camEye - 0.5, gz - 2.3], volume: 1.3 }],
       [T_SHOOT + 0.3, "fire.fire", { volume: 0.6 }],
