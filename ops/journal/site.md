@@ -28,6 +28,32 @@
   (fps 0.5-12) and its audio clock stalled, which first read as leaks: the four scares flagged were rechecked x3
   clean. Sheets: scratchpad r8/scares-b/r8b/jpress_sheet.png, r8b/hud_sheet.png.
 
+- 2026-10-28 (Mac) krypt scares r8b, part A. Wither Skeleton, full redo, the owner's "Too tall to follow" (shadow.js
+  deleted; new `scares/chase.js`: paths walked by distance, a sprint profile, 1.7.10 view bobbing, the bake along a
+  mob's way, block offsets, what the first frame sees, hiding places off the corridor). Its rattle down the corridor;
+  it steps out of an alcove or side way it stood in out of sight of the first frame and comes at about 3 m/s; you turn
+  and sprint (FOV, bob, ragged breath), look back once (it is there), the eyes find a 2-high opening in the wall and you
+  dive in, turn and back away. It fills the opening (2.34 tall: the skull above the lintel), shoves in 3-4 times (stone
+  grinding, grit off the lintel, arms and sword in at you), then stands dead still and every sound goes (the one
+  device); it steps back, its eyes look in under the lintel, it turns away down the corridor. The heart slows, a slow
+  breath, nothing; deeper, the passage opens into a dark room 5 high; a scrape behind you; you turn and it stands
+  beside the second way in (1x3, the way round from the corridor), in that corridor's torchlight, perfectly still, ~2 m
+  off; two steps, the blow, Wither hearts, the second, on the floor, the chop. Layout search in rock with a solid shell,
+  both mouths behind the start view or behind stone (carved in build, restored on dispose), carve verified after
+  (windowless chunks: restore and the next). K, where it waits, is the first spot from which no part of it shows
+  during your walk in (a sword sliver did). Zombie (the owner: "back up and run"): when the door breaks you stumble back,
+  turn and sprint, look back once; it never catches a running man: two more step out ahead of you (a side way, an
+  alcove or round the bend, hidden from the first frame and from your run until they move) and you skid to a stop, or
+  down a long corridor they are already there a stride or two on, or the corridor ends at your back; you turn back and
+  it is on you. The ones ahead face you as they wait, so the hiding test takes their outline as the eye sees it (both
+  edges, head to foot, the arms reaching out) from the opening settle, the backing off, the whip round and the run;
+  they leave their hiding place timed by how far they can walk unseen, less a 0.3 m margin. Proof by pixels (render
+  each moment with and without them and diff): the film's early "slivers" at 0.3/0.6 were empty corners of the mob's
+  box (0 px); at 0.42 a 16x21 px head edge at the whip is gone, first pixels at the moment you come level. Machine at
+  load 30-40 from other agents: carve times measured 0.4-8 s for the three carves (a door-sized carve 130-390 ms in
+  the same page), so the build pause is real on a loaded machine. Wither: `held: null` (loadout.js still lists
+  "sword" for it, from the shadow version; S.held wins).
+
 - 2026-10-27 (Mac) krypt scares r8 A, Wither Skeleton shadow redo (coordinator review): the walk stops square on to a
   flat open face 3 m off (nearest along the walk, else further); a copy of a Krypt wall torch at eye level behind you; the
   crypt dims round its light. The old shadows were half missing in most frames: the receiver pass computed gl_Position

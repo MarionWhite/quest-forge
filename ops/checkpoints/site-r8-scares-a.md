@@ -88,3 +88,90 @@ Scratch: `scratchpad/r8/scares-a/` (tools copied from `../r7/scares/`). Preview 
   lost precision far from the origin and z-failed against the wall in about half the frames: the old "faint smudge").
   Skeleton: in front of the torch at rP*0.5 (spill), then a pace behind you to the roomier side (0.35 m), raise swung wide.
   Review: scratchpad review/wither/ (crops_at0.8|0.3_s1-3, film_at*_s*, logs, proof_wither.txt). Live run ok.
+
+## Round 8b (2026-10-27): Wither Skeleton, full redo
+Owner: "things are much much better. The wither skeleton one is stupid and doesn't make sense, so full redo."
+Then: "Make it scary". That is the bar.
+His chosen concept, **Too tall to follow:** "one chases you out of the dark, and you dive into a 2-high side passage. It
+can't fit, since it's 2.4 blocks tall, so its skull scrapes the ceiling and it gives up. Silence, then relief. You go
+deeper, and the passage opens into a tall room, where it was waiting after coming around the other way."
+Coordinator build notes:
+- **1.7.10 facts:**
+  - A wither skeleton is 0.72 x 2.34 and can't path through a 2-high gap.
+  - It moves at skeleton speed, carries a stone sword and uses skeleton sounds.
+  - A hit gives Wither II (black hearts).
+  - A sprinting player is faster than it.
+- **Beats, in order, each making sense:**
+  - A sound behind you turns you: the rattle, its steps, the sword scraping stone. It comes out of the dark.
+  - You sprint (FOV kick, bobbing). A 2-high side opening is in view before you take it.
+  - It can't get in: its body fills the opening, its head is hidden above the lintel, the skull grinds the stone. It
+    tries again and again, goes still in a long silent hold, then turns away toward the way around.
+  - Silence: breathing and heartbeat settle. Make the calm real.
+  - You go deeper. A tall room (ceiling 4 or more) has a second entrance that visibly connects back to the corridor.
+  - It is standing in the dark in the path of that entrance: a tall shape, perfectly still, closer than you thought.
+    Then it is fast and brutal: Wither hearts, beaten down, the sword over you.
+- **Build constraints:**
+  - Carve with the krypt carve contract (as the Zombie door does), out of view before the first frame.
+  - Scrap the shadow version (delete shadow.js if unused, remove the walk-stop logic).
+  - Do not touch scares.js's start path or hud.js (another agent). Held item: use their loadout API if it has landed,
+    else ask.
+  - At most one FNAF device.
+- **Review:**
+  - Filmstrip and beat log against his words.
+  - Full-size crops of "body in the opening, head above the lintel" and of the reveal, at 3 seeds and 2 depths.
+  - Off-frame/dark proof for each first sighting.
+  - Live J run of 16, no leaks.
+  - Rank its fear against the Enderman and Creeper.
+Also for the Zombie (owner): "Also the player should try to back up and run from the zombies instead of just standing
+still." When the door breaks: stumble back a step or two, turn and run (FOV kick, bobbing, ragged breath, a glance
+back). The catch must make sense (a sprinting player outruns a 1.7.10 zombie): e.g. the others come from ahead (out of
+the dark or round the corner; zombies come in groups), or a dead end / closed door, back to the wall. Never simply catch
+up. Same review (filmstrip, beat log, occlusion proof, live J run).
+### 8b progress
+- [~] Wither rewritten (`witherskeleton.js`, uncommitted; new helper `scares/chase.js`: poly/bez/runProfile/bob/bakeMany).
+  Layout: flee direction d (usually back the way you came, the mouths behind the start view so the carve never shows),
+  A (1x2, LA 4) at kA 4-10 rows, B (1x3) dB 3-4 rows further, room 5x(dB+3)x5; fallback LA3/RW4/RH4. Solid shell checked
+  (mouth block may sit at a wall step). Carve verified after (windowless chunks), else restore + next.
+  Probes (scratch `ws8b/probe_*.json`, `wsprobe.js`, `wsmap.js` ASCII map): 0.42 ok, 0.8 ok, 0.1 ok, 0.6 ok; 0.3 (classic hall,
+  alcoves every 4 rows) failing, being relaxed. Carve cost 0.5-1.2 s uncontended (3 remeshes): score penalises chunks.
+  Timeline ~21-24 s: rattle 0.6, run ~3, dive ~5.5, shoves, still 1.6 s (silence), peek, away, calm 2.2, room, cue, reveal.
+- [x] Wither tuned: it waits hidden in an alcove/side way off the corridor (bodyHidden from the start eye) and steps out
+  after the rattle; the look back aims at it; K (where it waits) is in the room beside B's mouth in B's torchlight
+  (lightB), out of sight of A and of the walk; PR drifts away from B. Crops `ws8b/cr/cr08_s1-3.png`, `cr042_s1-3.png`,
+  `cr03_s1-2.png` read well (body in the opening headless, peek under the lintel, reveal by the lit doorway).
+  Machine heavily loaded by other agents (load 30+): carveMs 0.6-8 s measured; door-sized carve 130-390 ms same page.
+- [x] Wither films `ws8b/film_{0.42,0.8,0.3}` (seed 2): every sighting off frame/occluded before (`appear.py`); a sword
+  sliver showed during the walk into the room (17.2 s) -> K now chosen by a walk-visibility test (`showsAt`), re-film due.
+  Wither refactored onto chase.js (`blocks`, `startView`, `hidden`, `sideSpots`).
+- [~] Zombie rewritten for the flight (uncommitted): stumble back, turn, sprint (bob, FOV, ragged breath), one look back,
+  modes: `ahead` (two step out of a side way/alcove/bend ahead, hidden from the first frame; you skid to a stop),
+  `dark` (they come up the long corridor out of the dark, drawn only once the head is on the door), `end` (corridor ends,
+  back to the wall, the others out of the door passage). z1 never catches a running man: tGrab >= your turn back.
+  Probe (`probe2.js ...&scare=zombie&id=Zombie`): 0.3/0.42/0.8/0.6 `ahead`, 0.1 `dark`. Film `ws8b/zf042.json` running.
+- [x] Zombie films `ws8b/zf_{0.42,0.1,0.8}.json/.png` (seed 1): all sightings off frame/occluded before. Fixes since:
+  the others close in only after the grab (v2), shallow hiding spots first (`sideSpots`), an `ahead` spot must also be
+  out of sight from the run until they move (`seenRunning`) else `dark`; `dark` = a stride or two, they are there.
+  Wither: `held: null` (no hand drawn; loadout.js HELD.WitherSkeleton "sword" is the other agent's, tell coordinator).
+  check_sounds: 0 missing. Re-film zombie 0.42/0.8 after the seenRunning filter; Wither crops `ws8b/cr/wcr_*` running.
+- [x] Wither crops `ws8b/cr/wcr_0.42b_s1-3.png`: the look back now shows it running after you down the corridor.
+- [~] Zombie: `ahead` spots seen during the whip turn at 0.42 (zf2) -> `seenRunning` now also tests backing (eyes on
+  the door from 0 and P1) and the whip sweep from run0 (door yaw to 0); ahead ones move only as you come level
+  (t0 = tSee-0.35). Probe `ws8b/zp3_*.json`, films `ws8b/zf3_{0.42,0.8}` running (bg).
+- [x] Full-size push/reveal crops `ws8b/full/wfc_{0.42,0.8}_s1-3.png` (centre 706 px of w=1366): the body fills the
+  opening with the skull above the lintel; the reveal stands by the lit doorway, eyes lit, ~2 m. Read well.
+- [~] Zombie: the early sightings were the ahead ones walking OUT too soon (t0 led by their walk), not the spots. Now
+  t0 = tSee-0.2 minus `hidLen` (how far along their way out they stay unseen from start settle, backing, whip and the
+  early run) / V_O; spots also rejected if seen in the opening settle (0.3 had a 6% sliver at 0.4 s). zf3 stale.
+  Films `ws8b/zf4_{0.3,0.42,0.8,0.6}` running (bg).
+- [x] Pixel proof (`pix.js`: render with/without the mobs, diff): film.js's "visible" at t=0 (0.6, 2%) and 0.4 s (0.3, 6%)
+  were empty corners of the box, 0 px. 0.42 had a real 16x21 px dark patch (a head edge) at 6.7 s in the whip ->
+  `sees` now tests the outline as seen (both edges at three heights, the arms reaching at you), finer LOS, and a 0.3 m
+  margin on the walk out: first pixels now at 7.2 = tSee (`ws8b/pix2_0.42.json`, `ws8b/pix/q042_s1_7.2.png`).
+- [x] Films `ws8b/zf6_{0.42,0.6,0.3,0.8,0.1}.json/.png`: ahead at 0.3/0.42/0.6/0.8, dark at 0.1; beats read (door,
+  break, whip, run, look back at it, two step out ahead, skid, turn back, it is on you). Every box-grid sighting before
+  tSee is off frame/occluded before; the early ones checked by pixels are 0 px (0.42 s2 first pixels 7.4 = tSee 7.44,
+  `ws8b/pix3_0.42.json`).
+- [x] Live J run of all 16 (`node tools/site/scare_flow.mjs`, `ws8b/flow_all.json`): no flashes, no leaks, no
+  exceptions (machine at load ~30: fps 2-12, Wither worst gap 3.7 s, Creeper 9.2 s).
+- [x] Journal entry; commit of own paths (witherskeleton.js, zombie.js, chase.js, shadow.js removed, this file, journal).
+- [ ] Report (five lines): Wither fear rank vs Enderman/Creeper; loadout.js HELD.WitherSkeleton "sword" is stale.
