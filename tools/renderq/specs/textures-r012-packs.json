@@ -1,0 +1,31 @@
+{
+ "name": "textures-r012-packs",
+ "owner": "texture-dev-packs",
+ "comment": "r012 packs (ops/checkpoints/r012-packs.md): pk12a = r011 as published (frozen zips), pk12b = TNT all lettered, mobs Patrix + Patrix remapped + Conquest, GUI plaques/ribbons/creative tabs (Faithless framed), pk12c = mobs Patrix + Conquest, creative as the recipe book; pk12h1-3 = QF HUD directions iron/arcane/banner. World world-r012 (hall with the passive mobs added).",
+ "prebuild": [
+  ["py", "-3.10", "-I", "tools/textures/r007packs.py", "--out", "C:/qfb/textures/r012/QF-r012-packs.zip", "--parts", "items,cit,tnt,books,mobs,env", "--mobs", "remap"],
+  ["py", "-3.10", "-I", "tools/textures/r007packs.py", "--out", "C:/qfb/textures/r012/QF-r012-mobs-cq.zip", "--parts", "mobs", "--mobs", "conquest"],
+  ["py", "-3.10", "-I", "tools/textures/r007packs.py", "--out", "C:/qfb/textures/r012/QF-r012-gui.zip", "--parts", "gui", "--creative", "faithless"],
+  ["py", "-3.10", "-I", "tools/textures/r007packs.py", "--out", "C:/qfb/textures/r012/QF-r012-gui-book.zip", "--parts", "gui", "--creative", "book"],
+  ["py", "-3.10", "-I", "tools/textures/qf_hud.py", "--style", "iron", "--gui-zip", "C:/qfb/textures/r012/QF-r012-gui.zip", "--out", "C:/qfb/textures/r012/QF-r012-hud-iron.zip"],
+  ["py", "-3.10", "-I", "tools/textures/qf_hud.py", "--style", "arcane", "--gui-zip", "C:/qfb/textures/r012/QF-r012-gui.zip", "--out", "C:/qfb/textures/r012/QF-r012-hud-arcane.zip"],
+  ["py", "-3.10", "-I", "tools/textures/qf_hud.py", "--style", "banner", "--gui-zip", "C:/qfb/textures/r012/QF-r012-gui.zip", "--out", "C:/qfb/textures/r012/QF-r012-hud-banner.zip"]
+ ],
+ "defaults": {"world": "C:/qfb/textures/world-r012", "views": "tools/textures/views-r012.txt", "preset": "3",
+              "size": "2560x1440", "mode": "shot", "cit": true,
+              "jars": ["C:/qfb/renderq/jars-r011/QuestForgeContent-1.0.0.jar"], "props": ["qf.bench.difficulty=easy"]},
+ "jobs": [
+  {"tag": "pk12a", "resourcepacks": ["C:/qfb/textures/diag/QF-v3c.zip", "C:/qfb/textures/r012/QF-r011-packs-final.zip", "C:/qfb/textures/r012/QF-r011-gui-final.zip"],
+   "scenes": "r12_mob_1,r12_mob_2,r12_mob_3,r12_mob_4,r12_mob_5,r12_mob_6,r12_mob_7,r11_tnt,gui_creative_combat,gui_creative_brewing,gui_furnace,gui_crafting,gui_brewing,gui_enchanting,gui_anvil,gui_hud"},
+  {"tag": "pk12b", "resourcepacks": ["C:/qfb/textures/diag/QF-v3c.zip", "C:/qfb/textures/r012/QF-r012-packs.zip", "C:/qfb/textures/r012/QF-r012-gui.zip"],
+   "scenes": "r12_mob_1,r12_mob_2,r12_mob_3,r12_mob_4,r12_mob_5,r12_mob_6,r12_mob_7,r11_tnt,gui_creative_combat,gui_creative_brewing,gui_furnace,gui_crafting,gui_brewing,gui_enchanting,gui_anvil,gui_inventory,gui_chest"},
+  {"tag": "pk12c", "resourcepacks": ["C:/qfb/textures/diag/QF-v3c.zip", "C:/qfb/textures/r012/QF-r012-packs.zip", "C:/qfb/textures/r012/QF-r012-mobs-cq.zip", "C:/qfb/textures/r012/QF-r012-gui-book.zip"],
+   "scenes": "r12_mob_1,r12_mob_2,r12_mob_3,r12_mob_4,r12_mob_5,r12_mob_6,r12_mob_7,gui_creative_combat,gui_creative_brewing"},
+  {"tag": "pk12h1", "resourcepacks": ["C:/qfb/textures/diag/QF-v3c.zip", "C:/qfb/textures/r012/QF-r012-packs.zip", "C:/qfb/textures/r012/QF-r012-gui.zip", "C:/qfb/textures/r012/QF-r012-hud-iron.zip"],
+   "scenes": "gui_hud"},
+  {"tag": "pk12h2", "resourcepacks": ["C:/qfb/textures/diag/QF-v3c.zip", "C:/qfb/textures/r012/QF-r012-packs.zip", "C:/qfb/textures/r012/QF-r012-gui.zip", "C:/qfb/textures/r012/QF-r012-hud-arcane.zip"],
+   "scenes": "gui_hud"},
+  {"tag": "pk12h3", "resourcepacks": ["C:/qfb/textures/diag/QF-v3c.zip", "C:/qfb/textures/r012/QF-r012-packs.zip", "C:/qfb/textures/r012/QF-r012-gui.zip", "C:/qfb/textures/r012/QF-r012-hud-banner.zip"],
+   "scenes": "gui_hud"}
+ ]
+}

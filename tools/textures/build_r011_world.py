@@ -151,13 +151,20 @@ MOBS = [("Chicken", {}, None), ("Creeper", {}, None), ("Zombie", {}, None), ("Sk
         ("Cow", {}, None), ("Pig", {}, None), ("Ozelot", {"CatType": nbtlib.Int(0)}, None), ("Wolf", {}, None),
         ("VillagerGolem", {}, None), ("SnowMan", {}, None)]
 MOB_X0 = 226
+MOB_DX = 2.0
+# r012 (--round 12): every mob gets a non-vanilla skin, so the hall adds the passive mobs it lacked; 26 mobs 1.75 apart
+# from x 225.0 in a hall widened to x 271 (still inside BOX). Views r12_mob_1..7 in views-r012.txt.
+MOBS_R012 = MOBS[:19] + [("MushroomCow", {}, None), ("EntityHorse", {"Type": nbtlib.Int(0), "Variant": nbtlib.Int(0)}, None),
+                         ("Villager", {"Profession": nbtlib.Int(0)}, None), ("Squid", {}, None),
+                         ("Bat", {"BatFlags": nbtlib.Byte(1)}, None)] + MOBS[19:]
 
 
 def mobs():
     out = []
     for i, (eid, extra, held) in enumerate(MOBS):
-        x = MOB_X0 + 2 * i + 0.5
-        e = _base(eid, (x, GROUND + 1.0, MOB_Z), 180.0, "mob-%d" % i)    # yaw 180: facing north, the camera
+        x = MOB_X0 + MOB_DX * i + 0.5
+        y = HALL_Y1 - 0.95 if eid == "Bat" else GROUND + 1.0          # a bat hangs from the roof (BatFlags 1)
+        e = _base(eid, (x, y, MOB_Z), 180.0, "mob-%d" % i)    # yaw 180: facing north, the camera
         e.update({"PersistenceRequired": nbtlib.Byte(1), "CanPickUpLoot": nbtlib.Byte(0),
                   "Attributes": nbtlib.List[nbtlib.Compound]([
                       nbtlib.Compound({"Name": nbtlib.String("generic.movementSpeed"), "Base": nbtlib.Double(0.0)}),
@@ -225,7 +232,11 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--src", default=r"C:\qfb\textures\world-showcase")
     ap.add_argument("--dst", default=r"C:\qfb\textures\world-r011")
+    ap.add_argument("--round", type=int, default=11, choices=(11, 12))
     a = ap.parse_args()
+    if a.round == 12:
+        global MOBS, MOB_X0, MOB_DX, HALL_X1
+        MOBS, MOB_X0, MOB_DX, HALL_X1 = MOBS_R012, 224.5, 1.75, 271
     if os.path.abspath(a.src) == os.path.abspath(a.dst):
         sys.exit("--dst must differ from --src")
     if not os.path.exists(a.dst):

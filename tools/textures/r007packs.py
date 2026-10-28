@@ -359,21 +359,19 @@ def block_pbr(out, path, im):
 
 
 def part_tnt(out, fl, mc, log):
-    """Faithless's TNT. Its blockstate picks tnt_side2, TNT spelt in the enchanting table's letters, for one block
-    in five (weights 4:1); the same mix as an MCPatcher random rule, one choice per block (symmetry=all)."""
+    """Faithless's TNT with its Standard Galactic lettering on every block. (Faithless's own blockstate letters one
+    block in five, tnt_side2 at weight 1 of 5; the owner, r011: "I don't know why some of them have the normal
+    lettering", so r012 drops the mix.) The CTM rule stays at its path, one tile, so a lower pack's rule never wins."""
     for side in ("side", "top", "bottom"):
+        src = T + "block/tnt_%s.png" % ("side2" if side == "side" else side)
         p = BLOCKS + "tnt_%s.png" % side
-        out[p] = fl.read(T + "block/tnt_%s.png" % side)
-        block_pbr(out, p, fl.img(T + "block/tnt_%s.png" % side))
-    w = [v.get("weight", 1) for v in fl.json(A + "blockstates/tnt.json")["variants"][""]]
+        out[p] = fl.read(src)
+        block_pbr(out, p, fl.img(src))
     d = CTM + "tnt/"
-    for i, n in enumerate(("tnt_side", "tnt_side2")):
-        out[d + "%d.png" % i] = fl.read(T + "block/%s.png" % n)
-        block_pbr(out, d + "%d.png" % i, fl.img(T + "block/%s.png" % n))
-    out[d + "tnt.properties"] = ("matchTiles=tnt_side\nmethod=random\nfaces=sides\nsymmetry=all\ntiles=0-1\n"
-                                 "weights=%d %d\n" % tuple(w)).encode()
-    log["tnt"] = "Faithless TNT (+ our LabPBR maps); enchanting-table lettering on %d of %d blocks, as Faithless" % (
-        w[1], sum(w))
+    out[d + "0.png"] = fl.read(T + "block/tnt_side2.png")
+    block_pbr(out, d + "0.png", fl.img(T + "block/tnt_side2.png"))
+    out[d + "tnt.properties"] = b"matchTiles=tnt_side\nmethod=fixed\nfaces=sides\ntiles=0\n"
+    log["tnt"] = "Faithless TNT (+ our LabPBR maps); enchanting-table lettering on every block"
 
 
 SOARTEX_VARIANTS = ("brim", "color", "react", "tome")   # its biome rules already use 1.7 names (swamplandm, hell)
@@ -437,9 +435,20 @@ MOB_SKIP = {"chicken.png", "cow/cow.png", "sheep/sheep.png", "sheep/sheep_fur.pn
             "iron_golem.png"}     # r11p3: square like vanilla, but a CEM layout (face lands on the chest)
 
 
-def part_mobs(out, px, mc, log):
+# r012, the owner: "We need to fix the ones that still have vanilla skins" and "find something for the passive mobs".
+# Every 1.7.10 mob texture now gets non-vanilla art, in this order: Patrix as it is (layout already 1.7.10's), Patrix
+# remapped face by face onto 1.7.10's boxes (patrix_remap.py; mode "remap" only), then Conquest_ 1.8, whose entity
+# textures are drawn for the 1.7/1.8 models (villagers, horses, squid, bat, slimes, ghast, wither, dragon...).
+MOB_TEX = ("bat.png", "blaze.png", "chicken.png", "cow/", "creeper/creeper.png", "enderdragon/dragon.png",
+           "enderman/", "ghast/", "horse/", "iron_golem.png", "slime/", "pig/pig.png", "sheep/", "silverfish.png",
+           "skeleton/", "snowman.png", "spider/", "squid.png", "villager/", "witch.png", "wither/", "wolf/",
+           "zombie/", "zombie_pigman.png", "cat/")
+
+
+def part_mobs(out, px, mc, log, mode="remap", cq=None):
+    import patrix_remap
     E = T + "entity/"
-    took, aspect = [], []
+    took, aspect, remapped, conq, left = [], [], [], [], []
     for v, p in MOBS.items():
         if v in MOB_SKIP or not px.has(E + p):
             continue
@@ -450,8 +459,31 @@ def part_mobs(out, px, mc, log):
             continue
         out[E + v] = png(im)
         took.append(v)
-    log["mobs"] = "%d Patrix skins: %s; wrong aspect for 1.7.10 (CEM layout): %s; skipped (MOB_SKIP): %d" % (
-        len(took), " ".join(t[:-4] for t in took), " ".join(aspect) or "none", len(MOB_SKIP))
+    if mode == "remap":
+        for v in patrix_remap.SPECS:
+            out[E + v] = png(patrix_remap.remap(px, v))
+            remapped.append(v)
+    if cq is not None:
+        for n in sorted(mc.namelist()):
+            if not (n.startswith(E) and n.endswith(".png")):
+                continue
+            v = n[len(E):]
+            if not v.startswith(MOB_TEX) or E + v in out:
+                continue
+            src = next((q for q in (E + v, "minecraft/textures/entity/" + v) if cq.has(q)), None)
+            if src is None:
+                left.append(v)
+                continue
+            van = Image.open(io.BytesIO(mc.read(n)))
+            im = cq.img(src)
+            if im.width * van.height != im.height * van.width:
+                left.append(v)
+                continue
+            out[E + v] = png(im)
+            conq.append(v)
+    log["mobs"] = ("%d Patrix as is; %d Patrix remapped (%s); %d Conquest (%s); still vanilla: %s" % (
+        len(took), len(remapped), " ".join(r[:-4] for r in remapped), len(conq), " ".join(c[:-4] for c in conq),
+        " ".join(left) or "none"))
     return took
 
 
@@ -478,6 +510,11 @@ def main():
     ap.add_argument("--out", help="overlay zip (never commit it)")
     ap.add_argument("--parts", default=",".join(PARTS), help="comma list of: " + ",".join(PARTS))
     ap.add_argument("--mc-jar", default=MC_JAR, help="1.7.10 client jar, read only (names and layouts)")
+    ap.add_argument("--mobs", default="remap", choices=("remap", "conquest", "patrix"),
+                    help="mobs part: Patrix as is + Patrix remapped + Conquest for the rest (remap), Patrix as is + "
+                         "Conquest (conquest), or Patrix as is only (patrix, r011)")
+    ap.add_argument("--creative", default="faithless", choices=("faithless", "book"),
+                    help="gui part: creative screen style (Faithless's framed panel, or its recipe-book page)")
     a = ap.parse_args()
     parts = [p for p in a.parts.split(",") if p]
     bad = [p for p in parts if p not in PARTS]
@@ -495,12 +532,12 @@ def main():
     if "books" in parts:
         part_books(out, Pack(SOARTEX), mc, log)
     if "mobs" in parts:
-        part_mobs(out, Pack(PATRIX), mc, log)
+        part_mobs(out, Pack(PATRIX), mc, log, mode=a.mobs, cq=Pack(CONQUEST) if a.mobs != "patrix" else None)
     if "env" in parts:
         part_env(out, Pack(CONQUEST), mc, log)
     if "gui" in parts:
         import r007gui
-        r007gui.part_gui(out, fl, mc, log)
+        r007gui.part_gui(out, fl, mc, log, creative=a.creative)
     meta = {"pack": {"pack_format": 1, "description": "QF r011: Faithless items/GUI, Patrix mobs, Soartex shelves, "
                                                       "Conquest effects (private; never redistribute)"}}
     credits = ("Copied at build time for a private friends' server pack only (owner's call 2026-10-27). Never "

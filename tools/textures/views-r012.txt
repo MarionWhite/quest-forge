@@ -1,0 +1,27 @@
+# FrameBench views for the r012 packs fixes (world C:\qfb\textures\world-r012, built by
+# tools/textures/build_r011_world.py --round 12). Format as views-world-master.txt: y is the feet (eye = y + 1.62);
+# yaw 0 = looking south (+z). FrameBench's FOV is wide: about 13 blocks across at 5 blocks.
+#
+# name               x       y      z        yaw    pitch  worldTime  [measureTicks]
+r11_items            231.0   69.9   210.7    0      0      7000   20
+r11_tnt              254.5   68.8   212.6    0      14     7000   20
+gui_hud              245.5   68.0   210.0    0      2      7000   20
+gui_inventory        245.5   68.0   210.0    0      2      7000   20
+gui_creative_combat  245.5   68.0   210.0    0      2      7000   20
+gui_creative_tools   245.5   68.0   210.0    0      2      7000   20
+gui_creative_brewing 245.5   68.0   210.0    0      2      7000   20
+gui_creative_materials 245.5 68.0   210.0    0      2      7000   20
+gui_furnace          245.5   68.0   210.0    0      2      7000   20
+gui_crafting         245.5   68.0   210.0    0      2      7000   20
+gui_chest            245.5   68.0   210.0    0      2      7000   20
+gui_brewing          245.5   68.0   210.0    0      2      7000   20
+gui_enchanting       245.5   68.0   210.0    0      2      7000   20
+gui_anvil            245.5   68.0   210.0    0      2      7000   20
+# mob hall (r012): 26 mobs 1.75 apart at x 225.0 .. 268.75, z 228.5; seven close views
+r12_mob_1            228.1   68.0   225.3    0      6      7000   40
+r12_mob_2            234.4   68.0   225.3    0      6      7000   40
+r12_mob_3            240.6   68.0   225.3    0      6      7000   40
+r12_mob_4            246.9   68.0   225.3    0      6      7000   40
+r12_mob_5            253.1   68.0   225.3    0      6      7000   40
+r12_mob_6            259.4   68.0   225.3    0      6      7000   40
+r12_mob_7            265.6   68.0   225.3    0      6      7000   40
