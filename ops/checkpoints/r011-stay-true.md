@@ -112,3 +112,13 @@ Owner's r010 picks to keep: tex-wall B (metal look on real metals only), dense w
 4. Gems: grid gm1b vs t10lb texture_wall(2); if fine, run `py -3.10 -I -X utf8 C:\qfb\shaderdev\r011\staytrue_make_scenes.py`,
    write `C:\qfb\shaderdev\r011\STAYTRUE-READY` (one line: the json path + scene count). Commit docs/ops (main) only.
 5. Update ops/tracks/textures.md (r011 state), one journal entry in ops/journal/textures.md, guard, report (5 lines).
+
+### 2026-10-28 session 2 (texture-dev)
+- Both jobs done (08:13 / 08:15). st1a1 boot log b1028080934.log: both transforms applied, "Stay True models: [... 11 kinds],
+  50 sprites, 280 quads" (no dropped), own tessellator, "first tall crop drawn". st1a0 (b1028080539.log): "leaves off".
+- Review (sheets `C:\qfb\frills\look\st1a.jpg`, `st1a-crops.jpg`, `st1a-far.jpg`, 1:1 `st1a-hedge-1to1.jpg`,
+  `st1a-crown-1to1.jpg`, `st1a-field-1to1.jpg`, gems `gm1b.jpg`, `gm1b-1to1.jpg`): leaves break the cube outline into a
+  soft rounded crown; denser/less see-through than hooks-off; faint edge-on plane streaks on hedge faces. Wheat: tall,
+  uneven, dark-stalk base + gold heads, no seam at y 16. Gems: emerald = Stay True's concentric glass face, diamond glassy.
+  Verdict: nothing clearly wrong, NO re-render.
+- Next: cost (step 3), make_scenes, READY, track/journal, push.
