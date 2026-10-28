@@ -433,7 +433,8 @@ MOBS = {   # 1.7.10 entity texture -> Patrix 26.3 path (under textures/entity/)
 # squid, bat, wither.
 MOB_SKIP = {"chicken.png", "cow/cow.png", "sheep/sheep.png", "sheep/sheep_fur.png", "blaze.png", "witch.png",
             "zombie_pigman.png", "slime/slime.png", "slime/magmacube.png", "ghast/ghast.png",
-            "ghast/ghast_shooting.png", "squid.png", "bat.png", "wither/wither.png"}
+            "ghast/ghast_shooting.png", "squid.png", "bat.png", "wither/wither.png",
+            "iron_golem.png"}     # r11p3: square like vanilla, but a CEM layout (face lands on the chest)
 
 
 def part_mobs(out, px, mc, log):

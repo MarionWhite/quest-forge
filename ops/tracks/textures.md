@@ -9,8 +9,9 @@ Rewrite this file when the state changes; keep it under 2 KB.
   checkpoint `r011-stay-true.md`): Stay True's leaf planes and weighted tall crops (qf-tweaks branch `leaf-frills`
   718473f, not merged) and its glassy animated gems. Cost: frame p50 +0-5%, leafy sections +23% vertices.
   Open for the owner: leaves are denser than the transparency he liked; keep or thin.
-- **r011 packs copy** (`r011-packs.md`): `r007packs.py` -> QF-r011-packs.zip / QF-r011-gui.zip (Faithless items/GUI/
-  TNT, Soartex shelves, Patrix skins). Hand-off `C:\qfb\shaderdev\r011\packs_scenes.json`.
+- **r011 packs handed off** (`r011-packs.md`; `packs_scenes.json` + PACKS-READY, 21 scenes): `r007packs.py` ->
+  QF-r011-packs.zip / QF-r011-gui.zip (Faithless items/GUI/TNT, Soartex shelves, Patrix skins for 12 mobs). No measurable
+  cost. Open: owner's Soartex/smoke/boss-bar answers; GUI fixes (plaque contrast, enchanting book) unless he objects.
 - **Next:** owner's r011 picks; then merge leaf-frills, set builder defaults, build QFTextures-v3; second item style.
 - **Owner likes:** Faithful 64x bricks, metals and leaves; Stay True wheat and tree leaves; Patrix mobs; VNR light;
   Soartex bookshelves; Faithless items, potions, books, GUI, TNT and boss bars.

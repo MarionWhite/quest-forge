@@ -20,6 +20,12 @@ A, B, C = "r11p0", "r11p1", "r11p2"          # r010 / + items, mobs, shelves, TN
 B2 = "r11p3"                                 # B after review (compass, TNT lettering, 19 mobs): used where rendered
 GUI_BOX = (600, 150, 1960, 1290)            # the screen at GUI scale 6 on 2560x1440, centred
 HUD_BOXES = [(0, 0, 2560, 260), (640, 1100, 1920, 1440)]   # boss bar strip; hotbar, hearts, food, XP
+PLAQUE = ("We will lighten the title plaques unless you object. Cause: 1.7.10 writes screen titles in fixed dark "
+          "grey, which barely reads on Faithless's dark wooden plaques.")
+GUI_FLAWS = {"gui_chest": "Keep?",      # grey plaques: its titles read
+             "gui_enchanting": "We will paint out its drawn book (and lighten the plaques) unless you object. Cause: "
+                               "1.7.10 floats its own 3D book over the spot where Faithless painted a book on the "
+                               "table, so the two overlap."}
 
 
 def frame(tag, scene):
@@ -107,30 +113,39 @@ def main():
                       ("gui_enchanting", "Enchanting table", "1.7.10 has one slot where 1.8+ has item + lapis: it lands "
                                                               "on the drawn table."),
                       ("gui_chest", "Chest", ""), ("gui_anvil", "Anvil", "")):
-        pair("pk-" + sc[4:], nm, q, "Keep?", sc, box=GUI_BOX, tag_b=C)
+        pair("pk-" + sc[4:], nm, q, GUI_FLAWS.get(sc, PLAQUE), sc, box=GUI_BOX, tag_b=C)
     pair("pk-hud", "HUD and boss bar", "Survival HUD with the Ender Dragon's bar. 1.7.10 draws one bar for every "
          "boss from one 182x5 strip, so B uses Faithless's plain pink bar; its framed per-boss bars (dragon, wither) "
-         "need a code hook (GuiIngame) to draw.", "Want the framed per-boss bars built (a qf-tweaks hook)?",
-         "gui_hud", box="hud", tag_b=C)
+         "need a code hook (GuiIngame) to draw. The XP bar is Faithless's rune strip; its empty part is see-through, "
+         "as Faithless draws it.",
+         "Build the framed per-boss bars? Cause: 1.7.10 draws every boss bar from one plain strip, so picking a framed "
+         "bar per boss needs a small qf-tweaks hook (GuiIngame).", "gui_hud", box="hud", tag_b=C)
     pair("pk-shelves", "Bookshelves: Soartex", "Soartex Forever's three shelves mixed at random (and its swamp, "
          "roofed forest, nether and savanna/mesa variants, by biome). Its model sinks the books into the frame; "
          "1.7.10 shelves are plain cubes, so the depth is only painted and in the normal map.",
-         "Is this the Soartex you meant (R.1.6 for 1.21.10; the 1.7.10 Soartex is CurseForge-only)?", "r11_shelves",
+         "Is Soartex Forever the Soartex you meant? Cause: the only Soartex in our reference folder is Soartex Forever "
+         "R.1.6 (made for 1.21); the 1.7-era Soartex is a separate, CurseForge-only download we don't have.",
+         "r11_shelves",
          cost_scene="r11_library")
     pair("pk-library", "Library wall", "", "", "r11_library")
     pair("pk-tnt", "TNT with enchanting-table lettering", "Faithless's TNT (the only block taken from it).", "Keep?",
          "r11_tnt")
     mob_q = ("Patrix's 3D shapes are OptiFine CEM models; 1.7.10 has none, so only the skins come, and only where "
              "they map onto the vanilla model. Kept (seen working in game): creeper, zombie, skeleton, wither "
-             "skeleton, spider, cave spider, enderman, wolf, ocelot and cats, pig, iron golem, snow golem, silverfish. "
+             "skeleton, spider, cave spider, enderman, wolf, ocelot and cats, pig, snow golem, silverfish. "
              "Dropped (their layout is for the CEM shape, they render broken): chicken, cow, sheep, blaze, witch, "
-             "zombie pigman. Not seen yet: slime, magma cube, ghast, squid, bat, wither. The new shapes themselves "
-             "(horns, manes, thin skeleton bones) would need a Java renderer per mob. The blaze's black swirls are "
-             "Conquest's smoke particles (in B for every fire and torch).")
+             "zombie pigman, iron golem (still in these frames, 5 and 6: its face lands on the chest). Held back, "
+             "unjudged: slime and magma cube (they vanish from the hall before the shot, in A too), ghast, squid, bat, "
+             "wither (not in the hall). The new shapes themselves (horns, manes, thin skeleton bones) would need a "
+             "Java renderer per mob.")
+    smoke = ("Keep Conquest's black smoke? Cause: its particle sheet replaces vanilla's grey smoke specks with big "
+             "black swirls, so every fire, torch and blaze smokes like this; we can keep its other particles and "
+             "put vanilla smoke back.")
+    mob_notes = {1: "Which mobs keep Patrix?", 4: smoke,
+                 5: "The iron golem here is the Patrix skin we dropped: its CEM layout puts the face on the chest."}
     for i in range(1, 7):
         pair("pk-mob-%d" % i, "Mobs up close (%d of 6)" % i, mob_q if i == 1 else "",
-             "Which mobs keep Patrix? Conquest's smoke: keep or vanilla?" if i == 1 else "", "r11_mob_%d" % i,
-             cost_scene="r11_mobs_b" if i == 1 else None)
+             mob_notes.get(i, ""), "r11_mob_%d" % i, cost_scene="r11_mobs_b" if i == 1 else None)
     os.makedirs(OUT, exist_ok=True)
     doc = {"from": "texture agent #2 (r011 packs)", "round": "r011", "scenes": scenes,
            "notes": "A = round 10 (QF-v3c). B = the r007 packs copied in (QF-r011-packs.zip, + QF-r011-gui.zip for GUI "

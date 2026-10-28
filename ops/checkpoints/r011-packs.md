@@ -101,7 +101,7 @@ underwater effects. Stay True leaves and wheat belong to the other texture agent
 - Wide mob views r11_mobs_a/b/c are far (FrameBench FOV wide): hand off the close r11_mob_N views instead.
 - Next: wait GUI (1027-223357) + cost (1027-223454) + packs-b; review GUI frames; run tools/textures/r011_packs_handoff.py
   (switch B to r11p3 for the re-rendered scenes); journal, track, commit.
-### 2026-10-27 step 6: GUI reviewed, hand-off written (texture-dev #2) -- RESUME HERE
+### 2026-10-27 step 6: GUI reviewed, hand-off written (texture-dev #2)
 - GUI render 1027-223357 (r11p2): every screen works in game (inventory grid aligned, creative tabs, furnace lit,
   crafting, chest, brewing, enchanting, anvil, HUD with the dragon bar). Cosmetic: titles are dark text on its wooden
   plaques; 1.7.10's floating enchanting book overlaps its drawn table; hotbar compass magenta (pre-fix build).
@@ -117,3 +117,12 @@ underwater effects. Stay True leaves and wheat belong to the other texture agent
 - Not copyable / open: Patrix CEM shapes (Java renderer per mob); Faithless per-boss framed bars (GuiIngame hook);
   Faithless clock (3D dial); Faithless villager/horse GUIs (modern layouts); custom enchantments' books (81 modded
   ids, no Faithless art); Conquest sky/fog/lightmaps (shader). Owner question: Soartex here is R.1.6 for 1.21.
+### 2026-10-28 step 7: DONE, handed off (texture-dev #2)
+- All three renders landed (10-27 22:56, 10-28 08:19). r11p3: compass dial, TNT lettering mix, skipped mobs vanilla.
+  Patrix iron golem is a CEM layout (square, so the aspect test passed it; face lands on the chest) -> MOB_SKIP
+  (zip not rebuilt by hand; the next prebuild drops it). Slime/magma cube vanish from the hall (A too): unjudged.
+  GUI r11p2: compass fixed; plaque titles and the enchanting book overlap remain (fix unless the owner objects).
+- Cost r11c0/r11c1 frame p50 ms: items 3.26/3.25, mobs_b 2.56/2.54, library 3.14/3.15 -> none measurable.
+- Hand-off rerun with the owner's questions and causes (pk-shelves, pk-mob-4, pk-hud, GUI scenes); PACKS-READY touched.
+- Next, after the owner's answers: lighten plaques + paint out the enchanting book in r007gui.py; per-boss bar hook if
+  yes; vanilla smoke if no; remove worktree C:/qfb/wt-r011-fb once gui_* views reach the shared runner jar.
