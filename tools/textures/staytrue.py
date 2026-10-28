@@ -267,6 +267,18 @@ def build(root):
     return tex, "\n".join(spec) + "\n", table
 
 
+def gems(root):
+    """Stay True's diamond and emerald blocks: {1.7.10 name: (rgba 4x, .mcmeta bytes)}. Animated strips (a glint
+    sweeping across); 1.7.10 reads the same mcmeta (frames with index/time)."""
+    st = StayTrue(root)
+    out = {}
+    for name in ("diamond_block", "emerald_block"):
+        p = os.path.join(st.mc, "textures", "block", name + ".png")
+        meta = open(p + ".mcmeta", "rb").read() if os.path.exists(p + ".mcmeta") else None
+        out[name] = (st.png("block/" + name), meta)
+    return out
+
+
 def crop_model(st, ref):
     """st.model, except a model Stay True does not ship (carrots_stage0, ...) is vanilla 1.21's: the plain crop with
     the sprite of the same name ({"parent": "block/crop", "textures": {"crop": "block/<name>"}})."""

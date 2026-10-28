@@ -76,6 +76,10 @@ METAL_BLOCKS = {"iron_block": (230, 190, 100), "gold_block": (231, 60, 55)}
 # r010 --diamond gem: VNR flags diamond as metal (LabPBR 230, iron), so the shader mirrors the world
 # in it and keeps 30% of its diffuse. A real diamond is a dielectric, n = 2.42 -> F0 0.17 = byte 44.
 GEM_BLOCKS = {"diamond_block": (230, 44, 100)}
+# r011 (owner, r010 gold scene: "diamond and emerald glassier and more reflective"; metal looks stay on real metals):
+# with --stay-true, emerald joins diamond as a polished dielectric, and both gems get at least this smoothness.
+GEM_BLOCKS_R011 = {"diamond_block": (230, 44, 100), "emerald_block": (230, 44, 100)}
+GEM_SMOOTH = 230
 
 
 def metal_spec(s, img, name, mode, gem=False, n=None):
@@ -83,12 +87,15 @@ def metal_spec(s, img, name, mode, gem=False, n=None):
     block's _n (`n`), a pixel stays metal only where its normal tilts under ~14.5 deg: a mirror on a
     steep bevel reflects sky or ground at a hard angle (r010 wall ladder: gold's top bevel became a
     noisy bright line once VNR's normals faced the right way)."""
-    table = dict(METAL_BLOCKS, **(GEM_BLOCKS if gem else {}))
+    gems = GEM_BLOCKS_R011 if gem == "r011" else GEM_BLOCKS
+    table = dict(METAL_BLOCKS, **(gems if gem else {}))
     if mode == "vnr" or name not in table:
         return s
     code, f0, pct = table[name]
     s = s.copy()
     s[..., 1] = f0
+    if gem == "r011" and name in gems:
+        s[..., 0] = np.maximum(s[..., 0], GEM_SMOOTH)      # glassy: sharp reflections
     if pct < 100:
         L = labpbr.lum(img)
         metal = L > np.percentile(L, pct)   # strict: a tied plateau stays lit
@@ -359,6 +366,12 @@ def main():
             tally["drawn"] += 1
     if a.leaf_edges != "none":
         tally["ctm"] += leaf_ctm(textures, source, a.leaf_edges, out)
+    if a.stay_true:
+        # Stay True's diamond and emerald blocks: glass-like faces with a light glint sweeping across every ~10 s
+        # (animated strips + their .mcmeta), the "glassier, more reflective" look the owner asked for (r010).
+        for name, (img, mcmeta) in staytrue.gems(a.stay_true).items():
+            m = BLOCKS + name + ".png"
+            textures[m], source[m] = (img, mcmeta), "drawn"
 
     stone = textures[BLOCKS + "stone.png"][0]
     for m, (img, mcmeta) in sorted(textures.items()):
@@ -395,7 +408,7 @@ def main():
             n = n2 if n is None else n
             s = s2 if s is None else s
             tally["pbr_ours"] += 1
-        s = metal_spec(s, img, name, a.metals, a.diamond == "gem", n)
+        s = metal_spec(s, img, name, a.metals, ("r011" if a.stay_true else True) if a.diamond == "gem" else False, n)
         ys = labpbr.y_sign(n, img[..., 3])
         if ys is not None and ys > 0.1:
             ywrong.append("%s %+.2f" % (name, ys))
