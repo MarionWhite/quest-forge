@@ -1,0 +1,141 @@
+{
+ "round": 10,
+ "id": "r010",
+ "note": "Built by tools/shaders/review/fetch_feedback.py from GitHub issues; the latest response is last.",
+ "responses": [
+  {
+   "issue": 14,
+   "url": "https://github.com/MarionWhite/quest-forge/issues/14",
+   "user": "MarionWhite",
+   "state": "open",
+   "created_at": "2026-10-28T01:38:12Z",
+   "updated_at": "2026-10-28T01:38:12Z",
+   "from": "body",
+   "answers": {
+    "round": 10,
+    "scenes": {
+     "meteors": {
+      "choice": "B",
+      "rating": 3,
+      "note": "This is an okay start, but these reference images should help you see more of what I am looking for, and it looks like we need to figure out how to improve performance again."
+     },
+     "sunset-full": {
+      "choice": "A",
+      "rating": 3,
+      "note": "The critic is right on this one. The sun reads as a single hot spot. rather than affecting the lighting of the whole atmosphere in a realistic way."
+     },
+     "sun-cloud": {
+      "choice": "B",
+      "rating": 4,
+      "note": "The rays make a pretty big difference, but only if we can afford them."
+     },
+     "forest-light": {
+      "choice": "B",
+      "rating": 4,
+      "note": ""
+     },
+     "underwater": {
+      "choice": "A",
+      "rating": 5,
+      "note": ""
+     },
+     "river": {
+      "choice": "A",
+      "rating": 4,
+      "note": "As long as this is different enough from the ocean and coast then we are good!"
+     },
+     "gold": {
+      "choice": "A",
+      "rating": 4,
+      "note": "These are pretty good. I kinda want diamond and emerald to be glassier and more reflective."
+     },
+     "checks": {
+      "choice": "C",
+      "rating": 5,
+      "note": "still seems alright"
+     },
+     "tex-wall": {
+      "choice": "B",
+      "rating": 5,
+      "note": "keep metallic textures for the actual metals"
+     },
+     "tex-wall-close": {
+      "choice": "B",
+      "rating": 3,
+      "note": ""
+     },
+     "tex-leaves": {
+      "choice": "A",
+      "rating": 4,
+      "note": "Neither of these options are beating faithful for me, but I still don't even like faithful's leaves. I told you already what leaves I like from stay true"
+     },
+     "tex-leaves-tree": {
+      "choice": "A",
+      "rating": 3,
+      "note": "I like the transparency. I don't like the leaves to be opaque, but they should give a realistic looking tree volume and structure."
+     },
+     "tex-forest": {
+      "choice": "A",
+      "rating": 3,
+      "note": ""
+     },
+     "tex-farm": {
+      "choice": "B",
+      "rating": 3,
+      "note": "The gold looks better on dense."
+     },
+     "tex-farm-close": {
+      "choice": "B",
+      "rating": 3,
+      "note": "Dense looks pretty full, and the shadows/dark spots and sections add texture."
+     },
+     "tex-items": {
+      "choice": "C",
+      "rating": 3,
+      "note": "Pretty good start, but I would like to see at least one other art style set for all of them before we commit to this."
+     },
+     "frills-hedge": {
+      "choice": "neither",
+      "rating": 5,
+      "note": "I think we can make frills work, but these all look like shit. The make the tree look spiky. Please actually fucking check to see what stay true does because I'm sick of the fucking guess work"
+     },
+     "frills-tree": {
+      "choice": "neither",
+      "rating": 5,
+      "note": "We're getting to the point where we need to just copy the texture maps of stay true, and we can make changes directly to it to make it our own. This isn't going to be distributed or sold, and we aren't taking every element, so I feel very comfortable with that outcome."
+     },
+     "frills-forest": {
+      "choice": "neither",
+      "rating": 5,
+      "note": "fucking awful"
+     },
+     "crops-variants": {
+      "choice": "neither",
+      "rating": 5,
+      "note": "Variants is a good idea, but this is the wrong execution."
+     },
+     "crops-variants-far": {
+      "choice": "neither",
+      "rating": 4,
+      "note": ""
+     }
+    },
+    "overall": "Once again we are falling short of the expected progress. We are using a lot of resources each round for minimal return. We need to reconsider how we are doing things at a high level. The same questions are being posed each round with very minimal effort to execute on the feedback. We need to start just copying from the packs that are doing things right, and then we can try to improve upon them. This isn't intended to make money, and there's nothing on the line here. I just want a good looking pack for my private server."
+   },
+   "attachments": [
+    {
+     "scene": "meteors",
+     "name": "pasted-210648-1.jpg",
+     "path": "docs/design/shaders/feedback/attachments/r010/20261028T013808888Z-meteors-1.jpg",
+     "url": "https://raw.githubusercontent.com/MarionWhite/quest-forge/main/docs/design/shaders/feedback/attachments/r010/20261028T013808888Z-meteors-1.jpg"
+    },
+    {
+     "scene": "meteors",
+     "name": "pasted-210808-1.jpg",
+     "path": "docs/design/shaders/feedback/attachments/r010/20261028T013808888Z-meteors-2.jpg",
+     "url": "https://raw.githubusercontent.com/MarionWhite/quest-forge/main/docs/design/shaders/feedback/attachments/r010/20261028T013808888Z-meteors-2.jpg"
+    }
+   ]
+  }
+ ]
+}
