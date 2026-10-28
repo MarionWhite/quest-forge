@@ -220,7 +220,7 @@ export async function buildRoom(R, spot, { seed = 1, skull = null } = {}) {
   };
   const amb = new THREE.Vector3(0.09, 0.08, 0.08);
   O.door = P(0, 0, 0); O.front = { x: spot.front.x, z: spot.front.z }; O.mouth = P(0, 0, T);
-  const aS = lerp(0, aC, 0.75), dS = T + Math.min(Dd - 2.7, Dd * 0.52);
+  const aS = lerp(0, aC, 0.75), dS = T + Math.min(Dd - 2.45, Dd * 0.58);   // close enough to the far heaps to see a hand
   O.stop = P(aS, 0, dS);
   // ---- the torch: on the far wall, at eye level, in the middle -----------------------------------------------------
   {
@@ -259,8 +259,10 @@ export async function buildRoom(R, spot, { seed = 1, skull = null } = {}) {
     const axisR = sl.ax === "a" ? [1, 0] : [0, 1];
     // a skeleton lying in it: along the far and near walls feet to the room's middle line (it sits up facing across
     // the room), along the side walls feet to the doorway's end (it sits up facing the way out)
+    // (along the far wall the other way about: head toward your end, so the hand comes up on your side of the heap's
+    // crest, where you can see it; it sits up with its back to you and looks round)
     let eu = dirL(axisR[0], axisR[1]);
-    if (sl.ax === "a" && sl.a < aS) eu = { x: -eu.x, z: -eu.z };
+    if (sl.ax === "a" && (sl.a < aS) !== (sl.d === farD)) eu = { x: -eu.x, z: -eu.z };
     const ev = { x: -eu.z, z: eu.x };
     // clear of the walk: the footprint's nearest point to the walk line
     let minD = 9;
@@ -271,15 +273,45 @@ export async function buildRoom(R, spot, { seed = 1, skull = null } = {}) {
   }
   // ---- materials -----------------------------------------------------------------------------------------------
   const [boneTex] = await Promise.all([tex("k:bone")]);
-  const patch = (m) => { if (R.patchBake) R.patchBake(m, { fixed: amb }); return m; };
+  // The torch on the heaps: the PointLight lights the faces turned to it; this wraps a share of it round to the faces
+  // turned away (the near side of a heap, toward you), so the bones are warm where it reaches and cold where it doesn't.
+  const torchU = { p: { value: new THREE.Vector3() }, c: { value: new THREE.Vector3() } };
+  const torchLit = (m) => {
+    const prev = m.onBeforeCompile, key = m.customProgramCacheKey ? m.customProgramCacheKey() : "";
+    m.onBeforeCompile = (sh, rr) => {
+      if (prev) prev(sh, rr);
+      sh.uniforms.uTorchP = torchU.p; sh.uniforms.uTorchC = torchU.c;
+      sh.fragmentShader = sh.fragmentShader.replace("#include <common>", "#include <common>\nuniform vec3 uTorchP;\nuniform vec3 uTorchC;")
+        .replace("#include <emissivemap_fragment>", "#include <emissivemap_fragment>\n{ vec3 nW = inverseTransformDirection(normal, viewMatrix); vec3 Lt = uTorchP - vWP; float dT = length(Lt); float wr = 0.45 + 0.55 * max(0.0, dot(nW, Lt / dT)); totalEmissiveRadiance += diffuseColor.rgb * uTorchC * wr / (1.0 + 0.32 * dT * dT); }");
+    };
+    m.customProgramCacheKey = () => key + "+ossTorch";
+    return m;
+  };
+  const patch = (m) => { if (R.patchBake) R.patchBake(m, { fixed: amb }); return torchLit(m); };
   const boneMat = patch(new THREE.MeshLambertMaterial({ map: boneTex, alphaTest: 0.3, side: THREE.DoubleSide }));
   const skullMat = patch(new THREE.MeshLambertMaterial({ map: skull || null }));
   const coreAmb = new THREE.Vector3();
   // (the skin may still be loading: wait for it a little, the pile's skull faces are drawn from it)
   for (let i = 0; i < 40 && skull && skull.image && !(skull.image.naturalWidth || skull.image.width); i++) await new Promise((r) => setTimeout(r, 50));
   const pileTex = await pileTexture(boneTex && boneTex.image, skull && skull.image && (skull.image.naturalWidth || skull.image.width) ? skull.image : null);
-  const coreMat = new THREE.MeshLambertMaterial({ map: pileTex, color: 0xb8b2a8 });
+  O.pileCover = pileTex.userData ? pileTex.userData.cover : null;
+  const coreMat = new THREE.MeshLambertMaterial({ map: pileTex, color: 0xffffff });
   if (R.patchBake) R.patchBake(coreMat, { fixed: coreAmb });
+  torchLit(coreMat);
+  // Where a hand breaks out, the bones part over the dark inside the heap (a hole in the pile's surface round the arm,
+  // opening as it comes up and closing as the body fills it): up to six, one a heap.
+  const holes = [...Array(6)].map(() => new THREE.Vector4(0, -99, 0, 0)), dents = [...Array(6)].map(() => new THREE.Vector4(0, -99, 0, 0));
+  {
+    const prev = coreMat.onBeforeCompile, key = coreMat.customProgramCacheKey();
+    coreMat.onBeforeCompile = (sh, rr) => {
+      prev(sh, rr); sh.uniforms.uHole = { value: holes }; sh.uniforms.uDent = { value: dents };
+      sh.vertexShader = sh.vertexShader.replace("#include <common>", "#include <common>\nuniform vec4 uDent[6];")
+        .replace("#include <begin_vertex>", "#include <begin_vertex>\n{ vec4 wq = modelMatrix * vec4(transformed, 1.0); float sy = length(modelMatrix[1].xyz); float dy = 0.0; for (int i = 0; i < 6; i++) { float d = length(wq.xz - uDent[i].xz); dy = max(dy, uDent[i].w * (1.0 - smoothstep(0.08, 0.36, d))); } transformed.y -= dy / sy; }");
+      sh.fragmentShader = sh.fragmentShader.replace("#include <common>", "#include <common>\nuniform vec4 uHole[6];")
+        .replace("#include <map_fragment>", "#include <map_fragment>\n{ float hk = 0.0; for (int i = 0; i < 6; i++) { float d = length(vWP.xz - uHole[i].xz); hk = max(hk, uHole[i].w * (1.0 - smoothstep(0.22, 0.46, d))); } diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.02, 0.017, 0.014), pow(hk, 0.7)); }");
+    };
+    coreMat.customProgramCacheKey = () => key + "+hole";
+  }
   // ---- the pieces on each heap, on the floor, in the niches ------------------------------------------------------
   const pieces = [];
   const upW = new THREE.Vector3(0, 1, 0);
@@ -298,31 +330,40 @@ export async function buildRoom(R, spot, { seed = 1, skull = null } = {}) {
     return basisQ(X, Y, Z);
   };
   const towardStop = (x, z) => vW(O.stop.x - x, 0, O.stop.z - z);
+  const diagPerp = new THREE.Vector3(1, -1, 0).normalize();   // across the bone (the sprite draws it corner to corner)
   O.heaps.forEach((hp, hi) => {
     const area = Math.PI * hp.L * hp.W;
-    const nSk = Math.round(area * 3.6), nBo = Math.round(area * 17);
+    const nSk = Math.round(area * 6), nBo = Math.round(area * 42);
     for (let i = 0; i < nSk + nBo; i++) {
       const kind = i < nSk ? 0 : 1;
-      // a point of the footprint (skulls keep off the very edge), its height on the mound and the mound's normal there
+      // a point of the footprint (uniform by area; skulls keep off the very edge), its height on the mound and the
+      // mound's normal there
       let u, v;
-      do { u = rnd() * 2 - 1; v = rnd() * 2 - 1; } while (u * u + v * v > (kind ? 0.97 : 0.8));
+      do { u = rnd() * 2 - 1; v = rnd() * 2 - 1; } while (u * u + v * v > (kind ? 0.985 : 0.82));
       u *= hp.L; v *= hp.W;
       // (a heap's profile: a slope you could pile bones to, not a dome; fuller toward its ends than a paraboloid)
-      const q2 = 1 - (u / hp.L) ** 2 - (v / hp.W) ** 2, h = hp.H * PROF(q2), gk = 2 * hp.H * PEXP * Math.pow(Math.max(0.05, q2), PEXP - 1);
+      const q2 = 1 - (u / hp.L) ** 2 - (v / hp.W) ** 2, h = hp.H * PROF(q2) * TILT(u / hp.L), gk = 2 * hp.H * PEXP * Math.pow(Math.max(0.05, q2), PEXP - 1);
       const nl = { u: gk * u / (hp.L * hp.L), y: 1, v: gk * v / (hp.W * hp.W) };
       const nx = hp.eu.x * nl.u + hp.ev.x * nl.v, nz = hp.eu.z * nl.u + hp.ev.z * nl.v;
       const n = vW(nx, nl.y, nz);
       let q, y;
       if (kind === 0) {
         const lx = hp.c.x + hp.eu.x * u + hp.ev.x * v, lz = hp.c.z + hp.eu.z * u + hp.ev.z * v;
-        // most look out of the heap toward the middle of the room, where you will stand
-        const f = rnd() < 0.85 ? towardStop(lx, lz).applyAxisAngle(upW, (rnd() - 0.5) * 1.3) : vW(Math.cos(rnd() * 6.3), 0, Math.sin(rnd() * 6.3));
-        q = skullQ(f, n, 0.12 + rnd() * 0.25); y = h + 0.25 - 0.12;
+        // most look out of the heap toward the middle of the room, where you will stand; half buried, every tilt
+        const f = rnd() < 0.7 ? towardStop(lx, lz).applyAxisAngle(upW, (rnd() - 0.5) * 1.4) : vW(Math.cos(rnd() * 6.3), 0, Math.sin(rnd() * 6.3));
+        q = skullQ(f, upW, 0);
+        // lying back into the heap, the face out and up (tipped to the slope, one on the near side shows you its crown);
+        // rolled a little either way
+        const side = upW.clone().cross(f).normalize();
+        q.premultiply(new THREE.Quaternion().setFromAxisAngle(side, -(0.15 + rnd() * 0.45)));
+        q.premultiply(new THREE.Quaternion().setFromAxisAngle(f, (rnd() - 0.5) * 0.6));
+        y = h + 0.25 - 0.13 - rnd() * 0.15;
       } else {
-        // most lie along the mound; some stick out of it
+        // most lie along the mound, some half sunk in it; a third stick out of it at a slant
         q = boneQ(n, rnd() * Math.PI * 2);
-        if (rnd() < 0.3) q.multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), (rnd() - 0.5) * 1.6));
-        y = h + 0.01 - (rnd() < 0.3 ? 0.08 : 0);
+        const k = rnd();
+        if (k < 0.33) { q.multiply(new THREE.Quaternion().setFromAxisAngle(diagPerp, (rnd() < 0.5 ? 1 : -1) * (0.6 + rnd() * 0.7))); y = h - 0.02; }
+        else y = h + 0.01 - (k < 0.6 ? 0.03 + rnd() * 0.06 : 0);
       }
       pieces.push({ kind, hi, u, v, y, q, rel: null });
     }
@@ -350,21 +391,42 @@ export async function buildRoom(R, spot, { seed = 1, skull = null } = {}) {
   for (const im of [imS, imB]) { im.frustumCulled = false; im.instanceMatrix.setUsage(THREE.DynamicDrawUsage); }
   { let a = 0, b = 0; for (const p of pieces) p.slot = p.kind === 0 ? a++ : b++; }
   const SIZE = [0.5, 0.5];
-  const cores = O.heaps.map((hp) => {
-    const g = new THREE.SphereGeometry(1, 20, 9, 0, Math.PI * 2, 0, Math.PI / 2);
-    // the pile's texture at about the pieces' scale (32 texels a metre): round it, and from the top down
-    const ps = g.attributes.position, uv = g.attributes.uv;
-    // the dome to the heap's profile (1 - r^2 is y^2 on the unit sphere), the texture laid on from above
-    for (let i = 0; i < ps.count; i++) { const x = ps.getX(i), y = ps.getY(i), z = ps.getZ(i); ps.setY(i, PROF(y * y)); uv.setXY(i, x * hp.L / 2, z * hp.W / 2); }
-    // lumps (outward only, so the core that hides a skeleton is never thinner than the shape the sight lines test)
-    const rl = mulberry(31 + O.heaps.indexOf(hp) * 7), bumps = [...Array(9)].map(() => [rl() * 2 - 1, rl() * 0.9, rl() * 2 - 1, 0.25 + rl() * 0.3, 0.04 + rl() * 0.08]);
-    for (let i = 0; i < ps.count; i++) {
-      const x = ps.getX(i), y = ps.getY(i), z = ps.getZ(i);
+  const cores = O.heaps.map((hp, hi) => {
+    // the profile over the unit footprint (scaled to L, H, W by the mesh), rings x spokes, with lumps: a few big
+    // shoulders and many small knobs, outward only, so the core that hides a skeleton is never thinner than the shape
+    // the sight lines test
+    const NR = 16, NA = 56, rl = mulberry(31 + hi * 7);
+    const big = [...Array(7)].map(() => [rl() * 1.6 - 0.8, rl() * 1.6 - 0.8, 0.3 + rl() * 0.25, 0.05 + rl() * 0.07]);
+    const knob = [...Array(70)].map(() => { const a = rl() * 6.283, rr = Math.sqrt(rl()); return [Math.cos(a) * rr, Math.sin(a) * rr, 0.07 + rl() * 0.1, 0.03 + rl() * 0.06]; });
+    const pos = [], idx = [];
+    const vert = (x, z) => {
+      const q2 = 1 - x * x - z * z, y = PROF(Math.max(0, q2)) * TILT(x);
       let k = 1;
-      for (const [bx, by, bz, br, ba] of bumps) { const d = Math.hypot(x - bx, y - by, z - bz); if (d < br) k += ba * (1 + Math.cos(Math.PI * d / br)) / 2; }
-      if (y > 0.02) ps.setXYZ(i, x * k, y * k, z * k);
+      for (const [bx, bz, br, ba] of big) { const d = Math.hypot(x - bx, z - bz); if (d < br) k += ba * (1 + Math.cos(Math.PI * d / br)) / 2; }
+      for (const [bx, bz, br, ba] of knob) { const d = Math.hypot(x - bx, z - bz); if (d < br) k += ba * (1 + Math.cos(Math.PI * d / br)) / 2; }
+      k += 0.025 * rl();
+      return [x * k, y > 0.001 ? y * k : 0, z * k];
+    };
+    pos.push(...vert(0, 0));
+    for (let i = 1; i <= NR; i++) for (let j = 0; j < NA; j++) { const rr = Math.min(1, i / NR), a = j / NA * Math.PI * 2 + (i % 2) * Math.PI / NA; pos.push(...vert(rr * Math.cos(a), rr * Math.sin(a))); }
+    const at = (i, j) => (i === 0 ? 0 : 1 + (i - 1) * NA + ((j % NA) + NA) % NA);
+    for (let j = 0; j < NA; j++) idx.push(0, at(1, j + 1), at(1, j));
+    for (let i = 1; i < NR; i++) for (let j = 0; j < NA; j++) { const o = i % 2; idx.push(at(i, j), at(i + 1, j + o), at(i + 1, j - 1 + o)); idx.push(at(i, j), at(i, j + 1), at(i + 1, j + o)); }
+    let g = new THREE.BufferGeometry();
+    g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3)); g.setIndex(idx); g.computeVertexNormals();
+    g = g.toNonIndexed();
+    // uv per face: the two axes across its own steepest one, in metres of the heap (scaled), 4 m to the tile
+    const P3 = g.attributes.position, uvs = new Float32Array(P3.count * 2), A = new THREE.Vector3(), B = new THREE.Vector3(), C = new THREE.Vector3();
+    for (let f = 0; f < P3.count; f += 3) {
+      A.set(P3.getX(f) * hp.L, P3.getY(f) * hp.H, P3.getZ(f) * hp.W); B.set(P3.getX(f + 1) * hp.L, P3.getY(f + 1) * hp.H, P3.getZ(f + 1) * hp.W); C.set(P3.getX(f + 2) * hp.L, P3.getY(f + 2) * hp.H, P3.getZ(f + 2) * hp.W);
+      const n = B.clone().sub(A).cross(C.clone().sub(A)), ax = Math.abs(n.x), ay = Math.abs(n.y), az = Math.abs(n.z);
+      const o = (hi * 0.37) % 1;
+      [A, B, C].forEach((p, k) => {
+        const [u, v] = ay >= ax && ay >= az ? [p.x, p.z] : ax >= az ? [p.z, p.y] : [p.x, p.y];
+        uvs[(f + k) * 2] = u / 4 + o; uvs[(f + k) * 2 + 1] = v / 4 + o;
+      });
     }
-    g.computeVertexNormals();
+    g.setAttribute("uv", new THREE.BufferAttribute(uvs, 2));
     const m = R.add(new THREE.Mesh(g, coreMat));
     m.rotation.order = "YXZ";
     return m;
@@ -374,10 +436,14 @@ export async function buildRoom(R, spot, { seed = 1, skull = null } = {}) {
   // through it: it slides off down the mound, over the edge, and skids to a stop on the floor (a function of t).
   const slumpAt = (hp, t) => {
     if (!hp.rise) return [1, 1];
-    const k = sstep(hp.rise.hand0, hp.rise.stand1, t);
-    return [1 - 0.42 * k, 1 + 0.08 * k];
+    // the top gives way once the hand is out (the bones over it slide off), the rest as it sits up and stands
+    const r = hp.rise, k1 = sstep(r.hand0, r.hand1 + 0.2, t), k2 = sstep(r.sit0, r.stand1, t);
+    return [1 - 0.12 * k1 - 0.3 * k2, 1 + 0.04 * k1 + 0.04 * k2];
   };
-  const surf = (hp, u, v, t) => { const [hs, sp] = slumpAt(hp, t); const q2 = 1 - (u / (hp.L * sp)) ** 2 - (v / (hp.W * sp)) ** 2; return q2 > 0 ? hp.H * hs * PROF(q2) : 0; };
+  // where a hand comes out, the bones fall in round it: a dent in the heap (opens as the heap shifts, gone as it gets up)
+  const dentK = (hp, t) => { const r = hp.rise; return r && hp.dent ? sstep((r.shift ?? r.hand0 - 0.4) + 0.1, r.hand0 + 0.35, t) * (1 - sstep(r.sit1, r.stand1, t)) : 0; };
+  const dentAt = (hp, u, v, t) => { const k = dentK(hp, t); if (!k) return 0; const d = Math.hypot(u - hp.dent.u, v - hp.dent.v); return hp.dent.depth * k * (1 - sstep(0.08, 0.36, d)); };
+  const surf = (hp, u, v, t) => { const [hs, sp] = slumpAt(hp, t); const q2 = 1 - (u / (hp.L * sp)) ** 2 - (v / (hp.W * sp)) ** 2; return q2 > 0 ? Math.max(0, hp.H * hs * PROF(q2) * TILT(u / (hp.L * sp)) - dentAt(hp, u, v, t)) : 0; };
   const _m = new THREE.Matrix4(), _q = new THREE.Quaternion(), _q2 = new THREE.Quaternion(), _p = new THREE.Vector3(), _s = new THREE.Vector3(), _ax = new THREE.Vector3();
   const flatQ = (p) => p.flat || (p.flat = p.kind ? boneQ(upW.clone(), (p.u || 0) * 7 + (p.v || 0) * 3) : skullQ(vW(Math.cos(p.slot), 0, Math.sin(p.slot)), upW, 0));
   // where a released piece is: [x, y, z local, tumble angle, flat k, spin]
@@ -522,14 +588,15 @@ export async function buildRoom(R, spot, { seed = 1, skull = null } = {}) {
         up = clamp(Math.atan2(look.y - 1.5, Math.hypot(look.x - feet.x, look.z - feet.z)), -0.7, 0.6) * kLook;
       }
       if (t < sch.stand0) {
-        const lift = 0.14 * kh;
+        const lift = 0.3 * kh;   // the shoulders come up inside the heap as the hand goes up out of it
         const th = lerp(Math.PI / 2 - lift, 0, easeInOut(ks)) + shiver;
-        // the hand: the arm on the room's side comes up and out through the bones, clawing (ModelBiped z: + is out for
-        // the right arm, - for the left); as it sits up both arms go to the floor
+        // the hand: the arm on the room's side comes up out of the heap's upper flank, clawing (pointing up off the
+        // chest, a little out: its turn about the body's long axis, + for the right arm, - for the left; more and it
+        // would point at you and show nothing); as it sits up both arms go to the floor
         const kc = easeOut3(kh), claw = Math.sin(t * 9) * 0.12 * kh * (1 - ks);
-        const armC = [lerp(-0.95 * kc + claw, 0.35, ks), 0, (clawRight ? 1 : -1) * lerp(1.45 * kc + claw * 0.6, 0, ks)];
+        const armC = [lerp(-(Math.PI / 2 + 0.05) * kc - lift + claw, 0.35, ks), (clawRight ? 1 : -1) * lerp(0.18 * kc + claw * 0.8, 0, ks), 0];
         const armO = [lerp(0, 0.25, ks), 0, 0];
-        set(th, Math.PI / 2, clawRight ? armC : armO, clawRight ? armO : armC, 0.35 * Math.sin(Math.PI * ks) - up * ks, hy);
+        set(th, Math.PI / 2, clawRight ? armC : armO, clawRight ? armO : armC, 0.35 * Math.sin(Math.PI * ks) - up * ks - lift * (1 - ks), hy);
         const a = anchor(legs.map((g) => [g, 0]));
         m.pivot.position.add(_w.copy(hipW).sub(a));
         footW = null;
@@ -556,6 +623,42 @@ export async function buildRoom(R, spot, { seed = 1, skull = null } = {}) {
       for (const g of legs) out.push([pt(g, 0, 0, 0), pt(g, 0, -0.72, 0), 0.14]);
       return out;
     };
+    // where the hand comes out at its height (local), for the eyes; the skull of this heap nearest it is moved right
+    // over it, so the hand knocks it off as it breaks out
+    {
+      pose(sch.hand1); m.pivot.updateMatrixWorld(true);
+      const g = clawRight ? Pp.rightArm : Pp.leftArm, hw = g ? R.toLocal(g.localToWorld(new THREE.Vector3(0, -0.6, 0))) : R.toLocal(m.pivot.position);
+      pose.handAt = { x: hw.x, y: hw.y, z: hw.z }; if (g) { const sw = R.toLocal(g.localToWorld(new THREE.Vector3(0, 0, 0))); pose.dbg = { sh: [sw.x, sw.y, sw.z].map((v) => Math.round(v * 100) / 100), hd: [hw.x, hw.y, hw.z].map((v) => Math.round(v * 100) / 100), c: [hp.c.x, hp.c.z].map((v) => Math.round(v * 100) / 100), eu: [hp.eu.x, hp.eu.z], ev: [hp.ev.x, hp.ev.z], right: clawRight }; }
+      if (g) {
+        const mw = R.toLocal(g.localToWorld(new THREE.Vector3(0, -0.3, 0)));
+        const mu = (mw.x - hp.c.x) * hp.eu.x + (mw.z - hp.c.z) * hp.eu.z, mv = (mw.x - hp.c.x) * hp.ev.x + (mw.z - hp.c.z) * hp.ev.z;
+        hp.dent = { u: mu, v: mv, depth: 0 };
+        hp.dent.depth = Math.max(0, surf(hp, mu, mv, sch.hand1) - 0.6);
+      }
+      if (g) for (let k = 0; k <= 20; k++) {
+        const pw = g.localToWorld(new THREE.Vector3(0, 0.1 - 0.7 * k / 20, 0)), pl = R.toLocal(pw);
+        const u0 = (pl.x - hp.c.x) * hp.eu.x + (pl.z - hp.c.z) * hp.eu.z, v0 = (pl.x - hp.c.x) * hp.ev.x + (pl.z - hp.c.z) * hp.ev.z;
+        if (pl.y > surf(hp, u0, v0, sch.hand1)) { hp.hole = pw.clone(); pose.outAt = { ...pl, len: 0.7 * (1 - k / 20) }; break; }
+      }
+      const du = (hw.x - hp.c.x) * hp.eu.x + (hw.z - hp.c.z) * hp.eu.z, dv = (hw.x - hp.c.x) * hp.ev.x + (hw.z - hp.c.z) * hp.ev.z;
+      let best = null, bd = 1e9;
+      for (const p of pieces) if (p.hi === hi && p.kind === 0 && !p.rel) { const d = Math.hypot(p.u - du, p.v - dv); if (d < bd) { bd = d; best = p; } }
+      if (best) { best.u = du + 0.08; best.v = dv; best.y = surf(hp, best.u, best.v, 0) + 0.12; pose.knock = best; }
+    }
+    // the heap shifts over where the hand will come out: the pieces round it slide away first, opening the dark the hand
+    // comes up out of (the skull moved over it stays, for the hand to knock off)
+    if (pose.outAt) {
+      const o = pose.outAt, ou = (o.x - hp.c.x) * hp.eu.x + (o.z - hp.c.z) * hp.eu.z, ov = (o.x - hp.c.x) * hp.ev.x + (o.z - hp.c.z) * hp.ev.z;
+      for (const p of pieces) {
+        if (p.hi !== hi || p.rel || p === pose.knock) continue;
+        const dd = Math.hypot(p.u - ou, p.v - ov);
+        if (dd > 0.42) continue;
+        let du = (p.u - ou) / (dd || 1), dv = (p.v - ov) / (dd || 1);
+        du += p.u * 0.3 / hp.L; dv += p.v * 0.6 / hp.W; const n = Math.hypot(du, dv) || 1; du /= n; dv /= n;
+        const t0 = (sch.shift ?? sch.hand0 - 0.4) + rnd() * 0.25 + dd * 0.4;
+        p.rel = { t: t0, u0: p.u, v0p: p.v, du, dv, edge: edgeDist(hp, p.u, p.v, du, dv), v0: 0.5 + rnd() * 0.4, acc: 2.4 + rnd(), b: 4 + rnd() * 2, hop: 0.05 };
+      }
+    }
     const mine = pieces.filter((p) => p.hi === hi && !p.rel);
     const S1 = [], S0 = [], cl = new THREE.Vector3(), seg = new THREE.Vector3();
     let tPrev = null;
@@ -649,8 +752,18 @@ export async function buildRoom(R, spot, { seed = 1, skull = null } = {}) {
     }
     imS.count = nSk; imB.count = nBo;
     imS.instanceMatrix.needsUpdate = true; imB.instanceMatrix.needsUpdate = true;
-    coreAmb.copy(amb).multiplyScalar(0.8);
+    coreAmb.copy(amb).multiplyScalar(1.1);
+    if (O.light) { O.light.getWorldPosition(torchU.p.value); const k = O.light.intensity * 0.16; torchU.c.value.set(O.light.color.r * k, O.light.color.g * k, O.light.color.b * k); }
     for (const b of bows) for (const o of b.objs) o.visible = t >= b.t;
+    O.heaps.forEach((hp, i) => {
+      if (i >= holes.length) return;
+      const k = dentK(hp, t);
+      if (hp.dent && k > 0) {
+        const [hs, sp] = slumpAt(hp, t), u = hp.dent.u, v = hp.dent.v, bottom = surf(hp, u, v, t);
+        const w = R.L(hp.c.x + (hp.eu.x * u + hp.ev.x * v), bottom, hp.c.z + (hp.eu.z * u + hp.ev.z * v), _p);
+        holes[i].set(w.x, w.y, w.z, k); dents[i].set(w.x, w.y, w.z, hp.dent.depth * k); void hs; void sp;
+      } else { holes[i].set(0, -99, 0, 0); dents[i].set(0, -99, 0, 0); }
+    });
     O.tNow = t;
   };
   O.solid = (w) => {
@@ -659,39 +772,58 @@ export async function buildRoom(R, spot, { seed = 1, skull = null } = {}) {
       const hp = O.heaps[i], [hs, sp] = slumpAt(hp, O.tNow ?? 0);
       const du = (l.x - hp.c.x) * hp.eu.x + (l.z - hp.c.z) * hp.eu.z, dv = (l.x - hp.c.x) * hp.ev.x + (l.z - hp.c.z) * hp.ev.z;
       if (l.y < 0) continue;
-      if (l.y < hp.H * hs * 0.97 * PROF(1 - (du / (hp.L * sp * 0.98)) ** 2 - (dv / (hp.W * sp * 0.98)) ** 2)) return true;
+      if (l.y < hp.H * hs * 0.97 * PROF(1 - (du / (hp.L * sp * 0.98)) ** 2 - (dv / (hp.W * sp * 0.98)) ** 2) * TILT(du / (hp.L * sp * 0.98)) - dentAt(hp, du, dv, O.tNow ?? 0)) return true;
     }
     return false;
   };
   return O;
 }
-// The inside of a heap, as a texture for its core: bone items (the 16 x 16 sprite, turned by quarter turns and flipped,
-// so the pixels stay square) piled over a dark ground, the deeper ones darker, and a few skull faces (the skin's head
-// front, 8 x 8) among them. 64 x 64, nearest, repeating.
+// The heap's surface between the pieces, as a texture for its core: bone items (the 16 x 16 sprite at the pieces' own
+// scale, half a metre) lying every which way, layer on layer, the deeper ones darker, each with a shadow under it, and
+// skull faces (the skin's head front, at the skull block's size) among them; dark only in the gaps (a quarter or less).
+// At 128 texels a metre, so a bone turned at any angle keeps its pixels square (turned, like the pieces on the heap).
+// 512 x 512 (4 m), repeating, nearest up close and mipmapped off (no sparkle across the room).
 async function pileTexture(bone, skin) {
-  const c = document.createElement("canvas"); c.width = c.height = 64;
+  const N = 512, c = document.createElement("canvas"); c.width = c.height = N;
   const x = c.getContext("2d"); x.imageSmoothingEnabled = false;
-  x.fillStyle = "#231e19"; x.fillRect(0, 0, 64, 64);
+  x.fillStyle = "#3a322b"; x.fillRect(0, 0, N, N);
   const r = mulberry(77);
-  const put = (img, sx, sy, sw, sh, n, dark, size) => {
-    for (let i = 0; i < n; i++) {
-      const px = Math.floor(r() * 64), py = Math.floor(r() * 64), rot = Math.floor(r() * 4), fl = r() < 0.5;
-      for (const [ox, oy] of [[0, 0], [-64, 0], [0, -64], [-64, -64]]) {
-        x.save(); x.translate(px + ox + size / 2, py + oy + size / 2); x.rotate(rot * Math.PI / 2); if (fl) x.scale(-1, 1);
-        x.filter = `brightness(${dark + (1 - dark) * (i / n)})`;
+  const one = (img, sx, sy, sw, sh, size, light, ang, px = r() * N, py = r() * N, shade = true) => {
+    const fl = r() < 0.5;
+    for (const ox of [0, -N, N]) for (const oy of [0, -N, N]) {
+      const cx = px + ox, cy = py + oy;
+      if (cx < -size || cx > N + size || cy < -size || cy > N + size) continue;
+      for (const pass of shade ? [0, 1] : [1]) {
+        x.save(); x.translate(Math.round(cx + (pass ? 0 : 4)), Math.round(cy + (pass ? 0 : 5))); x.rotate(ang); if (fl) x.scale(-1, 1);
+        x.filter = pass ? `brightness(${light.toFixed(3)})` : "brightness(0) opacity(0.5)";
         x.drawImage(img, sx, sy, sw, sh, -size / 2, -size / 2, size, size); x.restore();
       }
     }
   };
-  if (bone) put(bone, 0, 0, bone.width, bone.height, 80, 0.12, 16);
-  if (skin) { const k = skin.width / 64; put(skin, 8 * k, 8 * k, 8 * k, 8 * k, 10, 0.25, 8); }
-  if (bone) put(bone, 0, 0, bone.width, bone.height, 20, 0.35, 16);
+  const cover = () => { const d = x.getImageData(0, 0, N, N).data; let n = 0, m = 0; for (let i = 0; i < d.length; i += 16, m++) if (d[i] + d[i + 1] + d[i + 2] > 3 * 60) n++; return n / m; };
+  if (bone) {
+    const B = [0, 0, bone.width, bone.height];
+    // the deep bones, dim, and skull faces among them; a paler layer over them; then the ones on top, pale, each with
+    // its shadow, spread so each reads as a bone
+    for (let i = 0; i < 520; i++) one(bone, ...B, 64, 0.5 + r() * 0.2, r() * Math.PI * 2, undefined, undefined, false);
+    if (skin) { const k = skin.width / 64; for (let i = 0; i < 14; i++) one(skin, 8 * k, 8 * k, 8 * k, 8 * k, 64, 0.55 + r() * 0.35, Math.floor(r() * 4) * Math.PI / 2 + (r() - 0.5) * 0.8, undefined, undefined, false); }
+    for (let i = 0; i < 220; i++) one(bone, ...B, 64, 0.7 + r() * 0.15, r() * Math.PI * 2, undefined, undefined, false);
+    const tops = [];
+    for (let i = 0; i < 2000 && tops.length < 110; i++) {
+      const px = r() * N, py = r() * N;
+      if (tops.some(([qx, qy]) => { const dx = Math.abs(qx - px), dy = Math.abs(qy - py); return Math.hypot(Math.min(dx, N - dx), Math.min(dy, N - dy)) < 34; })) continue;
+      tops.push([px, py]); one(bone, ...B, 64, 0.85 + r() * 0.15, r() * Math.PI * 2, px, py, true);
+    }
+  }
   const t = new THREE.CanvasTexture(c);
-  t.colorSpace = THREE.SRGBColorSpace; t.magFilter = t.minFilter = THREE.NearestFilter; t.generateMipmaps = false;
-  t.wrapS = t.wrapT = THREE.RepeatWrapping;
+  t.colorSpace = THREE.SRGBColorSpace; t.magFilter = THREE.NearestFilter; t.minFilter = THREE.NearestMipmapNearestFilter; t.generateMipmaps = true;
+  t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = 8;
+  t.userData = { cover: cover() };
   return t;
 }
 const PEXP = 0.8, PROF = (q2) => (q2 > 0 ? Math.pow(q2, PEXP) : 0);
+// higher at the head end (+eu, where a skeleton's skull lies) than at the feet
+const TILT = (un) => 1 + 0.25 * clamp(un, -1, 1);
 const easeInOut = (k) => k * k * (3 - 2 * k);
 const easeOut3 = (k) => 1 - Math.pow(1 - clamp(k), 3);
 const pulse1 = (t, t0, len) => (t < t0 || t > t0 + len ? 0 : Math.sin((t - t0) / len * Math.PI));

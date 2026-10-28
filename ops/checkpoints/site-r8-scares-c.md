@@ -113,3 +113,19 @@ Scratch: `scratchpad/r8/scares-c/` (film.js, film.py, crop.py, probe.js, cdp.mjs
   "Skeleton: no room for it here. Walk on a little and try again." (tested: scratch pick_fail.js at 0.66 +24 m).
   ossuary findRoom: 4th pass zq -26..7, T up to 4, wall up to 20 m (rescued none of the 2 'worn' misses at 0.66:
   riddled shell / curving tunnel; kept, costs only on a miss, max 617 ms).
+- [x] #1 heaps: core = lumpy heightfield (7 shoulders + 70 knobs, outward only), uv per face by its own axis (no
+  streaks); pile texture 512 px / 4 m (128 texels/m: bones turned at any angle keep square pixels), 520 dim + 220
+  mid + 110 pale spaced bones with shadows, skull faces, gaps a shadowed brown (cover 0.7+), mipmapped + aniso;
+  pieces x2.5 (area*42 bones: a third stick out at a slant, a quarter half sunk; area*6 skulls lying back face-up,
+  half buried); torch wrap light on core/bones/skulls (torchLit: uTorchP/uTorchC from O.light). Before/after sheet:
+  scratch heaps/heaps_before_after.png (heapshot.js renders 1 m and far views with a fixed camera).
+- [x] #3 hand (review/hand_check13.png): the arm was pointing at you / buried under the crest. Now: far-heap risers lie
+  head toward your end (it sits up with its back to you and looks round), heap profile TILT (higher at the head end),
+  torso curls 0.3 rad inside the heap, the claw arm nearly upright on your side; where it comes out the heap dents
+  (analytic surf/O.solid + core vertex shader, uDent) and goes near-black (uHole), the pieces round it slide off as
+  the heap shifts, one skull is put over it to knock off; the view narrows (fov -24) on the hand. headmargin.js: head
+  stays >= 0.07 under through the hand (hat layer ~-0.05, transparent). Arm ~0.5 m out.
+- Coordinator adds: (a) fallback for EVERY scare whose build throws: random -> clean up + another; J -> retry once
+  (widened if supported), then another + console log; test by forcing a throw. (b) equipment.js is mine now: if the
+  black look has a shared cause, fix for every held item; before/after: Wither sword, Skeleton bow, Lucky held items.
+  Don't touch witherskeleton.js.

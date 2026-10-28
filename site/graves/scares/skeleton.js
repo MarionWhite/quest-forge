@@ -160,7 +160,8 @@ export default {
       { t: roll.piece ? tTip + 0.12 : 1e9, d: 0.3, e: "o", p: (t) => O.pieceAt(roll.piece, t) },
       { t: roll.tStop + 0.35, d: 0.9, p: H(i1) },                      // where it came from: nothing
       { t: tRat - 0.05, d: 0.3, e: "o", p: { ...H(i1), y: 0.45 } },
-      { t: sch1.hand0 + 0.1, d: 0.5, p: (t) => (R1 ? headOf(R1)(t) : H(i1)) },
+      { t: sch1.hand0 + 0.05, d: 0.4, e: "o", p: R1 && R1.pose.outAt ? { x: R1.pose.outAt.x, y: R1.pose.outAt.y + 0.12, z: R1.pose.outAt.z } : H(i1) },   // the hand, as it breaks out
+      { t: sch1.sit0 + 0.15, d: 0.5, p: (t) => (R1 ? headOf(R1)(t) : H(i1)) },
       { t: tR2 + 0.06, d: 0.42, e: "x", p: (t) => (risers[i2] ? headOf(risers[i2])(t) : H(i2)) },
       ...schR.map((s, k) => ({ t: s.sit0 + 0.1, d: 0.38, e: "x", p: (t) => headOf(risers[rest[k]])(t) })).filter((x, k) => k < 3),
       { t: tBows - 0.5, d: 0.65, p: { x: youDown.x - Math.sin(bowsYaw.yw) * 3, y: 1.55, z: youDown.z + Math.cos(bowsYaw.yw) * 3 } },
@@ -219,7 +220,8 @@ export default {
       c.y += -Math.abs(Math.cos(ph)) * 0.035 * walking + 0.017 * walking; c.roll += Math.sin(ph) * 0.012 * walking;
       // stopped dead by the skull; the start at the rattle; a flinch as it comes up
       c.y -= 0.03 * pulse(t, [tStop0], 0.25);
-      c.fov = s0.fov - 7 * sstep(tBows - 0.2, tSil + 0.6, t) * (1 - sstep(tV, tV + 0.06, t));
+      c.fov = s0.fov - 7 * sstep(tBows - 0.2, tSil + 0.6, t) * (1 - sstep(tV, tV + 0.06, t))
+        - 24 * sstep(sch1.hand0, sch1.hand0 + 0.45, t) * (1 - sstep(sch1.sit0 + 0.05, sch1.sit0 + 0.6, t));   // the eyes fix on the hand
       const kk = kick(t, hits.slice(0, -1).map((h) => ({ t: h.t, side: h.side, amp: 1.2 })));
       c.yaw += kk.yaw; c.pitch += kk.pitch;
       shake(c, t, 0.0015 + 0.0035 * sstep(tRat, tRat + 0.5, t) * (1 - sstep(tV, tV + 0.2, t)) + 0.018 * pulse(t, [tRat], 0.18) + 0.03 * pulse(t, hits.map((h) => h.t), 0.2), 7);
@@ -352,7 +354,7 @@ export default {
       dur: DUR, hits, cam, update, sounds, loops, deathSide: lside,
       solid: (w) => O.solid(w),
       marks: { dread: tRat, fake: tTip + 0.2, lunge: sch1.sit1, kill: tKill + 0.05, hand: sch1.hand1, sit: (sch1.sit0 + sch1.sit1) / 2, stand: sch1.stand0 + 0.5, behind: tR2 + 0.7, bows: tBows + 0.4, volley: tV + 0.12 },
-      notes: { room: [spot.s, spot.T, spot.Wa, spot.Dd, r2(spot.xc), r2(spot.zc)], heaps: O.heaps.length, niches: O.niches.length, i1, i2, tCl: r2(tCl), tB0: r2(tB0), tTip: r2(tTip), tRat: r2(tRat), sit1: r2(sch1.sit0), tR2: r2(tR2), tBows: r2(tBows), bowsSee: bowsYaw.n, bowIn: O.bows.map((b) => [r2(b.t), b.best + '/' + b.of]), tV: r2(tV), tKill: r2(tKill), dur: r2(DUR) }
+      notes: { room: [spot.s, spot.T, spot.Wa, spot.Dd, r2(spot.xc), r2(spot.zc)], heaps: O.heaps.length, niches: O.niches.length, i1, i2, tCl: r2(tCl), tB0: r2(tB0), tTip: r2(tTip), tRat: r2(tRat), sit1: r2(sch1.sit0), tR2: r2(tR2), tBows: r2(tBows), bowsSee: bowsYaw.n, bowIn: O.bows.map((b) => [r2(b.t), b.best + '/' + b.of]), heapC: O.heaps.map((h) => [r2(h.c.x), r2(h.c.z), r2(h.L), r2(h.W)]), stop: [r2(O.stop.x), r2(O.stop.z)], pileCover: r2(O.pileCover ?? -1), handOut: R1 && R1.pose.outAt ? [r2(R1.pose.outAt.y), r2(R1.pose.outAt.len)] : null, handDbg: R1 ? R1.pose.dbg : null, tV: r2(tV), tKill: r2(tKill), dur: r2(DUR) }
     };
   }
 };
