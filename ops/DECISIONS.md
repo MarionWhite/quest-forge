@@ -58,6 +58,11 @@ delete the entry here. Sheet 1 (30 cards) was answered 2026-10-25 → decisions 
   with a link). Confirm before they go in the shipped zip.
 
 ## Shader
+- **Round 10's rays vs the High budget (r012 Lab, scene "sun-cloud").** The owner picked round 10's rays in r011 (C).
+  They cost **+0.30 ms** on the sea sunset (High 1440p 3.65 ms, budget 3.0; round 11 with Photon's rays 3.30), +0.23 on
+  lake_glitter, +0.13-0.21 elsewhere at sunset, ~0 at noon (1028-151500-r012-publish-cost). *Recommend: keep the look,
+  and next round make it cheaper (fewer taps, or Photon's shadow-map march drawn with round 10's lanes) rather than
+  drop it.* Stated on the r012 Lab question; no card needed unless the owner wants the budget held strictly.
 - **Rule 10 counted in full-screen equivalents** so clouds, light shafts, bloom and AO can each use
   a sub-resolution buffer. *Recommend: yes.* In s002.
 

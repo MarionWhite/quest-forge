@@ -1,5 +1,14 @@
 # Shaders journal (newest first)
 
+- 2026-10-28 16:40: **r012 shader scenes handed off** (C:\qfb\shaderdev012\spec_scenes.py, SHADERS-READY; 4 scenes:
+  sunset-full, sun-glow 2x crops, sun-cloud, meteors; pack 4f9e553). Loop 2 (1028-151425): the glow shows once measured
+  in display units with its own visibility (thin sunlit cloud over the disk counts): sun box 194.0 none / 196.0 default /
+  197.4 strong, BSL 224 (clear disk); noon unchanged. Gold: ocean_sunset upper sky 154,133,116 (r011 154,121,122 lilac);
+  shore_sunset barely moves (sun on the horizon). golden_lit near grass 40,56,19 (r011 69,67,40, r010 38,45,15). Lean
+  meteors read as tapered hairlines, none at dusk. Costs (1028-151500, High 1440p): worst ocean_sunset 3.65 (r011 3.30):
+  round 10's rays +0.30 there (Photon's +0.02), glow +0.06-0.09, gold +0.04, near air 0; Low 0.89, Potato 0.31; meteors
+  2.94 both shapes. Gem SSR (QF_GEM_SSR) +0.18/+0.17/+0.05 ms, written into the texture track's gems scene.
+
 - 2026-10-28: **r011 posted** (1553b04, 29 scenes via finish_round --publish). Rays scene moved to golden_lit (lake_glitter A looked like off; no p11r75 frame there, option dropped); pack scenes marked noCost. Checkpoint ops/checkpoints/r011-publish.md.
 
 - 2026-10-28 09:20: **r011 shader scenes handed off** (be6b241; C:\qfb\shaderdev

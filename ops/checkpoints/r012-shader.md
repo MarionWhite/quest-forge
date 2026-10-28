@@ -46,15 +46,23 @@ longer, fainter). Every change with measured cost (High 1440p vs 3.0, Low, Potat
 - Drafted C:\qfb\shaderdev\r012\spec_scenes.py (sunset-full A p12 / B p11r ocean_sunset; sun-cloud A p12 / B p11r /
   C p10cr golden_lit; meteors ov p12clipm5 / p12clipl0 scale 0.6667) and round.json (renders r012 cost + r011 + r010).
 
+- 16:40 (resume agent) loop 2 read (sheets r012\sheets\l2_sun.jpg, l2_sunbox.jpg, l2_suntight.jpg, l2_glowopts.jpg,
+  l2_views.jpg, l2_met.jpg, l2_metf.jpg): **glow shows** now, soft white-gold round the sun behind the cloud base
+  (sun box 1110,545,200,100: none 194.0, BLOOM 1 195.1, 2 196.0, 3 197.4; BSL 224 with a clear disk); noon unchanged
+  (upper sky 135.6 vs 135.7 without). lake_glitter: the glow lies over the cliff where the sun's top limb pokes over the
+  ridge (as BSL's does there). Kept QF_SUN_BLOOM 2; offered 3 on the Lab (sun-glow crops). **Gold** ocean_sunset upper
+  sky 154,133,116 (gold off 163,128,131); shore_sunset barely moves (144,100,84 vs 146,96,86): sun on the horizon,
+  salmon there is extinction, not the tint (later item). **Near grass** golden_lit bottom 40,56,19 (r010 38,45,15).
+  **Rays** round 10's: clean fan on lake_glitter / ocean_sunset. **Meteors** lean: thinner, longer, tapered; none at
+  shore_dusk (r011 had the contrail).
+- Costs (1028-151500, High 1440p vs shaders off): worst **ocean_sunset 3.65** (r011 3.30), lake_glitter 3.23,
+  swamp/sea 3.08-3.18; Low 0.89, Potato 0.31, Medium 1.55. Per change: gold +0.00..+0.04, glow +0.00..+0.09, near air
+  +0.00, round 10's rays +0.01..+0.30 (Photon's +0.00..+0.02), meteors lean = r011 shape 2.94. **Gem SSR gm1-gm0
+  +0.18 / +0.17 / +0.05** (gem_glint_d/e, gem_lit) -> GEM_COST in r012	extures_make_scenes.py, rerun, no "pending".
+- spec_scenes.py finished (4 scenes, sun-glow added: oc crops 890,440,640,360 of p12 / r12c3 noCost / p12b0), round.json
+  + loop-2 render; dry-checked with roundlib (scratchpad dry.py): no missing frames or costs, 7 critic notes to write.
+  SHADERS-READY written.
+
 ## Resume here (fresh agent)
-1. `py -3.10 tools/renderq/renderq.py results 1028-151425-r012-loop2-shot`; sheet r12c/r12c1/r12c3 ocean_sunset +
-   lake_glitter vs p11r and refbsl (tools in C:\qfb\shaderdev\r012\tools: sheet.py, crops 810,405,800,450); sun box
-   means (1110,545,200,100). Also check sky_noon r12c3 (no wash) and shore_dusk (no meteor). Pick QF_SUN_BLOOM default.
-   If the glow still doesn't show, debug visG (QF_DEBUG_VIEW in final) before tuning amplitudes.
-2. If the default changes: edit settings.glsl, check_glsl, commit; the cost run's p12 frames then need a re-run of
-   the affected tags only (p12 sunset views, p12b0 unaffected). Note glow cost ~0 (17 cached taps + 2 exps).
-3. When 1028-151500-r012-publish-cost lands: costs per change (spec_scenes computes them), gem SSR = gm1 - gm0 per
-   view (log here; tell the texture track), meteors p12clipm5 vs p12clipl0 vs budget 3.0.
-4. Re-measure golden_lit bottom (1080:1440 rows) on bench-p12-golden_lit.png and update "(now 40,56,20)".
-5. Dry-check spec_scenes with roundlib if allowed; write C:\qfb\shaderdev\r012\SHADERS-READY.
-6. ops/tracks/shaders.md, one journal entry (ops/journal/shaders.md), commit, `git log origin/main..main`, push.
+Done. Next is the critic (r012/critic.json) and the publisher (finish_round.py). Follow-up for r013: a cheaper round-10
+rays pass (16 random-access taps per sky pixel near the sun = +0.30 ms on ocean_sunset) if the owner keeps them.
