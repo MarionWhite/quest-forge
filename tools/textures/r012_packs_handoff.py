@@ -5,7 +5,8 @@
 
 Reads the frames of render 1028-154329-textures-r012-packs (the re-render after review of 1028-150936) (spec tools/renderq/specs/textures-r012-packs.json) from
 C:\\qfb\\shaderdev\\rounds\\screenshots. A = round 11 as published (frozen zips), B = r012 fixes, C (where rendered) =
-the alternative. The frames show third-party pack art: internal Lab review only, never the public site.
+the alternative. The HUD scene also takes C:\\qfb\\shaderdev\\r012\\packs\\pk-hud-mock.png
+(`qf_hud.py --preview`). The frames show third-party pack art: internal Lab review only, never the public site.
 Answers the owner's r011 notes (ops/checkpoints/r012-plan.md, "Packs"); settled picks are not asked again.
 """
 import json, os, sys
@@ -63,7 +64,8 @@ def main():
           "page and red banner bookmarks of Faithless's recipe book, from the screenshots you sent in round 7.",
           "B or C?", "gui_creative_combat", GUI_BOX,
           [r11, ("B", "Faithless, fixed", B, "Grey tabs on the right grid, wood frame, item cells."),
-           ("C", "Recipe-book style", C, "Parchment page, every tab a red banner.")])
+           ("C", "Recipe-book style", C, "Parchment page, every tab a red banner. Not finished: the hotbar row sits "
+            "on the page's dark bottom edge (the page is a few pixels short); fixed in round 13 if you pick C.")])
     scene("pk-creative-brewing", "Creative: brewing tab", "Same fix and the same two styles.", "",
           "gui_creative_brewing", GUI_BOX,
           [r11, ("B", "Faithless, fixed", B, ""), ("C", "Recipe-book style", C, "")])
@@ -86,8 +88,16 @@ def main():
           "Our own art, Faithless's hearts and food kept. Iron: the main menu's forged plates, lavender rim, ember "
           "selection, molten XP. Arcane: indigo and gold, gem corners, emerald XP, runes in the boss channel. Banner: "
           "walnut and brass, red banner selection, gold XP, red ribbon boss bar. 1.7.10 draws every boss bar from "
-          "one 182 x 5 strip; a taller framed bar (one per boss) needs a small qf-tweaks hook.",
+          "one 182 x 5 strip; a taller framed bar (one per boss) needs a small qf-tweaks hook. Read the in-game "
+          "frames for the boss bar and XP bar only: the hotbar there is the pack's own (QuestForge.zip ships a "
+          "widgets.png and sits on top), and chat covers the hearts in B-D. M is an offline mock of all four with "
+          "each direction's hotbar and selection; shipping one means replacing QuestForge.zip's hotbar too.",
           "Which direction? And build the framed boss bar hook?", "gui_hud", "hud", hud)
+    if scenes and scenes[-1]["id"] == "pk-hud":
+        mock = os.path.join(h11.CROPS, "pk-hud-mock.png")
+        if os.path.exists(mock):
+            scenes[-1]["options"].append(opt("M", "Offline mock: round 11, iron, arcane, banner", mock,
+                                             "Top to bottom; our art at 1.7.10's layout, 4x, hotbars included."))
     scene("pk-tnt", "TNT: lettering on every block", "Fixed: Faithless letters one block in five; now all.", "",
           "r11_tnt", None, [r11, ("B", "All lettered", B, "")])
     for k in range(7):

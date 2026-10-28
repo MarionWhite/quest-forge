@@ -88,3 +88,12 @@ for the Soartex shelf (report only). Hand-off: C:\qfb\shaderdev\r012\ (r011 vs r
   2. Review: pk12c creative book (page unstretched, title on parchment), pk12b/c mob_2/3 (pigman/blaze Conquest, C
      witch Patrix), gui_hud a/h1/h2/h3 (no screen open; judge the three HUD directions), anvil + enchanting.
   3. `py -3.10 -I tools/textures/r012_packs_handoff.py --ready`; track, journal, BOARD; commit own hunks; push.
+### 2026-10-28 step 6: review of 1028-154329, handed off (texture-dev, fresh agent) - DONE
+- Good: creative C page unstretched, title on parchment; pigman/blaze now Conquest (blaze head partly in its own
+  smoke), C witch = Patrix remap, reads right; anvil lower plaque dark; enchanting seal narrowed; HUD shot with no screen.
+- Stated in scene text, not fixed (no new loop), logged for r013: (1) creative C hotbar row sits on the page's dark
+  bottom edge (page a few px short). (2) HUD hotbar/selection never show in game: QuestForge.zip (top of the stack)
+  ships its own widgets.png, so only XP + boss bar differ; added offline mock option M
+  (C:\qfb\shaderdev\r012\packs\pk-hud-mock.png via `qf_hud.py --preview`). Shipping a direction = replace
+  QuestForge.zip's widgets.png. (3) chat covers the hearts in h1-3 (GuiShots shoots within chat's fade).
+- `r012_packs_handoff.py --ready`: 16 scenes, PACKS-READY written.
