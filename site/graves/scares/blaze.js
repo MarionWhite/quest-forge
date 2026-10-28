@@ -11,6 +11,7 @@ import { THREE, track, clamp, lerp, sstep, pulse, tex, loadImg, quad, blockMesh,
 import { settle, shake, hitsOf, floorFall, particles, smoke, fireBlocks, mulberry } from "./common.js";
 import { silence, deathScream } from "./fnaf.js";
 import { kick, roar } from "./story.js";
+import { ITEMS } from "./loadout.js";
 
 // The grave it comes out of: the nearest whose plot (the two floor blocks in front of the headstone) is solid floor
 // with air over it, not under your feet; graves behind you count as further off. Else the corridor floor ahead.
@@ -241,7 +242,7 @@ export default {
       f.tints = [[255, 110, 30, 0.05 * heat + 0.12 * burn]];
       f.vig = [40, 10, 0, 0.3 + 0.25 * Math.min(1, heat)]; f.vigR = 0.9;
       f.fire = burn;
-      f.burnt = [0, 1, 2, 3, 4].map((i) => t > tK + 0.5 + i * 0.35);
+      f.burnt = ITEMS.map((_, i) => t > tK + 0.5 + i * 0.35);   // the loadout's items, one by one
       f.char = 0.62 * sstep(tK + 0.6, DUR, t);
     }
     return { dur: DUR, hits, cam, update, sounds, loops, deathSide: 1,

@@ -9,6 +9,7 @@ import { THREE, clamp, lerp, sstep, pulse, tex, easeOut, blockMesh } from "./rig
 import { settle, shake, hitsOf, floorFall, heldItem, swingAt, zombieArms, mulberry, glowEyes, mcRot } from "./common.js";
 import { splitJaw, boxOf, silence, deathScream } from "./fnaf.js";
 import { roar, kick, impactSplit } from "./story.js";
+import { SLOTS, slotOf } from "./loadout.js";
 
 const SWORD = [{ id: "minecraft:golden_sword", ench: false }];
 const TAU = Math.PI * 2;
@@ -35,7 +36,7 @@ function sparkTex() {
 export default {
   death: "Steve was slain by Zombie Pigman",
   async build(R) {
-    const [pickTex, oreTex, ...stages] = await Promise.all(["mc:items/iron_pickaxe", "k:diamond_ore", ...[...Array(10)].map((_, i) => "destroy_stage_" + i)].map((n) => tex(n)));
+    const [pickTex, oreTex, ...stages] = await Promise.all([SLOTS[slotOf("pickaxe")].img, "k:diamond_ore", ...[...Array(10)].map((_, i) => "destroy_stage_" + i)].map((n) => tex(n)));
     const rnd = mulberry(R.seed * 13 + 5);
     const ok = (x, z) => !R.solid(x, 0.5, z) && !R.solid(x, 1.5, z) && R.solid(x, -0.5, z);
     const inX = (x) => clamp(x, -(R.wallL - 0.35), R.wallR - 0.35);
@@ -342,6 +343,8 @@ export default {
         posePig(q.m, t, r.x, 0, r.z, fy, { walk: t > q.ts && !there ? 1.35 : 0, run: true, swing: swingAt(t, swings.get(q)), lean: -0.22 * sstep(T_FALL + 0.2, T_FALL + 0.9, t), seed: q.seed });
       }
       pick(t, mySwings, t < T_EQ || t > T_FALL + 0.05, camNow.fov, sstep(T_EQ, T_EQ + 0.3, t));
+      // (the hotbar: the pickaxe slot is selected as it comes up (held, below); it goes from the hand as you go down)
+      if (t > T_FALL + 0.05) { f.gone = []; f.gone[slotOf("pickaxe")] = true; }
       // Light: a little on his face as he comes at you; the corridor dims as the eyes come up; a warm glow on them as they reach you.
       if (close) { const cl = R.toLocal(R.camera.position); R.L(cl.x, cl.y + 0.45, cl.z, glow.position); glow.intensity = 0.55 * sstep(T_HIT, T_TURN, t); }
       else { R.L(C.x + ux * 0.4, 2.3, C.z + uz * 0.4, glow.position); glow.intensity = 1.6 * sstep(T_H1 - 0.6, T_H1, t); }
@@ -355,7 +358,7 @@ export default {
       f.black = 0.45 * sstep(DUR - 0.1, DUR + 0.6, t);
       impactSplit(f, t, [T_CONTACT], { amt: 0.25 });   // the only device left: a split on the blow
     }
-    return { dur: DUR, hits, cam, update, sounds, loops, deathSide: fallSide,
+    return { dur: DUR, hits, cam, update, sounds, loops, deathSide: fallSide, held: [[0, null], [T_EQ, "pickaxe"]],
       marks: { dread: T_SEE + 1.15, fake: digSw[nSw - 1] + 0.1, lunge: T_CONTACT - 0.03, kill: T_H1 + 0.3 },
       notes: { turn: +T_TURN.toFixed(2), contact: +T_CONTACT.toFixed(2), dur: +DUR.toFixed(2), ore: [+oc.x.toFixed(2), +oc.z.toFixed(2)], stand: [+C.x.toFixed(2), +C.z.toFixed(2)], from: sIn, nSw, hold: +hold.toFixed(2), fakeStep,
         spots: spots.map((s) => s.kind + "@" + s.x.toFixed(1) + "," + s.z.toFixed(1)), rushers: rushers.length, darts: darts.map((d) => +d.yaw.toFixed(2)) } };

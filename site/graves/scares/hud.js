@@ -4,11 +4,11 @@
 //   hud.draw(f, t)       f from rig.evaluate: hp, hpPrev, blink, hpMode, hurt, fire, tints, white, black, death, chat, ...
 //   hud.hit(x, y)        which death-screen button a stage-relative point is on ("respawn" | "title" | null)
 import { loadImg, clamp, rngOf } from "./rig.js";
-
-const ITEMS = ["item_iron_sword", "item_stone_pickaxe", "k:torch_on", "item_bread", "item_apple"];
+import { SLOTS, STATS } from "./loadout.js";
 
 export async function createHud(host) {
-  const [icons, widgets, font, fire, ...items] = await Promise.all(["icons", "widgets", "ascii", "fire_layer_1", ...ITEMS].map(loadImg));
+  // The hotbar is the explorer's loadout (loadout.js): nine slots, the empty ones null.
+  const [icons, widgets, font, fire, ...items] = await Promise.all(["icons", "widgets", "ascii", "fire_layer_1", ...SLOTS.map((s) => (s ? s.img : null))].map((n) => (n ? loadImg(n) : null)));
   const canvas = document.createElement("canvas");
   canvas.className = "qfs-hud";
   canvas.style.cssText = "position:absolute;inset:0;width:100%;height:100%;z-index:9;pointer-events:none;image-rendering:pixelated;image-rendering:crisp-edges";
@@ -73,11 +73,17 @@ export async function createHud(host) {
     const { w, h } = H, x0 = w / 2 - 91;
     blit(widgets, 0, 0, 182, 22, x0, h - 22);
     blit(widgets, 0, 22, 24, 24, x0 - 1 + (f.hotbar || 0) * 20, h - 22 - 1);
-    items.forEach((im, i) => { if (im && !(f.burnt && f.burnt[i]) && !(f.gone && f.gone[i])) blit(im, 0, 0, 16, 16, w / 2 - 90 + i * 20 + 2, h - 16 - 3); });
+    items.forEach((im, i) => {
+      if (!im || (f.burnt && f.burnt[i]) || (f.gone && f.gone[i])) return;
+      const x = w / 2 - 90 + i * 20 + 2, y = h - 16 - 3;
+      blit(im, 0, 0, 16, 16, x, y);
+      // the stack size (RenderItem.renderItemOverlayIntoGUI): white with its shadow, at the slot's bottom right
+      const n = SLOTS[i] && SLOTS[i].n; if (n > 1) { const c = String(n); H.text(c, x + 19 - 2 - width(c), y + 6 + 3, "#ffffff"); }
+    });
     // Experience: the bar and the level in green with a black outline.
     blit(icons, 0, 64, 182, 5, x0, h - 32 + 3);
-    blit(icons, 0, 69, Math.round(182 * 0.37), 5, x0, h - 32 + 3);
-    const s = "7", lx = (w - width(s)) / 2, ly = h - 31 - 4;
+    const xb = Math.floor(STATS.xpBar * 183); if (xb > 0) blit(icons, 0, 69, xb, 5, x0, h - 32 + 3);
+    const s = String(STATS.xpLevel), lx = (w - width(s)) / 2, ly = h - 31 - 4;
     for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) H.text(s, lx + dx, ly + dy, "#000000", { shadow: false });
     H.text(s, lx, ly, "#80ff20", { shadow: false });
   }
@@ -95,9 +101,9 @@ export async function createHud(host) {
       if (i * 2 + 1 < hp) blit(icons, i2 + 36, 0, 9, 9, x, y);
       if (i * 2 + 1 === hp) blit(icons, i2 + 45, 0, 9, 9, x, y);
     }
-    // Food, full.
-    const right = w / 2 + 91;
-    for (let i = 0; i < 10; i++) { const x = right - i * 8 - 9; blit(icons, 16, 27, 9, 9, x, top); blit(icons, 52, 27, 9, 9, x, top); }
+    // Food (GuiIngame): the explorer's hunger, full and half shanks over the empty ones.
+    const right = w / 2 + 91, food = f.food ?? STATS.food;
+    for (let i = 0; i < 10; i++) { const x = right - i * 8 - 9; blit(icons, 16, 27, 9, 9, x, top); if (i * 2 + 1 < food) blit(icons, 52, 27, 9, 9, x, top); else if (i * 2 + 1 === food) blit(icons, 61, 27, 9, 9, x, top); }
     // Air (suffocating in a slime, under water): the bubbles over the food.
     if (f.air != null) {
       const n = Math.ceil(clamp(f.air) * 10), pop = Math.ceil(clamp(f.air) * 10) - Math.floor(clamp(f.air) * 10);

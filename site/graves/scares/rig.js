@@ -11,6 +11,7 @@
 import * as THREE from "three";
 import * as KR from "../krypt.js";
 import { makeMob, whenMobTexturesLoaded } from "../../lib/mc/mobs.js";
+import { SLOTS, heldAt, slotOf } from "./loadout.js";
 import { ShaderPass } from "three/addons/postprocessing/ShaderPass.js";
 
 export { THREE };
@@ -265,8 +266,11 @@ export async function createRig(kr, { seed = 1, rand = seed * 7919 + 13, frame =
   });
   R.torches.sort((a, b) => a.l.z - b.l.z);
 
-  // Everything the scare adds lives in one group.
-  const group = new THREE.Group(); group.name = "scare"; scene.add(group);
+  // Everything the scare adds lives in one group. It stays hidden until the scare's first frame has placed everything
+  // (R.evaluate): the Krypt keeps rendering while the scare builds, loads and warms up, and without this every mob stood
+  // for a few frames wherever its build left it, in front of you, and then vanished (the owner, round 8b: "the mob will
+  // flash on the screen in front of me, and disappear").
+  const group = new THREE.Group(); group.name = "scare"; group.visible = false; scene.add(group);
   const view = new THREE.Group(); view.name = "scare-view"; group.add(view);
   R.group = group; R.view = view;
   R.add = (o) => { group.add(o); return o; };
@@ -299,6 +303,7 @@ export async function createRig(kr, { seed = 1, rand = seed * 7919 + 13, frame =
     });
     m.setOwn = (v) => { for (const mt of m.ownMats || []) mt.emissiveIntensity = v; };
     const pivot = new THREE.Group(); pivot.rotation.order = "YXZ"; pivot.add(m.root);
+    pivot.userData.qfMob = id;   // (for the flow check's J-press watch)
     m.pivot = pivot; group.add(pivot); mobs.push(m);
     return m;
   };
@@ -453,7 +458,7 @@ export async function createRig(kr, { seed = 1, rand = seed * 7919 + 13, frame =
   R.evaluate = (S, t, extra = {}) => {
     const dur = S.dur, tt = Math.min(t, dur + 3);
     const f = { t: tt, hud: true, hp: 20, hpPrev: 20, hpMode: "normal", hurt: 0, blink: false, tints: [], white: 0, black: 0, fire: 0,
-      glitch: 0, vig: null, splats: [], death: clamp((t - dur - 0.5) / 0.35), env: {}, chat: null, hotbar: S.hotbar ?? 0 };
+      glitch: 0, vig: null, splats: [], death: clamp((t - dur - 0.5) / 0.35), env: {}, chat: null, hotbar: S.hotbar ?? slotOf(heldAt(S.held, tt)) };   // the slot of what the hand holds (loadout.js)
     // Hits: hearts, the hurt roll (EntityRenderer.hurtCameraEffect), the heart blink (GuiIngame).
     let roll = 0, hp = 20, prev = 20;
     const hits = S.hits || [];
@@ -476,7 +481,14 @@ export async function createRig(kr, { seed = 1, rand = seed * 7919 + 13, frame =
     if (t >= dur && !S.noDeathRoll) { const dt = (tt - dur) * 20; c.roll += (40 - 8000 / (dt + 200)) * Math.PI / 180 * (S.deathSide ?? 1); }
     setPose(c);
     S.update(tt, f);
+    if (t >= dur) f.gone = SLOTS.map(Boolean);   // dead: the inventory drops, the hotbar is empty (EntityPlayer.onDeath drops it all)
     R.gore.update(tt);
+    // The renderer updates world matrices before scene.onBeforeRender (where the live run evaluates), so without this
+    // everything was drawn where the previous frame had put it: on the first frame each mob stood at its build pose
+    // (a creeper "behind you" drawn in front of you for a frame), and a mob shown and moved in the same frame (a
+    // teleport, an entrance) showed for a frame where it had been.
+    group.updateMatrixWorld(true);
+    group.visible = true;   // placed: from here on what is in it is the script's
     setCamera(c, tt, f.env);
     R.env = f.env;
     return f;

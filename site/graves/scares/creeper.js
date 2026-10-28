@@ -8,11 +8,12 @@
 import { THREE, track, clamp, lerp, sstep, pulse, tex } from "./rig.js";
 import { settle, shake, hitsOf, explosionFX, droppedItems, particles, smoke } from "./common.js";
 import { lunge, lungeFx, screech, faceAnchor, boxOf, silence, deathScream, jit } from "./fnaf.js";
+import { ITEMS } from "./loadout.js";
 
 export default {
   death: "Steve was blown up by Creeper",
   async build(R) {
-    const [boomTex, partTex, ...itemTex] = await Promise.all(["explosion", "particles", "item_iron_sword", "item_stone_pickaxe", "k:torch_on", "item_bread", "item_apple"].map((n) => tex(n)));
+    const [boomTex, partTex, ...itemTex] = await Promise.all(["explosion", "particles", ...ITEMS.map((s) => s.img)].map((n) => tex(n)));   // the hotbar it scatters: the loadout
     const side = R.wallR > R.wallL ? -1 : 1;           // the way the head turns (toward the roomier side)
     const back = Math.PI * side * 0.97;
     // ---- the dice -------------------------------------------------------------------------------------------

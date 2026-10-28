@@ -12,6 +12,7 @@
 // Code against window.__krypt (see the contract at the top of app.js).
 import { audio } from "../lib/qfaudio.js";
 import { createDirector, CFG } from "./scares/director.js";
+import { HELD } from "./scares/loadout.js";
 
 export const SCARES = [
   { id: "Zombie", label: "Zombie", entry: "look-back", file: "zombie" },
@@ -188,6 +189,7 @@ export async function playScare(id, { score = 0, onDone, gap = null } = {}) {
     const S = await def.build(R);
     await R.ready();
     S.death = S.death || def.death;
+    if (S.held === undefined) S.held = HELD[id] ?? null;   // what the hand holds: the hotbar selects it (loadout.js)
     running.dur = S.dur; running.marks = S.marks || null; running.notes = S.notes || null; running.rig = R;
     // Every sound decoded before the freeze: a screech that starts late is no screech.
     try { await Promise.race([audio.preload(soundNames(S)), new Promise((r) => setTimeout(r, 2500))]); } catch (e) { /* play what we have */ }
@@ -258,6 +260,7 @@ async function dumpMode(id) {
     const R = await RIG.createRig(kr, { seed: hashStr(id) & 0xffff, rand, gap, frame: gap && gap.dir ? { dir: gap.dir } : null });
     const S = await def.build(R);
     await R.ready();
+    if (S.held === undefined) S.held = HELD[id] ?? null;
     R.noFx = QS.has("nofx");   // checking a pose without the tear and static
     // ?scareat=<ms> or a beat by name (dread, fake, lunge, kill, death; +ms/-ms after it): the scare's own marks.
     // A comma list renders each in turn (in time order) into `pngs` as well; `png` is the first.

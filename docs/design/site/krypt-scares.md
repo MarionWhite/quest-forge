@@ -216,3 +216,17 @@ player to look back; every sound and loop a scare starts stops when it ends and 
   which lunges low along the floor as you go over backwards, its slices opening on the core, and takes
   you in: its dark insides with orange seams round you, the core over you, three chews that jolt the
   view, black, the death screen. The engulf is about 2 s, with no full-frame fills.
+
+### Round 8b: the start and the hotbar (all scares)
+- **Nothing before the first frame.** The rig's group stays hidden until the scare's first frame has placed
+  everything, and its world matrices are brought up to date after every frame's update (the renderer updates them
+  before `scene.onBeforeRender`, where the live run evaluates, so every mob was drawn one frame behind: at its build
+  pose on the first frame, where it had been on the frame it appeared). The owner saw both as "the mob will flash
+  on the screen in front of me, and disappear". `tools/site/scare_flow.mjs` watches every frame from the J press:
+  nothing of the rig on screen before the first frame, no mob drawn where its script did not put it, no other
+  mob in view.
+- **One loadout** (`scares/loadout.js`): an iron sword, an iron pickaxe, 23 torches, 6 bread, 3 apples, four empty
+  slots; hunger 8.5 shanks, XP level 7. The selected slot is what the hand holds: no scene draws a bare hand, so an
+  empty hand selects an empty slot; the Zombie Pigman's pickaxe selects its slot as it comes up and the slot
+  empties as it leaves the hand at the fall; the Wither Skeleton's shadow holds the sword, which is selected. The
+  Creeper scatters these items, the Blaze burns them, and at death the hotbar empties (the inventory drops).
