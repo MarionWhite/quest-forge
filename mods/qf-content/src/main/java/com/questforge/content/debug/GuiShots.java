@@ -22,6 +22,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
+import net.minecraft.inventory.ContainerEnchantment;
 import net.minecraft.inventory.ContainerWorkbench;
 import net.minecraft.inventory.InventoryBasic;
 import net.minecraft.item.Item;
@@ -186,7 +187,17 @@ final class GuiShots {
             ReflectionHelper.setPrivateValue(TileEntityBrewingStand.class, b, 220, "brewTime", "field_145946_k");
             return new GuiBrewingStand(p.inventory, b);
         }
-        if (kind.equals("enchanting")) return new GuiEnchantment(p.inventory, mc.theWorld, x, y, z, null);
+        if (kind.equals("enchanting")) {
+            // A sword in the table, or no option rows draw: an empty table draws the disabled row, which some
+            // packs (Faithless) leave transparent. Levels are set by hand (the client never computes them).
+            GuiEnchantment g = new GuiEnchantment(p.inventory, mc.theWorld, x, y, z, null);
+            ContainerEnchantment c = (ContainerEnchantment) g.inventorySlots;
+            c.tableInventory.setInventorySlotContents(0, new ItemStack(Items.diamond_sword));
+            c.enchantLevels[0] = 4;
+            c.enchantLevels[1] = 17;
+            c.enchantLevels[2] = 30;
+            return g;
+        }
         if (kind.equals("anvil")) return new GuiRepair(p.inventory, mc.theWorld, x, y, z);
         if (kind.equals("beacon")) return new GuiBeacon(p.inventory, new TileEntityBeacon());
         if (kind.equals("hopper")) return new GuiHopper(p.inventory, new TileEntityHopper());

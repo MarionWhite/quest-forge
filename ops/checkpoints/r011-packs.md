@@ -135,3 +135,6 @@ underwater effects. Stay True leaves and wheat belong to the other texture agent
   (old jar in scratch). Spec tools/renderq/specs/textures-r011-packs-c.json.
 - SUBMITTED 1028-091920-textures-r011-packs-c (r11p3: r11_items_bl, r11_library; r11p2: gui_enchanting).
 - Next: wait; check crops for magenta; rerun r011_packs_handoff.py; stay-true gems/roofed drop (r011-stay-true.md); commit, push.
+- DONE 09:26: render landed; crops pk-items-close-r11p3 / pk-library-r11p3 clean (no missing texture, no slime);
+  pk-enchanting-r11p2 shows Faithless's three ribbons (sword in table). Hand-off rerun (21 scenes). Still open: the 3D
+  book floats over Faithless's drawn table (owner question already in the scene), dark Soartex shelves (owner question).

@@ -5,7 +5,7 @@ Rewrite this file when the state changes; keep it under 2 KB.
 - **Builder:** `tools/textures/build_qf_textures.py` -> `C:\qfb\textures\*.zip`, never committed (Mojang pixels).
   `--stay-true PATH` copies Stay True from `C:\qf-world\reference-packs` at build time (private; never git-added).
 - **Direction:** `docs/design/textures/direction.md`, `faithless-study.md`, `modded-blocks.md`, `leaf-frills.md`.
-- **r011 Stay True port handed off** (`C:\qfb\shaderdev\r011\staytrue_scenes.json` + STAYTRUE-READY, 7 scenes;
+- **r011 Stay True port handed off** (`C:\qfb\shaderdev\r011\staytrue_scenes.json` + STAYTRUE-READY, 5 scenes: gems and roofed dropped pre-publish, next round;
   checkpoint `r011-stay-true.md`): Stay True's leaf planes and weighted tall crops (qf-tweaks branch `leaf-frills`
   718473f, not merged) and its glassy animated gems. Cost: frame p50 +0-5%, leafy sections +23% vertices.
   Open for the owner: leaves are denser than the transparency he liked; keep or thin.

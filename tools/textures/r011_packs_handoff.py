@@ -110,8 +110,11 @@ def main():
                       ("gui_crafting", "Crafting table", "A diamond sword recipe on its cloth."),
                       ("gui_brewing", "Brewing stand", "Mid-brew. 1.7.10 has no fuel slot and sets the bottles 5 px "
                                                         "higher than the stand it was drawn for."),
-                      ("gui_enchanting", "Enchanting table", "1.7.10 has one slot where 1.8+ has item + lapis: it lands "
-                                                              "on the drawn table."),
+                      ("gui_enchanting", "Enchanting table", "A diamond sword in the table. Faithless's three options are "
+                                                              "red ribbons that slide out only when an item is in; an "
+                                                              "empty table shows just the shelves (its empty row is see-"
+                                                              "through by design). 1.7.10 has one slot where 1.8+ has "
+                                                              "item + lapis: it lands on the drawn table."),
                       ("gui_chest", "Chest", ""), ("gui_anvil", "Anvil", "")):
         pair("pk-" + sc[4:], nm, q, GUI_FLAWS.get(sc, PLAQUE), sc, box=GUI_BOX, tag_b=C)
     pair("pk-hud", "HUD and boss bar", "Survival HUD with the Ender Dragon's bar. 1.7.10 draws one bar for every "

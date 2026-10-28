@@ -1,0 +1,18 @@
+{
+ "name": "textures-r011-packs-c",
+ "owner": "texture-dev-2",
+ "comment": "r011 pre-publish fixes: reshoot the items-close and library views on the current packs build (r11p3; their r11p1 frames showed the stale build's missing texture), and the enchanting screen with a sword in the table (GuiShots now fills it; Faithless leaves the disabled/empty option row transparent, so the empty table showed no rows).",
+ "prebuild": [
+  ["py", "-3.10", "-I", "tools/textures/r007packs.py", "--out", "C:/qfb/textures/QF-r011-packs.zip", "--parts", "items,cit,tnt,books,mobs,env"],
+  ["py", "-3.10", "-I", "tools/textures/r007packs.py", "--out", "C:/qfb/textures/QF-r011-gui.zip", "--parts", "gui"]
+ ],
+ "defaults": {"world": "C:/qfb/textures/world-r011", "views": "tools/textures/views-r011.txt", "preset": "3",
+              "size": "2560x1440", "mode": "shot", "cit": true,
+              "jars": ["C:/qfb/renderq/jars-r011/QuestForgeContent-1.0.0.jar"], "props": ["qf.bench.difficulty=easy"]},
+ "jobs": [
+  {"tag": "r11p3", "resourcepacks": ["C:/qfb/textures/diag/QF-v3c.zip", "C:/qfb/textures/QF-r011-packs.zip"],
+   "scenes": "r11_items_bl,r11_library"},
+  {"tag": "r11p2", "resourcepacks": ["C:/qfb/textures/diag/QF-v3c.zip", "C:/qfb/textures/QF-r011-packs.zip", "C:/qfb/textures/QF-r011-gui.zip"],
+   "scenes": "gui_enchanting"}
+ ]
+}
