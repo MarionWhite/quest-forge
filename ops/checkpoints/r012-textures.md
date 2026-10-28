@@ -54,3 +54,9 @@ Hand-off: C:\qfb\shaderdev\r012\ + ready marker.
 3. Roofed: grid st2r0,st2r1 roofed_canopy roofed_edge; pick the better view; cost frills_cost.py --off st2r0 --on st2r1.
 4. Hand-off: C:\qfb\shaderdev\r012\textures_make_scenes.py -> textures_scenes.json + TEXTURES-READY (pattern:
    C:\qfb\shaderdev\r011\staytrue_make_scenes.py). Track file, journal, commit, push.
+- 15:05 hand-off script drafted: C:\qfb\shaderdev\r012\textures_make_scenes.py (4 scenes: gems-diamond gem_glint_d,
+  gems-emerald gem_glint_e, gems-lit gem_lit with B = clip C:\qfb\shaderdev\r012\clips\g12bclip-gem_lit.webp if made,
+  st-leaves-roofed roofed_canopy st2r1/st2r0; CAUSE sentence holds the numbers above). Fill NUM (per-option measurement
+  lines) and ROOFED_COST after review; swap roofed_canopy for roofed_edge if that frame shows the canopy better.
+  If C looks wrong (over-mirror, SSR streaks), drop it or tune gemReflection in C:\qfb\gems\ssr and re-render g12c only.
+- Queue ETA ~15:22 (> 10 min): session 1 exits here. Next: "Resume here" above, from step 1.
