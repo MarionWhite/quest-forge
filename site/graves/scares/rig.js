@@ -11,6 +11,7 @@
 import * as THREE from "three";
 import * as KR from "../krypt.js";
 import { makeMob, whenMobTexturesLoaded } from "../../lib/mc/mobs.js";
+import { itemTone } from "../../lib/mc/equipment.js";
 import { SLOTS, heldAt, slotOf } from "./loadout.js";
 import { ShaderPass } from "three/addons/postprocessing/ShaderPass.js";
 
@@ -291,6 +292,8 @@ export async function createRig(kr, { seed = 1, rand = seed * 7919 + 13, frame =
     if (!m) m = makeMob("Zombie", opts);
     const amb = new THREE.Vector3(...(opts.amb || [0.32, 0.28, 0.26]));
     m.amb = amb;
+    const held = new Set();   // the held item's materials (equipment.js tags its holder)
+    m.root.traverse((o) => { if (o.userData && o.userData.qfHeld) o.traverse((x) => { if (x.isMesh && x.material) for (const mt of [].concat(x.material)) held.add(mt); }); });
     // opts.own: an ambient of its own that the darkness (the bake gain) does not touch, for the one the scene is about.
     m.root.traverse((o) => {
       if (!o.isMesh || !o.material) return;
@@ -299,6 +302,7 @@ export async function createRig(kr, { seed = 1, rand = seed * 7919 + 13, frame =
         if (!mt.isMeshLambertMaterial) continue;
         if (opts.own) { mt.emissive = new THREE.Color(1, 1, 1); mt.emissiveMap = mt.map; mt.emissiveIntensity = amb.x; m.ownMats = (m.ownMats || []).concat(mt); }
         else if (KR.patchBake) KR.patchBake(mt, { fixed: amb });
+        if (held.has(mt)) heldLight(mt);
       }
     });
     m.setOwn = (v) => { for (const mt of m.ownMats || []) mt.emissiveIntensity = v; };
@@ -582,6 +586,37 @@ export async function createRig(kr, { seed = 1, rand = seed * 7919 + 13, frame =
   };
   await whenMobTexturesLoaded();
   return R;
+}
+
+// A held item (bow, sword) under its mob's flat ambient. That light is the mob's, and the 1.7.10 item textures are
+// dark: bow wood averages 0.07 in linear light, stone 0.13, against a skeleton's bone at about 0.4. In a dim scare
+// the item fell below the screen's darkest steps, and with no direction in the light its faces and its pixel edges
+// came out one tone, so a bow was a black pole and a sword edge-on a black blade. So, for every held item:
+//   a lift: the item is lit as if its texture averaged at least HELD_REF (dark items up to HELD_MAX times, gold,
+//     iron and diamond untouched);
+//   1.7.10's item lighting (RenderHelper.enableStandardItemLighting: lights from (0.2, 1, -0.7) and (-0.2, 1, 0.7),
+//     diffuse 0.6 each, ambient 0.4), scaled so a face turned to the camera's side stays at 1: the faces and the
+//     edges part, and the top edge of a blade catches the light.
+// Only the flat ambient is changed; the scene's own lights (a torch) light the item as before.
+export const HELD_REF = 0.25, HELD_MAX = 3.5;
+const HELD_GLSL = `{ vec3 nH = inverseTransformDirection(normal, viewMatrix);
+  float shH = min(1.0, 0.4 + 0.6 * (max(0.0, dot(nH, vec3(0.1617, 0.8085, -0.5659))) + max(0.0, dot(nH, vec3(-0.1617, 0.8085, 0.5659)))));
+  totalEmissiveRadiance *= uHeldLift * shH * 1.35; }`;
+function heldLight(mt) {
+  const u = { value: 1 };
+  const setLift = () => { const tone = itemTone(mt.map); if (tone != null) u.value = clamp(HELD_REF / Math.max(tone, 1e-3), 1, HELD_MAX); return tone != null; };
+  if (!setLift()) whenMobTexturesLoaded().then(setLift);
+  const prev = mt.onBeforeCompile, prevKey = mt.customProgramCacheKey ? mt.customProgramCacheKey.bind(mt) : () => "";
+  mt.onBeforeCompile = (sh, r) => {
+    if (prev) prev.call(mt, sh, r);
+    sh.uniforms.uHeldLift = u;
+    sh.fragmentShader = sh.fragmentShader
+      .replace("#include <common>", "#include <common>\nuniform float uHeldLift;")
+      .replace("#include <lights_lambert_fragment>", HELD_GLSL + "\n#include <lights_lambert_fragment>");
+  };
+  mt.customProgramCacheKey = () => prevKey() + "+held";
+  mt.userData.heldLift = u;
+  mt.needsUpdate = true;
 }
 
 // Warm the caches a scare needs (mob textures, its own textures), so the freeze starts without a hitch.

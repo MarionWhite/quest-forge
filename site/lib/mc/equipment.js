@@ -237,9 +237,27 @@ const SPRITE_ITEM = chain(gT(0, -0.3, 0), gS(1.5), gR(50, 0, 1, 0), gR(335, 0, 0
 // ForgeHooksClient.renderEquippedItem + RenderQueenBattleAxe.renderSwordF5 (the model renders at scale 1.0: units are blocks)
 const QUEEN_AXE = chain(gT(-0.5, -0.5, -0.5), gR(180, 1, 0.25, 0), gS(0.35), gT(3, -8, -2));
 
+// The mean linear luminance of a texture's opaque texels (null until its image is in), so a renderer that lights
+// held items with a flat ambient can tell a dark item (bow wood 0.07, stone 0.13) from a bright one (gold 0.27).
+export function itemTone(t) {
+  if (!t || !t.image || !(t.image.width || t.image.naturalWidth)) return null;
+  if (t.userData.tone != null) return t.userData.tone;
+  const im = t.image, w = im.width || im.naturalWidth, h = im.height || im.naturalHeight;
+  try {
+    const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
+    const g = cv.getContext('2d', { willReadFrequently: true }); g.drawImage(im, 0, 0);
+    const d = g.getImageData(0, 0, w, h).data, lin = (c) => { c /= 255; return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); };
+    let s = 0, n = 0;
+    for (let i = 0; i < d.length; i += 4) if (d[i + 3] > 25) { s += 0.2126 * lin(d[i]) + 0.7152 * lin(d[i + 1]) + 0.0722 * lin(d[i + 2]); n++; }
+    t.userData.tone = n ? s / n : 0.25;
+  } catch (e) { t.userData.tone = 0.25; }
+  return t.userData.tone;
+}
+
 function holderFor(item, kit, glints) {
   const holder = new THREE.Group();
   holder.matrixAutoUpdate = false;
+  holder.userData.qfHeld = true;   // (a renderer can find the held item's meshes under the arm)
   if (item.kind === 'queenAxe') {
     const r = kit.buildRig(OS_MODELS.QueenBattleAxe, tex('orespawn/QueenBattleAxetexture.png'), {});
     r.root.position.set(0, 0, 0);
