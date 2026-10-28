@@ -67,6 +67,9 @@ export default {
     // ---- the mobs -----------------------------------------------------------------------------------------------
     const z1 = R.mob("Zombie", { amb: [0.2, 0.2, 0.2], own: true });
     const jaw = splitJaw(z1, [{ part: z1.parts.head, box: boxOf("zombie", "bipedHead"), rows: 2 }, { part: z1.parts.headwear, box: boxOf("zombie", "bipedHeadwear"), rows: 2 }]);
+    // (the jaw's teeth, tongue and mouth are flat colours: lit here like the rest of its head, or they glow in the dark)
+    const jawBase = Object.fromEntries(Object.entries(jaw.mats).map(([k, m]) => [k, m.color.clone()]));
+    const lightJaw = (k) => { for (const [n, m] of Object.entries(jaw.mats)) m.color.copy(jawBase[n]).multiplyScalar(k); };
     z1.anim(0, 0, { walk: 0 }); R.place(z1, A0.x, 0, A0.z, 0);
     // two more, behind it in the passage (in the dark), out after it
     const others = [
@@ -250,6 +253,7 @@ export default {
       // a sliver of corridor light on its face as it comes out of the doorway (a lamp above the eyes)
       faceL.position.set(0, 0.32, -0.05).applyQuaternion(R.camera.quaternion).add(R.camera.position);
       faceL.intensity = 0.3 * lit * clamp(z1.pivot.position.distanceTo(R.camera.position) / 0.9, 0.25, 1);
+      lightJaw(0.6 * clamp(z1.amb.x + 0.03 + 0.17 * lit + 0.8 * faceL.intensity, 0.12, 1));   // (bone in shadow: under the skin's brightness)
       const closing = sstep(tK + 1.95, DUR, t);
       f.env = { bake: 1 - 0.2 * sstep(0.2, 1.2, t) - 0.25 * sstep(T_DRAG, T_DRAG + 0.9, t) - 0.3 * closing, lights: 1 - 0.3 * sstep(T_DRAG, T_DRAG + 0.9, t) - 0.4 * closing, fogMul: 1 + 0.6 * sstep(0.5, 3.5, t) };
       f.vig = [12, 0, 0, 0.3 * sstep(b1, tBreak, t) + 0.25 * sstep(T_DRAG, T_DRAG + 0.9, t) + 0.4 * closing]; f.vigR = 0.9;
