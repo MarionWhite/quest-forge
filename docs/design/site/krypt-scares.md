@@ -208,8 +208,11 @@ player to look back; every sound and loop a scare starts stops when it ends and 
   it rises out of the pit and floats out; then the round-7 volley. No grave within 16 m: the floor ahead.
 - **Ghast**: one fireball only, after it has shown itself and charged. On the look-back it floats in
   out of the dark while you look away.
-- **Magma Cube** (the owner's script): the lights dim; a size-1 cube hops out of the dark, high and
-  bouncy (EntitySlime's squish, flame on each landing, the small squelch), to your feet, and you look
-  down at it; a heavy thud behind, an orange light growing on the floor round it, the big squelch right
-  behind; the head snaps round into the face of a massive one (as big as the corridor behind allows,
-  sizes 4 to 12, size 6 in a 4-high crypt), which jumps, slices open on the core, and comes down on you.
+- **Magma Cube** (the owner's script): the lights dim; a size-1 cube comes out of the dark in small,
+  low hops (EntitySlime's squish, at most about twice as tall as wide for a tick or two; flame on each
+  landing, the small squelch), to your feet, and you look down at it; a heavy thud behind, an orange
+  light growing on the floor round it, the big squelch right behind; the head snaps round into the face
+  of a massive one (as big as the corridor behind allows, sizes 4 to 12, size 6 in a 4-high crypt),
+  which lunges low along the floor as you go over backwards, its slices opening on the core, and takes
+  you in: its dark insides with orange seams round you, the core over you, three chews that jolt the
+  view, black, the death screen. The engulf is about 2 s, with no full-frame fills.

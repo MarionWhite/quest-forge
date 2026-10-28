@@ -1,5 +1,14 @@
 # Site journal (newest first)
 
+- 2026-10-27 (Mac) krypt scares r8, part B, coordinator's two Magma Cube tweaks. The baby's hops are small and low:
+  its squish decays x0.6 a tick and stretches half as far, so at the peak it is about twice as tall as wide for a tick
+  or two (vanilla's top slice rides 6.8 px over an 8 px cube), 0.45 m high. The engulf is now about 2 s and readable:
+  the cube lunges low along the floor as you go over backwards, slices opening on the core; from 1.1 m outside its front
+  its slices give way to a box of its size and squish (dark insides, orange seams, drawn from the back), with you just
+  inside its front and the core over you and ahead; three chews jolt the view; black, then the death screen. The fire
+  overlay, flat tints and projection squash are gone. Film r8/scares-b/film/mc2/film.png, hop crop film/hop_peak.png;
+  live run clean (no leaks). Trap in the scratch film.py: a stale raw page json overwrites re-rendered frames.
+
 - 2026-10-27 (Mac) krypt scares r8, part B (Silverfish leak, Ghast, Blaze, Magma Cube). Silverfish (bf57898): the
   sound that "stays permanently" was qf.scare.chitter in its roar, a looping manifest event played as a one-shot: qfaudio
   looped it and the sound player only ever stopped its own loops. Every scare sound now goes through scareAudio() in

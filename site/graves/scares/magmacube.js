@@ -7,8 +7,9 @@
 //   tilts at it. A heavy wet thud somewhere behind; the floor shivers. An orange light grows on the floor round the
 //   little one, from behind you, and its face lights up. The big squelch, right behind: the head snaps round over the
 //   shoulder into the face of a massive magma cube (as big as the corridor allows; Size NBT runs past 4 in the game),
-//   its eyes level with yours or above. It jumps: its slices spread wide open on the blazing core, and it comes down
-//   on you. Inside it is black and orange; it crushes, and a man screams himself out.
+//   its eyes level with yours or above. It jumps, its slices opening on the blazing core, and you go over backwards
+//   under it; it comes down over you. Inside: the core blazing over you, the dark insides of the slices round you
+//   with the orange seams between them; it chews three times, each one jolting you; black; the death screen.
 // 1.7.10: ModelMagmaCube (eight slices and the core) and its texture; EntitySlime's squish (squishAmount 1 on leaving
 // the ground, -0.5 on landing, x0.9 a tick for the magma cube, squishFactor easing halfway to it each tick;
 // RenderMagmaCube's scale and the slices spread 1.7 px each by it); "flame" particles on each landing
@@ -21,14 +22,14 @@ import { roar, blow, kick } from "./story.js";
 const LAYERS = [0, 1, 2, 3, 4, 5, 6, 7].map((i) => "field_78109_a" + i), CORE = "field_78108_b";
 
 // EntitySlime's squish on the 20 Hz tick, for a list of hops [[t up, t down], ...]: returns squishFactor(t).
-function squishTrack(hops, t1) {
+function squishTrack(hops, t1, decay = 0.9) {
   const n = Math.ceil(t1 * 20) + 2, amt = new Float32Array(n), fac = new Float32Array(n);
   let a = 0, f = 0;
   for (let i = 0; i < n; i++) {
     const t = i / 20, t0 = (i - 1) / 20;
     for (const [up, down] of hops) { if (up > t0 && up <= t) a = 1; if (down > t0 && down <= t) a = -0.5; }
     f += (a - f) * 0.5; fac[i] = f;
-    a *= 0.9;
+    a *= decay;
   }
   return (t) => { const x = clamp(t * 20, 0, n - 1.001), i = Math.floor(x), k = x - i; return fac[i] + (fac[i + 1] - fac[i]) * k; };
 }
@@ -71,48 +72,55 @@ export default {
     // ---- the dice -------------------------------------------------------------------------------------------
     const T_DIM = R.vary(0.6, 0.25);
     // The baby: out of the dark at the far end once the light has sunk (it is only a dark shape there, its glow comes
-    // up as it nears the light), a few high bouncy hops toward you (magma cubes jump high: motionY 0.42 + 0.1 x size),
-    // a pause on the ground between them, the last one small, to your feet.
-    const zB0 = clamp(R.ahead - 0.8, 3.5, 10), zEnd = 1.0, xB0 = R.pick([-0.35, 0.3, 0.15]);
-    const nHop = Math.max(2, Math.ceil((zB0 - zEnd - 0.75) / 2.3)) + 1;
+    // up as it nears the light), small low hops toward you (innocent: never the big bounce), a pause on the ground
+    // between them, the last one smaller, to your feet.
+    const zB0 = clamp(R.ahead - 0.8, 3.5, 9), zEnd = 1.0, xB0 = R.pick([-0.35, 0.3, 0.15]);
+    const nHop = Math.max(2, Math.ceil((zB0 - zEnd - 0.75) / 1.6)) + 1;
     const T_SEEN = T_DIM + 1.0;   // there in the dark from here (the light is down)
     const bHops = [];   // [tUp, tDown, from, to, h]
     let tt = T_SEEN + R.vary(0.45, 0.2), from = { x: xB0, z: zB0 };
     for (let i = 0; i < nHop; i++) {
       const last = i === nHop - 1;
       const to = last ? { x: 0.04, z: zEnd } : { x: lerp(xB0, 0.04, (i + 1) / nHop), z: lerp(zB0, zEnd + 0.75, (i + 1) / (nHop - 1)) };
-      const air = last ? 0.4 : R.vary(0.56, 0.08), h = last ? 0.35 : R.vary(1.05, 0.15);
+      const air = last ? 0.32 : R.vary(0.42, 0.08), h = last ? 0.2 : R.vary(0.45, 0.15);
       bHops.push([tt, tt + air, from, to, h]);
-      from = to; tt += air + (last ? 0 : R.vary(0.38, 0.35));
+      from = to; tt += air + (last ? 0 : R.vary(0.36, 0.35));
     }
     const tSitB = bHops[nHop - 1][1];                        // at your feet
     const tBounce = tSitB + R.vary(0.75, 0.15);              // a little hop on the spot
-    bHops.push([tBounce, tBounce + 0.3, from, { x: from.x, z: from.z }, 0.22]);
+    bHops.push([tBounce, tBounce + 0.26, from, { x: from.x, z: from.z }, 0.14]);
     const tTilt = tSitB + 0.3;
     // The massive one: behind you in the dark; a hop, a heavy landing (tG0); a hop, the big squelch right behind (tG1);
-    // it jumps (tJ) and comes down on you (tK); the slices close (tShut).
+    // it jumps (tJ) and comes down over you (tK); three chews; black at DUR (the engulf is under 2 s).
     // (behind it is the corridor you came along; where a bend or a wall is close behind, it comes from just there)
     const zG1 = -Math.min(half + 2.4, Math.max(half + 0.9, R.behind - half - 0.4)), zA = -Math.min(11, Math.max(-zG1 + 0.01, R.behind - half - 0.3)), zG0 = lerp(zA, zG1, 0.5);
     const tG0 = tBounce + R.vary(0.9, 0.15), tG1 = tG0 + R.vary(1.05, 0.12);
-    const tJ = tG1 + R.vary(0.75, 0.12), tK = tJ + 0.55, tShut = tK + 0.3;
-    const gHops = [[tG0 - 0.7, tG0, { x: xB, z: zA }, { x: xB, z: zG0 }, 0], [tG1 - 0.7, tG1, { x: xB, z: zG0 }, { x: xB, z: zG1 }, 0], [tJ, tK, { x: xB, z: zG1 }, { x: 0, z: 0.35, y: 0 }, 0]];
+    const tJ = tG1 + R.vary(0.75, 0.12), tK = tJ + 0.55, tShut = tK + 0.12;
+    // (it lands with you just inside its front: the core over you and ahead, the far slices beyond, never the core
+    // a hand's breadth from your eyes)
+    const zOn = Math.min(-0.6, 0.4 - half);
+    const gHops = [[tG0 - 0.7, tG0, { x: xB, z: zA }, { x: xB, z: zG0 }, 0], [tG1 - 0.7, tG1, { x: xB, z: zG0 }, { x: xB, z: zG1 }, 0], [tJ, tK, { x: xB, z: zG1 }, { x: 0, z: zOn, y: 0 }, 0]];
     for (const g of gHops) g[4] = clamp(R.ceil - 0.15 - tallest(size), 0.05, 1.4);
-    const chews = [tShut + 0.05, tShut + R.vary(0.7, 0.2), tShut + 1.35], DUR = tShut + 2.3;
+    gHops[2][4] = Math.min(gHops[2][4], 0.1);   // the last one low, along the floor: it takes you in, not over you
+    const chews = [tK + 0.32, tK + 0.78, tK + 1.22], DUR = tK + 1.9;
     const hits = hitsOf([[tK + 0.02, 6, 1], ...chews.map((c, i) => [c, 3 - (i > 1 ? 1 : 0), i % 2 ? 1 : -1]), [DUR, 3, -1]]);
-    const sqB = squishTrack(bHops.map((h) => [h[0], h[1]]), DUR + 3), sqG = squishTrack(gHops.map((h) => [h[0], h[1]]), DUR + 3);
+    // (the baby's squish decays like a slime's, x0.6 a tick, and stretches half as far: at most about twice as tall as
+    // wide for a tick or two, as a size-1 cube's top slice rides 6.8 px over its 8 px)
+    const sqB0 = squishTrack(bHops.map((h) => [h[0], h[1]]), DUR + 3, 0.6), sqB = (t) => { const q = sqB0(t); return q > 0 ? 0.5 * q : q; };
+    const sqG = squishTrack(gHops.map((h) => [h[0], h[1]]), DUR + 3);
     const turn = wl > wr ? 1 : -1;   // over the shoulder with more room
 
     const hopAt = (hops, t, p0) => {
       let p = p0;
       for (const [up, down, a, b, h] of hops) {
         if (t < up) break;
-        p = t < down ? arc(a, b, (t - up) / (down - up), h) : { x: b.x, y: b.y || 0, z: b.z };
+        p = t < down ? arc(a, b, Math.pow((t - up) / (down - up), b.y === 0 ? 1.6 : 1), h) : { x: b.x, y: b.y || 0, z: b.z };
       }
       return p;
     };
     const babyAt = (t) => hopAt(bHops, t, { x: xB0, y: 0, z: zB0 });
     const bigAt = (t) => {
-      if (t >= tK) { const k = sstep(tK, tShut, t); return { x: 0, y: 0, z: lerp(0.35, 0.2, k), crush: k }; }
+      if (t >= tK) return { x: 0, y: 0, z: zOn, crush: 1 };
       return { ...hopAt(gHops, t, { x: xB, y: 0, z: zA }), crush: 0 };
     };
 
@@ -140,16 +148,19 @@ export default {
       // (as it jumps, the eyes stay on the middle of it coming at you: the face, the slices opening on the core)
       const toMid = R.pitchTo(0, R.eye, 0, big.x, big.y + half, Math.min(-0.4, big.z + half));
       c.yaw = lerp(c.yaw, yFace, tn); c.pitch = lerp(c.pitch, clamp(lerp(toFace, toMid, sstep(tJ, tJ + 0.3, t)), -0.2, 0.4), tn);
-      c.z -= 0.25 * sstep(tG1, tG1 + 0.4, t) * (1 - sstep(tJ, tK, t));   // a step back, away from it (toward the little one)
-      if (t >= tK) {   // it comes down on you: crushed to the floor under it, the head forced down
-        const kc = sstep(tK, tShut, t);
-        const h = kick(t, [{ t: tK, side: turn, amp: 1.5 }]);
-        c.yaw += h.yaw; c.pitch += h.pitch;
-        c.y = lerp(c.y, 0.9, kc); c.pitch = lerp(c.pitch, -0.35, kc); c.roll += 0.4 * kc * turn;
-        c.fov = s.fov - 10 * kc;
+      c.z += 0.25 * sstep(tG1, tG1 + 0.4, t);   // a step back, away from it (toward the little one)
+      if (t >= tJ) {   // it comes: you go over backwards onto the floor, looking up at it coming over you
+        const kf = sstep(tJ + 0.05, tK, t);
+        c.y = lerp(c.y, 0.25, kf); c.pitch = lerp(c.pitch, 0.42, sstep(tJ + 0.12, tK, t)); c.roll += 0.2 * turn * kf;
+      }
+      if (t >= tK) {   // inside it: the core over you and ahead, the slices round you; each chew jolts you
+        const h = kick(t, [{ t: tK, side: turn, amp: 1.2 }, ...chews.map((x, i) => ({ t: x, side: i % 2 ? -turn : turn, amp: 0.9 }))]);
+        c.pitch = lerp(c.pitch, 0.25, sstep(tK, tK + 0.3, t));   // across it: the core up ahead, the far slices below it
+        c.yaw += h.yaw; c.pitch += 0.6 * h.pitch; c.y -= 0.04 * pulse(t, chews, 0.15);
+        c.fov = s.fov + 5 * pulse(t, chews, 0.1);
       }
       const lands = bHops.map((h) => h[1]);
-      return shake(c, t, 0.0012 + 0.003 * pulse(t, lands, 0.12) + 0.012 * pulse(t, [tG0], 0.25) + 0.035 * pulse(t, [tG1], 0.25) + 0.07 * pulse(t, [tK], 0.2) + 0.05 * pulse(t, chews, 0.15), 9);
+      return shake(c, t, 0.0012 + 0.003 * pulse(t, lands, 0.12) + 0.012 * pulse(t, [tG0], 0.25) + 0.035 * pulse(t, [tG1], 0.25) + 0.06 * pulse(t, [tK], 0.2) + 0.045 * pulse(t, chews, 0.14), 9);
     };
 
     // ---- particles: "flame" on every landing (size x 8 of them), lava spatter as it lands on you ---------------------
@@ -162,10 +173,28 @@ export default {
       const a = r() * Math.PI * 2, d = half * (0.8 + r() * 0.5);
       fl.push({ t0: down + r() * 0.05, at: [to.x + Math.cos(a) * d, 0.05, to.z + Math.sin(a) * d], v: [Math.cos(a) * 0.6, 0.2 + r() * 0.4, Math.sin(a) * 0.6], life: 0.6 + r() * 0.4, size: 0.11, tile: 48, color: [1, 0.85, 0.6], grav: -0.05, fog: false, add: true });
     } });
-    for (let i = 0; i < 26; i++) fl.push({ t0: tK + r() * 0.08, at: [(r() - 0.5) * 0.9, R.eye - 0.5 + r() * 0.5, 0.35 + r() * 0.5], v: [(r() - 0.5) * 3.2, (r() - 0.1) * 2.5, (r() - 0.3) * 2.4], life: 0.7, size: 0.065, tile: 49, color: [1, 0.6, 0.25], grav: 5, fog: false, add: true });
+    for (let i = 0; i < 26; i++) fl.push({ t0: tK + r() * 0.08, at: [(r() - 0.5) * 0.9, 0.5 + r() * 0.6, -0.3 + r() * 0.5], v: [(r() - 0.5) * 3.2, (r() - 0.1) * 2.5, (r() - 0.3) * 2.4], life: 0.7, size: 0.065, tile: 49, color: [1, 0.6, 0.25], grav: 5, fog: false, add: true });
     const sparks = particles(R, partTex, fl);
     const glow = R.ownLight(R.light(0xff5a10, 0, 22, 1.0));
     const bGlow = R.ownLight(R.light(0xff6a20, 0, 3.5, 1.5));
+    // ---- inside it: the dark insides of its eight slices with the orange seams between them, the core over you. The
+    // model's faces are drawn from outside only (from inside they would be its texture centimetres from the lens), so
+    // while the head is within the cube the slices give way to this box of the same size and squish, and the core stays.
+    const pix = (w, h, seams, seed) => {
+      const c = document.createElement("canvas"); c.width = w; c.height = h; const x = c.getContext("2d"), q = mulberry(seed);
+      const pal = ["#1c0703", "#260904", "#300c05", "#140402", "#3a1006"];
+      for (let py = 0; py < h; py++) for (let px = 0; px < w; px++) { x.fillStyle = pal[Math.floor(q() * pal.length)]; x.fillRect(px, py, 1, 1); }
+      for (let k = 0; k < h / 6; k++) { x.fillStyle = "#6e2408"; x.fillRect(Math.floor(q() * w), Math.floor(q() * h), 1, 1); }
+      if (seams) for (let k = 1; k < 8; k++) { const y = k * (h / 8); x.fillStyle = "#ff5a10"; x.fillRect(0, y - 1, w, 2); x.fillStyle = "#ffb040"; x.fillRect(0, y - 1, w, 1); }
+      const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.magFilter = t.minFilter = THREE.NearestFilter; t.generateMipmaps = false;
+      t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(8, seams ? 1 : 8); return t;
+    };
+    const wallM = new THREE.MeshBasicMaterial({ map: pix(16, 128, true, 71), side: THREE.BackSide, fog: false });
+    const capM = new THREE.MeshBasicMaterial({ map: pix(16, 16, false, 73), side: THREE.BackSide, fog: false });
+    const inBox = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), [wallM, wallM, capM, capM, wallM, wallM]);
+    inBox.visible = false; R.add(inBox);
+    // A chew: the slices squeeze down fast and let go slower.
+    const chewP = (t) => Math.max(0, ...chews.map((x) => (t < x ? 0 : t < x + 0.07 ? (t - x) / 0.07 : Math.exp(-(t - x - 0.07) / 0.2))));
 
     // ---- sound: its own, all of it, and your voice -----------------------------------------------------------------
     const near = R.torches.filter((tc) => Math.hypot(tc.l.x, tc.l.z) < 12).slice(0, 3);
@@ -191,15 +220,13 @@ export default {
       [tShut + 0.06, "@muffle", { hz: 260, s: DUR - tShut + 2 }],
       ...chews.flatMap((c, i) => [[c, "qf.scare.crunch", { volume: 1 }], [c + 0.02, "mob.magmacube.big", { volume: 1, pitch: 0.45 + 0.05 * i }], [c + 0.03, "liquid.lavapop", { volume: 0.8 }]]),
       ...deathScream(tK + 0.12), ...deathScream(chews[1] + 0.1, { volume: 1.1 }),
-      [tShut + 0.5, "fire.fire", { volume: 1 }],
       [DUR, "game.player.die"]
     ];
     const loops = [
       [0.3, tG1, "qf.scare.heartbeat", { volume: 0.32, fadeOut: 0.05 }],
       [T_DIM + 0.3, tG1, "qf.scare.drone", { volume: 0.32, fadeIn: 1.5, fadeOut: 0.05, pitch: 0.8, bus: "sfx" }],
       [tG0 + 0.1, tK, "qf.scare.heartbeat", { volume: 0.6, pitch: 1.3, fadeIn: 0.2, fadeOut: 0.02 }],
-      [tShut, DUR + 0.2, "qf.scare.heartbeat", { volume: 0.9, pitch: 1.5 }],
-      [tShut + 0.2, DUR + 0.2, "fire.fire", { volume: 0.8 }]
+      [tShut, DUR + 0.2, "qf.scare.heartbeat", { volume: 0.9, pitch: 1.5 }]
     ];
 
     // ---- the frame ------------------------------------------------------------------------------------------
@@ -207,7 +234,7 @@ export default {
     function update(t, f) {
       // The baby.
       const b = babyAt(t);
-      baby.pivot.visible = t >= T_SEEN && t < tK;
+      baby.pivot.visible = t >= T_SEEN && t < tK - 0.1;
       R.place(baby, b.x, b.y, b.z, R.yawTo(b.x, b.z, 0, 0), t >= tSitB && t < tG0 ? -0.12 * sstep(tTilt, tTilt + 0.4, t) : 0);
       setSquish(baby, sqB(t), 1);
       const lit = 1 - sstep(5, 10.5, Math.hypot(b.x, b.z));   // it comes up out of the dark as it nears the light
@@ -217,11 +244,19 @@ export default {
       const B = bigAt(t);
       M.pivot.visible = t >= gHops[0][0] - 0.6;
       R.place(M, B.x, B.y, B.z, R.yawTo(B.x, B.z, 0, 0));
-      const sq = t < tK ? sqG(t) : lerp(1, -0.25, B.crush);
+      const sq = t < tK ? sqG(t) : -0.3 * Math.exp(-(t - tK) / 0.12) - 0.45 * chewP(t);
       setSquish(M, sq, size, spreadCap);
       const air = clamp(sq);
-      M.setOwn(t < tK ? 1 : 0.6);   // EntityMagmaCube is fullbright
-      for (const m of coreMats) m.emissiveIntensity = 0.7 + 0.8 * air;
+      M.setOwn(1);   // EntityMagmaCube is fullbright
+      // Is the head within it? Then its inside instead of its slices.
+      const f2 = sq / (size * 0.5 + 1), W = 2 * half / (1 + f2), H = 2 * half * (1 + f2), ce = cam(t);
+      // (from a little way outside its front too: its inside walls are drawn from the back, so the near wall drops away
+      // and its face never fills the lens from centimetres)
+      const within = Math.abs(ce.x - B.x) < W / 2 + 0.35 && Math.abs(ce.z - B.z) < W / 2 + 1.1 && ce.y > B.y + 0.03 && ce.y < B.y + H - 0.03;
+      LAYERS.forEach((n) => { const g = M.parts[n]; if (g) g.visible = !within; });
+      inBox.visible = within;
+      if (within) { R.L(B.x, B.y + H / 2 + 0.01, B.z, inBox.position); inBox.scale.set(W, H, W); inBox.rotation.set(0, R.yaw0, 0); }
+      for (const m of coreMats) m.emissiveIntensity = within ? 0.95 + 0.4 * chewP(t) : 0.7 + 0.8 * air;
       if (coreG) { M.pivot.updateMatrixWorld(true); coreG.getWorldPosition(_v); _v.y = Math.min(_v.y, R.O.y + half * 1.2); glow.position.copy(_v); }
       // The glow it throws ahead of it onto the floor round the little one, growing as it comes.
       const come = sstep(gHops[0][0], tG0, t) * 0.35 + sstep(tG0 + 0.2, tG1, t) * 0.4 + sstep(tG1, tJ, t) * 0.25;
@@ -230,17 +265,16 @@ export default {
 
       // The lights: guttering, then low; the dark at the end of the corridor.
       const dim = sstep(T_DIM, T_DIM + 1.0, t), gut = dim > 0 && dim < 1 ? 0.25 * Math.sin(t * 37) * Math.sin(t * 13) : 0;
-      const inside = sstep(tShut - 0.15, tShut + 0.05, t);
-      f.env = { bake: (1 - 0.2 * sstep(0.2, 1.2, t)) * lerp(1, 0.3, dim) * (1 + gut), lights: lerp(1, 0.28, dim) * (1 + gut), fogMul: 1 + 0.8 * dim, fog: [0.01, 0.005, 0.0, 0.6 * dim], squash: inside * Math.min(1, 0.35 + 0.6 * pulse(t, chews, 0.2)) };
+      const inside = sstep(tK, tK + 0.1, t);
+      f.env = { bake: (1 - 0.2 * sstep(0.2, 1.2, t)) * lerp(1, 0.3, dim) * (1 + gut), lights: lerp(1, 0.28, dim) * (1 + gut), fogMul: 1 + 0.8 * dim, fog: [0.01, 0.005, 0.0, 0.6 * dim] };
       const slam = pulse(t, [tK], 0.12);
-      f.tints = [[255, 110, 20, 0.5 * slam + 0.08 * come * (t < tK ? 1 : 0)], [22, 5, 0, 0.75 * inside], [255, 80, 10, 0.3 * inside * pulse(t, chews, 0.25)]];
-      f.vig = [40, 8, 0, 0.3 + 0.25 * dim + 0.3 * inside]; f.vigR = 0.88;
-      f.fire = Math.max(0.6 * inside, 0.6 * sstep(tK, tK + 0.15, t));
+      f.tints = [[255, 110, 20, 0.2 * slam + 0.08 * come * (t < tK ? 1 : 0)], [255, 80, 10, 0.12 * chewP(t)]];
+      f.vig = [20, 4, 0, 0.3 + 0.25 * dim + 0.25 * inside]; f.vigR = 0.88;
       f.hurt = Math.max(f.hurt || 0, slam);
-      f.black = 0.35 * sstep(DUR - 0.25, DUR + 0.6, t);
+      f.black = sstep(tK + 1.45, DUR, t);   // black, then the death screen
     }
     return { dur: DUR, hits, cam, update, sounds, loops, deathSide: turn,
-      marks: { dim: T_DIM + 0.8, seen: bHops[1][1], dread: tSitB + 0.3, fake: tTilt + 0.5, thud: tG0 + 0.3, turn: tG1 + 0.45, lunge: tJ + 0.3, kill: tShut + 0.6 },
+      marks: { dim: T_DIM + 0.8, seen: bHops[1][1], hopPeak: bHops[nHop - 2][0] + 0.1, hopTop: (bHops[nHop - 2][0] + bHops[nHop - 2][1]) / 2, dread: tSitB + 0.3, fake: tTilt + 0.5, thud: tG0 + 0.3, turn: tG1 + 0.45, lunge: tJ + 0.3, inside: tK + 0.2, chew: chews[1] + 0.06, kill: tK + 0.6 },
       notes: { size, half, ceil: R.ceil, behind: +R.behind.toFixed(1), zA: +zA.toFixed(2), zG1: +zG1.toFixed(2), nHop, zB0: +zB0.toFixed(2), turn, tSitB: +tSitB.toFixed(2), tG1: +tG1.toFixed(2), dur: +DUR.toFixed(2) } };
   }
 };

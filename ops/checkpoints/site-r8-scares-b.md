@@ -100,3 +100,16 @@ multi.py, sheet2.py; reuse them). Spec: `docs/design/site/krypt-scares.md`.
   Done-means: leak fixed and checked in all 16 + mood [x]; Ghast one fireball after [x]; Blaze from the nearest grave [x];
   Magma Cube beat by beat [x]; Enderman/Creeper untouched by these commits [x]; films + beat logs + live J run [x].
   Owner to judge: the Magma baby's tall stretched hops are vanilla-accurate but read less "cute"; the 14 s length.
+- step 8 (coordinator review, 2 Magma tweaks; uncommitted): (1) baby: squish decays x0.6/tick and stretches half as far
+  (peak ~2x as tall as wide for a tick or two), hops 0.45 m high, 0.42 s, <=1.6 m long, from <=9 m. (2) engulf: it
+  lunges low along the floor (accelerating) as you go over backwards; inside, its slices give way to a box of its size
+  and squish (dark insides, orange seams; drawn from the back, so it holds from 0.35 m outside its front too), the
+  model's core over you and ahead (you are 1 m off its middle), three chews (squash, kick, jolt), black at tK+1.9, death
+  screen. Fire overlay, flat tints and the projection squash removed. Frames `mc3/`, `mc4/`; film `film/mc2/`.
+- step 9: engulf finish. The inside view starts from 1.1 m outside its front (the near face was a dark fill at 10.4);
+  it lands with you just inside its front (zOn = min(-0.6, 0.4 - half)), so the core sits over you and ahead and
+  never fills the lens; look-up 0.42 in the lunge, 0.25 inside, lying at 0.25 m. 20 fps check `film/mcf/` +
+  `film/mcf_fine.png`. film.py trap: a stale raw page json overwrites re-rendered frames; moved to `film/mc2_stale/`.
+  Film `film/mc2/film.png` (10.0-14.0 re-rendered). Hop crop `film/hop_peak.png` (rest / squish peak ~1.95x / top ~1.5x).
+  Live run `flow_mc_final.json`: ok, mood 20 ok, no leaks. Spec v5 Magma lines updated. DONE: committed with the journal entry; report sent.
+
