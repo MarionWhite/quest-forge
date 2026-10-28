@@ -250,4 +250,16 @@ by name, or no variants; the variant drawn; the stitched names).
 **crops-d** (`1027-193920-r010-crops-d`, jar 081cd00): `pick` now also gets the block and meta. When the icon is not a
 stitched base sprite, it looks up the block's own sprite, `block.getIcon(0, meta)`, which has no CTM. The hook's
 variants then replace the CTM tile. The bytecode verifies offline. One job, cv1d1 (hook on); the off reference is
-cv1c0 (same packs and scenes). Results follow.
+cv1c0 (same packs and scenes).
+- **The log (boot b1027200457):** ripe wheat reached the hook as `minecraft:mcpatcher/ctm/wheat/0.png`, took "the
+  block's own sprite (a CTM tile reached the hook)" and drew `wheat_stage_7_v1`; carrots and potatoes still match by
+  identity; unripe stages log "no variants" as intended.
+- **The look:** **it works.** Ripe wheat now mixes all five heights. Near (farm_close) the rows break into an uneven,
+  hand-placed field; far (farm) the gold mass has a ragged top instead of a regular grid of identical tufts. No
+  missingno, no seams. Sheets: `C:\qfbrills\look\cv1d.jpg`, `cv1d-near.jpg`.
+- **The cost (frills_cost.py --off cv1c0 --on cv1d1):** frame p50 +1% (farm) and +0% (farm_close); p99 -9% / -7%.
+  Whole boot: ms per section -1%, vertices per section +2% (the taller variants), all within noise. **Answer: no
+  measurable cost.**
+- **Handed off:** crop scenes `crops-variants` and `crops-variants-far` (A cv1c0 / B cv1d1) are in
+  `C:\qfb\shaderdev010rills_scenes.json` (5 scenes, FRILLS-READY updated).
+- **Follow-up:** QF Textures should drop `mcpatcher/ctm/wheat` once the hook ships (it is what made every wheat tile 0).

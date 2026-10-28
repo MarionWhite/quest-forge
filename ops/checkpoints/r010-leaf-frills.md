@@ -256,3 +256,17 @@ Other stages have no variants (the hook draws them as before). The old ctm/wheat
    `C:\qfb\shaderdev010rills_make_scenes.py` (use the frame p50 line; whole-boot ms is boot noise, see crops-c).
 4. If it works: `py -3.10 -I -X utf8 C:\qfb\shaderdev010rills_make_scenes.py` -> 5 scenes; touch FRILLS-READY (keep it).
    Commit docs/ops; journal ops/journal/textures.md. If wheat still misses: fix from the log line, rebuild v7, re-render.
+
+### 2026-10-27 session 6 (leaf-frills agent)
+- 20:07 guard OK. crops-d DONE (cv1d1 boot b1027200457): wheat "minecraft:mcpatcher/ctm/wheat/0.png ... the block's own sprite
+  (a CTM tile reached the hook), drew wheat_stage_7_v1"; carrots/potatoes identity. **Hook v6 WORKS.**
+- Look (`C:\qfb\frills\look\cv1d.jpg`, `cv1d-near.jpg`): five wheat heights mixed, grid gone near and far, no missingno.
+- Cost cv1c0 vs cv1d1: frame p50 +1%/+0%, p99 -9%/-7%; whole boot ms/section -1%, vertices +2% = no measurable cost.
+- CROP_COST filled in `C:\qfb\shaderdev\r010\frills_make_scenes.py` (backup `.bak-s6`); ran it -> frills_scenes.json 5 scenes
+  (frills-hedge/tree/forest, crops-variants, crops-variants-far). FRILLS-READY rewritten for 5 scenes (kept).
+- leaf-frills.md crops-d results; journal textures.md.
+
+## Resume here (session 7)
+Crop variants are done for r010. Open: owner's verdict on the crops scenes in round 10; when the hook ships (merge
+branch leaf-frills, trial.py install), QF Textures drops `mcpatcher/ctm/wheat` (texture agent, build_qf_textures.py).
+Leaf frills look choice (edges c1/c2) also waits on round-10 feedback.
