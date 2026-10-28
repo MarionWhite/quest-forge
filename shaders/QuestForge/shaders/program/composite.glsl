@@ -1042,7 +1042,12 @@ float crepuscularGain(vec3 viewDir) {
 // adds the light's in-scattering with Photon's two-lobe phase (forward lobe x3 at sunrise and sunset),
 // so lit lanes and shadow wedges fan from a sun behind broken cloud. r010's version (QF_CREPUSCULAR 1)
 // read 16 full-screen taps per pixel toward the sun's screen position instead.
-vec3 crepuscularRays(vec3 dir) {
+// r011 loop 4: Photon's term only adds light, and our sky already holds the lit air's glow, so the rays
+// were +1-3 luma (invisible). `shade` (out) is the part of the sky's glow that the shadowed air would
+// have given: (1 - lit share of the march) x that air's share of the view (1 - its transmittance), x
+// QF_CREP_SHADE. The caller dims the sky by it, so shadow wedges and lit lanes both show.
+vec3 crepuscularRays(vec3 dir, out float shade) {
+    shade = 0.0;
     vec3 L = lightDirWorld();
     if (L.y < -0.02) return vec3(0.0);
     float tEnd = dir.y > 0.002 ? min((CL_BASE - cameraPosition.y) / dir.y, 4096.0) : 4096.0;
@@ -1055,14 +1060,17 @@ vec3 crepuscularRays(vec3 dir) {
     vec3 ext = vec3(2.2, 3.0, 5.4) * 1e-3 * 0.25;   // Photon's 2 (50 Rayleigh + 400 Mie) per m, x 0.25
     vec3 stepT = exp(-ext * dt);
     float dith = ign(gl_FragCoord.xy + float(frameCounter % 64) * vec2(2.31, 5.17));
-    vec3 S = vec3(0.0), T = vec3(1.0);
+    vec3 S = vec3(0.0), S0 = vec3(0.0), T = vec3(1.0);
     for (int i = 0; i < steps; i++) {
         float d = dt * (float(i) + dith);
         float sh = lookupCloudShadowMap(dir * d, e1, e2);
-        float b = 1.0 - exp2(-0.002 * d);
-        S += sh * sh * sh * T * b;
+        vec3 tb = T * (1.0 - exp2(-0.002 * d));
+        S += sh * sh * sh * tb;
+        S0 += tb;
         T *= stepT;
     }
+    float lit = luminance(S) / max(luminance(S0), 1e-6);
+    shade = QF_CREP_SHADE * (1.0 - lit) * (1.0 - luminance(T)) * smoothstep(-0.02, 0.03, L.y) * (1.0 - rainStrength);
     float LoV = dot(dir, L);
     float sunset = goldenHour();
     float phase = mix(0.5, 1.5, sunset) * phHG(LoV, 0.5) + 0.5 * phHG(LoV, -0.2);
@@ -1504,13 +1512,18 @@ void main() {
     if (isEyeInWater == 0 && depth0 >= 1.0) color *= crepuscularGain(viewDir);
 #endif
 #if QF_CREPUSCULAR == 2 && QF_CLOUDS == 2 && QF_PRESET >= 2
-    if (isEyeInWater == 0 && depth0 >= 1.0) color += crepuscularRays(viewDir);
+    if (isEyeInWater == 0 && depth0 >= 1.0) {
+        float crShade;
+        vec3 cr = crepuscularRays(viewDir, crShade);
+        color = color * (1.0 - crShade) + cr;
+    }
 #if QF_DEBUG_VIEW == 15
     // r011 rays debug: r the rays x 4, g the cloud shadow map 500 blocks along the view, b sky radiance.
     if (depth0 >= 1.0) {
         vec3 e1d, e2d;
         cloudMapAxes(lightDirWorld(), e1d, e2d);
-        outColor = vec4(vec3(luminance(crepuscularRays(viewDir)) * 4.0, lookupCloudShadowMap(viewDir * 500.0, e1d, e2d), luminance(skyScatter(viewDir))) / max(exposure(), 1e-4), 1.0);
+        float crShadeD;
+        outColor = vec4(vec3(luminance(crepuscularRays(viewDir, crShadeD)) * 4.0, lookupCloudShadowMap(viewDir * 500.0, e1d, e2d), luminance(skyScatter(viewDir))) / max(exposure(), 1e-4), 1.0);
         return;
     }
 #endif

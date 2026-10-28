@@ -123,3 +123,15 @@ environments" (not underwater: done). Checked what reaches the screen under our 
      p11clipm4/m5 vs p11clipg3 (target night_wide < 3.0 High). If over budget, cut QF_CREP_STEPS or the wedge count.
   4. critic (r011/critic.json), then publisher: `finish_round.py C:/qfb/shaderdev/r011 --publish`.
   5. Track file + journal entry + the five-line report (scenes handed off in C:\qfb\shaderdev\r011\).
+- 2026-10-28 (finisher) loop 3 read (sheets r011/sheets/loop3_rays.jpg, loop3_raysbox.jpg, loop3_raydiff.png x6 diff,
+  loop3_golden.jpg, loop3_golden_refs.jpg): **rays invisible** (r11e - r11e0 +1-3 luma near the sun, faint radial lanes
+  only in the x6 diff; e6 barely more). Cause: Photon's term only adds light on a sky that already holds the lit air's
+  glow. **golden_lit near field still veiled**: bottom-row means r11e 66,64,39 vs p10 40,45,15; r11a1 (x1 density) is
+  already 62,63,35, so it is Photon's own evening Mie haze (0.005/block, half every 7 blocks) over grazing-lit grass,
+  not our x1.41. Left as is (later item; CR's near field is also lifted, 91,57,25, but warm).
+  **Costs** (1027-224601, High 1440p): worst p11 ocean_sunset 3.30 (p10 3.31; water scenes 3.01-3.16 were over in r010
+  too); atmosphere p11-p11a0 -0.12..+0.03; rays p11-p11cr0 +0.01..+0.06 (r010 rays +0.14..+0.31); night_wide 2.99
+  (shower m4 and storm m5 both 2.99) vs r010 3.47/3.98 (p11clipg3 3.99); Low worst 0.86, Potato 0.30.
+  Loop 4: QF_CREP_SHADE 0.5 (new): sky dimmed by (1-lit share) x (1-T to cloud base) x 0.5. check_glsl 0 errors.
+  Cost spec r011/specs/p11r-rays.json (p11r on 8 ray views, p11r75 SHADE 0.75 on 4); spec_scenes then uses p11r for
+  ocean_sunset / shore_dusk / RAYVIEW (p11cr0, p11cr1, p11a0 unaffected by the change).
