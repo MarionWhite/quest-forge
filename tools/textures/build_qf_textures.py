@@ -209,7 +209,13 @@ def main():
                          "faithful: Faithful 64x's nested squares (v2)")
     ap.add_argument("--diamond", choices=("metal", "gem"), default="gem",
                     help="gem (r010 default): a dielectric, F0 44 (GEM_BLOCKS); metal: VNR's metal flag (v2, a mirror)")
+    ap.add_argument("--stay-true", metavar="PATH",
+                    help="r011 (owner's call, CLAUDE.md Licences): copy Stay True's leaves and crops from this folder at "
+                         "build time (staytrue.py): textures under 1.7.10 names + textures/blocks/staytrue/*, and "
+                         "qf/staytrue_models.txt for qf-tweaks' StayTrueModels. NEVER commit the output or its PNGs")
     a = ap.parse_args()
+    if a.stay_true and (a.wheat != "drawn" or a.leaves != "drawn"):
+        sys.exit("--stay-true replaces the leaves and wheat: leave --leaves and --wheat at drawn")
 
     mc = zipfile.ZipFile(a.mc_jar)
     mcn = set(mc.namelist())
@@ -233,6 +239,8 @@ def main():
     meta = json.load(open(os.path.join(SRC, "pack.mcmeta"), encoding="utf-8"))
     if a.leaf_edges != "none":
         meta["pack"]["description"] += " Leaf edges: %s." % a.leaf_edges
+    if a.stay_true:
+        meta["pack"]["description"] += " Leaves and crops: Stay True."
     out.writestr("pack.mcmeta", json.dumps(meta, indent=1, ensure_ascii=False))
     out.write(os.path.join(SRC, "CREDITS.txt"), "CREDITS.txt")
     out.write(a.faithful_license, "LICENSE-Faithful.txt")
@@ -253,6 +261,17 @@ def main():
             art["leaves_" + kind] = leaf
             art["leaves_%s_opaque" % kind] = qf_art.opaque(leaf)
             art["leaves_%s_frill" % kind] = np.clip(leaves_dense.frill(f) + 0.5, 0, 255).astype(np.uint8)
+    staytrue_spec = None
+    if a.stay_true:
+        import staytrue
+        st_tex, staytrue_spec, _ = staytrue.build(a.stay_true)
+        for name, img in st_tex.items():
+            art[name] = img
+            if name.startswith("leaves_"):
+                art[name + "_opaque"] = qf_art.opaque(img)       # Fast graphics
+        out.writestr(staytrue.SPEC_PATH, staytrue_spec)
+        out.writestr("CREDITS-StayTrue.txt", "Leaf and crop textures and their models: Stay True by HaiMcFly "
+                     "(all rights reserved). Used in a private server pack only; never redistribute this zip.\n")
     if a.emerald == "diamond":
         import gems
         art["emerald_block"] = gems.emerald_from_diamond(rgba(fread(BLOCKS + "diamond_block.png")))

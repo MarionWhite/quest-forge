@@ -54,3 +54,20 @@ Owner's r010 picks to keep: tex-wall B (metal look on real metals only), dense w
 ("I like the transparency... they should give a realistic looking tree volume and structure").
 
 ## Progress log
+
+### 2026-10-27 session 1 (texture-dev)
+- Read Stay True's files (not guesses). Corrections to the summary above:
+  - Spruce uses `spruce_leaves{,1}.json` -> leaves_cross (tinted, 2 variants); `leaves_spruce1/2` + leaves_cross_spruce* are unused.
+  - Birch: `leaves_cross_birch` for BOTH variants (cross geometry, NO tintindex: Stay True's birch PNGs are pre-coloured).
+    1.7.10 tints birch cubes with 0x80A755, so the build divides the birch cube texture by it (max px 108,137,80 -> no clip).
+  - Dark oak: parents leaves_cross / leaves_cross1 / leaves_cross (leaves_cross_dark_oak* unused), cube PNGs differ per variant.
+  - Oak cube PNG is the same in all 3 variants; jungle/acacia 2 variants (cross, cross1).
+  - Wheat age 5: weights 6 stage_5 / 3,3 tall (bottom{,1}/top{,1}) / 4,4 single `wheat_stage_5_1`. Ages 6, 7: 6 single / 3,3,4,4 tall.
+  - Carrots age 7: 4 equal: stage3, stage3_1, stage3_2 (single), stage3_3 tall. Potatoes age 7: 2 stage3, 5 stage3_1, 5 stage3_2,
+    3 tall(bottom/top), 3 single stage3_3, 3 tall(bottom2/top2), 3 tall(bottom1/top1). Tall = 8 planes, y -1..16 and 16..32.
+  - Stay True also ships an OptiFine custom leaves colormap for oak + dark oak (optifine/colormap/custom/leaves.png) and animated
+    diamond/emerald blocks (8 / 10 frame sparkle, .mcmeta).
+- Design: the builder parses Stay True's blockstates + models and writes the leaf/crop variants (weights, sprites, every face
+  as 4 rotated vertices) into the pack as `assets/minecraft/qf/staytrue_models.txt`; the hook reads that file at stitch time
+  (no Stay True names in Java). Leaves: cube sprite via overrideBlockTexture in a before-hook, planes after renderStandardBlock.
+  Crops: head hook in renderBlockCropsImpl draws tall variants; single variants swap the icon.
