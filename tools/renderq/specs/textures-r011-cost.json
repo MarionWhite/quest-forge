@@ -1,0 +1,16 @@
+{
+ "name": "textures-r011-cost",
+ "owner": "texture-dev-2",
+ "comment": "r011 step 5: frame cost of the r007-pack copies (animated items, 32x mob skins, 64x shelves, GUI sheets): QF-v3c alone vs QF-v3c + QF-r011-packs + QF-r011-gui, cost mode, same views.",
+ "prebuild": [
+  ["py", "-3.10", "-I", "tools/textures/r007packs.py", "--out", "C:/qfb/textures/QF-r011-packs.zip", "--parts", "items,cit,tnt,books,mobs,env"],
+  ["py", "-3.10", "-I", "tools/textures/r007packs.py", "--out", "C:/qfb/textures/QF-r011-gui.zip", "--parts", "gui"]
+ ],
+ "defaults": {"world": "C:/qfb/textures/world-r011", "views": "tools/textures/views-r011.txt", "preset": "3",
+              "size": "2560x1440", "mode": "cost", "cit": true, "measure": 300,
+              "jars": ["C:/qfb/renderq/jars-r011/QuestForgeContent-1.0.0.jar"], "props": ["qf.bench.difficulty=easy"]},
+ "jobs": [
+  {"tag": "r11c0", "resourcepacks": ["C:/qfb/textures/diag/QF-v3c.zip"], "scenes": "r11_items,r11_mobs_b,r11_library"},
+  {"tag": "r11c1", "resourcepacks": ["C:/qfb/textures/diag/QF-v3c.zip", "C:/qfb/textures/QF-r011-packs.zip", "C:/qfb/textures/QF-r011-gui.zip"], "scenes": "r11_items,r11_mobs_b,r11_library"}
+ ]
+}
