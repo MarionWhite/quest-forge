@@ -133,3 +133,16 @@ Scratch: `scratchpad/r8/scares-c/` (film.js, film.py, crop.py, probe.js, cdp.mjs
   once with R.widen (Skeleton: a 5th findRoom pass zq -42..12, T<=5, wall<=26 m; others re-roll the dice), then another
   scare (approved first), logged. Tested by forcing throws: scratch force_throw.js (J: build x2 -> Creeper plays) and
   force_dir.js (?nogate&walk=400, CFG shortened: Enderman throws -> Creeper plays).
+- [x] #2 held items (commit 6b04f60, rig.js + equipment.js): no bug in the transforms (vanilla, term by term), the
+  material or the edges (vanilla per-column/row strips, flat normals right). Shared cause = lighting: held items
+  took the mob's flat ambient; item texels are dark (bow 0.07 linear, stone 0.13; bone ~0.4) -> below the darkest
+  steps, faces and edges one tone. Fix in R.mob for every held item: lift = clamp(0.25/tone, 1, 3.5) (bow 3.49,
+  stone 1.86, gold 1) x 1.7.10 standard item lighting x1.35. Only multiplicative (setOwn(0) still blacks it out).
+  Evidence (scratch held/): real_ba.png (heldshot at each scare's light, before/after: bow brown + pale string at
+  40deg/side, edge-on from the front), w_ba.png + wsw_ba.png (Wither reveal: sword still dark, its mob's own light is
+  0.03 = a silhouette by scares-A's design; shape = a forward blade along its length showing its pixel edges,
+  vanilla), lucky_ba.png (Lucky #174/#177/#179: unchanged, sunlit, read fine). Before = before_serve.py on :8011
+  (HEAD's rig.js/equipment.js swapped in). Steve's bow on the Lucky page (lucky/steve.js) is its own code and uses
+  the isFull3D branch, not RenderPlayer's bow branch (T(0,.125,.3125) R(-20,Y)): noted for the owner, not changed.
+  Still to do for #2: Skeleton bow before/after in the real scare (after #4), stoodPose = ModelZombie arms.
+- Next: #4 ring of bows.

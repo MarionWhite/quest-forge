@@ -630,7 +630,7 @@ export async function buildRoom(R, spot, { seed = 1, skull = null } = {}) {
     {
       pose(sch.hand1); m.pivot.updateMatrixWorld(true);
       const g = clawRight ? Pp.rightArm : Pp.leftArm, hw = g ? R.toLocal(g.localToWorld(new THREE.Vector3(0, -0.6, 0))) : R.toLocal(m.pivot.position);
-      pose.handAt = { x: hw.x, y: hw.y, z: hw.z }; if (g) { const sw = R.toLocal(g.localToWorld(new THREE.Vector3(0, 0, 0))); pose.dbg = { sh: [sw.x, sw.y, sw.z].map((v) => Math.round(v * 100) / 100), hd: [hw.x, hw.y, hw.z].map((v) => Math.round(v * 100) / 100), c: [hp.c.x, hp.c.z].map((v) => Math.round(v * 100) / 100), eu: [hp.eu.x, hp.eu.z], ev: [hp.ev.x, hp.ev.z], right: clawRight }; }
+      pose.handAt = { x: hw.x, y: hw.y, z: hw.z };
       if (g) {
         const mw = R.toLocal(g.localToWorld(new THREE.Vector3(0, -0.3, 0)));
         const mu = (mw.x - hp.c.x) * hp.eu.x + (mw.z - hp.c.z) * hp.eu.z, mv = (mw.x - hp.c.x) * hp.ev.x + (mw.z - hp.c.z) * hp.ev.z;

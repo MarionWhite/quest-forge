@@ -592,13 +592,13 @@ export async function createRig(kr, { seed = 1, rand = seed * 7919 + 13, frame =
 // dark: bow wood averages 0.07 in linear light, stone 0.13, against a skeleton's bone at about 0.4. In a dim scare
 // the item fell below the screen's darkest steps, and with no direction in the light its faces and its pixel edges
 // came out one tone, so a bow was a black pole and a sword edge-on a black blade. So, for every held item:
-//   a lift: the item is lit as if its texture averaged at least HELD_REF (dark items up to HELD_MAX times, gold,
+//   a lift: the item is lit as if its texture averaged at least HELD_REF (bow x2.5, stone x1.3; gold,
 //     iron and diamond untouched);
 //   1.7.10's item lighting (RenderHelper.enableStandardItemLighting: lights from (0.2, 1, -0.7) and (-0.2, 1, 0.7),
 //     diffuse 0.6 each, ambient 0.4), scaled so a face turned to the camera's side stays at 1: the faces and the
 //     edges part, and the top edge of a blade catches the light.
 // Only the flat ambient is changed; the scene's own lights (a torch) light the item as before.
-export const HELD_REF = 0.25, HELD_MAX = 3.5;
+export const HELD_REF = 0.18, HELD_MAX = 3.5;
 const HELD_GLSL = `{ vec3 nH = inverseTransformDirection(normal, viewMatrix);
   float shH = min(1.0, 0.4 + 0.6 * (max(0.0, dot(nH, vec3(0.1617, 0.8085, -0.5659))) + max(0.0, dot(nH, vec3(-0.1617, 0.8085, 0.5659)))));
   totalEmissiveRadiance *= uHeldLift * shH * 1.35; }`;
