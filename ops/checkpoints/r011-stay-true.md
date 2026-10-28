@@ -71,3 +71,16 @@ Owner's r010 picks to keep: tex-wall B (metal look on real metals only), dense w
   as 4 rotated vertices) into the pack as `assets/minecraft/qf/staytrue_models.txt`; the hook reads that file at stitch time
   (no Stay True names in Java). Leaves: cube sprite via overrideBlockTexture in a before-hook, planes after renderStandardBlock.
   Crops: head hook in renderBlockCropsImpl draws tall variants; single variants swap the icon.
+- Step 1 DONE (main a19d179): `tools/textures/staytrue.py` (parser; `--dump` prints the variant table) +
+  `build_qf_textures.py --stay-true PATH`. Built `C:\qfb\textures\r011\QF-staytrue.zip` (private; *.zip is git-ignored):
+  1.7.10 names (leaves_<kind>, _opaque, wheat_stage_0-7, carrots/potatoes_stage_0-3) + `textures/blocks/staytrue/*` (75 sprites,
+  4x nearest: cube 64, bushy 128) + `assets/minecraft/qf/staytrue_models.txt` + CREDITS-StayTrue.txt. Own _n/_s from labpbr.
+- Step 2 DONE (leaf-frills **718473f**): `StayTrueModels` (spec reader, stitch registration, weighted pick by position hash,
+  drawQuads), `LeafFrills` before/after hooks (cube sprite via overrideBlockTexture, planes after renderStandardBlock),
+  `CropVariants` head hook `tall()` + icon hook `pick()`. LeafFrillsIcons and the r010 frill tuning keys are gone; switches
+  kept: leafFrills.enabled (-Dqf.frills), cropVariants.enabled (-Dqf.cropvariants). Offline verify OK
+  (`C:\qfb\frills\verify\src4\VerifyST.java`, CheckClassAdapter vs srg_merged_minecraft.jar). Jar `C:\qfb\frills\jars\v7\`.
+- 22:08 guard OK. SUBMITTED `1027-220844-r011-staytrue-a` (spec `C:\qfb\frills\spec-r011-staytrue-a.json`): st1a0 hooks off,
+  st1a1 on, QF-staytrue.zip, 7 scenes, cost mode, MeshStats `C:\qfb\frills\stats\st1a{0,1}.txt`. Behind 2 shader boots (ETA ~22:25).
+- Next: results; boot log of st1a1 needs "Stay True models: [leaves:0 x3, ...]", "Transform applied: Stay True leaves hooks",
+  "Stay True crops hooks", "own tessellator", "first tall crop drawn"; sheets off/on; cost (frills_cost.py --off st1a0 --on st1a1).
