@@ -6,12 +6,11 @@
 // Then as round 7, which the owner liked: it flares, smoke pouring off it, the breathing stops (its tell). Three
 // fireballs, one after another: into the wall by your head, at your feet, into you. You catch fire (the 1.7.10
 // overlay) and stagger back as it floats after you; it flares again and the second three come at point blank. You go
-// down burning, the hotbar burns item by item, the edges of the view char black, and a man screams himself out.
+// down burning, the edges of the view char black, and a man screams himself out.
 import { THREE, track, clamp, lerp, sstep, pulse, tex, loadImg, quad, blockMesh, blockTexName, easeOut } from "./rig.js";
 import { settle, shake, hitsOf, floorFall, particles, smoke, fireBlocks, mulberry } from "./common.js";
 import { silence, deathScream } from "./fnaf.js";
 import { kick, roar } from "./story.js";
-import { ITEMS } from "./loadout.js";
 
 // The grave it comes out of: the nearest whose plot (the two floor blocks in front of the headstone) is solid floor
 // with air over it, not under your feet; graves behind you count as further off. Else the corridor floor ahead.
@@ -241,8 +240,7 @@ export default {
       f.env = { nausea: 0.12 * Math.min(1, heat) + 0.15 * burn, bake: 1 - 0.2 * sstep(0.2, 1.2, t), fogMul: 1 + 0.6 * Math.min(1, heat), fog: [0.12, 0.05, 0.02, 0.5 * Math.min(1, heat)] };
       f.tints = [[255, 110, 30, 0.05 * heat + 0.12 * burn]];
       f.vig = [40, 10, 0, 0.3 + 0.25 * Math.min(1, heat)]; f.vigR = 0.9;
-      f.fire = burn;
-      f.burnt = ITEMS.map((_, i) => t > tK + 0.5 + i * 0.35);   // the loadout's items, one by one
+      f.fire = burn;   // the hotbar keeps its items until death (rig: f.gone); 1.7.10 never burns an inventory
       f.char = 0.62 * sstep(tK + 0.6, DUR, t);
     }
     return { dur: DUR, hits, cam, update, sounds, loops, deathSide: 1,
