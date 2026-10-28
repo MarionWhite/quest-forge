@@ -99,3 +99,27 @@ environments" (not underwater: done). Checked what reaches the screen under our 
   private pack (owner's call, CLAUDE.md "Licences"), never committed.
 - **Shipping as files now (texture side, QF-r011-packs.zip):** particles.png (its bubbles, splashes, smoke),
   footprint.png, rain.png, snow.png, and its ambient cave and rain sounds.
+- 22:45 rays cause found (r11d15, debug 15): the map works (g shows the cloud shapes, shadow round the hidden sun) but
+  the rays were ~0.003 radiance: QF_CREP_I 0.05 was ~1 % of the sky (Photon's light_color is ~7x ours and its
+  coverage-driven "amount" isn't modelled). QF_CREP_I default 0.3 [0.15 0.3 0.6 1.0]. Committed **ada996a** (WIP,
+  all r011 shader work so far). Shot **1027-224435-r011-loop3-shot**: r11e defaults (ocean_sunset, golden_lit,
+  forest_golden, lake_glitter, shore_sunset, shore_dusk, dawn_wide, dust_b, beach_noon), r11e6 (CREP_I 0.6), r11e0
+  (rays off) on ocean_sunset, forest_golden, lake_glitter, shore_sunset.
+- 22:46 handoff files written: C:\qfb\shaderdev\r011\spec_scenes.py (3 scenes: sunset-full A p11 ocean_sunset / B p10 /
+  C p11 shore_dusk / D p11a0 shore_dusk; sun-cloud A p11 / B p11cr0 / C p11cr1 on RAYVIEW (set after loop 3);
+  meteors ov clips p11clipm4 / p11clipm5 / p10clipg3, cost MG from p11clipg3) and round.json (replace
+  PUBLISH-COST-ID with the p11 cost submission id). Cost spec C:\qfb\shaderdev\r011\specs\p11-cost.json.
+- 22:47 **Publish-cost run submitted: 1027-224601-r011-publish-cost** (specs/p11-cost.json, pack = ada996a + QF_CREP_I
+  0.3 + debug view 15; runs after 08:00, night mode). round.json points at it. Exiting here: loop3 (1027-224435) is
+  ~20 min behind the texture agent's jobs.
+  **Next (fresh agent):**
+  1. `renderq.py results 1027-224435-r011-loop3-shot`; sheet r11e vs r11e0 vs r11e6 (rays: lanes near the sun in
+     ocean_sunset box 970,505,480,270, lake_glitter, shore_sunset, forest_golden) and r11e golden_lit vs r11b1/p10 (is
+     the near field still veiled at land x1.41?). Tools: C:\qfb\shaderdev\r011\tools\sheet.py, boxes.py, clipmax.py.
+  2. If a default changes (QF_CREP_I, QF_PH_FOG, the fog scaling): edit, check_glsl, commit, then resubmit the cost
+     run with `renderq.py submit --replace C:/qfb/shaderdev/r011/specs/p11-cost.json` and update round.json's id.
+     Set RAYVIEW in spec_scenes.py to the view where the rays read best.
+  3. After 08:00 the cost lands: atmosphere cost = p11 - p11a0, rays = p11 - p11cr0 (r010 rays p11cr1), meteors
+     p11clipm4/m5 vs p11clipg3 (target night_wide < 3.0 High). If over budget, cut QF_CREP_STEPS or the wedge count.
+  4. critic (r011/critic.json), then publisher: `finish_round.py C:/qfb/shaderdev/r011 --publish`.
+  5. Track file + journal entry + the five-line report (scenes handed off in C:\qfb\shaderdev\r011\).
