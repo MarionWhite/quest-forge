@@ -1,0 +1,769 @@
+{
+ "n": 10,
+ "id": "r010",
+ "title": "Meteors that skim the sky, the sunset's green patch explained and gone, clearer water, and gold that reads as gold",
+ "intro": "Your round 9 answers are built in: the fast volumetrics stay on, daytime torchlight stays damped, the sun stays behind its cloud, and the noon clouds keep the cheaper version. What changed: Meteors are rebuilt as Earth-grazers, the 'passing by at high altitude' you asked for. The shower's radiant sits on the horizon, so every meteor skims the upper air about 100 km up on a long, near-level path for 2 to 5 seconds and leaves a thin tapering trail; each is drawn as a real 3D track, so the ones overhead sweep across the sky and the far ones creep along the horizon. The green patch in the middle of the sunset was the sky seen through the sea: where no sea bed is in view, the water showed the sky behind it, and at sunset that is the brightest thing in the frame; the water then took out the red and left mint. Deep water with no bed in view now shows only its own colour. Under water the fog is thinned 2x: the far canyon wall shows 41% more contrast, with the same blue look you liked. The river is teal-blue instead of green. Gold was darker than vanilla under the shader (1.48x the stone beside it against vanilla's 1.82x) because the colour grade clipped its blue channel to zero in 61% of its pixels and the metal kept too little of its diffuse light; now 1.74x, nothing clipped, and gold reflects with real gold's colour, so its lime sheen is gone. Not changed, honestly: the forest's rays (three tries made no visible difference; see that scene), the dust in the beam and the golden plains. Cost: High frames cost 3.5 ms at most (round 9: 3.3, budget 3.0), Low at 1080p 0.89 ms (budget 0.9), Potato at 720p 0.31 ms (budget 0.4). Costs are per frame against the same view with shaders off. Over the High budget: the night skies with the new meteors (3.42 and 3.47 ms; round 9 2.99), and the same sunset and water views as round 9 (3.04 to 3.31 ms, within 0.03 ms of round 9). Two cost questions: how many meteors (the meteors scene) and crepuscular rays round the setting sun (the sun-cloud scene). After the shader questions come the textures (the wall explained, three leaf directions, the farm), the leaf frills and the crop variants. Credits: Faithful 32x and 64x (faithfulpack.net, Faithful License v4) in the QF Textures and Faithful frames; the normal and specular maps are converted from Vanilla Normals Renewed by Poudingue (github.com/Poudingue/Vanilla-Normals-Renewed-1.12).",
+ "status": "open",
+ "created": "2026-10-27",
+ "scenes": [
+  {
+   "id": "meteors",
+   "name": "Meteors: grazers at high altitude (motion clips)",
+   "question": "You said round 9's meteors were 'plummeting to the ground' and asked for a cinematic shower 'passing by at high altitude'. Cause: round 9 put the radiant (the point a shower streams from) high in the sky, so the streaks pointed down at the horizon. Real showers seen when the radiant has just risen are Earth-grazers: the meteors enter almost level, skim the air about 100 km up, burn for seconds instead of a fraction of one, and cross a large part of the sky. That is now the default. Two directions, same view, clips at game speed: A grazers (about one in flight at a time, 24 meteor slots); B a grazer storm (40 slots, three times the rate, mostly faint, longer trails). C is round 9's shower. A third direction, a rare slow fireball breaking into a chain of fragments, was tried and dropped: in its test clip it dived steeply from the top of the frame with two or three fragments and vanished in one frame, the plummeting look you rejected, not a procession. Cost: each meteor slot is tested per sky pixel, so the grazers cost more than round 9's flat streaks: the night-sky frame 2.88 ms on High (round 9: 2.46 ms); this wide view A 3.43 ms and B 3.98 ms, both over the 3.0 ms High budget (night skies are the only frames that are). Trade-off: B fills the sky but makes each meteor less of an event and costs 0.55 ms more than A (about 0.03 ms per slot); halving A to 12 slots would save about 0.41 ms, which still leaves the wide view a little over budget, with half as many meteors in the sky.",
+   "notePrompt": "Is this the shower you pictured? A or B as the default? Fewer meteors to get back under budget?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Grazers (new default), clip",
+     "img": "r010/meteors-A.jpg",
+     "critic": "Critic 8: The ask is met: long, thin, near-level streaks skimming parallel to the horizon with tapering trails, never diving at the ground; one or two in flight at a time reads as a calm shower. Against the photo reference the sky itself is still flat (no Milky Way band, few bright stars), and heavy night clouds hide half the sky. Fix: fewer slots or a cheaper per-slot test (3.47 ms, over the 3.0 budget).",
+     "ms": 3.43,
+     "clip": "r010/meteors-A.webp"
+    },
+    {
+     "key": "B",
+     "label": "Grazer storm, clip",
+     "img": "r010/meteors-B.jpg",
+     "critic": "Critic 7: Storm: six to eight parallel streaks at once, all from one direction, which sells the shower better than A in a still, but each one is fainter and the sky starts to look busy; it costs 0.55 ms more than A (3.98 ms on High). A as the default with an occasional storm night would be the better mix.",
+     "ms": 3.98,
+     "clip": "r010/meteors-B.webp"
+    },
+    {
+     "key": "C",
+     "label": "Round 9, clip",
+     "img": "r010/meteors-C.jpg",
+     "critic": "Critic 8: Fixed against p8's starburst. A max-minus-median map of the 90 frames holds about seven streaks, all near-parallel, running down and slightly left with their heads at the lower ends, tracing back to one radiant above the top right of the frame; near-radiant ones are short. Terrain present (dark hills, right). Fix: one night with the radiant in view.",
+     "ms": 2.49,
+     "clip": "r010/meteors-C.webp"
+    }
+   ]
+  },
+  {
+   "id": "sunset-full",
+   "name": "The sunset's green patch: cause and fix",
+   "question": "You saw 'some weird green coloring right in the middle of the image'. Cause, found with a debug view that shows only what lies behind the water: in that wedge the sea bed is out of view, so the water showed the sky behind it in the screen, and at sunset that is the bright glow round the sun. The water absorbed its red over 32 blocks and left green and blue, a mint wedge (151,185,130). Real deep water has no sky behind it; with no bed in view it now shows only its own in-scattered colour, and the sun's path and the reflected sky are untouched. (Two earlier tries this round, a fix to the reflections and dimming the sunlight on shallow sand, cut it from 1107 px to 686 px; this removes the cause: 0 px of mint left in the same box.) Cost: none (one comparison). A is new, B round 9; C and D the same wedge cropped at twice the size.",
+   "notePrompt": "Is the green gone for you? Anything else in this sunset that looks wrong?",
+   "options": [
+    {
+     "key": "A",
+     "label": "New",
+     "img": "r010/sunset-full-A.jpg",
+     "critic": "Critic 8: Mint wedge gone: 0 px in the old box (round 9: 1107). The sea in front of the island is a clean navy under a gold sun path, and the clouds round the sun are solid with warm edges instead of melting into haze. Still weakest: the sky away from the sun is a flat lilac and the disk is a thin line under the cloud, where the photo reference has a hot glow.",
+     "ms": 3.31,
+     "ref": {
+      "img": "r010/ref-sunset-full-A.jpg",
+      "credit": "Brocken Inaglory, retouched by User:Flamurai, CC BY-SA 3.0, via Wikimedia Commons",
+      "source": "https://commons.wikimedia.org/wiki/File:Sunset_clouds_and_crepuscular_rays_over_pacific_edit.jpg",
+      "title": "Sunset clouds and crepuscular rays over pacific edit.jpg"
+     }
+    },
+    {
+     "key": "B",
+     "label": "Round 9",
+     "img": "r010/sunset-full-B.jpg",
+     "critic": "Critic 7: The sun now sets behind its cloud bank: a thin white crescent under the cloud base where round 8 drew a whole disk through the cloud, with the warm aureole kept. The path on the water reads longer and brighter than p8's. A small green glint sits on the water left of the centre island at the horizon. Fix: the hidden disk takes away the frame's focal point; let thin cloud fringes show the disk's edge.",
+     "ms": 3.29
+    },
+    {
+     "key": "C",
+     "label": "New, the wedge cropped",
+     "img": "r010/sunset-full-C.jpg",
+     "critic": "Critic 8: Mint wedge gone: 0 px in the old box (round 9: 1107). The sea in front of the island is a clean navy under a gold sun path, and the clouds round the sun are solid with warm edges instead of melting into haze. Still weakest: the sky away from the sun is a flat lilac and the disk is a thin line under the cloud, where the photo reference has a hot glow.",
+     "ms": 3.31
+    },
+    {
+     "key": "D",
+     "label": "Round 9, the wedge cropped",
+     "img": "r010/sunset-full-D.jpg",
+     "critic": "Critic 7: The sun now sets behind its cloud bank: a thin white crescent under the cloud base where round 8 drew a whole disk through the cloud, with the warm aureole kept. The path on the water reads longer and brighter than p8's. A small green glint sits on the water left of the centre island at the horizon. Fix: the hidden disk takes away the frame's focal point; let thin cloud fringes show the disk's edge.",
+     "ms": 3.29
+    }
+   ]
+  },
+  {
+   "id": "sun-cloud",
+   "name": "The sun and its clouds: crepuscular rays (cost question)",
+   "question": "You asked that the sun interact realistically with the clouds in front of it. Two changes. Built in: clouds near a low sun no longer melt into the haze (they faded to about 20% at that distance while still hiding the disk, so a hidden sun sat behind a cloud you could barely see); now the cloud in front is a solid body with lit edges. A brighter silver lining on the thinnest edges made no visible difference (0.5 luma in this crop), so it was dropped. Your call: crepuscular rays, the lit lanes and shadow wedges that fan out from a sun behind broken cloud. They read the clouds' shadow along the line to the sun: 16 extra texture reads per sky pixel near a low sun, on High and Ultra only. Measured on High at 1440p: 0.33 ms extra at most (ocean_sunset 3.31 ms without, 3.64 ms with; budget 3.0); at noon they switch off (sky_noon +0.04 ms). In this view they draw a fan of lit lanes and shadow wedges in the clear gap above the sun (the wedges about 7% darker); the whole sunset (D) shows it best. Trade-off: the sunset frame is already 0.3 ms over budget without them. A new without rays, B with rays, both cropped round the sun at twice the size; C round 9; D the whole sunset with rays.",
+   "notePrompt": "Are the rays worth 0.33 ms on High? Should they be stronger?",
+   "options": [
+    {
+     "key": "A",
+     "label": "New, no rays (default)",
+     "img": "r010/sun-cloud-A.jpg",
+     "critic": "Critic 8: Mint wedge gone: 0 px in the old box (round 9: 1107). The sea in front of the island is a clean navy under a gold sun path, and the clouds round the sun are solid with warm edges instead of melting into haze. Still weakest: the sky away from the sun is a flat lilac and the disk is a thin line under the cloud, where the photo reference has a hot glow.",
+     "ms": 3.31
+    },
+    {
+     "key": "B",
+     "label": "Crepuscular rays on",
+     "img": "r010/sun-cloud-B.jpg",
+     "critic": "Critic 8: Rays on: a clear fan of lit lanes and shadow wedges in the gap above the sun, more visible than the 7% figure suggests; this is the cinematic beat the owner asked for. No banding at this size. Costs +0.33 ms (3.64 ms, over budget); worth offering on Ultra.",
+     "ms": 3.64
+    },
+    {
+     "key": "C",
+     "label": "Round 9",
+     "img": "r010/sun-cloud-C.jpg",
+     "critic": "Critic 7: The sun now sets behind its cloud bank: a thin white crescent under the cloud base where round 8 drew a whole disk through the cloud, with the warm aureole kept. The path on the water reads longer and brighter than p8's. A small green glint sits on the water left of the centre island at the horizon. Fix: the hidden disk takes away the frame's focal point; let thin cloud fringes show the disk's edge.",
+     "ms": 3.29
+    },
+    {
+     "key": "D",
+     "label": "Whole sunset, rays on",
+     "img": "r010/sun-cloud-D.jpg",
+     "critic": "Critic 8: Rays on: a clear fan of lit lanes and shadow wedges in the gap above the sun, more visible than the 7% figure suggests; this is the cinematic beat the owner asked for. No banding at this size. Costs +0.33 ms (3.64 ms, over budget); worth offering on Ultra.",
+     "ms": 3.64
+    }
+   ]
+  },
+  {
+   "id": "forest-light",
+   "name": "Forest light: longer, broader rays",
+   "question": "You liked that round 9's B had rays that 'extend further and seem a bit broader'. B's rays were longer because the beam haze was not cut on rays that end on leaves; that cut is what removed the cream veil from the canopy. B here keeps the full haze on rays longer than about 20 m (so far beams reach the far leaves) and doubles the shaft strength. Honest result: in this view it measures within 1 luma of A, so it is not the leap you asked for; the rays here are limited by how few gaps the canopy has toward the sun, not by the haze. Cost: B 2.05 ms against A's 2.03 ms. A new (default), B longer rays, C round 9.",
+   "notePrompt": "Do you see a difference? Should the next round add a view with more canopy gaps toward the sun?",
+   "options": [
+    {
+     "key": "A",
+     "label": "New (default)",
+     "img": "r010/forest-light-A.jpg",
+     "critic": "Critic 6: No change from round 9 (within 1 luma). The sun sits behind a wall of leaves, so there is no gap for a beam; the reference has trunks against a bright low sun with long rays across the ground. Fix: a view with canopy gaps toward the sun, not more haze.",
+     "ms": 2.03,
+     "ref": {
+      "img": "r010/ref-forest-light-A.jpg",
+      "credit": "Jakub Hałun, CC BY 4.0, via Wikimedia Commons",
+      "source": "https://commons.wikimedia.org/wiki/File:Crepuscular_rays_in_the_forest_near_Przeginia_Duchowna,_Lesser_Poland_Voivodeship,_20240225_0830_6640.jpg",
+      "title": "Crepuscular rays in the forest near Przeginia Duchowna, Lesser Poland Voivodeship, 20240225 0830 6640.jpg"
+     }
+    },
+    {
+     "key": "B",
+     "label": "Longer, stronger rays",
+     "img": "r010/forest-light-B.jpg",
+     "critic": "Critic 6: Identical to A at this size; the longer, stronger rays do not show because nothing in this view casts a beam toward the camera. The honest 'no difference' in the text is right.",
+     "ms": 2.05
+    },
+    {
+     "key": "C",
+     "label": "Round 9",
+     "img": "r010/forest-light-C.jpg",
+     "critic": "Critic 6: Against p9dl0 and p8 the right canopy is a little greener and cleaner, with no outline at the leaf edges; the gap's glow is kept. The cream sky round the gap is unchanged and is now the main fault of this view. Fix: the shafts' open-sky veil at golden hour.",
+     "ms": 2.0
+    }
+   ]
+  },
+  {
+   "id": "underwater",
+   "name": "Under water: further visibility",
+   "question": "You liked round 9's B but found the visibility 'a little bit low'. The clear (non-swamp) water's fog is now thinned 2x with the same hue: local contrast on the far canyon wall rises 41% (1.10 to 1.55); B thins it 1.4x (+27%). Swamps keep their murk. Cost: none (the same maths, other constants). Trade-off: the clearer the water, the less the far canyon fades into the blue mood you liked; B is the middle. A canyon at 2x (default), B canyon at 1.4x, C round 9's canyon, D looking up toward the sun at 2x.",
+   "notePrompt": "Is A clear enough, or too clear? A or B?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Canyon, 2x visibility (default)",
+     "img": "r010/underwater-A.jpg",
+     "critic": "Critic 7: The canyon now reads three or four layers deep with the blue look kept; the shafts show in the far gap. The particles near the camera are large and square (top left), the one thing that breaks the illusion.",
+     "ms": 1.88
+    },
+    {
+     "key": "B",
+     "label": "Canyon, 1.4x",
+     "img": "r010/underwater-B.jpg",
+     "critic": "Critic 7: Barely different from A at sheet size; the far wall is a touch softer. A is the better default.",
+     "ms": 1.89
+    },
+    {
+     "key": "C",
+     "label": "Round 9",
+     "img": "r010/underwater-C.jpg",
+     "critic": "Critic 7: A real change from p8's green fog: blue-teal water, blue shafts down the channel, lit walls, bubbles, and the sky in the surface window. Fix: the far channel fades to a flat teal; a little more depth gradient.",
+     "ms": 1.9
+    },
+    {
+     "key": "D",
+     "label": "Toward the sun, 2x",
+     "img": "r010/underwater-D.jpg",
+     "critic": "Critic 8: Strong: broad shafts fanning down from the surface, the slope fading into blue. Best underwater frame so far.",
+     "ms": 1.87
+    }
+   ]
+  },
+  {
+   "id": "river",
+   "name": "The river: green cut",
+   "question": "You found the river 'very green', partly because the reference reflects so much vegetation. Cause in ours: river water absorbed blue faster than green and scattered green most, so it read pea-green (water 51,79,63) whatever it reflected. Two directions: A the same silty stream turned teal-blue (blue now absorbed less than green; water 50,74,80); B a clear stream, glassier water and the bed's veil cut from 2.2 to 0.6 blocks so stones and ledges show through. Trade-off: B brings back the pale stripes along the underwater ledges that rounds 8 and 9 removed. Cost: none. C is round 9.",
+   "notePrompt": "A or B? Is A still too green or now too blue?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Teal-blue stream (default)",
+     "img": "r010/river-A.jpg",
+     "critic": "Critic 7: The pea-green is gone: the water reads teal-blue with clear sky and cloud reflections and a bright wake. Next to the photo references it now lacks the brown-green bed showing through in the shallows near the bank.",
+     "ms": 2.9,
+     "ref": {
+      "img": "r010/ref-river-A.jpg",
+      "credit": "amanderson2, CC BY 2.0, via Wikimedia Commons",
+      "source": "https://commons.wikimedia.org/wiki/File:Clear_River_water_Bled_Vintgar_Slovenia_(8095482709).jpg",
+      "title": "Clear River water Bled Vintgar Slovenia (8095482709).jpg"
+     }
+    },
+    {
+     "key": "B",
+     "label": "Clear stream",
+     "img": "r010/river-B.jpg",
+     "critic": "Critic 5: The clear stream shows the bed, but bright yellow and mint stripes along every underwater ledge are back and read as artefacts, not stones. The text says so; A is better.",
+     "ms": 2.89
+    },
+    {
+     "key": "C",
+     "label": "Round 9",
+     "img": "r010/river-C.jpg",
+     "critic": "Critic 6: The yellow ledge stripes are gone and the near water glitters well, but the submerged ledges now show as pale mint dashes along their edges, still a stripe pattern, only cooler; the water mid-river is still green-teal and opaque. Fix: lose the ledge-edge dashes; clearer water over the bed.",
+     "ms": 2.88
+    }
+   ]
+  },
+  {
+   "id": "gold",
+   "name": "Gold and iron under the shader",
+   "question": "You asked why gold and iron looked wrong; the texture side is in the wall scene below, the rest was the shader. Measured against the plain stone beside it: vanilla gold 1.82x, round 9's shader 1.48x. Two causes: the vibrance step pushed gold's weakest colour (blue) below zero, clipped in 61% of its pixels, and a metal kept only 30% of its diffuse light under the reflection. Now vibrance never takes a colour below half its value, metals keep 62%, and gold reflects with real gold's colour instead of the texture's, which the grade had turned lime. Gold now 1.74x, nothing clipped. Cost: none (2.22 ms against round 9's settings at 2.22 ms). A new, B round 9's metal settings, C shaders off (vanilla light), D the whole wall, new.",
+   "notePrompt": "Do gold and iron read right now? Brighter, more mirror-like, or less?",
+   "options": [
+    {
+     "key": "A",
+     "label": "New",
+     "img": "r010/gold-A.jpg",
+     "critic": "Critic 8: Gold reads as gold: warm, saturated, brighter than the stone beside it, no clipped blue (0% of pixels) and no lime; close to shaders-off. Iron is a clean pale grey; diamond and emerald faces lit evenly.",
+     "ms": 2.22
+    },
+    {
+     "key": "B",
+     "label": "Round 9 metal settings",
+     "img": "r010/gold-B.jpg",
+     "critic": "Critic 6: Round 9's metal settings: gold visibly duller and browner than A (about 15% darker on the same face), iron greyer. Shows the fix is real.",
+     "ms": 2.22
+    },
+    {
+     "key": "C",
+     "label": "Shaders off",
+     "img": "r010/gold-C.jpg",
+     "critic": "Critic 6: Shaders off, for reference: flat light and box clouds; gold and iron at vanilla brightness. A now matches its gold within a few percent.",
+     "ms": 0.0
+    },
+    {
+     "key": "D",
+     "label": "The wall, new",
+     "img": "r010/gold-D.jpg",
+     "critic": "Critic 7: The whole wall: the gold block reads yellow from a distance, no lime sheen at this size. The wall is small in frame; the close scenes carry the detail.",
+     "ms": 2.3
+    }
+   ]
+  },
+  {
+   "id": "checks",
+   "name": "Not changed: check nothing broke",
+   "question": "Held as you rated them; nothing here was changed on purpose. A golden plains, B the forest beam, C coast, D swamp.",
+   "notePrompt": "Still good?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Golden plains",
+     "img": "r010/checks-A.jpg",
+     "critic": "Critic 7: Unchanged from round 9 as intended: amber light on the plains, warm cloud undersides. No regression.",
+     "ms": 2.88
+    },
+    {
+     "key": "B",
+     "label": "Forest beam",
+     "img": "r010/checks-B.jpg",
+     "critic": "Critic 6: Unchanged: the forest beam view still shows almost no visible motes in the light and a cream wash round the sun gap. No regression, no progress.",
+     "ms": 2.1
+    },
+    {
+     "key": "C",
+     "label": "Coast",
+     "img": "r010/checks-C.jpg",
+     "critic": "Critic 8: Unchanged and still the best water: turquoise shallows over sand, caustics, deep blue beyond. No regression from the mint fix.",
+     "ms": 3.09,
+     "ref": {
+      "img": "r010/ref-checks-C.jpg",
+      "credit": "Martin Falbisoner, CC BY-SA 4.0, via Wikimedia Commons",
+      "source": "https://commons.wikimedia.org/wiki/File:Diamonds_Thudufushi_Beach_and_Water_Villas,_May_2017_-08.jpg",
+      "title": "Diamonds Thudufushi Beach and Water Villas, May 2017 -08.jpg"
+     }
+    },
+    {
+     "key": "D",
+     "label": "Swamp",
+     "img": "r010/checks-D.jpg",
+     "critic": "Critic 7: Unchanged: murky olive water reflecting the huts; the swamp keeps its murk as promised (the underwater thinning does not touch it).",
+     "ms": 3.05,
+     "ref": {
+      "img": "r010/ref-checks-D.jpg",
+      "credit": "JamesDeMers, CC0, via Wikimedia Commons",
+      "source": "https://commons.wikimedia.org/wiki/File:Bayou-439881.jpg",
+      "title": "Bayou-439881.jpg"
+     }
+    }
+   ]
+  },
+  {
+   "id": "tex-wall",
+   "name": "The block wall: why diamond was lit only at the bottom",
+   "question": "Cause, in one sentence: the normal maps we convert from Vanilla Normals Renewed were already in the shader's convention and our converter flipped them again, so 34 blocks were lit from below, and on diamond, which VNR also flags as metal (a mirror), the flipped dome mirrored the dark ground on its top half and the sky on its bottom half. Measured on one diamond face (mean brightness, top half / bottom half): round 9 127 / 167; normals fixed only 176 / 122 (the split just reverses, because a mirror still shows ground and sky); normals fixed and diamond a gem 165 / 136, the same average as Faithful (150). Iron now matches vanilla (1.82x the stone beside it). Gold is still darker than vanilla (1.52x stone vs 1.71x) under every texture option, Faithful's too: the shader's colour grade clips gold's blue to zero, now fixed on the shader side (the gold scene above; these frames were shot before that fix). Look at gold's top third in B: a lime sheen. That is the metal mirroring the green field, tinted by gold's colour; the shader fix is to use real gold reflectance instead of the texture colour, now in: see the gold scene above.",
+   "notePrompt": "Diamond and iron right now? Gold: keep its metal reflections now that the shader fix is in (the gold scene above), or drop its metal flag for the plain Faithful look?",
+   "options": [
+    {
+     "key": "A",
+     "label": "QF Textures v2 (round 9)",
+     "img": "r010/tex-wall-A.jpg",
+     "ms": null,
+     "desc": "Round 9's B, rendered again today: diamond lit only on its lower half, gold dim.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 5: Round 9 (v2) wall for comparison: diamond lit from below, as described."
+    },
+    {
+     "key": "B",
+     "label": "QF Textures v3 (fixed)",
+     "img": "r010/tex-wall-B.jpg",
+     "ms": null,
+     "desc": "VNR's normal maps no longer flipped; diamond is a gem (F0 44) instead of a mirror; gold keeps metal shine only on its flat faces; the emerald now follows diamond's design.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 7: v3: diamond lit evenly, iron matches vanilla. Shot under the round's earlier shader, so gold here still has the dark, lime cast that the gold scene above fixes."
+    },
+    {
+     "key": "C",
+     "label": "Faithful 64x (reference)",
+     "img": "r010/tex-wall-C.jpg",
+     "ms": null,
+     "desc": "Faithful 64x colour textures with no light maps, same shader.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 7: Faithful 64x reference wall; v3 now sits close to it."
+    }
+   ]
+  },
+  {
+   "id": "tex-wall-close",
+   "name": "Gems up close: emerald in diamond's direction",
+   "question": "You asked for the emerald to follow the diamond rather than the nested squares. B's emerald is Faithful 64x's diamond block, its nine tones mapped by brightness onto seven emerald greens (Faithful's six plus one deeper), with our own light maps. A and C show the nested-square emerald for comparison.",
+   "notePrompt": "Emerald: keep B's diamond-style facets?",
+   "options": [
+    {
+     "key": "A",
+     "label": "QF Textures v2 (round 9)",
+     "img": "r010/tex-wall-close-A.jpg",
+     "ms": null,
+     "desc": "Round 9's B, rendered again today: diamond lit only on its lower half, gold dim.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 5: Round 9 nested-square emerald."
+    },
+    {
+     "key": "B",
+     "label": "QF Textures v3 (fixed)",
+     "img": "r010/tex-wall-close-B.jpg",
+     "ms": null,
+     "desc": "VNR's normal maps no longer flipped; diamond is a gem (F0 44) instead of a mirror; gold keeps metal shine only on its flat faces; the emerald now follows diamond's design.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 7: Emerald in diamond's facet style; reads as a gem block of the same family. A good answer to the owner's note."
+    },
+    {
+     "key": "C",
+     "label": "Faithful 64x (reference)",
+     "img": "r010/tex-wall-close-C.jpg",
+     "ms": null,
+     "desc": "Faithful 64x colour textures with no light maps, same shader.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 6: Faithful's own nested-square emerald for comparison."
+    }
+   ]
+  },
+  {
+   "id": "tex-leaves",
+   "name": "Leaves up close: three directions",
+   "question": "Restarted from licensed art as you asked: no code-drawn leaves. Three different directions, all from Faithful's own leaves. A is Faithful 64x as is (your round 9 pick). B fills each block's holes with darker copies of the same leaves so a canopy reads as a mass, keeping the ragged outline. C goes for Stay True's grain: Faithful 32x's smaller leaves, four times as many per block, lit crowns, dark undersides. Trade-off: A shows the most sky and the most shape per block but reads thin; C reads densest and most like the reference but each leaf is smaller, so up close it is busier. A first try at a fully opaque version turned every block into a hard green cube and was dropped. Honest limit: B's and C's ragged rim only shows up close; from a few blocks away a canopy's outline is still stepped cubes. A texture cannot fix that; the leaf frills (a separate question this round) are the fix, and they take whichever leaf you pick.",
+   "links": [
+    {
+     "text": "Stay True (CurseForge)",
+     "href": "https://www.curseforge.com/minecraft/texture-packs/stay-true",
+     "note": "the reference you sent; all rights reserved, so we study its technique and never show its pixels here"
+    }
+   ],
+   "notePrompt": "Which direction should the leaves take? (A, B or C; or C's grain with B's leaf size?)",
+   "options": [
+    {
+     "key": "A",
+     "label": "Faithful 64x leaves, as is",
+     "img": "r010/tex-leaves-A.jpg",
+     "ms": null,
+     "desc": "Your round 9 pick: Faithful 64x's leaves untouched. Airy, a ragged outline, big leaves, sky through every block.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 6: Faithful 64x leaves as is: crisp and readable, but thin and see-through; hedges look like cages."
+    },
+    {
+     "key": "B",
+     "label": "Dense core, ragged rim",
+     "img": "r010/tex-leaves-B.jpg",
+     "ms": null,
+     "desc": "The same Faithful 64x leaves, with darker mirrored copies of them filling the holes inside each block (depth instead of a sieve), but Faithful's own holes kept in a patchy band along the block edge, so the outline stays ragged.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 7: Dense core: the hedge reads as a mass with a ragged rim; the best balance of the three."
+    },
+    {
+     "key": "C",
+     "label": "Fine leaves (Stay True's grain)",
+     "img": "r010/tex-leaves-C.jpg",
+     "ms": null,
+     "desc": "Faithful 32x's leaves at half size, four times the leaf count per block, darker leaves behind them, lit crowns and shaded undersides in a pattern that spans the block, plus the ragged rim. The closest licensed art to Stay True's canopies.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 6: Fine leaves: densest and closest to the reference grain, but very dark and busy up close; the tree reads almost black-green."
+    }
+   ]
+  },
+  {
+   "id": "tex-leaves-tree",
+   "name": "Leaves on a tree",
+   "question": "The oak from under its crown, same three directions as the previous scene.",
+   "notePrompt": "Does the crown read as a mass of leaves?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Faithful 64x leaves, as is",
+     "img": "r010/tex-leaves-tree-A.jpg",
+     "ms": null,
+     "desc": "Your round 9 pick: Faithful 64x's leaves untouched. Airy, a ragged outline, big leaves, sky through every block.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 6: Lots of sky through the crown; reads as a sparse tree."
+    },
+    {
+     "key": "B",
+     "label": "Dense core, ragged rim",
+     "img": "r010/tex-leaves-tree-B.jpg",
+     "ms": null,
+     "desc": "The same Faithful 64x leaves, with darker mirrored copies of them filling the holes inside each block (depth instead of a sieve), but Faithful's own holes kept in a patchy band along the block edge, so the outline stays ragged.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 7: Full crown, leaves still visible as leaves; the stepped cube outline is what remains (see the frills scenes)."
+    },
+    {
+     "key": "C",
+     "label": "Fine leaves (Stay True's grain)",
+     "img": "r010/tex-leaves-tree-C.jpg",
+     "ms": null,
+     "desc": "Faithful 32x's leaves at half size, four times the leaf count per block, darker leaves behind them, lit crowns and shaded undersides in a pattern that spans the block, plus the ragged rim. The closest licensed art to Stay True's canopies.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 6: Full but dark and noisy; the leaves blur into a texture at this distance."
+    }
+   ]
+  },
+  {
+   "id": "tex-forest",
+   "name": "The forest clearing",
+   "question": "The same three directions from a distance, in low sun. Check the sunlit crowns: a dense leaf catches more light per block, so it can look more lime in the sun than A.",
+   "notePrompt": "Which reads best from a distance?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Faithful 64x leaves, as is",
+     "img": "r010/tex-forest-A.jpg",
+     "ms": null,
+     "desc": "Your round 9 pick: Faithful 64x's leaves untouched. Airy, a ragged outline, big leaves, sky through every block.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 6: Sunlit crowns bright lime-yellow; a thin look against the sky."
+    },
+    {
+     "key": "B",
+     "label": "Dense core, ragged rim",
+     "img": "r010/tex-forest-B.jpg",
+     "ms": null,
+     "desc": "The same Faithful 64x leaves, with darker mirrored copies of them filling the holes inside each block (depth instead of a sieve), but Faithful's own holes kept in a patchy band along the block edge, so the outline stays ragged.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 7: Denser canopy; sunlit crowns slightly more lime than A, as the text warns."
+    },
+    {
+     "key": "C",
+     "label": "Fine leaves (Stay True's grain)",
+     "img": "r010/tex-forest-C.jpg",
+     "ms": null,
+     "desc": "Faithful 32x's leaves at half size, four times the leaf count per block, darker leaves behind them, lit crowns and shaded undersides in a pattern that spans the block, plus the ragged rim. The closest licensed art to Stay True's canopies.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 6: Densest and calmest from afar, but the far trees go flat and dark."
+    }
+   ]
+  },
+  {
+   "id": "tex-farm",
+   "name": "The farm: Stay True's technique on Faithful's wheat",
+   "question": "Stay True's field reads as one gold mass because each ripe block is a dense bush of gold, dark at the base and pale at the tips, and five versions of different heights are mixed so the field never tiles. A and B rebuild that from Faithful 64x's own plant: layered four deep, recoloured to a six-step gold ramp; A also stacks extra ear heads across the top. Honest limit: the five heights do not show yet. Our 1.7.10 renderer never applies random textures to crops (it does to grass and blocks), so every block draws the same middle height here. The small hook you approved now does it (the crop-variant scenes at the end); carrots (4) and potatoes (4, two with white flowers) get variants too.",
+   "links": [
+    {
+     "text": "Stay True (CurseForge)",
+     "href": "https://www.curseforge.com/minecraft/texture-packs/stay-true",
+     "note": "the reference you sent; all rights reserved, so we study its technique and never show its pixels here"
+    }
+   ],
+   "notePrompt": "Bushy or dense? Is the gold right?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Bushy (new)",
+     "img": "r010/tex-farm-A.jpg",
+     "ms": null,
+     "desc": "Faithful 64x's ripe plant layered four deep (shorter, darker copies behind), recoloured to a gold ramp from dark ochre at the base to straw tips, with extra ear heads across the top.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 6: Bushy wheat reads as a gold field from afar; still a regular grid (one sprite per block)."
+    },
+    {
+     "key": "B",
+     "label": "Dense (new)",
+     "img": "r010/tex-farm-B.jpg",
+     "ms": null,
+     "desc": "The same layering and gold ramp, without the extra ear heads: more of Faithful's blades show.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 6: Dense: a slightly more even gold; the same grid repetition as A."
+    },
+    {
+     "key": "C",
+     "label": "Faithful 64x (reference)",
+     "img": "r010/tex-farm-C.jpg",
+     "ms": null,
+     "desc": "Faithful 64x's wheat as is.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 5: Faithful reference: browner and patchier."
+    }
+   ]
+  },
+  {
+   "id": "tex-farm-close",
+   "name": "The farm up close",
+   "question": "The same field from the path. Up close round 8's crop looked fuller than round 9's; A and B fill the whole block width with stalks and heads, where Faithful (C) leaves gaps between plants.",
+   "links": [
+    {
+     "text": "Stay True (CurseForge)",
+     "href": "https://www.curseforge.com/minecraft/texture-packs/stay-true",
+     "note": "the reference you sent; all rights reserved, so we study its technique and never show its pixels here"
+    }
+   ],
+   "notePrompt": "Full enough up close?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Bushy (new)",
+     "img": "r010/tex-farm-close-A.jpg",
+     "ms": null,
+     "desc": "Faithful 64x's ripe plant layered four deep (shorter, darker copies behind), recoloured to a gold ramp from dark ochre at the base to straw tips, with extra ear heads across the top.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 6: Fuller than Faithful up close, gold heads across the whole block; the rows repeat exactly."
+    },
+    {
+     "key": "B",
+     "label": "Dense (new)",
+     "img": "r010/tex-farm-close-B.jpg",
+     "ms": null,
+     "desc": "The same layering and gold ramp, without the extra ear heads: more of Faithful's blades show.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 6: Like A with more stalks; the repetition reads as a pattern."
+    },
+    {
+     "key": "C",
+     "label": "Faithful 64x (reference)",
+     "img": "r010/tex-farm-close-C.jpg",
+     "ms": null,
+     "desc": "Faithful 64x's wheat as is.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 5: Faithful: gaps between plants, a thinner field."
+    }
+   ]
+  },
+  {
+   "id": "tex-items",
+   "name": "Potions and books",
+   "question": "Two fixes from round 9. The green potion was the splash poison, and every splash potion shared one plain grenade; now each splash potion carries its effect's motif (poison: a skull, toxic bubbles rising from the fuse, drips). Book emblems were placed on a fixed grid, and three were 6 pixels wide, so they sat half a pixel off; all eight are now 7x7 and centred by their measured outline.",
+   "notePrompt": "Poison potion better? Books centred?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Round 9 (v2) in game",
+     "img": "r010/tex-items-A.jpg",
+     "ms": null,
+     "desc": "Round 9's item frames.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 6: Round 9 items: a plain green splash poison, book emblems a pixel off."
+    },
+    {
+     "key": "B",
+     "label": "Round 10 in game",
+     "img": "r010/tex-items-B.jpg",
+     "ms": null,
+     "desc": "The same frames with the new splash motifs and centred books.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 7: The splash poison now carries a skull and bubbles; book emblems centred."
+    },
+    {
+     "key": "C",
+     "label": "Every potion, splash and book (sprite sheet)",
+     "img": "r010/tex-items-C.jpg",
+     "ms": null,
+     "desc": "Straight from the generator at 8x: drinkables, then every splash potion with its motif, then the books.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 7: Full sheet: each splash potion now distinct; consistent outline and palette."
+    }
+   ]
+  },
+  {
+   "id": "frills-hedge",
+   "name": "Leaf frills: the hedge",
+   "question": "You picked real outward leaf frills like Stay True's. Why our hedges look like boxes: a leaf block is a cube, so its outline is twelve straight edges. The frills add leaf cards (the texture agent's frill sprite: whole Faithful leaves, solid at the base) leaning out of every edge that has air on both sides, so the outline turns ragged. Four looks were tried; cards out of the face centres and hanging cards read as streaks and smears and were dropped. B and C are the two best. Trade-off: more vertices in leafy chunks (B +42%, C +29%) and slower chunk rebuilds there (B +11%, C +9%); frame time did not move beyond noise on this PC. It has its own switch, so Low and Potato keep it off.",
+   "links": [
+    {
+     "text": "Stay True (CurseForge)",
+     "href": "https://www.curseforge.com/minecraft/texture-packs/stay-true",
+     "note": "the reference you sent; all rights reserved, so we study its technique and never show its pixels here"
+    }
+   ],
+   "notePrompt": "Frills or no frills? B (dense fringe) or C (longer tufts)?",
+   "options": [
+    {
+     "key": "A",
+     "label": "No frills (today)",
+     "img": "r010/frills-hedge-A.jpg",
+     "ms": 2.73,
+     "desc": "Faithful 64x leaves as plain cubes: every hedge and canopy edge is a straight line.",
+     "critic": "Critic 6: No frills: the hedge and crown are cubes."
+    },
+    {
+     "key": "B",
+     "label": "Frills: dense fringe",
+     "img": "r010/frills-hedge-B.jpg",
+     "ms": 2.75,
+     "desc": "Three leaf cards lean out of each open block edge, 0.4 block long. Fullest fringe; +42% vertices in leafy chunks, +11% chunk-build time there, frame time within noise on this PC.",
+     "critic": "Critic 8: Dense fringe: the hedge and crown outlines break into leaves; the biggest visible step in the texture work this round. A few cards on the crown's left read as streaks."
+    },
+    {
+     "key": "C",
+     "label": "Frills: longer tufts",
+     "img": "r010/frills-hedge-C.jpg",
+     "ms": 2.73,
+     "desc": "Two cards per open edge, 0.5 block long: fewer, longer leaves poking out. +29% vertices in leafy chunks, +9% chunk-build time, frame time within noise.",
+     "critic": "Critic 7: Longer tufts: a more dramatic silhouette, but some long cards look like spikes."
+    }
+   ]
+  },
+  {
+   "id": "frills-tree",
+   "name": "Leaf frills: a lone oak",
+   "question": "The same three under the oak's crown, where the frills break the cube outline of the canopy.",
+   "notePrompt": "Does the crown read as round and leafy, or as cards?",
+   "options": [
+    {
+     "key": "A",
+     "label": "No frills (today)",
+     "img": "r010/frills-tree-A.jpg",
+     "ms": 2.93,
+     "desc": "Faithful 64x leaves as plain cubes: every hedge and canopy edge is a straight line.",
+     "critic": "Critic 6: Cube crown with a hard stepped outline."
+    },
+    {
+     "key": "B",
+     "label": "Frills: dense fringe",
+     "img": "r010/frills-tree-B.jpg",
+     "ms": 2.9,
+     "desc": "Three leaf cards lean out of each open block edge, 0.4 block long. Fullest fringe; +42% vertices in leafy chunks, +11% chunk-build time there, frame time within noise on this PC.",
+     "critic": "Critic 8: The crown reads as a round tree; the underside cards hang naturally. Best tree frame this round."
+    },
+    {
+     "key": "C",
+     "label": "Frills: longer tufts",
+     "img": "r010/frills-tree-C.jpg",
+     "ms": 2.93,
+     "desc": "Two cards per open edge, 0.5 block long: fewer, longer leaves poking out. +29% vertices in leafy chunks, +9% chunk-build time, frame time within noise.",
+     "critic": "Critic 7: Rounder still, but a few long dark spikes at the lower edge look like needles, not leaves."
+    }
+   ]
+  },
+  {
+   "id": "frills-forest",
+   "name": "Leaf frills: the forest",
+   "question": "From a distance in low sun. The frills soften the stepped outline of each crown against the sky.",
+   "notePrompt": "Worth it from a distance?",
+   "options": [
+    {
+     "key": "A",
+     "label": "No frills (today)",
+     "img": "r010/frills-forest-A.jpg",
+     "ms": 2.36,
+     "desc": "Faithful 64x leaves as plain cubes: every hedge and canopy edge is a straight line.",
+     "critic": "Critic 6: Stepped canopy outline against the sky."
+    },
+    {
+     "key": "B",
+     "label": "Frills: dense fringe",
+     "img": "r010/frills-forest-B.jpg",
+     "ms": 2.4,
+     "desc": "Three leaf cards lean out of each open block edge, 0.4 block long. Fullest fringe; +42% vertices in leafy chunks, +11% chunk-build time there, frame time within noise on this PC.",
+     "critic": "Critic 7: Softer canopy edge in the sun; subtle from this distance."
+    },
+    {
+     "key": "C",
+     "label": "Frills: longer tufts",
+     "img": "r010/frills-forest-C.jpg",
+     "ms": 2.38,
+     "desc": "Two cards per open edge, 0.5 block long: fewer, longer leaves poking out. +29% vertices in leafy chunks, +9% chunk-build time, frame time within noise.",
+     "critic": "Critic 7: Similar to B; the longer tufts barely show at this distance."
+    }
+   ]
+  },
+  {
+   "id": "crops-variants",
+   "name": "Crop variants: the field up close",
+   "question": "You said yes to crop variants. Stay True's fields never tile because each ripe wheat picks one of several sprites; on 1.7.10 under Angelica the pack's random-texture rule gives every crop the same sprite, so a small qf-tweaks hook does it instead: five wheat heights, four carrot and four potato plants, chosen per block. It has its own switch.",
+   "links": [
+    {
+     "text": "Stay True (CurseForge)",
+     "href": "https://www.curseforge.com/minecraft/texture-packs/stay-true",
+     "note": "the reference you sent; all rights reserved, so we study its technique and never show its pixels here"
+    }
+   ],
+   "notePrompt": "Does the field still read as a grid? Too much height spread, or not enough?",
+   "options": [
+    {
+     "key": "A",
+     "label": "One sprite (today)",
+     "img": "r010/crops-variants-A.jpg",
+     "ms": 2.78,
+     "desc": "Every ripe wheat, carrot and potato block draws the same sprite, so the field repeats like wallpaper.",
+     "critic": "Critic 6: One sprite: every wheat block identical, the rows read as a stamped pattern."
+    },
+    {
+     "key": "B",
+     "label": "Variants by position",
+     "img": "r010/crops-variants-B.jpg",
+     "ms": 2.79,
+     "desc": "Each ripe block picks one of five wheat heights (four carrot and four potato plants) by a hash of its position: same seed, same field every time. Cost: frame time +0-1% (p50) on the farm, chunk building and vertices within noise (-1% ms, +2% vertices per section).",
+     "critic": "Critic 8: Variants: mixed heights break the stamp; the field finally reads as grown, the closest yet to the owner's reference fields."
+    }
+   ]
+  },
+  {
+   "id": "crops-variants-far",
+   "name": "Crop variants: the field from afar",
+   "question": "The same two from across the farm, where tiling shows most.",
+   "notePrompt": "Keep the variants?",
+   "options": [
+    {
+     "key": "A",
+     "label": "One sprite (today)",
+     "img": "r010/crops-variants-far-A.jpg",
+     "ms": 2.91,
+     "desc": "Every ripe wheat, carrot and potato block draws the same sprite, so the field repeats like wallpaper.",
+     "critic": "Critic 6: From afar the uniform grid shows."
+    },
+    {
+     "key": "B",
+     "label": "Variants by position",
+     "img": "r010/crops-variants-far-B.jpg",
+     "ms": 2.93,
+     "desc": "Each ripe block picks one of five wheat heights (four carrot and four potato plants) by a hash of its position: same seed, same field every time. Cost: frame time +0-1% (p50) on the farm, chunk building and vertices within noise (-1% ms, +2% vertices per section).",
+     "critic": "Critic 7: From afar the field is mottled and natural; the tiling is gone."
+    }
+   ]
+  }
+ ]
+}

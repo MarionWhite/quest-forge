@@ -85,9 +85,18 @@
    "n": 9,
    "id": "r009",
    "title": "A third off the frame cost, a sun that sets behind its cloud, blue water, real meteor showers, and QF Textures v2",
-   "status": "open",
+   "status": "closed",
    "created": "2026-10-27",
    "scenes": 20,
+   "feedback": true
+  },
+  {
+   "n": 10,
+   "id": "r010",
+   "title": "Meteors that skim the sky, the sunset's green patch explained and gone, clearer water, and gold that reads as gold",
+   "status": "open",
+   "created": "2026-10-27",
+   "scenes": 21,
    "feedback": false
   }
  ]
