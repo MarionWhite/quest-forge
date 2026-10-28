@@ -60,3 +60,17 @@ Hand-off: C:\qfb\shaderdev\r012\ + ready marker.
   lines) and ROOFED_COST after review; swap roofed_canopy for roofed_edge if that frame shows the canopy better.
   If C looks wrong (over-mirror, SSR streaks), drop it or tune gemReflection in C:\qfb\gems\ssr and re-render g12c only.
 - Queue ETA ~15:22 (> 10 min): session 1 exits here. Next: "Resume here" above, from step 1.
+
+### session 2
+- Renders done. Sheets C:\qfb\gems\review\ (gem_glint_d/e, gem_lit, crop_d/e/lit/lit2, roofed, clipframes .jpg).
+- Floor crops (glint_d diamond x1000-1600 y720-910 / lit view emerald x950-1180 y700-745): r010 129/115, r011 118/137,
+  A 116/130, B 116/133, C 106/96. Lit-view emerald std r011 18.8, A/B ~18, C 28.4; sat r010 .80, r011 .72, A/B .74, C .77.
+- Read: into the sun A/B get one sun glint per block (domed), r011's flat horizon streak gone; sun behind, A/B ~ r011
+  (wash stays). C reflects the real scene (most glass-like into the sun) but sun-behind floors go dark-checkered (each
+  dome's far half mirrors the ground). B's emerald: no nested squares (confirmed). Clip: glint at f79-81 and f1
+  (10.5 s period); C:\qfb\shaderdev\r012\clips\g12bclip-gem_lit.webp (2.8 MB).
+- Roofed: roofed_canopy shows the dark oak canopy from above (trunks, giant mushroom); used it. Cost st2r0->st2r1:
+  p50 3.18->3.42 ms (+8%), p99 +9%, leafy-section vertices +40%; roofed_edge +3%.
+- Gem SSR cost (gm1-gm0, 1028-151500-r012-publish-cost) still queued at 40/112: scene text says "cost pending".
+- DONE: textures_scenes.json (4 scenes) + TEXTURES-READY written; track + journal updated; committed. Publisher: fill
+  GEM_COST in C:\qfb\shaderdev\r012\textures_make_scenes.py from 1028-151500-r012-publish-cost (gm1 minus gm0), rerun.
