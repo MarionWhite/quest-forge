@@ -1,5 +1,6 @@
 # Shaders journal (newest first)
 
+- 2026-10-28 18:00: **r012 published** (4ebc2cc, 23 scenes, live). HUD scene reduced to the offline mock (in-game shots had chat over hearts); mob views 4 and 7 state the missing slime, magma cube, squid; sunset A 3.65 ms over budget shown. See ops/checkpoints/r012-publish.md.
 - 2026-10-28 17:05: **r012 pre-publish fix: the oval through the cloud was the sun disk, not the glow.** Critic: a
   hard-edged tilted oval through thin cloud in the gem glint frames, blamed on QF_SUN_BLOOM. Those frames were shot on the
   r011 base pack (no glow at all) and the r012 pack shows the same oval. Profile (g12a gem_glint_d row 300): cloud 185-189,
