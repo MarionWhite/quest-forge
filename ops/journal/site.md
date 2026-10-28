@@ -1,5 +1,12 @@
 # Site journal (newest first)
 
+- 2026-10-27 (Mac) skins r8: owner switched to Patrix for local use only ("not publicly distributed"). Local layer
+  site/graves/tex/mobs-local/ (git-ignored; Pages deploys from checkout, so it cannot ship); import_patrix.py (Patrix
+  #92 basic zip, refuses non-ignored outputs, 1.7.10 conversions, LabPBR glow); skins.js: local > own (gated) > vanilla.
+  Review (tex/mobs-local/review/sheet.png, local only): 10 of 14 fit; Magma Cube and Slime break (CEM layouts, left
+  out by default), Blaze loses its face to a crown, Witch has hair strands on its arms, Pigman loses its ears.
+  Our painted Zombie/Spider (paint_mobs.py) paused; zombie face read well in the scare, spider unreviewed in situ.
+
 - 2026-10-27 (Mac) audio r8 (screams): the playback path coloured every scream. Manifest pitch [.97,1.03] meant a
   random playbackRate; volumes 1.1-1.7 drove a -10 dB 4:1 master compressor with automatic makeup gain, then a hard
   clip at the destination; ghast's @muffle low-passed the scream; muffle() swapped in a default (-24 dB 12:1)
