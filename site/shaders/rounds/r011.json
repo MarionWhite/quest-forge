@@ -1,0 +1,811 @@
+{
+ "n": 11,
+ "id": "r011",
+ "title": "Photon's sky, sunbeams through the clouds, and a meteor storm inside the budget",
+ "intro": "What changed in method: this round copies from the packs you named (Stay True leaves and wheat, Photon's sky, Faithless items and GUI, Patrix mob skins, Soartex shelves, Conquest particles and weather) instead of inventing. It only shows answers to your round 10 feedback, so a few scenes are small and some of your picks are kept as they were. The shader scenes: Photon's sky, sunbeams through the clouds, and a meteor shower, each against round 10. Cost: High frames cost 3.3 ms at most (round 10: 3.5, budget 3.0), Low at 1080p 0.86 ms (budget 0.9), Potato at 720p 0.30 ms (budget 0.4), per frame against the same view with shaders off. High is over its budget only on the sea and swamp-water views, as in round 10; this round's three changes add at most 0.07 ms anywhere.",
+ "status": "open",
+ "created": "2026-10-28",
+ "scenes": [
+  {
+   "id": "sunset-full",
+   "name": "The low sun lights the whole atmosphere (Photon's sky)",
+   "question": "You said the sun 'reads as a single hot spot rather than affecting the lighting of the whole atmosphere'. Cause in round 10: our sky model was physically right but only the air round the sun took its colour; the rest of the sky stayed blue-grey and our haze was a sky-coloured veil with no sunlight in it, so the land and sea never took the sunset's light. Now Photon's sky, copied: its precomputed scattering stretches the low sun's colours up the sky, its sun is tinted by the hour, and its haze is a real lit medium, thick and low at dawn and dusk, glowing toward the sun; the sea mirrors that glow. Twilight changes most: after sunset Photon keeps a lit blue hour with a pink horizon (C) where round 10 went near black (D). The trade-off: Photon's evening haze also lies over shaded ground near you, so on the golden-hour field the near grass is lifted and greyer (66,64,39 against round 10's 40,45,15); its haze density is Photon's own, not something we added. Cost: -0.12 to +0.03 ms on High across nine views (Photon's table replaces our per-frame sky march). A new sunset, B round 10, C new dusk, D round 10's dusk.",
+   "notePrompt": "Does the sunset light the whole sky now? Too pink, too hazy, or right?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Photon's sky (default)",
+     "img": "r011/sunset-full-A.jpg",
+     "critic": "Critic 7: Answers the note in part: the low sun now colours the whole sky, the clouds and the haze, and the sea takes the glow (upper sky 137,112,121 against round 10's 121,105,108). Against the reference it is pink-lilac, where the photo is amber-gold from the horizon up; the near islands fade into pink haze; the sun is still a thin white sliver under the cloud with no hot glow round it. Fix: a bright sun disk and aureole that blooms, with a warmer, less magenta horizon.",
+     "ms": 3.28,
+     "ref": {
+      "img": "r011/ref-sunset-full-A.jpg",
+      "credit": "Brocken Inaglory, retouched by User:Flamurai, CC BY-SA 3.0, via Wikimedia Commons",
+      "source": "https://commons.wikimedia.org/wiki/File:Sunset_clouds_and_crepuscular_rays_over_pacific_edit.jpg",
+      "title": "Sunset clouds and crepuscular rays over pacific edit.jpg"
+     }
+    },
+    {
+     "key": "B",
+     "label": "Round 10",
+     "img": "r011/sunset-full-B.jpg",
+     "critic": "Critic 6: Round 10, kept for comparison. The owner's 'single hot spot' holds: away from the sun the sky stays blue-grey and the sea navy, so the sunset does not light the scene.",
+     "ms": 3.31
+    },
+    {
+     "key": "C",
+     "label": "Dusk, Photon's sky",
+     "img": "r011/sunset-full-C.jpg",
+     "critic": "Critic 8: The biggest win of the round: a lit blue hour with a pink-orange band on the horizon and readable ground, close to the reference's gradient (round 10 went near black). Two flaws: a solid white meteor streak hangs in the twilight sky in both stills and reads as a contrail, and the clouds are flat slate shapes with no pink on their undersides. Fix: no meteors until the sun is well below the horizon.",
+     "ms": 2.77
+    },
+    {
+     "key": "D",
+     "label": "Dusk, round 10's sky",
+     "img": "r011/sunset-full-D.jpg",
+     "critic": "Critic 4: Round 10's sky at dusk: near black (upper sky 22,17,28) with the ground crushed. Breaks the 'readable darkness' rule; C is clearly better.",
+     "ms": 2.68
+    }
+   ]
+  },
+  {
+   "id": "sun-cloud",
+   "name": "Sunbeams through the clouds (Photon's crepuscular rays)",
+   "question": "You picked the rays 'only if we can afford them'. We can now: round 10's rays read 16 full-screen pixels per sky pixel toward the sun on screen and cost 0.31 ms at most on High (ocean sunset); Photon's, copied, march each sky pixel from your eye to the cloud base (20 steps toward the horizon, 4 overhead) through a 64x64 map of the clouds' shadow made once per frame, and cost 0.07 ms at most. They follow the real clouds, not what is on screen. Copied as is, they only added light to a sky that already holds the sunlit air's glow, so they were invisible (+1 to 3 brightness levels); now the air in a cloud's shadow also takes its share of that glow away, which is what draws the wedges. Shown on the golden-hour view, where the fan is clear (on the lake view A looked the same as off). Strength, darkest wedge over the sky round the sun (brightness levels of 255, measured on the lake): A -6, a stronger setting -10 (QF_CREP_SHADE 0.75, not shown), round 10's C -16. The open call: keep A on Medium and up as the default, ask for the stronger setting, or leave them off (B). A rays (default), B off, C round 10's rays.",
+   "notePrompt": "A, stronger, or off? Is round 10's stronger fan what you liked?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Photon's rays (default)",
+     "img": "r011/sun-cloud-A.jpg",
+     "critic": "Critic 7: Not on the Lab, but it should be: here Photon's rays draw a clear fan of light and shadow lanes from the sun behind the hill, plainly different from rays off (p11cr0). The cost is the near field: Photon's evening haze lifts and greys the shaded grass (66,64,39 against 40,45,15).",
+     "ms": 2.87
+    },
+    {
+     "key": "B",
+     "label": "Rays off",
+     "img": "r011/sun-cloud-B.jpg",
+     "critic": "Critic 6: Rays off under Photon's sky: the clouds and the warm haze are lovely, but the light has no direction near the sun; the hill and grass sit in an even pink wash with no lanes of light or shadow. Same greyed near grass as A, so that comes from the haze, not the rays.",
+     "ms": 2.85
+    },
+    {
+     "key": "C",
+     "label": "Round 10's rays",
+     "img": "r011/sun-cloud-C.jpg",
+     "critic": "Critic 6: Round 10's sky with its rays: golden clouds and darker, more saturated grass (40,45,15), but the rays barely read here and the sky has the old flat band at the horizon. Shown only to compare.",
+     "ms": 2.92
+    }
+   ]
+  },
+  {
+   "id": "meteors",
+   "name": "Meteor shower from your photos, storm included, now under budget",
+   "question": "From your photos: many long, thin, straight streaks, all out of one point, faint, over the Milky Way. Every meteor of a shower runs along a line through that point (the radiant), so the sky is now cut into wedges round it, each with its own meteor; a sky pixel tests only its own wedge and the two beside it: 3 meteors per pixel instead of round 10's 24 (A) or 40 (storm), so the shower's cost no longer grows with the number of meteors: the storm costs what the shower does. The radiant sits 18 to 45 degrees up; shower nights now show the Milky Way. Cost on the wide night view: A 2.99 ms, B 2.99 ms; round 10's storm 3.99 ms (budget 3.0). A shower (default), B storm (2.5x the meteors, fainter), C round 10's grazer storm.",
+   "notePrompt": "Closer to your photos? Shower or storm as the default?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Shower (default), clip",
+     "img": "r011/meteors-A.jpg",
+     "critic": "Critic 6: Closer to the photos than round 10: thin straight streaks, one or two at a time, the Milky Way present, inside the budget (2.99 ms against 3.47). Still short of the photos: the Milky Way is a dim brown dust lane, not a bright blue-white band; the star field is sparse; clouds cover half the sky; the streaks run parallel because the radiant is well out of frame, so 'all from one point' does not read. Fix: shower nights with a clear sky, a denser star field and a brighter Milky Way, and the radiant near the view.",
+     "ms": 2.99,
+     "clip": "r011/meteors-A.webp"
+    },
+    {
+     "key": "B",
+     "label": "Storm, clip",
+     "img": "r011/meteors-B.jpg",
+     "critic": "Critic 7: The storm is nearer the owner's first photo in count, at the same cost as the shower (2.99 ms). In single frames the streaks are thin and warm; in the max-over-time sheet they are uniform white bars, all the same width and brightness, where the photo's hairlines vary a lot. The same sky problems as A (dim Milky Way, sparse stars, heavy cloud).",
+     "ms": 2.99,
+     "clip": "r011/meteors-B.webp"
+    },
+    {
+     "key": "C",
+     "label": "Round 10's storm, clip",
+     "img": "r011/meteors-C.jpg",
+     "critic": "Critic 5: Round 10's grazer storm: level streaks with beaded trails and no radiant. Not what the photos show, and it cost 3.98 ms.",
+     "ms": 3.98,
+     "clip": "r011/meteors-C.webp"
+    }
+   ]
+  },
+  {
+   "id": "st-leaves-hedge",
+   "name": "Stay True's leaves: the hedge",
+   "question": "You asked us to stop guessing and copy Stay True. Its leaves are not frills on the edges: every leaf block carries two big round leaf clumps on vertical planes, rotated 22.5 degrees and crossing the block, so a canopy reads as soft volume instead of cubes. A is that, read straight from Stay True's model files; B is r010's edge frills; C is Stay True's textures alone.",
+   "notePrompt": "Does A read like Stay True's trees? A is denser and less see-through than C (the clumps fill the gaps): is that the volume you meant, or should the leaves stay more transparent?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Stay True's leaves (r011)",
+     "img": "r011/st-leaves-hedge-A.jpg",
+     "ms": 2.76,
+     "desc": "Copied from Stay True: its leaf textures, and its model: two big round leaf clumps (2 blocks wide, 1.75 tall) rotated 22.5 degrees, crossing every leaf block; each block picks one of Stay True's 2-3 variants. Measured cost, on vs off: frame time +0 to +5% (p50), leafy chunk sections carry 23% more vertices, rebuild time per section unchanged (-2%).",
+     "critic": "Critic 7: A real copy at last: Stay True's leaves_cross model (two 2 x 1.75-block planes at 22.5 degrees, checked against its JSON). The hedge and crown get a soft, ragged volume with no spikes. The hedge still reads as a shaggy box; planes seen edge-on smear into streaks at the crown's upper left; and it is denser and less see-through than C, against the owner's 'I like the transparency'. Fix: more alpha holes in the bushy texture so light and sky show through."
+    },
+    {
+     "key": "B",
+     "label": "r010 edge frills",
+     "img": "r011/st-leaves-hedge-B.jpg",
+     "ms": 2.75,
+     "desc": "Last round's look: Faithful 64x leaves with three of our own leaf cards leaning out of each open edge (you said spiky).",
+     "critic": "Critic 4: Round 10's edge frills. Rescored from my 8 in round 10: the owner called them spiky and he is right; the cards read as thorns."
+    },
+    {
+     "key": "C",
+     "label": "Stay True's textures, no planes",
+     "img": "r011/st-leaves-hedge-C.jpg",
+     "ms": 2.72,
+     "desc": "Stay True's leaf textures on plain cubes, to show what the planes add.",
+     "critic": "Critic 6: Stay True's textures on cubes: crisp and see-through, but the hedge is a box."
+    }
+   ]
+  },
+  {
+   "id": "st-leaves-tree",
+   "name": "Stay True's leaves: a lone oak",
+   "question": "The same three under the oak's crown.",
+   "notePrompt": "Round and leafy, or still cubes?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Stay True's leaves (r011)",
+     "img": "r011/st-leaves-tree-A.jpg",
+     "ms": 2.91,
+     "desc": "Copied from Stay True: its leaf textures, and its model: two big round leaf clumps (2 blocks wide, 1.75 tall) rotated 22.5 degrees, crossing every leaf block; each block picks one of Stay True's 2-3 variants. Measured cost, on vs off: frame time +0 to +5% (p50), leafy chunk sections carry 23% more vertices, rebuild time per section unchanged (-2%).",
+     "critic": "Critic 8: The best tree yet: a round, full crown with a natural skirt below and no stepped outline. This is the 'realistic volume and structure' the owner asked for. Almost no sky shows through it, so check the transparency with the owner."
+    },
+    {
+     "key": "B",
+     "label": "r010 edge frills",
+     "img": "r011/st-leaves-tree-B.jpg",
+     "ms": 2.9,
+     "desc": "Last round's look: Faithful 64x leaves with three of our own leaf cards leaning out of each open edge (you said spiky).",
+     "critic": "Critic 4: Round 10's frills: a spiky fringe on a cube crown (owner: 'look like shit')."
+    },
+    {
+     "key": "C",
+     "label": "Stay True's textures, no planes",
+     "img": "r011/st-leaves-tree-C.jpg",
+     "ms": 2.9,
+     "desc": "Stay True's leaf textures on plain cubes, to show what the planes add.",
+     "critic": "Critic 6: See-through, but a stepped cube crown with a flat square skirt."
+    }
+   ]
+  },
+  {
+   "id": "st-leaves-forest",
+   "name": "Stay True's leaves: the forest",
+   "question": "From a distance in low sun.",
+   "notePrompt": "Worth the cost from here?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Stay True's leaves (r011)",
+     "img": "r011/st-leaves-forest-A.jpg",
+     "ms": 2.47,
+     "desc": "Copied from Stay True: its leaf textures, and its model: two big round leaf clumps (2 blocks wide, 1.75 tall) rotated 22.5 degrees, crossing every leaf block; each block picks one of Stay True's 2-3 variants. Measured cost, on vs off: frame time +0 to +5% (p50), leafy chunk sections carry 23% more vertices, rebuild time per section unchanged (-2%).",
+     "critic": "Critic 7: A softer, fuller canopy from a distance. Sunlit crowns go lime-yellow (in C too, so it comes from the texture), and single planes show at the canopy edge."
+    },
+    {
+     "key": "B",
+     "label": "r010 edge frills",
+     "img": "r011/st-leaves-forest-B.jpg",
+     "ms": 2.4,
+     "desc": "Last round's look: Faithful 64x leaves with three of our own leaf cards leaning out of each open edge (you said spiky).",
+     "critic": "Critic 4: Round 10's frills, shot under round 10's shader (different sky), so not a fair side-by-side."
+    },
+    {
+     "key": "C",
+     "label": "Stay True's textures, no planes",
+     "img": "r011/st-leaves-forest-C.jpg",
+     "ms": 2.45,
+     "desc": "Stay True's leaf textures on plain cubes, to show what the planes add.",
+     "critic": "Critic 6: Textures only: a thinner, stepped canopy."
+    }
+   ]
+  },
+  {
+   "id": "st-crops-close",
+   "name": "Stay True's wheat: up close",
+   "question": "Stay True's field is tall and dark at the base: most ripe wheat is two blocks tall. A is its models copied as its files say; B is r010's sprite variants; C is Stay True's sprites without the tall models.",
+   "notePrompt": "Is A the field you meant?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Stay True's crops (r011)",
+     "img": "r011/st-crops-close-A.jpg",
+     "ms": 2.78,
+     "desc": "Copied from Stay True: ripe wheat picks one of five models by weight (6/3/3/4/4); 70% are two blocks tall, dense dark stalks below and a band of golden heads above. Carrots and potatoes likewise (one in four carrots, three in eight potatoes tall). Measured cost, on vs off: frame time +1 to +2% (p50) on the farm, rebuild time per section +1 to +3%.",
+     "critic": "Critic 8: Stay True's two-block wheat with its variants: tall, uneven and full, so it reads as a grown field. This is the dense look the owner picked, done right this time. It leans orange; pull it toward straw gold."
+    },
+    {
+     "key": "B",
+     "label": "r010 sprite variants",
+     "img": "r011/st-crops-close-B.jpg",
+     "ms": 2.79,
+     "desc": "Last round: one-block wheat with five of our own heights (you said the wrong execution).",
+     "critic": "Critic 5: Round 10's sprite variants; the owner called this the wrong execution."
+    },
+    {
+     "key": "C",
+     "label": "Stay True's textures, one block",
+     "img": "r011/st-crops-close-C.jpg",
+     "ms": 2.76,
+     "desc": "Stay True's plain one-block crop sprites without the hook, to show what the tall models add.",
+     "critic": "Critic 6: One-block Stay True wheat: even, regular rows."
+    }
+   ]
+  },
+  {
+   "id": "st-crops-far",
+   "name": "Stay True's wheat: the field",
+   "question": "The same three from across the farm.",
+   "notePrompt": "Keep it?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Stay True's crops (r011)",
+     "img": "r011/st-crops-far-A.jpg",
+     "ms": 2.97,
+     "desc": "Copied from Stay True: ripe wheat picks one of five models by weight (6/3/3/4/4); 70% are two blocks tall, dense dark stalks below and a band of golden heads above. Carrots and potatoes likewise (one in four carrots, three in eight potatoes tall). Measured cost, on vs off: frame time +1 to +2% (p50) on the farm, rebuild time per section +1 to +3%.",
+     "critic": "Critic 7: From a distance the field is mottled and natural, with no grid; slightly orange."
+    },
+    {
+     "key": "B",
+     "label": "r010 sprite variants",
+     "img": "r011/st-crops-far-B.jpg",
+     "ms": 2.93,
+     "desc": "Last round: one-block wheat with five of our own heights (you said the wrong execution).",
+     "critic": "Critic 5: Round 10's variants from a distance: still flat, though with less of a grid."
+    },
+    {
+     "key": "C",
+     "label": "Stay True's textures, one block",
+     "img": "r011/st-crops-far-C.jpg",
+     "ms": 2.92,
+     "desc": "Stay True's plain one-block crop sprites without the hook, to show what the tall models add.",
+     "critic": "Critic 6: Stay True's textures only: tidy rows, some grid."
+    }
+   ]
+  },
+  {
+   "id": "pk-items",
+   "name": "Items: Faithless's whole set, in game",
+   "question": "Your round 10 ask: one more full art style for all items before we commit. B is Faithless's sprites copied as they are, under 1.7.10 names (204 items, its animations kept: buckets, discs, redstone, glowstone dust, XP bottle), its own bottle per potion effect (and a different cap for II and extended), a book per enchantment, worn-down sprites for damaged tools and arrow/seed piles by stack size. Top to bottom: tools, food, materials, potions (drink then splash), books + a worn sword and pickaxe + arrows x1/x4/x16.",
+   "notePrompt": "Faithless for all items? Any you want kept as round 10?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Round 10 (ours)",
+     "img": "r011/pk-items-A.jpg",
+     "ms": 3.26,
+     "desc": "Vanilla items, our r010 potion bottles and book covers.",
+     "critic": "Critic 6: Round 10's set: vanilla items with our bottles and covers."
+    },
+    {
+     "key": "B",
+     "label": "Copied from the pack",
+     "img": "r011/pk-items-B.jpg",
+     "ms": 3.25,
+     "desc": "Faithless v1.2 copied in (1.7.10 names; compass rebuilt from its 50 frames; clock kept: its clock is a 3D dial).",
+     "critic": "Critic 7: A full, coherent second style, which is what the owner asked for: bold outlines, a bottle per potion effect, a cover per enchantment. Chunkier and more saturated than vanilla."
+    }
+   ]
+  },
+  {
+   "id": "pk-items-close",
+   "name": "Potions and books up close",
+   "question": "The bottom two rows from 2.6 blocks.",
+   "notePrompt": "Potion shapes and book covers read?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Round 10 (ours)",
+     "img": "r011/pk-items-close-A.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 6: Round 10's potions and books up close; they read well."
+    },
+    {
+     "key": "B",
+     "label": "Copied from the pack",
+     "img": "r011/pk-items-close-B.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured"
+    }
+   ]
+  },
+  {
+   "id": "pk-gui-inv",
+   "name": "Inventory",
+   "question": "Faithless's illustrated inventory. 1.9 moved the 2x2 grid and added an off-hand slot; the grid is moved back to where 1.7.10 puts its slots and the off-hand slot painted out. B also shows its HUD: hearts, armour, food, XP and hotbar.",
+   "notePrompt": "Keep its inventory?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Round 10 (ours)",
+     "img": "r011/pk-gui-inv-A.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 6: Round 10's plain grey inventory."
+    },
+    {
+     "key": "B",
+     "label": "Copied from the pack",
+     "img": "r011/pk-gui-inv-B.jpg",
+     "ms": null,
+     "desc": "Faithless GUI (r11p2).",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 7: The illustrated inventory reads well and the portrait panel is a step up. The 2x2 crafting slots are faint pale outlines on a pale sheet, and the 'Stitch' signature shows on the plaque."
+    }
+   ]
+  },
+  {
+   "id": "pk-creative-combat",
+   "name": "Creative: combat tab",
+   "question": "Faithless's creative tabs and panel (its red banner marks the search and inventory tabs). Brewing shows every potion in its own bottle.",
+   "notePrompt": "Creative tabs right?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Round 10 (ours)",
+     "img": "r011/pk-creative-combat-A.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 6: Round 10's tabs."
+    },
+    {
+     "key": "B",
+     "label": "Copied from the pack",
+     "img": "r011/pk-creative-combat-B.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 7: Clean tabs with the red banner; enchanted books are told apart by their covers."
+    }
+   ]
+  },
+  {
+   "id": "pk-creative-brewing",
+   "name": "Creative: brewing tab",
+   "question": "Faithless's creative tabs and panel (its red banner marks the search and inventory tabs). Brewing shows every potion in its own bottle.",
+   "notePrompt": "Creative tabs right?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Round 10 (ours)",
+     "img": "r011/pk-creative-brewing-A.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 6: Round 10: most potions share one or two bottle shapes."
+    },
+    {
+     "key": "B",
+     "label": "Copied from the pack",
+     "img": "r011/pk-creative-brewing-B.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 8: The best pack frame: every potion has its own bottle, so the brewing tab can be scanned at a glance."
+    }
+   ]
+  },
+  {
+   "id": "pk-furnace",
+   "name": "Furnace",
+   "question": "Lit, mid-smelt: its flame and arrow.",
+   "notePrompt": "We will lighten the title plaques unless you object. Cause: 1.7.10 writes screen titles in fixed dark grey, which barely reads on Faithless's dark wooden plaques.",
+   "options": [
+    {
+     "key": "A",
+     "label": "Round 10 (ours)",
+     "img": "r011/pk-furnace-A.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 6: Round 10's furnace."
+    },
+    {
+     "key": "B",
+     "label": "Copied from the pack",
+     "img": "r011/pk-furnace-B.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 7: A rich illustrated furnace with the flame and arrow in place. The title cannot be read on the dark plaque, as the text says."
+    }
+   ]
+  },
+  {
+   "id": "pk-crafting",
+   "name": "Crafting table",
+   "question": "A diamond sword recipe on its cloth.",
+   "notePrompt": "We will lighten the title plaques unless you object. Cause: 1.7.10 writes screen titles in fixed dark grey, which barely reads on Faithless's dark wooden plaques.",
+   "options": [
+    {
+     "key": "A",
+     "label": "Round 10 (ours)",
+     "img": "r011/pk-crafting-A.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 6: Round 10's crafting table."
+    },
+    {
+     "key": "B",
+     "label": "Copied from the pack",
+     "img": "r011/pk-crafting-B.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 6: Good art, but the 3x3 grid nearly disappears into the red cloth, so the slots are hard to find. The title cannot be read."
+    }
+   ]
+  },
+  {
+   "id": "pk-brewing",
+   "name": "Brewing stand",
+   "question": "Mid-brew. 1.7.10 has no fuel slot and sets the bottles 5 px higher than the stand it was drawn for.",
+   "notePrompt": "We will lighten the title plaques unless you object. Cause: 1.7.10 writes screen titles in fixed dark grey, which barely reads on Faithless's dark wooden plaques.",
+   "options": [
+    {
+     "key": "A",
+     "label": "Round 10 (ours)",
+     "img": "r011/pk-brewing-A.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 6: Round 10's stand."
+    },
+    {
+     "key": "B",
+     "label": "Copied from the pack",
+     "img": "r011/pk-brewing-B.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 7: The bottles sit on the drawn stand and the scene reads. The title cannot be read."
+    }
+   ]
+  },
+  {
+   "id": "pk-enchanting",
+   "name": "Enchanting table",
+   "question": "A diamond sword in the table. Faithless's three options are red ribbons that slide out only when an item is in; an empty table shows just the shelves (its empty row is see-through by design). 1.7.10 has one slot where 1.8+ has item + lapis: it lands on the drawn table.",
+   "notePrompt": "We will paint out its drawn book (and lighten the plaques) unless you object. Cause: 1.7.10 floats its own 3D book over the spot where Faithless painted a book on the table, so the two overlap.",
+   "options": [
+    {
+     "key": "A",
+     "label": "Round 10 (ours)",
+     "img": "r011/pk-enchanting-A.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 6: Round 10's table, with its three option rows."
+    },
+    {
+     "key": "B",
+     "label": "Copied from the pack",
+     "img": "r011/pk-enchanting-B.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 4: Broken as shown: the three enchant option rows are gone, painted over by the bookshelf art with only red tabs at the right, and the 3D book overlaps the painted one. Unusable until 1.7.10's button strip is mapped onto it."
+    }
+   ]
+  },
+  {
+   "id": "pk-chest",
+   "name": "Chest",
+   "question": "",
+   "notePrompt": "Keep?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Round 10 (ours)",
+     "img": "r011/pk-chest-A.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 6: Round 10's chest."
+    },
+    {
+     "key": "B",
+     "label": "Copied from the pack",
+     "img": "r011/pk-chest-B.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 7: Clean and readable, with a wood frame; the 'Stitch' signature shows on the plaque."
+    }
+   ]
+  },
+  {
+   "id": "pk-anvil",
+   "name": "Anvil",
+   "question": "",
+   "notePrompt": "We will lighten the title plaques unless you object. Cause: 1.7.10 writes screen titles in fixed dark grey, which barely reads on Faithless's dark wooden plaques.",
+   "options": [
+    {
+     "key": "A",
+     "label": "Round 10 (ours)",
+     "img": "r011/pk-anvil-A.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 6: Round 10's anvil."
+    },
+    {
+     "key": "B",
+     "label": "Copied from the pack",
+     "img": "r011/pk-anvil-B.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 6: The name field is fine, but the input slots on the drawn anvil top barely read as slots, and the title cannot be read."
+    }
+   ]
+  },
+  {
+   "id": "pk-hud",
+   "name": "HUD and boss bar",
+   "question": "Survival HUD with the Ender Dragon's bar. 1.7.10 draws one bar for every boss from one 182x5 strip, so B uses Faithless's plain pink bar; its framed per-boss bars (dragon, wither) need a code hook (GuiIngame) to draw. The XP bar is Faithless's rune strip; its empty part is see-through, as Faithless draws it.",
+   "notePrompt": "Build the framed per-boss bars? Cause: 1.7.10 draws every boss bar from one plain strip, so picking a framed bar per boss needs a small qf-tweaks hook (GuiIngame).",
+   "options": [
+    {
+     "key": "A",
+     "label": "Round 10 (ours)",
+     "img": "r011/pk-hud-A.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 6: Round 10's HUD. Chat lines cover the hearts, so the health row cannot be judged."
+    },
+    {
+     "key": "B",
+     "label": "Copied from the pack",
+     "img": "r011/pk-hud-B.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 6: The rune XP strip and the hotbar look good; the boss bar is a plain purple strip. The same chat lines cover the hearts and armour, so they cannot be judged. Reshoot with chat cleared."
+    }
+   ]
+  },
+  {
+   "id": "pk-shelves",
+   "name": "Bookshelves: Soartex",
+   "question": "Soartex Forever's three shelves mixed at random (and its swamp, roofed forest, nether and savanna/mesa variants, by biome). Its model sinks the books into the frame; 1.7.10 shelves are plain cubes, so the depth is only painted and in the normal map.",
+   "notePrompt": "Is Soartex Forever the Soartex you meant? Cause: the only Soartex in our reference folder is Soartex Forever R.1.6 (made for 1.21); the 1.7-era Soartex is a separate, CurseForge-only download we don't have.",
+   "options": [
+    {
+     "key": "A",
+     "label": "Round 10 (ours)",
+     "img": "r011/pk-shelves-A.jpg",
+     "ms": 3.14,
+     "desc": "",
+     "critic": "Critic 6: Round 10's shelves: colourful spines that read as books."
+    },
+    {
+     "key": "B",
+     "label": "Copied from the pack",
+     "img": "r011/pk-shelves-B.jpg",
+     "ms": 3.15,
+     "desc": "",
+     "critic": "Critic 5: Soartex Forever's shelves look like dark maroon cubbies from this distance, almost empty, and the random mix does not show."
+    }
+   ]
+  },
+  {
+   "id": "pk-library",
+   "name": "Library wall",
+   "question": "",
+   "notePrompt": "",
+   "options": [
+    {
+     "key": "A",
+     "label": "Round 10 (ours)",
+     "img": "r011/pk-library-A.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 6: Round 10's library wall."
+    },
+    {
+     "key": "B",
+     "label": "Copied from the pack",
+     "img": "r011/pk-library-B.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured"
+    }
+   ]
+  },
+  {
+   "id": "pk-tnt",
+   "name": "TNT with enchanting-table lettering",
+   "question": "Faithless's TNT (the only block taken from it).",
+   "notePrompt": "Keep?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Round 10 (ours)",
+     "img": "r011/pk-tnt-A.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 6: Round 10's TNT."
+    },
+    {
+     "key": "B",
+     "label": "Copied from the pack",
+     "img": "r011/pk-tnt-B.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 6: The enchanting-glyph lettering is a fun touch, but at a glance some faces no longer say TNT."
+    }
+   ]
+  },
+  {
+   "id": "pk-mob-1",
+   "name": "Mobs up close (1 of 6)",
+   "question": "Patrix's 3D shapes are OptiFine CEM models; 1.7.10 has none, so only the skins come, and only where they map onto the vanilla model. Kept (seen working in game): creeper, zombie, skeleton, wither skeleton, spider, cave spider, enderman, wolf, ocelot and cats, pig, snow golem, silverfish. Dropped (their layout is for the CEM shape, they render broken): chicken, cow, sheep, blaze, witch, zombie pigman, iron golem (still in these frames, 5 and 6: its face lands on the chest). Held back, unjudged: slime and magma cube (they vanish from the hall before the shot, in A too), ghast, squid, bat, wither (not in the hall). The new shapes themselves (horns, manes, thin skeleton bones) would need a Java renderer per mob.",
+   "notePrompt": "Which mobs keep Patrix?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Round 10 (ours)",
+     "img": "r011/pk-mob-1-A.jpg",
+     "ms": 2.56,
+     "desc": "",
+     "critic": "Critic 6: Vanilla skins. The hall's orange glowstone light and the small size (mobs about a quarter of the frame tall) make colours hard to judge."
+    },
+    {
+     "key": "B",
+     "label": "Copied from the pack",
+     "img": "r011/pk-mob-1-B.jpg",
+     "ms": 2.54,
+     "desc": "",
+     "critic": "Critic 7: Patrix's skins on vanilla shapes: a grittier zombie, a mottled creeper, a wither skeleton with glowing eyes. A clear step up in detail."
+    }
+   ]
+  },
+  {
+   "id": "pk-mob-2",
+   "name": "Mobs up close (2 of 6)",
+   "question": "",
+   "notePrompt": "",
+   "options": [
+    {
+     "key": "A",
+     "label": "Round 10 (ours)",
+     "img": "r011/pk-mob-2-A.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 6: Vanilla skins. The hall's orange glowstone light and the small size (mobs about a quarter of the frame tall) make colours hard to judge."
+    },
+    {
+     "key": "B",
+     "label": "Copied from the pack",
+     "img": "r011/pk-mob-2-B.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 7: The same gains as frame 1, plus the enderman and spiders. The witch and zombie pigman (dropped) are still in the frame."
+    }
+   ]
+  },
+  {
+   "id": "pk-mob-3",
+   "name": "Mobs up close (3 of 6)",
+   "question": "",
+   "notePrompt": "",
+   "options": [
+    {
+     "key": "A",
+     "label": "Round 10 (ours)",
+     "img": "r011/pk-mob-3-A.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 6: Vanilla skins. The hall's orange glowstone light and the small size (mobs about a quarter of the frame tall) make colours hard to judge."
+    },
+    {
+     "key": "B",
+     "label": "Copied from the pack",
+     "img": "r011/pk-mob-3-B.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 6: Little difference at this size; the mobs fill a strip a quarter of the frame tall, under orange glowstone light."
+    }
+   ]
+  },
+  {
+   "id": "pk-mob-4",
+   "name": "Mobs up close (4 of 6)",
+   "question": "",
+   "notePrompt": "Keep Conquest's black smoke? Cause: its particle sheet replaces vanilla's grey smoke specks with big black swirls, so every fire, torch and blaze smokes like this; we can keep its other particles and put vanilla smoke back.",
+   "options": [
+    {
+     "key": "A",
+     "label": "Round 10 (ours)",
+     "img": "r011/pk-mob-4-A.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 6: Vanilla skins. The hall's orange glowstone light and the small size (mobs about a quarter of the frame tall) make colours hard to judge."
+    },
+    {
+     "key": "B",
+     "label": "Copied from the pack",
+     "img": "r011/pk-mob-4-B.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 6: Mostly mobs that were dropped (cow, sheep), so this barely differs from A."
+    }
+   ]
+  },
+  {
+   "id": "pk-mob-5",
+   "name": "Mobs up close (5 of 6)",
+   "question": "",
+   "notePrompt": "The iron golem here is the Patrix skin we dropped: its CEM layout puts the face on the chest.",
+   "options": [
+    {
+     "key": "A",
+     "label": "Round 10 (ours)",
+     "img": "r011/pk-mob-5-A.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 6: Vanilla skins. The hall's orange glowstone light and the small size (mobs about a quarter of the frame tall) make colours hard to judge."
+    },
+    {
+     "key": "B",
+     "label": "Copied from the pack",
+     "img": "r011/pk-mob-5-B.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 5: The iron golem's face lands on its chest: dropped, but still shown."
+    }
+   ]
+  },
+  {
+   "id": "pk-mob-6",
+   "name": "Mobs up close (6 of 6)",
+   "question": "",
+   "notePrompt": "",
+   "options": [
+    {
+     "key": "A",
+     "label": "Round 10 (ours)",
+     "img": "r011/pk-mob-6-A.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 6: Vanilla skins. The hall's orange glowstone light and the small size (mobs about a quarter of the frame tall) make colours hard to judge."
+    },
+    {
+     "key": "B",
+     "label": "Copied from the pack",
+     "img": "r011/pk-mob-6-B.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 5: The iron golem is broken as in frame 5. The snow golem and cats read fine."
+    }
+   ]
+  }
+ ]
+}
