@@ -17,6 +17,20 @@
   beat logs beside the owner's words: scratchpad r8/scares-b/film/{bl2,gh1,mc1}/film.png, r8/scares-b/beats/.
   Frame gaps up to 197 ms in the last J run were load from other renders (28-48 ms on a quiet machine).
 
+- 2026-10-27 (Mac) krypt scares r8, part A (Spider, Zombie, Wither Skeleton). Spider (4d1de85) to the owner's script:
+  the say from overhead, left shoulder, right shoulder, forward, slow look up; it was on the ceiling over you from the
+  first frame (off frame until the look up reaches it), ~1 s seen, the vanilla leap onto the face, thrashed, floored.
+  Zombie (4d847d8, db815c8) rethought around the 1.7.10 door break (door.js): a wooden door in the side wall behind you,
+  BANG is why you turn, six blows with the destroy_stage cracks, it breaks and it comes straight out; all three
+  occluded by the door until the break. The jaw's teeth are now lit like its head. Wither Skeleton (fddb74f) scrapped
+  and rethought around a shadow (shadow.js: casters drawn from the light into a mask, the Krypt's chunk meshes
+  re-drawn with a multiply): your shadow on the wall ahead, its bigger one comes to stand over yours with the sword
+  going up, you turn and it strikes. Floor shadows seen from eye height read as smears, so the torch is chosen for
+  shadows that climb a wall: a Krypt torch where one fits, else a copy of one of its wall torches moved whole blocks
+  to a wall behind you (a hall falls back to floor shadows with the light lifted 1.1 m). A spot from the flame lights
+  the stone where they fall. Enderman/Creeper: traces identical to the pre-round shared files on today's world (the r7
+  base_trace is stale: the world under at=0.3 changed). Live J run of all 16: no leaks, no exceptions.
+
 - 2026-10-27 (Mac) krypt r8 (floating props): the owner's dispensers were the piston_trap's far-end pair, set mid-hall at
   y0+1 over the walk (they touched only each other). Now set into the side walls. New support.js (what holds a prop) with a
   safety net in buildWindow (unsupported props and torches dropped; floating pieces up to 6 blocks removed) and put()/webAt()

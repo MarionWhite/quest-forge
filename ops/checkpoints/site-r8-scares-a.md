@@ -70,3 +70,13 @@ Scratch: `scratchpad/r8/scares-a/` (tools copied from `../r7/scares/`). Preview 
   torch lifted 1.1 m. A spot from the flame lights the stone where they fall. Films `ws4_0.42/`, `ws4_0.8/` (own torch,
   wall shadows), `ws4_0.3/` (hall, floor). Proof: the skeleton is first on screen mid-turn (5.1-5.35 s), off frame before.
   Next: zombie teeth lit (coordinator note), trace/cmp, live J run of 16, journal, report.
+- [x] Zombie jaw lit (db815c8): teeth/tongue/mouth colours scaled by its head's light each frame. Close frames (z7/, seeds 1-3):
+  the bite is ~0.33 m from the face (both eyes in most frames), not centimetres.
+- [x] Enderman/Creeper: r7 base_trace is stale (world under at=0.3 changed again: carpet_crypt -> classic). Traced the
+  pre-round shared files (4d1de85^: scares.js, rig/common/fnaf/story, enderman, creeper) on a clone of today's site vs
+  HEAD: all 8 traces identical (`tr_old.json` vs `tr_now.json`).
+- Next: live J run (`node tools/site/scare_flow.mjs --only Spider,Zombie,WitherSkeleton`, then all 16) once no other
+  headless Chrome is running; journal; report.
+- [x] Live J run, all 16 (scare_flow.mjs, flow16.json): no leaks, no exceptions, 60 fps. Review set: scratchpad
+  `r8/scares-a/review/` (README.txt = the owner's script beside the beats, proof.txt, filmstrips + beat logs per scare).
+  Journal entry written. DONE apart from the report.
