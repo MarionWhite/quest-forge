@@ -3,7 +3,7 @@
 
     py -3.10 -I tools/textures/r012_packs_handoff.py [--ready]
 
-Reads the frames of render 1028-150936-textures-r012-packs (spec tools/renderq/specs/textures-r012-packs.json) from
+Reads the frames of render 1028-154329-textures-r012-packs (the re-render after review of 1028-150936) (spec tools/renderq/specs/textures-r012-packs.json) from
 C:\\qfb\\shaderdev\\rounds\\screenshots. A = round 11 as published (frozen zips), B = r012 fixes, C (where rendered) =
 the alternative. The frames show third-party pack art: internal Lab review only, never the public site.
 Answers the owner's r011 notes (ops/checkpoints/r012-plan.md, "Packs"); settled picks are not asked again.
@@ -21,9 +21,11 @@ HUD = {"B": ("pk12h1", "Forged iron"), "C": ("pk12h2", "Arcane"), "D": ("pk12h3"
 MOBS = ["chicken", "creeper", "zombie", "skeleton", "wither skeleton", "spider", "cave spider", "enderman",
         "zombie pigman", "witch", "blaze", "slime", "magma cube", "silverfish", "sheep", "cow", "pig", "ocelot",
         "wolf", "mooshroom", "horse", "villager", "squid", "bat (hanging)", "iron golem", "snow golem"]
-SOURCE = {"B": {"zombie pigman": "Patrix remapped", "iron golem": "Patrix remapped", "witch": "Patrix remapped",
-                "cow": "Patrix remapped", "sheep": "Patrix remapped", "chicken": "Patrix remapped",
-                "blaze": "Patrix remapped"}}
+# Pigman and blaze remaps dropped after 1028-150936 (patrix_remap.DROPPED); Conquest's witch is vanilla's, so C
+# takes the Patrix-remapped witch too.
+SOURCE = {"B": {"iron golem": "Patrix remapped", "witch": "Patrix remapped",
+                "cow": "Patrix remapped", "sheep": "Patrix remapped", "chicken": "Patrix remapped"},
+          "C": {"witch": "Patrix remapped"}}
 PATRIX = {"creeper", "zombie", "skeleton", "wither skeleton", "spider", "cave spider", "enderman", "silverfish",
           "pig", "ocelot", "wolf", "snow golem"}
 
@@ -71,9 +73,11 @@ def main():
     for sc, nm, extra in (("gui_furnace", "Furnace", " The furnace's other 'not right' part was its plaques: the "
                            "slots, flame and arrow already sit where 1.7.10 draws them."),
                           ("gui_enchanting", "Enchanting table", " The option ribbons are parchment now (1.7.10's "
-                           "spell text is a dark brown), with Faithless's red seal kept under the green level number."),
+                           "spell text is a dark brown), with Faithless's red seal kept under the green level number, narrowed to the number so less spell text "
+                           "runs onto the red (1.7.10 wraps that text at the ribbon's full width)."),
                           ("gui_crafting", "Crafting table", ""), ("gui_brewing", "Brewing stand", ""),
-                          ("gui_anvil", "Anvil", "")):
+                          ("gui_anvil", "Anvil", " 1.7.10's anvil draws no 'Inventory' title, so its lower plaque stays "
+                           "Faithless's dark wood rather than a blank light one.")):
         scene("pk-" + sc[4:], nm, text + extra, "Text readable now?", sc, GUI_BOX,
               [r11, ("B", "Plaques fixed", B, "")])
     hud = [("A", "Round 11", A, "Faithless's pink bar; its XP strip did not map (garbled).")] + [
@@ -95,7 +99,9 @@ def main():
             q = ("Every mob is non-vanilla now. Patrix where its skin fits 1.7.10's model; where Patrix drew for its "
                  "own 3D shapes, B remaps its skin face by face onto 1.7.10's boxes (its shapes cannot come: they "
                  "need a Java renderer per mob), C uses Conquest's 1.7-era mobs instead. Passive mobs added: "
-                 "mooshroom, horse, villager, squid, bat. ") + q
+                 "mooshroom, horse, villager, squid, bat. Remaps that landed wrong in the first render (pigman: no face; "
+                 "blaze: see-through head) use Conquest. Still vanilla: the wither's shield shimmer and one horse "
+                 "marking overlay (no source has them). ") + q
         scene("pk-mob-%d" % (k + 1), "Mobs (%d of 7)" % (k + 1), q, "Patrix remap (B) or Conquest (C), per mob?" if k == 0
               else "", "r12_mob_%d" % (k + 1), None,
               [("A", "Round 11", A, ""), ("B", "Patrix + remapped", B, ""), ("C", "Patrix + Conquest", C, "")])

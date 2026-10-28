@@ -66,3 +66,25 @@ for the Soartex shelf (report only). Hand-off: C:\qfb\shaderdev\r012\ (r011 vs r
      commit own hunks; `git log origin/main..main`; push.
 - Owner questions carried in the scenes: creative B vs C; HUD direction + framed boss-bar hook (qf-tweaks GuiIngame);
   per-mob Patrix-remap vs Conquest; Chisel route A (texture) vs B (new block via IMC) - see step 3.
+### 2026-10-28 step 5: review of 1028-150936, fixes, re-render SUBMITTED (texture-dev, fresh agent)
+- Reviewed as contact sheets/crops (scratch). Good: creative B tabs whole on the 1.7.10 grid, wood frame + cells;
+  every copied container's plaque titles readable (furnace, crafting, brewing, enchanting, anvil); TNT all lettered;
+  remapped golem (red-eyed face), witch, cow, sheep, chicken read right; passive mobs in frame.
+- Broken, fixed in code:
+  (1) creative C (book): tab_items/tab_item_search were 195x136 files; 1.7.10 maps GUI UVs over 256, so the page was
+      stretched 1.31x and the title sat on its dark/red top edge. r007gui.creative_book now pads to 256x256.
+  (2) pigman remap = pink/green noise with no face; blaze remap head faces mostly transparent (thin flame sliver):
+      both in patrix_remap.DROPPED -> Conquest. (3) Conquest's witch.png is pixel-identical to vanilla: r007packs
+      `_same_as` skips vanilla-equal Conquest skins and uses the Patrix remap (witch) instead. Still vanilla in both
+      modes: wither/wither_armor.png, horse/horse_markings_blackdots.png (no source has them).
+  (4) all gui_hud frames (a, h1-3) were shot behind the open anvil screen: GuiShots.client never closes the last
+      screen. views-r012 gui_hud first in the scene list (ticks 20->21 re-keys cache). A Java fix belongs in
+      GuiShots (not done: qf-content debug jar, other sessions' WIP in that package).
+  (5) anvil: blank light "Inventory" plaque (1.7.10's GuiRepair draws no such title) -> left Faithless's dark wood.
+  (6) enchanting seal narrowed 82 -> 91 (spell text ran 24 px onto the red).
+- SUBMITTED 1028-154329-textures-r012-packs (45 scenes; queue ahead ~33 min at 15:43). Handoff script points at it.
+- RESUME (fresh agent):
+  1. `py -3.10 tools/renderq/renderq.py wait 1028-154329-textures-r012-packs` if under 10 min, else exit again.
+  2. Review: pk12c creative book (page unstretched, title on parchment), pk12b/c mob_2/3 (pigman/blaze Conquest, C
+     witch Patrix), gui_hud a/h1/h2/h3 (no screen open; judge the three HUD directions), anvil + enchanting.
+  3. `py -3.10 -I tools/textures/r012_packs_handoff.py --ready`; track, journal, BOARD; commit own hunks; push.

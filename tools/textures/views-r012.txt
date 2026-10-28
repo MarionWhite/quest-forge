@@ -5,7 +5,9 @@
 # name               x       y      z        yaw    pitch  worldTime  [measureTicks]
 r11_items            231.0   69.9   210.7    0      0      7000   20
 r11_tnt              254.5   68.8   212.6    0      14     7000   20
-gui_hud              245.5   68.0   210.0    0      2      7000   20
+# gui_hud must run before any other gui_ scene in a boot: GuiShots never closes the last screen (r012 1028-150936:
+# the HUD frames came out behind the anvil). 21 ticks re-keys the render cache for it.
+gui_hud              245.5   68.0   210.0    0      2      7000   21
 gui_inventory        245.5   68.0   210.0    0      2      7000   20
 gui_creative_combat  245.5   68.0   210.0    0      2      7000   20
 gui_creative_tools   245.5   68.0   210.0    0      2      7000   20

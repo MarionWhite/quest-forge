@@ -84,6 +84,13 @@ SPECS = {
         (0, 16, 2, 8, 2, ["stick1/body/layer2/rod5#0"], [])]),
 }
 
+# Specs kept for the record but not used: in the r012 render (1028-150936) these landed wrong in game.
+DROPPED = {
+    "zombie_pigman.png": "the piglin's 10-wide head resampled to 8x8 is pink/green noise, no face",
+    "blaze.png": "Patrix's flame-shaped head faces are mostly transparent: in game the head is a thin flame sliver",
+}
+USE = [t for t in SPECS if t not in DROPPED]
+
 
 def boxes(jem):
     """{"part/sub#i": box} for every box in the jem, i counting boxes at that exact path."""

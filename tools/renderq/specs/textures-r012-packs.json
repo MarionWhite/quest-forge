@@ -1,7 +1,7 @@
 {
  "name": "textures-r012-packs",
  "owner": "texture-dev-packs",
- "comment": "r012 packs (ops/checkpoints/r012-packs.md): pk12a = r011 as published (frozen zips), pk12b = TNT all lettered, mobs Patrix + Patrix remapped + Conquest, GUI plaques/ribbons/creative tabs (Faithless framed), pk12c = mobs Patrix + Conquest, creative as the recipe book; pk12h1-3 = QF HUD directions iron/arcane/banner. World world-r012 (hall with the passive mobs added).",
+ "comment": "r012 packs (ops/checkpoints/r012-packs.md): pk12a = r011 as published (frozen zips; gui_hud first: GuiShots leaves the last screen open), pk12b = TNT all lettered, mobs Patrix + Patrix remapped (pigman, blaze dropped after 1028-150936) + Conquest, GUI plaques/ribbons/creative tabs (Faithless framed), pk12c = mobs Patrix + Conquest (witch: Patrix remapped, Conquest's is vanilla), creative as the recipe book (256 canvas fix); pk12h1-3 = QF HUD directions iron/arcane/banner. World world-r012 (hall with the passive mobs added).",
  "prebuild": [
   ["py", "-3.10", "-I", "tools/textures/r007packs.py", "--out", "C:/qfb/textures/r012/QF-r012-packs.zip", "--parts", "items,cit,tnt,books,mobs,env", "--mobs", "remap"],
   ["py", "-3.10", "-I", "tools/textures/r007packs.py", "--out", "C:/qfb/textures/r012/QF-r012-mobs-cq.zip", "--parts", "mobs", "--mobs", "conquest"],
@@ -16,7 +16,7 @@
               "jars": ["C:/qfb/renderq/jars-r011/QuestForgeContent-1.0.0.jar"], "props": ["qf.bench.difficulty=easy"]},
  "jobs": [
   {"tag": "pk12a", "resourcepacks": ["C:/qfb/textures/diag/QF-v3c.zip", "C:/qfb/textures/r012/QF-r011-packs-final.zip", "C:/qfb/textures/r012/QF-r011-gui-final.zip"],
-   "scenes": "r12_mob_1,r12_mob_2,r12_mob_3,r12_mob_4,r12_mob_5,r12_mob_6,r12_mob_7,r11_tnt,gui_creative_combat,gui_creative_brewing,gui_furnace,gui_crafting,gui_brewing,gui_enchanting,gui_anvil,gui_hud"},
+   "scenes": "gui_hud,r12_mob_1,r12_mob_2,r12_mob_3,r12_mob_4,r12_mob_5,r12_mob_6,r12_mob_7,r11_tnt,gui_creative_combat,gui_creative_brewing,gui_furnace,gui_crafting,gui_brewing,gui_enchanting,gui_anvil"},
   {"tag": "pk12b", "resourcepacks": ["C:/qfb/textures/diag/QF-v3c.zip", "C:/qfb/textures/r012/QF-r012-packs.zip", "C:/qfb/textures/r012/QF-r012-gui.zip"],
    "scenes": "r12_mob_1,r12_mob_2,r12_mob_3,r12_mob_4,r12_mob_5,r12_mob_6,r12_mob_7,r11_tnt,gui_creative_combat,gui_creative_brewing,gui_furnace,gui_crafting,gui_brewing,gui_enchanting,gui_anvil,gui_inventory,gui_chest"},
   {"tag": "pk12c", "resourcepacks": ["C:/qfb/textures/diag/QF-v3c.zip", "C:/qfb/textures/r012/QF-r012-packs.zip", "C:/qfb/textures/r012/QF-r012-mobs-cq.zip", "C:/qfb/textures/r012/QF-r012-gui-book.zip"],

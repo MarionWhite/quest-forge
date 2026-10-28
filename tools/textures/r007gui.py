@@ -135,7 +135,7 @@ TITLES = {
     "crafting_table": [("Crafting", 28, 6), ("Inventory", 8, 72)],
     "brewing_stand": [("Brewing Stand", None, 6), ("Inventory", 8, 72)],
     "enchanting_table": [("Enchant", 12, 5), ("Inventory", 8, 72)],
-    "anvil": [("Repair & Name", 60, 6), ("Inventory", 8, 72)],
+    "anvil": [("Repair & Name", 60, 6)],     # 1.7.10's GuiRepair draws no "Inventory": its plaque stays Faithless's
     "dispenser": [("Dispenser", None, 6), ("Inventory", 8, 72)],
     "hopper": [("Item Hopper", 8, 6), ("Inventory", 8, 39)],
 }
@@ -232,9 +232,10 @@ def plaque_fix(im, titles, font, log):
 
 # Enchanting options: 1.7.10 writes each option's spell in 0x685E4A over the ribbon at (0,166); on Faithless's red
 # ribbon that is dark on dark. The ribbon's body becomes parchment (the same light field as the plaques) and its right
-# end keeps Faithless's red and gold as a seal, where 1.7.10 right-aligns the green level number (x 86..98).
+# end keeps Faithless's red and gold as a seal, where 1.7.10 right-aligns the green level number (x 94..106 for "30").
+# r012: the seal narrowed 82 -> 91, the spell text (wrapped at 104 px, as on vanilla) ran onto the red for 24 px.
 RIBBON = (0, 166, 108, 19)
-RIBBON_SEAL_X = 82
+RIBBON_SEAL_X = 91
 PARCHMENT = {(181, 59, 38): (241, 222, 186), (161, 52, 33): (228, 205, 165), (148, 40, 33): (214, 188, 146),
              (107, 23, 29): (176, 140, 98)}
 
@@ -357,7 +358,12 @@ def creative_book(fl):
     b[4, 80:172, :3] = (30, 20, 16)
     b[4:16, 80, :3] = (30, 20, 16)
     del ink
-    return items, Image.fromarray(b)
+
+    def sheet(img):                         # 1.7.10 reads GUI UVs over 256x256: a 195x136 file gets stretched
+        s = Image.new("RGBA", (256, 256))
+        s.paste(img, (0, 0))
+        return s
+    return sheet(items), sheet(Image.fromarray(b))
 
 
 def preview_creative(tabs, bg, title, font, sel=(1, 1)):

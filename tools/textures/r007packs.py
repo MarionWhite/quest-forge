@@ -445,6 +445,14 @@ MOB_TEX = ("bat.png", "blaze.png", "chicken.png", "cow/", "creeper/creeper.png",
            "zombie/", "zombie_pigman.png", "cat/")
 
 
+def _same_as(im, van, tol=2.0):
+    """True when a skin is the vanilla one (mean RGB difference over vanilla's opaque pixels, at vanilla's size)."""
+    v = np.asarray(van.convert("RGBA")).astype(float)
+    p = np.asarray(im.convert("RGBA").resize(van.size, Image.BOX)).astype(float)
+    m = v[..., 3] > 0
+    return bool(m.any()) and float(np.abs(v[..., :3] - p[..., :3]).mean(axis=2)[m].mean()) < tol
+
+
 def part_mobs(out, px, mc, log, mode="remap", cq=None):
     import patrix_remap
     E = T + "entity/"
@@ -460,7 +468,7 @@ def part_mobs(out, px, mc, log, mode="remap", cq=None):
         out[E + v] = png(im)
         took.append(v)
     if mode == "remap":
-        for v in patrix_remap.SPECS:
+        for v in patrix_remap.USE:
             out[E + v] = png(patrix_remap.remap(px, v))
             remapped.append(v)
     if cq is not None:
@@ -478,6 +486,14 @@ def part_mobs(out, px, mc, log, mode="remap", cq=None):
             im = cq.img(src)
             if im.width * van.height != im.height * van.width:
                 left.append(v)
+                continue
+            if _same_as(im, van):
+                # Conquest ships some skins unchanged (r012: its witch is vanilla's): Patrix remapped if it maps
+                if v in patrix_remap.USE:
+                    out[E + v] = png(patrix_remap.remap(px, v))
+                    remapped.append(v)
+                else:
+                    left.append(v)
                 continue
             out[E + v] = png(im)
             conq.append(v)
