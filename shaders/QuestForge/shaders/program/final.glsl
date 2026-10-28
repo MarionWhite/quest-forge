@@ -227,7 +227,7 @@ vec3 sunGlare(ivec2 px) {
     if (any(lessThan(suv, vec2(-0.1))) || any(greaterThan(suv, vec2(1.1)))) return vec3(0.0);
     float pxA = 2.0 / (gbufferProjection[1][1] * viewHeight);
     float rpx = SUN_REAL_R / pxA * 0.45;
-    float vis = 0.0;
+    float vis = 0.0, visG = 0.0;
     float want = 0.30 * sunPeak();
     for (int i = 0; i < 9; i++) {
         float a = float(i) * 2.39996;
@@ -236,10 +236,34 @@ vec3 sunGlare(ivec2 px) {
         if (any(lessThan(q, ivec2(0))) || q.x >= int(viewWidth) || q.y >= int(viewHeight)) continue;
         vec3 e = sceneExposed(q);
         float sky = step(1.0, texelFetch(depthtex0, q, 0).r);
-        vis += sky * clamp(max(e.r, max(e.g, e.b)) / want, 0.0, 1.0);
+        float m = max(e.r, max(e.g, e.b));
+        vis += sky * clamp(m / want, 0.0, 1.0);
+        // r012: the glow's own visibility counts a thin, sunlit cloud over the disk too (a disk under
+        // cloud still lights it: the photo's sun bursting through), so a hidden sun keeps a glow in
+        // proportion to how bright the cloud in front of it burns (display white ~1). A thick dark cloud
+        // (~0.3) stays dark. Loop 1: against the disk's peak (cloud ~0.06 of it) the glow never showed.
+        visG += sky * smoothstep(0.30, 1.0, m);
     }
+#if QF_SUN_BLOOM > 0
+    // An outer ring at the limb: a low sun often shows only a sliver under the cloud base.
+    for (int i = 0; i < 8; i++) {
+        float a = float(i) * 0.7854 + 0.39;
+        ivec2 q = ivec2(suv * vec2(viewWidth, viewHeight) + vec2(cos(a), sin(a)) * rpx * 2.0);
+        if (any(lessThan(q, ivec2(0))) || q.x >= int(viewWidth) || q.y >= int(viewHeight)) continue;
+        vec3 e = sceneExposed(q);
+        visG += step(1.0, texelFetch(depthtex0, q, 0).r) * smoothstep(0.30, 1.0, max(e.r, max(e.g, e.b)));
+    }
+    visG /= 17.0;
+#else
+    visG /= 9.0;
+#endif
     vis /= 9.0;
+    visG = max(vis, visG);
+#if QF_SUN_BLOOM == 0
     if (vis <= 0.0) return vec3(0.0);
+#else
+    if (visG <= 0.0) return vec3(0.0);
+#endif
     vec3 dir = normalize(viewFromScreen(uv, 1.0));
     float th = acos(clamp(dot(dir, normalize(sv)), -1.0, 1.0));
     // r008: the falloffs start at the limb, not the centre, so a larger disk keeps a tight bright
@@ -258,6 +282,26 @@ vec3 sunGlare(ivec2 px) {
     float psf = (0.12 * exp(-thl / 0.0026) + 0.030 * exp(-thl / 0.016) + 0.0045 * exp(-thl / 0.09)) * inDisk;   // pa: 0.22/0.045/0.006 washed out the gold sky; loop 3: core 0.10 @ 0.0040 -> 0.12 @ 0.0026, a tighter corona
     vec3 E = sunIrradiance() * exposure() * (1.0 - rainStrength);
     vec3 g = E * psf * vis;
+#if QF_SUN_BLOOM > 0
+    // r012 (owner r011 sunset: "listen to the critic"; critic: "the sun is still a thin white sliver
+    // under the cloud with no hot glow round it ... a bright sun disk and aureole that blooms"). How
+    // Photon and BSL get it: their disk is the real sun's brightness and a wide bloom spreads ~12 % of
+    // it over the frame (Photon: bloom mixed at 0.12 over a six-level pyramid), so a low sun sits in a
+    // big warm glow that lies over the clouds and land round it. A bloom pyramid costs ~0.3 ms at 1440p;
+    // the same shape here is two analytic lobes (about 2 and 7 degrees) round the sun, gold at low sun,
+    // drawn over everything (no inDisk cut: the glow is in the eye), weaker high in the sky.
+    {
+        // Loop 2: in exposed (display) units like BSL's glow, not as a share of the sun's irradiance
+        // (loop 1's 1e-3 share did not show at all): a hot core about 1.7 deg that tone-maps toward
+        // white-gold, and a wide gold lobe about 6 deg.
+        const float BA = QF_SUN_BLOOM == 1 ? 0.5 : (QF_SUN_BLOOM == 2 ? 1.0 : 1.8);
+        float sy = sunDirWorld().y;
+        float low = smoothstep(0.45, 0.02, sy);
+        vec3 tc = mix(vec3(1.0, 0.96, 0.90), vec3(1.0, 0.86, 0.62), low);
+        vec3 tw = mix(vec3(1.0, 0.92, 0.82), vec3(1.0, 0.70, 0.38), low);
+        g += (tc * 0.9 * exp(-th / 0.03) + tw * 0.25 * exp(-th / 0.10)) * BA * mix(0.25, 1.0, low) * visG * (1.0 - rainStrength);
+    }
+#endif
 #if QF_LENS == 1
     // A faint lens: a six-point starburst close round the sun and three dim ghosts on the line
     // from the sun through the screen centre, tinted as coated glass reflects.

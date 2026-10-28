@@ -316,6 +316,13 @@ vec3 shadeSurface(Surface s, vec3 viewDir, vec2 pixel) {
         color += F * E * min(sp, foliage ? 3.0 : 60.0) * shadow;
         vec3 R = reflect(viewDir, s.normal);
         vec3 Fe = fresnelSchlick(NdotV, f0v);
+#if QF_METAL_SSR == 1 && QF_GEM_SSR == 1
+        // r012 gem test (texture track, ops/checkpoints/r012-textures.md): a polished dielectric (diamond,
+        // emerald: smoothness > 0.88, F0 > 0.1) reflects the real scene in composite (gemReflection), and
+        // its diffuse gives way to that reflection.
+        if (s.smoothness > 0.88 && s.f0 > 0.1) color *= 1.0 - Fe;
+        else
+#endif
         color += skyScatter(R) * Fe * sky * s.smoothness * s.smoothness * ao;
     }
 #endif

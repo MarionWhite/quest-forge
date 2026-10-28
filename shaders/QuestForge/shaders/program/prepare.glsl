@@ -208,7 +208,7 @@ vec3 skyViewTexel(ivec2 p, ivec2 origin, vec3 lightWorld) {
     // r011: Photon 1.4's precomputed scattering (lib/photon.glsl) instead of the march, with Photon's
     // sky exposure and tint by the hour on the sun's table (its blue-hour boost keeps twilight lit).
     if (origin == LUT_SV_MOON) return phPost(phScattering(dir, light, true), sunDirWorld().y);
-    return phPost(phScattering(dir, light, false), lightWorld.y) * phSunTint(lightWorld.y);
+    return phPost(phScatteringT(dir, light, false, phSunTintX(lightWorld.y, false), phSunTintX(lightWorld.y, true)), lightWorld.y);
 #else
     return integrateSky(r, dir, light);
 #endif

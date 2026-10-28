@@ -1000,6 +1000,35 @@ vec3 metalReflection(vec3 n, vec3 viewDir, vec3 albedo, float f0id, float smooth
 }
 #endif
 
+#if QF_METAL_SSR == 1 && QF_GEM_SSR == 1
+// r012 gem test (texture track, ops/checkpoints/r012-textures.md): diamond and emerald as polished dielectrics
+// reflect what metal reflects (the scene by SSR, the sky and clouds, the lit ground below the horizon) with an
+// untinted Fresnel from their F0 byte (0.17 = diamond's n 2.42). Before, deferred added only skyScatter(R),
+// which clamps R.y to 0: every pixel of a flat face mirrored the same bright horizon, a pale uniform wash.
+vec3 gemReflection(vec3 n, vec3 viewDir, float f0, float smooth_, float skyLight, float ao, float depth0) {
+    float r = (1.0 - smooth_) * (1.0 - smooth_);
+    float NdotV = clamp(dot(n, -viewDir), 0.02, 1.0);
+    vec3 Fe = fresnelSchlick(NdotV, vec3(f0));
+    vec3 R = reflect(viewDir, n);
+    vec3 Ru = normalize(vec3(R.x, max(R.y, 0.02), R.z));
+    vec3 envS = skyScatter(Ru);
+#if QF_CLOUDS == 1
+    envS = applyClouds(envS, Ru);
+#elif QF_CLOUDS == 2
+    envS = applyCloudsCheap(envS, Ru);
+#endif
+    vec3 L = lightDirWorld();
+    vec3 ground = (lightIrradiance() * max(L.y, 0.0) * 0.6 + skyIrradiance(vec3(0.0, 1.0, 0.0))) * vec3(0.16, 0.15, 0.11) / PI;
+    vec3 env = mix(ground, envS, smoothstep(-0.12, 0.10, R.y));
+    env = mix(env, skyIrradiance(n) / PI, r);
+    env *= mix(0.25, 1.0, smoothstep(0.3, 0.9, skyLight));
+    vec3 vp = viewFromScreen(uv, depth0) + mat3(gbufferModelView) * n * 0.04;
+    vec4 ssr = waterSSR(vp, mat3(gbufferModelView) * R, ign(gl_FragCoord.xy + float(frameCounter % 64) * 7.0), false);
+    env = mix(env, ssr.rgb, ssr.a * (1.0 - smoothstep(0.15, 0.6, r)));
+    return env * Fe * ao;
+}
+#endif
+
 #if QF_CREPUSCULAR == 1 && QF_PRESET >= 3 && QF_CLOUDS == 2
 // r010 crepuscular rays (owner r009 sun-cloud: "the sun interacting realistically with the clouds in
 // front of it"; an open owner question for the default, ops/DECISIONS.md). Clouds near a low sun cast
@@ -1344,6 +1373,10 @@ void main() {
         bool metalPx = mapped ? f0M > 0.895 : unpackMaterial(g1) == MAT_METAL;
         if (metalPx) color += metalReflection(decodeNormal(g1.rg), viewDir, toLinear(c0.rgb), mapped ? f0M : 0.0,
                                               mapped ? max(smM, 0.35) : 0.72, g2m.g, g2m.b, depth0);
+#if QF_GEM_SSR == 1
+        else if (mapped && smM > 0.88 && f0M > 0.1)
+            color += gemReflection(decodeNormal(g1.rg), viewDir, f0M, smM, g2m.g, g2m.b, depth0);
+#endif
     }
 #endif
     if (isEyeInWater == 1) {
@@ -1380,7 +1413,9 @@ void main() {
         vec3 phColor = color;
         float phNight = smoothstep(-0.02, -0.12, sunDirWorld().y);
         if (phNight < 1.0) {
-            mat2x3 f = phAirFog(viewDir, sky ? phSkyLen() : dist0, lightDirWorld(), lightIrradiance(),
+            mat2x3 f = sky ? phAirFog(viewDir, phSkyLen(), lightDirWorld(), lightIrradiance(),
+                                      2.0 * lutFetch(C_AMB_UP).rgb, 1.0, mix(1.0, 0.2, wCrisp))
+                           : phAirFogNear(viewDir, dist0, lightDirWorld(), lightIrradiance(),
                                 2.0 * lutFetch(C_AMB_UP).rgb, sky ? 1.0 : max(skyLight, eyeSky), mix(1.0, 0.2, wCrisp));
             phColor = color * f[1] + f[0];
             // Chunk edges still fade into the (fogged) sky.

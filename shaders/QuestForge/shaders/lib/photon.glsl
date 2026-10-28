@@ -70,14 +70,31 @@ float phBlueHourProp(float sy) { return exp(-150.0 * (sy + 0.07283) * (sy + 0.07
 float phBlueHourLight(float sy) { return phLinStep(0.05, 1.0, exp(-190.0 * (sy + 0.09604) * (sy + 0.09604))); }
 
 // get_sun_exposure() * get_sun_tint() relative to noon (Photon's base scale 7 is our SUN_I).
-vec3 phSunTint(float sy) {
+// r012 (owner r011 sunset A 4, "listen to the critic": "pink-lilac, where the photo is amber-gold from
+// the horizon up ... a warmer, less magenta horizon"). The pink is Photon's own morning/evening tint,
+// vec3(1.05, 0.84, 0.93) (green below blue), which Photon multiplies into the sun's light AND the whole
+// sky. Photon's answer for a different look is its user tint per time of day (SUN_MR/G/B, SUN_ER/G/B);
+// QF_SUN_GOLD is that, split two ways: the sunlight and the sky's Mie glow (what lights the clouds, the
+// land, the haze and the air round the sun) take a gold tint, the Rayleigh sky a near-neutral warm one,
+// so the upper sky stays steel blue as in the photo instead of turning brown.
+vec3 phMeTint(bool mie) {
+#if QF_SUN_GOLD == 2
+    return mie ? vec3(1.05, 0.95, 0.48) : vec3(1.05, 0.92, 0.86);   // deeper amber
+#elif QF_SUN_GOLD == 1
+    return mie ? vec3(1.05, 0.99, 0.60) : vec3(1.05, 0.95, 0.92);   // gold
+#else
+    return vec3(1.05, 0.84, 0.93);                                  // Photon's default (pink-lilac)
+#endif
+}
+vec3 phSunTintX(float sy, bool mie) {
     float bh = phBlueHourLight(sy);
     float mul = 1.0 + 0.5 * phMeWeight(sy) + 40.0 * bh;
     float p = phPulse(sy, 0.17, 0.40);
-    vec3 me = mix(vec3(1.0), vec3(1.05, 0.84, 0.93) * 1.2, p * p);
+    vec3 me = mix(vec3(1.0), phMeTint(mie) * 1.2, p * p);
     vec3 blue = mix(vec3(1.0), vec3(0.95, 0.80, 1.0), bh);
     return mul * me * blue;
 }
+vec3 phSunTint(float sy) { return phSunTintX(sy, true); }
 
 // atmosphere_post_processing: saturation boost (0.10 + 0.20 blue hour), desaturation in rain.
 vec3 phPost(vec3 c, float sy) {
@@ -120,7 +137,10 @@ vec3 phScatterUv(float nu, float mu, float muS) {
 }
 
 // Sky radiance (Rec. 709) for unit irradiance from a light at `light`; `moon` picks the moon's phase.
-vec3 phScattering(vec3 dir, vec3 light, bool moon) {
+// tR / tM tint the Rayleigh and Mie parts (r012 QF_SUN_GOLD; Photon applies one tint to both).
+vec3 phScatteringT(vec3 dir, vec3 light, bool moon, vec3 tR, vec3 tM);
+vec3 phScattering(vec3 dir, vec3 light, bool moon) { return phScatteringT(dir, light, moon, vec3(1.0), vec3(1.0)); }
+vec3 phScatteringT(vec3 dir, vec3 light, bool moon, vec3 tR, vec3 tM) {
     float nu = dot(dir, light);
     float mu = dir.y, muS = light.y;
     float hmu = mix(-0.01, 0.03, smoothstep(-0.05, 0.1, muS));
@@ -139,7 +159,7 @@ vec3 phScattering(vec3 dir, vec3 light, bool moon) {
         ph = vec3(phNvidiaArea(nu, 0.85, 1.0, PH_SUN_RADIUS), phNvidiaArea(nu, 0.86, 1.0, PH_SUN_RADIUS),
                   phNvidiaArea(nu, 0.87, 1.0, PH_SUN_RADIUS)) * 0.2;
     }
-    return max(PH_2020_TO_709 * (ray + mie * ph), vec3(0.0));
+    return max((PH_2020_TO_709 * ray) * tR + (PH_2020_TO_709 * (mie * ph)) * tM, vec3(0.0));
 }
 
 // --- analytic air fog (include/fog/overworld/analytic.glsl, include/weather/fog.glsl) -------------
@@ -166,7 +186,18 @@ vec2 phAirmass(vec3 origin, vec3 dir, float len) {
 // (in-scattered light, transmittance) along len blocks of dir from the camera. light: the sun or moon
 // irradiance at the camera (lightIrradiance()), ambient: Photon's ambient_color (tau x sky radiance),
 // densityMul: the pack's biome multipliers (crisp mountains).
+mat2x3 phAirFogO(vec3 origin, vec3 dir, float len, vec3 L, vec3 light, vec3 ambient, float sky, float densityMul);
 mat2x3 phAirFog(vec3 dir, float len, vec3 L, vec3 light, vec3 ambient, float sky, float densityMul) {
+    return phAirFogO(cameraPosition, dir, len, L, light, ambient, sky, densityMul);
+}
+// r012 (owner r011 sun-cloud: rays off "is very hazy"; golden_lit's near grass 66,64,39 against round
+// 10's 40,45,15): land keeps the first QF_PH_NEAR blocks of air clear. The haze integral starts that far
+// out (origin moved along the ray), so it still grows smoothly from zero with distance: no band.
+mat2x3 phAirFogNear(vec3 dir, float len, vec3 L, vec3 light, vec3 ambient, float sky, float densityMul) {
+    float n = min(float(QF_PH_NEAR), len);
+    return phAirFogO(cameraPosition + dir * n, dir, len - n, L, light, ambient, sky, densityMul);
+}
+mat2x3 phAirFogO(vec3 origin, vec3 dir, float len, vec3 L, vec3 light, vec3 ambient, float sky, float densityMul) {
     float sy = sunDirWorld().y;
     float me = phMeWeight(sy);
     bool rising = sunDirWorld().x > 0.0;   // Photon: time_sunrise when sun_dir.x > 0
@@ -183,7 +214,7 @@ mat2x3 phAirFog(vec3 dir, float len, vec3 L, vec3 light, vec3 ambient, float sky
     // grey, so land takes sqrt of that and the sky (and its reflection) looks through 256 blocks of air
     // (phSkyLen).
     densityMul *= sqrt(max(1.0, 256.0 / far)) * QF_PH_FOG;
-    vec2 am = phAirmass(cameraPosition, dir, len) * densityMul;
+    vec2 am = phAirmass(origin, dir, len) * densityMul;
     vec3 od = rayleigh * am.x + vec3(mie) * am.y;
     vec3 T = exp(-od);
     vec3 integ = (1.0 - T) / max(od, vec3(1e-6));

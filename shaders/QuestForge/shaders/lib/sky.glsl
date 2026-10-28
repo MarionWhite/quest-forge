@@ -422,11 +422,21 @@ vec3 meteorsSector(vec3 dir) {
         // Loop 2 (r11m4c vs the owner's photos: our streaks 5-8 px wide with comet-like heads that bloomed;
         // his are hairlines, long, faint and even along their length): brightness capped at 3.5, thinner
         // lines, longer paths, a trail that keeps most of its length lit.
+#if QF_METEOR_LEAN == 1
+        // r012 (owner r011: "the leaner design like the references I gave. These ones kinda look a
+        // little bulky"; his photos: hairlines, long, even along most of their length and fading out at
+        // both ends, no bright head). Fainter cap, a third longer, tapered, half the width (below).
+        float bright = min(BR * 0.8 / max(u, 0.012), 2.5);
+        float gold = smoothstep(1.4, 2.5, bright);
+        float th0 = acos(mix(0.985, -0.09, hash12(sd + 4.4)));
+        float len = (0.32 + 0.54 * hash12(sd + 5.5)) * max(sin(th0), 0.08) * mix(1.0, 1.2, gold);
+#else
         float bright = min(BR / max(u, 0.012), 3.5);
         float gold = smoothstep(1.8, 3.5, bright);
         // Path: start 10-95 deg out (cos-uniform: most far out), length ~ sin of that, 6-30 deg.
         float th0 = acos(mix(0.985, -0.09, hash12(sd + 4.4)));
         float len = (0.24 + 0.40 * hash12(sd + 5.5)) * max(sin(th0), 0.08) * mix(1.0, 1.2, gold);
+#endif
         float omega = radians(mix(14.0, 34.0, hash12(sd + 1.1))) * max(sin(th0 + 0.5 * len), 0.2);
         float life = len / omega;                                    // ~0.4-2 s on the sky
         float trainT = bright > 2.0 ? mix(0.6, 1.8, gold) : 0.0;
@@ -443,6 +453,27 @@ vec3 meteorsSector(vec3 dir) {
         float tail0 = head - len * mix(0.45, 0.95, pb);
         vec3 hc = hash12(sd + 7.7) < 0.6 ? vec3(0.78, 1.0, 0.86) : vec3(1.0, 0.84, 0.60);   // refs: green-white and amber
         vec3 tint = mix(vec3(0.93, 0.96, 1.0), hc, 0.55 * smoothstep(1.2, 5.0, bright));
+#if QF_METEOR_LEAN == 1
+        if (p < 1.0) {
+            // A hairline (Gaussian half-width ~0.65 px; TAA resolves the sub-pixel jitter) whose width
+            // and brightness rise from the tail, hold, and fade into the head: no blob at either end.
+            float along = clamp((thd - tail0) / max(head - tail0, 1e-4), 0.0, 1.0);
+            float prof = smoothstep(0.0, 0.35, along) * smoothstep(1.0, 0.80, along);
+            float w = pxA * mix(0.35, 0.65, prof);
+            float line = exp(-perp * perp / (w * w));
+            float inside = step(tail0, thd) * step(thd, head);
+            float flare = pow(sin(PI * p), 0.6) * mix(0.8, 1.4, p);
+            sum += tint * line * prof * inside * flare * bright * 0.9;
+        }
+        float age = trainT > 0.0 ? max(tk - ci * P - start - life * 0.6, 0.0) / trainT : 1.0;
+        if (age < 1.0) {
+            float wt = pxA * mix(0.6, 1.0, age);
+            float lineT = exp(-perp * perp / (wt * wt));
+            float span = smoothstep(th0 - 0.004, th0 + len * 0.3, thd) * smoothstep(head + 0.003, head - len * 0.15, thd);
+            float fadeT = (1.0 - age) * (1.0 - age) * smoothstep(0.0, 0.08, age + p * 0.1);
+            sum += vec3(0.80, 0.94, 0.92) * lineT * span * fadeT * 0.08 * min(bright, 4.0);
+        }
+#else
         if (p < 1.0) {
             float w = pxA * mix(0.85, 1.15, smoothstep(1.0, 3.5, bright));
             float line = exp(-perp * perp / (w * w));
@@ -461,6 +492,7 @@ vec3 meteorsSector(vec3 dir) {
             float fadeT = (1.0 - age) * (1.0 - age) * smoothstep(0.0, 0.08, age + p * 0.1);
             sum += vec3(0.80, 0.94, 0.92) * lineT * span * fadeT * 0.14 * min(bright, 4.0);
         }
+#endif
     }
     return sum;
 }
@@ -1102,7 +1134,10 @@ vec3 skyRadiance(vec3 dir) {
 #endif
         float night = 1.0 - smoothstep(-0.12, 0.04, sunDir.y);
         L += T * stars(dir) * night;
-        if (night > 0.0) { L += T * nightSkyTexture(dir) * night; gMeteor *= T * night; }
+        // r012 (critic r011 shore_dusk: "a solid white meteor streak hangs in the twilight sky ... reads as
+        // a contrail. Fix: no meteors until the sun is well below the horizon"): meteors fade in from a sun
+        // 3 deg down and are full from 8 deg down (the twilight sky keeps its stars and Milky Way as before).
+        if (night > 0.0) { L += T * nightSkyTexture(dir) * night; gMeteor *= T * smoothstep(-0.05, -0.14, sunDir.y); }
 #if QF_GLITTER == 2
         L += T * sunAureole(dir, sunDir);
 #endif
