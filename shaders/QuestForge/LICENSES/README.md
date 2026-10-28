@@ -1,8 +1,20 @@
 # Sources and credits
 
-All GLSL in this pack was written for Quest Forge from scratch. No code, ID tables, option
-names or textures come from Complementary, BSL, Sildur's, SEUS, Photon, Bliss or any GPL pack
-(docs/design/shaders/README.md, "Licence stance"). The pack's own licence is the owner's
+All GLSL in this pack was written for Quest Forge from scratch, except the Photon port below. No
+code, ID tables, option names or textures come from Complementary, BSL, Sildur's, SEUS, Bliss or
+any GPL pack (docs/design/shaders/README.md, "Licence stance").
+
+## Ported from Photon Shaders (r011)
+
+`lib/photon.glsl` and `textures/qf_scattering.dat` are modified portions of **Photon Shaders 1.4,
+Copyright (c) 2021-2025 Benjamin Stott ("SixthSurge")**, redistributed under the Photon Shaders
+License, included as `photon-LICENSE.txt` (modified portions may be redistributed, including in a
+modpack; not on platforms that pay creators, e.g. Modrinth or CurseForge, and never for money).
+Ported: `include/sky/atmosphere.glsl` (scattering-LUT lookup, horizon stretch, Mie phase, saturation
+boost), `include/utility/phase_functions.glsl`, `include/lighting/colors/light_color.glsl` (sun tint
+and exposure by the hour), `include/fog/overworld/analytic.glsl` and `include/weather/fog.glsl`
+(analytic air fog), and `image/atmosphere/scattering.dat` (unmodified). The LUT's mapping functions
+are E. Bruneton's (2017, BSD-3; notice in `lib/photon.glsl`). The pack's own licence is the owner's
 choice and is not set yet.
 
 The shaderLABS Base-330 template suggested in the plan was not used; the program set was

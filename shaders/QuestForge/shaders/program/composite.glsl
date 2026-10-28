@@ -13,6 +13,7 @@
 #include "/lib/shadows.glsl"
 #include "/lib/lighting.glsl"
 #include "/lib/water.glsl"
+#include "/lib/photon.glsl"
 
 #ifdef VSH
 out vec2 uv;
@@ -757,6 +758,9 @@ vec3 shadeWaterAbove(vec3 color, vec3 n, float var, vec3 scene0, float dist0, ve
 #elif QF_CLOUDS == 2
     refl = applyCloudsCheap(refl, R);
 #endif
+#if QF_ATMOS == 1
+    refl = phFogSky(refl, R, lightDirWorld(), lightIrradiance());
+#endif
     refl *= smoothstep(0.3, 0.9, skyLight);
     float sunOcc = 0.0;
 #if QF_SSR_STEPS > 0 && QF_WATER_STYLE > 0
@@ -1030,6 +1034,42 @@ float crepuscularGain(vec3 viewDir) {
 }
 #endif
 
+#if QF_CREPUSCULAR == 2 && QF_CLOUDS == 2 && QF_PRESET >= 2
+// r011 crepuscular rays, PORTED from Photon 1.4 include/sky/crepuscular_rays.glsl (c) Benjamin Stott,
+// Photon Shaders License (LICENSES/photon-LICENSE.txt). Per sky pixel, a march from the eye up to the
+// cloud base (at most 4096 blocks; 20 steps toward the horizon, 4 at the zenith), each step one read of
+// the cloud shadow map (lib/lut.glsl; built in prepare). Air in the clouds' shadow adds nothing, lit air
+// adds the light's in-scattering with Photon's two-lobe phase (forward lobe x3 at sunrise and sunset),
+// so lit lanes and shadow wedges fan from a sun behind broken cloud. r010's version (QF_CREPUSCULAR 1)
+// read 16 full-screen taps per pixel toward the sun's screen position instead.
+vec3 crepuscularRays(vec3 dir) {
+    vec3 L = lightDirWorld();
+    if (L.y < -0.02) return vec3(0.0);
+    float tEnd = dir.y > 0.002 ? min((CL_BASE - cameraPosition.y) / dir.y, 4096.0) : 4096.0;
+    if (tEnd <= 0.0) return vec3(0.0);
+    float ay = clamp(abs(dir.y), 0.0, 1.0);
+    int steps = int(mix(float(QF_CREP_STEPS), 4.0, ay * (2.0 - ay)));
+    float dt = tEnd / float(steps);
+    vec3 e1, e2;
+    cloudMapAxes(L, e1, e2);
+    vec3 ext = vec3(2.2, 3.0, 5.4) * 1e-3 * 0.25;   // Photon's 2 (50 Rayleigh + 400 Mie) per m, x 0.25
+    vec3 stepT = exp(-ext * dt);
+    float dith = ign(gl_FragCoord.xy + float(frameCounter % 64) * vec2(2.31, 5.17));
+    vec3 S = vec3(0.0), T = vec3(1.0);
+    for (int i = 0; i < steps; i++) {
+        float d = dt * (float(i) + dith);
+        float sh = lookupCloudShadowMap(dir * d, e1, e2);
+        float b = 1.0 - exp2(-0.002 * d);
+        S += sh * sh * sh * T * b;
+        T *= stepT;
+    }
+    float LoV = dot(dir, L);
+    float sunset = goldenHour();
+    float phase = mix(0.5, 1.5, sunset) * phHG(LoV, 0.5) + 0.5 * phHG(LoV, -0.2);
+    return S * (1.0 - stepT) * lightIrradiance() * phase * QF_CREP_I * (1.0 - rainStrength);
+}
+#endif
+
 void main() {
     ivec2 px = ivec2(gl_FragCoord.xy);
     float depth0 = texelFetch(depthtex0, px, 0).r;
@@ -1092,6 +1132,9 @@ void main() {
             refl = applyClouds(refl, R);
 #elif QF_CLOUDS == 2
             refl = applyCloudsCheap(refl, R);
+#endif
+#if QF_ATMOS == 1
+            refl = phFogSky(refl, R, lightDirWorld(), lightIrradiance());
 #endif
             refl *= smoothstep(0.3, 0.9, skyLight);
 #if QF_WATER_STYLE > 0
@@ -1322,6 +1365,26 @@ void main() {
         wStorm = 1.0;
 #endif
         float lit = sky ? 1.0 : smoothstep(0.0, 0.3, max(skyLight, eyeSky));
+#if QF_ATMOS == 1
+        // r011: Photon's analytic air fog (lib/photon.glsl) on land and sky alike, lit by the sun with
+        // a forward lobe, so a low sun lights the air across the whole view. Night keeps round 10's
+        // owner-tuned fog (below), blended in as the sun sets.
+        vec3 phColor = color;
+        float phNight = smoothstep(-0.02, -0.12, sunDirWorld().y);
+        if (phNight < 1.0) {
+            mat2x3 f = phAirFog(viewDir, sky ? phSkyLen() : dist0, lightDirWorld(), lightIrradiance(),
+                                2.0 * lutFetch(C_AMB_UP).rgb, sky ? 1.0 : max(skyLight, eyeSky), mix(1.0, 0.2, wCrisp));
+            phColor = color * f[1] + f[0];
+            // Chunk edges still fade into the (fogged) sky.
+            if (!sky) {
+                float edge = smoothstep(far * 0.82, far, dist0) * lit;
+                if (edge > 0.0) {
+                    mat2x3 fs = phAirFog(viewDir, phSkyLen(), lightDirWorld(), lightIrradiance(), 2.0 * lutFetch(C_AMB_UP).rgb, 1.0, mix(1.0, 0.2, wCrisp));
+                    phColor = mix(phColor, skyScatter(viewDir) * fs[1] + fs[0], edge);
+                }
+            }
+        }
+#endif
         if (!sky) {
             // Haze: none in the near field, rising towards the render distance so chunk edges
             // fade into the sky; thicker in rain.
@@ -1382,6 +1445,9 @@ void main() {
 #endif
             color = mix(color, haze, amount * lit);
         }
+#if QF_ATMOS == 1
+        color = mix(phColor, color, phNight);
+#endif
 #if QF_SHAFTS > 0 && QF_SHADOWS
         color += lightShafts(viewDir, dist0, eyeSky, isFoliage(unpackMaterial(g1)) ? 1.0 : 0.0);
 #endif
@@ -1436,6 +1502,18 @@ void main() {
 #endif
 #if QF_CREPUSCULAR == 1 && QF_PRESET >= 3 && QF_CLOUDS == 2
     if (isEyeInWater == 0 && depth0 >= 1.0) color *= crepuscularGain(viewDir);
+#endif
+#if QF_CREPUSCULAR == 2 && QF_CLOUDS == 2 && QF_PRESET >= 2
+    if (isEyeInWater == 0 && depth0 >= 1.0) color += crepuscularRays(viewDir);
+#if QF_DEBUG_VIEW == 15
+    // r011 rays debug: r the rays x 4, g the cloud shadow map 500 blocks along the view, b sky radiance.
+    if (depth0 >= 1.0) {
+        vec3 e1d, e2d;
+        cloudMapAxes(lightDirWorld(), e1d, e2d);
+        outColor = vec4(vec3(luminance(crepuscularRays(viewDir)) * 4.0, lookupCloudShadowMap(viewDir * 500.0, e1d, e2d), luminance(skyScatter(viewDir))) / max(exposure(), 1e-4), 1.0);
+        return;
+    }
+#endif
 #endif
     // r008: never hand TAA a NaN or Inf (r007's PBR blob spread from one through the history).
     if (any(isnan(color)) || any(isinf(color))) color = vec3(0.0);

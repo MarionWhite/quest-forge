@@ -6,7 +6,7 @@
 #define QF_NIGHT_FLOOR 1.0 // [0.0 0.5 0.75 1.0 1.5 2.0 3.0]
 #define QF_EXPOSURE_BIAS 0.0 // [-1.5 -1.0 -0.5 0.0 0.5 1.0 1.5]
 #define QF_WAVING 1 // [0 1]
-#define QF_DEBUG_VIEW 0 // [0 1 2 3 4 5 6 7 8 9 10 11 12 13 14]
+#define QF_DEBUG_VIEW 0 // [0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15]
 #define QF_STILL 0 // [0 1]   development: freeze wind, waves and twinkle (temporal-noise test)
 #define QF_EXPO_PIN 0 // [0 1]   development (r009 forest wash): 1 pins the exposure at QF_EXPO_PIN_LOG, so A/B frames are not re-metered
 #define QF_EXPO_PIN_LOG 1.0 // [0.0 0.5 1.0 1.5 2.0]
@@ -59,7 +59,10 @@
 #define QF_RIVER_TINT 1 // [0 1 2]   (r010; owner r009 river: "very green") 0 r009 green-brown silty stream (water 51,79,63); 1 the same murk, teal-blue instead of green (50,74,80); 2 clear stream: glassier water and the bed's veil cut from 2.2 to 0.6 blocks, so ledges and stones show
 #define QF_SUN_CLOUD 1 // [0 1 2]   (r010; owner r009 sun-cloud: "make sure that the sun is interacting realistically with the clouds in front of it") 0 r009: clouds within 20 deg of a low sun melt to ~20 % into the haze while still hiding the disk; 1 no melt near the sun or moon, so the cloud in front is a dark body with lit edges; 2 as 1 with the silver lining 2.5x on the thinnest fringe
 #define QF_SHALLOW_SUN 0 // [0 1 2]   development (r010 session 3: NOT the mint's cause, which was the sky seen through deep water, fixed in composite; ss0/ss1/ss2 mint 692/661/686 px, so it stays off) sunlight reaching a shallow bed: 0 r009 (the filter fades out as the sun sets, so golden-lit sand under the sea turns mint); 1 the surface's Fresnel transmission (27 % at 3 deg) and the filter held to the horizon; 2 as 1, and at low sun the bed's light counts as mostly the sun's, so sunset shallows go dark and mirror the sky
-#define QF_CREPUSCULAR 0 // [0 1]   (r010; open owner question, ops/DECISIONS.md; High and Ultra only) crepuscular rays: sunbeams fanning from a low sun through the gaps between clouds, a screen-space march toward the sun over the sky's cloud transmittance
+#define QF_CREP_I 0.3 // [0.15 0.3 0.6 1.0]   (r011) crepuscular rays strength (QF_CREPUSCULAR 2), in sun irradiance (loop 1: 0.05 gave ~0.003, 1 % of the sky; 0.3 puts a lit lane near a low sun at ~half the sky there)
+#define QF_PH_FOG 1.0 // [0.5 1.0 1.5 2.0]   (r011) Photon air-fog density on top of its defaults (scaled to a 256-block view)
+#define QF_ATMOS 1 // [0 1]   (r011; owner r010 sunset-full: "the sun reads as a single hot spot rather than affecting the lighting of the whole atmosphere") 1 Photon 1.4's atmosphere, ported (lib/photon.glsl): its precomputed sky scattering with the horizon stretch, its sun tint and exposure by the hour, and its analytic air fog lit by the sun (thick and low at dawn and dusk); 0 round 10 (our Hillaire tables with the hand-made golden sky and haze)
+#define QF_CREPUSCULAR 2 // [0 1 2]   (r011: 2 Photon's, ported: a world-space march from the eye to the cloud base through a cloud shadow map built in prepare, 20 steps at the horizon (12 Medium), 4 at the zenith, Medium and up; owner r010 sun-cloud B "only if we can afford them")   (r010; open owner question, ops/DECISIONS.md; High and Ultra only) crepuscular rays: sunbeams fanning from a low sun through the gaps between clouds, a screen-space march toward the sun over the sky's cloud transmittance
 #define QF_METAL_FLOOR 1 // [0 1]   (r010; texture track: gold 150,126,1 under the shader vs 178,152,34 vanilla) 1 metals keep most of their diffuse look under the reflection (PBR off 0.65 -> 0.92, PBR on 0.30 -> 0.62), so gold and iron are never darker than plain blocks; 0 r009
 #define QF_METAL_F0 1 // [0 1]   (r010; texture track: gold's top third showed a lime sheen) 1 LabPBR's hard-coded metals (F0 bytes 230-237: iron, gold, aluminium, chrome, copper, lead, platinum, silver) reflect with the real metal's colour, shaded by the texture's brightness; 0 r009 (the texture colour, which the grade pushes toward lime on gold)
 #define QF_CLOUD_RIM 1 // [0 1]   development (r007): sharp silver linings and rim light on cloud edges toward a low sun (owner r006, golden: "a sharper highlight effect on the edges of the clouds")
@@ -69,7 +72,7 @@
 #define QF_WATER_BLEND 1 // [0 1]   development (r007): water colour by position as well as by the camera's biome: swamp water from the game's own per-block swamp tint, blended over several blocks, deep water toward ocean blue, so biome borders are gradients (owner r006: "a pleasant gradient ... instead of stark cutoffs")
 #define QF_PBR 1 // [0 1]   (r008: on; owner r007 picked maps on, and metal blocks now reflect like metal with or without maps)   development (r007): read LabPBR 1.3 normal and specular maps from the resource pack (Iris normals/specular atlases), for packs that have them
 #define QF_METEOR_SHOW 0 // [0 1]   development (r008 loop 3; critic: the stills never catch a meteor) 1 pins two meteors with trains in front of the camera, for the vote stills
-#define QF_METEOR_STYLE 1 // [0 1 2 3]   (r010; owner r009: "it doesn't look like the meteors are coasting through the atmosphere overhead ... they're plummeting ... a bunch of them passing by at high altitude") 0 r009's high-radiant shower; 1 Earth-grazers: the radiant on the horizon, so every meteor skims the upper air at ~100 km on a long, near-level path, 1-4 s, drawn in 3D so overhead ones sweep across the sky and far ones creep along the horizon; 2 grazers plus a fireball procession (one slow fireball breaking into a chain of fragments that crosses the whole sky); 3 a grazer storm (three times the rate, mostly faint, lingering trains)
+#define QF_METEOR_STYLE 4 // [0 1 2 3 4 5]   (r011; owner r010 B 3/5 with reference photos: many long thin straight streaks out of one point, and "improve performance again") 4 a shower on great circles out of a radiant 18-45 deg up, the sky cut into 96 wedges round it, one meteor slot each, a pixel tests 3; 5 the same as a storm (240 wedges, fainter);   (r010; owner r009: "it doesn't look like the meteors are coasting through the atmosphere overhead ... they're plummeting ... a bunch of them passing by at high altitude") 0 r009's high-radiant shower; 1 Earth-grazers: the radiant on the horizon, so every meteor skims the upper air at ~100 km on a long, near-level path, 1-4 s, drawn in 3D so overhead ones sweep across the sky and far ones creep along the horizon; 2 grazers plus a fireball procession (one slow fireball breaking into a chain of fragments that crosses the whole sky); 3 a grazer storm (three times the rate, mostly faint, lingering trains)
 #define QF_METEOR_RAZ -1 // [-1 0 20 45 90 135 180 270]   development (r010): the grazers' radiant bearing in degrees for A/B frames (shader azimuth: 0 +x east, 90 +z south); -1 a new bearing every night
 #define QF_METEOR_SLOW 1.0 // [0.25 0.5 1.0]   development (r010): meteor time scale, for Lab clips only: the burst writer takes ~0.4 s a frame at uneven intervals, so a clip is shot at 0.25 and make_clip.py --speedup 4 plays it back at game speed
 #define QF_METEOR_PROC_P 18.0 // [9.0 18.0 120.0 600.0]   development (r010): seconds between fireball processions (style 2); short for the Lab clips, long for play
@@ -91,6 +94,7 @@
     #define QF_SKY_STEPS 12
     #define QF_AO_STRENGTH 0.6
     #define QF_SSR_STEPS 0
+    #define QF_CREP_STEPS 6
 #elif QF_PRESET == 1
     #define QF_SHADOWS 1
     #define QF_TAA 1
@@ -98,6 +102,7 @@
     #define QF_SKY_STEPS 12
     #define QF_AO_STRENGTH 0.6
     #define QF_SSR_STEPS 0
+    #define QF_CREP_STEPS 8
 #elif QF_PRESET == 2
     #define QF_SHADOWS 1
     #define QF_TAA 1
@@ -105,6 +110,7 @@
     #define QF_SKY_STEPS 20
     #define QF_AO_STRENGTH 0.8
     #define QF_SSR_STEPS 12
+    #define QF_CREP_STEPS 12
 #else
     #define QF_SHADOWS 1
     #define QF_TAA 1
@@ -112,6 +118,7 @@
     #define QF_SKY_STEPS 24
     #define QF_AO_STRENGTH 0.8
     #define QF_SSR_STEPS 20
+    #define QF_CREP_STEPS 20
 #endif
 
 // Shadow map per tier (rules 2 and 5). Iris reads these consts after preprocessing.

@@ -375,8 +375,100 @@ vec3 grazers(vec3 dir) {
     return sum;
 }
 #endif
+#if QF_METEOR_STYLE >= 4
+// r011 (owner r010 meteors, B storm 3/5: "these reference images should help ... we need to figure out
+// how to improve performance again"; references: many long, thin, straight streaks, all out of one point,
+// mostly faint, against the Milky Way). Every meteor of a shower lies on a great circle through the
+// radiant, so the sky is cut into K wedges round the radiant, each holding one meteor slot with its own
+// clock. A pixel finds its wedge from its position angle and tests only that wedge and its two
+// neighbours: 3 slots per pixel however many meteors fly (r010's grazers tested 24, the storm 40, on
+// every sky pixel: night_wide 3.47 and 3.98 ms). Shape as r009's physics: a streak starts 10-95 deg from
+// the radiant, its length ~ sin of that distance (foreshortening), it brightens to a white head and
+// leaves a fading train if bright; brightness P(> b) ~ 1/b, so most are faint.
+vec3 meteorRadiantS(float day) {
+#if QF_METEOR_RAZ >= 0
+    float rAz = radians(float(QF_METEOR_RAZ));
+#else
+    float rAz = hash12(vec2(day, 3.3)) * 6.2832;
+#endif
+    float rEl = radians(18.0 + 27.0 * hash12(vec2(day, 5.1)));
+    return vec3(cos(rEl) * cos(rAz), sin(rEl), cos(rEl) * sin(rAz));
+}
+vec3 meteorsSector(vec3 dir) {
+    float pxA = 2.0 / (gbufferProjection[1][1] * viewHeight);
+    float day = float(worldDay);
+    vec3 R = meteorRadiantS(day);
+    vec3 a1 = normalize(cross(R, vec3(0.0, 0.0, 1.0)));
+    vec3 a2 = cross(R, a1);
+#if QF_METEOR_STYLE == 5
+    const float K = 240.0, PB = 4.5, OCC = 0.85, BR = 0.30;   // a storm: ~3x the meteors, fainter
+#else
+    const float K = 96.0, PB = 6.0, OCC = 0.75, BR = 0.45;
+#endif
+    float cR = dot(dir, R);
+    float thd = acos(clamp(cR, -1.0, 1.0));                         // distance from the radiant
+    float phi = atan(dot(dir, a2), dot(dir, a1));                   // position angle round it
+    float j0 = floor((phi + PI) / (2.0 * PI) * K);
+    float t = meteorTime();
+    vec3 sum = vec3(0.0);
+    for (int n = -1; n <= 1; n++) {
+        float j = mod(j0 + float(n), K);
+        float P = PB * (0.75 + 0.5 * hash12(vec2(j, 9.1 + day)));   // seconds per cycle in this wedge
+        float tk = t + hash12(vec2(j, 4.7)) * P;
+        float ci = floor(tk / P);
+        vec2 sd = vec2(ci * 0.713 + j * 3.17, j * 1.31 + day * 0.17);
+        if (hash12(sd) > OCC) continue;
+        float u = hash12(sd + 6.6);
+        // Loop 2 (r11m4c vs the owner's photos: our streaks 5-8 px wide with comet-like heads that bloomed;
+        // his are hairlines, long, faint and even along their length): brightness capped at 3.5, thinner
+        // lines, longer paths, a trail that keeps most of its length lit.
+        float bright = min(BR / max(u, 0.012), 3.5);
+        float gold = smoothstep(1.8, 3.5, bright);
+        // Path: start 10-95 deg out (cos-uniform: most far out), length ~ sin of that, 6-30 deg.
+        float th0 = acos(mix(0.985, -0.09, hash12(sd + 4.4)));
+        float len = (0.24 + 0.40 * hash12(sd + 5.5)) * max(sin(th0), 0.08) * mix(1.0, 1.2, gold);
+        float omega = radians(mix(14.0, 34.0, hash12(sd + 1.1))) * max(sin(th0 + 0.5 * len), 0.2);
+        float life = len / omega;                                    // ~0.4-2 s on the sky
+        float trainT = bright > 2.0 ? mix(0.6, 1.8, gold) : 0.0;
+        float start = hash12(sd + 2.2) * max(P - life - trainT, 0.1);
+        float p = (tk - ci * P - start) / life;
+        if (p <= 0.0 || p >= 1.0 + trainT / life) continue;
+        if (thd < th0 - 0.02 || thd > th0 + len + 0.02) continue;
+        float az = (j + 0.12 + 0.76 * hash12(sd + 3.3)) / K * 2.0 * PI - PI;
+        vec3 U = a1 * cos(az) + a2 * sin(az);
+        vec3 N = cross(R, U);
+        float perp = abs(dot(dir, N));
+        float pb = min(p, 1.0);
+        float head = th0 + len * pb;
+        float tail0 = head - len * mix(0.45, 0.95, pb);
+        vec3 hc = hash12(sd + 7.7) < 0.6 ? vec3(0.78, 1.0, 0.86) : vec3(1.0, 0.84, 0.60);   // refs: green-white and amber
+        vec3 tint = mix(vec3(0.93, 0.96, 1.0), hc, 0.55 * smoothstep(1.2, 5.0, bright));
+        if (p < 1.0) {
+            float w = pxA * mix(0.85, 1.15, smoothstep(1.0, 3.5, bright));
+            float line = exp(-perp * perp / (w * w));
+            float along = clamp((thd - tail0) / max(head - tail0, 1e-4), 0.0, 1.0);
+            float trail = sqrt(along) * step(tail0, thd) * smoothstep(head + 0.003, head - 0.001, thd);
+            float flare = pow(sin(PI * p), 0.6) * mix(0.8, 1.6, p);
+            float hd = (thd - head) / 0.003;
+            float headDot = exp(-hd * hd - perp * perp / (w * w * 1.5)) * 0.7;
+            sum += (tint * line * trail * 0.85 + mix(tint, vec3(1.0), 0.6) * headDot) * flare * bright;
+        }
+        float age = trainT > 0.0 ? max(tk - ci * P - start - life * 0.6, 0.0) / trainT : 1.0;
+        if (age < 1.0) {
+            float wt = pxA * mix(1.0, 1.8, age);
+            float lineT = exp(-perp * perp / (wt * wt));
+            float span = smoothstep(th0 - 0.004, th0 + len * 0.3, thd) * smoothstep(head + 0.003, head - len * 0.15, thd);
+            float fadeT = (1.0 - age) * (1.0 - age) * smoothstep(0.0, 0.08, age + p * 0.1);
+            sum += vec3(0.80, 0.94, 0.92) * lineT * span * fadeT * 0.14 * min(bright, 4.0);
+        }
+    }
+    return sum;
+}
+#endif
 vec3 meteors(vec3 dir) {
-#if QF_METEOR_STYLE > 0
+#if QF_METEOR_STYLE >= 4
+    return meteorsSector(dir) * SUN_I * 0.06;
+#elif QF_METEOR_STYLE > 0
     return grazers(dir) * SUN_I * 0.06;
 #else
     vec3 R = meteorRadiant();
@@ -510,7 +602,9 @@ vec3 nightSkyTexture(vec3 dir) {
     float up = clamp(dir.y, 0.0, 1.0);
     // A touch of navy towards the zenith on every night (r004 critic: near-black).
     vec3 L = vec3(0.10, 0.16, 0.42) * MOON_I * 0.006 * smoothstep(0.0, 0.6, up);
-    if (v == 1 || v == 4) {
+    // r011: with the sectored shower (style 4/5) a meteor night is a Milky Way night too (owner's references:
+    // the shower against the Milky Way); r010 and before kept the plain starry sky.
+    if (v == 1 || (v == 4 && QF_METEOR_STYLE < 4)) {
         L += faintStars(dir, 0.35) * mix(0.5, 1.0, moonWash);
         L *= 1.15;
         if (v == 4) gMeteor = meteors(dir) * mix(0.6, 1.0, moonWash) * smoothstep(-0.02, 0.10, dir.y);
@@ -548,6 +642,9 @@ vec3 nightSkyTexture(vec3 dir) {
         float band = clamp(luminance(mw) * 3.0, 0.0, 1.0);
         L += mw * MOON_I * 0.45 * moonWash * smoothstep(-0.02, 0.14, dir.y);
         L += faintStars(dir, 0.15 + 0.85 * band) * mix(0.5, 1.0, moonWash);
+#if QF_METEOR_STYLE >= 4
+        if (v == 4) gMeteor = meteors(dir) * mix(0.6, 1.0, moonWash) * smoothstep(-0.02, 0.10, dir.y);
+#endif
 #else
         // Milky Way: a great circle tilted across the sky; coordinates along and across the band.
         const vec3 POLE = vec3(0.946, -0.324, 0.0);   // the band crosses the night_sky view (yaw 200, 45 deg up)
@@ -606,7 +703,8 @@ vec3 skyScatter(vec3 dir) {
     vec3 L = SUN_I * lookupSkyView(dir, sunDirWorld(), LUT_SV_SUN)
            + moonIntensity() * MOON_TINT * lookupSkyView(dir, moonDirWorld(), LUT_SV_MOON);
     // Rain: a duller, darker, less saturated sky (look bible 9).
-#if QF_CAL_GOLD == 2
+    // r011: QF_ATMOS 1 (Photon's atmosphere) replaces the hand-made gold sky and golden horizon band below.
+#if QF_CAL_GOLD == 2 && QF_ATMOS == 0
     // Gold sky near the sun (owner r001: B): warm the glow within about 25 degrees of it, and
     // pull the grey-mauve above the horizon band slightly towards peach. r001's version also
     // warmed the horizon band itself, the "beige haze wall" when facing away from the sun; the
@@ -617,6 +715,7 @@ vec3 skyScatter(vec3 dir) {
     L *= mix(vec3(1.0), vec3(1.30, 1.0, 0.58), clamp(gh * nearSun, 0.0, 1.5));
     L *= mix(vec3(1.0), vec3(1.06, 1.0, 0.90), clamp(gh * (1.0 - nearSun) * aboveBand, 0.0, 1.5));
 #endif
+#if QF_ATMOS == 0
     {
         // r008 golden horizon (owner r007 and critic: the horizon band at golden hour is "beige and
         // flat"): the low sun lights a long path of air near the horizon, so a warm band rings the
@@ -643,6 +742,7 @@ vec3 skyScatter(vec3 dir) {
             L *= mix(vec3(1.0), vec3(1.10, 0.93, 1.02), clamp(ghH * (1.0 - band) * 0.85, 0.0, 1.0));
         }
     }
+#endif
     // Airglow and starlight: a moonless sky is never black, and is brightest towards the
     // horizon (van Rhijn). With exposure now letting a new moon read darker (EXPO_DEEP_SLOPE),
     // the bare sky fell to luma 1-2 of 255 (a4h: 22% of the new-moon frame crushed).
