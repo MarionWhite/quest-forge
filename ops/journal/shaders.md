@@ -1,5 +1,14 @@
 # Shaders journal (newest first)
 
+- 2026-10-29 16:15: **r013 loop 2 read, publish cost queued** (1029-160736-r013-publish-cost). Loop 2 (1029-130228)
+  lost 6 cost steps to the owner gaming at 13:16; renderq kept the 23 before it and re-ran the rest at 15:52, all
+  userbusy noisy false, cross-boot lake 3.67-3.75. Shore: QF_SUN_GOLD_LOW 3 takes the clouds B/G 0.94 -> 0.77, horizon
+  G/R 0.70 -> 0.74 (2: 0.85); ocean_sunset and golden_lit identical, so 3 is the default. Sun: of 14 candidates none clears
+  the far strand at the sun's height (two spawned in terrain); sun_clear = ocean point 300 W at 12250, roundest core
+  (rings 252 223 208 201 196). High costs vs the frozen r12 pack: ocean_sunset 3.55 / 3.66, rays +0.12 (16 taps +0.15,
+  r012 +0.30) but 3.43 with rays off, so the water is what is over 3.0; storm meteors 2.96 / 3.02; gem SSR +0.14-0.16.
+  spec_scenes.py drafted (6 scenes; BSL frames kept internal).
+
 - 2026-10-28 18:00: **r012 published** (4ebc2cc, 23 scenes, live). HUD scene reduced to the offline mock (in-game shots had chat over hearts); mob views 4 and 7 state the missing slime, magma cube, squid; sunset A 3.65 ms over budget shown. See ops/checkpoints/r012-publish.md.
 - 2026-10-28 17:05: **r012 pre-publish fix: the oval through the cloud was the sun disk, not the glow.** Critic: a
   hard-edged tilted oval through thin cloud in the gem glint frames, blamed on QF_SUN_BLOOM. Those frames were shot on the

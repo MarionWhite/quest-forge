@@ -52,22 +52,9 @@ Refs extracted for reading (scratchpad, read only): BSL v10.1.8, Complementary r
 - 13:02 code: QF_SUN_GOLD_LOW 2/3 (photon.glsl phSunTintX: under 7 deg, gold shift on light/glow/sky; 3 stronger),
   default still 1 pending loop 2. check_glsl 0 errors (1/2/3). views += sunclr_g..n. Committed (see git log).
   Drafted specs\p13-cost.json (publish cost, uses scene "sun_clear" = the picked candidate).
-  Submitted **1029-130228-r013-loop2** (specs13-loop2.json, ETA ~13:25): r13lo2/r13lo3 shore/ocean/sunclr_f/golden,
+  Submitted **1029-130228-r013-loop2** (specs\r13-loop2.json, ETA ~13:25): r13lo2/r13lo3 shore/ocean/sunclr_f/golden,
   r13a sunclr_g..n, cost c13/c12 (r12 pack) 6 views, c13t16, c13cr0, c13m/c13m0/c12m (night_wide storm RAZ 210),
   c13g/c13g0 (CTM gems SSR on/off), c13off.
-
-## Resume here (fresh agent)
-1. `renderq.py results 1029-130228-r013-loop2`. Shore: grid r12s,r13a,r13lo2,r13lo3 shore_sunset (+ ocean_sunset,
-   golden_lit regressions: must not change at 9 deg); measure clouds 1700,0,860,350 and horizon 1200,350,800,150
-   (target G/R ~0.75+, B well under G). Set QF_SUN_GOLD_LOW default to the pick in settings.glsl.
-   Sun: grid r13a sunclr_f..n with 1:1 crops round the sun (prof.py-style: find the hot spot, saturated px). Rename the
-   best to sun_clear in views-world-master.txt (drop the other sunclr_* lines).
-   Cost: High ms = cost(tag) - cost(c13off). Rays: c13 vs c13t16 vs c13cr0 on ocean_sunset (r012 3.65 vs budget 3.0);
-   meteors c13m vs c12m (<= r012 2.94-2.99); gems c13g - c13g0. If ocean_sunset still > 3.0 say so with the number.
-2. Submit specs\p13-cost.json (publish cost) and checkpoint; when done write r013\spec_scenes.py (copy r012's: sea
-   p13 vs p12r vs ref BSL; shore p13 vs p12r; sun_clear p13 vs p12r (vs p13so0); rays p13 golden/ocean vs p13t16 with
-   cost; meteors ov p13clipm / p12clipm; gems g13c vs g12c (r012 C) with SSR cost), round.json (n 13, renders, budgets
-   p13 3.0 / p13lo 0.9 / p13po 0.4), touch SHADERS-READY; track, journal, commit, push.
 
 ## Loop 2 read (16:10, agent 3)
 - Noise: c13/c13t16/c13cr0/c13m/c13m0 lost 6 steps to the owner gaming (Deadlock) at 13:16:30; the runner kept the 23
@@ -84,4 +71,16 @@ Refs extracted for reading (scratchpad, read only): BSL v10.1.8, Complementary r
   and 0.43 over with the rays off: the rest is the water, not the rays.** golden 2.95 / 2.86, lake 3.19 / 3.24 (rays
   +0.15), shore 2.92 / 2.92, night_wide 2.95 / 3.00, sky_noon 2.35 / 2.38. Meteors storm RAZ 210: c13m 2.96, spread
   off 2.97, r12 3.02 (r012 band 2.94-2.99): no rise. Gem SSR on the CTM facet pack: +0.16 / +0.14 ms (d / e).
-- check_glsl 0 errors. Next: commit, submit specs\p13-cost.json.
+- check_glsl 0 errors. Committed 2045db6. 16:07 submitted **1029-160736-r013-publish-cost** (specs\p13-cost.json, 17 jobs,
+  115 scenes, ETA ~16:44): over 10 min, exiting. Drafted r013\spec_scenes.py (6 scenes: sea-sunset, shore-sunset,
+  sun-glow 2x crops box 912,436,600,360, rays, meteors clip, gems; BSL frames NOT shown, refs internal only) and
+  r013\round.json (renders = publish-cost, loop2, r012 gemfix; budgets p13/p13lo/p13po). SHADERS-READY not yet touched.
+
+## Resume here (fresh agent)
+1. `renderq.py results 1029-160736-r013-publish-cost` (FULL ID). Check `C:\qfb\shaderdev\rounds\bench\p13*.userbusy.json`
+   all noisy false (re-submit any noisy job alone).
+2. Contact sheet (r013\tools\grid.py) p13 vs p12r: ocean_sunset, shore_sunset, sun_clear (+ p13so0), golden_lit (+ p13t16);
+   crop sun_clear at 912,436,600,360 and confirm the sun sits in it; g13c vs g12c gem_glint_d. Only changed frames.
+3. Costs: worst High p13 (expect ocean_sunset ~3.55 > 3.0: say so), p13lo <= 0.9, p13po <= 0.4; meteors p13clipm vs p12clipm.
+4. Fix spec_scenes.py text if a number contradicts it (sea r/b, shore B/G, "pixels at full white about halve").
+   Touch C:\qfb\shaderdev\r013\SHADERS-READY. Track (ops/tracks/shaders.md), one journal entry, commit, push.

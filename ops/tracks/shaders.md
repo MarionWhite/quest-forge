@@ -7,13 +7,13 @@ and the long archive in `C:\qfb\shaderdev\NEXT.md` (PC only).
 - **Budgets per frame:** High 1440p 3 ms · Low 1080p 0.9 ms · Potato 720p 0.4 ms.
 - **Lab:** https://marionwhite.github.io/quest-forge/shaders/. Rounds are in `site/shaders/rounds/rNNN.json`; feedback is in
   `docs/design/shaders/feedback/rNNN.json` with images in `attachments/rNNN/`. Taste is in `docs/design/shaders/look-bible.md`.
-- **Round in progress:** r012 handed off (`C:\qfb\shaderdev\r012\`, 3 shader scenes; sun-glow dropped to r013, needs a
-  clear-sun view); publisher next. Pack: Photon sky, gold sun tint (QF_SUN_GOLD 1), sun glow (QF_SUN_BLOOM 2), sun disk
-  hidden by cloud (no oval) with the corona only on the visible limb, near air clear to 32 blocks (QF_PH_NEAR 32),
-  round 10's rays (QF_CREPUSCULAR 1), lean storm meteors (QF_METEOR_STYLE 5), gem SSR off (QF_GEM_SSR 0, +0.17 ms).
-- **Over budget:** High ocean_sunset 3.65 ms (round 10's rays +0.30), lake 3.23, sea/swamp water 3.08-3.18.
-- **Later:** cheaper round-10 rays (fewer taps or Photon's march with r010's lanes); shore_sunset still salmon (sun on
-  the horizon); Conquest's per-biome fog/sky tint, nether/end lightmaps, aurora (r011-shader.md note).
+- **Round in progress:** r013 (`ops/checkpoints/r013-shader.md`): code and picks done, publish-cost renders
+  1029-160736-r013-publish-cost queued; `C:\qfb\shaderdev013\spec_scenes.py` + round.json drafted, SHADERS-READY after
+  review. New defaults: gold sea body at golden hour (QF_SEA_GOLD 1), gold shift under 7 deg (QF_SUN_GOLD_LOW 3), BSL
+  soft sun (QF_SUN_SOFT 1), rays 8 taps one fetch (+0.12 ms, was +0.30), one-radiant meteors (no cost rise), gem SSR
+  on with CTM facet packs (QF_GEM_FACET 0, +0.15 ms). New view sun_clear (no view fully clears the far strand).
+- **Over budget:** High ocean_sunset 3.55 ms (3.43 with rays off: the water is the cost now), lake 3.19.
+- **Later:** ocean/lake water cost; Conquest's per-biome fog/sky tint, nether/end lightmaps, aurora.
 - **Debug views:** QF_DEBUG_VIEW 9 colortex5 raw; 11-14 water (sun/Fresnel/depth, bed, transmitted, reflected); 15 rays, cloud map, sky.
 - **Standing rules:** render with the current QF textures zip; vanilla only as a control. Every Lab question states the
   cause and the trade-off with numbers.
