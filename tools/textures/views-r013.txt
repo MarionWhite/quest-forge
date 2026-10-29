@@ -1,0 +1,17 @@
+# FrameBench views for the r013 packs round (world C:\qfb\textures\world-r013, built by
+# tools/textures/build_r011_world.py --round 13). Format as views-world-master.txt: y is the feet (eye = y + 1.62);
+# yaw 0 = looking south (+z). FrameBench's FOV is wide: about 13 blocks across at 5 blocks.
+#
+# name               x       y      z        yaw    pitch  worldTime  [measureTicks]
+# gui_hud must run before any other gui_ scene in a boot (GuiShots never closes the last screen). The HUD jobs set
+# measure 220 so the chat lines GuiShots' set-up posts (r012: "...been updated" over the hearts) have faded.
+gui_hud              245.5   68.0   210.0    0      2      7000   21
+# mob hall (r013): six groups of 3-4 mobs, 1.75 apart at z 228.5, camera 4.5 blocks off (r012: 3.2 off, 7 views)
+r13_mob_1            228.0   68.0   224.0    0      6      7000   40
+r13_mob_2            235.5   68.0   224.0    0      6      7000   40
+r13_mob_3            243.0   68.0   224.0    0      6      7000   40
+r13_mob_4            250.5   68.0   224.0    0      6      7000   40
+r13_mob_5            258.0   68.0   224.0    0      6      7000   40
+r13_mob_6            265.5   68.0   224.0    0      6      7000   40
+# glass tanks north of the hall (x 258-268, z 218-221): squid in water, slime, magma cube
+r13_mob_7            263.0   68.0   215.0    0      8      7000   40

@@ -57,6 +57,7 @@ Job fields, with their defaults:
 | `size` | `2560x1440` | window size |
 | `world` | `C:\qfb\world-master` | world copied into the trial |
 | `resourcepacks` | `[]` | resource packs, bottom first, under the live ones |
+| `rps_top` | `[]` | resource packs placed ABOVE the live ones (QuestForge.zip), bottom first: a HUD that replaces its widgets.png |
 | `reference` | none | render this shader pack zip instead of ours (internal reference frames) |
 | `pack` | `shaders/QuestForge` | the pack folder to snapshot at submit |
 | `mode` | `cost` | `cost`: frame times count. `shot`: pictures only (20 measured ticks, allowed at night) |

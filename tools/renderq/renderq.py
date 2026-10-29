@@ -169,6 +169,10 @@ def normalize(spec):
             if not re.fullmatch(r"qf\.[A-Za-z0-9_.]+=[^\s\"]*", p):
                 sys.exit(f"{j['tag']}: props are qf.name=value system properties, got {p!r}")
         j["resourcepacks"] = [os.path.abspath(r) for r in j["resourcepacks"]]
+        # rps_top: packs placed ABOVE the instance's own (QuestForge.zip), e.g. a HUD replacing its widgets.png
+        if isinstance(j.get("rps_top"), str):
+            j["rps_top"] = [j["rps_top"]]
+        j["rps_top"] = [os.path.abspath(r) for r in (j.get("rps_top") or [])]
         if j.get("reference"):
             j["reference"] = os.path.abspath(j["reference"])
         if not os.path.isfile(os.path.join(j["world"], "level.dat")):

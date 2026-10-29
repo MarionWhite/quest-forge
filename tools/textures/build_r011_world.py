@@ -36,8 +36,9 @@ TOP = 84
 BOARD_Z, BOARD_X0 = 216, 224
 HALL_X0, HALL_X1, HALL_Z0, HALL_Z1, HALL_Y1 = 223, 269, 222, 232, 73
 MOB_Z = 228.5
+BAT_BEAM_Y = 70                       # r013: an oak beam block the bat hangs under
 PLANKS, GLOW, SHELF, TNT, BRICK = (5, 0), (89, 0), (47, 0), (46, 0), (98, 0)
-OPAQUE_SKIP = {0, 20, 102, 95, 160}   # air and glass let light through
+OPAQUE_SKIP = {0, 20, 102, 95, 160, 8, 9}   # air, glass (and, for the r013 tank, water) let light through
 
 
 def blocks():
@@ -159,11 +160,57 @@ MOBS_R012 = MOBS[:19] + [("MushroomCow", {}, None), ("EntityHorse", {"Type": nbt
                          ("Bat", {"BatFlags": nbtlib.Byte(1)}, None)] + MOBS[19:]
 
 
+# r013 (--round 13): the hall in six tight groups (one per view, camera 4.5 blocks off), the wither skeleton centred in
+# view 1 (the owner could not find it in r012), the bat on an oak beam at eye height (a roof speck in r012), and the
+# squid, slime and magma cube moved to glass tanks north of the hall (r012: the squid died out of water, the slimes
+# hopped out of frame). Views r13_mob_1..7 in views-r013.txt.
+_M = {e[0] + ("1" if "SkeletonType" in e[1] else ""): e for e in MOBS_R012}   # Skeleton1 = the wither skeleton
+GROUPS_R013 = [  # (centre x, mobs left to right as the camera sees them = east to west, so listed high x first)
+    (228.0, ["Creeper", "Skeleton", "Skeleton1", "Zombie"]),
+    (235.5, ["Silverfish", "Enderman", "CaveSpider", "Spider"]),
+    (243.0, ["Chicken", "Blaze", "Witch", "PigZombie"]),
+    (250.5, ["MushroomCow", "Pig", "Cow", "Sheep"]),
+    (258.0, ["Villager", "EntityHorse", "Wolf", "Ozelot"]),
+    (265.5, ["SnowMan", "VillagerGolem", "Bat"]),
+]
+MOBS_R013 = []
+for _cx, _names in GROUPS_R013:
+    for _k, _n in enumerate(_names):
+        MOBS_R013.append((_cx + (len(_names) - 1 - 2 * _k) * 1.75 / 2,) + _M[_n])
+TANK_Z0, TANK_Z1 = 218, 221                     # glass front and back
+TANKS_R013 = [  # (glass x0, x1, inner top y, water?, entity, extra)
+    (258, 262, 70, True, "Squid", {}),
+    (262, 265, 69, False, "Slime", {"Size": nbtlib.Int(1)}),
+    (265, 268, 70, False, "LavaSlime", {"Size": nbtlib.Int(1)}),
+]
+GLASS, WATER = (20, 0), (9, 0)
+
+
+def blocks_r013():
+    b = {}
+    for x0, x1, ytop, water, _, _ in TANKS_R013:
+        for x in range(x0, x1 + 1):
+            for z in range(TANK_Z0, TANK_Z1 + 1):
+                for y in range(68, ytop + 2):
+                    shell = x in (x0, x1) or z in (TANK_Z0, TANK_Z1) or y == ytop + 1
+                    if shell:
+                        b[(x, y, z)] = GLASS
+                    elif water:
+                        b[(x, y, z)] = WATER
+    return b
+
+
 def mobs():
     out = []
-    for i, (eid, extra, held) in enumerate(MOBS):
-        x = MOB_X0 + MOB_DX * i + 0.5
+    for i, ent in enumerate(MOBS):
+        if len(ent) == 4:                                          # r013: (x, eid, extra, held)
+            x, (eid, extra, held) = ent[0] + 0.0, ent[1:]
+        else:
+            eid, extra, held = ent
+            x = MOB_X0 + MOB_DX * i + 0.5
         y = HALL_Y1 - 0.95 if eid == "Bat" else GROUND + 1.0          # a bat hangs from the roof (BatFlags 1)
+        if eid == "Bat" and len(ent) == 4:
+            y = BAT_BEAM_Y - 0.95                                       # r013: from the beam
         e = _base(eid, (x, y, MOB_Z), 180.0, "mob-%d" % i)    # yaw 180: facing north, the camera
         e.update({"PersistenceRequired": nbtlib.Byte(1), "CanPickUpLoot": nbtlib.Byte(0),
                   "Attributes": nbtlib.List[nbtlib.Compound]([
@@ -174,6 +221,13 @@ def mobs():
                       [_item(held) if held else nbtlib.Compound()] + [nbtlib.Compound() for _ in range(4)])})
         e.update(extra)
         out.append(e)
+    if MOBS is MOBS_R013:
+        for k, (x0, x1, ytop, water, eid, extra) in enumerate(TANKS_R013):
+            e = _base(eid, ((x0 + x1 + 1) / 2.0, 68.0 + (0.3 if water else 0.0), (TANK_Z0 + TANK_Z1 + 1) / 2.0), 180.0,
+                      "tank-%d" % k)
+            e.update({"PersistenceRequired": nbtlib.Byte(1)})
+            e.update(extra)
+            out.append(e)
     return out
 
 
@@ -232,11 +286,13 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--src", default=r"C:\qfb\textures\world-showcase")
     ap.add_argument("--dst", default=r"C:\qfb\textures\world-r011")
-    ap.add_argument("--round", type=int, default=11, choices=(11, 12))
+    ap.add_argument("--round", type=int, default=11, choices=(11, 12, 13))
     a = ap.parse_args()
     if a.round == 12:
         global MOBS, MOB_X0, MOB_DX, HALL_X1
         MOBS, MOB_X0, MOB_DX, HALL_X1 = MOBS_R012, 224.5, 1.75, 271
+    if a.round == 13:
+        MOBS, HALL_X1 = MOBS_R013, 271
     if os.path.abspath(a.src) == os.path.abspath(a.dst):
         sys.exit("--dst must differ from --src")
     if not os.path.exists(a.dst):
@@ -247,6 +303,10 @@ def main():
         os.remove(lock)
 
     place = blocks()
+    if a.round == 13:
+        place.update(blocks_r013())
+        bat_x = next(int(m[0]) for m in MOBS_R013 if m[1] == "Bat")
+        place[(bat_x, BAT_BEAM_Y, int(MOB_Z))] = PLANKS
     ents = frames() + mobs()
     mine = {(int(e["UUIDMost"]), int(e["UUIDLeast"])) for e in ents}
     lx0, ly0, lz0, sky, blk = flood_light(place)

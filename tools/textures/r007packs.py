@@ -423,6 +423,8 @@ MOBS = {   # 1.7.10 entity texture -> Patrix 26.3 path (under textures/entity/)
     "skeleton/wither_skeleton.png": "skeleton/wither_skeleton.png", "chicken.png": "chicken/chicken_temperate.png",
     "silverfish.png": "silverfish/silverfish.png", "blaze.png": "blaze/blaze.png", "bat.png": "bat/bat.png",
     "zombie_pigman.png": "piglin/zombified_piglin.png", "wither/wither.png": "wither/wither.png",
+    # r013: the wither's shield shimmer is a scrolling overlay (RenderWither pans it), so its layout does not matter
+    "wither/wither_armor.png": "wither/wither_armor.png",
 }
 # From the in-game lineup (render 1027-222844-textures-r011-packs, r11p1 r11_mob_1..6): skins whose layout is Patrix's
 # CEM one, not the 1.7.10 model's. Seen broken: chicken (a plain box), cow (body pattern on the head), sheep (the wool
@@ -453,12 +455,27 @@ def _same_as(im, van, tol=2.0):
     return bool(m.any()) and float(np.abs(v[..., :3] - p[..., :3]).mean(axis=2)[m].mean()) < tol
 
 
-def part_mobs(out, px, mc, log, mode="remap", cq=None):
+# r013: mobs whose Patrix skin does not fit 1.7.10 (slime, magma cube, squid: CEM layouts) or reads as vanilla (snow
+# golem: Patrix's is near-vanilla white snow, the owner saw "default") take Faithless's, which keeps the vanilla box
+# layout (checked by eye against 1.7.10's, r013-packs.md). An explicit list: Faithless is a 1.20.5+ pack, and its
+# horses, villagers and bat are on newer models whose sheets have the same aspect but a different layout.
+FAITHLESS_MOBS = {"snowman.png": "snow_golem.png", "slime/slime.png": "slime/slime.png",
+                  "slime/magmacube.png": "slime/magmacube.png", "squid.png": "squid/squid.png"}
+
+
+def part_mobs(out, px, mc, log, mode="remap", cq=None, fl=None):
     import patrix_remap
     E = T + "entity/"
-    took, aspect, remapped, conq, left = [], [], [], [], []
+    took, aspect, remapped, conq, left, flm = [], [], [], [], [], []
+    if fl is not None:
+        for v, p in FAITHLESS_MOBS.items():
+            van = Image.open(io.BytesIO(mc.read(E + v)))
+            im = fl.img(E + p)
+            if im.width * van.height == im.height * van.width and not _same_as(im, van):
+                out[E + v] = png(im)
+                flm.append(v)
     for v, p in MOBS.items():
-        if v in MOB_SKIP or not px.has(E + p):
+        if v in MOB_SKIP or not px.has(E + p) or E + v in out:
             continue
         van = Image.open(io.BytesIO(mc.read(E + v)))
         im = px.img(E + p)
@@ -497,9 +514,21 @@ def part_mobs(out, px, mc, log, mode="remap", cq=None):
                 continue
             out[E + v] = png(im)
             conq.append(v)
-    log["mobs"] = ("%d Patrix as is; %d Patrix remapped (%s); %d Conquest (%s); still vanilla: %s" % (
-        len(took), len(remapped), " ".join(r[:-4] for r in remapped), len(conq), " ".join(c[:-4] for c in conq),
-        " ".join(left) or "none"))
+        # r013: Conquest's black-dots horse marking is vanilla's; its white-dots one is on the same 1.7.10 layout, so the
+        # black dots are its dots darkened (shading kept, inverted), drawn in the same hand as the other markings.
+        bd, wd = "horse/horse_markings_blackdots.png", E + "horse/horse_markings_whitedots.png"
+        if bd in left and E + wd[len(E):] in out:
+            w = np.asarray(Image.open(io.BytesIO(out[wd])).convert("RGBA")).astype(float)
+            lum = w[..., :3].mean(axis=2, keepdims=True) / 255.0
+            dark = np.clip(16 + (1.0 - lum) * 40 + np.array([6, 3, 0]), 0, 255)
+            alpha = np.clip(w[..., 3:] * 1.6, 0, 255)          # dark dots on a coat read fainter than white ones
+            outp = np.concatenate([dark, alpha], axis=2).astype(np.uint8)
+            out[E + bd] = png(Image.fromarray(outp, "RGBA"))
+            left.remove(bd)
+            conq.append(bd[:-4] + "(from whitedots)" + ".png")
+    log["mobs"] = ("%d Faithless (%s); %d Patrix as is; %d Patrix remapped (%s); %d Conquest (%s); still vanilla: %s" % (
+        len(flm), " ".join(f[:-4] for f in flm), len(took), len(remapped), " ".join(r[:-4] for r in remapped),
+        len(conq), " ".join(c[:-4] for c in conq), " ".join(left) or "none"))
     return took
 
 
@@ -529,6 +558,8 @@ def main():
     ap.add_argument("--mobs", default="remap", choices=("remap", "conquest", "patrix"),
                     help="mobs part: Patrix as is + Patrix remapped + Conquest for the rest (remap), Patrix as is + "
                          "Conquest (conquest), or Patrix as is only (patrix, r011)")
+    ap.add_argument("--faithless-mobs", action="store_true",
+                    help="mobs part: snow golem, slime, magma cube, squid from Faithless first (r013, FAITHLESS_MOBS)")
     ap.add_argument("--creative", default="faithless", choices=("faithless", "book"),
                     help="gui part: creative screen style (Faithless's framed panel, or its recipe-book page)")
     a = ap.parse_args()
@@ -538,7 +569,7 @@ def main():
         sys.exit("unknown part(s): %s" % bad)
     mc = zipfile.ZipFile(a.mc_jar)
     out, log = {}, {}
-    fl = Pack(FAITHLESS) if {"items", "cit", "tnt", "gui"} & set(parts) else None
+    fl = Pack(FAITHLESS) if {"items", "cit", "tnt", "gui"} & set(parts) or a.faithless_mobs else None
     if "items" in parts:
         part_items(out, fl, mc, log)
     if "cit" in parts:
@@ -548,7 +579,8 @@ def main():
     if "books" in parts:
         part_books(out, Pack(SOARTEX), mc, log)
     if "mobs" in parts:
-        part_mobs(out, Pack(PATRIX), mc, log, mode=a.mobs, cq=Pack(CONQUEST) if a.mobs != "patrix" else None)
+        part_mobs(out, Pack(PATRIX), mc, log, mode=a.mobs, cq=Pack(CONQUEST) if a.mobs != "patrix" else None,
+                  fl=fl if a.faithless_mobs else None)
     if "env" in parts:
         part_env(out, Pack(CONQUEST), mc, log)
     if "gui" in parts:

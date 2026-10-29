@@ -45,7 +45,7 @@ SHADER_ERR = re.compile(r"(error|Error|ERROR|Failed to|failed to|Exception).*(sh
 JOB_DEFAULTS = {"preset": "3", "size": "2560x1440", "world": WORLD, "resourcepacks": [], "reference": None,
                 "mods": MODS, "opts": {}, "debug_view": 0, "mode": "cost", "fresh": False, "xmx": "3G",
                 "warm": 160, "measure": 0, "views": VIEWS, "rounds": ROUNDS, "cit": False,
-                "jars": [], "props": []}
+                "jars": [], "props": [], "rps_top": []}
 
 
 # ------------------------------------------------------------------ hashing / keys
@@ -178,11 +178,13 @@ def options_text(job):
 
 
 def env_sig(job, memo):
-    k = boot_key(job) + "|" + "|".join(job["resourcepacks"])
+    k = boot_key(job) + "|" + "|".join(job["resourcepacks"]) + "|^" + "|".join(job.get("rps_top") or [])
     if k not in memo:
         memo[k] = {"size": job["size"], "world": tree_sig(job["world"], content=False),
                    "rps": [path_sig(r) for r in job["resourcepacks"]], "mods": mods_sig(job["mods"]),
                    "night": bool(job.get("night"))}
+        if job.get("rps_top"):     # only when set, so every other job's key is unchanged
+            memo[k]["rps_top"] = [path_sig(r) for r in job["rps_top"]]
         if job.get("cit"):
             memo[k]["cit"] = True
         if job.get("jars"):
@@ -354,7 +356,7 @@ def prepare_boot(boot_id, jobs, log):
     pack_dir = ref or (on[0]["pack_dir"] if on else None)
     pack_name = os.path.basename(pack_dir.rstrip("\\/")) if pack_dir else None
     t0 = time.time()
-    rps_all = list(dict.fromkeys(r for j in jobs for r in j["resourcepacks"]))
+    rps_all = list(dict.fromkeys(r for j in jobs for r in j["resourcepacks"] + list(j.get("rps_top") or [])))
     trial.build(TRIAL, [m for m in j0["mods"].split(",") if m], world=j0["world"],
                 shader=pack_name or "off", force=True, renderer="angelica", jars=[DEBUG_JAR] + list(j0.get("jars") or []),
                 shaderpacks=[pack_dir] if pack_dir else [], quiet=True, resourcepacks=rps_all)
@@ -374,7 +376,8 @@ def prepare_boot(boot_id, jobs, log):
         enable_cit(os.path.join(d, "config", "mcpatcherforge.cfg"))
     log(f"  built trial {d} in {time.time() - t0:.0f} s")
     # Each job's resource pack list, as trial.build orders them (ours at the bottom, the source's
-    # own packs, QuestForge.zip on top); the boot starts with the first step's.
+    # own packs, QuestForge.zip on top, then the job's rps_top above even that: a HUD that must
+    # replace QuestForge.zip's widgets.png); the boot starts with the first step's.
     opt = os.path.join(d, "options.txt")
     cur = []
     for l in open(opt, encoding="utf-8", errors="replace"):
@@ -385,7 +388,8 @@ def prepare_boot(boot_id, jobs, log):
                 cur = []
     ours = {os.path.basename(r.rstrip("\\/")) for r in rps_all}
     base = [c for c in cur if c not in ours]
-    rps_of = {j["tag"]: [os.path.basename(r.rstrip("\\/")) for r in j["resourcepacks"]] + base for j in jobs}
+    rps_of = {j["tag"]: [os.path.basename(r.rstrip("\\/")) for r in j["resourcepacks"]] + base
+              + [os.path.basename(r.rstrip("\\/")) for r in (j.get("rps_top") or [])] for j in jobs}
     night = j0.get("night") or {}
     set_kv(os.path.join(d, "options.txt"), {"maxFps": str(night.get("max_fps", 260)), "fullscreen": "false",
                                              "pauseOnLostFocus": "false", "enableVsync": "false"}, ":")
