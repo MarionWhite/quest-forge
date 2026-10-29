@@ -13,5 +13,6 @@ r13_mob_3            243.0   68.0   224.0    0      6      7000   40
 r13_mob_4            250.5   68.0   224.0    0      6      7000   40
 r13_mob_5            258.0   68.0   224.0    0      6      7000   40
 r13_mob_6            265.5   68.0   224.0    0      6      7000   40
-# glass tanks north of the hall (x 258-268, z 218-221): squid in water, slime, magma cube
-r13_mob_7            263.0   68.0   215.0    0      8      7000   40
+# glass tanks north of the hall (x 258-268, z 218-221): squid in water (one block deep), slime, magma cube.
+# The streaks are our glass texture's highlights, not rain (FrameBench clears the weather).
+r13_mob_7            263.0   68.0   216.2    0      6      7000   40

@@ -193,6 +193,8 @@ def blocks_r013():
             for z in range(TANK_Z0, TANK_Z1 + 1):
                 for y in range(68, ytop + 2):
                     shell = x in (x0, x1) or z in (TANK_Z0, TANK_Z1) or y == ytop + 1
+                    if water and z > TANK_Z0 + 1:            # the squid's tank is one block deep: always in frame
+                        shell = True
                     if shell:
                         b[(x, y, z)] = GLASS
                     elif water:
@@ -223,7 +225,8 @@ def mobs():
         out.append(e)
     if MOBS is MOBS_R013:
         for k, (x0, x1, ytop, water, eid, extra) in enumerate(TANKS_R013):
-            e = _base(eid, ((x0 + x1 + 1) / 2.0, 68.0 + (0.3 if water else 0.0), (TANK_Z0 + TANK_Z1 + 1) / 2.0), 180.0,
+            zc = TANK_Z0 + 1.5 if water else (TANK_Z0 + TANK_Z1 + 1) / 2.0
+            e = _base(eid, ((x0 + x1 + 1) / 2.0, 68.0 + (0.3 if water else 0.0), zc), 180.0,
                       "tank-%d" % k)
             e.update({"PersistenceRequired": nbtlib.Byte(1)})
             e.update(extra)
