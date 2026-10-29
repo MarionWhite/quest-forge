@@ -65,3 +65,8 @@ Brief: ops/checkpoints/r013-plan.md "Textures". Owner picked gems C (A's Faithfu
 013	extures_make_scenes.py`
    (metals scene switches to g13facet3 by itself); look at diag_column iron crop 1150,700,340,320 for any line left.
 2. Owner picks facet/flat -> make --gems-ctm the builder default.
+
+### 2026-10-29 16:10 (orchestrator): iron 4th try clean
+- 1029-130343-r013-gems-ctm-d (g13facet4) reviewed at crop 1150,700,340,320: no seam, no ticks, no dark patches.
+  textures_make_scenes.py re-run: textures_scenes.json (4 scenes) now uses g13facet4. Gems hand-off complete.
+- Still for the owner (in the Lab): connected facet vs flat; then make --gems-ctm the builder default.
