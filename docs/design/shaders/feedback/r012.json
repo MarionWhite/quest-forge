@@ -1,0 +1,137 @@
+{
+ "round": 12,
+ "id": "r012",
+ "note": "Built by tools/shaders/review/fetch_feedback.py from GitHub issues; the latest response is last.",
+ "responses": [
+  {
+   "issue": 16,
+   "url": "https://github.com/MarionWhite/quest-forge/issues/16",
+   "user": "MarionWhite",
+   "state": "open",
+   "created_at": "2026-10-28T23:30:20Z",
+   "updated_at": "2026-10-28T23:30:20Z",
+   "from": "body",
+   "answers": {
+    "round": 12,
+    "scenes": {
+     "sunset-full": {
+      "choice": "A",
+      "rating": 4,
+      "note": "Listen to the fucking critic"
+     },
+     "sun-cloud": {
+      "choice": "A",
+      "rating": 3,
+      "note": "listen to critic"
+     },
+     "meteors": {
+      "choice": "A",
+      "rating": null,
+      "note": "This looks better, but let's see how much we can push the quality without increasing performance costs."
+     },
+     "gems-diamond": {
+      "choice": "C",
+      "rating": 4,
+      "note": "I like this glassy effect"
+     },
+     "gems-emerald": {
+      "choice": "C",
+      "rating": 4,
+      "note": ""
+     },
+     "gems-lit": {
+      "choice": "C",
+      "rating": 4,
+      "note": "I think they should have connected textures though"
+     },
+     "st-leaves-roofed": {
+      "choice": "A",
+      "rating": 4,
+      "note": ""
+     },
+     "pk-creative-combat": {
+      "choice": "B",
+      "rating": 4,
+      "note": ""
+     },
+     "pk-creative-brewing": {
+      "choice": "B",
+      "rating": 4,
+      "note": ""
+     },
+     "pk-furnace": {
+      "choice": "B",
+      "rating": 5,
+      "note": ""
+     },
+     "pk-enchanting": {
+      "choice": "B",
+      "rating": 5,
+      "note": ""
+     },
+     "pk-crafting": {
+      "choice": "B",
+      "rating": 5,
+      "note": ""
+     },
+     "pk-brewing": {
+      "choice": "B",
+      "rating": 5,
+      "note": ""
+     },
+     "pk-anvil": {
+      "choice": "B",
+      "rating": 5,
+      "note": ""
+     },
+     "pk-hud": {
+      "choice": "neither",
+      "rating": 5,
+      "note": "Try going for something Elden ring inspired."
+     },
+     "pk-tnt": {
+      "choice": "B",
+      "rating": 5,
+      "note": ""
+     },
+     "pk-mob-1": {
+      "choice": "B",
+      "rating": 3,
+      "note": "I can't see the wither skeleton, but it looked best in matrix"
+     },
+     "pk-mob-2": {
+      "choice": "B",
+      "rating": 4,
+      "note": ""
+     },
+     "pk-mob-3": {
+      "choice": "B",
+      "rating": null,
+      "note": ""
+     },
+     "pk-mob-4": {
+      "choice": "B",
+      "rating": 4,
+      "note": ""
+     },
+     "pk-mob-5": {
+      "choice": "B",
+      "rating": null,
+      "note": ""
+     },
+     "pk-mob-6": {
+      "choice": "B",
+      "rating": null,
+      "note": ""
+     },
+     "pk-mob-7": {
+      "choice": "B",
+      "rating": 4,
+      "note": "snow golem looks default here"
+     }
+    },
+    "overall": ""
+   }
+  }
+ ]
+}
