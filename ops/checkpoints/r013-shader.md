@@ -68,3 +68,20 @@ Refs extracted for reading (scratchpad, read only): BSL v10.1.8, Complementary r
    p13 vs p12r vs ref BSL; shore p13 vs p12r; sun_clear p13 vs p12r (vs p13so0); rays p13 golden/ocean vs p13t16 with
    cost; meteors ov p13clipm / p12clipm; gems g13c vs g12c (r012 C) with SSR cost), round.json (n 13, renders, budgets
    p13 3.0 / p13lo 0.9 / p13po 0.4), touch SHADERS-READY; track, journal, commit, push.
+
+## Loop 2 read (16:10, agent 3)
+- Noise: c13/c13t16/c13cr0/c13m/c13m0 lost 6 steps to the owner gaming (Deadlock) at 13:16:30; the runner kept the 23
+  steps measured before it (last one c13 lake_glitter 13:14:57, before the last idle sample) and re-ran the 6 at 15:52
+  (owner gate idle 5 min). Cross-boot check: lake 3.70 (boot 1) vs 3.67 t16 (retry) vs 3.75 c12 (boot 3). Clean.
+  c13 golden_lit had 136 chunk updates / 14 frames > 33 ms (chunk loading, not the owner); p50 is unaffected.
+- Shore (sheets l2_shore.jpg, l2_shore_crop.jpg): clouds B/G 0.94 (r13a) -> 0.85 (lo2) -> 0.77 (lo3), horizon G/R
+  0.70 -> 0.74, B/G 0.88 -> 0.71; ocean_sunset/golden_lit identical. **QF_SUN_GOLD_LOW default 3** (settings.glsl).
+- Sun (l2_sunclr.jpg, l2_sun_crop*.jpg, l2_sun_disc.jpg): g, n spawn inside terrain; i behind leaves; k behind a hill.
+  No view fully clears the far strand at the sun's altitude. **sun_clear = sunclr_l** (f at 12250): roundest core,
+  smooth fade (ring 252 223 208 201 196). Other sunclr_* lines dropped from views-world-master.txt.
+- Cost, High = p50 - shaders-off p50 (c13off cached): ocean_sunset r13 3.55 / r12 3.66 / r13 16 taps 3.58 / rays off
+  3.43 -> rays now +0.12 ms (r12 +0.30 by r012's count; 16 taps one fetch +0.15). **ocean_sunset still 0.55 over 3.0,
+  and 0.43 over with the rays off: the rest is the water, not the rays.** golden 2.95 / 2.86, lake 3.19 / 3.24 (rays
+  +0.15), shore 2.92 / 2.92, night_wide 2.95 / 3.00, sky_noon 2.35 / 2.38. Meteors storm RAZ 210: c13m 2.96, spread
+  off 2.97, r12 3.02 (r012 band 2.94-2.99): no rise. Gem SSR on the CTM facet pack: +0.16 / +0.14 ms (d / e).
+- check_glsl 0 errors. Next: commit, submit specs\p13-cost.json.

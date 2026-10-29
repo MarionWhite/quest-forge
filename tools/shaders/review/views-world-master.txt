@@ -131,19 +131,8 @@ roofed_edge      -205.5  72.0   -124.5   90     -6     7000
 # Loop 0 tried four days at 12320 (same cloud field every day) and lake_glow (sun behind the hill): all hid
 # the sun. Loop 1: ocean_sunset's point and bearing with a lower sun (12500 ~4 deg, 12600 ~2.7) and a
 # higher one (12200 ~10), and at 12350 from points 300 blocks off (another patch of the cloud deck).
-sunclr_a         -567.5  64.5   232.5    96     4      12500
-sunclr_b         -567.5  64.5   232.5    96     3      12600
-sunclr_c         -567.5  64.5   232.5    96     8      12200
-sunclr_d         -567.5  64.5   532.5    96     5      12350
-sunclr_e         -567.5  64.5   -67.5    96     5      12350
-sunclr_f         -867.5  64.5   232.5    96     5      12350
 # Loop 2: f (300 blocks west, 12350) came closest (a gap with one strand under the sun); f's point moved
 # 150-300 blocks along the shore and out to sea, and f at 12250 / 12450.
-sunclr_g         -867.5  64.5   82.5     96     5      12350
-sunclr_h         -867.5  64.5   382.5    96     5      12350
-sunclr_i         -867.5  64.5   -67.5    96     5      12350
-sunclr_j         -867.5  64.5   532.5    96     5      12350
-sunclr_k         -1167.5 64.5   232.5    96     5      12350
-sunclr_l         -867.5  64.5   232.5    96     6      12250
-sunclr_m         -867.5  64.5   232.5    96     4      12450
-sunclr_n         -1167.5 64.5   382.5    96     5      12350
+# Picked f at 12250 (sun ~1.5 deg higher): no view clears the far strand at the sun's altitude; this one has the
+# roundest core and the smoothest fade (ring means 252 223 208 201 196, core std 0.4).
+sun_clear         -867.5  64.5   232.5    96     6      12250
