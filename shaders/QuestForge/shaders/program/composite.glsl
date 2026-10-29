@@ -747,10 +747,40 @@ vec3 shadeWaterAbove(vec3 color, vec3 n, float var, vec3 scene0, float dist0, ve
         behind = mix(behind, lb * vec3(0.70, 1.00, 1.06), 0.6 * riv);   // r010: the bed pulled to teal-blue, not green
 #endif
     }
+#if QF_SEA_GOLD > 0
+    // r013 (critic r012 ocean_sunset: "the sea stays navy (25,44,69) ... the lower half does not take the
+    // sunset"). Debug views 13/14 on ocean_sunset: what the water scatters up (3,38,70 on its own) outshone
+    // what it mirrors (19,19,20) on the near sea. The in-scatter was lit by the overhead sky's blue
+    // irradiance through the ocean's blue scatter albedo at any hour. Real water at sunset gets little light
+    // (a low sun mostly bounces off) and what comes back up carries the sunset's hue; BSL lights its water
+    // colour with the light colour, which is what turns its sea brown-gold. At golden hour the in-scatter
+    // takes the hue of the glow under the sun and dims to QF_SEA_BODY, so the mirrored sky leads. The bed
+    // seen through shallow water keeps its own light (only the scattered part changes).
+    vec3 refracted;
+    {
+        vec3 Tw = exp(-waterAbsorb() * d);
+        vec3 Sw = waterAmbient(skyLight) * (waterScatter() / (waterAbsorb() + waterScatter())) * (1.0 - Tw);
+        float gS = goldenHour();
+        if (gS > 0.0) {
+            vec3 Lh = normalize(vec3(L.x, 0.0, L.z) + vec3(1e-5, 0.0, 0.0));
+            vec3 glow = skyScatter(normalize(Lh + vec3(0.0, 0.10, 0.0)));
+            vec3 hue = glow / max(luminance(glow), 1e-6);
+            Sw = mix(Sw, luminance(Sw) * hue * QF_SEA_BODY, gS);
+        }
+        refracted = behind * Tw + Sw;
+    }
+#else
     vec3 refracted = waterVolume(behind, d, skyLight);
+#endif
 
     // Reflection: the sky and clouds, then the screen where it has the reflected land.
+#if QF_SEA_GOLD == 2
+    // r013 option 2: at golden hour the sky in the waves is read off a calmer surface (the eye averages
+    // many facets), so more of the low, gold sky and less of the grey-lilac sky aloft shows in the sea.
+    vec3 R = reflect(viewDir, normalize(mix(n, vec3(0.0, 1.0, 0.0), 0.45 * goldenHour())));
+#else
     vec3 R = reflect(viewDir, n);
+#endif
     R.y = abs(R.y);
     vec3 refl = skyScatter(R);
 #if QF_CLOUDS == 1
@@ -1049,16 +1079,19 @@ float crepuscularGain(vec3 viewDir) {
     vec2 dl = (sc.xy / sc.w * 0.5 + 0.5) - uv;
     float j = ign(gl_FragCoord.xy + float(frameCounter % 64) * vec2(2.31, 5.17));
     float open = 0.0;
-    for (int i = 0; i < 16; i++) {
-        vec2 q = uv + dl * (0.04 + 0.96 * (float(i) + j) / 16.0);
+    // r013 (plan: same look, cheaper; r012 cost up to +0.30 ms on ocean_sunset): QF_CREP_TAPS taps (16 in
+    // r012) under the same per-frame jitter, which TAA averages over frames, and one fetch a tap: deferred
+    // marks sky pixels in colortex1.b (material 1023, never a block's), so the depth read is gone.
+    for (int i = 0; i < QF_CREP_TAPS; i++) {
+        vec2 q = uv + dl * (0.04 + 0.96 * (float(i) + j) / float(QF_CREP_TAPS));
         float m = 0.5;
         if (all(greaterThanEqual(q, vec2(0.0))) && all(lessThanEqual(q, vec2(1.0)))) {
-            ivec2 qp = ivec2(q * vec2(viewWidth, viewHeight));
-            m = texelFetch(depthtex0, qp, 0).r >= 1.0 ? texelFetch(colortex1, qp, 0).g : 0.0;
+            vec4 gq = texelFetch(colortex1, ivec2(q * vec2(viewWidth, viewHeight)), 0);
+            m = gq.b > 0.999 ? gq.g : 0.0;
         }
         open += m;
     }
-    open /= 16.0;
+    open /= float(QF_CREP_TAPS);
     return mix(1.0 - 0.5 * w, 1.0 + 0.15 * w, open);
 }
 #endif
@@ -1375,7 +1408,7 @@ void main() {
                                               mapped ? max(smM, 0.35) : 0.72, g2m.g, g2m.b, depth0);
 #if QF_GEM_SSR == 1
         else if (mapped && smM > 0.88 && f0M > 0.1)
-            color += gemReflection(decodeNormal(g1.rg), viewDir, f0M, smM, g2m.g, g2m.b, depth0);
+            color += gemReflection(gemFacetNormal(decodeNormal(g1.rg), scene0 + cameraPosition), viewDir, f0M, smM, g2m.g, g2m.b, depth0);   // r013: cut facets
 #endif
     }
 #endif

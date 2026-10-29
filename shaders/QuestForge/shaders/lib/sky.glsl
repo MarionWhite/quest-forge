@@ -422,7 +422,19 @@ vec3 meteorsSector(vec3 dir) {
         // Loop 2 (r11m4c vs the owner's photos: our streaks 5-8 px wide with comet-like heads that bloomed;
         // his are hairlines, long, faint and even along their length): brightness capped at 3.5, thinner
         // lines, longer paths, a trail that keeps most of its length lit.
-#if QF_METEOR_LEAN == 1
+#if QF_METEOR_LEAN == 1 && QF_METEOR_SPREAD == 1
+        // r013 (critic p12clipm5: "every streak runs parallel at the same angle and about the same length
+        // ... In the photos the streaks radiate from one point and range from short to long"). In the
+        // photos length and brightness go together: a bright meteor burns longer and shows more of its
+        // path, the many faint ones are short ticks. Brightness keeps the 1/b law with a fainter floor
+        // (median ~0.4 of r012's), and the length runs from ~0.1 of the full path for the faintest to the
+        // whole of it for the brightest, with some scatter.
+        float bright = min(BR * 0.6 / max(u, 0.012), 2.8);
+        float gold = smoothstep(1.5, 2.8, bright);
+        float th0 = acos(mix(0.985, -0.09, hash12(sd + 4.4)));
+        float lf = smoothstep(0.08, 2.0, bright) * (0.65 + 0.35 * hash12(sd + 5.5));
+        float len = (0.10 + 0.85 * lf) * max(sin(th0), 0.08);
+#elif QF_METEOR_LEAN == 1
         // r012 (owner r011: "the leaner design like the references I gave. These ones kinda look a
         // little bulky"; his photos: hairlines, long, even along most of their length and fading out at
         // both ends, no bright head). Fainter cap, a third longer, tapered, half the width (below).
@@ -459,7 +471,11 @@ vec3 meteorsSector(vec3 dir) {
             // and brightness rise from the tail, hold, and fade into the head: no blob at either end.
             float along = clamp((thd - tail0) / max(head - tail0, 1e-4), 0.0, 1.0);
             float prof = smoothstep(0.0, 0.35, along) * smoothstep(1.0, 0.80, along);
+#if QF_METEOR_SPREAD == 1
+            float w = pxA * mix(0.35, 0.65, prof) * mix(0.8, 1.3, smoothstep(0.4, 2.5, bright));   // r013: the bright ones a little wider
+#else
             float w = pxA * mix(0.35, 0.65, prof);
+#endif
             float line = exp(-perp * perp / (w * w));
             float inside = step(tail0, thd) * step(thd, head);
             float flare = pow(sin(PI * p), 0.6) * mix(0.8, 1.4, p);
@@ -1153,7 +1169,14 @@ vec3 skyRadiance(vec3 dir) {
 #elif QF_CLOUDS == 2
     L = applyClouds2(L, dir, CL_STEPS);
 #endif
+#if QF_METEOR_SPREAD == 1
+    // r013 (critic p12clipm5: "a streak that crosses a thin cloud breaks into dashes"): the steep cut
+    // below turned the thin cloud's ragged transmittance (0.9-1) into on/off along the streak. A wide
+    // ramp dims the streak through thin cloud as real cloud does, and still hides it in thick cloud.
+    L += gMeteor * smoothstep(0.45, 1.0, gCloudT);
+#else
     L += gMeteor * smoothstep(0.93, 0.995, gCloudT);   // ud: 0.85 still let streaks over the thin grey cloud
+#endif
     L += Ldisk * gCloudTd;
     gSkyT = gCloudT;   // r010: kept for the crepuscular rays' mask (deferred writes it to colortex1.g)
     gMeteor = vec3(0.0); gCloudT = 1.0; gCloudTd = 1.0;

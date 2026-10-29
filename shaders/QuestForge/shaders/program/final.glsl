@@ -295,7 +295,14 @@ vec3 sunGlare(ivec2 px) {
             limbVis = step(1.0, texelFetch(depthtex0, q, 0).r) * clamp(max(e.r, max(e.g, e.b)) / want, 0.0, 1.0);
         }
     }
+#if QF_SUN_SOFT == 1
+    // r013: no limb, so no corona hugging it (it drew the disc edge the critic saw); the halo and wings
+    // fall from the centre, over the soft sun too.
+    float psf = 0.030 * exp(-th / 0.03) * limbVis + 0.0045 * exp(-th / 0.09);
+    if (texelFetch(depthtex0, px, 0).r < 1.0) psf *= mix(0.12, 1.0, smoothstep(SUN_REAL_R * 0.9, SUN_REAL_R * 2.5, th));
+#else
     float psf = ((0.12 * exp(-thl / 0.0026) + 0.030 * exp(-thl / 0.016)) * limbVis + 0.0045 * exp(-thl / 0.09)) * inDisk;   // pa: 0.22/0.045/0.006 washed out the gold sky; loop 3: core 0.10 @ 0.0040 -> 0.12 @ 0.0026, a tighter corona
+#endif
     vec3 E = sunIrradiance() * exposure() * (1.0 - rainStrength);
     vec3 g = E * psf * vis;
 #if QF_SUN_BLOOM > 0

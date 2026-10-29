@@ -90,6 +90,12 @@ vec3 phSunTintX(float sy, bool mie) {
     float bh = phBlueHourLight(sy);
     float mul = 1.0 + 0.5 * phMeWeight(sy) + 40.0 * bh;
     float p = phPulse(sy, 0.17, 0.40);
+#if QF_SUN_GOLD > 0 && QF_SUN_GOLD_LOW == 1
+    // r013 (plan: shore_sunset still salmon): Photon's pulse peaks with the sun 10 deg up, so a 2-deg sun
+    // got about half the gold tint and its reddened light stayed pink. Below the peak the tint now holds
+    // to the horizon and fades out only into the blue hour (sun 2-5 deg down).
+    if (sy < 0.17) p = max(p, phLinStep(-0.08, -0.01, sy));
+#endif
     vec3 me = mix(vec3(1.0), phMeTint(mie) * 1.2, p * p);
     vec3 blue = mix(vec3(1.0), vec3(0.95, 0.80, 1.0), bh);
     return mul * me * blue;

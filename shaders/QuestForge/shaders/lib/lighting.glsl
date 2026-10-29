@@ -115,6 +115,40 @@ vec3 metalF0(vec3 albedo, float f0) {
 #endif
     return clamp(albedo * 1.15, 0.0, 1.0);
 }
+#if QF_GEM_SSR == 1
+// r013 (critic g12c gem_glint_d: "the reflection wobbles, so the floor reads as wet plastic or water
+// rather than cut stone. Fix: flatten the normals so the reflection is sharp and faceted"; g12c
+// gem_glint_e: "try B's flat glass face with C's reflections"). The gem pack's normal map is a smooth
+// dome (VNR, mean tilt ~24 deg), so its mirror image bends across every block. A polished gem's faces are
+// planes: the face a block shows is the axis its mapped normal leans toward (any tilt under 45 deg), and
+// QF_GEM_FACET 2 cuts it like an emerald (step) cut: a flat table over the middle, four side facets and
+// four corner facets round it, each a plane tipped GEM_TILT outward, so each holds its own sharp piece of
+// the sky and the scene. 1 is the flat face, 0 the map's normal (r012).
+const float GEM_TILT = 0.14;   // ~8 deg
+vec3 gemFacetNormal(vec3 n, vec3 worldPos) {
+#if QF_GEM_FACET == 0
+    return n;
+#else
+    vec3 a = abs(n);
+    vec3 nf, U, V;
+    vec2 uv2;
+    if (a.y >= a.x && a.y >= a.z) { nf = vec3(0.0, sign(n.y), 0.0); U = vec3(1.0, 0.0, 0.0); V = vec3(0.0, 0.0, 1.0); uv2 = worldPos.xz; }
+    else if (a.x >= a.z)          { nf = vec3(sign(n.x), 0.0, 0.0); U = vec3(0.0, 0.0, 1.0); V = vec3(0.0, 1.0, 0.0); uv2 = worldPos.zy; }
+    else                          { nf = vec3(0.0, 0.0, sign(n.z)); U = vec3(1.0, 0.0, 0.0); V = vec3(0.0, 1.0, 0.0); uv2 = worldPos.xy; }
+#if QF_GEM_FACET == 1
+    return nf;
+#else
+    vec2 q = fract(uv2) - 0.5;          // -0.5..0.5 across the face
+    vec2 aq = abs(q);
+    if (max(aq.x, aq.y) < 0.30) return nf;                       // the table
+    vec2 t;
+    if (aq.x + aq.y > 0.74) t = sign(q) * 0.7071;                // a corner facet (the cut corners)
+    else t = aq.x > aq.y ? vec2(sign(q.x), 0.0) : vec2(0.0, sign(q.y));
+    return normalize(nf + (U * t.x + V * t.y) * GEM_TILT);
+#endif
+#endif
+}
+#endif
 vec3 metalShade(vec3 albedo, float f0id, vec3 n, vec3 viewDir, vec3 L, vec3 E, float smooth_, float shadow, float sky, float ao, vec3 diffuse, vec3 scenePos) {
     float r = (1.0 - smooth_) * (1.0 - smooth_);
     float a2 = max(r * r, 0.0012);
@@ -309,12 +343,18 @@ vec3 shadeSurface(Surface s, vec3 viewDir, vec2 pixel) {
         vec3 f0v = metal ? s.albedo : vec3(s.f0);
         vec3 V = -viewDir;
         vec3 H = normalize(L + V);
-        float NdotV = max(dot(s.normal, V), 0.02);
+        vec3 nSp = s.normal;
+#if QF_METAL_SSR == 1 && QF_GEM_SSR == 1
+        // r013: a gem's sun glint comes off the same cut facets its reflection uses (composite), so a
+        // facet flashes as a whole instead of every block showing the same dome highlight.
+        if (s.smoothness > 0.88 && s.f0 > 0.1) nSp = gemFacetNormal(s.normal, s.scenePos + cameraPosition);
+#endif
+        float NdotV = max(dot(nSp, V), 0.02);
         vec3 F = fresnelSchlick(max(dot(H, V), 0.0), f0v);
-        float sp = ggx(max(dot(s.normal, H), 0.0), a2) * clamp(NdotL, 0.0, 1.0) / (4.0 * NdotV + 0.5);
+        float sp = ggx(max(dot(nSp, H), 0.0), a2) * clamp(NdotL, 0.0, 1.0) / (4.0 * NdotV + 0.5);
         if (metal) color *= 0.15;
         color += F * E * min(sp, foliage ? 3.0 : 60.0) * shadow;
-        vec3 R = reflect(viewDir, s.normal);
+        vec3 R = reflect(viewDir, nSp);
         vec3 Fe = fresnelSchlick(NdotV, f0v);
 #if QF_METAL_SSR == 1 && QF_GEM_SSR == 1
         // r012 gem test (texture track, ops/checkpoints/r012-textures.md): a polished dielectric (diamond,

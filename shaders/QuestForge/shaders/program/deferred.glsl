@@ -52,7 +52,7 @@ void main() {
     if (depth >= 1.0) {
         outColor = vec4(skyRadiance(viewDir), 1.0);
 #ifdef QF_CREP_MASK
-        outG1 = vec4(0.5, gSkyT, 0.0, 0.0);
+        outG1 = vec4(0.5, gSkyT, 1.0, 0.0);   // r013: b = 1 (material 1023) marks the sky for the rays' one-fetch taps
 #endif
         return;
     }

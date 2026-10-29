@@ -127,3 +127,13 @@ gem_lit          256.5   68.0   187.0    90     12     4000
 # the edge's side and its silhouette against the sky.
 roofed_canopy    -205.5  81.0   -124.5   90     10     7000
 roofed_edge      -205.5  72.0   -124.5   90     -6     7000
+# r013 sun-glow candidates (critic r012: judge the glow on a view with the sun clear of cloud at sunset).
+# Loop 0 tried four days at 12320 (same cloud field every day) and lake_glow (sun behind the hill): all hid
+# the sun. Loop 1: ocean_sunset's point and bearing with a lower sun (12500 ~4 deg, 12600 ~2.7) and a
+# higher one (12200 ~10), and at 12350 from points 300 blocks off (another patch of the cloud deck).
+sunclr_a         -567.5  64.5   232.5    96     4      12500
+sunclr_b         -567.5  64.5   232.5    96     3      12600
+sunclr_c         -567.5  64.5   232.5    96     8      12200
+sunclr_d         -567.5  64.5   532.5    96     5      12350
+sunclr_e         -567.5  64.5   -67.5    96     5      12350
+sunclr_f         -867.5  64.5   232.5    96     5      12350

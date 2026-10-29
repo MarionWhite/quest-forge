@@ -28,6 +28,23 @@ float sunPeak() {
 // Disk radiance (scene units) seen through transmittance T, at dir.
 vec3 sunDiskReal(vec3 dir, vec3 sunDir, vec3 T) {
     float c = dot(dir, sunDir);
+#if QF_SUN_SOFT == 1
+    // r013 (critic r12c3: "it should be a hot spot that fades into the sky", no visible disc edge).
+    // BSL's sun, copied in shape: pow(smoothstep(1 - k, 1, cos), 3), a soft blob with no limb, its glare
+    // and bloom laid round it. k puts the blob's outer end at 1.6 radii (BSL's own k = 0.007 is ours at
+    // this size, 0.0064); the cube leaves ~27 % of the peak at the old limb, 2 % at 1.3 radii, so the
+    // white-hot centre (clipped by the tone mapper) shades through gold into the sky. The hue as before:
+    // the transmittance's, softened, white at the centre.
+    {
+        float k = 1.0 - cos(SUN_REAL_R * 1.6);
+        if (c < 1.0 - k) return vec3(0.0);
+        float prof = smoothstep(1.0 - k, 1.0, c);
+        prof *= prof * prof;
+        vec3 Tn = T / max(max(T.r, max(T.g, T.b)), 1e-5);
+        vec3 col = mix(pow(Tn, vec3(0.6)), vec3(1.0, 0.98, 0.95), smoothstep(0.25, 0.9, prof));
+        return col * prof * 2.4 * sunPeak() / max(exposure(), 1e-4);
+    }
+#endif
     if (c < cos(SUN_REAL_R * 1.3)) return vec3(0.0);
     float a = length(cross(dir, sunDir));                        // ~ the angle, for small angles
     float pxA = 2.0 / (gbufferProjection[1][1] * viewHeight);      // radians per pixel
