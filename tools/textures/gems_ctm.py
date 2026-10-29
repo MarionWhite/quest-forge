@@ -59,6 +59,13 @@ BLOCKS = {
 
 # Faces made periodic in x by mirroring instead of quilting (periodic_map).
 X_MIRROR = {"iron_block"}
+# Width of the frame in the blocks' _s (VNR's 16x specular upscaled 4x: its 1 px rim is 4 px here).
+SPEC_FRAME = 4
+# The shader takes its gem mirror path (darkened albedo + scene reflection) where smoothness > 0.88 and F0 > 0.1
+# (shaders/QuestForge/shaders/lib/lighting.glsl). VNR's iron _s crosses it in 4-px blotches (225-236), which render
+# as dark grey shapes, one set per block (r012 and r013 g13facet*). Iron is no gem: its ctm _s stays under it.
+GEM_PATH_SMOOTH = 224
+NOT_GEM = {"iron_block"}
 # "facet" normals only where the face's brightest tones are glint streaks (iron's are plate seams, lapis's are noise).
 FACETED = {"diamond_block", "emerald_block", "gold_block"}
 
@@ -146,17 +153,22 @@ def _widen(src, coords, size, ov_l=8, ov_r=6, wrap=False):
 def periodic_map(img, bands, x_mirror=False):
     """(n, n, 2) source coordinates into img: the face inside the frame bands, made n-periodic (module docstring).
     x_mirror (iron): its plates run across the face with a slow left-to-right shading (229 -> 226.6 luma), so any
-    quilting cut in x leaves a faint vertical line; read the columns there and back instead (a horizontal plate has
-    nothing a mirror could show)."""
+    quilting cut in x leaves a faint vertical line; read the central columns there and back instead (a horizontal
+    plate has nothing a mirror could show)."""
     n = img.shape[0]
     t, l, b, r = bands
     src = img[..., :3].astype(np.float64)
     ys, xs = np.mgrid[t:n - b, l:n - r]
     coords = np.stack([ys, xs], -1)
     if x_mirror:
-        w = n - l - r
-        u = (np.arange(n) + 0.5) / n * 2.0
-        cols = l + np.round(np.where(u < 1.0, u, 2.0 - u) * (w - 1)).astype(int)
+        # 1:1 mirror of the block's central half (cols n/4 .. 3n/4-1), read there and back. Not the whole face
+        # squeezed: the same maps index the block's _s, whose frame is 4 px wide (VNR's 16x map upscaled), wider than
+        # the albedo bands, so a squeeze from the albedo bands put _s frame column 3 (smoothness 131 vs ~215) on both
+        # sides of every seam (r013 g13facet3: a dark 2-texel line), and halved the _s's 4-px steps into ticks.
+        q = n // 4
+        x = np.arange(n)
+        cols = q + np.minimum(x, n - 1 - x)
+        assert cols.min() >= max(l, SPEC_FRAME) and cols.max() < n - max(r, SPEC_FRAME)
         H = np.stack([np.repeat(ys[:, :1], n, 1), np.broadcast_to(cols, (ys.shape[0], n))], -1)
     else:
         H = _widen(src, coords, n)                                    # periodic in x, still h rows
@@ -237,6 +249,18 @@ def tile_maps(img, bands, pmap=None, x_mirror=False):
             x0 = 0 if c[1] == "L" else n - w
             tl[y0:y0 + h, x0:x0 + w] = p
         out[i] = tl
+    return out
+
+
+def spec_tiles(name, s, maps):
+    """{i: _s} for the ctm tiles: the block's final _s through the same coordinate maps, so every tile keeps the
+    block's own material per pixel; NOT_GEM blocks are held under the shader's gem threshold (GEM_PATH_SMOOTH)."""
+    out = {}
+    for i, mp in maps.items():
+        t = s[mp[..., 0], mp[..., 1]].copy()
+        if name in NOT_GEM:
+            t[..., 0] = np.minimum(t[..., 0], GEM_PATH_SMOOTH)
+        out[i] = t
     return out
 
 

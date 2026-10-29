@@ -467,14 +467,15 @@ def main():
         img = textures[BLOCKS + name + ".png"][0]
         tl = {i: img[mp[..., 0], mp[..., 1]] for i, mp in maps.items()}
         nm = gems_ctm.normals(img, tl, bands, a.gems_ctm if name in gems_ctm.FACETED else "flat")
+        st = gems_ctm.spec_tiles(name, ctm_s[name], maps) if name in ctm_s else {}
         for i, mp in maps.items():
             p = CTM + name + "/%d" % i
             out.writestr(p + ".png", png(tl[i]))
             tally["ctm"] += 1
             if not a.no_pbr:
                 out.writestr(p + "_n.png", png(nm[i]))
-                if name in ctm_s:
-                    out.writestr(p + "_s.png", png(ctm_s[name][mp[..., 0], mp[..., 1]]))
+                if i in st:
+                    out.writestr(p + "_s.png", png(st[i]))
 
     if not a.no_cit:
         import qf_items

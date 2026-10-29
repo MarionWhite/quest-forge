@@ -6,9 +6,9 @@ Rewrite this file when the state changes; keep it under 2 KB.
   `--stay-true PATH` copies Stay True from `C:\qf-world\reference-packs` at build time (private, never git-added).
 - **Direction:** `docs/design/textures/` (direction, faithless-study, modded-blocks, leaf-frills).
 - **r013 connected gems handed off** (`C:/qfb/shaderdev/r013/textures_scenes.json`, 4 scenes;
-  `r013-textures.md`): `gems_ctm.py`, builder `--gems-ctm facet|flat` = 47-tile MCPatcher CTM (Angelica's, verified,
-  PBR maps reach the tiles) on diamond, emerald, gold, iron, lapis from Faithful 64x's own pixels; redstone stays per
-  block. Facet recommended. Conflict: shader-dev's QF_GEM_FACET (block-local facets) would re-grid connected gems.
+  `r013-textures.md`): `gems_ctm.py`, builder `--gems-ctm facet|flat` = 47-tile MCPatcher CTM (Angelica's,
+  PBR verified) on diamond, emerald, gold, iron, lapis from Faithful 64x's own pixels; redstone stays per
+  block. Facet recommended. Iron fix: render 1029-130343 pending. Conflict: shader-dev's QF_GEM_FACET (block-local facets) would re-grid connected gems.
 - **r011 Stay True port** (`r011-stay-true.md`): leaf planes and weighted tall crops (qf-tweaks branch `leaf-frills`
   718473f, not merged). Open: leaves denser than the transparency the owner liked; keep or thin.
 - **r013 packs handed off** (`r013-packs.md`; render 1029-122545; `packs_scenes.json`, 8 scenes):
