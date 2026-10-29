@@ -3,7 +3,7 @@
  "id": "r012",
  "title": "A gold sunset with a glowing sun, round 10's sunbeams back, and leaner meteors",
  "intro": "This round answers your round 11 notes, copying from the packs as in round 11, each option against round 11 with its cost. High frames cost 3.65 ms at most (round 11: 3.30, budget 3.0), Low at 1080p 0.89 ms (budget 0.9) and Potato at 720p 0.31 ms (budget 0.4), per frame against the same view with shaders off; the sea sunset is over its High budget, as in rounds 10 and 11, because round 10's rays you picked cost 0.30 ms there.",
- "status": "open",
+ "status": "closed",
  "created": "2026-10-28",
  "scenes": [
   {

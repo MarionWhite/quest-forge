@@ -1,0 +1,536 @@
+{
+ "n": 13,
+ "id": "r013",
+ "title": "Connected glassy gems, an Elden Ring-style HUD, a warmer sea, cheaper sunbeams, and meteors from one point",
+ "intro": "This round answers your round 12 notes, the critic's notes as the work order, copying from BSL and Photon, each option against round 12 with its cost (per frame, against the same view with shaders off). Worst frames: High at 1440p 3.55 ms (budget 3.0), Low at 1080p 0.94 ms (budget 0.9), Potato at 720p 0.30 ms (budget 0.4). Over budget, and not fixed in this round: the sea sunset is 3.55 ms on High against the 3.0 budget, and it is the water that is over, not the sunbeams: with the beams off it still costs 3.40 ms. 11 of the 24 High views are over 3.0 (3.01 to 3.55 ms), every one of them with open water in it, as in round 12; lake glitter 0.94 ms and ocean sunset 0.92 ms are just over 0.9 on Low (round 12: 0.88 and 0.89, within a run's noise of the line). Whether to make the water cheaper, and what to give up for it, is a question for you in a later round.",
+ "status": "open",
+ "created": "2026-10-29",
+ "scenes": [
+  {
+   "id": "sea-sunset",
+   "name": "The sea warms under the gold sky",
+   "question": "The critic said the sea stayed navy under round 12's gold sky. Cause, measured: the water's colour came from its own body (light scattered back up inside it, coloured by the blue overhead sky), and that blue outweighed the gold sky the surface reflects (near sea red/blue 0.47; BSL on the same view 1.52). Now, as BSL does, near the horizon hour the water body is lit by the sun's colour instead of the overhead sky, at 70 % of its strength, so the reflection of the gold sky leads: near sea red/blue goes from 0.47 to 1.05, farther out from 0.99 to 1.41. The critic: no longer navy, but pewter grey rather than gold (BSL's middle sea 67,49,34 against ours 63,59,60), so it is a step, not there yet. The warmer sea itself costs +0.01 to +0.03 ms on High. Over budget, not fixed in this round: the sea sunset is 3.55 ms on High against the 3.0 budget (3.52 ms on this view, 3.55 on the clear-sun view below; round 12 3.66). The water, not the sunbeams, is what is over: with the beams off this view still costs 3.40 ms (3.43 in the run before), and the sunbeams scene below shows that frame. Making the water cheaper is a question for you in a later round. A new, B round 12.",
+   "notePrompt": "Gold enough at sea? Does it still read as water?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Warmer sea (default)",
+     "img": "r013/sea-sunset-A.jpg",
+     "critic": "Critic 7: Partly answers the note. The navy is gone: near sea 36,36,40 (red/blue 0.91) against round 12's 19,40,66 (0.29), the middle sea 63,59,60 against 54,63,87, and the sun's path on the water is gold (red/blue 1.66 against 0.86). But the sea is now a neutral pewter grey, not gold: under the same sky BSL's middle sea is 67,49,34 (red/blue 1.99), twice as warm as ours (1.05), so the lower half still does not take the sunset. It reads as water. The sunbeams over the sun are the 8-point beams, indistinguishable from 16 points (mean difference 0.47 luma in the sky over the sun), and the view is cheaper than round 12 (3.52 ms against 3.66). Fix: let the reflected gold horizon lead at grazing angles in the middle distance, as BSL's does, rather than lighting the water body.",
+     "ms": 3.52
+    },
+    {
+     "key": "B",
+     "label": "Round 12",
+     "img": "r013/sea-sunset-B.jpg",
+     "critic": "Critic 5: Round 12 on the same run: the navy sea under a gold sky (near 19,40,66, red/blue 0.29). The sky is the same as A's.",
+     "ms": 3.66
+    }
+   ]
+  },
+  {
+   "id": "shore-sunset",
+   "name": "The shore sunset: amber instead of salmon",
+   "question": "With the sun on the horizon the sky stayed salmon pink. Cause: Photon's per-hour sun tint peaks about 10 degrees up, so a sun 2 degrees up got half of its gold and its reddest light kept a pink cast. Now, under 7 degrees, the sunlight, the glow and the sky take a gold shift (green kept, blue cut): on the clouds blue/green goes from 0.96 to 0.78. Higher suns (the sea sunset, the golden hour) do not change. No cost. A new, B round 12.",
+   "notePrompt": "Amber now, or still pink?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Gold shift under 7 degrees (default)",
+     "img": "r013/shore-sunset-A.jpg",
+     "critic": "Critic 6: Half answered. The open sky has moved from mauve to warm taupe (the gap above the hill 124,105,92 against round 12's 120,100,108) and the horizon is amber (158,103,43). But the bright cloud rims, the first thing the eye reads, are still salmon: the brightest 5 % of the sky is 250,152,108 against round 12's 250,146,109, almost the same. The gold shift reached the mid-tones (cloud blue/green 0.77 to 0.59) but not the lit edges. The near water is now dark olive-brown (36,26,10), which reads as mud rather than a reflection of a gold sky. Fix: give the sunlit cloud edges the same shift, so the rims go amber, not coral.",
+     "ms": 2.85
+    },
+    {
+     "key": "B",
+     "label": "Round 12",
+     "img": "r013/shore-sunset-B.jpg",
+     "critic": "Critic 5: Round 12: salmon cloud rims, a mauve gap in the sky (120,100,108) and a grey-green near water.",
+     "ms": 2.92
+    }
+   ]
+  },
+  {
+   "id": "sun-glow",
+   "name": "A sun that glows, with no edge to its disk",
+   "question": "The critic asked for a hot spot that fades into the sky with no visible disk edge, judged on a view where the sun is clear of cloud (round 12's view had it behind the cloud base). We tried 14 views: at sunset a far strand of cloud sits at the sun's height from every point we found, so in this one (sun about 6 degrees up) the strand only trims the lower edge. The sun is now drawn like BSL's: a soft disk that eases into a warm glow, with no hard ring round it (pixels at full white round the sun drop from 352 to 155). 2x crops round the sun. Cost on High: -0.01 to +0.00 ms. A new, B round 12, C round 13 with round 12's sun.",
+   "notePrompt": "Does the glow fade into the sky the way you want? Too big, too small?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Soft sun (default)",
+     "img": "r013/sun-glow-A.jpg",
+     "critic": "Critic 6: Answers the edge, not yet the glow. The disk's hard sides are gone: B and C draw a white slab with vertical ends (54 x 13 px, 352 px at full white), and A's ends ease into the sky (33 x 13 px, 155 px at full white). The faint ring arc above the sun in B and C is gone too. But the glow above the sun is the same in A, B and C, within 2 luma from 10 to 240 px out (214 down to 145), so the 'hot spot that fades' is round 12's glow. The sun still shows as a flat bar trimmed by cloud (known, stated on the page). The sea here is warm and dark (44,36,31) where round 12's was navy (23,40,68). Fix: none on the edge; judge the glow's size again once a sunset view has a whole disk.",
+     "ms": 3.55
+    },
+    {
+     "key": "B",
+     "label": "Round 12",
+     "img": "r013/sun-glow-B.jpg",
+     "critic": "Critic 5: Round 12's sun: a white slab with hard vertical ends and a faint ring arc above it, over a navy sea (near 23,40,68).",
+     "ms": 3.69
+    },
+    {
+     "key": "C",
+     "label": "This round, round 12's sun",
+     "img": "r013/sun-glow-C.jpg",
+     "critic": "Critic 5: Round 13 with round 12's sun: the same hard-ended slab (55 x 16 px at full white) and ring arc as B, over the new warm sea. This isolates the sun change cleanly: A against C is the soft edge alone.",
+     "ms": 3.55
+    }
+   ]
+  },
+  {
+   "id": "rays",
+   "name": "Round 10's sunbeams, cheaper",
+   "question": "Round 10's rays cost up to 0.30 ms on High in round 12. They now read 8 points of the sky on the line to the sun instead of 16, each shifted a little per pixel so the steps blend, and read one buffer per point instead of two (the sky is marked once in an earlier pass). Cost on High: +0.02 to +0.12 ms (16 points: +0.03 to +0.15). In the sky the two differ by under 1 level out of 255 on average, with no grain. 2x crops of the sea sunset round the sun. A 8 points (default), B 16 points (round 12's look), C no beams: C is the sea sunset with the beams off, still over the 3.0 budget, so the beams are not what makes it heavy.",
+   "notePrompt": "Can you tell A from B? Are the beams worth keeping (A against C)?",
+   "options": [
+    {
+     "key": "A",
+     "label": "8 points (default)",
+     "img": "r013/rays-A.jpg",
+     "critic": "Critic 7: Partly answers the note. The navy is gone: near sea 36,36,40 (red/blue 0.91) against round 12's 19,40,66 (0.29), the middle sea 63,59,60 against 54,63,87, and the sun's path on the water is gold (red/blue 1.66 against 0.86). But the sea is now a neutral pewter grey, not gold: under the same sky BSL's middle sea is 67,49,34 (red/blue 1.99), twice as warm as ours (1.05), so the lower half still does not take the sunset. It reads as water. The sunbeams over the sun are the 8-point beams, indistinguishable from 16 points (mean difference 0.47 luma in the sky over the sun), and the view is cheaper than round 12 (3.52 ms against 3.66). Fix: let the reflected gold horizon lead at grazing angles in the middle distance, as BSL's does, rather than lighting the water body.",
+     "ms": 3.52
+    },
+    {
+     "key": "B",
+     "label": "16 points (round 12)",
+     "img": "r013/rays-B.jpg",
+     "critic": "Critic 7: Round 12's 16-point beams on round 13's shader. In the 2x crop it looks the same as A (mean difference 0.47 luma, grain 0.87 against A's 0.90), but costs more (3.55 ms against 3.52). Nothing here argues for keeping 16 points.",
+     "ms": 3.55
+    },
+    {
+     "key": "C",
+     "label": "No beams",
+     "img": "r013/rays-C.jpg",
+     "critic": "Critic 6: No beams. The sky over the sun loses its fan and goes flat, so the beams earn their place. It still costs 3.40 ms, which proves the water, not the beams, is what puts this view over 3.0 (known, and stated on the page).",
+     "ms": 3.4
+    }
+   ]
+  },
+  {
+   "id": "meteors",
+   "name": "Meteors from one point, short and faint to long and bright",
+   "question": "You asked for more quality at no extra cost; the critic saw streaks in parallel lanes, all alike, breaking into dashes where they cross thin cloud. The lanes came from the clip, not the shower: the radiant moves every night, and round 12's clip had it 90 degrees off the view, so every streak crossed the frame side by side. Both clips now aim it into the view, so A and B differ only in the streaks: a streak's length now goes with its brightness (short faint ones, a few long bright ones), and thin cloud dims a streak smoothly instead of cutting it. Cost on the wide night view: A 2.99 ms, B 2.94 ms (budget 3.0). A new (default), B round 12, same view, same radiant.",
+   "notePrompt": "Does it read as a shower from one point now?",
+   "options": [
+    {
+     "key": "A",
+     "label": "One radiant, varied (default), clip",
+     "img": "r013/meteors-A.jpg",
+     "critic": "Critic 7: Answers the note. With both clips aimed at the radiant, A's streaks fan out from one point and vary: short and faint near the radiant, a few long bright ones further out (p90 length 75 px at 720p against B's 100, and 41 % fewer streak pixels over the clip), and where a streak crosses thin cloud it dims instead of breaking into dashes. Stacked over the clip it reads as a real shower composite, not rain. The cost does not fall: 2.99 ms against 2.94 on the same run (+0.05), right at the top of round 12's range, so 'more quality at no extra cost' is met only just. Fix: hold the cost at 2.94, for example by culling the faint streaks a frame cannot show.",
+     "ms": 2.99,
+     "clip": "r013/meteors-A.webp"
+    },
+    {
+     "key": "B",
+     "label": "Round 12, clip",
+     "img": "r013/meteors-B.jpg",
+     "critic": "Critic 6: Round 12's lean meteors with the radiant now in view: they radiate too, but every streak is long and evenly bright, so the fan looks like a warp-speed effect.",
+     "ms": 2.94,
+     "clip": "r013/meteors-B.webp"
+    }
+   ]
+  },
+  {
+   "id": "gems",
+   "name": "Glassy gems by default, sharp and faceted",
+   "question": "You liked C's glassy gems; the critic said the reflection wobbled like wet plastic. Cause: the round 12 normal maps were domed, so the reflection bent across each face. The gem blocks now use the connected facet pack (flat faces with bevelled rims, so a wall of gem blocks reads as one stone), and the reflection is on by default and follows those flat facets, so it is a sharp mirror on each face. Cost of the reflection on High: +0.03 to +0.15 ms. A new (default), B round 12's C.",
+   "notePrompt": "Sharp enough? Still plastic?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Facet gems, reflection on (default)",
+     "img": "r013/gems-A.jpg",
+     "critic": "Critic 7: Answers the wobble. The floors and pillars are flat, connected slabs with no seam grid, and the diamond floor mirrors the pillar and the clouds crisply, so it reads as polished stone rather than wet plastic. One flaw: the sun's glints are short white dashes, all slanting the same way across both floors, which read as rain on ice or scratches more than as facets catching the light. Cost +0.08 ms over round 12's C on this view (2.45 against 2.37).",
+     "ms": 2.45
+    },
+    {
+     "key": "B",
+     "label": "Round 12 C",
+     "img": "r013/gems-B.jpg",
+     "critic": "Critic 5: Round 12's C with the sun fix (g12c2): domed, every block framed, with a glint per block, so the floor reads as a grid.",
+     "ms": 2.63
+    }
+   ]
+  },
+  {
+   "id": "gems-ctm-diamond",
+   "name": "Diamond, connected",
+   "question": "How: this client's connected textures are Angelica's built-in MCPatcher CTM (the same that already joins glass and draws the lettered TNT); it uses the standard 47-tile layout. None of the reference packs has connected gem blocks (Stay True connects only glass, quartz, sandstone and logs), so the layout is the one Stay True and Faithful use for their glass, and the art is Faithful 64x's own gem pixels: the face is made seamless from its own pixels and the frame is drawn only around the outside of a group. The shader's polish (round 12's C) reaches the connected tiles too. The critic's 'wet plastic' wobble came from the domed normal on every block; the connected gems have no dome, so the reflection is straight and sharp. Diamond floor and pillar, looking into a low sun.",
+   "notePrompt": "Connected faceted (B) or mirror (C)? Any seam left?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Round 12's C",
+     "img": "r013/gems-ctm-diamond-A.jpg",
+     "crop": "C:\\qfb\\shaderdev\\r013\\crops\\g13c12-gem_glint_d.png",
+     "ms": null,
+     "desc": "Your pick from round 12, unchanged: every block framed, each one domed. A glint on each block marks the grid.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 5: Round 12's C, as the owner picked it: glassy, but every block is domed and framed, with a white glint on each, so the floor is a grid of pillows. The owner's 'connected textures' note is about exactly this."
+    },
+    {
+     "key": "B",
+     "label": "Connected, faceted",
+     "img": "r013/gems-ctm-diamond-B.jpg",
+     "crop": "C:\\qfb\\shaderdev\\r013\\crops\\g13facet-gem_glint_d.png",
+     "ms": null,
+     "desc": "One slab per floor or pillar; the frame only on the outside. Its light streaks are tiny flat facets, so into the sun they flash as sharp glints. The floor mirrors the pillar and the clouds, broken by sun glints along the streaks.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 7: Connected, with no seam left: one slab per floor and pillar, the rim only round the outside. The flat face mirrors the pillar sharply, which answers the wobble. The glints are rows of short white dashes, all at one slant, that read as rain streaks on ice. Fewer, smaller glints would read as facets."
+    },
+    {
+     "key": "C",
+     "label": "Connected, mirror",
+     "img": "r013/gems-ctm-diamond-C.jpg",
+     "crop": "C:\\qfb\\shaderdev\\r013\\crops\\g13flat-gem_glint_d.png",
+     "ms": null,
+     "desc": "The same connected tiles with a perfectly flat face: a clean mirror, closer to polished glass than to cut gem. The sun's reflection runs as one long bright smear, like water.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 6: The cleanest mirror, but it reads as a still pool of glass or water, not cut gem, and the sun's reflection is a blown-out white smear. Faceted (B) is the better gem."
+    }
+   ]
+  },
+  {
+   "id": "gems-ctm-emerald",
+   "name": "Emerald, connected",
+   "question": "The same on the emerald floor.",
+   "notePrompt": "Which emerald?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Round 12's C",
+     "img": "r013/gems-ctm-emerald-A.jpg",
+     "crop": "C:\\qfb\\shaderdev\\r013\\crops\\g13c12-gem_glint_e.png",
+     "ms": null,
+     "desc": "Your pick from round 12, unchanged: every block framed, each one domed. ",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 5: Round 12's C: pillowed emerald blocks, a glint per block, the grid plain to see."
+    },
+    {
+     "key": "B",
+     "label": "Connected, faceted",
+     "img": "r013/gems-ctm-emerald-B.jpg",
+     "crop": "C:\\qfb\\shaderdev\\r013\\crops\\g13facet-gem_glint_e.png",
+     "ms": null,
+     "desc": "One slab per floor or pillar; the frame only on the outside. Its light streaks are tiny flat facets, so into the sun they flash as sharp glints. ",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 7: Connected emerald, with no seams. It mirrors the pillar, and the sunward half flashes with the same slanted white dashes as the diamond. It reads as one green stone."
+    },
+    {
+     "key": "C",
+     "label": "Connected, mirror",
+     "img": "r013/gems-ctm-emerald-C.jpg",
+     "crop": "C:\\qfb\\shaderdev\\r013\\crops\\g13flat-gem_glint_e.png",
+     "ms": null,
+     "desc": "The same connected tiles with a perfectly flat face: a clean mirror, closer to polished glass than to cut gem. ",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 6: A clean green mirror with a soft sun smear and the pillar reflected. Calm, but more like glass than emerald."
+    }
+   ]
+  },
+  {
+   "id": "gems-ctm-lit",
+   "name": "Both gems in morning light, connected",
+   "question": "Sun behind you: the pillars and floors read as one block each, with no grid.",
+   "notePrompt": "Do the connected pillars and floors look right?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Round 12's C",
+     "img": "r013/gems-ctm-lit-A.jpg",
+     "crop": "C:\\qfb\\shaderdev\\r013\\crops\\g13c12-gem_lit.png",
+     "ms": null,
+     "desc": "Your pick from round 12, unchanged: every block framed, each one domed. ",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 5: Round 12's C with the sun behind: every block framed, so pillars and floors are grids."
+    },
+    {
+     "key": "B",
+     "label": "Connected, faceted",
+     "img": "r013/gems-ctm-lit-B.jpg",
+     "crop": "C:\\qfb\\shaderdev\\r013\\crops\\g13facet-gem_lit.png",
+     "ms": null,
+     "desc": "One slab per floor or pillar; the frame only on the outside. Its light streaks are tiny flat facets, so into the sun they flash as sharp glints. With the sun behind you, faceted and mirror look the same: no seams on floors or pillars.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 7: Answers 'connected textures': each pillar and floor reads as one block, with no grid and a rim only on the outside. In this light it is the same as C."
+    },
+    {
+     "key": "C",
+     "label": "Connected, mirror",
+     "img": "r013/gems-ctm-lit-C.jpg",
+     "crop": "C:\\qfb\\shaderdev\\r013\\crops\\g13flat-gem_lit.png",
+     "ms": null,
+     "desc": "The same connected tiles with a perfectly flat face: a clean mirror, closer to polished glass than to cut gem. ",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 7: The same as B in this light: one slab each and no seams."
+    }
+   ]
+  },
+  {
+   "id": "metals-ctm",
+   "name": "Gold, diamond, emerald and lapis pairs",
+   "question": "The same treatment on the other storage blocks: gold, diamond, emerald, lapis and iron now join with their neighbours. Redstone stays per block: its art is a dark blob in each block, which would still show as a grid. (The grey shapes on the round 12 iron are its specular map tripping the shader's gem mirror; the connected iron is held under it.)",
+   "notePrompt": "Connect the other storage blocks too?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Round 12's C",
+     "img": "r013/metals-ctm-A.jpg",
+     "crop": "C:\\qfb\\shaderdev\\r013\\crops\\g13c12-diag_column.png",
+     "ms": null,
+     "desc": "Your pick from round 12, unchanged: every block framed, each one domed. ",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 5: Round 12: diamond and iron framed per block, and the round 12 iron shows grey blotches (its specular map tripping the gem mirror)."
+    },
+    {
+     "key": "B",
+     "label": "Connected, faceted",
+     "img": "r013/metals-ctm-B.jpg",
+     "crop": "C:\\qfb\\shaderdev\\r013\\crops\\g13facet4-diag_column.png",
+     "ms": null,
+     "desc": "One slab per floor or pillar; the frame only on the outside. ",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 7: Glowstone, diamond, iron and gold: diamond, iron and gold now join into clean slabs, and the iron's grey blotches are gone. (Crop re-cut before publish to include the gold block.)"
+    },
+    {
+     "key": "C",
+     "label": "Connected: emerald, lapis (redstone per block)",
+     "img": "r013/metals-ctm-C.jpg",
+     "crop": "C:\\qfb\\shaderdev\\r013\\crops\\g13facet-diag_emerald.png",
+     "ms": null,
+     "desc": "One slab per floor or pillar; the frame only on the outside. Its light streaks are tiny flat facets, so into the sun they flash as sharp glints. ",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 7: Emerald and lapis join as single clean slabs; redstone stays two blobs, as stated; coal below is unchanged. (Crop re-cut before publish.)"
+    }
+   ]
+  },
+  {
+   "id": "pk-hud",
+   "name": "HUD: three directions inspired by Elden Ring",
+   "question": "Our own art (nothing taken from the game). Hearts, food, armour and air are drawn as long thin bars: 1.7.10 draws ten icons 8 px apart, so each icon is now one segment of a continuous bar (red health, green stamina = food, steel armour, blue air under water; lost health flashes pale gold when you are hit). Quiet hotbar, thin boss bar under the name with end caps. In game this time: these sit above QuestForge.zip, so the hotbar is ours, and the shot waits for the chat to fade off the hearts. Tarnished: charcoal and old gold, framed cells. Grace: warmer, one long strip, a glowing selection with a small diamond. Ashen: the quietest, bone hairlines, the hotbar only as corner brackets. The green stamina bar is longer or shorter from shot to shot only because the test set the food level more than once (a test bug, fixed); the art is the same. M: all three as a mock, normal and just hit. A framed boss bar is client-only and needs no server change and no transformer: Forge's GuiIngameForge fires RenderGameOverlayEvent.Pre(BOSSHEALTH) before it draws the strip, so a qf-tweaks client handler can cancel it and draw our own frame (a 256 x 16 sheet, name left-aligned above the bar, at the bottom centre like the reference) from BossStatus.bossName / healthScale / statusBarTime, with a per-boss frame looked up from the nearest IBossDisplayData entity's class (the name string is localised, so not a key). The same event (HEALTH, FOOD, ARMOR, AIR) could later move the bars to the top left with real end caps.",
+   "notePrompt": "Which direction? Build the framed boss bar (client only)?",
+   "options": [
+    {
+     "key": "B",
+     "label": "Tarnished",
+     "img": "r013/pk-hud-B.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 7: Answers the brief, in game this time: the chat is gone and the hotbar and bars are ours. Thin long bars with fine gold rims, a quiet framed hotbar, and a thin boss bar with gold end caps under the name. That is the Elden Ring spirit without copying it. One element breaks it: the XP level '27' is vanilla lime green with a black outline, the loudest thing on screen. Recolour it to the old gold."
+    },
+    {
+     "key": "C",
+     "label": "Grace",
+     "img": "r013/pk-hud-C.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 7: The most Elden Ring of the three: one long hotbar strip and a glowing selection with a small diamond marker over it, plus the same thin gold-rimmed bars and capped boss bar. The same lime '27' clashes."
+    },
+    {
+     "key": "D",
+     "label": "Ashen",
+     "img": "r013/pk-hud-D.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 6: The quietest, and it loses too much. The boss bar is a bare red line with no caps, and the grey armour bar and pale XP hairline fade into a bright sky or grass. The corner-bracket hotbar is nice. Same lime '27'."
+    },
+    {
+     "key": "M",
+     "label": "Mock: tarnished, grace, ashen (left normal, right just hit)",
+     "img": "r013/pk-hud-M.jpg",
+     "ms": null,
+     "desc": "Top to bottom; 1.7.10's layout drawn offline from the same sheets.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 7: The fair side-by-side. It is also the only view of the 'just hit' state, where lost health flashes pale gold, a good touch. The three differ mainly in the hotbar: framed cells, one strip, or brackets. The framed boss bar's hook is reported (a client-only RenderGameOverlayEvent handler in qf-tweaks) and needs no server change, which is the answer the plan asked for."
+    }
+   ]
+  },
+  {
+   "id": "pk-mob-1",
+   "name": "Mobs (1 of 7)",
+   "question": "Closer views, 3-4 mobs each. The wither skeleton (Patrix, your pick) is centred here, the dark one next to the plain skeleton. Left to right: creeper (Patrix), skeleton (Patrix), wither skeleton (Patrix), zombie (Patrix). No mob texture is vanilla now: the wither's shield shimmer is Patrix's, and the black-dots horse marking is Conquest's white dots darkened (Conquest shipped that one unchanged). The wither's body stays Conquest's (Patrix's needs a remap; a live wither cannot be put in the hall to check it).",
+   "notePrompt": "Right?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Round 12, your pick",
+     "img": "r013/pk-mob-1-A.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 6: Round 12's packs in the new, closer view: the wither skeleton is in frame now, facing front. All four are Patrix."
+    },
+    {
+     "key": "B",
+     "label": "Round 13",
+     "img": "r013/pk-mob-1-B.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 7: Answers the owner: the wither skeleton (Patrix) is centred beside the plain skeleton, dark and readable with its sword. The creeper and zombie face the camera. The amber glowstone room still tints every skin orange, as in round 12."
+    }
+   ]
+  },
+  {
+   "id": "pk-mob-2",
+   "name": "Mobs (2 of 7)",
+   "question": "Left to right: silverfish (Patrix), enderman (Patrix), cave spider (Patrix), spider (Patrix). ",
+   "notePrompt": "",
+   "options": [
+    {
+     "key": "A",
+     "label": "Round 12, your pick",
+     "img": "r013/pk-mob-2-A.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 6: Round 12's packs: both spiders read well, the enderman is a dark silhouette with no eyes showing, and the silverfish is a speck."
+    },
+    {
+     "key": "B",
+     "label": "Round 13",
+     "img": "r013/pk-mob-2-B.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 7: The enderman faces front with its purple eyes, and both spiders read well. The silverfish is still a grey speck on the floor, too small to judge."
+    }
+   ]
+  },
+  {
+   "id": "pk-mob-3",
+   "name": "Mobs (3 of 7)",
+   "question": "Left to right: chicken (Patrix remapped), blaze (Conquest), witch (Patrix remapped), zombie pigman (Conquest). ",
+   "notePrompt": "",
+   "options": [
+    {
+     "key": "A",
+     "label": "Round 12, your pick",
+     "img": "r013/pk-mob-3-A.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 6: Round 12's packs: the remapped chicken and witch, Conquest's blaze, and its furry pigman."
+    },
+    {
+     "key": "B",
+     "label": "Round 13",
+     "img": "r013/pk-mob-3-B.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 6: The same mobs as A. The blaze's tower of black smoke fills the middle, and Conquest's pigman is still a brown ghoul with no pig left in it. The sheep from view 4 crowds the left edge."
+    }
+   ]
+  },
+  {
+   "id": "pk-mob-4",
+   "name": "Mobs (4 of 7)",
+   "question": "Left to right: mooshroom (Conquest), pig (Patrix), cow (Patrix remapped), sheep (Patrix remapped). ",
+   "notePrompt": "",
+   "options": [
+    {
+     "key": "A",
+     "label": "Round 12, your pick",
+     "img": "r013/pk-mob-4-A.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 5: Round 12's packs: the Patrix pig, cow and sheep read well. Conquest's mooshroom is a brown camouflage hide under red caps."
+    },
+    {
+     "key": "B",
+     "label": "Round 13",
+     "img": "r013/pk-mob-4-B.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 5: Not answered: the plan says Conquest's passive mobs are out, but the mooshroom is still Conquest's camouflage hide (side-on here). The pig, cow and sheep read well. The ocelot from view 5 wanders in at the left."
+    }
+   ]
+  },
+  {
+   "id": "pk-mob-5",
+   "name": "Mobs (5 of 7)",
+   "question": "Left to right: villager (Conquest), horse (Conquest), wolf (Patrix), ocelot (Patrix). ",
+   "notePrompt": "",
+   "options": [
+    {
+     "key": "A",
+     "label": "Round 12, your pick",
+     "img": "r013/pk-mob-5-A.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 5: Round 12's packs: Conquest's villager and horse, with the wolf and ocelot small."
+    },
+    {
+     "key": "B",
+     "label": "Round 13",
+     "img": "r013/pk-mob-5-B.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 5: Not answered: the villager (an uncanny painted human face) and the horse (a smooth grey painting) are still Conquest's, which the round 12 note and the plan ruled out. The wolf and ocelot are still too small to judge; the ocelot is a speck. Fix: Patrix remaps or Faithless art for the villager, horse and mooshroom, and move the wolf and ocelot closer."
+    }
+   ]
+  },
+  {
+   "id": "pk-mob-6",
+   "name": "Mobs (6 of 7)",
+   "question": "Left to right: snow golem (Faithless (was Patrix, near-vanilla)), iron golem (Patrix remapped), bat (hanging) (Conquest). Snow golem: Patrix's is near-vanilla white snow (why it read as default), so it is Faithless's, with its red scarf; the pumpkin head is the block's own texture. The bat hangs from a beam at eye level. ",
+   "notePrompt": "Right?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Round 12, your pick",
+     "img": "r013/pk-mob-6-A.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 5: Round 12's packs: a plain white snow golem with no face showing, which is why it read as default."
+    },
+    {
+     "key": "B",
+     "label": "Round 13",
+     "img": "r013/pk-mob-6-B.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 7: Answers the owner: Faithless's snow golem, with a carved face, red scarf and stick arms, no longer reads as default. The bat now hangs at eye level and reads as a bat. The Patrix iron golem is still a noisy pink-grey with mossy blotches."
+    }
+   ]
+  },
+  {
+   "id": "pk-mob-7",
+   "name": "Mobs (7 of 7)",
+   "question": "Left to right: squid (in water) (Faithless (was Conquest)), slime (Faithless (was Conquest)), magma cube (Faithless (was Conquest)). New: glass tanks, because a squid out of water dies and slimes hop off (they were missing in round 12); the streaks are our glass texture. Patrix draws all three for its own 3D models, so they are Faithless's, which keep 1.7.10's. ",
+   "notePrompt": "Right?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Round 12, your pick",
+     "img": "r013/pk-mob-7-A.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 4: Round 12's packs: the squid lies dead outside the tank and the slime and magma cube are Conquest's."
+    },
+    {
+     "key": "B",
+     "label": "Round 13",
+     "img": "r013/pk-mob-7-B.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 5: Half answered: the slime and magma cube are in frame now, and Faithless's versions read clearly. The squid is in the tank, but behind the glass it is an unreadable grey-blue slab, and the whole view is shot through streaked glass (blue diagonal hairlines across the frame). Fix: a clear glass texture for the tank, or a water pool the camera looks down into."
+    }
+   ]
+  }
+ ]
+}
