@@ -3,7 +3,7 @@
 
     py -3.10 -I tools/textures/r013_packs_handoff.py [--ready]
 
-Reads the frames of render 1029-121538-textures-r013-packs (spec tools/renderq/specs/textures-r013-packs.json) from
+Reads the frames of render 1029-122545-textures-r013-packs (spec tools/renderq/specs/textures-r013-packs.json) from
 C:\\qfb\\shaderdev\\rounds\\screenshots. Mobs: A = round 12's picked B as it was, B = round 13, both in the new views.
 HUD: B-D = the three Elden-Ring-inspired directions in game, M = the offline mock (`qf_hud_er.py --preview`).
 The frames show third-party pack art: internal Lab review only, never the public site.
@@ -21,7 +21,7 @@ HUD = {"B": ("pk13h1", "Tarnished"), "C": ("pk13h2", "Grace"), "D": ("pk13h3", "
 # FrameBench's FOV is very wide (a 4-mob group 4.5 blocks off spans ~550 of 2560 px), so the owner gets the group
 # cropped from the full-resolution frame, not the frame (r012: "I can't see the wither skeleton").
 MOB_BOX = (700, 400, 1860, 1020)      # hall views: the group, centred
-TANK_BOX = (300, 300, 2260, 1140)     # view 7, the glass tanks (check on the frame; camera 2.2 off the glass)
+TANK_BOX = (560, 420, 1900, 960)      # view 7: magma cube, slime, squid tank (checked on 1029-122545)
 # per view, left to right as they stand in the frame (build_r011_world.GROUPS_R013; view 7 = the glass tanks)
 VIEWS = [
     ["creeper", "skeleton", "wither skeleton", "zombie"],
@@ -70,7 +70,7 @@ def main():
           "hotbar, thin boss bar under the name with end caps. In game this time: these sit above QuestForge.zip, so "
           "the hotbar is ours, and the shot waits for the chat to fade off the hearts. Tarnished: charcoal and old gold, "
           "framed cells. Grace: warmer, one long strip, a glowing selection with a small diamond. Ashen: the quietest, "
-          "bone hairlines, the hotbar only as corner brackets. M: all three as a mock, normal and just hit. " + BOSS_HOOK,
+          "bone hairlines, the hotbar only as corner brackets. The green stamina bar is longer or shorter from shot to shot only because the test set the food level more than once (a test bug, fixed); the art is the same. M: all three as a mock, normal and just hit. " + BOSS_HOOK,
           "Which direction? Build the framed boss bar (client only)?", "gui_hud", "hud", hud)
     if scenes and scenes[-1]["id"] == "pk-hud":
         mock = os.path.join(h11.CROPS, "pk-hud-mock.png")

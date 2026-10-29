@@ -42,6 +42,15 @@ Settled: Faithless GUI (B) everywhere, every TNT lettered, Patrix-remap mobs (B)
 - SUBMITTED 1029-122545-textures-r013-packs (17 scenes; queue ahead ~16 min at 12:25: shader-r013 loop1a/1b,
   gems-ctm-c). Over the 10-min rule: exiting.
 
+### 2026-10-29 step 4: render 1029-122545 reviewed (no re-render)
+- HUD: h1/h2/h3 differ (md5), our hotbar (tarnished cells, grace strip+diamond, ashen brackets), hearts clear of
+  chat, no screen open, boss bar framed. Only flaw: food 7/4/1 shanks across the three (GuiShots.setUpServer runs
+  more than once, addStats(-6)); fixed in source (set to 14, idempotent), takes effect at the next qf-content
+  build; hand-off text says so. Not worth a jar swap in the shared bench client.
+- Mobs: all six hall views + view 7 non-vanilla (Patrix/Conquest/Faithless); squid inside its 1-deep tank (murky
+  through glass+water but reads), slime + magma cube in frame. TANK_BOX -> (560,420,1900,960).
+- Review crops: scratchpad pk13rev\ (private). Next: handoff --ready, track, journal, commit, push.
+
 ## RESUME (fresh agent)
 1. `py -3.10 -I tools/renderq/renderq.py wait 1029-122545-textures-r013-packs` if under 10 min left, else exit again.
 2. Check pk13h1/h2/h3 gui_hud frames DIFFER (md5) and the hotbar is ours (thin bars, dark cells), hearts clear.

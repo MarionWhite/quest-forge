@@ -115,7 +115,9 @@ final class GuiShots {
             mp.addExperienceLevel(27);
             mp.experience = 0.6F;
             mp.setHealth(15F);                                                    // seven and a half hearts
-            mp.getFoodStats().addStats(-6, 0F);
+            // seven shanks, set (not subtracted): this runs more than once per scene, and -6 per call left the
+            // r013 HUD shots at 7, 4 and 1 shanks
+            mp.getFoodStats().addStats(14 - mp.getFoodStats().getFoodLevel(), 0F);
         }
     }
 
