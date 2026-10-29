@@ -18,7 +18,30 @@ Brief: ops/checkpoints/r013-plan.md "Textures". Owner picked gems C (A's Faithfu
 - shader-dev's r013-shader.md asks nothing of the gem maps yet. Plan for the wobble: CTM _n flat in the interior,
   bevel only on the outer frame of a connected group (no per-block dome, so no per-block checker in the SSR).
 
-## Next
-1. tools/textures/gems_ctm.py: 47 tiles + _n per gem/metal from Faithful 64x (frame from the block, interior made
-   periodic by re-placing Faithful's own marks on a torus). Builder flag --gems-ctm.
-2. Build C:\qfb\textures\r013\QF-gems-ctm.zip; render vs r012 C on gem_glint_d/e + gem_lit (spec C:\qfb\gems\specs).
+### session 1, renders
+- 1029-121044-r013-gems-ctm DONE. Sheets C:\qfb\shaderdev
+013\sheets\gems_ctm_full/crop/pillars.jpg, metals_ctm.jpg.
+  CTM WORKS in this client: floors and pillars are one slab, frame only on the rim; gold, diamond, emerald, lapis pairs
+  joined in diag_column/diag_emerald. PBR on CTM tiles WORKS: the connected floors take C's SSR (mirror the pillar,
+  clouds, sun). Flat = one long sun smear like water; facet = sharp glints along the streaks (recommend facet).
+  Redstone unchanged (by design). Iron joined but showed a faint vertical line at the old seam: its face shades
+  229 -> 226.6 luma left to right and the quilting cut jumped 2.2 luma; fixed with x_mirror (step now 0.31).
+- Packs rebuilt (gems identical, iron mirrored). 12:18 guard OK, SUBMITTED `1029-121818-r013-gems-ctm-b`
+  (g13facet2 diag_column only). Hand-off script written: C:\qfb\shaderdev
+013	extures_make_scenes.py (uses g13*;
+  switch metals scene to g13facet2 once rendered; fix the iron sentence: iron DOES connect, the dark shapes on it are a
+  reflection present in r12 too).
+
+- Iron 2nd try: g13facet2 showed lines at the mirror axes (col 61 still frame shading): bands -> (4, 2, 4, 3), step
+  0.44. Packs rebuilt (gem tiles identical, md5 of diamond+emerald ctm entries 20094d26...). 12:23 guard OK, SUBMITTED
+  `1029-122300-r013-gems-ctm-c` (g13facet3 diag_column; queue ETA ~12:37, over 10 min: not waited for).
+- HANDED OFF: C:\qfb\shaderdev013	extures_scenes.json (4 scenes: gems-ctm-diamond/emerald/lit A r12 C, B facet,
+  C flat; metals-ctm), crops C:\qfb\shaderdev013\crops\, TEXTURES-READY. Track, journal updated; committed.
+- CONFLICT for shader-dev / publisher: r013-shader.md 12:19 sets QF_GEM_FACET 2 (gemFacetNormal from block-local
+  position). On connected gems that redraws a per-block pattern in the reflection. Connected gems need the normal
+  from the _n (QF_GEM_FACET 0); the CTM tiles already carry rim bevel + streak facets.
+
+## Next (only if needed)
+1. After 1029-122300-r013-gems-ctm-c lands: `py -3.10 -I -X utf8 C:\qfb\shaderdev013	extures_make_scenes.py`
+   (metals scene switches to g13facet3 by itself); look at diag_column iron crop 1150,700,340,320 for any line left.
+2. Owner picks facet/flat -> make --gems-ctm the builder default.

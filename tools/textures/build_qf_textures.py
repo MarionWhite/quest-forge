@@ -404,7 +404,7 @@ def main():
             if img is None or mcmeta or img.shape[0] != img.shape[1]:
                 print("--gems-ctm: %s skipped (missing, animated or not square)" % name)
                 continue
-            ctm_blocks[name] = (gems_ctm.tile_maps(img, bands), bands)
+            ctm_blocks[name] = (gems_ctm.tile_maps(img, bands, x_mirror=name in gems_ctm.X_MIRROR), bands)
             out.writestr(CTM + name + "/" + name + ".properties", gems_ctm.rule(name))
     stone = textures[BLOCKS + "stone.png"][0]
     gem_n = {}        # --gems facet: diamond's (VNR hybrid) _n, reused for the emerald drawn from it

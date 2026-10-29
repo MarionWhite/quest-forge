@@ -53,10 +53,12 @@ BLOCKS = {
     "diamond_block": (3, 3, 2, 2),
     "emerald_block": (3, 3, 2, 2),     # gems.py: the diamond's art re-toned
     "gold_block": (3, 3, 2, 2),
-    "iron_block": (3, 2, 2, 2),
+    "iron_block": (4, 2, 4, 3),      # its shading reaches 4 rows in at top and bottom, 3 columns at the right
     "lapis_block": (2, 2, 2, 2),
 }
 
+# Faces made periodic in x by mirroring instead of quilting (periodic_map).
+X_MIRROR = {"iron_block"}
 # "facet" normals only where the face's brightest tones are glint streaks (iron's are plate seams, lapis's are noise).
 FACETED = {"diamond_block", "emerald_block", "gold_block"}
 
@@ -141,14 +143,23 @@ def _widen(src, coords, size, ov_l=8, ov_r=6, wrap=False):
     return out
 
 
-def periodic_map(img, bands):
-    """(n, n, 2) source coordinates into img: the face inside the frame bands, made n-periodic (module docstring)."""
+def periodic_map(img, bands, x_mirror=False):
+    """(n, n, 2) source coordinates into img: the face inside the frame bands, made n-periodic (module docstring).
+    x_mirror (iron): its plates run across the face with a slow left-to-right shading (229 -> 226.6 luma), so any
+    quilting cut in x leaves a faint vertical line; read the columns there and back instead (a horizontal plate has
+    nothing a mirror could show)."""
     n = img.shape[0]
     t, l, b, r = bands
     src = img[..., :3].astype(np.float64)
     ys, xs = np.mgrid[t:n - b, l:n - r]
     coords = np.stack([ys, xs], -1)
-    H = _widen(src, coords, n)                                        # periodic in x, still h rows
+    if x_mirror:
+        w = n - l - r
+        u = (np.arange(n) + 0.5) / n * 2.0
+        cols = l + np.round(np.where(u < 1.0, u, 2.0 - u) * (w - 1)).astype(int)
+        H = np.stack([np.repeat(ys[:, :1], n, 1), np.broadcast_to(cols, (ys.shape[0], n))], -1)
+    else:
+        H = _widen(src, coords, n)                                    # periodic in x, still h rows
     V = _widen(src, H.transpose(1, 0, 2), n, wrap=True)               # rows: cuts wrap around the x period
     return V.transpose(1, 0, 2)
 
@@ -203,11 +214,11 @@ def _inner_corner(n, bands, which):
     return patch
 
 
-def tile_maps(img, bands, pmap=None):
+def tile_maps(img, bands, pmap=None, x_mirror=False):
     """{i: (n, n, 2) source coords into the block texture} for the 47 ctm tiles (module docstring). The builder
     applies the same maps to the block's _s, so every tile keeps the block's own material per pixel."""
     n = img.shape[0]
-    pmap = periodic_map(img, bands) if pmap is None else pmap
+    pmap = periodic_map(img, bands, x_mirror) if pmap is None else pmap
     ys, xs = np.mgrid[0:n, 0:n]
     ident = np.stack([ys, xs], -1)
     out = {}
@@ -328,7 +339,7 @@ if __name__ == "__main__":
         p = next(q for q in z.namelist() if q.endswith("textures/blocks/" + name + ".png"))
         img = np.array(Image.open(io.BytesIO(z.read(p))).convert("RGBA"))
         img = img[:img.shape[1]]
-        tl = tiles(img, bands)
+        tl = {i: img[m[..., 0], m[..., 1]] for i, m in tile_maps(img, bands, x_mirror=name in X_MIRROR).items()}
         floor = demo_floor(tl, ["#####..", "#####..", "#####.#", "##.####", "#######"])
         rows.append(Image.fromarray(floor))
     W = Image.new("RGBA", (sum(r.width for r in rows) + 10 * len(rows), rows[0].height), (40, 40, 40, 255))
