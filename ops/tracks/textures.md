@@ -15,7 +15,7 @@ Rewrite this file when the state changes; keep it under 2 KB.
 - **r013 packs** (`r013-packs.md`; render 1029-122545 queued, hand-off `r013_packs_handoff.py`): HUD directions
   tarnished/grace/ashen (`qf_hud_er.py`, own art, Elden-Ring-inspired thin bars) above QuestForge.zip via renderq
   `rps_top`; `r007packs.py --faithless-mobs` (snow golem, slime, magma, squid); world-r013 tanks + tight views.
-  B creative has no short-page bug. Picks settled: Faithless GUI B, TNT lettered, Patrix-remap mobs.
+  Settled: Faithless GUI B, TNT lettered, Patrix-remap mobs.
 - **Next:** owner's r013 gem pick (make --gems-ctm the default); then merge leaf-frills, set builder defaults, build QFTextures-v3; second item style.
 - **Owner likes:** Faithful 64x bricks, metals and leaves; Stay True wheat and tree leaves; Patrix mobs; VNR light;
   Soartex bookshelves; Faithless items, potions, books, GUI, TNT and boss bars.
