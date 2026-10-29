@@ -1,5 +1,7 @@
 # Shaders journal (newest first)
 
+- 2026-10-29 17:20: **r013 published** (c5b777e, 18 scenes, r012 closed; live after ~3 min). All 46 images/clips 200, page screenshot checked. Open: pk-mob scenes show Patrix/Conquest skins in game renders on the public site; owner to decide keep or pull.
+
 - 2026-10-29 17:00: **r013 shader scenes handed off** (C:\qfb\shaderdev\r013\SHADERS-READY; 6 scenes). Publish cost
   1029-160736 clean (no noisy steps, no magenta, no stale variants). Publish frames: near sea r/b 0.47 -> 1.05, shore
   clouds B/G 0.96 -> 0.78, full-white px round the sun 352 -> 155. High: sea sunset 3.52 / 3.55 (sun_clear) vs r012
