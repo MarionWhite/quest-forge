@@ -39,18 +39,32 @@ Refs extracted for reading (scratchpad, read only): BSL v10.1.8, Complementary r
 - 12:31 queue waiting for the owner to be idle (ETA ~22+ min): exiting per CLAUDE.md. Waits: 1029-121912-r013-loop1a-shot,
   1029-121917-r013-loop1b-shot, 1029-123012-r013-loop1c-shot.
 
+- 13:00 loop 1 reviewed (sheets r013\sheets\l1_*.jpg; scratchpad metrics m.py/prof.py/stack.py, simple numpy):
+  SEA pass: near sea (800,1000,1760,300) r12 34,47,70 r/b 0.48 -> r13a 48,44,44 r/b 1.09 (BSL 41,33,27 r/b 1.52);
+  mid sea r/b 1.08 -> 1.47 (BSL 2.28). SEA_GOLD 2 = 1 (keep 1); BODY 0.45 greyer (r/b 1.00), 1.0 warmer (1.18) but
+  brighter than BSL: keep 0.7. SHORE fail: still salmon, clouds (1700,0,860,350) 148,111,105 -> 153,113,106, horizon
+  r/b 1.57 -> 1.61; GOLD_LOW 1 barely moves it (r13gl0 = r12). SUN: no candidate fully clear; f (300 W) best (sun in a
+  gap, one strand below). Soft sun works: saturated px 478 -> 236 (f), 418 -> 249 (d), limb step r20-30 251->225 vs
+  248->232. RAYS pass: 8 vs 16 taps mean|d| 1.75 / 0.62 / 0.97 (ocean/golden/lake), no grain at 1:1.
+  METEORS pass: max-stack l1_meteor_stack.jpg both radiate from RAZ 210; r13 varied length/brightness, tapered, no
+  dashes across the cloud band (l1_meteor_cloud.jpg). GEMS pass: CTM facet pack + FACET 0 (r13gc) sharp mirror SSR, no
+  wobble; flat CTM (r13gcf) reads as water: facet pack is the one to show.
+- 13:02 code: QF_SUN_GOLD_LOW 2/3 (photon.glsl phSunTintX: under 7 deg, gold shift on light/glow/sky; 3 stronger),
+  default still 1 pending loop 2. check_glsl 0 errors (1/2/3). views += sunclr_g..n. Committed (see git log).
+  Drafted specs\p13-cost.json (publish cost, uses scene "sun_clear" = the picked candidate).
+  Submitted **1029-130228-r013-loop2** (specs13-loop2.json, ETA ~13:25): r13lo2/r13lo3 shore/ocean/sunclr_f/golden,
+  r13a sunclr_g..n, cost c13/c12 (r12 pack) 6 views, c13t16, c13cr0, c13m/c13m0/c12m (night_wide storm RAZ 210),
+  c13g/c13g0 (CTM gems SSR on/off), c13off.
+
 ## Resume here (fresh agent)
-1. `renderq.py results` on the three IDs above. Sheets with `py -3.10 -I C:\qfb\shaderdev\r013\tools\grid.py OUT 640 tags scene[:crop]`
-   (tag@scene picks a scene per column; ref* tags read C:\qfb\shaderdev\refs\screenshots).
-   - Sea: r12s vs r13a vs r13s2 vs r13b45/r13b10 on ocean_sunset; shore: r12s, r13gl0 (gold-low off), r13a. Measure near-sea
-     crop (800,1000,1760,1300) against r12 28,43,68; target warm dark (photos/BSL). Pick SEA_GOLD 1|2 and SEA_BODY.
-   - Sun: pick the clearest sunclr_* (r12s vs r13a); rename it sun_clear in views-world-master.txt (drop the others), and
-     shoot BSL/Photon refs there (spec "reference": C:\qfb\refpacks\bsl-shaders\dl\BSL_v10.1.8.zip, tag refbsl) if wanted.
-     If no candidate is clear, try more points/times (clouds are the same every day; move the camera).
-   - Rays: r13a vs r13t16 (and r12s/p12) look the same? Gems: r13gf0/1/2 (r012 non-CTM pack) and r13gc/r13gcf (CTM).
-     Meteors: make_clip r13clipm / r12clipm (--speedup 4), check radiating, length spread, no dashes.
-2. Cost run (mode cost, day only): r13 defaults vs pack-r12 ("pack": C:/qfb/shaderdev/r013/pack-r12/QuestForge) on
-   ocean_sunset, golden_lit, lake_glitter, shore_sunset, sun_clear, night_wide + shaders-off baselines; per item:
-   QF_CREP_TAPS 16 vs 8 vs QF_CREPUSCULAR 0 (rays before/after on ocean_sunset vs High 3.0), SEA_GOLD 0, SUN_SOFT 0,
-   METEOR_SPREAD 0 (night_wide), GEM_SSR 0 on world-gems with the CTM pack; Low/Potato spot checks as p12-cost.json.
-3. Hand-off as r012: C:\qfb\shaderdev\r013\spec_scenes.py (copy r012's), round.json, SHADERS-READY; track, journal, commit.
+1. `renderq.py results 1029-130228-r013-loop2`. Shore: grid r12s,r13a,r13lo2,r13lo3 shore_sunset (+ ocean_sunset,
+   golden_lit regressions: must not change at 9 deg); measure clouds 1700,0,860,350 and horizon 1200,350,800,150
+   (target G/R ~0.75+, B well under G). Set QF_SUN_GOLD_LOW default to the pick in settings.glsl.
+   Sun: grid r13a sunclr_f..n with 1:1 crops round the sun (prof.py-style: find the hot spot, saturated px). Rename the
+   best to sun_clear in views-world-master.txt (drop the other sunclr_* lines).
+   Cost: High ms = cost(tag) - cost(c13off). Rays: c13 vs c13t16 vs c13cr0 on ocean_sunset (r012 3.65 vs budget 3.0);
+   meteors c13m vs c12m (<= r012 2.94-2.99); gems c13g - c13g0. If ocean_sunset still > 3.0 say so with the number.
+2. Submit specs\p13-cost.json (publish cost) and checkpoint; when done write r013\spec_scenes.py (copy r012's: sea
+   p13 vs p12r vs ref BSL; shore p13 vs p12r; sun_clear p13 vs p12r (vs p13so0); rays p13 golden/ocean vs p13t16 with
+   cost; meteors ov p13clipm / p12clipm; gems g13c vs g12c (r012 C) with SSR cost), round.json (n 13, renders, budgets
+   p13 3.0 / p13lo 0.9 / p13po 0.4), touch SHADERS-READY; track, journal, commit, push.

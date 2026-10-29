@@ -90,13 +90,27 @@ vec3 phSunTintX(float sy, bool mie) {
     float bh = phBlueHourLight(sy);
     float mul = 1.0 + 0.5 * phMeWeight(sy) + 40.0 * bh;
     float p = phPulse(sy, 0.17, 0.40);
-#if QF_SUN_GOLD > 0 && QF_SUN_GOLD_LOW == 1
+#if QF_SUN_GOLD > 0 && QF_SUN_GOLD_LOW >= 1
     // r013 (plan: shore_sunset still salmon): Photon's pulse peaks with the sun 10 deg up, so a 2-deg sun
     // got about half the gold tint and its reddened light stayed pink. Below the peak the tint now holds
     // to the horizon and fades out only into the blue hour (sun 2-5 deg down).
     if (sy < 0.17) p = max(p, phLinStep(-0.08, -0.01, sy));
 #endif
     vec3 me = mix(vec3(1.0), phMeTint(mie) * 1.2, p * p);
+#if QF_SUN_GOLD > 0 && QF_SUN_GOLD_LOW >= 2
+    // r013 loop 2 (shore_sunset, sun 2 deg up, still salmon: clouds 153,113,106, horizon 165,116,102 with
+    // the low gold tint on): under 6 deg the reddened sunlight's green has gone and the sky's lilac
+    // Rayleigh light fills the blue, so the clouds' lit sides and the band read salmon. This gold shift
+    // (green held up, blue cut) on the light, the glow and the sky round it (the ambient the clouds and
+    // land take comes from that sky) turns salmon to the photo's orange-gold; it fades out by 7 deg up and
+    // into the blue hour, so ocean_sunset (9 deg) and noon do not change.
+    float lo = phLinStep(0.12, 0.03, sy) * phLinStep(-0.07, -0.01, sy);
+  #if QF_SUN_GOLD_LOW == 3
+    me *= mix(vec3(1.0), mie ? vec3(0.96, 1.10, 0.72) : vec3(1.0, 1.05, 0.80), lo);
+  #else
+    me *= mix(vec3(1.0), mie ? vec3(0.98, 1.06, 0.82) : vec3(1.0, 1.03, 0.88), lo);
+  #endif
+#endif
     vec3 blue = mix(vec3(1.0), vec3(0.95, 0.80, 1.0), bh);
     return mul * me * blue;
 }

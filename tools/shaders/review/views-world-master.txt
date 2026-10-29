@@ -137,3 +137,13 @@ sunclr_c         -567.5  64.5   232.5    96     8      12200
 sunclr_d         -567.5  64.5   532.5    96     5      12350
 sunclr_e         -567.5  64.5   -67.5    96     5      12350
 sunclr_f         -867.5  64.5   232.5    96     5      12350
+# Loop 2: f (300 blocks west, 12350) came closest (a gap with one strand under the sun); f's point moved
+# 150-300 blocks along the shore and out to sea, and f at 12250 / 12450.
+sunclr_g         -867.5  64.5   82.5     96     5      12350
+sunclr_h         -867.5  64.5   382.5    96     5      12350
+sunclr_i         -867.5  64.5   -67.5    96     5      12350
+sunclr_j         -867.5  64.5   532.5    96     5      12350
+sunclr_k         -1167.5 64.5   232.5    96     5      12350
+sunclr_l         -867.5  64.5   232.5    96     6      12250
+sunclr_m         -867.5  64.5   232.5    96     4      12450
+sunclr_n         -1167.5 64.5   382.5    96     5      12350
