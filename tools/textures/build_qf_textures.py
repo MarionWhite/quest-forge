@@ -229,6 +229,11 @@ def main():
                          "the diamond's VNR dome _n; staytrue = Stay True's animated diamond, and its emerald re-toned from "
                          "that diamond in Stay True's own emerald colours (no nested squares), on a dome _n (needs "
                          "--stay-true). Both: smoothness 240, F0 44. Default: as r010/r011")
+    ap.add_argument("--gems-ctm", choices=("flat", "facet"),
+                    help="r013 connected gem and metal blocks (gems_ctm.py): 47-tile MCPatcher ctm for diamond, emerald, "
+                         "gold, iron and lapis, the face made seamless from the block's own pixels and the frame only on a "
+                         "group's outer rim; _s per pixel from the block's own, _n a bevel on the rim over a flat face "
+                         "(flat) or with the glint streaks as tilted flat facets (facet). Static textures only")
     a = ap.parse_args()
     if a.gems == "staytrue" and not a.stay_true:
         sys.exit("--gems staytrue reads Stay True: give --stay-true PATH")
@@ -391,6 +396,16 @@ def main():
             m = BLOCKS + name + ".png"
             textures[m], source[m] = (img, mcmeta), "drawn"
 
+    ctm_blocks, ctm_s = {}, {}      # --gems-ctm: name -> (tile coordinate maps, bands); name -> the block's final _s
+    if a.gems_ctm:
+        import gems_ctm
+        for name, bands in gems_ctm.BLOCKS.items():
+            img, mcmeta = textures.get(BLOCKS + name + ".png", (None, None))
+            if img is None or mcmeta or img.shape[0] != img.shape[1]:
+                print("--gems-ctm: %s skipped (missing, animated or not square)" % name)
+                continue
+            ctm_blocks[name] = (gems_ctm.tile_maps(img, bands), bands)
+            out.writestr(CTM + name + "/" + name + ".properties", gems_ctm.rule(name))
     stone = textures[BLOCKS + "stone.png"][0]
     gem_n = {}        # --gems facet: diamond's (VNR hybrid) _n, reused for the emerald drawn from it
     for m, (img, mcmeta) in sorted(textures.items()):
@@ -437,6 +452,8 @@ def main():
             s[..., 0], s[..., 3] = GEM_SMOOTH_R012, 255
         gem_mode = ("r012" if a.gems else "r011" if a.stay_true else True) if a.diamond == "gem" else False
         s = metal_spec(s, img, name, a.metals, gem_mode, n)
+        if name in ctm_blocks:
+            ctm_s[name] = s
         ys = labpbr.y_sign(n, img[..., 3])
         if ys is not None and ys > 0.1:
             ywrong.append("%s %+.2f" % (name, ys))
@@ -445,6 +462,19 @@ def main():
         if mcmeta:
             out.writestr(m[:-4] + "_n.png.mcmeta", mcmeta)
             out.writestr(m[:-4] + "_s.png.mcmeta", mcmeta)
+
+    for name, (maps, bands) in sorted(ctm_blocks.items()):
+        img = textures[BLOCKS + name + ".png"][0]
+        tl = {i: img[mp[..., 0], mp[..., 1]] for i, mp in maps.items()}
+        nm = gems_ctm.normals(img, tl, bands, a.gems_ctm if name in gems_ctm.FACETED else "flat")
+        for i, mp in maps.items():
+            p = CTM + name + "/%d" % i
+            out.writestr(p + ".png", png(tl[i]))
+            tally["ctm"] += 1
+            if not a.no_pbr:
+                out.writestr(p + "_n.png", png(nm[i]))
+                if name in ctm_s:
+                    out.writestr(p + "_s.png", png(ctm_s[name][mp[..., 0], mp[..., 1]]))
 
     if not a.no_cit:
         import qf_items
