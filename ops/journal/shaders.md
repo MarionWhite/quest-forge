@@ -1,5 +1,13 @@
 # Shaders journal (newest first)
 
+- 2026-10-29 17:00: **r013 shader scenes handed off** (C:\qfb\shaderdev\r013\SHADERS-READY; 6 scenes). Publish cost
+  1029-160736 clean (no noisy steps, no magenta, no stale variants). Publish frames: near sea r/b 0.47 -> 1.05, shore
+  clouds B/G 0.96 -> 0.78, full-white px round the sun 352 -> 155. High: sea sunset 3.52 / 3.55 (sun_clear) vs r012
+  3.66 / 3.69, 3.40 with rays off, so the water is over, not the rays; 11 of 24 High views over 3.0, all with water, as
+  in r012. Low lake 0.94 and ocean_sunset 0.92 (r012 0.88/0.89, noise-level). Rays scene moved to ocean_sunset crops
+  (golden_lit shows no beams) with a beams-off option; meteors text fixed (r012's lanes were the clip's radiant 90 deg
+  off view, not the shower). Water cost left as an owner question for a later round.
+
 - 2026-10-29 16:15: **r013 loop 2 read, publish cost queued** (1029-160736-r013-publish-cost). Loop 2 (1029-130228)
   lost 6 cost steps to the owner gaming at 13:16; renderq kept the 23 before it and re-ran the rest at 15:52, all
   userbusy noisy false, cross-boot lake 3.67-3.75. Shore: QF_SUN_GOLD_LOW 3 takes the clouds B/G 0.94 -> 0.77, horizon

@@ -84,3 +84,19 @@ Refs extracted for reading (scratchpad, read only): BSL v10.1.8, Complementary r
 3. Costs: worst High p13 (expect ocean_sunset ~3.55 > 3.0: say so), p13lo <= 0.9, p13po <= 0.4; meteors p13clipm vs p12clipm.
 4. Fix spec_scenes.py text if a number contradicts it (sea r/b, shore B/G, "pixels at full white about halve").
    Touch C:\qfb\shaderdev\r013\SHADERS-READY. Track (ops/tracks/shaders.md), one journal entry, commit, push.
+
+## Publish-cost read and hand-off (agent 4, 2026-10-29 ~17:00) - DONE
+- 1029-160736-r013-publish-cost: 17 jobs done, every *.userbusy.json noisy false. No magenta in any frame (scan of
+  p13*/p12r/g13c*/clip frames), every variant differs from its base where it should (no stale build): ocean_sunset p13 vs
+  p13s0 mean|d| 7.5, sun_clear p13 vs p13so0 1.6, g13c vs g12c 8.2. Sun sits inside the 912,436,600,360 crop.
+- Sheets r013\sheets\pub_sea.jpg (+BSL/Complementary), pub_shore.jpg, pub_sun.jpg, pub_rays.jpg, pub_rays2.jpg,
+  pub_gems.jpg, pub_meteor_stack.jpg. Measured on the publish frames: near sea r/b 0.47 -> 1.05, farther 0.99 -> 1.41;
+  shore clouds B/G 0.96 -> 0.78; sun_clear full-white px 352 -> 155 (round 12's sun in r13: 307).
+- Costs High (p50 - p13off): ocean_sunset 3.52 (r12 3.66), sun_clear 3.55 (r12 3.69), rays off 3.40, 16 taps 3.55;
+  11 of 24 High views over 3.0 (3.01-3.55), all with water, same as r012. Low worst lake 0.94, ocean_sunset 0.92 (r12
+  0.88/0.89); Potato worst 0.30. Meteors p13clipm 2.99 / p12clipm 2.94. Gem SSR +0.03-0.15.
+- spec_scenes.py final: intro and sea-sunset text state 3.55 ms over 3.0 and that the water (3.40, 3.43 earlier, with the
+  beams off) not the rays is over, as a later owner question; rays scene moved to ocean_sunset 2x crops (golden_lit shows
+  no beams) with C = beams off; meteors text corrected (the radiant moves every night; r12's lanes came from the clip
+  aiming it 90 deg off view). finish_round --allow-missing-critic dry run clean (18 scenes). SHADERS-READY written.
+- Next (not shader-dev): critic fills r013\critic.json (critic-todo-1..3.jpg), then the publisher runs finish_round --publish.
