@@ -234,7 +234,15 @@ def main():
                          "gold, iron and lapis, the face made seamless from the block's own pixels and the frame only on a "
                          "group's outer rim; _s per pixel from the block's own, _n a bevel on the rim over a flat face "
                          "(flat) or with the glint streaks as tilted flat facets (facet). Static textures only")
+    ap.add_argument("--gem-mat", choices=("crystal", "polished", "faithful"),
+                    help="r014 connected gem MATERIALS for diamond and emerald (gems_mat.py; needs --gems-ctm): crystal = "
+                         "Patrix 32x's amethyst druse re-toned, with its facet _n and smooth-crystal/rough-gap _s; polished "
+                         "= the same colour under one flat mirror table; faithful = Faithful 64x's face on a deeper ramp with "
+                         "the crystal _n/_s. Reads Patrix from --patrix at build time (private: never commit the output)")
+    ap.add_argument("--patrix", default=r"C:\qf-world\reference-packs\Patrix 32x\Patrix_26.3_32x_basic.zip")
     a = ap.parse_args()
+    if a.gem_mat and not a.gems_ctm:
+        sys.exit("--gem-mat needs --gems-ctm")
     if a.gems == "staytrue" and not a.stay_true:
         sys.exit("--gems staytrue reads Stay True: give --stay-true PATH")
     if a.stay_true and (a.wheat != "drawn" or a.leaves != "drawn"):
@@ -397,12 +405,19 @@ def main():
             textures[m], source[m] = (img, mcmeta), "drawn"
 
     ctm_blocks, ctm_s = {}, {}      # --gems-ctm: name -> (tile coordinate maps, bands); name -> the block's final _s
+    gem_mat = {}                    # --gem-mat: name -> gems_mat.material() (block + ctm atlas, own _n and _s)
     if a.gems_ctm:
         import gems_ctm
         for name, bands in gems_ctm.BLOCKS.items():
             img, mcmeta = textures.get(BLOCKS + name + ".png", (None, None))
             if img is None or mcmeta or img.shape[0] != img.shape[1]:
                 print("--gems-ctm: %s skipped (missing, animated or not square)" % name)
+                continue
+            if a.gem_mat and name in ("diamond_block", "emerald_block"):
+                import gems_mat
+                gem_mat[name] = gems_mat.material(name, a.gem_mat, img, bands, a.patrix)
+                textures[BLOCKS + name + ".png"] = (gem_mat[name]["block"][0], None)
+                out.writestr(CTM + name + "/" + name + ".properties", gems_ctm.rule(name))
                 continue
             ctm_blocks[name] = (gems_ctm.tile_maps(img, bands, x_mirror=name in gems_ctm.X_MIRROR), bands)
             out.writestr(CTM + name + "/" + name + ".properties", gems_ctm.rule(name))
@@ -452,6 +467,8 @@ def main():
             s[..., 0], s[..., 3] = GEM_SMOOTH_R012, 255
         gem_mode = ("r012" if a.gems else "r011" if a.stay_true else True) if a.diamond == "gem" else False
         s = metal_spec(s, img, name, a.metals, gem_mode, n)
+        if m.startswith(BLOCKS) and name in gem_mat:
+            n, s = gem_mat[name]["block"][1], gem_mat[name]["block"][2]
         if name in ctm_blocks:
             ctm_s[name] = s
         ys = labpbr.y_sign(n, img[..., 3])
@@ -463,6 +480,14 @@ def main():
             out.writestr(m[:-4] + "_n.png.mcmeta", mcmeta)
             out.writestr(m[:-4] + "_s.png.mcmeta", mcmeta)
 
+    for name, mat in sorted(gem_mat.items()):
+        for i, (t_img, t_n, t_s) in gems_mat.ctm_tiles(mat, gems_ctm.BLOCKS[name]).items():
+            p = CTM + name + "/%d" % i
+            out.writestr(p + ".png", png(t_img))
+            tally["ctm"] += 1
+            if not a.no_pbr:
+                out.writestr(p + "_n.png", png(t_n))
+                out.writestr(p + "_s.png", png(t_s))
     for name, (maps, bands) in sorted(ctm_blocks.items()):
         img = textures[BLOCKS + name + ".png"][0]
         tl = {i: img[mp[..., 0], mp[..., 1]] for i, mp in maps.items()}
