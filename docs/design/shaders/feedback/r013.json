@@ -1,0 +1,112 @@
+{
+ "round": 13,
+ "id": "r013",
+ "note": "Built by tools/shaders/review/fetch_feedback.py from GitHub issues; the latest response is last.",
+ "responses": [
+  {
+   "issue": 17,
+   "url": "https://github.com/MarionWhite/quest-forge/issues/17",
+   "user": "MarionWhite",
+   "state": "open",
+   "created_at": "2026-10-31T23:33:33Z",
+   "updated_at": "2026-10-31T23:33:33Z",
+   "from": "body",
+   "answers": {
+    "round": 13,
+    "scenes": {
+     "sea-sunset": {
+      "choice": "A",
+      "rating": 3,
+      "note": "listen to critic here"
+     },
+     "shore-sunset": {
+      "choice": "neither",
+      "rating": null,
+      "note": "Please closely follow the critic here. This is all good feedback"
+     },
+     "sun-glow": {
+      "choice": "A",
+      "rating": 3,
+      "note": "critic"
+     },
+     "rays": {
+      "choice": "A",
+      "rating": 3,
+      "note": "I can't tell the difference"
+     },
+     "meteors": {
+      "choice": "A",
+      "rating": 3,
+      "note": "kinda, but let's improve"
+     },
+     "gems": {
+      "choice": "A",
+      "rating": 3,
+      "note": "Right idea, but I don't like this. It looks like plastic"
+     },
+     "gems-ctm-diamond": {
+      "choice": "neither",
+      "rating": 5,
+      "note": ""
+     },
+     "gems-ctm-emerald": {
+      "choice": "neither",
+      "rating": 5,
+      "note": ""
+     },
+     "gems-ctm-lit": {
+      "choice": "neither",
+      "rating": 5,
+      "note": ""
+     },
+     "metals-ctm": {
+      "choice": "B",
+      "rating": 4,
+      "note": ""
+     },
+     "pk-hud": {
+      "choice": null,
+      "rating": null,
+      "note": "The hearts and food should stay individual icons. I like the boss hp bar from tarnished and the hotter from grace. We need a better xp bar."
+     },
+     "pk-mob-1": {
+      "choice": "A",
+      "rating": 5,
+      "note": ""
+     },
+     "pk-mob-2": {
+      "choice": "A",
+      "rating": 5,
+      "note": ""
+     },
+     "pk-mob-3": {
+      "choice": "A",
+      "rating": 5,
+      "note": ""
+     },
+     "pk-mob-4": {
+      "choice": "A",
+      "rating": 5,
+      "note": ""
+     },
+     "pk-mob-5": {
+      "choice": "A",
+      "rating": 5,
+      "note": ""
+     },
+     "pk-mob-6": {
+      "choice": "A",
+      "rating": 4,
+      "note": "Snow golem is still default"
+     },
+     "pk-mob-7": {
+      "choice": "A",
+      "rating": 5,
+      "note": ""
+     }
+    },
+    "overall": ""
+   }
+  }
+ ]
+}
