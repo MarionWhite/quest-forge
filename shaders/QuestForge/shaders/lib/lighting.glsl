@@ -149,6 +149,51 @@ vec3 gemFacetNormal(vec3 n, vec3 worldPos) {
 #endif
 }
 #endif
+#if QF_GEM_SSR == 1 && QF_GEM_LOOK > 0
+// r014 (owner r013 gems: "Right idea, but I don't like this. It looks like plastic"). Measured: the gem pack's
+// specular maps are one value over the whole face (smoothness 240, F0 44), and the shader lit the stone as a
+// lambert body (its pale texture colour times the light) under a clear, untinted coat: a glazed tile, which
+// is what plastic is. A cut stone shows little matte body: most of its light comes back out from inside,
+// off the pavilion facets, so each facet shows a different piece of the sky or the ground (bright beside
+// dark), tinted by the stone over a longer path than its surface colour suggests, and the sun flashes in
+// single facets with a little dispersion (fire). Complementary gets its gem contrast the cheaper way (the
+// texture's bright pixels smoother and reflecting more); this is the same idea per facet cell, so it works
+// on our flat maps and follows the maps' own facets where they have them (the map tilt, tripled).
+// The surface reflection (composite gemReflection) is unchanged: a gem's outer reflection is untinted.
+vec3 gemInnerLight(vec3 albedo, vec3 n, vec3 viewDir, vec3 L, vec3 E, float shadow, float sky, float ao, vec3 worldPos, float Fe) {
+    vec3 a = abs(n);
+    vec3 nf, U, V;
+    vec2 uv2;
+    if (a.y >= a.x && a.y >= a.z) { nf = vec3(0.0, sign(n.y), 0.0); U = vec3(1.0, 0.0, 0.0); V = vec3(0.0, 0.0, 1.0); uv2 = worldPos.xz; }
+    else if (a.x >= a.z)          { nf = vec3(sign(n.x), 0.0, 0.0); U = vec3(0.0, 0.0, 1.0); V = vec3(0.0, 1.0, 0.0); uv2 = worldPos.zy; }
+    else                          { nf = vec3(0.0, 0.0, sign(n.z)); U = vec3(1.0, 0.0, 0.0); V = vec3(0.0, 1.0, 0.0); uv2 = worldPos.xy; }
+    // Facet cells, 6 a block (world-anchored, so they hold still as you move and flash as the angle changes).
+    vec2 cell = floor(uv2 * 6.0 + 1e-3);
+    float h1 = hash12(cell + nf.xz * 17.0 + nf.y * 31.0);
+    float h2 = hash12(cell * 1.37 + 5.3 + nf.y * 7.0);
+    float h3 = hash12(cell * 0.71 + 9.1);
+    float ang = h1 * 6.2832;
+    vec2 tc = vec2(cos(ang), sin(ang)) * mix(0.30, 0.75, h2);
+    vec3 nI = normalize(nf + (n - nf * dot(n, nf)) * 3.0 + U * tc.x + V * tc.y);
+    vec3 Ri = reflect(viewDir, nI);   // the way the light that leaves this facet came in
+    // The stone's colour over a longer path: the texture colour normalised and squared (deeper, purer).
+    float mx = max(albedo.r, max(albedo.g, albedo.b));
+    vec3 tint = albedo / max(mx, 1e-4);
+    tint *= tint * mx;
+#if QF_GEM_LOOK == 2
+    tint *= tint / max(max(tint.r, max(tint.g, tint.b)), 1e-4);
+#endif
+    vec3 Ru = normalize(vec3(Ri.x, max(Ri.y, 0.02), Ri.z));
+    vec3 env = skyScatter(Ru) * smoothstep(-0.25, 0.12, Ri.y);   // facets that look down see the dark ground
+    vec3 inner = env * tint * (1.0 - Fe) * sky * ao * 1.6;
+    // The sun off one inner facet: a ~3 degree flash, white-hot with a hue from the dispersion.
+    float sd = max(dot(Ri, L), 0.0);
+    float flash = smoothstep(0.9975, 0.99985, sd);
+    vec3 fire = 0.55 + 0.45 * cos(6.2832 * (h3 + vec3(0.0, 0.33, 0.67)));
+    inner += E * shadow * flash * mix(vec3(1.0), fire, 0.45) * mix(vec3(1.0), tint / max(mx, 1e-4), 0.35) * 0.9;
+    return inner;
+}
+#endif
 vec3 metalShade(vec3 albedo, float f0id, vec3 n, vec3 viewDir, vec3 L, vec3 E, float smooth_, float shadow, float sky, float ao, vec3 diffuse, vec3 scenePos) {
     float r = (1.0 - smooth_) * (1.0 - smooth_);
     float a2 = max(r * r, 0.0012);
@@ -360,7 +405,15 @@ vec3 shadeSurface(Surface s, vec3 viewDir, vec2 pixel) {
         // r012 gem test (texture track, ops/checkpoints/r012-textures.md): a polished dielectric (diamond,
         // emerald: smoothness > 0.88, F0 > 0.1) reflects the real scene in composite (gemReflection), and
         // its diffuse gives way to that reflection.
+#if QF_GEM_LOOK > 0
+        if (s.smoothness > 0.88 && s.f0 > 0.1) {
+            // r014: the matte body light drops (half, option 2 a quarter) and the light from inside the stone leads.
+            color *= (1.0 - Fe.x) * (QF_GEM_LOOK == 2 ? 0.25 : 0.5);
+            color += gemInnerLight(s.albedo, s.normal, viewDir, L, E, shadow, sky, ao, s.scenePos + cameraPosition, Fe.x);
+        }
+#else
         if (s.smoothness > 0.88 && s.f0 > 0.1) color *= 1.0 - Fe;
+#endif
         else
 #endif
         color += skyScatter(R) * Fe * sky * s.smoothness * s.smoothness * ao;

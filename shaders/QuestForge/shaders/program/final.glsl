@@ -58,7 +58,13 @@ vec3 vibrance(vec3 c) {
     return c;
 }
 vec3 display(vec3 exposed) {
+#if QF_RIM_GOLD == 2
+    float sy = sunDirWorld().y;
+    float gh = smoothstep(0.32, 0.08, sy) * smoothstep(-0.04, 0.03, sy);   // goldenHour() (sky.glsl)
+    return linearToSrgb(tonemapNeutralW(vibrance(calGrade(exposed)), mix(vec3(1.0), vec3(1.0, 0.82, 0.50), gh)));
+#else
     return linearToSrgb(tonemapNeutral(vibrance(calGrade(exposed))));
+#endif
 }
 
 #if QF_TAA

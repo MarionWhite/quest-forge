@@ -778,6 +778,16 @@ vec3 shadeWaterAbove(vec3 color, vec3 n, float var, vec3 scene0, float dist0, ve
     // r013 option 2: at golden hour the sky in the waves is read off a calmer surface (the eye averages
     // many facets), so more of the low, gold sky and less of the grey-lilac sky aloft shows in the sea.
     vec3 R = reflect(viewDir, normalize(mix(n, vec3(0.0, 1.0, 0.0), 0.45 * goldenHour())));
+#elif QF_SEA_GRAZE > 0
+    // r014 (critic r013 ocean_sunset: "let the reflected gold horizon lead at grazing angles in the middle
+    // distance, as BSL's does"). BSL fades its water normals with the view's grazing term (normalStrength
+    // 0.35 x (1 - pow(1 - cos, 8)), gbuffers_water), so its far sea mirrors the sky a few degrees up: the
+    // gold band. Ours kept the full wave slope out to the horizon and every facet tipped toward it showed
+    // the grey sky 20-30 degrees up (r/b 1.3 against the band's 1.9). At golden hour the reflection now
+    // reads a surface that calms toward the horizon by BSL's term; near the camera the waves stay.
+    float grazeK = pow(1.0 - clamp(-viewDir.y, 0.0, 1.0), 8.0) * goldenHour();
+    vec3 nG = normalize(mix(n, vec3(0.0, 1.0, 0.0), grazeK));
+    vec3 R = reflect(viewDir, nG);
 #else
     vec3 R = reflect(viewDir, n);
 #endif
@@ -823,6 +833,17 @@ vec3 shadeWaterAbove(vec3 color, vec3 n, float var, vec3 scene0, float dist0, ve
     fAvg = mix(fAvg, 0.7, waterCalmShare());   // r008: no dark/bright facet flipping on the lake
 #endif
     F = mix(F, fresnelWater(clamp(-viewDir.y, 0.0, 1.0)), fAvg);
+#if QF_SEA_GRAZE > 0 && QF_SEA_GOLD != 2
+    // r014: the calmer far surface's Fresnel goes with its reflection (BSL takes both off the faded normal).
+    F = mix(F, fresnelWater(clamp(dot(nG, -viewDir), 0.0, 1.0)), grazeK);
+#if QF_SEA_GRAZE == 2
+    // r014 option 2: BSL's water body is a translucent layer whose alpha goes to the reflection with the
+    // Fresnel (albedo.a = mix(a, 1, F)), so at grazing views what shows through all but vanishes. Ours
+    // still carried the body's grey-olive scatter under the mirrored band. At golden hour the body fades
+    // with the grazing term (to a third at the horizon), so the gold the sea mirrors leads.
+    refracted *= 1.0 - 0.65 * grazeK;
+#endif
+#endif
 #if QF_LAKE_CALM == 1
     // Loop 3 (critic uh lake_glitter 8: the near water reads dark teal-green where CR and BSL carry
     // the sky into it): on calm water at golden hour the near surface mirrors more sky (a glassy

@@ -20,6 +20,22 @@ vec3 tonemapNeutral(vec3 color) {
     float g = 1.0 - 1.0 / (desaturation * (peak - newPeak) + 1.0);
     return mix(color, vec3(newPeak), g);
 }
+// r014 (QF_RIM_GOLD 2; critic r013 shore_sunset: the cloud rims "are still salmon ... 250,152,108"). The
+// same operator, but a blown highlight burns toward the white W (max channel 1) instead of neutral grey:
+// at golden hour a blown red-orange rim took the neutral shoulder's blue and read coral; toward a warm
+// white it reads amber, as a sunset photo's highlights do (BSL's per-channel curve gives its blown sun
+// 250,226,176).
+vec3 tonemapNeutralW(vec3 color, vec3 W) {
+    const float startCompression = 0.8 - 0.04;
+    const float desaturation = 0.15;
+    float peak = max(color.r, max(color.g, color.b));
+    if (peak < startCompression) return color;
+    const float d = 1.0 - startCompression;
+    float newPeak = 1.0 - d * d / (peak + d - startCompression);
+    color *= newPeak / peak;
+    float g = 1.0 - 1.0 / (desaturation * (peak - newPeak) + 1.0);
+    return mix(color, newPeak * W, g);
+}
 
 vec3 linearToSrgb(vec3 c) {
     c = clamp(c, 0.0, 1.0);

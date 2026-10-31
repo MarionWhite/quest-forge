@@ -419,6 +419,12 @@ vec3 meteorsSector(vec3 dir) {
         vec2 sd = vec2(ci * 0.713 + j * 3.17, j * 1.31 + day * 0.17);
         if (hash12(sd) > OCC) continue;
         float u = hash12(sd + 6.6);
+#if QF_METEOR_LEAN == 1 && QF_METEOR_SPREAD == 1
+        // r014 (critic r013 p13clipm: "hold the cost at 2.94, for example by culling the faint streaks a
+        // frame cannot show"): brightness is known from u alone (below), so a meteor too faint to show is
+        // dropped before its path, clock and line are worked out.
+        if (BR * 0.6 / max(u, 0.012) < QF_METEOR_CULL) continue;
+#endif
         // Loop 2 (r11m4c vs the owner's photos: our streaks 5-8 px wide with comet-like heads that bloomed;
         // his are hairlines, long, faint and even along their length): brightness capped at 3.5, thinner
         // lines, longer paths, a trail that keeps most of its length lit.
@@ -470,6 +476,17 @@ vec3 meteorsSector(vec3 dir) {
             // A hairline (Gaussian half-width ~0.65 px; TAA resolves the sub-pixel jitter) whose width
             // and brightness rise from the tail, hold, and fade into the head: no blob at either end.
             float along = clamp((thd - tail0) / max(head - tail0, 1e-4), 0.0, 1.0);
+#if QF_METEOR_HUE == 1
+            // r014 (owner r013 meteors "kinda, but let's improve"; his r010 photos): the streaks there are
+            // green-white (oxygen's 557 nm line) with a whiter head and a few amber (sodium) ones, the
+            // brightest the most coloured; ours were near white (tint ~0.2 of a pale hue). The body behind
+            // the head now takes the hue, up to ~0.8 for a bright one, and whitens into the head.
+            {
+                vec3 hb = hash12(sd + 7.7) < 0.75 ? vec3(0.58, 1.0, 0.66) : vec3(1.0, 0.78, 0.46);
+                float sat = mix(0.30, 0.80, smoothstep(0.3, 2.2, bright));
+                tint = mix(vec3(0.93, 0.96, 1.0), hb, sat * (1.0 - smoothstep(0.55, 0.95, along)));
+            }
+#endif
             float prof = smoothstep(0.0, 0.35, along) * smoothstep(1.0, 0.80, along);
 #if QF_METEOR_SPREAD == 1
             float w = pxA * mix(0.35, 0.65, prof) * mix(0.8, 1.3, smoothstep(0.4, 2.5, bright));   // r013: the bright ones a little wider
@@ -487,7 +504,11 @@ vec3 meteorsSector(vec3 dir) {
             float lineT = exp(-perp * perp / (wt * wt));
             float span = smoothstep(th0 - 0.004, th0 + len * 0.3, thd) * smoothstep(head + 0.003, head - len * 0.15, thd);
             float fadeT = (1.0 - age) * (1.0 - age) * smoothstep(0.0, 0.08, age + p * 0.1);
+#if QF_METEOR_HUE == 1
+            sum += vec3(0.62, 1.0, 0.74) * lineT * span * fadeT * 0.09 * min(bright, 4.0);   // r014: the train keeps the green
+#else
             sum += vec3(0.80, 0.94, 0.92) * lineT * span * fadeT * 0.08 * min(bright, 4.0);
+#endif
         }
 #else
         if (p < 1.0) {
@@ -1001,6 +1022,15 @@ vec3 cloudLum(CloudLight c, float od, float h, float mu, float dens) {
     // Powder: the sunward side of a thick body is darker than its thin edges.
     float powder = 1.0 - 0.7 * exp(-od * 0.9 - dens * 2.0);
     s *= mix(1.0, powder, 0.75) / (4.0 * PI) * 2.2;
+#if QF_RIM_GOLD > 0
+    // r014 (critic r013 shore_sunset: "the gold shift reached the mid-tones (cloud blue/green 0.77 to 0.59)
+    // but not the lit edges ... give the sunlit cloud edges the same shift, so the rims go amber, not
+    // coral"). Toward the sun the forward lobe lights the cloud far past white, and the tone curve's
+    // shoulder pulls a blown colour toward grey: red-orange plus grey is coral. The light those edges
+    // scatter takes a gold shift (green held, blue cut) at golden hour, strongest toward the sun.
+    vec3 rimGold = mix(vec3(1.0), vec3(1.0, 1.04, 0.52), goldenHour());
+    s *= mix(vec3(1.0), rimGold, smoothstep(0.55, 0.97, mu));
+#endif
     // Golden hour: the near-level sun slips under the deck and lights the bases and lower sides.
     s += c.E * (goldenHour() * 0.16 * exp(-od * 0.6) * (1.0 - h));   // loop 4: 0.22, exp(-od*0.25) lit whole bases cream (forest_golden wash); only the thin sunward bases now
 #if QF_CLOUD_RIM == 1
@@ -1020,7 +1050,11 @@ vec3 cloudLum(CloudLight c, float od, float h, float mu, float dens) {
         // behind them while the thick bodies stay dark.
         s += c.E * fringe * (c.rim * 0.09 * (0.6 + 1.4 * gh) + 0.30 * gh);   // c.rim capped at 320 (cloudMarch)
 #else
+#if QF_RIM_GOLD > 0
+        s += c.E * fringe * (c.rim * 0.045 * (0.6 + 1.4 * gh) + 0.30 * gh) * mix(vec3(1.0), vec3(1.0, 1.04, 0.52), gh);
+#else
         s += c.E * fringe * (c.rim * 0.045 * (0.6 + 1.4 * gh) + 0.30 * gh);
+#endif
 #endif
     }
 #endif
