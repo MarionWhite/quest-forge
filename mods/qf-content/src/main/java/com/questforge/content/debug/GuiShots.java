@@ -115,9 +115,11 @@ final class GuiShots {
             mp.addExperienceLevel(27);
             mp.experience = 0.6F;
             mp.setHealth(15F);                                                    // seven and a half hearts
-            // seven shanks, set (not subtracted): this runs more than once per scene, and -6 per call left the
-            // r013 HUD shots at 7, 4 and 1 shanks
-            mp.getFoodStats().addStats(14 - mp.getFoodStats().getFoodLevel(), 0F);
+            // a full food row, set (not subtracted): this runs more than once per scene, and -6 per call left the
+            // r013 HUD shots at 7, 4 and 1 shanks. Full food would heal the hearts back to ten over the shot, so
+            // natural regeneration is off in this (bench) world.
+            mp.getFoodStats().addStats(20 - mp.getFoodStats().getFoodLevel(), 0F);
+            mp.worldObj.getGameRules().setOrCreateGameRule("naturalRegeneration", "false");
         }
     }
 
