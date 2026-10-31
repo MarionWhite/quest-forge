@@ -28,3 +28,19 @@ Settled: round 12's mob set (r013 A = QF-r012-packs-final.zip + QF-r012-gui-fina
 - Next: `renderq.py wait 1031-194643-textures-r014-packs`; review HUD crops (number recoloured? plate? food full
   10 shanks, hearts 7.5, no screen, clear of chat, hotbar ours) and view-6 golem crops; hand-off script
   tools/textures/r014_packs_handoff.py -> C:\qfb\shaderdev\r014\ (packs_scenes.json, packs\ crops, PACKS-READY).
+- Committed bc0c907 (my files only). Hand-off script written (not yet run); mock already at
+  C:\qfb\shaderdev\r014\packs\pk-hud-mock.png. Queue at 19:50: 2 shader-r014 submissions ahead, ETA ~20:10.
+
+## RESUME (fresh agent)
+1. `py -3.10 -I tools/renderq/renderq.py wait 1031-194643-textures-r014-packs` if under 10 min left, else exit again.
+2. HUD frames bench-pk14h{1,2,3}-gui_hud.png (C:\qfb\shaderdev\rounds\screenshots): no screen open, hearts clear of
+   chat, hotbar ours (grace strip + diamond), boss bar tarnished, 7.5 hearts, FULL food (10 shanks), armour 13.
+   XP number NOT lime (h1 pale gold, h2 bone white, h3 gold on a medallion)? If lime: XpBarStyle did not load
+   (log in the renderq trial: %APPDATA%\.qf-trials\renderq\logs) -> fix, rebuild jar in C:\qfb\wt-r011-fb
+   (-PqfDebugTools=true), copy to jars-r014, resubmit. If hearts healed above 7.5: the gamerule did not stick.
+   Check the plate does not cover the hearts/food (22 GUI px gap between them).
+3. View 6 (bench-pk14{a,g1,g2,g3}-r13_mob_6.png): A Patrix white, g1 red scarf, g2 buttons, g3 packed snow.
+4. `py -3.10 -I tools/textures/r014_packs_handoff.py` (dry), look at C:\qfb\shaderdev\r014\packs\ crops (XP_BOX,
+   ICON_BOX may need nudging), then `--ready`.
+5. Track ops/tracks/textures.md (packs bullet), one journal entry ops/journal/textures.md; commit own hunks; push
+   after `git log origin/main..main`. Owner question for the hand-off: ship XpBarStyle (client-only qf-content hook)?
