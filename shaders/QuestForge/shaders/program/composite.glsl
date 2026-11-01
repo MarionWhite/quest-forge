@@ -519,15 +519,6 @@ vec3 lightShafts(vec3 viewDir, float dist, float eyeSky, float leafHit) {
     // r008: the cut-out round the disk (1 - 0.6 mu^1500) drew the "faint dark ring" round the sun
     // (critic r007): it dimmed the veil 1.5 degrees out, where the glare should rise. Gone.
     if (dist >= far) lit *= 0.8;
-#if QF_SKY_SHAFT == 1
-    // r015 (critic p14cc sun_clear: "a faint pale column rises from the glow's right side over the far beach (the
-    // cloud-free sky over the terrain haze)"). Loop 1: the column is this lit air, not the sky: with the shafts
-    // off it goes (and the peach dome with it); with the crepuscular rays off it stays. Sky rays to the right of
-    // the sun cross the shadow the cliff casts into the air, so they carry less of the amber in-scatter and the
-    // bluer sky behind shows through as a pale wedge. Over open sky at golden hour, 60 % of a sky ray's shadowed
-    // air now counts as lit: the wedge fades, beams seen against terrain and leaves are untouched.
-    if (dist >= far) lit = mix(lit, 0.8, 0.6 * gh);
-#endif
     lit = clamp(lit, 0.0, 1.0) * maxD;
     float sigma = mix(0.0008, 0.0038, gh) * (SHAFT_GAIN / 1.5) * (1.0 + rainStrength);
     vec3 E = lightIrradiance() * mix(vec3(1.0), vec3(1.30, 0.93, 0.56), gh);
@@ -837,6 +828,11 @@ vec3 shadeWaterAbove(vec3 color, vec3 n, float var, vec3 scene0, float dist0, ve
         // brightness. Over the last 6 deg below the horizon the pull eases (1 to half, 2 to a third) and the
         // farthest strip mirrors a little less (2: 10 %), as rough water far off shows its own dark troughs.
         float hueK = 0.95 * grazeK * (1.0 - (QF_SEA_FAR == 2 ? 0.67 : 0.5) * farK);
+        // Loop 2 (band measured across the width, 760-840: open sea left ours 3.04 / luma 135, BSL 2.83 / 149, much
+        // the same; under the sun ours 2.60-2.91 at luma 110-141, BSL 1.88-2.09 at 126-174): the critic's orange far
+        // band is the sun's own path. The pull recoloured the sun's glow in the waves to the band's orange; BSL's
+        // path is white-hot. The mirrored glow within ~10-13 deg of the sun (the direction after the pull) keeps its own colour.
+        hueK *= 1.0 - smoothstep(0.975, 0.995, dot(R, L)) * (QF_SEA_FAR == 2 ? 1.0 : 0.8);
         refl = mix(refl, luminance(refl) * hue2, min(hueK, 1.0));
   #if QF_SEA_FAR == 2
         refl *= 1.0 - 0.10 * farK * grazeK;

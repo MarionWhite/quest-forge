@@ -45,3 +45,13 @@ round.json, renders, SHADERS-READY). Night mode 22:15-08:00 = shots only.
   METEOR SKY: x1 (+0.08 clear): cloud-dark share 26 % -> 12 %, star px 23k -> 64k (x2 144k); stars were 3-4 px
   yellow-green blobs -> finer (coord x1000), 5200-11000 K, navy 0.016, clear +0.10.
   Submitted **1101-102616-r015-loop2** (specs\r15-loop2.json: r15c2, r15c3, r15c2cc, r15b2). Gems queue ahead.
+- 10:35 loop 2 read (sheets l2_shore.jpg, l2_night.jpg, col_hp3.jpg): SEA: far band across the width (760-840):
+  open sea left ours 3.04/luma 135 vs BSL 2.83/149 (same), under the sun ours 2.60-2.91 vs BSL 1.88-2.09 (white-hot,
+  brighter): the critic's orange far band = the sun's path, recoloured by the hue pull -> SEA_FAR now exempts the
+  mirrored glow within ~10-13 deg of the sun (0.8 / 1.0). SHORE: c2 (DUSK 1) gold share 38.5 %, c3 (DUSK 2) 17.7 %
+  with amber rims kept (top 5 % 250,157,82), cloud tops greyer; zenith still mauve 133,105,104 -> DUSK 2 Rayleigh tint
+  now (0.78,0.90,1.04). COLUMN: QF_SKY_SHAFT changed nothing (B@y530 within 1 level) -> removed. The pale band is
+  symmetric (sky ring where the gold dome meets the blue; cliff frames it on the right); only shafts-off removes it,
+  with the whole glow. Say so in the scene. NIGHT: c3 (METEOR_SKY 2) best: cloud-dark 11 %, star px 140k, fine stars
+  -> navy 0.026. forest_golden c2 vs b2 mean 77->74 (check in cost frames).
+  Submitted **1101-103449-r015-loop3** specs\r15-loop3.json: r15d1, r15d2.

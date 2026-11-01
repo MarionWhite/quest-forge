@@ -756,7 +756,7 @@ vec3 nightSkyTexture(vec3 dir) {
         // reaches lower, and Photon's dense faint field fills it, thickest along the Milky Way (its threshold
         // drops with the band's brightness), each star a blackbody colour from 4500 to 8500 K.
         if (v == 4) {
-            L += vec3(0.06, 0.11, 0.40) * MOON_I * 0.016 * smoothstep(-0.02, 0.45, dir.y) * moonWash;   // loop 2: 0.010 left the sky near black (median luma 7.7; photo 58)
+            L += vec3(0.06, 0.11, 0.40) * MOON_I * 0.026 * smoothstep(-0.02, 0.45, dir.y) * moonWash;   // loop 1: 0.010, loop 2: 0.016 left the sky near black (median luma 6.8; the photo's 58)
             float thr = 1.0 - 0.030 - 0.5 * band * band * band;
             L += phStars(dir, thr) * SUN_I * 0.020 * mix(0.5, 1.0, moonWash) * smoothstep(-0.02, 0.08, dir.y);
         }
