@@ -1200,10 +1200,12 @@ vec3 skyRadiance(vec3 dir) {
             // Photon faster still). The inner lobe is now wider and stronger and yellow-white, the wide one
             // narrower: 1 BSL's shape (2 deg core, 4 deg skirt), 2 hotter and a little larger (2.3 / 4.6 deg).
             vec3 mc = mix(vec3(1.0, 0.95, 0.85), vec3(1.0, 0.92, 0.66), goldenHour());
+            // Loop 4: at 0.30 / 0.40 the core lobe moved the profile by under 1 luma (the sky-view table's own Mie
+            // glow is ~40x brighter there), so the hot core is now in that glow's units: 1 x2.0, 2 x4.0.
   #if QF_SUN_HALO == 2
-            L += T * SUN_I * (mc * 0.40 * exp(-a / 0.040) + mt * 0.050 * exp(-a / 0.080)) * (1.0 - rainStrength);
+            L += T * SUN_I * (mc * 4.0 * exp(-a / 0.040) + mt * 0.050 * exp(-a / 0.080)) * (1.0 - rainStrength);
   #else
-            L += T * SUN_I * (mc * 0.30 * exp(-a / 0.035) + mt * 0.060 * exp(-a / 0.070)) * (1.0 - rainStrength);
+            L += T * SUN_I * (mc * 2.0 * exp(-a / 0.035) + mt * 0.060 * exp(-a / 0.070)) * (1.0 - rainStrength);
   #endif
 #else
             L += T * SUN_I * mt * (0.24 * exp(-a / 0.022) + 0.040 * exp(-a / 0.11)) * (1.0 - rainStrength);   // l4 first try 0.05/0.01 did not show against the bright sunset sky
