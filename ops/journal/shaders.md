@@ -1,6 +1,9 @@
 # Shaders journal (newest first)
 
-- 2026-11-01 13:10: **r015 shader scenes handed off** (C:\qfb\shaderdev015\SHADERS-READY; 4 shader scenes, dry run
+- 2026-11-01 13:40: **r015 posted** (b0f4ea6; 11 scenes: 4 shader + gems + HUD packs; closes r014). sea-sunset/A 3.61 ms over 3.0, stated in the round text. Only renders/crops/clips published (jpg/webp + json). Live: https://marionwhite.github.io/quest-forge/shaders/ ; r015.json and images 200. Awaiting owner feedback; r016 aim: white-hot glint.
+
+- 2026-11-01 13:10: **r015 shader scenes handed off** (C:\qfb\shaderdev
+015\SHADERS-READY; 4 shader scenes, dry run
   11 with textures/packs). Cost 1101-104149 clean except Low: p15lo underwater/night_wide ran at half the frames (p99
   7.8/9.5 ms), a renderq cache hit re-served it (p15lo2), so re-measured fresh (p15lo3, 1101-125848) next to the r14
   pack (p14rlo2): Low lake 0.94 / ocean 0.95 vs r14 0.95 / 0.93, no change. High worst 3.65 sun_clear; 11/24 over 3.0
@@ -12,7 +15,8 @@
   cloud 134,105,45 -> 124,99,66, open sky lilac 117,96,111 (BSL 83,65,61, darker; said). Night: dark cloud 18 -> 5 %,
   star px 17k -> 136k.
 
-- 2026-11-01 09:35: **r014 published** (83e5fa5, 14 scenes). Owner approved publishing as is, including in-game renders of the copied packs; no raw pack files shipped. Live r014.json 200, all images/clips 200, 600 px Edge shot in C:\qfb\shaderdev014\look\live-600.png. Over budget: sea-sunset/A 3.56 ms (water), stated on page.
+- 2026-11-01 09:35: **r014 published** (83e5fa5, 14 scenes). Owner approved publishing as is, including in-game renders of the copied packs; no raw pack files shipped. Live r014.json 200, all images/clips 200, 600 px Edge shot in C:\qfb\shaderdev
+014\look\live-600.png. Over budget: sea-sunset/A 3.56 ms (water), stated on page.
 
 - 2026-10-31 21:58: **r014 shader scenes handed off** (SHADERS-READY; 6 shader scenes, dry run 14 with textures).
   Cost 1031-204537 clean (no noisy steps, no magenta, frames from the new run). High sea sunset 3.56 (r013 3.52, graze

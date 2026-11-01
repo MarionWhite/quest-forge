@@ -20,3 +20,5 @@ and the long archive in `C:\qfb\shaderdev\NEXT.md` (PC only).
 - **References (internal only):** `C:\qfb\shaderdev\refs` (Complementary, BSL, Photon on our views).
 - **Render queue night mode** 22:15-08:00: shot jobs only.
 - **Tools:** `tools/renderq`, `tools/shaders/review/finish_round.py`, `check_glsl.py`, `make_clip.py --speedup`.
+
+- 2026-11-01: r015 posted (b0f4ea6, 11 scenes, closes r014); awaiting owner feedback. Next: r016 white-hot glint for the sea sun path.
