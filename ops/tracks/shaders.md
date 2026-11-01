@@ -7,7 +7,7 @@ and the long archive in `C:\qfb\shaderdev\NEXT.md` (PC only).
 - **Budgets per frame:** High 1440p 3 ms · Low 1080p 0.9 ms · Potato 720p 0.4 ms.
 - **Lab:** https://marionwhite.github.io/quest-forge/shaders/. Rounds are in `site/shaders/rounds/rNNN.json`; feedback is in
   `docs/design/shaders/feedback/rNNN.json` with images in `attachments/rNNN/`. Taste is in `docs/design/shaders/look-bible.md`.
-- **Round state:** r014 shader scenes handed off (C:\qfb\shaderdev014\SHADERS-READY, 6 scenes; cost 1031-204537,
+- **Round state:** r014 shader scenes handed off (C:\qfb\shaderdev\r014\SHADERS-READY, 6 scenes; cost 1031-204537,
   gems 1031-214418). Next: critic r014, then publisher. Defaults: QF_SEA_GRAZE 2, QF_RIM_GOLD 2, QF_METEOR_CULL 0.25 +
   HUE 1, QF_GEM_LOOK 2. QF_CLOUD_COVER 0.6 = cloud-free sky. QF_SUN_HALO (off) did not move the glow: it is the sky
   haze's forward lobe; a hotter halo means re-tuning the haze (owner question in the sun-glow scene).
