@@ -1,5 +1,15 @@
 # Shaders journal (newest first)
 
+- 2026-10-31 21:25: **r014 shader work, publish cost queued** (1031-204537-r014-publish-cost). Critic r013 notes as the
+  work order. Sea: BSL's normal fade did nothing (the middle sea mirrors our pale sky 10-15 deg up); the mirrored
+  elevation now leans to the horizon at grazing golden-hour views, takes the 2-deg band's hue, body x0.4: middle sea
+  r/b 1.26 -> 1.99 (BSL 2.03). Shore: coral came from the rose far-side sky lighting the bases plus the neutral tone
+  shoulder; all cloud light gets the gold shift under 7 deg and the shoulder burns to warm white (sun core spared).
+  Sun: whole disk via QF_CLOUD_COVER 0.6 (cloud-free view); the clear-sky glow is the haze/sky Mie, not the final-pass
+  bloom (debug view 16), three halo tries barely moved it; x2/x4 core in loop 6. Meteors: cull < 0.25 brightness and
+  green/amber hue (r010 photos). Gems: plastic = uniform _s + lambert body under clear coat; new inner-facet light
+  (QF_GEM_LOOK 2), flat-face sun glint (no dashes).
+
 - 2026-10-29 17:20: **r013 published** (c5b777e, 18 scenes, r012 closed; live after ~3 min). All 46 images/clips 200, page screenshot checked. Open: pk-mob scenes show Patrix/Conquest skins in game renders on the public site; owner to decide keep or pull.
 
 - 2026-10-29 17:00: **r013 shader scenes handed off** (C:\qfb\shaderdev\r013\SHADERS-READY; 6 scenes). Publish cost
