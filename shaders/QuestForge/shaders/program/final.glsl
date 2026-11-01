@@ -328,23 +328,7 @@ vec3 sunGlare(ivec2 px) {
         float low = smoothstep(0.45, 0.02, sy);
         vec3 tc = mix(vec3(1.0, 0.96, 0.90), vec3(1.0, 0.86, 0.62), low);
         vec3 tw = mix(vec3(1.0, 0.92, 0.82), vec3(1.0, 0.70, 0.38), low);
-#if QF_SUN_HALO == 1
-        // r014 (critic r013 sun_clear: "judge the glow's size again once a sunset view has a whole disk").
-        // With the cloud-free sky (QF_CLOUD_COVER 0.6) the whole disk shows: round the r013 sun the glow is
-        // flat, 213 luma at 50 px, 201 at 100, 190 at 200, 167 at 300, and peach (253,203,157 at 60 px);
-        // BSL's (ocean_sunset) is a hot, near-white yellow halo, 235 at 50 px and 255,249,200 at 60 px,
-        // that falls away faster: 211 at 100, 171 at 200, 148 at 300 (Photon's falls faster still, 154 at
-        // 100). The core lobe is now wider, stronger and yellow-white (2.6 deg), the wide lobe narrower and
-        // weaker (4.9 deg), so the sun sits in a hot spot that fades instead of a flat wash.
-        tc = mix(vec3(1.0, 0.98, 0.92), vec3(1.0, 0.95, 0.74), low);
-        g += (tc * 1.5 * exp(-th / 0.045) + tw * 0.13 * exp(-th / 0.085)) * BA * mix(0.25, 1.0, low) * visG * (1.0 - rainStrength);
-#elif QF_SUN_HALO == 2
-        // r014 option 2: as 1, between BSL's and Photon's sizes (core 2.0 deg, wide 4 deg).
-        tc = mix(vec3(1.0, 0.98, 0.92), vec3(1.0, 0.95, 0.74), low);
-        g += (tc * 1.3 * exp(-th / 0.035) + tw * 0.10 * exp(-th / 0.070)) * BA * mix(0.25, 1.0, low) * visG * (1.0 - rainStrength);
-#else
         g += (tc * 0.9 * exp(-th / 0.03) + tw * 0.25 * exp(-th / 0.10)) * BA * mix(0.25, 1.0, low) * visG * (1.0 - rainStrength);
-#endif
     }
 #endif
 #if QF_LENS == 1
@@ -393,7 +377,9 @@ void main() {
     col = mix(c, (n + s + e + w) * 0.25, k);
 #endif
 
-#if QF_DEBUG_VIEW == 1
+#if QF_DEBUG_VIEW == 16
+    col = display(glare);   // r014: the sun's glare and glow alone (final.glsl sunGlare), over black
+#elif QF_DEBUG_VIEW == 1
     vec4 g1 = texelFetch(colortex1, px, 0);
     if (texelFetch(depthtex0, px, 0).r < 1.0) col = materialDebugColor(unpackMaterial(g1)) * (0.55 + 0.45 * luminance(col));
 #elif QF_DEBUG_VIEW == 2

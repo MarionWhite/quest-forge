@@ -1061,6 +1061,16 @@ vec3 cloudLum(CloudLight c, float od, float h, float mu, float dens) {
 #endif
     // At night, only thin edges carry moonlight: the bodies stay dark (no glow).
     s *= mix(1.0, exp(-od * 0.8), c.night);
+#if QF_RIM_GOLD > 0
+    // Loop 2: the sunlit part alone barely moved the brightest clouds (top 5 % 248,149,99 -> 248,153,97): their
+    // bases and lower sides are lit by c.under, the horizon sky 60 deg round from the sun, which is the rose of
+    // the far side. Under 7 deg that light takes the same gold shift.
+    {
+        float sy = sunDirWorld().y;
+        float lo = smoothstep(0.125, 0.035, sy) * smoothstep(-0.07, -0.01, sy);
+        return s + c.top * mix(0.35, 1.0, h) + c.under * (1.0 - h) * (1.0 - h) * mix(vec3(1.0), vec3(0.92, 1.10, 0.50), lo);
+    }
+#endif
     return s + c.top * mix(0.35, 1.0, h) + c.under * (1.0 - h) * (1.0 - h);
 }
 // Scattered light (rgb) and transmittance (a) of the cloud slab along dir.
@@ -1181,7 +1191,23 @@ vec3 skyRadiance(vec3 dir) {
             // into the sky round it): a warm Mie aureole a few degrees wide, deeper gold at low sun.
             float a = acos(clamp(dot(dir, sunDir), -1.0, 1.0));
             vec3 mt = mix(vec3(1.0, 0.88, 0.70), vec3(1.0, 0.78, 0.42), goldenHour());
+#if QF_SUN_HALO > 0
+            // r014 (critic r013 sun_clear: "judge the glow's size again once a sunset view has a whole disk").
+            // On the cloud-free sky (QF_CLOUD_COVER 0.6) the glow round the sun is this aureole (debug 16: the
+            // final pass's bloom lobes add ~0.03 there): luma 213/201/190/167 at 50/100/200/300 px from the
+            // centre and peach (253,203,157 at 60 px), where BSL's is a hot, near-white yellow halo, 235-247 at
+            // 50 px and 255,249,200 at 60 px, that falls away faster further out (171-195 at 200, 148-159 at 300;
+            // Photon faster still). The inner lobe is now wider and stronger and yellow-white, the wide one
+            // narrower: 1 BSL's shape (2 deg core, 4 deg skirt), 2 hotter and a little larger (2.3 / 4.6 deg).
+            vec3 mc = mix(vec3(1.0, 0.95, 0.85), vec3(1.0, 0.92, 0.66), goldenHour());
+  #if QF_SUN_HALO == 2
+            L += T * SUN_I * (mc * 0.40 * exp(-a / 0.040) + mt * 0.050 * exp(-a / 0.080)) * (1.0 - rainStrength);
+  #else
+            L += T * SUN_I * (mc * 0.30 * exp(-a / 0.035) + mt * 0.060 * exp(-a / 0.070)) * (1.0 - rainStrength);
+  #endif
+#else
             L += T * SUN_I * mt * (0.24 * exp(-a / 0.022) + 0.040 * exp(-a / 0.11)) * (1.0 - rainStrength);   // l4 first try 0.05/0.01 did not show against the bright sunset sky
+#endif
         }
 #else
         L += T * (sunDisk(dir, sunDir) + moonDisk(dir, moonDirWorld()));

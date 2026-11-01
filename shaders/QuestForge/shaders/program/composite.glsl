@@ -803,6 +803,19 @@ vec3 shadeWaterAbove(vec3 color, vec3 n, float var, vec3 scene0, float dist0, ve
 #if QF_ATMOS == 1
     refl = phFogSky(refl, R, lightDirWorld(), lightIrradiance());
 #endif
+#if QF_SEA_GRAZE > 0 && QF_SEA_GOLD == 1
+    // r014 loop 2: pulling the mirrored direction to the horizon moved the middle sea only from red/blue 1.26 to
+    // 1.35: the sky the reflection reads (sky-view table, cheap clouds) is not the gold the eye sees in the
+    // band, which the full clouds and the haze add on screen. As the in-scatter above (QF_SEA_GOLD), the sky in
+    // the sea at a grazing golden-hour view now takes the hue of the glow under the sun at its own brightness,
+    // so the gold horizon leads through the middle distance and fades out toward the camera (grazeK).
+    {
+        vec3 Lh2 = normalize(vec3(L.x, 0.0, L.z) + vec3(1e-5, 0.0, 0.0));
+        vec3 glow2 = skyScatter(normalize(Lh2 + vec3(0.0, 0.10, 0.0)));
+        vec3 hue2 = glow2 / max(luminance(glow2), 1e-6);
+        refl = mix(refl, luminance(refl) * hue2, 0.75 * grazeK);
+    }
+#endif
     refl *= smoothstep(0.3, 0.9, skyLight);
     float sunOcc = 0.0;
 #if QF_SSR_STEPS > 0 && QF_WATER_STYLE > 0
