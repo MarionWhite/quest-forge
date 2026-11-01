@@ -239,10 +239,16 @@ def main():
                          "Patrix 32x's amethyst druse re-toned, with its facet _n and smooth-crystal/rough-gap _s; polished "
                          "= the same colour under one flat mirror table; faithful = Faithful 64x's face on a deeper ramp with "
                          "the crystal _n/_s. Reads Patrix from --patrix at build time (private: never commit the output)")
+    ap.add_argument("--gem-look", choices=("facets", "staytrue", "jewel", "calm", "frost"),
+                    help="r015 connected gem LOOKS for diamond and emerald (gems_look.py; needs --gems-ctm): facets = a "
+                         "rhombus cut of big flat facets (Patrix's tilts), polished; staytrue = Stay True's art, no gem "
+                         "reflection; jewel = a deep cut stone lit from inside, quiet surface; calm = r014 faithful with "
+                         "the noise taken out; frost = Soartex Forever's frosted gems. Reads the reference packs at build "
+                         "time (private: never commit the output)")
     ap.add_argument("--patrix", default=r"C:\qf-world\reference-packs\Patrix 32x\Patrix_26.3_32x_basic.zip")
     a = ap.parse_args()
-    if a.gem_mat and not a.gems_ctm:
-        sys.exit("--gem-mat needs --gems-ctm")
+    if (a.gem_mat or a.gem_look) and not a.gems_ctm:
+        sys.exit("--gem-mat and --gem-look need --gems-ctm")
     if a.gems == "staytrue" and not a.stay_true:
         sys.exit("--gems staytrue reads Stay True: give --stay-true PATH")
     if a.stay_true and (a.wheat != "drawn" or a.leaves != "drawn"):
@@ -413,9 +419,14 @@ def main():
             if img is None or mcmeta or img.shape[0] != img.shape[1]:
                 print("--gems-ctm: %s skipped (missing, animated or not square)" % name)
                 continue
-            if a.gem_mat and name in ("diamond_block", "emerald_block"):
+            if (a.gem_mat or a.gem_look) and name in ("diamond_block", "emerald_block"):
                 import gems_mat
-                gem_mat[name] = gems_mat.material(name, a.gem_mat, img, bands, a.patrix)
+                if a.gem_look:
+                    import gems_look
+                    gem_mat[name] = gems_look.material(name, a.gem_look, img, bands,
+                                                       dict(patrix=a.patrix, **({"stay_true": a.stay_true} if a.stay_true else {})))
+                else:
+                    gem_mat[name] = gems_mat.material(name, a.gem_mat, img, bands, a.patrix)
                 textures[BLOCKS + name + ".png"] = (gem_mat[name]["block"][0], None)
                 out.writestr(CTM + name + "/" + name + ".properties", gems_ctm.rule(name))
                 continue
@@ -481,7 +492,8 @@ def main():
             out.writestr(m[:-4] + "_s.png.mcmeta", mcmeta)
 
     for name, mat in sorted(gem_mat.items()):
-        for i, (t_img, t_n, t_s) in gems_mat.ctm_tiles(mat, gems_ctm.BLOCKS[name]).items():
+        tiles = mat["tiles"] if "tiles" in mat else gems_mat.ctm_tiles(mat, gems_ctm.BLOCKS[name])
+        for i, (t_img, t_n, t_s) in tiles.items():
             p = CTM + name + "/%d" % i
             out.writestr(p + ".png", png(t_img))
             tally["ctm"] += 1
