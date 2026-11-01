@@ -36,7 +36,8 @@ D = [("A", "pk16a", "refined", "Refined",
       "medallion with a white number."),
      ("C", "pk16c", "gunmetal", "Gunmetal",
       "Machined steel: a bevelled gunmetal strip with recessed wells; icons cut in flat facets inside a chrome rim; "
-      "a steel selection with a crimson inner line; an amber XP bar in a steel track; a chamfered steel tag."),
+      "a steel selection with a crimson inner line; an amber XP bar in a steel track; a hex-cut steel tag with a "
+      "molten orange number."),
      ("D", "pk16d", "wine", "Wine & gold",
       "Dark wine glass between two bevelled gold rails; a chamfered gold selection; gold-rimmed icons; a gold XP bar "
       "on wine; a gold-edged wine medallion. The same family as the gilded boss bar.")]
@@ -123,7 +124,9 @@ def main():
           "mistake) and no Elden Ring parts (round 14's grace strip and diamond finials are gone). The polish goes "
           "into the icons themselves (one light, glossy or cut shading, a clean keyline) and into one quiet hotbar "
           "per design. A starts from round 14. The medallion you liked stays, smaller and cleaner. Each frame also "
-          "shows one of the four new boss bars (rated separately below). " + HOOK,
+          "shows one of the four new boss bars (rated separately below). Honest note: at play size the heart and "
+          "food rows of the four read nearly alike (the shading differs only up close, below); the designs part in "
+          "the hotbar, selection, XP bar, medallion and boss bar. " + HOOK,
           "Which HUD (or which parts of which)? Ship the XpBarStyle hook (yes/no)?", full)
     icons_o = [opt(k, n, zoom_crop(t, "gui_hud", ICON_BOX, "pk-hud-icons"), "Seven and a half hearts, full food, "
                    "armour 13 of 20, the medallion between the rows.") if have[t] else None for k, t, _, n, _ in D]

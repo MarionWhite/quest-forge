@@ -71,3 +71,20 @@ a separate sprite sheet); per-boss icons and phase pips need data 1.7.10 does no
 5. ops/tracks/textures.md packs bullet (r016: 4 HUDs + 4 boss bars, bar-mode hook, still the owner's yes), ONE journal
    entry in ops/journal/textures.md (Infernum study, the designs, bar mode, the render), commit own hunks,
    `git log origin/main..main`, push. Report <= 5 lines; say the XP colour, medallion and boss bar need the hook's yes.
+
+## Step 4 (2026-11-01 18:45): frames reviewed, one fix re-rendering
+- 1101-155720 done (18:42). Bar mode drew in all 8 frames (thick bar + medallion + 62%, no vanilla strip). Names
+  outlined, legible on day sky and night sky. GUI-scale-1 sim (nearest-sample the GUI-6 frames at 6k+1): every rim,
+  number and icon survives. No chat in frame; hearts/armour keep vanilla rows. The 4 HUDs and 4 bars all differ
+  (A/D closest: both round medallion + gold point, but orange vs crimson fill, flame vs skull, percent beside vs tab below).
+- Fix: Ember percent dx 212 -> 215 (its outline touched the arrowhead point). Spec textures-r016-packs-a.json (pk16a,
+  pk16an only) SUBMITTED 1101-184442-textures-r016-packs-a behind 2 shader jobs (ETA ~7 min).
+- Next: wait that ID once; crop A's percent; then r016_packs_handoff.py dry, look at crops, --ready; track + journal; commit.
+- 18:51 A re-render 1101-184442 landed: percent clear of the point, day and night. Hand-off dry run OK, every crop
+  checked (boss, icons, xp, hud). Found: B and C XP medallions near-identical (slate pill, white number). Fix: Gunmetal
+  xp_num FFB650 (its bar's orange), medallion chamfer 5 -> 7 (hex). Spec textures-r016-packs-c.json SUBMITTED
+  1101-*-textures-r016-packs-c (pk16c, pk16cn). Honest note for the scene text: heart/food rows read nearly alike
+  across the four at play size; the designs part in hotbar, selection, XP bar, medallion and boss bar.
+- Next: wait it once; check C's xp crop; add that note to r016_packs_handoff.py pk-hud text; --ready; track/journal; commit.
+- 18:57 C re-render 1101-185125 landed (orange number, hex tag, readable at scale 1). Hand-off text updated
+  (gunmetal desc; icon-rows-alike note). `--ready` run: 4 scenes, PACKS-READY. Track + journal written. DONE except commit/push.

@@ -659,7 +659,7 @@ class Gunmetal(Hud):
     key = (34, 36, 42)
     spec = (255, 255, 255)
     hairline = ((214, 220, 230), (96, 102, 114))     # a chrome rim inside the keyline
-    xp_num, xp_outline = "F2F4F8", "16181C"
+    xp_num, xp_outline = "FFB650", "1A1208"   # molten orange as its XP bar (r016 render: white read as glass's)
     boss = "ironclad"
 
     def hotbar(self):
@@ -703,7 +703,7 @@ class Gunmetal(Hud):
 
     def medallion(self):
         a = np.zeros((20, 36, 4), np.uint8)
-        m = chamfer(36, 20, 5)
+        m = chamfer(36, 20, 7)                     # deeper cuts than glass's round pill
         paint_mask(a, m, (40, 43, 50), 245)
         k, _ = ring_of(m, 2)
         top = np.zeros((20, 36), bool)
@@ -1235,7 +1235,7 @@ class Ember(Boss):
     FX, FY, FW, FH = 22, 7, 180, 9
     TIP = (6, 13)
     name_col, name_outline = "FFE6B8", "2A1006"
-    pct = ("FFD890", "2A1006", 212, 8, "L")
+    pct = ("FFD890", "2A1006", 215, 8, "L")   # 3 px clear of the point (r016 render: 212 touched it)
     BR = [(246, 200, 140), (196, 138, 76), (140, 90, 44), (90, 54, 24), (46, 28, 12)]
 
     def back(self):
