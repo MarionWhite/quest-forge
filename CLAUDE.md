@@ -22,8 +22,8 @@ tokens and friends' personal details never go in it.
 - Licences: only Faithful-licensed or redistribution-permitting art ships. All-rights-reserved packs are
   studied, never copied, traced or recoloured. **Exception (owner, 2026-10-27): Stay True, Faithless, Patrix 32x,
   Conquest_ and Soartex** (the packs named in r007 feedback) may be copied and edited into the private pack. Their
-  files live only in `C:\qf-world\reference-packs` and are read at build time: never commit them, and never show
-  them on the public site.
+  files live only in `C:\qf-world\reference-packs` and are read at build time: never commit them, and never put
+  the raw files on the public site. In-game renders of them in Shader Lab rounds are fine (owner, 2026-11-01).
 - Use `py -3.10` for the tools/ scripts.
 
 ## How to work cheaply without losing quality
