@@ -188,6 +188,21 @@ void main() {
         vec4 nm = texture(normals, vUV);
         vec4 sp = texture(specular, vUV);
         vec2 nxy = nm.rg * 2.0 - 1.0;
+#if QF_GEM_NFADE > 0
+        // r015 (texture track, gems look D: "noise at distance"; owner r014 gems "plastic or very noisy"): a gem's
+        // normal-map facets are sharp and right up close, but minified a few blocks off they turn into a shimmer of
+        // tilts the eye reads as noise. On polished gem pixels (the same test as the gem path: smoothness > 0.88,
+        // F0 > 0.1) the map's tilt fades with distance, so far gems read as a calm, flat polish: 1 keeps 15 % from
+        // 28 blocks (fade from 6), 2 flat from 14 (fade from 3). Every gem consumer (diffuse, inner light, the
+        // composite reflection) reads this normal.
+        if (sp.r > 0.88 && sp.g > 0.1) {
+  #if QF_GEM_NFADE == 2
+            nxy *= 1.0 - smoothstep(3.0, 14.0, length(vScenePos));
+  #else
+            nxy *= mix(1.0, 0.15, smoothstep(6.0, 28.0, length(vScenePos)));
+  #endif
+        }
+#endif
         vec3 nt = vec3(nxy, sqrt(clamp(1.0 - dot(nxy, nxy), 0.0, 1.0)));
         vec3 dp1 = dFdx(vScenePos), dp2 = dFdy(vScenePos);
         vec2 du1 = dFdx(vUV), du2 = dFdy(vUV);

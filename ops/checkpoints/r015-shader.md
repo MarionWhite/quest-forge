@@ -25,3 +25,8 @@ round.json, renders, SHADERS-READY). Night mode 22:15-08:00 = shots only.
   123,101,89 (BSL 83,65,61; Photon 85,95,139 blue). Pale column (p14cc): blue bump ~+10 at 150-250 px right of the
   sun over the beach (sheets\col_hp.jpg, high-pass) -> testing shafts/crepuscular off.
   Submitted **1101-100900-r015-loop1** (specs\r15-loop1.json: r15b, r15x1, r15x2, r15cc, r15ccs0, r15ccr0).
+- 10:55 GEMS REQUEST (coordinator, gems look D): added **QF_GEM_NFADE [0 1 2]**, default 0 (program/gbuffers.glsl PBR
+  block): on polished gem pixels (_s R > 0.88 and G > 0.1, the gem path's own test) the normal map's tilt fades with
+  distance before the TBN: 1 to 15 % by 28 blocks (fade starts at 6), 2 flat by 14 (from 3). Every gem consumer
+  (diffuse, gemInnerLight, composite gemReflection) reads that normal. Cost: one length + branch per terrain pixel
+  (unmeasurable). check_glsl clean for 0/1/2. Gems agent: render look D with opts {"QF_GEM_NFADE": 1} (or 2).
