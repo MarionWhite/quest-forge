@@ -394,7 +394,9 @@ def icons_sheet(base, xp):
 
 
 # --------------------------------------------------------------------------------------------- XP options
-PLATE = (0, 100, 22, 10)          # u, v, w, h in icons.png (GUI px); rows 100-176 are free in the base sheet
+PLATE = (0, 100, 18, 10)          # u, v, w, h in icons.png (GUI px); rows 100-176 are free in the base sheet.
+                                  # 18 wide: the hearts end at w/2-10 and the food starts at w/2+10, so 22 (r014
+                                  # render 1) touched the first shank; 18 leaves one pixel each side.
 XP_COLORS = {
     #           number    outline
     "thread":  ("E6CC8E", "1A1208"),
@@ -446,7 +448,7 @@ def xp_strip(style, fill):
 
 
 def plate_sprite():
-    """44 x 20 (2x of 22 x 10): a dark medallion with a gold hairline and diamond ends, drawn with blending on."""
+    """36 x 20 (2x of 18 x 10): a dark medallion with a gold hairline and diamond ends, drawn with blending on."""
     w, h = PLATE[2] * S, PLATE[3] * S
     a = np.zeros((h, w, 4), np.uint8)
     cx = w / 2 - 0.5
@@ -454,7 +456,7 @@ def plate_sprite():
         for x in range(w):
             # a long hexagon: flat top and bottom, pointed ends
             dy = abs(y - (h / 2 - 0.5))
-            reach = w / 2 - 1 - dy * 0.9
+            reach = w / 2 - 1 - dy * 0.55            # blunt points: the number (13 px with outline) fits
             d = abs(x - cx)
             if d > reach or dy > h / 2 - 2:
                 continue

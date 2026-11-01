@@ -31,8 +31,25 @@ Settled: round 12's mob set (r013 A = QF-r012-packs-final.zip + QF-r012-gui-fina
 - Committed bc0c907 (my files only). Hand-off script written (not yet run); mock already at
   C:\qfb\shaderdev\r014\packs\pk-hud-mock.png. Queue at 19:50: 2 shader-r014 submissions ahead, ETA ~20:10.
 
+### 2026-10-31 step 3: render 1031-194643 reviewed, one fix, RE-RENDER SUBMITTED
+- Reviewed as sheets/crops (scratch rv/). All good: HUD ours (grace hotbar, tarnished boss bar), no screen open, no
+  chat, 7.5 hearts, armour 13, FULL food (10 shanks), XP number recoloured in all three (h1 pale gold, h2 bone white,
+  h3 gold on the medallion), XP options clearly different. Air not in shot (not under water; the mock has it).
+  Golems: A Patrix (white + coal buttons), g1 red scarf, g2 Soartex warm soft shading + buttons (faces sideways),
+  g3 Conquest packed snow; iron golem/villager/horse unchanged.
+- Broken: h3's medallion (22 GUI px) touched the first shank (hearts end at w/2-10, food starts at w/2+10). Fixed in
+  qf_hud_r014.py: PLATE 18x10, blunter points (slope 0.55). Mock regenerated (C:\qfb\shaderdev\r014\packs\pk-hud-mock.png).
+- h2's number sits on the notched bar's top rim, as vanilla's does; left as is (moving it needs the Java hook).
+- Handoff text updated: hook needs the owner's yes; air only in mock; golem descriptions.
+- SUBMITTED 1031-201118-textures-r014-packs-b (spec tools/renderq/specs/textures-r014-packs-b.json, pk14h3 only,
+  overwrites bench-pk14h3-gui_hud.png). ETA ~20:38 at 20:11.
+
 ## RESUME (fresh agent)
-1. `py -3.10 -I tools/renderq/renderq.py wait 1031-194643-textures-r014-packs` if under 10 min left, else exit again.
+0. `py -3.10 -I tools/renderq/renderq.py wait 1031-201118-textures-r014-packs-b`; check bench-pk14h3-gui_hud.png
+   (C:\qfb\shaderdev\rounds\screenshots, timestamp after 20:11): medallion clear of hearts and shanks, "27" inside it.
+   Then step 4 below (`r014_packs_handoff.py`, look at crops, `--ready`), commit any change, push. Track/journal
+   already written in step 3 (add a line only if the re-render changes something).
+1. (done) `py -3.10 -I tools/renderq/renderq.py wait 1031-194643-textures-r014-packs`.
 2. HUD frames bench-pk14h{1,2,3}-gui_hud.png (C:\qfb\shaderdev\rounds\screenshots): no screen open, hearts clear of
    chat, hotbar ours (grace strip + diamond), boss bar tarnished, 7.5 hearts, FULL food (10 shanks), armour 13.
    XP number NOT lime (h1 pale gold, h2 bone white, h3 gold on a medallion)? If lime: XpBarStyle did not load

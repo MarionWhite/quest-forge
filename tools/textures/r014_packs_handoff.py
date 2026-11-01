@@ -26,10 +26,12 @@ XP = [("A", "pk14h1", "Thread", "A gold hairline bar whose fill brightens toward
 XP_BOX = (1000, 1170, 1560, 1290)     # the level number and the middle of the XP bar, GUI scale 6 on 2560 x 1440
 ICON_BOX = (700, 1120, 1860, 1260)    # armour, hearts, food rows
 MOB_BOX = (700, 400, 1860, 1020)      # hall view 6: snow golem, iron golem, bat (r013_packs_handoff.MOB_BOX)
-GOLEMS = [("A", "pk14a", "Round 12 set (your pick): Patrix", "Patrix's snow golem, near-vanilla white: why it reads "
-                                                              "as default."),
-          ("B", "pk14g1", "Faithless", "Red scarf and hat band (round 13's B)."),
-          ("C", "pk14g2", "Soartex Forever", "Soft shaded snow with coal buttons down the front."),
+GOLEMS = [("A", "pk14a", "Round 12 set (your pick): Patrix", "Patrix's snow golem: near-vanilla white snow with "
+                                                              "coal buttons, which is why it read as default."),
+          ("B", "pk14g1", "Faithless", "Red scarf and hat band (round 13's B; it faces "
+                                                "sideways in this shot)."),
+          ("C", "pk14g2", "Soartex Forever", "Soft, warm shaded snow with buttons down the front "
+                                                       "(it faces sideways in this shot)."),
           ("D", "pk14g3", "Conquest", "Rough packed snow. Its pack also replaces the pumpkin head, but that needs "
                                       "MCPatcher random mobs, which is off in this pack, so the head is the block's.")]
 
@@ -58,11 +60,13 @@ def main():
           "Our own art. Grace's hotbar and Tarnished's boss bar, as you picked. Hearts, food, armour and air are "
           "individual icons again, drawn in the same style: an ink outline, a fine gold rim (dull bronze when empty) "
           "and a shaded body; red hearts, roast shanks with a bone, steel chestplates, glass bubbles under water. "
-          "The food row is full this time (the test had been lowering it). The three options differ only in the XP "
-          "bar, and the level number now belongs to it: vanilla draws the number lime and no texture can change "
-          "that, so a small client-only hook in qf-content redraws it in the pack's colour (no server part; without "
-          "the hook it stays lime). M: the offline mock, normal and just hit.",
-          "Which XP bar? Anything off in the icons?", hud)
+          "The food row is full this time (the test had been lowering it). Air bubbles only show under water, so they "
+          "are in the mock (M) but not in these shots. The three options differ only in the XP bar and its level "
+          "number. Vanilla draws that number lime and no texture can change it, so the coloured number in these shots "
+          "comes from a small client-only hook in qf-content (XpBarStyle.java) that redraws it in the pack's colour. "
+          "That hook is code, so it needs your yes to ship; without it the number stays lime whichever bar you pick. "
+          "M: the offline mock, normal and just hit.",
+          "Which XP bar? Ship the XP number hook (yes/no)? Anything off in the icons?", hud)
     if scenes and scenes[-1]["id"] == "pk-hud":
         mock = os.path.join(h11.CROPS, "pk-hud-mock.png")
         if os.path.exists(mock):
