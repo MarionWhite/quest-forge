@@ -68,3 +68,15 @@ Build (one per material):
      --stay-true "C:\qf-worldeference-packs\Stay True 1" --gems facet --gems-ctm facet --gem-mat <mat>
 Tile check (done for the a-build): ctm tile 26 gem-path share crystal/faithful 0.65, polished 1.00; albedo luma CV
 crystal 0.29/0.35 (diamond/emerald), faithful 0.21/0.25, vs r013 0.09.
+
+### session 2
+- 20:16 render 1031-194802-r014-gems-mat-a done; review_r014.py run -> C:/qfb/gems/r014/review/*.jpg + numbers.json.
+  Next: look at sheets, set close-up CROP boxes, judge, hand-off.
+- 20:22 judged (numbers C:/qfb/gems/r014/review/numbers.json): crystal + faithful beat r13 on every plastic measure;
+  polished DROPPED (coat measures = r13: low_share 0.67-0.70, sat_top3 0.15/0.21, white 0.072). Close crop boxes set
+  in review_r014.py (close_d/e 760,300,1440,810; close_lit 200,470,2160,970). Next: textures_make_scenes.py hand-off.
+- 20:30 HAND-OFF DONE: C:/qfb/shaderdev/r014/textures_make_scenes.py -> textures_scenes.json (gems-mat-diamond/emerald/
+  lit/close; A g14r13, B g14cry, C g14fai), crops C:/qfb/shaderdev/r014/crops/g14*.png (all checked: sheet
+  C:/qfb/gems/r014/review/handoff_crops.jpg), TEXTURES-READY touched. Next: track, journal, commit, push.
+- 20:35 track + journal updated. Next: commit (own files: ops/checkpoints/r014-textures.md, ops/tracks/textures.md,
+  ops/journal/textures.md), git log origin/main..main, push.
