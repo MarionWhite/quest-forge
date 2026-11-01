@@ -22,3 +22,17 @@ Work order: ops/checkpoints/r015-plan.md "Packs". Base/builders/traps: r014-pack
 - Next: `py -3.10 -I tools/renderq/renderq.py wait 1101-101607-textures-r015-packs`; check bench-pk15{a..e}-gui_hud.png
   in C:\qfb\shaderdev\rounds\screenshots: hotbar/bands ours, medallion behind the number (number recoloured), boss
   name outlined, boss frame drawn, food full, 7.5 hearts, no screen, chat clear. Then r015_packs_handoff.py.
+- Hand-off script written: tools/textures/r015_packs_handoff.py (scenes pk-hud [A-E + M mock], pk-hud-icons [A-E + M
+  icon cells], pk-hud-xp, pk-hud-boss; boxes ICON/XP/BOSS at GUI 6 on 2560x1440; it also regenerates the mock sheets
+  into C:\qfb\shaderdev\r015\packs\). Track + journal updated (render pending). Committed 84e7ad9 (+ ops follow-up).
+
+## RESUME (fresh agent)
+1. `py -3.10 -I tools/renderq/renderq.py wait 1101-101607-textures-r015-packs` (one blocking call; exit + checkpoint if
+   the ETA is over 10 min).
+2. Check bench-pk15{a,b,c,d,e}-gui_hud.png (C:\qfb\shaderdev\rounds\screenshots, newer than 10:16 on 11-01) as a
+   contact sheet / crops: hotbar + bands ours, medallion behind a recoloured number (not lime), boss name dark-outlined,
+   boss frame drawn round the bar, food 10 shanks, 7.5 hearts, armour 13, no screen open, chat clear of the hearts.
+   If the number is lime / no medallion / no outline: XpBarStyle did not load (log in %APPDATA%\.qf-trials\renderq\logs).
+3. `py -3.10 -I tools/textures/r015_packs_handoff.py` (dry), look at every crop in C:\qfb\shaderdev\r015\packs\
+   (nudge ICON_BOX/XP_BOX/BOSS_BOX if cut), then `--ready` (writes PACKS-READY).
+4. One journal line if anything changes; commit own hunks; `git log origin/main..main`; push.

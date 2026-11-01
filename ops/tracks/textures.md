@@ -10,10 +10,11 @@ Rewrite this file when the state changes; keep it under 2 KB.
   colour (sky 76-89 % of floor variation); B/C 18-36 %. Polished dropped. Flaw: 1-block repeat.
 - **r011 Stay True port** (`r011-stay-true.md`): leaf planes and weighted tall crops (qf-tweaks branch `leaf-frills`
   718473f, not merged). Open: leaves denser than the transparency the owner liked; keep or thin.
-- **r014 packs** (`r014-packs.md`): one HUD (`qf_hud_r014.py`, own art: grace hotbar, tarnished boss bar,
-  individual icons) x 3 XP bars; golem options Faithless/Soartex/Conquest. Render 1031-194643 reviewed;
-  medallion fix re-render 1031-201118 pending, then `r014_packs_handoff.py --ready`. Owner: ship the
-  XpBarStyle hook (client-only qf-content code) or the XP number stays lime. Settled: round 12's mob set.
+- **r015 packs** (`r015-packs.md`): five complete HUDs (`qf_hud_r015.py`, own art: gilded, cloisonne, ironbound,
+  moonsilver, obsidian; banded rows, medallion, boss frame, outlined boss name). XpBarStyle gained text.boss,
+  qf.boss.outline, qf.boss.frame (bench jar jars-r015). Render 1101-101607 pending, then `r015_packs_handoff.py
+  --ready`. Owner: ship XpBarStyle or the number stays lime and no medallion/boss frame/outline. Settled: round 12 mobs,
+  Conquest snow golem.
 - **Next:** owner's r014 gem pick (default it; break the repeat); then merge leaf-frills, set builder defaults, build QFTextures-v3; second item style.
 - **Owner likes:** Faithful 64x bricks, metals and leaves; Stay True wheat and tree leaves; Patrix mobs; VNR light;
   Soartex bookshelves; Faithless items, potions, books, GUI, TNT and boss bars.
