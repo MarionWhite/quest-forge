@@ -43,18 +43,17 @@ Scratch: C:/qfb/gems/r016. Hand-off C:/qfb/shaderdev/r016/textures_scenes.json +
   C:/qfb/shaderdev/r016/textures_make_scenes.py (4 scenes gems16-close/pillar/floor A-F + gems16-chisel A-C; --ready
   refuses until VERDICT has every (tag, view)). Queue: owner active, ETA ~16 min behind shader-r016 loop1 -> exit.
 
-## Next (resume here)
-Render `1101-155222-r016-gems-a`. Check `py -3.10 -I tools/renderq/renderq.py results 1101-155222-r016-gems-a`
-(or one blocking `renderq.py wait 1101-155222-r016-gems-a` if status ETA < 10 min).
-1. If g16chis/g16chmask failed to boot (Chisel deps?), read the boot log, fix mods list, resubmit -b with only those.
-2. `py -3.10 -I C:/qfb/gems/r016/tools/review_r016.py`; check mask-g16chmask-*.png are the gems only; view
-   review/gem15_*.jpg and 1:1 crops. Is each step good art (mud? grid? the 40->60 jump at the gem switch)? If a step
-   is bad, fix gems_look.slide / SLIDE_S, rebuild that pack, resubmit -b.
-3. Chisel: chisel_vs_calm numbers + diff-chisel-calm-*.png. Close view (lone blocks) should be ~0; pillar/floor near 0
-   if the CTM rule took; a frame on every block = CTM did not take on Chisel's renderer (RendererCTM) -> fallback:
-   ship the periodic face with no frame for the variant (seamless, no rim), or Chisel's own -ctm files (only seen at
-   registration; needs the pack active at startup). State plainly which.
-4. Fill VERDICT in C:/qfb/shaderdev/r016/textures_make_scenes.py (every (tag, view) for g16fro..g16calm + g16chis),
-   run it, view every crop in C:/qfb/shaderdev/r016/crops, rerun with --ready.
-5. ops/tracks/textures.md, one journal entry (ops/journal/textures.md), commit own files, git log origin/main..main,
-   push, report <= 5 lines.
+- 2026-11-01 evening (resumed): render landed (all 8 jobs, Chisel booted). review_r016.py run; sheets + 1:1 crops
+  read. Slider is bimodal: A-C (fro/s20/s40) frost getting richer (colour 0.39/0.50/0.59 close diamond, sparkles
+  ~6), D-F (s60/s80/calm) all read as calmed (sparkles 74-76, brightness 0.51 -> 0.38 at the C->D step). Cause: the
+  shader's gem path is a hard switch (smoothness > 224 and F0 > 25.5); no texture step can sit between. Path: a
+  gradual gem switch in the shader (shader-dev), only if the owner wants a look between C and D. No re-render.
+  Chisel: CTM took on Chisel's renderer: chisel_vs_calm mean |diff| 0.003-0.015, share > 0.1 0.1-3.5 % (floor
+  emerald, sparkle positions), no grid in diff-chisel-calm-*.png. Fallback not needed.
+  Sky options: not in this render (frozen r014 shader, opts {}); in the dev shader they are gated by golden hour
+  (sun under ~18 deg) / meteor nights, and gem15 views have the sun ~24 deg up: no effect on the gem light. At
+  sunset QF_SUN_WHITE's final shoulder could whiten a gem's sun glint (screen-wide, peak > 5).
+  VERDICT filled (21), textures_scenes.json written, TEXTURES-READY touched.
+
+## Done
+Hand-off C:/qfb/shaderdev/r016/textures_scenes.json + crops/ + TEXTURES-READY. Track and journal updated.
