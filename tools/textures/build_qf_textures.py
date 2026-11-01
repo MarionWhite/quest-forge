@@ -55,6 +55,15 @@ VERSION = "v1"
 VIBRANCE = 1.10            # chroma gain; 1.0 = unchanged ("keep vibrance modest")
 BLOCKS = "assets/minecraft/textures/blocks/"
 CTM = "assets/minecraft/mcpatcher/ctm/"
+# r016 (owner r015: "add the round 14 calmed as a chisel option"): Chisel 2 2.3.10.37's plain gem variants, read from the
+# jar (Features$24/$27 with javap: CarvableHelper.addVariation(desc, meta, texture); lang tile.diamond.6.desc "Simple
+# Diamond Block", tile.emerald.3.desc "Smooth Emerald"). Only the variant's existing texture names are overridden:
+# CarvableHelper picks a variant's kind (-top/-side/-ctm ...) from the files present when it registers.
+CHISEL_GEMS = {
+    "diamond_block": ("chisel:diamond_block", 6, ["assets/chisel/textures/blocks/diamond/terrain-diamond-simple-%s" % f
+                                                  for f in ("top", "side", "bottom")]),
+    "emerald_block": ("chisel:emerald_block", 3, ["assets/chisel/textures/blocks/emerald/smooth"]),
+}
 SKIP_PBR = re.compile(r"^destroy_stage_|_overlay$|^(fire_layer|portal)")
 COLOURS = ["white", "orange", "magenta", "light_blue", "yellow", "lime", "pink", "gray", "light_gray",
            "cyan", "purple", "blue", "brown", "green", "red", "black"]
@@ -239,16 +248,24 @@ def main():
                          "Patrix 32x's amethyst druse re-toned, with its facet _n and smooth-crystal/rough-gap _s; polished "
                          "= the same colour under one flat mirror table; faithful = Faithful 64x's face on a deeper ramp with "
                          "the crystal _n/_s. Reads Patrix from --patrix at build time (private: never commit the output)")
-    ap.add_argument("--gem-look", choices=("facets", "staytrue", "jewel", "calm", "frost"),
+    ap.add_argument("--gem-look", choices=("facets", "staytrue", "jewel", "calm", "frost", "slide20", "slide40", "slide60",
+                                           "slide80"),
                     help="r015 connected gem LOOKS for diamond and emerald (gems_look.py; needs --gems-ctm): facets = a "
                          "rhombus cut of big flat facets (Patrix's tilts), polished; staytrue = Stay True's art, no gem "
                          "reflection; jewel = a deep cut stone lit from inside, quiet surface; calm = r014 faithful with "
                          "the noise taken out; frost = Soartex Forever's frosted gems. Reads the reference packs at build "
-                         "time (private: never commit the output)")
+                         "time (private: never commit the output). slide20-80 (r016): steps from frost toward calm "
+                         "(gems_look.slide)")
+    ap.add_argument("--chisel-gems", choices=("facets", "staytrue", "jewel", "calm", "frost"),
+                    help="r016: the same LOOK on Chisel 2's plain gem variants (Simple Diamond Block, meta 6; Smooth "
+                         "Emerald, meta 3): their textures overridden, plus a 47-tile CTM rule by matchBlocks (CHISEL_GEMS; "
+                         "needs --gem-look). Texture only: no blocks, recipes or config")
     ap.add_argument("--patrix", default=r"C:\qf-world\reference-packs\Patrix 32x\Patrix_26.3_32x_basic.zip")
     a = ap.parse_args()
     if (a.gem_mat or a.gem_look) and not a.gems_ctm:
         sys.exit("--gem-mat and --gem-look need --gems-ctm")
+    if a.chisel_gems and not a.gem_look:
+        sys.exit("--chisel-gems needs --gem-look")
     if a.gems == "staytrue" and not a.stay_true:
         sys.exit("--gems staytrue reads Stay True: give --stay-true PATH")
     if a.stay_true and (a.wheat != "drawn" or a.leaves != "drawn"):
@@ -412,6 +429,7 @@ def main():
 
     ctm_blocks, ctm_s = {}, {}      # --gems-ctm: name -> (tile coordinate maps, bands); name -> the block's final _s
     gem_mat = {}                    # --gem-mat: name -> gems_mat.material() (block + ctm atlas, own _n and _s)
+    chisel_mat = {}                 # --chisel-gems: name -> gems_look.material() for Chisel's variant
     if a.gems_ctm:
         import gems_ctm
         for name, bands in gems_ctm.BLOCKS.items():
@@ -423,8 +441,10 @@ def main():
                 import gems_mat
                 if a.gem_look:
                     import gems_look
-                    gem_mat[name] = gems_look.material(name, a.gem_look, img, bands,
-                                                       dict(patrix=a.patrix, **({"stay_true": a.stay_true} if a.stay_true else {})))
+                    refs = dict(patrix=a.patrix, **({"stay_true": a.stay_true} if a.stay_true else {}))
+                    gem_mat[name] = gems_look.material(name, a.gem_look, img, bands, refs)
+                    if a.chisel_gems:
+                        chisel_mat[name] = gems_look.material(name, a.chisel_gems, img, bands, refs)
                 else:
                     gem_mat[name] = gems_mat.material(name, a.gem_mat, img, bands, a.patrix)
                 textures[BLOCKS + name + ".png"] = (gem_mat[name]["block"][0], None)
@@ -500,6 +520,24 @@ def main():
             if not a.no_pbr:
                 out.writestr(p + "_n.png", png(t_n))
                 out.writestr(p + "_s.png", png(t_s))
+    for name, mat in sorted(chisel_mat.items()):
+        block, meta, paths = CHISEL_GEMS[name]
+        for p in paths:
+            out.writestr(p + ".png", png(mat["block"][0]))
+            if not a.no_pbr:
+                out.writestr(p + "_n.png", png(mat["block"][1]))
+                out.writestr(p + "_s.png", png(mat["block"][2]))
+        d = CTM + "qf_chisel/%s_%d/" % (name, meta)
+        out.writestr(d + "%s_%d.properties" % (name, meta),
+                     "# r016: Chisel's %s meta %d in the %s gem look (build_qf_textures.py --chisel-gems)\n"
+                     "matchBlocks=%s\nmetadata=%d\nmethod=ctm\ntiles=0-46\nconnect=tile\nfaces=all\n"
+                     % (block, meta, a.chisel_gems, block, meta))
+        for i, (t_img, t_n, t_s) in mat["tiles"].items():
+            out.writestr(d + "%d.png" % i, png(t_img))
+            tally["ctm"] += 1
+            if not a.no_pbr:
+                out.writestr(d + "%d_n.png" % i, png(t_n))
+                out.writestr(d + "%d_s.png" % i, png(t_s))
     for name, (maps, bands) in sorted(ctm_blocks.items()):
         img = textures[BLOCKS + name + ".png"][0]
         tl = {i: img[mp[..., 0], mp[..., 1]] for i, mp in maps.items()}

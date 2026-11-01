@@ -260,22 +260,23 @@ def gem_display():
     return b
 
 
-def gem_gallery15():
+def gem_gallery15(ids=(57, 133), metas=(0, 0)):
     """{(x, y, z): (id, meta)} for --gems15 (r015, ops/checkpoints/r015-textures.md): the same gem at three distances in
     one light. Floors 16 long (x 232-247) flush in the grass, diamond z 181-185 and emerald z 187-191 (grass z 186
     between); a 3x3, 3-tall pillar on each floor's west end (x 232-234); a lone block of each on the grass east of the
-    floors (x 255; diamond z 185, emerald z 188). Views gem15_close / gem15_pillar / gem15_floor (views-r015-gems.txt)."""
+    floors (x 255; diamond z 185, emerald z 188). Views gem15_close / gem15_pillar / gem15_floor (views-r015-gems.txt).
+    r016 --chisel16 passes Chisel's variant ids and metas (diamond, emerald) for the same layout."""
     b = {}
-    for ident, z0 in ((57, 181), (133, 187)):
+    for ident, meta, z0 in ((ids[0], metas[0], 181), (ids[1], metas[1], 187)):
         for x in range(232, 248):
             for z in range(z0, z0 + 5):
-                b[(x, GROUND, z)] = (ident, 0)
+                b[(x, GROUND, z)] = (ident, meta)
         for y in range(GROUND + 1, GROUND + 4):
             for x in range(232, 235):
                 for z in range(z0 + 1, z0 + 4):
-                    b[(x, y, z)] = (ident, 0)
-    b[(255, GROUND + 1, 185)] = (57, 0)
-    b[(255, GROUND + 1, 188)] = (133, 0)
+                    b[(x, y, z)] = (ident, meta)
+    b[(255, GROUND + 1, 185)] = (ids[0], metas[0])
+    b[(255, GROUND + 1, 188)] = (ids[1], metas[1])
     return b
 
 
@@ -336,6 +337,9 @@ def main():
     ap.add_argument("--v1", action="store_true", help="also build the QF Textures v1 scenes (module docstring)")
     ap.add_argument("--gems", action="store_true", help="also build the r012 gem display (module docstring)")
     ap.add_argument("--gems15", action="store_true", help="r015: the gem gallery instead (gem_gallery15)")
+    ap.add_argument("--chisel16", action="store_true",
+                    help="r016: the --gems15 gallery in Chisel's Simple Diamond Block (meta 6) and Smooth Emerald (meta 3), "
+                         "ids from the world's registry (build_qf_textures.py CHISEL_GEMS)")
     a = ap.parse_args()
     if os.path.abspath(a.src) == os.path.abspath(a.dst):
         sys.exit("--dst must differ from --src")
@@ -357,7 +361,12 @@ def main():
         print("modded wall: %d of %d blocks placed" % (sum(1 for k in extra if k[1] > 68), len(entries)))
         if missing:
             print("  not in this world's registry, skipped: " + ", ".join(missing))
-    if a.gems15:
+    if a.chisel16:
+        ids = registry_ids(a.dst)
+        place.update(gem_gallery15((ids["chisel:diamond_block"], ids["chisel:emerald_block"]), (6, 3)))
+        print("chisel gallery: chisel:diamond_block %d meta 6, chisel:emerald_block %d meta 3"
+              % (ids["chisel:diamond_block"], ids["chisel:emerald_block"]))
+    elif a.gems15:
         place.update(gem_gallery15())
     elif a.gems:
         place.update(gem_display())

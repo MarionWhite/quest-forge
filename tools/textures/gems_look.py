@@ -311,7 +311,7 @@ def jewel(name, base, bands, refs):
 
 
 # --- calm -----------------------------------------------------------------------------------------------------------
-def calm(name, base, bands, refs):
+def _calm_parts(name, base, bands, refs):
     from scipy.ndimage import gaussian_filter
     mat = gems_mat.material(name, "faithful", base, bands, refs["patrix"])
     img, an, as_ = mat["atlas"]
@@ -324,12 +324,16 @@ def calm(name, base, bands, refs):
     fn = n_png(vx, vy)
     fs = s_png(240, 34)
     bimg = gems_mat._block_from_face(mat["block"][0], face, bands)
-    block = (bimg, frame_normals(fn, bands), fs.copy())
-    return connect(block, (face, fn, fs), bands, frame_s=(240, 34, 0, 255))
+    return dict(block=(bimg, frame_normals(fn, bands), fs.copy()), face=(face, fn, fs), bands=bands, s=(240, 34))
+
+
+def calm(name, base, bands, refs):
+    p = _calm_parts(name, base, bands, refs)
+    return connect(p["block"], p["face"], p["bands"], frame_s=p["s"] + (0, 255))
 
 
 # --- frost ----------------------------------------------------------------------------------------------------------
-def frost(name, base, bands, refs):
+def _frost_parts(name, base, bands, refs):
     z = zipfile.ZipFile(refs["soartex"])
     img = _png(z, "assets/minecraft/textures/block/%s.png" % name)[:N]
     assert img.shape[:2] == (N, N), img.shape
@@ -342,13 +346,67 @@ def frost(name, base, bands, refs):
     face[..., :3] = np.clip(np.round(f - lo + f.reshape(-1, 3).mean(0)), 0, 255).astype(np.uint8)
     flat = n_png(np.zeros((N, N)), np.zeros((N, N)))
     s = s_png(140, 10)
-    block = (img, frame_normals(flat, (2, 2, 2, 2)), s)
-    return connect(block, (face, flat, s), b, bevel=False, frame_s=(140, 10, 0, 255))
+    return dict(block=(img, frame_normals(flat, (2, 2, 2, 2)), s), face=(face, flat, s), bands=b, s=(140, 10))
+
+
+def frost(name, base, bands, refs):
+    p = _frost_parts(name, base, bands, refs)
+    return connect(p["block"], p["face"], p["bands"], bevel=False, frame_s=p["s"] + (0, 255))
+
+
+# --- the frost -> calm slider (r016) --------------------------------------------------------------------------------
+# Owner r015 (gems15-close, picked E): "imagine a slider between the frost and the round 14 calmed, and begin sliding
+# from the frost towards that one". Step t (0 = frost, 1 = calm) moves every axis that tells the two apart together:
+#   colour   the face's mean colour, frost's pale ice -> calm's deep gem ramp (t)
+#   pattern  the two faces' detail (each minus its mean) crossfaded by t, then rescaled to the contrast interpolated
+#            between the two (a plain crossfade of two unrelated patterns loses ~30 % of its contrast: mud)
+#   relief   calm's softened crystal normals, scaled by t (frost is flat)
+#   gloss    smoothness / F0 per step (SLIDE_S). The shader's gem path is a switch (smoothness > 224 and F0 > 25.5:
+#            body light x0.4, light from inside, real-scene reflection); below it a plain sky sheen. Steps 1-2 stay
+#            under it, 3-4 are over it, so the slider shows both sides of that switch.
+# Both faces are 64-periodic, so every blend is too: each step connects exactly as its ends do (frost's 6-px bands).
+SLIDE_S = {20: (170, 14), 40: (205, 18), 60: (228, 27), 80: (234, 30)}
+SLIDE = tuple("slide%d" % k for k in SLIDE_S)
+
+
+def _nv(n):
+    return n[..., 0].astype(np.float64) / 127.5 - 1.0, n[..., 1].astype(np.float64) / 127.5 - 1.0
+
+
+def slide(name, base, bands, refs, pct):
+    t = pct / 100.0
+    fr, ca = _frost_parts(name, base, bands, refs), _calm_parts(name, base, bands, refs)
+    b = tuple(max(x, y) for x, y in zip(fr["bands"], ca["bands"]))
+    Ff, Cf = fr["face"][0][..., :3].astype(np.float64), ca["face"][0][..., :3].astype(np.float64)
+    mF, mC = Ff.reshape(-1, 3).mean(0), Cf.reshape(-1, 3).mean(0)
+    sd = lambda a: lum(a).std()
+    d = (1 - t) * (Ff - mF) + t * (Cf - mC)
+    k = ((1 - t) * sd(Ff - mF) + t * sd(Cf - mC)) / max(sd(d), 1e-6)
+    m = (1 - t) * mF + t * mC
+
+    def mix(fa, ca_):
+        o = fa.copy()
+        dd = (1 - t) * (fa[..., :3].astype(np.float64) - mF) + t * (ca_[..., :3].astype(np.float64) - mC)
+        o[..., :3] = np.clip(np.round(m + k * dd), 0, 255).astype(np.uint8)
+        o[..., 3] = 255
+        return o
+
+    def nmix(na, nb):
+        ax, ay = _nv(na)
+        bx, by = _nv(nb)
+        return n_png((1 - t) * ax + t * bx, (1 - t) * ay + t * by)
+    sm, f0 = SLIDE_S[pct]
+    s = s_png(sm, f0)
+    face = (mix(fr["face"][0], ca["face"][0]), nmix(fr["face"][1], ca["face"][1]), s)
+    block = (mix(fr["block"][0], ca["block"][0]), nmix(fr["block"][1], ca["block"][1]), s.copy())
+    return connect(block, face, b, bevel=False, frame_s=(sm, f0, 0, 255))
 
 
 def material(name, look, base, bands, refs=None):
     """-> dict(block=(img, _n, _s), tiles={i: (img, _n, _s)}) for one gem block and look (module docstring)."""
     refs = dict(dict(patrix=PATRIX, stay_true=STAY_TRUE, soartex=SOARTEX), **(refs or {}))
+    if look.startswith("slide"):
+        return slide(name, base, bands, refs, int(look[5:]))
     return {"facets": facets, "staytrue": staytrue, "jewel": jewel, "calm": calm, "frost": frost}[look](
         name, base, bands, refs)
 
