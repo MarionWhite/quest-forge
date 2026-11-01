@@ -689,10 +689,10 @@ vec3 phStarCell(vec2 coord, float thr) {
     vec4 n = phHash4(coord);
     float star = clamp((n.x - thr) / (1.0 - thr), 0.0, 1.0);
     star *= star; star *= star; star *= star; star *= star;   // pow16
-    return star * phBlackbody(mix(4500.0, 8500.0, n.y));
+    return star * phBlackbody(mix(5200.0, 11000.0, n.y));   // loop 2: 4500-8500 K read yellow-green after our grade; the photos' field is blue-white
 }
 vec3 phStars(vec3 dir, float thr) {
-    vec2 coord = dir.xz / (abs(dir.y) + length(dir.xz)) * 600.0 + 41.21;
+    vec2 coord = dir.xz / (abs(dir.y) + length(dir.xz)) * 1000.0 + 41.21;   // loop 2: 600 drew 3-4 px blobs at 1440p
     coord = abs(coord) + 33.3;
     vec2 i = floor(coord), f = fract(coord);
     f = f * f * (3.0 - 2.0 * f);
@@ -756,9 +756,9 @@ vec3 nightSkyTexture(vec3 dir) {
         // reaches lower, and Photon's dense faint field fills it, thickest along the Milky Way (its threshold
         // drops with the band's brightness), each star a blackbody colour from 4500 to 8500 K.
         if (v == 4) {
-            L += vec3(0.07, 0.12, 0.38) * MOON_I * 0.010 * smoothstep(-0.02, 0.45, dir.y) * moonWash;
-            float thr = 1.0 - 0.050 - 0.5 * band * band * band;
-            L += phStars(dir, thr) * SUN_I * 0.012 * mix(0.5, 1.0, moonWash) * smoothstep(-0.02, 0.08, dir.y);
+            L += vec3(0.06, 0.11, 0.40) * MOON_I * 0.016 * smoothstep(-0.02, 0.45, dir.y) * moonWash;   // loop 2: 0.010 left the sky near black (median luma 7.7; photo 58)
+            float thr = 1.0 - 0.030 - 0.5 * band * band * band;
+            L += phStars(dir, thr) * SUN_I * 0.020 * mix(0.5, 1.0, moonWash) * smoothstep(-0.02, 0.08, dir.y);
         }
 #endif
 #else
@@ -972,7 +972,7 @@ float cloudThreshold() {
 #if QF_METEOR_SKY > 0
     // r015: a meteor-shower night is a clear one (critic p14clipm: "ours cross heavy dark cloud, so most of the
     // shower is hidden"): 1 fewer clouds, 2 few.
-    float clear = nightVariant() == 4 ? (QF_METEOR_SKY == 2 ? 0.16 : 0.08) * cloudNight() : 0.0;
+    float clear = nightVariant() == 4 ? (QF_METEOR_SKY == 2 ? 0.16 : 0.10) * cloudNight() : 0.0;
     return mix(mix(0.52, 0.45, day) + 0.07 * cloudNight() + clear + QF_CLOUD_COVER, 0.33, rainStrength);
 #else
     return mix(mix(0.52, 0.45, day) + 0.07 * cloudNight() + QF_CLOUD_COVER, 0.33, rainStrength);
@@ -1114,11 +1114,13 @@ vec3 cloudLum(CloudLight c, float od, float h, float mu, float dens) {
         // r015 (critic p14 shore_sunset: "the shift went past the rims to all the light on the clouds: the share of
         // the sky that is strongly gold rose from 32 % to 56 %, the big left cloud's shadow side is mustard
         // (158,116,46) ... keep the gold on the sunlit rims and let the cloud shadow sides ... stay darker and
-        // cooler, as BSL's do"). The gold shift now follows how much sun reaches the point (exp(-od): the sides
-        // the sun lights take it all, a body deep in its own shadow none), and the deep, shadowed light, which is
-        // multiple scattering of the reddened sun, dims and cools toward the blue sky that fills a real shadow.
-        float sunlit = exp(-od * 0.6);
-        s *= mix(vec3(1.0), vec3(0.84, 1.18, 0.48), lo * sunlit) * mix(vec3(1.0), vec3(0.70, 0.76, 0.92), lo * (1.0 - sunlit));
+        // cooler, as BSL's do"). Loop 1 (the gold only where exp(-0.6 od) is high) put r013's coral back on every
+        // lit side: od toward the sun is 7-25 a few blocks in, so almost nothing counted as sunlit. Now the gold
+        // stays on all the sunlight (r014's amber rims) and the part of a cloud deep in its own shadow (od past ~10)
+        // drains toward a darker, cool grey, the colour of a real shadow side lit by the blue sky above it.
+        s *= mix(vec3(1.0), vec3(0.84, 1.18, 0.48), lo);
+        float shadeK = lo * (1.0 - exp(-od * 0.08)) * (QF_DUSK_SKY == 2 ? 0.85 : 0.70);
+        s = mix(s, luminance(s) * vec3(0.80, 0.84, 1.0) * 0.62, shadeK);
 #else
         s *= mix(vec3(1.0), vec3(0.84, 1.18, 0.48), lo);
 #endif
@@ -1133,12 +1135,7 @@ vec3 cloudLum(CloudLight c, float od, float h, float mu, float dens) {
     {
         float sy = sunDirWorld().y;
         float lo = smoothstep(0.125, 0.035, sy) * smoothstep(-0.07, -0.01, sy);
-#if QF_DUSK_SKY > 0
-        // r015: the bases lit by the far horizon sky are shade, not sunlight: cooler and darker, not gold.
-        return s + c.top * mix(0.35, 1.0, h) + c.under * (1.0 - h) * (1.0 - h) * mix(vec3(1.0), vec3(0.74, 0.80, 0.96), lo);
-#else
         return s + c.top * mix(0.35, 1.0, h) + c.under * (1.0 - h) * (1.0 - h) * mix(vec3(1.0), vec3(0.84, 1.18, 0.48), lo);
-#endif
     }
 #endif
     return s + c.top * mix(0.35, 1.0, h) + c.under * (1.0 - h) * (1.0 - h);

@@ -108,9 +108,10 @@ vec3 phSunTintX(float sy, bool mie) {
   #if QF_SUN_GOLD_LOW == 3 && QF_DUSK_SKY > 0
     // r015 (critic p14 shore_sunset: "the zenith stays grey-mauve (115,107,95), not blue. BSL's same view is darker
     // and quieter (sky mean 118,85,62 against ours 153,114,66)"): the blue cut on the Rayleigh sky took the blue out
-    // of the whole open sky, not just the glow. The glow (Mie) keeps its gold; the open sky keeps its blue and dims
-    // (1 to 86-92 %, 2 to 72-88 %, bluer), so the gold stays round the sun and on the lit cloud sides.
-    me *= mix(vec3(1.0), mie ? vec3(0.96, 1.10, 0.72) : (QF_DUSK_SKY == 2 ? vec3(0.72, 0.76, 0.88) : vec3(0.86, 0.88, 0.92)), lo);
+    // of the whole open sky, not just the glow. The glow (Mie) keeps its gold; the open sky keeps more blue (loop 1,
+    // 0.86/0.88/0.92, turned the sky mauve: the open sky's red is the gold haze, not the Rayleigh sky): 1 a smaller
+    // cut (blue 0.90 for r014's 0.80), 2 none and dimmer.
+    me *= mix(vec3(1.0), mie ? vec3(0.96, 1.10, 0.72) : (QF_DUSK_SKY == 2 ? vec3(0.88, 0.94, 0.98) : vec3(0.95, 1.0, 0.90)), lo);
   #elif QF_SUN_GOLD_LOW == 3
     me *= mix(vec3(1.0), mie ? vec3(0.96, 1.10, 0.72) : vec3(1.0, 1.05, 0.80), lo);
   #else
