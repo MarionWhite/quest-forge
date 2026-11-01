@@ -25,7 +25,7 @@ XP = [("A", "pk14h1", "Thread", "A gold hairline bar whose fill brightens toward
                                   "pointed ends) at the bar's centre.")]
 XP_BOX = (1000, 1170, 1560, 1290)     # the level number and the middle of the XP bar, GUI scale 6 on 2560 x 1440
 ICON_BOX = (700, 1120, 1860, 1260)    # armour, hearts, food rows
-MOB_BOX = (700, 400, 1860, 1020)      # hall view 6: snow golem, iron golem, bat (r013_packs_handoff.MOB_BOX)
+MOB_BOX = (700, 400, 1480, 1020)      # hall view 6: snow golem and iron golem (left two thirds; the critic: view 5 mobs half cut at the right)
 GOLEMS = [("A", "pk14a", "Round 12 set (your pick): Patrix", "Patrix's snow golem: near-vanilla white snow with "
                                                               "coal buttons, which is why it read as default."),
           ("B", "pk14g1", "Faithless", "Red scarf and hat band (round 13's B; it faces "
