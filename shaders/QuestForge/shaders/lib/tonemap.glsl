@@ -34,6 +34,9 @@ vec3 tonemapNeutralW(vec3 color, vec3 W) {
     float newPeak = 1.0 - d * d / (peak + d - startCompression);
     color *= newPeak / peak;
     float g = 1.0 - 1.0 / (desaturation * (peak - newPeak) + 1.0);
+    // Loop 4: toward the warm white everywhere, the sun's own core (peak ~40) burnt cream and lost its white-hot
+    // centre. Cloud rims and glitter peak at 1-6; past that the shoulder goes back to white.
+    W = mix(W, vec3(1.0), smoothstep(6.0, 20.0, peak));
     return mix(color, newPeak * W, g);
 }
 

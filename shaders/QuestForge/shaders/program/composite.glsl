@@ -811,7 +811,7 @@ vec3 shadeWaterAbove(vec3 color, vec3 n, float var, vec3 scene0, float dist0, ve
     // so the gold horizon leads through the middle distance and fades out toward the camera (grazeK).
     {
         vec3 Lh2 = normalize(vec3(L.x, 0.0, L.z) + vec3(1e-5, 0.0, 0.0));
-        vec3 glow2 = skyScatter(normalize(Lh2 + vec3(0.0, 0.10, 0.0)));
+        vec3 glow2 = skyScatter(normalize(Lh2 + vec3(0.0, 0.03, 0.0)));   // loop 4: 6 deg up was yellow, the sea read khaki (104,86,45); the band 2 deg up is the orange-gold
         vec3 hue2 = glow2 / max(luminance(glow2), 1e-6);
         refl = mix(refl, luminance(refl) * hue2, min(0.95 * grazeK, 1.0));   // loop 3: 0.75
     }
