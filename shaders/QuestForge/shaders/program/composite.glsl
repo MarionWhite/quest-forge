@@ -780,14 +780,16 @@ vec3 shadeWaterAbove(vec3 color, vec3 n, float var, vec3 scene0, float dist0, ve
     vec3 R = reflect(viewDir, normalize(mix(n, vec3(0.0, 1.0, 0.0), 0.45 * goldenHour())));
 #elif QF_SEA_GRAZE > 0
     // r014 (critic r013 ocean_sunset: "let the reflected gold horizon lead at grazing angles in the middle
-    // distance, as BSL's does"). BSL fades its water normals with the view's grazing term (normalStrength
-    // 0.35 x (1 - pow(1 - cos, 8)), gbuffers_water), so its far sea mirrors the sky a few degrees up: the
-    // gold band. Ours kept the full wave slope out to the horizon and every facet tipped toward it showed
-    // the grey sky 20-30 degrees up (r/b 1.3 against the band's 1.9). At golden hour the reflection now
-    // reads a surface that calms toward the horizon by BSL's term; near the camera the waves stay.
-    float grazeK = pow(1.0 - clamp(-viewDir.y, 0.0, 1.0), 8.0) * goldenHour();
-    vec3 nG = normalize(mix(n, vec3(0.0, 1.0, 0.0), grazeK));
-    vec3 R = reflect(viewDir, nG);
+    // distance, as BSL's does"). Loop 1 (BSL's normal fade alone): no change, the middle sea already mirrors
+    // a near-flat surface; it shows our sky 10-15 degrees up, which is pale (181,159,129, r/b 1.4) where
+    // BSL's is amber, and only the band under 6 degrees is gold (r/b 1.9-2.0). At a grazing view the facets
+    // that tip away from the eye (which mirror the low sky) carry the most Fresnel and hide the ones that
+    // tip toward it (which mirror the sky higher up), so what the eye averages leans to the horizon. At
+    // golden hour the mirrored direction is pulled toward the horizon by that weighting (to 0.35 of its
+    // elevation at the horizon, none by 30 degrees down), so the far and middle sea carry the gold band.
+    float grazeK = goldenHour() * (1.0 - smoothstep(0.04, 0.50, -viewDir.y));
+    vec3 R = reflect(viewDir, n);
+    R = normalize(vec3(R.x, abs(R.y) * mix(1.0, 0.35, grazeK), R.z));
 #else
     vec3 R = reflect(viewDir, n);
 #endif
@@ -833,16 +835,14 @@ vec3 shadeWaterAbove(vec3 color, vec3 n, float var, vec3 scene0, float dist0, ve
     fAvg = mix(fAvg, 0.7, waterCalmShare());   // r008: no dark/bright facet flipping on the lake
 #endif
     F = mix(F, fresnelWater(clamp(-viewDir.y, 0.0, 1.0)), fAvg);
-#if QF_SEA_GRAZE > 0 && QF_SEA_GOLD != 2
-    // r014: the calmer far surface's Fresnel goes with its reflection (BSL takes both off the faded normal).
-    F = mix(F, fresnelWater(clamp(dot(nG, -viewDir), 0.0, 1.0)), grazeK);
-#if QF_SEA_GRAZE == 2
-    // r014 option 2: BSL's water body is a translucent layer whose alpha goes to the reflection with the
-    // Fresnel (albedo.a = mix(a, 1, F)), so at grazing views what shows through all but vanishes. Ours
-    // still carried the body's grey-olive scatter under the mirrored band. At golden hour the body fades
-    // with the grazing term (to a third at the horizon), so the gold the sea mirrors leads.
-    refracted *= 1.0 - 0.65 * grazeK;
-#endif
+#if QF_SEA_GRAZE == 2 && QF_SEA_GOLD == 1
+    // r014 option 2 (critic r013: ocean_sunset's body scatter 29,31,39 is a third of the middle sea's light and
+    // grey-blue; shore_sunset's near water "dark olive-brown (36,26,10), which reads as mud rather than a
+    // reflection"; debug 13: what comes through the surface there is 31,26,7). BSL's body is a translucent layer
+    // whose alpha goes to the reflection with the Fresnel and is near black at sunset (near water 23,22,17). At
+    // golden hour what comes up through the surface drops to 0.4 and keeps only a trace of the glow's hue, so the
+    // water is the reflection over a dark body, not a lit brown volume.
+    refracted *= mix(vec3(1.0), vec3(0.40, 0.38, 0.40), goldenHour());
 #endif
 #if QF_LAKE_CALM == 1
     // Loop 3 (critic uh lake_glitter 8: the near water reads dark teal-green where CR and BSL carry

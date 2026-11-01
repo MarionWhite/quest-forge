@@ -1022,15 +1022,6 @@ vec3 cloudLum(CloudLight c, float od, float h, float mu, float dens) {
     // Powder: the sunward side of a thick body is darker than its thin edges.
     float powder = 1.0 - 0.7 * exp(-od * 0.9 - dens * 2.0);
     s *= mix(1.0, powder, 0.75) / (4.0 * PI) * 2.2;
-#if QF_RIM_GOLD > 0
-    // r014 (critic r013 shore_sunset: "the gold shift reached the mid-tones (cloud blue/green 0.77 to 0.59)
-    // but not the lit edges ... give the sunlit cloud edges the same shift, so the rims go amber, not
-    // coral"). Toward the sun the forward lobe lights the cloud far past white, and the tone curve's
-    // shoulder pulls a blown colour toward grey: red-orange plus grey is coral. The light those edges
-    // scatter takes a gold shift (green held, blue cut) at golden hour, strongest toward the sun.
-    vec3 rimGold = mix(vec3(1.0), vec3(1.0, 1.04, 0.52), goldenHour());
-    s *= mix(vec3(1.0), rimGold, smoothstep(0.55, 0.97, mu));
-#endif
     // Golden hour: the near-level sun slips under the deck and lights the bases and lower sides.
     s += c.E * (goldenHour() * 0.16 * exp(-od * 0.6) * (1.0 - h));   // loop 4: 0.22, exp(-od*0.25) lit whole bases cream (forest_golden wash); only the thin sunward bases now
 #if QF_CLOUD_RIM == 1
@@ -1050,12 +1041,22 @@ vec3 cloudLum(CloudLight c, float od, float h, float mu, float dens) {
         // behind them while the thick bodies stay dark.
         s += c.E * fringe * (c.rim * 0.09 * (0.6 + 1.4 * gh) + 0.30 * gh);   // c.rim capped at 320 (cloudMarch)
 #else
-#if QF_RIM_GOLD > 0
-        s += c.E * fringe * (c.rim * 0.045 * (0.6 + 1.4 * gh) + 0.30 * gh) * mix(vec3(1.0), vec3(1.0, 1.04, 0.52), gh);
-#else
         s += c.E * fringe * (c.rim * 0.045 * (0.6 + 1.4 * gh) + 0.30 * gh);
 #endif
+    }
 #endif
+#if QF_RIM_GOLD > 0
+    // r014 (critic r013 shore_sunset: "the bright cloud rims, the first thing the eye reads, are still salmon:
+    // the brightest 5 % of the sky is 250,152,108 ... give the sunlit cloud edges the same shift, so the rims go
+    // amber, not coral"). Loop 1: a shift only toward the sun (mu) changed nothing there, the coral clouds stand
+    // far round from a 2-deg sun. The sunlight a deck catches under 7 deg has lost its green (E x the golden-hour
+    // tint 1.18, 0.86, 0.56 is red-orange), and its lit sides blow past white, where the tone curve adds grey:
+    // coral. All the sunlit cloud light (body, bases, fringes) now takes a gold shift under 7 deg (green up,
+    // blue cut), the same band as QF_SUN_GOLD_LOW, so ocean_sunset (9 deg) and golden hour higher up keep r013's.
+    {
+        float sy = sunDirWorld().y;
+        float lo = smoothstep(0.125, 0.035, sy) * smoothstep(-0.07, -0.01, sy);
+        s *= mix(vec3(1.0), vec3(0.92, 1.10, 0.50), lo);
     }
 #endif
     // At night, only thin edges carry moonlight: the bodies stay dark (no glow).

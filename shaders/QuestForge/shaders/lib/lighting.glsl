@@ -167,22 +167,25 @@ vec3 gemInnerLight(vec3 albedo, vec3 n, vec3 viewDir, vec3 L, vec3 E, float shad
     if (a.y >= a.x && a.y >= a.z) { nf = vec3(0.0, sign(n.y), 0.0); U = vec3(1.0, 0.0, 0.0); V = vec3(0.0, 0.0, 1.0); uv2 = worldPos.xz; }
     else if (a.x >= a.z)          { nf = vec3(sign(n.x), 0.0, 0.0); U = vec3(0.0, 0.0, 1.0); V = vec3(0.0, 1.0, 0.0); uv2 = worldPos.zy; }
     else                          { nf = vec3(0.0, 0.0, sign(n.z)); U = vec3(1.0, 0.0, 0.0); V = vec3(0.0, 1.0, 0.0); uv2 = worldPos.xy; }
-    // Facet cells, 6 a block (world-anchored, so they hold still as you move and flash as the angle changes).
-    vec2 cell = floor(uv2 * 6.0 + 1e-3);
+    // Facet cells, 4 a block (world-anchored, so they hold still as you move and flash as the angle changes;
+    // loop 1's 6 read as a pixel mosaic). Option 2 has none: the inner facets are the normal map's own, so a
+    // pack that draws its facets (the textures track's crystal) keeps them.
+    vec2 cell = floor(uv2 * 4.0 + 1e-3);
     float h1 = hash12(cell + nf.xz * 17.0 + nf.y * 31.0);
     float h2 = hash12(cell * 1.37 + 5.3 + nf.y * 7.0);
     float h3 = hash12(cell * 0.71 + 9.1);
     float ang = h1 * 6.2832;
     vec2 tc = vec2(cos(ang), sin(ang)) * mix(0.30, 0.75, h2);
+#if QF_GEM_LOOK == 2
+    vec3 nI = normalize(nf + (n - nf * dot(n, nf)) * 4.0);
+#else
     vec3 nI = normalize(nf + (n - nf * dot(n, nf)) * 3.0 + U * tc.x + V * tc.y);
+#endif
     vec3 Ri = reflect(viewDir, nI);   // the way the light that leaves this facet came in
     // The stone's colour over a longer path: the texture colour normalised and squared (deeper, purer).
     float mx = max(albedo.r, max(albedo.g, albedo.b));
     vec3 tint = albedo / max(mx, 1e-4);
     tint *= tint * mx;
-#if QF_GEM_LOOK == 2
-    tint *= tint / max(max(tint.r, max(tint.g, tint.b)), 1e-4);
-#endif
     vec3 Ru = normalize(vec3(Ri.x, max(Ri.y, 0.02), Ri.z));
     vec3 env = skyScatter(Ru) * smoothstep(-0.25, 0.12, Ri.y);   // facets that look down see the dark ground
     vec3 inner = env * tint * (1.0 - Fe) * sky * ao * 1.6;
@@ -393,6 +396,15 @@ vec3 shadeSurface(Surface s, vec3 viewDir, vec2 pixel) {
         // r013: a gem's sun glint comes off the same cut facets its reflection uses (composite), so a
         // facet flashes as a whole instead of every block showing the same dome highlight.
         if (s.smoothness > 0.88 && s.f0 > 0.1) nSp = gemFacetNormal(s.normal, s.scenePos + cameraPosition);
+#if QF_GEM_LOOK > 0
+        // r014 (critic g13c: "the sun's glints are short white dashes, all slanting the same way ... read as rain on
+        // ice or scratches"): they were the sun off the normal map's bevels. The polished surface now mirrors the
+        // sun off its flat face (one sharp sun image at the mirror angle); the facets flash from inside (gemInnerLight).
+        if (s.smoothness > 0.88 && s.f0 > 0.1) {
+            vec3 an = abs(s.normal);
+            nSp = an.y >= an.x && an.y >= an.z ? vec3(0.0, sign(s.normal.y), 0.0) : (an.x >= an.z ? vec3(sign(s.normal.x), 0.0, 0.0) : vec3(0.0, 0.0, sign(s.normal.z)));
+        }
+#endif
 #endif
         float NdotV = max(dot(nSp, V), 0.02);
         vec3 F = fresnelSchlick(max(dot(H, V), 0.0), f0v);
@@ -407,8 +419,8 @@ vec3 shadeSurface(Surface s, vec3 viewDir, vec2 pixel) {
         // its diffuse gives way to that reflection.
 #if QF_GEM_LOOK > 0
         if (s.smoothness > 0.88 && s.f0 > 0.1) {
-            // r014: the matte body light drops (half, option 2 a quarter) and the light from inside the stone leads.
-            color *= (1.0 - Fe.x) * (QF_GEM_LOOK == 2 ? 0.25 : 0.5);
+            // r014: the matte body light drops to 0.4 (loop 1: 0.5 / 0.25) and the light from inside the stone leads.
+            color *= (1.0 - Fe.x) * 0.4;
             color += gemInnerLight(s.albedo, s.normal, viewDir, L, E, shadow, sky, ao, s.scenePos + cameraPosition, Fe.x);
         }
 #else
