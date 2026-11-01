@@ -1,5 +1,13 @@
 # Shaders journal (newest first)
 
+- 2026-10-31 21:58: **r014 shader scenes handed off** (SHADERS-READY; 6 shader scenes, dry run 14 with textures).
+  Cost 1031-204537 clean (no noisy steps, no magenta, frames from the new run). High sea sunset 3.56 (r013 3.52, graze
+  +0.03-0.04), shore 2.87 (2.84), Low ocean_sunset 0.95 (0.92); meteors wide view 2.98 = r013, cull saves 0.02, still
+  0.04 over r012's 2.94. Sea mid r/b 1.26 -> 2.02 (BSL 2.03). Loop 6: halo core x2/x4 moved the glow 6 levels or less,
+  so QF_SUN_HALO stays off and the scene says the glow is the sky haze's. Gems: on r013's texture the dark bevel lines
+  stay (scene text corrected); faithful shot with GEM_LOOK 2 (1031-214418, g14fai2) added; textures_scenes.json and its
+  generator corrected (they said GEM_LOOK was off by default).
+
 - 2026-10-31 21:25: **r014 shader work, publish cost queued** (1031-204537-r014-publish-cost). Critic r013 notes as the
   work order. Sea: BSL's normal fade did nothing (the middle sea mirrors our pale sky 10-15 deg up); the mirrored
   elevation now leans to the horizon at grazing golden-hour views, takes the 2-deg band's hue, body x0.4: middle sea

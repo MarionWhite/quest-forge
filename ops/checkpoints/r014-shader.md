@@ -108,3 +108,19 @@ channels still not read. Shown on QF-gems-crystal/polished/faithful in loop 2a (
 5. Dry run: `py -3.10 -I tools/shaders/review/finish_round.py` with --allow-missing-critic per r013 (see r013 checkpoint),
    fix any text a number contradicts, then touch C:\qfb\shaderdev\r014\SHADERS-READY, update ops/tracks/shaders.md
    (round state line), one journal entry, commit own hunks, check `git log origin/main..main` before any push.
+
+## Session 3 (21:42, resume)
+- Cost run 1031-204537 + loop 6 done; all userbusy noisy false; frames 21:03-21:40 (new run). No magenta (sheets
+  r014\sheets\f_sea.jpg, f_crops.jpg, f_gems.jpg, f_gemzoom.jpg).
+- Loop 6 halo: r14hb1/hb2 within 6 luma of r14vcc at every radius -> glow does not move. QF_SUN_HALO stays 0;
+  sun-glow B text must say plainly the glow is the sky haze's (Photon haze forward lobe) and the halo tries did not move it.
+- Gems: g14c vs g14c0 (r13 pack): white dashes fainter, dark slanted bevel lines remain -> text "dashes gone" is false,
+  fix. textures_scenes.json says QF_GEM_LOOK "off by default so far" -> false (default 2): correct that sentence and
+  show faithful + crystal with LOOK 2 in the shader gems scene. Submitted **1031-214418-r014-gemfai** (shots,
+  g14fai2 / g14fai0, new tags, not the textures agent's g14fai).
+- 21:58 DONE. Costs: sea 3.56 (r13 3.52), shore 2.87 (2.84), Low os 0.95 (0.92), meteors 2.98 (= r13; cull -0.02;
+  r12 2.94). Sea final frames mid r/b 1.26 -> 2.02. spec_scenes.py: intro states Low over; sun-glow says glow is haze
+  and did not move (notePrompt asks about re-tuning the haze in r15); meteors no longer claims r12's cost; gems text
+  corrected + faithful LOOK 2 (g14fai2, noCost shot) + new gems-diamond scene. round.json base g14cry2/g14cry0 ->
+  g14coff, renders += 1031-214418-r014-gemfai. textures_scenes.json + textures_make_scenes.py SHADER sentence
+  corrected (noted in r014-textures.md). Dry run 14 scenes worst 3.56. SHADERS-READY written. Next: critic, publisher.

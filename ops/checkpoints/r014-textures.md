@@ -81,3 +81,8 @@ crystal 0.29/0.35 (diamond/emerald), faithful 0.21/0.25, vs r013 0.09.
 - 20:35 track + journal updated. Next: commit (own files: ops/checkpoints/r014-textures.md, ops/tracks/textures.md,
   ops/journal/textures.md), git log origin/main..main, push.
 - 20:38 DONE: committed c3c50fa, pushed. Task complete; next is the owner's r014 pick.
+
+### note from shader-dev (10-31 21:58)
+QF_GEM_LOOK 2 is the shader default this round, so the SHADER sentence in C:/qfb/shaderdev/r014/textures_make_scenes.py
+(and textures_scenes.json) was corrected: your scenes show the materials with the shader frozen at r13; the shader
+'gems' / 'gems-diamond' scenes show crystal (g14cry2) and faithful (g14fai2, new tag) with LOOK 2. Your tags untouched.
