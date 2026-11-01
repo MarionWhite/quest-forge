@@ -799,6 +799,14 @@ vec3 shadeWaterAbove(vec3 color, vec3 n, float var, vec3 scene0, float dist0, ve
     // (1 80 %, 2 fully): the path shows the sun's own glow.
     float farK = 1.0 - smoothstep(0.015, 0.105, -viewDir.y);
     float sunK = smoothstep(0.975, 0.995, dot(normalize(vec3(R.x, abs(R.y), R.z)), L)) * (QF_SEA_FAR == 2 ? 1.0 : 0.8);
+  #if QF_SEA_FAR == 3
+    // r016 (critic r015 ocean_sunset: the far easing spread the left horizon's sky-to-sea step from ~24 px to ~54 px,
+    // "revert this round's horizon strip"; "within about 10 degrees of the sun's direction, ease the gold-sea pull
+    // so the sea beside the path goes from 2.70 to about 2.35"): no far easing, and the lift off the sun's path is
+    // full and wider (the plain mirror direction within ~8 deg fully, fading out by ~18 deg).
+    farK = 0.0;
+    sunK = smoothstep(0.95, 0.99, dot(normalize(vec3(R.x, abs(R.y), R.z)), L));
+  #endif
     R = normalize(vec3(R.x, abs(R.y) * mix(1.0, 0.35, grazeK * (1.0 - (QF_SEA_FAR == 2 ? 0.70 : 0.55) * farK) * (1.0 - sunK)), R.z));
 #else
     R = normalize(vec3(R.x, abs(R.y) * mix(1.0, 0.35, grazeK), R.z));
@@ -870,6 +878,13 @@ vec3 shadeWaterAbove(vec3 color, vec3 n, float var, vec3 scene0, float dist0, ve
     if (reflect(viewDir, nS).y > 0.01) ssr = waterSSR(viewPos0, viewR, ign(gl_FragCoord.xy + float(frameCounter % 64) * 7.0), true);
     refl = mix(refl, ssr.rgb, ssr.a);
     sunOcc = gSsrOcc;
+#if QF_SUN_WHITE > 0
+    // r016 (ocean_sunset loop 1: the path stopped at the island's reflection and the far band under the sun had no
+    // core): the screen ray follows the calm normal, which mirrors the sky 1-5 deg up there, and found the island,
+    // but the glint comes off the wave facets that mirror the sun 9 deg up, over the island. A hit hides the glint
+    // only where the calm mirror ray points at the sun (within ~3 deg fully, none past ~6 deg).
+    sunOcc *= smoothstep(0.9945, 0.9986, dot(reflect(viewDir, nS), L));
+#endif
 #endif
     float F = fresnelWater(NdotV);
     // r007: near the camera the eye averages the reflectance over many facets, so soften it toward
@@ -966,7 +981,26 @@ vec3 shadeWaterAbove(vec3 color, vec3 n, float var, vec3 scene0, float dist0, ve
         spec += bpk * on * dotS * core * 3.0 * gh;
     }
 #endif
+#if QF_SUN_WHITE > 0
+    {
+        // r016 (critic r015 ocean_sunset: "let the glint's core clip to white ... keep the gold only in the path's
+        // edges and falloff"): a facet that mirrors the sun's disk is as bright as the disk, past what any channel
+        // holds, so the camera (and BSL's curve) shows it white. The hottest facets take the light's peak in every
+        // channel (exposed brightness 1 -> 4 whitens from none to full), so the core reads white-hot and the
+        // fainter falloff round it keeps the sunset's gold. The final pass's shoulder (QF_SUN_WHITE) clips it.
+        vec3 Lc = lightIrradiance();
+        float s0 = min(spec, mix(80.0, 400.0, gh)) * FH * sh * 3.0;
+        float mc = max(Lc.r, max(Lc.g, Lc.b));
+  #if QF_SUN_WHITE == 2
+        float hot = smoothstep(0.5, 2.5, s0 * mc * exposure()) * gh;
+  #else
+        float hot = smoothstep(1.0, 4.0, s0 * mc * exposure()) * gh;
+  #endif
+        col += mix(Lc, vec3(1.0, 0.985, 0.95) * mc, hot) * s0;
+    }
+#else
     col += lightIrradiance() * min(spec, mix(80.0, 400.0, gh)) * FH * sh * 3.0;
+#endif
 
 #if QF_BIOME_WATER == 1 && QF_CAL_WATER == 0
     {

@@ -469,7 +469,11 @@ vec3 meteorsSector(vec3 dir) {
         float pb = min(p, 1.0);
         float head = th0 + len * pb;
         float tail0 = head - len * mix(0.45, 0.95, pb);
+#if QF_METEOR_SKY == 3
+        vec3 hc = vec3(0.78, 1.0, 0.86);
+#else
         vec3 hc = hash12(sd + 7.7) < 0.6 ? vec3(0.78, 1.0, 0.86) : vec3(1.0, 0.84, 0.60);   // refs: green-white and amber
+#endif
         vec3 tint = mix(vec3(0.93, 0.96, 1.0), hc, 0.55 * smoothstep(1.2, 5.0, bright));
 #if QF_METEOR_LEAN == 1
         if (p < 1.0) {
@@ -482,7 +486,11 @@ vec3 meteorsSector(vec3 dir) {
             // brightest the most coloured; ours were near white (tint ~0.2 of a pale hue). The body behind
             // the head now takes the hue, up to ~0.8 for a bright one, and whitens into the head.
             {
+#if QF_METEOR_SKY == 3
+                vec3 hb = vec3(0.58, 1.0, 0.66);   // r016 (critic r015: "white heads with green trains rather than amber")
+#else
                 vec3 hb = hash12(sd + 7.7) < 0.75 ? vec3(0.58, 1.0, 0.66) : vec3(1.0, 0.78, 0.46);
+#endif
                 float sat = mix(0.30, 0.80, smoothstep(0.3, 2.2, bright));
                 tint = mix(vec3(0.93, 0.96, 1.0), hb, sat * (1.0 - smoothstep(0.55, 0.95, along)));
             }
@@ -685,19 +693,19 @@ vec3 phBlackbody(float temperature) {
     vec3 rgb = a * exp(b / temperature) - a;
     return min(rgb.r, min(rgb.g, rgb.b)) / rgb;
 }
-vec3 phStarCell(vec2 coord, float thr) {
+vec3 phStarCell(vec2 coord, float thr, vec2 K) {
     vec4 n = phHash4(coord);
     float star = clamp((n.x - thr) / (1.0 - thr), 0.0, 1.0);
     star *= star; star *= star; star *= star; star *= star;   // pow16
-    return star * phBlackbody(mix(5200.0, 11000.0, n.y));   // loop 2: 4500-8500 K read yellow-green after our grade; the photos' field is blue-white
+    return star * phBlackbody(mix(K.x, K.y, n.y));   // loop 2: 4500-8500 K read yellow-green after our grade; the photos' field is blue-white
 }
-vec3 phStars(vec3 dir, float thr) {
-    vec2 coord = dir.xz / (abs(dir.y) + length(dir.xz)) * 1000.0 + 41.21;   // loop 2: 600 drew 3-4 px blobs at 1440p
+vec3 phStars(vec3 dir, float thr, float scale, vec2 K) {
+    vec2 coord = dir.xz / (abs(dir.y) + length(dir.xz)) * scale + 41.21;   // loop 2: 600 drew 3-4 px blobs at 1440p
     coord = abs(coord) + 33.3;
     vec2 i = floor(coord), f = fract(coord);
     f = f * f * (3.0 - 2.0 * f);
-    return mix(mix(phStarCell(i, thr), phStarCell(i + vec2(1.0, 0.0), thr), f.x),
-               mix(phStarCell(i + vec2(0.0, 1.0), thr), phStarCell(i + vec2(1.0, 1.0), thr), f.x), f.y);
+    return mix(mix(phStarCell(i, thr, K), phStarCell(i + vec2(1.0, 0.0), thr, K), f.x),
+               mix(phStarCell(i + vec2(0.0, 1.0), thr, K), phStarCell(i + vec2(1.0, 1.0), thr, K), f.x), f.y);
 }
 #endif
 
@@ -744,9 +752,18 @@ vec3 nightSkyTexture(vec3 dir) {
             mw = mw * mw;                               // stored at gamma 1/2.2; close enough to 2
             mw *= smoothstep(0.0, 0.08, uvm.y) * smoothstep(1.0, 0.92, uvm.y);
         }
+#if QF_METEOR_SKY == 3
+        // r016 (critic r015 p15clipm: "the Milky Way is sepia with brown dust lanes"; the owner's photos show it
+        // blue-white): on a shower night the band keeps a third of the panorama's colour over a cool white.
+        if (v == 4) mw = luminance(mw) * vec3(0.82, 0.94, 1.16) * 1.15 + (mw - luminance(mw)) * 0.30;
+#endif
         float band = clamp(luminance(mw) * 3.0, 0.0, 1.0);
         L += mw * MOON_I * 0.45 * moonWash * smoothstep(-0.02, 0.14, dir.y);
+#if QF_METEOR_SKY == 3
+        L += faintStars(dir, 0.15 + 0.85 * band) * mix(0.5, 1.0, moonWash) * (v == 4 ? vec3(1.1, 1.25, 1.7) : vec3(1.0));
+#else
         L += faintStars(dir, 0.15 + 0.85 * band) * mix(0.5, 1.0, moonWash);
+#endif
 #if QF_METEOR_STYLE >= 4
         if (v == 4) gMeteor = meteors(dir) * mix(0.6, 1.0, moonWash) * smoothstep(-0.02, 0.10, dir.y);
 #endif
@@ -756,9 +773,19 @@ vec3 nightSkyTexture(vec3 dir) {
         // reaches lower, and Photon's dense faint field fills it, thickest along the Milky Way (its threshold
         // drops with the band's brightness), each star a blackbody colour from 4500 to 8500 K.
         if (v == 4) {
+#if QF_METEOR_SKY == 3
+            // r016 (critic r015 p15clipm: "lift the sky's median from 4,7,15 to about 18,22,38 (navy). Make the stars
+            // brighter and bluer: brightest star pixels from 135,125,107 to about 170,180,210, sized to survive the
+            // half-size clip"): a brighter navy that reaches lower, the field's cells 1.4x larger (1000 -> 700 a
+            // radian) and 2x brighter, from 7000 to 20000 K, and the faint stars cooled.
+            L += vec3(0.13, 0.19, 0.44) * MOON_I * QF_METEOR_NAVY * smoothstep(-0.04, 0.35, dir.y) * moonWash;
+            float thr = 1.0 - 0.030 - 0.5 * band * band * band;
+            L += phStars(dir, thr, 700.0, vec2(7000.0, 20000.0)) * SUN_I * 0.040 * mix(0.5, 1.0, moonWash) * smoothstep(-0.02, 0.08, dir.y);
+#else
             L += vec3(0.06, 0.11, 0.40) * MOON_I * 0.026 * smoothstep(-0.02, 0.45, dir.y) * moonWash;   // loop 1: 0.010, loop 2: 0.016 left the sky near black (median luma 6.8; the photo's 58)
             float thr = 1.0 - 0.030 - 0.5 * band * band * band;
-            L += phStars(dir, thr) * SUN_I * 0.020 * mix(0.5, 1.0, moonWash) * smoothstep(-0.02, 0.08, dir.y);
+            L += phStars(dir, thr, 1000.0, vec2(5200.0, 11000.0)) * SUN_I * 0.020 * mix(0.5, 1.0, moonWash) * smoothstep(-0.02, 0.08, dir.y);
+#endif
         }
 #endif
 #else
@@ -972,7 +999,8 @@ float cloudThreshold() {
 #if QF_METEOR_SKY > 0
     // r015: a meteor-shower night is a clear one (critic p14clipm: "ours cross heavy dark cloud, so most of the
     // shower is hidden"): 1 fewer clouds, 2 few.
-    float clear = nightVariant() == 4 ? (QF_METEOR_SKY == 2 ? 0.16 : 0.10) * cloudNight() : 0.0;
+    // r016 (critic r015 p15clipm: "clear the dark cloud over [the Milky Way's] top"): 3 fewer still.
+    float clear = nightVariant() == 4 ? (QF_METEOR_SKY == 3 ? 0.26 : QF_METEOR_SKY == 2 ? 0.16 : 0.10) * cloudNight() : 0.0;
     return mix(mix(0.52, 0.45, day) + 0.07 * cloudNight() + clear + QF_CLOUD_COVER, 0.33, rainStrength);
 #else
     return mix(mix(0.52, 0.45, day) + 0.07 * cloudNight() + QF_CLOUD_COVER, 0.33, rainStrength);

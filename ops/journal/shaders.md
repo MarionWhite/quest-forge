@@ -1,5 +1,13 @@
 # Shaders journal (newest first)
 
+- 2026-11-01 16:20: **r016 sky pass 1 (shader-dev), stopped early**: queue paused from 16:05 (owner in a game), so only the
+  sea frames of loop 1 (1101-155233) landed. New options, defaults on: QF_SUN_WHITE 1 (per-channel shoulder past an
+  exposed peak of 5 at golden hour + white glint core; SSR hides the glint only toward the sun), QF_SEA_FAR 3 (r014's
+  horizon line back, 23 px; wider sun lift), QF_DUSK_SKY 3 (+QF_DUSK_RAY), QF_METEOR_SKY 3 (+QF_METEOR_NAVY). Sea: sun
+  core now clips (204 px, 255,253,251), band 2.76 -> 2.57, path core still gold (1.65) and hidden by the island's
+  reflection -> loop 2 (1101-160434) queued. Sun glow: HALO 1 (default) is D: block tops eaten 1-3 px by the tight haze
+  lobe (row 28.8 vs 27). Table and next steps: ops/checkpoints/r016-shader.md.
+
 - 2026-11-01 13:40: **r015 posted** (b0f4ea6; 11 scenes: 4 shader + gems + HUD packs; closes r014). sea-sunset/A 3.61 ms over 3.0, stated in the round text. Only renders/crops/clips published (jpg/webp + json). Live: https://marionwhite.github.io/quest-forge/shaders/ ; r015.json and images 200. Awaiting owner feedback; r016 aim: white-hot glint.
 
 - 2026-11-01 13:10: **r015 shader scenes handed off** (C:\qfb\shaderdev

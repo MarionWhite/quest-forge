@@ -61,7 +61,26 @@ vec3 display(vec3 exposed) {
 #if QF_RIM_GOLD == 2
     float sy = sunDirWorld().y;
     float gh = smoothstep(0.32, 0.08, sy) * smoothstep(-0.04, 0.03, sy);   // goldenHour() (sky.glsl)
-    return linearToSrgb(tonemapNeutralW(vibrance(calGrade(exposed)), mix(vec3(1.0), vec3(1.0, 0.82, 0.50), gh)));
+    vec3 c = vibrance(calGrade(exposed));
+    vec3 t = tonemapNeutralW(c, mix(vec3(1.0), vec3(1.0, 0.82, 0.50), gh));
+#if QF_SUN_WHITE > 0
+    // r016 (critic r015 ocean_sunset: our sun peaked at 253,214,162 and its path at 251,204,128, BSL's burn to
+    // 255,254,251): the neutral curve keeps a bright orange orange at any brightness, so the sun and its glint
+    // never went white. Film and BSL's per-channel curve clip each channel on its own: the hottest pixels go
+    // yellow, then white. Past an exposed peak of ~5 (cloud rims peak at 1-6 and keep their amber) the curve
+    // hands over to a per-channel shoulder at golden hour.
+    {
+        float pk = max(c.r, max(c.g, c.b));
+        vec3 pc = 1.0 - exp(-c * 1.15);
+  #if QF_SUN_WHITE == 2
+        float k = smoothstep(3.5, 10.0, pk) * gh;
+  #else
+        float k = smoothstep(5.0, 14.0, pk) * gh;
+  #endif
+        t = mix(t, pc, k);
+    }
+#endif
+    return linearToSrgb(t);
 #else
     return linearToSrgb(tonemapNeutral(vibrance(calGrade(exposed))));
 #endif

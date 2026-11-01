@@ -112,7 +112,11 @@ vec3 phSunTintX(float sy, bool mie) {
     // 0.86/0.88/0.92, turned the sky mauve: the open sky's red is the gold haze, not the Rayleigh sky): 1 a smaller
     // cut (blue 0.90 for r014's 0.80), 2 (loop 2: 0.88/0.94/0.98 left the zenith mauve, 133,105,104) red cut, blue
     // kept: the sky away from the sun turns blue.
-    me *= mix(vec3(1.0), mie ? vec3(0.96, 1.10, 0.72) : (QF_DUSK_SKY == 2 ? vec3(0.78, 0.90, 1.04) : vec3(0.95, 1.0, 0.90)), lo);
+    // r016 (critic r015 p15 shore_sunset: the open sky "overshot to pink-lilac ... 1.7 times as bright" as BSL's; 49 % of
+    // the upper sky had more blue than green, BSL 13 %; "the trouble is too much red, not too little blue ... sky about
+    // 40 % darker overall"): 3 the open Rayleigh sky under 7 deg takes QF_DUSK_RAY of 2's light, with its blue held
+    // under its green (top right 115,106,118 -> about 75,65,72 needs ~0.4 of the light in every channel, in linear).
+    me *= mix(vec3(1.0), mie ? vec3(0.96, 1.10, 0.72) : (QF_DUSK_SKY == 3 ? vec3(0.80, 0.90, 0.86) * QF_DUSK_RAY : QF_DUSK_SKY == 2 ? vec3(0.78, 0.90, 1.04) : vec3(0.95, 1.0, 0.90)), lo);
   #elif QF_SUN_GOLD_LOW == 3
     me *= mix(vec3(1.0), mie ? vec3(0.96, 1.10, 0.72) : vec3(1.0, 1.05, 0.80), lo);
   #else
