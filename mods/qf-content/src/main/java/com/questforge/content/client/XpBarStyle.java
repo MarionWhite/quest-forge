@@ -62,19 +62,27 @@ public class XpBarStyle implements IResourceManagerReloadListener {
             p.load(in);
             color = hex(p.getProperty("text.xpbar"), -1);
             outline = hex(p.getProperty("qf.xpbar.outline"), 0);
-            String s = p.getProperty("qf.xpbar.plate");
-            if (s != null) {
-                String[] f = s.trim().split("\\s*,\\s*");
-                if (f.length == 4) {
-                    plate = new int[4];
-                    for (int i = 0; i < 4; i++) plate[i] = Integer.parseInt(f[i]);
-                }
-            }
+            plate = rect(p.getProperty("qf.xpbar.plate"));
+            bossColor = hex(p.getProperty("text.boss"), -1);
+            bossOutline = hex(p.getProperty("qf.boss.outline"), -1);
+            bossFrame = rect(p.getProperty("qf.boss.frame"));
         } catch (Exception e) {
             // no pack sets it (the normal case) or it is malformed: vanilla
             color = -1;
             plate = null;
+            bossColor = -1;
+            bossOutline = -1;
+            bossFrame = null;
         }
+    }
+
+    private static int[] rect(String s) {
+        if (s == null) return null;
+        String[] f = s.trim().split("\\s*,\\s*");
+        if (f.length != 4) return null;
+        int[] r = new int[4];
+        for (int i = 0; i < 4; i++) r[i] = Integer.parseInt(f[i]);
+        return r;
     }
 
     private static int hex(String s, int dflt) {

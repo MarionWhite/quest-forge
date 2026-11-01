@@ -52,6 +52,8 @@ MC_JAR = os.path.expandvars(r"%APPDATA%\.crazycraft4\bin\minecraft.jar")        
 
 PLATE = (0, 100, 26, 15)       # medallion sprite in icons.png (GUI px): drawn at w/2-13, rows h-38..h-24
 MX, MY = 25, 13                # the number's centre in the 52 x 30 sprite (2x px): one texel left of the middle
+# The heart and food rows end 10 GUI px either side of the centre, so where the medallion shares their rows (sprite
+# rows 0-15) it stays inside cols 8-42: one clear GUI px from each row. Rows 18-29 lie on the XP bar and may be wider.
 FRAME = (0, 120, 214, 15)      # boss frame sprite: centred on the boss bar (bar = frame cols 16-197, rows 5-9)
 DESIGNS = ["gilded", "cloisonne", "ironbound", "moonsilver", "obsidian"]
 TITLES = {"gilded": "A  Gilded", "cloisonne": "B  Cloisonne", "ironbound": "C  Ironbound",
@@ -600,18 +602,20 @@ class Gilded(Design):
     def medallion(self):
         w, h = PLATE[2] * S, PLATE[3] * S                   # 48 x 30
         a = blank(w, h)
-        for side in (0, 1):                                 # clasps over the band ends
-            x0 = 0 if side == 0 else w - 8
-            rect(a, x0, 3, x0 + 7, 15, GOLD[3])
-            rect(a, x0, 3, x0 + 7, 4, GOLD[1])
-            rect(a, x0, 14, x0 + 7, 15, GOLD[4])
-            rect(a, x0 + (1 if side == 0 else 0), 5, x0 + (6 if side == 0 else 6), 13, GOLD[2])
-        outer = disc_mask(w, h, MX, MY + 1, 21, 14)
+        for side in (0, 1):                                 # clasps gripping the XP bar, clear of the rows
+            x0 = 1 if side == 0 else w - 10
+            rect(a, x0, 18, x0 + 9, 29, GOLD[3])
+            rect(a, x0, 18, x0 + 9, 19, GOLD[1])
+            rect(a, x0, 28, x0 + 9, 29, GOLD[4])
+            rect(a, x0 + 1, 20, x0 + 8, 27, GOLD[2])
+            rect(a, x0 + 3, 22, x0 + 6, 25, GOLD[4])
+            px(a, x0 + 3, 22, GOLD[0])
+        outer = disc_mask(w, h, MX, MY + 1, 17, 14)
         a[outer] = C(INK, 235)
-        rim = disc_mask(w, h, MX, MY + 1, 20, 13)
+        rim = disc_mask(w, h, MX, MY + 1, 16, 13)
         rr = ring(rim) | ring(rim & ~ring(rim))
         a = over(a, bevel_ring(rr, rim, GOLD))
-        inner = disc_mask(w, h, MX, MY + 0.5, 17.5, 10.5)
+        inner = disc_mask(w, h, MX, MY + 0.5, 13.5, 10.5)
         body = shade_body(inner, [(62, 50, 38), (36, 29, 23), (24, 19, 16), (14, 11, 9)])
         a = over(a, body)
         a[ring(inner)] = C(GOLD[3])
@@ -783,19 +787,19 @@ class Cloisonne(Design):
     def medallion(self):
         w, h = PLATE[2] * S, PLATE[3] * S
         a = blank(w, h)
-        outer = disc_mask(w, h, MX, MY + 1, 22, 14)
+        outer = disc_mask(w, h, MX, MY + 1, 17, 14)
         a[outer] = C(INK, 230)
-        r1 = disc_mask(w, h, MX, MY + 1, 21, 13)
+        r1 = disc_mask(w, h, MX, MY + 1, 16, 13)
         a = over(a, bevel_ring(ring(r1) | ring(r1 & ~ring(r1)), r1, GOLD))
-        r2 = disc_mask(w, h, MX, MY + 1, 19, 11)
+        r2 = disc_mask(w, h, MX, MY + 1, 14.5, 11)
         a[r2] = C(LAPIS[2])
         a = over(a, shade_body(r2, LAPIS))
-        r3 = disc_mask(w, h, MX, MY + 0.5, 17.5, 9.5)
+        r3 = disc_mask(w, h, MX, MY + 0.5, 13, 9.5)
         a[ring(r2) & ~r3] = C(GOLD[2])
         a[ring(r3)] = C(GOLD[3])
         body = r3 & ~ring(r3)
         a = over(a, shade_body(body, [(34, 58, 124), (22, 40, 96), (16, 28, 72), (10, 18, 50)]))
-        for (x, y) in ((MX, 1), (MX, 28), (MX - 20, MY + 1), (MX + 21, MY + 1)):  # turquoise studs N, S, W, E
+        for (x, y) in ((MX, 1), (MX, 28), (MX - 20, 23), (MX + 21, 23)):  # turquoise studs N, S; W, E on the bar
             rect(a, x - 1, y - 1, x + 1, y + 1, TURQ[1])
             px(a, x - 1, y - 1, TURQ[0])
         return a
@@ -972,19 +976,19 @@ class Ironbound(Design):
         for y in range(h):
             for x in range(w):
                 dy = abs(y + 0.5 - 14.5)
-                reach = 23 - max(0, dy - 6) * 1.2
+                reach = 17 - max(0, dy - 6) * 0.9
                 hexm[y, x] = dy <= 14.5 and abs(x + 0.5 - MX) <= reach
         a[hexm] = C(INK)
         nut = hexm & ~ring(hexm, diag=True)
         a = over(a, shade_body(nut, [IRON[0], IRON[1], IRON[2], IRON[3]]))
         a = over(a, bevel_ring(ring(nut), nut, IRON))
         hole = np.zeros((h, w), bool)
-        hole[2:24, MX - 17:MX + 17] = True
+        hole[2:24, MX - 14:MX + 14] = True
         for k in range(4):                                  # chamfered corners
-            hole[2 + k, MX - 17:MX - 13 - k] = False
-            hole[2 + k, MX + 13 + k:MX + 17] = False
-            hole[23 - k, MX - 17:MX - 13 - k] = False
-            hole[23 - k, MX + 13 + k:MX + 17] = False
+            hole[2 + k, MX - 14:MX - 10 - k] = False
+            hole[2 + k, MX + 10 + k:MX + 14] = False
+            hole[23 - k, MX - 14:MX - 10 - k] = False
+            hole[23 - k, MX + 10 + k:MX + 14] = False
         rm = ring(hole, diag=True)
         a[hole] = C((18, 13, 11))
         a[rm] = C(EMBER[2])
@@ -992,8 +996,10 @@ class Ironbound(Design):
         top[:3] = True
         a[rm & top] = C(EMBER[3])
         a[ring(hole & ~rm, diag=True)] = C((70, 24, 10))
-        for (x, y) in ((MX - 21, 12), (MX + 19, 12)):
-            self.rivet(a, x, y)
+        for (x, y) in ((MX - 21, 21), (MX + 19, 21)):     # bar clamps either side, below the rows
+            rect(a, x - 2, 18, x + 5, 29, INK)
+            a = over(a, shade_body(place(np.ones((9, 5), bool), w, h, x - 1, 19), [IRON[0], IRON[1], IRON[2], IRON[3]]))
+            self.rivet(a, x, 22)
         return a
 
     def boss(self, fill):
@@ -1156,13 +1162,13 @@ class Moonsilver(Design):
     def medallion(self):
         w, h = PLATE[2] * S, PLATE[3] * S
         a = blank(w, h)
-        outer = disc_mask(w, h, MX, MY + 1, 18.5, 14.5)
+        outer = disc_mask(w, h, MX, MY + 1, 17, 14.5)
         a[outer] = C(INK, 230)
-        r1 = disc_mask(w, h, MX, MY + 1, 17.5, 13.5)
+        r1 = disc_mask(w, h, MX, MY + 1, 16, 13.5)
         a = over(a, bevel_ring(ring(r1) | ring(r1 & ~ring(r1)), r1, SILVER))
-        body = disc_mask(w, h, MX, MY + 1, 15.5, 11.5)
+        body = disc_mask(w, h, MX, MY + 1, 14, 11.5)
         a = over(a, shade_body(body, [(44, 54, 104), (26, 32, 68), (16, 20, 46), (10, 12, 30)]))
-        cres = body & ~disc_mask(w, h, MX + 2.5, MY + 0.5, 15.5, 11.5)
+        cres = body & ~disc_mask(w, h, MX + 2, MY + 0.5, 14, 11.5)
         a[cres] = C((176, 196, 240))                        # moonlight on the left inside edge
         a[cres & ~dilate(~body)] = C((120, 140, 200))
         for cx, cy, r in ((3, 21, 3), (47, 21, 3)):         # four-point stars either side, on the bar
@@ -1333,7 +1339,7 @@ class Obsidian(Design):
         for y in range(h):
             for x in range(w):
                 dx, dy = abs(x + 0.5 - MX), abs(y + 0.5 - 14.5)
-                m[y, x] = dx <= 22 and dy <= 14.5 and dx + dy * 1.1 <= 28
+                m[y, x] = dx <= 17 and dy <= 14.5 and dx + dy * 0.9 <= 22
         a[m] = C(AMETHYST[4])
         r1 = m & ~ring(m, diag=True)
         a[ring(r1, diag=True)] = C(AMETHYST[1])
@@ -1342,8 +1348,10 @@ class Obsidian(Design):
         body = r2 & ~ring(r2, diag=True)
         for y, x in zip(*np.nonzero(body)):
             a[y, x] = C(mix(OBS[0], OBS[1], (y - 3) / 24))
-        for (x0, y0) in ((MX - 19, 13), (MX + 17, 13)):      # rune ticks at the points
-            rect(a, x0, y0, x0 + 2, y0 + 3, AMETHYST[1])
+        for x0 in (2, w - 6):                               # glowing shards on the XP bar either side
+            for k in range(4):
+                rect(a, x0 + (k if x0 < MX else 3 - k), 19 + 2 * k, x0 + (k if x0 < MX else 3 - k) + 2, 21 + 2 * k,
+                     AMETHYST[1] if k < 3 else AMETHYST[2])
         return a
 
     def boss(self, fill):

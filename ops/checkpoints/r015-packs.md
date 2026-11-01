@@ -26,9 +26,20 @@ Work order: ops/checkpoints/r015-plan.md "Packs". Base/builders/traps: r014-pack
   icon cells], pk-hud-xp, pk-hud-boss; boxes ICON/XP/BOSS at GUI 6 on 2560x1440; it also regenerates the mock sheets
   into C:\qfb\shaderdev\r015\packs\). Track + journal updated (render pending). Committed 84e7ad9 (+ ops follow-up).
 
+### 2026-11-01 step 3: render 1 checked, two fixes, RE-RENDER SUBMITTED
+- 1101-101607 frames: hotbar/bands/icons ours in all five, food full, 7.5 hearts, no screen, chat clear, XP number
+  recoloured on its medallion (hook loaded), five clearly different. BROKEN: no boss frame and no boss-name outline
+  (vanilla shadow only): XpBarStyle.onResourceManagerReload never read text.boss / qf.boss.outline / qf.boss.frame.
+  Fixed (rect() helper, reset on error); rebuilt in C:\qfb\wt-r011-fb -> jars-r015 (rm first, then cp).
+- Medallions overlapped the heart/food rows (26 GUI px wide in a 20 px gap; gilded clasps sat on the band ends).
+  qf_hud_r015.py: all five narrowed to sprite cols 8-42 in rows 0-15 (1 GUI px clear of each row); side ornaments
+  moved onto the XP bar (gilded clasps, cloisonne studs, ironbound clamps, obsidian shards). 2 digits fit inside;
+  3 digits run onto the rim, still readable. Zips rebuilt.
+- SUBMITTED 1101-104044-textures-r015-packs (same spec, pk15a-e).
+
 ## RESUME (fresh agent)
-1. `py -3.10 -I tools/renderq/renderq.py wait 1101-101607-textures-r015-packs` (one blocking call; exit + checkpoint if
-   the ETA is over 10 min).
+1. `py -3.10 -I tools/renderq/renderq.py wait 1101-104044-textures-r015-packs` (one blocking call; exit + checkpoint if
+   the ETA is over 10 min). Boss frame + outlined name must now show (hook fix); medallions clear of both rows.
 2. Check bench-pk15{a,b,c,d,e}-gui_hud.png (C:\qfb\shaderdev\rounds\screenshots, newer than 10:16 on 11-01) as a
    contact sheet / crops: hotbar + bands ours, medallion behind a recoloured number (not lime), boss name dark-outlined,
    boss frame drawn round the bar, food 10 shanks, 7.5 hearts, armour 13, no screen open, chat clear of the hearts.
