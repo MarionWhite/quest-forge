@@ -105,7 +105,13 @@ vec3 phSunTintX(float sy, bool mie) {
     // land take comes from that sky) turns salmon to the photo's orange-gold; it fades out by 7 deg up and
     // into the blue hour, so ocean_sunset (9 deg) and noon do not change.
     float lo = phLinStep(0.12, 0.03, sy) * phLinStep(-0.07, -0.01, sy);
-  #if QF_SUN_GOLD_LOW == 3
+  #if QF_SUN_GOLD_LOW == 3 && QF_DUSK_SKY > 0
+    // r015 (critic p14 shore_sunset: "the zenith stays grey-mauve (115,107,95), not blue. BSL's same view is darker
+    // and quieter (sky mean 118,85,62 against ours 153,114,66)"): the blue cut on the Rayleigh sky took the blue out
+    // of the whole open sky, not just the glow. The glow (Mie) keeps its gold; the open sky keeps its blue and dims
+    // (1 to 86-92 %, 2 to 72-88 %, bluer), so the gold stays round the sun and on the lit cloud sides.
+    me *= mix(vec3(1.0), mie ? vec3(0.96, 1.10, 0.72) : (QF_DUSK_SKY == 2 ? vec3(0.72, 0.76, 0.88) : vec3(0.86, 0.88, 0.92)), lo);
+  #elif QF_SUN_GOLD_LOW == 3
     me *= mix(vec3(1.0), mie ? vec3(0.96, 1.10, 0.72) : vec3(1.0, 1.05, 0.80), lo);
   #else
     me *= mix(vec3(1.0), mie ? vec3(0.98, 1.06, 0.82) : vec3(1.0, 1.03, 0.88), lo);

@@ -665,6 +665,42 @@ float fbm2(vec2 p) {
     return v;
 }
 
+#if QF_METEOR_SKY > 0
+// r015 meteor-night star field, ported from Photon Shaders 1.4 include/sky/stars.glsl (itself after Shadertoy
+// Md2SR3), include/utility/color.glsl (blackbody) and include/utility/random.glsl (hash4): Copyright (c)
+// 2021-2025 Benjamin Stott ("SixthSurge"), Photon Shaders License (LICENSES/photon-LICENSE.txt). Modified: our
+// units and density, the coverage tied to our Milky Way texture's brightness, no twinkle on the faint field.
+vec4 phHash4(vec2 p) {
+    vec4 p4 = fract(vec4(p.xyxy) * vec4(0.1031, 0.1030, 0.0973, 0.1099));
+    p4 += dot(p4, p4.wzxy + 33.33);
+    return fract((p4.xxyz + p4.yzzw) * p4.zywx);
+}
+vec3 phBlackbody(float temperature) {
+    const vec3 lambda = vec3(660.0, 550.0, 440.0);
+    const vec3 lambda2 = lambda * lambda;
+    const vec3 lambda5 = lambda2 * lambda2 * lambda;
+    const float h = 6.63e-16, k = 1.38e-5, c = 3.0e17;
+    const vec3 a = lambda5 / (2.0 * h * c * c);
+    const vec3 b = (h * c) / (k * lambda);
+    vec3 rgb = a * exp(b / temperature) - a;
+    return min(rgb.r, min(rgb.g, rgb.b)) / rgb;
+}
+vec3 phStarCell(vec2 coord, float thr) {
+    vec4 n = phHash4(coord);
+    float star = clamp((n.x - thr) / (1.0 - thr), 0.0, 1.0);
+    star *= star; star *= star; star *= star; star *= star;   // pow16
+    return star * phBlackbody(mix(4500.0, 8500.0, n.y));
+}
+vec3 phStars(vec3 dir, float thr) {
+    vec2 coord = dir.xz / (abs(dir.y) + length(dir.xz)) * 600.0 + 41.21;
+    coord = abs(coord) + 33.3;
+    vec2 i = floor(coord), f = fract(coord);
+    f = f * f * (3.0 - 2.0 * f);
+    return mix(mix(phStarCell(i, thr), phStarCell(i + vec2(1.0, 0.0), thr), f.x),
+               mix(phStarCell(i + vec2(0.0, 1.0), thr), phStarCell(i + vec2(1.0, 1.0), thr), f.x), f.y);
+}
+#endif
+
 vec3 nightSkyTexture(vec3 dir) {
     int v = nightVariant();
     float moonWash = 1.0 - 0.85 * moonBrightness();   // a bright moon hides the faint sky
@@ -713,6 +749,17 @@ vec3 nightSkyTexture(vec3 dir) {
         L += faintStars(dir, 0.15 + 0.85 * band) * mix(0.5, 1.0, moonWash);
 #if QF_METEOR_STYLE >= 4
         if (v == 4) gMeteor = meteors(dir) * mix(0.6, 1.0, moonWash) * smoothstep(-0.02, 0.10, dir.y);
+#endif
+#if QF_METEOR_SKY > 0
+        // r015 (critic p14clipm: the photos' showers "cross a dense, blue star field, ours cross heavy dark
+        // cloud"; owner's r010 photos): a meteor night is a clear, deep-blue night. The sky's navy lifts and
+        // reaches lower, and Photon's dense faint field fills it, thickest along the Milky Way (its threshold
+        // drops with the band's brightness), each star a blackbody colour from 4500 to 8500 K.
+        if (v == 4) {
+            L += vec3(0.07, 0.12, 0.38) * MOON_I * 0.010 * smoothstep(-0.02, 0.45, dir.y) * moonWash;
+            float thr = 1.0 - 0.050 - 0.5 * band * band * band;
+            L += phStars(dir, thr) * SUN_I * 0.012 * mix(0.5, 1.0, moonWash) * smoothstep(-0.02, 0.08, dir.y);
+        }
 #endif
 #else
         // Milky Way: a great circle tilted across the sky; coordinates along and across the band.
@@ -922,7 +969,14 @@ float cloudNight() { return 1.0 - smoothstep(-0.12, 0.04, sunDirWorld().y); }
 float cloudThreshold() {
     float day = hash12(vec2(float(worldDay) * 0.731 + 0.2, 2.9));
     // Thinner at night, so most nights show the night sky (r005: the night views were all cloud).
+#if QF_METEOR_SKY > 0
+    // r015: a meteor-shower night is a clear one (critic p14clipm: "ours cross heavy dark cloud, so most of the
+    // shower is hidden"): 1 fewer clouds, 2 few.
+    float clear = nightVariant() == 4 ? (QF_METEOR_SKY == 2 ? 0.16 : 0.08) * cloudNight() : 0.0;
+    return mix(mix(0.52, 0.45, day) + 0.07 * cloudNight() + clear + QF_CLOUD_COVER, 0.33, rainStrength);
+#else
     return mix(mix(0.52, 0.45, day) + 0.07 * cloudNight() + QF_CLOUD_COVER, 0.33, rainStrength);
+#endif
 }
 float cloudDensD(vec3 p, bool detail) {   // the signed field: > 0 inside, -1 out of the slab
     float h = (p.y - CL_BASE) / (CL_TOP - CL_BASE);
@@ -1056,7 +1110,18 @@ vec3 cloudLum(CloudLight c, float od, float h, float mu, float dens) {
     {
         float sy = sunDirWorld().y;
         float lo = smoothstep(0.125, 0.035, sy) * smoothstep(-0.07, -0.01, sy);
+#if QF_DUSK_SKY > 0
+        // r015 (critic p14 shore_sunset: "the shift went past the rims to all the light on the clouds: the share of
+        // the sky that is strongly gold rose from 32 % to 56 %, the big left cloud's shadow side is mustard
+        // (158,116,46) ... keep the gold on the sunlit rims and let the cloud shadow sides ... stay darker and
+        // cooler, as BSL's do"). The gold shift now follows how much sun reaches the point (exp(-od): the sides
+        // the sun lights take it all, a body deep in its own shadow none), and the deep, shadowed light, which is
+        // multiple scattering of the reddened sun, dims and cools toward the blue sky that fills a real shadow.
+        float sunlit = exp(-od * 0.6);
+        s *= mix(vec3(1.0), vec3(0.84, 1.18, 0.48), lo * sunlit) * mix(vec3(1.0), vec3(0.70, 0.76, 0.92), lo * (1.0 - sunlit));
+#else
         s *= mix(vec3(1.0), vec3(0.84, 1.18, 0.48), lo);
+#endif
     }
 #endif
     // At night, only thin edges carry moonlight: the bodies stay dark (no glow).
@@ -1068,7 +1133,12 @@ vec3 cloudLum(CloudLight c, float od, float h, float mu, float dens) {
     {
         float sy = sunDirWorld().y;
         float lo = smoothstep(0.125, 0.035, sy) * smoothstep(-0.07, -0.01, sy);
+#if QF_DUSK_SKY > 0
+        // r015: the bases lit by the far horizon sky are shade, not sunlight: cooler and darker, not gold.
+        return s + c.top * mix(0.35, 1.0, h) + c.under * (1.0 - h) * (1.0 - h) * mix(vec3(1.0), vec3(0.74, 0.80, 0.96), lo);
+#else
         return s + c.top * mix(0.35, 1.0, h) + c.under * (1.0 - h) * (1.0 - h) * mix(vec3(1.0), vec3(0.84, 1.18, 0.48), lo);
+#endif
     }
 #endif
     return s + c.top * mix(0.35, 1.0, h) + c.under * (1.0 - h) * (1.0 - h);
