@@ -8,6 +8,8 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.client.resources.IResourceManagerReloadListener;
+import net.minecraft.entity.boss.BossStatus;
+import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 
@@ -25,8 +27,11 @@ import cpw.mods.fml.common.eventhandler.SubscribeEvent;
  *   text.xpbar=E8C98A           the number's colour (hex RGB)
  *   qf.xpbar.outline=1A120A     the four-way outline under it (default black, as vanilla)
  *   qf.xpbar.plate=0,100,24,11  optional: a sprite from gui/icons.png (u,v,w,h) drawn centred behind the number
+ *   text.boss=F4E8CC            the boss name's colour (vanilla white)
+ *   qf.boss.outline=120C06      an eight-way outline round the boss name, so it reads over a bright sky
+ *   qf.boss.frame=0,120,200,15  optional: a sprite from gui/icons.png drawn centred on the boss bar (a frame round it)
  * </pre>
- * With no {@code text.xpbar} in any pack nothing here draws, and the HUD is vanilla. Client only; no server part.
+ * With none of these keys in any pack nothing here draws, and the HUD is vanilla. Client only; no server part.
  *
  * <p>It redraws after Forge's own number (RenderGameOverlayEvent.Post, EXPERIENCE), at the same position with the same
  * font, so every lime glyph pixel is covered; a plate is drawn first and the outline and number again over it.
@@ -39,12 +44,19 @@ public class XpBarStyle implements IResourceManagerReloadListener {
     private int color = -1;
     private int outline = 0;
     private int[] plate;
+    private int bossColor = -1;
+    private int bossOutline = -1;
+    private int[] bossFrame;
+    private boolean bossDrawn;
 
     @Override
     public void onResourceManagerReload(IResourceManager rm) {
         color = -1;
         outline = 0;
         plate = null;
+        bossColor = -1;
+        bossOutline = -1;
+        bossFrame = null;
         try (InputStream in = rm.getResource(PROPS).getInputStream()) {
             Properties p = new Properties();
             p.load(in);
@@ -73,7 +85,18 @@ public class XpBarStyle implements IResourceManagerReloadListener {
     }
 
     @SubscribeEvent
+    public void pre(RenderGameOverlayEvent.Pre e) {
+        // vanilla counts statusBarTime down while it draws, so decide here whether it draws this frame
+        if (e.type == RenderGameOverlayEvent.ElementType.BOSSHEALTH)
+            bossDrawn = BossStatus.bossName != null && BossStatus.statusBarTime > 0;
+    }
+
+    @SubscribeEvent
     public void post(RenderGameOverlayEvent.Post e) {
+        if (e.type == RenderGameOverlayEvent.ElementType.BOSSHEALTH) {
+            boss(e);
+            return;
+        }
         if (e.type != RenderGameOverlayEvent.ElementType.EXPERIENCE || color < 0) return;
         Minecraft mc = Minecraft.getMinecraft();
         if (mc.thePlayer == null || mc.playerController == null || mc.ingameGUI == null
@@ -96,6 +119,39 @@ public class XpBarStyle implements IResourceManagerReloadListener {
         fr.drawString(t, x, y + 1, outline);
         fr.drawString(t, x, y - 1, outline);
         fr.drawString(t, x, y, color);
+        GL11.glColor4f(1F, 1F, 1F, 1F);
+        mc.getTextureManager().bindTexture(ICONS);
+    }
+
+    /**
+     * Over vanilla's boss bar (GuiIngame.renderBossHealth: a 182 x 5 bar at y 12, the name centred at y 2 in white with
+     * a shadow): the pack's frame sprite centred on the bar, then the name again in the pack's colour inside a dark
+     * eight-way outline, which covers vanilla's white glyphs and their shadow.
+     */
+    private void boss(RenderGameOverlayEvent.Post e) {
+        if (!bossDrawn || (bossOutline < 0 && bossColor < 0 && bossFrame == null)) return;
+        String name = BossStatus.bossName;
+        if (name == null) return;
+        Minecraft mc = Minecraft.getMinecraft();
+        FontRenderer fr = mc.fontRenderer;
+        int w = e.resolution.getScaledWidth();
+        if (bossFrame != null) {
+            mc.getTextureManager().bindTexture(ICONS);
+            GL11.glColor4f(1F, 1F, 1F, 1F);
+            GL11.glEnable(GL11.GL_BLEND);
+            GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+            mc.ingameGUI.drawTexturedModalRect(w / 2 - bossFrame[2] / 2, 12 + (5 - bossFrame[3]) / 2,
+                    bossFrame[0], bossFrame[1], bossFrame[2], bossFrame[3]);
+        }
+        String bare = EnumChatFormatting.getTextWithoutFormattingCodes(name);
+        int x = w / 2 - fr.getStringWidth(name) / 2;
+        int y = 2;
+        if (bossOutline >= 0) {
+            for (int dy = -1; dy <= 1; dy++)
+                for (int dx = -1; dx <= 1; dx++)
+                    if (dx != 0 || dy != 0) fr.drawString(bare, x + dx, y + dy, bossOutline);
+        }
+        fr.drawString(bossColor >= 0 ? bare : name, x, y, bossColor >= 0 ? bossColor : 0xFFFFFF);
         GL11.glColor4f(1F, 1F, 1F, 1F);
         mc.getTextureManager().bindTexture(ICONS);
     }
