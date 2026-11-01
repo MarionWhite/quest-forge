@@ -55,3 +55,27 @@ round.json, renders, SHADERS-READY). Night mode 22:15-08:00 = shots only.
   with the whole glow. Say so in the scene. NIGHT: c3 (METEOR_SKY 2) best: cloud-dark 11 %, star px 140k, fine stars
   -> navy 0.026. forest_golden c2 vs b2 mean 77->74 (check in cost frames).
   Submitted **1101-103449-r015-loop3** specs\r15-loop3.json: r15d1, r15d2.
+- 10:45 loop 3 read (sheets l3.jpg, l3n.jpg): shore DUSK 2 (red cut sky): gold share 12.5 % (DUSK 1 38.5 %), rims
+  amber (top 5 % 250,157,83), open sky lilac-blue 117,95,110; night METEOR_SKY 2: star px 130k, sky mean 10,11,16;
+  forest_golden unchanged (77.3 vs 77.4). SEA: sun path still 2.74 -> the ELEVATION pull also recoloured the path ->
+  sunK (within ~10-13 deg of the plain mirror direction) now lifts both pulls (not yet seen in a frame: check in cost).
+  DEFAULTS committed fefac03: QF_SUN_HALO 1, QF_SEA_FAR 1, QF_DUSK_SKY 2, QF_METEOR_SKY 2 (QF_GEM_NFADE 0).
+  Frozen r14 pack: C:\qfb\shaderdev\r015\pack-r14\QuestForge (git archive a9565b3).
+  Submitted **1101-104149-r015-publish-cost** (FULL ID; specs\p15-cost.json, 16 jobs, 91 scenes; ETA ~11:40).
+  Drafted C:\qfb\shaderdev\r015\spec_scenes.py (4 scenes: sea p15/p14r, shore p15/p14r, sun-glow p15cc/p14rcc crops
+  + horizon 3x crops of r14's p14cc/p14cch1 in r015\crops, meteors clips p15clipm/p14rclipm), round.json, and
+  tools\look.py (writes r015\look.json: SEANUMS/SHORENUMS/METNUMS put into the questions).
+
+## Resume here (fresh agent)
+1. `py -3.10 -I tools/renderq/renderq.py results 1101-104149-r015-publish-cost`; check
+   C:\qfb\shaderdev\rounds\bench\p15*.userbusy.json noisy false (re-submit a noisy job alone, cost mode, outside 22:15-08:00).
+2. SEA CHECK: `py -3.10 -I C:\qfb\shaderdev\r015\tools\look.py` (p15 vs p14r). Sun path (760-840, x960-1440) should
+   drop from ~2.75 toward BSL 1.96; if it did not, or the path looks wrong (sheet with tools\grid.py p15,p14r,p15sf0
+   ocean_sunset), fix and re-shoot as a shot, or drop SEA_FAR to 0 and rewrite the sea scene to say so.
+3. Sheets (only changed frames): ocean_sunset, shore_sunset, sun_clear crop 912,436,600,360 (p15cc,p14rcc),
+   night_wide (p15m,p14rm) + forest_golden (p15 vs p15ds0 vs p14r: DUSK side effect). Check no magenta.
+4. Costs: High worst p15 (water views ~3.5 known), p15lo <= 0.9, p15po <= 0.4; meteors p15m vs p15ms0 vs p14rm must be
+   no higher than r014 (2.98); if higher, say so plainly in the meteors text (or lower clear level to 1 and re-cost).
+5. Dry run `py -3.10 -I tools/shaders/review/finish_round.py` --allow-missing-critic (see r014 checkpoint), fix any
+   text a number contradicts, touch C:\qfb\shaderdev\r015\SHADERS-READY, update ops/tracks/shaders.md, one journal
+   entry, commit own hunks, `git log origin/main..main` before any push.
