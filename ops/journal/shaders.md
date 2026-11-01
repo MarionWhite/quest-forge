@@ -1,5 +1,17 @@
 # Shaders journal (newest first)
 
+- 2026-11-01 13:10: **r015 shader scenes handed off** (C:\qfb\shaderdev015\SHADERS-READY; 4 shader scenes, dry run
+  11 with textures/packs). Cost 1101-104149 clean except Low: p15lo underwater/night_wide ran at half the frames (p99
+  7.8/9.5 ms), a renderq cache hit re-served it (p15lo2), so re-measured fresh (p15lo3, 1101-125848) next to the r14
+  pack (p14rlo2): Low lake 0.94 / ocean 0.95 vs r14 0.95 / 0.93, no change. High worst 3.65 sun_clear; 11/24 over 3.0
+  (9 water views 3.11-3.65, nights 3.02/3.11), as r014; sea sunset 3.61 (r14 pack 3.55 same run). Meteors forced
+  shower 2.98 (clear sky off 3.02, r14 pack 3.05): no measurable cost, still over r012's 2.94. Potato worst 0.31.
+  SEA_FAR FAILED its aim: the sun's path stays r/b 2.76 (r14 2.76, off 2.76, BSL 1.96); it only blues the strip under
+  the open-sea horizon (2.98 -> 2.55). The orange path is the gold sun glint itself; r016: white-hot glint. Scene says
+  so (title "not fixed yet", C/D 2x left-horizon crops). Shore DUSK 2: gold share 44 % -> 13 % (BSL 1 %), rims amber,
+  cloud 134,105,45 -> 124,99,66, open sky lilac 117,96,111 (BSL 83,65,61, darker; said). Night: dark cloud 18 -> 5 %,
+  star px 17k -> 136k.
+
 - 2026-11-01 09:35: **r014 published** (83e5fa5, 14 scenes). Owner approved publishing as is, including in-game renders of the copied packs; no raw pack files shipped. Live r014.json 200, all images/clips 200, 600 px Edge shot in C:\qfb\shaderdev014\look\live-600.png. Over budget: sea-sunset/A 3.56 ms (water), stated on page.
 
 - 2026-10-31 21:58: **r014 shader scenes handed off** (SHADERS-READY; 6 shader scenes, dry run 14 with textures).

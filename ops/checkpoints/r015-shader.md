@@ -79,3 +79,19 @@ round.json, renders, SHADERS-READY). Night mode 22:15-08:00 = shots only.
 5. Dry run `py -3.10 -I tools/shaders/review/finish_round.py` --allow-missing-critic (see r014 checkpoint), fix any
    text a number contradicts, touch C:\qfb\shaderdev\r015\SHADERS-READY, update ops/tracks/shaders.md, one journal
    entry, commit own hunks, `git log origin/main..main` before any push.
+
+## 2026-11-01 13:00 hand-off agent
+- Costs (roundlib, vs p15off/p15looff/p15pooff): High worst 3.65 sun_clear (cloud cover default; p15cc 3.38, p14rcc 3.36);
+  over 3.0: 11/24 (ocean_sunset 3.61, sun_clear 3.65, river_swamp 3.28, lake 3.23, beach 3.20, swamp 3.18, biome_ocean
+  3.17, ocean_swamp 3.17, shore_noon 3.11, night_new 3.11, night_wide 3.02). p14r same run ocean_sunset 3.55.
+  Meteors p15m 2.98 / p15ms0 3.02 / p14rm 3.05 (r012 2.94). Potato worst 0.31. Low p15lo DISTURBED (underwater/night_wide
+  half frames, p99 7.8/9.5): p14rlo2 (1101-125524, r14 pack) clean 1.08/1.25 p50; p15lo2 was a cache hit of the bad
+  run -> fresh p15lo3 submitted **1101-125848-r015-lo-recheck2**. Use p15lo3 for those scenes in spec_scenes.py.
+- SEA: sun path r/b 2.76 = 2.76 (sf0 same; BSL 1.96): SEA_FAR does NOT whiten the path. It does make the strip just
+  under the horizon on the open sea bluer (735-760 left: 2.96 -> 2.55, far band 3.05 -> 2.96). Keep default 1 (cost
+  3.61 vs 3.62 sf0), rewrite the sea scene: path unchanged, it is the sun glint's own colour -> r016 idea.
+  Sheets r015\sheets\c_sea.jpg, c_sea2.jpg (left horizon crop 0,640,900,300), c_shore, c_misc, c_fg, c_over. No magenta.
+- 13:07 p15lo3 clean: Low lake 0.94, ocean 0.95, underwater 0.66, night 0.81 (r14 pack p14rlo2 0.95/0.93/0.65/0.83).
+  spec_scenes.py final (sea scene rewritten "not fixed yet" + C/D left-horizon 2x crops; shore says lilac sky, BSL darker;
+  meteors cost text plain), look.py SEANUMS with sf0, round.json renders + p15lo3. Dry run OK (only flag: sea 3.61 >
+  3.0, stated). SHADERS-READY touched. Next: track, journal, commit, push. Draft kept specs\spec_scenes.draft.py.
