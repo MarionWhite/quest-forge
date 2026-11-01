@@ -246,6 +246,14 @@ mat2x3 phAirFogO(vec3 origin, vec3 dir, float len, vec3 L, vec3 light, vec3 ambi
     float amount = 1.0, aniso = 1.0;
     for (int i = 0; i < 4; i++) {
         float ph = 0.7 * phHG(LoV, 0.5 * aniso) + 0.3 * phHG(LoV, -0.2 * aniso);
+#if QF_SUN_HALO > 0
+        // r014 loop 3: the glow round a clear low sun is this haze's forward lobe (debug 16 and loop 3: the
+        // bloom and the sky aureole moved it by under 1 luma). HG 0.5 makes a broad, flat glow (r013 cloud-free:
+        // 213/201/190/167 luma at 50/100/200/300 px, BSL 235-247/211-232/171-195/148-159). A share of the first
+        // bounce goes to a tight lobe (HG 0.9, the haze's diffraction peak, which Photon's two lobes leave out):
+        // a hot spot a few degrees wide that falls away faster. 1 15 %, 2 25 %.
+        if (i == 0) ph = mix(ph, phHG(LoV, 0.90), QF_SUN_HALO == 2 ? 0.25 : 0.15);
+#endif
         S += amount * (rs * iso + ms * ph) * light * (1.0 - 0.9 * rainStrength);
         amount *= 0.5;
         aniso *= 0.7;

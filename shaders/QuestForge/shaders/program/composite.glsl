@@ -787,7 +787,7 @@ vec3 shadeWaterAbove(vec3 color, vec3 n, float var, vec3 scene0, float dist0, ve
     // tip toward it (which mirror the sky higher up), so what the eye averages leans to the horizon. At
     // golden hour the mirrored direction is pulled toward the horizon by that weighting (to 0.35 of its
     // elevation at the horizon, none by 30 degrees down), so the far and middle sea carry the gold band.
-    float grazeK = goldenHour() * (1.0 - smoothstep(0.04, 0.50, -viewDir.y));
+    float grazeK = goldenHour() * (1.0 - smoothstep(0.04, 0.80, -viewDir.y));   // loop 3: 0.50 left the near sea grey
     vec3 R = reflect(viewDir, n);
     R = normalize(vec3(R.x, abs(R.y) * mix(1.0, 0.35, grazeK), R.z));
 #else
@@ -813,7 +813,7 @@ vec3 shadeWaterAbove(vec3 color, vec3 n, float var, vec3 scene0, float dist0, ve
         vec3 Lh2 = normalize(vec3(L.x, 0.0, L.z) + vec3(1e-5, 0.0, 0.0));
         vec3 glow2 = skyScatter(normalize(Lh2 + vec3(0.0, 0.10, 0.0)));
         vec3 hue2 = glow2 / max(luminance(glow2), 1e-6);
-        refl = mix(refl, luminance(refl) * hue2, 0.75 * grazeK);
+        refl = mix(refl, luminance(refl) * hue2, min(0.95 * grazeK, 1.0));   // loop 3: 0.75
     }
 #endif
     refl *= smoothstep(0.3, 0.9, skyLight);

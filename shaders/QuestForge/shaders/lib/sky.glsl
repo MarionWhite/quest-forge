@@ -1056,7 +1056,7 @@ vec3 cloudLum(CloudLight c, float od, float h, float mu, float dens) {
     {
         float sy = sunDirWorld().y;
         float lo = smoothstep(0.125, 0.035, sy) * smoothstep(-0.07, -0.01, sy);
-        s *= mix(vec3(1.0), vec3(0.92, 1.10, 0.50), lo);
+        s *= mix(vec3(1.0), vec3(0.84, 1.18, 0.48), lo);
     }
 #endif
     // At night, only thin edges carry moonlight: the bodies stay dark (no glow).
@@ -1068,7 +1068,7 @@ vec3 cloudLum(CloudLight c, float od, float h, float mu, float dens) {
     {
         float sy = sunDirWorld().y;
         float lo = smoothstep(0.125, 0.035, sy) * smoothstep(-0.07, -0.01, sy);
-        return s + c.top * mix(0.35, 1.0, h) + c.under * (1.0 - h) * (1.0 - h) * mix(vec3(1.0), vec3(0.92, 1.10, 0.50), lo);
+        return s + c.top * mix(0.35, 1.0, h) + c.under * (1.0 - h) * (1.0 - h) * mix(vec3(1.0), vec3(0.84, 1.18, 0.48), lo);
     }
 #endif
     return s + c.top * mix(0.35, 1.0, h) + c.under * (1.0 - h) * (1.0 - h);
