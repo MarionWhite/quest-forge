@@ -1,0 +1,534 @@
+{
+ "n": 15,
+ "id": "r015",
+ "title": "Five gem looks, five HUD designs, quieter dusk clouds and a clear starry meteor night",
+ "intro": "This round answers your round 14 notes, with the critic's notes as the work order on the sky (you wrote \"critic\" again), copying from BSL and Photon, each option against round 14 with its cost (per frame, against the same view with shaders off). Your sun-glow pick, B, is now the default. One thing did not work: the sun's path on the sea is as orange as in round 14 (first scene). Worst frames: High at 1440p 3.65 ms (budget 3.0, over), Low at 1080p 0.95 ms (budget 0.9, over), Potato at 720p 0.31 ms (budget 0.4). 11 of the 24 High views are over 3.0: 9 with open water in view (3.11 to 3.65 ms) and the night views (night new 3.11, night wide 3.02), as in round 14: the water is still the main cost, and making it cheaper is still your open question. The worst High view is sun clear at 3.65 ms. Low over 0.9: lake glitter 0.94 ms, ocean sunset 0.95 ms (round 14's pack, same afternoon: ocean sunset 0.93, lake glitter 0.95); this round's changes add nothing measurable on Low.",
+ "status": "open",
+ "created": "2026-11-01",
+ "scenes": [
+  {
+   "id": "sea-sunset",
+   "name": "The sun's path on the sea: not fixed yet",
+   "question": "The critic: the far sea was more orange than BSL's (red/blue 2.93 against 2.39), so the horizon line softened. Measured across the width, the open sea on the left was already close to BSL's (ours 3.04, BSL 2.83); the gap was the sun's own path: under the sun ours was 2.60 to 2.91, BSL's 1.88 to 2.09, a white-hot path. We blamed round 14's gold sea (it pulls the mirrored sky down toward the gold band and gives it the band's colour) and eased both pulls over the last 6 degrees below the horizon and near the sun's mirror direction. On these frames the strip just under the horizon on the open sea goes from red/blue 2.98 to 2.55 (2.96 with the change off), but the sun's path in the far band stays at 2.76 (round 14 2.76, change off 2.76; BSL 1.96), and the middle sea keeps round 14's gold (1.89, was 1.91; BSL 2.02). So the change only gives the open sea a slightly paler strip right under the horizon (C and D, 2x crops of the left horizon; it softens the horizon line a little). The sun's path is not the pulls. The critic found two causes: the glint, which we tint gold at sunset (BSL's sun burns to white, 255,254,251; ours peaks at 253,214,162), and the sea beside the path, which is more orange than BSL's (2.70 against 2.36). A white glint alone would close about 60 % of the gap (2.76 to about 2.29); round 16 tries both. The change stays on (it costs nothing measurable). Cost on High: this view 3.61 ms, over the 3.0 budget like every sea view (change off 3.62, round 14's pack 3.55 in the same run). A new (default), B round 14.",
+   "notePrompt": "Is the paler strip under the horizon (C/D, it softens the horizon line a little) worth keeping? Do you want the white-hot sun path BSL has?",
+   "options": [
+    {
+     "key": "A",
+     "label": "This round (default)",
+     "img": "r015/sea-sunset-A.jpg",
+     "critic": "Critic 7: Not fixed, as the page says, and the cause it gives is only half the story. Our sun never turns white: the sun's brightest pixels are 253,214,162 (red/blue 1.56), BSL's 255,254,251, and the brightest pixels of our path are just the sun's own colour (253,211,146, 1.72). No pixel in the far band under the sun reaches white (BSL: 6.3 %). So the glint is gold mostly because the sun is gold, plus a little extra tint (1.56 to 1.72). A white glint closes about 60 % of the gap: swap the band's brightest tenth for BSL's white and the band goes from 2.76 to 2.29 (BSL 1.96). The rest is the sea on either side of the path (its darker half 2.70, BSL's 2.36). The change itself (C): at the left horizon the colour used to switch from sky to sea within about 12 px (red/blue 2.00 to 2.93). Now it fades over about 50 px (2.00, 2.44, 2.66, 2.9), so the strip is paler, not clearer, and the horizon line a little softer, the opposite of what round 14's note asked. The brightness step is unchanged (176 to 166), and in the full frame you will not see it. Cost 3.61 ms against round 14's 3.55 in the same run, but not from the change (off 3.62).",
+     "ms": 3.61
+    },
+    {
+     "key": "B",
+     "label": "Round 14",
+     "img": "r015/sea-sunset-B.jpg",
+     "critic": "Critic 7: Round 14 in the same run: the same picture. The colour switches from sky to sea at the left horizon within about 12 px (2.00 to 2.93), so its horizon line is a touch sharper than A's. The sun's path is the same 2.76.",
+     "ms": 3.55
+    },
+    {
+     "key": "C",
+     "label": "Left horizon 2x: this round",
+     "img": "r015/sea-sunset-C.jpg",
+     "critic": "Critic 7: Not fixed, as the page says, and the cause it gives is only half the story. Our sun never turns white: the sun's brightest pixels are 253,214,162 (red/blue 1.56), BSL's 255,254,251, and the brightest pixels of our path are just the sun's own colour (253,211,146, 1.72). No pixel in the far band under the sun reaches white (BSL: 6.3 %). So the glint is gold mostly because the sun is gold, plus a little extra tint (1.56 to 1.72). A white glint closes about 60 % of the gap: swap the band's brightest tenth for BSL's white and the band goes from 2.76 to 2.29 (BSL 1.96). The rest is the sea on either side of the path (its darker half 2.70, BSL's 2.36). The change itself (C): at the left horizon the colour used to switch from sky to sea within about 12 px (red/blue 2.00 to 2.93). Now it fades over about 50 px (2.00, 2.44, 2.66, 2.9), so the strip is paler, not clearer, and the horizon line a little softer, the opposite of what round 14's note asked. The brightness step is unchanged (176 to 166), and in the full frame you will not see it. Cost 3.61 ms against round 14's 3.55 in the same run, but not from the change (off 3.62).",
+     "ms": 3.61
+    },
+    {
+     "key": "D",
+     "label": "Left horizon 2x: Round 14",
+     "img": "r015/sea-sunset-D.jpg",
+     "critic": "Critic 7: Round 14 in the same run: the same picture. The colour switches from sky to sea at the left horizon within about 12 px (2.00 to 2.93), so its horizon line is a touch sharper than A's. The sun's path is the same 2.76.",
+     "ms": 3.55
+    }
+   ]
+  },
+  {
+   "id": "shore-sunset",
+   "name": "Gold on the lit rims, cool shadow sides",
+   "question": "The critic: round 14's gold went past the rims to all the light on the clouds (the strongly gold share of the sky rose from 32 % to 56 %), the big cloud's shadow side was mustard and the zenith grey-mauve; BSL's same view is darker and quieter. Now, with the sun under 7 degrees, the sunlit light keeps round 14's amber, but the part of a cloud deep in its own shadow drains toward a darker, cooler grey (as a real shadow side lit by the sky above it), and the open sky keeps more of its blue: round 14 cut the blue out of the whole Rayleigh sky, not just the glow. On these frames the strongly gold share of the sky goes from 44 % to 13 % (BSL 1 %), the brightest 5 % stays amber (250,157,83, was 250,159,77), the big left cloud goes from 134,105,45 to 124,99,66, and the open sky from 122,101,89 to 117,96,111 (BSL 83,65,61). The open sky is now lilac rather than grey-mauve, and still brighter and pinker than BSL's dark warm grey: we did not match BSL's darkness. (A milder setting keeps 38 % strongly gold, if this is too far.) Cost on High: this view 2.93 ms (without the change 2.92, round 14 2.88). A new (default), B round 14.",
+   "notePrompt": "Amber rims with quieter clouds and sky: closer to what you want?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Gold rims, cool shadows (default)",
+     "img": "r015/shore-sunset-A.jpg",
+     "critic": "Critic 7: Answers most of the note. The strongly gold share of the sky falls from 44 % to 13 % (BSL 1 %), the lit rims stay amber (brightest 5 % 250,157,83), and the big cloud's underside goes from mustard 134,105,45 to 124,99,66, level with BSL's 122,88,62. But the open sky overshot, from gold-grey to pink-lilac. Between the clouds it is 137,100,103 (a pink, hue 356) where BSL's is a warm brown 115,85,57; at the top right it is 129,108,112 against BSL's 77,61,57, about 1.7 times as bright; and 49 % of the upper sky now has more blue than green (round 14 0 %, BSL 13 %). Hard orange rims on a lilac sky read like a poster, and it drifts toward the look bible's 'pink wash'. The page says so plainly, which is right. The trouble is too much red, not too little blue. Cost 2.93 ms (without the change 2.92, round 14 2.88).",
+     "ms": 2.93
+    },
+    {
+     "key": "B",
+     "label": "Round 14",
+     "img": "r015/shore-sunset-B.jpg",
+     "critic": "Critic 6: Round 14 in the same run: 44 % of the sky strongly gold, a mustard cloud underside (134,105,45) and a gold-grey open sky. A wins on the clouds; B has no pink.",
+     "ms": 2.88
+    }
+   ]
+  },
+  {
+   "id": "sun-glow",
+   "name": "Your pick, the haze-core sun, is the default",
+   "question": "You picked B for the little distortion on the horizon blocks. B is now the default (A here). We measured what B changes at the horizon against round 14's A, both frames from the same run: the sky and the land are 1 to 2 levels darker in B everywhere (the haze sends a little more of its light into a tight lobe round the sun), and the pier right under the sun is 3 levels brighter and a touch yellower (235,180,88 against 232,177,83). The blocks themselves are drawn the same: their local contrast and edge sharpness match within the frame-to-frame noise, and their edges sit at most a fraction of a pixel apart (a camera difference between the two runs, not the setting). So the wavering you liked on the far blocks (the haze veil over the far cliff and the pier mirrored in the moving waves) is in both, and it stays. C and D are those horizon blocks at 3x, round 14's A and your B side by side: if you see a difference we did not measure, point at it. The faint pale band the critic saw rising right of the sun is the edge of the glow's gold dome against the blue sky, the same on both sides of the sun (the cliff frames it on the right); the only thing that removed it in our tests (the light-shaft pass off) removed the whole glow with it, so it is unchanged. 2x crops round the sun for A and B. Cost on High: A 3.38 ms, B 3.36 ms.",
+   "notePrompt": "Is the horizon effect you liked still there? Point at it in C/D if you can.",
+   "options": [
+    {
+     "key": "A",
+     "label": "Haze-core sun (default)",
+     "img": "r015/sun-glow-A.jpg",
+     "critic": "Critic 7: Your pick, now the default, and the page is straight with you. Next to round 14's A it is within 1 to 3 levels everywhere, and the horizon blocks are drawn the same. As in round 14, it is a soft white disk in a broad peach dome, where BSL's sun is a hot near-white core with a tight halo. The crops are aimed right, with the sun in the middle. Cost 3.38 ms; the cloudy version of this view, at 3.65, is the worst High view of the round.",
+     "ms": 3.38
+    },
+    {
+     "key": "B",
+     "label": "Round 14's A",
+     "img": "r015/sun-glow-B.jpg",
+     "critic": "Critic 7: Round 14's A in the same run: the same disk and dome. 3.36 ms.",
+     "ms": 3.36
+    },
+    {
+     "key": "C",
+     "label": "Horizon 3x: round 14's A",
+     "img": "r015/sun-glow-C.jpg",
+     "critic": "Critic 7: Aimed right: the pier, the foot of the cliff and the far hill at 3x. The wavering you liked (the haze veil on the far blocks and the pier's broken reflection in the waves) is here too.",
+     "ms": null,
+     "noCost": "a crop of round 14's frame"
+    },
+    {
+     "key": "D",
+     "label": "Horizon 3x: round 14's B (your pick)",
+     "img": "r015/sun-glow-D.jpg",
+     "critic": "Critic 7: Your B, the same blocks: the same waver, and I find no difference beyond 1 to 3 levels of brightness. Whatever you liked in B is in A too, so it is safe.",
+     "ms": null,
+     "noCost": "a crop of round 14's frame"
+    }
+   ]
+  },
+  {
+   "id": "meteors",
+   "name": "A clear, starry shower night",
+   "question": "The critic: against your photos the bigger gap was the sky, not the meteors: theirs cross a dense, blue star field, ours crossed heavy dark cloud. Now a meteor-shower night is a clear night: the cloud deck thins (a few clouds stay, as in your second photo), the sky's navy is lifted and reaches lower, and a dense field of fine stars fills it, thickest along the Milky Way, each star a blackbody colour from 5200 to 11000 K (ported from Photon's star field). On the stills, the share of near-black sky (every pixel darker than 5) goes from 18 % to 5 %, the star pixels from 17494 to 136189, and the sky's mean colour from 7,9,12 to 10,12,17. The meteors themselves are round 14's. Cost on the wide night view, shower forced, one run: A 2.98 ms (clear sky off 3.02, round 14's pack 3.05); in these clips A 2.98 ms, B 3.05 ms. The clear sky adds nothing we can measure (the settings differ by less than the 0.05 ms run-to-run spread), but the shower night is still over round 12's 2.94 ms and only 0.02 under the 3.0 budget; the same view in the 24-view run, no forced shower, measured 3.02 ms, over budget. A new (default), B round 14, same view, same radiant.",
+   "notePrompt": "Closer to your photos?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Clear starry shower night (default), clip",
+     "img": "r015/meteors-A.jpg",
+     "critic": "Critic 8: A real leap, and the clearest answer this round. The cloud that hid the shower is mostly gone: over the clip about two to three times as many streaks are visible, and they now cross stars and the Milky Way, as in your photos. Three gaps to the photos remain. The sky is still near black: median 4,7,15 against the photos' roughly 50,50,70, which are long exposures, but ours needs about a third of that to read as navy. The stars are dim and warm (brightest star pixels 135,125,107; the photos' are blue-white), and the Milky Way is sepia with brown dust lanes. And a dark cloud still covers the top of the Milky Way on the right. Near the horizon the streaks run amber, which reads as tracer fire next to the photos' white heads with green trains. The page's '18 % to 5 % hidden by dark cloud' counts every pixel darker than 5, so the brighter sky moves it too: the clip is the fair test. Cost 2.98 ms in this clip (round 14 3.05); the clear sky costs nothing measurable.",
+     "ms": 2.98,
+     "clip": "r015/meteors-A.webp"
+    },
+    {
+     "key": "B",
+     "label": "Round 14, clip",
+     "img": "r015/meteors-B.jpg",
+     "critic": "Critic 6: Round 14 next to it: heavy dark cloud over about two thirds of the sky, so most streaks vanish mid-flight.",
+     "ms": 3.05,
+     "clip": "r015/meteors-B.webp"
+    }
+   ]
+  },
+  {
+   "id": "gems15-close",
+   "name": "Gems: five looks, close up",
+   "question": "You rated every gem scene 'neither': plastic or noisy. So this round stops tuning and shows five complete, different looks, each copied from something that works, all connected, all in the same light (late afternoon, the sun ahead of you) at three distances. Close: a lone diamond (right) and emerald (left) block, a step away. Look for: does the top face read as cut stone or as a glazed tile (plastic)? Do whole facets light up, or single texels (glitter)? Is there depth under the surface? How the numbers are read: 'glitter' is how much the brightness jumps from texel to texel (noise; round 14's crystal look measured 0.10-0.12, but in its own closer glint view, so compare looks within this round); 'sparkles' counts single bright points per 10 000 gem pixels; 'smooth' is the share of the brightness variation that is broad gradient rather than texel detail: high on a mirror sheet (round 13's plastic: 76-89 %), but also high on quiet paint with no mirror (B, E), so it means plastic only where the face mirrors the sky; 'white' is the share of gem pixels that are bright and colourless (white glare). ",
+   "notePrompt": "Which look is closest to what you want a gem block to be? Even if none is right, which direction?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Big facets",
+     "img": "r015/gems15-close-A.jpg",
+     "crop": "C:\\qfb\\shaderdev\\r015\\crops\\g15fac-gem15_close.png",
+     "ms": null,
+     "desc": "A rhombus cut, as Faithless, Conquest and Soartex draw gem blocks, with Patrix 32x's facet tilts (about 21 degrees): a flat table and eight flat corner facets per block, polished, so each facet holds one piece of the sky and flashes whole. Shader as now (gem reflection on). Our read: up close this is the one that reads as a cut stone (each facet holds one piece of sky). Weak point: the facet borders are drawn on the texture's pixel grid, so they are stair-stepped lines. Measured on this frame, diamond: glitter 0.024, 11 sparkles per 10k px, smooth 82 %, white 0.1 %; emerald: glitter 0.024, 16 sparkles per 10k px, smooth 81 %, white 0.0 %.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 7: The first gem in fifteen rounds that reads as a cut stone, and the direction to follow. Each block shows a table and corner facets, and each facet holds one piece of sky, so the stone flashes a plane at a time, not speck by speck (11 to 16 sparkles per 10k px, white glare under 0.1 %). Neither plastic nor glitter. Weak spots: the facet borders step along the texture's pixel grid (jagged lines), and the shadowed facets go very dark."
+    },
+    {
+     "key": "B",
+     "label": "Stay True, plain",
+     "img": "r015/gems15-close-B.jpg",
+     "crop": "C:\\qfb\\shaderdev\\r015\\crops\\g15st-gem15_close.png",
+     "ms": null,
+     "desc": "Stay True's own diamond and emerald art (the emerald's step-cut rings kept per block), connected, with no gem reflection at all (no pixel reaches the gem path; QF_GEM_SSR 0). The clean baseline: paint only. Our read: clean and calm, but plain paint with no polish; the emerald shows Stay True's nested-square rings on every face. Measured on this frame, diamond: glitter 0.022, 14 sparkles per 10k px, smooth 79 %, white 1.0 %; emerald: glitter 0.028, 13 sparkles per 10k px, smooth 71 %, white 0.0 %.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 5: Clean paint: nothing plastic, nothing noisy, but nothing polished either. The emerald carries Stay True's nested squares, the pattern you objected to in round 11; the diamond is the classic block, done well."
+    },
+    {
+     "key": "D",
+     "label": "Round 14, calmed",
+     "img": "r015/gems15-close-D.jpg",
+     "crop": "C:\\qfb\\shaderdev\\r015\\crops\\g15calm-gem15_close.png",
+     "ms": null,
+     "desc": "Round 14's best (Faithful's streaks on the deeper colour) with the noise taken out: the crystal tilts softened and halved, one even gloss everywhere (round 14's rough gaps switched the gem reflection on and off texel by texel, which glitters), the streak contrast eased a quarter. Our read: still busy. The streaks become camouflage blotches, with more single sparkles than any other look. Measured on this frame, diamond: glitter 0.043, 74 sparkles per 10k px, smooth 56 %, white 0.2 %; emerald: glitter 0.043, 54 sparkles per 10k px, smooth 66 %, white 0.0 %.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 4: Calming did not take the noise out. Faithful's streaks turn into camouflage blotches, with more single sparkles than any other look (54 to 74 per 10k px). Up close it is identical to F."
+    },
+    {
+     "key": "E",
+     "label": "Frost (Soartex)",
+     "img": "r015/gems15-close-E.jpg",
+     "crop": "C:\\qfb\\shaderdev\\r015\\crops\\g15fro-gem15_close.png",
+     "ms": null,
+     "desc": "Soartex's gems as it draws them: frosted, pale, matte ice with soft big facets (the emerald's rhombus bands), a soft sheen and no mirror. Our read: the calmest and softest, but it reads as frosted ice or marble rather than a gem (its colour is about half as saturated as the others). Measured on this frame, diamond: glitter 0.019, 6 sparkles per 10k px, smooth 85 %, white 1.9 %; emerald: glitter 0.017, 6 sparkles per 10k px, smooth 87 %, white 0.0 %.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 5: Calm and clean, but it is frosted ice or marble: about half the saturation of the other looks and no polish. Not a gem."
+    },
+    {
+     "key": "F",
+     "label": "Round 14 calmed + distance fade",
+     "img": "r015/gems15-close-F.jpg",
+     "crop": "C:\\qfb\\shaderdev\\r015\\crops\\g15calmnf2-gem15_close.png",
+     "ms": null,
+     "desc": "Look D's textures with a new shader option (QF_GEM_NFADE 2): the gem's surface tilts fade out with distance, flat by 14 blocks, so far gems should read as one calm polish instead of a shimmer. Close up it is look D. Our read: at this distance the fade has not started to matter; this is look D. Measured on this frame, diamond: glitter 0.042, 76 sparkles per 10k px, smooth 56 %, white 0.2 %; emerald: glitter 0.043, 53 sparkles per 10k px, smooth 66 %, white 0.0 %.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 4: Look D up close (the same numbers), as the page says."
+    }
+   ]
+  },
+  {
+   "id": "gems15-pillar",
+   "name": "Gems: five looks, a pillar",
+   "question": "The same looks as 3x3 pillars a few steps away, the floors running up to them. Look for: does the pillar read as one block of gem or as a grid of tiles? Do the facets flash as you would expect a cut stone to, and does the colour stay rich in the shade?",
+   "notePrompt": "Which pillar looks like a gem block?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Big facets",
+     "img": "r015/gems15-pillar-A.jpg",
+     "crop": "C:\\qfb\\shaderdev\\r015\\crops\\g15fac-gem15_pillar.png",
+     "ms": null,
+     "desc": "A rhombus cut, as Faithless, Conquest and Soartex draw gem blocks, with Patrix 32x's facet tilts (about 21 degrees): a flat table and eight flat corner facets per block, polished, so each facet holds one piece of the sky and flashes whole. Shader as now (gem reflection on). Our read: the facet pattern repeats on every block, so the pillar and the floor in front read as a studded argyle GRID, not one gem block, even though the outer frame is connected. Measured on this frame, diamond: glitter 0.020, 8 sparkles per 10k px, smooth 80 %, white 0.1 %; emerald: glitter 0.020, 8 sparkles per 10k px, smooth 77 %, white 0.1 %.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 5: The same cut repeats on every block, so the pillar is a studded argyle grid. On the near floor the big facets, seen at a grazing angle, mirror sky and dark ground side by side and read as shattered glass."
+    },
+    {
+     "key": "B",
+     "label": "Stay True, plain",
+     "img": "r015/gems15-pillar-B.jpg",
+     "crop": "C:\\qfb\\shaderdev\\r015\\crops\\g15st-gem15_pillar.png",
+     "ms": null,
+     "desc": "Stay True's own diamond and emerald art (the emerald's step-cut rings kept per block), connected, with no gem reflection at all (no pixel reaches the gem path; QF_GEM_SSR 0). The clean baseline: paint only. Our read: the diamond is one clean connected block with no grid. The emerald's nested squares repeat every block, so its pillar and floor read as a GRID of square tiles (the 'nested squares' you objected to in round 11). Measured on this frame, diamond: glitter 0.009, 0 sparkles per 10k px, smooth 95 %, white 0.1 %; emerald: glitter 0.018, 1 sparkles per 10k px, smooth 76 %, white 0.0 %.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 6: The diamond pillar is the cleanest single block of the round; the emerald's squares tile."
+    },
+    {
+     "key": "D",
+     "label": "Round 14, calmed",
+     "img": "r015/gems15-pillar-D.jpg",
+     "crop": "C:\\qfb\\shaderdev\\r015\\crops\\g15calm-gem15_pillar.png",
+     "ms": null,
+     "desc": "Round 14's best (Faithful's streaks on the deeper colour) with the noise taken out: the crystal tilts softened and halved, one even gloss everywhere (round 14's rough gaps switched the gem reflection on and off texel by texel, which glitters), the streak contrast eased a quarter. Our read: no grid, but the polished floor in front crawls with small bright flecks: noisy. Measured on this frame, diamond: glitter 0.041, 54 sparkles per 10k px, smooth 46 %, white 0.0 %; emerald: glitter 0.039, 51 sparkles per 10k px, smooth 45 %, white 0.2 %.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 4: No grid, but the near floor crawls with flecks."
+    },
+    {
+     "key": "E",
+     "label": "Frost (Soartex)",
+     "img": "r015/gems15-pillar-E.jpg",
+     "crop": "C:\\qfb\\shaderdev\\r015\\crops\\g15fro-gem15_pillar.png",
+     "ms": null,
+     "desc": "Soartex's gems as it draws them: frosted, pale, matte ice with soft big facets (the emerald's rhombus bands), a soft sheen and no mirror. Our read: one connected block, no grid, quiet; the emerald shows only a faint quilted repeat. Measured on this frame, diamond: glitter 0.012, 0 sparkles per 10k px, smooth 94 %, white 1.7 %; emerald: glitter 0.010, 0 sparkles per 10k px, smooth 92 %, white 0.0 %.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 5: One block with no grid, but it reads as packed ice."
+    },
+    {
+     "key": "F",
+     "label": "Round 14 calmed + distance fade",
+     "img": "r015/gems15-pillar-F.jpg",
+     "crop": "C:\\qfb\\shaderdev\\r015\\crops\\g15calmnf2-gem15_pillar.png",
+     "ms": null,
+     "desc": "Look D's textures with a new shader option (QF_GEM_NFADE 2): the gem's surface tilts fade out with distance, flat by 14 blocks, so far gems should read as one calm polish instead of a shimmer. Close up it is look D. Our read: the near floor and the pillar are within a few blocks, so still look D's noise; the change is at the far end. Measured on this frame, diamond: glitter 0.040, 53 sparkles per 10k px, smooth 46 %, white 0.0 %; emerald: glitter 0.039, 50 sparkles per 10k px, smooth 46 %, white 0.2 %.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 4: Look D within a few blocks."
+    }
+   ]
+  },
+  {
+   "id": "gems15-floor",
+   "name": "Gems: five looks, a floor at distance",
+   "question": "Both floors, 16 blocks long, from their near end: where noise shows, and where a pattern that repeats every block shows as a grid. Look for: cleanliness at distance (does the far floor settle into a clean colour, or crawl with sparkles?), and whether the floor is one smooth mirror sheet (plastic) or holds its pattern. The numbers below are for the far half of each floor.",
+   "notePrompt": "Which floor would you want to walk on? Any too noisy or too plastic?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Big facets",
+     "img": "r015/gems15-floor-A.jpg",
+     "crop": "C:\\qfb\\shaderdev\\r015\\crops\\g15fac-gem15_floor.png",
+     "ms": null,
+     "desc": "A rhombus cut, as Faithless, Conquest and Soartex draw gem blocks, with Patrix 32x's facet tilts (about 21 degrees): a flat table and eight flat corner facets per block, polished, so each facet holds one piece of the sky and flashes whole. Shader as now (gem reflection on). Our read: the grid is plain here: a checkerboard of diamond shapes, one per block, down the whole floor. Measured on this frame, far diamond floor: glitter 0.048, 34 sparkles per 10k px, smooth 24 %, white 0.1 %; far emerald floor: glitter 0.057, 57 sparkles per 10k px, smooth 49 %, white 0.0 %.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 5: At distance the per-block repeat becomes a checkerboard of diamonds down the whole floor, and the far emerald floor sparkles (57 per 10k px). The fix is in the connected texture: draw the cut once per connected face, with facets along its border and one flat polished table inside, so a 3x3 pillar reads as one stone."
+    },
+    {
+     "key": "B",
+     "label": "Stay True, plain",
+     "img": "r015/gems15-floor-B.jpg",
+     "crop": "C:\\qfb\\shaderdev\\r015\\crops\\g15st-gem15_floor.png",
+     "ms": null,
+     "desc": "Stay True's own diamond and emerald art (the emerald's step-cut rings kept per block), connected, with no gem reflection at all (no pixel reaches the gem path; QF_GEM_SSR 0). The clean baseline: paint only. Our read: the cleanest far diamond floor of all; the emerald's nested squares still read as a tile GRID at distance. With no reflection both floors look painted, not polished. Measured on this frame, far diamond floor: glitter 0.022, 1 sparkles per 10k px, smooth 86 %, white 0.0 %; far emerald floor: glitter 0.030, 8 sparkles per 10k px, smooth 85 %, white 0.0 %.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 5: Clean at distance (1 to 8 sparkles per 10k px), but in the sun the floors read as flat pale sheets: painted, not polished."
+    },
+    {
+     "key": "D",
+     "label": "Round 14, calmed",
+     "img": "r015/gems15-floor-D.jpg",
+     "crop": "C:\\qfb\\shaderdev\\r015\\crops\\g15calm-gem15_floor.png",
+     "ms": null,
+     "desc": "Round 14's best (Faithful's streaks on the deeper colour) with the noise taken out: the crystal tilts softened and halved, one even gloss everywhere (round 14's rough gaps switched the gem reflection on and off texel by texel, which glitters), the streak contrast eased a quarter. Our read: no grid, but the far half still glitters (the most sparkles of all). Calming the texture alone did not take the noise out. Measured on this frame, far diamond floor: glitter 0.052, 112 sparkles per 10k px, smooth 38 %, white 0.0 %; far emerald floor: glitter 0.063, 173 sparkles per 10k px, smooth 64 %, white 0.0 %.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 4: The far floor glitters most of all (112 and 173 sparkles per 10k px)."
+    },
+    {
+     "key": "E",
+     "label": "Frost (Soartex)",
+     "img": "r015/gems15-floor-E.jpg",
+     "crop": "C:\\qfb\\shaderdev\\r015\\crops\\g15fro-gem15_floor.png",
+     "ms": null,
+     "desc": "Soartex's gems as it draws them: frosted, pale, matte ice with soft big facets (the emerald's rhombus bands), a soft sheen and no mirror. Our read: calm at distance (almost no sparkles), but pale, close to white, one smooth sheet. Measured on this frame, far diamond floor: glitter 0.023, 0 sparkles per 10k px, smooth 85 %, white 5.0 %; far emerald floor: glitter 0.022, 2 sparkles per 10k px, smooth 90 %, white 0.1 %.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 5: The calmest floor (0 to 2 sparkles per 10k px), but in the sun the diamond floor goes nearly white (5 % white glare): a sheet of snow."
+    },
+    {
+     "key": "F",
+     "label": "Round 14 calmed + distance fade",
+     "img": "r015/gems15-floor-F.jpg",
+     "crop": "C:\\qfb\\shaderdev\\r015\\crops\\g15calmnf2-gem15_floor.png",
+     "ms": null,
+     "desc": "Look D's textures with a new shader option (QF_GEM_NFADE 2): the gem's surface tilts fade out with distance, flat by 14 blocks, so far gems should read as one calm polish instead of a shimmer. Close up it is look D. Our read: the far half is visibly calmer than D (sparkles on the far diamond floor 112 -> 36, emerald 173 -> 110), and the far pillars show smooth streaks instead of flecks. The near half is still D's noise. Option 1 (a gentler fade, 15 % left at 28 blocks) measured no change in these views, so only 2 is shown. Measured on this frame, far diamond floor: glitter 0.043, 36 sparkles per 10k px, smooth 31 %, white 0.0 %; far emerald floor: glitter 0.057, 110 sparkles per 10k px, smooth 56 %, white 0.0 %.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 5: The fade works where it starts: far-floor sparkles fall from 112 to 36 (diamond) and from 173 to 110 (emerald), and the far pillars calm down. Worth keeping as a shader option for any look with a normal map, A included."
+    }
+   ]
+  },
+  {
+   "id": "pk-hud",
+   "name": "HUD: five designs",
+   "question": "Five complete HUDs, our own art, each in one material: hotbar, selection, hearts, food, armour, an XP bar with a medallion, and the boss bar. Less minimalist than round 14: every row now sits on a framed band, the medallion sits in the gap between the heart and food rows (clear of both), and the boss bar gets a frame with end pieces. Grace's hotbar, Tarnished's boss bar and the medallion were the starting point (A is closest to them). The boss name has a dark outline in all five, so it reads over a bright sky. Needs your yes: four parts of every design are drawn by a small client-only hook in qf-content (XpBarStyle.java), not by the texture pack: the medallion, the boss bar's frame, the dark outline round the boss name and the XP number's colour. It is code, so it ships only with your yes. Without it the number is plain lime, with no medallion behind it, no boss frame, and a plain white boss name; the rest of each design (bands, icons, hotbar, XP and boss bars) is texture and stays.",
+   "notePrompt": "Which design (or which parts of which)? Ship the XpBarStyle hook (yes/no)?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Gilded",
+     "img": "r015/pk-hud-A.jpg",
+     "ms": null,
+     "desc": "Smoky glass in bevelled gold: a gold-railed ribbon behind the hearts and food, gold studs on the seams; a gold coin medallion with clasps that grip the XP bar; Grace's hotbar grown up (gold pillars with diamonds, diamond end finials, a thicker gold selection); Tarnished's crimson boss bar with gold blades at both ends.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 8: The best of the five, and the most of a piece: Grace's hotbar grown up, a gold-railed ribbon behind the rows, a coin medallion that clasps the XP bar, and Tarnished's crimson bar with gold blades. Richer than round 14 without clutter, and still readable at GUI scale 1. The boss name now reads cleanly over the white cloud (cream letters, dark outline). One catch: the gold XP fill sits on a gold rail, so progress shows only where the dark part begins."
+    },
+    {
+     "key": "B",
+     "label": "Cloisonne",
+     "img": "r015/pk-hud-B.jpg",
+     "ms": null,
+     "desc": "Lapis enamel cells in gold wire: every heart, shank and chestplate sits in its own cell; enamel-red hearts; octagonal slots with turquoise jewels between them; a lapis medallion in a double gold ring; a turquoise XP bar marked in tenths; a boss bar in gold-wired segments with jewelled lozenge caps.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 6: The busiest of the five. A gold wire cell round every icon, ticks on both bars and jewels between the slots make a dense grid, and at GUI scale 1 the armour row blurs into a blue-and-gold strip. The opposite of sleek, though the boss bar's jewelled lozenges are handsome."
+    },
+    {
+     "key": "C",
+     "label": "Ironbound",
+     "img": "r015/pk-hud-C.jpg",
+     "ms": null,
+     "desc": "Blackened, riveted iron plate: rubies cut with facets and set in steel; sunken slots; an ember-hot selection; molten XP that runs from dark red to white-hot; a hex-nut medallion with an ember-lined recess; iron clamp plates with spikes on the boss bar.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 7: The strongest contrast: dark iron, an ember-lit selected slot and a molten XP bar, the most readable over a bright world. Heavy rather than sleek: the boss bar's square clamp plates are the bulkiest end pieces of the five."
+    },
+    {
+     "key": "D",
+     "label": "Moonsilver",
+     "img": "r015/pk-hud-D.jpg",
+     "ms": null,
+     "desc": "Silver filigree on midnight blue: an arcade, each heart under its own silver arch; gothic arched slots with finials; a moonlit medallion with stars on the bar; a moonlight XP bar; crescent moons at both ends of the boss bar.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 7: Elegant: silver arches, crescent moons, and the sleekest boss bar of the five. At GUI scale 1 the silver hairlines round every cell become a fine grid over the rows."
+    },
+    {
+     "key": "E",
+     "label": "Obsidian",
+     "img": "r015/pk-hud-E.jpg",
+     "ms": null,
+     "desc": "Black volcanic glass with an amethyst glow: crystal hearts cut with facets, angled seams, slanted slots with cut corners, a rune-stone medallion, a violet XP bar, glowing thorns at both ends of the boss bar.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 7: The most distinct: violet glass, faceted pink hearts and thorned ends. The violet and pink pull against the orange food, and the boss bar fills pink, not blood red."
+    },
+    {
+     "key": "M",
+     "label": "Offline mock: all five side by side",
+     "img": "r015/pk-hud-M.jpg",
+     "ms": null,
+     "desc": "Each design at GUI scale 4 (left: normal; right: just hit, under water, slot 5, level 104) and at GUI scale 1 (what a scale-1 screen really samples, shown 4x).",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 7: The fair side-by-side, with the GUI scale 1 view and the just-hit, under-water and level-104 states. All five keep the hearts, food and level number legible at scale 1. '104' runs onto the rim in all five but still reads."
+    }
+   ]
+  },
+  {
+   "id": "pk-hud-icons",
+   "name": "HUD: icons up close",
+   "question": "The armour, heart and food rows of each design at 2x.",
+   "notePrompt": "",
+   "options": [
+    {
+     "key": "A",
+     "label": "Gilded",
+     "img": "r015/pk-hud-icons-A.jpg",
+     "ms": null,
+     "desc": "Seven and a half hearts, full food, armour 13 of 20, the medallion between the rows.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 8: 7.5 hearts, full food, armour 13 of 20, all clear at a glance, and the coin medallion sits in the gap between the rows, clear of both. These are round 14's icons on a new gold band."
+    },
+    {
+     "key": "B",
+     "label": "Cloisonne",
+     "img": "r015/pk-hud-icons-B.jpg",
+     "ms": null,
+     "desc": "Seven and a half hearts, full food, armour 13 of 20, the medallion between the rows.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 6: Every icon in its own enamel cell: crisp at 2x, but the cells make a grid, and the half heart and half chestplate are harder to spot against the blue."
+    },
+    {
+     "key": "C",
+     "label": "Ironbound",
+     "img": "r015/pk-hud-icons-C.jpg",
+     "ms": null,
+     "desc": "Seven and a half hearts, full food, armour 13 of 20, the medallion between the rows.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 7: Faceted ruby hearts on dark steel with clear half states; the riveted dividers add noise between the icons."
+    },
+    {
+     "key": "D",
+     "label": "Moonsilver",
+     "img": "r015/pk-hud-icons-D.jpg",
+     "ms": null,
+     "desc": "Seven and a half hearts, full food, armour 13 of 20, the medallion between the rows.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 7: Each heart under its own silver arch: pretty at 2x, but the arches' bright tops compete with the icons."
+    },
+    {
+     "key": "E",
+     "label": "Obsidian",
+     "img": "r015/pk-hud-icons-E.jpg",
+     "ms": null,
+     "desc": "Seven and a half hearts, full food, armour 13 of 20, the medallion between the rows.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 7: Pink crystal hearts and lilac chestplates: a real redesign of the icons, not just a new frame. Pink hearts say 'health' less clearly than red ones."
+    },
+    {
+     "key": "M",
+     "label": "Offline: every icon state",
+     "img": "r015/pk-hud-icons-M.jpg",
+     "ms": null,
+     "desc": "Heart row empty, blinking, full, half, lost (just hit), absorption; armour empty, half, full; food empty, full, half; an air bubble; the medallion. 6x.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 7: Every state in every design. It also shows that A, B and D share round 14's hearts, shanks and chestplates (only the frames change), while C and E redraw the hearts as cut gems: five frames over three icon sets."
+    }
+   ]
+  },
+  {
+   "id": "pk-hud-xp",
+   "name": "HUD: the XP medallions up close",
+   "question": "The level number on each medallion and the middle of the XP bar, 2x. The number's colour is the hook's (lime without it). Levels of 100 and up run onto the rim but stay readable (offline mock, right column).",
+   "notePrompt": "",
+   "options": [
+    {
+     "key": "A",
+     "label": "Gilded",
+     "img": "r015/pk-hud-xp-A.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 8: A cream '27' on a dark coin with a gold rim: the most legible of the five, and of a piece with the gold bar."
+    },
+    {
+     "key": "B",
+     "label": "Cloisonne",
+     "img": "r015/pk-hud-xp-B.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 7: Pale gold on lapis inside a double gold ring: legible, but the number's navy outline melts into the navy plate, so the digits look thinner than A's or C's."
+    },
+    {
+     "key": "C",
+     "label": "Ironbound",
+     "img": "r015/pk-hud-xp-C.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 8: Cream on black in an ember-lined hex nut: the highest contrast, and the clamps on the bar are neat."
+    },
+    {
+     "key": "D",
+     "label": "Moonsilver",
+     "img": "r015/pk-hud-xp-D.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 8: White on midnight blue in a silver ring, with small stars on the bar: legible and calm."
+    },
+    {
+     "key": "E",
+     "label": "Obsidian",
+     "img": "r015/pk-hud-xp-E.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 7: Lavender on black in an octagon: legible, but the lilac digits are a little soft against the violet glow."
+    }
+   ]
+  },
+  {
+   "id": "pk-hud-boss",
+   "name": "HUD: boss bars and the outlined name",
+   "question": "The boss name now has a dark outline in every design (the critic found it unreadable over white cloud in rounds 13 and 14), and each bar has its own end pieces.",
+   "notePrompt": "",
+   "options": [
+    {
+     "key": "A",
+     "label": "Gilded",
+     "img": "r015/pk-hud-boss-A.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 8: The name reads now: cream letters with a dark outline over the white cloud, in all five. The outline is as thick as the letters' strokes, so the name looks bolder than Elden Ring's thin title. Gold blades at both ends: with D, the sleekest bar."
+    },
+    {
+     "key": "B",
+     "label": "Cloisonne",
+     "img": "r015/pk-hud-boss-B.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 7: The name reads. The segmented bar and the jewelled lozenge caps are busy."
+    },
+    {
+     "key": "C",
+     "label": "Ironbound",
+     "img": "r015/pk-hud-boss-C.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 7: The name reads. The square iron clamp plates are heavy for a bar this thin."
+    },
+    {
+     "key": "D",
+     "label": "Moonsilver",
+     "img": "r015/pk-hud-boss-D.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 8: The name reads. Crescent moons and a hairline frame: sleek."
+    },
+    {
+     "key": "E",
+     "label": "Obsidian",
+     "img": "r015/pk-hud-boss-E.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 7: The name reads. The thorned caps are striking, but the bar fills pink, not blood red."
+    }
+   ]
+  }
+ ]
+}

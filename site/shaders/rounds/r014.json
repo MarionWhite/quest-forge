@@ -3,7 +3,7 @@
  "id": "r014",
  "title": "A gold sea, amber clouds, a clear sun, coloured meteors and gems that are not plastic",
  "intro": "This round answers your round 13 notes, with the critic's notes as the work order (you asked us to follow them closely), copying from BSL and Photon, each option against round 13 with its cost (per frame, against the same view with shaders off). Worst frames: High at 1440p 3.60 ms (budget 3.0), Low at 1080p 0.95 ms (budget 0.9), Potato at 720p 0.30 ms (budget 0.4). 11 of the 24 High views are over 3.0 (3.04 to 3.60 ms), all with open water in them, as in round 13: the water is still the cost there, as stated in round 13, and making it cheaper is still a later question for you. The worst High view is sun clear at 3.60 ms. Low is over too: lake glitter 0.94 ms, ocean sunset 0.95 ms (the sea sunset was 0.92 ms in round 13; the gold sea adds the difference).",
- "status": "open",
+ "status": "closed",
  "created": "2026-11-01",
  "scenes": [
   {

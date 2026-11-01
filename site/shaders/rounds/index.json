@@ -130,9 +130,18 @@
    "n": 14,
    "id": "r014",
    "title": "A gold sea, amber clouds, a clear sun, coloured meteors and gems that are not plastic",
-   "status": "open",
+   "status": "closed",
    "created": "2026-11-01",
    "scenes": 14,
+   "feedback": true
+  },
+  {
+   "n": 15,
+   "id": "r015",
+   "title": "Five gem looks, five HUD designs, quieter dusk clouds and a clear starry meteor night",
+   "status": "open",
+   "created": "2026-11-01",
+   "scenes": 11,
    "feedback": false
   }
  ]
