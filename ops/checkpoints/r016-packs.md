@@ -50,3 +50,24 @@ a separate sprite sheet); per-boss icons and phase pips need data 1.7.10 does no
 - Next: `py -3.10 -I tools/renderq/renderq.py wait 1101-155720-textures-r016-packs` (one call; checkpoint + exit if
   the ETA is past 10 min); check frames (bar mode drew? vanilla strip gone? name outlined, percent, food full, 7.5
   hearts, no screen, chat clear); then tools/textures/r016_packs_handoff.py (to write) --ready.
+- Hand-off script written (not yet run): tools/textures/r016_packs_handoff.py (scenes pk-hud [A-D + M mock],
+  pk-hud-icons [A-D + M], pk-hud-xp [A-D], pk-hud-boss [A-D day-over-night stacks + M boss mock]; BOSS_BOX
+  540,0,2020,270; HUD boss strip 0-280). Committed e225d64 (my files only).
+- Exited at 15:59 to wait: the queue ETA was ~16:14 (> 10 min), owner-idle gated.
+
+## RESUME (fresh agent)
+1. `py -3.10 -I tools/renderq/renderq.py status`; if this render's ETA is under 10 min, ONE call:
+   `py -3.10 -I tools/renderq/renderq.py wait 1101-155720-textures-r016-packs`; else re-checkpoint and exit.
+2. Frames C:\qfb\shaderdev\rounds\screenshots\bench-pk16{a,b,c,d}{,n}-gui_hud.png (newer than 15:57 on 11-01).
+   Review as a contact sheet + crops (boss strip 0-280 px; HUD 640-1920 x 1100-1440). Check: the bar-mode boss bar
+   drew (thick bar + medallion + percent "62%"; NO vanilla thin strip under it: if both show, the Pre cancel failed;
+   if only the thin vanilla strip shows, XpBarStyle did not read qf.boss.sheet -> log in
+   %APPDATA%\.qf-trials\renderq\logs); name outlined; night frames dark behind the bar; hotbar/selection/icons ours;
+   XP number recoloured on its medallion; food 10 shanks, 7.5 hearts, armour 13; no screen open; chat clear.
+3. Fix what is broken (qf_hud_r016.py; hook -> rebuild in C:\qfb\wt-r011-fb -PqfDebugTools=true, rm then cp to
+   C:\qfb\renderq\jars-r016), resubmit only the failing tags if needed.
+4. `py -3.10 -I tools/textures/r016_packs_handoff.py` (dry); look at every crop in C:\qfb\shaderdev\r016\packs\
+   (nudge ICON_BOX/XP_BOX/BOSS_BOX if cut); then `--ready` (packs_scenes.json + PACKS-READY in C:\qfb\shaderdev\r016).
+5. ops/tracks/textures.md packs bullet (r016: 4 HUDs + 4 boss bars, bar-mode hook, still the owner's yes), ONE journal
+   entry in ops/journal/textures.md (Infernum study, the designs, bar mode, the render), commit own hunks,
+   `git log origin/main..main`, push. Report <= 5 lines; say the XP colour, medallion and boss bar need the hook's yes.
