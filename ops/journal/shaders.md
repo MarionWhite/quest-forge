@@ -1,5 +1,7 @@
 # Shaders journal (newest first)
 
+- 2026-11-01 09:35: **r014 published** (83e5fa5, 14 scenes). Owner approved publishing as is, including in-game renders of the copied packs; no raw pack files shipped. Live r014.json 200, all images/clips 200, 600 px Edge shot in C:\qfb\shaderdev014\look\live-600.png. Over budget: sea-sunset/A 3.56 ms (water), stated on page.
+
 - 2026-10-31 21:58: **r014 shader scenes handed off** (SHADERS-READY; 6 shader scenes, dry run 14 with textures).
   Cost 1031-204537 clean (no noisy steps, no magenta, frames from the new run). High sea sunset 3.56 (r013 3.52, graze
   +0.03-0.04), shore 2.87 (2.84), Low ocean_sunset 0.95 (0.92); meteors wide view 2.98 = r013, cull saves 0.02, still
