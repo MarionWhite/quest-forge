@@ -51,3 +51,25 @@ Build: `py -3.10 -I tools/textures/build_qf_textures.py --out C:/qfb/textures/r0
 "C:\qf-world\reference-packs\Stay True 1" --gems facet --gems-ctm facet --gem-look <look>`
 Shader question for shader-dev (ask in r015-shader or here): D "noise out at distance" is texture-only (blurred,
 halved _n, even _s); a true distance fade needs a normal fade by LOD/distance in the gem path (not an existing option).
+
+### session 2
+- 10:4x render 1101-101323 done. review_r015.py ran; fixed: masks picked up magenta books / wool column (pillar crop was
+  the whole frame) -> keep only components >= 25 % of the largest (big()). Sheets C:/qfb/gems/r015/review/gem15_*.jpg,
+  numbers review/numbers.json. QF_GEM_NFADE exists (r015-shader 10:15, default 0): planning one tag g15calmnf (look D,
+  NFADE 1) if the queue is short.
+- Verdicts (in-game): A close = reads as a cut gem, but facet borders stair-stepped, pillar/floor = per-block argyle
+  GRID; B diamond clean at all distances (plain), B emerald = nested-squares GRID; C = tiles/buttons, starburst
+  stickers, dark seams, GRID, noisiest far; D = still noisy camo (most sparkles); E = calmest, no grid, but pale
+  ice/marble (sat 0.3-0.45), not gem.
+- 10:31 SUBMITTED `1101-103133-r015-gems-nf` (spec C:/qfb/gems/r015/specs/r015-gems-nf.json): g15calmnf1/2 = look D
+  with QF_GEM_NFADE 1/2, shader C:/qfb/gems/r015/shader-nfade (frozen r014 copy + commit 83c8e41's patch only).
+  Behind loop2 + packs. Next: textures_make_scenes.py text (grid statements), add D+NFADE option when it lands.
+- 10:3x textures_make_scenes.py: VERDICT per look x scene (grid stated plainly for A, B emerald, C), 'sky sheet' renamed 'smooth' (high on quiet paint too), r014 glitter compare caveated.
+- 10:38 scenes script: option F = D + QF_GEM_NFADE (NF_TAG, added only if frames exist, else 'pending' note). review_r015.py NAMES has g15calmnf1/2; rerun with ALL tags (numbers.json is rebuilt from the tag list): review_r015.py g15fac g15st g15jew g15calm g15fro g15calmnf1 g15calmnf2. Waiting on 1101-103133 (behind loop3 + packs, ETA ~10:45).
+- 10:41 1101-103133-r015-gems-nf done. NFADE 1: no measurable change in these views (fade 6->28 blocks, floors end at
+  19.5). NFADE 2: far diamond floor sparkles 112 -> 36, glitter 0.052 -> 0.043; far emerald 173 -> 110, 0.063 -> 0.057;
+  near half unchanged (still D's noise). Shown as option F (g15calmnf2).
+- 10:45 textures_make_scenes.py: 3 scenes x A-F, VERDICT text (grid stated plainly), floor crop override
+  review/crops_manual.json [680,500,1200,340] (auto 16:9 box was mostly grass); all 18 crops checked (aimed at the
+  lone blocks / pillars+floors / both floors). --ready: TEXTURES-READY written. (Fixed a comment the patch split.)
+## DONE (session 2). Remaining: track + journal + commit + push.
