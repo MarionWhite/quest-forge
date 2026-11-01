@@ -1,0 +1,4 @@
+# r016 packs: the HUD scene at midnight (dark sky behind the boss bar). Same place and look as views-r013.txt's
+# gui_hud (world C:\qfb\textures\world-r013); only worldTime differs. Format as views-r013.txt.
+# name               x       y      z        yaw    pitch  worldTime  [measureTicks]
+gui_hud              245.5   68.0   210.0    0      2      18000  21

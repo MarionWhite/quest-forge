@@ -1,0 +1,144 @@
+{
+ "name": "textures-r016-packs",
+ "owner": "texture-dev-packs",
+ "comment": "r016 packs (ops/checkpoints/r016-packs.md): FOUR minimal sleek HUDs (qf_hud_r016.py, own art) A refined, B glass, C gunmetal, D wine, each with one of four Infernum-studied boss bars (ember, obsidian, ironclad, gilded) drawn by qf-content's XpBarStyle bar mode (jars-r016). Day jobs pk16a-d (views-r013 gui_hud, worldTime 7000) and night jobs pk16an-dn (views-r016-night.txt, 18000). Base = round 12's set A.",
+ "prebuild": [
+  [
+   "py",
+   "-3.10",
+   "-I",
+   "tools/textures/qf_hud_r016.py",
+   "--design",
+   "refined",
+   "--gui-zip",
+   "C:/qfb/textures/r013/QF-r012-gui-final.zip",
+   "--out",
+   "C:/qfb/textures/r016/QF-r016-hud-refined.zip"
+  ],
+  [
+   "py",
+   "-3.10",
+   "-I",
+   "tools/textures/qf_hud_r016.py",
+   "--design",
+   "glass",
+   "--gui-zip",
+   "C:/qfb/textures/r013/QF-r012-gui-final.zip",
+   "--out",
+   "C:/qfb/textures/r016/QF-r016-hud-glass.zip"
+  ],
+  [
+   "py",
+   "-3.10",
+   "-I",
+   "tools/textures/qf_hud_r016.py",
+   "--design",
+   "gunmetal",
+   "--gui-zip",
+   "C:/qfb/textures/r013/QF-r012-gui-final.zip",
+   "--out",
+   "C:/qfb/textures/r016/QF-r016-hud-gunmetal.zip"
+  ],
+  [
+   "py",
+   "-3.10",
+   "-I",
+   "tools/textures/qf_hud_r016.py",
+   "--design",
+   "wine",
+   "--gui-zip",
+   "C:/qfb/textures/r013/QF-r012-gui-final.zip",
+   "--out",
+   "C:/qfb/textures/r016/QF-r016-hud-wine.zip"
+  ]
+ ],
+ "defaults": {
+  "world": "C:/qfb/textures/world-r013",
+  "views": "tools/textures/views-r013.txt",
+  "preset": "3",
+  "size": "2560x1440",
+  "mode": "shot",
+  "cit": true,
+  "jars": [
+   "C:/qfb/renderq/jars-r016/QuestForgeContent-1.0.0.jar"
+  ],
+  "props": [
+   "qf.bench.difficulty=easy"
+  ],
+  "resourcepacks": [
+   "C:/qfb/textures/diag/QF-v3c.zip",
+   "C:/qfb/textures/r013/QF-r012-packs-final.zip",
+   "C:/qfb/textures/r013/QF-r012-gui-final.zip"
+  ]
+ },
+ "jobs": [
+  {
+   "tag": "pk16a",
+   "rps_top": [
+    "C:/qfb/textures/r016/QF-r016-hud-refined.zip"
+   ],
+   "measure": 220,
+   "scenes": "gui_hud"
+  },
+  {
+   "tag": "pk16b",
+   "rps_top": [
+    "C:/qfb/textures/r016/QF-r016-hud-glass.zip"
+   ],
+   "measure": 220,
+   "scenes": "gui_hud"
+  },
+  {
+   "tag": "pk16c",
+   "rps_top": [
+    "C:/qfb/textures/r016/QF-r016-hud-gunmetal.zip"
+   ],
+   "measure": 220,
+   "scenes": "gui_hud"
+  },
+  {
+   "tag": "pk16d",
+   "rps_top": [
+    "C:/qfb/textures/r016/QF-r016-hud-wine.zip"
+   ],
+   "measure": 220,
+   "scenes": "gui_hud"
+  },
+  {
+   "tag": "pk16an",
+   "views": "tools/textures/views-r016-night.txt",
+   "rps_top": [
+    "C:/qfb/textures/r016/QF-r016-hud-refined.zip"
+   ],
+   "measure": 220,
+   "scenes": "gui_hud"
+  },
+  {
+   "tag": "pk16bn",
+   "views": "tools/textures/views-r016-night.txt",
+   "rps_top": [
+    "C:/qfb/textures/r016/QF-r016-hud-glass.zip"
+   ],
+   "measure": 220,
+   "scenes": "gui_hud"
+  },
+  {
+   "tag": "pk16cn",
+   "views": "tools/textures/views-r016-night.txt",
+   "rps_top": [
+    "C:/qfb/textures/r016/QF-r016-hud-gunmetal.zip"
+   ],
+   "measure": 220,
+   "scenes": "gui_hud"
+  },
+  {
+   "tag": "pk16dn",
+   "views": "tools/textures/views-r016-night.txt",
+   "rps_top": [
+    "C:/qfb/textures/r016/QF-r016-hud-wine.zip"
+   ],
+   "measure": 220,
+   "scenes": "gui_hud"
+  }
+ ]
+}
