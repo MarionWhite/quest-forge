@@ -1,0 +1,473 @@
+{
+ "n": 14,
+ "id": "r014",
+ "title": "A gold sea, amber clouds, a clear sun, coloured meteors and gems that are not plastic",
+ "intro": "This round answers your round 13 notes, with the critic's notes as the work order (you asked us to follow them closely), copying from BSL and Photon, each option against round 13 with its cost (per frame, against the same view with shaders off). Worst frames: High at 1440p 3.60 ms (budget 3.0), Low at 1080p 0.95 ms (budget 0.9), Potato at 720p 0.30 ms (budget 0.4). 11 of the 24 High views are over 3.0 (3.04 to 3.60 ms), all with open water in them, as in round 13: the water is still the cost there, as stated in round 13, and making it cheaper is still a later question for you. The worst High view is sun clear at 3.60 ms. Low is over too: lake glitter 0.94 ms, ocean sunset 0.95 ms (the sea sunset was 0.92 ms in round 13; the gold sea adds the difference).",
+ "status": "open",
+ "created": "2026-11-01",
+ "scenes": [
+  {
+   "id": "sea-sunset",
+   "name": "The sea takes the gold horizon",
+   "question": "The critic: round 13's sea was pewter grey, the middle sea red/blue 1.05 against BSL's 1.99 on the same view. Cause, measured: the middle sea mirrors the sky 10 to 15 degrees up, which in our sky is pale cream-grey (red/blue 1.4; only the band under 6 degrees is gold, 1.9-2.0), and a third of its light was the water body's own grey-blue glow. Copying BSL's idea (its sea mirrors the low gold sky and its water body almost vanishes at grazing angles): at golden hour the sky in the sea now leans to the horizon at grazing views, as the eye sees it on real waves (the facets that face away from you mirror the low sky and carry the most reflection), takes the colour of the gold band, and the water body drops to 40 %. On our band measure (these two frames) the middle sea's red/blue goes from 1.26 to 2.02 (BSL 2.03), the far sea's from 1.61 to 2.71 (BSL 2.39), the near sea's from 0.91 to 1.15 (BSL 1.30): the far sea is now a little more orange than BSL's. Cost on High: +0.03 to +0.04 ms. This view: 3.56 ms (round 13 3.52). A new, B round 13.",
+   "notePrompt": "Gold enough? Does it still read as water?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Gold horizon in the sea (default)",
+     "img": "r014/sea-sunset-A.jpg",
+     "critic": "Critic 8: Answers the note. The sea takes the sunset now: the middle sea is 83,65,41 (red/blue 2.01) against round 13's 74,65,58 (1.27), level with BSL's 67,49,34 (1.99); the far sea goes 141,117,81 to 156,118,53 (1.73 to 2.93), the near sea 38,37,41 to 37,33,32 (0.94 to 1.15). It still reads as water: the wave pattern and the gold sun path are intact, and the near sea stays dark with gold flecks, as BSL's does. Two small things: the far band is now more orange than BSL's (2.93 here; 2.39 by the page's measure), so the horizon line softens into the sky on the left; and the cost is +0.04 ms (3.56 against 3.52; without the gold sea, p14sg0, 3.52), stated on the page. Next: ease the far band back toward BSL's 2.4 so the horizon line holds.",
+     "ms": 3.56
+    },
+    {
+     "key": "B",
+     "label": "Round 13",
+     "img": "r014/sea-sunset-B.jpg",
+     "critic": "Critic 7: Round 13 on the same run: a pewter sea under a gold sky (middle sea 74,65,58, red/blue 1.27), the gold only in the sun's path.",
+     "ms": 3.52
+    }
+   ]
+  },
+  {
+   "id": "shore-sunset",
+   "name": "Amber cloud rims and a darker, mirrored shore",
+   "question": "The critic: the bright cloud rims stayed salmon (brightest 5 % of the sky 250,152,108) and the near water read as mud (36,26,10). Causes, measured: the brightest clouds are lit from below by the rose sky on the far side of the sun and by a red-orange 2-degree sun, and the tone curve pulls a blown red-orange toward grey, which is coral; the near water's brown was the water body's own glow, not the sky it mirrors. Now, under 7 degrees of sun, all the light on the clouds takes the gold shift (green kept, blue cut), blown highlights burn toward a warm white instead of a grey one at golden hour (the sun's own core still burns white), and the near water's body is dark, so it shows the mirrored hill and sky. Cost on High: +0.01 to +0.02 ms for the clouds; this view 2.87 ms (round 13 2.84). A new, B round 13.",
+   "notePrompt": "Amber now? Does the near water read as a reflection?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Gold-shifted clouds (default)",
+     "img": "r014/shore-sunset-A.jpg",
+     "critic": "Critic 7: Answers the rims. The brightest 5 % of the sky goes from salmon 249,151,105 to amber 248,157,73 (blue/green 0.70 to 0.46), and the lit cloud edges read amber, not coral. The water now mirrors the sky: the middle river goes from grey-olive 71,64,37 to gold 85,55,17, and the near water is darker (31,25,10 to 20,15,7) because it mirrors the dark hill, which is right. But the shift went past the rims to all the light on the clouds: the share of the sky that is strongly gold (blue/green under 0.55) rose from 32 % to 56 %, the big left cloud's shadow side is mustard (158,116,46), and the zenith stays grey-mauve (115,107,95), not blue. BSL's same view is darker and quieter (sky mean 118,85,62 against ours 153,114,66). It edges toward the look bible's 'orange wash'. Fix: keep the gold on the sunlit rims and let the cloud shadow sides and the open sky stay darker and cooler, as BSL's do. Cost +0.03 ms (2.87 against 2.84).",
+     "ms": 2.87
+    },
+    {
+     "key": "B",
+     "label": "Round 13",
+     "img": "r014/shore-sunset-B.jpg",
+     "critic": "Critic 6: Round 13: salmon cloud rims (brightest 5 % 249,151,105) and a grey-olive water that read as mud.",
+     "ms": 2.84
+    }
+   ]
+  },
+  {
+   "id": "sun-glow",
+   "name": "The whole sun, in a clear sky",
+   "question": "The critic asked to judge the glow on a view with the whole disk clear. How we got it: the same sunset view (sun 6 degrees up over the sea) with the clouds turned off for this one view (a cloud-free sky setting; at sunset every point we tried in round 13 had a cloud strand across the sun). On it, our glow measured against BSL's on our sea view: ours is flat and peach, 213 / 201 / 190 / 167 levels at 50 / 100 / 200 / 300 pixels from the sun, where BSL's is a hot, near-white yellow halo (235 / 211 / 171 / 148) that falls away faster (Photon's falls faster still). The glow did not change this round, and B shows why: the glow round our sun is the sky's own haze (the forward-scattering haze in the sky model, copied from Photon), not the drawn glare (the glare adds 1 to 2 levels on a clear sky). Three tries this round, a bloom halo, a reshaped sky aureole and a tighter forward lobe in the haze (B, plus its core at 2x and 4x in later tests), each moved the levels by 6 or less at any distance: A and B look the same. Getting BSL's hot white halo means re-tuning the sky haze itself, which also colours the whole sunset sky: a job for round 15 if you want it. 2x crops round the sun. Cost on High: A 3.35 ms, B 3.35 ms, C round 13 3.32 ms. A this round (cloud-free), B the haze-core try (an option, off), C round 13 (cloud-free).",
+   "notePrompt": "Should round 15 re-tune the haze for a hotter, whiter halo like BSL's, or keep this glow?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Cloud-free, this round",
+     "img": "r014/sun-glow-A.jpg",
+     "critic": "Critic 7: Answers the view: with the clouds off for this one view, the whole sun is in the sky at last, a round, soft-edged white disk (about 1,600 px at full white) with no slab, no ring and no cloud strand. So the glow can be judged, and it is round 12's: 211 / 195 / 185 / 157 levels at 40 / 100 / 200 / 300 px above the sun against round 13's 220 / 199 / 185 / 156, a broad peach dome (251,187,114 at 100 px) where BSL's is a hot, near-white halo that falls off faster. The page says so and asks you, which is right: the glow is the sky haze. Minor: a faint pale column rises from the glow's right side over the far beach (the cloud-free sky over the terrain haze), visible in the full frame. Cost 3.35 ms cloud-free; the cloudy version of this view is 3.60, the worst High view this round.",
+     "ms": 3.35
+    },
+    {
+     "key": "B",
+     "label": "Cloud-free, haze-core try (off)",
+     "img": "r014/sun-glow-B.jpg",
+     "critic": "Critic 7: The haze-core try: the same as A within 3 levels at every distance (213 / 195 / 184 / 155). You will not see a difference, and the page says so; it costs you a look for nothing and could go.",
+     "ms": 3.35
+    },
+    {
+     "key": "C",
+     "label": "Round 13, cloud-free",
+     "img": "r014/sun-glow-C.jpg",
+     "critic": "Critic 6: Round 13, cloud-free: the same disk and glow (within 9 levels), over round 13's grey sea.",
+     "ms": 3.32
+    }
+   ]
+  },
+  {
+   "id": "meteors",
+   "name": "Green-white meteors",
+   "question": "You said \"kinda, but let's improve\"; the critic wanted round 12's 2.94 ms back. Cost: the faintest 28 % of the meteors (under 1/11 of the brightest) are now dropped before any of their path is worked out. Look, toward your round 10 photos: their streaks are green-white (oxygen's glow) with a whiter head, a few amber, and the bright ones keep a green train; ours were near white. Each streak now takes a green (three in four) or amber colour behind a white-hot head, more for the bright ones, and its train stays green. Cost on the wide night view: A 2.98 ms (without the cut 3.00), B 2.98 ms; in these clips A 3.02 ms, B 2.98 ms. Against round 12's 2.94 ms on this view: still 0.04 ms over, the cut only saves 0.02 ms, because the meteors are no longer most of the night sky's cost; the colour costs nothing measurable. A new (default), B round 13, same view, same radiant.",
+   "notePrompt": "Closer to your photos?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Coloured, culled (default), clip",
+     "img": "r014/meteors-A.jpg",
+     "critic": "Critic 7: Partly answers 'let's improve'. The bright streaks now carry a green train behind a white head, as in your photos (the brightest streak pixels move from green/blue 1.31 to 1.47, green/red 0.87 to 0.92), and a few run amber. A small step: the faint streaks look the same as round 13's, and over the whole clip the streaks average almost the same colour. Cost not answered (known): the still view is 2.98 ms with or without the change (the cut saves 0.02 ms, 3.00 to 2.98) against round 12's 2.94, and in this clip A measures 3.02 against B's 2.98. Against the photos the bigger gap is the sky, not the meteors: theirs cross a dense, blue star field, ours cross heavy dark cloud, so most of the shower is hidden.",
+     "ms": 3.02,
+     "clip": "r014/meteors-A.webp"
+    },
+    {
+     "key": "B",
+     "label": "Round 13, clip",
+     "img": "r014/meteors-B.jpg",
+     "critic": "Critic 7: Round 13: the same radiant and lengths, with near-white streaks.",
+     "ms": 2.98,
+     "clip": "r014/meteors-B.webp"
+    }
+   ]
+  },
+  {
+   "id": "gems",
+   "name": "Gems lit from inside, not plastic",
+   "question": "You said the gems look like plastic. Cause, measured: the gem maps were one value over the whole face, and the shader lit the stone as a matte pale body under a clear coat, which is what plastic is. A cut stone shows little matte body: most of its light comes back out from inside, off its back facets, so each facet shows a different piece of the sky or the ground, and the sun flashes in single facets. (The critic measured the highlights: they come out whiter than round 13's, not tinted by the stone, so the stone colour in them is still to do.) Now the matte light drops to 40 % and that inner light follows the facets the texture draws (the texture track's new crystal material draws real ones); the sun on the surface comes off the flat face, so the slanted white dashes the critic saw are fainter, but on round 13's texture the dark slanted lines stay: they are drawn in that texture, and only a new material removes them. This new shading is on by default (QF_+0.00 to +0.02_LOOK 2), so C and D show the texture track's two new materials as they would ship with it (the texture scenes below show them under round 13's shading). Cost on High: +0.00 to +0.02 ms on round 13's connected gems, -0.01 to +0.01 ms on the crystal material (against the same view, shaders off, with round 13's gems). 2x crops. A round 13's gems with the new shading, B round 13, C the crystal material with the new shading, D the faithful material with the new shading.",
+   "notePrompt": "Gem or plastic now? Which one?",
+   "options": [
+    {
+     "key": "A",
+     "label": "New shading (default)",
+     "img": "r014/gems-A.jpg",
+     "critic": "Critic 5: Does not answer 'plastic' on its own. The new shading on round 13's texture changes the floor by 7 levels on average; the highlights stay near-white (brightest 2 % 237,245,176 against 245,243,187) and every slanted white dash is still there. The same plastic sheet.",
+     "ms": 2.46
+    },
+    {
+     "key": "B",
+     "label": "Round 13",
+     "img": "r014/gems-B.jpg",
+     "critic": "Critic 5: Round 13's connected emerald: one even gloss with white slanted dashes, your 'plastic'.",
+     "ms": 2.46
+    },
+    {
+     "key": "C",
+     "label": "Crystal, new shading",
+     "img": "r014/gems-C.jpg",
+     "critic": "Critic 5: No longer plastic, but no longer a gem block either: the face is a crust of dozens of small crystals per block with dark gaps and pale six-sided flakes that read as sequins, so the floor reads as glitter or crushed glass. The pattern is Patrix's amethyst, a geode block. Every reference pack draws a gem block as a few big facets instead: Patrix's own diamond_block normal map has about 6 planes; Stay True, Faithless, Conquest and Soartex draw 4 to 8 bevelled facets. The page's 'tinted inner light' is not what the frames show: on this material the new shading makes the brightest 2 % whiter (saturation 0.55 to 0.45), not more tinted. Cost +0.05 ms against round 13's gems (2.51 against 2.46).",
+     "ms": 2.51
+    },
+    {
+     "key": "D",
+     "label": "Faithful, new shading",
+     "img": "r014/gems-D.jpg",
+     "critic": "Critic 6: The better of the two new materials: Faithful's gem streaks keep the emerald you know, the pillar reads as a gem block, and nothing is plastic. At floor scale the tilted streaks become a diagonal quilt that reads a little like rippled water. Fix for both: copy the big-facet structure the reference packs share (Patrix's diamond_block normal map, about 6 planes per block) so whole facets flash, rather than tilting many small crystals.",
+     "ms": null,
+     "noCost": "shot mode, not measured: same shading cost as C"
+    }
+   ]
+  },
+  {
+   "id": "gems-diamond",
+   "name": "The diamond pillar, lit from inside",
+   "question": "The same four on the diamond pillar and floor, looking into a low sun: watch single facets catch the sun on C and D. A round 13's gems with the new shading, B round 13, C crystal, D faithful, both with the new shading.",
+   "notePrompt": "Which diamond?",
+   "options": [
+    {
+     "key": "A",
+     "label": "New shading (default)",
+     "img": "r014/gems-diamond-A.jpg",
+     "critic": "Critic 5: Round 13's diamond with the new shading: 13 levels' average change, the same white dashes and even sheen. (2x crop re-cut before publish to the pillar and the whole floor.)",
+     "ms": 2.47
+    },
+    {
+     "key": "B",
+     "label": "Round 13",
+     "img": "r014/gems-diamond-B.jpg",
+     "critic": "Critic 5: Round 13's diamond: the even gloss and white dashes you called plastic. (2x crop re-cut before publish to the pillar and the whole floor.)",
+     "ms": 2.45
+    },
+    {
+     "key": "C",
+     "label": "Crystal, new shading",
+     "img": "r014/gems-diamond-C.jpg",
+     "critic": "Critic 5: Glitter, not cut stone: small crystals and pale hex flakes in rows on the floor and pillar. Not plastic, but not a diamond block. (2x crop re-cut before publish to the pillar and the whole floor.)",
+     "ms": 2.51
+    },
+    {
+     "key": "D",
+     "label": "Faithful, new shading",
+     "img": "r014/gems-diamond-D.jpg",
+     "critic": "Critic 6: Faithful's streaks in the deeper colour: the pillar reads as a diamond block and the floor sparkles without the plastic coat, but it quilts diagonally at distance. (2x crop re-cut before publish to the pillar and the whole floor.)",
+     "ms": null,
+     "noCost": "shot mode, not measured: same shading cost as C"
+    }
+   ]
+  },
+  {
+   "id": "gems-mat-diamond",
+   "name": "Diamond: a gem, not plastic?",
+   "question": "Why round 13 looked like plastic, measured on its frames: (1) every gem pixel had the same gloss (smoothness 240, reflectance 44, no variation at all), an even clear coat; (2) under it the colour was nearly flat (brightness varies 9 % across the face where gem textures in other packs vary 38 %, and no dark pixels); (3) so the reflection lay over the whole floor as one smooth sheet: 84 % of the floor's brightness variation was the sky and pillar gradient, not the gem; (4) its highlights were white (colour 0.15 against 0.6 for the body) and a third of them were dashes, half of those at one angle (the 'rain on ice'). The new materials take the method from Patrix 32x's gem maps (one of the packs you cleared for copying): each crystal has its own tilt, the crystals are glossy and the gaps between them rough, and the colour runs deeper with dark gaps. Still connected, with the frame only round the outside. These three are shown with the shader frozen at round 13, so the reflection is still untinted white here: that part is the shader's. This round's shader turns on a tinted inner light by default (QF_GEM_LOOK 2); the shader 'gems' scenes above show crystal and faithful with it. Diamond floor and pillar, looking into a low sun.",
+   "notePrompt": "Does B or C read as gem rather than plastic? Which one?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Round 13, connected",
+     "img": "r014/gems-mat-diamond-A.jpg",
+     "crop": "C:\\qfb\\shaderdev\\r014\\crops\\g14r13-gem_glint_d.png",
+     "ms": null,
+     "desc": "Round 13's connected gem, unchanged: one even gloss over flat colour. 84 % of the floor's variation is the sky gradient; white highlights.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 5: Round 13's connected diamond, the plastic you rated 3: an even sheet with white dashes."
+    },
+    {
+     "key": "B",
+     "label": "Crystal",
+     "img": "r014/gems-mat-diamond-B.jpg",
+     "crop": "C:\\qfb\\shaderdev\\r014\\crops\\g14cry-gem_glint_d.png",
+     "ms": null,
+     "desc": "A crust of separate crystals (Patrix 32x's crystal pattern, recoloured to Faithful's gem tones): every crystal catches the light on its own; dark gaps between them. Sky gradient 30 % of the variation; 232 small coloured sparkles instead of 84 white smears; dark gaps 9 % (round 13: 3 %).",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 5: Crystal: the sheet is broken up (the sky gradient falls from 84 % to 30 % of the variation, by the texture team's measure), but into sequins: pale hexagonal flakes scattered over the floor, repeating every block. Reads as crushed ice or a recoloured amethyst geode, not a diamond block."
+    },
+    {
+     "key": "C",
+     "label": "Faithful, faceted",
+     "img": "r014/gems-mat-diamond-C.jpg",
+     "crop": "C:\\qfb\\shaderdev\\r014\\crops\\g14fai-gem_glint_d.png",
+     "ms": null,
+     "desc": "Faithful's own gem streaks on the deeper colour, with the same crystal tilts and gloss as B: closer to the gem you know. Sky gradient 36 %; 224 coloured sparkles; dark gaps 7 %.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 6: Faithful faceted: the closest to a diamond block of the three; the pillar reads right. The floor's tilted streaks repeat as a diagonal quilt."
+    }
+   ]
+  },
+  {
+   "id": "gems-mat-emerald",
+   "name": "Emerald: a gem, not plastic?",
+   "question": "The same three on the emerald floor. A third material, 'polished' (the new colour under round 13's even gloss), was dropped: its colour is better but the reflection still lies over the floor as one sheet (67 % of the variation, white highlights exactly as in round 13), so it is still the plastic coat. ",
+   "notePrompt": "Which emerald?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Round 13, connected",
+     "img": "r014/gems-mat-emerald-A.jpg",
+     "crop": "C:\\qfb\\shaderdev\\r014\\crops\\g14r13-gem_glint_e.png",
+     "ms": null,
+     "desc": "Round 13's connected gem, unchanged: one even gloss over flat colour. 76 % of the floor's variation is the sky gradient.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 5: Round 13's emerald: one green sheet with white dashes."
+    },
+    {
+     "key": "B",
+     "label": "Crystal",
+     "img": "r014/gems-mat-emerald-B.jpg",
+     "crop": "C:\\qfb\\shaderdev\\r014\\crops\\g14cry-gem_glint_e.png",
+     "ms": null,
+     "desc": "A crust of separate crystals (Patrix 32x's crystal pattern, recoloured to Faithful's gem tones): every crystal catches the light on its own; dark gaps between them. Sky gradient 21 %; dark gaps 13 %.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 5: Crystal emerald: a green gravel or glitter floor with pale hex flakes. Not plastic, but not emerald either."
+    },
+    {
+     "key": "C",
+     "label": "Faithful, faceted",
+     "img": "r014/gems-mat-emerald-C.jpg",
+     "crop": "C:\\qfb\\shaderdev\\r014\\crops\\g14fai-gem_glint_e.png",
+     "ms": null,
+     "desc": "Faithful's own gem streaks on the deeper colour, with the same crystal tilts and gloss as B: closer to the gem you know. Sky gradient 28 %; dark gaps 10 %.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 6: Faithful emerald: rich green, and the pillar reads as an emerald block; the floor is busy but gem-like."
+    }
+   ]
+  },
+  {
+   "id": "gems-mat-lit",
+   "name": "Both gems in morning light",
+   "question": "Sun behind you: round 13 was a flat colour here; B and C keep their depth out of the glare.",
+   "notePrompt": "Which looks right in plain daylight?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Round 13, connected",
+     "img": "r014/gems-mat-lit-A.jpg",
+     "crop": "C:\\qfb\\shaderdev\\r014\\crops\\g14r13-gem_lit.png",
+     "ms": null,
+     "desc": "Round 13's connected gem, unchanged: one even gloss over flat colour. With the sun behind you, a nearly flat colour (brightness varies 9 %).",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 5: Round 13 in plain daylight: flat colour (9 % brightness variation)."
+    },
+    {
+     "key": "B",
+     "label": "Crystal",
+     "img": "r014/gems-mat-lit-B.jpg",
+     "crop": "C:\\qfb\\shaderdev\\r014\\crops\\g14cry-gem_lit.png",
+     "ms": null,
+     "desc": "A crust of separate crystals (Patrix 32x's crystal pattern, recoloured to Faithful's gem tones): every crystal catches the light on its own; dark gaps between them. Brightness varies 22 % on diamond, 12 % on emerald.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 6: From this distance the crystal noise settles into texture and the blocks read as gem blocks; it does not hold up close."
+    },
+    {
+     "key": "C",
+     "label": "Faithful, faceted",
+     "img": "r014/gems-mat-lit-C.jpg",
+     "crop": "C:\\qfb\\shaderdev\\r014\\crops\\g14fai-gem_lit.png",
+     "ms": null,
+     "desc": "Faithful's own gem streaks on the deeper colour, with the same crystal tilts and gloss as B: closer to the gem you know. Brightness varies 22 % on diamond, 16 % on emerald.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 7: The best gem view of the round: a few blocks back in daylight, Faithful's facets read as diamond and emerald blocks with depth (22 % and 16 % variation), clearly not plastic."
+    }
+   ]
+  },
+  {
+   "id": "gems-mat-close",
+   "name": "Diamond close up",
+   "question": "Four blocks from the pillar, for the detail and the weak spot of each: both new materials repeat once per block (connected tiles repeat every block), which shows as rows on a big floor. If you pick one, the next step is breaking up that repeat.",
+   "notePrompt": "Is the per-block repeat acceptable, or a deal-breaker?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Round 13, connected",
+     "img": "r014/gems-mat-close-A.jpg",
+     "crop": "C:\\qfb\\shaderdev\\r014\\crops\\g14r13-gem_close_d.png",
+     "ms": null,
+     "desc": "Round 13's connected gem, unchanged: one even gloss over flat colour. ",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 5: Round 13 close up: clean, but a plastic sheet."
+    },
+    {
+     "key": "B",
+     "label": "Crystal",
+     "img": "r014/gems-mat-close-B.jpg",
+     "crop": "C:\\qfb\\shaderdev\\r014\\crops\\g14cry-gem_close_d.png",
+     "ms": null,
+     "desc": "A crust of separate crystals (Patrix 32x's crystal pattern, recoloured to Faithful's gem tones): every crystal catches the light on its own; dark gaps between them. Weak spot: the pale six-sided crystals repeat once per block, in rows.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 4: Close up the weak spot is plain: rows of pale hexagonal flakes repeating every block, like sequins on a wall. Not fit to ship as it is."
+    },
+    {
+     "key": "C",
+     "label": "Faithful, faceted",
+     "img": "r014/gems-mat-close-C.jpg",
+     "crop": "C:\\qfb\\shaderdev\\r014\\crops\\g14fai-gem_close_d.png",
+     "ms": null,
+     "desc": "Faithful's own gem streaks on the deeper colour, with the same crystal tilts and gloss as B: closer to the gem you know. Weak spot: the streaks repeat once per block, a diagonal quilt on big floors.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 5: Close up the tilted streaks repeat once per block as a diagonal quilt. Better than crystal, but the per-block repeat shows."
+    }
+   ]
+  },
+  {
+   "id": "pk-hud",
+   "name": "HUD: one HUD from your picks, three XP bars",
+   "question": "Our own art. Grace's hotbar and Tarnished's boss bar, as you picked. Hearts, food, armour and air are individual icons again, drawn in the same style: an ink outline, a fine gold rim (dull bronze when empty) and a shaded body; red hearts, roast shanks with a bone, steel chestplates, glass bubbles under water. The food row is full this time (the test had been lowering it). Air bubbles only show under water, so they are in the mock (M) but not in these shots. The three options differ only in the XP bar and its level number. Vanilla draws that number lime and no texture can change it, so the coloured number in these shots comes from a small client-only hook in qf-content (XpBarStyle.java) that redraws it in the pack's colour. That hook is code, so it needs your yes to ship; without it the number stays lime whichever bar you pick. M: the offline mock, normal and just hit.",
+   "notePrompt": "Which XP bar? Ship the XP number hook (yes/no)? Anything off in the icons?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Thread",
+     "img": "r014/pk-hud-A.jpg",
+     "ms": null,
+     "desc": "A gold hairline bar whose fill brightens toward its leading edge; the level number in pale gold with a dark brown outline.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 8: Answers the brief: one HUD with Grace's framed hotbar and its small diamond marker, Tarnished's capped boss bar, individual hearts, shanks and chestplates, and a full food row (the test bug is fixed: 10 of 10). The thread XP bar and the pale gold '27' with a brown outline belong with the gold rims; the lime number is gone. The quietest and most of a piece of the three. The boss name is hard to read: its white letters vanish into the white cloud and only their grey shadow shows, so 'Ender Dragon' reads as broken grey glyphs (the same in round 13; missed then). Give the name a dark outline, like the XP number's."
+    },
+    {
+     "key": "B",
+     "label": "Notched",
+     "img": "r014/pk-hud-B.jpg",
+     "ms": null,
+     "desc": "A slightly taller ember bar cut into tenths by ink notches with gold studs; the number in bone white.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 7: The notched bar is the easiest to read, but its bright ember orange is now the loudest thing on screen, louder than the boss bar, and the bone-white '27' sits on the notches with its foot cut into the bar. The boss name is hard to read: its white letters vanish into the white cloud and only their grey shadow shows, so 'Ender Dragon' reads as broken grey glyphs (the same in round 13; missed then). Give the name a dark outline, like the XP number's."
+    },
+    {
+     "key": "C",
+     "label": "Medallion",
+     "img": "r014/pk-hud-C.jpg",
+     "ms": null,
+     "desc": "The thread bar with the number set on a small dark medallion (gold hairline, pointed ends) at the bar's centre.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 7: The medallion keeps the number readable on any background, but at 1x its gold hairline disappears and the plate reads as a dark blot pushed up into the heart and food row. The boss name is hard to read: its white letters vanish into the white cloud and only their grey shadow shows, so 'Ender Dragon' reads as broken grey glyphs (the same in round 13; missed then). Give the name a dark outline, like the XP number's."
+    },
+    {
+     "key": "M",
+     "label": "Mock: thread, notched, medallion (left normal, right just hit)",
+     "img": "r014/pk-hud-M.jpg",
+     "ms": null,
+     "desc": "Top to bottom; 1.7.10's layout drawn offline from the same sheets.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 7: The fair side-by-side, with the air bubbles and the just-hit state (pale gold hearts, greyed shanks), which works. The third row is labelled 'plate' here but 'Medallion' in the options: use one name."
+    }
+   ]
+  },
+  {
+   "id": "pk-hud-xp",
+   "name": "HUD: the XP bars up close",
+   "question": "The same three shots, cropped to the level number and the middle of the bar (2x).",
+   "notePrompt": "",
+   "options": [
+    {
+     "key": "A",
+     "label": "Thread",
+     "img": "r014/pk-hud-xp-A.jpg",
+     "ms": null,
+     "desc": "A gold hairline bar whose fill brightens toward its leading edge; the level number in pale gold with a dark brown outline.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 8: Thread up close: a pale gold '27' with a dark brown outline over a gold hairline. Readable on grass and calm; the critic's pick."
+    },
+    {
+     "key": "B",
+     "label": "Notched",
+     "img": "r014/pk-hud-xp-B.jpg",
+     "ms": null,
+     "desc": "A slightly taller ember bar cut into tenths by ink notches with gold studs; the number in bone white.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 7: Notched up close: a bone-white number on an ember bar with gold studs. Busy, and the number's foot overlaps the bar."
+    },
+    {
+     "key": "C",
+     "label": "Medallion",
+     "img": "r014/pk-hud-xp-C.jpg",
+     "ms": null,
+     "desc": "The thread bar with the number set on a small dark medallion (gold hairline, pointed ends) at the bar's centre.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 7: Medallion up close: legible, but the plate overlaps the hearts' baseline and its rim is a single dim pixel."
+    }
+   ]
+  },
+  {
+   "id": "pk-hud-icons",
+   "name": "HUD: the icons up close",
+   "question": "Crop of option A at 2x (the icons are the same in all three).",
+   "notePrompt": "",
+   "options": [
+    {
+     "key": "A",
+     "label": "Hearts, food, armour",
+     "img": "r014/pk-hud-icons-A.jpg",
+     "ms": null,
+     "desc": "Seven and a half hearts, a full food row, armour 13 of 20.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 8: Answers 'individual icons': hearts, shanks and chestplates share one style, an ink outline, a light rim on the upper left and a shaded body, with clean half states (7.5 hearts, armour 13 of 20). Readable at a glance. Closer to polished pixel art than to Elden Ring, which suits icons; only the hearts carry the gold rim."
+    }
+   ]
+  },
+  {
+   "id": "pk-mob-6",
+   "name": "Mobs, view 6: snow golem options",
+   "question": "Round 12's set stays the default for every mob. Snow golem, iron golem, bat (hanging), left to right; only the snow golem changes: B-D are copied from the reference packs named. The pumpkin head is the block's own texture in 1.7.10.",
+   "notePrompt": "Which snow golem?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Round 12 set (your pick): Patrix",
+     "img": "r014/pk-mob-6-A.jpg",
+     "ms": null,
+     "desc": "Patrix's snow golem: near-vanilla white snow with coal buttons, which is why it read as default.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 5: Patrix: near-vanilla white snow with coal buttons and stick arms, which is why you called it default. (Crop re-cut before publish to the left two thirds: snow golem and iron golem.) The amber room still tints the snow cream."
+    },
+    {
+     "key": "B",
+     "label": "Faithless",
+     "img": "r014/pk-mob-6-B.jpg",
+     "ms": null,
+     "desc": "Red scarf and hat band (round 13's B; it faces sideways in this shot).",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 6: Faithless: the red scarf reads even side-on (known), the strongest identity of the three; the angle hides the face. (Crop re-cut before publish to the left two thirds: snow golem and iron golem.) The amber room still tints the snow cream."
+    },
+    {
+     "key": "C",
+     "label": "Soartex Forever",
+     "img": "r014/pk-mob-6-C.jpg",
+     "ms": null,
+     "desc": "Soft, warm shaded snow with buttons down the front (it faces sideways in this shot).",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 5: Soartex: side-on too, so its buttons do not show, and under the amber light it is a plain cream snowman, hard to tell from A. (Crop re-cut before publish to the left two thirds: snow golem and iron golem.) The amber room still tints the snow cream."
+    },
+    {
+     "key": "D",
+     "label": "Conquest",
+     "img": "r014/pk-mob-6-D.jpg",
+     "ms": null,
+     "desc": "Rough packed snow. Its pack also replaces the pumpkin head, but that needs MCPatcher random mobs, which is off in this pack, so the head is the block's.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 6: Conquest: faces front, rough packed snow with grey marks. Clearly not default, though at this size the marks read as stains as much as texture. (Crop re-cut before publish to the left two thirds: snow golem and iron golem.) The amber room still tints the snow cream."
+    }
+   ]
+  }
+ ]
+}

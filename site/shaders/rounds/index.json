@@ -121,9 +121,18 @@
    "n": 13,
    "id": "r013",
    "title": "Connected glassy gems, an Elden Ring-style HUD, a warmer sea, cheaper sunbeams, and meteors from one point",
-   "status": "open",
+   "status": "closed",
    "created": "2026-10-29",
    "scenes": 18,
+   "feedback": true
+  },
+  {
+   "n": 14,
+   "id": "r014",
+   "title": "A gold sea, amber clouds, a clear sun, coloured meteors and gems that are not plastic",
+   "status": "open",
+   "created": "2026-11-01",
+   "scenes": 14,
    "feedback": false
   }
  ]

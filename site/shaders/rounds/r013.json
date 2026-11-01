@@ -3,7 +3,7 @@
  "id": "r013",
  "title": "Connected glassy gems, an Elden Ring-style HUD, a warmer sea, cheaper sunbeams, and meteors from one point",
  "intro": "This round answers your round 12 notes, the critic's notes as the work order, copying from BSL and Photon, each option against round 12 with its cost (per frame, against the same view with shaders off). Worst frames: High at 1440p 3.55 ms (budget 3.0), Low at 1080p 0.94 ms (budget 0.9), Potato at 720p 0.30 ms (budget 0.4). Over budget, and not fixed in this round: the sea sunset is 3.55 ms on High against the 3.0 budget, and it is the water that is over, not the sunbeams: with the beams off it still costs 3.40 ms. 11 of the 24 High views are over 3.0 (3.01 to 3.55 ms), every one of them with open water in it, as in round 12; lake glitter 0.94 ms and ocean sunset 0.92 ms are just over 0.9 on Low (round 12: 0.88 and 0.89, within a run's noise of the line). Whether to make the water cheaper, and what to give up for it, is a question for you in a later round.",
- "status": "open",
+ "status": "closed",
  "created": "2026-10-29",
  "scenes": [
   {
