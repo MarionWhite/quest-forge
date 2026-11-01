@@ -56,7 +56,8 @@ into a new folder and changes only the new copy.
    `--from` is only read. Add `--with-saves` to copy your worlds,
    `--pack-jars DIR` to use freshly built pack jars, `--shader off` to start
    with shaders off. On one drive the big files (assets, mods, resources) are
-   hard links, so the copy costs little disk.
+   hard links, so the copy costs little disk; `--copy` makes real copies instead
+   (use it when `--from` is the live game, so nothing in the copy shares a file with it).
 4. Start `%APPDATA%\.qf-angelica\LAUNCH-ANGELICA.bat`. It picks the heap from
    your RAM (3 GB on 8 GB, up to 7 GB on 32 GB; `set QF_XMX=6144M` overrides)
    and refuses to start if OptiFine or the 1558 Forge jar is still there.

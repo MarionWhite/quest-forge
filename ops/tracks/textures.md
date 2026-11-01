@@ -5,17 +5,13 @@ Rewrite this file when the state changes; keep it under 2 KB.
 - **Builder:** `tools/textures/build_qf_textures.py` -> `C:\qfb\textures\*.zip`, never committed (Mojang pixels).
   `--stay-true PATH` copies Stay True from `C:\qf-world\reference-packs` at build time (private, never git-added).
 - **Direction:** `docs/design/textures/` (direction, faithless-study, modded-blocks, leaf-frills).
-- **r015 gems handed off** (`C:/qfb/shaderdev/r015/textures_scenes.json`, 3 scenes x 6 looks; `r015-textures.md`):
-  `--gem-look facets|staytrue|jewel|calm|frost` (`gems_look.py`), F = calm + shader QF_GEM_NFADE 2. Our read: A cut
-  stone close but per-block grid; B diamond cleanest, B emerald nested-square grid; C buttons/tiles (drop); D noisy;
-  E calm but pale ice; F calms only the far floor. None is the answer yet.
+- **Gems:** owner picked r015 E frost (`--gem-look frost`); r016 slider frost -> calm + Chisel calm option
+  (`--chisel-gems calm`), render 1101-155222 pending review (`r016-textures.md`).
 - **r011 Stay True port** (`r011-stay-true.md`): leaf planes and weighted tall crops (qf-tweaks branch `leaf-frills`
   718473f, not merged). Open: leaves denser than the transparency the owner liked; keep or thin.
-- **r015 packs** (`r015-packs.md`): five complete HUDs (`qf_hud_r015.py`, own art: gilded, cloisonne, ironbound,
-  moonsilver, obsidian; banded rows, medallion, boss frame, outlined boss name). XpBarStyle gained text.boss,
-  qf.boss.outline, qf.boss.frame (bench jar jars-r015). **Handed off** (render 1101-104044; `C:/qfb/shaderdev/r015/
-  packs_scenes.json`, 4 scenes, PACKS-READY). Owner: ship XpBarStyle or the number stays lime and no medallion/boss
-  frame/outline. Settled: round 12 mobs, Conquest snow golem.
+- **HUD:** every design through r016 rejected; XpBarStyle hook still needs the owner's yes. Settled: round 12 mobs, Conquest snow golem.
+- **Owner's test copy** (2026-11-01, `qf-angelica-test.md`): `%APPDATA%\.qf-angelica` (Angelica, real copies,
+  saves) + shader 1017eb5 (r015) + `build_test_stack.py` picks + leaf-frills tweaks v7; HUD as live.
 - **Next:** owner's r015 gem direction (then break any per-block repeat); then merge leaf-frills, set builder defaults, build QFTextures-v3; second item style.
 - **Owner likes:** Faithful 64x bricks, metals and leaves; Stay True wheat and tree leaves; Patrix mobs; VNR light;
   Soartex bookshelves; Faithless items, potions, books, GUI, TNT and boss bars.
