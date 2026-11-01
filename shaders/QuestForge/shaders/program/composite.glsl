@@ -793,8 +793,13 @@ vec3 shadeWaterAbove(vec3 color, vec3 n, float var, vec3 scene0, float dist0, ve
     // r015 loop 2: easing the hue pull alone (loop 1) left the far band at red/blue 2.78 (r014 2.79): its orange is
     // the pull of the mirrored elevation toward the horizon (graze off: 1.8-2.0 there). Over the last 6 deg below
     // the horizon that pull now eases too (1 by 55 %, 2 by 70 %).
+    // Loop 3: the sun's path stayed orange (r/b 2.74, BSL 1.96) with only the hue pull lifted there: the pull
+    // mirrored the sky well below the sun, through more air, so the glow in the waves under the sun took the
+    // horizon's orange. Where the plain mirror direction is within ~10-13 deg of the sun, neither pull applies
+    // (1 80 %, 2 fully): the path shows the sun's own glow.
     float farK = 1.0 - smoothstep(0.015, 0.105, -viewDir.y);
-    R = normalize(vec3(R.x, abs(R.y) * mix(1.0, 0.35, grazeK * (1.0 - (QF_SEA_FAR == 2 ? 0.70 : 0.55) * farK)), R.z));
+    float sunK = smoothstep(0.975, 0.995, dot(normalize(vec3(R.x, abs(R.y), R.z)), L)) * (QF_SEA_FAR == 2 ? 1.0 : 0.8);
+    R = normalize(vec3(R.x, abs(R.y) * mix(1.0, 0.35, grazeK * (1.0 - (QF_SEA_FAR == 2 ? 0.70 : 0.55) * farK) * (1.0 - sunK)), R.z));
 #else
     R = normalize(vec3(R.x, abs(R.y) * mix(1.0, 0.35, grazeK), R.z));
 #endif
@@ -832,7 +837,7 @@ vec3 shadeWaterAbove(vec3 color, vec3 n, float var, vec3 scene0, float dist0, ve
         // the same; under the sun ours 2.60-2.91 at luma 110-141, BSL 1.88-2.09 at 126-174): the critic's orange far
         // band is the sun's own path. The pull recoloured the sun's glow in the waves to the band's orange; BSL's
         // path is white-hot. The mirrored glow within ~10-13 deg of the sun (the direction after the pull) keeps its own colour.
-        hueK *= 1.0 - smoothstep(0.975, 0.995, dot(R, L)) * (QF_SEA_FAR == 2 ? 1.0 : 0.8);
+        hueK *= 1.0 - sunK;
         refl = mix(refl, luminance(refl) * hue2, min(hueK, 1.0));
   #if QF_SEA_FAR == 2
         refl *= 1.0 - 0.10 * farK * grazeK;
