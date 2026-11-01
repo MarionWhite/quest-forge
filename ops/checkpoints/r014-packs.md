@@ -61,3 +61,9 @@ Settled: round 12's mob set (r013 A = QF-r012-packs-final.zip + QF-r012-gui-fina
    ICON_BOX may need nudging), then `--ready`.
 5. Track ops/tracks/textures.md (packs bullet), one journal entry ops/journal/textures.md; commit own hunks; push
    after `git log origin/main..main`. Owner question for the hand-off: ship XpBarStyle (client-only qf-content hook)?
+
+### 2026-10-31 20:40 (orchestrator): hand-off done
+- 1031-201118-textures-r014-packs-b (pk14h3) checked: medallion clear of hearts and shanks, "27" inside it.
+- Crops checked as a sheet (HUD full/icons/XP x3, mob 6 x4). Note for the critic: the Faithless golem (g1) stands
+  side-on, so its face is hidden and the red scarf shows; not a texture fault.
+- `r014_packs_handoff.py --ready` run: packs_scenes.json (4 scenes), crops, PACKS-READY in C:\qfb\shaderdev\r014\.
