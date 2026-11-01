@@ -19,14 +19,14 @@ import qf_hud_r015 as hud  # noqa: E402
 OUT = r"C:\qfb\shaderdev\r015"
 h11.CROPS = os.path.join(OUT, "packs")
 # GUI scale 6 on 2560 x 1440 (GUI 426 x 240, centre x 1278)
-ICON_BOX = (712, 1130, 1844, 1268)     # armour row, hearts, medallion, food
-XP_BOX = (1110, 1186, 1450, 1314)      # the medallion, the number and the middle of the XP bar
+ICON_BOX = (712, 1130, 1844, 1300)     # armour row, hearts, the whole medallion, food
+XP_BOX = (1110, 1200, 1450, 1314)      # the medallion, the number and the middle of the XP bar
 BOSS_BOX = (600, 0, 1960, 146)         # boss name, bar and frame
 HOTBAR_BOX = (712, 1290, 1844, 1440)
 
 D = [("A", "pk15a", "gilded", "Gilded",
       "Smoky glass in bevelled gold: a gold-railed ribbon behind the hearts and food, gold studs on the seams; a gold "
-      "coin medallion with clasps that join the two rows; Grace's hotbar grown up (gold pillars with diamonds, "
+      "coin medallion with clasps that grip the XP bar; Grace's hotbar grown up (gold pillars with diamonds, "
       "diamond end finials, a thicker gold selection); Tarnished's crimson boss bar with gold blades at both ends."),
      ("B", "pk15b", "cloisonne", "Cloisonne",
       "Lapis enamel cells in gold wire: every heart, shank and chestplate sits in its own cell; enamel-red hearts; "
@@ -44,11 +44,11 @@ D = [("A", "pk15a", "gilded", "Gilded",
       "Black volcanic glass with an amethyst glow: crystal hearts cut with facets, angled seams, slanted slots with "
       "cut corners, a rune-stone medallion, a violet XP bar, glowing thorns at both ends of the boss bar.")]
 
-HOOK = ("The XP number's colour, the medallion behind it, the dark outline round the boss name and the boss bar's end "
-        "pieces are drawn by a small client-only hook in qf-content (XpBarStyle.java, extended this round for the "
-        "boss name and frame). It is code, so it still needs your yes to ship; without it the number is lime, there is "
-        "no medallion, no boss frame and the boss name is plain white, and the rest of each design (bars, icons, "
-        "hotbar) is unchanged.")
+HOOK = ("Needs your yes: four parts of every design are drawn by a small client-only hook in qf-content "
+        "(XpBarStyle.java), not by the texture pack: the medallion, the boss bar's frame, the dark outline round the "
+        "boss name and the XP number's colour. It is code, so it ships only with your yes. Without it the number is "
+        "plain lime, with no medallion behind it, no boss frame, and a plain white boss name; the rest of each design "
+        "(bands, icons, hotbar, XP and boss bars) is texture and stays.")
 
 
 def zoom_crop(tag, scene, box, name, k=2):
@@ -83,7 +83,7 @@ def main():
     scene("pk-hud", "HUD: five designs",
           "Five complete HUDs, our own art, each in one material: hotbar, selection, hearts, food, armour, an XP bar "
           "with a medallion, and the boss bar. Less minimalist than round 14: every row now sits on a framed band, "
-          "the medallion joins the heart and food rows, and the boss bar gets end pieces. Grace's hotbar, Tarnished's "
+          "the medallion sits in the gap between the heart and food rows (clear of both), and the boss bar gets a frame with end pieces. Grace's hotbar, Tarnished's "
           "boss bar and the medallion were the starting point (A is closest to them). The boss name has a dark outline "
           "in all five, so it reads over a bright sky. " + HOOK,
           "Which design (or which parts of which)? Ship the XpBarStyle hook (yes/no)?", full)
@@ -96,7 +96,8 @@ def main():
     scene("pk-hud-icons", "HUD: icons up close", "The armour, heart and food rows of each design at 2x.", "", icons_o)
     xp = [opt(k, n, zoom_crop(t, "gui_hud", XP_BOX, "pk-hud-xp"), "") if have[t] else None for k, t, _, n, _ in D]
     scene("pk-hud-xp", "HUD: the XP medallions up close", "The level number on each medallion and the middle of the XP "
-          "bar, 2x. The number's colour is the hook's (lime without it).", "", xp)
+          "bar, 2x. The number's colour is the hook's (lime without it). Levels of 100 "
+          "and up run onto the rim but stay readable (offline mock, right column).", "", xp)
     boss = [opt(k, n, h11.crop(t, "gui_hud", BOSS_BOX, "pk-hud-boss"), "") if have[t] else None
             for k, t, _, n, _ in D]
     scene("pk-hud-boss", "HUD: boss bars and the outlined name", "The boss name now has a dark outline in every "

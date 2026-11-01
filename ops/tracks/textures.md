@@ -13,9 +13,9 @@ Rewrite this file when the state changes; keep it under 2 KB.
   718473f, not merged). Open: leaves denser than the transparency the owner liked; keep or thin.
 - **r015 packs** (`r015-packs.md`): five complete HUDs (`qf_hud_r015.py`, own art: gilded, cloisonne, ironbound,
   moonsilver, obsidian; banded rows, medallion, boss frame, outlined boss name). XpBarStyle gained text.boss,
-  qf.boss.outline, qf.boss.frame (bench jar jars-r015). Render 1101-101607 pending, then `r015_packs_handoff.py
-  --ready`. Owner: ship XpBarStyle or the number stays lime and no medallion/boss frame/outline. Settled: round 12 mobs,
-  Conquest snow golem.
+  qf.boss.outline, qf.boss.frame (bench jar jars-r015). **Handed off** (render 1101-104044; `C:/qfb/shaderdev/r015/
+  packs_scenes.json`, 4 scenes, PACKS-READY). Owner: ship XpBarStyle or the number stays lime and no medallion/boss
+  frame/outline. Settled: round 12 mobs, Conquest snow golem.
 - **Next:** owner's r015 gem direction (then break any per-block repeat); then merge leaf-frills, set builder defaults, build QFTextures-v3; second item style.
 - **Owner likes:** Faithful 64x bricks, metals and leaves; Stay True wheat and tree leaves; Patrix mobs; VNR light;
   Soartex bookshelves; Faithless items, potions, books, GUI, TNT and boss bars.

@@ -37,7 +37,12 @@ Work order: ops/checkpoints/r015-plan.md "Packs". Base/builders/traps: r014-pack
   3 digits run onto the rim, still readable. Zips rebuilt.
 - SUBMITTED 1101-104044-textures-r015-packs (same spec, pk15a-e).
 
-## RESUME (fresh agent)
+### 2026-11-01 step 4: HANDED OFF
+- 1101-104044 checked: boss frames + outlined names on all five, medallions clear of both rows. Crop boxes nudged
+  (ICON_BOX bottom 1300, XP_BOX top 1200); scene text names the four hook parts + owner's yes. `--ready` run:
+  C:\qfb\shaderdev015\packs_scenes.json (4 scenes), PACKS-READY. Track + journal updated. DONE.
+
+## RESUME (fresh agent): nothing left; the old steps below are history
 1. `py -3.10 -I tools/renderq/renderq.py wait 1101-104044-textures-r015-packs` (one blocking call; exit + checkpoint if
    the ETA is over 10 min). Boss frame + outlined name must now show (hook fix); medallions clear of both rows.
 2. Check bench-pk15{a,b,c,d,e}-gui_hud.png (C:\qfb\shaderdev\rounds\screenshots, newer than 10:16 on 11-01) as a
