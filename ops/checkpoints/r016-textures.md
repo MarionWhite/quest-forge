@@ -63,3 +63,26 @@ QF_GEM_RAMP 1 (default) in shaders/QuestForge: the gem path now blends in by glo
 slide20 170/14 -> 0.2, slide40 205/18 -> 0.4, slide60 228/27 -> 0.6, slide80 234/30 -> 0.8, calm 240/34 -> 1 (needs F0 >= ~13
 to start, so glass/polished stone at F0 10 stay plain). Frost (E) and calmed (D) render exactly as before. Composite's
 gemReflection is scaled by the same weight. Ready for texture-dev to re-render the slider with the current pack.
+
+## Gem ramp re-render (texture-dev, 2026-11-01 20:13)
+- Shader 80da4db snapshotted to C:/qfb/gems/r016/shader-80da4db (git archive; tree was clean). QF_GEM_RAMP is already 1 in
+  settings.glsl.
+- SUBMITTED `1101-201308-r016-gems-ramp` (spec C:/qfb/gems/r016/specs/r016-gems-ramp.json): g16rfro g16r20 g16r40 g16r60
+  g16r80 g16rcalm, same packs/world/views as r016-gems-a, opts QF_GEM_RAMP 1. Guard OK.
+  Next: wait; review_r016.py-style numbers (colour, sparkles, brightness per step, per view); ends vs r015 g15fro/g15calm
+  (mean |diff|); textures_scenes.json + intro text; textures_make_scenes.py --ready; track, journal, commit, push.
+- 20:22 DONE. Render landed (18/18, none cached; guard OK after). C:/qfb/gems/r016/tools/review_ramp.py -> review-ramp/
+  (sheets, numbers.json, ends.json, evenness.json, diff-*.png).
+  Ends: g16rfro vs g15fro and g16rcalm vs g15calm differ only by a uniform whole-frame light drift (r014 -> 80da4db; grass
+  too): frame mean |diff| 0.002-0.015, frost gem pixels > 0.1 none, calm 0.02-0.5 %. Gem numbers the same (close diamond
+  frost sat 0.39/0.39, sparkles 6.1/5.9; calm sat 0.72/0.73, sparkles 78/74).
+  Evenness (pos 0 frost .. 1 calm; switch -> ramp): brightness close diamond 0/.03/.06/.95/.97/1 -> 0/.23/.40/.56/.76/1
+  (max step .89 -> .24; every view/gem now monotonic, max .24-.35); colour unchanged (front-loaded by the texture,
+  max step .28-.57, as before); glitter hf_sd even; sparkles no longer jump (C->D 1.03 -> .09) but grow geometrically,
+  ~x2 per step from C (close diamond 6/4.5/11/18/47/78), so half the count lands in E->F.
+  Verdict: smooth slide, no jump between neighbours; D is a real middle. **QF_GEM_RAMP 1 should stay the default**
+  (it already is in settings.glsl at 80da4db). Optional, shader-dev.s call: if the owner wants sparkle linear in steps, ease
+  the sparkle growth along gemWeight (not checked in the shader; not needed for the hand-off).
+  Hand-off: textures_make_scenes.py slider tags g16r*, verdicts rewritten, intro says the slide is even (no jump), notes
+  name the ramp render + ends check; Chisel scene unchanged (round 15 shader, at 100 % the ramp draws the same).
+  Backups of the pre-ramp maker/json in C:/qfb/gems/r016/*.pre-ramp.*. --ready: TEXTURES-READY touched.

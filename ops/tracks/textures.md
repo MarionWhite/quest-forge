@@ -5,9 +5,9 @@ Rewrite this file when the state changes; keep it under 2 KB.
 - **Builder:** `tools/textures/build_qf_textures.py` -> `C:\qfb\textures\*.zip`, never committed (Mojang pixels).
   `--stay-true PATH` copies Stay True from `C:\qf-world\reference-packs` at build time (private, never git-added).
 - **Direction:** `docs/design/textures/` (direction, faithless-study, modded-blocks, leaf-frills).
-- **Gems:** owner picked r015 E frost (`--gem-look frost`). r016 slider (`--gem-look slide20..80`) handed off:
-  A-C read as richer frost, D-F as calmed (shader gem switch is binary; a middle look needs a shader ramp).
-  Chisel calm option (`--chisel-gems calm`) connects in game. Awaiting the owner's step (`r016-textures.md`).
+- **Gems:** owner picked r015 E frost (`--gem-look frost`). r016 slider (`--gem-look slide20..80`) re-rendered with
+  the gem ramp (QF_GEM_RAMP 1, 80da4db; render 1101-201308): even slide, ends = r015 E and D;
+  keep ramp default. Chisel calm (`--chisel-gems calm`) connects. Awaiting the owner.s step.
 - **r011 Stay True port** (`r011-stay-true.md`): leaf planes and weighted tall crops (qf-tweaks branch `leaf-frills`
   718473f, not merged). Open: leaves denser than the transparency the owner liked; keep or thin.
 - **HUD:** r016 handed off: 4 minimal HUDs + 4 Infernum-studied boss bars (qf_hud_r016). XpBarStyle
