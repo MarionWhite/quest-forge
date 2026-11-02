@@ -250,3 +250,8 @@ Defaults unchanged for sea and shore (SUN_WHITE 1, SEA_NEAR 0, DUSK_ZEN 0) until
 - 21:27 dawn gate verified (1101-211831, s16dw): dawn_wide's high clouds lit cream again as p15; shore_sunset = y29
   (0.69). Dawn's open sky is mauve where p15's was blue: that is pass 1's QF_DUSK_SKY 3 default (acts at dawn too), not
   ZEN; flagged for the critic, not changed. Sheet l3\dawn.jpg.
+- 21:50 HAND-OFF. Cost run 1101-205802 partial (p15rclipm failed 3x, no log; meteors B = r015's own p15clipm). Same run vs
+  frozen r015: ocean_sunset 3.62 -> 3.73 (sun path +0.07), shore 2.89 -> 3.01 (ZEN +0.03), sun_clear cc 3.39 -> 3.50;
+  golden_lit/plains_noon/torch equal. High worst 3.77 (sun_clear), 14/24 over (r015 11); Low 0.99 ocean_sunset over;
+  Potato 0.33. Night p16pm 2.98 vs p15rm 2.93. finish_round dry run OK (--allow-missing-critic): 12 scenes; 17 sky
+  options need critic notes (critic.json). SHADERS-READY written. DONE.

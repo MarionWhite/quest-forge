@@ -1,5 +1,18 @@
 # Shaders journal (newest first)
 
+- 2026-11-01 21:05: **r016 sky loop 3 + hand-off prep (shader-dev)**, work order critic-loop2.json. Sea s16r3's settings
+  are the defaults (QF_SUN_WHITE 3, GLINT_GAIN 16, GLINT_LO 0.2, SEA_NEAR 4, WATER_PENUMBRA 12, METER_CAP 3). Shore: the
+  critic's change (darken lit cloud by elevation, hue kept) failed in all four tries (s16y1-y4): the pale top-right
+  cloud is thin, so its light mostly takes the open-sky branch (T high), and it sits 18-31 deg up (new debug views 17/18:
+  sky / clear-sky ratio bits, elevation bands). New QF_DUSK_HICLOUD 3: a high pixel past 2x the clear sky is lit cloud,
+  brought to 1.9x and to the open sky's mauve past 30 deg; QF_DUSK_TOPR 0.885 cuts the top tint's red. Box r-b <=16 and
+  open-sky r-b >=10 pinch: s16y29 passes all six by hundredths (15.97, 10.10); now default (QF_DUSK_ZEN 7). Combined
+  render s16y1 (sea + shore) held every sea/sun/night number; ZEN 7 leaves ocean_sunset/sun_clear/golden_lit unchanged.
+  ZEN 7 also fired at sunrise (dawn_wide's high clouds dark): new QF_DUSK_DAWN 0, sunsets only (s16dw); dawn's open
+  sky is still mauve, not r015's blue (pass 1's QF_DUSK_SKY 3), left for the critic. Cost run 1101-205802: sunset water
+  +0.11 ms vs r015 same run (path +0.07, ZEN +0.03), High worst 3.77, 14/24 over, Low 0.99. SHADERS-READY; hand-off
+  r016\spec_scenes.py, round.json, shore.json; frozen r015 pack r016\pack-r15 (1017eb5).
+
 - 2026-11-01 20:20: **r016 critic loop 2 (shader-dev)**, work order critic-loop1.json, measured with r016	ools\l2m.py
   (critic's revised targets). Root cause of the sea/sun conflict confirmed: the meter's uncapped mean; new QF_METER_CAP 3
   (default; gated to open sky; plains/sky/beach noon, golden_lit unchanged; torch is bimodal 31/40 run to run, not the
