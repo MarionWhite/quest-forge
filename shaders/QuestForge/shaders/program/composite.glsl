@@ -621,6 +621,41 @@ vec3 underwaterShafts(vec3 viewDir, float dist) {
 #endif
 
 #if QF_WAVES == 1
+#if QF_DUSK_ZEN > 0
+// r016 loop 3 (critic r015 shore_sunset: "cut red from the open sky, don't add blue": top right ~75,65,72, red <= blue
+// above ~30 deg, the sky ~40 % darker; loop 1: QF_DUSK_RAY 0.30-0.60 moved the top right only from 128,85,64 to
+// 132,100,83, its red is the sunlit air in front of the sky, not the Rayleigh sky). With the sun under 7 deg the sky
+// above ~10 deg (and what the water mirrors of it) is filtered, fully by ~26 deg: the rims and the glow round the sun
+// sit lower and keep their gold. BSL's sky there is a dark grey-mauve (66,55,58).
+// Loop 3 (3: red, green, blue x 0.20/0.36/0.70): top right 68,62,68, red/blue 1.03 above 30 deg, but the open sky went
+// violet (blue over green in 52 % of the upper sky, the critic's limit 15 %). Loops 4-5 (1, 2: green and blue cut more
+// alike): the sky went slate and the orange clouds olive, as red taken out of orange leaves yellow-green.
+// Loop 6 (4, 5): no per-channel cut. The sky is darkened (to 0.50 / 0.40) and drained toward a warm grey (1.06, 1.0,
+// 0.96) at its own brightness, so orange clouds go grey-brown, not olive, and red sits level with green and blue.
+float duskZenithK(vec3 dir) {
+    float sy = sunDirWorld().y;
+    float lo = smoothstep(0.125, 0.035, sy) * smoothstep(-0.07, -0.01, sy);
+    return lo * smoothstep(0.17, 0.44, dir.y);
+}
+// Loop 5 (loops 3-4: the rims' brightest 5 % fell from 250,155,79 to 240,151,59; the upper-left cloud's lit edge sits
+// 18-28 deg up, inside the ramp): with bright set, the sunlit cloud light (exposed past ~0.6) keeps its colour.
+vec3 duskZenith(vec3 dir, vec3 c, bool bright) {
+    float k = duskZenithK(dir);
+    if (bright) k *= 1.0 - smoothstep(QF_DUSK_ZEN == 6 ? 1.0 : 0.6, QF_DUSK_ZEN == 6 ? 3.0 : 2.0, luminance(c) * exposure());
+  #if QF_DUSK_ZEN == 6
+    // Loop 7 (4: top right 89,78,72 and red/blue 1.25 above 30 deg, the salmon cloud there kept as "bright"; rims' blue
+    // 119): drained fully to a neutral grey, and only the true rims (exposed past 1-3) keep their colour.
+    c = mix(c, vec3(luminance(c)), 0.95 * k);
+    return c * mix(1.0, 0.50, k);
+  #elif QF_DUSK_ZEN >= 4
+    c = mix(c, luminance(c) * vec3(1.06, 1.0, 0.96), 0.85 * k);
+    return c * mix(1.0, QF_DUSK_ZEN == 4 ? 0.50 : 0.40, k);
+  #else
+    vec3 f = QF_DUSK_ZEN == 1 ? vec3(0.20, 0.40, 0.56) : QF_DUSK_ZEN == 2 ? vec3(0.22, 0.42, 0.60) : vec3(0.20, 0.36, 0.70);
+    return c * mix(vec3(1.0), f, k);
+  #endif
+}
+#endif
 // Exact unpolarised Fresnel reflectance, air to water (n = 1.333): 2% straight down, rising
 // steeply at grazing angles (Schlick's fit is a few percent off there, where it shows most).
 float fresnelWater(float c) {
@@ -824,6 +859,9 @@ vec3 shadeWaterAbove(vec3 color, vec3 n, float var, vec3 scene0, float dist0, ve
 #if QF_ATMOS == 1
     refl = phFogSky(refl, R, lightDirWorld(), lightIrradiance());
 #endif
+#if QF_DUSK_ZEN > 0
+    refl = duskZenith(R, refl, false);
+#endif
 #if QF_SEA_GRAZE > 0 && QF_SEA_GOLD == 1
     // r014 loop 2: pulling the mirrored direction to the horizon moved the middle sea only from red/blue 1.26 to
     // 1.35: the sky the reflection reads (sky-view table, cheap clouds) is not the gold the eye sees in the
@@ -885,6 +923,18 @@ vec3 shadeWaterAbove(vec3 color, vec3 n, float var, vec3 scene0, float dist0, ve
     // only where the calm mirror ray points at the sun (within ~3 deg fully, none past ~6 deg).
     sunOcc *= smoothstep(0.9945, 0.9986, dot(reflect(viewDir, nS), L));
 #endif
+#endif
+#if QF_SEA_NEAR > 0
+    {
+        // r016 loop 3 (critic r015 ocean_sunset: "within about 10 degrees of the sun's direction, ease the gold-sea pull
+        // so the sea beside the path goes from 2.70 to about 2.35"; loop 2 debug 14: the band's darker half is the
+        // mirror, 2.65, the body under it 0.83): lifting the pull there (QF_SEA_FAR 3) left it at 2.63, as the mirrored
+        // island and the low sky round the sun are that orange themselves. Near the sun's bearing the glare washes
+        // the mirrored light toward a warm white (all of it within ~6 deg, none past ~20 deg), as on BSL's sea.
+        vec2 vh = normalize(viewDir.xz + vec2(1e-5, 0.0)), lh = normalize(L.xz + vec2(1e-5, 0.0));
+        float nearK = goldenHour() * smoothstep(0.940, 0.9945, dot(vh, lh)) * 0.15 * float(QF_SEA_NEAR);
+        refl = mix(refl, luminance(refl) * vec3(1.10, 1.0, 0.84), nearK);
+    }
 #endif
     float F = fresnelWater(NdotV);
     // r007: near the camera the eye averages the reflectance over many facets, so soften it toward
@@ -991,7 +1041,49 @@ vec3 shadeWaterAbove(vec3 color, vec3 n, float var, vec3 scene0, float dist0, ve
         vec3 Lc = lightIrradiance();
         float s0 = min(spec, mix(80.0, 400.0, gh)) * FH * sh * 3.0;
         float mc = max(Lc.r, max(Lc.g, Lc.b));
-  #if QF_SUN_WHITE == 2
+  #if QF_SUN_WHITE == 3
+        // Loop 3 (loops 1-2: the path's brightest tenth 251,213,152, 0.5 % of the far band at 250+, BSL 6.3 %; the
+        // column's lit part peaks at an exposed ~2-3, where the curve still keeps orange): the hot part of the path
+        // (exposed past ~0.4) is QF_GLINT_GAIN brighter again, so its core reaches the white shoulder (10-20) and
+        // the dimmer edges and falloff keep the gold.
+        // Loop 4 (s16ccc sun_clear: with the sun ~1.5 deg up the hot part is already wide, and the gain blew it into a
+        // white blob over the sand blocks; loop 3 ocean_sunset: gain 8 reached 3.6 % at 250+, the core still edged
+        // in gold): a sun that low is red and dim through the air, so the white-hot core fades in with the sun's height
+        // (under it, SUN_WHITE 1 exactly), and at 6 deg and over the whitening starts lower (exposed 0.25-1.2).
+        float e0 = s0 * mc * exposure();
+        // Loop 6 (s16dcc, s16ecc: sun_clear's glint still grew into a white blob, 710 -> 3121 clipped px; its sun stands
+        // as high as ocean_sunset's, so the sun's height cannot tell them apart. The blob is the water within ~2 deg
+        // under the horizon, where the far glint is already wide; ocean_sunset's band lies 2.4-6 deg down): the hot
+        // core takes the gain and the early whitening only from ~1.1-2.6 deg under the horizon, with the sun over 1-3 deg.
+        float hiSun = smoothstep(0.02, 0.05, L.y) * smoothstep(0.02, 0.045, -viewDir.y);
+    #if QF_GLINT_AZ > 0
+        // Loop 7 (s16fcc: the view gate did not help, the blob runs 0-5 deg under the horizon, ocean_sunset's band
+        // 3-7 deg, and its bloom lifts the sand edge; but it is +-5 deg wide where BSL's column is +-2): the hot core
+        // only within 1.5 deg of the sun's bearing (none past 3.5); 2 also only from 2 to 3.5 deg under the horizon.
+        {
+            vec2 vh2 = normalize(viewDir.xz + vec2(1e-5, 0.0)), lh2 = normalize(L.xz + vec2(1e-5, 0.0));
+            // Loop 8 (loop 7: AZ 1/2 kept sun_clear's sand edge, rows 28.8 / 29.2, but cut ocean_sunset's core to 4.2 %
+            // at 250+): 3 within 2.5 deg (none past 4.5), 4 within 3.5 (none past 6), both with 2's horizon gate.
+            float azc = dot(vh2, lh2);
+            hiSun = smoothstep(0.02, 0.05, L.y) * (QF_GLINT_AZ == 4 ? smoothstep(0.99452, 0.99813, azc) : QF_GLINT_AZ == 3 ? smoothstep(0.99692, 0.99905, azc) : smoothstep(0.99813, 0.99966, azc));
+      #if QF_GLINT_AZ >= 2
+            hiSun *= smoothstep(0.035, 0.061, -viewDir.y);
+      #else
+            hiSun *= smoothstep(0.02, 0.045, -viewDir.y);
+      #endif
+        }
+    #endif
+        float hot = mix(smoothstep(1.0, 4.0, e0), smoothstep(0.25 * QF_GLINT_LO / 0.4, 1.2 * QF_GLINT_LO / 0.4, e0), hiSun) * gh;
+        float s0b = s0 * (1.0 + QF_GLINT_GAIN * smoothstep(QF_GLINT_LO, 5.0 * QF_GLINT_LO, e0) * gh * hiSun);
+    #if QF_GLINT_CAP > 0
+        // Loop 9 (loops 6-8: the core's gain blew sun_clear's glint into a blob whose bloom lifted the sand edge, and any
+        // gate narrow enough to spare it cut ocean_sunset's core under 5 %): the gain lifts the core only to an exposed
+        // QF_GLINT_CAP (enough to clip white), never past it, so the white is no brighter (and blooms no wider) than
+        // it has to be. Facets brighter than that on their own keep their own value.
+        s0b = min(s0b, max(s0, float(QF_GLINT_CAP) / max(mc * exposure(), 1e-5)));
+    #endif
+        s0 = s0b;
+  #elif QF_SUN_WHITE == 2
         float hot = smoothstep(0.5, 2.5, s0 * mc * exposure()) * gh;
   #else
         float hot = smoothstep(1.0, 4.0, s0 * mc * exposure()) * gh;
@@ -1694,6 +1786,9 @@ void main() {
         return;
     }
 #endif
+#endif
+#if QF_DUSK_ZEN > 0
+    if (isEyeInWater == 0 && depth0 >= 1.0) color = duskZenith(viewDir, color, true);
 #endif
     // r008: never hand TAA a NaN or Inf (r007's PBR blob spread from one through the history).
     if (any(isnan(color)) || any(isinf(color))) color = vec3(0.0);

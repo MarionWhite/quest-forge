@@ -74,6 +74,13 @@ vec3 display(vec3 exposed) {
         vec3 pc = 1.0 - exp(-c * 1.15);
   #if QF_SUN_WHITE == 2
         float k = smoothstep(3.5, 10.0, pk) * gh;
+  #elif QF_SUN_WHITE == 3
+        // r016 loop 11 (loops 9-10: the path's whitened core clipped only past an exposed ~20 (cap 12: 0.6 % at 250+,
+        // cap 20: 5.4 %), and a glint that bright blooms over sun_clear's sand): a near-white pixel (its weakest channel
+        // past ~70 % of its strongest; the composite pass whitens the glint's core) takes the per-channel shoulder from
+        // an exposed 2.5. Orange rims and the sky stay on the neutral curve.
+        float wk = smoothstep(0.62, 0.80, min(c.r, min(c.g, c.b)) / max(pk, 1e-5));
+        float k = max(smoothstep(5.0, 14.0, pk), wk * smoothstep(2.0, 4.0, pk)) * gh;
   #else
         float k = smoothstep(5.0, 14.0, pk) * gh;
   #endif

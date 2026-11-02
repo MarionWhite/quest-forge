@@ -7,10 +7,9 @@ and the long archive in `C:\qfb\shaderdev\NEXT.md` (PC only).
 - **Budgets per frame:** High 1440p 3 ms · Low 1080p 0.9 ms · Potato 720p 0.4 ms.
 - **Lab:** https://marionwhite.github.io/quest-forge/shaders/. Rounds are in `site/shaders/rounds/rNNN.json`; feedback is in
   `docs/design/shaders/feedback/rNNN.json` with images in `attachments/rNNN/`. Taste is in `docs/design/shaders/look-bible.md`.
-- **Round state:** r015 shader scenes handed off (C:\qfb\shaderdev015\SHADERS-READY, 4 scenes; cost 1101-104149,
-  Low re-measure 1101-125848). Next: critic r015, then publisher. Defaults now QF_SUN_HALO 1, QF_SEA_FAR 1,
-  QF_DUSK_SKY 2, QF_METEOR_SKY 2, QF_GEM_NFADE 0. The sun's path on the sea is still orange (r/b 2.76, BSL 1.96):
-  it is the gold sun glint, not the sea pulls; r016 try: white-hot glint.
+- **Round state:** r016 sky loop (ops/checkpoints/r016-shader.md), awaiting a critic pass. Night passes on defaults (NAVY 0.30,
+  STAR_GAIN 0.070; 2.92 ms). Sea passes all 7 with QF_SUN_WHITE 3 (s16f1) but that blows sun_clear's sand edge;
+  shore passes 5/6 with QF_DUSK_ZEN 6 (cold grey). Sea/shore defaults unchanged until the critic picks.
 - **Over budget (owner question, later round):** High 11 of 24 views over 3.0: 9 water views 3.11-3.65 (sea sunset 3.61,
   sun_clear 3.65) and the nights 3.02/3.11. Low ocean_sunset 0.95, lake 0.94. Meteors 2.98 vs r012 2.94.
 - **Later:** ocean/lake water cost; Conquest's per-biome fog/sky tint, nether/end lightmaps, aurora.
@@ -21,4 +20,4 @@ and the long archive in `C:\qfb\shaderdev\NEXT.md` (PC only).
 - **Render queue night mode** 22:15-08:00: shot jobs only.
 - **Tools:** `tools/renderq`, `tools/shaders/review/finish_round.py`, `check_glsl.py`, `make_clip.py --speedup`.
 
-- 2026-11-01: r015 posted (b0f4ea6, 11 scenes, closes r014); awaiting owner feedback. Next: r016 white-hot glint for the sea sun path.
+- 2026-11-01: r016 sky loops 1-11 done; next: critic on the frames in the r016 checkpoint.

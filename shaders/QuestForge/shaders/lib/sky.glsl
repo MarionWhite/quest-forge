@@ -780,7 +780,8 @@ vec3 nightSkyTexture(vec3 dir) {
             // radian) and 2x brighter, from 7000 to 20000 K, and the faint stars cooled.
             L += vec3(0.13, 0.19, 0.44) * MOON_I * QF_METEOR_NAVY * smoothstep(-0.04, 0.35, dir.y) * moonWash;
             float thr = 1.0 - 0.030 - 0.5 * band * band * band;
-            L += phStars(dir, thr, 700.0, vec2(7000.0, 20000.0)) * SUN_I * 0.040 * mix(0.5, 1.0, moonWash) * smoothstep(-0.02, 0.08, dir.y);
+            // Loop 1 (meteors masked): the brightest stars 121,144,161, cyan-blue and dim -> QF_STAR_GAIN, QF_STAR_TMAX.
+            L += phStars(dir, thr, 700.0, vec2(7000.0, QF_STAR_TMAX)) * SUN_I * QF_STAR_GAIN * mix(0.5, 1.0, moonWash) * smoothstep(-0.02, 0.08, dir.y);
 #else
             L += vec3(0.06, 0.11, 0.40) * MOON_I * 0.026 * smoothstep(-0.02, 0.45, dir.y) * moonWash;   // loop 1: 0.010, loop 2: 0.016 left the sky near black (median luma 6.8; the photo's 58)
             float thr = 1.0 - 0.030 - 0.5 * band * band * band;

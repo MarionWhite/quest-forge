@@ -1,5 +1,15 @@
 # Shaders journal (newest first)
 
+- 2026-11-01 19:25: **r016 sky loops 1-11 (shader-dev)**. Measured with r016\tools\measure.py (now masks meteor streaks:
+  the "brightest stars" were the green trains). Night: all pass, made default (QF_METEOR_NAVY 0.30, new QF_STAR_GAIN
+  0.070, QF_STAR_TMAX 15000; s16cm1 sky 17,23,37, stars 161,189,207; cost 2.92 ms vs 2.98). Sea: loop 2's SSR fix was
+  not the cause, the island's shadow cuts the path; new QF_SUN_WHITE 3 (hot-core gain QF_GLINT_GAIN/LO, QF_GLINT_AZ,
+  QF_GLINT_CAP, near-white shoulder in final) + QF_SEA_NEAR (mirror near the sun's bearing to warm white): s16f1 passes
+  all 7, but the same gain blows sun_clear's glint into a blob and loses the owner's D sand edge; azimuth gates and caps
+  trade one for the other (best compromise s16g2/s16g2cc). Shore: new QF_DUSK_ZEN (sun < 7 deg, sky above 10-26 deg):
+  per-channel cuts turned clouds olive (rejected); 6 (darken + neutral drain) passes 5/6, rims fail, look storm-grey.
+  Sun glow: default passes (s16acc 28.9). Sea/shore defaults unchanged; frames for the critic in the r016 checkpoint.
+
 - 2026-11-01 16:20: **r016 sky pass 1 (shader-dev), stopped early**: queue paused from 16:05 (owner in a game), so only the
   sea frames of loop 1 (1101-155233) landed. New options, defaults on: QF_SUN_WHITE 1 (per-channel shoulder past an
   exposed peak of 5 at golden hour + white glint core; SSR hides the glint only toward the sun), QF_SEA_FAR 3 (r014's
