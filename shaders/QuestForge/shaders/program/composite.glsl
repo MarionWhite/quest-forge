@@ -638,11 +638,7 @@ vec3 underwaterShafts(vec3 viewDir, float dist) {
 float duskSunGate() {
     float sy = sunDirWorld().y;
     float g = smoothstep(0.125, 0.035, sy) * smoothstep(-0.07, -0.01, sy);
-  #if QF_DUSK_DAWN == 0
-    int t = worldTime % 24000;
-    g *= (t > 6000 && t < 18000) ? 1.0 : 0.0;
-  #endif
-    return g;
+    return g * qfDuskEve();
 }
 float duskZenithK(vec3 dir) {
     return duskSunGate() * smoothstep(0.17, 0.44, dir.y);
@@ -719,6 +715,25 @@ vec3 duskZenith(vec3 dir, vec3 c, bool bright, float T) {
     // lenticular keeps its gold, only dimmer).
     float wd = w * smoothstep(sin(radians(QF_DUSK_HIHI)), sin(radians(QF_DUSK_HIHI + 6.0)), dir.y);
     res = mix(res, luminance(res) * warm, QF_DUSK_HIDRAIN * wd) * mix(1.0, min(1.0, QF_DUSK_HIM / max(hiR, 1e-6)), w);
+    #endif
+    #if QF_DUSK_CLFLOOR == 1
+    // r016 final (critic, loop 3 by eye: "the high cloud at the top right is darker than the sky behind it (60,46,34
+    // against 69,60,58) and reads as a smudge of smoke ... the big cloud over the tower is storm grey (71,57,49, BSL's
+    // golden tan 118,88,59)"): a floor, never a cut. The sky behind is the open branch on the clear sky (x2.0, the
+    // open sky's measured 1.5-2.5x it, debug 17); a lit high cloud (past QF_DUSK_HIG x the clear sky) may not fall
+    // under 1.5x its linear light (~1.2x on screen) and leans a third of the way from the sky's mauve to tan; a thick
+    // cloud (deck T low) not under 2.2x (~1.4x), in BSL's tan. Rims and lit sides are brighter already: untouched.
+    vec3 skB = skyScatter(dir) * 2.0;
+    vec3 skyRef = mix(skB, luminance(skB) * warm, 0.85 * k) * mix(1.0, dark, k);
+    float thickC = smoothstep(0.3, 0.8, 1.0 - clamp(T, 0.0, 1.0));
+    float hiC = smoothstep(QF_DUSK_HIG, QF_DUSK_HIG * 1.75, luminance(c) / max(luminance(skyScatter(dir)), 1e-6));
+    float Lt = luminance(skyRef) * mix(1.5, 2.2, thickC);
+    vec3 tanH = vec3(1.0, 0.54, 0.24) / 0.616;               // BSL's 118,88,59 in linear, unit luminance
+    vec3 skyH = skyRef / max(luminance(skyRef), 1e-6);
+    vec3 hueC = mix(mix(skyH, tanH, 0.35), tanH, thickC);
+    float Lr = luminance(res);
+    float lift = smoothstep(0.0, 0.25, 1.0 - Lr / max(Lt, 1e-6));
+    res = mix(res, hueC * max(Lr, Lt), k * max(hiC, thickC) * lift);
     #endif
     return res;
   #endif

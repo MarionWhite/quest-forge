@@ -255,3 +255,16 @@ Defaults unchanged for sea and shore (SUN_WHITE 1, SEA_NEAR 0, DUSK_ZEN 0) until
   golden_lit/plains_noon/torch equal. High worst 3.77 (sun_clear), 14/24 over (r015 11); Low 0.99 ocean_sunset over;
   Potato 0.33. Night p16pm 2.98 vs p15rm 2.93. finish_round dry run OK (--allow-missing-critic): 12 scenes; 17 sky
   options need critic notes (critic.json). SHADERS-READY written. DONE.
+
+## Pre-publish fixes (critic final, critic.json `_r016_publish_summary`; orchestrator does fixes 6 gems + 8 HUD)
+- 22:04 roundlib.oc crops named <tag>-<scene>-<key>-crop.png (fix 1). Dawn gate: common.glsl qfDuskEve() (QF_DUSK_DAWN 0
+  = evening only) now gates QF_DUSK_SKY 3 / QF_DUSK_RAY (photon.glsl; morning = 2, r015's) and sky.glsl's shadeK, and
+  composite duskSunGate. Shore pass 4: QF_DUSK_CLFLOOR 1 (composite ZEN 7: cloud floor ~1.2x/1.4x the sky behind, tan),
+  default 0 until judged. check_glsl clean (also CLFLOOR 1, DAWN 1). Submitted **1101-220338-r016-final**
+  (specs\r16-final.json: s16fd dawn_wide+shore_sunset defaults; s16ff shore CLFLOOR 1; s16ffcc sun_clear CLFLOOR 1).
+  Next: text fixes 2-5 in shore.json / spec_scenes.py, sand crops (p16cc vs p14cch1 box 1130,640,160,90), dry run.
+- 22:20 DONE. 1101-220338 measured: s16fd dawn open sky 89,82,95 (p15 90,83,96), shore = y29 (all six pass);
+  s16ff (CLFLOOR 1) top right 79,65,56 r-b 23, 21 px >120, open sky r-b 8: FAIL -> default 0 (sheet r016\l4\final_sheet.jpg).
+  shore.json: SHOREQ critic loop-3 verdict + pass-4 sentence, SHORENAME "(not yet passed by the critic's eye)",
+  SHORESTATUS per critic; spec_scenes.py intro/sea/sun/meteor wording, sun-glow E/F sand crops. Stale un-keyed crops
+  removed; crops sheet r016\l4\crops_sheet.jpg. finish_round dry run clean (r016\l4\finish_dry.txt).

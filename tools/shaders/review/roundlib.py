@@ -146,11 +146,12 @@ class Round:
                 "ms": self.cost(tag, "gallery")}
 
     def oc(self, k, label, tag, scene, box, desc=None):
-        """A 2x crop (box = x0, y0, w, h in the frame) for detail too small for the full frame."""
+        """A 2x crop (box = x0, y0, w, h in the frame) for detail too small for the full frame. Named per
+        option key (r016: two crops of one frame used to share <tag>-<scene>-crop.png and overwrite)."""
         from PIL import Image
         crops = os.path.join(self.d, "crops")
         os.makedirs(crops, exist_ok=True)
-        out = os.path.join(crops, f"{tag}-{scene}-crop.png")
+        out = os.path.join(crops, f"{tag}-{scene}-{k}-crop.png")
         src = self.S % f"{tag}-{scene}"
         if os.path.exists(src):
             im = Image.open(src).convert("RGB")

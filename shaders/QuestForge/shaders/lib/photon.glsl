@@ -116,7 +116,9 @@ vec3 phSunTintX(float sy, bool mie) {
     // the upper sky had more blue than green, BSL 13 %; "the trouble is too much red, not too little blue ... sky about
     // 40 % darker overall"): 3 the open Rayleigh sky under 7 deg takes QF_DUSK_RAY of 2's light, with its blue held
     // under its green (top right 115,106,118 -> about 75,65,72 needs ~0.4 of the light in every channel, in linear).
-    me *= mix(vec3(1.0), mie ? vec3(0.96, 1.10, 0.72) : (QF_DUSK_SKY == 3 ? vec3(0.80, 0.90, 0.86) * QF_DUSK_RAY : QF_DUSK_SKY == 2 ? vec3(0.78, 0.90, 1.04) : vec3(0.95, 1.0, 0.90)), lo);
+    // r016 final (critic: dawn's open sky went dusty rose, 98,76,77, round 15 100,93,112): 3 and QF_DUSK_RAY act in the
+    // evening only (qfDuskEve, QF_DUSK_DAWN 0); the morning keeps 2, round 15's default.
+    me *= mix(vec3(1.0), mie ? vec3(0.96, 1.10, 0.72) : (QF_DUSK_SKY == 3 ? mix(vec3(0.78, 0.90, 1.04), vec3(0.80, 0.90, 0.86) * QF_DUSK_RAY, qfDuskEve()) : QF_DUSK_SKY == 2 ? vec3(0.78, 0.90, 1.04) : vec3(0.95, 1.0, 0.90)), lo);
   #elif QF_SUN_GOLD_LOW == 3
     me *= mix(vec3(1.0), mie ? vec3(0.96, 1.10, 0.72) : vec3(1.0, 1.05, 0.80), lo);
   #else

@@ -1186,7 +1186,8 @@ vec3 cloudLum(CloudLight c, float od, float h, float mu, float dens) {
         // stays on all the sunlight (r014's amber rims) and the part of a cloud deep in its own shadow (od past ~10)
         // drains toward a darker, cool grey, the colour of a real shadow side lit by the blue sky above it.
         s *= mix(vec3(1.0), vec3(0.84, 1.18, 0.48), lo);
-        float shadeK = lo * (1.0 - exp(-od * 0.08)) * (QF_DUSK_SKY == 2 ? 0.85 : 0.70);
+        // r016 final: 3's stronger shadow-side drain in the evening only (the morning keeps 2's, round 15's default).
+        float shadeK = lo * (1.0 - exp(-od * 0.08)) * (QF_DUSK_SKY == 2 ? 0.85 : QF_DUSK_SKY == 3 ? mix(0.85, 0.70, qfDuskEve()) : 0.70);
         s = mix(s, luminance(s) * vec3(0.80, 0.84, 1.0) * 0.62, shadeK);
 #else
         s *= mix(vec3(1.0), vec3(0.84, 1.18, 0.48), lo);

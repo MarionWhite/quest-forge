@@ -1,5 +1,14 @@
 # Shaders journal (newest first)
 
+- 2026-11-01 22:20: **r016 pre-publish fixes (shader-dev)**, critic.json `_r016_publish_summary` items 1-5, 7. roundlib.oc
+  saved every crop as <tag>-<scene>-crop.png, so crops of one frame overwrote each other (sea C showed E, sun A/B showed
+  the column): now <tag>-<scene>-<key>-crop.png, all 13 re-cut and checked. Dawn regression: QF_DUSK_SKY 3 and
+  QF_DUSK_RAY now act in the evening only (common.glsl qfDuskEve, QF_DUSK_DAWN 0; mornings keep 2): s16fd dawn open sky
+  89,82,95 vs p15 90,83,96, shore = y29 (mean |d| 0.63). Shore pass 4, QF_DUSK_CLFLOOR 1 (cloud floor at ~1.2x/1.4x the
+  sky behind, tan): the left cloud went tan, the top right stayed brown, top right r-b 23 and 21 px >120: fails, default
+  0. Scene text: shore not passed by eye (6/10, 60,46,34 vs 69,60,58; 71,57,49 vs BSL 118,88,59); sea ripple, shimmer
+  noise, meteor cost wording; sun-glow E/F sand crops (p16cc vs p14cch1). Render 1101-220338-r016-final.
+
 - 2026-11-01 21:05: **r016 sky loop 3 + hand-off prep (shader-dev)**, work order critic-loop2.json. Sea s16r3's settings
   are the defaults (QF_SUN_WHITE 3, GLINT_GAIN 16, GLINT_LO 0.2, SEA_NEAR 4, WATER_PENUMBRA 12, METER_CAP 3). Shore: the
   critic's change (darken lit cloud by elevation, hue kept) failed in all four tries (s16y1-y4): the pale top-right
