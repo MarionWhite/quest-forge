@@ -139,9 +139,18 @@
    "n": 15,
    "id": "r015",
    "title": "Five gem looks, five HUD designs, quieter dusk clouds and a clear starry meteor night",
-   "status": "open",
+   "status": "closed",
    "created": "2026-11-01",
    "scenes": 11,
+   "feedback": true
+  },
+  {
+   "n": 16,
+   "id": "r016",
+   "title": "A white-hot sun path, white-headed meteors over point stars, the frost gem slider, minimal HUDs and thick boss bars",
+   "status": "open",
+   "created": "2026-11-01",
+   "scenes": 12,
    "feedback": false
   }
  ]

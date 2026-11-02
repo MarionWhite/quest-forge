@@ -3,7 +3,7 @@
  "id": "r015",
  "title": "Five gem looks, five HUD designs, quieter dusk clouds and a clear starry meteor night",
  "intro": "This round answers your round 14 notes, with the critic's notes as the work order on the sky (you wrote \"critic\" again), copying from BSL and Photon, each option against round 14 with its cost (per frame, against the same view with shaders off). Your sun-glow pick, B, is now the default. One thing did not work: the sun's path on the sea is as orange as in round 14 (first scene). Worst frames: High at 1440p 3.65 ms (budget 3.0, over), Low at 1080p 0.95 ms (budget 0.9, over), Potato at 720p 0.31 ms (budget 0.4). 11 of the 24 High views are over 3.0: 9 with open water in view (3.11 to 3.65 ms) and the night views (night new 3.11, night wide 3.02), as in round 14: the water is still the main cost, and making it cheaper is still your open question. The worst High view is sun clear at 3.65 ms. Low over 0.9: lake glitter 0.94 ms, ocean sunset 0.95 ms (round 14's pack, same afternoon: ocean sunset 0.93, lake glitter 0.95); this round's changes add nothing measurable on Low.",
- "status": "open",
+ "status": "closed",
  "created": "2026-11-01",
  "scenes": [
   {

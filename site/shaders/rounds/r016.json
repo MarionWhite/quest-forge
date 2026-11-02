@@ -1,0 +1,622 @@
+{
+ "n": 16,
+ "id": "r016",
+ "title": "A white-hot sun path, white-headed meteors over point stars, the frost gem slider, minimal HUDs and thick boss bars",
+ "intro": "This round answers your round 15 notes with the critic's work order on the sky, copying from BSL, Complementary and Photon. What is new in how it was made: the critic judged every sky change inside the loop, against BSL and Complementary on the same views, and what it passed became a default, except the dusk shore's last change (see that scene); each scene says in one line what it passed, with the numbers. The sea, the sun and the meteor night passed the critic in the loop. The dusk shore passes the critic's numbers but not its eye (6/10), and work on it continues next round. Costs are per frame, against the same view with shaders off, and they got a little worse. Worst frames: High at 1440p 3.77 ms (budget 3.0, over; round 15 3.65), Low at 1080p 0.99 ms (budget 0.9, over; round 15 0.95), Potato at 720p 0.33 ms (budget 0.4). 14 of the 24 High views are over 3.0: 12 with open water in view (3.01 to 3.77 ms) and the night views (night new 3.09, night wide 3.02) (round 15: 11). Water is still the main cost on High, as in rounds 14 and 15, and making it cheaper is still your open question. Against round 15's pack in the same run, the sunset views with water cost about 0.11 ms more: the sea 3.62 to 3.73, the shore 2.89 to 3.01, the clear sunset 3.39 to 3.50; the white sun path is +0.07 ms of that and the darker dusk sky +0.03 ms. Views without a low sun (golden lit, plains noon, torch) did not change. The worst High view is sun clear at 3.77 ms. Low views over 0.9: lake glitter 0.96 ms, ocean sunset 0.99 ms (round 15: ocean sunset 0.95, lake glitter 0.94).",
+ "status": "open",
+ "created": "2026-11-01",
+ "scenes": [
+  {
+   "id": "sea-sunset",
+   "name": "The sun's path on the sea: white-hot, all the way to the horizon",
+   "question": "Round 15's path was still orange. The critic found two causes: our sun never burned to white (its brightest pixels 253,214,162, BSL's 255,254,251) and the sea beside the path was too orange. Now, at golden hour, the hottest pixels burn to white the way film and BSL's tone curve do, the path's hot core is brighter so it clips white and keeps gold only at its edges, the sea near the sun's bearing eases toward warm white, the island's shadow on the water has a soft edge instead of a hard straight diagonal, and the exposure meter ignores the white core so the frame does not darken. Critic, inside the loop: PASSED, 8/10 (frame s16r3): 41 % of the lit band is white (BSL 34 %), the white column reaches the horizon (649 px, BSL 1325), the frame is within 1 % of its old brightness, and the path's ripple streaks vary about as much as BSL's (0.11 to 0.14 across a frame pair, BSL 0.14 to 0.15; the number moves with the waves). C and D: the path at 2x; E: the island's shadow edge at 2x. Cost on High: this view 3.73 ms (the sun-path changes off 3.66, round 15's pack 3.62, same run). A new (default), B round 15.",
+   "notePrompt": "Is this the white-hot path you wanted? (The critic notes the sea round it is olive-khaki where BSL's is amber-rose: next round.)",
+   "options": [
+    {
+     "key": "A",
+     "label": "White-hot path (default)",
+     "img": "r016/sea-sunset-A.jpg",
+     "critic": "Critic 8: The leap you asked for, and the same picture the critic passed inside the loop (s16r3). The sun's path is now a white column that reaches the horizon, broken into ripple streaks, with gold only at its edges: the same kind of path as BSL's. On this frame 39 % of the lit band is white (BSL 34 %), the white reaches the horizon (646 px), and the frame's brightness is unchanged (100.1). The island's shadow on the water no longer has round 15's straight white wedge; at 2x its edge breaks along the ripples. What still separates it from BSL: the sea round the path is olive-khaki (105,81,43 to the right of the path, the same as round 15) where BSL's is warm amber-rose, and the path is a little more solid than BSL's on this frame (ripple variation 0.11 here, 0.13 on its pair, BSL 0.14-0.15). Cost 3.73 ms, 0.11 ms more than round 15 in the same run.",
+     "ms": 3.73
+    },
+    {
+     "key": "B",
+     "label": "Round 15",
+     "img": "r016/sea-sunset-B.jpg",
+     "critic": "Critic 7: Round 15 in the same run: the path is a narrow gold thread that fades out before the horizon, and nothing in it reaches white. Next to A it is plainly the old problem you rated 5.",
+     "ms": 3.62
+    },
+    {
+     "key": "C",
+     "label": "The path 2x: this round",
+     "img": "r016/sea-sunset-C.jpg",
+     "critic": "Critic 8: The leap you asked for, and the same picture the critic passed inside the loop (s16r3). The sun's path is now a white column that reaches the horizon, broken into ripple streaks, with gold only at its edges: the same kind of path as BSL's. On this frame 39 % of the lit band is white (BSL 34 %), the white reaches the horizon (646 px), and the frame's brightness is unchanged (100.1). The island's shadow on the water no longer has round 15's straight white wedge; at 2x its edge breaks along the ripples. What still separates it from BSL: the sea round the path is olive-khaki (105,81,43 to the right of the path, the same as round 15) where BSL's is warm amber-rose, and the path is a little more solid than BSL's on this frame (ripple variation 0.11 here, 0.13 on its pair, BSL 0.14-0.15). Cost 3.73 ms, 0.11 ms more than round 15 in the same run.",
+     "ms": 3.73
+    },
+    {
+     "key": "D",
+     "label": "The path 2x: Round 15",
+     "img": "r016/sea-sunset-D.jpg",
+     "critic": "Critic 7: Round 15 in the same run: the path is a narrow gold thread that fades out before the horizon, and nothing in it reaches white. Next to A it is plainly the old problem you rated 5.",
+     "ms": 3.62
+    },
+    {
+     "key": "E",
+     "label": "Island shadow edge 2x: this round",
+     "img": "r016/sea-sunset-E.jpg",
+     "critic": "Critic 8: The leap you asked for, and the same picture the critic passed inside the loop (s16r3). The sun's path is now a white column that reaches the horizon, broken into ripple streaks, with gold only at its edges: the same kind of path as BSL's. On this frame 39 % of the lit band is white (BSL 34 %), the white reaches the horizon (646 px), and the frame's brightness is unchanged (100.1). The island's shadow on the water no longer has round 15's straight white wedge; at 2x its edge breaks along the ripples. What still separates it from BSL: the sea round the path is olive-khaki (105,81,43 to the right of the path, the same as round 15) where BSL's is warm amber-rose, and the path is a little more solid than BSL's on this frame (ripple variation 0.11 here, 0.13 on its pair, BSL 0.14-0.15). Cost 3.73 ms, 0.11 ms more than round 15 in the same run.",
+     "ms": 3.73
+    }
+   ]
+  },
+  {
+   "id": "sun-glow",
+   "name": "Your haze-core sun, now with a white column under it",
+   "question": "The same settings act on the clear-sky sunset: the glint under the sun is now a white column broken into ripple streaks, as BSL's, where round 15's was a narrow gold thread. It keeps what you picked in round 14 (B, the wavering on the horizon blocks). Critic, inside the loop: PASSED, 8/10 (frame s16r3cc): the sand block's top edge sits at row 29.6 (your pick 28.8), its heat-shimmer measure is noisy from run to run (0.69 to 1.10 on the same settings; your pick 0.83), so judge it on the crops, the frame is not darker (93.4), and the sun's white disk is 3065 px (BSL 2137). The white runs further down the frame than BSL's (6152 px against 4075); the critic judged that by eye as the same kind of column, not a flat bar. A and B: 2x round the sun; C and D: the column under it at 2x; E and F: the sand under the sun at 2x, this round against round 15's D (your round 14 pick). Cost on High: A 3.50 ms, B 3.39 ms (the sun-path changes off 3.43).",
+   "notePrompt": "Is the white column under the sun right, and is the horizon wavering you liked still there?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Sun 2x: this round (default)",
+     "img": "r016/sun-glow-A.jpg",
+     "critic": "Critic 8: Your haze-core sun with a white column under it, and the nearest of ours to BSL so far: a white disk and a white column that breaks into ripple streaks lower down, as BSL's does. The column runs further down the frame than BSL's but keeps its streaks, so it does not read as a flat bar. Under the sun at 3x, the two little sand blocks on the horizon now sit in a white glare strip, and the white shows through the gap between them with a notched edge: the effect you saw in round 15's D. The frame is not darker (93.0). The page shows the column but not the sand at 3x, which is what your note was about (see the pre-publish list).",
+     "ms": 3.5
+    },
+    {
+     "key": "B",
+     "label": "Sun 2x: Round 15",
+     "img": "r016/sun-glow-B.jpg",
+     "critic": "Critic 7: Round 15's default in the same run: a soft white disk over a narrow gold thread on the water. Next to A, what changed is the column, not the sun.",
+     "ms": 3.39
+    },
+    {
+     "key": "C",
+     "label": "Column 2x: this round",
+     "img": "r016/sun-glow-C.jpg",
+     "critic": "Critic 8: Your haze-core sun with a white column under it, and the nearest of ours to BSL so far: a white disk and a white column that breaks into ripple streaks lower down, as BSL's does. The column runs further down the frame than BSL's but keeps its streaks, so it does not read as a flat bar. Under the sun at 3x, the two little sand blocks on the horizon now sit in a white glare strip, and the white shows through the gap between them with a notched edge: the effect you saw in round 15's D. The frame is not darker (93.0). The page shows the column but not the sand at 3x, which is what your note was about (see the pre-publish list).",
+     "ms": 3.5
+    },
+    {
+     "key": "D",
+     "label": "Column 2x: Round 15",
+     "img": "r016/sun-glow-D.jpg",
+     "critic": "Critic 7: Round 15's default in the same run: a soft white disk over a narrow gold thread on the water. Next to A, what changed is the column, not the sun.",
+     "ms": 3.39
+    },
+    {
+     "key": "E",
+     "label": "Sand under the sun 2x: this round",
+     "img": "r016/sun-glow-E.jpg",
+     "critic": "Critic 8: Your haze-core sun with a white column under it, and the nearest of ours to BSL so far: a white disk and a white column that breaks into ripple streaks lower down, as BSL's does. The column runs further down the frame than BSL's but keeps its streaks, so it does not read as a flat bar. Under the sun at 3x, the two little sand blocks on the horizon now sit in a white glare strip, and the white shows through the gap between them with a notched edge: the effect you saw in round 15's D. The frame is not darker (93.0). The page shows the column but not the sand at 3x, which is what your note was about (see the pre-publish list).",
+     "ms": 3.5
+    },
+    {
+     "key": "F",
+     "label": "Sand under the sun 2x: round 15's D",
+     "img": "r016/sun-glow-F.jpg",
+     "critic": "Critic 7: Round 15's D (your round 14 pick), for the sand at 3x: the white glint shows through the gap between the two horizon blocks with an eaten, notched top edge. A keeps that notch and adds a white glare strip along the horizon.",
+     "ms": 3.35
+    }
+   ]
+  },
+  {
+   "id": "shore-sunset",
+   "name": "A darker, warmer dusk sky with gold only on the low clouds (not yet passed by the critic's eye)",
+   "question": "The critic, after round 15: the open sky had gone pink-lilac (137,100,103 between the clouds, BSL's warm brown 115,85,57) and was about 1.7 times as bright as BSL's at the top right; the trouble was too much red, not too little blue. Now, with the sun under 7 degrees, the open sky behind the clouds is darkened and drained toward a warm mauve-brown, the low clouds keep their gold, and a high cloud lit as if the sun stood high is brought down to the sky's own level and colour, as BSL's high clouds are at sunset. Critic, inside the loop: 7/10 at its loop 2 (frame s16z11b), 5 of 6 targets passed, failing only on one pale salmon cloud at the top right; it set loop 3's targets (top right luma at most 80, red at most blue + 16, no pixel above luma 120). Loop 3 (frame s16y29) meets all six on the critic's own measuring script: top right 72,60,56 (BSL 66,55,58), no pixel above 120 (was 8455), open sky 63,54,53, blue over green in 7.5 % of the upper sky (limit 15), the sky 0.67 of round 15's brightness (BSL 0.75), rims 240,145,64, clouds keep their colour (saturation 0.57, none grey). Two of those pass by a hair: the top right's red is 15.97 over its blue (limit 16) and the open sky's 10.1 (floor 10), so they will move with small changes. The critic's own fix (darken high cloud by elevation, keeping its hue) could not pass: the pale cloud is thin, so most of its light came through the open-sky part, and even at the sky's brightness its colour kept the top right too red; so it now takes the open sky's mauve above 30 degrees, and the top of the sky has a little less red. The big gold cloud on the right keeps its shape and rims; its upper part is about 4 levels darker. Critic, loop 3: the six numbers pass, but by eye it scores 6/10 and does not pass. The unlit high cloud is darker than the sky behind it (60,46,34 against 69,60,58) and reads as a smudge of smoke, where BSL's high clouds are a little lighter than its sky. The big cloud over the tower is storm grey (71,57,49, BSL 118,88,59). So the dusk shore has not passed the critic: it meets the numbers but fails by eye. A fourth and last pass (a floor, so no cloud falls under the sky behind it, lit clouds leaning tan) turned the big cloud on the left tan but left the top right brown, and it broke two numbers (the top right's red 23 over its blue, limit 16; 21 pixels over 120), so it is not the default and not shown. C and D: the top right at 2x. Cost on High: this view 3.01 ms (the change off 2.98, round 15's pack 2.89). A new (default), B round 15.",
+   "notePrompt": "Is this the dusk you wanted: darker, warm, gold only low? Does the unlit high cloud at the top right read as a cloud or as a dark patch?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Darker dusk, unlit high clouds (default)",
+     "img": "r016/shore-sunset-A.jpg",
+     "critic": "Critic 6: It passes every number and fails by eye. The numbers first: on this frame the top right is 69,59,58 (BSL 66,55,58), no pixel is above 120, the open sky is 63,54,53, blue beats green in 7 % of the upper sky (limit 15), the sky is 0.67 of round 15's brightness (BSL 0.75), and the rims are 238,145,66. The lilac dome is gone and the open sky is in BSL's warm mauve-brown family: that part is fixed. But the clouds went with it. The pale high cloud at the top right is now darker than the sky around it (its core 60,46,34 against the open sky's 69,60,58), so it reads as a smudge of smoke, not a cloud. BSL's high clouds are lighter than its sky (its upper sky's median is 91,70,59, ours 64,56,56). The big cloud over the tower is storm grey, 71,57,49 against BSL's golden tan 118,88,59. The whole frame reads as smoke at dusk, not a sunset. My loop-3 fix (darken high cloud by elevation) was the wrong one, and draining the cloud to the sky's mauve made it worse. It needs to be lit tan and a little lighter than the sky behind it, not darker. C, the top right at 2x, is aimed right and shows the smudge plainly. Cost 3.01 ms (the dusk change +0.03).",
+     "ms": 3.01
+    },
+    {
+     "key": "B",
+     "label": "Round 15",
+     "img": "r016/shore-sunset-B.jpg",
+     "critic": "Critic 6: Round 15 in the same run: the pink-lilac dome (137,100,103 between the clouds) with hard orange rims, the look bible's pink wash. I scored it 7 in round 15; your 4 was closer. A fixed the sky and lost the clouds; neither is BSL's tan cloud over a mauve sky.",
+     "ms": 2.89
+    },
+    {
+     "key": "C",
+     "label": "Top right 2x: this round",
+     "img": "r016/shore-sunset-C.jpg",
+     "critic": "Critic 6: It passes every number and fails by eye. The numbers first: on this frame the top right is 69,59,58 (BSL 66,55,58), no pixel is above 120, the open sky is 63,54,53, blue beats green in 7 % of the upper sky (limit 15), the sky is 0.67 of round 15's brightness (BSL 0.75), and the rims are 238,145,66. The lilac dome is gone and the open sky is in BSL's warm mauve-brown family: that part is fixed. But the clouds went with it. The pale high cloud at the top right is now darker than the sky around it (its core 60,46,34 against the open sky's 69,60,58), so it reads as a smudge of smoke, not a cloud. BSL's high clouds are lighter than its sky (its upper sky's median is 91,70,59, ours 64,56,56). The big cloud over the tower is storm grey, 71,57,49 against BSL's golden tan 118,88,59. The whole frame reads as smoke at dusk, not a sunset. My loop-3 fix (darken high cloud by elevation) was the wrong one, and draining the cloud to the sky's mauve made it worse. It needs to be lit tan and a little lighter than the sky behind it, not darker. C, the top right at 2x, is aimed right and shows the smudge plainly. Cost 3.01 ms (the dusk change +0.03).",
+     "ms": 3.01
+    },
+    {
+     "key": "D",
+     "label": "Top right 2x: Round 15",
+     "img": "r016/shore-sunset-D.jpg",
+     "critic": "Critic 6: Round 15 in the same run: the pink-lilac dome (137,100,103 between the clouds) with hard orange rims, the look bible's pink wash. I scored it 7 in round 15; your 4 was closer. A fixed the sky and lost the clouds; neither is BSL's tan cloud over a mauve sky.",
+     "ms": 2.89
+    }
+   ]
+  },
+  {
+   "id": "meteors",
+   "name": "White-headed meteors with emerald trains, over point stars",
+   "question": "The critic, after round 15: the meteors were yellow, not white heads with green trains, the stars were soft 6x4 px diamonds where Complementary's are pinpoints, and the sky was too dark. Now the shower night is navy, each streak is an emerald body and train behind a white-hot head, and the star field is drawn as points about 2 px across. Critic, inside the loop: PASSED, 8/10 (frame s16t1): the sky's median is 17,23,37 (target 18,22,38), every head in frame is white (243 and 229), the trains are emerald, no star is a soft blob, and the shower night cost 2.97 ms in the loop (target: round 15's 2.98). It left two taste calls to you: at 5x the points are hard 2x2 squares, and five emerald streaks in one view is a lot of green. Cost on the wide night view, shower forced, one run: A 2.98 ms (round 15's pack 2.93); in these clips A 2.99 ms, B 2.98 ms (B is round 15's own clip, from its run). C and D: the Milky Way's stars at 2x. A new (default), B round 15, same view, same radiant.",
+   "notePrompt": "Closer to your photos? Too much green with five streaks at once?",
+   "options": [
+    {
+     "key": "A",
+     "label": "White heads, emerald trains (default), clip",
+     "img": "r016/meteors-A.jpg",
+     "critic": "Critic 8: The meteor night you asked for, and a real leap from your 3. The sky is navy (median 17,23,37 in the loop), the dark cloud over the Milky Way is gone, the Milky Way is blue-white, not sepia, and every streak has a white head and an emerald train. The comparison with B is fair: the same view, settings and radiant, and the streaks fall in the same places in both clips. Two taste calls are yours: five green streaks in one view is a lot of green, and at 5x the stars are hard 2x2 squares. Cost 2.99 ms in the clip, round 15's clip 2.98.",
+     "ms": 2.99,
+     "clip": "r016/meteors-A.webp"
+    },
+    {
+     "key": "B",
+     "label": "Round 15, clip",
+     "img": "r016/meteors-B.jpg",
+     "critic": "Critic 7: Round 15's own clip, from round 15's run (this round's re-render of it failed three times). Same view, same settings, and the same streaks in the same places, so it is a fair B. A near-black sky, amber streaks like tracer fire, and dark cloud over the left of the sky and the top of the Milky Way. I scored it 8 in round 15; your 3 says what it lacked.",
+     "ms": 2.98,
+     "clip": "r016/meteors-B.webp"
+    },
+    {
+     "key": "C",
+     "label": "Milky Way 2x: this round",
+     "img": "r016/meteors-C.jpg",
+     "critic": "Critic 8: The Milky Way at 2x: point stars, a blue-grey band, and a white-headed streak crossing it. Next to D's soft blobs on a brown band, it is the same kind of sky as Complementary's. Aimed right.",
+     "ms": 2.98
+    },
+    {
+     "key": "D",
+     "label": "Milky Way 2x: Round 15",
+     "img": "r016/meteors-D.jpg",
+     "critic": "Critic 6: Round 15 at 2x: soft blobs on a sepia band with brown dust lanes. The contrast with C is the point of the pair.",
+     "ms": 2.93
+    }
+   ]
+  },
+  {
+   "id": "gems16-close",
+   "name": "Gems: frost to calmed, close up",
+   "question": "You picked frost and asked for a slider from it toward round 14's calmed look. A to F are that slider in six even steps: every step moves colour, the streak pattern, surface relief and gloss together by the same amount, and each is a complete connected look. Same light as round 15 (late afternoon, the sun ahead). The shader now fades its gem lighting in along the same steps (a fifth per step), so there is no jump between any two neighbours. Only brightness steps evenly: colour moves most in the first steps and glitter late. Sparkle grows the way the eye counts it, roughly doubling each step from C on (frost has almost none until C, F the most). A is round 15's E and F round 15's D. Close: a lone diamond (right) and emerald (left) block, a step away. Look for: where along the slider the stone stops reading as frosted ice and starts reading as a gem, and where it starts to get busy. How the numbers are read (the same measures as round 15, so A and F are round 15's E and D): 'colour' is the mean saturation of the gem pixels (0 grey, 1 pure colour); 'brightness' their mean; 'glitter' how much the brightness jumps from texel to texel (noise); 'sparkles' single bright points per 10 000 gem pixels; 'white' the share of gem pixels that are bright and colourless (glare). ",
+   "notePrompt": "Which step is right? If it lies between two, say which two.",
+   "options": [
+    {
+     "key": "A",
+     "label": "Frost (0 %, round 15 E)",
+     "img": "r016/gems16-close-A.jpg",
+     "crop": "C:\\qfb\\shaderdev\\r016\\crops\\g16rfro-gem15_close.png",
+     "ms": null,
+     "desc": "Your pick: Soartex's frosted gems, pale, matte, a soft sheen (smoothness 140, F0 10), flat. The slider's start. Our read: pale ice with soft marbling and Soartex's diagonal facet lines on the lone block; calm and clean, the diamond nearly grey-blue, the emerald a milky jade. Same as round 15's E (the whole frame, grass included, is about 0.02 brighter: the shader's light moved a little since round 15, not the gem). Measured on this frame, diamond: colour 0.39, brightness 0.54, glitter 0.020, 6 sparkles per 10k px, white 1.9 %; emerald: colour 0.42, brightness 0.47, glitter 0.018, 6 sparkles per 10k px, white 0.0 %.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 5: Your pick (round 15's E), unchanged except that the whole frame's light is 0.02 brighter. Pale frosted ice with Soartex's diagonal facet lines: calm and clean, but the diamond is nearly grey-blue (colour 0.39) and the emerald a milky jade. Your taste overrides mine here; I rate it as I did in round 15."
+    },
+    {
+     "key": "B",
+     "label": "Step 1 (20 % toward D)",
+     "img": "r016/gems16-close-B.jpg",
+     "crop": "C:\\qfb\\shaderdev\\r016\\crops\\g16r20-gem15_close.png",
+     "ms": null,
+     "desc": "Frost's veining with a fifth of round 14's streaks showing through, the colour a fifth of the way to D's deep gem colour, a fifth of D's surface relief, a little more gloss (smoothness 170, F0 14); the shader gives it a fifth of the gem lighting. Our read: still frost, a clear step richer in colour and a touch darker; the marbling and facet lines unchanged in feel, no more sparkle than A. Frost with more gem colour. Measured on this frame, diamond: colour 0.50, brightness 0.50, glitter 0.021, 4 sparkles per 10k px, white 0.2 %; emerald: colour 0.54, brightness 0.42, glitter 0.019, 7 sparkles per 10k px, white 0.0 %.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 6: The biggest change of the slider happens here, and it is in colour: a third of the whole colour change in one step (diamond 0.39 to 0.50, emerald 0.42 to 0.54). It reads as frost with gem colour: still clean, no extra sparkle. The page's read is right."
+    },
+    {
+     "key": "C",
+     "label": "Step 2 (40 %)",
+     "img": "r016/gems16-close-C.jpg",
+     "crop": "C:\\qfb\\shaderdev\\r016\\crops\\g16r40-gem15_close.png",
+     "ms": null,
+     "desc": "Two fifths of the way on every axis (colour, streak pattern, relief, gloss 205 / 18, gem lighting). Our read: saturated teal and green with D's streaks starting to show through the marbling; the first faint inner light. Still reads as tinted ice more than a cut gem; sparkles only up from 6 to about 11. Measured on this frame, diamond: colour 0.59, brightness 0.47, glitter 0.024, 11 sparkles per 10k px, white 0.4 %; emerald: colour 0.62, brightness 0.39, glitter 0.022, 10 sparkles per 10k px, white 0.0 %.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 6: Round 14's streaks start to show through the frost. Up close the emerald shows two patterns at once, frost's diagonal facet lines and calmed's blotches: a slight double exposure. At play distance it reads as tinted ice with flecks. Sparkles rise from 6 to about 11."
+    },
+    {
+     "key": "D",
+     "label": "Step 3 (60 %)",
+     "img": "r016/gems16-close-D.jpg",
+     "crop": "C:\\qfb\\shaderdev\\r016\\crops\\g16r60-gem15_close.png",
+     "ms": null,
+     "desc": "Three fifths of the way (gloss 228 / 27): the stone is now more lit from inside than sheened. Our read: the middle the old slider could not draw: the streaks clearly read as gem flecks, lit from inside, but softer and lighter than F (brightness halfway between A and F, sparkles 18-24 against F's 60-78). Where frost turns into a gem. Measured on this frame, diamond: colour 0.65, brightness 0.45, glitter 0.029, 18 sparkles per 10k px, white 0.1 %; emerald: colour 0.66, brightness 0.37, glitter 0.029, 24 sparkles per 10k px, white 0.0 %.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 6: This is where the flecks start to read as gem rather than marbling, as the page says, but on the emerald the frost's facet lines still show under them. Brightness is halfway between A and F (0.45), with 18 to 24 sparkles."
+    },
+    {
+     "key": "E",
+     "label": "Step 4 (80 %)",
+     "img": "r016/gems16-close-E.jpg",
+     "crop": "C:\\qfb\\shaderdev\\r016\\crops\\g16r80-gem15_close.png",
+     "ms": null,
+     "desc": "Four fifths of the way: D's colour and streaks lead, frost's veining is faint, gloss 234 / 30. Our read: close to F but a step lighter and calmer: deep colour, bright flecks, about 60 % of F's sparkle. Measured on this frame, diamond: colour 0.69, brightness 0.42, glitter 0.035, 47 sparkles per 10k px, white 0.1 %; emerald: colour 0.70, brightness 0.34, glitter 0.035, 34 sparkles per 10k px, white 0.0 %.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 5: Close to F: deep colour and bright flecks, with about 60 % of F's sparkle (47 and 34), as the page says. The frost is nearly gone."
+    },
+    {
+     "key": "F",
+     "label": "Round 14 calmed (100 %, round 15 D)",
+     "img": "r016/gems16-close-F.jpg",
+     "crop": "C:\\qfb\\shaderdev\\r016\\crops\\g16rcalm-gem15_close.png",
+     "ms": null,
+     "desc": "The slider's end, round 15's D pack. Our read: round 15's D: deep gem colour, crystal flecks, the busiest close-up. Same as round 15's frame apart from the whole-frame light drift (0.01). Measured on this frame, diamond: colour 0.72, brightness 0.38, glitter 0.043, 78 sparkles per 10k px, white 0.2 %; emerald: colour 0.73, brightness 0.31, glitter 0.043, 60 sparkles per 10k px, white 0.0 %.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 4: Round 15's D, unchanged (0.01 of light drift): deep colour, crystal flecks and the most sparkle (78 and 60). Camouflage blotches up close, as in round 15."
+    }
+   ]
+  },
+  {
+   "id": "gems16-pillar",
+   "name": "Gems: frost to calmed, a pillar",
+   "question": "The same six steps as 3x3 pillars a few steps away, the floors running up to them. Look for: does the pillar stay one block of gem at every step (no grid), and at which step the floor's shine turns from a sheen into glitter.",
+   "notePrompt": "Which pillar?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Frost (0 %, round 15 E)",
+     "img": "r016/gems16-pillar-A.jpg",
+     "crop": "C:\\qfb\\shaderdev\\r016\\crops\\g16rfro-gem15_pillar.png",
+     "ms": null,
+     "desc": "Your pick: Soartex's frosted gems, pale, matte, a soft sheen (smoothness 140, F0 10), flat. The slider's start. Our read: each pillar is one quiet block of frosted stone, no grid; the floors carry a smooth sky sheen and almost no sparkle. Calmest of the six. Measured on this frame, diamond: colour 0.44, brightness 0.50, glitter 0.012, 0 sparkles per 10k px, white 1.7 %; emerald: colour 0.49, brightness 0.41, glitter 0.010, 0 sparkles per 10k px, white 0.0 %.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 5: One quiet block of frosted stone, no grid, almost no sparkle. It reads as packed ice."
+    },
+    {
+     "key": "B",
+     "label": "Step 1 (20 % toward D)",
+     "img": "r016/gems16-pillar-B.jpg",
+     "crop": "C:\\qfb\\shaderdev\\r016\\crops\\g16r20-gem15_pillar.png",
+     "ms": null,
+     "desc": "Frost's veining with a fifth of round 14's streaks showing through, the colour a fifth of the way to D's deep gem colour, a fifth of D's surface relief, a little more gloss (smoothness 170, F0 14); the shader gives it a fifth of the gem lighting. Our read: A with a stronger tint; one block, no grid, no crawl. Measured on this frame, diamond: colour 0.57, brightness 0.48, glitter 0.015, 0 sparkles per 10k px, white 0.0 %; emerald: colour 0.61, brightness 0.40, glitter 0.012, 0 sparkles per 10k px, white 0.0 %.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 6: A with a real gem tint; one block, no grid, no crawl. The pillar's emerald already has half of the slider's colour change."
+    },
+    {
+     "key": "C",
+     "label": "Step 2 (40 %)",
+     "img": "r016/gems16-pillar-C.jpg",
+     "crop": "C:\\qfb\\shaderdev\\r016\\crops\\g16r40-gem15_pillar.png",
+     "ms": null,
+     "desc": "Two fifths of the way on every axis (colour, streak pattern, relief, gloss 205 / 18, gem lighting). Our read: one block, no grid; the floors show a faint fan of stretched marbling toward the sun, not busy. Measured on this frame, diamond: colour 0.66, brightness 0.47, glitter 0.018, 1 sparkles per 10k px, white 0.0 %; emerald: colour 0.68, brightness 0.39, glitter 0.016, 1 sparkles per 10k px, white 0.1 %.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 6: One block, no grid; a faint fan of stretched marbling on the floor toward the sun, as the page says. The pillar's colour has almost finished changing (emerald 0.68 of 0.70)."
+    },
+    {
+     "key": "D",
+     "label": "Step 3 (60 %)",
+     "img": "r016/gems16-pillar-D.jpg",
+     "crop": "C:\\qfb\\shaderdev\\r016\\crops\\g16r60-gem15_pillar.png",
+     "ms": null,
+     "desc": "Three fifths of the way (gloss 228 / 27): the stone is now more lit from inside than sheened. Our read: one block, no grid; the floors start to glitter gently (5-7 sparkles against F's 50-54). Measured on this frame, diamond: colour 0.69, brightness 0.47, glitter 0.024, 5 sparkles per 10k px, white 0.0 %; emerald: colour 0.70, brightness 0.38, glitter 0.022, 7 sparkles per 10k px, white 0.1 %.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 6: One block, no grid; the floors begin to glitter gently (5 to 7 sparkles per 10k px)."
+    },
+    {
+     "key": "E",
+     "label": "Step 4 (80 %)",
+     "img": "r016/gems16-pillar-E.jpg",
+     "crop": "C:\\qfb\\shaderdev\\r016\\crops\\g16r80-gem15_pillar.png",
+     "ms": null,
+     "desc": "Four fifths of the way: D's colour and streaks lead, frost's veining is faint, gloss 234 / 30. Our read: the floors crawl moderately (19-22 sparkles); the pillars look like F's. Measured on this frame, diamond: colour 0.72, brightness 0.45, glitter 0.031, 19 sparkles per 10k px, white 0.1 %; emerald: colour 0.70, brightness 0.37, glitter 0.030, 22 sparkles per 10k px, white 0.1 %.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 5: The pillars look like F's; the floors crawl moderately (19 to 22)."
+    },
+    {
+     "key": "F",
+     "label": "Round 14 calmed (100 %, round 15 D)",
+     "img": "r016/gems16-pillar-F.jpg",
+     "crop": "C:\\qfb\\shaderdev\\r016\\crops\\g16rcalm-gem15_pillar.png",
+     "ms": null,
+     "desc": "The slider's end, round 15's D pack. Our read: the richest and busiest pillar and floors; one block, no grid. Measured on this frame, diamond: colour 0.73, brightness 0.44, glitter 0.040, 54 sparkles per 10k px, white 0.0 %; emerald: colour 0.70, brightness 0.36, glitter 0.039, 50 sparkles per 10k px, white 0.1 %.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 4: Rich and busy; one block, no grid, but the near floor crawls with flecks."
+    }
+   ]
+  },
+  {
+   "id": "gems16-floor",
+   "name": "Gems: frost to calmed, a floor at distance",
+   "question": "Both floors, 16 blocks long, from their near end. Look for: at which step the far floor starts to crawl with sparkles (frost had almost none, F the most). The numbers are for the far half.",
+   "notePrompt": "Which floor would you walk on?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Frost (0 %, round 15 E)",
+     "img": "r016/gems16-floor-A.jpg",
+     "crop": "C:\\qfb\\shaderdev\\r016\\crops\\g16rfro-gem15_floor.png",
+     "ms": null,
+     "desc": "Your pick: Soartex's frosted gems, pale, matte, a soft sheen (smoothness 140, F0 10), flat. The slider's start. Our read: bright, pale floors; the far diamond floor has a little white glare (5 % of its pixels), the only step with any. Measured on this frame, far diamond floor: colour 0.32, brightness 0.63, glitter 0.023, 0 sparkles per 10k px, white 4.9 %; far emerald floor: colour 0.32, brightness 0.69, glitter 0.022, 4 sparkles per 10k px, white 0.1 %.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 5: The calmest floor, but the far diamond floor glares nearly white in the sun (4.9 %): a sheet of snow. As the page says, this is the only step with glare."
+    },
+    {
+     "key": "B",
+     "label": "Step 1 (20 % toward D)",
+     "img": "r016/gems16-floor-B.jpg",
+     "crop": "C:\\qfb\\shaderdev\\r016\\crops\\g16r20-gem15_floor.png",
+     "ms": null,
+     "desc": "Frost's veining with a fifth of round 14's streaks showing through, the colour a fifth of the way to D's deep gem colour, a fifth of D's surface relief, a little more gloss (smoothness 170, F0 14); the shader gives it a fifth of the gem lighting. Our read: the far diamond floor's white glare is gone and its colour up; otherwise as calm as A. Measured on this frame, far diamond floor: colour 0.45, brightness 0.62, glitter 0.027, 1 sparkles per 10k px, white 0.0 %; far emerald floor: colour 0.40, brightness 0.67, glitter 0.024, 2 sparkles per 10k px, white 0.0 %.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 6: The far diamond floor's white glare is gone (4.9 % to 0) and its colour comes up; it stays as calm as A (1 to 2 sparkles per 10k px). The best floor of the six."
+    },
+    {
+     "key": "C",
+     "label": "Step 2 (40 %)",
+     "img": "r016/gems16-floor-C.jpg",
+     "crop": "C:\\qfb\\shaderdev\\r016\\crops\\g16r40-gem15_floor.png",
+     "ms": null,
+     "desc": "Two fifths of the way on every axis (colour, streak pattern, relief, gloss 205 / 18, gem lighting). Our read: the first sparkles on the far floors, still calm; the sun's sheen a broad soft band. Measured on this frame, far diamond floor: colour 0.55, brightness 0.59, glitter 0.034, 6 sparkles per 10k px, white 0.0 %; far emerald floor: colour 0.48, brightness 0.61, glitter 0.034, 17 sparkles per 10k px, white 0.1 %.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 6: The first sparkles on the far floors (6 and 17 per 10k px); the sun's sheen is still a broad soft band. Calm."
+    },
+    {
+     "key": "D",
+     "label": "Step 3 (60 %)",
+     "img": "r016/gems16-floor-D.jpg",
+     "crop": "C:\\qfb\\shaderdev\\r016\\crops\\g16r60-gem15_floor.png",
+     "ms": null,
+     "desc": "Three fifths of the way (gloss 228 / 27): the stone is now more lit from inside than sheened. Our read: the far floors glitter lightly, the emerald more than the diamond; the sun glint narrows toward a hot spot. Measured on this frame, far diamond floor: colour 0.60, brightness 0.56, glitter 0.039, 15 sparkles per 10k px, white 0.0 %; far emerald floor: colour 0.51, brightness 0.58, glitter 0.043, 54 sparkles per 10k px, white 0.1 %.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 5: The far emerald floor glitters (54 per 10k px, three times C's); the diamond is still light (15). This is where the floor turns from sheen to glitter."
+    },
+    {
+     "key": "E",
+     "label": "Step 4 (80 %)",
+     "img": "r016/gems16-floor-E.jpg",
+     "crop": "C:\\qfb\\shaderdev\\r016\\crops\\g16r80-gem15_floor.png",
+     "ms": null,
+     "desc": "Four fifths of the way: D's colour and streaks lead, frost's veining is faint, gloss 234 / 30. Our read: busy but not yet F's crawl (50 / 98 sparkles on the far floors against 112 / 172). Measured on this frame, far diamond floor: colour 0.65, brightness 0.52, glitter 0.044, 50 sparkles per 10k px, white 0.0 %; far emerald floor: colour 0.55, brightness 0.53, glitter 0.053, 98 sparkles per 10k px, white 0.0 %.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 4: Busy: 50 and 98 sparkles per 10k px on the far floors. The emerald floor crawls."
+    },
+    {
+     "key": "F",
+     "label": "Round 14 calmed (100 %, round 15 D)",
+     "img": "r016/gems16-floor-F.jpg",
+     "crop": "C:\\qfb\\shaderdev\\r016\\crops\\g16rcalm-gem15_floor.png",
+     "ms": null,
+     "desc": "The slider's end, round 15's D pack. Our read: the far floors crawl most, the emerald's sun glint the hottest. Measured on this frame, far diamond floor: colour 0.71, brightness 0.46, glitter 0.052, 112 sparkles per 10k px, white 0.0 %; far emerald floor: colour 0.61, brightness 0.47, glitter 0.063, 172 sparkles per 10k px, white 0.0 %.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 4: The far floors crawl most (112 and 172 sparkles per 10k px)."
+    }
+   ]
+  },
+  {
+   "id": "gems16-chisel",
+   "name": "Gems: round 14 calmed as a Chisel option",
+   "question": "You asked to keep round 14's calmed look as a Chisel option. Here it is in game on Chisel's own blocks (the same gallery, every gem block swapped for Chisel's variant), at the three distances. Look for: does it connect into one block on the pillar and the floor (no frame around every block), and is it the look you remember from round 15's D?",
+   "notePrompt": "Keep this as the Chisel variant? Which Chisel variant should carry it?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Chisel option: round 14 calmed on Chisel blocks (close)",
+     "img": "r016/gems16-chisel-A.jpg",
+     "crop": "C:\\qfb\\shaderdev\\r016\\crops\\g16chis-gem15_close.png",
+     "ms": null,
+     "desc": "Chisel's Simple Diamond Block and Smooth Emerald (Chisel 2 variants 6 and 3) drawn in round 15 D's calmed look, connected; vanilla diamond and emerald blocks stay frost. Texture only: no new blocks, recipes or config; you get it with the chisel you already have. Rendered with round 15's shader (before the gem ramp); at 100 % the ramp draws exactly what it drew. Our read: the lone Chisel blocks look exactly like the calmed look on vanilla blocks; the difference image is black apart from edge pixels. Measured on this frame, diamond: colour 0.73, brightness 0.37, glitter 0.043, 77 sparkles per 10k px, white 0.2 %; emerald: colour 0.73, brightness 0.30, glitter 0.043, 57 sparkles per 10k px, white 0.0 %. Against the calmed look on vanilla blocks in the same view (same shader): diamond 0.003 mean difference, 0.1 % of pixels off by more than 0.1; emerald 0.004 mean difference, 0.5 % of pixels off by more than 0.1.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 4: The same pixels as F (difference 0.003 to 0.004), so as a look it gets the same rating. It does what you asked: round 14's calmed look on Chisel's blocks, texture only, with no new blocks or recipes, while the vanilla blocks stay frost."
+    },
+    {
+     "key": "B",
+     "label": "Chisel option: round 14 calmed on Chisel blocks (pillar)",
+     "img": "r016/gems16-chisel-B.jpg",
+     "crop": "C:\\qfb\\shaderdev\\r016\\crops\\g16chis-gem15_pillar.png",
+     "ms": null,
+     "desc": "Chisel's Simple Diamond Block and Smooth Emerald (Chisel 2 variants 6 and 3) drawn in round 15 D's calmed look, connected; vanilla diamond and emerald blocks stay frost. Texture only: no new blocks, recipes or config; you get it with the chisel you already have. Rendered with round 15's shader (before the gem ramp); at 100 % the ramp draws exactly what it drew. Our read: the Chisel pillars and floors connect as the calmed vanilla blocks do: no frame around each block, the difference image shows no block grid. The connected-texture rule works on Chisel's renderer. Measured on this frame, diamond: colour 0.73, brightness 0.44, glitter 0.041, 55 sparkles per 10k px, white 0.0 %; emerald: colour 0.70, brightness 0.36, glitter 0.039, 51 sparkles per 10k px, white 0.2 %. Against the calmed look on vanilla blocks in the same view (same shader): diamond 0.004 mean difference, 0.1 % of pixels off by more than 0.1; emerald 0.004 mean difference, 0.1 % of pixels off by more than 0.1.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 4: It connects into one block on the pillar and the floor, with no frame round each block, so Chisel's renderer takes the connected texture. Same as F."
+    },
+    {
+     "key": "C",
+     "label": "Chisel option: round 14 calmed on Chisel blocks (floor)",
+     "img": "r016/gems16-chisel-C.jpg",
+     "crop": "C:\\qfb\\shaderdev\\r016\\crops\\g16chis-gem15_floor.png",
+     "ms": null,
+     "desc": "Chisel's Simple Diamond Block and Smooth Emerald (Chisel 2 variants 6 and 3) drawn in round 15 D's calmed look, connected; vanilla diamond and emerald blocks stay frost. Texture only: no new blocks, recipes or config; you get it with the chisel you already have. Rendered with round 15's shader (before the gem ramp); at 100 % the ramp draws exactly what it drew. Our read: connected and the same as the calmed vanilla floor; the few differing pixels are sparkles landing on slightly different texels, not seams. Measured on this frame, far diamond floor: colour 0.71, brightness 0.46, glitter 0.051, 101 sparkles per 10k px, white 0.0 %; far emerald floor: colour 0.62, brightness 0.46, glitter 0.062, 160 sparkles per 10k px, white 0.0 %. Against the calmed look on vanilla blocks in the same view (same shader): diamond 0.009 mean difference, 0.5 % of pixels off by more than 0.1; emerald 0.015 mean difference, 3.5 % of pixels off by more than 0.1.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 4: Same as F's floor (101 and 160 sparkles per 10k px); the few pixels that differ are sparkles on different texels, not seams. Busy for a floor, but as a decorative Chisel variant next to calm vanilla blocks, that may be what you want."
+    }
+   ]
+  },
+  {
+   "id": "pk-hud",
+   "name": "HUD: four minimal designs",
+   "question": "Back to minimal, as you asked, but finished: no bands, cells or ornaments behind the rows (round 15's mistake) and no Elden Ring parts (round 14's grace strip and diamond finials are gone). The polish goes into the icons themselves (one light, glossy or cut shading, a clean keyline) and into one quiet hotbar per design. A starts from round 14. The medallion you liked stays, smaller and cleaner. Each frame also shows one of the four new boss bars (rated separately below). Honest note: at play size the heart and food rows of the four read nearly alike (the shading differs only up close, below); the designs part in the hotbar, selection, XP bar, medallion and boss bar. Needs your yes: the XP number's colour, the XP medallion and the whole boss bar (frame, medallion, percent, outlined name) are drawn by a small client-only hook in qf-content (XpBarStyle.java), not by the texture pack. It is code, so it ships only with your yes. Without it the number is plain lime with no medallion, and the boss bar falls back to vanilla's thin 182 x 5 strip (in each design's colours) with a plain white name; the rest of each HUD (icons, hotbar, XP bar) is texture and stays.",
+   "notePrompt": "Which HUD (or which parts of which)? Ship the XpBarStyle hook (yes/no)?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Refined",
+     "img": "r016/pk-hud-A.jpg",
+     "ms": null,
+     "desc": "Round 14 grown up, with its Elden Ring parts gone: the same individual icons, now glossy (one light, a domed body, one specular) in crisp ink keylines; a slim smoked hotbar with soft rounded ends and faint dividers; a warm white-gold selection with a soft glow; a gold glass XP thread; a gold-rimmed capsule medallion.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 7: Minimal and clean, as you asked: a slim smoked hotbar with faint dividers, a soft gold selection, a thin gold XP thread and the small capsule medallion. No bands or ornaments behind the rows. The sleekest of the four, and readable over grass and over the white cloud. Like all four, its hearts, food and armour are round 14's icons with new shading."
+    },
+    {
+     "key": "B",
+     "label": "Glass",
+     "img": "r016/pk-hud-B.jpg",
+     "ms": null,
+     "desc": "Frosted glass: every slot its own rounded glass tile; candy-gloss icons with tinted keylines (no black), a white rim light and a bright highlight; a white selection ring; a mint capsule XP bar; a frosted pill medallion with a white number.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 7: The most different of the four: separate rounded glass tiles, a white selection ring and a mint XP bar. Clean and modern; the tiles make the hotbar a little busier than A's."
+    },
+    {
+     "key": "C",
+     "label": "Gunmetal",
+     "img": "r016/pk-hud-C.jpg",
+     "ms": null,
+     "desc": "Machined steel: a bevelled gunmetal strip with recessed wells; icons cut in flat facets inside a chrome rim; a steel selection with a crimson inner line; an amber XP bar in a steel track; a hex-cut steel tag with a molten orange number.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 6: Steel wells, a crimson selection line and an amber XP bar. Readable, but the bevelled strip is the heaviest hotbar of the four, so it is less minimal."
+    },
+    {
+     "key": "D",
+     "label": "Wine & gold",
+     "img": "r016/pk-hud-D.jpg",
+     "ms": null,
+     "desc": "Dark wine glass between two bevelled gold rails; a chamfered gold selection; gold-rimmed icons; a gold XP bar on wine; a gold-edged wine medallion. The same family as the gilded boss bar.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 6: Gold rails on wine glass with a gold selection: A in gold and wine. At play size it is close to A (both have gold selections and gold XP), and the gold rails edge back toward round 15's ornament."
+    },
+    {
+     "key": "M",
+     "label": "Offline mock: all four side by side",
+     "img": "r016/pk-hud-M.jpg",
+     "ms": null,
+     "desc": "Each design at GUI scale 4 (left: day; right: night, just hit, under water, slot 5, level 104) and at GUI scale 1 (what a scale-1 screen really samples, shown 4x).",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 7: The fair side-by-side, with GUI scale 1 shown 4x and the night, just-hit, under-water and level-104 states. Everything stays legible at scale 1: hearts, food, bubbles, '27' and '104'. It also shows what the page admits: the heart, food and armour rows are the same in all four. These are four hotbar and XP finishes on one icon set, not four designs."
+    }
+   ]
+  },
+  {
+   "id": "pk-hud-icons",
+   "name": "HUD: icons up close",
+   "question": "The armour, heart and food rows of each design at 2x.",
+   "notePrompt": "",
+   "options": [
+    {
+     "key": "A",
+     "label": "Refined",
+     "img": "r016/pk-hud-icons-A.jpg",
+     "ms": null,
+     "desc": "Seven and a half hearts, full food, armour 13 of 20, the medallion between the rows.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 7: Seven and a half hearts, full food, armour 13 of 20: all clear at a glance, and the half heart is easy to spot. The medallion sits on the XP bar between the rows, clear of both."
+    },
+    {
+     "key": "B",
+     "label": "Glass",
+     "img": "r016/pk-hud-icons-B.jpg",
+     "ms": null,
+     "desc": "Seven and a half hearts, full food, armour 13 of 20, the medallion between the rows.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 7: The same icons with tinted keylines and a white rim light; the empty armour and hearts go grey-green and recede nicely. The mint bar shows XP progress most clearly of the four."
+    },
+    {
+     "key": "C",
+     "label": "Gunmetal",
+     "img": "r016/pk-hud-icons-C.jpg",
+     "ms": null,
+     "desc": "Seven and a half hearts, full food, armour 13 of 20, the medallion between the rows.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 6: The same icons in a chrome rim; the empty hearts are darker and blend into the grass a little more than A's or B's."
+    },
+    {
+     "key": "D",
+     "label": "Wine & gold",
+     "img": "r016/pk-hud-icons-D.jpg",
+     "ms": null,
+     "desc": "Seven and a half hearts, full food, armour 13 of 20, the medallion between the rows.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 6: The same icons with gold rims; the empty hearts and chestplates go wine-brown and blend into dark grass."
+    },
+    {
+     "key": "M",
+     "label": "Offline: every icon state",
+     "img": "r016/pk-hud-icons-M.jpg",
+     "ms": null,
+     "desc": "Heart row empty, blinking, full, half, lost (just hit), absorption; armour empty, half, full; food empty, full, half; an air bubble; the medallion. 6x.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 6: Every state, every design. It confirms that the four share one icon set. One readability fault: the 'lost' (just hit) heart is cream and the absorption heart gold, too alike at scale 1."
+    }
+   ]
+  },
+  {
+   "id": "pk-hud-xp",
+   "name": "HUD: XP bar and medallion up close",
+   "question": "The level number on each medallion and the middle of the XP bar, 2x. The number's colour and the medallion are the hook's (lime, no medallion without it).",
+   "notePrompt": "",
+   "options": [
+    {
+     "key": "A",
+     "label": "Refined",
+     "img": "r016/pk-hud-xp-A.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 7: Cream '27' on a dark capsule with a gold rim: legible, and the gold bar's progress is clear against its dark track."
+    },
+    {
+     "key": "B",
+     "label": "Glass",
+     "img": "r016/pk-hud-xp-B.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 7: White on slate in a frosted rim: legible, and the mint fill shows progress most clearly of the four."
+    },
+    {
+     "key": "C",
+     "label": "Gunmetal",
+     "img": "r016/pk-hud-xp-C.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 8: Molten orange on black in a steel hex: the highest contrast and the most readable number."
+    },
+    {
+     "key": "D",
+     "label": "Wine & gold",
+     "img": "r016/pk-hud-xp-D.jpg",
+     "ms": null,
+     "desc": "",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 7: Gold on wine: legible, though the number's dark outline melts a little into the wine plate."
+    }
+   ]
+  },
+  {
+   "id": "pk-hud-boss",
+   "name": "Boss bars after Infernum: bright sky (top) and night (bottom)",
+   "question": "Four thick boss bars, our own art, each shown over a bright cloud and over a night sky, the name outlined in all four. Studied from Infernum Mode's own source and sprites (github.com/InfernumTeam/InfernumMode, Content/BossBars; study only, nothing copied): what makes its bar work is one THICK bar (not a line), heavy bevelled rails, a dark but coloured empty channel so the bar reads whole at any health, a slanted stepped sheen on the fill, a bright cap riding the fill's edge, a medallion the fill drains toward, and the health in percent instead of a number. It shows no name; ours keep the name, outlined. Infernum's per-boss head icon, phase pips and enrage fire need data 1.7.10 does not have (it knows only a name and a health fraction), so every boss shows the design's emblem and the rails carry quarter ticks. The bar fades in over a second when a boss appears (not visible in a still). Needs your yes: the XP number's colour, the XP medallion and the whole boss bar (frame, medallion, percent, outlined name) are drawn by a small client-only hook in qf-content (XpBarStyle.java), not by the texture pack. It is code, so it ships only with your yes. Without it the number is plain lime with no medallion, and the boss bar falls back to vanilla's thin 182 x 5 strip (in each design's colours) with a plain white name; the rest of each HUD (icons, hotbar, XP bar) is texture and stays.",
+   "notePrompt": "Which boss bar (or which parts of which)?",
+   "options": [
+    {
+     "key": "A",
+     "label": "Ember",
+     "img": "r016/pk-hud-boss-A.jpg",
+     "ms": null,
+     "desc": "Blackened bronze rails, a molten fill (white-yellow core to deep red) with slanted heat streaks, a glowing white cap riding the fill's edge, a bronze medallion with a flame, a pointed end, the percent after it.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 7: A thick molten bar with a bright cap riding the fill's edge, a flame medallion and the percent after the point. It reads whole at any health and has real heat. At 8 % the fill is a sliver beside the medallion, but the empty channel still shows the bar."
+    },
+    {
+     "key": "B",
+     "label": "Obsidian",
+     "img": "r016/pk-hud-boss-B.jpg",
+     "ms": null,
+     "desc": "Round 15's obsidian (your 'kinda close') grown into a thick bar: black glass rails with a violet edge light, a magenta fill with a slanted sheen, a crystal shard riding its edge, an octagonal amethyst socket with a slit eye, three crystal spikes at the end, the percent inside the bar.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 6: Your 'kinda close' obsidian, now thick: black glass rails, a crystal shard on the fill's edge, an amethyst eye. It still fills magenta-pink, not blood red, so it reads as a mana bar more than health."
+    },
+    {
+     "key": "C",
+     "label": "Ironclad",
+     "img": "r016/pk-hud-boss-C.jpg",
+     "ms": null,
+     "desc": "Riveted gunmetal rails, a blood-red fill cut into tenths, a steel collar riding its edge, a steel heater shield with a chevron, a square end clamp holding the percent.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 5: Riveted rails, a fill cut into tenths and a square percent clamp: it reads as an MMO health bar, the furthest of the four from Infernum's single sheened bar."
+    },
+    {
+     "key": "D",
+     "label": "Gilded",
+     "img": "r016/pk-hud-boss-D.jpg",
+     "ms": null,
+     "desc": "In our reading, closest to what makes Infernum's bar work: bevelled gold rails, a crimson fill with a slanted stepped sheen over a dark wine channel, a gold cap riding its edge, a round gold-ringed medallion with a horned skull that the fill drains toward, a pointed end, the percent in a gold-rimmed tab under the end.",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 7: Bevelled gold rails, a crimson fill with a slanted sheen over a dark wine channel, a gold cap on its edge, and a horned-skull medallion the fill drains toward. Of the four, it fits the page's list of what makes Infernum's bar work best. I have not opened Infernum's source, so I judge it against that list, not against Infernum itself. The name reads over the white cloud."
+    },
+    {
+     "key": "M",
+     "label": "Offline: every bar at 62 %, 8 % and 100 %",
+     "img": "r016/pk-hud-boss-M.jpg",
+     "ms": null,
+     "desc": "Each bar over a bright cloud and a night sky, at GUI scale 4 and at GUI scale 1 (shown 4x).",
+     "noCost": "texture comparison, shot mode: not measured",
+     "critic": "Critic 7: Each bar at 62 %, 8 % and 100 %, over cloud and night, at scale 4 and scale 1. All four keep the name and percent legible at scale 1, and the empty channel keeps the bar readable at 8 %."
+    }
+   ]
+  }
+ ]
+}
