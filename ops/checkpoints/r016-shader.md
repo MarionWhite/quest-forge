@@ -199,3 +199,43 @@ Defaults unchanged for sea and shore (SUN_WHITE 1, SEA_NEAR 0, DUSK_ZEN 0) until
   what fails "top right"); the critic should say whether the storm-grey (g1) or warm dusk (f1) is wanted.
 - Then a fresh critic on: sea s16f1 + s16g2, shore s16g1 + s16f1, night s16cm1, sun s16acc + s16g2cc (vs D p14cch1).
   Sheet: `py -3.10 -I C:\qfb\shaderdev\r016\tools\sheet.py OUT SEA SHORE NIGHT SUN`.
+
+## Sky loop 3 + hand-off (critic loop 2 verdict: C:\qfb\shaderdev\r016\critic-loop2.json, mean 7.75)
+- 20:22 defaults now s16r3's sea: QF_SUN_WHITE 3, GLINT_GAIN 16, GLINT_LO 0.2, SEA_NEAR 4, WATER_PENUMBRA 12 (METER_CAP 3).
+  Shore code: QF_DUSK_HICLOUD 1 (+HIDARK 0.50, HILO 22, HIHI 40; composite.glsl ZEN 7 cloud branch: cloud *= mix(1, HIDARK,
+  sun gate x smoothstep(sin HILO, sin HIHI, dir.y))). ZEN default still 0 until the shore passes. Gem code untouched.
+  Submitted **1101-202159-r016-l3a** (specs\r16-l3a.json): s16y1 = critic's exact (shore + combined ocean_sunset,
+  golden_lit, plains_noon, torch; s16y1cc sun_clear; s16y1m night_wide), s16y2 16-34 deg, s16y3 HIDARK 0.30, s16y4 12-28.
+  Next: l2m.py --shore (revised top right: luma<=80, r<=b+16, no px >120), pick, ZEN 7 default, then publish cost run
+  (r015 format: p16 24 High + r015 frozen pack + Low/Potato), spec_scenes.py, round.json, SHADERS-READY.
+- 20:40 l3a measured: critic's exact (s16y1, HICLOUD 1 22-40/0.50) top right 84,67,61, 3322 px >120 (max 147) FAIL, open
+  sky luma 54.7 FAIL; y2-y4 (stronger ramps / 0.30) max 141/147/135, r-b 21-23: FAIL. Combined defaults (s16y1 scenes)
+  hold every number: sea 40.9 % / 655 / -0.9 % / 0.140, sun 29.5 / 93.4 / 3066, night = t1, plains_noon 115.6, golden_lit
+  108.9, torch 39.4 (bimodal, known); ZEN 7 changes nothing on ocean_sunset/sun_clear/golden_lit (mean |d| < 0.7),
+  shore water unchanged by the sea defaults (row means equal). Frozen r015 pack: r016\pack-r15 (git archive 1017eb5).
+  Publish spec drafted: specs\p16-cost.json (not submitted). spec_scenes.py skeleton written.
+- 20:38 l3b (1101-203029): debug 17/18 (composite.glsl, new): top-right box is >30 deg up; pale cloud >=4x the clear
+  sky, open sky 1.5-2.5x. HICLOUD 2 (ratio cap, whole pixel): y5 HIM 1.5 max 112 but r-b 19, open sky 54.7 FAIL; y6 HIM
+  1.0 r-b 17. Hue kept cannot reach r-b 16 (cloud r/b 1.8). HICLOUD 3 = gated (past HIG x clear sky) + HIDRAIN toward
+  the open sky's mauve. Submitted **1101-203530-r016-l3c** (s16y9..y13).
+- 20:41 l3c (HICLOUD 3 gated, 22-30): open sky PASS again (66,53,52), but 1200 px >120 remain = the gold lenticular's
+  top (x 2283-2393, y 163-199, 22-30 deg); HIM 1.2-1.6 turns the pale cloud into a dark hole (l3\tr3.png). Code: drain
+  only past HIHI. Submitted **1101-204036-r016-l3d** (s16y14 HIM 3 drain 1, y15 2.5/1, y16 2.5/0.6, y17 3/0.6 19-30;
+  all HIG 2, ramp 16-30).
+- 20:50 l3d (1101-204036): y15 (HICLOUD 3, HIG 2, HIM 2.5, DRAIN 1, 16-30) = 5/6 + top right luma 64, 0 px >120 (max
+  117) but r-b 19 FAIL: box rows 0-150 open sky r-b 15-16 (BSL 5), rows 150-200 the gold lenticular's top r-b 32.
+  z11a (TOPB 1.06): b>g 34.7 % FAIL, so blue cannot rise. l3e (1101-204419) QF_DUSK_TOPR 0.90/0.85 over 28-38 deg:
+  no change in the box (debug 18: box is 18-31 deg). spec_scenes.py written (shore text from r016\shore.json).
+  Submitted **1101-204801-r016-l3f** (y22/y23 TOPR 0.90/0.85 on hz's 17-30 ramp, y24 + HILO 12). If it fails: shore
+  "not passed", ZEN stays 0 by default, best = y15-family frame shown as an opt-in option.
+- 20:54 l3f/l3g: QF_DUSK_TOPR on hz's 17-30 ramp. The two targets pinch: box r-b <=16 vs open sky r-b >=10.
+  y22 (0.90) 16.99/10.55, y23 (0.85) 15.67/8.77, y25 (0.88, HIM 2.0, HILO 12) 15.89/9.82, y27 (0.89, HIM 2.0) 16.19/10.29;
+  all else pass (0 px >120, max ~101, rims 239-240,145,64, sat 0.57/0 %). Look (l3\tr5.png, full_y25.jpg): pale sticker
+  now an unlit high cloud, a touch darker than the sky; lenticular/rims unchanged. Submitted **1101-205408-r016-l3h**
+  (y28 0.89/1.8, y29 0.885/1.9, y30 0.89/1.9; HIG 2, HILO 12, HIHI 30, DRAIN 1).
+- 20:58 l3h (1101-205408): s16y28 (TOPR 0.89, HIM 1.8) and **s16y29 (TOPR 0.885, HIM 1.9) PASS all six** (y29: top right
+  72,60,56, luma 62, r-b 15.97 <= 16, 0 px >120, max ~101; open sky r-b 10.10 >= 10, luma 55.7; b>g ~7 %; darker 0.67;
+  rims ~240,145,65; clouds 0.57 / 0 %). Margins are hundredths. Lenticular at 3x (l3\rims3x.png): same shape and gold
+  rims, upper part ~4 levels darker (mean |d| 4.5); low rims 0.85, water 0.94. DEFAULTS NOW: QF_DUSK_ZEN 7,
+  HICLOUD 3, HIG 2.0, HILO 12, HIHI 30, HIM 1.9, HIDRAIN 1.0, TOPR 0.885 (+ the sea defaults above).
+  Next: combined shot render on final defaults (specs\r16-l3all.json), then p16-cost.json.

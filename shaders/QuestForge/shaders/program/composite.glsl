@@ -661,6 +661,10 @@ vec3 duskZenith(vec3 dir, vec3 c, bool bright, float T) {
     // Loop 16 (z10b: open sky 67,54,53 and b>g 0 % PASS, top right 85,68,64 still warm, r-b 21, and the big cloud up
     // left drained to a grey-white where BSL's is golden tan): QF_DUSK_TOPB sets the top's blue, the clouds drain less.
     warm = mix(warm, vec3(1.30 - 0.8 * (QF_DUSK_TOPB - 1.0), 1.0, QF_DUSK_TOPB), hz);
+    // Sky loop 3e (critic loop 2 top right: r <= b+16; ours 69,56,54 there, r-b 15, BSL's 62,53,57, r-b 5, and blue
+    // cannot rise: TOPB 1.06 put b>g in 35 % of the sky): the top tint's red comes down to QF_DUSK_TOPR (3e: over
+    // 28-38 deg it missed the box, which debug 18 puts at 18-31 deg; now on hz's own 17-30 deg ramp).
+    warm.r *= mix(1.0, QF_DUSK_TOPR, hz);
     dark *= mix(1.0, 0.80, hz);
     #endif
     vec3 open = mix(c, luminance(c) * warm, 0.85 * k) * mix(1.0, dark, k);
@@ -668,7 +672,47 @@ vec3 duskZenith(vec3 dir, vec3 c, bool bright, float T) {
     #if QF_DUSK_TOP == 1
     cloud = mix(cloud, luminance(cloud) * vec3(1.10, 1.0, 1.04), 0.4 * hz) * mix(1.0, 0.85, hz);
     #endif
-    return mix(cloud, open, clamp(T, 0.0, 1.0));
+    #if QF_DUSK_HICLOUD > 0
+    // r016 sky loop 3 (critic loop 2 z11b: 5/6, top right 86,68,62 fails on one pale salmon-cream cloud, 21.6k px at
+    // 167,125,93, "lit as if the sun stood high; at sunset BSL's high clouds are unlit and only the low ones glow"):
+    // lit cloud darkens with its elevation, at its own hue (no drain), so the low gold rims keep their light.
+    float sy = sunDirWorld().y;
+    float hiK = smoothstep(0.125, 0.035, sy) * smoothstep(-0.07, -0.01, sy)
+              * smoothstep(sin(radians(QF_DUSK_HILO)), sin(radians(QF_DUSK_HIHI)), dir.y);
+    #endif
+    #if QF_DUSK_HICLOUD == 1
+    cloud *= mix(1.0, QF_DUSK_HIDARK, hiK);
+    #endif
+    vec3 res = mix(cloud, open, clamp(T, 0.0, 1.0));
+    #if QF_DUSK_HICLOUD == 2
+    // Loop 3b (1, the critic's ramp: the pale cloud's max 150 -> 147, 135 at 12-28 deg): it is thin, so most of its
+    // light comes through the open-sky branch (T high), and it stands ~25-30 deg up, low in a 22-40 ramp. 2 keys on
+    // the light instead: a high pixel brighter than the clear sky behind it (skyScatter, before the clouds) by more
+    // than QF_DUSK_HIM is scaled down to that level, at its own hue; the open sky (ratio ~1) is untouched, and a
+    // cloud within ~QF_DUSK_HIAZ deg of the sun's bearing (the forward-lit glow round the sun) is spared.
+    float hiR = luminance(c) / max(luminance(skyScatter(dir)), 1e-6);
+    vec3 sd = sunDirWorld();
+    float az = dot(normalize(dir.xz + vec2(1e-6)), normalize(sd.xz + vec2(1e-6)));
+    float away = smoothstep(cos(radians(QF_DUSK_HIAZ)), cos(radians(QF_DUSK_HIAZ + 25.0)), az);
+    res *= mix(1.0, min(1.0, QF_DUSK_HIM / max(hiR, 1e-6)), hiK * away);
+    #elif QF_DUSK_HICLOUD == 3
+    // Loop 3c (2: HIM 1.5 brings the pale cloud's max to 112 but the open sky (1.5-2.5x the clear sky, debug 17) is
+    // pulled down with it, luma 54.7 < 55; even at the sky's level (HIM 1.0) the box keeps r-b 17, as the cloud's own
+    // hue is r/b 1.8): only pixels past QF_DUSK_HIG x the clear sky count as lit cloud (the open sky stays), they come
+    // down to QF_DUSK_HIM x it, and QF_DUSK_HIDRAIN of the way to the open sky's own warm mauve (not grey): an unlit
+    // high cloud is lit by the sky round it. BSL's top right is one dark mauve, no pixel above luma 100.
+    float hiR = luminance(c) / max(luminance(skyScatter(dir)), 1e-6);
+    vec3 sd = sunDirWorld();
+    float az = dot(normalize(dir.xz + vec2(1e-6)), normalize(sd.xz + vec2(1e-6)));
+    float away = smoothstep(cos(radians(QF_DUSK_HIAZ)), cos(radians(QF_DUSK_HIAZ + 25.0)), az);
+    float w = hiK * away * smoothstep(QF_DUSK_HIG, QF_DUSK_HIG * 1.75, hiR);
+    // Loop 3d (3c: HIM 1.2-1.6 left the pale cloud a dark hole below the sky; the last >120 px were the gold
+    // lenticular's top, 22-30 deg up, inside the box's bottom rows): the drain acts only past QF_DUSK_HIHI (the
+    // lenticular keeps its gold, only dimmer).
+    float wd = w * smoothstep(sin(radians(QF_DUSK_HIHI)), sin(radians(QF_DUSK_HIHI + 6.0)), dir.y);
+    res = mix(res, luminance(res) * warm, QF_DUSK_HIDRAIN * wd) * mix(1.0, min(1.0, QF_DUSK_HIM / max(hiR, 1e-6)), w);
+    #endif
+    return res;
   #endif
     if (bright) k *= 1.0 - smoothstep(QF_DUSK_ZEN == 6 ? 1.0 : 0.6, QF_DUSK_ZEN == 6 ? 3.0 : 2.0, luminance(c) * exposure());
   #if QF_DUSK_ZEN == 6
@@ -1832,6 +1876,23 @@ void main() {
     float zenT = g1.g;   // the cloud deck's transmittance (deferred, QF_CREP_MASK)
   #else
     float zenT = 0.5;
+  #endif
+  #if QF_DEBUG_VIEW == 17
+    // r016 sky loop 3 calibration, bit-coded so the tone curve cannot blur it: r = (sky pixel / clear sky) past 1.5,
+    // g past 2.5, b past 4 (luminance ratio, QF_DUSK_HICLOUD 2's hiR, before duskZenith).
+    if (depth0 >= 1.0) {
+        float dbR = luminance(color) / max(luminance(skyScatter(viewDir)), 1e-6);
+        outColor = vec4(vec3(step(1.5, dbR), step(2.5, dbR), step(4.0, dbR)) * 4.0 / max(exposure(), 1e-4), 1.0);
+        return;
+    }
+  #elif QF_DEBUG_VIEW == 18
+    // elevation bands: r past 15 deg, g past 22, b past 30; and the sun's bearing within 45 deg: all x 0.5
+    if (depth0 >= 1.0) {
+        float dbAz = dot(normalize(viewDir.xz + vec2(1e-6)), normalize(sunDirWorld().xz + vec2(1e-6)));
+        vec3 dbE = vec3(step(sin(radians(15.0)), viewDir.y), step(sin(radians(22.0)), viewDir.y), step(sin(radians(30.0)), viewDir.y));
+        outColor = vec4(dbE * (dbAz > cos(radians(45.0)) ? 1.0 : 4.0) / max(exposure(), 1e-4), 1.0);
+        return;
+    }
   #endif
     if (isEyeInWater == 0 && depth0 >= 1.0) color = duskZenith(viewDir, color, true, zenT);
 #endif
