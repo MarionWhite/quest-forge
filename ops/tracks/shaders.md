@@ -22,4 +22,5 @@ and the long archive in `C:\qfb\shaderdev\NEXT.md` (PC only).
 - **Tools:** `tools/renderq`, `tools/shaders/review/finish_round.py`, `check_glsl.py`, `make_clip.py --speedup`.
 
 - 2026-11-01: r016 SHADERS-READY; next: critic notes on the p16 frames, then publish.
+- 2026-11-01: r016 PUBLISHED (f15c766), awaiting owner feedback.
 - 2026-11-01 22:20: r016 pre-publish fixes in; ready for finish_round.

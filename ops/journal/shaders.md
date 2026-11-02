@@ -1,5 +1,7 @@
 # Shaders journal (newest first)
 
+- 2026-11-01: **r016 PUBLISHED** (commit f15c766, pushed): https://marionwhite.github.io/quest-forge/shaders/ , 12 scenes, r015 closed, 61 images load. Warnings stated in round text: cost run partial (r15 meteor clip), High over budget (sea-sunset/A 3.73 ms, shore-sunset/A 3.01). Only json/jpg/webp published.
+
 - 2026-11-01 22:20: **r016 pre-publish fixes (shader-dev)**, critic.json `_r016_publish_summary` items 1-5, 7. roundlib.oc
   saved every crop as <tag>-<scene>-crop.png, so crops of one frame overwrote each other (sea C showed E, sun A/B showed
   the column): now <tag>-<scene>-<key>-crop.png, all 13 re-cut and checked. Dawn regression: QF_DUSK_SKY 3 and
