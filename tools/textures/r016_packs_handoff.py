@@ -53,7 +53,7 @@ BOSS = [("A", "pk16a", "ember", "Ember",
          "Riveted gunmetal rails, a blood-red fill cut into tenths, a steel collar riding its edge, a steel heater "
          "shield with a chevron, a square end clamp holding the percent."),
         ("D", "pk16d", "gilded", "Gilded",
-         "Closest to what makes Infernum's bar work: bevelled gold rails, a crimson fill with a slanted stepped sheen "
+         "In our reading, closest to what makes Infernum's bar work: bevelled gold rails, a crimson fill with a slanted stepped sheen "
          "over a dark wine channel, a gold cap riding its edge, a round gold-ringed medallion with a horned skull "
          "that the fill drains toward, a pointed end, the percent in a gold-rimmed tab under the end.")]
 
