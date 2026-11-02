@@ -37,16 +37,30 @@ const int METER_GX = 32, METER_GY = 18;
 const ivec2 METER_ROW = ivec2(32, 65);   // x 32..63, y 65
 
 // One column of the meter: (sum of w log2 l, sum of w l, sum of w).
+// r016 (critic loop 1): what one sample adds to the arithmetic mean is capped at an exposed
+// QF_METER_CAP (previous frame's exposure), so a small white-hot glint in the centre cannot
+// pull the whole frame down (s16f1 -6.7 %, and sun_clear's sand edge went with it).
 vec4 meterColumn(int x) {
     vec4 acc = vec4(0.0);
     ivec2 size = ivec2(viewWidth, viewHeight);
+#if QF_METER_CAP > 0
+    float ex = texelFetch(colortex5, C_EXPOSURE, 0).r;
+    float lCap = (ex > 0.0 && ex < 1e4) ? float(QF_METER_CAP) / ex : 1e9;
+    // Loop 13 (torch, same build twice: cap 0 31.3 / 31.3, cap 4 39.6 / 39.5): underground the bright samples are
+    // the torches, which the mean is there to follow (a torch-lit tunnel stays dim). The cap holds under open sky only.
+    float capW = smoothstep(0.35, 0.75, float(eyeBrightnessSmooth.y) / 240.0);
+#endif
     for (int y = 0; y < METER_GY; y++) {
         vec2 uv = (vec2(x, y) + 0.5) / vec2(METER_GX, METER_GY);
         vec2 c = uv - 0.5;
         float w = exp(-dot(c, c) * 4.0);   // centre-weighted
         float l = luminance(texelFetch(colortex3, ivec2(uv * vec2(size)), 0).rgb);
         l = l > 0.0 && l < 1e5 ? l : 0.0;  // no NaN or inf from a broken pixel
+#if QF_METER_CAP > 0
+        acc += vec4(log2(max(l, 1e-6)) * w, mix(l, min(l, lCap), capW) * w, w, 0.0);
+#else
         acc += vec4(log2(max(l, 1e-6)) * w, l * w, w, 0.0);
+#endif
     }
     return acc;
 }

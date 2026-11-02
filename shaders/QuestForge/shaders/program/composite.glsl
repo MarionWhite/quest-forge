@@ -639,8 +639,37 @@ float duskZenithK(vec3 dir) {
 }
 // Loop 5 (loops 3-4: the rims' brightest 5 % fell from 250,155,79 to 240,151,59; the upper-left cloud's lit edge sits
 // 18-28 deg up, inside the ramp): with bright set, the sunlit cloud light (exposed past ~0.6) keeps its colour.
-vec3 duskZenith(vec3 dir, vec3 c, bool bright) {
+// Loop 12 (critic loop 1: "the drain greys the CLOUDS as well as the sky"; 6: cloud saturation 0.06, 67 % grey, BSL
+// 0.50 / 0 %; "the answer is c3's clouds with f1's open-sky drain"): 7 splits the pixel by the cloud deck's
+// transmittance T (deferred leaves it in colortex1.g on the sky): the open sky behind (T) is darkened to
+// QF_DUSK_DARK and drained toward a warm mauve-brown (BSL 83,65,61), the cloud in front (1 - T) takes ZEN 3's filter,
+// which kept c3's golden clouds. No brightness gate. The water's mirror passes T = 1 (open sky).
+vec3 duskZenith(vec3 dir, vec3 c, bool bright, float T) {
     float k = duskZenithK(dir);
+  #if QF_DUSK_ZEN == 7
+    vec3 warm = vec3(1.0 + QF_DUSK_WARM, 1.0, 1.0 - 0.35 * QF_DUSK_WARM);
+    float dark = QF_DUSK_DARK;
+    #if QF_DUSK_TOP == 1
+    // Loop 13 (z7a: open sky 78,62,55 passes, but the top right 96,75,61 is too warm and light; BSL's open sky runs
+    // from 145,99,69 low to 61,52,54 at the frame's top, ours 133,88,46 to 74,59,54): over ~17-29 deg up the drained
+    // sky turns from the warm brown to a mauve and darkens a further quarter, and the clouds up there half drain too.
+    float hz = smoothstep(0.30, 0.50, dir.y) * k;
+    // Loop 14 (z8a: mauve 1.02/1.10 went blue, b>g in 43 % of the sky; BSL's top rows 61,52,54 are a red mauve,
+    // r/g 1.42 and b/g 1.09 in linear light).
+    // Loop 15 (z9a: open sky 70,56,58 PASS, but b>g in 43 % of the sky and the top right's cloud keeps it warm,
+    // 89,70,66): blue level with green up there, and the clouds at the top drain further toward a grey mauve.
+    // Loop 16 (z10b: open sky 67,54,53 and b>g 0 % PASS, top right 85,68,64 still warm, r-b 21, and the big cloud up
+    // left drained to a grey-white where BSL's is golden tan): QF_DUSK_TOPB sets the top's blue, the clouds drain less.
+    warm = mix(warm, vec3(1.30 - 0.8 * (QF_DUSK_TOPB - 1.0), 1.0, QF_DUSK_TOPB), hz);
+    dark *= mix(1.0, 0.80, hz);
+    #endif
+    vec3 open = mix(c, luminance(c) * warm, 0.85 * k) * mix(1.0, dark, k);
+    vec3 cloud = c * mix(vec3(1.0), vec3(0.20, 0.36, 0.70), k * QF_DUSK_CLOUD);
+    #if QF_DUSK_TOP == 1
+    cloud = mix(cloud, luminance(cloud) * vec3(1.10, 1.0, 1.04), 0.4 * hz) * mix(1.0, 0.85, hz);
+    #endif
+    return mix(cloud, open, clamp(T, 0.0, 1.0));
+  #endif
     if (bright) k *= 1.0 - smoothstep(QF_DUSK_ZEN == 6 ? 1.0 : 0.6, QF_DUSK_ZEN == 6 ? 3.0 : 2.0, luminance(c) * exposure());
   #if QF_DUSK_ZEN == 6
     // Loop 7 (4: top right 89,78,72 and red/blue 1.25 above 30 deg, the salmon cloud there kept as "bright"; rims' blue
@@ -680,7 +709,16 @@ vec3 shadeWaterAbove(vec3 color, vec3 n, float var, vec3 scene0, float dist0, ve
     vec3 L = lightDirWorld();
     float NdotL = max(dot(n, L), 0.0);
 #if QF_SHADOWS
+  #if QF_WATER_PENUMBRA > 0
+    // r016 loop 12 (critic loop 1 ocean_sunset: "the light wedge at the island's left base ... a hard straight diagonal
+    // edge, the most visible defect in the frame"; debug 11: it is the island's shadow on the water, and the white
+    // glint stops on it in one pixel, 252 -> 207). A sun ~5 deg up reaches the water past the island's top tens of
+    // blocks back, so the penumbra there is a block or more wide (BSL's edge takes ~3 px). At golden hour the water's
+    // shadow taps spread QF_WATER_PENUMBRA times wider: no extra taps, TAA resolves the noise.
+    gShadowSoft = mix(1.0, float(QF_WATER_PENUMBRA), goldenHour());
+  #endif
     float sh = sampleShadow(scene0, vec3(0.0, 1.0, 0.0), max(L.y, 0.0), smoothstep(0.75, 0.95, skyLight), gl_FragCoord.xy);
+    gShadowSoft = 1.0;
 #else
     float sh = smoothstep(0.8, 0.97, skyLight);
 #endif
@@ -860,7 +898,7 @@ vec3 shadeWaterAbove(vec3 color, vec3 n, float var, vec3 scene0, float dist0, ve
     refl = phFogSky(refl, R, lightDirWorld(), lightIrradiance());
 #endif
 #if QF_DUSK_ZEN > 0
-    refl = duskZenith(R, refl, false);
+    refl = duskZenith(R, refl, false, 1.0);
 #endif
 #if QF_SEA_GRAZE > 0 && QF_SEA_GOLD == 1
     // r014 loop 2: pulling the mirrored direction to the horizon moved the middle sea only from red/blue 1.26 to
@@ -1598,8 +1636,10 @@ void main() {
         if (metalPx) color += metalReflection(decodeNormal(g1.rg), viewDir, toLinear(c0.rgb), mapped ? f0M : 0.0,
                                               mapped ? max(smM, 0.35) : 0.72, g2m.g, g2m.b, depth0);
 #if QF_GEM_SSR == 1
-        else if (mapped && smM > 0.88 && f0M > 0.1)
-            color += gemReflection(gemFacetNormal(decodeNormal(g1.rg), scene0 + cameraPosition), viewDir, f0M, smM, g2m.g, g2m.b, depth0);   // r013: cut facets
+        else if (mapped) {
+            float gw = gemWeight(smM, f0M);   // r016: a ramp over the gem slider (QF_GEM_RAMP), 0/1 before
+            if (gw > 0.0) color += gw * gemReflection(gemFacetNormal(decodeNormal(g1.rg), scene0 + cameraPosition), viewDir, f0M, smM, g2m.g, g2m.b, depth0);   // r013: cut facets
+        }
 #endif
     }
 #endif
@@ -1788,7 +1828,12 @@ void main() {
 #endif
 #endif
 #if QF_DUSK_ZEN > 0
-    if (isEyeInWater == 0 && depth0 >= 1.0) color = duskZenith(viewDir, color, true);
+  #if QF_CREPUSCULAR == 1 && QF_PRESET >= 3 && QF_CLOUDS == 2
+    float zenT = g1.g;   // the cloud deck's transmittance (deferred, QF_CREP_MASK)
+  #else
+    float zenT = 0.5;
+  #endif
+    if (isEyeInWater == 0 && depth0 >= 1.0) color = duskZenith(viewDir, color, true, zenT);
 #endif
     // r008: never hand TAA a NaN or Inf (r007's PBR blob spread from one through the history).
     if (any(isnan(color)) || any(isinf(color))) color = vec3(0.0);

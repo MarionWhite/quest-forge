@@ -57,3 +57,9 @@ Scratch: C:/qfb/gems/r016. Hand-off C:/qfb/shaderdev/r016/textures_scenes.json +
 
 ## Done
 Hand-off C:/qfb/shaderdev/r016/textures_scenes.json + crops/ + TEXTURES-READY. Track and journal updated.
+
+## Shader-dev note (2026-11-01 20:15): gem ramp done
+QF_GEM_RAMP 1 (default) in shaders/QuestForge: the gem path now blends in by gloss (lighting.glsl gemWeight): frost 140/10 -> 0,
+slide20 170/14 -> 0.2, slide40 205/18 -> 0.4, slide60 228/27 -> 0.6, slide80 234/30 -> 0.8, calm 240/34 -> 1 (needs F0 >= ~13
+to start, so glass/polished stone at F0 10 stay plain). Frost (E) and calmed (D) render exactly as before. Composite's
+gemReflection is scaled by the same weight. Ready for texture-dev to re-render the slider with the current pack.

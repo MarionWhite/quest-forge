@@ -115,6 +115,24 @@ vec3 metalF0(vec3 albedo, float f0) {
 #endif
     return clamp(albedo * 1.15, 0.0, 1.0);
 }
+// r016: how far a mapped surface is a polished gem (1: the gem path, lit through its body with the real scene
+// mirrored; 0: the plain sheen). QF_GEM_RAMP 0 is the r015 switch (smoothness > 0.88 and F0 > 0.1). 1 ramps over the
+// texture track's gem slider, frost (smoothness 140, F0 10) to calmed (240, 34), so its gloss steps (170/14,
+// 205/18, 228/27, 234/30) land at 0.2, 0.4, 0.6, 0.8; it needs F0 over ~12 (gem-like, not glass or polished stone).
+float gemWeight(float sm, float f0) {
+#if QF_GEM_RAMP == 1
+    float x = sm * 255.0;
+    float w = x < 170.0 ? (x - 140.0) / 30.0 * 0.2
+            : x < 205.0 ? 0.2 + (x - 170.0) / 35.0 * 0.2
+            : x < 228.0 ? 0.4 + (x - 205.0) / 23.0 * 0.2
+            : x < 234.0 ? 0.6 + (x - 228.0) / 6.0 * 0.2
+            : 0.8 + (x - 234.0) / 6.0 * 0.2;
+    return clamp(w, 0.0, 1.0) * smoothstep(11.5 / 255.0, 13.5 / 255.0, f0);
+#else
+    return sm > 0.88 && f0 > 0.1 ? 1.0 : 0.0;
+#endif
+}
+
 #if QF_GEM_SSR == 1
 // r013 (critic g12c gem_glint_d: "the reflection wobbles, so the floor reads as wet plastic or water
 // rather than cut stone. Fix: flatten the normals so the reflection is sharp and faceted"; g12c
@@ -391,44 +409,52 @@ vec3 shadeSurface(Surface s, vec3 viewDir, vec2 pixel) {
         vec3 f0v = metal ? s.albedo : vec3(s.f0);
         vec3 V = -viewDir;
         vec3 H = normalize(L + V);
-        vec3 nSp = s.normal;
+        // r016 (texture track's gem slider, ops/checkpoints/r016-textures.md: steps A-C read as frost, D-F as calmed,
+        // because the gem path below was a switch at smoothness 0.88 / F0 0.1): the gem look and the plain sheen are
+        // both worked out and blended by gemWeight (QF_GEM_RAMP), so the slider's gloss steps move evenly between them.
+        // Only blended pixels pay for both; frost (140/10) and calmed (240/34) are exactly as before.
+        float gw = 0.0;
 #if QF_METAL_SSR == 1 && QF_GEM_SSR == 1
-        // r013: a gem's sun glint comes off the same cut facets its reflection uses (composite), so a
-        // facet flashes as a whole instead of every block showing the same dome highlight.
-        if (s.smoothness > 0.88 && s.f0 > 0.1) nSp = gemFacetNormal(s.normal, s.scenePos + cameraPosition);
+        gw = gemWeight(s.smoothness, s.f0);
+#endif
+        vec3 plain = color, gem = color;
+        if (gw < 1.0) {
+            float NdotV = max(dot(s.normal, V), 0.02);
+            vec3 F = fresnelSchlick(max(dot(H, V), 0.0), f0v);
+            float sp = ggx(max(dot(s.normal, H), 0.0), a2) * clamp(NdotL, 0.0, 1.0) / (4.0 * NdotV + 0.5);
+            plain += F * E * min(sp, foliage ? 3.0 : 60.0) * shadow;
+            vec3 Fe = fresnelSchlick(NdotV, f0v);
+            plain += skyScatter(reflect(viewDir, s.normal)) * Fe * sky * s.smoothness * s.smoothness * ao;
+        }
+#if QF_METAL_SSR == 1 && QF_GEM_SSR == 1
+        if (gw > 0.0) {
+            // r013: a gem's sun glint comes off the same cut facets its reflection uses (composite), so a
+            // facet flashes as a whole instead of every block showing the same dome highlight.
+            vec3 nSp = gemFacetNormal(s.normal, s.scenePos + cameraPosition);
 #if QF_GEM_LOOK > 0
-        // r014 (critic g13c: "the sun's glints are short white dashes, all slanting the same way ... read as rain on
-        // ice or scratches"): they were the sun off the normal map's bevels. The polished surface now mirrors the
-        // sun off its flat face (one sharp sun image at the mirror angle); the facets flash from inside (gemInnerLight).
-        if (s.smoothness > 0.88 && s.f0 > 0.1) {
+            // r014 (critic g13c: "the sun's glints are short white dashes, all slanting the same way ... read as rain on
+            // ice or scratches"): they were the sun off the normal map's bevels. The polished surface now mirrors the
+            // sun off its flat face (one sharp sun image at the mirror angle); the facets flash from inside (gemInnerLight).
             vec3 an = abs(s.normal);
             nSp = an.y >= an.x && an.y >= an.z ? vec3(0.0, sign(s.normal.y), 0.0) : (an.x >= an.z ? vec3(sign(s.normal.x), 0.0, 0.0) : vec3(0.0, 0.0, sign(s.normal.z)));
-        }
 #endif
-#endif
-        float NdotV = max(dot(nSp, V), 0.02);
-        vec3 F = fresnelSchlick(max(dot(H, V), 0.0), f0v);
-        float sp = ggx(max(dot(nSp, H), 0.0), a2) * clamp(NdotL, 0.0, 1.0) / (4.0 * NdotV + 0.5);
-        if (metal) color *= 0.15;
-        color += F * E * min(sp, foliage ? 3.0 : 60.0) * shadow;
-        vec3 R = reflect(viewDir, nSp);
-        vec3 Fe = fresnelSchlick(NdotV, f0v);
-#if QF_METAL_SSR == 1 && QF_GEM_SSR == 1
-        // r012 gem test (texture track, ops/checkpoints/r012-textures.md): a polished dielectric (diamond,
-        // emerald: smoothness > 0.88, F0 > 0.1) reflects the real scene in composite (gemReflection), and
-        // its diffuse gives way to that reflection.
+            float NdotV = max(dot(nSp, V), 0.02);
+            vec3 F = fresnelSchlick(max(dot(H, V), 0.0), f0v);
+            float sp = ggx(max(dot(nSp, H), 0.0), a2) * clamp(NdotL, 0.0, 1.0) / (4.0 * NdotV + 0.5);
+            gem += F * E * min(sp, 60.0) * shadow;
+            vec3 Fe = fresnelSchlick(NdotV, f0v);
+            // r012 gem test (texture track, ops/checkpoints/r012-textures.md): a polished dielectric (diamond,
+            // emerald) reflects the real scene in composite (gemReflection), and its diffuse gives way to that reflection.
 #if QF_GEM_LOOK > 0
-        if (s.smoothness > 0.88 && s.f0 > 0.1) {
             // r014: the matte body light drops to 0.4 (loop 1: 0.5 / 0.25) and the light from inside the stone leads.
-            color *= (1.0 - Fe.x) * 0.4;
-            color += gemInnerLight(s.albedo, s.normal, viewDir, L, E, shadow, sky, ao, s.scenePos + cameraPosition, Fe.x);
-        }
+            gem *= (1.0 - Fe.x) * 0.4;
+            gem += gemInnerLight(s.albedo, s.normal, viewDir, L, E, shadow, sky, ao, s.scenePos + cameraPosition, Fe.x);
 #else
-        if (s.smoothness > 0.88 && s.f0 > 0.1) color *= 1.0 - Fe;
+            gem *= 1.0 - Fe;
 #endif
-        else
+        }
 #endif
-        color += skyScatter(R) * Fe * sky * s.smoothness * s.smoothness * ao;
+        color = mix(plain, gem, gw);
     }
 #endif
 #if QF_BOUNCE == 1

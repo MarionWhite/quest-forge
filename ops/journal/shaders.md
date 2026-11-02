@@ -1,5 +1,14 @@
 # Shaders journal (newest first)
 
+- 2026-11-01 20:20: **r016 critic loop 2 (shader-dev)**, work order critic-loop1.json, measured with r016	ools\l2m.py
+  (critic's revised targets). Root cause of the sea/sun conflict confirmed: the meter's uncapped mean; new QF_METER_CAP 3
+  (default; gated to open sky; plains/sky/beach noon, golden_lit unchanged; torch is bimodal 31/40 run to run, not the
+  cap). With it f1's sea opts pass sea AND sun (s16r3/s16r3cc). The island-base wedge was the island's shadow on the
+  glint: QF_WATER_PENUMBRA 12 softens it at golden hour. Shore: QF_DUSK_ZEN 7 drains only the open sky by the cloud
+  deck's transmittance (c3's golden clouds kept) with a mauve top: 5/6 (top right). Night: QF_METEOR_WHITE 1 (emerald
+  body, white head, air dims without reddening) and QF_STAR_POINT 1 (the soft blobs were Photon's 4-cell blend; now
+  ~2 px points), 2.97 ms. QF_GEM_RAMP 1: the gem path ramps over the slider's gloss (texture-dev re-renders).
+
 - 2026-11-01 19:25: **r016 sky loops 1-11 (shader-dev)**. Measured with r016\tools\measure.py (now masks meteor streaks:
   the "brightest stars" were the green trains). Night: all pass, made default (QF_METEOR_NAVY 0.30, new QF_STAR_GAIN
   0.070, QF_STAR_TMAX 15000; s16cm1 sky 17,23,37, stars 161,189,207; cost 2.92 ms vs 2.98). Sea: loop 2's SSR fix was

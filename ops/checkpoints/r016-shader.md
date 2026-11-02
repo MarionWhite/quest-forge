@@ -104,7 +104,57 @@ Plan: ops/checkpoints/r016-plan.md "Process change" + "Sky". Targets: critic r01
   0.5 % (cap 5) / 0.5 % (cap 8): the core sits a hair under 250 in blue. Sun k5cc/k8cc 27.6 (FAIL, close). golden_lit under it unchanged vs p15 (sheets\l11_golden.jpg).
   Stopped here (session long; nothing pending in the queue).
 
-## Current best per item (render IDs, frames)
+## Critic loop 2 (work order C:\qfb\shaderdev
+016\critic-loop1.json; critic tools r016\critic1oth.py, prof.py)
+- 19:38 code (check_glsl clean): QF_METER_CAP 4 (prepare.glsl meterColumn: each sample adds at most exposed 4 to the
+  arithmetic mean; default ON); QF_DUSK_ZEN 7 (+QF_DUSK_WARM/DARK/CLOUD: composite splits the sky pixel by the cloud
+  deck's T from colortex1.g: open sky darkened + drained warm, cloud gets ZEN 3's filter); QF_METEOR_WHITE 1 (emerald
+  body/train, white 2.2x head in the leading few %, meteors take only 1/5 of the air's tint); QF_STAR_POINT 1 +
+  QF_STAR_PT_GAIN 1.6 (phStars as ~0.6 px points, 4 cells as before); QF_GEM_RAMP 1 (lighting.glsl gemWeight:
+  piecewise ramp frost 140/10 -> 0, slider 170/205/228/234 -> .2/.4/.6/.8, calm 240/34 -> 1, F0 gate 11.5-13.5;
+  both paths blended; composite gemReflection x gw). Gem: texture-dev re-renders the slider.
+- Submitted 1101-193011-r016-l2a (meter cap: s16l1 = f1 opts AZ 0 ocean_sunset+golden_lit, s16l1cc sun_clear, s16l0/
+  s16l0cc SUN_WHITE 1 controls + beach_noon/torch, s16lm night; s16lx/s16lxm cap 0 controls), 1101-193115-r016-l2b
+  (wedge debug views 5/11/14/13 on ocean_sunset), 1101-193821-r016-l2c (shore s16z7a/b/c, night s16n2/s16n2g).
+- 19:53 measured with r016	ools\l2m.py (critic's revised targets, both.py's method). l2a: meter cap 4 + f1 opts (s16l1):
+  sea lit 44.8 %, horizon 633, luma 98.9 (-1.3 % vs s16l0 100.2), streak var 0.127 (BSL 0.141) + all 7 old sea numbers;
+  sun s16l1cc rows 28.9 luma 92.3 disk 3064 PASS (cap fixes the sand). Torch: cap bites (31.3 -> 39.5, repeated in
+  l2d s16t0/s16t4) -> cap now gated to open sky (eyeBrightnessSmooth.y 0.35-0.75). Cap 2 (s16p5k2): ocean luma 100.4,
+  beach_noon unchanged. Wedge = island's shadow on the water (debug 11: r=0 in the triangle); QF_WATER_PENUMBRA 5/8
+  cut the step 35 -> 17/12 (target <6) -> 12/16 in l2f. Night l2c s16n2: meteors white heads/emerald trains (heads in
+  frame 243, 228 at the land edge; long one's head is off-frame); stars: blobs = phStars (STAR_GAIN ~0 removes them,
+  s16sg0) but the pxA-sized Gaussian came out ~6 px -> QF_STAR_SIGMA (share of a cell) in l2g. Shore: ZEN 7 z7a passes
+  5/6 (top right 96,75,61 fails); DUSK_TOP z8a went blue -> red-mauve top (1.30,1,1.10) x0.80 in l2g.
+  Pending: 1101-194923-r016-l2f (penumbra 12/16, cap 2 + gate, torch/sky_noon/plains_noon regression), 1101-195329-r016-l2g.
+- 20:01 l2f: torch is bimodal run to run (31.3 or 40.2-40.9 whatever the cap: s16qx cap0 40.9, s16q4 cap4 40.2, s16q0
+  cap2 31.3), so the cap does not bite there. plains_noon: cap 2 112.1 vs cap 0 115.5 (-2.9 %) -> cap 2 bites outdoors;
+  testing 3/4. Sea s16q2 (f1 opts + PENUMBRA 12 + cap 2): ALL PASS (lit 41.4 %, horizon 682, luma -0.5 %, streak var
+  0.139 vs BSL 0.141, old 7 pass); the straight diagonal is gone at 5x (sheets r016\l2\wedge3.png; row steps are now
+  ripples 5-33). Sun s16q2cc rows 31.2 luma 95.4 disk 3068 PASS. l2g stars: sigma as cell share gives pinpoints
+  (0 blobs >3 px) but far too faint (brightest 108-114 luma) -> sigma 0.15, gain 8 default. Shore z9a: open sky 70,56,58
+  PASS, top right 89,70,66 + b>g 43 % FAIL -> top tint (1.30,1,1.0), clouds drained 0.8*hz. Submitted 1101-200055-r016-l2h.
+- 20:15 l2h/l2i: cap 0/3/4 identical on plains_noon (115.3-115.4; l2f's cap-2 dip was the cap or noise) -> QF_METER_CAP 3
+  default. SEA s16r3 (SUN_WHITE 3, GLINT_GAIN 16, GLINT_LO 0.2, SEA_NEAR 4, WATER_PENUMBRA 12, cap 3): ALL PASS (lit 41.1 %,
+  horizon 649, luma 99.6 = -0.9 % vs s16c3x, streak var 0.140 vs BSL 0.141, old 7 pass); SUN s16r3cc rows 29.6, luma 93.4,
+  disk 3065 PASS (the white below-horizon glint is wide, 6152 px vs BSL 4075: a flat white bar, critic to judge).
+  golden_lit unchanged (108.8 all). NIGHT s16t1 (defaults: METEOR_WHITE 1, STAR_POINT 1 sigma 0.15 gain 8): sky 17,23,37,
+  stars 185,217,238, half 138,162,181, bright-star FWHM 2.1 px (1 of 31 at 4 px, adjacent pair), heads in frame 243 /
+  229 (land edge); cost p16m2 3.42 - off 0.45 = 2.97 ms <= 2.98. SHORE s16z11b (ZEN 7, WARM 0.30, DARK 0.50, TOPB 1.03;
+  now the dev defaults, ZEN default still 0): 5/6, top right 86,68,62 FAIL (luma 85, r<=b+12: the pale top-right cloud).
+  Sheet r016\sheets\l2_final.jpg (tools\sheet.py, sun crop box fixed).
+
+## Critic loop 2: best frame per item (measured with r016	ools\l2m.py = critic's revised targets)
+| Item | Frame (render) | Opts | Result |
+|---|---|---|---|
+| Sea | s16r3 ocean_sunset (1101-200055-r016-l2h) | QF_SUN_WHITE 3, QF_GLINT_GAIN 16, QF_GLINT_LO 0.2, QF_SEA_NEAR 4, QF_WATER_PENUMBRA 12 (cap 3 default) | PASS all (lit 41.1 %, horizon 649, luma -0.9 %, streak 0.140/0.141, old 7); wedge's straight edge gone at 5x (row steps now ripple-sized, 5-36: the critic's "<6" not met literally) |
+| Sun | s16r3cc sun_clear (same) | as sea + QF_CLOUD_COVER 0.6 | PASS (rows 29.6, luma 93.4, disk 3065) |
+| Shore | s16z11b shore_sunset (1101-200709-r016-l2i) | QF_DUSK_ZEN 7 | 5/6: open 67,54,53, b>g 8 %, darker 0.69, rims 242,149,69 (3.52), clouds sat 0.53 / 0 % grey PASS; top right 86,68,62 FAIL |
+| Night | s16t1 night_wide (1101-200055-r016-l2h) | defaults + QF_NIGHT_SKY 4, QF_METEOR_RAZ 210 | PASS: green trains, white heads (in-frame heads 243/229), pinpoint stars, 2.97 ms |
+| Gems | not rendered (texture-dev re-renders the slider) | QF_GEM_RAMP 1 default | frost 140/10 and calm 240/34 unchanged by construction |
+Defaults now: QF_METER_CAP 3, QF_METEOR_WHITE 1, QF_STAR_POINT 1, QF_GEM_RAMP 1. Sea/shore stay opt-in (SUN_WHITE 1,
+ZEN 0) until the critic picks. Nothing pending in the queue.
+
+## Current best per item (loop 1, superseded) (render IDs, frames)
 Frames: C:\qfb\shaderdev\rounds\screenshots\bench-TAG-SCENE.png. Sheets: C:\qfb\shaderdev\r016\sheets\.
 - Sea (all 7 pass): s16f1 ocean_sunset (1101-185509-r016-loop6; opts QF_SUN_WHITE 3, GLINT_GAIN 16, GLINT_LO 0.2,
   SEA_NEAR 4), also s16j20 (1101-191146-r016-loop10, + GLINT_CAP 20). BUT these settings blow sun_clear's glint into a

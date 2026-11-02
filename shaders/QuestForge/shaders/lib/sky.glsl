@@ -486,7 +486,9 @@ vec3 meteorsSector(vec3 dir) {
             // brightest the most coloured; ours were near white (tint ~0.2 of a pale hue). The body behind
             // the head now takes the hue, up to ~0.8 for a bright one, and whitens into the head.
             {
-#if QF_METEOR_SKY == 3
+#if QF_METEOR_SKY == 3 && QF_METEOR_WHITE == 1
+                vec3 hb = vec3(0.30, 1.0, 0.50);   // loop 12: 0.58/0.66 read lime-yellow once the air took its blue
+#elif QF_METEOR_SKY == 3
                 vec3 hb = vec3(0.58, 1.0, 0.66);   // r016 (critic r015: "white heads with green trains rather than amber")
 #else
                 vec3 hb = hash12(sd + 7.7) < 0.75 ? vec3(0.58, 1.0, 0.66) : vec3(1.0, 0.78, 0.46);
@@ -496,6 +498,15 @@ vec3 meteorsSector(vec3 dir) {
             }
 #endif
             float prof = smoothstep(0.0, 0.35, along) * smoothstep(1.0, 0.80, along);
+#if QF_METEOR_SKY == 3 && QF_METEOR_WHITE == 1
+            // Loop 12 (critic loop 1 night_streak: "yellow-chartreuse, even along its length, no white head"; target
+            // the leading 10 % >= 230 in every channel): the streak runs on at full strength into its last few
+            // percent, where it burns white and 2.2x brighter (and a touch wider), and the body is green to there.
+            float headK = smoothstep(0.84, 0.95, along);
+            prof = smoothstep(0.0, 0.35, along) * smoothstep(1.0, 0.975, along);
+            tint = mix(tint, vec3(1.0), headK);
+            prof *= 1.0 + 1.2 * headK;
+#endif
 #if QF_METEOR_SPREAD == 1
             float w = pxA * mix(0.35, 0.65, prof) * mix(0.8, 1.3, smoothstep(0.4, 2.5, bright));   // r013: the bright ones a little wider
 #else
@@ -513,7 +524,11 @@ vec3 meteorsSector(vec3 dir) {
             float span = smoothstep(th0 - 0.004, th0 + len * 0.3, thd) * smoothstep(head + 0.003, head - len * 0.15, thd);
             float fadeT = (1.0 - age) * (1.0 - age) * smoothstep(0.0, 0.08, age + p * 0.1);
 #if QF_METEOR_HUE == 1
+  #if QF_METEOR_SKY == 3 && QF_METEOR_WHITE == 1
+            sum += vec3(0.36, 1.0, 0.56) * lineT * span * fadeT * 0.09 * min(bright, 4.0);   // loop 12: emerald
+  #else
             sum += vec3(0.62, 1.0, 0.74) * lineT * span * fadeT * 0.09 * min(bright, 4.0);   // r014: the train keeps the green
+  #endif
 #else
             sum += vec3(0.80, 0.94, 0.92) * lineT * span * fadeT * 0.08 * min(bright, 4.0);
 #endif
@@ -702,6 +717,29 @@ vec3 phStarCell(vec2 coord, float thr, vec2 K) {
 vec3 phStars(vec3 dir, float thr, float scale, vec2 K) {
     vec2 coord = dir.xz / (abs(dir.y) + length(dir.xz)) * scale + 41.21;   // loop 2: 600 drew 3-4 px blobs at 1440p
     coord = abs(coord) + 33.3;
+#if QF_STAR_POINT == 1
+    // r016 loop 12 (critic loop 1 night_mw4: "the Milky Way's stars are magnified texture blobs, soft 6x4 px diamonds,
+    // where Complementary's stars are pinpoints"): Photon's field blends four cells' values smoothly, so each star
+    // was a bump two cells (3-4 px) wide, stretched by the projection. Each star is now a point at a jittered place
+    // in its cell, drawn as a ~0.6 px Gaussian (the projection's scale is worked out per pixel), from the four
+    // cells nearest the pixel: as many hashes as before.
+    {
+        // Loop 13 (loop 12 sized the Gaussian from the pixel's angle; night_wide's stars came out ~6 px wide, a cell
+        // there being ~5 px): the sigma is a fixed share of a cell.
+        float sg = QF_STAR_SIGMA;
+        vec2 b = floor(coord - 0.5);
+        vec3 acc = vec3(0.0);
+        for (int k = 0; k < 4; k++) {
+            vec2 c = b + vec2(float(k & 1), float(k >> 1));
+            vec4 n = phHash4(c);
+            float star = clamp((n.x - thr) / (1.0 - thr), 0.0, 1.0);
+            star *= star; star *= star; star *= star; star *= star;
+            vec2 d = coord - (c + 0.25 + 0.5 * vec2(n.z, n.w));
+            acc += star * exp(-dot(d, d) / (sg * sg)) * phBlackbody(mix(K.x, K.y, n.y));
+        }
+        return acc * QF_STAR_PT_GAIN;
+    }
+#endif
     vec2 i = floor(coord), f = fract(coord);
     f = f * f * (3.0 - 2.0 * f);
     return mix(mix(phStarCell(i, thr, K), phStarCell(i + vec2(1.0, 0.0), thr, K), f.x),
@@ -1318,7 +1356,13 @@ vec3 skyRadiance(vec3 dir) {
         // r012 (critic r011 shore_dusk: "a solid white meteor streak hangs in the twilight sky ... reads as
         // a contrail. Fix: no meteors until the sun is well below the horizon"): meteors fade in from a sun
         // 3 deg down and are full from 8 deg down (the twilight sky keeps its stars and Milky Way as before).
+        #if QF_METEOR_SKY == 3 && QF_METEOR_WHITE == 1
+        // Loop 12: the air's reddening turned the green streaks low in the sky lime-yellow; a meteor takes the
+        // air's dimming but only a fifth of its tint (the eye reads oxygen's green through it).
+        if (night > 0.0) { L += T * nightSkyTexture(dir) * night; gMeteor *= mix(T, vec3(luminance(T)), 0.8) * smoothstep(-0.05, -0.14, sunDir.y); }
+#else
         if (night > 0.0) { L += T * nightSkyTexture(dir) * night; gMeteor *= T * smoothstep(-0.05, -0.14, sunDir.y); }
+#endif
 #if QF_GLITTER == 2
         L += T * sunAureole(dir, sunDir);
 #endif
