@@ -239,3 +239,14 @@ Defaults unchanged for sea and shore (SUN_WHITE 1, SEA_NEAR 0, DUSK_ZEN 0) until
   rims, upper part ~4 levels darker (mean |d| 4.5); low rims 0.85, water 0.94. DEFAULTS NOW: QF_DUSK_ZEN 7,
   HICLOUD 3, HIG 2.0, HILO 12, HIHI 30, HIM 1.9, HIDRAIN 1.0, TOPR 0.885 (+ the sea defaults above).
   Next: combined shot render on final defaults (specs\r16-l3all.json), then p16-cost.json.
+- 21:20 combined final render **1101-205801-r016-l3all** (s16all*, defaults at 806b8c7): sea 41.3 % / 657 / -0.9 % /
+  0.138, sun rows 30.3 luma 94.2 disk 3068, shore = y29 (all six pass, mean |d| 0.54), night = t1 (0.39), plains_noon
+  115.4, golden_lit 108.8, torch 31.3 (bimodal). Heat shimmer 0.70 jag 0.46: shimmer runs 0.69-1.10 on identical
+  settings run to run (y1cc 1.06, r3cc 0.85), jag kept (C 0.00) -> no regression. Sheet l3\all_lowsun.jpg: dawn_wide
+  CHANGED (ZEN 7 fired at sunrise: high clouds dark, blue drained) -> new QF_DUSK_DAWN 0 (ZEN evening only, worldTime
+  6000-18000). Verify render **1101-211831-r016-dawn** (s16dw dawn_wide, shore_sunset). Publish cost run
+  **1101-205802-r016-publish-cost** snapshotted 806b8c7 (dawn ungated; dawn_wide is in no scene, only in the worst-cost).
+  shore.json written (pass text). Track + journal drafted (uncommitted).
+- 21:27 dawn gate verified (1101-211831, s16dw): dawn_wide's high clouds lit cream again as p15; shore_sunset = y29
+  (0.69). Dawn's open sky is mauve where p15's was blue: that is pass 1's QF_DUSK_SKY 3 default (acts at dawn too), not
+  ZEN; flagged for the critic, not changed. Sheet l3\dawn.jpg.

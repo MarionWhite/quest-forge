@@ -632,10 +632,20 @@ vec3 underwaterShafts(vec3 viewDir, float dist) {
 // alike): the sky went slate and the orange clouds olive, as red taken out of orange leaves yellow-green.
 // Loop 6 (4, 5): no per-channel cut. The sky is darkened (to 0.50 / 0.40) and drained toward a warm grey (1.06, 1.0,
 // 0.96) at its own brightness, so orange clouds go grey-brown, not olive, and red sits level with green and blue.
-float duskZenithK(vec3 dir) {
+// r016 hand-off (dawn_wide under ZEN 7: the high clouds went dark and the blue between them drained, a change nobody
+// asked for; the critic's work order is the sunset): the sun gate, evening only unless QF_DUSK_DAWN 1. The sun gate
+// is 0 at noon and midnight, so the hard time switch never shows.
+float duskSunGate() {
     float sy = sunDirWorld().y;
-    float lo = smoothstep(0.125, 0.035, sy) * smoothstep(-0.07, -0.01, sy);
-    return lo * smoothstep(0.17, 0.44, dir.y);
+    float g = smoothstep(0.125, 0.035, sy) * smoothstep(-0.07, -0.01, sy);
+  #if QF_DUSK_DAWN == 0
+    int t = worldTime % 24000;
+    g *= (t > 6000 && t < 18000) ? 1.0 : 0.0;
+  #endif
+    return g;
+}
+float duskZenithK(vec3 dir) {
+    return duskSunGate() * smoothstep(0.17, 0.44, dir.y);
 }
 // Loop 5 (loops 3-4: the rims' brightest 5 % fell from 250,155,79 to 240,151,59; the upper-left cloud's lit edge sits
 // 18-28 deg up, inside the ramp): with bright set, the sunlit cloud light (exposed past ~0.6) keeps its colour.
@@ -676,9 +686,7 @@ vec3 duskZenith(vec3 dir, vec3 c, bool bright, float T) {
     // r016 sky loop 3 (critic loop 2 z11b: 5/6, top right 86,68,62 fails on one pale salmon-cream cloud, 21.6k px at
     // 167,125,93, "lit as if the sun stood high; at sunset BSL's high clouds are unlit and only the low ones glow"):
     // lit cloud darkens with its elevation, at its own hue (no drain), so the low gold rims keep their light.
-    float sy = sunDirWorld().y;
-    float hiK = smoothstep(0.125, 0.035, sy) * smoothstep(-0.07, -0.01, sy)
-              * smoothstep(sin(radians(QF_DUSK_HILO)), sin(radians(QF_DUSK_HIHI)), dir.y);
+    float hiK = duskSunGate() * smoothstep(sin(radians(QF_DUSK_HILO)), sin(radians(QF_DUSK_HIHI)), dir.y);
     #endif
     #if QF_DUSK_HICLOUD == 1
     cloud *= mix(1.0, QF_DUSK_HIDARK, hiK);
