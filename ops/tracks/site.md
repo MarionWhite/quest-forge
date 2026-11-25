@@ -1,6 +1,6 @@
 # site: current state (rewrite, don't append; under 2 KB)
 
-Updated 2026-10-28 (Mac).
+Updated 2026-11-24 (Mac).
 
 - Rounds 4 to 8b are done and critic-passed. Round 8b (owner's notes of 10-27):
   - redone: Wither Skeleton "Too tall to follow", Skeleton "Bone pile" (`scares/ossuary.js`); Zombie: you back off
@@ -13,11 +13,11 @@ Updated 2026-10-28 (Mac).
   (`check_krypt_support.mjs`); screams CC0/CC BY with credits; Patrix skins local only
   (`site/graves/tex/mobs-local/`, gitignored, never commit; `import_patrix.py <zip>`).
 - Approved for the director: Enderman and Creeper (`site/graves/scares/approved.json`).
-- Lives on the Mac's local `main`, far ahead of origin/main and ~150 behind. Not pushed.
-  Publishing needs a merge (the PC's `/online/` page wins) and the owner's word.
-- Owner to do: test the scares (J); pick screams (scratchpad `r8/audio/audition/index.html`); say which scares go
+- Published 2026-11-24: merged with origin/main and pushed (decision 0008: vanilla and OreSpawn assets, credited).
+  The Shader Lab card stays off the homepage (owner, 10-25: /shaders/ by URL only).
+- Owner to do: test the scares (J); pick screams (the audition page needs a rebuild); say which scares go
   into random play and if the End islands stay floating.
-- Open: Witchery/Twilight/HEE art, the game-asset licence and the publish route (`DECISIONS.md`, Site).
+- Open: Witchery/Twilight/HEE art.
 - Known: prison props 95 draw calls; Creeper blast hitch ~125 ms; empty hands draw no bare arm.
 - Checks: `dump_frames.py --sheet`, `vet_lucky.py`, `audit_lucky.py`, `nav_check.py`, `check_sounds.py`,
   `node tools/site/check_krypt_plan.mjs`, `node tools/site/scare_flow.mjs`; preview `tools/site/serve.py`.

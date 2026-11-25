@@ -76,17 +76,8 @@ delete the entry here. Sheet 1 (30 cards) was answered 2026-10-25 → decisions 
   a protected trade station; which trade mechanism.
 
 ## Site
-- **Publish route for the Mac's site work** (`ops/tracks/site.md`). After round 4: merge
-  origin/main into the Mac's main (6 conflicts; the PC's `/online/` page, fed by the supervisor,
-  replaces the Mac's), then push either as a `mac/site` PR or straight to main (deploys at once).
-  *Recommend: `mac/site` PR, so the PC sees the merge before it goes live.*
-- **Game assets on the public site.** The Lucky Block and Krypt pages ship vanilla 1.7.10
-  textures, and round 4 adds the game's sounds plus OreSpawn's (Mojang's and OreSpawn's,
-  all rights reserved). CLAUDE.md says only Faithful-licensed or redistribution-permitting art
-  ships. Options: (a) keep them, credited, as most fan sites do; (b) swap textures to QF
-  Textures / Faithful (licensed) and sounds to our own synthesized set; (c) keep textures, swap
-  sounds. *Recommend: (b) for textures, since QF Textures is the pack's look anyway; decide sounds
-  after hearing the round.*
+- None open. The publish route and the game assets were answered on 2026-11-24
+  (`docs/decisions/0008-site-game-assets-and-publish.md`).
 
 ## Harness / PC
 - **The last ~10 ms of focus risk.** LWJGL calls SetForegroundWindow once per test-client launch,
