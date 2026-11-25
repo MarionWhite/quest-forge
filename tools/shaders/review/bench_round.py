@@ -131,6 +131,13 @@ def run_client(a, d, cmd, t0, busy):
     held = trial.read_lock()
     if held and held.get("pid") == pid and os.path.exists(trial.LOCK):
         os.remove(trial.LOCK)
+    # Our client as the foreground window, from the hider's 10-50 ms focus guard and from the
+    # minute samples: a failure, never a footnote (2026-10-25).
+    FOCUS.extend(trial.focus_incidents(d))
+    for b in busy:
+        fg = b.get("foreground") or {}
+        if fg.get("pid") == pid:
+            FOCUS.append(f"userbusy sample: foreground was our client ({fg.get('title')}, {fg.get('class')})")
     took = time.time() - t0
     print(f"client exited after {took:.0f} s")
     log = os.path.join(d, "logs", "latest.log")
@@ -139,6 +146,7 @@ def run_client(a, d, cmd, t0, busy):
 
 
 HANG_MIN = 5
+FOCUS = []      # every time our client was the foreground window, over all attempts
 
 
 def shader_config_ok(d, pack):
@@ -191,6 +199,7 @@ def main():
     ap.add_argument("--world", default=WORLD,
                     help="world the trial copies (e.g. tools/textures/build_showcase.py's copy with the texture wall)")
     ap.add_argument("--name", default="shaderdev", help="trial name")
+    ap.add_argument("--jar", default=DEBUG_JAR, help="the qf-content debug build with FrameBench")
     ap.add_argument("--xmx", default="3G")
     ap.add_argument("--wait-min", type=int, default=240, help="how long to wait for the GPU")
     ap.add_argument("--timeout-min", type=int, default=20)
@@ -209,9 +218,19 @@ def main():
         shader = os.path.basename(a.reference)
         packs = [a.reference]
     man = trial.build(a.name, [m for m in a.mods.split(",") if m], src=a.source, world=a.world, shader=shader, force=True,
-                      renderer="angelica", jars=[DEBUG_JAR], shaderpacks=packs, quiet=True,
+                      renderer="angelica", jars=[a.jar], shaderpacks=packs, quiet=True,
                       resourcepacks=a.resourcepack)
     d = trial.trial_dir(a.name)
+    # FrameBench loads save 0 and the world list is sorted by LastPlayed: a world left in saves/ by an
+    # earlier run with another --world was played later than the fresh copy, so it won. r007's qpb,
+    # qpb0 and offpb rendered world-master instead of the showcase world that way, and qpb0 hung on
+    # that copy's broken ID map (2026-10-25). The run's world is the only save; FML's backup zips go too.
+    keep = os.path.basename(a.world.rstrip("\\/"))
+    sv = os.path.join(d, "saves")
+    for n in os.listdir(sv) if os.path.isdir(sv) else []:
+        if n != keep:
+            p = os.path.join(sv, n)
+            shutil.rmtree(p) if os.path.isdir(p) else os.remove(p)
     set_kv(os.path.join(d, "options.txt"), {"maxFps": "260", "fullscreen": "false",
                                              "pauseOnLostFocus": "false", "enableVsync": "false"}, ":")
     opts = {"QF_DEBUG_VIEW": str(a.debug_view)}
@@ -287,7 +306,21 @@ def main():
     # Frame times taken while the owner games share the GPU: mark them, don't trust them.
     reasons = sorted({r for b in busy for r in b.get("reasons", [])}) if any(b.get("busy") for b in busy) else []
     with open(os.path.join(ROUNDS, "bench", a.tag + ".userbusy.json"), "w", encoding="utf-8") as f:
-        json.dump({"noisy": bool(reasons), "reasons": reasons, "background": not a.foreground, "checks": busy}, f)
+        json.dump({"noisy": bool(reasons), "reasons": reasons, "background": not a.foreground, "checks": busy,
+                   "focus_stolen": FOCUS}, f)
+    # LWJGL's createWindow takes the foreground once per launch when Windows allows it (the owner idle
+    # past the foreground lock timeout); the guard hands it back within one 10 ms poll. Printed every
+    # time. A give-back that failed, or a minute sample that saw our client in front, fails the run.
+    severe = [l for l in FOCUS if not l.endswith(": ok")]
+    if FOCUS and not a.foreground:
+        print("=" * 78)
+        print(f"FOCUS: our client was the foreground window {len(FOCUS)} time(s)"
+              + (f", {len(severe)} NOT handed straight back: the owner's keystrokes could have gone into Minecraft."
+                 " Stop launching and report it." if severe else
+                 "; each time the focus guard handed it straight back (within 10-50 ms)."))
+        for l in FOCUS[:20]:
+            print("  " + l)
+        print("=" * 78)
     if reasons:
         print("NOISY: owner gaming during the round -- frame times are not comparable: " + "; ".join(reasons))
     if os.path.exists(result):
@@ -304,6 +337,8 @@ def main():
         dst = os.path.join(ROUNDS, "patched", a.tag)
         shutil.rmtree(dst, ignore_errors=True)
         shutil.copytree(ps, dst)
+    if severe and not a.foreground:
+        sys.exit(4)
     sys.exit(0 if os.path.exists(result) else 1)
 
 

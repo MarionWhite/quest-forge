@@ -1,0 +1,128 @@
+{
+ "name": "textures-r015-packs",
+ "owner": "texture-dev-packs",
+ "comment": "r015 packs (ops/checkpoints/r015-packs.md): FIVE complete HUD designs (qf_hud_r015.py, own art) A gilded, B cloisonne, C ironbound, D moonsilver, E obsidian, each above QuestForge.zip (rps_top). The XP number colour, the medallion, the boss-name outline and the boss frame come from each zip's mcpatcher/color.properties via qf-content's XpBarStyle hook, so jobs use the jars-r015 bench build (also GuiShots: food full, natural regeneration off). Base = round 12's set A.",
+ "prebuild": [
+  [
+   "py",
+   "-3.10",
+   "-I",
+   "tools/textures/qf_hud_r015.py",
+   "--design",
+   "gilded",
+   "--gui-zip",
+   "C:/qfb/textures/r013/QF-r012-gui-final.zip",
+   "--out",
+   "C:/qfb/textures/r015/QF-r015-hud-gilded.zip"
+  ],
+  [
+   "py",
+   "-3.10",
+   "-I",
+   "tools/textures/qf_hud_r015.py",
+   "--design",
+   "cloisonne",
+   "--gui-zip",
+   "C:/qfb/textures/r013/QF-r012-gui-final.zip",
+   "--out",
+   "C:/qfb/textures/r015/QF-r015-hud-cloisonne.zip"
+  ],
+  [
+   "py",
+   "-3.10",
+   "-I",
+   "tools/textures/qf_hud_r015.py",
+   "--design",
+   "ironbound",
+   "--gui-zip",
+   "C:/qfb/textures/r013/QF-r012-gui-final.zip",
+   "--out",
+   "C:/qfb/textures/r015/QF-r015-hud-ironbound.zip"
+  ],
+  [
+   "py",
+   "-3.10",
+   "-I",
+   "tools/textures/qf_hud_r015.py",
+   "--design",
+   "moonsilver",
+   "--gui-zip",
+   "C:/qfb/textures/r013/QF-r012-gui-final.zip",
+   "--out",
+   "C:/qfb/textures/r015/QF-r015-hud-moonsilver.zip"
+  ],
+  [
+   "py",
+   "-3.10",
+   "-I",
+   "tools/textures/qf_hud_r015.py",
+   "--design",
+   "obsidian",
+   "--gui-zip",
+   "C:/qfb/textures/r013/QF-r012-gui-final.zip",
+   "--out",
+   "C:/qfb/textures/r015/QF-r015-hud-obsidian.zip"
+  ]
+ ],
+ "defaults": {
+  "world": "C:/qfb/textures/world-r013",
+  "views": "tools/textures/views-r013.txt",
+  "preset": "3",
+  "size": "2560x1440",
+  "mode": "shot",
+  "cit": true,
+  "jars": [
+   "C:/qfb/renderq/jars-r015/QuestForgeContent-1.0.0.jar"
+  ],
+  "props": [
+   "qf.bench.difficulty=easy"
+  ],
+  "resourcepacks": [
+   "C:/qfb/textures/diag/QF-v3c.zip",
+   "C:/qfb/textures/r013/QF-r012-packs-final.zip",
+   "C:/qfb/textures/r013/QF-r012-gui-final.zip"
+  ]
+ },
+ "jobs": [
+  {
+   "tag": "pk15a",
+   "rps_top": [
+    "C:/qfb/textures/r015/QF-r015-hud-gilded.zip"
+   ],
+   "measure": 220,
+   "scenes": "gui_hud"
+  },
+  {
+   "tag": "pk15b",
+   "rps_top": [
+    "C:/qfb/textures/r015/QF-r015-hud-cloisonne.zip"
+   ],
+   "measure": 220,
+   "scenes": "gui_hud"
+  },
+  {
+   "tag": "pk15c",
+   "rps_top": [
+    "C:/qfb/textures/r015/QF-r015-hud-ironbound.zip"
+   ],
+   "measure": 220,
+   "scenes": "gui_hud"
+  },
+  {
+   "tag": "pk15d",
+   "rps_top": [
+    "C:/qfb/textures/r015/QF-r015-hud-moonsilver.zip"
+   ],
+   "measure": 220,
+   "scenes": "gui_hud"
+  },
+  {
+   "tag": "pk15e",
+   "rps_top": [
+    "C:/qfb/textures/r015/QF-r015-hud-obsidian.zip"
+   ],
+   "measure": 220,
+   "scenes": "gui_hud"
+  }
+ ]
+}

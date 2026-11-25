@@ -47,7 +47,11 @@ Written in direction.md section 6:
 - v1b: wheat now straw (good). Glass still wrong: border on every block (jar's compact rule won).
 - v1c: clear glass ships Faithful's raw rule (glass/glass/glass.properties, matchBlocks=glass). **1025-222922-textures-v1c submitted 22:29** (t8v1 wall/wall2/glass, t8p1). If still wrong: drop our clear-glass CTM and say so.
 
-## Next
+## DONE 22:50
+- v1c glass connects like Faithful 64x. Scenes (11) + TEXTURES-READY written; final zip built with CIT; guard OK.
+- Remaining: push is for the orchestrator (not this agent).
+
+## Next (historical)
 1. `renderq.py results 1025-211536-textures-v1`. Review crops with C:\qfb\textures\v1work\cmp.py (scene, tags, crop, scale).
 2. If needed:
    - tune art: grass top a little flat, wheat orange, fern weak;

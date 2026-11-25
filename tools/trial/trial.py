@@ -890,7 +890,50 @@ def user_busy():
     GPU's 3D engine >= 40 %. Agent clients are excluded; the owner's own pack client is not."""
     ours = trial_client_pids()
     r = window_ps("userbusy", *(["-OurPids", ",".join(map(str, ours))] if ours else []))
-    return r or {"busy": None, "reasons": ["window.ps1 userbusy gave no answer"]}
+    r = r or {"busy": None, "reasons": ["window.ps1 userbusy gave no answer"]}
+    note_busy(r.get("busy"))
+    return r
+
+
+BUSY_STATE = os.path.join(TRIALS, "userbusy-state.json")
+WATCH_GAP_S = 300   # checks further apart than this break the watch (a launch still needs a not-busy answer now)
+
+
+def note_busy(busy, now=None):
+    """Record every userbusy answer, so a launch right after a watched idle stretch (a run that
+    sampled every minute, a queue's gate) needn't wait out idle_min again."""
+    now = now or time.time()
+    st = read_busy_state()
+    if now - st.get("last_check", 0) > WATCH_GAP_S:
+        st["watch_since"] = now
+    st["last_check"] = now
+    if busy is not False:            # busy, or no answer: treat as not idle
+        st["last_busy"] = now
+    try:
+        tmp = BUSY_STATE + ".tmp"
+        with open(tmp, "w", encoding="utf-8") as f:
+            json.dump(st, f)
+        os.replace(tmp, BUSY_STATE)
+    except OSError:
+        pass
+
+
+def read_busy_state():
+    try:
+        with open(BUSY_STATE, encoding="utf-8") as f:
+            return json.load(f)
+    except (OSError, ValueError):
+        return {}
+
+
+def idle_for(now=None):
+    """Seconds the owner is known to have been idle: since the later of the last busy answer and
+    the start of the current unbroken watch."""
+    now = now or time.time()
+    st = read_busy_state()
+    if now - st.get("last_check", 0) > WATCH_GAP_S:
+        return 0
+    return now - max(st.get("last_busy", 0), st.get("watch_since", now))
 
 
 def cmd_userbusy(a):
@@ -933,12 +976,14 @@ def start_detached(java, args, d, stdin=None, hidden=False):
 def wait_user_idle(idle_min, max_min):
     """Background clients never start over the owner's game: wait until userbusy has said
     idle for idle_min minutes in a row. On 2026-10-24 a shader round rendered through
-    three hours of the owner's Deadlock because only the frame times were marked noisy."""
-    t0, idle = time.time(), 0
+    three hours of the owner's Deadlock because only the frame times were marked noisy.
+    Idle time already watched counts (note_busy): a queue whose last run sampled userbusy every
+    minute launches the next one at once instead of waiting idle_min again (2026-10-25: that
+    double wait was 10 of every 12.5 minutes)."""
+    t0 = time.time()
     while True:
         b = user_busy()
-        idle = idle + 1 if b.get("busy") is False else 0
-        if idle >= max(1, int(idle_min)):
+        if b.get("busy") is False and idle_for() >= idle_min * 60 - 5:
             return
         if b.get("busy") and time.time() - t0 > max_min * 60:
             sys.exit(f"gave up after {max_min} min: the owner is still busy ({'; '.join(b.get('reasons', []))})")
@@ -1066,10 +1111,22 @@ def launch_server(a, man, d):
         sys.exit(wait_loaded(d, pid, a.timeout, "server"))
 
 
+def focus_incidents(d):
+    """Lines window.ps1's focus guard wrote for this launch: every time our client was the foreground
+    window (and focus was handed back). Any line is a failure the caller must surface loudly: the
+    owner's keystrokes could have gone into Minecraft (2026-10-25)."""
+    p = os.path.join(d, "logs", "focus.log")
+    try:
+        with open(p, encoding="utf-8", errors="replace") as f:
+            return [l.strip() for l in f if l.strip()]
+    except OSError:
+        return []
+
+
 def clear_logs(d, side):
     logs = os.path.join(d, "logs")
     os.makedirs(logs, exist_ok=True)
-    for stale in (f"fml-{side}-latest.log", "latest.log"):
+    for stale in (f"fml-{side}-latest.log", "latest.log", "focus.log"):
         try:
             os.remove(os.path.join(logs, stale))
         except OSError:
@@ -1225,10 +1282,15 @@ def load_live_manifest():
         return None
 
 
-def save_live_manifest(hashes):
+def save_live_manifest(hashes, config=None):
+    """jars: rel -> sha1 of every live jar. config: rel -> {sha1, backup, at} for config
+    files `install` put in; left as recorded when not given."""
+    if config is None:
+        config = (load_live_manifest() or {}).get("config", {})
     os.makedirs(TRIALS, exist_ok=True)
     with open(LIVE_MANIFEST, "w", encoding="utf-8") as f:
-        json.dump({"at": datetime.datetime.now().isoformat(timespec="seconds"), "jars": hashes}, f, indent=1)
+        json.dump({"at": datetime.datetime.now().isoformat(timespec="seconds"), "jars": hashes,
+                   "config": config}, f, indent=1)
 
 
 def live_drift():
@@ -1273,6 +1335,13 @@ def guard_check(context, strict=False):
         print("  `trial.py guard --accept`; otherwise restore the previous jar from its _backup-install-* copy.")
         if strict:
             sys.exit(3)
+    stale = config_drift()
+    if stale:
+        # Not an alert: a mod rewriting its own config on load looks exactly like this.
+        print(f"NOTE ({context}): installed config file(s) differ from what `trial.py install` put in:")
+        for rel, what in stale:
+            print(f"    {what:8} {rel}")
+        print("  A mod that rewrites its config on load does this; `trial.py guard --accept` records it.")
 
 
 def cmd_guard(a):
@@ -1299,8 +1368,8 @@ def cmd_guard(a):
                 fixed += 1
         print(f"guard: replaced {fixed} hard link(s) with copies; {skipped} skipped")
     if a.accept:
-        save_live_manifest(live_hashes())
-        print("guard: current live jars recorded as the baseline")
+        save_live_manifest(live_hashes(), config_rehash())
+        print("guard: current live jars (and installed config files) recorded as the baseline")
         return
     links = live_link_report()
     drift = live_drift()
@@ -1322,7 +1391,9 @@ def cmd_install(a):
     if not a.force:
         guard_check("install", strict=True)
     jar = os.path.abspath(a.jar)
-    if not os.path.isfile(jar) or not jar.lower().endswith(".jar"):
+    if not jar.lower().endswith(".jar"):
+        return install_config(a, jar)
+    if not os.path.isfile(jar):
         sys.exit(f"not a jar: {jar}")
     if jar.lower().endswith("-dev.jar"):
         sys.exit("that is the deobfuscated -dev jar; it crashes in the pack with NoSuchMethodError. "
@@ -1411,6 +1482,126 @@ def refuse_if_live_in_use(verb):
         sys.exit(2)
 
 
+# ------------------------------------------------------------ config files
+
+def config_rel(src, as_name):
+    """Where a config file goes, as config/<path>: --as, or its place under the repo's pack/config/."""
+    if as_name:
+        rel = as_name.replace("\\", "/").strip("/")
+        if not rel.lower().startswith("config/") or ".." in rel.split("/"):
+            sys.exit(f"--as {as_name}: a config file installs under config/, "
+                     f"e.g. --as config/Chocolate/ChestConfig/chests.prop")
+        return rel
+    parts = src.replace("\\", "/").split("/")
+    for i in range(len(parts) - 2, 0, -1):
+        if parts[i].lower() == "config" and parts[i - 1].lower() == "pack":
+            return "/".join(["config"] + parts[i + 1:])
+    sys.exit(f"{src} is not a jar and not under pack/config/; pass --as config/<path> to say where it goes")
+
+
+def install_config(a, src):
+    """A config file into the live config/, with the jar safeguards: refuse while the live
+    instance is in use, keep the replaced file in _backup-install-<time>/, log it, and record
+    it in the live manifest so `uninstall config/<path>` can put the previous one back.
+
+    Exists because build_play_server.py copies config/ from the live instance: a fix that
+    lives only in pack/config is undone by every --force rebuild of the play server."""
+    if not os.path.isfile(src):
+        sys.exit(f"no such file: {src}")
+    rel = config_rel(src, a.as_name)
+    dst = os.path.join(LIVE, *rel.split("/"))
+    if not a.force:
+        refuse_if_live_in_use("install")
+    new_sha = sha1(src)
+    stamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+    old_sha = backup = None
+    if os.path.isfile(dst):
+        old_sha = sha1(dst)
+        if old_sha == new_sha:
+            print(f"{rel} is already that file ({old_sha}); nothing to do")
+            return
+        backup = os.path.join(LIVE, f"_backup-install-{stamp}", *rel.split("/"))
+        os.makedirs(os.path.dirname(backup), exist_ok=True)
+        shutil.copy2(dst, backup)
+    os.makedirs(os.path.dirname(dst), exist_ok=True)
+    tmp = dst + ".installing"
+    shutil.copy2(src, tmp)
+    os.replace(tmp, dst)
+    os.makedirs(TRIALS, exist_ok=True)
+    who = a.owner or os.environ.get("CLAUDE_SESSION_NAME", "?")
+    with open(INSTALL_LOG, "a", encoding="utf-8") as f:
+        f.write(f"{stamp}\t{who}\tCONFIG {rel}\t{old_sha or '-'} -> {new_sha}\t{src}\t{a.why or ''}"
+                + (f" (previous kept {backup})" if backup else " (new file)") + "\n")
+    print(f"installed {rel} ({old_sha or 'new'} -> {new_sha})" + (f"; previous kept in {backup}" if backup else ""))
+    print(f"logged in {INSTALL_LOG}")
+    m = load_live_manifest() or {"jars": live_hashes()}
+    cfg = m.get("config", {})
+    cfg[rel] = {"sha1": new_sha, "backup": backup, "at": stamp}
+    save_live_manifest(m["jars"], cfg)
+
+
+def uninstall_config(a, rel):
+    """Put back what `install` replaced (or remove a file that was new), from the manifest's record."""
+    rel = rel.replace("\\", "/").strip("/")
+    m = load_live_manifest() or {"jars": live_hashes()}
+    cfg = m.get("config", {})
+    e = cfg.get(rel)
+    if e is None:
+        sys.exit(f"{rel} is not recorded as installed by trial.py; nothing known to put back")
+    if not a.force:
+        refuse_if_live_in_use("uninstall")
+    dst = os.path.join(LIVE, *rel.split("/"))
+    stamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+    cur_sha = sha1(dst) if os.path.isfile(dst) else None
+    if cur_sha:
+        keep = os.path.join(LIVE, f"_backup-install-{stamp}", *rel.split("/"))
+        os.makedirs(os.path.dirname(keep), exist_ok=True)
+        shutil.copy2(dst, keep)
+    backup = e.get("backup")
+    if backup and os.path.isfile(backup):
+        tmp = dst + ".installing"
+        shutil.copy2(backup, tmp)
+        os.replace(tmp, dst)
+        what = f"restored from {backup}"
+    else:
+        if os.path.isfile(dst):
+            os.remove(dst)
+        what = "removed (it was new at install)" if not backup else f"removed (its backup {backup} is gone)"
+    os.makedirs(TRIALS, exist_ok=True)
+    who = a.owner or os.environ.get("CLAUDE_SESSION_NAME", "?")
+    now_sha = sha1(dst) if os.path.isfile(dst) else "-"
+    with open(INSTALL_LOG, "a", encoding="utf-8") as f:
+        f.write(f"{stamp}\t{who}\tUNINSTALL {rel}\t{cur_sha or '-'} -> {now_sha}\t{what}\t{a.why}\n")
+    print(f"uninstalled {rel}: {what}" + (f"; the file as it was is kept in _backup-install-{stamp}" if cur_sha else ""))
+    print(f"logged in {INSTALL_LOG}")
+    cfg.pop(rel, None)
+    save_live_manifest(m["jars"], cfg)
+
+
+def config_drift():
+    """[(rel, 'changed' | 'missing')] for config files `install` put in that differ now."""
+    out = []
+    for rel, e in sorted((load_live_manifest() or {}).get("config", {}).items()):
+        p = os.path.join(LIVE, *rel.split("/"))
+        if not os.path.isfile(p):
+            out.append((rel, "missing"))
+        elif sha1(p) != e.get("sha1"):
+            out.append((rel, "changed"))
+    return out
+
+
+def config_rehash():
+    """The manifest's config records with today's hashes (guard --accept); gone files drop out."""
+    cfg = (load_live_manifest() or {}).get("config", {})
+    for rel, e in list(cfg.items()):
+        p = os.path.join(LIVE, *rel.split("/"))
+        if os.path.isfile(p):
+            e["sha1"] = sha1(p)
+        else:
+            cfg.pop(rel)
+    return cfg
+
+
 def cmd_uninstall(a):
     """The one way a jar leaves the live instance: the mirror of `install`.
 
@@ -1424,6 +1615,8 @@ def cmd_uninstall(a):
         sys.exit("uninstall needs --why: the install log is how the next person learns why a jar is gone")
     if not a.force:
         guard_check("uninstall", strict=True)
+    if a.jar.replace("\\", "/").lower().startswith("config/"):
+        return uninstall_config(a, a.jar)
     live = instance_jars(LIVE)
     rel = find_live_jar(a.jar)
     if not a.force:
@@ -1603,6 +1796,10 @@ def cmd_status(a):
         alive = pid_alive(held.get("pid"))
         print(f"client lock: trial '{held.get('trial')}' pid {held.get('pid')} owner {held.get('owner') or '?'}"
               f" {'(running)' if alive else '(stale)'}")
+    for p in procs:
+        if p["kind"] == "client" and os.path.isdir(p["gameDir"] or ""):
+            for l in focus_incidents(p["gameDir"]):
+                print(f"FOCUS STOLEN by {p['gameDir']}: {l}")
     if os.path.exists(BISECT):
         print(f"bisect in progress: {BISECT}")
     if os.path.isdir(TRIALS):
@@ -1610,6 +1807,84 @@ def cmd_status(a):
         if names:
             print("trials: " + ", ".join(sorted(names)))
 
+
+
+# --------------------------------------------------------------------- heap
+
+def find_jcmd():
+    """jcmd from a JDK 8 (the JRE the pack runs on has none); QF_JCMD overrides."""
+    env = os.environ.get("QF_JCMD")
+    if env and os.path.isfile(env):
+        return env
+    for base in (r"C:\Program Files\Eclipse Adoptium", r"C:\Program Files\Java",
+                 r"C:\Program Files\Amazon Corretto", r"C:\Program Files\Zulu"):
+        if os.path.isdir(base):
+            for d in sorted(os.listdir(base), reverse=True):
+                p = os.path.join(base, d, "bin", "jcmd.exe")
+                if ("8" in d) and os.path.isfile(p):
+                    return p
+    sys.exit("no JDK 8 jcmd.exe found (set QF_JCMD)")
+
+
+def jcmd(pid, *args):
+    r = subprocess.run([find_jcmd(), str(pid)] + list(args), capture_output=True, text=True,
+                       creationflags=NO_WINDOW, timeout=300)
+    if r.returncode != 0:
+        sys.exit(f"jcmd {' '.join(args)} failed: {r.stderr.strip() or r.stdout.strip()}")
+    return r.stdout
+
+
+def heap_probe(pid, top=12):
+    """Live heap of a running JVM: GC.class_histogram forces a full GC (even with
+    -XX:+DisableExplicitGC), so the GC.heap_info read right after it is the live set.
+    This is the method of docs/design/performance-plan.md."""
+    hist = jcmd(pid, "GC.class_histogram")
+    info = jcmd(pid, "GC.heap_info")
+    classes = []
+    total = None
+    for line in hist.splitlines():
+        m = re.match(r"\s*(\d+):\s+(\d+)\s+(\d+)\s+(\S+)", line)
+        if m:
+            classes.append({"rank": int(m.group(1)), "instances": int(m.group(2)),
+                            "bytes": int(m.group(3)), "class": m.group(4)})
+        m = re.match(r"\s*Total\s+(\d+)\s+(\d+)", line)
+        if m:
+            total = {"instances": int(m.group(1)), "bytes": int(m.group(2))}
+    used_mb = meta_mb = None
+    m = re.search(r"garbage-first heap\s+total\s+(\d+)K,\s+used\s+(\d+)K", info)
+    if m:
+        used_mb = int(m.group(2)) / 1024
+    m = re.search(r"Metaspace\s+used\s+(\d+)K", info)
+    if m:
+        meta_mb = int(m.group(1)) / 1024
+    return {"live_mb": used_mb, "metaspace_mb": meta_mb, "histogram_total": total,
+            "top": classes[:top], "histogram": hist, "heap_info": info}
+
+
+def cmd_heap(a):
+    d = trial_dir(a.name)
+    try:
+        with open(os.path.join(d, "pid")) as f:
+            pid = int(f.read().strip())
+    except (OSError, ValueError):
+        sys.exit(f"trial {a.name} has no pid file; it was never launched")
+    if not pid_alive(pid):
+        sys.exit(f"trial {a.name} (pid {pid}) is not running")
+    r = heap_probe(pid, a.top)
+    stamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+    label = re.sub(r"[^A-Za-z0-9_.-]+", "_", a.label) if a.label else "probe"
+    out = os.path.join(d, f"heap-{label}-{stamp}.txt")
+    with open(out, "w", encoding="utf-8") as f:
+        f.write(f"# trial {a.name} pid {pid} label {a.label or ''} at {stamp}\n\n")
+        f.write(r["heap_info"] + "\n" + r["histogram"])
+    live = "?" if r["live_mb"] is None else f"{r['live_mb']:.0f}"
+    meta = "?" if r["metaspace_mb"] is None else f"{r['metaspace_mb']:.0f}"
+    print(f"live heap {live} MB after full GC, metaspace {meta} MB  ({a.name} pid {pid}"
+          f"{', ' + a.label if a.label else ''})")
+    for c in r["top"]:
+        print(f"  {c['bytes'] / 1048576:8.1f} MB  {c['instances']:>10,}  {c['class']}")
+    print(f"  full histogram: {out}")
+    print("heap-info: " + json.dumps({k: v for k, v in r.items() if k not in ("histogram", "heap_info")}))
 
 def cmd_list(a):
     cat = load_catalog()
@@ -1761,8 +2036,10 @@ def main():
                    help="client: launch even while the owner is gaming (only when they asked for it)")
     p.set_defaults(fn=cmd_launch)
 
-    p = sp.add_parser("install"); p.add_argument("jar")
-    p.add_argument("--as", dest="as_name", help="filename in mods/ to replace (default: the jar's own)")
+    p = sp.add_parser("install"); p.add_argument("jar", help="a built jar, or a config file from the repo's "
+                                                                "pack/config/ (lands at the same path under the live config/)")
+    p.add_argument("--as", dest="as_name", help="filename in mods/ to replace (default: the jar's own); "
+                                                "for a config file from elsewhere, config/<path>")
     p.add_argument("--replace", help="a live jar under another name that this one supersedes; moved to the "
                                      "backup in the same step (name or path under mods/, globs allowed)")
     p.add_argument("--why", help="one line for the install log")
@@ -1770,8 +2047,10 @@ def main():
     p.add_argument("--force", action="store_true", help="install even though the live instance is in use")
     p.set_defaults(fn=cmd_install)
 
-    p = sp.add_parser("uninstall", help="move a live jar into _backup-install-<time>/ (logged)")
-    p.add_argument("jar", help="file name or path under mods/ (1.7.10/x.jar), globs allowed; must match one jar")
+    p = sp.add_parser("uninstall", help="move a live jar into _backup-install-<time>/ (logged), or put back "
+                                        "the file a config install replaced")
+    p.add_argument("jar", help="file name or path under mods/ (1.7.10/x.jar), globs allowed, must match one jar; "
+                               "or config/<path> as `install` recorded it")
     p.add_argument("--why", help="one line for the install log (required)")
     p.add_argument("--owner", help="who to log (default: $CLAUDE_SESSION_NAME)")
     p.add_argument("--force", action="store_true", help="skip the guard, in-use and required-by checks")
@@ -1790,6 +2069,9 @@ def main():
     p = sp.add_parser("resolve"); mods_args(p); p.set_defaults(fn=cmd_resolve)
     sp.add_parser("list").set_defaults(fn=cmd_list)
     sp.add_parser("status").set_defaults(fn=cmd_status)
+    p = sp.add_parser("heap", help="live heap of a running trial (jcmd full GC + class histogram), saved in the trial dir")
+    p.add_argument("name"); p.add_argument("--label", help="tag for the saved file and the printed line")
+    p.add_argument("--top", type=int, default=12, help="classes to print"); p.set_defaults(fn=cmd_heap)
     sp.add_parser("userbusy", help="JSON: is the owner gaming? exit 1 if so (frame times noisy)").set_defaults(fn=cmd_userbusy)
     p = sp.add_parser("guard", help="hard links into the live pack, and live jars changed without install")
     p.add_argument("--fix-links", action="store_true", help="replace hard links outside the live pack with copies")

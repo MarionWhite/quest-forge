@@ -48,8 +48,27 @@ const vec3 WA_SWAMP = vec3(1.10, 0.80, 1.25),     WS_SWAMP = vec3(0.050, 0.050, 
 // River (r005; owner r004 agreed with the critic: the river was "a milky blob"): moving water
 // carries fine sediment, so a slightly green-brown, half-clear stream instead of glassy lake water;
 // the bed shows for two or three blocks.
+#if QF_RIVER_TINT == 2
+// r010 option C (owner r009 river: "very green"): a clear stream. Loop 1's "clear slate" (half the
+// scatter) read the same as B (water 48,65,68 vs 50,74,80): the bed's veil in composite, not these
+// coefficients, sets the look. Now glassier still, with the veil cut there too, so the bed shows.
+const vec3 WA_RIVER = vec3(0.11, 0.060, 0.060),   WS_RIVER = vec3(0.0012, 0.0022, 0.0024);
+#elif QF_RIVER_TINT == 1
+// r010 option B: the same murk, rebalanced from green to teal-blue (blue absorbed less than green
+// was 0.115 vs 0.080; now 0.075 vs 0.085, and the scatter peaks in blue, not green).
+const vec3 WA_RIVER = vec3(0.15, 0.085, 0.075),   WS_RIVER = vec3(0.0026, 0.0050, 0.0058);
+#else
 const vec3 WA_RIVER = vec3(0.15, 0.080, 0.115),   WS_RIVER = vec3(0.0030, 0.0060, 0.0040);   // ih: twice this read milky mint
+#endif
+#if QF_WATER_BLEND == 1 && QF_WATER_FORCE == 0
+// Per-pixel weights (composite.glsl sets them for the water pixel it shades; x < 0: unset, use
+// the camera's). Owner r006: biome borders on water must be gradients, never cutoffs.
+vec4 gWaterW = vec4(-1.0);
+#endif
 vec4 waterBiomeWeights() {   // ocean, reef, swamp, glassy
+#if QF_WATER_BLEND == 1 && QF_WATER_FORCE == 0
+    if (gWaterW.x >= 0.0) return gWaterW;
+#endif
 #if QF_WATER_FORCE == 1
     return vec4(0.0, 0.0, 0.0, 1.0);
 #elif QF_WATER_FORCE == 2
@@ -77,6 +96,37 @@ float waterRiverShare() {
     return clamp(qfWaterRiver, 0.0, 1.0);
 #endif
 }
+// The camera's own weights, ignoring any per-pixel override.
+vec4 waterCameraWeights() {
+#if QF_WATER_BLEND == 1 && QF_WATER_FORCE == 0
+    vec4 keep = gWaterW;
+    gWaterW = vec4(-1.0);
+    vec4 w = waterBiomeWeights();
+    gWaterW = keep;
+    return w;
+#else
+    return waterBiomeWeights();
+#endif
+}
+// Swamp water from the game's own tint: 1.7.10 colours water by the biome's water colour,
+// averaged over the 3 x 3 blocks round each block (BlockLiquid.colorMultiplier); swamps are
+// 0xE0FFAE, every vanilla biome else white. A yellow-green tint reads as swamp.
+float swampFromTint(vec3 tint) {
+    return clamp((tint.g - tint.b) / max(tint.g, 1e-3) / 0.30, 0.0, 1.0);
+}
+// Weights for a water pixel: its swamp share sw (blended over a few blocks by composite.glsl),
+// and for the rest the camera's non-swamp biomes; with the camera in a swamp, the water outside
+// it is lake-clear when shallow and ocean blue when deep.
+vec4 waterWeightsAt(float sw, float depth) {
+    vec4 cam = waterCameraWeights();
+    vec3 rest = vec3(cam.x, cam.y, cam.w);
+    float rs = rest.x + rest.y + rest.z;
+    float deep = smoothstep(5.0, 14.0, depth);
+    vec3 alt = vec3(deep, 0.0, 1.0 - deep);
+    rest = rs > 0.05 ? rest / rs : alt;
+    rest = mix(alt, rest, smoothstep(0.05, 0.4, rs));
+    return vec4(rest.x, rest.y, 0.0, rest.z) * (1.0 - sw) + vec4(0.0, 0.0, sw, 0.0);
+}
 vec3 waterAbsorb() {
     vec4 w = waterBiomeWeights();
     float r = waterRiverShare();
@@ -87,12 +137,24 @@ vec3 waterScatter() {
     float r = waterRiverShare();
     return WS_OCEAN * w.x + WS_REEF * w.y + WS_SWAMP * w.z + mix(WS_GLASSY, WS_RIVER, r) * w.w;
 }
+// The share of a pixel's water that is a still lake (glassy, not river).
+float waterLakeShare() {
+    // r008 ub: a slow river at sunset calms too (lake_glitter read as river water and kept its chop).
+    return waterBiomeWeights().w * (1.0 - 0.4 * waterRiverShare());
+}
+// Loop 2 (critic: lake_glitter still choppy, no mirror): any sheltered water (lake or slow river,
+// the whole glassy weight) calms at golden hour, whatever the biome detector called it.
+float waterCalmShare() {
+    return max(waterLakeShare(), waterBiomeWeights().w);
+}
 // Glassy water is calmer: fewer wind ripples, so it mirrors more cleanly.
 float waterBiomeRipple() {
     vec4 w = waterBiomeWeights();
     return w.x * 1.15 + w.y * 1.0 + w.z * 0.55 + w.w * 0.75;
 }
 #else
+float waterLakeShare() { return 0.0; }
+float waterCalmShare() { return 0.0; }
 vec3 waterAbsorb() { return WATER_ABSORB; }
 vec3 waterScatter() { return WATER_SCATTER; }
 float waterBiomeRipple() { return 1.0; }
@@ -228,6 +290,20 @@ float waveFootprint(vec3 worldPos) {
 vec4 waterNormalRough(vec3 worldPos, vec3 faceNormal) {
     if (faceNormal.y < 0.5) return vec4(faceNormal, 0.0);
     float amp = WAVE_AMP * (1.0 + rainStrength * 0.6) * mix(0.7, 1.15, clamp(RIPPLE_AMP, 0.0, 1.6) / 1.6);
+#if QF_BIOME_WATER == 1 && QF_CAL_WATER == 0
+    // r007 (owner r006, lake: "splotchy ... when not enough light"): lakes are sheltered, so their
+    // sunset chop is lower than the ocean's; at a grazing view steep facets flipped between the dark
+    // water body and the bright sky in block-sized patches.
+#if QF_LAKE_CALM == 1
+    // r008 (owner r007 lake 2/5, critic: torn dark and gold patches over the near third): style 3
+    // raised every water's chop 1.7x at golden hour, so the sheltered lake was rougher at sunset
+    // than the ocean at noon. A lake at sunset is a near mirror (the reference packs all show the
+    // cliff mirrored cleanly): its chop now falls to about a quarter at low sun.
+    amp *= mix(1.0, mix(0.72, 0.12, smoothstep(0.0, 0.5, goldenHour())), waterCalmShare());   // loop 2: 0.20 on the lake share alone left lake_glitter choppy   // ub: 0.26 linear in gh left a 10-degree sun at 0.44
+#else
+    amp *= mix(1.0, 0.72, waterLakeShare());
+#endif
+#endif
     vec3 sl = spectralSlope(worldPos.xz, animTime(), waveFootprint(worldPos), amp, 0.8);
     return vec4(normalize(vec3(-sl.x, 1.0, -sl.y)), sl.z);
 }

@@ -142,10 +142,11 @@ GPUs without OpenGL 3.3 use the E7 client, also with shaders off.
   They are selectable on the shader screen. Each profile sets one option,
   `QF_PRESET` (0 Potato, 1 Low, 2 Medium, 3 High, 4 Ultra), and every effect
   keys off it, so the bench selects a tier with `-PackOpts @{QF_PRESET='1'}`.
-- The **pack default is Medium.** The lite client must switch it to Low or
-  Potato. To do that, `tools/lite-client/apply-lite.ps1` has to learn to write
-  `shaderpacks\<pack>.txt`; it doesn't yet. A friend
-  who only installs the pack and presses F4 must never land on Ultra.
+- The **pack default is Medium.** The lite client switches it to Low and the
+  potato client to Potato: `tools/lite-client/apply-profile.ps1` writes
+  `QF_PRESET` into `shaderpacks\<pack>.txt` from `profiles/{lite,potato}.json`
+  (2026-10-25). A friend who only installs the pack and presses F4 must never
+  land on Ultra.
 - Every milestone ships with Low and Potato passing their proxy budgets. Missing
   either is a failed milestone, not a follow-up task.
 - **What Low keeps:** the physically based sky lookup tables, sun shadows at 48

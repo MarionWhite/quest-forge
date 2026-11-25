@@ -1,0 +1,147 @@
+{
+ "round": 8,
+ "id": "r008",
+ "note": "Built by tools/shaders/review/fetch_feedback.py from GitHub issues; the latest response is last.",
+ "responses": [
+  {
+   "issue": 12,
+   "url": "https://github.com/MarionWhite/quest-forge/issues/12",
+   "user": "MarionWhite",
+   "state": "open",
+   "created_at": "2026-10-26T21:44:14Z",
+   "updated_at": "2026-10-26T21:44:14Z",
+   "from": "body",
+   "answers": {
+    "round": 8,
+    "scenes": {
+     "sun": {
+      "choice": "A",
+      "rating": 4,
+      "note": "This seems like a good size, but listen to the critic on this."
+     },
+     "sunset-full": {
+      "choice": "A",
+      "rating": 4,
+      "note": "This is looking better, but make sure that the clouds cover the sun when they are in front of it."
+     },
+     "golden-horizon": {
+      "choice": "A",
+      "rating": 4,
+      "note": "Listen to critic"
+     },
+     "forest-light": {
+      "choice": "A",
+      "rating": 5,
+      "note": "listen to critic"
+     },
+     "dust": {
+      "choice": "A",
+      "rating": 3,
+      "note": "Listen to critic"
+     },
+     "lake": {
+      "choice": "A",
+      "rating": 3,
+      "note": "It's a little glassy, but I would have to see it in different light to make a certain judgement"
+     },
+     "river": {
+      "choice": "neither",
+      "rating": 3,
+      "note": "I think we overcorrected a little bit , and the critic has some insight"
+     },
+     "water-biomes": {
+      "choice": "A",
+      "rating": 5,
+      "note": "I think these are all looking pretty good. The only one that may be a little off is the swamp, but it's getting pretty close."
+     },
+     "biome-borders": {
+      "choice": "A",
+      "rating": 5,
+      "note": "Looks pretty good"
+     },
+     "clouds": {
+      "choice": "A",
+      "rating": 4,
+      "note": "It looks fine"
+     },
+     "meteors": {
+      "choice": "D",
+      "rating": null,
+      "note": "The meteors themselves look okay, but you need to research what an actual meteor shower looks like because it isn't just shit flying in every direction"
+     },
+     "underwater": {
+      "choice": "B",
+      "rating": 5,
+      "note": "This is quite green. This seems appropriate for something like the swamp, but I would expect it to be more blue for the other water types. I'm excited to see the underwater effect for the coast because these effects are quite good with the sunbeams and bubbles."
+     },
+     "metals": {
+      "choice": "A",
+      "rating": 2,
+      "note": "Maybe we are making positive progress, but we are far from where we need to be, and our cost is very high here. We need to figure something out before getting to deep into it."
+     },
+     "vibrance": {
+      "choice": "A",
+      "rating": 4,
+      "note": ""
+     },
+     "tex-wall": {
+      "choice": "A",
+      "rating": 3,
+      "note": "I like the metallic effect that the metals and diamond got in B, but it still needs more work. I also think I like B's stone brick, but I could not fully see it. I don't know why the iron and gold are so dark in A though. It looks like they are not receiving any direct light."
+     },
+     "tex-wall-close": {
+      "choice": "B",
+      "rating": 4,
+      "note": "The emerald looks weird, and so does the grass, but the rest looks quite good."
+     },
+     "tex-glass": {
+      "choice": "A",
+      "rating": null,
+      "note": "They're all about the same for the glass"
+     },
+     "tex-forest": {
+      "choice": "A",
+      "rating": 4,
+      "note": "The leaves look like shit in B. Like complete shit"
+     },
+     "tex-golden": {
+      "choice": "neither",
+      "rating": 4,
+      "note": "I think there is some weird artifacting going on here in all of the photos"
+     },
+     "tex-farm": {
+      "choice": "C",
+      "rating": 4,
+      "note": "I want you to get as close to the pack that I mentioned I liked the crops from without explicitly copying it. Everything that they are doing with their crops is exactly what I am going for."
+     },
+     "tex-farm-close": {
+      "choice": "B",
+      "rating": 3,
+      "note": "It looks a little better up close, but it is still far from what I asked for."
+     },
+     "tex-leaves": {
+      "choice": "B",
+      "rating": 3,
+      "note": "I think the leaves still need to be heavily reworked because they are not very good."
+     },
+     "tex-leaves-tree": {
+      "choice": "B",
+      "rating": 3,
+      "note": "The tree has more shape with this option, but I don't like how this looks."
+     },
+     "tex-pbr": {
+      "choice": "B",
+      "rating": 3,
+      "note": "It seems fine"
+     },
+     "tex-items": {
+      "choice": "B",
+      "rating": 4,
+      "note": "I like the style for the books, but some of the potions are kind of boring or need more detail or personality."
+     }
+    },
+    "overall": "I didn't see the drastic improvement in quality that I was expecting. With how long we are spending doing this, I expect results. We really need to figure this out, and at the same time the numbers suggest that we are over budget for performance, so we need to look into better optimization or build some sort of helper to make sure that the shaders and resource pack isn't killing anyones game. \n\nFix the fucking leaves, fix the fucking grass, and fix the fucking crops."
+   }
+  }
+ ]
+}

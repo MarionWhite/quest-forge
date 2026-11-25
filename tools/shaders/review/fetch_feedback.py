@@ -65,6 +65,7 @@ ATT_PATH = re.compile(r"^docs/design/shaders/feedback/attachments/r\d{3,4}/[A-Za
 RAW = "https://raw.githubusercontent.com/MarionWhite/quest-forge/main/"
 MAX_IMG = 3 * 1024 * 1024
 MAGIC = (b"\xff\xd8\xff", b"\x89PNG\r\n\x1a\n", b"RIFF")
+DECISIONS_BASE = 9000   # rounds 9000+ are Decisions page sheets, not Lab rounds
 
 
 def get(url):
@@ -250,6 +251,8 @@ def collect(items, round_filter=None, comments=None):
         if n is None:
             skipped.append(f"#{it['number']} (no round number)")
             continue
+        if n >= DECISIONS_BASE:
+            continue   # a Decisions page sheet (tools/decisions/fetch_answers.py reads those)
         add(n, dict(meta(it, where), answers=ans), it)
 
     for (title_n, pid), p in sorted(partial.items(), key=lambda kv: (kv[0][0] or -1, kv[0][1])):

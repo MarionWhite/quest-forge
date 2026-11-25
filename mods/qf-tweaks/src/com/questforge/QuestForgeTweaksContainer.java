@@ -40,7 +40,7 @@ public class QuestForgeTweaksContainer extends DummyModContainer {
         m.name = "QuestForge Tweaks";
         m.version = readVersion();
         m.description = "Quest Forge's coremod: bytecode fixes for other mods "
-                + "(BetterQuesting, GraveStones, Morph, CustomMenu, LittleMaidMob, Lucky Block).";
+                + "(BetterQuesting, GraveStones, Morph, CustomMenu, LittleMaidMob, Lucky Block, Decocraft).";
         m.authorList = Arrays.asList("suaz");
         return m;
     }

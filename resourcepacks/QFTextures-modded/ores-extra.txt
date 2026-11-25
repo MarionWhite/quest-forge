@@ -1,0 +1,20 @@
+# Ore textures re-composited onto Faithful 32x stone although their 16x host is NOT vanilla
+# stone's pixels (the mod drew its own stone, or the flecks cover more than 60 % of the tile, so
+# the automatic host test in build_modded_textures.py rejects them). Each one generates in
+# plain stone in the world, so Faithful stone is the right host [guess: from the mods' names and
+# worldgen; the fleck mask is the median-deviation fallback, not a diff against the host].
+# Ores on dark stone (TragicMC Ore*), netherrack (nether ores) and end stone (HEE) are not listed:
+# QF v0 keeps those hosts at vanilla 16x, so a 32x host would not match its neighbours. Railcraft's
+# ores are transparent overlays that the mod draws over the stone block; the script keeps them as
+# overlays at 2x by itself (alpha 0 on more than half the tile), so they are not listed either.
+legends/redironore
+legends/blackironore
+legends/sphaleriteore
+legends/lightningore
+orespawn/oresalt
+orespawn/oreuranium
+orespawn/oretitanium
+orespawn/oreamethyst
+orespawn/oreruby
+thejungle/oreSapphire
+surpriseeggs/surprise_ore

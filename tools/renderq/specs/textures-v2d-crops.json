@@ -1,0 +1,38 @@
+{
+ "name": "textures-v2d-crops",
+ "owner": "texture-agent",
+ "comment": "r009 step 3: v2 wheat (separate plants, slim braided ears, after Stay True's direction, our own pixels) and Faithful 64x carrots/potatoes against v1, the version the owner rated in r008, on the farm and farm_close views (r008's Faithful 64x frames bench-t8f64-farm*.png are the third column). Also carries v2b leaves and v2c grass. Shot mode: pictures only, allowed at night. One boot.",
+ "prebuild": [
+  [
+   "py",
+   "-3.10",
+   "-I",
+   "tools/textures/build_qf_textures.py",
+   "--no-cit",
+   "--out",
+   "C:/qfb/textures/QFTextures-v2.zip"
+  ]
+ ],
+ "defaults": {
+  "world": "C:/qfb/textures/world-showcase",
+  "preset": "3",
+  "size": "2560x1440",
+  "mode": "shot"
+ },
+ "jobs": [
+  {
+   "tag": "t9v2d",
+   "resourcepacks": [
+    "C:/qfb/textures/QFTextures-v2.zip"
+   ],
+   "scenes": "farm,farm_close"
+  },
+  {
+   "tag": "t9v1",
+   "resourcepacks": [
+    "C:/qfb/textures/QFTextures-v1.zip"
+   ],
+   "scenes": "farm,farm_close"
+  }
+ ]
+}

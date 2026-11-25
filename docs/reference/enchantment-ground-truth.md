@@ -15,6 +15,16 @@ and this file is wrong.
 Status: weapons, armour and the framework are fully transcribed. Bows, tools and
 the client enchantments have their headline constants only — marked *partial*.
 
+**Superseded rows (2026-10-25, decision 0005, commits 00fba6b…20eef31):** the
+Poisonous, Venomous and Rupture rows (the hit they take their fraction of is now
+the weapon's own, read after the target's armour: `Mitigation.predict(target,
+source, ctx.baseDamage)`), the Cultist row (self-damage is a fixed 0.6 health
+from a source that bypasses armour, never below 1 HP), the Bastion row (the golem
+yields a target its owner struck within 20 ticks), and the rarities of Rage
+(LEGENDARY), Momentum (EPIC), Roulette (RARE) and Tank (EPIC). Line numbers in
+those rows predate the change. The new constants are in
+[`enchantment-tuning.md`](enchantment-tuning.md), census pass 2026-10-25.
+
 ---
 
 ## Framework

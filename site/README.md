@@ -19,8 +19,9 @@ the same colour tokens (light and dark, with a toggle), and links back to `../`.
 | [`worlds/`](worlds/) | `/worlds/` | All twenty-seven dimensions with their loading plates, grouped by the mod that supplies them, with each one's dimension number and where it sits in the climb. Every plate downloads at 1280 × 720 from the repo, and the masthead links the 4K masters zip on the `art-masters-2026-09-08` release. Dimension numbers come from `docs/survey/dimension-names.tsv`; the order from the quest book's chapter descriptions. TragicMC's two dimensions have no plate and are listed as such. |
 | [`enchantments/`](enchantments/) | `/enchantments/` | The 81 custom enchantments: how tomes, books and the roll work, the success and destroy range of every rarity (from `Rarity.java`), the four consumables, and the full roster with a filter. The roster is data inlined into the page, taken from the item index's dump of every book; see below. |
 | [`ore-atlas/`](ore-atlas/) | `/ore-atlas/` | The interactive ore atlas: pick any of nineteen dimensions and get a cut through the ground, a depth profile, a rarity scale anchored to ores you already know, and a sortable table of every ore. **Its figures are stale** ([decision 0002](../docs/decisions/0002-discard-the-ore-survey.md)); it is redone after the survey that runs just before the server opens. |
-| [`online/`](online/) | `/online/` | **Who's online.** Reads `online/config.json`; while `address` is empty it says the server hasn't opened. Once the address is set it polls `api.mcstatus.io` every minute and shows up/down, the player count, the names on, and the MOTD. Nothing is stored. |
+| [`online/`](online/) | `/online/` | Who's online: who is on the friends' server, when it was last seen, uptime, pack fingerprint and tick time per dimension. It reads a `status.json` the server's supervisor publishes to a GitHub Gist (`config.json` `feed`; empty until the owner sets it up, see [`../docs/setup/hosting-a-server.md`](../docs/setup/hosting-a-server.md#whos-online-the-status-feed-for-the-site)), re-reads it every minute and warns when it is older than five. `?demo` shows sample data. Check it headlessly with [`../tools/site/screenshot.py`](../tools/site/screenshot.py). |
 | [`shaders/`](shaders/) | `/shaders/` | The Shader Lab: the owner reviews shader rounds here, from a phone or a laptop. **Not linked from the homepage or the nav**: shader progress is the owner's business, so the Lab is reachable only by its URL. Each scene shows two or three options of one setting (our renders, and for taste questions a credited Wikimedia Commons reference photo); the owner picks, rates and notes, and "Send feedback" opens a GitHub issue holding the answers as JSON. Rounds are data in `shaders/rounds/` (`index.json`, `rNNN.json`, `rNNN/*.jpg`), posted by [`../tools/shaders/review/publish_round.py`](../tools/shaders/review/publish_round.py) and read back by [`fetch_feedback.py`](../tools/shaders/review/fetch_feedback.py). Answers autosave as a draft in the browser. |
+| [`decisions/`](decisions/) | `/decisions/` | The Decisions page: the owner's open calls (quests, balance, textures, server rules) as one card each, with the options and our recommendation; one tap answers, "Send answers" posts them through the Lab's relay as a GitHub issue. Sheets are data in `decisions/sheets/` (`index.json`, `sNNN.json`), checked and published by [`../tools/decisions/sheet.py`](../tools/decisions/sheet.py) and read back by [`fetch_answers.py`](../tools/decisions/fetch_answers.py). |
 | [`lib/`](lib/) | `/lib/` | Shared libraries, not a page: three.js 0.160.0 (`three/three.module.min.js`, its MIT licence, and only the addons the 3D pages use: the bloom, bokeh and film post-processing passes, OrbitControls and BufferGeometryUtils). The Lucky Block and graves pages import it through an import map (`"three": "../lib/three/three.module.min.js"`), so nothing on the site loads from a CDN. Update by copying the same files from the `three` npm package. |
 
 ## Theme
@@ -40,6 +41,8 @@ ore atlas are dark by design and have no toggle.
 2. Add a `cp -R site/<folder> _site/<folder>` line to `.github/workflows/pages.yml`.
 3. Give it a card in `home/index.html`'s directory, and a link in every page's nav strip
    (the mod list's lives in `tools/modlist/render-page.py`; regenerate it).
+4. Look at it without a browser window: `py -3.10 -I tools/site/screenshot.py <folder>/ out.png`
+   serves `site/` locally the way Pages lays it out and shoots the page with headless Edge.
 
 ## What the deploy generates
 
@@ -57,9 +60,10 @@ ore atlas are dark by design and have no toggle.
 
 ## Opening the server page
 
-Put the server's host name or IP in `online/config.json` (`address`, and `port` if it is
-not 25565) and push. The page then shows live status. Leave `address` empty while the
-server is closed, and the page says so instead of showing "offline".
+`/online/` reads the `status.json` the server's supervisor publishes to a GitHub Gist: put
+its raw URL in `online/config.json` (`feed`) and push. While `feed` is empty the page and the
+homepage card say the server is not connected yet. Setup:
+[`../docs/setup/hosting-a-server.md`](../docs/setup/hosting-a-server.md#whos-online-the-status-feed-for-the-site).
 
 ## Regenerating the mod list
 

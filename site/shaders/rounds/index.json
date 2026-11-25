@@ -58,9 +58,99 @@
    "n": 6,
    "id": "r006",
    "title": "New water, clouds lit by the hour, sharper light, and Faithful 32x",
-   "status": "open",
+   "status": "closed",
    "created": "2026-10-24",
    "scenes": 13,
+   "feedback": true
+  },
+  {
+   "n": 7,
+   "id": "r007",
+   "title": "A real sun, silver linings, meteor nights, and water that blends across biomes",
+   "status": "closed",
+   "created": "2026-10-25",
+   "scenes": 27,
+   "feedback": true
+  },
+  {
+   "n": 8,
+   "id": "r008",
+   "title": "A sun with form, a mirror lake, a golden horizon band, and QF Textures v1",
+   "status": "closed",
+   "created": "2026-10-26",
+   "scenes": 25,
+   "feedback": true
+  },
+  {
+   "n": 9,
+   "id": "r009",
+   "title": "A third off the frame cost, a sun that sets behind its cloud, blue water, real meteor showers, and QF Textures v2",
+   "status": "closed",
+   "created": "2026-10-27",
+   "scenes": 20,
+   "feedback": true
+  },
+  {
+   "n": 10,
+   "id": "r010",
+   "title": "Meteors that skim the sky, the sunset's green patch explained and gone, clearer water, and gold that reads as gold",
+   "status": "closed",
+   "created": "2026-10-27",
+   "scenes": 21,
+   "feedback": true
+  },
+  {
+   "n": 11,
+   "id": "r011",
+   "title": "Photon's sky, sunbeams through the clouds, and a meteor storm inside the budget",
+   "status": "closed",
+   "created": "2026-10-28",
+   "scenes": 29,
+   "feedback": true
+  },
+  {
+   "n": 12,
+   "id": "r012",
+   "title": "A gold sunset with a glowing sun, round 10's sunbeams back, and leaner meteors",
+   "status": "closed",
+   "created": "2026-10-28",
+   "scenes": 23,
+   "feedback": true
+  },
+  {
+   "n": 13,
+   "id": "r013",
+   "title": "Connected glassy gems, an Elden Ring-style HUD, a warmer sea, cheaper sunbeams, and meteors from one point",
+   "status": "closed",
+   "created": "2026-10-29",
+   "scenes": 18,
+   "feedback": true
+  },
+  {
+   "n": 14,
+   "id": "r014",
+   "title": "A gold sea, amber clouds, a clear sun, coloured meteors and gems that are not plastic",
+   "status": "closed",
+   "created": "2026-11-01",
+   "scenes": 14,
+   "feedback": true
+  },
+  {
+   "n": 15,
+   "id": "r015",
+   "title": "Five gem looks, five HUD designs, quieter dusk clouds and a clear starry meteor night",
+   "status": "closed",
+   "created": "2026-11-01",
+   "scenes": 11,
+   "feedback": true
+  },
+  {
+   "n": 16,
+   "id": "r016",
+   "title": "A white-hot sun path, white-headed meteors over point stars, the frost gem slider, minimal HUDs and thick boss bars",
+   "status": "open",
+   "created": "2026-11-01",
+   "scenes": 12,
    "feedback": false
   }
  ]

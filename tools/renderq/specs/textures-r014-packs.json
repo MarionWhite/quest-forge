@@ -1,0 +1,24 @@
+{
+ "name": "textures-r014-packs",
+ "owner": "texture-dev-packs",
+ "comment": "r014 packs (ops/checkpoints/r014-packs.md). Base everywhere = round 12's set A (QF-r012-packs-final + QF-r012-gui-final, frozen). pk14h1-3: ONE HUD (qf_hud_r014.py, own art: grace hotbar, tarnished boss bar, individual Elden-Ring-inspired hearts/food/armour/air) with XP options thread/notched/plate, above QuestForge.zip (rps_top); the XP number colour comes from each zip's mcpatcher/color.properties via qf-content's XpBarStyle hook, so jobs use the jars-r014 bench build (also: GuiShots food full, natural regeneration off). pk14a = set A in view 6; pk14g1-3 = view 6 with snow golems from Faithless / Soartex / Conquest (r014_golems.py, rps_top).",
+ "prebuild": [
+  ["py", "-3.10", "-I", "tools/textures/qf_hud_r014.py", "--xp", "thread", "--gui-zip", "C:/qfb/textures/r013/QF-r012-gui-final.zip", "--out", "C:/qfb/textures/r014/QF-r014-hud-thread.zip"],
+  ["py", "-3.10", "-I", "tools/textures/qf_hud_r014.py", "--xp", "notched", "--gui-zip", "C:/qfb/textures/r013/QF-r012-gui-final.zip", "--out", "C:/qfb/textures/r014/QF-r014-hud-notched.zip"],
+  ["py", "-3.10", "-I", "tools/textures/qf_hud_r014.py", "--xp", "plate", "--gui-zip", "C:/qfb/textures/r013/QF-r012-gui-final.zip", "--out", "C:/qfb/textures/r014/QF-r014-hud-plate.zip"],
+  ["py", "-3.10", "-I", "tools/textures/r014_golems.py", "--out-dir", "C:/qfb/textures/r014"]
+ ],
+ "defaults": {"world": "C:/qfb/textures/world-r013", "views": "tools/textures/views-r013.txt", "preset": "3",
+              "size": "2560x1440", "mode": "shot", "cit": true,
+              "jars": ["C:/qfb/renderq/jars-r014/QuestForgeContent-1.0.0.jar"], "props": ["qf.bench.difficulty=easy"],
+              "resourcepacks": ["C:/qfb/textures/diag/QF-v3c.zip", "C:/qfb/textures/r013/QF-r012-packs-final.zip", "C:/qfb/textures/r013/QF-r012-gui-final.zip"]},
+ "jobs": [
+  {"tag": "pk14h1", "rps_top": ["C:/qfb/textures/r014/QF-r014-hud-thread.zip"], "measure": 220, "scenes": "gui_hud"},
+  {"tag": "pk14h2", "rps_top": ["C:/qfb/textures/r014/QF-r014-hud-notched.zip"], "measure": 220, "scenes": "gui_hud"},
+  {"tag": "pk14h3", "rps_top": ["C:/qfb/textures/r014/QF-r014-hud-plate.zip"], "measure": 220, "scenes": "gui_hud"},
+  {"tag": "pk14a", "scenes": "r13_mob_6"},
+  {"tag": "pk14g1", "rps_top": ["C:/qfb/textures/r014/QF-r014-golem-faithless.zip"], "scenes": "r13_mob_6"},
+  {"tag": "pk14g2", "rps_top": ["C:/qfb/textures/r014/QF-r014-golem-soartex.zip"], "scenes": "r13_mob_6"},
+  {"tag": "pk14g3", "rps_top": ["C:/qfb/textures/r014/QF-r014-golem-conquest.zip"], "scenes": "r13_mob_6"}
+ ]
+}

@@ -179,6 +179,8 @@ a.page:hover h3 .go{translate:4px 0}
 .page .meta b{color:var(--ink);font-weight:500}
 .status{position:absolute;top:12px;left:12px;font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.12em;
   text-transform:uppercase;padding:3px 8px;border-radius:2px;background:rgba(14,11,18,.78);color:#ECE6F2;backdrop-filter:blur(3px)}
+.status.live::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:#5FD08A;margin-right:7px;
+  translate:0 -1px}
 .status.redo{background:var(--glow);color:#1A0E06}
 .page.wide{grid-column:span 2}
 .page.wide .art{aspect-ratio:21/9}
@@ -477,12 +479,13 @@ footer.site #packv:empty{display:none}
       </div>
     </a>
     <a class="page" href="online/">
-      <span class="status">Opens with the server</span>
+      <span class="status" id="onlineBadge">Not yet connected</span>
       <div class="art"><img src="img/plates/18-kingpin.jpg" alt="" loading="lazy"></div>
       <div class="body">
         <h3>Who's online <span class="go" aria-hidden="true">&rarr;</span></h3>
-        <p>The server's player list, live: whether it's up, who is on right now, and how to get on the whitelist.</p>
-        <div class="meta"><span>Refreshes every minute</span></div>
+        <p>The server's player list, live: who is on right now, when the server was last seen, and how its
+          tick is doing.</p>
+        <div class="meta" id="onlineMeta"><span>Published by the server every minute</span></div>
       </div>
     </a>
     <a class="page" href="lucky/">
@@ -509,6 +512,15 @@ footer.site #packv:empty{display:none}
         <h3>Players <span class="go" aria-hidden="true">&rarr;</span></h3>
         <p>A card for everyone on the server, and who killed each boss first.</p>
         <div class="meta"><span>One card per player</span></div>
+      </div>
+    </a>
+    <a class="page" href="decisions/">
+      <div class="art"><img src="img/plates/13-tython.jpg" alt="" loading="lazy"></div>
+      <div class="body">
+        <h3>Decisions <span class="go" aria-hidden="true">&rarr;</span></h3>
+        <p>The open calls on the pack, one card each: the options, our recommendation, and a tap to answer.
+          Quest, balance, texture and server work waits on these.</p>
+        <div class="meta"><span>Owner review</span><span>One tap each</span></div>
       </div>
     </a>
   </div>
@@ -887,6 +899,22 @@ fetch("items/data/stats.json").then(r => r.ok ? r.json() : null).then(s => {
 // The pack version the server expects, written at deploy time next to the play page.
 fetch("play/pack.json", {cache: "no-store"}).then(r => r.ok ? r.json() : null).then(p => {
   if (p && typeof p.version === "string" && p.version.length < 60) document.getElementById("packv").textContent = "Current pack: " + p.version;
+}).catch(() => {});
+// The "Who's online" card: "Not yet connected" until online/config.json names a feed; then live.
+fetch("online/config.json", {cache: "no-store"}).then(r => r.ok ? r.json() : null).then(async c => {
+  if (!c || !c.feed) return;
+  const badge = document.getElementById("onlineBadge"), meta = document.getElementById("onlineMeta");
+  try {
+    const s = await (await fetch(c.feed + (c.feed.includes("?") ? "&" : "?") + "t=" + Date.now(), {cache: "no-store"})).json();
+    const age = (Date.now() - Date.parse(s.updated_at)) / 1000;
+    const stale = !(age < (c.stale_s || 300));
+    badge.textContent = stale ? "Feed stale" : s.state === "online" ? "Live" : "Server offline";
+    badge.className = "status" + (!stale && s.state === "online" ? " live" : "");
+    const n = (s.online || []).length;
+    meta.innerHTML = s.state === "online"
+      ? `<span><b>${n}</b> online now</span><span>of <b>${s.max ?? "?"}</b></span>`
+      : `<span>last seen <b>${new Date(s.updated_at).toLocaleString(undefined, {weekday: "short", hour: "2-digit", minute: "2-digit"})}</b></span>`;
+  } catch (e) { badge.textContent = "Feed unreachable"; }
 }).catch(() => {});
 </script>
 </body>

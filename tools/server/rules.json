@@ -1,0 +1,27 @@
+{
+  "_comment": "The owner's server decisions of 2026-10-25 (docs/decisions/0007-server-rules.md; Decisions sheet 1, cards srv-*). This is the file the friends' server is built with: py -3.10 tools/server/build_play_server.py --java25 --instance %APPDATA%\\.crazycraft4 --out C:\\qfs\\friends --force --opis --rules tools/server/rules.json (no --world-border). Keys starting with _ are ignored; every other key is explained in rules.example.json and in docs/setup/hosting-a-server.md, 'The owner's decisions'.",
+
+  "_srv-pvp": "Leave PvP as it is: no team, friendly fire stays, the Gravity Gun unchanged. 'Even if we add team functionality, I think friendly fire is a part of the game too.'",
+  "srv-pvp": "as-is",
+
+  "_srv-quests": "Personal progression: no BetterQuesting parties (party_enable=0). 'Everyone has their own quests and their own rewards.'",
+  "srv-quests": "personal",
+
+  "_srv-sleep": "The night skips when half the players, rounded down, are in bed. Morpheus has one knob, SleeperPerc: it skips when floor(100 * sleepers / counted players) >= SleeperPerc. 43 gives floor(n/2) for 2, 4, 6 and every count from 8 to 15, and asks one more (half rounded up: 2 of 3, 3 of 5, 4 of 7) for 3, 5 and 7 players; no single percentage does better, and 50 would ask half rounded up at every odd count. Players below y=64 (GroundLevel, IncludeMiners default) are not counted, and one sleeper is enough when nobody else counts.",
+  "srv-sleep": 43,
+
+  "_srv-afk": "Idle kick after 30 minutes. Deliberate AFK set-ups (a water loop) are fine.",
+  "srv-afk": 30,
+
+  "_srv-hub": "A hub at spawn, spawn-protection 16: non-ops cannot place or break within 16 blocks of the spawn point, overworld only, vanilla block actions only.",
+  "srv-hub": 16,
+
+  "_srv-loaders": "The whole bundle: Railcraft World Anchors not craftable (Personal and Passive stay), Sync shells do not keep chunks loaded, an operator's ChickenChunks loaders stop while he is offline.",
+  "srv-loaders": {"world_anchors": "off", "sync_shells": false, "op_loaders_offline": false},
+
+  "_srv-graves": "Accept the defaults, written down. No grave rule in the post: 'It's an honor based world with an honor based system.' This key changes nothing on the server.",
+  "srv-graves": "shared",
+
+  "_srv-tools": "The rest of the bundle: Chest Transporters cannot carry mob spawners, the Watch of Flowing Time gives machines no pedestal bonus, Lycanites random mob events only from day 3. Opis is --opis on the command line; the world border is not applied (the outskirts are end-game territory, decision 0003).",
+  "srv-tools": {"chest_transporter_spawners": false, "projecte_time_watch_pedestal": 0, "lycanites_first_event_day": 3}
+}

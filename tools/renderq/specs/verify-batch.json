@@ -1,0 +1,29 @@
+{
+ "name": "verify-batch",
+ "owner": "render-loop",
+ "comment": "Batched jobs vs separate boots (bench_round --jar, tags vs_*): pixel and cost noise.",
+ "defaults": {
+  "size": "2560x1440",
+  "fresh": true
+ },
+ "jobs": [
+  {
+   "tag": "vb_off",
+   "preset": "off",
+   "scenes": "golden_lit,forest_golden,ocean_sunset"
+  },
+  {
+   "tag": "vb_h",
+   "preset": "3",
+   "scenes": "golden_lit,forest_golden,ocean_sunset"
+  },
+  {
+   "tag": "vb_m0",
+   "preset": "3",
+   "opts": {
+    "QF_MOTES": 0
+   },
+   "scenes": "golden_lit,forest_golden,ocean_sunset"
+  }
+ ]
+}

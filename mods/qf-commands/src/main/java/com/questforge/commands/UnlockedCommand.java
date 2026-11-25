@@ -65,7 +65,7 @@ public class UnlockedCommand extends CommandBase {
 
         EntityPlayerMP player = (EntityPlayerMP) sender;
 
-        if (!Unlocks.has(player, this.unlockable.id)) {
+        if (this.unlockable.needsUnlock(this.name) && !Unlocks.has(player, this.unlockable.id)) {
             // A command with no ticket cannot be earned, so pointing at a
             // ticket would send the player hunting for something that never
             // drops. A retired command says why it was retired. (Not refuse():
@@ -115,5 +115,12 @@ public class UnlockedCommand extends CommandBase {
     @SuppressWarnings("rawtypes")
     public List getCommandAliases() {
         return Arrays.asList();
+    }
+
+    @Override
+    @SuppressWarnings("rawtypes")
+    public List addTabCompletionOptions(ICommandSender sender, String[] args) {
+        return sender instanceof EntityPlayerMP
+                ? this.unlockable.tabComplete((EntityPlayerMP) sender, this.name, args) : null;
     }
 }

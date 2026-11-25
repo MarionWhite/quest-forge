@@ -1,0 +1,38 @@
+{
+ "name": "textures-v2c-grass",
+ "owner": "texture-agent",
+ "comment": "r009 step 2: v2 grass top (vanilla's pattern kept crisp at 32x, as r007; v1's drawn top read as flat felt) against v1, the version the owner rated in r008, on the wall, the wall-2 dirt/grass step and the golden_lit field. Also carries the v2b leaves. Shot mode: pictures only, allowed at night. One boot.",
+ "prebuild": [
+  [
+   "py",
+   "-3.10",
+   "-I",
+   "tools/textures/build_qf_textures.py",
+   "--no-cit",
+   "--out",
+   "C:/qfb/textures/QFTextures-v2.zip"
+  ]
+ ],
+ "defaults": {
+  "world": "C:/qfb/textures/world-showcase",
+  "preset": "3",
+  "size": "2560x1440",
+  "mode": "shot"
+ },
+ "jobs": [
+  {
+   "tag": "t9v2c",
+   "resourcepacks": [
+    "C:/qfb/textures/QFTextures-v2.zip"
+   ],
+   "scenes": "texture_wall,texture_wall2,golden_lit"
+  },
+  {
+   "tag": "t9v1",
+   "resourcepacks": [
+    "C:/qfb/textures/QFTextures-v1.zip"
+   ],
+   "scenes": "texture_wall,texture_wall2,golden_lit"
+  }
+ ]
+}

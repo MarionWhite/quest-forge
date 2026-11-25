@@ -43,6 +43,19 @@ uniform ivec2 eyeBrightnessSmooth;
 
 const float PI = 3.14159265359;
 
+// r016 (critic r016 final: at dawn the open sky between the clouds went dusty rose, 98,76,77, where round 15's was
+// lilac-blue 100,93,112; QF_DUSK_SKY 3 acted at sunrise too): 1 in the evening, 0 in the morning, so the dusk changes
+// (QF_DUSK_SKY 3, QF_DUSK_RAY, QF_DUSK_ZEN) act at sunset only unless QF_DUSK_DAWN 1. Every dusk change is also
+// gated by the sun under 7 deg, which is 0 at noon and midnight, so the hard switch never shows.
+float qfDuskEve() {
+#if QF_DUSK_DAWN == 0
+    int t = worldTime % 24000;
+    return (t > 6000 && t < 18000) ? 1.0 : 0.0;
+#else
+    return 1.0;
+#endif
+}
+
 // Material indices stored in colortex1.b. Terrain gets them from block.properties through
 // lib/materials.glsl; the others are set by the program that draws them.
 const int MAT_NONE     = 0;

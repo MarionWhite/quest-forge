@@ -1,0 +1,77 @@
+{
+ "round": 15,
+ "id": "r015",
+ "note": "Built by tools/shaders/review/fetch_feedback.py from GitHub issues; the latest response is last.",
+ "responses": [
+  {
+   "issue": 19,
+   "url": "https://github.com/MarionWhite/quest-forge/issues/19",
+   "user": "MarionWhite",
+   "state": "open",
+   "created_at": "2026-11-01T20:41:01Z",
+   "updated_at": "2026-11-01T20:41:01Z",
+   "from": "body",
+   "answers": {
+    "round": 15,
+    "scenes": {
+     "sea-sunset": {
+      "choice": "neither",
+      "rating": 5,
+      "note": "Critic says it's not fixed. It seems like we keep having to go back and forth for the simplest fucking things, so we need to change something in how these changes are being made. Maybe the critic layer needs to be more actively integrated in the actual process of making the changes. Maybe try passing this back and forth between an agent changing it and the critic judging it until it is fixed."
+     },
+     "shore-sunset": {
+      "choice": "A",
+      "rating": 4,
+      "note": "Listen to the fucking critic for christsake"
+     },
+     "sun-glow": {
+      "choice": "A",
+      "rating": 4,
+      "note": "In D, the sand blocks right under the sun have like a heat distortion effect when compared to C."
+     },
+     "meteors": {
+      "choice": "A",
+      "rating": 3,
+      "note": ""
+     },
+     "gems15-close": {
+      "choice": "E",
+      "rating": 3,
+      "note": "I kinda like the frost version, but I would like if we can imagine a slider between the frost and the round 14 calmed, and begin sliding from the frost towards that one."
+     },
+     "gems15-pillar": {
+      "choice": "E",
+      "rating": 4,
+      "note": "I prefer the frosted effect here, but I would like to add the round 14 calmed as a chisel option because it is still pretty cool."
+     },
+     "gems15-floor": {
+      "choice": "E",
+      "rating": 5,
+      "note": ""
+     },
+     "pk-hud": {
+      "choice": "neither",
+      "rating": 5,
+      "note": "These are all fucking worse. WAY worse. Back to a minimal design, but don't get stuck in the Elden ring inspiration because you weren't doing a very good job with it."
+     },
+     "pk-hud-icons": {
+      "choice": "neither",
+      "rating": 5,
+      "note": ""
+     },
+     "pk-hud-xp": {
+      "choice": "neither",
+      "rating": 5,
+      "note": ""
+     },
+     "pk-hud-boss": {
+      "choice": "E",
+      "rating": 2,
+      "note": "Obsidian is the only one that's kinda close, but I still don't really like it. Try for something closer to the terraria infernum mod with the custom health bars and UI."
+     }
+    },
+    "overall": "We really need to start moving the needle on all of this because we still have a shit ton of ground to cover."
+   }
+  }
+ ]
+}

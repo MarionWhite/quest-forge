@@ -56,7 +56,8 @@ into a new folder and changes only the new copy.
    `--from` is only read. Add `--with-saves` to copy your worlds,
    `--pack-jars DIR` to use freshly built pack jars, `--shader off` to start
    with shaders off. On one drive the big files (assets, mods, resources) are
-   hard links, so the copy costs little disk.
+   hard links, so the copy costs little disk; `--copy` makes real copies instead
+   (use it when `--from` is the live game, so nothing in the copy shares a file with it).
 4. Start `%APPDATA%\.qf-angelica\LAUNCH-ANGELICA.bat`. It picks the heap from
    your RAM (3 GB on 8 GB, up to 7 GB on 32 GB; `set QF_XMX=6144M` overrides)
    and refuses to start if OptiFine or the 1558 Forge jar is still there.
@@ -138,9 +139,11 @@ What the script changes in the copy:
   `Frame pacing: vsync off` confirms it; `vsync 240Hz` means something turned
   vsync back on (Video Settings -> VSync, or `vsync_mode` in
   `config\angelica-options.json`). Menus run at 30 fps, as in vanilla.
-- **Weaker PCs.** `tools/lite-client/apply-lite.ps1` works on the Angelica
-  folder too and applies the Angelica equivalents of the lite settings
-  ([`../../tools/lite-client/README.md`](../../tools/lite-client/README.md)).
+- **Weaker PCs.** `tools/lite-client/apply-profile.ps1 -Profile lite|potato`
+  applies the Angelica-era profile: Celeritas settings, the QuestForge pack's
+  Low or Potato preset, client-only jars set aside, and the heap for the PC's
+  RAM ([`performance-tuning.md`](performance-tuning.md),
+  [`../../tools/lite-client/README.md`](../../tools/lite-client/README.md)).
 
 ## Checking that it worked
 

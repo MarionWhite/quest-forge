@@ -2,7 +2,10 @@ package com.questforge.content;
 
 import cpw.mods.fml.common.registry.GameRegistry;
 import net.minecraft.init.Items;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.CraftingManager;
+import net.minecraft.item.crafting.IRecipe;
 
 public class ModRecipes {
 
@@ -34,6 +37,43 @@ public class ModRecipes {
         recordCase();
         speaker();
         tower();
+        jukebox();
+        logCount();
+    }
+
+    /**
+     * The Quest Forge jukebox: a vanilla jukebox taught to play your own music, so it
+     * costs the vanilla one (eight planks round a diamond) plus a blank record, the
+     * cheapest pressing of the thing it exists to cut. Shapeless, because "a jukebox
+     * and a record" is not an arrangement worth memorising. Any pressing works (the
+     * metal only changes the look); vanilla's matcher ignores NBT, so a cut record is
+     * taken too -- use a blank one.
+     *
+     * Decision 0004 (act1-04 A, 2026-10-25): quest 476 hands one out, and this recipe
+     * is the second source, so a lost or second jukebox is a craft, not a quest.
+     */
+    private static void jukebox() {
+        GameRegistry.addShapelessRecipe(
+                new ItemStack(ModBlocks.jukebox),
+                net.minecraft.init.Blocks.jukebox,
+                new ItemStack(ModItems.record, 1,
+                              net.minecraftforge.oredict.OreDictionary.WILDCARD_VALUE));
+    }
+
+    /**
+     * One log line with how many recipes make this mod's items, so a headless server
+     * boot proves a recipe registered without a client to open a crafting table in.
+     */
+    private static void logCount() {
+        int ours = 0;
+        for (Object o : CraftingManager.getInstance().getRecipeList()) {
+            ItemStack out = ((IRecipe) o).getRecipeOutput();
+            if (out == null || out.getItem() == null) continue;
+            Object name = Item.itemRegistry.getNameForObject(out.getItem());
+            if (name != null && String.valueOf(name).startsWith(QuestForgeContent.MODID + ":")) ours++;
+        }
+        QuestForgeContent.log.info("[recipes] " + ours + " recipes make " + QuestForgeContent.MODID
+                + " items; the jukebox is a vanilla jukebox plus a blank record, shapeless");
     }
 
     /**

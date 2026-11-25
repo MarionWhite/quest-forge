@@ -1,0 +1,111 @@
+# Modded textures that are vanilla 1.8-1.16 blocks backported to 1.7.10 (Legends, Chisel), and
+# the Faithful 32x modern Java texture that draws the same block. Read by
+# tools/textures/build_modded_textures.py, which takes the pair only when the mod's 16x texture
+# and Faithful's 32x one agree in colour (mean colour distance and a pixel-wise comparison at 16x,
+# thresholds in the script); the rest are reported as [guess] and left out of the build.
+# Format: <domain>/<name> = <modern block texture name under assets/minecraft/textures/block/>
+# Faithful 32x Java 1.21.1 (june-2026-release), Faithful License v4; recorded in the doc.
+
+# stone variants (also Chisel's worldgen versions)
+legends/stone_granite = granite
+legends/stone_granite_smooth = polished_granite
+legends/stone_diorite = diorite
+legends/stone_diorite_smooth = polished_diorite
+legends/stone_andesite = andesite
+legends/stone_andesite_smooth = polished_andesite
+chisel/granite/granite = granite
+chisel/diorite/diorite = diorite
+chisel/andesite/andesite = andesite
+legends/smooth_stone = smooth_stone
+
+# prismarine, sea lantern, magma, bone, red sandstone
+legends/prismarine_rough = prismarine
+legends/prismarine_bricks = prismarine_bricks
+legends/prismarine_dark = dark_prismarine
+legends/sea_lantern = sea_lantern
+legends/magma = magma
+legends/bone_block_side = bone_block_side
+legends/bone_block_top = bone_block_top
+legends/red_sandstone = red_sandstone
+legends/red_sandstone_top = red_sandstone_top
+legends/red_sandstone_bottom = red_sandstone_bottom
+legends/red_sandstone_carved = chiseled_red_sandstone
+legends/red_sandstone_smooth = cut_red_sandstone
+
+# nether (1.16)
+legends/basalt_side = basalt_side
+legends/basalt_top = basalt_top
+legends/polished_basalt_side = polished_basalt_side
+legends/polished_basalt_top = polished_basalt_top
+legends/blackstone = blackstone
+legends/blackstone_top = blackstone_top
+legends/stone_blackstone = blackstone
+legends/polished_blackstone = polished_blackstone
+legends/polished_blackstone_bricks = polished_blackstone_bricks
+legends/cracked_polished_blackstone_bricks = cracked_polished_blackstone_bricks
+legends/chiseled_polished_blackstone = chiseled_polished_blackstone
+legends/gilded_blackstone = gilded_blackstone
+legends/soul_soil = soul_soil
+legends/nether_gold_ore = nether_gold_ore
+legends/ancient_debris_side = ancient_debris_side
+legends/ancient_debris_top = ancient_debris_top
+legends/netherite_block = netherite_block
+legends/quartz_bricks = quartz_bricks
+legends/chiseled_nether_bricks = chiseled_nether_bricks
+legends/cracked_nether_bricks = cracked_nether_bricks
+legends/red_nether_brick = red_nether_bricks
+legends/nether_wart_block = nether_wart_block
+legends/soul_torch = soul_torch
+legends/soul_fire_0 = soul_fire_0
+legends/soul_fire_1 = soul_fire_1
+
+# concrete and powder (1.12); Legends uses 1.7's "silver" for light gray
+legends/concrete_white = white_concrete
+legends/concrete_orange = orange_concrete
+legends/concrete_magenta = magenta_concrete
+legends/concrete_light_blue = light_blue_concrete
+legends/concrete_yellow = yellow_concrete
+legends/concrete_lime = lime_concrete
+legends/concrete_pink = pink_concrete
+legends/concrete_gray = gray_concrete
+legends/concrete_silver = light_gray_concrete
+legends/concrete_light_gray = light_gray_concrete
+legends/concrete_cyan = cyan_concrete
+legends/concrete_purple = purple_concrete
+legends/concrete_blue = blue_concrete
+legends/concrete_brown = brown_concrete
+legends/concrete_green = green_concrete
+legends/concrete_red = red_concrete
+legends/concrete_black = black_concrete
+legends/concrete_powder_white = white_concrete_powder
+legends/concrete_powder_orange = orange_concrete_powder
+legends/concrete_powder_magenta = magenta_concrete_powder
+legends/concrete_powder_light_blue = light_blue_concrete_powder
+legends/concrete_powder_yellow = yellow_concrete_powder
+legends/concrete_powder_lime = lime_concrete_powder
+legends/concrete_powder_pink = pink_concrete_powder
+legends/concrete_powder_gray = gray_concrete_powder
+legends/concrete_powder_light_gray = light_gray_concrete_powder
+legends/concrete_powder_cyan = cyan_concrete_powder
+legends/concrete_powder_purple = purple_concrete_powder
+legends/concrete_powder_blue = blue_concrete_powder
+legends/concrete_powder_brown = brown_concrete_powder
+legends/concrete_powder_green = green_concrete_powder
+legends/concrete_powder_red = red_concrete_powder
+legends/concrete_powder_black = black_concrete_powder
+
+# workstations (1.14)
+legends/smithing_table_top = smithing_table_top
+legends/smithing_table_side = smithing_table_side
+legends/smithing_table_front = smithing_table_front
+legends/smithing_table_bottom = smithing_table_bottom
+legends/blast_furnace_front = blast_furnace_front
+legends/blast_furnace_front_on = blast_furnace_front_on
+legends/blast_furnace_side = blast_furnace_side
+legends/blast_furnace_top = blast_furnace_top
+legends/blast_furnace_bottom = blast_furnace_top
+legends/smoker_front = smoker_front
+legends/smoker_front_on = smoker_front_on
+legends/smoker_side = smoker_side
+legends/smoker_top = smoker_top
+legends/smoker_bottom = smoker_bottom

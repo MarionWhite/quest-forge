@@ -113,10 +113,89 @@
       "mod": "Minecraft 1.7.10",
       "class": "net.minecraft.entity.monster.EntityZombie",
       "how": "vanilla EntityList.addMapping(EntityZombie.class, \"Zombie\", 54); also the target Standard Expansion's TaskHunt starts with. subtypes=1 also credits Zombie Pigmen (EntityPigZombie extends EntityZombie) and any modded subclass",
-      "summon": "NOT YET CHECKED with /qfcensus find: do it in the WP-5 slim server trial before the draft is applied"
+      "summon": "present in EntityList.stringToClassMapping, server trial 2026-10-25 (/qfcensus find, WP-6 trial wp6acts)"
+    },
+    "WitherBoss": {
+      "mod": "Minecraft 1.7.10",
+      "class": "net.minecraft.entity.boss.EntityWither",
+      "how": "vanilla EntityList.addMapping(EntityWither.class, \"WitherBoss\", 64); the Wither Skeleton is \"Skeleton\" with skeletonType 1, not a subclass, so it never counts",
+      "summon": "present in EntityList.stringToClassMapping, server trial 2026-10-25 (/qfcensus find, WP-6 trial wp6acts)"
+    },
+    "chocolateQuest.pirateBoss": {
+      "mod": "Chocolate Quest 1.7.10-1.1d",
+      "class": "com.chocolate.chocolateQuest.entity.mob.EntityPirateBoss",
+      "how": "ChocolateQuest.class: EntityRegistry.registerModEntity(EntityPirateBoss, \"pirateBoss\", ...) with modid chocolateQuest (mcmod.info), so FML names it chocolateQuest.pirateBoss; the boss of pirate dungeons (registry MobPirate.getBoss -> new EntityPirateBoss); pack/config/Chocolate/DungeonConfig has two \"mob = pirate\" dungeons. Most dungeon bosses are ordinary mobs with setBoss() (EntityHumanMinotaur, EntityHumanGremlin, EntityHumanZombie), the same class as the mob, so a hunt cannot single those out",
+      "summon": "present in EntityList.stringToClassMapping, server trial 2026-10-25 (/qfcensus find, WP-6 trial wp6acts)"
+    },
+    "chocolateQuest.necromancer": {
+      "mod": "Chocolate Quest 1.7.10-1.1d",
+      "class": "com.chocolate.chocolateQuest.entity.mob.EntityNecromancer",
+      "how": "ChocolateQuest.class: EntityRegistry.registerModEntity(EntityNecromancer, \"necromancer\", ...) with modid chocolateQuest (mcmod.info), so FML names it chocolateQuest.necromancer; the boss of skeleton dungeons (MobSkeleton.getBoss); no \"mob = skeleton\" dungeon in the pack config, so it spawns only through the default mob type's random boss. Most dungeon bosses are ordinary mobs with setBoss() (EntityHumanMinotaur, EntityHumanGremlin, EntityHumanZombie), the same class as the mob, so a hunt cannot single those out",
+      "summon": "present in EntityList.stringToClassMapping, server trial 2026-10-25 (/qfcensus find, WP-6 trial wp6acts)"
+    },
+    "chocolateQuest.monking": {
+      "mod": "Chocolate Quest 1.7.10-1.1d",
+      "class": "com.chocolate.chocolateQuest.entity.boss.EntityGiantBoxer",
+      "how": "ChocolateQuest.class: EntityRegistry.registerModEntity(EntityGiantBoxer, \"monking\", ...) with modid chocolateQuest (mcmod.info), so FML names it chocolateQuest.monking; the Monkey King, an EntityBaseBoss; the default mob type picks its boss at random from the EntityBaseBoss set. Most dungeon bosses are ordinary mobs with setBoss() (EntityHumanMinotaur, EntityHumanGremlin, EntityHumanZombie), the same class as the mob, so a hunt cannot single those out",
+      "summon": "present in EntityList.stringToClassMapping, server trial 2026-10-25 (/qfcensus find, WP-6 trial wp6acts)"
+    },
+    "chocolateQuest.spiderBoss": {
+      "mod": "Chocolate Quest 1.7.10-1.1d",
+      "class": "com.chocolate.chocolateQuest.entity.boss.EntitySpiderBoss",
+      "how": "ChocolateQuest.class: EntityRegistry.registerModEntity(EntitySpiderBoss, \"spiderBoss\", ...) with modid chocolateQuest (mcmod.info), so FML names it chocolateQuest.spiderBoss; EntityBaseBoss. Most dungeon bosses are ordinary mobs with setBoss() (EntityHumanMinotaur, EntityHumanGremlin, EntityHumanZombie), the same class as the mob, so a hunt cannot single those out",
+      "summon": "present in EntityList.stringToClassMapping, server trial 2026-10-25 (/qfcensus find, WP-6 trial wp6acts)"
+    },
+    "chocolateQuest.greenDragon": {
+      "mod": "Chocolate Quest 1.7.10-1.1d",
+      "class": "com.chocolate.chocolateQuest.entity.boss.EntityWyvern",
+      "how": "ChocolateQuest.class: EntityRegistry.registerModEntity(EntityWyvern, \"greenDragon\", ...) with modid chocolateQuest (mcmod.info), so FML names it chocolateQuest.greenDragon; EntityBaseBoss. Most dungeon bosses are ordinary mobs with setBoss() (EntityHumanMinotaur, EntityHumanGremlin, EntityHumanZombie), the same class as the mob, so a hunt cannot single those out",
+      "summon": "present in EntityList.stringToClassMapping, server trial 2026-10-25 (/qfcensus find, WP-6 trial wp6acts)"
+    },
+    "chocolateQuest.giantZombie": {
+      "mod": "Chocolate Quest 1.7.10-1.1d",
+      "class": "com.chocolate.chocolateQuest.entity.boss.EntityGiantZombie",
+      "how": "ChocolateQuest.class: EntityRegistry.registerModEntity(EntityGiantZombie, \"giantZombie\", ...) with modid chocolateQuest (mcmod.info), so FML names it chocolateQuest.giantZombie; EntityBaseBoss. Most dungeon bosses are ordinary mobs with setBoss() (EntityHumanMinotaur, EntityHumanGremlin, EntityHumanZombie), the same class as the mob, so a hunt cannot single those out",
+      "summon": "present in EntityList.stringToClassMapping, server trial 2026-10-25 (/qfcensus find, WP-6 trial wp6acts)"
+    },
+    "chocolateQuest.bull": {
+      "mod": "Chocolate Quest 1.7.10-1.1d",
+      "class": "com.chocolate.chocolateQuest.entity.boss.EntityBull",
+      "how": "ChocolateQuest.class: EntityRegistry.registerModEntity(EntityBull, \"bull\", ...) with modid chocolateQuest (mcmod.info), so FML names it chocolateQuest.bull; EntityBaseBoss. Most dungeon bosses are ordinary mobs with setBoss() (EntityHumanMinotaur, EntityHumanGremlin, EntityHumanZombie), the same class as the mob, so a hunt cannot single those out",
+      "summon": "present in EntityList.stringToClassMapping, server trial 2026-10-25 (/qfcensus find, WP-6 trial wp6acts)"
+    },
+    "chocolateQuest.slimeBoss": {
+      "mod": "Chocolate Quest 1.7.10-1.1d",
+      "class": "com.chocolate.chocolateQuest.entity.boss.EntitySlimeBoss",
+      "how": "ChocolateQuest.class: EntityRegistry.registerModEntity(EntitySlimeBoss, \"slimeBoss\", ...) with modid chocolateQuest (mcmod.info), so FML names it chocolateQuest.slimeBoss; EntityBaseBoss; its parts are EntitySlimePart (chocolateQuest.EntityPartSlime), never target those. Most dungeon bosses are ordinary mobs with setBoss() (EntityHumanMinotaur, EntityHumanGremlin, EntityHumanZombie), the same class as the mob, so a hunt cannot single those out",
+      "summon": "present in EntityList.stringToClassMapping, server trial 2026-10-25 (/qfcensus find, WP-6 trial wp6acts)"
+    },
+    "chocolateQuest.turtleBoss": {
+      "mod": "Chocolate Quest 1.7.10-1.1d",
+      "class": "com.chocolate.chocolateQuest.entity.boss.EntityTurtle",
+      "how": "ChocolateQuest.class: EntityRegistry.registerModEntity(EntityTurtle, \"turtleBoss\", ...) with modid chocolateQuest (mcmod.info), so FML names it chocolateQuest.turtleBoss; EntityBaseBoss; parts are chocolateQuest.TurtleBossPart. Most dungeon bosses are ordinary mobs with setBoss() (EntityHumanMinotaur, EntityHumanGremlin, EntityHumanZombie), the same class as the mob, so a hunt cannot single those out",
+      "summon": "present in EntityList.stringToClassMapping, server trial 2026-10-25 (/qfcensus find, WP-6 trial wp6acts)"
+    },
+    "chocolateQuest.Lich": {
+      "mod": "Chocolate Quest 1.7.10-1.1d",
+      "class": "com.chocolate.chocolateQuest.entity.mob.EntityLich",
+      "how": "ChocolateQuest.class: EntityRegistry.registerModEntity(EntityLich, \"Lich\", ...) with modid chocolateQuest (mcmod.info), so FML names it chocolateQuest.Lich; a human-type boss. Most dungeon bosses are ordinary mobs with setBoss() (EntityHumanMinotaur, EntityHumanGremlin, EntityHumanZombie), the same class as the mob, so a hunt cannot single those out",
+      "summon": "present in EntityList.stringToClassMapping, server trial 2026-10-25 (/qfcensus find, WP-6 trial wp6acts)"
+    },
+    "chocolateQuest.specterBoss": {
+      "mod": "Chocolate Quest 1.7.10-1.1d",
+      "class": "com.chocolate.chocolateQuest.entity.mob.EntitySpecterBoss",
+      "how": "ChocolateQuest.class: EntityRegistry.registerModEntity(EntitySpecterBoss, \"specterBoss\", ...) with modid chocolateQuest (mcmod.info), so FML names it chocolateQuest.specterBoss; a human-type boss. Most dungeon bosses are ordinary mobs with setBoss() (EntityHumanMinotaur, EntityHumanGremlin, EntityHumanZombie), the same class as the mob, so a hunt cannot single those out",
+      "summon": "present in EntityList.stringToClassMapping, server trial 2026-10-25 (/qfcensus find, WP-6 trial wp6acts)"
+    },
+    "chocolateQuest.abyssWalkerBoss": {
+      "mod": "Chocolate Quest 1.7.10-1.1d",
+      "class": "com.chocolate.chocolateQuest.entity.mob.EntityWalkerBoss",
+      "how": "ChocolateQuest.class: EntityRegistry.registerModEntity(EntityWalkerBoss, \"abyssWalkerBoss\", ...) with modid chocolateQuest (mcmod.info), so FML names it chocolateQuest.abyssWalkerBoss; a human-type boss. Most dungeon bosses are ordinary mobs with setBoss() (EntityHumanMinotaur, EntityHumanGremlin, EntityHumanZombie), the same class as the mob, so a hunt cannot single those out",
+      "summon": "present in EntityList.stringToClassMapping, server trial 2026-10-25 (/qfcensus find, WP-6 trial wp6acts)"
     }
   },
   "dimensions": {
+    "-1": "the Nether (vanilla, always registered). A location task with dimension -1 loaded and came back as dimension -1 from `bq_admin default save` in the WP-6 server trial, 2026-10-25",
     "7": "Twilight Forest (pack/config/TwilightForest.cfg dimensionID=7)"
   }
 }

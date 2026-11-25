@@ -25,6 +25,8 @@ float shadowTexelWorld(vec2 clipXY) {
 
 #if QF_SHADOWS
 uniform sampler2D shadowtex0;
+// r016 loop 12: a caller may widen the rotated taps' disk (the water's sun glint at golden hour, QF_WATER_PENUMBRA).
+float gShadowSoft = 1.0;
 #if QF_DEBUG_VIEW == 7
 vec3 qfShadowDebug = vec3(0.0);
 #endif
@@ -64,7 +66,7 @@ float sampleShadow(vec3 scenePos, vec3 geoNormal, float NdotL, float fallback, v
     float vis = shadowPcf(sp.xy, sp.z - bias);
 #if QF_SHADOW_TAPS > 0
     float ang = ign(noisePos + float(frameCounter % 64) * vec2(5.588, 3.124)) * 2.0 * PI;
-    float radius = 1.3 / float(shadowMapResolution);
+    float radius = 1.3 / float(shadowMapResolution) * gShadowSoft;
     float sum = vis;
     for (int i = 0; i < QF_SHADOW_TAPS; i++) {
         // Vogel disk: golden-angle spiral, rotated per pixel and per frame (TAA resolves it).

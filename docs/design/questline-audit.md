@@ -539,6 +539,12 @@ Each item can be done in one session. Do them in order: earlier items make later
 
 ### WP-6: the Acts restructure
 
+**Drafted 2026-10-25, awaiting the Decisions page answers:** `tools/quests/patches/wp6_acts.py`
+builds it into `tools/quests/drafts/DefaultQuests.wp6.json` from the WP-5 draft, parameterised
+by the ten Act I / Prologue decisions (`--decisions docs/decisions/answers/s001.json`). The
+texts are `[WRITE: ...]` placeholders for the writers:
+[`quests/wp6-writing-brief.md`](quests/wp6-writing-brief.md). See the log below.
+
 - **Scope:** rename and reorder lines into Prologue, Acts I–IV and Epilogue (4.1). Add the four finale convergence quests. Rewrite Pack Master as the convergence of the act finales. Write act line descriptions and assign `bg_image`. Add the Nether and Wither quests to Act I.
 - **Files:** `DefaultQuests.json`. Maybe `pack/config/betterquesting/resources/` for backgrounds.
 - **Validate:** `qb.py lint path tally`. Slim boot and screenshot every tab for the author's review.
@@ -849,6 +855,41 @@ keys BQ had not read would have come back targeting `Zombie`, its default.
 
 Not yet done: the in-game kill test WP-4 asks for, which is to spawn each boss from an egg,
 kill it and watch the task tick. It needs a client. The co-op check belongs to WP-9.
+
+### WP-6 (the acts), draft 2026-10-25
+
+`tools/quests/patches/wp6_acts.py`, not applied. It builds `drafts/DefaultQuests.wp6.json` from
+the WP-5 draft and follows [`quests/act-structure.md`](quests/act-structure.md) section 3 edge
+for edge. The data it adds, whatever the decisions: 481 First Blood (after 6; OR hunts on
+`MutantCreatures.MutantSkeleton`, `MutantCreatures.MutantZombie`, `WitherBoss`,
+`chocolateQuest.pirateBoss`), 482 The Nether (location, dimension −1, after 5), 483 The Wither
+(hunt `WitherBoss`, after 482), 484/485/486 (AND prerequisites on the boss quests, one checkbox);
+14 → 481, 56 and 43/44/45/106 → 484, 22 → 485, 122 → 486; 63 Pack Master needs the five gates,
+its task is a checkbox and its reward a statue plus one Legendary bag (proposal); 60 → 6; 405/406
+into Act IV; `Base` and `ProjectE` lose their numbers; act tabs `UNLOCKED`, their quests
+`NORMAL`; `pack_version` 10. Per decision: the tab layout (act1-02: one tab per act, or
+act-prefixed mod tabs with `III: Twilight` and `IV: OreSpawn` added), the `/home` ticket
+(act1-03), the jukebox reward (act1-04), 478's late-friend sentence or its removal (act1-05),
+lean 12 (act1-06), the reward cuts (act1-08), pigmen (act1-10). act1-01 B/C and act1-07 B are
+not data; the patch stops and says why.
+
+Tooling (`qb.py`): `path` reads act tabs (`Arrival` 0, `I:`–`IV:`, `Chronicle` 5) beside
+`Ch N:`, checks every tab of an act against the previous act, and keys `SIDE_CHAPTERS` and
+`LADDER_CHAPTERS` by tab name; `tally` adds a per-act row against the 4.5 budget; `text`
+allows `[WRITE:` in a draft and refuses it in the repo books; helpers `rename_line`,
+`remove_line`, `remove_quest`, `set_tab_order`, `set_task_field`, `add_reward_stack`.
+
+Validation: `qb.py check` passes on both repo books (unchanged) and on the draft with every
+combination of answers tried (A/B layouts, lean 12, 478 removed); re-running the patch on its
+own output changes no bytes. `path`: Arrival → I (3, after 480) → II (14, after 481) → III (94,
+after 17: the far Twilight opens at the Hydra, as section 3 says) → IV (22, after 485) →
+Chronicle (63, after the five gates); ProjectE's last rung after Act IV. `tally` by act: Act III
+78 diamond-equivalents against 72. Slim server trial `wp6acts` (28 jars, 3 GB, ready in 22 s):
+`Loaded 328 quests`, `Loaded 19 quest lines`, 0 BetterQuesting errors; `/qfcensus find` found
+`Zombie`, `WitherBoss`, all twelve `chocolateQuest.*` bosses, the four Mutants and
+`HardcoreEnderExpansion.Dragon`; `bq_admin default save` wrote the book back with every WP-6
+task, prerequisite and visibility as written and 482's dimension −1 intact
+(`tools/quests/entities.json` records the names).
 
 ## Appendix: reproduction notes
 

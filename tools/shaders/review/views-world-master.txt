@@ -33,6 +33,9 @@ leafview         109.5   110.0  104.5    180    0      10000  60
 # night_sky: a new-moon sky 45 deg up, facing away from the hill, for the stars / Milky Way question.
 lake_glow        285.5   63.4   -287.5   97     3      12400
 night_sky        272.5   auto   -268.5   200    -45    114000
+# night_wide (r010, meteors): night_new's bearing over the valley, 18 deg up, so the far land sits
+# under the grazers (owner r009: "a bunch of them passing by at high altitude"); bearing 200 was a hillside.
+night_wide       272.5   auto   -268.5   135    -18    114000
 # Biome views (r002 on), one per biome, for dialling in each biome's fog from inside it (owner,
 # r001). Centres of single-biome chunks found from the region files' Biomes arrays (vanilla ids);
 # the world has no snowy biome, so the tundra storm still needs a world that has one. Over
@@ -66,3 +69,70 @@ sky_noon         264.5   auto   176.5    135    -22    6000
 # for connected textures.
 texture_wall     252.5   69.6   186.5    180    6      7000
 glass_close      247.0   70.2   181.8    180    4      7000
+# r007: biome borders on water (owner r006: gradients, never cutoffs). ocean_swamp stands in Ocean
+# looking at Swampland water 26 blocks out; river_swamp in a River looking into Swampland water 21
+# blocks out (found from the region files' Biomes arrays, C:\qfb\shaderdev\r007\boundary).
+ocean_swamp      -567.5  65.5   616.5    220    8      6000
+river_swamp      -43.5   65.5   186.5    260    9      6000
+# Modded-block wall (tools/textures/build_showcase.py --modded, x 263-281 at z 178, four rows of
+# 19: ores, stone families, Twilight/organic, base blocks; docs/design/textures/modded-blocks.md
+# "Render requests"). modded_wall: the whole wall from 8.5 blocks; modded_close: its left half
+# (the ores and stones) from 3.5 blocks. Same light as texture_wall.
+modded_wall      272.0   69.6   186.5    180    6      7000
+modded_close     267.5   70.2   181.8    180    4      7000
+# QF Textures v1 (round 8; build_showcase.py --v1, only in the showcase copy). texture_wall2: wall 2
+# (stone bricks, cobble, bookshelves, a dirt/grass step, emerald/lapis/redstone/coal) from 5
+# blocks. farm: wheat, carrots, potatoes from above and south, low sun from the west; farm_close:
+# the front row of every wheat stage from 1.8 blocks. leaves_close: a lone leaf block and a 4x2
+# hedge from 2.4 blocks, the small oak behind; tree_close: the small oak from 4.5 blocks, looking
+# up. FrameBench's FOV is wide: objects look about twice as far as the numbers say. items_frames: 8 potions over 8 enchanted books in item frames (custom item textures).
+texture_wall2    233.5   70.4   183.0    180    8      7000
+farm             232.5   72.0   208.5    180    30     11500
+farm_close       234.5   69.5   205.8    180    22     11500
+leaves_close     248.0   69.3   196.6    0      10     7000
+tree_close       253.5   70.9   198.0    0      -14    7000
+items_frames     266.0   69.9   197.3    0      0      7000
+# r010 textures, wall-lighting diagnosis (showcase world only): level views, eye at the middle of each
+# column, 2.5 blocks from its south faces, texture_wall's sun (7000). diag_column: gold y69, iron y70,
+# diamond y71, glowstone y72 (x 258-259); diag_emerald: coal, redstone, lapis, emerald (x 240-241).
+diag_column      259.0   69.4   181.5    180    0      7000
+diag_emerald     241.0   70.6   181.5    180    0      7000
+# r008: under water in the lake, facing the afternoon sun (west, ~40 deg up), looking a little up,
+# for the sunbeams, caustics and bubbles question (owner r007: Conquest's underwater ambience).
+underwater_sun   250.5   59.2    -288.5   95     14     9000
+# r008 loop 4 dust candidates (critic: dust needs a beam crossing near air in front of dark trunks).
+# Standing on the forest_golden clearing floor with a higher afternoon sun, so beams through the
+# canopy come down to the floor a few blocks from the camera; looking toward the sun's side for the
+# forward scatter, with the shaded trunks behind the beams.
+dust_a           259.5   auto   -44.5    90     8      10500
+dust_b           259.5   auto   -44.5    60     6      11000
+dust_c           254.5   auto   -40.5    120    10     10000
+dust_d           262.5   auto   -48.5    75     14     11300
+# r010 leaf frills (docs/design/textures/leaf-frills.md): forest_far looks down over the forest_golden
+# woods from 30-odd blocks above the clearing floor at the texture scenes' time (7000), so canopy
+# silhouettes and edges fill the frame from near to far. With leaves_close, tree_close, forest_lit
+# and biome_roofed it is the frills on/off scene set.
+forest_far       259.5   105.0  -44.5    60     18     7000
+# r012 textures (ops/checkpoints/r012-textures.md). Gem views: only in C:\qfb\textures\world-gems
+# (build_showcase.py --gems): a diamond floor (z 181-185) and an emerald floor (z 188-192) flush in the
+# grass at x 244-250, each with a 3x3 pillar of the same gem at x 243. gem_glint_d/e: looking west down
+# onto each floor into a sun ~24 deg up, so its glint and the low sky lie in the floor at a grazing
+# angle (Fresnel ~0.45) with the pillar standing in the reflection; gem_lit: both, morning sun behind.
+gem_glint_d      252.5   68.0   183.5    90     18     11000
+gem_glint_e      252.5   68.0   190.5    90     18     11000
+gem_lit          256.5   68.0   187.0    90     12     4000
+# Roofed forest canopy (r011 biome_roofed looked at a plank wall; biome_roofed stays as the shader's fog
+# scene). From over the lake east of the densest dark oak (chunks -15..-14, -10..-7: 500-670 dark oak
+# leaves each, canopy top y 80-82, edge at x -210): roofed_canopy looks across the roof, roofed_edge at
+# the edge's side and its silhouette against the sky.
+roofed_canopy    -205.5  81.0   -124.5   90     10     7000
+roofed_edge      -205.5  72.0   -124.5   90     -6     7000
+# r013 sun-glow candidates (critic r012: judge the glow on a view with the sun clear of cloud at sunset).
+# Loop 0 tried four days at 12320 (same cloud field every day) and lake_glow (sun behind the hill): all hid
+# the sun. Loop 1: ocean_sunset's point and bearing with a lower sun (12500 ~4 deg, 12600 ~2.7) and a
+# higher one (12200 ~10), and at 12350 from points 300 blocks off (another patch of the cloud deck).
+# Loop 2: f (300 blocks west, 12350) came closest (a gap with one strand under the sun); f's point moved
+# 150-300 blocks along the shore and out to sea, and f at 12250 / 12450.
+# Picked f at 12250 (sun ~1.5 deg higher): no view clears the far strand at the sun's altitude; this one has the
+# roundest core and the smoothest fade (ring means 252 223 208 201 196, core std 0.4).
+sun_clear         -867.5  64.5   232.5    96     6      12250

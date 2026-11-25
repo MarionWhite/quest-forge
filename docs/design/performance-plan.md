@@ -1,7 +1,13 @@
 # Performance plan — "my PC should not be the floor"
 
-Status: **plan plus a ready lite profile ([`tools/lite-client/`](../../tools/lite-client/)).
-Nothing has been installed and no config is changed.** Measured 2026-10-16
+Status: **plan plus ready client profiles ([`tools/lite-client/`](../../tools/lite-client/)).
+Nothing has been installed and no config is changed.** The lite profile
+described in section 2 was written for OptiFine E7; since 2026-10-25 the pack's
+client is Angelica and the profiles are the JSON files in
+`tools/lite-client/profiles/` (full, lite, potato: Angelica settings plus the
+QuestForge shader presets), applied by `apply-profile.ps1` and documented in
+[`../setup/performance-tuning.md`](../setup/performance-tuning.md). The
+measurements and the per-mod costs below still hold. Measured 2026-10-16
 overnight on the 7900X / RTX 5070 Ti, with the census servers loading the CPU.
 Load times below are wall-clock and so carry some of that noise. The baseline
 was booted at the start and at the end of the run, and both came out the same
@@ -175,16 +181,18 @@ of VRAM. **Verify** with 58's `FrameBench` by running live options vs. lite
 options on the same scenes. That is an A/B the existing harness can do with
 `-Shader OFF` and an options overlay, interleaved because of census load.
 
-**If Angelica is adopted** (not decided; see section 4): the lite client
-becomes Angelica with shaders off, and E7 lite stays as the fallback for
-GL-3.3-less GPUs (Intel HD 2000/3000). Under Angelica these profile keys stop
-applying: `ofFastRender`, `ofSmoothFps` and `ofFastMath` (gone), and
-`optionsof.txt` as a whole (Angelica has its own settings). OptiFine, FastCraft
-and BetterFps are force-disabled. Render distance, Fast graphics, particles,
-smooth lighting, mipmaps and the client-only drop list carry over unchanged,
-and so does the 3 GB heap (+95 MB measured). Its scaling with cores (1016 vs
-457 fps static, shaders off, 4 cores) is exactly what a friend's 4-core CPU
-needs. iGPU behaviour and a mixed-renderer join are still untested.
+**Angelica was adopted** (2026-10-17; section 4 was written before). The
+Angelica-era profiles (2026-10-25) keep the drop list, render distance 6 (5),
+Fast graphics, particles, mipmaps and the 3 GB heap from this table, drop the
+OptiFine keys (`ofFastRender`, `ofSmoothFps`, `ofFastMath` and `optionsof.txt`
+as a whole do not exist under Angelica), add Celeritas's own levers
+(biome blend, grass quality, texture filter, smooth lighting, dynamic lights,
+the FPS reducer) and, instead of "shaders off", select the QuestForge pack's
+Low (lite) or Potato preset, which are built for exactly this hardware. The E7
+profile stays as the fallback for GL-3.3-less GPUs, now as the `optifine`
+section of the same JSON files. Angelica's scaling with cores (1016 vs 457 fps
+static, shaders off, 4 cores) is what a friend's 4-core CPU needs. iGPU
+behaviour and a mixed-renderer join are still untested.
 
 ## 3. General wins for everyone, ranked
 
@@ -200,10 +208,78 @@ other gain is an estimate.
 | 5 | **Shader tier = hardware tier.** Vibrant on the 5070 Ti only. Enhanced Default at 0.5× shadow for mid cards. Off for lite. 58's own pack replaces this when it lands | 2.2–2.8× (measured, 58) | None | Already measured |
 | 6 | **FPS cap** 260 → monitor refresh (e.g. 144) | Lower GPU heat and power, steadier frame pacing. No visible loss above the refresh rate | None | GPU power in `nvidia-smi` at the menu and in-world |
 | 7 | **Release must include `assets\mcheli`** (357 MB) | Correctness, not speed: without it MCHeli silently has no vehicles | None | `dir assets\mcheli\helicopters` in a friend's instance |
-| 8 | **Decocraft lazy model load** (qf-tweaks transformer: build a prop's CraftStudio model on first render, not at startup) | **About −550 MB live heap (measured cost)** and about −6 s load. The biggest heap item in the pack | Medium. Needs a look at Decocraft's renderer; props must still render on first sight | Slim trial `decocraft` live heap before and after, then place every prop category |
+| 8 | **Decocraft lazy model load** — **done 2026-10-25**: qf-tweaks `DecoLazyTransformer` frees each prop's per-rotation vertex arrays and decoded texture after startup and rebuilds them on first use | **Measured −491 MB live heap at the title screen (674 → 183), −460 MB in a world with props placed (653 → 193), −465 MB on a dedicated server (580 → 115).** ~~About −550 MB live heap (measured cost) and about −6 s load~~ — load time unchanged, 14 s to the title screen either way: the work is still done at startup, only the results are dropped | Low after measurement: props render identically on first sight; the rebuilt geometry was verified bit for bit against Decocraft's own (799,008 node-rotations, 0 mismatches). Switch: `config/qftweaks.cfg` `decocraft.lazyModels=false` | Done (see "Win #8, measured" below). **Installed 2026-10-25** on the live client (`trial.py install`, qf-tweaks `1.1.0+20261025.b87ed70d`) and in the rebuilt friends' server (same jar, same hash in its `MANIFEST.sha256`). Full-pack heap: pending measurement request (command below) |
 | 9 | **MCHeli / Legends lazy models**: the same idea | −231 / −211 MB (measured cost) | Medium–high: both are large closed-source mods | Same, per mod |
 | 10 | `-XX:+ParallelRefProcEnabled` (in the lite args) | Small. Modded 1.7.10 holds many weak and soft references (caches, WeakHashMaps), and this parallelises their processing in GC pauses | Very low; standard G1 flag on Java 8 | GC log pause times |
 | 11 | Quieter load: patch or blacklist the soft-integration `ClassNotFound` dumps (3,022 lines) | About 1–2 s of load | Low | Load-log timestamps |
+
+### Win #8, measured (2026-10-25)
+
+Slim trial `decolazy` (base set + Decocraft + the qf-content debug jar for the
+scene), `-Xmx3G`, `--shader off`, 1920×1080, the same superflat world both
+times; the patched run is the same jar with the switch on. Live heap is the
+`jcmd` full-GC method, now `trial.py heap`. In-world means eleven props of
+different tile types placed in two rows (decobench, chair, barrel, candle stick
+with its particle emitter, bed, door, jukebox, stained glass, Christmas tree,
+tea set, faucet; Decocraft's own placement rule refused a hanging lantern on
+open ground in both runs), the camera 10 blocks back.
+
+| | Stock Decocraft | Lazy models | Δ |
+|---|---|---|---|
+| Client, title screen | 674 MB | 183 MB | **−491 MB** |
+| Client, in the world with the props placed | 653 MB | 193 MB | **−460 MB** |
+| Dedicated server (base set + Decocraft) | 580 MB | 115 MB | **−465 MB** |
+| `Vector3` objects alive | 8.08 M (185 MB) + their arrays (56 MB) | 96 K (2.3 MB) in-world | |
+| `byte[]` alive (the decoded textures live here) | 261 MB | 39–45 MB | |
+| Load to the title screen | 14 s | 14 s | none |
+
+What the patch does: Decocraft's `CraftStudioModelWrapper` constructor still
+computes the 16 placement rotations of every node (that is where the wrapper's
+own extents, item scales and resource costs come from), but the per-node corner
+arrays behind them are dropped once the constructor is done; the rotation a
+prop is drawn or collided with is recomputed once, under the wrapper's lock,
+from Decocraft's own matrix chain, and kept. Each of the 794 models' decoded
+PNG keeps being uploaded to the GPU at the two startup reloads and is then
+dropped; the raw PNG bytes (10.7 MB in total) stay, so F3+T decodes them
+again (that reload now costs a second or two more). Nothing else changes:
+placement rules, collision boxes, item rendering and the Decobench's resource
+costs come from the same numbers as before. With `-Dqf.decolazy.verify=true`
+the helper recomputes every rotation of every wrapper at startup and compares
+with Decocraft's arrays: 799,008 node-rotations, 0 mismatches, 312 ms.
+
+What did not happen: the hoped-for ~6 s of load time. Decocraft's startup cost
+is the computation (16 rotations × 50 K nodes, 794 PNG decodes, a full-pixel
+colour scan per prop for the Decobench, two mipmap uploads), not the keeping;
+this patch only changes the keeping. Deferring the colour scan and the
+texture decode is possible (both feed public fields read by a handful of
+Decobench call sites) and would be a second, smaller patch.
+
+The slim-trial numbers predict the full pack: Decocraft was 564 MB of the
+1,321 MB live heap measured in a loaded world, so the full pack should land
+near 850 MB.
+
+**Installed 2026-10-25.** Live client `%APPDATA%\.crazycraft4\mods\QuestForgeTweaks-1.0.jar`
+is `1.1.0+20261025.b87ed70d` (SHA-1 `27c68ccf44b6…`, SHA-256
+`5c890910e4b2…`), put in by `trial.py install` (previous jar in
+`_backup-install-20261025-180555`); the friends' server `C:\qfs\friends` was
+rebuilt from the instance the same day and its `MANIFEST.sha256` carries the
+same hash for `mods/QuestForgeTweaks-1.0.jar`, so the packcheck sees one
+qf-tweaks on both sides. The switch (`config/qftweaks.cfg`) is written with
+its default on the first boot of each.
+
+**Pending: measurement request** (no full-pack client was run for it — one
+client at a time, and the render loop holds the slot). Whoever next boots the
+full pack to a loaded world, with nothing else on the GPU:
+
+```
+py -3.10 tools/trial/trial.py heap <trial> --label fullpack-world
+```
+
+where `<trial>` is any trial built from the live instance with the full mod
+set (or the live client itself: `jcmd <pid> GC.class_histogram` then
+`jcmd <pid> GC.heap_info`, the same thing by hand). Expected: about 850 MB live
+against the 1,321 MB of 2026-10-16, and no `com.mia.craftstudio.libgdx.Vector3`
+entry in the histogram's top ten.
 
 Considered and **not** recommended (keeping REPORT.md's verdicts, with reasons):
 
@@ -232,9 +308,9 @@ untested and GTNHLib may be needed on both sides.
 | Recommendation here | If Angelica is adopted |
 |---|---|
 | #1 GlErrorTransformer | Dead code under Angelica. Our four `Config.isShaders` checks need an Iris check too (02's list) |
-| #2 Smooth FPS, Fast Render, Fast Math, the whole `optionsof.txt` profile | Gone. Angelica has its own settings; write an Angelica lite profile then |
+| #2 Smooth FPS, Fast Render, Fast Math, the whole `optionsof.txt` profile | Gone. Angelica has its own settings; the Angelica profiles are `tools/lite-client/profiles/*.json` (2026-10-25) |
 | #5 shader tiers | Complementary LOW under Angelica beat Enhanced under E7 (260 vs 195 fps static, measured by 58). The tier table moves to Angelica-compatible packs |
-| #8–9 lazy models | Unchanged; still worth it |
+| #8–9 lazy models | Unchanged; #8 is done and measured (2026-10-25), #9 still worth it |
 | Lite drop list, render distance 6, 3 GB heap, ParallelRefProc | Unchanged (Angelica +95 MB heap, +44 MB metaspace) |
 | FastCraft / BetterFps "keep" | Angelica force-disables them |
 | LittleMaid's model scan | Needs the `MmmScan` fix (already in qf-tweaks) under UniMixins |
@@ -246,9 +322,11 @@ untested and GTNHLib may be needed on both sides.
    Should it be A/B tested with FrameBench first?
 2. **Should a friend's release be checked for `assets\mcheli` and the
    2026-10-16 QuestForgeTweaks jar?** (#1, #7.) Both are invisible when missing.
-3. **Worth a qf-tweaks patch for Decocraft's eager model build?** (#8.) It is
-   the only lever that moves the heap meaningfully. It isn't needed for the
-   3 GB lite heap.
+3. ~~**Worth a qf-tweaks patch for Decocraft's eager model build?** (#8.)~~
+   Built, measured and installed 2026-10-25 (live client and the rebuilt
+   friends' server): −460 to −491 MB on the client, −465 MB on the server.
+   Open now: the full-pack measurement (request above), and whether to spend a
+   second patch on Decocraft's load time.
 4. **The lite drop list removes JourneyMap only in potato.** Is the minimap
    essential enough to keep it even there?
 5. **Modernization.** If Angelica is chosen, the lite profile is rewritten for
@@ -262,6 +340,15 @@ untested and GTNHLib may be needed on both sides.
 - Heap: `jcmd GC.heap_info` before and after `jcmd GC.class_histogram` (which
   forces a full GC even with `-XX:+DisableExplicitGC`). VRAM: Windows "GPU
   Process Memory" counters. Load phases from `latest.log` timestamps.
+- Win #8 (2026-10-25): one before/after client cycle in trial `decolazy`
+  (another agent held the client slot for the first minutes; the launch retried
+  until it was free), two server boots in `decolazy-srv`. The scene is
+  `tools/trial/make_flat_world.py` plus qf-content's `AutoPlace`; the patched
+  run found the props already in the saved world from the baseline run and
+  rendered them from disk, which is the case that matters (a built house
+  loading), so the two screenshots are the same scene. Histograms and both
+  screenshots: `C:\qfb\decocraft-lazy\` on the Windows PC. Title-screen probes
+  ran within a second of the world starting to load, on an empty flat world.
 - One Legends boot died in `OpenAL64.dll` during the back-to-back sound-engine
   restarts of the two resource reloads. The retry was clean. It is a native
   race seen once, not attributed to Legends.

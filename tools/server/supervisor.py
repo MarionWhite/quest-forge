@@ -13,7 +13,8 @@ supervisor itself:
 
     !backup    take a backup now          !restart   save, stop and start again
     !dump      thread dump into logs/     !status    state, players, next jobs
-    !stop      stop the server and exit   (plain `stop` and Ctrl+C do the same)
+    !jfr [s]   Flight Recorder profile    !stop      stop the server and exit
+               into logs/ (default 120 s)            (plain `stop` and Ctrl+C do the same)
 
 The same lines can be dropped into the file `supervisor.inbox` in the server
 folder (one per line); the supervisor runs and deletes it within a second. A
@@ -80,14 +81,40 @@ DEFAULTS = {
     "quiet_s": 10,                       # region files unchanged this long before copying
     "restart_at": "05:00",               # daily restart, local time; "" turns it off
     "restart_warnings_min": [10, 5, 1],
+    "restart_min_uptime_s": 3600,        # a boot closer than this to restart_at waits a day
     "jstack": "",                        # empty: look for a jstack matching the java
     "discord_webhook": "",               # or env QF_DISCORD_WEBHOOK
     "alert_on_join": False,
+    # A second copy of every daily backup, for a folder that leaves the machine
+    # (a Syncthing or cloud folder). "" = off. keep_daily applies there too.
+    "backup_mirror": "",
+    # Put every player on this vanilla team with friendly fire off (the owner's
+    # srv-pvp decision, applied by the builder's --rules). "" = off.
+    "team": "",
+    # "Who's online": status.json next to this file, rewritten after every probe
+    # and on every state change, for the site's /online/ page. Published only
+    # when status_publisher is set: "gist" PATCHes a GitHub Gist through the API
+    # (the site reads the Gist's raw URL; no Pages deploy per update), "dry-run"
+    # logs what it would send. The token needs only the `gist` scope and lives
+    # here or in QF_STATUS_GIST_TOKEN, never in the repo.
+    "status_file": "status.json",        # "" = off
+    "status_tps_interval_s": 300,        # `forge tps` this often, for per-dimension tick times; 0 = never
+    "status_publisher": "",              # "", "gist" or "dry-run"
+    "status_gist_id": "",                # the hex id in the Gist's URL
+    "status_gist_token": "",             # or env QF_STATUS_GIST_TOKEN
+    "status_publish_min_interval_s": 60, # no more than one publish per this, unless the state changed
+    "status_api_url": "https://api.github.com",   # overridden by tests with a mock
 }
 
 DONE_RE = re.compile(r"\]: Done \(\d")
 LIST_RE = re.compile(r"There are (\d+)/(\d+) players online")
 JOIN_RE = re.compile(r"\]: (\S+) joined the game")
+LEFT_RE = re.compile(r"\]: (\S+) left the game")
+# `forge tps`: one line per loaded dimension and an Overall line.
+TPS_RE = re.compile(r"(?:Dim (-?\d+)|(Overall)) : Mean tick time: ([\d.]+) ms\. Mean TPS: ([\d.]+)")
+# qf-content at boot: "[packcheck] pack 2026-10-17, fingerprint 3f7f089e6508, 144 mods (digest ...)"
+PACK_RE = re.compile(r"\[packcheck\] pack (\S+), fingerprint ([0-9a-f]+), (\d+) mods")
+MCVER_RE = re.compile(r"Starting minecraft server version (\S+)")
 SAVED_RE = re.compile(r"Saved the world|Saving failed")
 SAVE_OFF_RE = re.compile(r"Turned off world auto-saving|Saving is already turned off")
 # With removeErroringEntities / removeErroringTileEntities on (config/forge.cfg),
@@ -102,6 +129,13 @@ def now():
 
 def stamp(t=None):
     return datetime.datetime.fromtimestamp(t or now()).strftime("%Y%m%d-%H%M%S")
+
+
+def iso(t):
+    """UTC, second precision, with a Z: what the site's page parses."""
+    if not t:
+        return None
+    return datetime.datetime.utcfromtimestamp(t).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
 # --------------------------------------------------------------------------
@@ -213,7 +247,12 @@ def find_jstack(configured, java):
     for c in cands:
         if os.path.exists(c):
             return c
-    return shutil.which("jstack")
+    # jcmd <pid> Thread.print is the same dump; some JDK packagings ship it alone.
+    for c in cands:
+        alt = os.path.join(os.path.dirname(c), "jcmd.exe" if IS_WIN else "jcmd")
+        if os.path.exists(alt):
+            return alt
+    return shutil.which("jstack") or shutil.which("jcmd")
 
 
 # --------------------------------------------------------------------------
@@ -350,6 +389,19 @@ class Supervisor:
         self.crash_report_seen = None
         self.last_outcome = None
         self.pidfile = os.path.join(server_dir, "supervisor.pid")
+        # "Who's online" state, filled from the console by on_line.
+        self.online = set()
+        self.expect_names = False
+        self.tps = {}                    # "overall" and "<dim>" -> {"ms", "tps"}
+        self.tps_at = None
+        self.pack = None
+        self.mc_version = None
+        self.last_publish = 0
+        self.last_published_state = None
+        self.last_state = None
+        self.publish_thread = None
+        self.publish_failures = 0
+        self.publisher_warned = False
 
     # ---- logging and alerts ------------------------------------------------
     def log(self, msg):
@@ -380,16 +432,43 @@ class Supervisor:
 
     def on_line(self, text):
         print(text, flush=True)
+        if self.expect_names:
+            # The line after "There are N/M players online:" is the names,
+            # comma-separated, or empty.
+            self.expect_names = False
+            rest = text.split("]: ", 1)[1] if "]: " in text else ""
+            self.online = {n.strip() for n in rest.split(",") if n.strip()}
         m = LIST_RE.search(text)
         if m:
             self.players = int(m.group(1))
+            self.max_players = m.group(2)
+            self.expect_names = True
             if self.players:
                 self.active_since_backup = True
+        m = TPS_RE.search(text)
+        if m:
+            self.tps[m.group(1) or "overall"] = {"ms": float(m.group(3)), "tps": float(m.group(4))}
+            self.tps_at = now()
+        m = PACK_RE.search(text)
+        if m:
+            self.pack = {"date": m.group(1), "fingerprint": m.group(2), "mods": int(m.group(3))}
+        m = MCVER_RE.search(text)
+        if m:
+            self.mc_version = m.group(1)
+        m = LEFT_RE.search(text)
+        if m:
+            self.online.discard(m.group(1))
         m = JOIN_RE.search(text)
         if m:
             self.active_since_backup = True
+            self.online.add(m.group(1))
             if self.cfg["alert_on_join"]:
                 self.alert("%s joined" % m.group(1))
+            if self.cfg["team"]:
+                # Through the request queue, so only the main loop writes to
+                # Java's stdin. Joining a team you are on prints a harmless
+                # "Could not add" line.
+                self.request("scoreboard teams join %s %s" % (self.cfg["team"], m.group(1)))
         if ENTITY_REMOVED_RE.search(text) and self.server and self.server.done:
             # A real crash prints the same header and then exits; the main loop
             # alerts only if the server is still up a few seconds later.
@@ -403,6 +482,94 @@ class Supervisor:
                            "since": stamp()}, fh)
         except OSError:
             pass
+
+    # ---- "Who's online" ------------------------------------------------------
+    def write_status(self, state, reason=""):
+        """status.json: what the site's /online/ page shows. Written whole and
+        renamed into place, so a reader never sees half a file. `state` is
+        "online", "starting" or "offline"."""
+        if not self.cfg["status_file"]:
+            return
+        srv = self.server
+        up = state == "online" and srv is not None and srv.started_at
+        doc = {
+            "state": state, "reason": reason,
+            "online": sorted(self.online) if state == "online" else [],
+            "count": len(self.online) if state == "online" else 0,
+            "max": int(self.max_players) if str(self.max_players).isdigit() else None,
+            "updated_at": iso(now()),
+            "last_restart": iso(srv.started_at) if srv and srv.started_at else None,
+            "uptime_s": int(now() - srv.started_at) if up else None,
+            "minecraft": self.mc_version,
+            "pack": self.pack,
+            "tps": ({"at": iso(self.tps_at), "overall": self.tps.get("overall"),
+                     "dims": {k: v for k, v in self.tps.items() if k != "overall"}}
+                    if self.tps and state == "online" else None),
+        }
+        path = os.path.join(self.dir, self.cfg["status_file"])
+        try:
+            with open(path + ".tmp", "w", encoding="utf-8") as fh:
+                json.dump(doc, fh, indent=1)
+            os.replace(path + ".tmp", path)
+        except OSError as e:
+            self.log("status.json not written: %s" % e)
+        self.last_state = state
+        self.publish_status(doc)
+
+    def publish_status(self, doc):
+        pub = self.cfg["status_publisher"]
+        if not pub:
+            return
+        changed = doc["state"] != self.last_published_state
+        if not changed and now() - self.last_publish < self.cfg["status_publish_min_interval_s"]:
+            return
+        body = json.dumps(doc, indent=1)
+        if pub == "dry-run":
+            self.last_publish, self.last_published_state = now(), doc["state"]
+            self.log("status: dry-run, would publish %d bytes (%s, %d online)"
+                     % (len(body), doc["state"], doc["count"]))
+            return
+        if pub != "gist":
+            if not self.publisher_warned:
+                self.publisher_warned = True
+                self.log("status_publisher %r is not one of gist, dry-run; not publishing" % pub)
+            return
+        gist = self.cfg["status_gist_id"]
+        token = os.environ.get("QF_STATUS_GIST_TOKEN") or self.cfg["status_gist_token"]
+        if not gist or not token:
+            if not self.publisher_warned:
+                self.publisher_warned = True
+                self.log("status: the gist publisher needs status_gist_id and a token (status_gist_token "
+                         "or QF_STATUS_GIST_TOKEN); not publishing")
+            return
+        self.last_publish, self.last_published_state = now(), doc["state"]
+        url = "%s/gists/%s" % (self.cfg["status_api_url"].rstrip("/"), gist)
+        data = json.dumps({"files": {"status.json": {"content": body}}}).encode("utf-8")
+
+        def post():
+            try:
+                req = urllib.request.Request(url, data=data, method="PATCH", headers={
+                    "Authorization": "Bearer " + token,
+                    "Accept": "application/vnd.github+json",
+                    "Content-Type": "application/json",
+                    "X-GitHub-Api-Version": "2022-11-28",
+                    "User-Agent": "QuestForgeSupervisor/1.0"})
+                urllib.request.urlopen(req, timeout=15).read()
+                if self.publish_failures:
+                    self.log("status: gist publish works again")
+                self.publish_failures = 0
+            except Exception as e:      # never log the token (it is in the headers only)
+                self.publish_failures += 1
+                code = getattr(e, "code", "")
+                if self.publish_failures in (1, 10, 100) or self.publish_failures % 1000 == 0:
+                    self.log("status: gist publish failed (%s %s; %d in a row). 401/404: the token or "
+                             "the gist id; the page shows the last good status as stale."
+                             % (type(e).__name__, code, self.publish_failures))
+        # Kept so the exit path can wait for the last post: a daemon thread dies
+        # with the process, and the final "offline" never reached the mock Gist
+        # in testing until it did.
+        self.publish_thread = threading.Thread(target=post, daemon=True)
+        self.publish_thread.start()
 
     # ---- requests ----------------------------------------------------------
     def request(self, line):
@@ -459,6 +626,9 @@ class Supervisor:
         self.log("jstack: %s" % (self.jstack or "none found (hang dumps disabled; install a "
                                                  "JDK of the server's Java version)"))
         self.log("discord alerts: %s" % ("on" if self.webhook else "off"))
+        self.log("backup mirror: %s" % (self.cfg["backup_mirror"] or "off"))
+        self.log("status feed: %s, publisher %s" % (self.cfg["status_file"] or "off",
+                                                    self.cfg["status_publisher"] or "off"))
         if os.path.exists(self.pidfile):
             try:
                 other = json.load(open(self.pidfile)).get("supervisor_pid")
@@ -489,6 +659,12 @@ class Supervisor:
                 os.remove(self.pidfile)
             except OSError:
                 pass
+            # With the supervisor gone nobody updates the feed: say so, and let
+            # the last publish finish before the process ends.
+            if self.last_state != "offline":
+                self.write_status("offline", "supervisor stopped")
+            if self.publish_thread and self.publish_thread.is_alive():
+                self.publish_thread.join(20)
             self.log("supervisor exited")
 
     def loop(self):
@@ -539,9 +715,11 @@ class Supervisor:
                        "an earlier run) holds it. Not starting." % self.port)
             return "crash"
         self.server = srv = Server(self, self.cmd, self.dir)
+        self.online, self.tps, self.tps_at = set(), {}, None
         pid = srv.start()
         self.write_pidfile()
         self.log("java started, pid %d" % pid)
+        self.write_status("starting", "starting up")
 
         # --- boot ----
         while not srv.done:
@@ -572,8 +750,16 @@ class Supervisor:
         self.log("server is up (boot %.0f s)" % (now() - srv.started_at))
         if self.last_outcome in ("crash", "hang"):
             self.alert("server is back up after a %s" % self.last_outcome)
+        if self.cfg["team"]:
+            # The team lives in the world's scoreboard, so this is a no-op after
+            # the first boot ("A team with the name ... already exists").
+            srv.send("scoreboard teams add %s" % self.cfg["team"])
+            srv.send("scoreboard teams option %s friendlyfire false" % self.cfg["team"])
+            self.log("team %s: friendly fire off; every player who joins is put on it" % self.cfg["team"])
+        self.write_status("online")
 
         next_probe = now() + self.cfg["probe_interval_s"]
+        next_tps = now() if self.cfg["status_tps_interval_s"] else None
         next_backup = now() + self.cfg["backup_interval_min"] * 60
         restart_due = self.next_restart_time()
         warned = set()
@@ -601,8 +787,11 @@ class Supervisor:
             except queue.Empty:
                 pass
 
-            # hang probe
+            # hang probe (and the "who's online" refresh that rides on it)
             if now() >= next_probe:
+                if next_tps is not None and now() >= next_tps:
+                    srv.send("forge tps")       # ~35 lines; parsed by on_line as they arrive
+                    next_tps = now() + self.cfg["status_tps_interval_s"]
                 mark = srv.mark()
                 srv.send("list")
                 if not srv.wait_for(LIST_RE, self.cfg["probe_timeout_s"], mark):
@@ -612,6 +801,8 @@ class Supervisor:
                         return self.stop_server(srv)
                     return self.hang(srv, "no answer to `list` in %d s: the main thread is stuck"
                                      % self.cfg["probe_timeout_s"])
+                time.sleep(0.2)                 # the names line follows the count line
+                self.write_status("online")
                 next_probe = now() + self.cfg["probe_interval_s"]
 
             # hourly backup
@@ -656,15 +847,19 @@ class Supervisor:
         if cmd == "!dump":
             self.thread_dump(srv, "requested")
             return None
+        if cmd.split()[0] == "!jfr":
+            self.jfr(srv, line.split()[1:])
+            return None
         if cmd == "!status":
             self.log("pid %s, up %.0f min, %d players (last `list`), crashes in window %d, "
-                     "next daily restart %s" % (
+                     "next daily restart %s, mirror %s, team %s" % (
                          srv.pid, (now() - srv.started_at) / 60, self.players, len(self.crashes),
                          datetime.datetime.fromtimestamp(self.next_restart_time()).strftime(
-                             "%Y-%m-%d %H:%M") if self.next_restart_time() else "off"))
+                             "%Y-%m-%d %H:%M") if self.next_restart_time() else "off",
+                         self.cfg["backup_mirror"] or "off", self.cfg["team"] or "off"))
             return None
         if cmd.startswith("!"):
-            self.log("unknown supervisor command %s (try !backup !restart !dump !status !stop)" % line)
+            self.log("unknown supervisor command %s (try !backup !restart !dump !jfr !status !stop)" % line)
             return None
         srv.send(line)
         return None
@@ -680,7 +875,7 @@ class Supervisor:
             t += datetime.timedelta(days=1)
         # A server started at 04:58 would restart two minutes later; skip to tomorrow
         # if less than an hour of uptime would come before it.
-        if (t - n).total_seconds() < 3600:
+        if (t - n).total_seconds() < self.cfg["restart_min_uptime_s"]:
             t += datetime.timedelta(days=1)
         return t.timestamp()
 
@@ -689,11 +884,13 @@ class Supervisor:
         code = srv.proc.wait()
         if self.stop_requested.is_set():
             self.log("java exited (code %s) after a stop request" % code)
+            self.write_status("offline", "stopped by the host")
             return "stopped"
         report = self.newest_crash_report(srv.started_at)
         self.alert("server %s (exit code %s)%s" % (
             "died while booting" if booting else "CRASHED", code,
             "; crash report %s" % report if report else "; no crash report written"))
+        self.write_status("offline", "crashed; restarting")
         return "crash"
 
     def newest_crash_report(self, since):
@@ -720,9 +917,12 @@ class Supervisor:
             self.log("no jstack; cannot take a thread dump")
             return None
         path = os.path.join(self.logs, "threaddump-%s.txt" % stamp())
+        # jcmd (also in every JDK) gives the same dump as `jstack -l`.
+        cmd = ([self.jstack, str(srv.pid), "Thread.print", "-l"]
+               if os.path.basename(self.jstack).startswith("jcmd")
+               else [self.jstack, "-l", str(srv.pid)])
         try:
-            res = subprocess.run([self.jstack, "-l", str(srv.pid)], stdout=subprocess.PIPE,
-                                 stderr=subprocess.STDOUT, timeout=60)
+            res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=60)
             with open(path, "wb") as fh:
                 fh.write(("# %s, pid %s\n" % (why, srv.pid)).encode())
                 fh.write(res.stdout)
@@ -733,11 +933,38 @@ class Supervisor:
             self.log("jstack failed: %s" % e)
             return None
 
+    def jfr(self, srv, args):
+        """`!jfr [seconds]`: a Java Flight Recorder profile of the running JVM
+        into logs/profile-<time>.jfr, through the JDK's jcmd. Why: Opis records
+        nothing on the Java 25 (lwjgl3ify) server (scratch test 2026-10-25),
+        while JFR is built into every JDK from 11 on and samples every thread
+        with about 1% overhead. Read the file with `jfr print --events
+        jdk.ExecutionSample <file>` or JDK Mission Control. Needs the server's
+        java to be a JDK (the --java25 build is); a Java 8 JRE has no jcmd."""
+        secs = int(args[0]) if args and args[0].isdigit() else 120
+        java = self.cmd[0] if self.cmd else ""
+        jcmd = os.path.join(os.path.dirname(java), "jcmd.exe" if IS_WIN else "jcmd") \
+            if java and os.path.isabs(java) else shutil.which("jcmd")
+        if not jcmd or not os.path.exists(jcmd):
+            self.log("!jfr: no jcmd next to %s (a JDK is needed; the Java 8 JRE has none)" % java)
+            return
+        path = os.path.join(self.logs, "profile-%s.jfr" % stamp())
+        try:
+            res = subprocess.run([jcmd, str(srv.pid), "JFR.start", "duration=%ds" % secs,
+                                  "filename=%s" % path, "settings=profile"],
+                                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=60)
+            out = res.stdout.decode("utf-8", "replace").strip().splitlines()
+            self.log("!jfr: %s (exit %d); %d s recording -> %s" % (
+                out[-1] if out else "no output", res.returncode, secs, path))
+        except (subprocess.TimeoutExpired, OSError) as e:
+            self.log("!jfr failed: %s" % e)
+
     def hang(self, srv, why):
         self.alert("server HUNG: %s. Taking a thread dump, then killing pid %s." % (why, srv.pid))
         self.thread_dump(srv, "hang: " + why)
         srv.kill()
         self.log("killed hung server")
+        self.write_status("offline", "hung; restarting")
         return "hang"
 
     def stop_server(self, srv):
@@ -759,6 +986,7 @@ class Supervisor:
             time.sleep(0.5)
         code = srv.proc.wait()
         self.log("java exited (code %s)" % code)
+        self.write_status("offline", "stopped" if self.stop_requested.is_set() else "restarting")
         return "stopped"
 
     # ---- backups ------------------------------------------------------------------
@@ -886,6 +1114,8 @@ class Supervisor:
                 else:
                     shutil.copytree(final, dst)
                 self.log("kept as the daily backup for %s" % day)
+                if self.cfg["backup_mirror"]:
+                    self.mirror(dst)
             self.rotate(hourly, self.cfg["keep_hourly"])
             self.rotate(daily, self.cfg["keep_daily"])
             free = shutil.disk_usage(root).free
@@ -894,6 +1124,26 @@ class Supervisor:
         except Exception:
             self.alert("backup archiving failed: %s" % traceback.format_exc().splitlines()[-1])
             self.log(traceback.format_exc())
+
+    def mirror(self, src):
+        """A second copy of a daily backup in backup_mirror (a folder that leaves
+        the machine: Syncthing, a cloud folder, another disk). A real copy, never
+        a link, written as .partial and renamed, so a sync client never ships a
+        half-written zip. Failure is alerted and never touches the server."""
+        d = self.cfg["backup_mirror"]
+        try:
+            os.makedirs(d, exist_ok=True)
+            dst = os.path.join(d, os.path.basename(src))
+            tmp = dst + ".partial"
+            if os.path.isdir(src):
+                shutil.copytree(src, tmp)
+            else:
+                shutil.copy2(src, tmp)
+            os.replace(tmp, dst)
+            self.rotate(d, self.cfg["keep_daily"])
+            self.log("mirrored to %s" % dst)
+        except Exception as e:
+            self.alert("backup mirror to %s FAILED: %s (the local backup is fine)" % (d, e))
 
     def rotate(self, d, keep):
         entries = sorted(n for n in os.listdir(d)

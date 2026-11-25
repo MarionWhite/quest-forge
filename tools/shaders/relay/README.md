@@ -28,6 +28,12 @@ be committed (usually a token without **Contents** permission), the issue is sti
 opened and says so. A relay without `/caps` (an old deploy) keeps the box hidden,
 and the Lab works as before.
 
+**The Decisions page** (`site/decisions/`, see `tools/decisions/README.md`) sends through
+the same Worker: sheet N arrives as `round` 9000+N. A Worker pasted from this file titles
+that issue "Decisions: sheet N" with the label `decisions`; an older deploy titles it
+"Shader Lab feedback: round 900N", and both are read by `tools/decisions/fetch_answers.py`.
+Re-paste the Worker when convenient (section below); nothing else changes.
+
 ## Setup (about 10 minutes)
 
 **First pick a passphrase**, for example four random words

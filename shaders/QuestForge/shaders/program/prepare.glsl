@@ -8,7 +8,11 @@
 #include "/lib/common.glsl"
 #include "/lib/atmosphere.glsl"
 #include "/lib/lut.glsl"
+#include "/lib/sun.glsl"
 #include "/lib/sky.glsl"
+#if QF_ATMOS == 1
+#include "/lib/photon.glsl"
+#endif
 
 #ifdef VSH
 void main() {
@@ -33,16 +37,30 @@ const int METER_GX = 32, METER_GY = 18;
 const ivec2 METER_ROW = ivec2(32, 65);   // x 32..63, y 65
 
 // One column of the meter: (sum of w log2 l, sum of w l, sum of w).
+// r016 (critic loop 1): what one sample adds to the arithmetic mean is capped at an exposed
+// QF_METER_CAP (previous frame's exposure), so a small white-hot glint in the centre cannot
+// pull the whole frame down (s16f1 -6.7 %, and sun_clear's sand edge went with it).
 vec4 meterColumn(int x) {
     vec4 acc = vec4(0.0);
     ivec2 size = ivec2(viewWidth, viewHeight);
+#if QF_METER_CAP > 0
+    float ex = texelFetch(colortex5, C_EXPOSURE, 0).r;
+    float lCap = (ex > 0.0 && ex < 1e4) ? float(QF_METER_CAP) / ex : 1e9;
+    // Loop 13 (torch, same build twice: cap 0 31.3 / 31.3, cap 4 39.6 / 39.5): underground the bright samples are
+    // the torches, which the mean is there to follow (a torch-lit tunnel stays dim). The cap holds under open sky only.
+    float capW = smoothstep(0.35, 0.75, float(eyeBrightnessSmooth.y) / 240.0);
+#endif
     for (int y = 0; y < METER_GY; y++) {
         vec2 uv = (vec2(x, y) + 0.5) / vec2(METER_GX, METER_GY);
         vec2 c = uv - 0.5;
         float w = exp(-dot(c, c) * 4.0);   // centre-weighted
         float l = luminance(texelFetch(colortex3, ivec2(uv * vec2(size)), 0).rgb);
         l = l > 0.0 && l < 1e5 ? l : 0.0;  // no NaN or inf from a broken pixel
+#if QF_METER_CAP > 0
+        acc += vec4(log2(max(l, 1e-6)) * w, mix(l, min(l, lCap), capW) * w, w, 0.0);
+#else
         acc += vec4(log2(max(l, 1e-6)) * w, l * w, w, 0.0);
+#endif
     }
     return acc;
 }
@@ -78,6 +96,9 @@ vec4 computeExposure(vec4 prevTexel, vec2 m) {
     float tau = target < prev ? 1.2 : 3.0;
     float k = 1.0 - exp(-clamp(frameTime, 0.0, 0.25) / tau);
     float e = mix(prev, target, k);
+#if QF_EXPO_PIN == 1
+    e = QF_EXPO_PIN_LOG;
+#endif
     float hi = floor(e * 256.0 + 0.5) / 256.0;
     return vec4(exp2(e), metered, hi, e - hi);
 }
@@ -197,7 +218,14 @@ vec3 skyViewTexel(ivec2 p, ivec2 origin, vec3 lightWorld) {
     float r = cameraRadius();
     vec3 dir = skyViewDir(x, r);
     vec3 light = vec3(sqrt(max(1.0 - lightWorld.y * lightWorld.y, 0.0)), lightWorld.y, 0.0);
+#if QF_ATMOS == 1
+    // r011: Photon 1.4's precomputed scattering (lib/photon.glsl) instead of the march, with Photon's
+    // sky exposure and tint by the hour on the sun's table (its blue-hour boost keeps twilight lit).
+    if (origin == LUT_SV_MOON) return phPost(phScattering(dir, light, true), sunDirWorld().y);
+    return phPost(phScatteringT(dir, light, false, phSunTintX(lightWorld.y, false), phSunTintX(lightWorld.y, true)), lightWorld.y);
+#else
     return integrateSky(r, dir, light);
+#endif
 }
 
 void ambientIrradiance(out vec3 up, out vec3 side) {
@@ -241,6 +269,22 @@ void main() {
         outLut = vec4(buildMultiScatter(r, x.x * 2.0 - 1.0), 1.0);
         return;
     }
+#if QF_CREPUSCULAR == 2 && QF_CLOUDS == 2 && QF_PRESET >= 2
+    if (inRegion(p, LUT_CS_ORIGIN, LUT_CS_SIZE)) {
+        // r011 cloud shadow map (Photon's crepuscular rays march through one): the cloud deck's
+        // transmittance along the light ray through each texel, read at two heights in the slab.
+        vec3 L = normalize(mat3(gbufferModelViewInverse) * shadowLightPosition);
+        vec3 e1, e2;
+        cloudMapAxes(L, e1, e2);
+        vec2 sOff = cloudMapS(regionCoord(p, LUT_CS_ORIGIN, LUT_CS_SIZE));
+        vec3 o = cameraPosition + e1 * sOff.x + e2 * sOff.y;
+        float Ly = max(L.y, 0.01);
+        float d1 = cloudDens(o + L * ((mix(CL_BASE, CL_TOP, 0.2) - o.y) / Ly), false);
+        float d2 = cloudDens(o + L * ((mix(CL_BASE, CL_TOP, 0.5) - o.y) / Ly), false);
+        outLut = vec4(clamp(1.0 - 0.95 * max(d1, d2), 0.0, 1.0), 0.0, 0.0, 1.0);
+        return;
+    }
+#endif
     if (inRegion(p, LUT_SV_SUN, LUT_SV_SIZE)) {
         outLut = vec4(skyViewTexel(p, LUT_SV_SUN, sunDirWorld()), 1.0);
         return;
@@ -256,7 +300,13 @@ void main() {
         return;
     }
     if (p == C_EXPOSURE) { outLut = prev; return; }   // prepare1 updates it
+#if QF_ATMOS == 1
+    // r011: Photon's light colour: the same transmittance, its saturation boost and its tint by the hour.
+    if (p == C_SUN)  { float sy = sunDirWorld().y; outLut = vec4(SUN_I * phPost(lightTransmittance(r, sy), sy) * phSunTint(sy)
+                                     * (1.0 - 0.25 * phPulse(abs(sy), 0.15, 0.11)) * clearSky, 1.0); return; }
+#else
     if (p == C_SUN)  { outLut = vec4(SUN_I * lightTransmittance(r, sunDirWorld().y) * clearSky, 1.0); return; }
+#endif
     if (p == C_MOON) { outLut = vec4(moonIntensity() * MOON_TINT * lightTransmittance(r, moonDirWorld().y) * clearSky, 1.0); return; }
     if (p == C_AMB_UP || p == C_AMB_SIDE) {
         vec3 up, side;

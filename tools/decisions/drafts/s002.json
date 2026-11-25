@@ -1,0 +1,145 @@
+{
+ "n": 2,
+ "id": "s002",
+ "title": "Nine calls that came out of the 2026-10-25 batch",
+ "intro": "Draft. Published once sheet 1 is answered; any sheet 1 card you marked Later is added to it then. Same rules: tap the recommendation or another option, notes optional, nothing applied until you say yes.",
+ "status": "open",
+ "created": "2026-10-25",
+ "groups": [
+  {
+   "id": "shader",
+   "name": "Shader",
+   "blurb": "From the technique briefs (docs/design/shaders/research/briefs).",
+   "source": {"text": "Briefs README, Render targets", "href": "https://github.com/MarionWhite/quest-forge/blob/main/docs/design/shaders/research/briefs/README.md"},
+   "items": [
+    {
+     "id": "shd-rule10",
+     "name": "Render-target rule counted in full-screen equivalents",
+     "question": "Performance rule 10 caps the pack at six render targets. Clouds, light shafts, bloom and ambient occlusion each want a quarter- or half-resolution buffer.",
+     "context": "Counting buffers by full-screen bandwidth equivalents keeps the rule's intent (memory and bandwidth) while letting the four sub-resolution passes in: today's six buffers are 4.1 equivalents; all four additions together add about 0.3. The alternative keeps the literal count and the four passes share or drop buffers.",
+     "options": [
+      {"key": "A", "label": "Count in full-screen equivalents", "desc": "Cap stays at the equivalent of six full-screen buffers."},
+      {"key": "B", "label": "Keep the literal six", "desc": "The sub-resolution passes must share."}
+     ],
+     "recommend": "A",
+     "why": "Same budget, measured honestly; the passes that improve the look most need it."
+    }
+   ]
+  },
+  {
+   "id": "textures",
+   "name": "Textures",
+   "blurb": "From the modded-block work (docs/design/textures/modded-blocks.md).",
+   "source": {"text": "Modded blocks", "href": "https://github.com/MarionWhite/quest-forge/blob/main/docs/design/textures/modded-blocks.md"},
+   "items": [
+    {
+     "id": "tex-f32-modded",
+     "name": "The old F32 Modded Edition for 1.7.10",
+     "question": "A community pack from the Faithful era covers Railcraft, Twilight Forest, Witchery, Chisel, Storage Drawers, Iron Chests, ProjectE and Biomes O' Plenty at 32x. Its only licence is a README sentence: use or modify in any way, no profit from distribution. No LICENSE file, not the Faithful License.",
+     "context": "Taking it would fill most of the top-150 modded blocks at once with per-file source records. The look bible's rule is that nothing ships unless it is licensed for derivatives; a README sentence is a permission, but a thin one. Without it those blocks stay at 16x until drawn.",
+     "options": [
+      {"key": "A", "label": "Use it, with the README quoted as the licence", "desc": "Per-file source records, credit in CREDITS.txt."},
+      {"key": "B", "label": "Reference only", "desc": "Stay at 16x; draw our own over time."}
+     ],
+     "recommend": "A",
+     "why": "The permission is explicit and non-commercial use is all we do; it is the only way to 32x those mods this year."
+    },
+    {
+     "id": "tex-hosts",
+     "name": "Netherrack and end stone in QF Textures",
+     "question": "QF v0 keeps netherrack and end stone at vanilla 16x. The Nether and End ores can only be re-composited on Faithful 32x hosts if those two move to Faithful too.",
+     "context": "Faithful's netherrack and end stone are the same designs with more detail, like its stone. Moving them changes the look of two whole dimensions; keeping them leaves their ores at 16x beside 32x stone ores.",
+     "options": [
+      {"key": "A", "label": "Faithful 32x for both", "desc": "Nether and End ores follow the stone-ore path."},
+      {"key": "B", "label": "Keep vanilla 16x", "desc": "Their ores stay 16x."}
+     ],
+     "recommend": "A"
+    },
+    {
+     "id": "tex-backports",
+     "name": "Four uncertain backport matches",
+     "question": "Legends' and Chisel's backported vanilla blocks were mapped to modern Faithful by colour match. Four did not match closely: soul fire (two frames, Faithful's is a different drawing), silver concrete (not Faithful's light-gray), blast furnace bottom.",
+     "context": "They were left out of the build. Taking them means a visible design change on those four; leaving them keeps 16x there.",
+     "options": [
+      {"key": "A", "label": "Leave them out", "desc": "16x on those four."},
+      {"key": "B", "label": "Take them anyway", "desc": "Faithful's drawing replaces the mod's."}
+     ],
+     "recommend": "A"
+    }
+   ]
+  },
+  {
+   "id": "quests",
+   "name": "Questline: WP-6 proposals",
+   "blurb": "From the WP-6 draft (tools/quests/drafts/DefaultQuests.wp6.json), built from the Act I answers. These are its two balance proposals and one structural choice.",
+   "source": {"text": "WP-6 writing brief", "href": "https://github.com/MarionWhite/quest-forge/blob/main/docs/design/quests/wp6-writing-brief.md"},
+   "items": [
+    {
+     "id": "wp6-finale-rewards",
+     "name": "Finale and Pack Master rewards",
+     "question": "Each act finale (481, 484, 485, 486) rewards one loot bag and one sealed tome of the act's tier (Uncommon, Rare, Epic, Legendary); Pack Master (63) rewards a statue and one Legendary bag.",
+     "context": "All inside the audit's reward band for each act. Alternatives: finales reward nothing but the next act (the kill was the reward), or a cosmetic only.",
+     "options": [
+      {"key": "A", "label": "Bag and tome per finale, as drafted", "desc": "Pack Master: statue + Legendary bag."},
+      {"key": "B", "label": "Cosmetic only", "desc": "A trophy or statue per finale, no loot."},
+      {"key": "C", "label": "No finale rewards", "desc": "Opening the next act is the reward."}
+     ],
+     "recommend": "A"
+    },
+    {
+     "id": "wp6-act3-diamonds",
+     "name": "Act III hands out 78 diamond-equivalents against a budget of 72",
+     "question": "Merging the End and OreSpawn chapters into one act puts their existing rewards together over the budget by six.",
+     "context": "Nothing new was added; these are pre-existing rewards now counted in one act. Trimming six diamonds from the End chapter's rewards fixes it; accepting it leaves the ladder as it was.",
+     "options": [
+      {"key": "A", "label": "Accept 78", "desc": "The rewards were already there."},
+      {"key": "B", "label": "Trim six from the End chapter", "desc": "Say which quest in the note, or leave it to the writers."}
+     ],
+     "recommend": "A"
+    },
+    {
+     "id": "wp6-knight-phantom",
+     "name": "When the Act III tab first shows",
+     "question": "94 Knight Phantom still needs 17 Hydra, so the Act III tab unlocks at the Hydra, before the Act II finale (484) is done.",
+     "context": "One prerequisite change (94 needs 484) makes Act III appear only after Act II's finale. Leaving it gives players a peek at the next act while they finish Witchery.",
+     "options": [
+      {"key": "A", "label": "Act III waits for 484", "desc": "One set_prereqs on 94."},
+      {"key": "B", "label": "Leave the peek", "desc": "Act III shows at the Hydra."}
+     ],
+     "recommend": "A",
+     "why": "Every other act boundary is a finale; one exception reads as a mistake."
+    }
+   ]
+  },
+  {
+   "id": "server",
+   "name": "Server",
+   "blurb": "From the server-readiness work.",
+   "source": {"text": "Hosting a server", "href": "https://github.com/MarionWhite/quest-forge/blob/main/docs/setup/hosting-a-server.md"},
+   "items": [
+    {
+     "id": "srv-rcon",
+     "name": "Remote console over Tailscale",
+     "question": "Today every admin action means sitting at the host PC. RCON bound to a Tailscale (or ZeroTier) private network lets you and one co-admin run list, say, whitelist, kick and ban from a phone or laptop.",
+     "context": "Free; the RCON password is plaintext so it must never be port-forwarded; in 1.7.10 RCON commands run off the main thread, so stop and save stay with the supervisor. Needs Tailscale installed on the host and on each admin device.",
+     "options": [
+      {"key": "A", "label": "Yes, RCON over Tailscale", "desc": "Builder option, documented limits."},
+      {"key": "B", "label": "No remote console", "desc": "Admin at the host PC, or through the supervisor inbox."}
+     ],
+     "recommend": "A"
+    },
+    {
+     "id": "srv-unobtainable",
+     "name": "Nine quests ask for things the data says a player cannot get",
+     "question": "Spirit World (45) asks for a technical block, Trophy Hunter (53) for a statue with no recipe, 120 for a hidden biome core, three TragicMC key quests (134, 135, 144) for creative-only keys, 432 for the Sync Core (recipe registered per world, maybe fine), 440 for a creative-only banner.",
+     "context": "qb.py now warns on all nine. Each needs a hand check in game before editing: some may have recipes the item dump missed. The fixes would be a location task for 45, a reward-provided or recipe-added item for the rest.",
+     "options": [
+      {"key": "A", "label": "Verify in game, then fix each", "desc": "A PC agent checks; writers fix the texts."},
+      {"key": "B", "label": "Fix from the data now", "desc": "Trust the census; change the tasks."}
+     ],
+     "recommend": "A"
+    }
+   ]
+  }
+ ]
+}

@@ -3,6 +3,8 @@
 //   node tools/shaders/relay/test/test_relay.mjs --url http://127.0.0.1:8787 --mock-port 8799
 //        against `wrangler dev` whose GITHUB_API points at the mock server this script starts.
 import http from "node:http";
+import fs from "node:fs";
+import os from "node:os";
 import {spawnSync} from "node:child_process";
 import {fileURLToPath, pathToFileURL} from "node:url";
 import path from "node:path";
@@ -200,6 +202,32 @@ labelMode = "reject"; const nLab = created.length;
 r = await post(good); j = await r.json();
 ok(r.status === 200 && created.length === nLab + 1 && !created[nLab].labels, "label rejected -> retried without label");
 labelMode = "ok";
+
+// Decisions page sheets ride the same relay as rounds 9000+
+const nDec = created.length;
+const sheetAns = {round: 9001, scenes: {"act1-01": {choice: "A", rating: null, note: "yes, as planned"}, "srv-pvp": {choice: "later", rating: null, note: ""}}, overall: "Add a card on voice chat."};
+r = await post(sheetAns); j = await r.json();
+const dec = created[nDec] || {};
+ok(r.status === 200 && created.length === nDec + 1 && dec.title === "Decisions: sheet 1" && JSON.stringify(dec.labels) === '["decisions"]',
+   "round 9001 -> issue 'Decisions: sheet 1' labelled decisions");
+ok(/Decisions page answers for sheet 1 \(sent through the relay\)/.test(dec.body || ""), "decisions issue body names the sheet");
+{
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "qf-dec-"));
+  const issuesFile = path.join(tmp, "issues.json");
+  fs.writeFileSync(issuesFile, JSON.stringify([{number: 77, html_url: "https://github.com/MarionWhite/quest-forge/issues/77", title: dec.title,
+    body: dec.body, state: "open", created_at: "2026-10-25T12:00:00Z", user: {login: "owner"}}]));
+  const fa = path.join(here, "..", "..", "..", "decisions", "fetch_answers.py");
+  const pr2 = spawnSync("py", ["-3.10", "-I", fa, "--issues-json", issuesFile, "--out", tmp, "--no-mark"], {encoding: "utf8"});
+  let out = null; try { out = JSON.parse(fs.readFileSync(path.join(tmp, "s001.json"), "utf8")); } catch {}
+  ok(out && out.sheet === 1 && out.resolved["act1-01"] && out.resolved["act1-01"].choice === "A" && out.resolved["act1-01"].followed === true &&
+     out.resolved["srv-pvp"].choice === "later" && out.open.includes("srv-pvp") && !out.open.includes("act1-01"),
+     "fetch_answers.py resolves the sheet answers (A followed, srv-pvp later)" + (out ? "" : `: ${pr2.stderr || pr2.stdout}`));
+  ok(/\| act1-01 Act boundaries \| \*\*A\*\* Yes, split as planned/.test(pr2.stdout), "fetch_answers.py prints the Markdown table");
+  fs.rmSync(tmp, {recursive: true, force: true});
+}
+const pr3 = spawnSync("py", ["-3.10", "-I", "-c", py, ff], {input: dec.body || "", encoding: "utf8"});
+let parsed9 = null; try { parsed9 = JSON.parse(pr3.stdout); } catch {}
+ok(parsed9 && parsed9.round === 9001, "fetch_feedback.parse() still reads the block (collect() then skips rounds 9000+)");
 
 // rate limit: 10 per 10 minutes per IP (the in-process run pins one IP; wrangler dev sees 127.0.0.1)
 const ip = "10.9.9.9"; let codes = [];

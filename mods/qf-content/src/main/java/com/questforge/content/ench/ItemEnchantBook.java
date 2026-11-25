@@ -55,6 +55,11 @@ public class ItemEnchantBook extends Item {
 
         list.add(ench.rarity.displayName());
         list.add(EnumChatFormatting.GRAY + "Applies to: " + ench.category.describe());
+        // What a player must know before gambling on it, e.g. Rage's clash with
+        // Excalibur (decision 0005 P4). The applied gear shows the same line.
+        if (ench.tooltipNote() != null) {
+            list.add(EnumChatFormatting.GRAY + StatCollector.translateToLocal(ench.tooltipNote()));
+        }
         list.add("");
 
         int success = BookNBT.getSuccess(stack);

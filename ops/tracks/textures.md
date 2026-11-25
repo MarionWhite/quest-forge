@@ -2,25 +2,21 @@
 
 Rewrite this file when the state changes; keep it under 2 KB.
 
-- **Builder:** `tools/textures/build_qf_textures.py`. Output goes to `C:\qfb\textures\QFTextures-vN.zip` and is NOT committed (it contains Mojang pixels).
-- **Direction:** `docs/design/textures/direction.md` and `faithless-study.md`. The owner's round 7 pack notes are in
-  `docs/design/shaders/feedback/r007.json` (scene `tex-packs`) plus the attachments.
-- **v0** (shipped to r007) won every comparison but changed too little in the forest.
-- **v1 in progress** (cc3230e):
-  - Faithful 64x for stone, bricks, ores and metals, plus Faithful's dirt sides.
-  - Our own plant and crop art in the direction of Stay True.
-  - PBR improved toward Vanilla Normals Renewed (licence check pending).
-  - Bookshelves.
-  - Leaf gaps as small pockets.
-  - CIT potion and enchanted-book prototypes (Faithless-inspired), with CIT on in TRIAL config only.
-- **Owner likes:**
-  - Faithful 64x stone bricks and metals.
-  - Stay True's wheat and leaves on trees, but not the frills on single blocks or hedges.
-  - Patrix mobs. Asked what's achievable: 1.7.10 has no CEM, so repaints only.
-  - Vanilla Normals Renewed's light interaction.
-  - Soartex's bookshelves.
-  - From Faithless: item sprites, unique potion bottles and enchanted books, the GUI (not the main menu), creative tabs, TNT lettering, boss bars and animations.
-- **Owner dislikes:** Conquest's textures, Faithful's grass, and Faithless's block textures.
-- **Hand-off:** write `C:\qfb\shaderdev\r008\texture_scenes.json`, then `TEXTURES-READY`. The shader round merges them.
-- **Showcase world:** `C:\qfb\textures\world-showcase`, with the texture wall, glass, and the modded-block wall (`--modded`, 36043c9).
-- **Modded blocks (decision 0006):** ranking and style notes in `docs/design/textures/modded-blocks.md`; `build_modded_textures.py` (ores on Faithful stone, backports, modded CTM, emissive) and `build_ship.py` (one zip, `C:\qfb	extures\QFTextures.zip`, wired into the release builder and the client profiles). Panes connect (`glassPane=true`, installed live). Fold into v1.
+- **Builder:** `tools/textures/build_qf_textures.py` -> `C:\qfb\textures\*.zip`, never committed (Mojang pixels).
+  `--stay-true PATH` copies Stay True from `C:\qf-world\reference-packs` at build time (private, never git-added).
+- **Direction:** `docs/design/textures/` (direction, faithless-study, modded-blocks, leaf-frills).
+- **Gems:** owner picked r015 E frost (`--gem-look frost`). r016 slider (`--gem-look slide20..80`) re-rendered with
+  the gem ramp (QF_GEM_RAMP 1, 80da4db; render 1101-201308): even slide, ends = r015 E and D;
+  keep ramp default. Chisel calm (`--chisel-gems calm`) connects. Awaiting the owner.s step.
+- **r011 Stay True port** (`r011-stay-true.md`): leaf planes and weighted tall crops (qf-tweaks branch `leaf-frills`
+  718473f, not merged). Open: leaves denser than the transparency the owner liked; keep or thin.
+- **HUD:** r016 handed off: 4 minimal HUDs + 4 Infernum-studied boss bars (qf_hud_r016). XpBarStyle
+  hook (boss bar, %, XP colour, medallion) needs the owner's yes. Settled: round 12 mobs, Conquest snow golem.
+- **Owner's test copy** (2026-11-01, `qf-angelica-test.md`): `%APPDATA%\.qf-angelica` (Angelica, real copies,
+  saves) + shader 1017eb5 (r015) + `build_test_stack.py` picks + leaf-frills tweaks v7; HUD as live.
+- **Next:** owner's r016 slider step (then break any per-block repeat); then merge leaf-frills, set builder defaults, build QFTextures-v3; second item style.
+- **Owner likes:** Faithful 64x bricks, metals and leaves; Stay True wheat and tree leaves; Patrix mobs; VNR light;
+  Soartex bookshelves; Faithless items, potions, books, GUI, TNT and boss bars.
+- **Owner dislikes:** Conquest textures, Faithful grass, Faithless blocks, r010 spiky frills.
+- **Showcase world:** `C:\qfb\textures\world-showcase` (diag_column/diag_emerald = wall-lighting ladder).
+- **Modded blocks (0006):** `build_modded_textures.py` + `build_ship.py` -> `C:\qfb\textures\QFTextures.zip`.

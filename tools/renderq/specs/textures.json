@@ -1,0 +1,45 @@
+{
+ "name": "textures",
+ "owner": "texture-agent",
+ "comment": "Edit resourcepacks/QFTextures (or the builder), then submit this: the runner builds the pack, then renders it next to vanilla and Faithful in ONE boot (resource packs switch in the world).",
+ "prebuild": [
+  [
+   "py",
+   "-3.10",
+   "-I",
+   "tools/textures/build_qf_textures.py",
+   "--out",
+   "C:/qfb/textures/QFTextures-dev.zip"
+  ]
+ ],
+ "defaults": {
+  "world": "C:/qfb/textures/world-showcase",
+  "preset": "3",
+  "size": "2560x1440"
+ },
+ "jobs": [
+  {
+   "tag": "txq",
+   "resourcepacks": [
+    "C:/qfb/textures/QFTextures-dev.zip"
+   ],
+   "scenes": "texture_wall,glass_close,forest_lit,golden_lit"
+  },
+  {
+   "tag": "txf",
+   "resourcepacks": [
+    "C:/qfb/faithful/dl/Faithful.32x.-.1.7.10.zip"
+   ],
+   "scenes": "texture_wall,glass_close,forest_lit,golden_lit"
+  },
+  {
+   "tag": "txv",
+   "scenes": "texture_wall,glass_close,forest_lit,golden_lit"
+  },
+  {
+   "tag": "txo",
+   "preset": "off",
+   "scenes": "texture_wall,glass_close,forest_lit,golden_lit"
+  }
+ ]
+}

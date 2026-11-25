@@ -18,5 +18,5 @@ ironHorseArmor= minecraft:iron_horse_armor,1,0,10
 goldHorseArmor= minecraft:golden_horse_armor,1,0,5
 diamondHorseArmor= minecraft:diamond_horse_armor,1,0,1
 
-potion= chocolateQuest:healingPotion 1,0,20
+potion= chocolateQuest:healingPotion,1,0,20
 bullets= chocolateQuest:bullet,9,0,10

@@ -3,6 +3,8 @@
 // The Lab page (site/shaders/) POSTs the owner's answers here; this Worker
 // turns them into a GitHub issue "Shader Lab feedback: round N" whose body ends
 // in a ```json block, the format tools/shaders/review/fetch_feedback.py reads.
+// The Decisions page (site/decisions/) sends sheet N as round 9000+N; that issue is
+// titled "Decisions: sheet N" and read by tools/decisions/fetch_answers.py.
 //
 //   GET  /caps       -> 200 {ok, attachments: true, max_bytes, max_files, max_per_scene, max_file_bytes, types}
 //                    The Lab shows its image-attach UI only when this answers.
@@ -33,6 +35,10 @@ const MAX_PER_SCENE = 6;
 const MAX_FILE_BYTES = 2.5 * 1024 * 1024; // one image, decoded
 const TYPES = {"image/jpeg": "jpg", "image/png": "png", "image/webp": "webp"};
 const OVERALL = "_overall";
+const SHEET_BASE = 9000;   // rounds 9000+ are Decisions page sheets (site/decisions/): sheet N = round 9000+N
+const isSheet = r => r >= SHEET_BASE;
+const titleFor = r => isSheet(r) ? `Decisions: sheet ${r - SHEET_BASE}` : `Shader Lab feedback: round ${r}`;
+const labelFor = r => isSheet(r) ? "decisions" : "shader-feedback";
 const ATT_DIR = "docs/design/shaders/feedback/attachments";
 const RATE_MAX = 10;                 // posts ...
 const RATE_WINDOW_MS = 10 * 60 * 1000; // ... per 10 minutes per IP
@@ -202,7 +208,7 @@ async function commitImages(env, round, atts) {
 // then (with images) a machine-readable list in an HTML comment.
 function issueBody(ans, imgs) {
   const flat = s => s.replace(/\s*\n+\s*/g, " ").replace(/@/g, "@​"); // no accidental @-mentions
-  const lines = [`Shader Lab feedback for round ${ans.round} (sent through the relay)`, ""];
+  const lines = [`${isSheet(ans.round) ? `Decisions page answers for sheet ${ans.round - SHEET_BASE}` : `Shader Lab feedback for round ${ans.round}`} (sent through the relay)`, ""];
   for (const [id, a] of Object.entries(ans.scenes)) {
     const pick = a.choice === "neither" ? "Neither" : a.choice ? a.choice : null;
     const bits = [pick ? `pick ${pick}` : null, a.rating ? `${a.rating}/5` : null].filter(Boolean).join(", ");
@@ -236,8 +242,8 @@ function issueBody(ans, imgs) {
 
 async function createIssue(env, ans, imgs) {
   const post = labels => gh(env, `/repos/${REPO}/issues`, "POST",
-    {title: `Shader Lab feedback: round ${ans.round}`, body: issueBody(ans, imgs), ...(labels ? {labels} : {})});
-  let r = await post(["shader-feedback"]);
+    {title: titleFor(ans.round), body: issueBody(ans, imgs), ...(labels ? {labels} : {})});
+  let r = await post([labelFor(ans.round)]);
   // A token that may not create the label gets 403/422; the label is a nicety, the issue is not.
   if (r.status === 403 || r.status === 422) r = await post(null);
   if (!r.ok) return [null, r.status];

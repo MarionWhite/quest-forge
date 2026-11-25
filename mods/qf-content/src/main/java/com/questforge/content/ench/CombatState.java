@@ -24,6 +24,15 @@ public class CombatState {
             new WeakHashMap<EntityLivingBase, Integer>();
 
     /**
+     * What each attacker last struck with a swing, and when. Bastion's golems
+     * read it to stay off the target their owner is working on
+     * (TickedEffects.mustYield; decision 0005 P8). Recorded by the bridge on
+     * every melee hit, enchanted weapon or not.
+     */
+    private static final Map<EntityLivingBase, Streak> LAST_STRUCK =
+            new WeakHashMap<EntityLivingBase, Streak>();
+
+    /**
      * Depth of our own damage calls currently on the stack. A counter rather
      * than a flag, because an effect can fire inside another effect's damage
      * (Cultist inside an Arc chain) and the inner exit must not clear the outer.
@@ -69,6 +78,25 @@ public class CombatState {
         LAST_HURT.put(entity, Integer.valueOf(entity.ticksExisted));
     }
 
+    /** Records that {@code attacker} just landed a swing on {@code target}. */
+    public static void recordStrike(EntityLivingBase attacker, Entity target) {
+        Streak s = LAST_STRUCK.get(attacker);
+        if (s == null) {
+            s = new Streak();
+            LAST_STRUCK.put(attacker, s);
+        }
+        s.target = target;
+        s.lastTick = attacker.ticksExisted;
+    }
+
+    /** True if the last swing of {@code attacker} hit {@code target} within the last {@code windowTicks}. */
+    public static boolean struckRecently(EntityLivingBase attacker, Entity target, int windowTicks) {
+        if (attacker == null || target == null) return false;
+        Streak s = LAST_STRUCK.get(attacker);
+        return s != null && s.target == target
+                && (attacker.ticksExisted - s.lastTick) <= windowTicks;
+    }
+
     /** True if this entity took damage within the last {@code windowTicks}. */
     public static boolean wasHurtRecently(EntityLivingBase entity, int windowTicks) {
         Integer tick = LAST_HURT.get(entity);
@@ -87,6 +115,7 @@ public class CombatState {
     public static void forget(EntityLivingBase entity) {
         STREAKS.remove(entity);
         LAST_HURT.remove(entity);
+        LAST_STRUCK.remove(entity);
     }
 
     // --- Reentrancy -------------------------------------------------------

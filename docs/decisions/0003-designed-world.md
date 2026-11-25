@@ -26,6 +26,16 @@ Biomes O' Plenty generates the **outskirts** as players explore.
   the north, desert and tropics to the south. The pie-slice ring layout of draft v0 is
   rejected.
 
+**Update 2026-10-25: no hand painting.** The author will not use WorldPainter. The continent
+is built entirely by the pipeline from the plan spec; the size settled at 49,152 blocks
+(docs/design/world/r13). The author judges renders, and agents make the changes in iterations.
+WorldPainter remains only an automated build step. Anything once meant as a hand touch-up is
+either automated or dropped: tree placement, river-bank softening, waterfall review.
+
+**Difficulty (2026-10-25):** a tier layer (docs/design/world/r14) enforced by a hybrid. Biome
+spawn tables decide which mobs appear, and a position hook scales them by tier
+(r14/difficulty-enforcement-proposal.md, with the author's decisions recorded there).
+
 ## Why
 
 The author wanted RLCraft's biome quality and danger gradient, along with a hand in building

@@ -133,3 +133,6 @@ tools/shaders/relay/.dev.vars
 # Local-only mob skins for the Krypt page (tools/textures/mobs/import_patrix.py): third-party, All Rights
 # Reserved art used on the owner's machine only. Never commit, push or deploy anything in here.
 site/graves/tex/mobs-local/
+
+# qf-tweaks: compile-time stubs of Decocraft classes, built by build.bat, never shipped
+mods/qf-tweaks/build-stubs/

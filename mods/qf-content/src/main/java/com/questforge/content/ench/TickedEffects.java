@@ -64,6 +64,8 @@ public class TickedEffects {
         EntityLivingBase owner;
         EntityLivingBase target;
         int ticksLeft;
+        /** Leaves whatever the owner has just struck alone; see mustYield. */
+        boolean yieldsToOwner;
     }
 
     /** How much a crippled entity's outgoing damage is cut, and until when. */
@@ -379,13 +381,53 @@ public class TickedEffects {
      */
     public static void addSummon(EntityLivingBase entity, EntityLivingBase owner,
             EntityLivingBase target, int ticksLeft) {
+        addSummon(entity, owner, target, ticksLeft, false);
+    }
+
+    /**
+     * As above; {@code yieldsToOwner} makes the summon leave whatever its owner
+     * has struck within the last {@link #YIELD_TICKS} alone (Bastion's golems;
+     * decision 0005 P8, option a).
+     */
+    public static void addSummon(EntityLivingBase entity, EntityLivingBase owner,
+            EntityLivingBase target, int ticksLeft, boolean yieldsToOwner) {
         entity.getEntityData().setBoolean(SUMMON_TAG, true);
         Summon s = new Summon();
         s.entity = entity;
         s.owner = owner;
         s.target = target;
         s.ticksLeft = ticksLeft;
+        s.yieldsToOwner = yieldsToOwner;
         SUMMONS.add(s);
+    }
+
+    /** Ticks after the owner's last swing on a target during which a yielding summon leaves it alone. */
+    private static final int YIELD_TICKS = 20;
+
+    /**
+     * Whether {@code summon} must leave {@code target} to its owner right now:
+     * it is a yielding summon and its owner struck that target within the last
+     * {@link #YIELD_TICKS}. Asked by the event bridge whenever a mob picks a
+     * target, and by keepPointedAtTheEnemy before it re-points one.
+     *
+     * Why golems yield (2026-10-25, decision 0005 P8). An iron golem's hits
+     * take the boss's invulnerability frames out from under the wielder's
+     * larger, multiplied hits: a swing inside the window lands only its raw
+     * excess over the golem's 7-21, and WeaponScaler and this mod's multipliers
+     * scale only that excess (census anomalies 2026-10-17, 4b). Bastion
+     * measured -37% across T2 and -120% on Baba Yaga, whose 15-raw cap leaves
+     * nothing after a golem hit. So for a second after each of the wielder's
+     * swings the golem ignores that target: it fights the adds and the boss is
+     * the wielder's. Wolves and the undead hit for 3-4 raw and never showed the
+     * effect, so Necromancer and Alpha do not yield.
+     */
+    public static boolean mustYield(EntityLivingBase summon, EntityLivingBase target) {
+        if (summon == null || target == null) return false;
+        for (Summon s : SUMMONS) {
+            if (s.entity != summon) continue;
+            return s.yieldsToOwner && CombatState.struckRecently(s.owner, target, YIELD_TICKS);
+        }
+        return false;
     }
 
     /**
@@ -524,8 +566,19 @@ public class TickedEffects {
         // mid-fight is an accepted risk of calling one.
         if (current == s.owner || Hostility.isProtectedBystander(current)) current = null;
 
+        // A yielding summon is off whatever its owner is hitting (mustYield). The
+        // bridge already refuses it at the moment the AI picks it; this catches a
+        // target it held before the owner's swing.
+        if (current != null && mustYield(s.entity, current)) {
+            mob.setAttackTarget(null);
+            current = null;
+        }
+
         if (current == null || !current.isEntityAlive()) {
             if (s.target != null && s.target.isEntityAlive()) {
+                // The summon's own target stays on record while the owner works
+                // on it, so it is taken up again once the owner lets up.
+                if (mustYield(s.entity, s.target)) return;
                 mob.setAttackTarget(s.target);
                 if (mob instanceof EntityCreature) {
                     ((EntityCreature) mob).setTarget(s.target);

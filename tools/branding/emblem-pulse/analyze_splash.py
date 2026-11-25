@@ -2,7 +2,7 @@
 from pathlib import Path
 from PIL import Image
 
-p = Path(r"C:\Users\a2dsu\OneDrive\Desktop\QuestForge-Work\_emblem-pulse")
+p = Path(r"C:\dev\QuestForge-Work\_emblem-pulse")
 im = Image.open(p / "smoke_splash1.png").convert("RGBA")
 w, h = im.size
 print("size", w, h)

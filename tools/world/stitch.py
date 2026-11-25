@@ -1,13 +1,17 @@
 """Join exported WorldPainter pieces into one world and point it at RWG (decision 0003).
 
     py -3.10 tools/world/stitch.py OUT_WORLD PIECE_EXPORT [PIECE_EXPORT ...] [--seed N] [--spawn X Z]
-        [--generator RWG|BIOMESOP]
+        [--generator RWG|BIOMESOP] [--registry LEVEL_DAT]
 
 Pieces are 512-aligned, so each region file belongs to exactly one piece; a region file that
 two pieces both wrote is an error, not something to merge. level.dat comes from the first
 piece: WorldPainter writes generatorName=largeBiomes, so it is set to RWG with a fixed seed
 (docs/design/world/poc.md). --generator BIOMESOP is the no-code fallback: until the qf-tweaks
 hook exists RWG decorates painted chunks by its own noise, BoP's world type by the stored biome.
+
+--registry copies the FML block/item ID map (and the Forge compound beside it) from a pack world's
+level.dat, so the stitched world starts with exactly those IDs and numeric-ID schematics with modded
+blocks (the BoP-skinned trees) stay right. Use C:\qfs0\world\level.dat (blockids.py).
 """
 import argparse, os, shutil, sys
 import nbtlib
@@ -21,6 +25,7 @@ def main():
     ap.add_argument("--spawn", nargs=2, type=int, default=None)
     ap.add_argument("--name", default="qf-continent")
     ap.add_argument("--generator", default="RWG", help="level.dat generatorName: RWG, or BIOMESOP (BoP)")
+    ap.add_argument("--registry", help="level.dat whose FML ItemData (block/item IDs) the world should carry")
     a = ap.parse_args()
 
     if os.path.exists(a.out):
@@ -46,6 +51,10 @@ def main():
     data["LevelName"] = nbtlib.String(a.name)
     if a.spawn:
         data["SpawnX"], data["SpawnZ"] = nbtlib.Int(a.spawn[0]), nbtlib.Int(a.spawn[1])
+    if a.registry:
+        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        from blockids import inject_registry
+        print(f"{inject_registry(lvl, a.registry)} block IDs pinned from {a.registry}")
     lvl.save()
     print(f"{len(seen)} region files from {len(a.pieces)} pieces -> {a.out} (generatorName={a.generator}, seed {a.seed})")
 

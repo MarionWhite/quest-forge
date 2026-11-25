@@ -1,4 +1,308 @@
 # Shaders journal (newest first)
 
+- 2026-11-01: **r016 PUBLISHED** (commit f15c766, pushed): https://marionwhite.github.io/quest-forge/shaders/ , 12 scenes, r015 closed, 61 images load. Warnings stated in round text: cost run partial (r15 meteor clip), High over budget (sea-sunset/A 3.73 ms, shore-sunset/A 3.01). Only json/jpg/webp published.
+
+- 2026-11-01 22:20: **r016 pre-publish fixes (shader-dev)**, critic.json `_r016_publish_summary` items 1-5, 7. roundlib.oc
+  saved every crop as <tag>-<scene>-crop.png, so crops of one frame overwrote each other (sea C showed E, sun A/B showed
+  the column): now <tag>-<scene>-<key>-crop.png, all 13 re-cut and checked. Dawn regression: QF_DUSK_SKY 3 and
+  QF_DUSK_RAY now act in the evening only (common.glsl qfDuskEve, QF_DUSK_DAWN 0; mornings keep 2): s16fd dawn open sky
+  89,82,95 vs p15 90,83,96, shore = y29 (mean |d| 0.63). Shore pass 4, QF_DUSK_CLFLOOR 1 (cloud floor at ~1.2x/1.4x the
+  sky behind, tan): the left cloud went tan, the top right stayed brown, top right r-b 23 and 21 px >120: fails, default
+  0. Scene text: shore not passed by eye (6/10, 60,46,34 vs 69,60,58; 71,57,49 vs BSL 118,88,59); sea ripple, shimmer
+  noise, meteor cost wording; sun-glow E/F sand crops (p16cc vs p14cch1). Render 1101-220338-r016-final.
+
+- 2026-11-01 21:05: **r016 sky loop 3 + hand-off prep (shader-dev)**, work order critic-loop2.json. Sea s16r3's settings
+  are the defaults (QF_SUN_WHITE 3, GLINT_GAIN 16, GLINT_LO 0.2, SEA_NEAR 4, WATER_PENUMBRA 12, METER_CAP 3). Shore: the
+  critic's change (darken lit cloud by elevation, hue kept) failed in all four tries (s16y1-y4): the pale top-right
+  cloud is thin, so its light mostly takes the open-sky branch (T high), and it sits 18-31 deg up (new debug views 17/18:
+  sky / clear-sky ratio bits, elevation bands). New QF_DUSK_HICLOUD 3: a high pixel past 2x the clear sky is lit cloud,
+  brought to 1.9x and to the open sky's mauve past 30 deg; QF_DUSK_TOPR 0.885 cuts the top tint's red. Box r-b <=16 and
+  open-sky r-b >=10 pinch: s16y29 passes all six by hundredths (15.97, 10.10); now default (QF_DUSK_ZEN 7). Combined
+  render s16y1 (sea + shore) held every sea/sun/night number; ZEN 7 leaves ocean_sunset/sun_clear/golden_lit unchanged.
+  ZEN 7 also fired at sunrise (dawn_wide's high clouds dark): new QF_DUSK_DAWN 0, sunsets only (s16dw); dawn's open
+  sky is still mauve, not r015's blue (pass 1's QF_DUSK_SKY 3), left for the critic. Cost run 1101-205802: sunset water
+  +0.11 ms vs r015 same run (path +0.07, ZEN +0.03), High worst 3.77, 14/24 over, Low 0.99. SHADERS-READY; hand-off
+  r016\spec_scenes.py, round.json, shore.json; frozen r015 pack r016\pack-r15 (1017eb5).
+
+- 2026-11-01 20:20: **r016 critic loop 2 (shader-dev)**, work order critic-loop1.json, measured with r016	ools\l2m.py
+  (critic's revised targets). Root cause of the sea/sun conflict confirmed: the meter's uncapped mean; new QF_METER_CAP 3
+  (default; gated to open sky; plains/sky/beach noon, golden_lit unchanged; torch is bimodal 31/40 run to run, not the
+  cap). With it f1's sea opts pass sea AND sun (s16r3/s16r3cc). The island-base wedge was the island's shadow on the
+  glint: QF_WATER_PENUMBRA 12 softens it at golden hour. Shore: QF_DUSK_ZEN 7 drains only the open sky by the cloud
+  deck's transmittance (c3's golden clouds kept) with a mauve top: 5/6 (top right). Night: QF_METEOR_WHITE 1 (emerald
+  body, white head, air dims without reddening) and QF_STAR_POINT 1 (the soft blobs were Photon's 4-cell blend; now
+  ~2 px points), 2.97 ms. QF_GEM_RAMP 1: the gem path ramps over the slider's gloss (texture-dev re-renders).
+
+- 2026-11-01 19:25: **r016 sky loops 1-11 (shader-dev)**. Measured with r016\tools\measure.py (now masks meteor streaks:
+  the "brightest stars" were the green trains). Night: all pass, made default (QF_METEOR_NAVY 0.30, new QF_STAR_GAIN
+  0.070, QF_STAR_TMAX 15000; s16cm1 sky 17,23,37, stars 161,189,207; cost 2.92 ms vs 2.98). Sea: loop 2's SSR fix was
+  not the cause, the island's shadow cuts the path; new QF_SUN_WHITE 3 (hot-core gain QF_GLINT_GAIN/LO, QF_GLINT_AZ,
+  QF_GLINT_CAP, near-white shoulder in final) + QF_SEA_NEAR (mirror near the sun's bearing to warm white): s16f1 passes
+  all 7, but the same gain blows sun_clear's glint into a blob and loses the owner's D sand edge; azimuth gates and caps
+  trade one for the other (best compromise s16g2/s16g2cc). Shore: new QF_DUSK_ZEN (sun < 7 deg, sky above 10-26 deg):
+  per-channel cuts turned clouds olive (rejected); 6 (darken + neutral drain) passes 5/6, rims fail, look storm-grey.
+  Sun glow: default passes (s16acc 28.9). Sea/shore defaults unchanged; frames for the critic in the r016 checkpoint.
+
+- 2026-11-01 16:20: **r016 sky pass 1 (shader-dev), stopped early**: queue paused from 16:05 (owner in a game), so only the
+  sea frames of loop 1 (1101-155233) landed. New options, defaults on: QF_SUN_WHITE 1 (per-channel shoulder past an
+  exposed peak of 5 at golden hour + white glint core; SSR hides the glint only toward the sun), QF_SEA_FAR 3 (r014's
+  horizon line back, 23 px; wider sun lift), QF_DUSK_SKY 3 (+QF_DUSK_RAY), QF_METEOR_SKY 3 (+QF_METEOR_NAVY). Sea: sun
+  core now clips (204 px, 255,253,251), band 2.76 -> 2.57, path core still gold (1.65) and hidden by the island's
+  reflection -> loop 2 (1101-160434) queued. Sun glow: HALO 1 (default) is D: block tops eaten 1-3 px by the tight haze
+  lobe (row 28.8 vs 27). Table and next steps: ops/checkpoints/r016-shader.md.
+
+- 2026-11-01 13:40: **r015 posted** (b0f4ea6; 11 scenes: 4 shader + gems + HUD packs; closes r014). sea-sunset/A 3.61 ms over 3.0, stated in the round text. Only renders/crops/clips published (jpg/webp + json). Live: https://marionwhite.github.io/quest-forge/shaders/ ; r015.json and images 200. Awaiting owner feedback; r016 aim: white-hot glint.
+
+- 2026-11-01 13:10: **r015 shader scenes handed off** (C:\qfb\shaderdev
+015\SHADERS-READY; 4 shader scenes, dry run
+  11 with textures/packs). Cost 1101-104149 clean except Low: p15lo underwater/night_wide ran at half the frames (p99
+  7.8/9.5 ms), a renderq cache hit re-served it (p15lo2), so re-measured fresh (p15lo3, 1101-125848) next to the r14
+  pack (p14rlo2): Low lake 0.94 / ocean 0.95 vs r14 0.95 / 0.93, no change. High worst 3.65 sun_clear; 11/24 over 3.0
+  (9 water views 3.11-3.65, nights 3.02/3.11), as r014; sea sunset 3.61 (r14 pack 3.55 same run). Meteors forced
+  shower 2.98 (clear sky off 3.02, r14 pack 3.05): no measurable cost, still over r012's 2.94. Potato worst 0.31.
+  SEA_FAR FAILED its aim: the sun's path stays r/b 2.76 (r14 2.76, off 2.76, BSL 1.96); it only blues the strip under
+  the open-sea horizon (2.98 -> 2.55). The orange path is the gold sun glint itself; r016: white-hot glint. Scene says
+  so (title "not fixed yet", C/D 2x left-horizon crops). Shore DUSK 2: gold share 44 % -> 13 % (BSL 1 %), rims amber,
+  cloud 134,105,45 -> 124,99,66, open sky lilac 117,96,111 (BSL 83,65,61, darker; said). Night: dark cloud 18 -> 5 %,
+  star px 17k -> 136k.
+
+- 2026-11-01 09:35: **r014 published** (83e5fa5, 14 scenes). Owner approved publishing as is, including in-game renders of the copied packs; no raw pack files shipped. Live r014.json 200, all images/clips 200, 600 px Edge shot in C:\qfb\shaderdev
+014\look\live-600.png. Over budget: sea-sunset/A 3.56 ms (water), stated on page.
+
+- 2026-10-31 21:58: **r014 shader scenes handed off** (SHADERS-READY; 6 shader scenes, dry run 14 with textures).
+  Cost 1031-204537 clean (no noisy steps, no magenta, frames from the new run). High sea sunset 3.56 (r013 3.52, graze
+  +0.03-0.04), shore 2.87 (2.84), Low ocean_sunset 0.95 (0.92); meteors wide view 2.98 = r013, cull saves 0.02, still
+  0.04 over r012's 2.94. Sea mid r/b 1.26 -> 2.02 (BSL 2.03). Loop 6: halo core x2/x4 moved the glow 6 levels or less,
+  so QF_SUN_HALO stays off and the scene says the glow is the sky haze's. Gems: on r013's texture the dark bevel lines
+  stay (scene text corrected); faithful shot with GEM_LOOK 2 (1031-214418, g14fai2) added; textures_scenes.json and its
+  generator corrected (they said GEM_LOOK was off by default).
+
+- 2026-10-31 21:25: **r014 shader work, publish cost queued** (1031-204537-r014-publish-cost). Critic r013 notes as the
+  work order. Sea: BSL's normal fade did nothing (the middle sea mirrors our pale sky 10-15 deg up); the mirrored
+  elevation now leans to the horizon at grazing golden-hour views, takes the 2-deg band's hue, body x0.4: middle sea
+  r/b 1.26 -> 1.99 (BSL 2.03). Shore: coral came from the rose far-side sky lighting the bases plus the neutral tone
+  shoulder; all cloud light gets the gold shift under 7 deg and the shoulder burns to warm white (sun core spared).
+  Sun: whole disk via QF_CLOUD_COVER 0.6 (cloud-free view); the clear-sky glow is the haze/sky Mie, not the final-pass
+  bloom (debug view 16), three halo tries barely moved it; x2/x4 core in loop 6. Meteors: cull < 0.25 brightness and
+  green/amber hue (r010 photos). Gems: plastic = uniform _s + lambert body under clear coat; new inner-facet light
+  (QF_GEM_LOOK 2), flat-face sun glint (no dashes).
+
+- 2026-10-29 17:20: **r013 published** (c5b777e, 18 scenes, r012 closed; live after ~3 min). All 46 images/clips 200, page screenshot checked. Open: pk-mob scenes show Patrix/Conquest skins in game renders on the public site; owner to decide keep or pull.
+
+- 2026-10-29 17:00: **r013 shader scenes handed off** (C:\qfb\shaderdev\r013\SHADERS-READY; 6 scenes). Publish cost
+  1029-160736 clean (no noisy steps, no magenta, no stale variants). Publish frames: near sea r/b 0.47 -> 1.05, shore
+  clouds B/G 0.96 -> 0.78, full-white px round the sun 352 -> 155. High: sea sunset 3.52 / 3.55 (sun_clear) vs r012
+  3.66 / 3.69, 3.40 with rays off, so the water is over, not the rays; 11 of 24 High views over 3.0, all with water, as
+  in r012. Low lake 0.94 and ocean_sunset 0.92 (r012 0.88/0.89, noise-level). Rays scene moved to ocean_sunset crops
+  (golden_lit shows no beams) with a beams-off option; meteors text fixed (r012's lanes were the clip's radiant 90 deg
+  off view, not the shower). Water cost left as an owner question for a later round.
+
+- 2026-10-29 16:15: **r013 loop 2 read, publish cost queued** (1029-160736-r013-publish-cost). Loop 2 (1029-130228)
+  lost 6 cost steps to the owner gaming at 13:16; renderq kept the 23 before it and re-ran the rest at 15:52, all
+  userbusy noisy false, cross-boot lake 3.67-3.75. Shore: QF_SUN_GOLD_LOW 3 takes the clouds B/G 0.94 -> 0.77, horizon
+  G/R 0.70 -> 0.74 (2: 0.85); ocean_sunset and golden_lit identical, so 3 is the default. Sun: of 14 candidates none clears
+  the far strand at the sun's height (two spawned in terrain); sun_clear = ocean point 300 W at 12250, roundest core
+  (rings 252 223 208 201 196). High costs vs the frozen r12 pack: ocean_sunset 3.55 / 3.66, rays +0.12 (16 taps +0.15,
+  r012 +0.30) but 3.43 with rays off, so the water is what is over 3.0; storm meteors 2.96 / 3.02; gem SSR +0.14-0.16.
+  spec_scenes.py drafted (6 scenes; BSL frames kept internal).
+
+- 2026-10-28 18:00: **r012 published** (4ebc2cc, 23 scenes, live). HUD scene reduced to the offline mock (in-game shots had chat over hearts); mob views 4 and 7 state the missing slime, magma cube, squid; sunset A 3.65 ms over budget shown. See ops/checkpoints/r012-publish.md.
+- 2026-10-28 17:05: **r012 pre-publish fix: the oval through the cloud was the sun disk, not the glow.** Critic: a
+  hard-edged tilted oval through thin cloud in the gem glint frames, blamed on QF_SUN_BLOOM. Those frames were shot on the
+  r011 base pack (no glow at all) and the r012 pack shows the same oval. Profile (g12a gem_glint_d row 300): cloud 185-189,
+  inside 223-228, rim +7 luma/px; 78 x 112 px = the 4-degree disk (QF_SUN_SIZE 15) projected off-axis. The disk core is ~50
+  exposed and the cloud march stops at T < 0.02, so 1-2 % still beat the cloud (r009 on). sky.glsl: the disk fades out
+  with the cloud (T x smoothstep(0.03, 0.25, T)); that left the tight corona as a +4-5 luma outline round the hidden disk,
+  so final.glsl draws the corona only where a tap just inside the limb shows the disk (th < 2.5 R). Now a monotonic glow
+  (peak 206) with the crisp sliver below the cloud. Gem glint views re-shot g12a2/b2/c2 (1028-165517); gem_lit B clip
+  re-cut as g12bclip2 (960x540 on both gems; sweep +9 luma on the pillars, one frame in 84). sun-glow scene dropped
+  (sun behind cloud in every option); r013 needs a clear-sun view. Sunset frames predate the fix (not re-shot).
+
+- 2026-10-28 16:40: **r012 shader scenes handed off** (C:\qfb\shaderdev\r012\spec_scenes.py, SHADERS-READY; 4 scenes:
+  sunset-full, sun-glow 2x crops, sun-cloud, meteors; pack 4f9e553). Loop 2 (1028-151425): the glow shows once measured
+  in display units with its own visibility (thin sunlit cloud over the disk counts): sun box 194.0 none / 196.0 default /
+  197.4 strong, BSL 224 (clear disk); noon unchanged. Gold: ocean_sunset upper sky 154,133,116 (r011 154,121,122 lilac);
+  shore_sunset barely moves (sun on the horizon). golden_lit near grass 40,56,19 (r011 69,67,40, r010 38,45,15). Lean
+  meteors read as tapered hairlines, none at dusk. Costs (1028-151500, High 1440p): worst ocean_sunset 3.65 (r011 3.30):
+  round 10's rays +0.30 there (Photon's +0.02), glow +0.06-0.09, gold +0.04, near air 0; Low 0.89, Potato 0.31; meteors
+  2.94 both shapes. Gem SSR (QF_GEM_SSR) +0.18/+0.17/+0.05 ms, written into the texture track's gems scene.
+
+- 2026-10-28: **r011 posted** (1553b04, 29 scenes via finish_round --publish). Rays scene moved to golden_lit (lake_glitter A looked like off; no p11r75 frame there, option dropped); pack scenes marked noCost. Checkpoint ops/checkpoints/r011-publish.md.
+
+- 2026-10-28 09:20: **r011 shader scenes handed off** (be6b241; C:\qfb\shaderdev
+011\spec_scenes.py, SHADERS-READY;
+  3 scenes). Loop 3 read: rays invisible (+1-3 luma; Photon's term only adds light to a sky that already holds the lit
+  air's glow); loop 4 QF_CREP_SHADE 0.5 dims that glow by the shadowed share of the air below the cloud base: wedges
+  round the sun p5 -6 luma (0.75: -10, r010 -16). golden_lit near grass still lifted, 66,64,39 vs r010 40,45,15; at x1
+  density (r11a1) already 62,63,35, so it is Photon's own evening Mie haze: stated on the Lab, a later item. Costs (High
+  1440p, 1027-224601 + 1028-085424): atmosphere -0.12..+0.03, rays +0.00..+0.07 (r010 +0.14..+0.31); worst ocean_sunset
+  3.28-3.30 (r010 3.31; sea/swamp-water views 3.01-3.16 over, as before); night_wide 2.99 for shower and storm (r010
+  3.47 / 3.98). Low 0.86, Potato 0.30. Later: Conquest's sky/fog/lightmaps need shader-side ports (texture-dev note).
+
+- 2026-10-27 22:47: **r011 Photon port, loops 1-3** (ada996a). Owner r010: "copy from the packs that are doing things
+  right". Atmosphere: Angelica 2.2.33 parses raw TEXTURE_3D custom textures, so Photon's scattering LUT ships unmodified;
+  offline check (r011/tools/atmo_sim.py) shows it is in our sky-view units (zenith 0.8-1.2x ours), so it fills prepare's
+  sky-view tables at no per-pixel cost. With Photon's sun tint, horizon stretch and air fog: twilight is a lit blue hour
+  (shore_dusk was near black); at 8 chunks Photon's fog was a third as thick as CR's horizon band (139,109,97 vs
+  212,160,120) because its densities assume a 16-32 chunk view: land x sqrt(256/far), sky and reflections through 256
+  blocks. Rays: Photon's march through a 64x64 cloud shadow map; loop 1 drew nothing (debug 15: ~1 % of the sky, the
+  gain was 6x too low for our light units), now QF_CREP_I 0.3. Meteors: the sky cut into 96 (storm 240) wedges round the
+  radiant, 3 slots per pixel instead of 24/40; loop 2 hairlines, longer, fainter, Milky Way on shower nights; matches
+  the owner's photos in max-over-time sheets. Costs pending 1027-224601-r011-publish-cost (08:00).
+
+- 2026-10-27 20:30: **r010 posted** (01b7fe4, --no-push; 21 scenes: 8 shader, 8 texture, 5 frills/crops). Costs from
+  1027-193818-r010-publish-cost (done 20:04, 17/17 jobs). High p10 worst night_wide 3.47 (grazers), night_new 3.42,
+  night_sky 2.88 (r9 2.46); sunset/water views 3.04-3.31, within 0.03 of r9. Clip p50s: grazers 3.43, storm 3.98
+  (~0.034 ms per meteor slot). Low 0.89, Potato 0.31. Crepuscular rays (p10cr - p10): ocean_sunset +0.33 (3.64), lake
+  +0.22, forest/dust +0.15, golden/noon +0.04; in the full frame they draw a clear fan above the sun, more than the
+  "-7 % luma" suggested. Mint box (900-1460 x 560-900): p9 1107, **p10 0 px**. Procession (p10clipg2, radiant 45,
+  PROC_P 9): one fireball dives steeply from the top edge with 2-3 fragments and vanishes in one frame (f107 -> f108),
+  so not a procession: dropped from the Lab (meteors now A grazers, B storm, C r9). Critic (me, r010/critic.json):
+  56 frames, mean 6.6 (shader 6.9); 8s for grazers, sunset, rays, gold, underwater_sun, beach, frills B, crop variants;
+  "not yet: forest light needs a new view and technique". Two owner cost calls in DECISIONS (rays, meteor slots).
+
+- 2026-10-27 19:45: **r010 shader work done, publish-cost run submitted** (1027-193818, specs/p10-cost.json; pack c542939).
+  Meteors: Earth-grazers (3D tracks 88-118 km up, radiant 1-5 deg above the horizon) read as long thin level streaks with
+  tapering wakes (r10i1c); style 1 default, 2 procession (unproven in loop 3's clip: it ran overhead, out of the crop;
+  p10clipg2 tries radiant 45), 3 storm. Sunset mint: SSR fix 1107 -> 678 px; QF_SHALLOW_SUN (bed lit by the golden boost)
+  was a wrong cause (ss0/1/2 692/661/686, now off); debug view 12 showed the wedge's "bed" was the sky: dR = 1, so
+  colortex3 there is the horizon glow, and 32 blocks of reef water left mint (151,185,130). No bed in view -> behind = 0.
+  Gold: METAL_FLOOR + vibrance floor took gold/stone 1.48 -> 1.74 (vanilla 1.82), blue clipped 61 % -> 0 %;
+  QF_METAL_F0 (LabPBR 230-237 F0 table) G/R 0.941 -> 0.934, lime gone in crops. UW_VIS 2.0 (+41 % far contrast),
+  RIVER_TINT 1 (water 51,79,63 -> 50,74,80). No visible change: SUN_CLOUD 2 (0.5 luma), DUST_LEAF 2 / SHAFTS 2 (1 luma).
+  Crepuscular rays (16 taps, High-only) -7 % luma in the sun crop; cost from p10cr goes on the Lab. spec_scenes.py and
+  round.json written (8 shader scenes + texture + frills). Next: critic, then publisher.
+
+- 2026-10-27 08:55: **r009 posted** (ab4ada7, --no-push; 20 scenes: 11 shader + 9 texture). Costs from
+  1027-020424-r009-publish-cost (done 08:41, 24/24 jobs), ms vs shaders-off of the same size:
+  High p9 worst ocean_sunset 3.29 (r8 4.58); over 3.0: river_swamp 3.14, beach 3.08, swamp/ocean_swamp 3.04, biome_ocean
+  3.03; the rest 1.88-3.00. Low p9lo worst 0.86 (r8 1.32, budget 0.9). Potato 0.29 (0.4).
+  Budget lines on the 6 r8b views (High, ms saved when off): SHAFTS 0.62-0.85 (r8 1.84 mean), DUST+MOTES 0.30-1.03,
+  WAVES 0-0.23, PBR 0.03-0.10. QF_VOL_FAST 0 adds +0.42 (forest_golden) to +1.46 (golden_lit) High and +0.41-0.50 Low;
+  its look at sheet scale is the same (golden_lit, dust_b). Water views now carry the High overage.
+  Critic (me, r009/critic.json): mean 6.5 over 22 frames, "not yet: motes in the beam". Dust clip motion map: leaf sway
+  and beam shimmer only, no separable mote tracks (same as p8); the p9 shaft by the cliff is fainter than p8's, and with
+  QF_DUST 0 the few motes show more (haze hides them). River: yellow stripes gone, but pale mint dashes on the ledge edges.
+  Meteor clip: about 7 near-parallel streaks with heads at the lower ends, one radiant above the top right of the frame.
+  Pre-post checks: terrain in all 22 frames, clips 1.1-2.9 MB, intro numbers filled. Texture options carry the new
+  "noCost" flag (shot-mode t9* frames; finish_round.py skips them in the no-cost stop).
+
+- 2026-10-27 02:04: r009 last night tries, then the freeze. Shot 1027-015510 (pinned exposure) put two ideas behind
+  temporary toggles: an open-sky shaft veil cut to 0.5 on golden-hour rays through shaded air (forest_golden's cream sky
+  round the gap 150.3 -> 147.9 R: noise; shaded share on sky rays is too small to key on), and raw shadow taps for mote
+  visibility (dust_b lower shaft, DBG 1: 43.0 -> 40.7 R, no new flakes: the filtered vis is not why that half is empty).
+  Both reverted; both stay open for r010. Pack frozen at 76fb7ef. The stale volfast cost run 1026-223822 (a651ede) was
+  cancelled, and **1027-020424-r009-publish-cost** (p9-cost.json, 112 scenes, High/Low/Potato + off baselines + per-option
+  budget lines + QF_VOL_FAST 0) was submitted for 08:00. Next: results table, critic, publisher.
+
+- 2026-10-27 01:52: r009 forest wash, canopy veil (0c72440). New dev pin QF_EXPO_PIN (log2 QF_EXPO_PIN_LOG) so A/B frames
+  share one exposure. With it pinned at 1.0, the 01:28 pending-dust idea (keep dust only where the ray goes on into shade)
+  did nothing (canopy R 36.5 -> 35.6; rays onto leaves cross shaded air too), so it was reverted. What worked is cutting
+  the haze by what the ray hits: dustL x0.4 when the pixel is foliage (g1 is already fetched, so no cost). Canopy 36.5 -> 28.4 R
+  (dust off 20.9), green kept, no outline at the leaf/sky edge, dust_b path beam -4 %. Part (b), the cream sky veil round the
+  gap, is still open.
+
+- 2026-10-27 01:45: r009 meteors (513fa7d, lib/sky.glsl), built from docs/design/shaders/research/meteor-showers.md
+  for the owner's r008 note ("isn't just shit flying in every direction"). r008 had a radiant already, but it sat mid-view in
+  night_sky, so the clip was a starburst of equal-length streaks at every heading. Now: random bearing, 25-60 deg up per
+  night, slot use ~ sin(altitude); starts 10-100 deg out (cos-uniform, so most far out), length (0.22-0.50 rad)*sin(d), so
+  meteors near the radiant are short; brightness min(0.6/u, 8) (P(>b) ~ 1/b, r ~ 2.5), colour saturates with brightness, white
+  head; trains only above 2.5; fireball (u<0.012) head glow. Same 12-slot loop on night sky pixels: no added cost. r9mclip:
+  ~5 streaks in 90 frames, all moving left/down-left (head tracked frame by frame), so the view reads as one direction.
+  The pinned QF_METEOR_SHOW pair runs the same way. Caught a fireball in r9mt night_new: soft ~90 px halo, streak fat
+  under bloom; for the critic to judge. Skipped: sporadics, persistent trains of 20-60 s (the ~4 s slot cycle can't hold
+  them), sky flash.
+
+- 2026-10-27 01:31: r009 river, underwater, sky_noon, forest wash retry (shot renders only, all ALU-only or reverted).
+  River (critic p8): the "ledge stripes" were yellow-green grass tops seen through teal water. 85dab7a pulls the bed's
+  hue to the water's teal at its own luma (mix 0.6*river) and eases the down-path filter 4.0 -> 3.0: in r9rv the near
+  stripes read as teal bed texture, the far yellow dashes are gone, the bed is a little clearer. No glint: river_noon's
+  sun is overhead/behind, so none is physically in frame. Underwater (owner r008 "more blue for the other water
+  types"): first try (volume only) barely moved, because the shafts carried the green; 85dab7a gives the volume and the
+  shafts shared eye coefficients (non-swamp: g/b absorption swapped at 0.8, scatter x(0.75,0.8,1.8)). r9uw is blue-teal
+  with blue shafts; swamp keeps its green by construction (river_swamp above water unchanged).
+  sky_noon radial smear: a 380-block march segment plus 0.5 dt in-cloud steps (r9sf) matched the same-pack baseline (r9sb)
+  exactly, so it is not along-ray undersampling. Cause is the shape: the base field is 2D and runs through the 170-block
+  slab, and columns seen from below fan out from the zenith. A fix needs height-varying base shape, likely one more noise
+  fetch per sample (not cost-neutral), so it was reverted and left for a cost decision.
+  Forest wash retry: (b) open-sky veil mix(0.8, 0.5, gBeam*gh) did nothing beyond run noise (gBeam is low on sky rays
+  round the gap); (a) dust counted only ahead of shaded free air (else 0.35) brightened the whole frame instead (canopy
+  46->50, sky 175->190, likely exposure), and dust_b was unchanged. Both reverted. Next idea for (a): the exposure meter
+  compensates whatever the haze loses, so pair any haze cut with a fixed-exposure A/B (or read prepare.glsl's meter) first.
+
+- 2026-10-27 01:07: r009 cloud-over-sun, grazing light, forest wash (shot renders only, all cost-neutral).
+  Cloud-over-sun (owner r008 sunset-full): cloudMarch's far-cloud melt (fade ~0.1 at a low sun) also cancelled the slab's
+  transmittance on the disk, so a low sun shone whole through the wisps over it. 25e9263: skyRadiance adds the disk after
+  the clouds, times gCloudTd = mix(1, T, smoothstep(0.012, 0.03, dir.y)) from cloudMarch (QF_CLOUDS 2). r9cs (T^2) and
+  r9ct (T) look alike: the slab is dense where ocean_sunset's sun sits, so the sun now sets behind that cloud with a
+  crescent under its base and the aureole kept. The critic's "sun form" is judged on the sky views from now on.
+  Grazing light (critic p8 golden_lit): 20331ee, at golden hour up-facing lit faces take diffuse >= 0.7*goldenHour;
+  the shadow map still gates. A 7.9 deg sun throws ~7-block shadows behind every terrace step, so only the strips
+  between turn gold: ridge bands +4..+6 R (r9gy vs r9do), near field 41.9,46.7,14.7 (no olive). 0.32 (r9gz) was unseen.
+  Forest cream wash (critic p8 forest_golden), not fixed; bisects: QF_SHAFTS 0 takes the right canopy (box x 1900-2500,
+  y 300-700) 47,51,7 -> 19,47,5 and turns the sky round the gap neutral; QF_AERIAL 0 ~+10 only; QF_DUST 0 canopy -> 31,47,5
+  with the sky unchanged. So the canopy veil is mostly dust haze (dustL) and the cream sky is the shafts' open-sky veil
+  (lit *= 0.8 at dist >= far). Tried and reverted: (1) keepNear = gBeam*smoothstep(0.30,0.60,shadedAir) on the near-air
+  switch, no effect (r9fw); (2) dustL *= mix(0.35,1,smoothstep(8,40,dist)) on hits, canopy 47 -> 39 but dust_b's
+  lit beam over the path visibly weaker (r9fx), a regression on the owner's lowest-rated ask.
+
+- 2026-10-27 00:44: r009 sun step. The p8 critic already rated the disk crisp with a real warm aureole (the limb/core
+  asks were uh's, done in r008 loop 3); the open ask was the water path (77 luma vs r007 qw 86). b6b26f7: the long
+  low-sun lobe in shadeWaterAbove is wider (a2b x3.2, was 2.2) and brighter (0.80, was 0.30), and keeps sqrt(balance)
+  near the camera. Constants only, no cost. Shot renders 1027-003639 (r9sn, weight 0.44: only +5-10 %) and 004022 (r9so):
+  ocean_sunset path luma (x 1140-1300, 120-row bands from y 760) 127->133, 69->80, 45->53, 37->45, 30->35, 25->25 against
+  r9dm; off-path water unchanged; lake_glitter unchanged (sun behind the cliff). Not done: the dark navy open water at
+  sunset (critic p8). It stays open.
+
+- 2026-10-27 00:35: r009 dust motes (dust_b, critic p8clipdust), shot renders 1027-002247 (r9dm, r9dm1 = QF_DUST_DBG 1),
+  002705 (r9dn, r9dn1), 002955 (r9dv1 = DBG 1 + QF_VOL_FAST 0), 003222 (r9do). Three commits, all cost-neutral or cheaper:
+  ca40184 far flakes gated per mote (shade on BOTH sides across the light, 2 taps, was 3 + gBeam; gBeam is dithered per
+  pixel/frame and with 14 shaft steps flickered under every flake, so TAA kept none); c209810 near air flakes keep a 1.7
+  size factor past 8 m (~4 px; tex-golden's 1.2 left ~1 px dots); bbf3b79 flakes fade over the last 1.5 m in front of a
+  surface (were last 18% near / 8 m far). Result: motes now drift in dust_b's upper shaft (against the cliff); ocean_sunset
+  clean (r8b's orange specks over the sea gone, none added); golden_lit no coins back; forest_golden unchanged.
+  Open: the shaft's lower half (box 1460,560,1900,1160, over the corridor grass) has no sunlit flake even in DBG 1, with or
+  without QF_VOL_FAST; not size, not the end fade, not the fast-path skip. Remaining suspects: the mote vis
+  (sampleShadow, filtered + normal offset) disagreeing with the march's raw shadowtex0 taps, or that haze's lit air sits
+  past the near grid's reach (25 cells from 2.5 m). Next diagnostic: a debug view of the first lit free-air distance on
+  those pixels, and DBG 1 with vis from shadowRaw instead of sampleShadow.
+
+- 2026-10-27: r009 tex-golden artifacts (texture-dev handover), shot renders 1026-235508 (r9tg), bisects 1027-000345
+  (debug view 7), 000618 (shafts/dust/bounce off), 000950 (view 5, clouds off), 001317 (views 2, 3), verify 001651 (r9tg2).
+  The stepped "lit rectangle" was none of shafts, dust, bounce, clouds or the sun shadow (view 5: the whole field is in the
+  hill's shadow). View 3 showed block light (colortex2.r) up to ~1 in soft patches over the field: light sources in the
+  grass, the stair-steps being vanilla's per-block falloff, and the motes took that block light (Eblock) and glowed as the
+  orange "coins". Fix cd1cfa7: blockDayDamp(skyLight) = 1 - 0.7*smoothstep(-0.05,0.10,sunY)*sky^2 on surfaces and motes
+  (the mote-walk skip uses it too, so that field now skips the walk). r9tg2: rectangle and warm patches gone, coins nearly
+  gone, radial streaks much fainter. forest_golden and dust_b beams unchanged. Also in 4666aab (did not cure the rectangle
+  alone, kept): shaft taps jittered +-1 shadow texel, the golden-hour near-air switch only towards the sun, the mote beam
+  test's downward tap removed (it sat under the grass at low sun; 3 taps, was 4), near flakes 2.6-1.3 -> 2.0-1.2.
+
+- 2026-10-26: r009 cost breakdown (renderq 1026-174757, p50 ms, delta = base minus option-off; base r8b/r8lb were cached).
+  High (2560x1440, base 2.8-5.0 ms, off 0.35-0.51): SHAFTS -1.84 mean / -2.50 max; DUST+MOTES -1.48 / -2.30;
+  WAVES+FOAM+CAUSTICS -0.15 / -0.30; PBR -0.11 / -0.19; AERIAL+HAZE -0.06; GOLDEN_HOUR -0.06; BOUNCE -0.04; RIM -0.03;
+  FLECKS+SPARKLE ~0. Low (preset 1, 1080p, base 1.51-1.74, off 0.42-0.52): SHAFTS -0.51 / -0.69; WAVES -0.06; PBR -0.04;
+  BOUNCE -0.01. The volumetric pair (shafts + dust) is about 3.3 of High's ~4.7 ms; everything else together is under 0.5.
+  They probably share the march (critic: dust off also kills beam haze), so the two deltas overlap and don't add up.
+  dust_b has no base row in r8b, so it is missing from the table. Next: cut march steps or resolution, gate dust on shafts,
+  then the auto-tier helper.
+
+- 2026-10-26: r008 posted (006fe9b, --no-push) from cost run 1026-015851 (39/39 done, terrain in every frame); critic 6.3,
+  not yet a leap (motes in beams; iron reflection; ocean sun path; forest_golden wash; sky_noon deck); 10 p8 frames 3.5-4.6 ms > 3.0.
+
+- 2026-10-26: r008 loop 4, bug fixes (205d13c; renders um bisect, up, uq, ur, us, ut; sheets C:\qfb\shaderdev
+008\look\l4).
+  Boot fault: FrameBench settled on "0 chunk updates" with no chunks; it now waits for client chunks, retries, and renderq drops
+  no-terrain scenes (f81dc5d, eca88fd; new jar). golden_lit olive = QF_DUST's beam test on ground shadow noise: 37,47,15 now.
+  forest_golden oval = a TAA-smeared dust mote ~1-4 m out: gone. Metals reflect via SSR (stripe gone). Lake near Fresnel faded,
+  sun path +5%, warm aureole. Open: motes inside beams still sparse in dust_b's clip; forest_golden cream wash; the queued
+  publish-cost run 1026-004242 renders the pre-loop-4 shader and must be resubmitted.
+- 2026-10-26: r008 prepared for publishing: spec_scenes.py (14 shader scenes with 4 motion clips, then the 11 texture scenes) and
+  round.json in C:\qfb\shaderdev
+008; one cost submission 1026-004242-r008-publish-cost (p8*/c8* + baselines) waits for 08:00.
+  Shader frames come from that run (critic notes still needed); texture frames stay t8*, costs from c8*. Lab footer credits Faithful/VNR.
+- 2026-10-26: r008 loop 3 (ef42eec; renders uj/uk/ul). Fixed: crisp sun limb, no glare disk over leaves, sky colour in the calm lake,
+  river grey cloud patch, forced meteor stills (QF_METEOR_SHOW). Partial: metals show a horizon line, beam dust a few flakes.
+  Open: golden_lit olive ground (shafts/aerial/amber ruled out), river ledges faint, sky_noon streaks. One boot lost terrain after forest_golden.
 - 2026-10-25: r007 answered (issue #11). r008 started on the new render queue. Before this date, the full history is in
   `C:\qfb\shaderdev\NEXT.md` (PC only) and the posted rounds `site/shaders/rounds/r000-r007.json`.

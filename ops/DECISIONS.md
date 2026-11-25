@@ -19,7 +19,36 @@ delete the entry here. Sheet 1 (30 cards) was answered 2026-10-25 → decisions 
 - **WP-6 finale and Pack Master rewards** (bag + tome per finale; statue + Legendary bag), the Act
   III diamond overage (78 vs 72), and whether Act III's tab waits for the Act II finale. In s002.
 
+## Shaders: r009 answers (2026-10-27); two r010 questions open on the Lab
+- QF_VOL_FAST 1 stays the default ("doesn't look like we are trading much"). Daytime torchlight damping stays.
+  The sun stays hidden behind its cloud; make the disk/cloud interaction realistic. Noon clouds: keep the cheaper
+  version ("the performance win here is justified"); no extra noise fetch.
+- Leaves: **build real outward leaf frills** (direction.md "Leaf frills" option D) on Faithful 64x leaf art,
+  owner's choice 2026-10-27 over shipping Faithful leaves as they are. Lower presets may turn frills off.
+- **Open (r010): crepuscular rays at sunset** (sunbeams fanning out of the clouds round a low sun). Needs a screen-space
+  pass of 16 extra texture reads per sky pixel near a low sun (QF_CREPUSCULAR 1, High/Ultra only). Measured in
+  1027-193818-r010-publish-cost (High, 1440p): **+0.33 ms at most**, on ocean_sunset (3.31 -> 3.64 ms, budget 3.0);
+  lake_glitter +0.22, forest_golden/dust_b +0.15, golden_lit and sky_noon +0.04 (off at noon). Look: cloud wedges
+  about 7% darker; a clear fan of lanes above the sun in the full frame. *Recommend: leave off by default (the sunset frame is already
+  0.31 ms over); offer as an Ultra-only option if the owner likes it.* Asked on the r010 Lab page (scene "sun-cloud").
+  *r011 (owner r010: B, "only if we can afford them"):* Photon's rays (world-space march through a cloud shadow map,
+  Medium+) with shadow wedges cost **+0.00 to +0.07 ms** on High (r010's +0.14 to +0.31; 1028-085424). Wedge depth
+  round the sun: A (QF_CREP_SHADE 0.5) -6 luma, D (0.75) -10, r010 -16. Asked on the r011 Lab: A, D or off.
+- **Open (r010): meteor density vs cost.** Grazer meteors test every slot per sky pixel: night_sky 2.46 -> 2.88 ms,
+  night_wide 3.47 ms (A, 24 slots) and 3.98 ms (storm, 40 slots), budget 3.0; about 0.03 ms per slot. Halving to 12
+  slots saves about 0.4 ms. Asked on the r010 Lab page (scene "meteors"); the fireball-procession style was dropped.
+  *r011 (owner r010: B storm, "improve performance again"):* sectored shower, 3 slots per pixel whatever the count:
+  night_wide **2.99 ms** for both the shower (96 wedges) and the storm (240), vs r010 3.47 / 3.98 (1027-224601).
+  Asked again on the r011 Lab page: shower or storm as the default.
+
 ## Textures
+- **Decided: crop variants via a small qf-tweaks hook (r010).** Stay True's fields never tile because each wheat block picks
+  one of five sprites at random. Our five wheat sprites exist (`--wheat bushy`), but render 1027-164404 shows every
+  block identical: Angelica 2.2.33's MCPatcher CTM mixin covers `renderCrossedSquares`, panes, vines and standard faces,
+  not `renderBlockCrops` (checked in its bytecode), so CTM `method=random` never reaches wheat, carrots or potatoes.
+  Fix: a qf-tweaks transformer in `renderBlockCrops` that picks one of 5 registered icons by a position hash (same
+  render path as the leaf frills; no per-frame cost, only chunk meshing). **Owner: yes (2026-10-27).** Built on the
+  leaf-frills track (ops/checkpoints/r010-leaf-frills.md).
 - **F32 Modded Edition 1.7.10** (README-only permission, no licence file): use it for Railcraft,
   Twilight, Witchery, Chisel, drawers, iron chests and BoP at 32x, or reference only.
   *Recommend: use, README quoted.* In s002.
@@ -29,6 +58,11 @@ delete the entry here. Sheet 1 (30 cards) was answered 2026-10-25 → decisions 
   with a link). Confirm before they go in the shipped zip.
 
 ## Shader
+- **Round 10's rays vs the High budget (r012 Lab, scene "sun-cloud").** The owner picked round 10's rays in r011 (C).
+  They cost **+0.30 ms** on the sea sunset (High 1440p 3.65 ms, budget 3.0; round 11 with Photon's rays 3.30), +0.23 on
+  lake_glitter, +0.13-0.21 elsewhere at sunset, ~0 at noon (1028-151500-r012-publish-cost). *Recommend: keep the look,
+  and next round make it cheaper (fewer taps, or Photon's shadow-map march drawn with round 10's lanes) rather than
+  drop it.* Stated on the r012 Lab question; no card needed unless the owner wants the budget held strictly.
 - **Rule 10 counted in full-screen equivalents** so clouds, light shafts, bloom and AO can each use
   a sub-resolution buffer. *Recommend: yes.* In s002.
 
@@ -58,3 +92,7 @@ delete the entry here. Sheet 1 (30 cards) was answered 2026-10-25 → decisions 
 - **The last ~10 ms of focus risk.** LWJGL calls SetForegroundWindow once per test-client launch,
   and the guard hands focus back within 10 ms. Removing it fully needs a qf-tweaks transformer,
   which means a live-jar install. *Recommend: yes, low risk.*
+
+## Balance: enchant documents (2026-10-25)
+- **Enchant rarity plan** (docs/design/enchant-rarity-plan.md): accept the rarity bands as "proportionate", pick redesigns (section 4) and which of 15 new enchant ideas to prototype. *Recommend: yes to bands; prototype Leech, Hunter's Mark, Parry, Brace, Evasion, Siphon.*
+- **Fight-duration study** (docs/design/fight-duration-study.md, DRAFT, evidence thin): accept the per-tier target band (section 4) as the working target? Nothing changes until yes. *Recommend: yes as a target only.*

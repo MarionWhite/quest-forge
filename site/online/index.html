@@ -4,226 +4,281 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Who's online · Quest Forge</title>
-<meta name="description" content="Whether the Quest Forge server is up, who is playing right now, and how to get on the whitelist.">
-<meta name="theme-color" content="#E9EAE4">
+<meta name="description" content="Who is on the Quest Forge server right now, when it was last seen, and how it is running.">
 <meta name="robots" content="noindex">
-<link rel="icon" href="../favicon.png" type="image/png">
-<link rel="apple-touch-icon" href="../apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
-<script>(function(){try{var t=localStorage.getItem('qf-theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)}catch(e){}})()</script>
 <style>
-/* Tokens shared with every page under site/. */
+/* Tokens shared with the homepage, the mod list and the item index. */
 :root{
   --paper:#E9EAE4; --surface:#F7F8F3; --sunk:#DFE1DA;
   --ink:#171B19; --ink-2:#3E4642; --muted:#6A726C; --rule:#CDD1C8;
-  --ember:#A33F17; --ember-ink:#8E3712; --ember-wash:rgba(163,63,23,.10);
-  --patina:#2C4A43; --patina-wash:rgba(44,74,67,.12);
+  --ember:#A33F17; --ember-ink:#8E3712; --patina:#2C4A43;
+  --ok:#2E7D4F; --warn:#A33F17; --off:#6A726C;
   --shadow:rgba(23,27,25,.10);
   --night:#0E0B12; --night-ink:#ECE6F2; --night-2:#B9AFC6; --glow:#F08A3C;
-  --up:#2E8B57; --down:#A33F17;
 }
 @media (prefers-color-scheme:dark){
   :root:not([data-theme="light"]){
     --paper:#111412; --surface:#191D1A; --sunk:#0C0F0D;
     --ink:#E7E9E2; --ink-2:#C2C7BE; --muted:#8B948B; --rule:#282E29;
-    --ember:#E58A55; --ember-ink:#EFA274; --ember-wash:rgba(229,138,85,.13);
-    --patina:#7FB6A6; --patina-wash:rgba(127,182,166,.13);
-    --shadow:rgba(0,0,0,.45); --up:#5FD08A; --down:#E58A55;
+    --ember:#E58A55; --ember-ink:#EFA274; --patina:#7FB6A6;
+    --ok:#5FD08A; --warn:#E58A55; --off:#8B948B;
+    --shadow:rgba(0,0,0,.45);
   }
 }
 :root[data-theme="dark"]{
   --paper:#111412; --surface:#191D1A; --sunk:#0C0F0D;
   --ink:#E7E9E2; --ink-2:#C2C7BE; --muted:#8B948B; --rule:#282E29;
-  --ember:#E58A55; --ember-ink:#EFA274; --ember-wash:rgba(229,138,85,.13);
-  --patina:#7FB6A6; --patina-wash:rgba(127,182,166,.13);
-  --shadow:rgba(0,0,0,.45); --up:#5FD08A; --down:#E58A55;
+  --ember:#E58A55; --ember-ink:#EFA274; --patina:#7FB6A6;
+  --ok:#5FD08A; --warn:#E58A55; --off:#8B948B;
+  --shadow:rgba(0,0,0,.45);
 }
 *{box-sizing:border-box}
 body{margin:0;background:var(--paper);color:var(--ink);
   font-family:"Source Serif 4",Georgia,serif;font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
-h1,h2,h3,.ui,button{font-family:Archivo,"Helvetica Neue",Arial,sans-serif}
-code,.mono{font-family:"JetBrains Mono",ui-monospace,Menlo,monospace}
-.wrap{max-width:1180px;margin:0 auto;padding-left:28px;padding-right:28px}
-a{color:var(--ember-ink)}
+h1,h2,h3,.ui{font-family:Archivo,"Helvetica Neue",Arial,sans-serif}
+.mono{font-family:"JetBrains Mono",ui-monospace,Menlo,monospace}
+.wrap{max-width:860px;margin:0 auto;padding-left:28px;padding-right:28px}
 :focus-visible{outline:2px solid var(--ember);outline-offset:2px}
+a{color:var(--ink)}
 
-nav.site{border-bottom:1px solid var(--rule);background:var(--surface)}
-nav.site .wrap{display:flex;align-items:center;gap:2px 18px;flex-wrap:wrap;min-height:50px;padding-top:6px;padding-bottom:6px}
-nav.site .brand{display:flex;align-items:center;gap:9px;font-family:Archivo,sans-serif;font-weight:800;font-size:15px;
-  letter-spacing:-.01em;color:var(--ink);text-decoration:none;margin-right:auto}
-nav.site .brand img{width:22px;height:22px;border-radius:4px}
-nav.site a:not(.brand){font-family:Archivo,sans-serif;font-size:13.5px;font-weight:500;color:var(--ink-2);text-decoration:none;
-  padding:4px 1px;border-bottom:2px solid transparent}
-nav.site a:not(.brand):hover{color:var(--ink);border-color:var(--rule)}
-nav.site a[aria-current="page"]{color:var(--ember-ink);border-color:var(--ember)}
-nav.site .theme{margin-left:4px;display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;padding:0;border:1px solid transparent;border-radius:50%;background:none;color:var(--ink-2);cursor:pointer}
-nav.site .theme:hover{color:var(--ink);border-color:var(--rule)}
-nav.site .theme:focus-visible{outline:2px solid var(--ember);outline-offset:1px}
-nav.site .theme svg{width:17px;height:17px;display:none}
-nav.site .theme[data-mode="auto"] .i-auto,nav.site .theme[data-mode="light"] .i-light,nav.site .theme[data-mode="dark"] .i-dark{display:block}
+/* ---- top bar: the way back ---- */
+.bar{border-bottom:1px solid var(--rule);background:var(--surface)}
+.bar .wrap{display:flex;align-items:center;gap:14px;height:52px}
+.bar a.home{font-family:Archivo,sans-serif;font-weight:700;text-decoration:none;font-size:15px;letter-spacing:-.01em;color:var(--ink)}
+.bar a.home span{color:var(--muted);font-weight:500}
+.bar .right{margin-left:auto;font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--muted)}
 
-header.mast{padding:48px 0 30px;border-bottom:2px solid var(--ink)}
-.kicker{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ember-ink);margin:0 0 14px}
-h1{font-size:clamp(38px,7vw,68px);line-height:.94;font-weight:800;letter-spacing:-.03em;margin:0;text-wrap:balance}
-.lede{max-width:60ch;margin:18px 0 0;font-size:17.5px;color:var(--ink-2)}
+/* ---- head ---- */
+header.page{padding:38px 0 8px}
+.kicker{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ember);margin:0 0 10px}
+h1{font-size:clamp(28px,5vw,42px);font-weight:800;letter-spacing:-.025em;line-height:1.08;margin:0 0 12px}
+.intro{max-width:64ch;color:var(--ink-2);margin:0;font-size:16.5px}
 
-main{padding:40px 0 0}
-.panel{border:1px solid var(--rule);background:var(--surface);border-radius:3px;padding:26px 28px;max-width:820px}
-.panel .state{display:flex;align-items:center;gap:12px;font-family:Archivo,sans-serif;font-size:clamp(22px,3vw,30px);font-weight:800;letter-spacing:-.02em}
-.dot{width:12px;height:12px;border-radius:50%;background:var(--muted);flex:none}
-.dot.up{background:var(--up);box-shadow:0 0 0 4px color-mix(in srgb,var(--up) 25%,transparent)}
-.dot.down{background:var(--down)}
-.panel .sub{margin:8px 0 0;color:var(--ink-2);font-size:15.5px}
-.panel .meta{margin-top:16px;display:flex;flex-wrap:wrap;gap:4px 22px;font-family:"JetBrains Mono",monospace;font-size:11.5px;color:var(--muted)}
-.panel .meta b{color:var(--ink);font-weight:500}
-.players{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
-.player{display:flex;align-items:center;gap:9px;padding:6px 12px 6px 6px;border:1px solid var(--rule);border-radius:2px;background:var(--paper);
-  font-family:Archivo,sans-serif;font-size:14px;font-weight:600}
-.player img{width:24px;height:24px;image-rendering:pixelated;border-radius:2px;background:var(--sunk)}
-.motd{margin-top:14px;font-family:"JetBrains Mono",monospace;font-size:12.5px;color:var(--ink-2);white-space:pre-wrap}
-.actions{margin-top:18px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-button.refresh{font-size:13px;font-weight:600;padding:7px 14px;border-radius:2px;border:1px solid var(--ink);background:transparent;color:var(--ink);cursor:pointer}
-button.refresh:hover{background:var(--sunk)}
-.addr{font-family:"JetBrains Mono",monospace;font-size:13px;color:var(--ink);background:var(--sunk);padding:4px 10px;border-radius:2px;user-select:all}
+/* ---- the status card ---- */
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:3px;margin-top:26px;overflow:hidden}
+.state{display:flex;align-items:center;gap:14px;padding:22px 24px;border-bottom:1px solid var(--rule);flex-wrap:wrap}
+.dot{width:14px;height:14px;border-radius:50%;background:var(--off);flex:none;box-shadow:0 0 0 4px var(--sunk)}
+.state.online .dot{background:var(--ok)}
+.state.offline .dot{background:var(--warn)}
+.state h2{font-size:clamp(20px,3vw,26px);font-weight:700;letter-spacing:-.015em;margin:0;line-height:1.2}
+.state .seen{margin-left:auto;font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--muted);text-align:right}
+.state .seen b{color:var(--ink);font-weight:500}
+.stale{display:none;margin:0;padding:12px 24px;background:var(--ember);color:#FFF3EA;font-family:Archivo,sans-serif;font-size:14.5px;font-weight:600}
+.stale.show{display:block}
+.players{padding:20px 24px;border-bottom:1px solid var(--rule)}
+.players h3{margin:0 0 12px;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font-family:Archivo,sans-serif;font-weight:600;font-size:15px;padding:8px 14px;border-radius:999px;
+  background:var(--sunk);border:1px solid var(--rule);color:var(--ink)}
+.chip::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--ok);margin-right:9px;translate:0 -1px}
+.nobody{color:var(--muted);font-style:italic;margin:0}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:1px;background:var(--rule)}
+.fact{background:var(--surface);padding:16px 24px}
+.fact .k{font-family:"JetBrains Mono",monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 4px}
+.fact .v{font-family:Archivo,sans-serif;font-weight:700;font-size:20px;letter-spacing:-.01em;margin:0;font-variant-numeric:tabular-nums}
+.fact .v small{display:block;font-family:"JetBrains Mono",monospace;font-weight:400;font-size:11.5px;color:var(--muted);margin-top:2px}
 
-section.how{padding:48px 0 0;max-width:820px}
-section.how h2{font-size:clamp(22px,3vw,28px);font-weight:800;letter-spacing:-.02em;margin:0 0 6px;border-bottom:2px solid var(--ink);padding-bottom:8px}
-section.how ol{margin:12px 0 0;padding-left:22px;color:var(--ink-2);font-size:15.5px}
-section.how li{margin:7px 0}
-section.how li::marker{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--ember-ink)}
-section.how b{color:var(--ink);font-weight:600}
-section.how p{color:var(--ink-2);font-size:15px}
-.fine{margin-top:26px;font-size:13.5px;color:var(--muted);max-width:70ch}
+/* ---- per-dimension tick table ---- */
+.dims{margin-top:26px}
+.dims h2{font-size:20px;font-weight:700;letter-spacing:-.015em;margin:0 0 4px}
+.dims p{margin:0 0 12px;color:var(--muted);font-size:14.5px}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;background:var(--surface);border:1px solid var(--rule);border-radius:3px}
+th,td{text-align:left;padding:9px 14px;border-bottom:1px solid var(--rule);font-size:14.5px}
+th{font-family:"JetBrains Mono",monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:500}
+td.n{font-family:"JetBrains Mono",monospace;text-align:right}
+th.n{text-align:right}
+tr:last-child td{border-bottom:0}
+.bar-ms{display:inline-block;height:8px;background:var(--patina);border-radius:2px;vertical-align:middle;margin-left:8px;min-width:2px;max-width:22vw}
+.bar-ms.hot{background:var(--ember)}
 
-footer.site{margin-top:64px;border-top:1px solid var(--rule);padding:26px 0 56px;font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--muted)}
-footer.site .wrap{display:flex;flex-wrap:wrap;gap:6px 24px}
-footer.site a{color:var(--ink-2);text-decoration:none;border-bottom:1px solid var(--rule)}
-footer.site a:hover{color:var(--ember-ink);border-color:var(--ember)}
+/* ---- not connected ---- */
+.note{margin-top:26px;border:1px dashed var(--rule);border-radius:3px;padding:18px 22px;color:var(--ink-2);font-size:15.5px;background:transparent}
+.note code{font-family:"JetBrains Mono",monospace;font-size:13px;background:var(--sunk);padding:1px 5px;border-radius:2px}
+.hidden{display:none}
+
+footer{margin-top:64px;border-top:1px solid var(--rule);padding:26px 0 56px;font-family:"JetBrains Mono",monospace;
+  font-size:11px;color:var(--muted)}
+footer .wrap{display:flex;flex-wrap:wrap;gap:6px 24px}
+footer a{color:var(--ink-2)}
 @media (max-width:640px){
   .wrap{padding-left:16px;padding-right:16px}
-  header.mast{padding:34px 0 24px}
-  .panel{padding:20px}
-  nav.site .wrap{gap:2px 12px}
-  nav.site a:not(.brand){font-size:12.5px}
+  .state{padding:18px 16px}
+  .state .seen{margin-left:0;text-align:left;width:100%}
+  .players,.fact{padding-left:16px;padding-right:16px}
+  .stale{padding-left:16px;padding-right:16px}
 }
+@media (prefers-reduced-motion:reduce){ *{transition:none !important} }
 </style>
 </head>
 <body>
 
-<nav class="site" aria-label="Site"><div class="wrap">
-  <a class="brand" href="../"><img src="../favicon.png" alt="">Quest Forge</a>
-  <a href="../play/">Get the pack</a>
-  <a href="../first-night/">First night</a>
-  <a href="../mods/">Mods</a>
-  <a href="../items/">Items</a>
-  <a href="../worlds/">Worlds</a>
-  <a href="../enchantments/">Enchantments</a>
-  <a href="../ore-atlas/">Ore atlas</a>
-  <a href="./" aria-current="page">Server</a>
-  <button class="theme" type="button" data-theme-toggle aria-label="Theme" title="Theme"><svg class="i-auto" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18V3z" fill="currentColor"/><circle cx="12" cy="12" r="8.25" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><svg class="i-light" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="currentColor"/><g stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/></g></svg><svg class="i-dark" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z" fill="currentColor"/></svg></button>
+<nav class="bar"><div class="wrap">
+  <a class="home" href="../">Quest Forge <span>/ Who's online</span></a>
+  <span class="right" id="refreshNote"></span>
 </div></nav>
 
-<header class="mast"><div class="wrap">
-  <p class="kicker">Minecraft 1.7.10 &middot; The server</p>
-  <h1>Who's online</h1>
-  <p class="lede">The friends' server, live: whether it is up, who is on right now, and how to get on the whitelist.</p>
-</div></header>
-
 <main class="wrap">
-  <div class="panel" id="panel" aria-live="polite">
-    <div class="state"><span class="dot"></span><span id="stateText">Checking…</span></div>
-    <p class="sub" id="sub"></p>
-  </div>
+<header class="page">
+  <p class="kicker">The friends' server</p>
+  <h1>Who's online</h1>
+  <p class="intro">Who is on right now, when the server was last seen, and how its tick is doing. The server's
+    supervisor publishes this every minute; the page re-reads it while it is open.</p>
+</header>
 
-  <section class="how">
-    <h2>How to get on</h2>
-    <ol>
-      <li><b>Install the pack</b> from <a href="../play/">the release</a>, not from a mod list. The server lets in only the exact release it was built from.</li>
-      <li><b>Sign in with a real account.</b> The server runs in online mode, so Prism Launcher with your Microsoft account; the release's own offline launchers are refused.</li>
-      <li><b>Ask the host to whitelist your exact Minecraft name.</b> The whitelist stores the account behind the name, so a typo means "You are not white-listed".</li>
-      <li><b>Add the address</b> under Multiplayer and expect the first join to take a few minutes.</li>
-    </ol>
-    <p>If the server disconnects you with a message about your pack, <a href="../play/#refused">the install page</a> says what each one means.</p>
-    <p class="fine" id="fine">Status is read through api.mcstatus.io, which pings the server the same way the in-game server list does. Names are shown only
-      while a player is on; nothing here keeps a history.</p>
-  </section>
+<section class="card" id="card" aria-live="polite">
+  <div class="state" id="state">
+    <span class="dot" aria-hidden="true"></span>
+    <h2 id="headline">Checking…</h2>
+    <div class="seen" id="seen"></div>
+  </div>
+  <p class="stale" id="stale" role="alert"></p>
+  <div class="players">
+    <h3 id="playersH">Players</h3>
+    <div class="chips" id="chips"></div>
+    <p class="nobody hidden" id="nobody">Nobody on right now.</p>
+  </div>
+  <div class="facts" id="facts"></div>
+</section>
+
+<section class="dims hidden" id="dims">
+  <h2>Tick time by dimension</h2>
+  <p>Mean milliseconds per tick; the budget is 50 ms. Measured at <span id="tpsAt" class="mono"></span>.</p>
+  <table>
+    <thead><tr><th>Dimension</th><th class="n">ms / tick</th><th class="n">TPS</th></tr></thead>
+    <tbody id="dimRows"></tbody>
+  </table>
+</section>
+
+<div class="note hidden" id="notConnected">
+  <b>Not yet connected.</b> This page reads a <code>status.json</code> that the server's supervisor publishes.
+  Nothing is configured yet: set <code>feed</code> in <code>online/config.json</code> to the published URL
+  (the hosting guide, "Who's online"). Add <code>?demo</code> to this address to see the layout with sample data.
+</div>
 </main>
 
-<footer class="site"><div class="wrap">
+<footer><div class="wrap">
   <span>Quest Forge &middot; Minecraft 1.7.10</span>
-  <a href="../">Home</a><a href="../play/">Get the pack</a><a href="../mods/">Mod list</a><a href="../items/">Item index</a>
-  <a href="../worlds/">Worlds</a><a href="../enchantments/">Enchantments</a>
-  <a href="https://github.com/MarionWhite/quest-forge">Source on GitHub</a>
+  <a href="../">Home</a><a href="../mods/">Mod list</a><a href="../items/">Item index</a>
+  <span>Not affiliated with Mojang or any mod author</span>
 </div></footer>
 
 <script>
 "use strict";
-// config.json beside this page holds the address. While it is empty the page says the server hasn't opened; once set,
-// the status comes from api.mcstatus.io every minute. (A browser can't ping a Minecraft server itself.)
-const panel = document.getElementById("panel"), dot = panel.querySelector(".dot"),
-      stateText = document.getElementById("stateText"), sub = document.getElementById("sub");
-const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-let cfg = null, timer = null;
+(async () => {
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  const demo = new URLSearchParams(location.search).has("demo");
+  const getJSON = async (url) => {
+    const r = await fetch(url, {cache: "no-store"});
+    if (!r.ok) throw new Error(`${url}: HTTP ${r.status}`);
+    return r.json();
+  };
+  let cfg = {feed: "", stale_s: 300, refresh_s: 60};
+  try { cfg = Object.assign(cfg, await getJSON("config.json")); } catch (e) { /* defaults */ }
+  const feed = demo ? "sample-status.json" : cfg.feed;
 
-function closed(name) {
-  dot.className = "dot";
-  stateText.textContent = "The server hasn't opened yet";
-  sub.innerHTML = `When ${esc(name)} goes up, this page will show whether it's on and who is playing. Until then, ` +
-    `<a href="../play/">get the pack ready</a> so the first evening isn't spent installing.`;
-}
-function show(s) {
-  const extra = panel.querySelectorAll(".players,.motd,.meta,.actions"); extra.forEach(e => e.remove());
-  const addr = cfg.port && cfg.port !== 25565 ? `${cfg.address}:${cfg.port}` : cfg.address;
-  if (!s || !s.online) {
-    dot.className = "dot down";
-    stateText.textContent = "Offline";
-    sub.textContent = s ? "The server is not answering. It may be restarting (it does, daily, at five in the morning) or down for the day." :
-      "Couldn't reach the status service. Try again in a minute.";
-  } else {
-    const n = s.players?.online ?? 0, max = s.players?.max ?? 0;
-    dot.className = "dot up";
-    stateText.textContent = n === 0 ? "Online, nobody on" : `Online, ${n} of ${max} playing`;
-    sub.textContent = n === 0 ? "The server is up and empty. Be the first." : "";
-    const list = (s.players?.list || []).slice().sort((a, b) => a.name_clean.localeCompare(b.name_clean));
-    if (list.length) {
-      const wrap = document.createElement("div"); wrap.className = "players";
-      for (const p of list) {
-        const el = document.createElement("span"); el.className = "player";
-        const img = document.createElement("img"); img.alt = ""; img.width = 24; img.height = 24;
-        img.src = `https://api.mineatar.io/face/${encodeURIComponent(p.uuid)}?scale=3`;
-        el.append(img, p.name_clean); wrap.append(el);
-      }
-      sub.after(wrap);
+  const DIM_NAMES = {"0":"Overworld","-1":"Nether","1":"The End","7":"Twilight Forest","31":"Mars","51":"Wakanda",
+    "80":"Mirror World","85":"Torment"};
+  const fmtDur = s => {
+    s = Math.max(0, Math.floor(s));
+    const d = Math.floor(s / 86400), h = Math.floor(s % 86400 / 3600), m = Math.floor(s % 3600 / 60);
+    if (d) return `${d}d ${h}h`;
+    if (h) return `${h}h ${m}m`;
+    return `${m}m`;
+  };
+  const ago = iso => {
+    const t = Date.parse(iso); if (isNaN(t)) return "";
+    const s = (Date.now() - t) / 1000;
+    if (s < 50) return "just now";
+    if (s < 3600) return `${Math.round(s / 60)} min ago`;
+    if (s < 86400) return `${Math.round(s / 3600)} h ago`;
+    return `${Math.round(s / 86400)} days ago`;
+  };
+  const local = iso => { const t = new Date(iso); return isNaN(t) ? "" : t.toLocaleString(undefined,
+    {weekday: "short", hour: "2-digit", minute: "2-digit"}); };
+
+  const notConnected = () => {
+    $("state").className = "state";
+    $("headline").textContent = "Not yet connected";
+    $("seen").textContent = "";
+    $("nobody").classList.remove("hidden"); $("nobody").textContent = "No feed configured.";
+    $("notConnected").classList.remove("hidden");
+    $("facts").innerHTML = "";
+  };
+  const unreachable = (err) => {
+    $("state").className = "state offline";
+    $("headline").textContent = "Feed unreachable";
+    $("seen").innerHTML = `<b>${esc(err.message || err)}</b>`;
+    $("stale").textContent = "The status feed could not be read. The server may be fine; the publisher is not.";
+    $("stale").classList.add("show");
+  };
+
+  const render = (s) => {
+    const online = s.state === "online";
+    const stale = Date.parse(s.updated_at) && (Date.now() - Date.parse(s.updated_at)) / 1000 > cfg.stale_s;
+    $("state").className = "state " + (online && !stale ? "online" : "offline");
+    const n = Array.isArray(s.online) ? s.online.length : (s.count || 0);
+    $("headline").textContent = s.state === "starting" ? "Starting up"
+      : !online ? (s.reason ? `Offline: ${s.reason}` : "Offline")
+      : n === 0 ? "Online, nobody on" : `Online, ${n} of ${s.max ?? "?"} on`;
+    $("seen").innerHTML = `last seen <b>${esc(ago(s.updated_at))}</b><br>${esc(local(s.updated_at))}`;
+    if (stale) {
+      const mins = Math.round((Date.now() - Date.parse(s.updated_at)) / 60000);
+      $("stale").textContent = `This feed has not updated in ${mins} minutes. The server, or the supervisor that publishes this, may be down.`;
+      $("stale").classList.add("show");
+    } else { $("stale").classList.remove("show"); }
+
+    const chips = $("chips"); chips.innerHTML = "";
+    const names = (s.online || []).slice().sort((a, b) => a.localeCompare(b));
+    for (const name of names) { const c = document.createElement("span"); c.className = "chip"; c.textContent = name; chips.append(c); }
+    $("playersH").textContent = names.length ? `Players (${names.length})` : "Players";
+    $("nobody").classList.toggle("hidden", names.length > 0 || !online);
+    $("nobody").textContent = "Nobody on right now.";
+    if (!online) { $("nobody").classList.remove("hidden"); $("nobody").textContent = "The server is not running."; }
+
+    const facts = [];
+    if (online && s.uptime_s != null) facts.push(["Up for", fmtDur(s.uptime_s), ""]);
+    if (s.last_restart) facts.push([online ? "Last restart" : "Last up", local(s.last_restart), ago(s.last_restart)]);
+    if (s.tps && s.tps.overall) facts.push(["Tick, all worlds", `${Number(s.tps.overall.ms).toFixed(1)} ms`, `of 50 · ${s.tps.overall.tps} TPS`]);
+    if (s.pack) facts.push(["Pack", esc(s.pack.date || ""), esc(s.pack.fingerprint || "")]);
+    if (s.minecraft) facts.push(["Minecraft", esc(s.minecraft), s.pack && s.pack.mods ? `${s.pack.mods} mods` : ""]);
+    $("facts").innerHTML = facts.map(([k, v, extra]) =>
+      `<div class="fact"><p class="k">${esc(k)}</p><p class="v">${v}${extra ? `<small>${extra}</small>` : ""}</p></div>`).join("");
+
+    const dims = s.tps && s.tps.dims ? Object.entries(s.tps.dims) : [];
+    $("dims").classList.toggle("hidden", dims.length === 0);
+    if (dims.length) {
+      dims.sort((a, b) => Number(b[1].ms) - Number(a[1].ms));
+      const max = Math.max(1, ...dims.map(([, v]) => Number(v.ms)));
+      $("dimRows").innerHTML = dims.map(([id, v]) => {
+        const ms = Number(v.ms), w = Math.max(2, Math.round(ms / max * 140));
+        return `<tr><td>${esc(DIM_NAMES[id] || "")} <span class="mono" style="color:var(--muted)">dim ${esc(id)}</span></td>` +
+          `<td class="n">${ms.toFixed(2)}<span class="bar-ms${ms > 20 ? " hot" : ""}" style="width:${w}px"></span></td>` +
+          `<td class="n">${Number(v.tps).toFixed(1)}</td></tr>`;
+      }).join("");
+      $("tpsAt").textContent = local(s.tps.at || s.updated_at);
     }
-    if (s.motd?.clean) { const m = document.createElement("div"); m.className = "motd"; m.textContent = s.motd.clean; panel.append(m); }
-  }
-  const meta = document.createElement("div"); meta.className = "meta";
-  meta.innerHTML = `<span>address <b>${esc(addr)}</b></span>` + (s?.version?.name_clean ? `<span>version <b>${esc(s.version.name_clean)}</b></span>` : "") +
-    `<span>checked <b>${new Date().toLocaleTimeString([], {hour: "2-digit", minute: "2-digit"})}</b></span>`;
-  panel.append(meta);
-  const act = document.createElement("div"); act.className = "actions";
-  act.innerHTML = `<button class="refresh" type="button">Check again</button><span class="addr">${esc(addr)}</span>`;
-  act.querySelector("button").addEventListener("click", poll);
-  panel.append(act);
-}
-async function poll() {
-  if (!cfg?.address) return;
-  const host = encodeURIComponent(cfg.address) + (cfg.port && cfg.port !== 25565 ? ":" + cfg.port : "");
-  try {
-    const r = await fetch(`https://api.mcstatus.io/v2/status/java/${host}`, {cache: "no-store"});
-    show(r.ok ? await r.json() : null);
-  } catch { show(null); }
-  clearTimeout(timer); timer = setTimeout(poll, 60000);
-}
-fetch("config.json", {cache: "no-store"}).then(r => r.ok ? r.json() : null).then(c => {
-  cfg = c || {};
-  if (!cfg.address) { closed(cfg.name || "the server"); return; }
-  stateText.textContent = "Checking…"; poll();
-}).catch(() => closed("the server"));
-document.addEventListener("visibilitychange", () => { if (!document.hidden && cfg?.address) poll(); });
+  };
+
+  if (!feed) { notConnected(); return; }
+  const load = async () => {
+    try {
+      const url = feed + (feed.includes("?") ? "&" : "?") + "t=" + Date.now();   // past the gist CDN's cache
+      const s = await getJSON(url);
+      if (demo && !new URLSearchParams(location.search).has("stale")) {
+        // The sample is a snapshot; show it as fresh unless ?demo&stale asks for the warning.
+        s.updated_at = new Date().toISOString(); if (s.tps) s.tps.at = s.updated_at;
+      }
+      render(s);
+      $("refreshNote").textContent = demo ? "sample data" : `re-read every ${cfg.refresh_s} s`;
+    } catch (e) { unreachable(e); }
+  };
+  await load();
+  if (!demo) setInterval(load, Math.max(15, cfg.refresh_s) * 1000);
+})();
 </script>
-<script>(function(){var b=document.querySelector('[data-theme-toggle]');if(!b)return;var h=document.documentElement,mq=matchMedia('(prefers-color-scheme: dark)');function mode(){try{var t=localStorage.getItem('qf-theme');return t==='light'||t==='dark'?t:'auto'}catch(e){return 'auto'}}function sys(){return mq.matches?'dark':'light'}function show(){var m=mode();b.dataset.mode=m;var s=m==='auto'?'Theme follows your system ('+sys()+')':'Theme: '+m;b.title=s+'. Click to switch.';b.setAttribute('aria-label',s)}b.addEventListener('click',function(){var m=mode(),s=sys(),n=(m==='auto'||m===s)?(s==='dark'?'light':'dark'):'auto';try{if(n==='auto')localStorage.removeItem('qf-theme');else localStorage.setItem('qf-theme',n)}catch(e){}if(n==='auto')h.removeAttribute('data-theme');else h.setAttribute('data-theme',n);show()});if(mq.addEventListener)mq.addEventListener('change',show);show()})();</script>
 </body>
 </html>

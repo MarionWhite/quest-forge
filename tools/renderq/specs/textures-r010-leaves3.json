@@ -1,0 +1,12 @@
+{
+ "name": "textures-r010-leaves3",
+ "owner": "texture-agent",
+ "comment": "r010 leaves C re-render: 'fine' with the crown light pattern at depth 0.12 (t10lf at 0.26 printed a dark stain on every block of a crown, tree_close / forest_lit). Swaps tex-leaves* option C when texture_make_scenes.py is rerun.",
+ "prebuild": [
+  ["py", "-3.10", "-I", "tools/textures/build_qf_textures.py", "--wheat", "bushy", "--leaves", "fine", "--out", "C:/qfb/textures/diag/QF-l-fine2.zip"]
+ ],
+ "defaults": {"world": "C:/qfb/textures/world-showcase", "preset": "3", "size": "2560x1440", "mode": "shot"},
+ "jobs": [
+  {"tag": "t10lf2", "resourcepacks": ["C:/qfb/textures/diag/QF-l-fine2.zip"], "scenes": "leaves_close,tree_close,forest_lit"}
+ ]
+}

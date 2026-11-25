@@ -1,0 +1,15 @@
+{
+ "name": "textures-v2-r009",
+ "owner": "texture-agent",
+ "comment": "r009 step 7: the scene hand-off. Final QF Textures v2 (= v2h: leaves v2b, grass v2c, crops v2e, metals v2g, potions v2h) and Faithful 64x under the r009 shader, so A (t9v1, frames from 1026-223656/225431/230307), B and C share one shader. Items: t9v2h items_frames from 1026-233707 is already the final build. Glass and PBR scenes dropped (unchanged since v1; owner: glass all the same, PBR fine). Shot mode, one boot.",
+ "prebuild": [
+  ["py", "-3.10", "-I", "tools/textures/build_qf_textures.py", "--out", "C:/qfb/textures/QFTextures-v2.zip"]
+ ],
+ "defaults": {"world": "C:/qfb/textures/world-showcase", "preset": "3", "size": "2560x1440", "mode": "shot", "cit": true},
+ "jobs": [
+  {"tag": "t9v2h", "resourcepacks": ["C:/qfb/textures/QFTextures-v2.zip"],
+   "scenes": "texture_wall,texture_wall2,forest_lit,golden_lit,farm,farm_close,leaves_close,tree_close"},
+  {"tag": "t9f64", "resourcepacks": ["C:/qfb/faithful64/Faithful-64x-1.7.10.zip"],
+   "scenes": "texture_wall,texture_wall2,forest_lit,golden_lit,farm,farm_close,leaves_close,tree_close"}
+ ]
+}

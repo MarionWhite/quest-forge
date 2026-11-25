@@ -1,7 +1,0 @@
-# Quest Forge POTATO -- applied on top of LITE, for integrated graphics / 4 cores / 8 GB shared memory.
-renderDistance:5
-ao:0
-particles:2
-mipmapLevels:0
-maxFps:60
-clouds:false

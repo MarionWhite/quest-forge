@@ -942,3 +942,34 @@ Rahovart appears under both T3 and T4 (identical: 25/hit cap).
 | arc | -0 | -0 | +0 | +0 | +0 |
 | bastion | +0 | **-6** | **-5** | +0 | +0 |
 
+
+## 9. Re-test after the 2026-10-25 changes
+
+Jar 1.1.0+20261025.20eef315 (SHA-1 79a67860), node c4, tick-warp, jobs `tools/balance/retest-2026-10-25.json`.
+Old = the v2 campaign (`C:\qfs\campaign\`), new = `C:\qfs\campaign-v3\R-*\`. Speed-ups are `qfcampaign.py`
+output with the replicates pooled (no per-rep sd computed yet); Naga noise is +-5.8..8.6%, the others +-2..8%.
+Not re-measured: levels I/II/III, Cultist on T2/T4, Bastion on Huntsman/Monking/Mantis, Rahovart T4, the rest of the pair set.
+
+| Change | Measure | v2 | v3 | Predicted | Landed? |
+|---|---|---|---|---|---|
+| P1/P2 DoTs | rupture, Mobzilla / King / Queen | +37 / +46 / +48% | +11.4 / +11.0 / +12.1% | +10..15% | yes |
+| | venomous, Mobzilla / King / Queen | +50 / +40 / +50% | +12.6 / +9.9 / +13.6% | +10..15% | yes |
+| | poisonous, Mobzilla / King / Queen | +40 / +42 / +40% | +8.3 / +8.9 / +8.3% | +10..15% | slightly under |
+| | rupture / venomous / poisonous, Naga | +24 / +22 / +12% | +23.5 / +28.4 / +17.4% | little change | venomous, poisonous up ~6 (about 1 noise band) |
+| P1/P2 pairs | colossus+rupture Naga / Mobzilla synergy | +46 / +55 | -24.8 / +11.5 | ~0 | Naga negative, Mobzilla small |
+| | colossus+venomous Naga / Mobzilla | +54 / n.a. | -15.8 / +24.5 | ~0 | Mobzilla still +24 |
+| | roulette+rupture Mobzilla, cultist+poisonous Mobzilla | +65 / +29 | -17.8 / -10.4 | ~0 | yes (now overlapping) |
+| P7 cultist | `probe_hp_min`, Naga (max 20) | 1.0-1.76 | 14.6-17.6 | ~10 | wielder loses 3-5, not 10 |
+| | `probe_hp_min`, Mantis | 20.0 | 15.8-17.6 | ~10 | same: 3-4 lost |
+| | cultist speed-up Naga / Mantis | +24.7 / +13.6% | +17.7 / +16.7% | unchanged (+17) | yes |
+| P8 bastion | Baba Yaga speed-up (hits) | TTK 114.8 s vs 52 s (56/80) | +3.8% (80/80) | ~0, 80/80 | yes |
+| | DeathReaper speed-up (hits) | TTK 28.6 s vs 14.8 s (70/80) | -10.8% (80/80) | ~0, 80/80 | hits fixed; -10.8% is just past the +-8% noise, watch |
+| P6 Rahovart | reference maxHealth / control TTK | 42,249 / 845 s | 11,912 / 238 s | ~13,500 / ~270 s | yes, a little lower |
+
+Moved without a change aimed at it (same opponent, same jar apart from the changes), most only about one noise
+band, so treat as noise until per-rep sd is computed: colossus Naga +27 -> +36.9, Mobzilla +10 -> +4.3;
+roulette Naga +16 -> +26, Mobzilla +13 -> +30; cultist Mobzilla +12.7 -> +15.7.
+
+Open items for the owner: (1) the P7 cost is 3-5 health rather than the predicted ~10, say if that is enough;
+(2) the DoTs sit at +8..13% on the King/Queen/Mobzilla, the target band's low end for poisonous; (3) colossus+venomous
+on Mobzilla still synergises (+24.5), the one pair left above noise. No gameplay change was made here.

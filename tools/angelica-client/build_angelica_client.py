@@ -24,6 +24,7 @@ Usage (Windows, py -3.10 -I):
   build_angelica_client.py --from D:\\QuestForge --to D:\\QuestForge-Angelica --jars downloads
       [--pack-jars DIR]     QuestForgeTweaks/Content/Transformers builds to use instead of the E7 ones
       [--with-saves] [--shader off|NAME.zip] [--add-shaderpack FILE] [--force]
+      [--copy]              real copies, never hard links (use it when --from is the live game)
 
 Never point --to at the E7 folder itself, or at %APPDATA%\\.crazycraft4: the
 script refuses. Building into an existing folder needs --force and keeps its
@@ -191,6 +192,8 @@ def main():
     ap.add_argument("--shader", help="off, or a shader pack zip name in shaderpacks/ (default: the E7 choice)")
     ap.add_argument("--add-shaderpack", action="append", default=[], help="shader pack zip to add")
     ap.add_argument("--force", action="store_true", help="rebuild an existing folder (keeps saves, logs, options, config)")
+    ap.add_argument("--copy", action="store_true",
+                    help="real copies even on one drive (no hard links into --from): for a copy of the live game")
     a = ap.parse_args()
 
     src, dst = os.path.abspath(a.src), os.path.abspath(a.to)
@@ -236,7 +239,7 @@ def main():
             print(f"  {f}  sha1 {e['sha1']}\n      {e['url']}")
         sys.exit(2)
 
-    link = same_drive(src, dst)
+    link = same_drive(src, dst) and not a.copy
     os.makedirs(dst, exist_ok=True)
     keep = set() if fresh else {k for k in KEEP_ON_FORCE if os.path.exists(os.path.join(dst, k))}
     for sub in ("mods", "bin"):

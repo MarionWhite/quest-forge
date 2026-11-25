@@ -1,0 +1,48 @@
+{
+ "name": "textures-r014-packs-b",
+ "owner": "texture-dev-packs",
+ "comment": "r014 packs re-render (ops/checkpoints/r014-packs.md): pk14h3 only, the XP medallion narrowed from 22 to 18 GUI px (render 1031-194643 showed it touching the first food shank). Everything else as textures-r014-packs.json.",
+ "prebuild": [
+  [
+   "py",
+   "-3.10",
+   "-I",
+   "tools/textures/qf_hud_r014.py",
+   "--xp",
+   "plate",
+   "--gui-zip",
+   "C:/qfb/textures/r013/QF-r012-gui-final.zip",
+   "--out",
+   "C:/qfb/textures/r014/QF-r014-hud-plate.zip"
+  ]
+ ],
+ "defaults": {
+  "world": "C:/qfb/textures/world-r013",
+  "views": "tools/textures/views-r013.txt",
+  "preset": "3",
+  "size": "2560x1440",
+  "mode": "shot",
+  "cit": true,
+  "jars": [
+   "C:/qfb/renderq/jars-r014/QuestForgeContent-1.0.0.jar"
+  ],
+  "props": [
+   "qf.bench.difficulty=easy"
+  ],
+  "resourcepacks": [
+   "C:/qfb/textures/diag/QF-v3c.zip",
+   "C:/qfb/textures/r013/QF-r012-packs-final.zip",
+   "C:/qfb/textures/r013/QF-r012-gui-final.zip"
+  ]
+ },
+ "jobs": [
+  {
+   "tag": "pk14h3",
+   "rps_top": [
+    "C:/qfb/textures/r014/QF-r014-hud-plate.zip"
+   ],
+   "measure": 220,
+   "scenes": "gui_hud"
+  }
+ ]
+}

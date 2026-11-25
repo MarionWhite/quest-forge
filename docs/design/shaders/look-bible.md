@@ -135,6 +135,33 @@ folded in 2026-10-21), and round 2, answered 2026-10-23 from a phone (issue #3,
 `feedback/r004.json`). Each later round's picks, ratings and notes
 are added here. Where these contradict a rule above, these win. Round 5 answered 2026-10-24
 (issue #6, `feedback/r005.json`). Round 6 answered 2026-10-24 (issue #7, `feedback/r006.json`).
+Round 7 answered 2026-10-25 (issue #11, `feedback/r007.json`).
+
+- **Round 7 overall:** "I have VERY high expectations for the results of the next round. I want to see
+  a massive leap!" **Every shader render now uses the current QF Textures build** (vanilla only as an
+  occasional control), so what is approved is what ships.
+  - **Sun:** bigger than 1.8x and with **form**: a visible disk the light clearly comes from. Round 6's
+    sharp disk beats r007's soft dots ("the light doesn't seem to have much of a source").
+  - **Dust:** r007's free-floating motes read as "weird white dots all over the screen" over the water
+    and the golden field. Denser "looks like shit"; the default is hard to see; "we can do WAYY better".
+    **Dust only inside light shafts and sunbeams**, volumetric, depth-aware, shimmering in the beam;
+    never specks over open air. Show it **in motion**.
+  - **Golden hour:** the horizon is still weak (the critic agrees). The clouds look good.
+  - **Lake (2/5):** follow the critic: no torn dark/gold patches, a clean mirror.
+  - **River:** the ledges a block under the surface look orange and flat (light through the refraction);
+    the deeper ones look great. Biome borders are close: follow the critic.
+  - **Motion:** stills cannot judge meteors, glitter, clouds or dust: show **short clips** in the Lab.
+    The meteor shower must be **visibly busier** ("I would expect more than 2").
+  - **Light on blocks:** A (bounce and sheen) is better. **Label options clearly**; letters that differ
+    by sub-view (C vs D) confused.
+  - **Vibrance:** between 0.15 and 0.35 (0.25 from r008).
+  - **PBR:** maps on (C) a little better; but **metals must look like polished metal** (albedo-tinted
+    reflection of sky and surroundings, a sun highlight), not "in the shade".
+  - **Under water:** liked Conquest's underwater ambience and bubbles: fog, caustics, light shafts in
+    the water, bubbles.
+  - **Textures:** Faithful 64 > 32 (stone bricks, metals); Stay True's crops and custom-tree leaves (not
+    its frilly leaf blocks); Patrix (mobs); Vanilla-Normals-Renewed's light and reflections; Faithless's
+    items, potions, books, GUI and animations (texture agent's work).
 
 - **Round 6 overall:** "Water is improving drastically ... see all of the feedback ramped up. I want to
   fall in love with the visuals." Likes Minecraft's block designs, but wants **added detail** on some

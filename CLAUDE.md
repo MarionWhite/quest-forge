@@ -20,7 +20,10 @@ tokens and friends' personal details never go in it.
 - **Commit every fix, staging only your own hunks.** Other sessions share the tree.
   Before pushing, check `git log origin/main..main`.
 - Licences: only Faithful-licensed or redistribution-permitting art ships. All-rights-reserved packs are
-  studied, never copied, traced or recoloured.
+  studied, never copied, traced or recoloured. **Exception (owner, 2026-10-27): Stay True, Faithless, Patrix 32x,
+  Conquest_ and Soartex** (the packs named in r007 feedback) may be copied and edited into the private pack. Their
+  files live only in `C:\qf-world\reference-packs` and are read at build time: never commit them, and never put
+  the raw files on the public site. In-game renders of them in Shader Lab rounds are fine (owner, 2026-11-01).
 - Use `py -3.10` for the tools/ scripts.
 
 ## How to work cheaply without losing quality
@@ -33,5 +36,6 @@ tokens and friends' personal details never go in it.
   track journal (`ops/journal/<track>.md`, dated entries, newest first), not in the report.
 - **Review images as contact sheets and crops** (`tools/shaders/review/check_frames.py`), not as
   full frames. Only review frames whose image changed; the render cache knows which.
+- **Bulk independent items go through the batch lane** (`tools/ops/batch.py`, 50% off, API credits): critic first passes, quest voice variants, item descriptions. Check `tools/ops/ledger.py status` first; see ops/README.md "API credits".
 - **Deterministic steps belong to scripts, not to agents:** rendering, costs, publishing
   (`finish_round.py`), feedback fetch (`fetch_feedback.py`).

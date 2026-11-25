@@ -1,0 +1,167 @@
+{
+ "round": 11,
+ "id": "r011",
+ "note": "Built by tools/shaders/review/fetch_feedback.py from GitHub issues; the latest response is last.",
+ "responses": [
+  {
+   "issue": 15,
+   "url": "https://github.com/MarionWhite/quest-forge/issues/15",
+   "user": "MarionWhite",
+   "state": "open",
+   "created_at": "2026-10-28T18:50:57Z",
+   "updated_at": "2026-10-28T18:50:57Z",
+   "from": "body",
+   "answers": {
+    "round": 11,
+    "scenes": {
+     "sunset-full": {
+      "choice": "A",
+      "rating": 4,
+      "note": "Listen to the critic here, it knows what it's talking about"
+     },
+     "sun-cloud": {
+      "choice": "C",
+      "rating": 4,
+      "note": "A and B just don't look good. A looks like it's artifacting, and B is very hazy"
+     },
+     "meteors": {
+      "choice": "B",
+      "rating": 4,
+      "note": "Storm looks better, but I was also hoping that they would have the leaner design like the references I gave. These ones kinda look a little bulky."
+     },
+     "st-leaves-hedge": {
+      "choice": "A",
+      "rating": 5,
+      "note": "This looks a lot better than previous attempts."
+     },
+     "st-leaves-tree": {
+      "choice": "A",
+      "rating": 5,
+      "note": ""
+     },
+     "st-leaves-forest": {
+      "choice": "A",
+      "rating": 3,
+      "note": ""
+     },
+     "st-crops-close": {
+      "choice": "A",
+      "rating": 5,
+      "note": ""
+     },
+     "st-crops-far": {
+      "choice": "A",
+      "rating": 5,
+      "note": ""
+     },
+     "pk-items": {
+      "choice": "B",
+      "rating": 5,
+      "note": "faithless takes it here"
+     },
+     "pk-items-close": {
+      "choice": "B",
+      "rating": 5,
+      "note": ""
+     },
+     "pk-gui-inv": {
+      "choice": "B",
+      "rating": 5,
+      "note": ""
+     },
+     "pk-creative-combat": {
+      "choice": "B",
+      "rating": 2,
+      "note": "Something broke here and it looks all fucked up"
+     },
+     "pk-creative-brewing": {
+      "choice": "B",
+      "rating": 3,
+      "note": "Once again, the tabs don't look richer here, this needs to be fixed, but yes, copy."
+     },
+     "pk-furnace": {
+      "choice": "B",
+      "rating": 3,
+      "note": "This doesn't look exactly right, but yes, copy it."
+     },
+     "pk-crafting": {
+      "choice": "B",
+      "rating": 5,
+      "note": ""
+     },
+     "pk-brewing": {
+      "choice": "B",
+      "rating": 5,
+      "note": ""
+     },
+     "pk-enchanting": {
+      "choice": "B",
+      "rating": 4,
+      "note": "Make the text on screen pop out more. It gets muddled by the noisy background. Do this for all of the copied GUI"
+     },
+     "pk-chest": {
+      "choice": "B",
+      "rating": 4,
+      "note": ""
+     },
+     "pk-anvil": {
+      "choice": "B",
+      "rating": 4,
+      "note": ""
+     },
+     "pk-hud": {
+      "choice": "neither",
+      "rating": 4,
+      "note": "I think we can do better on these. Something custom to Quest Forge"
+     },
+     "pk-shelves": {
+      "choice": "A",
+      "rating": 3,
+      "note": "Maybe we add the copied one as a chilled variation in the mudpack, using the chisel mod"
+     },
+     "pk-library": {
+      "choice": "A",
+      "rating": 3,
+      "note": ""
+     },
+     "pk-tnt": {
+      "choice": "B",
+      "rating": 4,
+      "note": "I like it, but I don't know why some of them have the normal lettering."
+     },
+     "pk-mob-1": {
+      "choice": "B",
+      "rating": 5,
+      "note": ""
+     },
+     "pk-mob-2": {
+      "choice": "B",
+      "rating": 5,
+      "note": "We need to fix the ones that still have vanilla skins."
+     },
+     "pk-mob-3": {
+      "choice": "B",
+      "rating": 5,
+      "note": "We need to fix the ones that still have vanilla skins."
+     },
+     "pk-mob-4": {
+      "choice": "B",
+      "rating": 4,
+      "note": "We should probably also find something for the passive mobs."
+     },
+     "pk-mob-5": {
+      "choice": "B",
+      "rating": 5,
+      "note": "We need to fix the ones that still have vanilla skins."
+     },
+     "pk-mob-6": {
+      "choice": "B",
+      "rating": 5,
+      "note": "We need to fix the ones that still have vanilla skins."
+     }
+    },
+    "overall": "This is really good progress, and I want to keep riding this momentum."
+   }
+  }
+ ]
+}

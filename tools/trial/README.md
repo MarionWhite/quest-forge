@@ -10,6 +10,7 @@ py -3.10 tools/trial/trial.py resolve qfcontent gravestones      # show the jar 
 py -3.10 tools/trial/trial.py build grave gravestones qfcontent --bundle inspect --world "Here We Go"
 py -3.10 tools/trial/trial.py launch grave --wait                 # refuses if any client is up
 py -3.10 tools/trial/trial.py status                              # who is running what
+py -3.10 tools/trial/trial.py heap grave --label title            # live heap after a forced full GC
 py -3.10 tools/trial/trial.py stop grave                        # kills only this trial's own JVM
 py -3.10 tools/trial/trial.py remove grave
 ```
@@ -33,6 +34,17 @@ trial went fullscreen over the owner's game and console windows took focus.
   during the splash. A visible window not yet off-screen is veiled (layered, alpha 0) until the move
   lands. It never calls `SetForegroundWindow`. The requested `--size` is kept. Its log is
   `logs\window.log`. `launch --foreground` shows the window on the desktop as before.
+- **Focus guard.** LWJGL 2.9.1 calls `SetForegroundWindow` on its own window (at `Display.create`
+  and on every activation), and Windows grants it whenever the owner has not typed for the
+  foreground lock timeout; `WS_EX_NOACTIVATE` does not stop a window's own process. On 2026-10-25
+  four r007 clients and four other sessions' clients were the foreground window for up to minutes.
+  The hider now checks the foreground window every 10 ms (first 40 s) and every 50 ms after, for the
+  JVM's whole life: if it is ours, it hands focus straight back to the owner's last window
+  (`AttachThreadInput` + `SetForegroundWindow`, the taskbar if that window is gone), pushes ours
+  to the bottom of the z-order, and appends a line to `logs\focus.log`. Expect one line per launch,
+  at window creation, when the owner is idle; it is returned within one poll (a 1-s sampler never
+  saw it, 4 launches). `trial.py status` prints every line for running clients; `bench_round.py`
+  prints them loudly and fails the run (exit 4) if focus was not handed straight back.
 - **No console windows.** Every process `trial.py` and the shader review scripts start uses
   `CREATE_NO_WINDOW`, or a Hidden PowerShell. Started from an agent's shell, a console program
   otherwise opens a Windows Terminal window that steals focus. Servers start Hidden.
@@ -137,6 +149,22 @@ A jar that supersedes one with a different file name (a version in the name, or 
 moves into the same backup folder in the same step, so FML never sees both and the pack is never
 left with neither.
 
+### Config files
+
+```
+py -3.10 tools/trial/trial.py install pack/config/Chocolate/ChestConfig/chests.prop --why "loot line never rolled (44a9809)"
+```
+
+A config fix committed to `pack/config/` takes the same path into the live instance, under the same
+rules: it refuses while anything runs from the live instance, keeps the replaced file in
+`_backup-install-<time>/config/...`, logs it, and records it in the live manifest. The file lands at
+the same path under the live `config/` (`--as config/<path>` for a file from elsewhere).
+`uninstall config/<path>` puts the previous file back. The guard notes an installed config file that
+changed since (a mod rewriting its own config on load does that) but does not block on it;
+`guard --accept` records the new hash. This exists because `build_play_server.py` copies `config/`
+from the live instance, so a fix that lives only in the repo is undone by every `--force` rebuild of
+the play server.
+
 ### Taking a jar out
 
 ```
@@ -184,6 +212,26 @@ with whatever needs them. Expect about 7 slim boots for the whole pack.
 
 `trial.py disk` lists every game or server dir on the PC with its size, whether a JVM is using
 it, and any junctions it contains. It never deletes anything.
+
+## Measuring memory: `heap`, a flat world, placed items
+
+`trial.py heap NAME [--label L]` is the heap method of `docs/design/performance-plan.md` as one
+command: `jcmd GC.class_histogram` (which forces a full GC even under `-XX:+DisableExplicitGC`),
+then `GC.heap_info`, so the "used" it prints is the live set. It prints the live heap, metaspace
+and the top classes, and saves the whole histogram as `<trial>\heap-<label>-<time>.txt`. It needs a
+JDK 8 `jcmd.exe` (Adoptium is found on its own; `QF_JCMD` overrides) and works on clients and servers.
+
+A memory or render A/B wants the same scene twice with nothing else in it. `make_flat_world.py DIR`
+writes a superflat, creative, peaceful, noon-forever world (just `level.dat`; the game generates the
+chunks), to pass as `build ... --world DIR`. To fill it, the debug build of qf-content
+(`.\gradlew build -PqfDebugTools=true`, swapped in with `--jar`) has `AutoPlace`: with
+`-D qf.autoplace=<save>` it loads the world, places `-D qf.autoplace.items=modid:name[:meta],...`
+on the ground in rows as a player would (chat `/tp`, the creative inventory packet, a right-click
+through PlayerControllerMP, so the integrated server does its half on its own thread), screenshots
+`screenshots/<qf.autoplace.name>.png` and stays up for `heap`. `qf.autoplace.wait` (ticks on the
+title screen first, 700 leaves time for a title-screen probe), `cols`, `spacing`, `delay`, `quit=1`.
+The first use was win #8, Decocraft's lazy models: twelve props of different tile types, before and
+after, same world, same spots.
 
 ## What every trial gets
 

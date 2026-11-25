@@ -17,6 +17,8 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.EnumDifficulty;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.WorldSettings;
+import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.chunk.EmptyChunk;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
 import cpw.mods.fml.relauncher.Side;
@@ -62,6 +64,37 @@ import com.questforge.content.ench.QFEnchantments;
  * test, and no screenshot hitch lands inside a measured window. worldTime picks
  * the moon phase too: 18000 is a full moon, 114000 (day 4) a new moon.
  * -Dqf.bench.reload=scene,scene calls Iris.reload() (the F9 key) before those scenes.
+ * GUI views (r011 texture review): a view named gui_<kind> keeps the HUD and opens a screen over
+ * its camera once settled -- inventory, creative_<tab> (combat, tools, brewing, materials, food,
+ * redstone, misc), furnace, crafting, chest, brewing, enchanting, anvil, beacon, hopper,
+ * dispenser -- filled with sample items; gui_hud is the bare HUD in survival with armour, XP and
+ * an Ender Dragon boss bar. -Dqf.bench.difficulty=easy|normal|hard keeps hostile mobs a view
+ * placed in the world (FrameBench otherwise sets peaceful, which removes them).
+ *
+ * Batch mode (tools/renderq, 2026-10-25): -Dqf.bench.jobs=<file> renders many jobs -- each a
+ * tag, shaders on or off and a shader option file -- in ONE boot, instead of one boot per
+ * option set. The file, written by tools/renderq/batch.py:
+ *   target <path>                          the pack's option file (shaderpacks/QuestForge.txt)
+ *   boot on|off                            whether the client booted with shaders on
+ *   job <tag> on|off <warmTicks> <measureTicks> <opts|->
+ *                                          opts is copied onto target before the job's frames;
+ *                                          measureTicks > 0 overrides the scene's own (a
+ *                                          screenshot-only job measures 20 ticks, not 200)
+ *   rps <tag> <name>|<name>|...            the job's resource packs (options.txt order: the
+ *                                          last wins); changed in game with shaders off
+ *   step <tag> <scene>                     one measured scene of one job, in the order given
+ *   burst <tag> <frames> <intervalMs> [x y w h]
+ *                                          after a view scene's two shots, capture <frames> more,
+ *                                          one per <intervalMs> of real time (a clip of the shader's
+ *                                          animation: clouds, waves, meteors, dust), cropped to the
+ *                                          box (top-left image coordinates; default the whole frame),
+ *                                          as bench-TAG-SCENE-f000.png ... (2026-10-25, round 8)
+ * Before a step whose job differs from the live state, the option file is rewritten and
+ * Iris.reload() (or Iris.toggleShaders) runs; that step then settles for at least warmTicks
+ * more, so no measured frame belongs to the rebuilt pipeline's first seconds. Each finished
+ * step appends its block to bench/<tag>.part (a crash keeps the steps done); at the end
+ * every job gets bench/<tag>.txt in the same format as a single run. bench/_progress.txt is
+ * rewritten at every stage change, for the runner's stall watchdog.
  */
 @SideOnly(Side.CLIENT)
 public class FrameBench {
@@ -79,8 +112,9 @@ public class FrameBench {
     private static final double SPRINT = 0.28;          // blocks/tick, vanilla sprint
     private static final int MEASURE_TICKS = 400;       // 20 s per scene
     private static final int SETTLE_MAX = 900;          // 45 s to finish building chunks
+    private static final int BATCH_QUIET_UPDATES = 25;  // chunk updates/s that count as settled (batch)
 
-    private enum Stage { TITLE, SELECTING, LOADING, SETUP, SETTLE, MEASURE, SHOOT, DONE }
+    private enum Stage { TITLE, SELECTING, LOADING, SETUP, SETTLE, MEASURE, SHOOT, BURST, DONE }
 
     /** A still-camera scene from the qf.bench.views file. */
     private static final class View {
@@ -130,8 +164,225 @@ public class FrameBench {
     private String lastDebug = "";
     private final List<String> report = new ArrayList<String>();
 
+    /** One job of a batch (-Dqf.bench.jobs): a tag, shaders on/off, an option file to apply. */
+    private static final class Job {
+        String tag;
+        boolean shaders;
+        int warm, measure;
+        String opts;          // null: leave the option file as it is
+        List<String> rps;     // null: leave the resource packs as they are
+        int burstFrames, burstMs;   // burst: frames captured after the shots, ms of real time apart
+        int[] burstBox;             // x y w h in image coordinates, or null for the whole frame
+        final List<String> report = new ArrayList<String>();
+    }
+
+    private final java.util.Map<String, Job> jobs = new java.util.LinkedHashMap<String, Job>();
+    private Job[] stepJob;            // per step; null in a single run
+    private String optsTarget;
+    private Job live;                 // the job whose state the pipeline has now
+    private boolean liveShaders;      // shaders on at boot? (config/shaders.properties)
+    private List<String> liveRps;     // resource packs now active (null: as booted)
+    private int warmTicks;            // settle at least this long (set after a reload)
+    private final long batchStart = System.currentTimeMillis();
+
     public FrameBench() {
-        scenes = System.getProperty("qf.bench.scenes", "static,fly,torch").split(",");
+        String jf = System.getProperty("qf.bench.jobs");
+        if (jf != null) {
+            loadJobs(jf);
+        } else {
+            scenes = System.getProperty("qf.bench.scenes", "static,fly,torch").split(",");
+        }
+    }
+
+    private void loadJobs(String path) {
+        List<String> sc = new ArrayList<String>();
+        List<Job> sj = new ArrayList<Job>();
+        try {
+            for (String line : java.nio.file.Files.readAllLines(new File(path).toPath(),
+                    java.nio.charset.StandardCharsets.UTF_8)) {
+                line = line.trim();
+                if (line.isEmpty() || line.startsWith("#")) continue;
+                String[] f = line.split("\\s+", 6);
+                if (f[0].equals("target")) {
+                    optsTarget = line.substring(6).trim();
+                } else if (f[0].equals("boot")) {
+                    liveShaders = f[1].equals("on");
+                } else if (f[0].equals("job")) {
+                    Job j = new Job();
+                    j.tag = f[1];
+                    j.shaders = f[2].equals("on");
+                    j.warm = Integer.parseInt(f[3]);
+                    j.measure = Integer.parseInt(f[4]);
+                    j.opts = f.length > 5 && !f[5].equals("-") ? f[5] : null;
+                    jobs.put(j.tag, j);
+                } else if (f[0].equals("rps")) {
+                    Job j = jobs.get(f[1]);
+                    if (j != null) {
+                        String rest = line.substring(3).trim();
+                        rest = rest.substring(f[1].length()).trim();   // names may hold spaces
+                        j.rps = rest.isEmpty() ? new ArrayList<String>() : Arrays.asList(rest.split("\\|"));
+                    }
+                } else if (f[0].equals("burst")) {
+                    String[] b = line.split("\\s+");
+                    Job j = jobs.get(b[1]);
+                    if (j != null) {
+                        j.burstFrames = Math.max(1, Math.min(600, Integer.parseInt(b[2])));
+                        j.burstMs = Math.max(10, Integer.parseInt(b[3]));
+                        if (b.length >= 8) {
+                            j.burstBox = new int[] {Integer.parseInt(b[4]), Integer.parseInt(b[5]),
+                                    Integer.parseInt(b[6]), Integer.parseInt(b[7])};
+                        }
+                    }
+                } else if (f[0].equals("step")) {
+                    Job j = jobs.get(f[1]);
+                    if (j == null) {
+                        log("jobs: step for unknown job " + f[1]);
+                        continue;
+                    }
+                    sj.add(j);
+                    sc.add(f[2]);
+                }
+            }
+        } catch (Exception e) {
+            log("jobs: cannot read " + path + ": " + e);
+        }
+        scenes = sc.toArray(new String[0]);
+        stepJob = sj.toArray(new Job[0]);
+        log("jobs: " + jobs.size() + " jobs, " + scenes.length + " steps, boot shaders "
+                + (liveShaders ? "on" : "off"));
+    }
+
+    private String tag() {
+        if (stepJob != null && sceneIdx >= 0 && sceneIdx < stepJob.length) return stepJob[sceneIdx].tag;
+        return System.getProperty("qf.bench.tag", "bench");
+    }
+
+    private List<String> rep() {
+        if (stepJob != null && sceneIdx >= 0 && sceneIdx < stepJob.length) return stepJob[sceneIdx].report;
+        return report;
+    }
+
+    /** bench/_progress.txt: what the batch is doing now, for the runner's watchdog and ETA. */
+    private void progress(Minecraft mc, String what) {
+        try {
+            File dir = new File(mc.mcDataDir, "bench");
+            dir.mkdirs();
+            File tmp = new File(dir, "_progress.tmp");
+            PrintWriter out = new PrintWriter(new FileWriter(tmp));
+            out.println("at " + System.currentTimeMillis());
+            out.println("step " + (sceneIdx + 1) + " " + (scenes == null ? 0 : scenes.length));
+            out.println("tag " + tag());
+            out.println("scene " + (sceneIdx >= 0 && scenes != null && sceneIdx < scenes.length ? scene() : "-"));
+            out.println("stage " + what);
+            out.println("elapsed " + (System.currentTimeMillis() - batchStart));
+            out.close();
+            File dst = new File(dir, "_progress.txt");
+            dst.delete();
+            tmp.renameTo(dst);
+        } catch (Throwable t) {
+            log("progress: " + t);
+        }
+    }
+
+    /**
+     * Brings the pipeline to job j's state: its option file, shaders on or off. Iris.reload()
+     * re-reads shaderpacks/<pack>.txt and rebuilds the pipeline (the F9 key);
+     * Iris.toggleShaders turns the pack on or off (the K key). Returns false if nothing changed.
+     */
+    private boolean apply(Job j) {
+        if (live == j) return false;
+        boolean optsChange = j.opts != null && (live == null || !j.opts.equals(live.opts));
+        long t0 = System.nanoTime();
+        String did = "nothing to rebuild";
+        try {
+            if (j.rps != null && !j.rps.equals(liveRps == null ? Minecraft.getMinecraft().gameSettings.resourcePacks : liveRps)) {
+                did = setResourcePacks(j.rps) + "; ";
+            }
+            if (optsChange && optsTarget != null) {
+                File dst = new File(optsTarget);
+                byte[] b = java.nio.file.Files.readAllBytes(new File(j.opts).toPath());
+                dst.delete();
+                java.nio.file.Files.write(dst.toPath(), b);
+            }
+            Class<?> iris = Class.forName("net.coderbot.iris.Iris");
+            if (j.shaders != liveShaders) {
+                iris.getMethod("toggleShaders", Minecraft.class, boolean.class)
+                        .invoke(null, Minecraft.getMinecraft(), j.shaders);
+                did = (did.startsWith("nothing") ? "" : did) + "toggleShaders(" + j.shaders + ")";
+            } else if (j.shaders && optsChange) {
+                iris.getMethod("reload").invoke(null);
+                did = (did.startsWith("nothing") ? "" : did) + "reload()";
+            }
+            liveShaders = j.shaders;
+        } catch (Throwable t) {
+            log("job " + j.tag + ": apply failed: " + t);
+            t.printStackTrace();
+        }
+        log(String.format("job %s: %s in %.0f ms", j.tag, did, (System.nanoTime() - t0) / 1e6));
+        live = j;
+        return !did.equals("nothing to rebuild");
+    }
+
+    /**
+     * What the resource pack screen's Done button does (GuiScreenResourcePacks), with the shader
+     * pipeline off for the reload: Angelica rebuilding a live pipeline across a resource reload is
+     * what crashes it at boot. Names are file names in resourcepacks/, bottom first.
+     */
+    private String setResourcePacks(List<String> names) throws Exception {
+        Minecraft mc = Minecraft.getMinecraft();
+        if (liveShaders) {
+            Class.forName("net.coderbot.iris.Iris").getMethod("toggleShaders", Minecraft.class, boolean.class)
+                    .invoke(null, mc, false);
+            liveShaders = false;
+        }
+        net.minecraft.client.resources.ResourcePackRepository repo = mc.getResourcePackRepository();
+        repo.updateRepositoryEntriesAll();
+        List<Object> entries = new ArrayList<Object>();
+        for (String n : names) {
+            for (Object o : repo.getRepositoryEntriesAll()) {
+                if (((net.minecraft.client.resources.ResourcePackRepository.Entry) o).getResourcePackName().equals(n)) {
+                    entries.add(o);
+                }
+            }
+        }
+        if (entries.size() != names.size()) log("resource packs: found " + entries.size() + " of " + names);
+        repo.func_148527_a(entries);
+        mc.gameSettings.resourcePacks.clear();
+        mc.gameSettings.resourcePacks.addAll(names);
+        mc.refreshResources();
+        liveRps = new ArrayList<String>(names);
+        return "resource packs " + names;
+    }
+
+    /**
+     * -Dqf.bench.resetTime=1 (batch.py always sets it): Iris's frameTimeCounter restarts at 0 when a
+     * scene starts measuring, so its shots, taken a fixed number of ticks later, see the same cloud
+     * positions and wave phase in every run. Without it the clouds drift with the time since boot and
+     * two renders of one view differ (r005/r006 option pairs were confounded by it; a batch shoots
+     * later in the session than a single run).
+     */
+    private static void resetShaderClock() {
+        if (!"1".equals(System.getProperty("qf.bench.resetTime"))) return;
+        try {
+            Object timer = Class.forName("net.coderbot.iris.uniforms.SystemTimeUniforms").getField("TIMER").get(null);
+            timer.getClass().getMethod("reset").invoke(timer);
+        } catch (Throwable t) {
+            log("resetTime: " + t);
+        }
+    }
+
+    /** A finished step's lines, appended to bench/<tag>.part so a crash keeps them. */
+    private void savePart(Minecraft mc, List<String> lines) {
+        if (stepJob == null) return;
+        try {
+            File dir = new File(mc.mcDataDir, "bench");
+            dir.mkdirs();
+            PrintWriter out = new PrintWriter(new FileWriter(new File(dir, tag() + ".part"), true));
+            for (String l : lines) out.println(l);
+            out.close();
+        } catch (Throwable t) {
+            log("part: " + t);
+        }
     }
 
     private static void log(String s) {
@@ -141,6 +392,10 @@ public class FrameBench {
     /** Frame boundaries. START of one render tick to START of the next is one frame. */
     @SubscribeEvent
     public void onRender(TickEvent.RenderTickEvent event) {
+        if (event.phase == TickEvent.Phase.END) {
+            if (stage == Stage.BURST) burstFrame(Minecraft.getMinecraft());
+            return;
+        }
         if (event.phase != TickEvent.Phase.START) return;
         long now = System.nanoTime();
         if (stage == Stage.MEASURE && lastFrame != 0) frames.add(now - lastFrame);
@@ -156,7 +411,8 @@ public class FrameBench {
         // Singleplayer pauses when the window loses focus, and an unattended run
         // always has lost focus. A paused game renders the menu, not the scene.
         mc.gameSettings.pauseOnLostFocus = false;
-        if (stage.ordinal() >= Stage.SETUP.ordinal() && mc.currentScreen != null) {
+        if (stage.ordinal() >= Stage.SETUP.ordinal() && mc.currentScreen != null
+                && !(sceneIdx >= 0 && sceneIdx < scenes.length && isGui(scene()) && GuiShots.isOurs(mc.currentScreen))) {
             mc.displayGuiScreen(null);
         }
 
@@ -165,7 +421,11 @@ public class FrameBench {
             lastDebug = mc.debug;
             int n = parseChunkUpdates(lastDebug);
             if (stage == Stage.MEASURE) chunkUpdates += n;
-            quiet = n == 0 ? quiet + 1 : 0;
+            // Batch mode settles on "no more than a trickle": a world with flowing water or lava
+            // never reports 0 for long (r007's qh measured 1-22 updates/s standing still), so the
+            // single-run rule hit the 45 s SETTLE_MAX on most scenes; after a reload or teleport the
+            // rebuild runs at hundreds a second. Single runs keep the old rule.
+            quiet = n <= (stepJob != null ? BATCH_QUIET_UPDATES : 0) ? quiet + 1 : 0;
         }
 
         switch (stage) {
@@ -203,10 +463,46 @@ public class FrameBench {
                 return;
             case SETTLE:
                 hold(mc);
+                // r008 boot fault (b1026000221): after a few teleports the client got no chunks at
+                // the new place, reported 0 chunk updates, so "quiet" settled it at once and every
+                // later scene was shot as sky over void. A scene is not settled until the client
+                // holds the chunks round the camera; until then it re-teleports every 10 s.
+                boolean haveLand = terrainLoaded(mc);
+                if (!haveLand) {
+                    quiet = 0;
+                    if (ticks > 0 && ticks % 200 == 0 && ticks <= SETTLE_MAX + warmTicks) {
+                        terrainRetries++;
+                        log(scene() + ": no terrain after " + ticks + " ticks; teleport again (" + terrainRetries + ")");
+                        // Odd retries bounce 600 blocks away first (a fresh chunk set), even ones come back.
+                        final boolean bounce = terrainRetries % 2 == 1;
+                        final double bx = px, by = py, bz = pz;
+                        final float byaw = yaw, bpitch = pitch;
+                        final boolean bfly = flying;
+                        serverTasks.add(new Runnable() {
+                            public void run() {
+                                Minecraft m = Minecraft.getMinecraft();
+                                if (bounce) {
+                                    serverPlayer(m).playerNetServerHandler.setPlayerLocation(bx + 600.0, by + 40.0, bz, byaw, bpitch);
+                                    serverTasks.add(new Runnable() {
+                                        public void run() { place(Minecraft.getMinecraft(), bx, by, bz, byaw, bpitch, bfly); }
+                                    });
+                                } else {
+                                    place(m, bx, by, bz, byaw, bpitch, bfly);
+                                }
+                            }
+                        });
+                    }
+                }
                 // Built when the game has reported no chunk updates for three
                 // seconds running, or after SETTLE_MAX regardless.
-                if ((quiet >= 3 && ticks > 100) || ticks > SETTLE_MAX) {
+                if ((quiet >= 3 && ticks > Math.max(100, warmTicks)) || ticks > SETTLE_MAX + warmTicks) {
+                    if (!haveLand) {
+                        log(scene() + ": NO TERRAIN after " + ticks + " ticks; frames are void");
+                    }
+                    voidScene = !haveLand;
                     log(scene() + ": settled after " + ticks + " ticks; measuring");
+                    progress(mc, "measure");
+                    resetShaderClock();
                     if (tally == null || tally.world != mc.theWorld) {
                         tally = new UpdateTally(mc.theWorld);
                         mc.theWorld.addWorldAccess(tally);
@@ -222,8 +518,14 @@ public class FrameBench {
             case MEASURE:
                 move(mc);
                 View mv = views.get(scene());
-                if (ticks >= (mv != null ? mv.ticks : MEASURE_TICKS)) {
+                int want = mv != null ? mv.ticks : MEASURE_TICKS;
+                if (stepJob != null && stepJob[sceneIdx].measure > 0 && !scene().equals("gallery")) {
+                    want = stepJob[sceneIdx].measure;
+                }
+                if (ticks >= want) {
                     summarise(mc);
+                    // renderq drops a block carrying this line, so the scene re-renders.
+                    if (voidScene) rep().add("  incident no-terrain");
                     if (mv != null || scene().equals("torch") || scene().equals("torch_wall")) {
                         stage = Stage.SHOOT;
                         ticks = 0;
@@ -237,7 +539,24 @@ public class FrameBench {
                 hold(mc);
                 if (ticks == 2) shot(mc, scene());
                 if (ticks == 3) shot(mc, scene() + "-b");
-                if (ticks >= 4) nextScene(mc);
+                if (ticks >= 4) {
+                    Job bj = stepJob != null ? stepJob[sceneIdx] : null;
+                    if (bj != null && bj.burstFrames > 0 && views.containsKey(scene())) {
+                        startBurst(mc, bj);
+                    } else {
+                        nextScene(mc);
+                    }
+                }
+                return;
+            case BURST:
+                hold(mc);
+                // Done when every frame is captured and written; 60 s past the clip's own length
+                // gives up (the report says how many were written).
+                if ((burstIdx >= burstJob.burstFrames && burstPending.get() == 0)
+                        || ticks > 1200 + burstJob.burstFrames * burstJob.burstMs / 50) {
+                    endBurst(mc);
+                    nextScene(mc);
+                }
                 return;
             default:
         }
@@ -247,13 +566,25 @@ public class FrameBench {
         return scenes[sceneIdx].trim();
     }
 
+    private int stepMark;
+
     private void nextScene(final Minecraft mc) {
+        if (stepJob != null && sceneIdx >= 0 && sceneIdx < scenes.length) {
+            List<String> r = rep();
+            savePart(mc, new ArrayList<String>(r.subList(stepMark, r.size())));
+        }
         sceneIdx++;
         if (sceneIdx >= scenes.length) {
             finish(mc);
             return;
         }
         stage = Stage.SETUP;
+        warmTicks = 0;
+        if (stepJob != null) {
+            stepMark = rep().size();
+            if (apply(stepJob[sceneIdx])) warmTicks = stepJob[sceneIdx].warm;
+        }
+        progress(mc, "settle");
         // Everything a scene changes in the world -- time, blocks, the player's
         // position and inventory -- belongs to the integrated server, which runs
         // on its own thread. Doing it from this (client) thread races the server
@@ -301,12 +632,24 @@ public class FrameBench {
         return (EntityPlayerMP) server.getConfigurationManager().playerEntityList.get(0);
     }
 
+    private static EnumDifficulty difficulty() {
+        String d = System.getProperty("qf.bench.difficulty", "peaceful");
+        for (EnumDifficulty e : EnumDifficulty.values()) {
+            if (e.name().equalsIgnoreCase(d)) return e;
+        }
+        return EnumDifficulty.PEACEFUL;
+    }
+
+    private static boolean isGui(String scene) {
+        return scene != null && scene.startsWith("gui_");
+    }
+
     private void setUp(Minecraft mc, String scene) {
         MinecraftServer server = mc.getIntegratedServer();
         WorldServer w = server.worldServerForDimension(0);
         EntityPlayerMP mp = serverPlayer(mc);
 
-        server.func_147139_a(EnumDifficulty.PEACEFUL);
+        server.func_147139_a(difficulty());
         w.getGameRules().setOrCreateGameRule("doDaylightCycle", "false");
         w.getGameRules().setOrCreateGameRule("doMobSpawning", "false");
         w.getWorldInfo().setRaining(false);
@@ -349,6 +692,7 @@ public class FrameBench {
             place(mc, 0.5, y, 0.5, -90F, 15F, true);
         }
         mp.inventory.mainInventory[0] = scene.equals("torch") ? mp.inventory.mainInventory[0] : null;
+        if (isGui(scene)) GuiShots.setUpServer(mp, scene);
         log(scene + ": set up");
     }
 
@@ -477,20 +821,166 @@ public class FrameBench {
         if (ticks == 160) shot(mc, "close");
     }
 
+    // ------------------------------------------------------------------ burst (motion clips)
+
+    private Job burstJob;
+    private int burstIdx;
+    private long burstStart, burstNext;
+    private long[] burstTimes;
+    private java.nio.IntBuffer burstBuf;
+    private final java.util.concurrent.atomic.AtomicInteger burstPending = new java.util.concurrent.atomic.AtomicInteger();
+    private final java.util.concurrent.atomic.AtomicLong burstWriteNs = new java.util.concurrent.atomic.AtomicLong();
+    private final java.util.concurrent.atomic.AtomicInteger burstWritten = new java.util.concurrent.atomic.AtomicInteger();
+    private java.util.concurrent.ExecutorService burstPool;
+    private static final int BURST_MAX_PENDING = 24;   // frames in memory waiting for the writers
+
+    private void startBurst(Minecraft mc, Job j) {
+        burstJob = j;
+        burstIdx = 0;
+        burstStart = 0;
+        burstTimes = new long[j.burstFrames];
+        burstWriteNs.set(0);
+        burstWritten.set(0);
+        if (burstPool == null) {
+            burstPool = java.util.concurrent.Executors.newFixedThreadPool(2, new java.util.concurrent.ThreadFactory() {
+                public Thread newThread(Runnable r) {
+                    Thread t = new Thread(r, "FrameBench-burst");
+                    t.setDaemon(true);
+                    t.setPriority(Thread.MIN_PRIORITY);
+                    return t;
+                }
+            });
+        }
+        log(scene() + ": burst of " + j.burstFrames + " frames every " + j.burstMs + " ms");
+        progress(mc, "burst");
+        stage = Stage.BURST;
+        ticks = 0;
+    }
+
+    /** RenderTickEvent END: the frame is drawn into the main framebuffer. */
+    private void burstFrame(Minecraft mc) {
+        if (burstJob == null || burstIdx >= burstJob.burstFrames) return;
+        long now = System.nanoTime();
+        if (burstStart == 0) {
+            burstStart = now;
+            burstNext = now;
+        }
+        if (now < burstNext || burstPending.get() >= BURST_MAX_PENDING) return;
+        net.minecraft.client.shader.Framebuffer fb = mc.getFramebuffer();
+        boolean fbo = net.minecraft.client.renderer.OpenGlHelper.isFramebufferEnabled();
+        int iw = fbo ? fb.framebufferWidth : mc.displayWidth;
+        int ih = fbo ? fb.framebufferHeight : mc.displayHeight;
+        int th = fbo ? fb.framebufferTextureHeight : mc.displayHeight;
+        int[] b = burstJob.burstBox;
+        int x = 0, y = 0, w = iw, h = ih;
+        if (b != null) {
+            x = Math.max(0, Math.min(iw - 1, b[0]));
+            y = Math.max(0, Math.min(ih - 1, b[1]));
+            w = Math.max(1, Math.min(iw - x, b[2]));
+            h = Math.max(1, Math.min(ih - y, b[3]));
+        }
+        if (burstBuf == null || burstBuf.capacity() < w * h) burstBuf = org.lwjgl.BufferUtils.createIntBuffer(w * h);
+        burstBuf.clear();
+        try {
+            // glReadPixels on the box only: no texture bind, so Angelica's cached texture state is untouched.
+            if (fbo) fb.bindFramebuffer(false);
+            org.lwjgl.opengl.GL11.glPixelStorei(org.lwjgl.opengl.GL11.GL_PACK_ALIGNMENT, 1);
+            org.lwjgl.opengl.GL11.glReadPixels(x, th - y - h, w, h, org.lwjgl.opengl.GL12.GL_BGRA,
+                    org.lwjgl.opengl.GL12.GL_UNSIGNED_INT_8_8_8_8_REV, burstBuf);
+        } catch (Throwable t) {
+            log("burst: read failed: " + t);
+            burstIdx = burstJob.burstFrames;
+            return;
+        }
+        final int[] px = new int[w * h];
+        burstBuf.get(px, 0, w * h);
+        final int fw = w, fh = h;
+        final String name = String.format("bench-%s-%s-f%03d.png", tag(), scene(), burstIdx);
+        final File out = new File(new File(mc.mcDataDir, "screenshots"), name);
+        burstTimes[burstIdx] = now - burstStart;
+        burstIdx++;
+        // The next boundary; a late frame does not pull the rest earlier.
+        burstNext = burstStart + (long) burstIdx * burstJob.burstMs * 1000000L;
+        if (burstNext < now) burstNext = now;
+        rep().add("  screenshot screenshots/" + name);
+        burstPending.incrementAndGet();
+        burstPool.execute(new Runnable() {
+            public void run() {
+                long t0 = System.nanoTime();
+                try {
+                    java.awt.image.BufferedImage img = new java.awt.image.BufferedImage(fw, fh,
+                            java.awt.image.BufferedImage.TYPE_INT_RGB);
+                    for (int r = 0; r < fh; r++) {     // GL rows run bottom up
+                        img.setRGB(0, r, fw, 1, px, (fh - 1 - r) * fw, fw);
+                    }
+                    out.getParentFile().mkdirs();
+                    javax.imageio.ImageIO.write(img, "png", out);
+                    burstWritten.incrementAndGet();
+                } catch (Throwable t) {
+                    log("burst: write failed " + out + ": " + t);
+                } finally {
+                    burstWriteNs.addAndGet(System.nanoTime() - t0);
+                    burstPending.decrementAndGet();
+                }
+            }
+        });
+    }
+
+    private void endBurst(Minecraft mc) {
+        int n = burstIdx;
+        StringBuilder ts = new StringBuilder();
+        double sum = 0, sq = 0, max = 0;
+        for (int i = 0; i < n; i++) {
+            ts.append(i == 0 ? "" : " ").append(burstTimes[i] / 1000000L);
+            if (i > 0) {
+                double d = (burstTimes[i] - burstTimes[i - 1]) / 1e6;
+                sum += d;
+                sq += d * d;
+                max = Math.max(max, d);
+            }
+        }
+        double mean = n > 1 ? sum / (n - 1) : 0;
+        double sd = n > 2 ? Math.sqrt(Math.max(0, sq / (n - 1) - mean * mean)) : 0;
+        int wr = burstWritten.get();
+        int[] bb = burstJob.burstBox;
+        String line = String.format("  burst %d frames (%d written) every %d ms: interval mean %.1f sd %.1f max %.1f ms;"
+                        + " write %.1f ms/frame; box %s; times %s",
+                n, wr, burstJob.burstMs, mean, sd, max, wr > 0 ? burstWriteNs.get() / 1e6 / wr : 0.0,
+                bb == null ? "full" : bb[0] + "," + bb[1] + "," + bb[2] + "," + bb[3], ts);
+        log(tag() + " " + scene() + line);
+        rep().add(line);
+        burstJob = null;
+    }
+
     private void shot(Minecraft mc, String what) {
-        String name = "bench-" + System.getProperty("qf.bench.tag", "bench") + "-" + what + ".png";
+        String name = "bench-" + tag() + "-" + what + ".png";
         try {
             net.minecraft.util.ScreenShotHelper.saveScreenshot(mc.mcDataDir, name,
                     mc.displayWidth, mc.displayHeight, mc.getFramebuffer());
-            report.add("  screenshot screenshots/" + name);
+            rep().add("  screenshot screenshots/" + name);
         } catch (Throwable t) {
             log("screenshot failed: " + t);
         }
     }
 
-    private double px, py, pz;
-    private float yaw, pitch;
-    private boolean flying;
+    private volatile double px, py, pz;
+    private volatile float yaw, pitch;
+    private volatile boolean flying;
+    private int terrainRetries;
+    private boolean voidScene;
+
+    /** The client world holds real chunks in a 5x5 square round the camera. */
+    private boolean terrainLoaded(Minecraft mc) {
+        if (mc.theWorld == null) return false;
+        int cx = ((int) Math.floor(px)) >> 4, cz = ((int) Math.floor(pz)) >> 4;
+        for (int dx = -2; dx <= 2; dx++) {
+            for (int dz = -2; dz <= 2; dz++) {
+                Chunk c = mc.theWorld.getChunkProvider().provideChunk(cx + dx, cz + dz);
+                if (c == null || c instanceof EmptyChunk || c.isEmpty()) return false;
+            }
+        }
+        return true;
+    }
 
     private void place(Minecraft mc, double x, double y, double z, float yaw, float pitch,
                        boolean fly) {
@@ -504,8 +994,9 @@ public class FrameBench {
     private void hold(Minecraft mc) {
         if (mc.thePlayer == null) return;
         // F1 for view scenes: review frames carry no HUD for the critic to mistake for the world.
-        mc.gameSettings.hideGUI = sceneIdx >= 0 && sceneIdx < scenes.length
+        mc.gameSettings.hideGUI = sceneIdx >= 0 && sceneIdx < scenes.length && !isGui(scene())
                 && (views.containsKey(scene()) || scene().equals("gallery") || scene().equals("torch_wall"));
+        if (sceneIdx >= 0 && sceneIdx < scenes.length && isGui(scene())) GuiShots.client(mc, scene());
         mc.thePlayer.capabilities.isFlying = flying;
         mc.thePlayer.motionX = mc.thePlayer.motionY = mc.thePlayer.motionZ = 0;
         mc.thePlayer.setPositionAndRotation(px, py + mc.thePlayer.yOffset, pz, yaw, pitch);
@@ -605,7 +1096,7 @@ public class FrameBench {
     private void summarise(Minecraft mc) {
         int n = frames.size();
         if (n == 0) {
-            report.add(String.format("%-7s no frames recorded", scene()));
+            rep().add(String.format("%-7s no frames recorded", scene()));
             return;
         }
         long[] ns = new long[n];
@@ -627,17 +1118,17 @@ public class FrameBench {
                         + "  worst %7.1f ms  >33ms %4d  chunkUpdates %5d",
                 scene(), n, meanFps, ns[n / 2] / 1e6, ns[(int) (n * 0.99)] / 1e6, low1,
                 ns[n - 1] / 1e6, over33, chunkUpdates);
-        log(line);
-        report.add(line);
-        report.add("  wall " + System.currentTimeMillis());
+        log((stepJob != null ? tag() + " " : "") + line);
+        rep().add(line);
+        rep().add("  wall " + System.currentTimeMillis());
         // A picture of the static view, so a setting that buys frames can be
         // judged on what it costs to look at, not just what it costs to draw.
         if (scene().equals("static")) {
-            String name = "bench-" + System.getProperty("qf.bench.tag", "bench") + ".png";
+            String name = "bench-" + tag() + ".png";
             try {
                 net.minecraft.util.ScreenShotHelper.saveScreenshot(mc.mcDataDir, name,
                         mc.displayWidth, mc.displayHeight, mc.getFramebuffer());
-                report.add("  screenshot screenshots/" + name);
+                rep().add("  screenshot screenshots/" + name);
             } catch (Throwable t) {
                 log("screenshot failed: " + t);
             }
@@ -645,13 +1136,19 @@ public class FrameBench {
         if (tally != null) {
             for (String t : tally.top(12)) {
                 log(t);
-                report.add(t);
+                rep().add(t);
             }
         }
     }
 
     private void finish(Minecraft mc) {
         stage = Stage.DONE;
+        progress(mc, "done");
+        if (stepJob != null) {
+            for (Job j : jobs.values()) writeResult(mc, j.tag, j.report);
+            mc.shutdown();
+            return;
+        }
         String tag = System.getProperty("qf.bench.tag", "bench");
         try {
             File dir = new File(mc.mcDataDir, "bench");
@@ -665,5 +1162,20 @@ public class FrameBench {
             log("could not write results: " + t);
         }
         mc.shutdown();
+    }
+
+    private void writeResult(Minecraft mc, String tag, List<String> lines) {
+        try {
+            File dir = new File(mc.mcDataDir, "bench");
+            dir.mkdirs();
+            PrintWriter out = new PrintWriter(new FileWriter(new File(dir, tag + ".txt")));
+            out.println("tag " + tag + "  display " + mc.displayWidth + "x" + mc.displayHeight);
+            for (String r : lines) out.println(r);
+            out.close();
+            new File(dir, tag + ".part").delete();
+            log("wrote bench/" + tag + ".txt");
+        } catch (Throwable t) {
+            log("could not write results for " + tag + ": " + t);
+        }
     }
 }

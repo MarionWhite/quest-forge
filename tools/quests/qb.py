@@ -111,6 +111,7 @@ BOSS_QUESTS = {
     15: 'Naga', 16: 'Lich', 17: 'Hydra', 93: 'Minoshroom', 94: 'Knight Phantom', 18: 'Ur-Ghast',
     95: 'Alpha Yeti', 19: 'Snow Queen', 22: 'Mobzilla', 23: 'The King', 24: 'The Queen',
     406: 'Rahovart', 121: 'HEE Dragon', 450: 'The Overlord',
+    481: 'First Blood (a Mutant, a ChocolateQuest boss or the Wither)', 483: 'The Wither',  # WP-6
 }
 # Items only a boss drops. A quest that asks for one is gated even with no prerequisites
 # (the Secrets: "carry every OreSpawn sword" needs the Royal). Since WP-4 most boss quests
@@ -134,6 +135,10 @@ TEXT_RULES = [
     (re.compile(r'\b(TODO|TBD|FIXME|lorem ipsum|XXX)\b', re.I), 'placeholder text'),
     (re.compile(r'(?<!\.)\.\.(?!\.)'), 'double full stop'),
 ]
+# A writing placeholder left by a data patch for the writers (docs/design/quests/
+# wp6-writing-brief.md): "[WRITE: what the text must say]". Allowed in a draft, an error in
+# the pack and server books.
+WRITE_RE = re.compile(r'\[WRITE:')
 
 # ---------------------------------------------------------------------------
 COLOR = re.compile('§.')
@@ -344,6 +349,25 @@ def replace_reward(log, q, old_id, new, old_damage=None, count=None):
     raise SystemExit('q%d: no reward %s to replace' % (qid, old_id))
 
 
+def add_reward_stack(log, q, stack):
+    """Append `stack` to the quest's first item reward (made if there is none), unless a
+    stack of that id and damage is already handed out."""
+    qid = q['questID:3']
+    if any(_match(s, stack['id:8'], stack['Damage:2']) for rw in rewards(q) for s in stacks_of(rw)):
+        log('q%d: reward %s@%d already there' % (qid, stack['id:8'], stack['Damage:2']))
+        return
+    for rw in rewards(q):
+        if rw['rewardID:8'] == 'bq_standard:item':
+            stacks = list(rw['rewards:9'].values()) + [stack]
+            set_stacks(rw, 'rewards:9', stacks)
+            break
+    else:
+        rw = item_reward(stack)
+        rw['index:3'] = len(rewards(q))
+        q.setdefault('rewards:9', {})['%d:10' % rw['index:3']] = rw
+    log('q%d reward: + %s@%d x%d' % (qid, stack['id:8'], stack['Damage:2'], stack['Count:3']))
+
+
 def replace_task_item(log, q, old_id, new, old_damage=None):
     qid = q['questID:3']
     for t in tasks(q):
@@ -533,8 +557,11 @@ def move_to_line(log, book, qid, line_id, x, y, size=24):
             if (e['x:3'], e['y:3']) != (x, y):
                 log('q%d position in line %d: (%d,%d) -> (%d,%d)' % (qid, line_id, e['x:3'], e['y:3'], x, y))
                 e['x:3'], e['y:3'] = x, y
+            elif e['sizeX:3'] != size:
+                log('q%d size in line %d: %d -> %d' % (qid, line_id, e['sizeX:3'], size))
             else:
                 log('q%d: already in line %d' % (qid, line_id))
+            e['sizeX:3'] = e['sizeY:3'] = size
             return
     old = None
     for l in book.lines:
@@ -556,6 +583,120 @@ def set_pack_version(log, book, version):
     else:
         log('pack_version: %d -> %d' % (s['pack_version:3'], version))
         s['pack_version:3'] = version
+
+
+def set_setting(log, book, key, value):
+    """Set one questSettings key (`party_enable:1`, `hardcore:1`, ...), or report it set."""
+    s = book.settings
+    if key not in s:
+        raise SystemExit('questSettings has no %r (keys: %s)' % (key, sorted(s)))
+    if s[key] == value:
+        log('%s: already %r' % (key, value))
+    else:
+        log('%s: %r -> %r' % (key, s[key], value))
+        s[key] = value
+
+
+def line_by_name(book, name_):
+    """The line whose (colour-stripped) name is `name_`, or None."""
+    for l in book.lines:
+        if strip(book.line_name(l['lineID:3'])).strip() == strip(name_).strip():
+            return l
+    return None
+
+
+def rename_line(log, book, old, new, desc=None, icon=None):
+    """Rename a tab (found by its old or its new name). `desc`/`icon` replace the line's text
+    and icon when given; the rename alone is reported as already done when only the name
+    matches."""
+    l = line_by_name(book, old)
+    if l is None:
+        l = line_by_name(book, new)
+        if l is None:
+            raise SystemExit('no line named %r (nor %r)' % (strip(old), strip(new)))
+        log('line %d %s: already renamed' % (l['lineID:3'], strip(new)))
+    else:
+        if line_by_name(book, new) is not None:
+            raise SystemExit('cannot rename %r: a line named %r exists' % (strip(old), strip(new)))
+        l['properties:10']['betterquesting:10']['name:8'] = new
+        log('line %d: renamed %r -> %r' % (l['lineID:3'], strip(old), strip(new)))
+    p = l['properties:10']['betterquesting:10']
+    if desc is not None and p.get('desc:8') != desc:
+        log('line %d %s: desc rewritten (%r...)' % (l['lineID:3'], strip(new), strip(desc)[:40]))
+        p['desc:8'] = desc
+    if icon is not None and (p['icon:10']['id:8'], p['icon:10'].get('Damage:2', 0)) != (icon['id:8'], icon['Damage:2']):
+        log('line %d %s: icon -> %s' % (l['lineID:3'], strip(new), icon['id:8']))
+        p['icon:10'] = icon
+    return l
+
+
+def remove_line(log, book, name_):
+    """Delete an EMPTY tab by name (or report it gone). Later tabs move one place left."""
+    l = line_by_name(book, name_)
+    if l is None:
+        log('line %s: already removed' % strip(name_))
+        return
+    if l['quests:9']:
+        raise SystemExit('line %d %s still holds %d quests; move them first' % (
+            l['lineID:3'], strip(name_), len(l['quests:9'])))
+    order = l['order:3']
+    for key, other in list(book.data['questLines:9'].items()):
+        if other is l:
+            del book.data['questLines:9'][key]
+        elif other['order:3'] > order:
+            other['order:3'] -= 1
+    log('line %d %s: removed (was tab %d)' % (l['lineID:3'], strip(name_), order))
+
+
+def remove_quest(log, book, qid):
+    """Delete a quest and its line entry (or report it gone). Stops if anything needs it."""
+    if not book.has(qid):
+        log('q%d: already removed' % qid)
+        return
+    users = sorted(o for o, q in book.quests.items() if qid in q['preRequisites:11'])
+    if users:
+        raise SystemExit('q%d is a prerequisite of %s; change those first' % (qid, users))
+    q = book.quest(qid)
+    for key, other in list(book.qdb.items()):
+        if other is q:
+            del book.qdb[key]
+    for l in book.lines:
+        es = l['quests:9']
+        keep = [e for e in es.values() if e['id:3'] != qid]
+        if len(keep) != len(es):
+            l['quests:9'] = {'%d:10' % i: e for i, e in enumerate(keep)}
+    log('q%d %s: removed' % (qid, name(q)))
+
+
+def set_tab_order(log, book, leading):
+    """Put the tabs named in `leading` first, in that order; every other tab keeps its
+    relative order after them, and Secrets stays last."""
+    lines = book.lines
+    lead = []
+    for nm in leading:
+        l = line_by_name(book, nm)
+        if l is None:
+            raise SystemExit('set_tab_order: no line named %r' % nm)
+        lead.append(l)
+    rest = sorted((l for l in lines if l not in lead), key=lambda l: l['order:3'])
+    secrets = [l for l in rest if strip(book.line_name(l['lineID:3'])).strip().lower() == 'secrets']
+    rest = [l for l in rest if l not in secrets]
+    changed = 0
+    for i, l in enumerate(lead + rest + secrets):
+        if l['order:3'] != i:
+            l['order:3'] = i
+            changed += 1
+    log('tab order: %s' % ('already as asked' if not changed else '%d tabs moved' % changed))
+
+
+def set_task_field(log, q, index, field, value):
+    """Set one key of one task (for example subtypes:1 on a hunt), or report it already set."""
+    t = tasks(q)[index]
+    if t.get(field) == value:
+        log('q%d task %d: %s already %r' % (q['questID:3'], index, field, value))
+    else:
+        log('q%d task %d: %s %r -> %r' % (q['questID:3'], index, field, t.get(field), value))
+        t[field] = value
 
 
 def load(which):
@@ -865,12 +1006,19 @@ def check_text(book):
     for l in book.lines:
         p = l['properties:10']['betterquesting:10']
         fields.append(('line %d' % l['lineID:3'], p['name:8'] + '\n' + p.get('desc:8', '')))
+    unwritten = []
     for where, s in fields:
         plain = strip(s)
         for rx, why in TEXT_RULES:
             for m in rx.finditer(plain):
                 ctx = plain[max(0, m.start() - 20):m.end() + 20].replace('\n', ' / ')
                 r.err('%s: %s: ...%s...' % (where, why, ctx))
+        if WRITE_RE.search(plain):
+            unwritten.append(where)
+    if unwritten:
+        # A draft may carry writing placeholders for the Mac writers; a shipped book may not.
+        msg = '%d text(s) still hold a [WRITE: ...] placeholder: %s' % (len(unwritten), ', '.join(unwritten))
+        (r.err if book.label in BOOKS else r.warn)(msg)
     return r
 
 
@@ -910,15 +1058,45 @@ def check_hunt(book):
 # ---------------------------------------------------------------------------
 # path: the chapter order
 
+# A tab is a link in the chain when its name is numbered. Two spellings, one scale:
+#   "Ch N: ..."            the pre-WP-6 book: N
+#   "Arrival"              the Prologue (act-structure.md section 1): 0
+#   "I: ..." .. "IV: ..."  the acts: 1-4. Several tabs may share an act (decision act1-02 B,
+#                          "II: Twilight" beside "II: Witchery"); they are checked as one act.
+#   "Chronicle"            the Epilogue: 5
 CHAPTER_RE = re.compile(r'^Ch (\d+):')
-# Numbered tabs that are not links in the chain, and why. Every other numbered chapter
-# must open strictly after the one before it.
+ACT_RE = re.compile(r'^(I|II|III|IV):')
+ROMAN = {'I': 1, 'II': 2, 'III': 3, 'IV': 4}
+ACT_TABS = {'Arrival': 0, 'Chronicle': 5}
+ACT_NAMES = {0: 'Prologue', 1: 'Act I', 2: 'Act II', 3: 'Act III', 4: 'Act IV', 5: 'Epilogue'}
+TAB_NAME_MAX = 14   # GuiHome clips longer names (lint warns)
+
+
+def chapter_number(tab_name):
+    """The chain position of a tab, or None for a side tab."""
+    nm = strip(tab_name).strip()
+    m = CHAPTER_RE.match(nm)
+    if m:
+        return int(m.group(1))
+    m = ACT_RE.match(nm)
+    if m:
+        return ROMAN[m.group(1)]
+    return ACT_TABS.get(nm)
+
+
+# Numbered tabs that are not links in the chain, keyed by tab name, and why. Every other
+# numbered chapter must open strictly after the one before it.
 SIDE_CHAPTERS = {
-    2: 'Base is storage QoL, a Prologue side tab (audit 4.4); it opens at quest 2 Crafting Station',
+    'Ch 2: Base': 'Base is storage QoL, a Prologue side tab (audit 4.4); it opens at quest 2 Crafting Station',
 }
+# Ladder tabs, keyed by tab name: (the chapter/act number whose opening the last rung must
+# come after, why). A ladder's rungs each open at the boss their recipe needs, so only its
+# last rung is checked. An unnumbered ladder tab ("ProjectE" after WP-6) is still checked.
 LADDER_CHAPTERS = {
-    9: 'ProjectE is a ladder: each rung opens at the boss its recipe needs (crazycraft_gating.zs), '
-       'so its first rung opens at the Lich; its last rung must come after Ch 8 opens',
+    'Ch 9: ProjectE': (8, 'ProjectE is a ladder: each rung opens at the boss its recipe needs (crazycraft_gating.zs), '
+                          'so its first rung opens at the Lich; its last rung must come after Ch 8 opens'),
+    'ProjectE': (4, 'ProjectE is a ladder: each rung opens at the boss its recipe needs (crazycraft_gating.zs), '
+                    'so its first rung opens at the Lich; its last rung must come after Act IV opens'),
 }
 
 
@@ -952,22 +1130,49 @@ def required_sets(book):
     return memo
 
 
-def chapter_table(book, req):
-    """[(number, line, entries, opening entry, open set, quest ids)] for numbered chapters."""
+def tab_table(book, req, line):
+    """(name, entries, opening entry, open set, quest ids) for one tab. An entry is a quest
+    with no prerequisite inside the tab; the opening entry is the cheapest."""
     qs = book.quests
-    out = []
+    ids = {e['id:3'] for e in line['quests:9'].values() if e['id:3'] in qs}
+    entries = sorted(qid for qid in ids if not any(p in ids for p in qs[qid]['preRequisites:11']))
+    if not entries:
+        return None
+    first = min(entries, key=lambda e: (len(req[e]), e))
+    return (strip(book.line_name(line['lineID:3'])), entries, first, req[first] - {first}, ids)
+
+
+def chapter_table(book, req):
+    """{chapter number: [tab rows]} for the numbered tabs, in chain order. One act may hold
+    several tabs (decision act1-02 B); a ladder or side tab is listed under its number too,
+    and check_path treats it by name."""
+    out = collections.defaultdict(list)
     for l in book.lines:
-        m = CHAPTER_RE.match(strip(l['properties:10']['betterquesting:10']['name:8']))
-        if not m:
+        num = chapter_number(l['properties:10']['betterquesting:10']['name:8'])
+        if num is None:
             continue
-        ids = {e['id:3'] for e in l['quests:9'].values() if e['id:3'] in qs}
-        entries = sorted(qid for qid in ids if not any(p in ids for p in qs[qid]['preRequisites:11']))
-        first = min(entries, key=lambda e: (len(req[e]), e))
-        out.append((int(m.group(1)), l, entries, first, req[first] - {first}, ids))
-    return sorted(out, key=lambda c: c[0])
+        row = tab_table(book, req, l)
+        if row:
+            out[num].append(row)
+    return collections.OrderedDict(sorted(out.items()))
+
+
+def chain_label(num, tabs):
+    """How to name chain position `num` in a message: the tab's name when it is one tab,
+    otherwise 'Act II' (act-style names) or 'Ch 2' (the pre-WP-6 numbering). `tabs` is a
+    list of tab rows or of tab names."""
+    names = [t[0] if isinstance(t, tuple) else t for t in tabs]
+    if len(names) == 1:
+        return names[0]
+    if all(CHAPTER_RE.match(n) for n in names):
+        return 'Ch %d' % num
+    return ACT_NAMES.get(num, 'Ch %d' % num)
 
 
 def check_path(book):
+    """Every act (or numbered chapter) opens strictly after the one before: each entry of each
+    of its tabs needs everything the previous act's opening entry needs, and more. Side and
+    ladder tabs (by name) are exempt; a ladder's last rung must still follow its act."""
     r = Report('path %s' % book.label)
     qs = book.quests
     try:
@@ -986,45 +1191,165 @@ def check_path(book):
     def where(ids):
         c = collections.Counter(strip(book.line_name(lo[i][0])) for i in ids)
         return ', '.join('%s %d' % kv for kv in sorted(c.items(), key=lambda kv: -kv[1]))
-    chapters = chapter_table(book, req)
-    prev = None
-    for num, l, entries, first, opened, ids in chapters:
-        lname = strip(book.line_name(l['lineID:3']))
-        gates = [p for p in qs[first]['preRequisites:11']]
+
+    def describe(lname, first, opened):
+        gates = qs[first]['preRequisites:11']
         r.note('%-18s opens at %d %s, after %s; %d quests first (%s)' % (
             lname, first, name(qs[first]),
             ' + '.join('%d %s' % (g, name(qs[g])) for g in gates) or 'nothing',
             len(opened), where(opened) or '-'))
-        if num in SIDE_CHAPTERS:
-            r.note('%-18s side chapter, not in the chain: %s' % ('', SIDE_CHAPTERS[num]))
-            continue
-        if prev is not None:
-            pnum, pname, popened, pids = prev
-            if num in LADDER_CHAPTERS:
-                cap = max(ids, key=lambda i: (len(req[i]), i))
-                ok = (req[cap] - {cap}) > popened
-                r.note('%-18s ladder; last rung %d %s needs %d quests' % ('', cap, name(qs[cap]), len(req[cap]) - 1))
-                if not ok:
-                    r.err('%s: last rung %d does not come after %s opens' % (lname, cap, pname))
-            else:
-                if not (opened > popened):
-                    r.err('%s can open before (or with) %s: its entry %d does not need everything %s needs'
-                          % (lname, pname, first, pname))
+
+    chapters = chapter_table(book, req)
+    # The chain: per number, the tabs that are links (not side or ladder tabs), the act's
+    # opening set (its cheapest tab's) and every quest id in the act.
+    chain = collections.OrderedDict()
+    for num, rows in chapters.items():
+        links = [row for row in rows if row[0] not in SIDE_CHAPTERS and row[0] not in LADDER_CHAPTERS]
+        if links:
+            opened = min((row[3] for row in links), key=len)
+            chain[num] = (links, opened, set().union(*(row[4] for row in links)))
+    prev = None
+    for num, rows in chapters.items():
+        for lname, entries, first, opened, ids in rows:
+            describe(lname, first, opened)
+            if lname in SIDE_CHAPTERS:
+                r.note('%-18s side chapter, not in the chain: %s' % ('', SIDE_CHAPTERS[lname]))
+            elif lname in LADDER_CHAPTERS:
+                pass  # checked below with the unnumbered ladders
+            elif prev is not None:
+                pnum, popened = prev
+                pname = chain_label(pnum, chain[pnum][0])
                 for e in entries:
-                    if e != first and not (req[e] - {e}) > popened:
-                        r.err('%s: entry %d %s opens no later than %s' % (lname, e, name(qs[e]), pname))
-        # no backwards edge: an earlier chapter must not need this chapter's quests
-        for onum, ol, oent, ofirst, oopened, oids in chapters:
-            if onum < num and onum not in SIDE_CHAPTERS and (oopened & ids):
-                r.err('%s needs %s from later %s' % (strip(book.line_name(ol['lineID:3'])),
-                                                      sorted(oopened & ids), lname))
-        prev = (num, lname, opened, ids)
+                    if not (req[e] - {e}) > popened:
+                        r.err('%s: entry %d %s does not need everything %s needs, so it can open before (or with) it'
+                              % (lname, e, name(qs[e]), pname))
+        if num in chain:
+            links = chain[num][0]
+            if len(links) > 1:
+                r.note('%-18s %s: %d tabs, opens at %d' % ('', chain_label(num, links), len(links),
+                                                            min((row[2] for row in links), key=lambda e: (len(req[e]), e))))
+            prev = (num, chain[num][1])
+    # no backwards edge: an earlier act must not need a later act's quests
+    nums = list(chain)
+    for i, num in enumerate(nums):
+        for later in nums[i + 1:]:
+            hit = chain[num][1] & chain[later][2]
+            if hit:
+                r.err('%s needs %s from later %s' % (chain_label(num, chain[num][0]), sorted(hit),
+                                                      chain_label(later, chain[later][0])))
+    # ladders: the last rung comes after the named chapter opens
+    for l in book.lines:
+        lname = strip(book.line_name(l['lineID:3']))
+        if lname not in LADDER_CHAPTERS:
+            continue
+        after, why = LADDER_CHAPTERS[lname]
+        row = tab_table(book, req, l)
+        if row is None:
+            continue
+        if chapter_number(lname) is None:
+            describe(lname, row[2], row[3])
+        ids = row[4]
+        cap = max(ids, key=lambda i: (len(req[i]), i))
+        r.note('%-18s ladder; last rung %d %s needs %d quests' % ('', cap, name(qs[cap]), len(req[cap]) - 1))
+        if after not in chain:
+            r.warn('%s: ladder should follow chapter %s, which this book does not have' % (lname, after))
+        elif not (req[cap] - {cap}) > chain[after][1]:
+            r.err('%s: last rung %d does not come after %s opens' % (lname, cap, chain_label(after, chain[after][0])))
     r.note('%d quests, all reachable' % len(qs) if not r.errors else '%d quests' % len(qs))
     return r
 
 
+# ---------------------------------------------------------------------------
+# obtain: can a player actually get what a task asks for?
+
+CENSUS = os.path.join(REPO, 'docs', 'reference', 'dead-items.json')
+# The census is research, not a test, so by default `obtain` warns and `check` still passes.
+# Two things turn a finding into an error: `--strict` (every finding), or the quest being in
+# OBTAIN_VERIFIED_BAD, which lists quests whose ask someone has confirmed impossible in game:
+# {quest id: 'who confirmed what, when'}. Empty today: the nine quests `obtain` flags
+# (tools/quests/README.md) have not been tried in game.
+OBTAIN_VERIFIED_BAD = {}
+# The opposite table: quests a human has verified obtainable in game, so the census verdict is
+# dropped for them: {quest id: {item id, ...}} or {quest id: '*'}. Say who verified what and when.
+OBTAIN_ALLOW = {}
+STRICT = False  # set by --strict on `check` and `obtain`
+
+
+def load_census():
+    """docs/reference/dead-items.json, written by tools/items/dead_items.py: every item's
+    status ('ok' means some recipe, loot table, drop, worldgen, trade or mod craft gives it;
+    'creative', 'technical', 'hidden', 'no-source', 'disabled', 'quest-only' mean none does)."""
+    if not os.path.exists(CENSUS):
+        return None
+    return json.load(open(CENSUS, encoding='utf-8'))
+
+
+def check_obtain(book):
+    """A retrieval task should ask for an item the dead-item census calls `ok`: `ids` only proves
+    the id is registered, and a registered item can still be creative-only, a technical block,
+    or without any source in the pack. An item the dump never listed is flagged too (the dump
+    client did not register it, or it is not in the pack). Findings are warnings, so the nine
+    known ones stay visible on every run without failing `check`; they are errors with --strict
+    or for a quest in OBTAIN_VERIFIED_BAD. Rewards of creative or technical items are always
+    warnings. OBTAIN_ALLOW drops a verdict a human has tested in game."""
+    r = Report('obtain %s' % book.label)
+    census = load_census()
+    if census is None:
+        r.warn('no %s: run `py -3.10 -I tools/items/dead_items.py`; nothing checked' % os.path.relpath(CENSUS, REPO))
+        return r
+    items = census['items']
+    extra = EXTRA_NAMESPACES.get(book.label, set())
+    n = skipped = 0
+
+    def allowed(qid, iid):
+        a = OBTAIN_ALLOW.get(qid)
+        return a == '*' or (a is not None and iid in a)
+
+    def flag(qid, msg):
+        if STRICT or qid in OBTAIN_VERIFIED_BAD:
+            r.err(msg + (' [confirmed in game: %s]' % OBTAIN_VERIFIED_BAD[qid] if qid in OBTAIN_VERIFIED_BAD else ''))
+        else:
+            r.warn(msg + ' [unverified: --strict makes this an error]')
+
+    for qid, q in sorted(book.quests.items()):
+        for t in tasks(q):
+            if t['taskID:8'] != 'bq_standard:retrieval':
+                continue
+            for s in stacks_of(t):
+                iid = s['id:8']
+                if iid.split(':')[0] in extra:
+                    skipped += 1
+                    continue
+                n += 1
+                if allowed(qid, iid):
+                    continue
+                it = items.get(iid)
+                if it is None:
+                    flag(qid, 'quest %d %s: task asks for %s, which the item dump never listed (registered but not '
+                              'loaded on the dump client, or not in the pack); see dead-items.md' % (qid, name(q), iid))
+                elif it['status'] != 'ok':
+                    why = it.get('get') or ', '.join(f for f in it['flags'] if f != 'registered')
+                    flag(qid, 'quest %d %s: task asks for %s, which the census calls "%s" (%s)'
+                              % (qid, name(q), iid, it['status'], why[:90]))
+        for rw in rewards(q):
+            kind = 'reward' if rw['rewardID:8'] == 'bq_standard:item' else 'choice'
+            for s in stacks_of(rw):
+                iid = s['id:8']
+                it = items.get(iid)
+                if it and it['status'] in ('creative', 'technical', 'hidden') and not allowed(qid, iid):
+                    r.warn('quest %d %s: %s hands out %s, which the census calls "%s"'
+                           % (qid, name(q), kind, iid, it['status']))
+    r.note('%d task items checked against the census of %s (built %s from the %s item dump); %s'
+           % (n, os.path.relpath(CENSUS, REPO), census.get('built'), census.get('dump'),
+              'strict: every finding is an error' if STRICT else
+              'findings are warnings until confirmed in game (OBTAIN_VERIFIED_BAD) or run with --strict'))
+    if skipped:
+        r.note('%d task items in namespaces %s not checked (not in the pack)' % (skipped, sorted(extra)))
+    return r
+
+
 CHECKS = {'lint': check_lint, 'ids': check_ids, 'cheese': check_cheese, 'stack': check_stack,
-          'text': check_text, 'hunt': check_hunt, 'path': check_path}
+          'text': check_text, 'hunt': check_hunt, 'path': check_path, 'obtain': check_obtain}
 
 
 def run_checks(names, book_arg, verbose):
@@ -1050,6 +1375,59 @@ TALLY_KEYS = [
     ('star', lambda s: s['id:8'] == 'minecraft:nether_star'),
 ]
 BAG_NAMES = ['Common', 'Uncommon', 'Rare', 'Epic', 'Legendary']
+
+# Reward budget per act, audit 4.5 ("a starting point [guess, tune by playtest]"), compared
+# against the best case: bag = most valuable loot bag tier allowed, tome = most valuable
+# sealed tome tier, lucky = Lucky Blocks across the act, diamonds = raw diamonds plus
+# 9 per diamond block. None = free. The Epilogue has no budget in the audit.
+ACT_BUDGET = {
+    0: {'bag': 0, 'tome': 0, 'lucky': 5, 'diamonds': 0},
+    1: {'bag': 1, 'tome': 1, 'lucky': 20, 'diamonds': 16},
+    2: {'bag': 2, 'tome': 2, 'lucky': 30, 'diamonds': 4 * 9},
+    3: {'bag': 3, 'tome': 3, 'lucky': 30, 'diamonds': 8 * 9},
+    4: {'bag': 4, 'tome': 4, 'lucky': 40, 'diamonds': None},
+    5: {'bag': None, 'tome': None, 'lucky': None, 'diamonds': None},
+}
+
+
+def act_tally(book, per_line):
+    """{act number: (tab names, guaranteed Counter, best Counter)} from the per-line totals,
+    for the tabs chapter_number() places in the chain (side tabs are not an act's budget)."""
+    acts = collections.OrderedDict()
+    for lid, (g, b) in per_line.items():
+        nm = strip(book.line_name(lid))
+        num = chapter_number(nm)
+        if num is None or nm in SIDE_CHAPTERS or nm in LADDER_CHAPTERS:
+            continue
+        names, ag, ab = acts.setdefault(num, ([], collections.Counter(), collections.Counter()))
+        names.append(nm)
+        ag.update(g)
+        ab.update(b)
+    return collections.OrderedDict(sorted(acts.items()))
+
+
+def act_budget_lines(book, per_line):
+    """Printable rows: one per act, with the best-case figure for each budget column and an
+    'OVER' mark where it passes audit 4.5."""
+    rows = []
+    free = {'bag': None, 'tome': None, 'lucky': None, 'diamonds': None}
+    for num, (names, g, b) in act_tally(book, per_line).items():
+        act_style = not all(CHAPTER_RE.match(n) for n in names)
+        bud = ACT_BUDGET.get(num, ACT_BUDGET[5]) if act_style else free
+        top_bag = max([i for i in range(5) if b['bag%d' % i]] or [-1])
+        top_tome = max([i for i in range(5) if b['tome%d' % i]] or [-1])
+        diamonds = b['diamond'] + 9 * b['dblock']
+
+        def cell(val, limit, show):
+            over = limit is not None and val > limit
+            return '%s%s' % (show, ' OVER' if over else '')
+        rows.append('%-9s %-28s bag %-14s tome %-14s lucky %-9s diamonds %-10s' % (
+            (ACT_NAMES.get(num, 'Ch %d' % num) if act_style else 'Ch %d' % num), ', '.join(names)[:28],
+            cell(top_bag, bud['bag'], BAG_NAMES[top_bag] if top_bag >= 0 else '-'),
+            cell(top_tome, bud['tome'], BAG_NAMES[top_tome] if top_tome >= 0 else '-'),
+            cell(b['lucky'], bud['lucky'], '%d/%s' % (b['lucky'], bud['lucky'] if bud['lucky'] is not None else 'free')),
+            cell(diamonds, bud['diamonds'], '%d/%s' % (diamonds, bud['diamonds'] if bud['diamonds'] is not None else 'free'))))
+    return rows
 
 
 def tally(book):
@@ -1121,6 +1499,12 @@ def cmd_tally(a):
         for k in ('bag3', 'bag4'):
             if ungated_q[k]:
                 print('  ungated %s bags in quests %s' % (BAG_NAMES[int(k[-1])], ungated_q[k]))
+        rows = act_budget_lines(book, per_line)
+        if rows:
+            print('by act, best case, against the audit 4.5 budget (bag and tome: most valuable tier; '
+                  'diamonds count 9 per block; "Ch N" tabs have no act budget):')
+            for row in rows:
+                print('  ' + row)
         print()
 
 
@@ -1267,6 +1651,10 @@ def main():
         p = sub.add_parser(n)
         p.add_argument('--book', default='all', help=BOOK_HELP)
         p.add_argument('-v', '--verbose', action='store_true')
+        if n in ('check', 'obtain'):
+            p.add_argument('--strict', action='store_true',
+                           help="every `obtain` finding is an error, not a warning (the census is research; "
+                                "by default only quests in OBTAIN_VERIFIED_BAD fail)")
     p = sub.add_parser('tally')
     p.add_argument('--book', default='pack', help=BOOK_HELP)
     p = sub.add_parser('dump')
@@ -1279,6 +1667,8 @@ def main():
     p = sub.add_parser('registry')
     p.add_argument('--save', required=True, help='a world level.dat (read only)')
     a = ap.parse_args()
+    global STRICT
+    STRICT = bool(getattr(a, 'strict', False))
     if a.cmd == 'check':
         sys.exit(0 if run_checks(list(CHECKS), a.book, a.verbose) else 1)
     if a.cmd in CHECKS:

@@ -10,6 +10,13 @@ Writes, under --out:
   QuestForge-Angelica\\    the same folder rebuilt by tools/angelica-client/build_angelica_client.py
   each edition's SHA1SUMS.txt, and player-name.txt (the name used to join)
 
+QF TEXTURES (decision 0006): --textures ZIP (default C:\\qfb\\textures\\QFTextures.zip, built by
+tools/textures/build_ship.py) is copied into resourcepacks\\ and selected in options.txt's
+resourcePacks list after the packs already selected (the last entry wins where two packs
+overlap; the branding pack QuestForge.zip has no block textures, so order does not matter today).
+The Angelica edition is built from the E7 folder and inherits both. --no-textures skips it;
+--selftest runs the packaging step on a scratch folder and exits.
+
 WHY A RAW FOLDER AND NOT A PRISM INSTANCE. The pack has always run on Windows from
 %APPDATA%\\.crazycraft4 through TEST-LAUNCH.bat, and that is the layout every boot test uses.
 A raw folder is what this script can boot and join-test before anyone downloads it. The
@@ -24,7 +31,7 @@ The live instance is only read. Everything is a real copy (never a hard link int
 memory note "hardlink hazard". The Angelica builder hard-links between the two release
 folders, which is harmless: both are this script's own output.
 """
-import argparse, hashlib, os, re, shutil, subprocess, sys
+import argparse, hashlib, json, os, re, shutil, subprocess, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(os.path.dirname(HERE))
@@ -145,14 +152,81 @@ def sha1sums(folder):
     return len(out)
 
 
+TEXTURES = r"C:\qfb\textures\QFTextures.zip"
+
+
+def selected_packs(options_txt):
+    """The resourcePacks list in a 1.7.10 options.txt (a JSON list of file names), or []."""
+    for l in open(options_txt, encoding="utf-8") if os.path.isfile(options_txt) else []:
+        if l.startswith("resourcePacks:"):
+            try:
+                return [str(x) for x in json.loads(l[len("resourcePacks:"):].strip())]
+            except ValueError:
+                return []
+    return []
+
+
+def add_resourcepack(edition, zip_path):
+    """Copy a resource pack zip into <edition>/resourcepacks/ and select it in options.txt, after the
+    packs already selected (1.7.10 applies the list in order; the last entry overrides)."""
+    name = os.path.basename(zip_path)
+    rp = os.path.join(edition, "resourcepacks")
+    os.makedirs(rp, exist_ok=True)
+    shutil.copy2(zip_path, os.path.join(rp, name))
+    opt = os.path.join(edition, "options.txt")
+    packs = [p for p in selected_packs(opt) if p != name] + [name]
+    line = "resourcePacks:" + json.dumps(packs, separators=(",", ":"))
+    lines = [l.rstrip("\r\n") for l in open(opt, encoding="utf-8")] if os.path.isfile(opt) else []
+    if any(l.startswith("resourcePacks:") for l in lines):
+        lines = [line if l.startswith("resourcePacks:") else l for l in lines]
+    else:
+        lines.append(line)
+    with open(opt, "w", encoding="utf-8", newline="\n") as fh:
+        fh.write("\n".join(lines) + "\n")
+    return packs
+
+
+def selftest():
+    """The packaging step on a scratch folder: the zip lands in resourcepacks/ and options.txt
+    selects it after the packs already there, once, whatever options.txt looked like."""
+    import tempfile
+    with tempfile.TemporaryDirectory() as td:
+        zp = os.path.join(td, "QFTextures.zip")
+        with open(zp, "wb") as fh:
+            fh.write(b"PK\x05\x06" + b"\x00" * 18)   # an empty zip is enough for the copy
+        for before, after in [("resourcePacks:[\"QuestForge.zip\"]\n", ["QuestForge.zip", "QFTextures.zip"]),
+                              ("resourcePacks:[]\n", ["QFTextures.zip"]),
+                              ("renderDistance:8\n", ["QFTextures.zip"]),
+                              ("resourcePacks:[\"QFTextures.zip\",\"QuestForge.zip\"]\n", ["QuestForge.zip", "QFTextures.zip"])]:
+            ed = os.path.join(td, "ed")
+            os.makedirs(ed, exist_ok=True)
+            with open(os.path.join(ed, "options.txt"), "w", encoding="utf-8", newline="\n") as fh:
+                fh.write("lang:en_US\n" + before)
+            got = add_resourcepack(ed, zp)
+            assert got == after, (before, got)
+            assert selected_packs(os.path.join(ed, "options.txt")) == after
+            assert os.path.isfile(os.path.join(ed, "resourcepacks", "QFTextures.zip"))
+            shutil.rmtree(ed)
+    print("selftest: resource pack packaging ok (4 options.txt shapes)")
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--from", dest="src", default=LIVE, help="E7 game folder to package (read only)")
-    ap.add_argument("--out", required=True)
+    ap.add_argument("--out", help="release folder to create")
     ap.add_argument("--jars", action="append", default=[], help="folder(s) with the Angelica manifest jars")
     ap.add_argument("--add-shaderpack", help="shader pack zip for the Angelica edition")
     ap.add_argument("--no-angelica", action="store_true")
+    ap.add_argument("--textures", default=TEXTURES, help="QF Textures zip to ship and select (tools/textures/build_ship.py)")
+    ap.add_argument("--no-textures", action="store_true")
+    ap.add_argument("--selftest", action="store_true", help="check the resource-pack packaging step on a scratch folder and exit")
     a = ap.parse_args()
+    if a.selftest:
+        return selftest()
+    if not a.out:
+        ap.error("--out is required")
+    if not a.no_textures and not os.path.isfile(a.textures):
+        sys.exit("%s is missing: build it with tools/textures/build_ship.py, or pass --no-textures" % a.textures)
     src, out = os.path.abspath(a.src), os.path.abspath(a.out)
     if os.path.normcase(out).startswith(os.path.normcase(src)):
         sys.exit("--out must not be inside the source instance")
@@ -175,6 +249,9 @@ def main():
     mcheli = os.path.join(e7, "assets", "mcheli", "helicopters")
     if not os.path.isdir(mcheli):
         sys.exit("assets\\mcheli\\helicopters is missing: MCHeli would have no aircraft")
+    if not a.no_textures:
+        packs = add_resourcepack(e7, a.textures)
+        print("textures: resourcepacks\\%s, options.txt resourcePacks=%s" % (os.path.basename(a.textures), json.dumps(packs)))
     print("E7 edition: %d files hashed" % sha1sums(e7))
 
     if not a.no_angelica:

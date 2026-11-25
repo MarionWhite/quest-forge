@@ -1,31 +1,38 @@
 #!/usr/bin/env python3
-"""Build "QF Textures" (v0): vanilla's design, Faithful 32x where the owner liked it, a calmer
-grass, a little more colour, and generated LabPBR normal + specular maps for every block.
+"""Build "QF Textures" v1: vanilla's designs, Faithful 64x where the owner liked its detail, our own
+drawn foliage, crops and books, and LabPBR maps from Vanilla Normals Renewed where they fit.
+(v0's builder is in git history: e4dd9f6, tools/textures/build_qf_textures.py.)
 
-    py -3.10 -I tools/textures/build_qf_textures.py --out C:\\qfb\\textures\\QFTextures-v0.zip
-        [--mc-jar <minecraft.jar>] [--faithful <Faithful.32x.-.1.7.10.zip>] [--no-pbr]
+    py -3.10 -I tools/textures/build_qf_textures.py --out C:\\qfb\\textures\\QFTextures-v1.zip
+        [--leaf-edges none|all|sides] [--no-pbr] [--no-cit]
+        [--mc-jar <minecraft.jar>] [--faithful64 <zip>] [--vnr <zip>]
 
-Why each piece (docs/design/textures/direction.md, Shader Lab round 6 answers):
-  * Base = vanilla 1.7.10 block textures from the player's own minecraft.jar ("I enjoy a lot of
-    Minecraft's block designs"). They are read at build time and never stored in the repo.
-  * Faithful 32x (resourcepacks/QFTextures/faithful.txt) only for the blocks the owner named:
-    stone, the ores, gold/iron/diamond blocks, glowstone and glass (with Faithful's connected-glass
-    CTM, which Angelica's built-in MCPatcher reads). Faithful License v4: credit + link in
-    pack.mcmeta and CREDITS.txt, the licence text alongside, only what we need.
-  * Grass: NOT Faithful's ("noisy green carpet"). Vanilla's own grass, doubled to 32x with its
-    pattern kept, with the pixel-to-pixel contrast lowered so it reads calmer at a distance.
-  * Vibrance: chroma x VIBRANCE around each pixel's own luminance (grey biome-tinted textures are
-    unaffected; their colour comes from the shader's tint).
-  * PBR (LabPBR 1.3, https://shaderlabs.org/wiki/LabPBR_Material_Standard), written as
-    <name>_n.png / <name>_s.png next to each texture, also for the CTM tiles:
-      _n: R,G normal X,Y (DirectX, +Y down the image), B ambient occlusion, A height (255 = flat).
-      _s: R perceptual smoothness, G F0 (0-229 linear F0; 230 iron, 231 gold), B porosity (0-64)
-          or subsurface (65-255), A emission (0-254; 255 = none).
-    Normals reuse tools/shaders/gen_surface_pack.py's luminance-relief normal_map and its
-    per-material strengths. The QuestForge shader does not sample these yet (direction.md says
-    what it would take); they are here so a PBR-capable pass can be judged on our own art.
+What goes in, and why (docs/design/textures/direction.md, "QF Textures v1"; owner's round 7):
+  * Base: vanilla 1.7.10 block textures from the player's own minecraft.jar, read at build time
+    and never stored in the repo.
+  * Faithful 64x (1.7.10 branch, Faithful License v4) for the list in
+    resourcepacks/QFTextures/faithful64.txt: stone, stone bricks, cobble, ores, metal and gem
+    blocks, glowstone, glass, and dirt with the grass side ("Faithful's dirt has the better side
+    profile"; "Faithful 64 is just a better version of 32"). Its connected glass comes along, with
+    its 1.13-style rules (matchBlocks=black_stained_glass) rewritten to 1.7.10 ids + metadata.
+  * Our own art (tools/textures/qf_art.py; Stay True's plant art as the direction, nothing
+    copied): leaves for all six woods (+ the Fast-graphics _opaque ones), bark and log ends, tall
+    grass, fern, wheat 0-7, the grass top (v2: vanilla's pattern kept crisp at 32x, as r007), and bookshelves (four variants, mixed by CTM random,
+    replacing Angelica's built-in horizontal bookshelf CTM).
+  * --leaf-edges: the leaf "frill" options as connected textures (direction.md, "Leaf frills"):
+    none (default), all (every leaf face bitten where no leaf block continues it), sides (only the
+    top and bottom edges of side faces: where no leaf block is above or below).
+  * Vibrance: chroma x VIBRANCE on vanilla and Faithful pixels (our drawn art is coloured by design).
+  * LabPBR 1.3 (_n, _s next to each texture):
+      - a texture that stays vanilla and that VNR covers: VNR's maps, converted (vnr.py);
+      - a Faithful 64x texture that keeps vanilla's layout and VNR covers: VNR's shapes upscaled +
+        our own fine relief from the 64x art (vnr.hybrid_*);
+      - everything else (our drawn art, CTM tiles, the rest): tools/textures/labpbr.py.
+  * Custom item textures (MCPatcher CIT, tools/textures/qf_items.py): potion bottles per effect and
+    enchanted-book covers per enchantment. CIT is OFF in the live config; only renderq jobs with
+    "cit": true turn it on. --no-cit leaves them out.
 """
-import argparse, colorsys, io, json, os, re, sys, zipfile
+import argparse, io, json, os, re, sys, zipfile
 
 import numpy as np
 from PIL import Image
@@ -34,18 +41,83 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(os.path.dirname(HERE))
 SRC = os.path.join(REPO, "resourcepacks", "QFTextures")
 sys.path.insert(0, os.path.join(REPO, "tools", "shaders"))
-import gen_surface_pack as gsp  # noqa: E402  (normal_map, classify)
+sys.path.insert(0, HERE)
+import gen_surface_pack as gsp  # noqa: E402  (classify: material kind + relief strength)
+import labpbr  # noqa: E402
+import qf_art  # noqa: E402
+import vnr as vnrmod  # noqa: E402
 
 LIVE = os.path.join(os.environ.get("APPDATA", os.path.expanduser("~")), ".crazycraft4")
-FAITHFUL = r"C:\qfb\faithful\dl\Faithful.32x.-.1.7.10.zip"
-FAITHFUL_LICENSE = r"C:\qfb\faithful\LICENSE-faithful.txt"
-VERSION = "v0"
-VIBRANCE = 1.12            # chroma gain; 1.0 = unchanged
-GRASS_CALM = 0.68          # grass contrast kept (1.0 = vanilla's)
+FAITHFUL64 = r"C:\qfb\faithful64\dl\Faithful-64x-Java-1.7.10.zip"
+FAITHFUL_LICENSE = r"C:\qfb\faithful64\LICENSE-faithful.txt"
+FAITHFUL32 = r"C:\qfb\faithful\dl\Faithful.32x.-.1.7.10.zip"      # --leaves fine only
+VERSION = "v1"
+VIBRANCE = 1.10            # chroma gain; 1.0 = unchanged ("keep vibrance modest")
 BLOCKS = "assets/minecraft/textures/blocks/"
 CTM = "assets/minecraft/mcpatcher/ctm/"
-GRASS = {"grass_top", "grass_side_overlay"}
+# r016 (owner r015: "add the round 14 calmed as a chisel option"): Chisel 2 2.3.10.37's plain gem variants, read from the
+# jar (Features$24/$27 with javap: CarvableHelper.addVariation(desc, meta, texture); lang tile.diamond.6.desc "Simple
+# Diamond Block", tile.emerald.3.desc "Smooth Emerald"). Only the variant's existing texture names are overridden:
+# CarvableHelper picks a variant's kind (-top/-side/-ctm ...) from the files present when it registers.
+CHISEL_GEMS = {
+    "diamond_block": ("chisel:diamond_block", 6, ["assets/chisel/textures/blocks/diamond/terrain-diamond-simple-%s" % f
+                                                  for f in ("top", "side", "bottom")]),
+    "emerald_block": ("chisel:emerald_block", 3, ["assets/chisel/textures/blocks/emerald/smooth"]),
+}
 SKIP_PBR = re.compile(r"^destroy_stage_|_overlay$|^(fire_layer|portal)")
+COLOURS = ["white", "orange", "magenta", "light_blue", "yellow", "lime", "pink", "gray", "light_gray",
+           "cyan", "purple", "blue", "brown", "green", "red", "black"]
+WOODS = ["oak", "spruce", "birch", "jungle", "acacia", "big_oak"]
+LEAF_SIZE = 32
+# Faithful 64x redrew these and VNR's vanilla-layout maps no longer line up (layout_match still
+# passes them): emerald's rhombus height and metal flag over Faithful's square bevels read as a murky
+# green mirror (owner r008 tex-wall-close). They take our own maps from the 64x art instead.
+VNR_SKIP = {"emerald_block"}
+# r009 metals (owner r008 tex-wall: iron and gold "not receiving any direct light"). A metal-coded
+# pixel keeps only ~30% of its diffuse light in the shader and shows reflection otherwise, and
+# iron's F0 (albedo x 1.15) already clips at 1, so a brighter albedo cannot lift it. Per block:
+# (metal code, dielectric F0 byte, percentile above which a pixel stays metal). Iron: every pixel
+# a strong dielectric, full diffuse + an untinted reflection (plates read, lit like its neighbours).
+# Gold: the same washed it pale (sky blue over yellow, render 1026-231924), so only its shine
+# streaks stay metal for the gold-tinted glints, over a low-F0 base that keeps the yellow.
+# --metals vnr: VNR's flag as is (every pixel metal, v1).
+METAL_BLOCKS = {"iron_block": (230, 190, 100), "gold_block": (231, 60, 55)}
+# r010 --diamond gem: VNR flags diamond as metal (LabPBR 230, iron), so the shader mirrors the world
+# in it and keeps 30% of its diffuse. A real diamond is a dielectric, n = 2.42 -> F0 0.17 = byte 44.
+GEM_BLOCKS = {"diamond_block": (230, 44, 100)}
+# r011 (owner, r010 gold scene: "diamond and emerald glassier and more reflective"; metal looks stay on real metals):
+# with --stay-true, emerald joins diamond as a polished dielectric, and both gems get at least this smoothness.
+GEM_BLOCKS_R011 = {"diamond_block": (230, 44, 100), "emerald_block": (230, 44, 100)}
+GEM_SMOOTH = 230
+# r012 --gems (owner r010: "glassier and more reflective"; r011's Stay True copy measured paler and flatter in a still,
+# ops/checkpoints/r012-textures.md): both gems a polished dielectric (smoothness 240, F0 44) on a domed _n, so the
+# reflection sweeps across each face instead of laying one flat horizon colour over it.
+GEM_SMOOTH_R012 = 240
+
+
+def metal_spec(s, img, name, mode, gem=False, n=None):
+    """Rewrite the F0 channel of a metal block's LabPBR _s for --metals (see METAL_BLOCKS). With the
+    block's _n (`n`), a pixel stays metal only where its normal tilts under ~14.5 deg: a mirror on a
+    steep bevel reflects sky or ground at a hard angle (r010 wall ladder: gold's top bevel became a
+    noisy bright line once VNR's normals faced the right way)."""
+    gems = GEM_BLOCKS_R011 if gem in ("r011", "r012") else GEM_BLOCKS
+    table = dict(METAL_BLOCKS, **(gems if gem else {}))
+    if mode == "vnr" or name not in table:
+        return s
+    code, f0, pct = table[name]
+    s = s.copy()
+    s[..., 1] = f0
+    if gem in ("r011", "r012") and name in gems:
+        s[..., 0] = np.maximum(s[..., 0], GEM_SMOOTH if gem == "r011" else GEM_SMOOTH_R012)   # glassy: sharp reflections
+    if pct < 100:
+        L = labpbr.lum(img)
+        metal = L > np.percentile(L, pct)   # strict: a tied plateau stays lit
+        if n is not None and n.shape[:2] == L.shape:
+            x, y = n[..., 0] / 127.5 - 1.0, n[..., 1] / 127.5 - 1.0
+            metal &= (x * x + y * y) < 0.0625   # sin(14.5 deg)^2: VNR gold is a whole-face dome, 0.39 at the rim
+        s[..., 1] = np.where(metal, code, f0)
+    s[img[..., 3] < 25] = (0, 0, 0, 255)
+    return s
 
 
 def load_list(name):
@@ -67,7 +139,6 @@ def rgba(data):
     return np.array(Image.open(io.BytesIO(data)).convert("RGBA"))
 
 
-# --- colour -----------------------------------------------------------------------
 def vibrance(a, gain=VIBRANCE):
     """Scale each pixel's chroma around its own luminance, so greys and brightness stay put."""
     f = a[..., :3].astype(np.float32) / 255.0
@@ -78,192 +149,417 @@ def vibrance(a, gain=VIBRANCE):
     return a
 
 
-def calm_grass(a):
-    """Vanilla grass at 32x: each pixel doubled (the design kept), then the variation around a
-    lightly blurred copy pulled in, so the carpet reads calmer without new detail."""
-    big = a.repeat(2, axis=0).repeat(2, axis=1).astype(np.float32)
-    h, w = big.shape[:2]
-    if h > w:   # animated strips do not occur for grass; keep the code honest anyway
-        return big.astype(np.uint8)
-    rgb = big[..., :3]
-    # 3x3 wrap blur (block textures tile)
-    blur = sum(np.roll(np.roll(rgb, dy, 0), dx, 1) for dy in (-1, 0, 1) for dx in (-1, 0, 1)) / 9.0
-    rgb = blur + (rgb - blur) * GRASS_CALM
-    big[..., :3] = rgb
-    return np.clip(big + 0.5, 0, 255).astype(np.uint8)
-
-
-# --- PBR --------------------------------------------------------------------------
-def frames(a):
-    h, w = a.shape[:2]
-    if h > w and h % w == 0:
-        return [a[i * w:(i + 1) * w] for i in range(h // w)]
-    return [a]
-
-
-def labpbr_normal(frame, strength):
-    """gen_surface_pack's normal (RGB OpenGL, A height) -> LabPBR (RG DirectX, B AO, A height)."""
-    n = gsp.normal_map(frame, strength).astype(np.float32)
-    nx, ny, hgt = n[..., 0], n[..., 1], n[..., 3]
-    g = 255.0 - ny   # OpenGL +Y up -> DirectX +Y down
-    # AO: pixels sunk below their neighbourhood are shaded a little.
-    hf = hgt / 255.0
-    nb = sum(np.roll(np.roll(hf, dy, 0), dx, 1) for dy in (-1, 0, 1) for dx in (-1, 0, 1)) / 9.0
-    ao = np.clip(1.0 - np.maximum(nb - hf, 0.0) * 6.0, 0.55, 1.0)
-    alpha = frame[..., 3] > 25
-    ao = np.where(alpha, ao, 1.0)
-    out = np.dstack([nx, g, ao * 255.0, np.maximum(hgt, 1.0)])
-    return np.clip(out + 0.5, 0, 255).astype(np.uint8)
-
-
-# Per-material specular: (smoothness, F0 byte, porosity/SSS byte). First match wins.
-SPEC = [
-    (r"^glass|ice$|ice_packed", (0.96, 10, 0)),
-    (r"^water", (1.00, 5, 0)),
-    (r"^gold_block", (0.78, 231, 0)),
-    (r"^iron_block|^iron_bars|^anvil|^door_iron|^hopper|^cauldron|^rail", (0.72, 230, 0)),
-    (r"^diamond_block", (0.90, 44, 0)),
-    (r"^(emerald|lapis|redstone|coal)_block", (0.62, 14, 0)),
-    (r"^quartz_block", (0.60, 12, 0)),
-    (r"^obsidian", (0.85, 12, 0)),
-    (r"^glowstone|redstone_lamp", (0.40, 10, 0)),
-    (r"leaves|tallgrass|fern|flower|sapling|double_plant|vine|reeds|waterlily|wheat|carrots|potatoes|deadbush|mushroom_(red|brown)$",
-     (0.18, 10, 170)),
-    (r"^grass|^dirt|^farmland|^mycelium|^sand|^red_sand|^gravel|^clay|^soul_sand|^snow", (0.10, 10, 55)),
-    (r"^log|^planks|bookshelf|crafting|jukebox|noteblock|^trapdoor|^door_wood|ladder", (0.22, 10, 30)),
-    (r"^wool", (0.05, 10, 64)),
-    (r"stone|cobble|brick|bedrock|netherrack|end_stone|sandstone|hardened_clay|_ore$", (0.24, 10, 18)),
-]
-SPEC = [(re.compile(r), v) for r, v in SPEC]
-# Ore pixels: (smoothness, F0 byte). Pixels that differ from the texture's stone get these.
-ORE = {"gold_ore": (0.72, 231), "iron_ore": (0.45, 18), "diamond_ore": (0.90, 44), "emerald_ore": (0.86, 40),
-       "lapis_ore": (0.60, 14), "redstone_ore": (0.62, 14), "coal_ore": (0.45, 12), "quartz_ore": (0.80, 12)}
-EMISSIVE = re.compile(r"^(glowstone|redstone_lamp_on|torch_on|redstone_torch_on|lava_|fire_|furnace_front_on|"
-                      r"pumpkin_face_on|portal|beacon)")
-
-
-def lum(f):
-    return f[..., :3].astype(np.float32) @ np.array([0.2126, 0.7152, 0.0722], np.float32) / 255.0
-
-
-def labpbr_specular(name, frame, stone=None):
-    h, w = frame.shape[:2]
-    sm, f0, por = 0.25, 10, 0
-    for rx, v in SPEC:
-        if rx.search(name):
-            sm, f0, por = v
-            break
-    L = lum(frame)
-    # Highlights catch light a touch better than crevices: +-0.06 around the base.
-    smooth = np.clip(sm + (L - L.mean()) * 0.25, 0.0, 1.0)
-    F0 = np.full((h, w), float(f0))
-    base = os.path.basename(name)
-    if base in ORE and stone is not None and stone.shape == frame.shape:
-        d = np.abs(frame[..., :3].astype(np.float32) - stone[..., :3].astype(np.float32)).sum(-1)
-        ore = d > 40
-        osm, of0 = ORE[base]
-        smooth = np.where(ore, osm, smooth)
-        F0 = np.where(ore, of0, F0)
-    emis = np.full((h, w), 255.0)
-    if EMISSIVE.search(base):
-        e = np.clip((L - 0.45) / 0.5, 0.0, 1.0)
-        emis = np.where(e > 0.02, np.minimum(e * 254.0, 254.0), 255.0)
-    out = np.dstack([smooth * 255.0, F0, np.full((h, w), float(por)), emis])
-    out = np.clip(out + 0.5, 0, 255).astype(np.uint8)
-    if not re.search(r"glass|ice", name):   # glass stays smooth through its clear pixels
-        out[frame[..., 3] < 25] = (0, 0, 0, 255)
+def drawn_art(planks, grass):
+    """{texture name: rgba} for everything qf_art draws (grass: vanilla's grass_top, which v2 keeps)."""
+    out = {}
+    for w in WOODS:
+        leaf = qf_art.needles() if w == "spruce" else qf_art.leaves(w, LEAF_SIZE)
+        out["leaves_" + w] = leaf
+        out["leaves_%s_opaque" % w] = qf_art.opaque(leaf)
+        out["log_" + w] = qf_art.bark(w)
+        out["log_%s_top" % w] = qf_art.log_top(w)
+    out["tallgrass"] = qf_art.tall_grass()
+    out["fern"] = qf_art.fern()
+    for i in range(8):
+        out["wheat_stage_%d" % i] = qf_art.wheat(i)
+    out["grass_top"] = qf_art.grass_top_from(grass)
+    out["bookshelf"] = qf_art.bookshelf(planks=planks)
     return out
 
 
-def pbr_maps(name, a, stone=None):
-    _, _, strength = gsp.classify(os.path.basename(name))
-    fr = frames(a)
-    st = frames(stone)[0] if stone is not None else None
-    n = np.vstack([labpbr_normal(f, strength) for f in fr])
-    s = np.vstack([labpbr_specular(name, f, st) for f in fr])
-    return n, s
+def glass_rule(text):
+    """Faithful 64x's 1.13-style glass rule -> 1.7.10 ids + metadata."""
+    m = re.search(r"^matchBlocks=(\S+)", text, re.M)
+    name = m.group(1)
+    pane = name.endswith("_pane")
+    base = name[:-5] if pane else name
+    if base == "glass":
+        repl = "matchBlocks=%d" % (102 if pane else 20)
+    else:
+        col = base[:-len("_stained_glass")]
+        repl = "matchBlocks=%d\nmetadata=%d" % (160 if pane else 95, COLOURS.index(col))
+    return text[:m.start()] + repl + text[m.end():]
 
 
-# --- build ------------------------------------------------------------------------
+def leaf_ctm(textures, source, mode, out):
+    """--leaf-edges all|sides: CTM rules + 47 tiles per broadleaf wood (module docstring)."""
+    spec = json.load(open(os.path.join(SRC, "ctm47.json"), encoding="utf-8"))
+    n = 0
+    for w in WOODS:
+        if w == "spruce":
+            continue
+        base = textures[BLOCKS + "leaves_%s.png" % w][0]
+        d = CTM + "leaves/" + w + "/"
+        faces = "sides" if mode == "sides" else "all"
+        out.writestr(d + "leaves_%s.properties" % w,
+                     "matchTiles=leaves_%s\nmethod=ctm\nconnect=tile\nfaces=%s\ntiles=0-46\n" % (w, faces))
+        for i in range(47):
+            edges = spec[str(i)]["edges"]
+            if mode == "sides":
+                edges = "".join(e for e in edges if e in "TB")
+            p = d + "%d.png" % i
+            textures[p] = (qf_art.ragged_tile(base, edges, seed=1000 + i * 7 + WOODS.index(w)), None)
+            source[p] = "ctm"
+            n += 1
+    return n
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--out", required=True)
     ap.add_argument("--mc-jar", default=os.path.join(LIVE, "bin", "minecraft.jar"), help="read only")
-    ap.add_argument("--faithful", default=FAITHFUL)
+    ap.add_argument("--faithful64", default=FAITHFUL64)
     ap.add_argument("--faithful-license", default=FAITHFUL_LICENSE)
+    ap.add_argument("--vnr", default=vnrmod.VNR_ZIP)
+    ap.add_argument("--leaf-edges", choices=("none", "all", "sides"), default="none")
     ap.add_argument("--no-pbr", action="store_true")
+    ap.add_argument("--no-cit", action="store_true")
+    ap.add_argument("--metals", choices=("qf", "vnr"), default="qf")
+    ap.add_argument("--wheat", choices=("drawn", "dense", "bushy"), default="drawn",
+                    help="drawn: qf_art's v2 wheat; dense/bushy (r010): Faithful 64x stages 0-6, ripe = five "
+                         "variants re-composed from Faithful's own plant (wheat_dense.py), mixed by CTM random")
+    ap.add_argument("--leaves", choices=("drawn", "faithful", "dense", "crowns", "rim", "fine"), default="drawn",
+                    help="drawn: qf_art's v2 leaves; faithful/dense/crowns/rim (r010, leaves_dense.py): Faithful 64x's "
+                         "leaves as is / with darker leaves filling the holes / + clustered lit crowns / dense with a "
+                         "ragged see-through rim; fine: Faithful 32x's leaves at half size, crowns + rim. All but drawn "
+                         "also write leaves_<kind>_frill.png for the leaf frills (qf-tweaks)")
+    ap.add_argument("--faithful32", default=FAITHFUL32, help="Faithful 32x 1.7.10 zip (--leaves fine)")
+    ap.add_argument("--emerald", choices=("faithful", "diamond"), default="diamond",
+                    help="diamond (r010 default): Faithful 64x's diamond structure in emerald tones (gems.py); "
+                         "faithful: Faithful 64x's nested squares (v2)")
+    ap.add_argument("--diamond", choices=("metal", "gem"), default="gem",
+                    help="gem (r010 default): a dielectric, F0 44 (GEM_BLOCKS); metal: VNR's metal flag (v2, a mirror)")
+    ap.add_argument("--stay-true", metavar="PATH",
+                    help="r011 (owner's call, CLAUDE.md Licences): copy Stay True's leaves and crops from this folder at "
+                         "build time (staytrue.py): textures under 1.7.10 names + textures/blocks/staytrue/*, and "
+                         "qf/staytrue_models.txt for qf-tweaks' StayTrueModels. NEVER commit the output or its PNGs")
+    ap.add_argument("--gems", choices=("facet", "staytrue"),
+                    help="r012 gem options (gems.py): facet = Faithful 64x diamond + its emerald re-tone (r010 art), both on "
+                         "the diamond's VNR dome _n; staytrue = Stay True's animated diamond, and its emerald re-toned from "
+                         "that diamond in Stay True's own emerald colours (no nested squares), on a dome _n (needs "
+                         "--stay-true). Both: smoothness 240, F0 44. Default: as r010/r011")
+    ap.add_argument("--gems-ctm", choices=("flat", "facet"),
+                    help="r013 connected gem and metal blocks (gems_ctm.py): 47-tile MCPatcher ctm for diamond, emerald, "
+                         "gold, iron and lapis, the face made seamless from the block's own pixels and the frame only on a "
+                         "group's outer rim; _s per pixel from the block's own, _n a bevel on the rim over a flat face "
+                         "(flat) or with the glint streaks as tilted flat facets (facet). Static textures only")
+    ap.add_argument("--gem-mat", choices=("crystal", "polished", "faithful"),
+                    help="r014 connected gem MATERIALS for diamond and emerald (gems_mat.py; needs --gems-ctm): crystal = "
+                         "Patrix 32x's amethyst druse re-toned, with its facet _n and smooth-crystal/rough-gap _s; polished "
+                         "= the same colour under one flat mirror table; faithful = Faithful 64x's face on a deeper ramp with "
+                         "the crystal _n/_s. Reads Patrix from --patrix at build time (private: never commit the output)")
+    ap.add_argument("--gem-look", choices=("facets", "staytrue", "jewel", "calm", "frost", "slide20", "slide40", "slide60",
+                                           "slide80"),
+                    help="r015 connected gem LOOKS for diamond and emerald (gems_look.py; needs --gems-ctm): facets = a "
+                         "rhombus cut of big flat facets (Patrix's tilts), polished; staytrue = Stay True's art, no gem "
+                         "reflection; jewel = a deep cut stone lit from inside, quiet surface; calm = r014 faithful with "
+                         "the noise taken out; frost = Soartex Forever's frosted gems. Reads the reference packs at build "
+                         "time (private: never commit the output). slide20-80 (r016): steps from frost toward calm "
+                         "(gems_look.slide)")
+    ap.add_argument("--chisel-gems", choices=("facets", "staytrue", "jewel", "calm", "frost"),
+                    help="r016: the same LOOK on Chisel 2's plain gem variants (Simple Diamond Block, meta 6; Smooth "
+                         "Emerald, meta 3): their textures overridden, plus a 47-tile CTM rule by matchBlocks (CHISEL_GEMS; "
+                         "needs --gem-look). Texture only: no blocks, recipes or config")
+    ap.add_argument("--patrix", default=r"C:\qf-world\reference-packs\Patrix 32x\Patrix_26.3_32x_basic.zip")
     a = ap.parse_args()
+    if (a.gem_mat or a.gem_look) and not a.gems_ctm:
+        sys.exit("--gem-mat and --gem-look need --gems-ctm")
+    if a.chisel_gems and not a.gem_look:
+        sys.exit("--chisel-gems needs --gem-look")
+    if a.gems == "staytrue" and not a.stay_true:
+        sys.exit("--gems staytrue reads Stay True: give --stay-true PATH")
+    if a.stay_true and (a.wheat != "drawn" or a.leaves != "drawn"):
+        sys.exit("--stay-true replaces the leaves and wheat: leave --leaves and --wheat at drawn")
 
     mc = zipfile.ZipFile(a.mc_jar)
-    fa = zipfile.ZipFile(a.faithful)
-    fnames = set(fa.namelist())
-    picks = load_list("faithful.txt")
+    mcn = set(mc.namelist())
+    fa = zipfile.ZipFile(a.faithful64)
+    froot = fa.namelist()[0].split("/")[0] + "/"
+    fnames = {n[len(froot):] for n in fa.namelist() if n.startswith(froot)}
+
+    def fread(n):
+        return fa.read(froot + n)
+    vn = vnrmod.VNR(a.vnr)
+
     take = set()
-    for p in picks:
+    for p in load_list("faithful64.txt"):
         rx = re.compile("^" + p.replace(".", r"\.").replace("*", "[^/]*") + "$")
         hit = [m for m in fnames if m.startswith(BLOCKS) and m.endswith(".png") and rx.match(m[len(BLOCKS):-4])]
         if not hit:
-            sys.exit(f"faithful.txt: {p} matches nothing in the Faithful zip")
-        take.update(hit)
+            sys.exit(f"faithful64.txt: {p} matches nothing in the Faithful 64x zip")
+        take.update(m for m in hit if m in mcn)        # 1.7.10 textures only (the zip carries newer ones)
 
     out = zipfile.ZipFile(a.out, "w", zipfile.ZIP_DEFLATED)
     meta = json.load(open(os.path.join(SRC, "pack.mcmeta"), encoding="utf-8"))
+    if a.leaf_edges != "none":
+        meta["pack"]["description"] += " Leaf edges: %s." % a.leaf_edges
+    if a.stay_true:
+        meta["pack"]["description"] += " Leaves and crops: Stay True."
     out.writestr("pack.mcmeta", json.dumps(meta, indent=1, ensure_ascii=False))
-    for f in ("CREDITS.txt",):
-        out.write(os.path.join(SRC, f), f)
+    out.write(os.path.join(SRC, "CREDITS.txt"), "CREDITS.txt")
     out.write(a.faithful_license, "LICENSE-Faithful.txt")
-    if os.path.exists(os.path.join(SRC, "pack.png")):
-        out.write(os.path.join(SRC, "pack.png"), "pack.png")
 
-    tally = {"vanilla": 0, "faithful": 0, "grass": 0, "ctm": 0, "pbr": 0}
-    textures = {}   # path -> (rgba, mcmeta bytes or None)
-    for m in sorted(x for x in mc.namelist() if x.startswith(BLOCKS) and x.endswith(".png")):
+    planks = rgba(mc.read(BLOCKS + "planks_oak.png"))
+    art = drawn_art(planks, rgba(mc.read(BLOCKS + "grass_top.png")))
+    if a.leaves != "drawn":
+        import leaves_dense
+        for kind in leaves_dense.KINDS:
+            f = rgba(fread(BLOCKS + "leaves_%s.png" % kind)).astype(np.float32)
+            if a.leaves == "fine":
+                f32 = leaves_dense.read_faithful(a.faithful32, "leaves_%s.png" % kind)
+                leaf, f = leaves_dense.fine(f32), np.tile(f32, (2, 2, 1))     # the frill takes the small leaves too
+            else:
+                leaf = {"faithful": lambda x: x, "dense": leaves_dense.dense, "crowns": leaves_dense.crowns,
+                        "rim": leaves_dense.rim}[a.leaves](f)
+            leaf = np.clip(leaf + 0.5, 0, 255).astype(np.uint8)
+            art["leaves_" + kind] = leaf
+            art["leaves_%s_opaque" % kind] = qf_art.opaque(leaf)
+            art["leaves_%s_frill" % kind] = np.clip(leaves_dense.frill(f) + 0.5, 0, 255).astype(np.uint8)
+    staytrue_spec = None
+    if a.stay_true:
+        import staytrue
+        st_tex, staytrue_spec, _ = staytrue.build(a.stay_true)
+        for name, img in st_tex.items():
+            art[name] = img
+            if name.startswith("leaves_"):
+                art[name + "_opaque"] = qf_art.opaque(img)       # Fast graphics
+        out.writestr(staytrue.SPEC_PATH, staytrue_spec)
+        out.writestr("CREDITS-StayTrue.txt", "Leaf and crop textures and their models: Stay True by HaiMcFly "
+                     "(all rights reserved). Used in a private server pack only; never redistribute this zip.\n")
+    import gems
+    if a.emerald == "diamond" or a.gems == "facet":
+        art["emerald_block"] = gems.emerald_from_diamond(rgba(fread(BLOCKS + "diamond_block.png")))
+    wheat_vs = None
+    if a.wheat != "drawn":
+        import wheat_dense
+        for i in range(7):
+            art.pop("wheat_stage_%d" % i)
+            take.add(BLOCKS + "wheat_stage_%d.png" % i)
+        ripe = rgba(fread(BLOCKS + "wheat_stage_7.png")).astype(np.float32)
+        wheat_vs = [np.clip(v + 0.5, 0, 255).astype(np.uint8) for v in wheat_dense.variants(ripe, "bushy" if a.wheat == "bushy" else "plain")]
+        art["wheat_stage_7"] = wheat_vs[2]
+        # r010 crop-variant hook (qf-tweaks CropVariants): textures/blocks/<stage>_v0.. picked per block by
+        # position. Wheat's five are written with the CTM rule below; carrots and potatoes: crops_dense.py.
+        import crops_dense
+        for crop in ("carrots", "potatoes"):
+            st = rgba(fread(BLOCKS + "%s_stage_3.png" % crop)).astype(np.float32)
+            for i, v in enumerate(crops_dense.variants(st, crop)):
+                art["%s_stage_3_v%d" % (crop, i)] = np.clip(v + 0.5, 0, 255).astype(np.uint8)
+    ywrong = []   # _n maps whose G runs OpenGL-style (labpbr.y_sign > 0): lit from below in the shader
+    tally = dict(vanilla=0, faithful64=0, drawn=0, ctm=0, pbr_vnr=0, pbr_hybrid=0, pbr_ours=0, cit=0)
+    textures = {}     # path -> (rgba, mcmeta bytes or None)
+    source = {}       # path -> "vanilla" | "faithful64" | "drawn" | "ctm"
+    for m in sorted(x for x in mcn if x.startswith(BLOCKS) and x.endswith(".png")):
         name = m[len(BLOCKS):-4]
-        mcmeta = mc.read(m + ".mcmeta") if m + ".mcmeta" in mc.namelist() else None
-        if m in take:
-            img = rgba(fa.read(m))
-            mcmeta = fa.read(m + ".mcmeta") if m + ".mcmeta" in fnames else mcmeta
-            tally["faithful"] += 1
-        elif name in GRASS:
-            img = calm_grass(rgba(mc.read(m)))
-            tally["grass"] += 1
+        mcmeta = mc.read(m + ".mcmeta") if m + ".mcmeta" in mcn else None
+        if name in art:
+            textures[m], source[m] = (art[name], None), "drawn"
+        elif m in take:
+            img = rgba(fread(m))
+            mcmeta = fread(m + ".mcmeta") if m + ".mcmeta" in fnames else mcmeta
+            textures[m], source[m] = (vibrance(img), mcmeta), "faithful64"
         else:
-            img = rgba(mc.read(m))
-            tally["vanilla"] += 1
-        textures[m] = (vibrance(img), mcmeta)
-    # grass_side (dirt with an untinted fringe) stays vanilla 16x: only the tinted top and the
-    # side overlay make the "carpet".
+            textures[m], source[m] = (vibrance(rgba(mc.read(m))), mcmeta), "vanilla"
+        tally[source[m]] += 1
+    for name in sorted(art):                       # our own extra sprites (r010: leaves_<kind>_frill)
+        m = BLOCKS + name + ".png"
+        if m not in textures:
+            textures[m], source[m] = (art[name], None), "drawn"
+            tally["drawn"] += 1
 
-    # Faithful's connected glass (only the glass group: we take Faithful's glass, not its
-    # bookshelf or sandstone, which stay vanilla here).
-    ctm = sorted(m for m in fnames if m.startswith(CTM + "glass/") and not m.endswith("/"))
-    for m in ctm:
+    # Faithful 64x's connected glass, rules rewritten for 1.7.10
+    for m in sorted(n for n in fnames if n.startswith(CTM + "glass/") and not n.endswith("/")):
         if m.endswith(".png"):
-            textures[m] = (vibrance(rgba(fa.read(m))), None)
-        else:
-            out.writestr(m, fa.read(m))
+            textures[m], source[m] = (vibrance(rgba(fread(m))), None), "ctm"
+        elif m.endswith(".properties"):
+            folder = m.split("/")[-2]
+            if folder == "glass":
+                # Clear glass and its pane ship exactly as Faithful 64x has them: matchBlocks=glass /
+                # glass_pane are 1.7.10 names too, and only this form beats Angelica's built-in 16x
+                # glass rule (its jar's ctm/glass/glass.properties). Renamed (clear_glass) it lost
+                # outright; at the jar's own path with matchBlocks=20 the jar's 'compact' rule still
+                # won and drew our tile 0 on every block (the r008 v1 and v1b renders).
+                out.writestr(m, fread(m))
+                tally["ctm"] += 1
+                continue
+            # Faithful 64x names every rule glass.properties / glass_pane.properties. MCPatcher also
+            # reads a rule's file name as a tile name, so every stained rule then matched CLEAR
+            # glass too and the first (black) won: the r008 first render drew the clear panel
+            # black. Name each stained rule after its folder, as Angelica's own defaults do
+            # (black_stained_glass, black_stained_glasspane).
+            pane = os.path.basename(m) == "glass_pane.properties"
+            new = m.rsplit("/", 1)[0] + "/" + folder + ("pane" if pane else "") + ".properties"
+            out.writestr(new, glass_rule(fread(m).decode("utf-8")))
         tally["ctm"] += 1
+    # bookshelves: four variants mixed at random (replaces Angelica's built-in horizontal rule)
+    d = CTM + "bookshelf/"
+    out.writestr(d + "bookshelf.properties", "matchTiles=bookshelf\nmethod=random\nfaces=sides\ntiles=0-3\n")
+    for i in range(4):
+        p = d + "%d.png" % i
+        textures[p], source[p] = (qf_art.bookshelf(seed=71 + i, planks=planks), None), "ctm"
+        tally["ctm"] += 1
+    if wheat_vs is not None:
+        # ripe wheat: five heights mixed per block, so a field never tiles (Stay True's technique)
+        d = CTM + "wheat/"
+        out.writestr(d + "wheat_stage_7.properties", "matchTiles=wheat_stage_7\nmethod=random\ntiles=0-4\n")
+        for i, v in enumerate(wheat_vs):
+            p = d + "%d.png" % i
+            textures[p], source[p] = (v, None), "ctm"
+            tally["ctm"] += 1
+            # The same five as block sprites for qf-tweaks' CropVariants hook: Angelica's CTM never reaches
+            # renderBlockCrops, so the rule above does nothing there (docs/design/textures/leaf-frills.md).
+            p = BLOCKS + "wheat_stage_7_v%d.png" % i
+            textures[p], source[p] = (v, None), "drawn"
+            tally["drawn"] += 1
+    if a.leaf_edges != "none":
+        tally["ctm"] += leaf_ctm(textures, source, a.leaf_edges, out)
+    if a.stay_true:
+        # Stay True's diamond and emerald blocks: glass-like faces with a light glint sweeping across every ~10 s
+        # (animated strips + their .mcmeta), the "glassier, more reflective" look the owner asked for (r010).
+        st_gems = staytrue.gems(a.stay_true)
+        if a.gems == "staytrue":
+            # r012 option B: Stay True's diamond kept (glass face + glint); its emerald's nested squares replaced
+            # by the diamond's own face re-toned in Stay True's emerald colours, glint frames and timing included.
+            d_img, d_meta = st_gems["diamond_block"]
+            ramp = gems.ramp_from(st_gems["emerald_block"][0][:d_img.shape[1]])
+            st_gems["emerald_block"] = (gems.emerald_from_diamond(d_img, ramp, by_value=True), d_meta)
+        for name, (img, mcmeta) in (st_gems.items() if a.gems in (None, "staytrue") else ()):
+            m = BLOCKS + name + ".png"
+            textures[m], source[m] = (img, mcmeta), "drawn"
 
-    stone = {"v": textures[BLOCKS + "stone.png"][0]}
+    ctm_blocks, ctm_s = {}, {}      # --gems-ctm: name -> (tile coordinate maps, bands); name -> the block's final _s
+    gem_mat = {}                    # --gem-mat: name -> gems_mat.material() (block + ctm atlas, own _n and _s)
+    chisel_mat = {}                 # --chisel-gems: name -> gems_look.material() for Chisel's variant
+    if a.gems_ctm:
+        import gems_ctm
+        for name, bands in gems_ctm.BLOCKS.items():
+            img, mcmeta = textures.get(BLOCKS + name + ".png", (None, None))
+            if img is None or mcmeta or img.shape[0] != img.shape[1]:
+                print("--gems-ctm: %s skipped (missing, animated or not square)" % name)
+                continue
+            if (a.gem_mat or a.gem_look) and name in ("diamond_block", "emerald_block"):
+                import gems_mat
+                if a.gem_look:
+                    import gems_look
+                    refs = dict(patrix=a.patrix, **({"stay_true": a.stay_true} if a.stay_true else {}))
+                    gem_mat[name] = gems_look.material(name, a.gem_look, img, bands, refs)
+                    if a.chisel_gems:
+                        chisel_mat[name] = gems_look.material(name, a.chisel_gems, img, bands, refs)
+                else:
+                    gem_mat[name] = gems_mat.material(name, a.gem_mat, img, bands, a.patrix)
+                textures[BLOCKS + name + ".png"] = (gem_mat[name]["block"][0], None)
+                out.writestr(CTM + name + "/" + name + ".properties", gems_ctm.rule(name))
+                continue
+            ctm_blocks[name] = (gems_ctm.tile_maps(img, bands, x_mirror=name in gems_ctm.X_MIRROR), bands)
+            out.writestr(CTM + name + "/" + name + ".properties", gems_ctm.rule(name))
+    stone = textures[BLOCKS + "stone.png"][0]
+    gem_n = {}        # --gems facet: diamond's (VNR hybrid) _n, reused for the emerald drawn from it
     for m, (img, mcmeta) in sorted(textures.items()):
         out.writestr(m, png(img))
         if mcmeta:
             out.writestr(m + ".mcmeta", mcmeta)
-        name = m[:-4].split("/textures/blocks/")[-1] if BLOCKS in m else m[len(CTM):-4]
-        base = os.path.basename(name)
-        if a.no_pbr or SKIP_PBR.search(base):
+        if a.no_pbr:
             continue
-        # CTM tiles are named 0..46 inside a folder named after the block.
-        mat = name if BLOCKS in m else os.path.basename(os.path.dirname(m))
-        n, s = pbr_maps(mat, img, stone["v"] if base.endswith("_ore") else None)
+        name = m[len(BLOCKS):-4] if m.startswith(BLOCKS) else m[len(CTM):-4]
+        base = os.path.basename(name)
+        if SKIP_PBR.search(base):
+            continue
+        n = s = None
+        src = source[m]
+        mat = name if m.startswith(BLOCKS) else os.path.basename(os.path.dirname(m))
+        kind, _, strength = gsp.classify(os.path.basename(mat))
+        por = 170 if kind in ("leaves", "plant") else (55 if kind == "soil" else (30 if kind == "wood" else 0))
+        square = img.shape[0] == img.shape[1]
+        if m.startswith(BLOCKS) and vn.has(name) and square and src in ("vanilla", "faithful64") and name not in VNR_SKIP:
+            vn_n, vn_s = vn.read(name, "n"), vn.read(name, "s")
+            van = rgba(mc.read(m))
+            if vn_n is not None and vn_n.shape[0] == vn_n.shape[1] == van.shape[0]:
+                if src == "vanilla" and img.shape == van.shape:
+                    n = vnrmod.to_labpbr_n(vn_n, img)
+                    s = vnrmod.to_labpbr_s(vn_s, name, img, por) if vn_s is not None else None
+                    tally["pbr_vnr"] += 1
+                elif src == "faithful64" and vnrmod.layout_match(img, van) > 0.45:
+                    n = vnrmod.hybrid_normal(vn_n, img, strength)
+                    st = stone if base.endswith("_ore") else None
+                    s = vnrmod.hybrid_specular(vn_s, img, name, st, por) if vn_s is not None else None
+                    tally["pbr_hybrid"] += 1
+        if n is None or s is None:
+            n2, s2 = labpbr.pbr_maps(mat, img, strength, kind, stone if base.endswith("_ore") else None)
+            n = n2 if n is None else n
+            s = s2 if s is None else s
+            tally["pbr_ours"] += 1
+        if a.gems and name in ("diamond_block", "emerald_block"):
+            if a.gems == "facet":
+                gem_n.setdefault("diamond_block", n)
+                n = gem_n["diamond_block"]
+            else:
+                n = gems.dome_normal(img.shape[1], img.shape[0] // img.shape[1])
+            s = np.zeros(img.shape, np.uint8)
+            s[..., 0], s[..., 3] = GEM_SMOOTH_R012, 255
+        gem_mode = ("r012" if a.gems else "r011" if a.stay_true else True) if a.diamond == "gem" else False
+        s = metal_spec(s, img, name, a.metals, gem_mode, n)
+        if m.startswith(BLOCKS) and name in gem_mat:
+            n, s = gem_mat[name]["block"][1], gem_mat[name]["block"][2]
+        if name in ctm_blocks:
+            ctm_s[name] = s
+        ys = labpbr.y_sign(n, img[..., 3])
+        if ys is not None and ys > 0.1:
+            ywrong.append("%s %+.2f" % (name, ys))
         out.writestr(m[:-4] + "_n.png", png(n))
         out.writestr(m[:-4] + "_s.png", png(s))
         if mcmeta:
             out.writestr(m[:-4] + "_n.png.mcmeta", mcmeta)
             out.writestr(m[:-4] + "_s.png.mcmeta", mcmeta)
-        tally["pbr"] += 1
+
+    for name, mat in sorted(gem_mat.items()):
+        tiles = mat["tiles"] if "tiles" in mat else gems_mat.ctm_tiles(mat, gems_ctm.BLOCKS[name])
+        for i, (t_img, t_n, t_s) in tiles.items():
+            p = CTM + name + "/%d" % i
+            out.writestr(p + ".png", png(t_img))
+            tally["ctm"] += 1
+            if not a.no_pbr:
+                out.writestr(p + "_n.png", png(t_n))
+                out.writestr(p + "_s.png", png(t_s))
+    for name, mat in sorted(chisel_mat.items()):
+        block, meta, paths = CHISEL_GEMS[name]
+        for p in paths:
+            out.writestr(p + ".png", png(mat["block"][0]))
+            if not a.no_pbr:
+                out.writestr(p + "_n.png", png(mat["block"][1]))
+                out.writestr(p + "_s.png", png(mat["block"][2]))
+        d = CTM + "qf_chisel/%s_%d/" % (name, meta)
+        out.writestr(d + "%s_%d.properties" % (name, meta),
+                     "# r016: Chisel's %s meta %d in the %s gem look (build_qf_textures.py --chisel-gems)\n"
+                     "matchBlocks=%s\nmetadata=%d\nmethod=ctm\ntiles=0-46\nconnect=tile\nfaces=all\n"
+                     % (block, meta, a.chisel_gems, block, meta))
+        for i, (t_img, t_n, t_s) in mat["tiles"].items():
+            out.writestr(d + "%d.png" % i, png(t_img))
+            tally["ctm"] += 1
+            if not a.no_pbr:
+                out.writestr(d + "%d_n.png" % i, png(t_n))
+                out.writestr(d + "%d_s.png" % i, png(t_s))
+    for name, (maps, bands) in sorted(ctm_blocks.items()):
+        img = textures[BLOCKS + name + ".png"][0]
+        tl = {i: img[mp[..., 0], mp[..., 1]] for i, mp in maps.items()}
+        nm = gems_ctm.normals(img, tl, bands, a.gems_ctm if name in gems_ctm.FACETED else "flat")
+        st = gems_ctm.spec_tiles(name, ctm_s[name], maps) if name in ctm_s else {}
+        for i, mp in maps.items():
+            p = CTM + name + "/%d" % i
+            out.writestr(p + ".png", png(tl[i]))
+            tally["ctm"] += 1
+            if not a.no_pbr:
+                out.writestr(p + "_n.png", png(nm[i]))
+                if i in st:
+                    out.writestr(p + "_s.png", png(st[i]))
+
+    if not a.no_cit:
+        import qf_items
+        tally["cit"] = qf_items.write_cit(out)
     out.close()
     print("QF Textures %s: %s -> %s (%.1f MB)" % (VERSION, tally, a.out, os.path.getsize(a.out) / 1e6))
+    if ywrong:
+        print("WARNING: %d normal maps run OpenGL-style (+G up), the shader reads DirectX: %s"
+              % (len(ywrong), ", ".join(ywrong[:12])))
 
 
 if __name__ == "__main__":

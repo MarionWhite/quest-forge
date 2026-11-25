@@ -1,0 +1,15 @@
+{
+ "name": "textures-r010-wheat",
+ "owner": "texture-agent",
+ "comment": "r010 step 2: ripe wheat after Stay True's technique on Faithful 64x's own plant (wheat_dense.py). t10wb = --wheat bushy (ear-heavy heads), t10wd = --wheat dense (layered plants), both with the VNR Y fix and --diamond gem; t10wf = Faithful 64x. Also the first test of CTM method=random on crops under Angelica: five heights must show in the field. Shot mode, one boot.",
+ "prebuild": [
+  ["py", "-3.10", "-I", "tools/textures/build_qf_textures.py", "--wheat", "bushy", "--diamond", "gem", "--out", "C:/qfb/textures/diag/QF-w-bushy.zip"],
+  ["py", "-3.10", "-I", "tools/textures/build_qf_textures.py", "--wheat", "dense", "--diamond", "gem", "--out", "C:/qfb/textures/diag/QF-w-dense.zip"]
+ ],
+ "defaults": {"world": "C:/qfb/textures/world-showcase", "preset": "3", "size": "2560x1440", "mode": "shot"},
+ "jobs": [
+  {"tag": "t10wb", "resourcepacks": ["C:/qfb/textures/diag/QF-w-bushy.zip"], "scenes": "farm,farm_close"},
+  {"tag": "t10wd", "resourcepacks": ["C:/qfb/textures/diag/QF-w-dense.zip"], "scenes": "farm,farm_close"},
+  {"tag": "t10wf", "resourcepacks": ["C:/qfb/faithful64/Faithful-64x-1.7.10.zip"], "scenes": "farm,farm_close"}
+ ]
+}

@@ -66,9 +66,32 @@ echo Version: !QFVER!
 rem RecNbtFix and AsieNickFix call into Recurrent Complex and Gson.
 set "CP=%CP%;%INST%\mods\RecurrentComplex.jar"
 set "CP=%CP%;%INST%\bin\lib\gson-2.2.4.jar"
+rem DecoLazyModel calls into Decocraft's model classes.
+set "CP=%CP%;%INST%\mods\Decocraft.jar"
 
 if exist "%HERE%build" rd /s /q "%HERE%build"
 mkdir "%HERE%build"
+
+rem --- compile-time stubs -----------------------------------------------------
+rem stubs\ holds Decocraft's model classes as DecoLazyTransformer leaves them
+rem (fields made public, the qf$state field added), so DecoLazyModel compiles
+rem with plain field access. They go in front of Decocraft.jar for THIS compile
+rem only and are never packaged: build-stubs\ is outside build\.
+if exist "%HERE%build-stubs" rd /s /q "%HERE%build-stubs"
+mkdir "%HERE%build-stubs"
+"%JDK%\bin\javac.exe" -source 1.7 -target 1.7 -nowarn ^
+  -bootclasspath "%JDK%\jre\lib\rt.jar" ^
+  -cp "%CP%" ^
+  -d "%HERE%build-stubs" ^
+  "%HERE%stubs\com\mia\craftstudio\CSModel.java" ^
+  "%HERE%stubs\com\mia\craftstudio\minecraft\CraftStudioModelWrapper.java"
+if errorlevel 1 (
+  echo.
+  echo   STUB COMPILE FAILED.
+  pause
+  exit /b 1
+)
+set "CP=%HERE%build-stubs;%CP%"
 
 rem --- compile ----------------------------------------------------------------
 rem Target 1.7 bytecode. TEST-LAUNCH.bat passes -XX:+UseSplitVerifier and
@@ -105,7 +128,10 @@ rem -XX:+FailOverToOldVerifier, so older-version bytecode is fine here.
   "%HERE%src\com\questforge\AsieNickFix.java" ^
   "%HERE%src\com\questforge\RwgPaintTransformer.java" ^
   "%HERE%src\com\questforge\RwgPaintHook.java" ^
-  "%HERE%src\com\questforge\SilentTransformer.java"
+  "%HERE%src\com\questforge\SilentTransformer.java" ^
+  "%HERE%src\com\questforge\TweaksConfig.java" ^
+  "%HERE%src\com\questforge\DecoLazyTransformer.java" ^
+  "%HERE%src\com\questforge\DecoLazyModel.java"
 
 if errorlevel 1 (
   echo.

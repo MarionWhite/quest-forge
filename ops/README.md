@@ -39,3 +39,37 @@ Scripts take every deterministic step: `renderq` (renders, costs, cache), `finis
 
 The orchestrator session stays short. It reads BOARD.md, starts the next step and exits. A new
 session per round costs nothing, because the state lives here.
+
+## API credits
+Anthropic API credits, kept apart from the subscription. The owner's two caps (2026-10-26), shared by
+every lane: **$200 per calendar month and $50 per day**. Within them, spend freely on whatever the work
+needs. Lanes only label what a spend was for. Every spend is one line in `ops/api-ledger.jsonl`
+(committed, so the Mac sees it too); check before spending, never guess.
+
+| Lane | For |
+|---|---|
+| continuity | carrying a checkpointed task on, e.g. while the subscription is at 90 % or more |
+| batch | bulk independent items through the Batches API (50% off) |
+| automation | scheduled and watcher jobs |
+| reserve | anything else |
+
+Commands (all `py -3.10 -I tools/ops/...`):
+- `ledger.py status` shows month-to-date, today and projected month-end per lane, and what is left under the two caps;
+  `ledger.py check LANE EST_USD` exits non-zero if the spend would break the day or month cap.
+- `api_run.py --lane L --model opus|sonnet|haiku --task NAME [--checkpoint NAME | --brief F | PROMPT]`
+  runs headless `claude -p` in the repo, checks the ledger first, caps the run with `--max-budget-usd`
+  and logs the cost Claude Code reports. `--dry-run` shows the plan without spending.
+  Permission mode is `dontAsk` with an explicit allowlist (read/edit, `py -3.10 -I tools/*`, git status/diff/log/add/commit;
+  `trial.py install` and `git push` denied). Not `bypassPermissions`: the harness rules depend on tool limits.
+- Overflow: when a subscription session hits its limit it (or a workflow/scheduled task) runs
+  `api_run.py --mark-limited`, then `api_run.py --lane continuity --model sonnet --task X --checkpoint X --when-subscription-limited`.
+  It runs when the 5-hour session or the weekly limit is at **90 % or more** (`--limit-pct`, env `QF_LIMIT_PCT`; read from
+  the same usage Claude Code's /usage shows, via the owner's local login, so 10 % stays in reserve), or when the marker
+  (`~/.qf/subscription-limited`, 5 h expiry) is live, and only within the daily cap. `--probe` tests the subscription with a trivial call instead. `--clear-limited` removes the marker. `api_run.py --usage` prints the current percentages.
+- `batch.py submit JOBS.json [--dry-run]`, `status ID`, `fetch ID OUT_DIR`: one result file per `custom_id`,
+  cost logged under lane `batch` at fetch (usage priced at the batch rate). Shared `system` text is prompt-cached.
+  Job format is in the script's docstring. Tests: `py -3.10 -I tools/ops/test_ledger.py`.
+
+**The key** lives only in `C:\Users\a2dsu\.qf\anthropic.key` (PC) or `~/.qf/anthropic.key` (Mac): one line, never in the repo,
+logs or errors. The scripts hand it to the child process / SDK client only. **Never set `ANTHROPIC_API_KEY` system-wide**:
+the owner's interactive Claude Code sessions would move onto API billing.

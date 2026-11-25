@@ -13,6 +13,8 @@ struct Surface {
     float skyLight;   // 0..1 lightmap
     float ao;
     vec3 scenePos;    // player-relative world position
+    float smoothness; // LabPBR perceptual smoothness (QF_PBR; 0 without a map)
+    float f0;         // LabPBR F0 byte / 255; from 0.9 up a metal (QF_PBR; 0 without a map)
 };
 
 // Vanilla light levels are linear in blocks. Vanilla's lightmap curve, taken to linear
@@ -45,6 +47,13 @@ vec3 blockIrradiance(float b) {
     float e = pow(b, 4.2) * 0.75 + pow(b, 9.0) * 0.45;
     return blockLightColor(b) * BLOCK_I * e;
 }
+// r009 (tex-golden: golden_lit's sun-shadowed field showed warm lit patches with stair-stepped edges,
+// the per-block falloff of light sources in the grass, and the motes over them glowed as orange
+// "coins"; QF_DEBUG_VIEW 3 bisect): out in daylight block light reads far weaker against the sky, as
+// in vanilla. Up to 70% less under open sky by day; caves and nights unchanged.
+float blockDayDamp(float skyLight) {
+    return 1.0 - 0.7 * smoothstep(-0.05, 0.10, sunDirWorld().y) * skyLight * skyLight;
+}
 
 // Torchlight that breathes (owner r002: inexpensive ambient effects; r000: fire light that
 // moves naturally, not a looped flicker). Two incommensurate slow drifts plus a faint quick
@@ -67,7 +76,211 @@ float ggx(float NdotH, float a2) {
 }
 
 vec3 fresnelSchlick(float c, vec3 f0) {
-    return f0 + (1.0 - f0) * pow(1.0 - c, 5.0);
+    // r008: clamped. A dot product a hair over 1 made pow() of a negative base, a NaN that TAA
+    // then smeared into the soft black blob on the dirt bank in r007's PBR frame.
+    return f0 + (1.0 - f0) * pow(clamp(1.0 - c, 0.0, 1.0), 5.0);
+}
+
+// r008 metals (owner r007, PBR: with maps on "the metallic blocks just look like they are in the
+// shade"): a metal has no diffuse light at all; everything it shows is reflection, tinted by its
+// own colour. What it reflects here: the sky dome along the reflected ray (blurred toward the sky's
+// irradiance as it gets rough), the lit ground below the horizon, and the sun as a sharp GGX
+// highlight. So gold and iron read as polished metal, bright where they face the sky or the sun.
+// Loop 4: with screen-space reflections (Medium and up) the metal's environment comes from the
+// composite pass (metalReflection), which sees the real scene; this pass draws only the sun.
+#if QF_SSR_STEPS > 0 && QF_WATER_STYLE > 0 && QF_PBR == 1
+#define QF_METAL_SSR 1
+#else
+#define QF_METAL_SSR 0
+#endif
+// r010 (texture track, bench-t10lb-texture_wall: gold's top third had a lime sheen). A metal's
+// reflection was tinted by its texture colour; gold's texture after the grade has blue near 0 and
+// green close to red, so the green field and blue sky it mirrors came out lime. LabPBR's hard-coded
+// metals (F0 bytes 230-237) now reflect with the real metal's F0 (linear sRGB, from measured n and k),
+// scaled by the texture's brightness so the block keeps its pattern. Other metals keep the texture.
+vec3 metalF0(vec3 albedo, float f0) {
+#if QF_METAL_F0 == 1
+    int id = int(f0 * 255.0 + 0.5);
+    if (id >= 230 && id <= 237) {
+        vec3 m = vec3(0.56, 0.57, 0.58);                  // 230 iron
+        if (id == 231) m = vec3(1.00, 0.71, 0.29);        // gold
+        else if (id == 232) m = vec3(0.91, 0.92, 0.92);   // aluminium
+        else if (id == 233) m = vec3(0.55, 0.56, 0.55);   // chrome
+        else if (id == 234) m = vec3(0.95, 0.64, 0.54);   // copper
+        else if (id == 235) m = vec3(0.63, 0.63, 0.64);   // lead
+        else if (id == 236) m = vec3(0.67, 0.64, 0.59);   // platinum
+        else if (id == 237) m = vec3(0.95, 0.93, 0.88);   // silver
+        return m * clamp(0.35 + 0.9 * luminance(albedo), 0.5, 1.0);
+    }
+#endif
+    return clamp(albedo * 1.15, 0.0, 1.0);
+}
+// r016: how far a mapped surface is a polished gem (1: the gem path, lit through its body with the real scene
+// mirrored; 0: the plain sheen). QF_GEM_RAMP 0 is the r015 switch (smoothness > 0.88 and F0 > 0.1). 1 ramps over the
+// texture track's gem slider, frost (smoothness 140, F0 10) to calmed (240, 34), so its gloss steps (170/14,
+// 205/18, 228/27, 234/30) land at 0.2, 0.4, 0.6, 0.8; it needs F0 over ~12 (gem-like, not glass or polished stone).
+float gemWeight(float sm, float f0) {
+#if QF_GEM_RAMP == 1
+    float x = sm * 255.0;
+    float w = x < 170.0 ? (x - 140.0) / 30.0 * 0.2
+            : x < 205.0 ? 0.2 + (x - 170.0) / 35.0 * 0.2
+            : x < 228.0 ? 0.4 + (x - 205.0) / 23.0 * 0.2
+            : x < 234.0 ? 0.6 + (x - 228.0) / 6.0 * 0.2
+            : 0.8 + (x - 234.0) / 6.0 * 0.2;
+    return clamp(w, 0.0, 1.0) * smoothstep(11.5 / 255.0, 13.5 / 255.0, f0);
+#else
+    return sm > 0.88 && f0 > 0.1 ? 1.0 : 0.0;
+#endif
+}
+
+#if QF_GEM_SSR == 1
+// r013 (critic g12c gem_glint_d: "the reflection wobbles, so the floor reads as wet plastic or water
+// rather than cut stone. Fix: flatten the normals so the reflection is sharp and faceted"; g12c
+// gem_glint_e: "try B's flat glass face with C's reflections"). The gem pack's normal map is a smooth
+// dome (VNR, mean tilt ~24 deg), so its mirror image bends across every block. A polished gem's faces are
+// planes: the face a block shows is the axis its mapped normal leans toward (any tilt under 45 deg), and
+// QF_GEM_FACET 2 cuts it like an emerald (step) cut: a flat table over the middle, four side facets and
+// four corner facets round it, each a plane tipped GEM_TILT outward, so each holds its own sharp piece of
+// the sky and the scene. 1 is the flat face, 0 the map's normal (r012).
+const float GEM_TILT = 0.14;   // ~8 deg
+vec3 gemFacetNormal(vec3 n, vec3 worldPos) {
+#if QF_GEM_FACET == 0
+    return n;
+#else
+    vec3 a = abs(n);
+    vec3 nf, U, V;
+    vec2 uv2;
+    if (a.y >= a.x && a.y >= a.z) { nf = vec3(0.0, sign(n.y), 0.0); U = vec3(1.0, 0.0, 0.0); V = vec3(0.0, 0.0, 1.0); uv2 = worldPos.xz; }
+    else if (a.x >= a.z)          { nf = vec3(sign(n.x), 0.0, 0.0); U = vec3(0.0, 0.0, 1.0); V = vec3(0.0, 1.0, 0.0); uv2 = worldPos.zy; }
+    else                          { nf = vec3(0.0, 0.0, sign(n.z)); U = vec3(1.0, 0.0, 0.0); V = vec3(0.0, 1.0, 0.0); uv2 = worldPos.xy; }
+#if QF_GEM_FACET == 1
+    return nf;
+#else
+    vec2 q = fract(uv2) - 0.5;          // -0.5..0.5 across the face
+    vec2 aq = abs(q);
+    if (max(aq.x, aq.y) < 0.30) return nf;                       // the table
+    vec2 t;
+    if (aq.x + aq.y > 0.74) t = sign(q) * 0.7071;                // a corner facet (the cut corners)
+    else t = aq.x > aq.y ? vec2(sign(q.x), 0.0) : vec2(0.0, sign(q.y));
+    return normalize(nf + (U * t.x + V * t.y) * GEM_TILT);
+#endif
+#endif
+}
+#endif
+#if QF_GEM_SSR == 1 && QF_GEM_LOOK > 0
+// r014 (owner r013 gems: "Right idea, but I don't like this. It looks like plastic"). Measured: the gem pack's
+// specular maps are one value over the whole face (smoothness 240, F0 44), and the shader lit the stone as a
+// lambert body (its pale texture colour times the light) under a clear, untinted coat: a glazed tile, which
+// is what plastic is. A cut stone shows little matte body: most of its light comes back out from inside,
+// off the pavilion facets, so each facet shows a different piece of the sky or the ground (bright beside
+// dark), tinted by the stone over a longer path than its surface colour suggests, and the sun flashes in
+// single facets with a little dispersion (fire). Complementary gets its gem contrast the cheaper way (the
+// texture's bright pixels smoother and reflecting more); this is the same idea per facet cell, so it works
+// on our flat maps and follows the maps' own facets where they have them (the map tilt, tripled).
+// The surface reflection (composite gemReflection) is unchanged: a gem's outer reflection is untinted.
+vec3 gemInnerLight(vec3 albedo, vec3 n, vec3 viewDir, vec3 L, vec3 E, float shadow, float sky, float ao, vec3 worldPos, float Fe) {
+    vec3 a = abs(n);
+    vec3 nf, U, V;
+    vec2 uv2;
+    if (a.y >= a.x && a.y >= a.z) { nf = vec3(0.0, sign(n.y), 0.0); U = vec3(1.0, 0.0, 0.0); V = vec3(0.0, 0.0, 1.0); uv2 = worldPos.xz; }
+    else if (a.x >= a.z)          { nf = vec3(sign(n.x), 0.0, 0.0); U = vec3(0.0, 0.0, 1.0); V = vec3(0.0, 1.0, 0.0); uv2 = worldPos.zy; }
+    else                          { nf = vec3(0.0, 0.0, sign(n.z)); U = vec3(1.0, 0.0, 0.0); V = vec3(0.0, 1.0, 0.0); uv2 = worldPos.xy; }
+    // Facet cells, 4 a block (world-anchored, so they hold still as you move and flash as the angle changes;
+    // loop 1's 6 read as a pixel mosaic). Option 2 has none: the inner facets are the normal map's own, so a
+    // pack that draws its facets (the textures track's crystal) keeps them.
+    vec2 cell = floor(uv2 * 4.0 + 1e-3);
+    float h1 = hash12(cell + nf.xz * 17.0 + nf.y * 31.0);
+    float h2 = hash12(cell * 1.37 + 5.3 + nf.y * 7.0);
+    float h3 = hash12(cell * 0.71 + 9.1);
+    float ang = h1 * 6.2832;
+    vec2 tc = vec2(cos(ang), sin(ang)) * mix(0.30, 0.75, h2);
+#if QF_GEM_LOOK == 2
+    vec3 nI = normalize(nf + (n - nf * dot(n, nf)) * 4.0);
+#else
+    vec3 nI = normalize(nf + (n - nf * dot(n, nf)) * 3.0 + U * tc.x + V * tc.y);
+#endif
+    vec3 Ri = reflect(viewDir, nI);   // the way the light that leaves this facet came in
+    // The stone's colour over a longer path: the texture colour normalised and squared (deeper, purer).
+    float mx = max(albedo.r, max(albedo.g, albedo.b));
+    vec3 tint = albedo / max(mx, 1e-4);
+    tint *= tint * mx;
+    vec3 Ru = normalize(vec3(Ri.x, max(Ri.y, 0.02), Ri.z));
+    vec3 env = skyScatter(Ru) * smoothstep(-0.25, 0.12, Ri.y);   // facets that look down see the dark ground
+    vec3 inner = env * tint * (1.0 - Fe) * sky * ao * 1.6;
+    // The sun off one inner facet: a ~3 degree flash, white-hot with a hue from the dispersion.
+    float sd = max(dot(Ri, L), 0.0);
+    float flash = smoothstep(0.9975, 0.99985, sd);
+    vec3 fire = 0.55 + 0.45 * cos(6.2832 * (h3 + vec3(0.0, 0.33, 0.67)));
+    inner += E * shadow * flash * mix(vec3(1.0), fire, 0.45) * mix(vec3(1.0), tint / max(mx, 1e-4), 0.35) * 0.9;
+    return inner;
+}
+#endif
+vec3 metalShade(vec3 albedo, float f0id, vec3 n, vec3 viewDir, vec3 L, vec3 E, float smooth_, float shadow, float sky, float ao, vec3 diffuse, vec3 scenePos) {
+    float r = (1.0 - smooth_) * (1.0 - smooth_);
+    float a2 = max(r * r, 0.0012);
+    vec3 V = -viewDir;
+    vec3 f0 = metalF0(albedo, f0id);
+    float NdotV = clamp(dot(n, V), 0.02, 1.0);
+    vec3 Rf = reflect(viewDir, n);
+    // Loop 3 (critic ud_pbr: the metals are bright but read as paint, no sky or landscape in them).
+    // A flat face mirrors one direction, so the reflection was one flat colour per face. Polished
+    // blocks are never optically flat: each face is bent a little like a shallow lens, so across a
+    // block the reflection sweeps from sky (top) through a crisp horizon line to the ground (bottom)
+    // and leans sideways, which is what reads as chrome at a glance.
+#if QF_METAL_SSR == 0
+    {
+        vec3 wp = scenePos + cameraPosition;
+        vec3 an = abs(n);
+        vec2 fc = an.y > 0.5 ? fract(wp.xz) : (an.x > 0.5 ? vec2(fract(wp.z), fract(wp.y)) : vec2(fract(wp.x), fract(wp.y)));
+        fc -= 0.5;
+        vec3 tU = an.y > 0.5 ? vec3(0.0, 0.0, 1.0) : vec3(0.0, 1.0, 0.0);
+        vec3 tS = normalize(cross(tU, n));
+        Rf = normalize(Rf + (tU * fc.y * 1.1 + tS * fc.x * 0.6) * smooth_);
+    }
+#endif
+    vec3 Fe = fresnelSchlick(NdotV, f0);
+    // Environment: sky above the horizon, ground (lit grass-and-earth tone) below, blended over a
+    // few degrees, and toward the sky's irradiance on rough metal.
+    vec3 skyR = skyScatter(normalize(vec3(Rf.x, max(Rf.y, 0.02), Rf.z)));
+    vec3 skyD = skyIrradiance(n) / PI;
+    vec3 env = mix(skyR, skyD, r);
+    vec3 ground = (E * max(L.y, 0.0) * shadow * 0.6 + skyIrradiance(vec3(0.0, 1.0, 0.0))) * vec3(0.16, 0.15, 0.11) / PI;
+    env = mix(ground * 0.7, env * 1.15, smoothstep(-0.02, 0.02, Rf.y));   // loop 3: a crisp horizon line (was -0.08..0.06)
+#if QF_METAL_SSR == 1
+    vec3 col = vec3(0.0);   // the reflection is added in composite
+#else
+    vec3 col = env * Fe * mix(0.25, 1.0, sky) * ao;
+#endif
+    // The sun: GGX with Smith-ish visibility, energy capped so a mirror does not blow out to a
+    // pixel of infinity.
+    vec3 H = normalize(L + V);
+    float NdotL = clamp(dot(n, L), 0.0, 1.0);
+    float sp = ggx(clamp(dot(n, H), 0.0, 1.0), a2) * NdotL / (4.0 * NdotV + 0.4);
+    vec3 FH = fresnelSchlick(clamp(dot(H, V), 0.0, 1.0), f0);
+    col += FH * E * min(sp, 80.0) * shadow;
+    // Loop 2 (critic: ub's iron and gold read dimmer than PBR off, "in the shade", with no sky
+    // reflection or sun sheen). A block face mirrors mostly the horizon sky, which is far dimmer
+    // than the sun on a diffuse face, so a pure mirror reads as a darkened block. Polished metal
+    // in a game reads by its highlights: a brighter, contrastier sky reflection (a horizon band
+    // in the reflection, bright above and dark ground below), a broad sun sheen across the face,
+    // and the block's diffuse look kept underneath so it is never darker than with PBR off.
+    float hb = exp(-abs(Rf.y) / 0.12);                                  // the bright horizon band in the reflection
+    col *= 1.4 + 0.9 * hb * smoothstep(-0.05, 0.02, Rf.y);   // ud: 1.6 + 1.2 pushed diamond and gold edges toward neon
+    float sh2 = ggx(clamp(dot(n, H), 0.0, 1.0), 0.08) * NdotL / (4.0 * NdotV + 0.4);
+    col += FH * E * min(sh2, 6.0) * shadow * 0.55;
+#if QF_METAL_SSR == 1
+    // r010 (texture track, diag_column: gold 158,134,1 under the shader vs 178,152,34 vanilla, iron
+    // 143 vs 154, plain stone level): a block face mirrors mostly the dim horizon and ground, so 0.30
+    // of the diffuse under the reflection left gold and iron ~17 % darker than plain blocks.
+#if QF_METAL_FLOOR == 1
+    col += diffuse * 0.62;
+#else
+    col += diffuse * 0.30;
+#endif
+#else
+    col = max(col + diffuse * 0.32, diffuse * 0.95);
+#endif   // loop 3: 0.55 of the diffuse on top buried the reflection (read as paint)
+    return col;
 }
 
 // The active light: the sun by day, the moon by night (whichever casts shadowLightPosition).
@@ -122,6 +335,13 @@ vec3 shadeSurface(Surface s, vec3 viewDir, vec2 pixel) {
         diffuse += back;
     } else {
         diffuse = clamp(NdotL, 0.0, 1.0) * step(-0.01, geoNdotL);
+#if QF_CAL_GOLD > 0
+        // r009 (critic p8 golden_lit: the near field is flat green with no warm low-sun light on
+        // the grass tops): a flat top gets NdotL ~0.15 from a low sun, but blades and ground relief
+        // stand up into it. Up-facing faces take at least 0.7 at golden hour (loop 1, 0.32: +2 on the
+        // lit tops, unseen); the shadow map still decides which patches are lit, so only those turn gold.
+        diffuse = max(diffuse, 0.7 * goldenHour() * smoothstep(0.7, 0.95, s.geoNormal.y) * step(0.0, L.y));
+#endif
     }
     float sky = s.skyLight * s.skyLight * s.skyLight;
     float ao = mix(1.0, s.ao, QF_AO_STRENGTH);
@@ -148,7 +368,7 @@ vec3 shadeSurface(Surface s, vec3 viewDir, vec2 pixel) {
     vec3 irradiance = (foliage ? Eleaf : E) * diffuse * shadow
                     + Eleaf * through
                     + skyE * sky * ao
-                    + blockIrradiance(s.blockLight) * torchFlicker(s.scenePos + cameraPosition, s.blockLight) * ao
+                    + blockIrradiance(s.blockLight) * torchFlicker(s.scenePos + cameraPosition, s.blockLight) * ao * blockDayDamp(s.skyLight)
                     + nightFloor() * NIGHT_FLOOR_TINT * ao;
     // Held light (look bible 1): a soft warm pool around the player.
     if (heldBlockLightValue > 0) {
@@ -157,7 +377,99 @@ vec3 shadeSurface(Surface s, vec3 viewDir, vec2 pixel) {
         irradiance += blockIrradiance(hb) * 0.8;
     }
     irradiance += vec3(nightVision * 0.25);
+#if QF_BOUNCE == 1
+    // Bounce light (r007; owner r006: "I like the light to interact with the blocks realistically"):
+    // sunlit ground throws warm light back up onto walls, the undersides of overhangs and canopy, so
+    // shade near lit ground is warmer and lifted, not only sky blue. The ground's irradiance is the
+    // light times its elevation, its colour a warm earth albedo; outdoors only.
+    {
+        float up = clamp(0.5 - 0.5 * s.normal.y, 0.0, 1.0);
+        vec3 Eg = E * max(L.y, 0.0) * vec3(0.30, 0.25, 0.18);
+        irradiance += Eg * up * outside * s.skyLight * s.skyLight * ao * 0.55;
+    }
+#endif
     vec3 color = s.albedo / PI * irradiance;
+    bool hasPbr = s.smoothness > 0.02 || s.f0 > 0.02;
+#if QF_PBR == 1
+    if (hasPbr) {
+        // LabPBR maps (r007, QF_PBR): the pack's own smoothness and F0 drive a GGX highlight from
+        // the sun or moon and a sky reflection on smooth blocks; metals take their colour into the
+        // reflection and lose most of their diffuse light.
+        bool metal = s.f0 > 0.895;
+        if (metal) {
+            color = metalShade(s.albedo, s.f0, s.normal, viewDir, L, E, max(s.smoothness, 0.35), shadow, sky, ao, color, s.scenePos);
+            return color;
+        }
+        float r = (1.0 - s.smoothness) * (1.0 - s.smoothness);
+        float a2 = max(r * r, 0.0015);
+        // Loop 4: a smooth leaf map can give a leaf's flat top face a mirror-tight sun highlight (first
+        // suspect for forest_golden's yellow oval, which turned out to be a near dust mote). Leaves
+        // are waxy, never mirrors.
+        if (foliage) a2 = max(a2, 0.08);
+        vec3 f0v = metal ? s.albedo : vec3(s.f0);
+        vec3 V = -viewDir;
+        vec3 H = normalize(L + V);
+        // r016 (texture track's gem slider, ops/checkpoints/r016-textures.md: steps A-C read as frost, D-F as calmed,
+        // because the gem path below was a switch at smoothness 0.88 / F0 0.1): the gem look and the plain sheen are
+        // both worked out and blended by gemWeight (QF_GEM_RAMP), so the slider's gloss steps move evenly between them.
+        // Only blended pixels pay for both; frost (140/10) and calmed (240/34) are exactly as before.
+        float gw = 0.0;
+#if QF_METAL_SSR == 1 && QF_GEM_SSR == 1
+        gw = gemWeight(s.smoothness, s.f0);
+#endif
+        vec3 plain = color, gem = color;
+        if (gw < 1.0) {
+            float NdotV = max(dot(s.normal, V), 0.02);
+            vec3 F = fresnelSchlick(max(dot(H, V), 0.0), f0v);
+            float sp = ggx(max(dot(s.normal, H), 0.0), a2) * clamp(NdotL, 0.0, 1.0) / (4.0 * NdotV + 0.5);
+            plain += F * E * min(sp, foliage ? 3.0 : 60.0) * shadow;
+            vec3 Fe = fresnelSchlick(NdotV, f0v);
+            plain += skyScatter(reflect(viewDir, s.normal)) * Fe * sky * s.smoothness * s.smoothness * ao;
+        }
+#if QF_METAL_SSR == 1 && QF_GEM_SSR == 1
+        if (gw > 0.0) {
+            // r013: a gem's sun glint comes off the same cut facets its reflection uses (composite), so a
+            // facet flashes as a whole instead of every block showing the same dome highlight.
+            vec3 nSp = gemFacetNormal(s.normal, s.scenePos + cameraPosition);
+#if QF_GEM_LOOK > 0
+            // r014 (critic g13c: "the sun's glints are short white dashes, all slanting the same way ... read as rain on
+            // ice or scratches"): they were the sun off the normal map's bevels. The polished surface now mirrors the
+            // sun off its flat face (one sharp sun image at the mirror angle); the facets flash from inside (gemInnerLight).
+            vec3 an = abs(s.normal);
+            nSp = an.y >= an.x && an.y >= an.z ? vec3(0.0, sign(s.normal.y), 0.0) : (an.x >= an.z ? vec3(sign(s.normal.x), 0.0, 0.0) : vec3(0.0, 0.0, sign(s.normal.z)));
+#endif
+            float NdotV = max(dot(nSp, V), 0.02);
+            vec3 F = fresnelSchlick(max(dot(H, V), 0.0), f0v);
+            float sp = ggx(max(dot(nSp, H), 0.0), a2) * clamp(NdotL, 0.0, 1.0) / (4.0 * NdotV + 0.5);
+            gem += F * E * min(sp, 60.0) * shadow;
+            vec3 Fe = fresnelSchlick(NdotV, f0v);
+            // r012 gem test (texture track, ops/checkpoints/r012-textures.md): a polished dielectric (diamond,
+            // emerald) reflects the real scene in composite (gemReflection), and its diffuse gives way to that reflection.
+#if QF_GEM_LOOK > 0
+            // r014: the matte body light drops to 0.4 (loop 1: 0.5 / 0.25) and the light from inside the stone leads.
+            gem *= (1.0 - Fe.x) * 0.4;
+            gem += gemInnerLight(s.albedo, s.normal, viewDir, L, E, shadow, sky, ao, s.scenePos + cameraPosition, Fe.x);
+#else
+            gem *= 1.0 - Fe;
+#endif
+        }
+#endif
+        color = mix(plain, gem, gw);
+    }
+#endif
+#if QF_BOUNCE == 1
+    // A faint sheen on every block at grazing light (dielectric, F0 4%, rough), and a waxy one on
+    // leaves: stone, wood and leaves catch the low sun instead of reading as flat paint.
+    if ((s.mat == MAT_NONE || foliage) && !hasPbr) {
+        vec3 V = -viewDir;
+        vec3 H = normalize(L + V);
+        float NdotV = max(dot(s.normal, V), 0.02);
+        float a2 = foliage ? 0.05 : 0.09;
+        float Fs = fresnelSchlick(max(dot(H, V), 0.0), vec3(foliage ? 0.03 : 0.04)).x;
+        float sp = ggx(max(dot(s.normal, H), 0.0), a2) * clamp(NdotL, 0.0, 1.0) / (4.0 * NdotV + 0.5);
+        color += (foliage ? Eleaf * 0.6 : E) * sp * Fs * shadow;
+    }
+#endif
 
     // Emissive blocks: their own light, not just lit by the lightmap.
     if (s.mat == MAT_EMISSIVE || s.mat == MAT_LAVA) {
@@ -166,6 +478,10 @@ vec3 shadeSurface(Surface s, vec3 viewDir, vec2 pixel) {
     }
 
     // Specular from the light on metal and polished stone (no reflections beyond that yet).
+#if QF_PBR == 1
+    // Metal blocks without a map in the pack: the same model, polished.
+    if (s.mat == MAT_METAL && !hasPbr) return metalShade(s.albedo, 0.0, s.normal, viewDir, L, E, 0.72, shadow, sky, ao, color, s.scenePos);
+#endif
     if (s.mat == MAT_METAL || s.mat == MAT_POLISHED || s.mat == MAT_ORE) {
         float rough = s.mat == MAT_METAL ? 0.38 : (s.mat == MAT_ORE ? 0.3 : 0.28);
         vec3 f0 = s.mat == MAT_METAL ? s.albedo : vec3(0.04);
@@ -177,7 +493,11 @@ vec3 shadeSurface(Surface s, vec3 viewDir, vec2 pixel) {
         float spec = ggx(max(dot(s.normal, H), 0.0), a2) * clamp(NdotL, 0.0, 1.0) / (4.0 * NdotV + 0.5);
         float oreMask = s.mat == MAT_ORE ? smoothstep(0.25, 0.6, abs(s.albedo.r - s.albedo.g) + abs(s.albedo.g - s.albedo.b)) : 1.0;
         color += F * E * spec * shadow * oreMask;
+#if QF_METAL_FLOOR == 1
+        if (s.mat == MAT_METAL) color *= 0.92;   // r010: 0.65 put gold at 150 (vanilla 178) next to level stone
+#else
         if (s.mat == MAT_METAL) color *= 0.65;   // metal: less diffuse, energy goes to F
+#endif
     }
     return color;
 }

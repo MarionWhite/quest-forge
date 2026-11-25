@@ -1,0 +1,38 @@
+# FrameBench views for the r011 pack copies (world C:\qfb\textures\world-r011, built by
+# tools/textures/build_r011_world.py). Format as views-world-master.txt: y is the feet (eye = y + 1.62);
+# yaw 0 = looking south (+z). FrameBench's FOV is wide: about 13 blocks across at 5 blocks.
+#
+# name               x       y      z        yaw    pitch  worldTime  [measureTicks]
+# item board: 12 x 5 frames, wall z 216, rows y 73 (tools) .. 69 (books, worn tools, stacks)
+r11_items            231.0   69.9   210.7    0      0      7000   20
+r11_items_tl         228.0   70.4   213.3    0      0      7000   20
+r11_items_tr         234.0   70.4   213.3    0      0      7000   20
+r11_items_bl         228.0   68.4   213.3    0      0      7000   20
+r11_items_br         234.0   68.4   213.3    0      0      7000   20
+# library wall (x 240-250) and TNT (x 252-256)
+r11_library          245.5   68.9   211.0    0      0      7000   20
+r11_shelves          245.5   68.4   213.8    0      0      7000   20
+r11_tnt              254.5   68.8   212.6    0      14     7000   20
+# mob hall: 21 mobs at x 226.5 .. 266.5 (2 apart), z 228.5; wide thirds, then close pairs
+r11_mobs_a           232.5   68.0   222.3    0      4      7000   40
+r11_mobs_b           246.5   68.0   222.3    0      4      7000   40
+r11_mobs_c           260.5   68.0   222.3    0      4      7000   40
+r11_mob_1            229.5   68.0   225.3    0      6      7000   40
+r11_mob_2            236.5   68.0   225.3    0      6      7000   40
+r11_mob_3            243.5   68.0   225.3    0      6      7000   40
+r11_mob_4            250.5   68.0   225.3    0      6      7000   40
+r11_mob_5            257.5   68.0   225.3    0      6      7000   40
+r11_mob_6            264.5   68.0   225.3    0      6      7000   40
+# GUI views (FrameBench GuiShots): the screen opens over this camera (the library, in daylight)
+gui_hud              245.5   68.0   210.0    0      2      7000   20
+gui_inventory        245.5   68.0   210.0    0      2      7000   20
+gui_creative_combat  245.5   68.0   210.0    0      2      7000   20
+gui_creative_tools   245.5   68.0   210.0    0      2      7000   20
+gui_creative_brewing 245.5   68.0   210.0    0      2      7000   20
+gui_creative_materials 245.5 68.0   210.0    0      2      7000   20
+gui_furnace          245.5   68.0   210.0    0      2      7000   20
+gui_crafting         245.5   68.0   210.0    0      2      7000   20
+gui_chest            245.5   68.0   210.0    0      2      7000   20
+gui_brewing          245.5   68.0   210.0    0      2      7000   20
+gui_enchanting       245.5   68.0   210.0    0      2      7000   20
+gui_anvil            245.5   68.0   210.0    0      2      7000   20

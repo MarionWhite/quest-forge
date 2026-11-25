@@ -1,4 +1,0 @@
-# Quest Forge LITE -- optionsshaders.txt overrides. No shader pack.
-# A GTX 1060-class card can try Sildur's Enhanced Default with half-resolution
-# shadows instead (see README), but then ofFastRender MUST go back to false.
-shaderPack=OFF

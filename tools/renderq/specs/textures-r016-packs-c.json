@@ -1,0 +1,57 @@
+{
+ "name": "textures-r016-packs-c",
+ "owner": "texture-dev-packs",
+ "comment": "r016 packs fix: design C (gunmetal + ironclad) only, XP number molten orange and a deeper-cut medallion so it no longer reads as glass B. See textures-r016-packs.json.",
+ "prebuild": [
+  [
+   "py",
+   "-3.10",
+   "-I",
+   "tools/textures/qf_hud_r016.py",
+   "--design",
+   "gunmetal",
+   "--gui-zip",
+   "C:/qfb/textures/r013/QF-r012-gui-final.zip",
+   "--out",
+   "C:/qfb/textures/r016/QF-r016-hud-gunmetal.zip"
+  ]
+ ],
+ "defaults": {
+  "world": "C:/qfb/textures/world-r013",
+  "views": "tools/textures/views-r013.txt",
+  "preset": "3",
+  "size": "2560x1440",
+  "mode": "shot",
+  "cit": true,
+  "jars": [
+   "C:/qfb/renderq/jars-r016/QuestForgeContent-1.0.0.jar"
+  ],
+  "props": [
+   "qf.bench.difficulty=easy"
+  ],
+  "resourcepacks": [
+   "C:/qfb/textures/diag/QF-v3c.zip",
+   "C:/qfb/textures/r013/QF-r012-packs-final.zip",
+   "C:/qfb/textures/r013/QF-r012-gui-final.zip"
+  ]
+ },
+ "jobs": [
+  {
+   "tag": "pk16c",
+   "rps_top": [
+    "C:/qfb/textures/r016/QF-r016-hud-gunmetal.zip"
+   ],
+   "measure": 220,
+   "scenes": "gui_hud"
+  },
+  {
+   "tag": "pk16cn",
+   "views": "tools/textures/views-r016-night.txt",
+   "rps_top": [
+    "C:/qfb/textures/r016/QF-r016-hud-gunmetal.zip"
+   ],
+   "measure": 220,
+   "scenes": "gui_hud"
+  }
+ ]
+}

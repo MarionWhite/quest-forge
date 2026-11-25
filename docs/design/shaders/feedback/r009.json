@@ -1,0 +1,136 @@
+{
+ "round": 9,
+ "id": "r009",
+ "note": "Built by tools/shaders/review/fetch_feedback.py from GitHub issues; the latest response is last.",
+ "responses": [
+  {
+   "issue": 13,
+   "url": "https://github.com/MarionWhite/quest-forge/issues/13",
+   "user": "MarionWhite",
+   "state": "open",
+   "created_at": "2026-10-27T20:27:58Z",
+   "updated_at": "2026-10-27T20:27:58Z",
+   "from": "body",
+   "answers": {
+    "round": 9,
+    "scenes": {
+     "performance": {
+      "choice": "A",
+      "rating": 4,
+      "note": "The fast options seem fine. It doesn't look like we are trading much for the performance gains."
+     },
+     "sun-cloud": {
+      "choice": "A",
+      "rating": 4,
+      "note": "This looks good. Just make sure that the sun is interacting realistically with the clouds in front of it."
+     },
+     "sunset-full": {
+      "choice": "A",
+      "rating": 5,
+      "note": "There is some weird green coloring right in the middle of the image that I'm not sure where it is coming from."
+     },
+     "golden": {
+      "choice": "A",
+      "rating": 3,
+      "note": "This one seems fine"
+     },
+     "forest-light": {
+      "choice": "A",
+      "rating": 3,
+      "note": "I'll take the critic's word that A is better, but B has rays that extend further, and they seem a bit broader, which looks nice"
+     },
+     "dust": {
+      "choice": "A",
+      "rating": 3,
+      "note": "It seems close."
+     },
+     "river": {
+      "choice": "A",
+      "rating": 3,
+      "note": "The river is very green, and I think that is largely coming from the reference image where the water is reflecting a lot of green light from the copious amount of vegetation in the surroundings."
+     },
+     "underwater": {
+      "choice": "B",
+      "rating": 3,
+      "note": "This seems really good. The visibility is a little bit low in B, but I really like the way it looks."
+     },
+     "water-check": {
+      "choice": "A",
+      "rating": 5,
+      "note": "Still good"
+     },
+     "clouds": {
+      "choice": "A",
+      "rating": 3,
+      "note": "I think the performance win here is justified. It looks about the same."
+     },
+     "meteors": {
+      "choice": "neither",
+      "rating": 4,
+      "note": "It doesn't look like the meteors are coasting through the atmosphere overhead. These things look like they're plummeting to the fucking ground. I want a beautiful cinematic meteor shower where it looks like a bunch of them passing by at high altitude."
+     },
+     "tex-wall": {
+      "choice": "B",
+      "rating": 3,
+      "note": "I still don't know what is going on with the light levels of the iron or gold. Whatever the fuck you are doing for these scenes is not giving me much information to work off of because I don't know why the fucking diamond blocks are only getting light on the bottom half, and why the iron and gold look so much darker. It doesn't make any sense to me, and we aren't making any progress on this because you are asking the wrong fucking questions and leaving a bunch of shit general and vague."
+     },
+     "tex-wall-close": {
+      "choice": "B",
+      "rating": 4,
+      "note": "The emerald looks a lot better, but I think we should aim for something closer to the direction we are taking diamond in rather than the geometric look."
+     },
+     "tex-forest": {
+      "choice": "C",
+      "rating": 4,
+      "note": "No, the leaves still look fucking terrible, and messy. It looks like a retarded toddler painted the texture and I hate it. You need to completely pivot instead of making small micro changes."
+     },
+     "tex-leaves": {
+      "choice": "C",
+      "rating": 4,
+      "note": "No, both v1 and v2 look like shit, and honestly v2 is worse."
+     },
+     "tex-leaves-tree": {
+      "choice": "C",
+      "rating": 4,
+      "note": "It's fucking ass. Restart from fresh and actually work towards the reference you were given"
+     },
+     "tex-golden": {
+      "choice": "B",
+      "rating": 3,
+      "note": ""
+     },
+     "tex-farm": {
+      "choice": "B",
+      "rating": 3,
+      "note": "Better, but it still doesn't have the same luscious look as the reference mod. Look at these fucking fields and tell me we are even remotely close."
+     },
+     "tex-farm-close": {
+      "choice": "A",
+      "rating": 2,
+      "note": "The last round looks better up close, but this round looks better from far away. The new texture is not as full when evaluating from close."
+     },
+     "tex-items": {
+      "choice": "C",
+      "rating": 4,
+      "note": "These all look pretty decent. The green potion is kind of boring, and the book logos aren't all centered, so double check that."
+     }
+    },
+    "overall": "I don't know if you just aren't asking enough questions, or more likely that you aren't asking the right questions, but we are kind of stalling on improvements, and I would like to be moving a lot faster, and getting results that surprise me like the first big leap in quality for the water."
+   },
+   "attachments": [
+    {
+     "scene": "tex-farm",
+     "name": "Screenshot 2026-10-27 at 4.23.08_PM.jpg",
+     "path": "docs/design/shaders/feedback/attachments/r009/20261027T202754099Z-tex-farm-1.jpg",
+     "url": "https://raw.githubusercontent.com/MarionWhite/quest-forge/main/docs/design/shaders/feedback/attachments/r009/20261027T202754099Z-tex-farm-1.jpg"
+    },
+    {
+     "scene": "tex-farm",
+     "name": "Screenshot 2026-10-27 at 4.23.54_PM.jpg",
+     "path": "docs/design/shaders/feedback/attachments/r009/20261027T202754099Z-tex-farm-2.jpg",
+     "url": "https://raw.githubusercontent.com/MarionWhite/quest-forge/main/docs/design/shaders/feedback/attachments/r009/20261027T202754099Z-tex-farm-2.jpg"
+    }
+   ]
+  }
+ ]
+}

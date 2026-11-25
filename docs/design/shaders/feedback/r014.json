@@ -1,0 +1,92 @@
+{
+ "round": 14,
+ "id": "r014",
+ "note": "Built by tools/shaders/review/fetch_feedback.py from GitHub issues; the latest response is last.",
+ "responses": [
+  {
+   "issue": 18,
+   "url": "https://github.com/MarionWhite/quest-forge/issues/18",
+   "user": "MarionWhite",
+   "state": "open",
+   "created_at": "2026-11-01T14:52:15Z",
+   "updated_at": "2026-11-01T14:52:15Z",
+   "from": "body",
+   "answers": {
+    "round": 14,
+    "scenes": {
+     "sea-sunset": {
+      "choice": "A",
+      "rating": 4,
+      "note": "critic"
+     },
+     "shore-sunset": {
+      "choice": "A",
+      "rating": 3,
+      "note": "critic"
+     },
+     "sun-glow": {
+      "choice": "B",
+      "rating": 3,
+      "note": "I kind of like the little bit of distortion that the blocks on the horizon get. It adds a layer of realism."
+     },
+     "meteors": {
+      "choice": "A",
+      "rating": 3,
+      "note": ""
+     },
+     "gems": {
+      "choice": "neither",
+      "rating": 5,
+      "note": "These either look plastic or very noisy. I'm not 100% sure what I'm looking for here, but I know that we are not even close."
+     },
+     "gems-diamond": {
+      "choice": "neither",
+      "rating": 5,
+      "note": ""
+     },
+     "gems-mat-diamond": {
+      "choice": "neither",
+      "rating": 5,
+      "note": ""
+     },
+     "gems-mat-emerald": {
+      "choice": "neither",
+      "rating": 5,
+      "note": ""
+     },
+     "gems-mat-lit": {
+      "choice": "neither",
+      "rating": 5,
+      "note": ""
+     },
+     "gems-mat-close": {
+      "choice": "neither",
+      "rating": 5,
+      "note": ""
+     },
+     "pk-hud": {
+      "choice": "neither",
+      "rating": 4,
+      "note": "I like the idea of a medallion, but we are going too far minimalist here with these designs. I want it to look more sleek and pleasing on the eyes."
+     },
+     "pk-hud-xp": {
+      "choice": "neither",
+      "rating": 4,
+      "note": ""
+     },
+     "pk-hud-icons": {
+      "choice": "neither",
+      "rating": 4,
+      "note": "I want to see at least 5 unique designs before we commit."
+     },
+     "pk-mob-6": {
+      "choice": "D",
+      "rating": 3,
+      "note": "Conquest is the only one that really changes so we can go with that"
+     }
+    },
+    "overall": ""
+   }
+  }
+ ]
+}

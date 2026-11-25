@@ -1,0 +1,27 @@
+{
+ "name": "textures-r013-packs",
+ "owner": "texture-dev-packs",
+ "comment": "r013 packs (ops/checkpoints/r013-packs.md): world-r013 (hall in six tight groups, wither skeleton centred in view 1, bat on a beam; squid, slime, magma cube in glass tanks = view 7). pk13a = round 12's picked B (frozen zips) in the new views; pk13b = B + Faithless snow golem/slime/magma cube/squid, Patrix wither shield, derived black-dots marking; pk13h1-3 = Elden-Ring-inspired HUD directions tarnished/grace/ashen (qf_hud_er.py, own art), placed ABOVE QuestForge.zip (rps_top) so the hotbar draws, measure 220 so GuiShots' chat lines have faded off the hearts.",
+ "prebuild": [
+  ["py", "-3.10", "-I", "tools/textures/r007packs.py", "--out", "C:/qfb/textures/r013/QF-r013-packs.zip", "--parts", "items,cit,tnt,books,mobs,env", "--mobs", "remap", "--faithless-mobs"],
+  ["py", "-3.10", "-I", "tools/textures/r007packs.py", "--out", "C:/qfb/textures/r013/QF-r013-gui.zip", "--parts", "gui", "--creative", "faithless"],
+  ["py", "-3.10", "-I", "tools/textures/qf_hud_er.py", "--style", "tarnished", "--gui-zip", "C:/qfb/textures/r013/QF-r013-gui.zip", "--out", "C:/qfb/textures/r013/QF-r013-hud-tarnished.zip"],
+  ["py", "-3.10", "-I", "tools/textures/qf_hud_er.py", "--style", "grace", "--gui-zip", "C:/qfb/textures/r013/QF-r013-gui.zip", "--out", "C:/qfb/textures/r013/QF-r013-hud-grace.zip"],
+  ["py", "-3.10", "-I", "tools/textures/qf_hud_er.py", "--style", "ashen", "--gui-zip", "C:/qfb/textures/r013/QF-r013-gui.zip", "--out", "C:/qfb/textures/r013/QF-r013-hud-ashen.zip"]
+ ],
+ "defaults": {"world": "C:/qfb/textures/world-r013", "views": "tools/textures/views-r013.txt", "preset": "3",
+              "size": "2560x1440", "mode": "shot", "cit": true,
+              "jars": ["C:/qfb/renderq/jars-r011/QuestForgeContent-1.0.0.jar"], "props": ["qf.bench.difficulty=easy"]},
+ "jobs": [
+  {"tag": "pk13a", "resourcepacks": ["C:/qfb/textures/diag/QF-v3c.zip", "C:/qfb/textures/r013/QF-r012-packs-final.zip", "C:/qfb/textures/r013/QF-r012-gui-final.zip"],
+   "scenes": "r13_mob_1,r13_mob_2,r13_mob_3,r13_mob_4,r13_mob_5,r13_mob_6,r13_mob_7"},
+  {"tag": "pk13b", "resourcepacks": ["C:/qfb/textures/diag/QF-v3c.zip", "C:/qfb/textures/r013/QF-r013-packs.zip", "C:/qfb/textures/r013/QF-r013-gui.zip"],
+   "scenes": "r13_mob_1,r13_mob_2,r13_mob_3,r13_mob_4,r13_mob_5,r13_mob_6,r13_mob_7"},
+  {"tag": "pk13h1", "resourcepacks": ["C:/qfb/textures/diag/QF-v3c.zip", "C:/qfb/textures/r013/QF-r013-packs.zip", "C:/qfb/textures/r013/QF-r013-gui.zip"],
+   "rps_top": ["C:/qfb/textures/r013/QF-r013-hud-tarnished.zip"], "measure": 220, "scenes": "gui_hud"},
+  {"tag": "pk13h2", "resourcepacks": ["C:/qfb/textures/diag/QF-v3c.zip", "C:/qfb/textures/r013/QF-r013-packs.zip", "C:/qfb/textures/r013/QF-r013-gui.zip"],
+   "rps_top": ["C:/qfb/textures/r013/QF-r013-hud-grace.zip"], "measure": 220, "scenes": "gui_hud"},
+  {"tag": "pk13h3", "resourcepacks": ["C:/qfb/textures/diag/QF-v3c.zip", "C:/qfb/textures/r013/QF-r013-packs.zip", "C:/qfb/textures/r013/QF-r013-gui.zip"],
+   "rps_top": ["C:/qfb/textures/r013/QF-r013-hud-ashen.zip"], "measure": 220, "scenes": "gui_hud"}
+ ]
+}

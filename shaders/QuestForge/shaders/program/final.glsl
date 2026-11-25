@@ -9,6 +9,7 @@
 #include "/lib/materials.glsl"
 #include "/lib/atmosphere.glsl"
 #include "/lib/lut.glsl"
+#include "/lib/sun.glsl"
 #include "/lib/tonemap.glsl"
 
 #ifdef VSH
@@ -37,8 +38,59 @@ uniform sampler2D shadowtex0;
 layout(location = 0) out vec4 outColor;
 
 vec3 calGrade(vec3 c);
+// Vibrance (r007; owner r006: "a little more vibrance"): saturation raised most where the colour is
+// muted, hardly at all where it is already vivid, so grass, water and sky gain colour while wood,
+// chests, sand and gold do not turn neon (look bible 3). On the exposed linear colour.
+vec3 vibrance(vec3 c) {
+    if (QF_VIBRANCE <= 0.0) return c;
+    float mx = max(c.r, max(c.g, c.b)), mn = min(c.r, min(c.g, c.b));
+    // Saturation judged perceptually (square roots), not in linear light, where almost every
+    // natural colour already reads as vivid.
+    float sat = mx > 1e-5 ? 1.0 - sqrt(max(mn, 0.0) / mx) : 0.0;
+    float l = luminance(c);
+    float k = 1.0 + float(QF_VIBRANCE) * (1.0 - sat) * 2.2 * smoothstep(0.0, 0.25, sat + 0.05);
+    // r010 (texture track: gold's blue was 0 in 98 % of its pixels, vanilla ~34): the push away from
+    // grey drove a vivid colour's weakest channel below zero, then clipped it, so gold, sand and
+    // sunset orange lost their last trace of blue and went flat. The weakest channel now keeps at
+    // least half its value: k is held to (l - mn/2) / (l - mn).
+    k = min(k, (l - 0.5 * mn) / max(l - mn, 1e-5));
+    c = max(vec3(l) + (c - vec3(l)) * max(k, 1.0), vec3(0.0));
+    return c;
+}
 vec3 display(vec3 exposed) {
-    return linearToSrgb(tonemapNeutral(calGrade(exposed)));
+#if QF_RIM_GOLD == 2
+    float sy = sunDirWorld().y;
+    float gh = smoothstep(0.32, 0.08, sy) * smoothstep(-0.04, 0.03, sy);   // goldenHour() (sky.glsl)
+    vec3 c = vibrance(calGrade(exposed));
+    vec3 t = tonemapNeutralW(c, mix(vec3(1.0), vec3(1.0, 0.82, 0.50), gh));
+#if QF_SUN_WHITE > 0
+    // r016 (critic r015 ocean_sunset: our sun peaked at 253,214,162 and its path at 251,204,128, BSL's burn to
+    // 255,254,251): the neutral curve keeps a bright orange orange at any brightness, so the sun and its glint
+    // never went white. Film and BSL's per-channel curve clip each channel on its own: the hottest pixels go
+    // yellow, then white. Past an exposed peak of ~5 (cloud rims peak at 1-6 and keep their amber) the curve
+    // hands over to a per-channel shoulder at golden hour.
+    {
+        float pk = max(c.r, max(c.g, c.b));
+        vec3 pc = 1.0 - exp(-c * 1.15);
+  #if QF_SUN_WHITE == 2
+        float k = smoothstep(3.5, 10.0, pk) * gh;
+  #elif QF_SUN_WHITE == 3
+        // r016 loop 11 (loops 9-10: the path's whitened core clipped only past an exposed ~20 (cap 12: 0.6 % at 250+,
+        // cap 20: 5.4 %), and a glint that bright blooms over sun_clear's sand): a near-white pixel (its weakest channel
+        // past ~70 % of its strongest; the composite pass whitens the glint's core) takes the per-channel shoulder from
+        // an exposed 2.5. Orange rims and the sky stay on the neutral curve.
+        float wk = smoothstep(0.62, 0.80, min(c.r, min(c.g, c.b)) / max(pk, 1e-5));
+        float k = max(smoothstep(5.0, 14.0, pk), wk * smoothstep(2.0, 4.0, pk)) * gh;
+  #else
+        float k = smoothstep(5.0, 14.0, pk) * gh;
+  #endif
+        t = mix(t, pc, k);
+    }
+#endif
+    return linearToSrgb(t);
+#else
+    return linearToSrgb(tonemapNeutral(vibrance(calGrade(exposed))));
+#endif
 }
 
 #if QF_TAA
@@ -193,18 +245,154 @@ vec3 calBloom(ivec2 px) {
 }
 #endif
 
+#if QF_SUN == 1
+// Glare round the real sun (lib/sun.glsl), in exposed units, drawn over everything in front of it.
+// The visible share of the disk comes from nine taps on it: open sky at the disk's brightness counts
+// as visible, a tree or a thick cloud does not, a thin cloud edge counts in part (it glows).
+// One point-spread function, three falloffs: a bright core just outside the limb, a narrow halo
+// (about 1.5 degrees) and faint wide wings, so the sky round the sun is not washed out.
+vec3 sunGlare(ivec2 px) {
+    vec3 sv = sunPosition;
+    if (sv.z >= 0.0) return vec3(0.0);                      // behind the camera
+    vec4 sc = gbufferProjection * vec4(sv, 1.0);
+    vec2 suv = sc.xy / sc.w * 0.5 + 0.5;
+    if (any(lessThan(suv, vec2(-0.1))) || any(greaterThan(suv, vec2(1.1)))) return vec3(0.0);
+    float pxA = 2.0 / (gbufferProjection[1][1] * viewHeight);
+    float rpx = SUN_REAL_R / pxA * 0.45;
+    float vis = 0.0, visG = 0.0;
+    float want = 0.30 * sunPeak();
+    for (int i = 0; i < 9; i++) {
+        float a = float(i) * 2.39996;
+        vec2 o = i == 0 ? vec2(0.0) : vec2(cos(a), sin(a)) * rpx * sqrt(float(i) / 8.0);
+        ivec2 q = ivec2(suv * vec2(viewWidth, viewHeight) + o);
+        if (any(lessThan(q, ivec2(0))) || q.x >= int(viewWidth) || q.y >= int(viewHeight)) continue;
+        vec3 e = sceneExposed(q);
+        float sky = step(1.0, texelFetch(depthtex0, q, 0).r);
+        float m = max(e.r, max(e.g, e.b));
+        vis += sky * clamp(m / want, 0.0, 1.0);
+        // r012: the glow's own visibility counts a thin, sunlit cloud over the disk too (a disk under
+        // cloud still lights it: the photo's sun bursting through), so a hidden sun keeps a glow in
+        // proportion to how bright the cloud in front of it burns (display white ~1). A thick dark cloud
+        // (~0.3) stays dark. Loop 1: against the disk's peak (cloud ~0.06 of it) the glow never showed.
+        visG += sky * smoothstep(0.30, 1.0, m);
+    }
+#if QF_SUN_BLOOM > 0
+    // An outer ring at the limb: a low sun often shows only a sliver under the cloud base.
+    for (int i = 0; i < 8; i++) {
+        float a = float(i) * 0.7854 + 0.39;
+        ivec2 q = ivec2(suv * vec2(viewWidth, viewHeight) + vec2(cos(a), sin(a)) * rpx * 2.0);
+        if (any(lessThan(q, ivec2(0))) || q.x >= int(viewWidth) || q.y >= int(viewHeight)) continue;
+        vec3 e = sceneExposed(q);
+        visG += step(1.0, texelFetch(depthtex0, q, 0).r) * smoothstep(0.30, 1.0, max(e.r, max(e.g, e.b)));
+    }
+    visG /= 17.0;
+#else
+    visG /= 9.0;
+#endif
+    vis /= 9.0;
+    visG = max(vis, visG);
+#if QF_SUN_BLOOM == 0
+    if (vis <= 0.0) return vec3(0.0);
+#else
+    if (visG <= 0.0) return vec3(0.0);
+#endif
+    vec3 dir = normalize(viewFromScreen(uv, 1.0));
+    float th = acos(clamp(dot(dir, normalize(sv)), -1.0, 1.0));
+    // r008: the falloffs start at the limb, not the centre, so a larger disk keeps a tight bright
+    // corona hugging its edge (the "source" the owner missed in r007) instead of a glow that only
+    // reaches past a big disk's rim at a fraction of its strength. Inside the disk: none (the disk
+    // is the sky pass's, crisp).
+    float thl = max(th - SUN_REAL_R, 0.0);
+    float inDisk = smoothstep(SUN_REAL_R * 0.85, SUN_REAL_R * 1.05, th);
+    // uf (forest_golden): with the 3x disk, leaves in front of the sun showed a bright ring at the
+    // limb (no glare inside, the full core just outside). Only open sky skips the glare inside.
+    inDisk = mix(1.0, inDisk, step(1.0, texelFetch(depthtex0, px, 0).r));
+    // Loop 3 (critic uh: a faint pale glare disk still painted over the leaves where the sun sits
+    // behind them): on land the glare close to the sun is cut and fades back in over 2.5 radii, so
+    // leaves in front of a partly hidden sun stay dark, with no ring and no disk.
+    if (texelFetch(depthtex0, px, 0).r < 1.0) inDisk *= mix(0.12, 1.0, smoothstep(SUN_REAL_R * 0.9, SUN_REAL_R * 2.5, th));
+    // r012 pre-publish: the tight corona hugs only the part of the limb that shows. With the disk hidden
+    // behind cloud (sky.glsl now fades it out with the cloud) the corona drew a thin bright outline round
+    // the invisible disk (+4-5 luma, 2-3 px, gem glint views). One tap just inside the limb, on the line
+    // from the sun's centre to this pixel, says whether the disk shows there; only pixels within 2.5 radii.
+    float limbVis = 1.0;
+    if (th < SUN_REAL_R * 2.5) {
+        vec3 sn = normalize(sv);
+        vec3 tng = dir - sn * dot(dir, sn);
+        float tl = length(tng);
+        if (tl > 1e-6) {
+            vec4 pc = gbufferProjection * vec4(normalize(sn + tng / tl * tan(SUN_REAL_R * 0.85)), 1.0);
+            ivec2 q = clamp(ivec2((pc.xy / pc.w * 0.5 + 0.5) * vec2(viewWidth, viewHeight)), ivec2(0), ivec2(viewWidth, viewHeight) - 1);
+            vec3 e = sceneExposed(q);
+            limbVis = step(1.0, texelFetch(depthtex0, q, 0).r) * clamp(max(e.r, max(e.g, e.b)) / want, 0.0, 1.0);
+        }
+    }
+#if QF_SUN_SOFT == 1
+    // r013: no limb, so no corona hugging it (it drew the disc edge the critic saw); the halo and wings
+    // fall from the centre, over the soft sun too.
+    float psf = 0.030 * exp(-th / 0.03) * limbVis + 0.0045 * exp(-th / 0.09);
+    if (texelFetch(depthtex0, px, 0).r < 1.0) psf *= mix(0.12, 1.0, smoothstep(SUN_REAL_R * 0.9, SUN_REAL_R * 2.5, th));
+#else
+    float psf = ((0.12 * exp(-thl / 0.0026) + 0.030 * exp(-thl / 0.016)) * limbVis + 0.0045 * exp(-thl / 0.09)) * inDisk;   // pa: 0.22/0.045/0.006 washed out the gold sky; loop 3: core 0.10 @ 0.0040 -> 0.12 @ 0.0026, a tighter corona
+#endif
+    vec3 E = sunIrradiance() * exposure() * (1.0 - rainStrength);
+    vec3 g = E * psf * vis;
+#if QF_SUN_BLOOM > 0
+    // r012 (owner r011 sunset: "listen to the critic"; critic: "the sun is still a thin white sliver
+    // under the cloud with no hot glow round it ... a bright sun disk and aureole that blooms"). How
+    // Photon and BSL get it: their disk is the real sun's brightness and a wide bloom spreads ~12 % of
+    // it over the frame (Photon: bloom mixed at 0.12 over a six-level pyramid), so a low sun sits in a
+    // big warm glow that lies over the clouds and land round it. A bloom pyramid costs ~0.3 ms at 1440p;
+    // the same shape here is two analytic lobes (about 2 and 7 degrees) round the sun, gold at low sun,
+    // drawn over everything (no inDisk cut: the glow is in the eye), weaker high in the sky.
+    {
+        // Loop 2: in exposed (display) units like BSL's glow, not as a share of the sun's irradiance
+        // (loop 1's 1e-3 share did not show at all): a hot core about 1.7 deg that tone-maps toward
+        // white-gold, and a wide gold lobe about 6 deg.
+        const float BA = QF_SUN_BLOOM == 1 ? 0.5 : (QF_SUN_BLOOM == 2 ? 1.0 : 1.8);
+        float sy = sunDirWorld().y;
+        float low = smoothstep(0.45, 0.02, sy);
+        vec3 tc = mix(vec3(1.0, 0.96, 0.90), vec3(1.0, 0.86, 0.62), low);
+        vec3 tw = mix(vec3(1.0, 0.92, 0.82), vec3(1.0, 0.70, 0.38), low);
+        g += (tc * 0.9 * exp(-th / 0.03) + tw * 0.25 * exp(-th / 0.10)) * BA * mix(0.25, 1.0, low) * visG * (1.0 - rainStrength);
+    }
+#endif
+#if QF_LENS == 1
+    // A faint lens: a six-point starburst close round the sun and three dim ghosts on the line
+    // from the sun through the screen centre, tinted as coated glass reflects.
+    vec2 d = (uv - suv) * vec2(viewWidth / viewHeight, 1.0);
+    float phi = atan(d.y, d.x);
+    float star = pow(abs(cos(3.0 * phi + 0.35)), 90.0) * exp(-th / 0.035) * 0.05;
+    g += E * star * vis;
+    vec2 axis = vec2(0.5) - suv;
+    const vec3 GC[3] = vec3[3](vec3(0.55, 0.75, 1.0), vec3(1.0, 0.75, 0.45), vec3(0.6, 1.0, 0.7));
+    const float GP[3] = float[3](0.62, 1.15, 1.6), GR[3] = float[3](0.030, 0.055, 0.018);
+    for (int k = 0; k < 3; k++) {
+        vec2 c = suv + axis * GP[k] * 2.0;
+        float r = length((uv - c) * vec2(viewWidth / viewHeight, 1.0));
+        g += E * GC[k] * smoothstep(GR[k], GR[k] * 0.6, r) * 0.0035 * vis;
+    }
+#endif
+    return g;
+}
+#endif
+
 void main() {
     ivec2 px = ivec2(gl_FragCoord.xy);
     vec3 col;
+    vec3 glare = vec3(0.0);
+#if QF_SUN == 1
+    glare = sunGlare(px);
+#endif
 #if QF_TAA
 #if QF_CAL_BLOOM > 0 || QF_CAL_GRADE > 0
-    col = display(sceneExposed(px) + calBloom(px));
+    col = display(sceneExposed(px) + calBloom(px) + glare);
 #else
-    col = display(sceneExposed(px));
+    col = display(sceneExposed(px) + glare);
 #endif
 #else
     // Potato: a cheap edge-aware blend over the 4 neighbours where contrast is high.
-    vec3 c = display(sceneExposed(px));
+    vec3 c = display(sceneExposed(px) + glare);
     vec3 n = display(sceneExposed(px + ivec2(0, 1)));
     vec3 s = display(sceneExposed(px + ivec2(0, -1)));
     vec3 e = display(sceneExposed(px + ivec2(1, 0)));
@@ -215,7 +403,9 @@ void main() {
     col = mix(c, (n + s + e + w) * 0.25, k);
 #endif
 
-#if QF_DEBUG_VIEW == 1
+#if QF_DEBUG_VIEW == 16
+    col = display(glare);   // r014: the sun's glare and glow alone (final.glsl sunGlare), over black
+#elif QF_DEBUG_VIEW == 1
     vec4 g1 = texelFetch(colortex1, px, 0);
     if (texelFetch(depthtex0, px, 0).r < 1.0) col = materialDebugColor(unpackMaterial(g1)) * (0.55 + 0.45 * luminance(col));
 #elif QF_DEBUG_VIEW == 2

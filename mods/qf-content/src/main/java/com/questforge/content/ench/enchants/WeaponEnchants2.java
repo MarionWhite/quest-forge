@@ -19,6 +19,7 @@ import net.minecraft.util.DamageSource;
 import com.questforge.content.ench.CombatState;
 import com.questforge.content.ench.EnchantCategory;
 import com.questforge.content.ench.Hostility;
+import com.questforge.content.ench.Mitigation;
 import com.questforge.content.ench.ProcContext;
 import com.questforge.content.ench.QFEnchantment;
 import com.questforge.content.ench.Rarity;
@@ -38,7 +39,10 @@ public class WeaponEnchants2 {
             return 15 + (10 * level);
         }
 
-        /** Each stack bleeds for this fraction of the hit that applied it, per second. */
+        /**
+         * Each stack bleeds for this fraction of the hit that applied it, per
+         * second -- of the hit as it LANDED, after the target's armour.
+         */
         private static final float PER_STACK_OF_HIT = 0.04F;
         /** ...and never less than this, so a fist still draws blood. */
         private static final float PER_STACK_FLOOR = 0.5F;
@@ -51,7 +55,25 @@ public class WeaponEnchants2 {
             // stay short or a single application out-damages everything else here.
             // The per-stack damage scales with the hit: a flat half-heart was
             // invisible against this pack's health pools.
-            float perStack = Math.max(PER_STACK_FLOOR, ctx.damage * PER_STACK_OF_HIT);
+            //
+            // It scales with the hit that LANDS, read after the target's armour
+            // (2026-10-25, decision 0005 P1). LivingHurtEvent runs before armour,
+            // and seeding from the raw figure made the bleed 4% of a 750 swing on
+            // bosses whose armour let 120 of that swing through: Rupture read
+            // +40..48% on Mobzilla, The King and The Queen, more than any other
+            // enchantment, from a Rare (combat results, P1). The ticks still
+            // bypass armour; only the seed is read after it. Old: ctx.damage x
+            // 4%. New: the same 4% of Mitigation.predict(target, hit). Against
+            // an unarmoured target the two are the same number.
+            //
+            // And the hit is the weapon's own, ctx.baseDamage, not ctx.damage
+            // (2026-10-25, decision 0005 P2): the dispatcher runs flat adds and
+            // multipliers first, so a bleed seeded from ctx.damage inherited
+            // Colossus, Cultist and Roulette and Colossus + Rupture read +41
+            // points beyond independence on the Naga. Those boosts now reach the
+            // swing only.
+            float landed = Mitigation.predict(target, ctx.source, ctx.baseDamage);
+            float perStack = Math.max(PER_STACK_FLOOR, landed * PER_STACK_OF_HIT);
             TickedEffects.addBleed(target, ctx.user, 80 + (20 * ctx.level), ctx.level + 1, perStack);
         }
     }
@@ -227,13 +249,30 @@ public class WeaponEnchants2 {
      * same "you are suddenly dangerous" feel with a mechanic that exists.
      */
     public static class Rage extends QFEnchantment {
+        /**
+         * Legendary since 2026-10-25 (decision 0005 P9; was Epic). The census
+         * measured +33% trusted mean, about +25 / +37 / +50 by level on uncapped
+         * bosses, second only to Excalibur and above every other Epic. Rarity
+         * follows measured strength; where it drops is decided separately.
+         */
         public Rage(int id) {
-            super(id, "qf.rage", Rarity.EPIC, EnchantCategory.WEAPON, 3);
+            super(id, "qf.rage", Rarity.LEGENDARY, EnchantCategory.WEAPON, 3);
         }
 
         @Override
         public int getProcChance(int level) {
             return 5 * level;
+        }
+
+        /**
+         * "Does nothing while Excalibur is held." Both grant Strength I and
+         * potion effects do not stack, so the pair measured -43 to -57 points
+         * against independence with no sign to the player (decision 0005 P4; the
+         * proc rates stay 5/10/15%, the census found no cliff to fix).
+         */
+        @Override
+        public String tooltipNote() {
+            return "enchantment.qf.rage.note";
         }
 
         @Override
@@ -405,6 +444,12 @@ public class WeaponEnchants2 {
             return Phase.FLAT;
         }
 
+        /** The mirror of Rage's note: its Strength I is already on this. */
+        @Override
+        public String tooltipNote() {
+            return "enchantment.qf.excalibur.note";
+        }
+
         @Override
         public void onTick(ProcContext ctx) {
             if (ctx.user == null || ctx.world.isRemote) return;
@@ -451,6 +496,14 @@ public class WeaponEnchants2 {
 
         protected abstract EntityLiving create(ProcContext ctx);
 
+        /**
+         * Whether the summon leaves whatever its owner has just struck alone
+         * (TickedEffects.mustYield). Only Bastion's golems do.
+         */
+        protected boolean yieldsToOwner() {
+            return false;
+        }
+
         @Override
         public int getProcChance(int level) {
             return 3 * level;
@@ -468,11 +521,13 @@ public class WeaponEnchants2 {
                     ctx.user.posZ + ctx.rand.nextDouble() * 2 - 1);
 
             EntityLivingBase target = ctx.livingTarget();
-            if (target != null) ally.setAttackTarget(target);
 
             // Registered BEFORE it joins the world: the join event treats a tagged
             // summon that nobody is tracking as an orphan from a previous session.
-            TickedEffects.addSummon(ally, ctx.user, target, 400 + (200 * ctx.level));
+            // And before it is pointed at the target, so a yielding summon is
+            // held off the owner's target from its first tick.
+            TickedEffects.addSummon(ally, ctx.user, target, 400 + (200 * ctx.level), yieldsToOwner());
+            if (target != null) ally.setAttackTarget(target);
             ctx.world.spawnEntityInWorld(ally);
             ctx.world.playSoundAtEntity(ally, "mob.endermen.portal", 0.8F, 0.8F);
         }
@@ -524,6 +579,20 @@ public class WeaponEnchants2 {
             // ever selects IMob and would otherwise ignore a player entirely.
             golem.setPlayerCreated(true);
             return golem;
+        }
+
+        /**
+         * The golem leaves whatever the wielder struck in the last 20 ticks alone
+         * (2026-10-25, decision 0005 P8, option a). Its 7-21 raw hits were taking
+         * the boss's invulnerability frames from the wielder's larger multiplied
+         * hits, and Bastion measured -37% across T2 and -120% on Baba Yaga. Old:
+         * the golem fought the wielder's target. New: it fights the adds while
+         * the wielder keeps swinging at the boss, and takes the boss up again a
+         * second after the wielder stops. See TickedEffects.mustYield.
+         */
+        @Override
+        protected boolean yieldsToOwner() {
+            return true;
         }
     }
 

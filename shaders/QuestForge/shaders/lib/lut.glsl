@@ -6,6 +6,8 @@
 //   y  65,     x 32-63   exposure meter, one column sum per texel (prepare.glsl)
 //   y  96-207, x 0-191   sky-view, lit by the sun   (radiance for unit sun irradiance)
 //   y 208-319, x 0-191   sky-view, lit by the moon  (radiance for unit moon irradiance)
+//   y  96-159, x 192-255 cloud shadow map (r011, QF_CREPUSCULAR 2): cloud transmittance along the light,
+//                        on the plane through the camera normal to the light (lookupCloudShadowMap)
 // Every lookup clamps inside its region so bilinear filtering never bleeds between tables.
 
 uniform sampler2D colortex5;
@@ -18,6 +20,26 @@ const ivec2 LUT_SV_SUN    = ivec2(0, 96);
 const ivec2 LUT_SV_MOON   = ivec2(0, 208);
 const ivec2 LUT_SV_SIZE   = ivec2(192, 112);
 const vec2  LUT_TEX_SIZE  = vec2(256.0, 320.0);
+const ivec2 LUT_CS_ORIGIN = ivec2(192, 96);
+const ivec2 LUT_CS_SIZE   = ivec2(64, 64);
+const float LUT_CS_RANGE  = 4096.0;   // blocks from the camera's light ray to the map's edge
+
+// The light-normal plane's axes for light direction L (world space).
+void cloudMapAxes(vec3 L, out vec3 e1, out vec3 e2) {
+    e1 = normalize(cross(L, abs(L.y) > 0.999 ? vec3(1.0, 0.0, 0.0) : vec3(0.0, 1.0, 0.0)));
+    e2 = cross(e1, L);
+}
+// Map coordinate (0-1) for an offset s (blocks) in that plane: square-root spacing, so the texels
+// are a few blocks wide on the light ray through the camera (where crepuscular rays converge) and
+// ~250 blocks at the edge.
+vec2 cloudMapX(vec2 s) {
+    vec2 x = sign(s) * sqrt(min(abs(s) / LUT_CS_RANGE, vec2(1.0)));
+    return x * 0.5 + 0.5;
+}
+vec2 cloudMapS(vec2 x) {
+    vec2 c = x * 2.0 - 1.0;
+    return sign(c) * c * c * LUT_CS_RANGE;
+}
 
 const ivec2 C_EXPOSURE = ivec2(32, 64);   // r: exposure multiplier, g: metered log2 luminance,
                                           // b + a: log2 exposure, split high/low (prepare.glsl)
@@ -138,4 +160,9 @@ vec3 skyIrradiance(vec3 n) {
     // the warm direct light carries the colour; full again by mid-morning and at night.
     float lowSun = smoothstep(-0.05, 0.02, sunY) * (1.0 - smoothstep(0.10, 0.40, sunY));
     return mix(e, vec3(g), desat) * AMBIENT_GAIN * (1.0 - AMBIENT_LOW_SUN_CUT * lowSun);
+}
+
+float lookupCloudShadowMap(vec3 scenePos, vec3 e1, vec3 e2) {
+    vec2 x = cloudMapX(vec2(dot(scenePos, e1), dot(scenePos, e2)));
+    return texture(colortex5, lutUv(x, LUT_CS_ORIGIN, LUT_CS_SIZE)).r;
 }

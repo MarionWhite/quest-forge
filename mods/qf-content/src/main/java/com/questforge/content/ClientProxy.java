@@ -22,6 +22,13 @@ public class ClientProxy extends CommonProxy {
         // Which pack this is, on the main menu and F3; refusals into the log.
         MinecraftForge.EVENT_BUS.register(new com.questforge.content.client.PackVersionDisplay());
 
+        // The XP level number in the resource pack's colour (mcpatcher/color.properties text.xpbar); vanilla
+        // lime when no pack sets it.
+        com.questforge.content.client.XpBarStyle xp = new com.questforge.content.client.XpBarStyle();
+        MinecraftForge.EVENT_BUS.register(xp);
+        ((net.minecraft.client.resources.IReloadableResourceManager) net.minecraft.client.Minecraft.getMinecraft()
+                .getResourceManager()).registerReloadListener(xp);
+
         // Jukebox audio test harness. Client-side only, so it registers through
         // ClientCommandHandler and needs no packets or integrated server.
         net.minecraftforge.client.ClientCommandHandler.instance.registerCommand(
@@ -94,6 +101,17 @@ public class ClientProxy extends CommonProxy {
             // Release build: tooling was not compiled in.
         } catch (Throwable t) {
             System.out.println("[QuestForgeContent] AutoShot present but unusable: " + t);
+        }
+        // The same for item placement captures (-Dqf.autoplace=<world>).
+        try {
+            Class<?> autoPlace = Class.forName("com.questforge.content.debug.AutoPlace");
+            if (Boolean.TRUE.equals(autoPlace.getMethod("enabled").invoke(null))) {
+                FMLCommonHandler.instance().bus().register(autoPlace.newInstance());
+            }
+        } catch (ClassNotFoundException expected) {
+            // Release build.
+        } catch (Throwable t) {
+            System.out.println("[QuestForgeContent] AutoPlace present but unusable: " + t);
         }
         // The same for the icon bake (-Dqf.iconbake=<file>).
         try {

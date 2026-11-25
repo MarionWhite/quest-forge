@@ -14,6 +14,32 @@ view is unchanged), has block groups big enough for CTM and for judging texture 
   y 68 is a stone plinth under all of it; z 178 is the wall, the camera stands south of it
   (views-world-master.txt: texture_wall, glass_close).
 
+--v1 adds what QF Textures v1 is judged on (2026-10-25, Shader Lab round 8), all on cleared, levelled
+ground west and south of the first wall:
+  x 226-241, z 178  wall 2: stone bricks (plain, mossy, cracked, carved), cobble and mossy
+                    cobble, bookshelves 3x3, a dirt/grass step (grass and dirt sides), and
+                    emerald/lapis/redstone/coal blocks             (view texture_wall2)
+  x 222-242, z 194-204  a farm: wet farmland, a water channel, ripe wheat with a row of every
+                    growth stage, carrots and potatoes               (view farm)
+  x 244-256, z 196-206  leaves: one lone leaf block, a 4x2 hedge, a small oak (trunk + canopy)
+                                                                     (views leaves_close, tree_close)
+  x 262-269, z 200  a stone-brick board with 16 item frames facing north: 8 potions over
+                    8 enchanted books, for custom item textures      (view items_frames)
+
+--modded [LIST] adds a second wall of modded blocks east of the first (x 263-281, same z, five
+rows y 73 down to 69, 19 per row, the list read left to right then down; the top row is glass
+panes and modded glass for the connected-pane decision 0006), for the modded-block
+texture loop (docs/design/textures/modded-blocks.md, "Render requests"; the default list is
+tools/textures/showcase-modded.txt). LIST holds one `modid:name@meta` per line; the numeric IDs
+come from the copied world's own level.dat (FML's registry), so a name the world does not know
+is reported and skipped, never guessed. Views modded_wall and modded_close look at it.
+
+--gems (r012, build into its own copy: --src C:\qfb	extures\world-showcase --dst C:\qfb	extures\world-gems)
+adds a gem display on the plain in front of the wall, for "glassier and more reflective" diamond and emerald
+(ops/checkpoints/r012-textures.md): a diamond floor (x 244-250, z 181-185) and an emerald floor (z 188-192) set flush
+in the grass at y 67, each with a 3-wide, 3-tall pillar of the same gem on its west edge (x 243). Floors catch the sky
+and the low sun at a grazing angle, pillars stand in their reflection. Views gem_glint_d / gem_glint_e / gem_lit.
+
 Never writes to --src. The copy is made once; the wall is rebuilt in it on every run.
 """
 import argparse, io, os, shutil, struct, sys, types, zlib
@@ -90,9 +116,49 @@ def blocks(level):
 W = types.SimpleNamespace(read_region=read_region, write_region=write_region, parse=parse, u8=u8, blocks=blocks)
 
 X0, X1, Z0, Z1, GROUND = 242, 262, 176, 192, 67
+V1_AREAS = [(220, 242, 176, 192), (220, 270, 193, 212)]   # x0, x1, z0, z1 cleared for --v1
 WALL_Z = 178
 CLEAR_TOP = 80
 TRANSPARENT = {0, 20, 95, 102, 160}
+MODDED_X0, MODDED_COLS, MODDED_ROWS = 263, 19, 5   # row 0 (y 73): glass panes and modded glass, decision 0006
+HERE = os.path.dirname(os.path.abspath(__file__))
+
+
+def registry_ids(world):
+    """{'modid:name': id} from the world's level.dat (FML ItemData; block keys start with \\x01)."""
+    root = nbtlib.load(os.path.join(world, "level.dat"))
+    fml = root["FML"] if "FML" in root else root[""]["FML"]
+    out = {}
+    for e in fml["ItemData"]:
+        k = str(e["K"])
+        if k.startswith("\x01"):
+            out[k[1:]] = int(e["V"])
+    return out
+
+
+def read_modded_list(path):
+    out = []
+    for l in open(path, encoding="utf-8"):
+        l = l.split("#", 1)[0].strip()
+        if l:
+            name, _, meta = l.partition("@")
+            out.append((name, int(meta or 0)))
+    return out
+
+
+def modded_wall(entries, ids):
+    """{(x, y, z): (id, meta)} for the modded wall, and the names the world does not register."""
+    b, missing = {}, []
+    for x in range(MODDED_X0 - 1, MODDED_X0 + MODDED_COLS + 1):
+        b[(x, 68, WALL_Z)] = (1, 0)
+    for i, (name, meta) in enumerate(entries[:MODDED_COLS * MODDED_ROWS]):
+        if name not in ids:
+            missing.append(name)
+            continue
+        x = MODDED_X0 + i % MODDED_COLS
+        y = 68 + MODDED_ROWS - i // MODDED_COLS      # the first line of the list is the top row
+        b[(x, y, WALL_Z)] = (ids[name], meta)
+    return b, missing
 
 
 def wall():
@@ -116,10 +182,164 @@ def wall():
     return b
 
 
+def v1_blocks():
+    """{(x, y, z): (id, meta)} for --v1 (module docstring). y GROUND entries replace the grass."""
+    b = {}
+    for x in range(225, 243):
+        b[(x, 68, WALL_Z)] = (1, 0)
+    for x in range(226, 229):                       # stone bricks 3 wide: plain, plain, mossy, carved
+        for y, m in zip(range(69, 73), (0, 0, 1, 3)):
+            b[(x, y, WALL_Z)] = (98, m)
+    b[(228, 69, WALL_Z)] = (98, 2)                  # one cracked
+    for x in (230, 231):                            # cobble, mossy cobble on top
+        for y in range(69, 73):
+            b[(x, y, WALL_Z)] = (48 if y == 72 else 4, 0)
+    for x in range(233, 236):                       # bookshelves 3x3
+        for y in range(69, 72):
+            b[(x, y, WALL_Z)] = (47, 0)
+    b[(237, 69, WALL_Z)] = (3, 0)                   # dirt / grass step: grass sides and dirt
+    b[(237, 70, WALL_Z)] = (3, 0)
+    b[(237, 71, WALL_Z)] = (2, 0)
+    b[(238, 69, WALL_Z)] = (2, 0)
+    b[(238, 69, WALL_Z + 1)] = (2, 0)
+    b[(237, 69, WALL_Z + 1)] = (3, 0)
+    b[(237, 70, WALL_Z + 1)] = (2, 0)
+    for x in (240, 241):                            # coal, redstone, lapis, emerald (bottom up)
+        for y, ident in zip(range(69, 73), (173, 152, 22, 133)):
+            b[(x, y, WALL_Z)] = (ident, 0)
+    # farm
+    for x in range(222, 243):
+        for z in range(194, 205):
+            water = x == 232
+            b[(x, GROUND, z)] = (9, 0) if water else (60, 7)
+            if water:
+                continue
+            if x < 225:
+                b[(x, 68, z)] = (141, 7)            # carrots
+            elif x > 239:
+                b[(x, 68, z)] = (142, 7)            # potatoes
+            elif z == 204:
+                b[(x, 68, z)] = (59, (x - 225) % 8)  # every growth stage along the front row
+            else:
+                b[(x, 68, z)] = (59, 7)
+    # leaves (meta 4 = oak, never decays): a lone block, a hedge, a small oak
+    b[(245, 68, 199)] = (18, 4)
+    for x in range(247, 251):
+        for y in (68, 69):
+            b[(x, y, 199)] = (18, 4)
+    tx, tz = 253, 202
+    for y in range(68, 73):
+        b[(tx, y, tz)] = (17, 0)
+    for y in range(71, 75):
+        rr = 2 if y < 73 else 1
+        for x in range(tx - rr, tx + rr + 1):
+            for z in range(tz - rr, tz + rr + 1):
+                if (x, y, z) in b:
+                    continue
+                if abs(x - tx) == rr and abs(z - tz) == rr and (y == 72 or (x + z + y) % 2):
+                    continue                        # round the canopy's corners
+                b[(x, y, z)] = (18, 4)
+    b[(tx, 75, tz)] = (18, 4)
+    # item board
+    for x in range(261, 271):
+        for y in range(68, 72):
+            b[(x, y, 200)] = (98, 0)
+    return b
+
+
+def gem_display():
+    """{(x, y, z): (id, meta)} for --gems (module docstring). y GROUND entries replace the grass."""
+    b = {}
+    for ident, z0 in ((57, 181), (133, 188)):          # diamond block, emerald block
+        for x in range(244, 251):
+            for z in range(z0, z0 + 5):
+                b[(x, GROUND, z)] = (ident, 0)
+        for y in range(GROUND + 1, GROUND + 4):
+            for z in range(z0 + 1, z0 + 4):
+                b[(243, y, z)] = (ident, 0)
+    return b
+
+
+def gem_gallery15(ids=(57, 133), metas=(0, 0)):
+    """{(x, y, z): (id, meta)} for --gems15 (r015, ops/checkpoints/r015-textures.md): the same gem at three distances in
+    one light. Floors 16 long (x 232-247) flush in the grass, diamond z 181-185 and emerald z 187-191 (grass z 186
+    between); a 3x3, 3-tall pillar on each floor's west end (x 232-234); a lone block of each on the grass east of the
+    floors (x 255; diamond z 185, emerald z 188). Views gem15_close / gem15_pillar / gem15_floor (views-r015-gems.txt).
+    r016 --chisel16 passes Chisel's variant ids and metas (diamond, emerald) for the same layout."""
+    b = {}
+    for ident, meta, z0 in ((ids[0], metas[0], 181), (ids[1], metas[1], 187)):
+        for x in range(232, 248):
+            for z in range(z0, z0 + 5):
+                b[(x, GROUND, z)] = (ident, meta)
+        for y in range(GROUND + 1, GROUND + 4):
+            for x in range(232, 235):
+                for z in range(z0 + 1, z0 + 4):
+                    b[(x, y, z)] = (ident, meta)
+    b[(255, GROUND + 1, 185)] = (ids[0], metas[0])
+    b[(255, GROUND + 1, 188)] = (ids[1], metas[1])
+    return b
+
+
+# Item frames on the board (x 262-269, y 70 potions, y 69 books), facing north (Direction 2).
+FRAME_POTIONS = [8193, 8194, 8195, 8197, 8198, 8201, 8205, 16388]      # regen, swift, fire res,
+#   healing, night vision, strength, water breathing, splash poison
+FRAME_BOOKS = [(0, 4), (16, 5), (20, 2), (32, 5), (33, 1), (34, 3), (35, 3), (48, 5)]   # protection,
+#   sharpness, fire aspect, efficiency, silk touch, unbreaking, fortune, power
+
+
+def item_frames(ids):
+    """[(chunk x, chunk z, entity Compound)] for the board's frames. ids: the world's item ids."""
+    import uuid
+    out = []
+    pot, book = ids.get("minecraft:potion", 373), ids.get("minecraft:enchanted_book", 403)
+    rows = [(70, [(pot, d, None) for d in FRAME_POTIONS]), (69, [(book, 0, e) for e in FRAME_BOOKS])]
+    for y, items in rows:
+        for i, (ident, dmg, ench) in enumerate(items):
+            x, z = 262 + i, 200
+            item = nbtlib.Compound({"id": nbtlib.Short(ident), "Count": nbtlib.Byte(1), "Damage": nbtlib.Short(dmg)})
+            if ench:
+                item["tag"] = nbtlib.Compound({"StoredEnchantments": nbtlib.List[nbtlib.Compound](
+                    [nbtlib.Compound({"id": nbtlib.Short(ench[0]), "lvl": nbtlib.Short(ench[1])})])})
+            u = uuid.uuid5(uuid.NAMESPACE_DNS, f"qf-frame-{x}-{y}")
+            most, least = (u.int >> 64), u.int & ((1 << 64) - 1)
+
+            def sgn(v):
+                return v - (1 << 64) if v >= 1 << 63 else v
+            e = nbtlib.Compound({
+                "id": nbtlib.String("ItemFrame"),
+                "Pos": nbtlib.List[nbtlib.Double]([x + 0.5, y + 0.5, z + 0.5 - 0.5625]),
+                "Motion": nbtlib.List[nbtlib.Double]([0.0, 0.0, 0.0]),
+                "Rotation": nbtlib.List[nbtlib.Float]([180.0, 0.0]),
+                "FallDistance": nbtlib.Float(0), "Fire": nbtlib.Short(-1), "Air": nbtlib.Short(300),
+                "OnGround": nbtlib.Byte(0), "Dimension": nbtlib.Int(0), "Invulnerable": nbtlib.Byte(0),
+                "PortalCooldown": nbtlib.Int(0),
+                "UUIDMost": nbtlib.Long(sgn(most)), "UUIDLeast": nbtlib.Long(sgn(least)),
+                "TileX": nbtlib.Int(x), "TileY": nbtlib.Int(y), "TileZ": nbtlib.Int(z),
+                "Direction": nbtlib.Byte(2), "Dir": nbtlib.Byte(2),
+                "Item": item, "ItemDropChance": nbtlib.Float(1.0), "ItemRotation": nbtlib.Byte(0)})
+            out.append((x >> 4, z >> 4, e))
+    return out
+
+
+def item_ids(world):
+    """{'modid:name': id} for items, from the world's level.dat (FML item keys start with \\x02)."""
+    root = nbtlib.load(os.path.join(world, "level.dat"))
+    fml = root["FML"] if "FML" in root else root[""]["FML"]
+    return {str(e["K"])[1:]: int(e["V"]) for e in fml["ItemData"] if str(e["K"]).startswith("\x02")}
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--src", default=r"C:\qfb\world-master")
     ap.add_argument("--dst", default=r"C:\qfb\textures\world-showcase")
+    ap.add_argument("--modded", nargs="?", const=os.path.join(HERE, "showcase-modded.txt"),
+                    help="also build the modded-block wall from this list (default: tools/textures/showcase-modded.txt)")
+    ap.add_argument("--v1", action="store_true", help="also build the QF Textures v1 scenes (module docstring)")
+    ap.add_argument("--gems", action="store_true", help="also build the r012 gem display (module docstring)")
+    ap.add_argument("--gems15", action="store_true", help="r015: the gem gallery instead (gem_gallery15)")
+    ap.add_argument("--chisel16", action="store_true",
+                    help="r016: the --gems15 gallery in Chisel's Simple Diamond Block (meta 6) and Smooth Emerald (meta 3), "
+                         "ids from the world's registry (build_qf_textures.py CHISEL_GEMS)")
     a = ap.parse_args()
     if os.path.abspath(a.src) == os.path.abspath(a.dst):
         sys.exit("--dst must differ from --src")
@@ -132,11 +352,38 @@ def main():
             os.remove(p)
 
     place = wall()
+    x1 = X1
+    if a.modded:
+        entries = read_modded_list(a.modded)
+        extra, missing = modded_wall(entries, registry_ids(a.dst))
+        place.update(extra)
+        x1 = MODDED_X0 + MODDED_COLS + 2
+        print("modded wall: %d of %d blocks placed" % (sum(1 for k in extra if k[1] > 68), len(entries)))
+        if missing:
+            print("  not in this world's registry, skipped: " + ", ".join(missing))
+    if a.chisel16:
+        ids = registry_ids(a.dst)
+        place.update(gem_gallery15((ids["chisel:diamond_block"], ids["chisel:emerald_block"]), (6, 3)))
+        print("chisel gallery: chisel:diamond_block %d meta 6, chisel:emerald_block %d meta 3"
+              % (ids["chisel:diamond_block"], ids["chisel:emerald_block"]))
+    elif a.gems15:
+        place.update(gem_gallery15())
+    elif a.gems:
+        place.update(gem_display())
+    areas = [(X0, x1, Z0, Z1)]
+    frames = []
+    if a.v1:
+        place.update(v1_blocks())
+        areas += V1_AREAS
+        frames = item_frames(item_ids(a.dst))
+        print("v1 scenes: wall 2, farm, leaves, %d item frames" % len(frames))
     path = os.path.join(a.dst, "region", "r.0.0.mca")
     chunks = W.read_region(path)
     touched = 0
-    for cx in range(X0 // 16, X1 // 16 + 1):
-        for cz in range(Z0 // 16, Z1 // 16 + 1):
+    todo = sorted({(cx, cz) for ax0, ax1, az0, az1 in areas
+                   for cx in range(ax0 // 16, ax1 // 16 + 1) for cz in range(az0 // 16, az1 // 16 + 1)})
+    for cx, cz in todo:
+        if True:
             raw, comp, ts = chunks[(cx, cz)]
             nbt = W.parse(raw, comp)
             lv = nbt["Level"]
@@ -159,25 +406,57 @@ def main():
             def setb(x, y, z, ident, meta=0):
                 bl, d, add = get(y >> 4)
                 i = (y & 15) * 256 + z * 16 + x
-                bl[i] = ident
+                # 1.7.10 block IDs are 12 bits: the low byte in Blocks, the high nibble in Add
+                # (modded IDs run past 255; the Add array is made on first need).
+                bl[i] = ident & 0xFF
+                hi = ident >> 8
+                if add is None and hi:
+                    add = np.zeros(2048, np.uint8)
+                    arrays[y >> 4][2] = add
                 if i % 2 == 0:
                     d[i >> 1] = (d[i >> 1] & 0xF0) | meta
+                    if add is not None:
+                        add[i >> 1] = (add[i >> 1] & 0xF0) | hi
                 else:
                     d[i >> 1] = (d[i >> 1] & 0x0F) | (meta << 4)
-                if add is not None:
-                    add[i >> 1] &= 0xF0 if i % 2 == 0 else 0x0F
+                    if add is not None:
+                        add[i >> 1] = (add[i >> 1] & 0x0F) | (hi << 4)
 
             for lx in range(16):
                 for lz in range(16):
                     x, z = cx * 16 + lx, cz * 16 + lz
-                    if not (X0 <= x <= X1 and Z0 <= z <= Z1):
+                    if not any(ax0 <= x <= ax1 and az0 <= z <= az1 for ax0, ax1, az0, az1 in areas):
                         continue
                     for y in range(GROUND - 3, GROUND):
                         setb(lx, y, lz, 3)
-                    setb(lx, GROUND, lz, 2)
+                    setb(lx, GROUND, lz, *place.get((x, GROUND, z), (2, 0)))
                     for y in range(GROUND + 1, CLEAR_TOP):
                         ident, meta = place.get((x, y, z), (0, 0))
                         setb(lx, y, lz, ident, meta)
+            # Sky light: the clearing removed hills, and their sections keep the old dark sky light
+            # (LightPopulated=0 does not relight them before FrameBench measures: r008's first
+            # renders had black patches in the wheat). Columns we cleared get full sky light
+            # above their top block and none below; the game refines it from there.
+            cleared = [(lx, lz) for lx in range(16) for lz in range(16)
+                       if any(ax0 <= cx * 16 + lx <= ax1 and az0 <= cz * 16 + lz <= az1 for ax0, ax1, az0, az1 in areas)]
+            for lx, lz in cleared:
+                x, z = cx * 16 + lx, cz * 16 + lz
+                top = max([y for (px, y, pz) in place if (px, pz) == (x, z) and place[(px, y, pz)][0] not in TRANSPARENT]
+                          + [GROUND])
+                for sy in range(0, CLEAR_TOP // 16 + 1):
+                    sec = secs.get(sy)
+                    if sec is None or "SkyLight" not in sec:
+                        continue
+                    sl = W.u8(sec["SkyLight"])
+                    for yy in range(16):
+                        y = sy * 16 + yy
+                        i = yy * 256 + lz * 16 + lx
+                        v = 15 if y > top else 0
+                        if i % 2 == 0:
+                            sl[i >> 1] = (sl[i >> 1] & 0xF0) | v
+                        else:
+                            sl[i >> 1] = (sl[i >> 1] & 0x0F) | (v << 4)
+                    sec["SkyLight"] = nbtlib.ByteArray(sl.view(np.int8))
             for sy, (bl, d, add) in arrays.items():
                 s = secs[sy]
                 s["Blocks"], s["Data"] = nbtlib.ByteArray(bl.view(np.int8)), nbtlib.ByteArray(d.view(np.int8))
@@ -192,6 +471,14 @@ def main():
                     ys = np.nonzero(solid[:, lz, lx])[0]
                     hm[lz, lx] = (ys.max() + 1) if len(ys) else 0
             lv["HeightMap"] = nbtlib.IntArray(hm.ravel())
+            # item frames: drop any frame this script placed before, then add this run's
+            ents = lv.get("Entities") or nbtlib.List[nbtlib.Compound]()
+            mine = {(int(e["TileX"]), int(e["TileY"]), int(e["TileZ"])) for _, _, e in frames}
+            keep = [e for e in ents if not (str(e.get("id")) == "ItemFrame" and "TileX" in e
+                                            and (int(e["TileX"]), int(e["TileY"]), int(e["TileZ"])) in mine)]
+            keep += [e for fx, fz, e in frames if (fx, fz) == (cx, cz)]
+            if frames or ents:
+                lv["Entities"] = nbtlib.List[nbtlib.Compound](keep)
             lv["LightPopulated"] = nbtlib.Byte(0)
             buf = io.BytesIO()
             nbt.write(buf)

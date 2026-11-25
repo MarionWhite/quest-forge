@@ -1,0 +1,22 @@
+{
+  "state": "online",
+  "online": ["Dev", "MarionWhite", "Kestrel_7"],
+  "count": 3,
+  "max": 15,
+  "tps": {
+    "at": "2026-10-25T21:08:04Z",
+    "overall": {"ms": 11.4, "tps": 20.0},
+    "dims": {
+      "0": {"ms": 8.9, "tps": 20.0},
+      "-1": {"ms": 0.4, "tps": 20.0},
+      "7": {"ms": 1.6, "tps": 20.0},
+      "1": {"ms": 0.1, "tps": 20.0}
+    }
+  },
+  "last_restart": "2026-10-25T05:00:21Z",
+  "uptime_s": 58063,
+  "updated_at": "2026-10-25T21:08:04Z",
+  "minecraft": "1.7.10",
+  "pack": {"date": "2026-10-17", "fingerprint": "3f7f089e6508", "mods": 144},
+  "reason": ""
+}

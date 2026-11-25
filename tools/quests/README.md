@@ -36,24 +36,52 @@ The `ids` check skips the `hbm:` namespace in the server book only.
 | `ids` | an item id that is not in `registry.json` (exact, case-sensitive), and anything on the blocklist below. |
 | `cheese` | one claim of a quest's reward (all item rewards plus any single choice option) fully completes a quest it unlocks. Warns when it completes a quest that is not upstream of it. Quests that ask only for a Lucky Block, loot bag or tome are reward tutorials and are skipped. |
 | `stack` | a retrieval task asking for more than one of an unstackable item (swords, armour, tools, by name). Warns on such rewards. |
-| `text` | `a` before a vowel ("a Anvil"), "Beastiary" for the tab (the Lycanites GUI is spelled that way, so "Lycanites' Beastiary" is allowed), placeholder words, `..`. |
+| `text` | `a` before a vowel ("a Anvil"), "Beastiary" for the tab (the Lycanites GUI is spelled that way, so "Lycanites' Beastiary" is allowed), placeholder words, `..`. A `[WRITE: ...]` placeholder (what a data patch leaves for the writers) is a warning in a draft and an error in the pack and server books. |
 | `hunt` | a `bq_standard:hunt` target that is not in `entities.json`, or a `bq_standard:location` dimension that is not. BQ never checks a hunt target when the book loads: a misspelt name is a quest nobody can finish, and no log line says so. |
-| `path` | a quest that needs a HIDDEN quest, a prerequisite cycle, or a numbered chapter that can open before (or together with) the one before it. Prints, per chapter, the quest that opens it, what that quest needs, and how many quests come first. |
+| `path` | a quest that needs a HIDDEN quest, a prerequisite cycle, or an act (numbered chapter) that can open before (or together with) the one before it. Prints, per tab, the quest that opens it, what that quest needs, and how many quests come first. |
+| `obtain` | **warns** on a retrieval task whose item the dead-item census ([`../../docs/reference/dead-items.md`](../../docs/reference/dead-items.md), `dead-items.json` beside it) does not call `ok`: creative-only, technical, hidden, no known source, or never listed by the item dump. `ids` proves an id is registered; `obtain` asks whether a player can get it. The census is research, not a test, so a finding is a warning (visible on every run, `check` still passes) and becomes an **error** only with `--strict` (on `check` or `obtain`) or for a quest in `OBTAIN_VERIFIED_BAD` in `qb.py`, where a quest goes once someone has confirmed in game that the ask is impossible (empty today). `OBTAIN_ALLOW` is the opposite table: quests verified obtainable in game, whose census verdict is dropped (empty too). Also warns on a reward whose item is creative, technical or hidden. Needs the census file; without it the check only warns. |
 
-**The chapter order `path` enforces.** Each numbered chapter's cheapest entry quest must need
-everything the previous chapter's entry needs, and more; no earlier chapter may need a later
-chapter's quest. Two numbered tabs are exceptions, set in `SIDE_CHAPTERS` and
-`LADDER_CHAPTERS`: Ch 2 Base is a side tab that opens with Ch 1, and Ch 9 ProjectE is a
-ladder whose rungs open at the boss each recipe needs (the Philosopher's Stone at the Lich),
-so only its last rung has to come after Ch 8 opens. "Needs" is the cheapest set of quests
-that must be complete, so an OR prerequisite counts its cheapest branch.
+**What `obtain` flags today (census of 2026-10-25, dump of 2026-10-17).** Nine task warnings
+in the pack book, the same minus quest 440 in the server book (it lacks the ChocolateQuest
+quests), the same nine plus one reward warning in the WP-5 and WP-6 drafts. None has been tried
+in game yet, so both tables are empty and `qb.py check` passes; `qb.py obtain --strict --book
+pack` turns the nine into errors. When a hand check confirms one, move it to
+`OBTAIN_VERIFIED_BAD` (it then fails every run until the quest is fixed); when a hand check
+shows the item is obtainable after all, put it in `OBTAIN_ALLOW` and fix the research line in
+`tools/items/descriptions.json`:
+
+| Quest | Asks for | Census says |
+|---|---|---|
+| 33 MC Helicopters: Take Flight | `mcheli:bell47g` | never listed by the item dump: MCHeli reads `assets/mcheli/*/*.txt` from the working directory, which the dump client lacked (and the play server lacks; see `docs/setup/hosting-a-server.md`) |
+| 45 Spirit World | `witchery:spiritportal` | technical block, not obtainable; the quest should be a location task for the Spirit World |
+| 53 Trophy Hunter | `statues:statues.statue` | hidden block item with no recipe; quest 208 is its only source |
+| 120 HEE: The Biome Compass | `HardcoreEnderExpansion:biome_core` | hidden, untranslated, unresearched |
+| 134, 135, 144 (TragicMC keys, Doombringer) | `TragicMC:dimensionalKeySynapse`, `dimensionalKeyNether` | research says creative only; the quest text claims a recipe the dump does not have |
+| 432 A Spare You | `Sync:Sync_ItemPlaceholder` | no recipe in the dump; Sync registers its core recipe per world (`Sync.cfg hardcoreMode=2`), which a title-screen dump never sees |
+| 440 The Ridge Has a Landlord | `chocolateQuest:banner` | creative only (no recipe, loot or drop in this pack) |
+| 476 Bring Your Own Music (drafts only) | reward `qfcontent:qf_jukebox` | warning: the census (dump of 2026-10-17) says creative only. Stale since 2026-10-25: qf-content `ModRecipes.jukebox()` makes it from a vanilla jukebox and a blank Record (decision 0004, act1-04 A); the warning goes when the dump is rebuilt |
+
+Verify each in game before touching the book; a description that says "creative only" is
+research, not a test.
+
+**The order `path` enforces.** A tab is a link in the chain when its name is numbered: `Ch N:`
+(the pre-WP-6 book) or an act tab from `act-structure.md` (`Arrival` is act 0, `I: Broken Sky`
+to `IV: Titans` are 1-4, `Chronicle` is 5; `chapter_number()`). Several tabs may share an act
+(`II: Twilight` beside `II: Witchery`) and are checked as one. Every entry quest of every tab
+of an act must need everything the previous act's opening entry needs, and more; no earlier
+act may need a later act's quest. Tabs named in `SIDE_CHAPTERS` and `LADDER_CHAPTERS` (keyed
+by tab name) are exceptions: Base is a side tab that opens with the Prologue, and ProjectE is a
+ladder whose rungs open at the boss each recipe needs (the Philosopher's Stone at the Lich), so
+only its last rung has to come after the act the table names (Ch 8, or Act IV). "Needs" is the
+cheapest set of quests that must be complete, so an OR prerequisite counts its cheapest branch.
 
 ## Drafts
 
 `drafts/` holds copies of the pack book with a proposed work package applied, for the author to
 review before anything touches the real books. Every `qb.py` command takes one with
-`--book PATH`. A draft is rebuilt from the current pack book each time its patch runs without
-`--book`, so it never drifts; nothing installs it.
+`--book PATH`. A draft is rebuilt from its base (the pack book for WP-5, the WP-5 draft for
+WP-6) each time its patch runs without `--book`, so it never drifts; nothing installs it. Running
+a patch with `--book` on its own draft changes no bytes.
 
 ## `entities.json`
 
@@ -63,7 +91,11 @@ gives `ModId.name`; `registerGlobalEntityID` first gives the plain name, which t
 confirmed in a server trial with `/qfcensus find <text>` (qf-content), which lists the keys of
 `EntityList.stringToClassMapping`, the map BQ looks targets up in. Plain `/summon` cannot take
 the names with spaces (`TwilightForest.Snow Queen`, `The King`). BQ's hunt task (Standard Expansion `TaskHunt`) credits a kill when the killer is a
-player, to every member of that player's party; with `subtypes` on (the default) it also
+player, to every member of that player's party; the drafts turn parties off
+(`party_enable` 0, [decision 0004](../../docs/decisions/0004-prologue-and-act-i.md)), so
+stock BQ credits the killer alone. qf-content is getting damage-based credit for boss hunts
+(everyone who damaged the boss; the killing blow highlighted in chat), which is code, not
+book data. With `subtypes` on (the default) BQ also
 credits subclasses, so never target a base class such as TF's `Tower Ghast` or `Minotaur`.
 Kills by pets, minions or the environment do not count.
 
@@ -86,6 +118,11 @@ sealed tomes `tome0`–`tome4`, diamonds, diamond blocks, golden apples, nether 
 **Ungated** means no boss quest is upstream: neither the quest nor any prerequisite is in
 `BOSS_QUESTS` (Twilight bosses, the three OreSpawn titans, Rahovart), and its task does not
 ask for a boss quest's proof item. It is the faucet a fresh player can drink from.
+
+**By act.** After the per-line table, one row per act (the tabs `chapter_number()` places in
+the chain, side tabs excluded) with the best case against the audit 4.5 budget (`ACT_BUDGET`):
+the most valuable loot bag and sealed tome tier, Lucky Blocks, and diamonds counting 9 per
+block. `OVER` marks a column past its budget. `Ch N` tabs have no act budget.
 
 ## The registry
 
@@ -119,12 +156,16 @@ patch can be re-run. `patches/` holds the applied work packages:
 | `patches/wp2_tier_leaks.py` | WP-2: rewards that skip tiers, and the Pets/Heroes faucet |
 | `patches/wp3_chapter_order.py` | WP-3: cross-chapter prerequisites, later chapters hidden until they open, chapter-order texts |
 | `patches/wp4_boss_hunts.py` | WP-4: boss proofs become hunt and location tasks; the Overlord and Mutant quests |
-| `patches/wp5_prologue.py` | WP-5 **draft, not applied**: the Prologue tab "Arrival", plus the WP-10 voice sample on the old Ch 1. With no `--book` it writes `drafts/DefaultQuests.wp5.json`; `--book all` applies it once approved ([review](../../docs/design/quests/review-2026-10-19.md)) |
+| `patches/wp5_prologue.py` | WP-5 **draft, not applied**: the Prologue tab "Arrival", 16 quests, built to the owner's answers of 2026-10-25 ([decision 0004](../../docs/decisions/0004-prologue-and-act-i.md)): no parties (no 478, `party_enable` 0, no "your party" in any text) and no house voice (a moved quest keeps the shipped text; a new quest carries a `[WRITE: ...]` placeholder with its checked facts and the ask line). With no `--book` it writes `drafts/DefaultQuests.wp5.json`; `--book all` applies it once the texts exist ([review](../../docs/design/quests/review-2026-10-19.md)) |
+| `patches/wp6_acts.py` | WP-6 **draft, not applied**: the four-act spine ([act-structure](../../docs/design/quests/act-structure.md)): act tabs, the finales 481-486, the Nether and Wither quests, Pack Master as the convergence. Parameterised by the Decisions page answers (`--decisions docs/decisions/answers/s001.json`, or `--act1-02 B` per card; defaults are the recommendations). Parties are not a card: `--no-parties` is always on (decision 0004; it removes 478 from an older base, sets `party_enable` 0 and cuts the two "your party" clauses), and an answers file with srv-quests = A stops the patch. Builds `drafts/DefaultQuests.wp6.json` from the WP-5 draft; new text is left as `[WRITE: ...]` placeholders for the writers ([brief](../../docs/design/quests/wp6-writing-brief.md)). `--book all` applies it once the texts exist, after WP-5 |
 
 More helpers for those: `set_prereqs`, `set_visibility`, `set_tasks` (checks the task list it
-expects), `add_quest` (copies every property key from an existing quest), `move_in_line`,
-`set_pack_version`, `add_line` (a new tab; later tabs move right), `move_to_line`, and the task
-builders `retrieval`, `hunt`, `location`, `checkbox`, `item_reward`, `choice_reward`, written with the keys and defaults Standard Expansion 3.0.181 reads.
+expects), `set_task_field`, `add_quest` (copies every property key from an existing quest),
+`remove_quest` (refuses while anything needs it), `add_reward_stack`, `move_in_line`,
+`set_pack_version`, `add_line` (a new tab; later tabs move right), `rename_line`, `remove_line`
+(an empty tab only), `set_tab_order`, `line_by_name`, `move_to_line` (position and size), and
+the task builders `retrieval`, `hunt`, `location`, `checkbox`, `item_reward`, `choice_reward`,
+written with the keys and defaults Standard Expansion 3.0.181 reads.
 
 **Booting a changed book.** BQ writes `world/betterquesting/QuestDatabase.json` only when the
 database is dirty, so a trial that only starts and stops leaves no copy to inspect. End the
