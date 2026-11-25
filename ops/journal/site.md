@@ -1,5 +1,14 @@
 # Site journal (newest first)
 
+- 2026-11-24 (Mac) site-publish: merged origin/main (61060a2, 400 commits) into the site work on `mac/site-publish`
+  (worktree QuestForge-wt/site-publish), merge bb0f77e, not pushed. 26 conflicts: /online/ is the PC's; the homepage is
+  the Mac's plus the PC's live Who's online card and Decisions card, Shader Lab card still off (owner: shader progress
+  private; /shaders/ deployed by URL with every round); pages.yml copies every folder once; ops/ was the PC's e0a1ca4
+  snapshot on the Mac, so untouched files took the PC's version and BOARD/DECISIONS were 3-way merged on it. Checks:
+  check_sounds 0 missing, check_krypt_plan OK, nav_check idle + 15 bosses 0 violations, all homepage links resolve,
+  9 pages load with no console errors (warnings only: three.js empty-texture, headless autoplay, the relay's CORS from
+  localhost on /shaders/). No secrets or personal details in the 221 commits; mobs-local never committed. Open before
+  push: the game-asset licence (vanilla textures and sounds, OreSpawn sounds ship in site/lib, lucky, graves).
 - 2026-10-28 (Mac) round 8b critic, coordinator. Passed on filmstrips and 1:1 crops: scares-B (J-press frames before
   and after: no mob before the first frame; hotbar sheet of all 16 + 2 gap deaths), scares-A (Wither push and reveal
   crops, back-off crop; Zombie flight film at 0.42), scares-C after one round of fixes (heaps were dark woven domes,
